@@ -1,0 +1,27 @@
+{
+  "name": "ethica",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.11.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev:api": "pnpm --filter api run dev",
+    "dev:web": "pnpm --filter web run dev",
+    "check": "pnpm -r exec tsc --noEmit && pnpm biome check . && pnpm vitest run",
+    "format": "biome check . --write",
+    "docs:sync": "node scripts/docs/sync-docs.mjs",
+    "docs:check": "node scripts/docs/sync-docs.mjs --check",
+    "docs:context": "node scripts/docs/sync-docs.mjs --context"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.11",
+    "@ethica/contracts": "workspace:*",
+    "@ethica/db": "workspace:*",
+    "tsx": "^4.19.2",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.11",
+    "zod": "^4.5.4"
+  }
+}

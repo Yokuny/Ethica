@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build-gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # Banco do CI: Atlas Local em container, igual ao dev (RUN_BOOK.md#banco-de-dados).
+    services:
+      mongo-test:
+        image: mongodb/mongodb-atlas-local:8
+        ports:
+          - 37017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 24
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Build gate (AD-031) — mesmo comando exato do script "check" da raiz:
+      # tsc --noEmit (todo o monorepo) && biome check (lint+format) && vitest
+      # run (suíte completa: unit/integration/e2e/structural + evals/).
+      - run: pnpm run check
+        env:
+          MONGODB_URI: mongodb://localhost:37017/ethica?directConnection=true
+      # Gateway de documentação (AGENTS.md): docs/index.* em dia com os
+      # feature.md e frontmatter válido (áreas, decisões AD-NNN, specs).
+      - run: pnpm docs:check

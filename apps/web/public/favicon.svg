@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img">
+  <title>Ethica</title>
+  <rect width="32" height="32" rx="8" fill="#1d1c20"/>
+  <g stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 7v18M11 25h10M9 11h14"/>
+    <path d="M9 11l-3 7a3 3 0 0 0 6 0l-3-7M23 11l-3 7a3 3 0 0 0 6 0l-3-7"/>
+  </g>
+</svg>

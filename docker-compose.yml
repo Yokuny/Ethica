@@ -1,0 +1,61 @@
+x-app: &app
+  build:
+    context: .
+    dockerfile: Dockerfile.dev
+  env_file: .env
+  environment:
+    MONGODB_URI: mongodb://mongo:27017/ethica?directConnection=true
+  depends_on:
+    mongo:
+      condition: service_healthy
+  volumes:
+    - .:/app
+    - /app/node_modules
+    - /app/apps/api/node_modules
+    - /app/apps/web/node_modules
+    - /app/packages/contracts/node_modules
+    - /app/packages/db/node_modules
+    - /app/packages/ui/node_modules
+
+services:
+  # Atlas Local (Atlas Search). Porta do host 37017 para não colidir com um Mongo na 27017.
+  mongo:
+    image: mongodb/mongodb-atlas-local:8
+    container_name: ethica-mongo
+    restart: unless-stopped
+    ports:
+      - '37017:27017'
+    volumes:
+      - mongo-atlas-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand({ ping: 1 })']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  api:
+    <<: *app
+    container_name: ethica-api
+    working_dir: /app/apps/api
+    # Chama o tsx direto (em vez de `pnpm run dev`) — o `pnpm --filter` faz um
+    # check de deps a cada start que quebra com "disk I/O error" no índice
+    # sqlite do store quando /app é bind mount (Docker Desktop no macOS).
+    command: /app/node_modules/.bin/tsx watch src/server.ts
+    ports:
+      - '18080:18080'
+
+  web:
+    <<: *app
+    container_name: ethica-web
+    working_dir: /app/apps/web
+    # Caminho local a apps/web: `vite` é dependência direta só de apps/web, então
+    # o bin da raiz não é garantido entre reinstalls.
+    command: /app/apps/web/node_modules/.bin/vite --host 0.0.0.0
+    depends_on:
+      - api
+    ports:
+      - '15173:15173'
+
+volumes:
+  mongo-atlas-data:

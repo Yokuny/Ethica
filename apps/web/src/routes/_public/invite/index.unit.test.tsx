@@ -1,0 +1,103 @@
+// @vitest-environment jsdom
+import '@testing-library/jest-dom/vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { cleanup, render, screen } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const getMock = vi.fn();
+const postMock = vi.fn();
+vi.mock('@/lib/api/client.api.js', () => ({ get: getMock, post: postMock }));
+
+const navigateMock = vi.fn();
+const searchMock = vi.fn();
+// useLocation/useMatches/useRouter: dependências da moldura pública — sem
+// <RouterProvider> nestes testes isolados de página, os hooks reais do
+// TanStack Router lançam. Mocks mínimos só para não quebrar o render; o
+// comportamento de breadcrumb/back-button do Card não é escopo destes testes.
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    useNavigate: () => navigateMock,
+    useSearch: () => searchMock(),
+    useLocation: () => ({ pathname: '/' }),
+    useMatches: () => [],
+    useRouter: () => ({ history: { back: vi.fn() } }),
+  };
+});
+
+const { inviteSearchSchema } = await import('./@interface/invite.interface.js');
+const { InvitePage } = await import('./index.js');
+
+const renderInvitePage = () => {
+  const queryClient = new QueryClient();
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <InvitePage />
+    </QueryClientProvider>,
+  );
+};
+
+describe('InvitePage', () => {
+  afterEach(() => {
+    cleanup();
+    getMock.mockReset();
+    postMock.mockReset();
+    navigateMock.mockReset();
+    searchMock.mockReset();
+  });
+
+  it('shows a fallback message without crashing when the token search param is missing (FND-10/AC1)', () => {
+    searchMock.mockReturnValue({});
+
+    renderInvitePage();
+
+    expect(screen.getByText('Link inválido.')).toBeInTheDocument();
+    expect(getMock).not.toHaveBeenCalled();
+  });
+
+  it('treats a non-string token as missing instead of failing search validation', () => {
+    expect(inviteSearchSchema.parse({ token: ['bad-token'] })).toEqual({ token: undefined });
+  });
+
+  it('renders the 410 message from the ApiResponse for an invalid/expired token, without breaking the screen', async () => {
+    searchMock.mockReturnValue({ token: 'expired-token' });
+    getMock.mockResolvedValue({ success: false, message: 'Este convite expirou.' });
+
+    renderInvitePage();
+
+    expect(await screen.findByText('Este convite expirou.')).toBeInTheDocument();
+    expect(getMock).toHaveBeenCalledWith('/invites/expired-token');
+  });
+
+  it('offers manual retry after a failed invitation lookup and renders the form after recovery', async () => {
+    searchMock.mockReturnValue({ token: 'valid-token' });
+    getMock
+      .mockResolvedValueOnce({ success: false, message: 'Indisponível.' })
+      .mockResolvedValueOnce({ success: true, data: { tenantName: 'Empresa X', email: 'convite@empresa.com' } });
+    const user = userEvent.setup();
+
+    renderInvitePage();
+    await user.click(await screen.findByRole('button', { name: 'Tentar novamente' }));
+
+    expect(await screen.findByText(/Empresa X/)).toBeInTheDocument();
+    expect(getMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows the tenant name and email from GET /invites/:token before rendering the form, for a valid token (FND-10/AC1)', async () => {
+    searchMock.mockReturnValue({ token: 'valid-token' });
+    getMock.mockResolvedValue({
+      success: true,
+      data: { tenantName: 'Empresa X', email: 'convidado@empresa.com' },
+      message: '',
+    });
+
+    renderInvitePage();
+
+    expect(await screen.findByText(/Empresa X/)).toBeInTheDocument();
+    expect(screen.getByText('convidado@empresa.com')).toBeInTheDocument();
+    expect(screen.getByLabelText('Nome')).toBeInTheDocument();
+    expect(screen.getByLabelText('Senha')).toBeInTheDocument();
+  });
+});

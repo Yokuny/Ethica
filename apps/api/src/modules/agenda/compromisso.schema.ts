@@ -1,0 +1,74 @@
+import type { CompromissoStatus, CompromissoTipo, CreateCompromisso, UpdateCompromisso } from '@ethica/contracts';
+import {
+  COMPROMISSO_TIPOS,
+  calendarDateSchema,
+  createCompromissoSchema,
+  idSchema,
+  updateCompromissoSchema,
+} from '@ethica/contracts';
+import type { CompromissoOrigem } from '@ethica/db';
+import type { RequestHandler } from 'express';
+import { z } from 'zod';
+
+export type { CreateCompromisso, UpdateCompromisso };
+export { createCompromissoSchema, updateCompromissoSchema };
+
+export const MAX_RANGE_DAYS = 62;
+
+export const compromissoIdParamSchema = z.object({ id: idSchema }).strict();
+
+// Intervalo [from, to) em datas de calendário do fuso de exibição; a visão de
+// mês da agenda pede no máximo 6 semanas.
+export const listCompromissosQuerySchema = z
+  .object({
+    from: calendarDateSchema,
+    to: calendarDateSchema,
+    tipo: z.enum(COMPROMISSO_TIPOS).optional(),
+    periciaId: idSchema.optional(),
+  })
+  .strict()
+  .refine((query) => query.from < query.to, { message: 'from precisa ser antes de to', path: ['to'] })
+  .refine((query) => Date.parse(query.to) - Date.parse(query.from) <= MAX_RANGE_DAYS * 86_400_000, {
+    message: `intervalo máximo de ${MAX_RANGE_DAYS} dias`,
+    path: ['to'],
+  });
+export type ListCompromissosQuery = z.infer<typeof listCompromissosQuerySchema>;
+
+export const upcomingCompromissosQuerySchema = z
+  .object({
+    limit: z.coerce.number().int().min(1).max(20).default(5),
+    periciaId: idSchema.optional(),
+  })
+  .strict();
+export type UpcomingCompromissosQuery = z.infer<typeof upcomingCompromissosQuerySchema>;
+
+export type AgendaRouterDeps = { validToken: RequestHandler };
+
+export type CompromissoRecord = {
+  id: string;
+  tipo: CompromissoTipo;
+  titulo: string;
+  inicio: Date;
+  fim: Date;
+  local?: string;
+  periciaId?: string;
+  // Enriquecido pelo service com o número do processo; ausente se a perícia não existe mais.
+  periciaNumero?: string;
+  status: CompromissoStatus;
+  origem: CompromissoOrigem;
+  observacoes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type CompromissoWrite = {
+  tipo?: CompromissoTipo;
+  titulo?: string;
+  inicio?: Date;
+  fim?: Date;
+  local?: string;
+  periciaId?: string;
+  status?: CompromissoStatus;
+  origem?: CompromissoOrigem;
+  observacoes?: string;
+};

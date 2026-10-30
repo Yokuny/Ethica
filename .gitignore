@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.local
+/playwright-skill/
+.temp-execution-*.js
+.vercel
+.env*
+!.env.example
+**/.impeccable/hook.cache.json

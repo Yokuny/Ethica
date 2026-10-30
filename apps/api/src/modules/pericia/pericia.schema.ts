@@ -1,0 +1,52 @@
+import type { CreatePericia, Justica, PapelPericia, PericiaStatus, UpdatePericia } from '@ethica/contracts';
+import { createPericiaSchema, idSchema, JUSTICAS, PERICIA_STATUS, updatePericiaSchema } from '@ethica/contracts';
+import type { RequestHandler } from 'express';
+import { z } from 'zod';
+
+export type { CreatePericia, UpdatePericia };
+export { createPericiaSchema, updatePericiaSchema };
+
+export const periciaIdParamSchema = z.object({ id: idSchema }).strict();
+
+// Paginação validada na borda (nunca clamp silencioso no service).
+export const listPericiasQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    q: z.string().trim().max(120).optional(),
+    status: z.enum(PERICIA_STATUS).optional(),
+    justica: z.enum(JUSTICAS).optional(),
+  })
+  .strict();
+export type ListPericiasQuery = z.infer<typeof listPericiasQuerySchema>;
+
+export type PericiaRouterDeps = { validToken: RequestHandler };
+
+export type PericiaRecord = {
+  id: string;
+  numeroProcesso: string;
+  justica: Justica;
+  papel: PapelPericia;
+  tribunal: string;
+  vara?: string;
+  comarca?: string;
+  objeto: string;
+  autor?: string;
+  reu?: string;
+  status: PericiaStatus;
+  dataNomeacao?: string;
+  prazoLaudo?: string;
+  honorariosPropostosCents?: number;
+  honorariosFixadosCents?: number;
+  observacoes?: string;
+  oportunidadeId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type CreatePericiaInput = CreatePericia & { tenant: string; oportunidadeId?: string };
+
+export type PericiaDistribution = {
+  status: { key: string; count: number }[];
+  justica: { key: string; count: number }[];
+};

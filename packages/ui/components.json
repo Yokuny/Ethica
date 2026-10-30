@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-lyra",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@ethica/ui/components",
+    "ui": "@ethica/ui/components",
+    "utils": "@ethica/ui/lib/utils",
+    "lib": "@ethica/ui/lib",
+    "hooks": "@ethica/ui/hooks"
+  },
+  "iconLibrary": "lucide",
+  "rtl": false,
+  "menuColor": "default-translucent",
+  "menuAccent": "subtle",
+  "registries": {}
+}

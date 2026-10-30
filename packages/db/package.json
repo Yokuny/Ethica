@@ -1,0 +1,14 @@
+{
+  "name": "@ethica/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@ethica/contracts": "workspace:*",
+    "mongoose": "9.9.4"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.1"
+  }
+}

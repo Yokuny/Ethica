@@ -1,0 +1,292 @@
+/* Geist (sans) e Geist Mono (atalhos e números tabulares), servidas
+   localmente. Arquivos e licenças OFL estão em public/fonts/. */
+@font-face {
+  font-family: "Geist Variable";
+  src: url("/fonts/geist/geist-latin-wght-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono Variable";
+  src: url("/fonts/geist-mono/geist-mono-latin-wght-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Tema claro único do CRM. O site de marketing tem tokens próprios em
+   apps/site/src/theme.css. A sidebar fica atrás da superfície de trabalho;
+   as cores de interface nascem aqui, sem variantes por página. */
+
+/* Classes dark legadas ficam inativas mesmo quando o sistema prefere escuro. */
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.625rem;
+
+  /* Superfícies: o canvas fica dentro do fundo da sidebar. */
+  --background: #f7f7f7;
+  --surface-secondary: #f2f2f2;
+  --surface-raised: #ffffff;
+  --card: var(--background);
+  --popover: var(--surface-raised);
+  --secondary: var(--surface-secondary);
+  --muted: var(--surface-secondary);
+  --accent: #e8e7ec;
+  --selection: #e8e7ec;
+  --disabled: #e8e7ec;
+
+  /* #9594a0 é o tom de referência, reservado a pistas não essenciais.
+     #66656f mantém o texto secundário pequeno legível sobre o canvas. */
+  --foreground: #4b4b54;
+  --impact: #1d1c1f;
+  /* Azul escuro dessaturado, puxado ao preto: cor sólida dos links. */
+  --link: #1c2638;
+  --text-secondary: #66656f;
+  --muted-foreground: var(--text-secondary);
+  --subtle-foreground: #9594a0;
+  --card-foreground: var(--foreground);
+  --popover-foreground: var(--foreground);
+  --secondary-foreground: var(--foreground);
+  --accent-foreground: var(--impact);
+  --disabled-foreground: var(--subtle-foreground);
+
+  /* Ação e estados de interação seguem o grafite, sem azul de marca. */
+  --primary: #1d1c20;
+  --primary-hover: #38373d;
+  --primary-foreground: #ffffff;
+  --destructive: #a64b4f;
+  --border: #e5e4e8;
+  --input: #d8d7dd;
+  --ring: #4b4b54;
+
+  /* Status operacionais em tons pastéis; texto pequeno mantém contraste. */
+  --status-success: #dcefdc;
+  --status-success-foreground: #245b38;
+  --status-success-border: #bedfc4;
+  --status-success-indicator: #5aa872;
+  --status-warning: #f3efd4;
+  --status-warning-foreground: #6d6025;
+  --status-warning-border: #e6ddad;
+  --status-warning-indicator: #a89236;
+  --status-error: #f4e3e1;
+  --status-error-foreground: #7d3d42;
+  --status-error-border: #e9c7c4;
+  --status-error-indicator: #b46166;
+  --status-info: #e1edf2;
+  --status-info-foreground: #365e6d;
+  --status-info-border: #c8dce3;
+  --status-info-indicator: #6c9cae;
+  --status-neutral: #ebe9eb;
+  --status-neutral-foreground: #4b4b54;
+  --status-neutral-border: #d9d7da;
+  --status-neutral-indicator: #93919a;
+
+  --font-fallback-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-fallback-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Série discreta para visualizações futuras; dados reais decidem seu uso. */
+  --chart-1: #1d1c20;
+  --chart-2: #4b4b54;
+  --chart-3: #777680;
+  --chart-4: #a6a5af;
+  --chart-5: #d0cfd6;
+
+  --sidebar: #f1f1f3;
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8e7ec;
+  --sidebar-accent-foreground: var(--impact);
+  --sidebar-border: #e5e4e8;
+  --sidebar-ring: var(--ring);
+
+  /* Deslocamento curto e opacidade baixa; a elevação não vira halo. */
+  --shadow-2xs: 0 1px 1px 0 rgb(29 28 32 / 0.03);
+  --shadow-xs: 0 1px 2px 0 rgb(29 28 32 / 0.04);
+  --shadow-sm: 0 1px 2px 0 rgb(29 28 32 / 0.04), 0 2px 5px -2px rgb(29 28 32 / 0.04);
+  --shadow: 0 1px 3px 0 rgb(29 28 32 / 0.05), 0 2px 6px -2px rgb(29 28 32 / 0.04);
+  --shadow-md: 0 4px 10px -3px rgb(29 28 32 / 0.08), 0 2px 4px -2px rgb(29 28 32 / 0.04);
+  --shadow-lg: 0 12px 24px -8px rgb(29 28 32 / 0.11), 0 4px 10px -4px rgb(29 28 32 / 0.05);
+  --shadow-xl: 0 18px 36px -10px rgb(29 28 32 / 0.14);
+  --shadow-2xl: 0 28px 48px -12px rgb(29 28 32 / 0.18);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-raised: var(--surface-raised);
+  --color-foreground: var(--foreground);
+  --color-impact: var(--impact);
+  --color-link: var(--link);
+  --color-text-secondary: var(--text-secondary);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-selection: var(--selection);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-status-success: var(--status-success);
+  --color-status-success-foreground: var(--status-success-foreground);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-success-indicator: var(--status-success-indicator);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-foreground: var(--status-warning-foreground);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-status-warning-indicator: var(--status-warning-indicator);
+  --color-status-error: var(--status-error);
+  --color-status-error-foreground: var(--status-error-foreground);
+  --color-status-error-border: var(--status-error-border);
+  --color-status-error-indicator: var(--status-error-indicator);
+  --color-status-info: var(--status-info);
+  --color-status-info-foreground: var(--status-info-foreground);
+  --color-status-info-border: var(--status-info-border);
+  --color-status-info-indicator: var(--status-info-indicator);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-foreground: var(--status-neutral-foreground);
+  --color-status-neutral-border: var(--status-neutral-border);
+  --color-status-neutral-indicator: var(--status-neutral-indicator);
+
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary-hover: var(--accent);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --font-sans: var(--font-fallback-sans);
+  --font-mono: var(--font-fallback-mono);
+  --font-caption: var(--font-fallback-sans);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    color-scheme: light;
+    scrollbar-color: var(--border) transparent;
+    scrollbar-width: thin;
+  }
+
+  body {
+    @apply font-sans bg-background text-foreground;
+    caret-color: var(--primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    text-decoration-style: solid;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  input,
+  textarea {
+    caret-color: var(--primary);
+  }
+
+  code {
+    @apply font-mono;
+  }
+
+  ::selection {
+    @apply bg-selection text-impact;
+  }
+
+  /* Algarismos alinhados em coluna (preço, hora, telefone). */
+  .font-mono {
+    font-feature-settings:
+      "tnum" 1,
+      "zero" 1;
+  }
+}
+
+/* Link: texto azul escuro com sublinhado tracejado permanente. */
+@utility link {
+  cursor: pointer;
+  color: var(--color-link);
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 4px;
+  transition-property: color;
+  transition-duration: 150ms;
+}
+
+/* Escala de texto padrão: um degrau acima do default do Tailwind. O app usa
+   text-xs como corpo; 13px continua densa. data-text-size="sm"/"lg" também
+   ajusta as captions descritivas e cabeçalhos de tabela. */
+:root {
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --caption-size: 0.6875rem;
+}
+
+/* Tamanho do texto: sobrescreve só os tokens de fonte do Tailwind
+   (--text-xs/sm/base/lg — as utilities .text-xs/.text-sm/... leem
+   font-size:var(--text-xs) etc., conferido no CSS gerado). Fora de
+   `@layer`, então vence os tokens equivalentes que o Tailwind define dentro
+   de `@layer theme`, sem precisar de `!important`. `line-height` continua
+   como razão sem unidade (--text-*--line-height), então acompanha o
+   tamanho novo sozinho. `data-text-size="md"` nunca é escrito (é o
+   default, quem controla remove o atributo) — só "sm"/"lg" aparecem aqui. */
+html[data-text-size="sm"] {
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --caption-size: 0.6875rem;
+}
+
+html[data-text-size="lg"] {
+  --text-xs: 0.9375rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --caption-size: 0.75rem;
+}

@@ -1,0 +1,521 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-16T18:55:26.093Z",
+  "title": "Design System: Ethica",
+  "extensions": {
+    "colorMeta": {
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "Fundo da sidebar",
+        "tonalRamp": [
+          "oklch(0.15 0.003 286.3)",
+          "oklch(0.27 0.003 286.3)",
+          "oklch(0.39 0.003 286.3)",
+          "oklch(0.51 0.003 286.3)",
+          "oklch(0.63 0.003 286.3)",
+          "oklch(0.75 0.003 286.3)",
+          "oklch(0.87 0.003 286.3)",
+          "oklch(0.96 0.003 286.3)"
+        ]
+      },
+      "sidebar-active": {
+        "role": "neutral",
+        "displayName": "Navegação ativa",
+        "tonalRamp": [
+          "oklch(0.15 0.007 295.4)",
+          "oklch(0.27 0.007 295.4)",
+          "oklch(0.39 0.007 295.4)",
+          "oklch(0.51 0.007 295.4)",
+          "oklch(0.63 0.007 295.4)",
+          "oklch(0.75 0.007 295.4)",
+          "oklch(0.87 0.007 295.4)",
+          "oklch(0.96 0.007 295.4)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas de trabalho",
+        "tonalRamp": [
+          "oklch(0.15 0.000 89.9)",
+          "oklch(0.27 0.000 89.9)",
+          "oklch(0.39 0.000 89.9)",
+          "oklch(0.51 0.000 89.9)",
+          "oklch(0.63 0.000 89.9)",
+          "oklch(0.75 0.000 89.9)",
+          "oklch(0.87 0.000 89.9)",
+          "oklch(0.96 0.000 89.9)"
+        ]
+      },
+      "highlight": {
+        "role": "neutral",
+        "displayName": "Destaque secundário",
+        "tonalRamp": [
+          "oklch(0.15 0.000 89.9)",
+          "oklch(0.27 0.000 89.9)",
+          "oklch(0.39 0.000 89.9)",
+          "oklch(0.51 0.000 89.9)",
+          "oklch(0.63 0.000 89.9)",
+          "oklch(0.75 0.000 89.9)",
+          "oklch(0.87 0.000 89.9)",
+          "oklch(0.96 0.000 89.9)"
+        ]
+      },
+      "raised": {
+        "role": "neutral",
+        "displayName": "Superfície elevada",
+        "tonalRamp": [
+          "oklch(0.15 0.000 89.9)",
+          "oklch(0.27 0.000 89.9)",
+          "oklch(0.39 0.000 89.9)",
+          "oklch(0.51 0.000 89.9)",
+          "oklch(0.63 0.000 89.9)",
+          "oklch(0.75 0.000 89.9)",
+          "oklch(0.87 0.000 89.9)",
+          "oklch(0.96 0.000 89.9)"
+        ]
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "Ação grafite",
+        "tonalRamp": [
+          "oklch(0.15 0.008 297.2)",
+          "oklch(0.27 0.008 297.2)",
+          "oklch(0.39 0.008 297.2)",
+          "oklch(0.51 0.008 297.2)",
+          "oklch(0.63 0.008 297.2)",
+          "oklch(0.75 0.008 297.2)",
+          "oklch(0.87 0.008 297.2)",
+          "oklch(0.96 0.008 297.2)"
+        ]
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Ação no hover",
+        "tonalRamp": [
+          "oklch(0.15 0.010 293.5)",
+          "oklch(0.27 0.010 293.5)",
+          "oklch(0.39 0.010 293.5)",
+          "oklch(0.51 0.010 293.5)",
+          "oklch(0.63 0.010 293.5)",
+          "oklch(0.75 0.010 293.5)",
+          "oklch(0.87 0.010 293.5)",
+          "oklch(0.96 0.010 293.5)"
+        ]
+      },
+      "action-ink": {
+        "role": "primary",
+        "displayName": "Texto da ação",
+        "tonalRamp": [
+          "oklch(0.15 0.000 89.9)",
+          "oklch(0.27 0.000 89.9)",
+          "oklch(0.39 0.000 89.9)",
+          "oklch(0.51 0.000 89.9)",
+          "oklch(0.63 0.000 89.9)",
+          "oklch(0.75 0.000 89.9)",
+          "oklch(0.87 0.000 89.9)",
+          "oklch(0.96 0.000 89.9)"
+        ]
+      },
+      "impact": {
+        "role": "neutral",
+        "displayName": "Tinta de impacto",
+        "tonalRamp": [
+          "oklch(0.15 0.006 301.1)",
+          "oklch(0.27 0.006 301.1)",
+          "oklch(0.39 0.006 301.1)",
+          "oklch(0.51 0.006 301.1)",
+          "oklch(0.63 0.006 301.1)",
+          "oklch(0.75 0.006 301.1)",
+          "oklch(0.87 0.006 301.1)",
+          "oklch(0.96 0.006 301.1)"
+        ]
+      },
+      "body-ink": {
+        "role": "neutral",
+        "displayName": "Texto padrão",
+        "tonalRamp": [
+          "oklch(0.15 0.015 285.7)",
+          "oklch(0.27 0.015 285.7)",
+          "oklch(0.39 0.015 285.7)",
+          "oklch(0.51 0.015 285.7)",
+          "oklch(0.63 0.015 285.7)",
+          "oklch(0.75 0.015 285.7)",
+          "oklch(0.87 0.015 285.7)",
+          "oklch(0.96 0.015 285.7)"
+        ]
+      },
+      "secondary-ink": {
+        "role": "neutral",
+        "displayName": "Texto secundário",
+        "tonalRamp": [
+          "oklch(0.15 0.016 290.4)",
+          "oklch(0.27 0.016 290.4)",
+          "oklch(0.39 0.016 290.4)",
+          "oklch(0.51 0.016 290.4)",
+          "oklch(0.63 0.016 290.4)",
+          "oklch(0.75 0.016 290.4)",
+          "oklch(0.87 0.016 290.4)",
+          "oklch(0.96 0.016 290.4)"
+        ]
+      },
+      "subtle-ink": {
+        "role": "neutral",
+        "displayName": "Texto sutil",
+        "tonalRamp": [
+          "oklch(0.15 0.018 289.8)",
+          "oklch(0.27 0.018 289.8)",
+          "oklch(0.39 0.018 289.8)",
+          "oklch(0.51 0.018 289.8)",
+          "oklch(0.63 0.018 289.8)",
+          "oklch(0.75 0.018 289.8)",
+          "oklch(0.87 0.018 289.8)",
+          "oklch(0.96 0.018 289.8)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Borda leve",
+        "tonalRamp": [
+          "oklch(0.15 0.005 297.7)",
+          "oklch(0.27 0.005 297.7)",
+          "oklch(0.39 0.005 297.7)",
+          "oklch(0.51 0.005 297.7)",
+          "oklch(0.63 0.005 297.7)",
+          "oklch(0.75 0.005 297.7)",
+          "oklch(0.87 0.005 297.7)",
+          "oklch(0.96 0.005 297.7)"
+        ]
+      },
+      "input-border": {
+        "role": "neutral",
+        "displayName": "Borda de campo",
+        "tonalRamp": [
+          "oklch(0.15 0.008 293.9)",
+          "oklch(0.27 0.008 293.9)",
+          "oklch(0.39 0.008 293.9)",
+          "oklch(0.51 0.008 293.9)",
+          "oklch(0.63 0.008 293.9)",
+          "oklch(0.75 0.008 293.9)",
+          "oklch(0.87 0.008 293.9)",
+          "oklch(0.96 0.008 293.9)"
+        ]
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "Anel de foco",
+        "tonalRamp": [
+          "oklch(0.15 0.015 285.7)",
+          "oklch(0.27 0.015 285.7)",
+          "oklch(0.39 0.015 285.7)",
+          "oklch(0.51 0.015 285.7)",
+          "oklch(0.63 0.015 285.7)",
+          "oklch(0.75 0.015 285.7)",
+          "oklch(0.87 0.015 285.7)",
+          "oklch(0.96 0.015 285.7)"
+        ]
+      },
+      "destructive": {
+        "role": "error",
+        "displayName": "Destrutivo",
+        "tonalRamp": [
+          "oklch(0.15 0.120 19.4)",
+          "oklch(0.27 0.120 19.4)",
+          "oklch(0.39 0.120 19.4)",
+          "oklch(0.51 0.120 19.4)",
+          "oklch(0.63 0.120 19.4)",
+          "oklch(0.75 0.120 19.4)",
+          "oklch(0.87 0.120 19.4)",
+          "oklch(0.96 0.120 19.4)"
+        ]
+      },
+      "status-success-bg": {
+        "role": "secondary",
+        "displayName": "Sucesso pastel",
+        "tonalRamp": [
+          "oklch(0.15 0.032 145.3)",
+          "oklch(0.27 0.032 145.3)",
+          "oklch(0.39 0.032 145.3)",
+          "oklch(0.51 0.032 145.3)",
+          "oklch(0.63 0.032 145.3)",
+          "oklch(0.75 0.032 145.3)",
+          "oklch(0.87 0.032 145.3)",
+          "oklch(0.96 0.032 145.3)"
+        ]
+      },
+      "status-success-ink": {
+        "role": "secondary",
+        "displayName": "Sucesso texto",
+        "tonalRamp": [
+          "oklch(0.15 0.083 153.1)",
+          "oklch(0.27 0.083 153.1)",
+          "oklch(0.39 0.083 153.1)",
+          "oklch(0.51 0.083 153.1)",
+          "oklch(0.63 0.083 153.1)",
+          "oklch(0.75 0.083 153.1)",
+          "oklch(0.87 0.083 153.1)",
+          "oklch(0.96 0.083 153.1)"
+        ]
+      },
+      "status-warning-bg": {
+        "role": "secondary",
+        "displayName": "Aviso pastel",
+        "tonalRamp": [
+          "oklch(0.15 0.036 100.1)",
+          "oklch(0.27 0.036 100.1)",
+          "oklch(0.39 0.036 100.1)",
+          "oklch(0.51 0.036 100.1)",
+          "oklch(0.63 0.036 100.1)",
+          "oklch(0.75 0.036 100.1)",
+          "oklch(0.87 0.036 100.1)",
+          "oklch(0.96 0.036 100.1)"
+        ]
+      },
+      "status-warning-ink": {
+        "role": "secondary",
+        "displayName": "Aviso texto",
+        "tonalRamp": [
+          "oklch(0.15 0.080 96.9)",
+          "oklch(0.27 0.080 96.9)",
+          "oklch(0.39 0.080 96.9)",
+          "oklch(0.51 0.080 96.9)",
+          "oklch(0.63 0.080 96.9)",
+          "oklch(0.75 0.080 96.9)",
+          "oklch(0.87 0.080 96.9)",
+          "oklch(0.96 0.080 96.9)"
+        ]
+      },
+      "status-error-bg": {
+        "role": "secondary",
+        "displayName": "Erro pastel",
+        "tonalRamp": [
+          "oklch(0.15 0.019 25.6)",
+          "oklch(0.27 0.019 25.6)",
+          "oklch(0.39 0.019 25.6)",
+          "oklch(0.51 0.019 25.6)",
+          "oklch(0.63 0.019 25.6)",
+          "oklch(0.75 0.019 25.6)",
+          "oklch(0.87 0.019 25.6)",
+          "oklch(0.96 0.019 25.6)"
+        ]
+      },
+      "status-error-ink": {
+        "role": "secondary",
+        "displayName": "Erro texto",
+        "tonalRamp": [
+          "oklch(0.15 0.089 16.5)",
+          "oklch(0.27 0.089 16.5)",
+          "oklch(0.39 0.089 16.5)",
+          "oklch(0.51 0.089 16.5)",
+          "oklch(0.63 0.089 16.5)",
+          "oklch(0.75 0.089 16.5)",
+          "oklch(0.87 0.089 16.5)",
+          "oklch(0.96 0.089 16.5)"
+        ]
+      },
+      "status-info-bg": {
+        "role": "secondary",
+        "displayName": "Informação pastel",
+        "tonalRamp": [
+          "oklch(0.15 0.014 224.5)",
+          "oklch(0.27 0.014 224.5)",
+          "oklch(0.39 0.014 224.5)",
+          "oklch(0.51 0.014 224.5)",
+          "oklch(0.63 0.014 224.5)",
+          "oklch(0.75 0.014 224.5)",
+          "oklch(0.87 0.014 224.5)",
+          "oklch(0.96 0.014 224.5)"
+        ]
+      },
+      "status-info-ink": {
+        "role": "secondary",
+        "displayName": "Informação texto",
+        "tonalRamp": [
+          "oklch(0.15 0.051 224.1)",
+          "oklch(0.27 0.051 224.1)",
+          "oklch(0.39 0.051 224.1)",
+          "oklch(0.51 0.051 224.1)",
+          "oklch(0.63 0.051 224.1)",
+          "oklch(0.75 0.051 224.1)",
+          "oklch(0.87 0.051 224.1)",
+          "oklch(0.96 0.051 224.1)"
+        ]
+      },
+      "status-neutral-bg": {
+        "role": "secondary",
+        "displayName": "Estado neutro",
+        "tonalRamp": [
+          "oklch(0.15 0.003 325.6)",
+          "oklch(0.27 0.003 325.6)",
+          "oklch(0.39 0.003 325.6)",
+          "oklch(0.51 0.003 325.6)",
+          "oklch(0.63 0.003 325.6)",
+          "oklch(0.75 0.003 325.6)",
+          "oklch(0.87 0.003 325.6)",
+          "oklch(0.96 0.003 325.6)"
+        ]
+      },
+      "status-neutral-ink": {
+        "role": "secondary",
+        "displayName": "Estado neutro texto",
+        "tonalRamp": [
+          "oklch(0.15 0.015 285.7)",
+          "oklch(0.27 0.015 285.7)",
+          "oklch(0.39 0.015 285.7)",
+          "oklch(0.51 0.015 285.7)",
+          "oklch(0.63 0.015 285.7)",
+          "oklch(0.75 0.015 285.7)",
+          "oklch(0.87 0.015 285.7)",
+          "oklch(0.96 0.015 285.7)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Cabeçalho",
+        "purpose": "Título principal de página em Geist Variable."
+      },
+      "title": {
+        "displayName": "Título",
+        "purpose": "Nomes e conteúdo principal em Geist Variable."
+      },
+      "body": {
+        "displayName": "Corpo",
+        "purpose": "Informação corrente e leitura em Geist Variable."
+      },
+      "control": {
+        "displayName": "Controle",
+        "purpose": "Botões e campos compactos em Geist Variable."
+      },
+      "caption": {
+        "displayName": "Rótulo",
+        "purpose": "Descrições curtas em Geist, caixa alta."
+      }
+    },
+    "shadows": [
+      {
+        "name": "xs",
+        "value": "0 1px 2px 0 rgb(29 28 32 / 0.04)",
+        "purpose": "Separação leve de controle e inset."
+      },
+      {
+        "name": "sm",
+        "value": "0 1px 2px 0 rgb(29 28 32 / 0.04), 0 2px 5px -2px rgb(29 28 32 / 0.04)",
+        "purpose": "Superfície de trabalho."
+      },
+      {
+        "name": "md",
+        "value": "0 4px 10px -3px rgb(29 28 32 / 0.08), 0 2px 4px -2px rgb(29 28 32 / 0.04)",
+        "purpose": "Menu ou popover elevado."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "150ms ease-out",
+        "purpose": "Hover e foco discretos em controles."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão de ação",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal grafite da tela.",
+      "html": "<button class=\"ds-button-primary\">Adicionar</button>",
+      "css": ".ds-button-primary{height:32px;padding:0 10px;border:0;border-radius:8px;background:var(--primary,#1d1c20);color:#fff;font:500 13px \"Geist Variable\",sans-serif;cursor:pointer;transition:background .15s ease-out}.ds-button-primary:hover{background:var(--primary-hover,#38373d)}.ds-button-primary:focus-visible{outline:2px solid var(--ring,#4b4b54);outline-offset:2px}"
+    },
+    {
+      "name": "Item da sidebar",
+      "kind": "nav",
+      "refersTo": "sidebar-item-active",
+      "description": "Seleção da navegação sobre o fundo pastel.",
+      "html": "<div class=\"ds-sidebar\"><div class=\"ds-sidebar-item\">Clientes</div></div>",
+      "css": ".ds-sidebar{padding:8px;background:var(--sidebar,#f1f1f3);font:500 13px \"Geist Variable\",sans-serif;color:var(--foreground,#4b4b54)}.ds-sidebar-item{height:32px;display:flex;align-items:center;padding:0 8px;border-radius:8px;background:var(--sidebar-accent,#e8e7ec);color:var(--impact,#1d1c1f)}"
+    },
+    {
+      "name": "Painel de trabalho",
+      "kind": "card",
+      "refersTo": "content-inset",
+      "description": "Canvas claro recuado da sidebar.",
+      "html": "<div class=\"ds-inset\"><div class=\"ds-inset-heading\">Clientes</div><div class=\"ds-inset-rule\"></div></div>",
+      "css": ".ds-inset{min-height:100px;padding:16px;border:1px solid var(--border,#e5e4e8);border-radius:18px;background:var(--background,#f7f7f7);box-shadow:0 1px 2px rgb(29 28 32 / .04);font:400 13px \"Geist Variable\",sans-serif;color:var(--foreground,#4b4b54)}.ds-inset-heading{font-size:18px;font-weight:600;color:var(--impact,#1d1c1f)}.ds-inset-rule{height:1px;margin-top:12px;background:var(--border,#e5e4e8)}"
+    },
+    {
+      "name": "Campo de busca",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Busca compacta sobre o canvas.",
+      "html": "<input class=\"ds-input\" placeholder=\"Buscar…\" />",
+      "css": ".ds-input{height:32px;width:240px;padding:0 10px;border:1px solid var(--input,#d8d7dd);border-radius:8px;background:var(--background,#f7f7f7);box-shadow:0 1px 2px rgb(29 28 32 / .04);font:400 13px \"Geist Variable\",sans-serif;color:var(--foreground,#4b4b54)}.ds-input::placeholder{color:var(--text-secondary,#66656f)}.ds-input:hover{border-color:#a6a5af}.ds-input:focus-visible{outline:2px solid var(--ring,#4b4b54);outline-offset:1px}"
+    },
+    {
+      "name": "Cabeçalho de tabela",
+      "kind": "custom",
+      "refersTo": "table-header",
+      "description": "Rótulos compactos em mono sobre fio fino.",
+      "html": "<div class=\"ds-table-head\"><span>NOME</span><span>STATUS</span></div>",
+      "css": ".ds-table-head{display:flex;justify-content:space-between;align-items:center;height:40px;padding:0 16px;border-bottom:1px solid var(--border,#e5e4e8);font:500 10px \"Geist Mono\",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary,#66656f)}"
+    },
+    {
+      "name": "Estado ativo",
+      "kind": "chip",
+      "description": "Selo pastel para um status operacional.",
+      "html": "<span class=\"ds-status\">Ativo</span>",
+      "css": ".ds-status{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:4px;background:var(--status-success,#dcefdc);color:var(--status-success-foreground,#245b38);font:500 12px \"Geist Variable\",sans-serif}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Mesa de trabalho serena",
+    "overview": "O Ethica é usado durante sessões longas. A sidebar forma o fundo da aplicação, enquanto o trabalho acontece em uma superfície clara recuada. Dados, filtros e ações ficam perto uns dos outros; bordas finas e pequenas diferenças de tom estabelecem a hierarquia.",
+    "keyCharacteristics": [
+      "Um único tema claro",
+      "Ação grafite",
+      "Sidebar pastel atrás do painel",
+      "Linhas compactas",
+      "Captions mono",
+      "Sombra com deslocamento mínimo",
+      "Indicadores apenas quando apoiados por dados reais"
+    ],
+    "rules": [
+      {
+        "name": "Contraste da informação",
+        "body": "#9594a0 serve apenas a pistas não essenciais; texto pequeno necessário à tarefa usa #66656f.",
+        "section": "colors"
+      },
+      {
+        "name": "Identidade no primitivo",
+        "body": "Cor, fonte, borda, raio e sombra pertencem aos tokens e componentes base, não a cada rota.",
+        "section": "components"
+      },
+      {
+        "name": "Métrica verdadeira",
+        "body": "Indicadores e gráficos só entram quando a consulta oferece os dados necessários.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Defina identidade em apps/web/src/theme.css e nos primitivos; a rota compõe dados e layout local.",
+      "Use ItemDescription caption para rótulos descritivos e texto secundário legível para informação essencial.",
+      "Confira 1440px e 390px, hover, ativo, seleção, foco, loading, erro e vazio.",
+      "Preserve consultas, permissões, URLs e comportamento das ações ao redesenhar uma tela."
+    ],
+    "donts": [
+      "Não reintroduza troca de paleta ou modo escuro nesta direção de tema claro único.",
+      "Não invente companhia, cargo, cidade, gráficos, KPIs temporais ou ações em lote para copiar a imagem.",
+      "Não use azul como acento genérico; as cores semânticas de status são a exceção.",
+      "Não use #9594a0 para texto pequeno que precisa ser lido, nem mono para todo o corpo.",
+      "Não espalhe borda, sombra e fonte de identidade pelas rotas."
+    ]
+  }
+}

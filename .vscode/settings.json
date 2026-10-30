@@ -1,0 +1,47 @@
+{
+  "search.useIgnoreFiles": true,
+  // Exclude from search results
+  "search.exclude": {
+    "**/routeTree.gen.ts": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.pnpm-store": true,
+    "**/.gitignore": true,
+    "**/pnpm-lock.yaml": true,
+    "**/yarn.lock": true,
+    "**/package-lock.json": true,
+    "**pnpm*": true,
+    "**yarn*": true,
+    "**npm*": true
+  },
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true,
+    "**/tsconfig.json": true
+  },
+  "files.readonlyInclude": {
+    "**/tsconfig.json": true,
+    "**/vite.config.ts": true
+  },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "claudeCode.preferredLocation": "panel"
+}

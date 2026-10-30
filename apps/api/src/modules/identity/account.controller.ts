@@ -1,0 +1,50 @@
+import { respObj } from '@ethica/contracts';
+import { hashToken } from '@ethica/db';
+import type { NextFunction, Request, Response } from 'express';
+import { extractToken } from '../../middlewares/authentication.middleware.js';
+import type { ChangePassword, UpdateAvatar, UpdateProfile } from './account.schema.js';
+import * as accountService from './account.service.js';
+
+export const updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { name } = req.body as UpdateProfile;
+    const data = await accountService.updateProfile(req.tenantUser.tenant as string, req.tenantUser.user, name);
+    res.json(respObj({ data }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const changePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // validToken já garantiu que o token existe e é desta sessão.
+    await accountService.changePassword(
+      req.tenantUser.tenant as string,
+      req.tenantUser.user,
+      req.body as ChangePassword,
+      hashToken(extractToken(req) as string),
+    );
+    res.json(respObj({}));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const updateAvatar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { image } = req.body as UpdateAvatar;
+    const data = await accountService.setAvatar(req.tenantUser.tenant as string, req.tenantUser.user, image);
+    res.json(respObj({ data }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const removeAvatar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await accountService.setAvatar(req.tenantUser.tenant as string, req.tenantUser.user, null);
+    res.json(respObj({ data }));
+  } catch (e) {
+    next(e);
+  }
+};

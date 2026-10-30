@@ -1,0 +1,26 @@
+# Imagem única de desenvolvimento, compartilhada por api/web
+# (cada serviço só troca o `command` no docker-compose.yml). Não é para
+# produção: roda tsx watch/vite direto do código-fonte montado via bind mount.
+FROM node:24-bookworm
+
+# bcrypt (dependência do api) compila um addon nativo no install — sem
+# python3/make/g++ o `pnpm install` falha nessa etapa.
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN corepack enable && corepack prepare pnpm@11.11.0 --activate
+
+WORKDIR /app
+
+# Copia só os manifests primeiro para cachear a camada de install — mudanças
+# no código-fonte (bind-mounted em runtime) não invalidam esse RUN.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/contracts/package.json packages/contracts/package.json
+COPY packages/db/package.json packages/db/package.json
+COPY packages/ui/package.json packages/ui/package.json
+
+RUN pnpm install --frozen-lockfile
+
+COPY . .

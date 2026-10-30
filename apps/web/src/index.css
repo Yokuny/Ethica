@@ -1,0 +1,6 @@
+/* Tokens do workspace claro, fontes e escala ficam em ./theme.css. */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./theme.css";
+@source "../../../packages/ui/src";
