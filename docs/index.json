@@ -1,0 +1,316 @@
+{
+  "gerado_por": "scripts/docs/sync-docs.mjs",
+  "features": [
+    {
+      "slug": "fundacao-ethica",
+      "feature": "Fundação do Ethica",
+      "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
+      "data": "2026-10-29",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db",
+        "packages/ui",
+        "harness",
+        "docs",
+        "infra",
+        "tests"
+      ],
+      "decisoes": [
+        "AD-001",
+        "AD-038",
+        "AD-039",
+        "AD-036",
+        "AD-102",
+        "AD-103",
+        "AD-104",
+        "AD-105",
+        "AD-106",
+        "AD-107"
+      ],
+      "spec": [
+        ".specs/features/fundacao-ethica"
+      ],
+      "planos": [
+        ".specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md"
+      ],
+      "doc": "features/fundacao-ethica/feature.md"
+    }
+  ],
+  "planos_nao_arquivados": [],
+  "specs_sem_registro": [],
+  "decisoes": [
+    {
+      "id": "AD-001",
+      "decisao": "Monorepo pnpm workspaces — `apps/{api,web}` + `packages/{contracts,db,ui}`.",
+      "data": "2026-10-29",
+      "status": "active"
+    },
+    {
+      "id": "AD-010",
+      "decisao": "Tenant sempre injetado no servidor — nunca em `input_schema` de tool, nunca no corpo da requisição. Acesso a dados no `ai-kit` passa por `Te",
+      "data": "2026-09-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-014",
+      "decisao": "Sessão de token único verificada no banco — o cookie httpOnly `refreshToken` é a credencial de todo request; não existe access token separad",
+      "data": "2026-09-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-015",
+      "decisao": "Vitest 4 é o único runner de testes do monorepo, configurado por `projects` na raiz.",
+      "data": "2026-09-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-016",
+      "decisao": "E-mail é globalmente único e um `User` pertence a exatamente um `Tenant`; `isPlatformAdmin` é a única exceção a ter `Tenant` ausente.",
+      "data": "2026-09-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-017",
+      "decisao": "Convenção concreta de testes do monorepo — Vitest `projects` nomeados `unit` / `integration` / `e2e` / `structural`; arquivos colocados por",
+      "data": "2026-09-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-018",
+      "decisao": "Um único `.env` na raiz do monorepo para todo dev local — backends leem `process.env` direto; `apps/web` lê o mesmo arquivo via `envDir: '..",
+      "data": "2026-09-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-028",
+      "decisao": "Any table component in `apps/web` uses `@tanstack/react-table` in manual/server mode (`manualPagination: true, manualSorting: true, manualFi",
+      "data": "2026-09-05",
+      "status": "active"
+    },
+    {
+      "id": "AD-030",
+      "decisao": "`apps/web` adopts TanStack Router's file-based routing (`@tanstack/router-plugin`'s `tanstackRouter()` vite plugin + `createFileRoute()`), c",
+      "data": "2026-09-05",
+      "status": "active; o arquivo de layout `<nome>.tsx` ao lado da pasta `_nome/` e `details.tsx` como arquivo foram superseded pela AD-066"
+    },
+    {
+      "id": "AD-031",
+      "decisao": "CI via GitHub Actions (`.github/workflows/ci.yml`), um único job (`build-gate`) que roda em todo push/PR para `main`, executando exatamente",
+      "data": "2026-09-07",
+      "status": "active"
+    },
+    {
+      "id": "AD-036",
+      "decisao": "Convenção de tempo do projeto, nascida em `scheduling` e válida para toda feature futura: (1) instante é sempre gravado em UTC, sem exceção;",
+      "data": "2026-09-10",
+      "status": "active"
+    },
+    {
+      "id": "AD-038",
+      "decisao": "`apps/api` é organizado em módulos contidos em `src/modules/<modulo>/` (`identity`, `field-template`, `customer`, `process`, `product`, `ord",
+      "data": "2026-09-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-039",
+      "decisao": "Efeitos colaterais entre módulos do `api` cujo resultado a resposta HTTP não usa são eventos de domínio in-process. Eles passam por `src/eve",
+      "data": "2026-09-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-054",
+      "decisao": "Busca de texto passa a usar MongoDB Atlas Search (`$search`), e não `$text` nem `$regex`: o operador `contains` dos segmentos e a busca `q`",
+      "data": "2026-10-10",
+      "status": "active (aprovada pelo usuário em 2026-10-10); a parte dos testes com dublê de regex foi superseded pela AD-056; a parte do dev local com imagem Docker Atlas Search foi superseded pela AD-056 e **restabelecida pela AD-059** (Atlas Local em dev e testes, cluster hospedado só em produção)"
+    },
+    {
+      "id": "AD-059",
+      "decisao": "O padrão único de banco passa a ser o motor MongoDB Atlas (Atlas Search) em todos os ambientes, mas local onde for dev ou teste e hospedado",
+      "data": "2026-10-11",
+      "status": "active; os itens (2) e (3) foram superseded pela AD-065"
+    },
+    {
+      "id": "AD-065",
+      "decisao": "O banco de testes é derivado da `MONGODB_URI`: mesmo servidor, banco `<banco>_test` (`mongodb://localhost:37017/crm` → `.../crm_test`). `MON",
+      "data": "2026-10-11",
+      "status": "active"
+    },
+    {
+      "id": "AD-066",
+      "decisao": "Padrão único de rotas do `apps/web`, documentado na skill `ethica-web-standards` (fonte única; `apps/web/CLAUDE.md` só aponta para ela). (1)",
+      "data": "2026-10-11",
+      "status": "active"
+    },
+    {
+      "id": "AD-067",
+      "decisao": "Complementa a AD-066: rotas do `apps/web` separam responsabilidades em `@components/` (visual), `@consts/` (valores fixos), `@hooks/` (orque",
+      "data": "2026-10-11",
+      "status": "active"
+    },
+    {
+      "id": "AD-068",
+      "decisao": "O shell privado desktop de `apps/web` passa a oferecer navegação lateral persistente por áreas do CRM, destacando a rota atual. A navegação",
+      "data": "2026-10-12",
+      "status": "active"
+    },
+    {
+      "id": "AD-070",
+      "decisao": "Supersede a AD-037. `apps/web` pode usar `Dialog` (`packages/ui/src/components/dialog.tsx`) para criar, editar e agir sobre registro, ou uma",
+      "data": "2026-10-14",
+      "status": "active"
+    },
+    {
+      "id": "AD-072",
+      "decisao": "Página de registro do `apps/web` (detalhes de entidade, relatórios, integrações) segue o layout final de três telas do `iotlog-frontend-v2`",
+      "data": "2026-10-14",
+      "status": "active; a forma visual da faixa `RecordStats` foi superseded by AD-090"
+    },
+    {
+      "id": "AD-075",
+      "decisao": "Todo cartão de redirecionamento do `apps/web` (atalho de hub, contador do dia, primeiros passos, tarefa prioritária, registro relacionado do",
+      "data": "2026-10-14",
+      "status": "active; supersede a AD-072 só no uso de `RecordStats` para indicadores de relatório"
+    },
+    {
+      "id": "AD-077",
+      "decisao": "Toda listagem em tabela do `apps/web` usa o painel `DataTable` (`apps/web/src/components/data-table.tsx`), a partir do `table.html` do usuár",
+      "data": "2026-10-14",
+      "status": "active"
+    },
+    {
+      "id": "AD-078",
+      "decisao": "O conteúdo das células de toda tabela do `apps/web` segue as linhas-modelo do usuário (`line.html`, `premium line.html`), com as peças de `a",
+      "data": "2026-10-14",
+      "status": "active"
+    },
+    {
+      "id": "AD-079",
+      "decisao": "Ação irreversível (remover, arquivar, rejeitar) no `apps/web` nunca dispara no primeiro clique: abre o `ConfirmDialog` (`apps/web/src/compon",
+      "data": "2026-10-15",
+      "status": "active; estende a AD-070"
+    },
+    {
+      "id": "AD-083",
+      "decisao": "Supersede a AD-082 nos pontos de fonte, topo e indicadores. Geist + Geist Mono substituem Inter/IBM Plex Mono; captions, cabeçalhos de tabel",
+      "data": "2026-10-16",
+      "status": "active"
+    },
+    {
+      "id": "AD-085",
+      "decisao": "Supersede AD-084 no período de comparação. A faixa da lista de clientes mostra a série diária dos últimos 30 dias e compara o volume de novo",
+      "data": "2026-10-17",
+      "status": "active"
+    },
+    {
+      "id": "AD-086",
+      "decisao": "Supersede AD-083 apenas na exclusão de sparklines das listagens. Indicadores de catálogo, tarefas, processos e pedidos podem mostrar séries",
+      "data": "2026-10-17",
+      "status": "active"
+    },
+    {
+      "id": "AD-087",
+      "decisao": "Supersede a AD-074 na API de texto. Todo texto visível de `apps/web` continua em `ItemTitle` ou `ItemDescription`, com família, tamanho, pes",
+      "data": "2026-10-17",
+      "status": "active"
+    },
+    {
+      "id": "AD-088",
+      "decisao": "Supersede a AD-087 apenas no `as`. `ItemTitle` renderiza `div` e `ItemDescription` renderiza `p`; `as`, `htmlFor` e o tipo `TextTag` saem do",
+      "data": "2026-10-17",
+      "status": "active"
+    },
+    {
+      "id": "AD-089",
+      "decisao": "Todo link de texto para outra tela usa `AppLink` (`apps/web/src/components/app-link.tsx`): `<Link/>` de verdade sobre `ItemTitle` (padrão) o",
+      "data": "2026-10-17",
+      "status": "active"
+    },
+    {
+      "id": "AD-090",
+      "decisao": "A página de registro do `apps/web` passa a ter um modelo só, o das telas do `iotlog-frontend-v2` (`maintenance/list-os-done/view`, `fas/fill",
+      "data": "2026-10-17",
+      "status": "active"
+    },
+    {
+      "id": "AD-091",
+      "decisao": "Grupos de leitura com rótulo/valor nos detalhes usam `ProductSpecs` (`apps/web/src/components/product-specs.tsx`), o bloco `@shadcnblocks/pr",
+      "data": "2026-10-18",
+      "status": "active"
+    },
+    {
+      "id": "AD-092",
+      "decisao": "`DefaultEmptyData` (`apps/web/src/components/default-empty-data.tsx`) tem só `title`, `description` e `action`. Sem moldura de cartão: ilust",
+      "data": "2026-10-18",
+      "status": "active"
+    },
+    {
+      "id": "AD-093",
+      "decisao": "Controles têm duas alturas escolhidas pelo contexto: ação `h-8` (barra de ferramentas, cabeçalho, rodapé, menus) e campo `h-11` (formulário/",
+      "data": "2026-10-18",
+      "status": "active"
+    },
+    {
+      "id": "AD-094",
+      "decisao": "Página-hub que lista destinos (kanban `/kanban`, modelos de campos `/custom_fields`) abre com `PageIntro` (`apps/web/src/components/page-int",
+      "data": "2026-10-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-095",
+      "decisao": "Todo `index.tsx` que redireciona para as páginas de um módulo (`/customers`, `/activities`, `/processes`, `/schedule`, `/kanban`, `/custom_f",
+      "data": "2026-10-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-097",
+      "decisao": "A conta da pessoa logada (`/account`: foto, nome, senha) escreve só em `/me/*` (`PATCH /me/profile`, `PUT /me/password`, `PUT`/`DELETE /me/a",
+      "data": "2026-10-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-098",
+      "decisao": "Tenant `suspended` é barrado em `authenticateSession` (`apps/api/src/middlewares/authentication.middleware.ts`) com `403 tenant_suspended` n",
+      "data": "2026-10-23",
+      "status": "active"
+    },
+    {
+      "id": "AD-102",
+      "decisao": "Fundação do Ethica (gestão de perícias judiciais trabalhistas, cíveis e federais + prospecção via Datajud) a partir da base do checkduplo: h",
+      "data": "2026-10-29",
+      "status": "active"
+    },
+    {
+      "id": "AD-103",
+      "decisao": "Complementa a AD-036. Data de calendário (prazo do laudo, data da nomeação, vencimento e liquidação de lançamento) trafega e é gravada como",
+      "data": "2026-10-29",
+      "status": "active"
+    },
+    {
+      "id": "AD-104",
+      "decisao": "Gráficos com recharts 3 através do primitivo `chart` do `packages/ui` (`ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend",
+      "data": "2026-10-29",
+      "status": "active"
+    },
+    {
+      "id": "AD-105",
+      "decisao": "Prospecção usa a API Pública do Datajud (CNJ) chamada só pelo `apps/api` (`providers/datajudClient.ts`, injetado em `buildApp`), com a chave",
+      "data": "2026-10-29",
+      "status": "active"
+    },
+    {
+      "id": "AD-106",
+      "decisao": "Efeitos entre módulos do domínio por evento (AD-039): `pericia:created` com `prazoLaudo` ⇒ a `agenda` cria o compromisso automático \"Entrega",
+      "data": "2026-10-29",
+      "status": "active"
+    },
+    {
+      "id": "AD-107",
+      "decisao": "O financeiro (`/financeiro/*` na API e no web) é restrito a `admin` e `manager`; perícias, agenda e prospecção são de qualquer papel do tena",
+      "data": "2026-10-29",
+      "status": "active"
+    }
+  ]
+}

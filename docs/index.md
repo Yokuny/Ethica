@@ -1,0 +1,54 @@
+<!-- GERADO por scripts/docs/sync-docs.mjs — não edite à mão. Rode `pnpm docs:sync`. -->
+
+# Gateway de documentação — Ethica
+
+Ponto de entrada obrigatório antes de qualquer tarefa (protocolo em [`AGENTS.md`](../AGENTS.md)).
+Cada feature tem **um** registro vivo em `docs/features/<slug>/feature.md`; spec, design, tasks,
+validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões: `.specs/STATE.md`.
+
+## Em andamento
+
+- [`fundacao-ethica`](features/fundacao-ethica/feature.md) — **parcial** — Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
+
+## Planos não arquivados (`.specs/plans/`)
+
+_Nenhum._
+
+## Features (1)
+
+| Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
+| --- | --- | --- | --- | --- | --- | --- |
+| [Fundação do Ethica](features/fundacao-ethica/feature.md) | Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção | parcial | 2026-10-29 | `apps/api` `apps/web` `packages/contracts` `packages/db` `packages/ui` `harness` `docs` `infra` `tests` | [spec](../.specs/features/fundacao-ethica) | 1 |
+
+## Por área
+
+- **`apps/api`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`apps/web`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`docs`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`harness`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`infra`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`packages/contracts`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`packages/db`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`packages/ui`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+- **`tests`** — [fundacao-ethica](features/fundacao-ethica/feature.md)
+
+## Decisões recentes
+
+Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
+
+- **AD-107** (2026-10-29, active) — O financeiro (`/financeiro/*` na API e no web) é restrito a `admin` e `manager`; perícias, agenda e prospecção são de qualquer papel do tena
+- **AD-106** (2026-10-29, active) — Efeitos entre módulos do domínio por evento (AD-039): `pericia:created` com `prazoLaudo` ⇒ a `agenda` cria o compromisso automático "Entrega
+- **AD-105** (2026-10-29, active) — Prospecção usa a API Pública do Datajud (CNJ) chamada só pelo `apps/api` (`providers/datajudClient.ts`, injetado em `buildApp`), com a chave
+- **AD-104** (2026-10-29, active) — Gráficos com recharts 3 através do primitivo `chart` do `packages/ui` (`ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend
+- **AD-103** (2026-10-29, active) — Complementa a AD-036. Data de calendário (prazo do laudo, data da nomeação, vencimento e liquidação de lançamento) trafega e é gravada como
+- **AD-102** (2026-10-29, active) — Fundação do Ethica (gestão de perícias judiciais trabalhistas, cíveis e federais + prospecção via Datajud) a partir da base do checkduplo: h
+- **AD-098** (2026-10-23, active) — Tenant `suspended` é barrado em `authenticateSession` (`apps/api/src/middlewares/authentication.middleware.ts`) com `403 tenant_suspended` n
+- **AD-097** (2026-10-19, active) — A conta da pessoa logada (`/account`: foto, nome, senha) escreve só em `/me/*` (`PATCH /me/profile`, `PUT /me/password`, `PUT`/`DELETE /me/a
+- **AD-095** (2026-10-19, active) — Todo `index.tsx` que redireciona para as páginas de um módulo (`/customers`, `/activities`, `/processes`, `/schedule`, `/kanban`, `/custom_f
+- **AD-094** (2026-10-19, active) — Página-hub que lista destinos (kanban `/kanban`, modelos de campos `/custom_fields`) abre com `PageIntro` (`apps/web/src/components/page-int
+
+## Outros documentos
+
+- [Arquitetura](architecture.md) · [Glossário](glossary.md) · [Roadmap](roadmap.md) · [Posicionamento](positioning.md) · [ADRs](adr/README.md)
+- Produto: [`PRODUCT.md`](../PRODUCT.md) · Operação local: [`RUN_BOOK.md`](../RUN_BOOK.md)
+- Template de registro: [`docs/templates/feature-doc.md`](templates/feature-doc.md)
