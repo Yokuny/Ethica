@@ -417,4 +417,5 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 
 ## Handoff
 
-- **Feature**: `fundacao-ethica` — base pronta (código + harness + docs). Integração e e2e com Mongo **não foram executados** nesta sessão (sem Docker): rodar `docker compose up -d mongo && pnpm vitest run` antes do primeiro PR.
+- **Feature**: `prazos-recebimentos` — concluída (AD-109 a AD-112, `validation.md` PASS). Pendente só UAT visual e a trava por dia do aviso diário quando houver mais de uma réplica da API (`docs/features/prazos-recebimentos/feature.md`).
+- **Feature**: `fundacao-ethica` — base pronta (código + harness + docs).

@@ -21,25 +21,31 @@ Um commit por task (`feat(prazos-recebimentos): …`), sem atribuição a LLM. G
 
 ## Fase 1 — Prazo (PRZ-01)
 
-- [ ] **T1** Contrato e model: `packages/contracts/src/schemas/prazo.schema.ts`, `packages/db/src/models/prazo.model.ts` (+ export e `syncIndexes`); `prazoLaudo` sai de `updatePericiaSchema` e do model `Pericia`; `COMPROMISSO_TIPOS` perde `prazo`.
-- [ ] **T2** API `pericia/prazo.*` (router/controller/service/repository/schema), rotas montadas em `pericia.router.ts`; `createPericia` cria "Entrega do laudo"; `deletePericia` apaga prazos; `listPericias` traz `proximoPrazo`; `stats` por prazos (15 dias); `findResumosByIds`. Remove `pericia:created`, `agenda.subscriber.ts`, `criarPrazoDoLaudo`. Testes unit + e2e.
-- [ ] **T3** Web: `query/prazo.ts`, `components/prazo-labels.ts`, painel de prazos no detalhe, coluna "Próximo prazo" na listagem, formulário sem prazo do laudo na edição.
-- [ ] **T4** Web agenda: prazos no mês/semana/dia, `PrazoDetail`, filtro sem `prazo`.
+- [x] **T1** Contrato e model: `packages/contracts/src/schemas/prazo.schema.ts`, `packages/db/src/models/prazo.model.ts` (+ export e `syncIndexes`); `prazoLaudo` sai de `updatePericiaSchema` e do model `Pericia`; `COMPROMISSO_TIPOS` perde `prazo`.
+- [x] **T2** API `pericia/prazo.*` (router/controller/service/repository/schema), rotas montadas em `pericia.router.ts`; `createPericia` cria "Entrega do laudo"; `deletePericia` apaga prazos; `listPericias` traz `proximoPrazo`; `stats` por prazos (15 dias); `findResumosByIds`. Remove `pericia:created`, `agenda.subscriber.ts`, `criarPrazoDoLaudo`. Testes unit + e2e.
+- [x] **T3** Web: `query/prazo.ts`, `components/prazo-labels.ts`, painel de prazos no detalhe, coluna "Próximo prazo" na listagem, formulário sem prazo do laudo na edição.
+- [x] **T4** Web agenda: prazos no mês/semana/dia, `PrazoDetail`, filtro sem `prazo`.
 
 ## Fase 2 — Recebimentos (PRZ-02)
 
-- [ ] **T5** Contrato e model: `parcelas`, status `parcial`, schema `createParcelaSchema`, remove `honorarios_parciais`.
-- [ ] **T6** API: rotas de parcela, regras de receita (sem excluir/cancelar, status derivado, valor ≥ recebido), resumo/fluxo pelas parcelas, `lancarHonorariosFixados` atualiza o existente. Testes unit + e2e.
-- [ ] **T7** Web financeiro: recebido/saldo/parcial, diálogo de recebimento, histórico com estorno, sem cancelar receita.
+- [x] **T5** Contrato e model: `parcelas`, status `parcial`, schema `createParcelaSchema`, remove `honorarios_parciais`.
+- [x] **T6** API: rotas de parcela, regras de receita (sem excluir/cancelar, status derivado, valor ≥ recebido), resumo/fluxo pelas parcelas, `lancarHonorariosFixados` atualiza o existente. Testes unit + e2e.
+- [x] **T7** Web financeiro: recebido/saldo/parcial, diálogo de recebimento, histórico com estorno, sem cancelar receita.
 
 ## Fase 3 — Feed e aviso (PRZ-03, PRZ-04)
 
-- [ ] **T8** Identity: `calendarFeedTokenHash`, rotas `/me/calendar-feed`, preferência `avisoPrazoEmail`, `findFeedOwner`, `listDestinatariosAvisoPrazo`. Testes e2e.
-- [ ] **T9** Agenda: `feed.service` (.ics) + rota pública com rate limit. Testes unit + e2e.
-- [ ] **T10** Agenda: `avisoPrazo.service` + agendamento em `server.ts` (`buildMailProvider` compartilhado). Testes unit.
-- [ ] **T11** Web conta: seção "Avisos e calendário".
+- [x] **T8** Identity: `calendarFeedTokenHash`, rotas `/me/calendar-feed`, preferência `avisoPrazoEmail`, `findFeedOwner`, `listDestinatariosAvisoPrazo`. Testes e2e.
+- [x] **T9** Agenda: `feed.service` (.ics) + rota pública com rate limit. Testes unit + e2e.
+- [x] **T10** Agenda: `avisoPrazo.service` + agendamento em `server.ts` (`buildMailProvider` compartilhado). Testes unit.
+- [x] **T11** Web conta: seção "Avisos e calendário".
 
 ## Fase 4 — Fechamento
 
-- [ ] **T12** Seed de demonstração no modelo novo (AD-112); `apps/api/CLAUDE.md` (grafo, eventos, ownership) e `tests/structural/module-boundary.structural.test.ts` (`DB_OWNERSHIP`).
-- [ ] **T13** Verificação completa (`pnpm run check`, `pnpm vitest run` com Mongo, build do web) e validação independente (`validation.md`).
+- [x] **T12** Seed de demonstração no modelo novo (AD-112); `apps/api/CLAUDE.md` (grafo, eventos, ownership) e `tests/structural/module-boundary.structural.test.ts` (`DB_OWNERSHIP`).
+- [x] **T13** Verificação completa (`pnpm run check`, `pnpm vitest run` com Mongo, build do web) e validação independente (`validation.md`).
+
+## Execução
+
+- T1+T2 e T5+T6 foram um commit cada: o contrato sozinho quebrava o `tsc` da API e o gate exige commit verde.
+- Chaves de erro da API em inglês (`parcel_exceeds_balance`, `fee_cannot_be_removed`, `fee_status_comes_from_parcels`, `amount_below_received`), no padrão de `packages/contracts/src/response/messages.ts`, em vez dos nomes do design.
+- Validação: `.specs/features/prazos-recebimentos/validation.md`.

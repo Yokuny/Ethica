@@ -20,8 +20,8 @@ spec: [.specs/features/fundacao-ethica]
 
 - Login, convite de equipe, conta (foto/nome/senha), usuários (admin) e tenant suspenso, portados do checkduplo.
 - Perícias: listagem com busca (Atlas Search), filtros de etapa e justiça e faixa de indicadores; cadastro; detalhe com edição, exclusão (admin), próximos compromissos e lançamentos da perícia.
-- Agenda: calendário mês/semana/dia de vistorias, audiências, prazos e reuniões; criar, editar, concluir, cancelar e remover em `FormDialog`; o prazo do laudo entra sozinho ao cadastrar a perícia.
-- Financeiro (admin/manager): lançamentos de receita e despesa com liquidar/reabrir/cancelar, resumo do mês, fluxo de caixa mensal e totais por categoria em gráficos; honorário fixado vira receita a receber automaticamente.
+- Agenda: calendário mês/semana/dia de vistorias, audiências e reuniões; criar, editar, concluir, cancelar e remover em `FormDialog`. Prazos passaram a ser entidade da perícia (ver `prazos-recebimentos`).
+- Financeiro (admin/manager): lançamentos de receita e despesa (honorário com parcelas desde `prazos-recebimentos`), resumo do mês, fluxo de caixa mensal e totais por categoria em gráficos; honorário fixado vira receita a receber automaticamente.
 - Prospecção: busca de processos na API Pública do Datajud por tribunal/termo/órgão julgador, salvar como oportunidade, acompanhar status e converter em perícia.
 - Início com indicadores, próximos compromissos, fluxo de caixa e perícias por etapa/justiça.
 
@@ -35,7 +35,7 @@ Começar o produto de gestão de perícias já com a arquitetura, o harness e a 
 
 - `apps/api/src/app.ts` — composition root; injeta o `datajudClient` quando há `DATAJUD_API_KEY`.
 - `apps/api/src/modules/{identity,pericia,agenda,financeiro,prospeccao}/` — módulos contidos (AD-038).
-- `apps/api/src/events/` — `pericia:created` e `pericia:honorarios_fixados` com subscribers em `events/subscribers/` (AD-106).
+- `apps/api/src/events/` — `pericia:honorarios_fixados` com subscriber em `events/subscribers/` (AD-106; `pericia:created` removido pela AD-109).
 - `apps/api/src/providers/datajudClient.ts` — consulta e mapeamento do Datajud (AD-105).
 - `apps/api/scripts/seed-demo.ts` — tenant de demonstração.
 
@@ -94,6 +94,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-10-31 — Prazo do laudo vira `Prazo` da perícia, `pericia:created` sai e honorário ganha parcelas (`docs/features/prazos-recebimentos/feature.md`, AD-109, AD-111).
 - 2026-10-29 — Fundação criada a partir do repo `CRM` (checkduplo) (`.specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md`, AD-102).
 
 ## Referências

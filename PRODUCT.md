@@ -32,11 +32,11 @@ Um tenant = um perito ou escritório. Papéis (`admin`, `manager`, `operator`) s
 
 | Área | Faz |
 | --- | --- |
-| Perícias | Cadastro, listagem com busca e filtros, detalhe com edição, etapas do fluxo (nomeada → … → concluída), honorários propostos e fixados |
-| Agenda | Calendário mês/semana/dia de vistorias, audiências, prazos e reuniões; prazo do laudo entra sozinho |
-| Financeiro | Lançamentos de receita (honorários prévios, fixados, parciais) e despesa operacional; resumo, fluxo de caixa e totais por categoria em gráficos |
+| Perícias | Cadastro, listagem com busca, filtros e próximo prazo, detalhe com edição, etapas do fluxo (nomeada → … → concluída), vários prazos com protocolo, honorários propostos e fixados |
+| Agenda | Calendário mês/semana/dia de vistorias, audiências e reuniões, com os prazos pendentes; feed iCal para o celular; aviso diário de prazos por e-mail |
+| Financeiro | Honorários com recebimentos parciais (saldo e estorno) e despesa operacional; resumo, fluxo de caixa e totais por categoria em gráficos |
 | Prospecção | Busca de processos no Datajud por tribunal e movimento; oportunidades salvas e convertidas em perícia |
-| Início | Indicadores (abertas, prazo vencido, prazo em 7 dias, a receber), próximos compromissos e gráficos |
+| Início | Indicadores (abertas, prazos vencidos, prazos em até 15 dias, a receber), próximos compromissos e gráficos |
 | Conta e equipe | Login, convite de usuários, foto/nome/senha |
 
 Detalhe técnico vivo: `docs/features/*/feature.md` (índice em `docs/index.md`). Próximos passos: `docs/roadmap.md`.

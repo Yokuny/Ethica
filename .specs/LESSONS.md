@@ -8,10 +8,20 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
-_Nenhuma ainda._
+_none_
 
 ## Candidates (under observation — do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
 
-_Nenhuma ainda._
+### L-001 — Teste de agregação por período precisa de um registro fora do período; com dados só do período atual, remover o filtro de data passa despercebido.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `financeiro, aggregation` · harmful: 0
+- features: prazos-recebimentos
+- evidence: M7 apps/api/src/modules/financeiro/lancamento.repository.ts (resumo, filtro parcelas.data do mês) (financeiro, aggregation)
+- last seen: 2026-10-31T13:51:53Z
+
+## Quarantined (failed when applied — ignore)
+
+A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
+
+_none_
