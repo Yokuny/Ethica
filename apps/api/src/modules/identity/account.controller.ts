@@ -48,3 +48,30 @@ export const removeAvatar = async (req: Request, res: Response, next: NextFuncti
     next(e);
   }
 };
+
+export const calendarFeedStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await accountService.calendarFeedStatus(req.tenantUser.tenant as string, req.tenantUser.user);
+    res.json(respObj({ data }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const gerarCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await accountService.gerarCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
+    res.status(201).json(respObj({ data, message: 'created_successfully' }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const revogarCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await accountService.revogarCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
+    res.json(respObj({ message: 'removed_successfully' }));
+  } catch (e) {
+    next(e);
+  }
+};

@@ -99,7 +99,7 @@ describe('preferences routes (ENR-03)', () => {
     const res = await request(buildTestApp()).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE);
 
     expect(res.status).toBe(200);
-    expect(res.body.data).toEqual({ onboardingDismissed: false });
+    expect(res.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true });
   });
 
   it('PATCH persists the choice, can be undone, and is read back by GET', async () => {
@@ -113,11 +113,12 @@ describe('preferences routes (ENR-03)', () => {
       .set('User-Agent', DEVICE)
       .send({ onboardingDismissed: true });
     expect(dismissed.status).toBe(200);
-    expect(dismissed.body.data).toEqual({ onboardingDismissed: true });
+    expect(dismissed.body.data).toEqual({ onboardingDismissed: true, avisoPrazoEmail: true });
     expect(
       (await request(app).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE)).body.data,
     ).toEqual({
       onboardingDismissed: true,
+      avisoPrazoEmail: true,
     });
 
     const reopened = await request(app)
@@ -125,7 +126,7 @@ describe('preferences routes (ENR-03)', () => {
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
       .send({ onboardingDismissed: false });
-    expect(reopened.body.data).toEqual({ onboardingDismissed: false });
+    expect(reopened.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true });
   });
 
   it('the preference never carries progress: unknown keys (steps, Tenant) are rejected and nothing is saved', async () => {
@@ -165,7 +166,7 @@ describe('preferences routes (ENR-03)', () => {
       .get('/me/preferences')
       .set('Cookie', await cookieFor(b.user.id))
       .set('User-Agent', DEVICE);
-    expect(resB.body.data).toEqual({ onboardingDismissed: false });
+    expect(resB.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true });
     expect((await User.findById(b.user.id).lean())?.preferences?.onboardingDismissed ?? false).toBe(false);
   });
 

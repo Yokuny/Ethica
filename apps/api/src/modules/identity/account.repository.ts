@@ -1,6 +1,6 @@
-import { Session, tenantScoped, User } from '@ethica/db';
+import { Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { AccountView } from './account.schema.js';
+import type { AccountView, DestinatarioAviso, FeedOwner } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
 
 // Tenant e usuário vêm sempre da sessão (AD-010): todo filtro é a própria pessoa.
@@ -57,3 +57,49 @@ export const setAvatar = async (tenantId: string, userId: string, image: string 
         .lean(),
     ),
   );
+
+// PRZ-03: `null` revoga o link; um hash novo substitui (e assim revoga) o anterior.
+export const setCalendarFeedTokenHash = async (tenantId: string, userId: string, tokenHash: string | null) =>
+  withDbTiming('account.setCalendarFeedTokenHash', async () => {
+    await User.updateOne(
+      own(tenantId, userId),
+      tokenHash ? { $set: { calendarFeedTokenHash: tokenHash } } : { $unset: { calendarFeedTokenHash: 1 } },
+    );
+  });
+
+export const hasCalendarFeed = async (tenantId: string, userId: string): Promise<boolean> =>
+  withDbTiming('account.hasCalendarFeed', async () => {
+    const doc = await User.findOne(own(tenantId, userId)).select('calendarFeedTokenHash').lean();
+    return Boolean(doc?.calendarFeedTokenHash);
+  });
+
+// Rota pública do feed: o token é a única credencial. Usuário inativo, sem papel ou de
+// tenant suspenso (AD-098) não tem dono — o feed responde 404.
+export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null> =>
+  withDbTiming('account.findFeedOwner', async () => {
+    const user = await User.findOne({ calendarFeedTokenHash: tokenHash, active: true, 'role.0': { $exists: true } })
+      .select('Tenant')
+      .lean();
+    if (!user?.Tenant) return null;
+    const tenant = await Tenant.findById(user.Tenant).select('status').lean();
+    if (!tenant || tenant.status === 'suspended') return null;
+    return { userId: user._id.toString(), tenantId: user.Tenant.toString() };
+  });
+
+// AD-110: usuários ativos com papel e aviso ligado (ausente = ligado), de tenants não suspensos.
+export const listDestinatariosAvisoPrazo = async (tenantIds: string[]): Promise<DestinatarioAviso[]> =>
+  withDbTiming('account.listDestinatariosAvisoPrazo', async () => {
+    if (tenantIds.length === 0) return [];
+    const ativos = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, status: { $ne: 'suspended' } })
+      .select('_id')
+      .lean();
+    const users = await User.find({
+      Tenant: { $in: ativos.map((tenant) => tenant._id) },
+      active: true,
+      'role.0': { $exists: true },
+      'preferences.avisoPrazoEmail': { $ne: false },
+    })
+      .select('Tenant name email')
+      .lean();
+    return users.map((user) => ({ tenantId: String(user.Tenant), name: user.name, email: user.email }));
+  });

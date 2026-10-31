@@ -11,7 +11,10 @@ export interface UserDocument {
   active: boolean;
   // ENR-03: preferências da própria pessoa. Guardam só escolhas de interface
   // (ex.: dispensar o guia de primeiros passos) — nunca fatos de progresso.
-  preferences?: { onboardingDismissed?: boolean };
+  // AD-110: `avisoPrazoEmail` ausente = ligado.
+  preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean };
+  // Feed iCal (PRZ-03): só o hash do token secreto, como sessão e convite. Ausente = sem link.
+  calendarFeedTokenHash?: string;
   // ACC-02: foto 256×256 já reduzida no navegador, como data URL. `select: false`:
   // só a rota da foto a lê; listas e sessão levam apenas a versão (avatarUpdatedAt).
   avatar?: string;
@@ -30,11 +33,15 @@ const userSchema = new Schema<UserDocument>(
     isPlatformAdmin: { type: Boolean, default: false, required: true },
     active: { type: Boolean, default: true, required: true },
     preferences: {
-      type: new Schema({ onboardingDismissed: { type: Boolean, default: false } }, { _id: false }),
+      type: new Schema(
+        { onboardingDismissed: { type: Boolean, default: false }, avisoPrazoEmail: { type: Boolean } },
+        { _id: false },
+      ),
       required: false,
     },
     avatar: { type: String, select: false, required: false },
     avatarUpdatedAt: { type: Date, required: false },
+    calendarFeedTokenHash: { type: String, required: false },
   },
   { timestamps: true },
 );
@@ -46,5 +53,7 @@ userSchema.pre('validate', function () {
     this.invalidate('Tenant', 'Tenant é obrigatório para usuários que não são admin da plataforma');
   }
 });
+
+userSchema.index({ calendarFeedTokenHash: 1 }, { unique: true, sparse: true });
 
 export const User = mongoose.model<UserDocument>('User', userSchema);

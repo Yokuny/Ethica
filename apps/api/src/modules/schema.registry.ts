@@ -4,6 +4,7 @@ import {
   listCompromissosQuerySchema,
   upcomingCompromissosQuerySchema,
 } from './agenda/compromisso.schema.js';
+import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import {
   categoriasQuerySchema,
   fluxoQuerySchema,
@@ -39,6 +40,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'compromissoIdParamSchema', schema: compromissoIdParamSchema },
   { name: 'listCompromissosQuerySchema', schema: listCompromissosQuerySchema },
   { name: 'upcomingCompromissosQuerySchema', schema: upcomingCompromissosQuerySchema },
+  { name: 'feedTokenParamSchema', schema: feedTokenParamSchema },
   { name: 'lancamentoIdParamSchema', schema: lancamentoIdParamSchema },
   { name: 'listLancamentosQuerySchema', schema: listLancamentosQuerySchema },
   { name: 'parcelaIdParamSchema', schema: parcelaIdParamSchema },
