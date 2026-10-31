@@ -75,7 +75,8 @@ O perito convive com vários prazos por processo (laudo, quesitos suplementares,
 
 1. WHEN o usuário gera o link de sincronização THEN the system SHALL mostrar uma URL iCal secreta, por usuário e tenant.
 2. WHEN o calendário externo consulta a URL THEN the system SHALL responder `text/calendar` com compromissos e prazos pendentes do tenant.
-3. WHEN o usuário revoga o link THEN the system SHALL invalidar a URL anterior.
+3. WHEN um compromisso ou prazo é publicado no feed THEN each event SHALL carry **data** (início e fim do compromisso; dia inteiro para prazo), **descrição** (tipo, título, nº do processo, partes e observações) e **local** (endereço do compromisso; vazio no prazo) — definido pelo usuário em 2026-10-31.
+4. WHEN o usuário revoga o link THEN the system SHALL invalidar a URL anterior.
 
 **Independent Test**: Assinar a URL num calendário e ver a vistoria e o prazo aparecerem.
 
