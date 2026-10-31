@@ -130,3 +130,11 @@ Fora de escopo sugerido: comunidade e clube de benefícios (produto/negócio, n�
 - Viram spec: **onda 1** (`.specs/features/prazos-recebimentos/spec.md`), **onda 2** sem a importação assistida por IA externa (colar prompt/JSON), com importação **por PDF e CSV** (`.specs/features/importacao-processos/spec.md`), **onda 3** (`.specs/features/documentos-pdf/spec.md`) e **onda 4** (`.specs/features/laudos/spec.md`).
 - Ondas 5 (campo) e 6 (gestão) ficam para depois.
 - Os registros criados na conta da Jusperia durante a análise foram **mantidos** a pedido do usuário.
+
+## 5. Itens novos a partir das respostas do usuário (2026-10-31)
+
+| Funcionalidade | Ethica | Onde | Esforço | Valor | Onda sugerida |
+| --- | --- | --- | --- | --- | --- |
+| Matriz de permissões por perfil × módulo × ação (acessar, visualizar, editar, inserir, excluir), com valores pré-selecionados por perfil e gerida pelo admin (AD-108, proposta) | Parcial: papéis fixos `admin`/`manager`/`operator` (AD-107); o primeiro usuário já nasce `admin` | `apps/api/src/modules/identity/platform.service.ts`, `.agents/skills/ethica-permissions/SKILL.md` | G | ★★★ | nova, antes das ondas 3–4 (toda tela nova vai consultar a matriz) |
+| Jornada do assistente técnico: parecer técnico, medições junto com o perito, quesitos complementares/suplementares, impugnação, honorários pagos pela parte contratante, nomenclatura reclamante/reclamada × autor/réu | Parcial: `papel` na perícia | `packages/contracts/src/schemas/pericia.schema.ts` | M (parecer entra em `laudos`, LAU-06) + M (honorário por contratante) | ★★ | 4 e 6 |
+| App de campo como pré-laudo offline: formulários do laudo salvos localmente, áudio com transcrição opcional, fotos, versões das partes, nome/e-mail/assinatura das partes, documentos | Não tem | — | G | ★★★ | 5 (redefinida) |

@@ -344,3 +344,14 @@ Nada foi removido até aqui. Registros pré-existentes da conta (processo #0001 
 
 
 
+
+## Respostas do usuário às perguntas abertas (2026-10-31)
+
+Definem o comportamento desejado **para o Ethica** (não são observação da Jusperia).
+
+1. **Perfis e permissões**: os perfis de equipe (equivalentes a "Equipe técnica" e "Secretaria") passam sempre por uma etapa de seleção de permissões por módulo e por ação (acessar, visualizar, editar, inserir, excluir). Cada perfil vem com valores pré-selecionados diferentes. O primeiro acesso do escritório vira administrador e gerencia as permissões desses perfis.
+2. **Assistente técnico**: atua de forma parcial, em defesa de uma das partes, com base em normas técnicas; acompanha a perícia para apontar falhas na metodologia do perito e faz a intermediação técnica entre a parte e o perito. No sistema o fluxo é quase o mesmo do perito do juízo, mas emite **parecer técnico** em vez de laudo; pode fazer medições de agentes quantitativos junto com as do perito, apresentar quesitos complementares e suplementares e impugnar o laudo. Os honorários do assistente são pagos por quem o contratou (advogado ou a própria parte, reclamante ou reclamada). Na perícia cível as partes se chamam autor e réu; a lógica e os entregáveis são os mesmos.
+3. **App de campo**: usa o mesmo BFF; grava áudio e permite transcrevê-lo depois, se o usuário quiser; salva localmente a edição e o preenchimento dos formulários; contém os laudos e funciona como **pré-laudo**, recebendo fotos, as versões das partes ouvidas pelo profissional, nome, e-mail e assinatura das partes, documentos disponíveis e outros.
+4. **Feed iCal**: explicado ao usuário (URL `.ics` assinada uma vez no calendário do celular, só leitura, atualizada periodicamente pelo app de calendário).
+5. **"Vence em breve"**: 15 dias. **Movimentação** (relatório de ociosos): carregamento do laudo, notificação de recebimento de honorários, intimação para prestar esclarecimentos e para laudo complementar.
+6. **Duplicados na importação**: pula o processo já cadastrado, apenas com um aviso.
