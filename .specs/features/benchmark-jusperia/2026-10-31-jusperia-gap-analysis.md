@@ -124,3 +124,9 @@ Fora de escopo sugerido: comunidade e clube de benefícios (produto/negócio, n�
 3. **Armazenamento de arquivos** (fotos de vistoria, logo, anexos) — onde e com que limite por tenant.
 4. **IA**: colar resposta de IA externa (custo zero, como a Jusperia) × provedor no servidor (custo, LGPD).
 5. **Fases**: ampliar `PERICIA_STATUS` × manter etapas e acrescentar "fase detalhada".
+
+## 4. Escolha do usuário (2026-10-31)
+
+- Viram spec: **onda 1** (`.specs/features/prazos-recebimentos/spec.md`), **onda 2** sem a importação assistida por IA externa (colar prompt/JSON), com importação **por PDF e CSV** (`.specs/features/importacao-processos/spec.md`), **onda 3** (`.specs/features/documentos-pdf/spec.md`) e **onda 4** (`.specs/features/laudos/spec.md`).
+- Ondas 5 (campo) e 6 (gestão) ficam para depois.
+- Os registros criados na conta da Jusperia durante a análise foram **mantidos** a pedido do usuário.
