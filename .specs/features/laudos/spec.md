@@ -18,7 +18,6 @@ O laudo é o produto final do perito e hoje é escrito fora do Ethica, copiando 
 | Feature | Reason |
 | --- | --- |
 | Dados de vistoria do app de campo como variáveis | Onda 5 (campo); o motor de variáveis já deve aceitá-los depois. |
-| Pareceres do assistente técnico | Mesmo motor, outro tipo de documento; entra depois do laudo do perito. |
 | Gerar o modelo inteiro por IA | Baixo valor e alto risco (falhou no concorrente). |
 | Protocolo no PJe | Feito pelo perito. |
 
@@ -70,6 +69,16 @@ O laudo é o produto final do perito e hoje é escrito fora do Ethica, copiando 
 1. WHEN o perito pede melhoria de uma seção THEN the system SHALL devolver uma sugestão em linguagem técnico-pericial, mostrada ao lado do original para aceitar ou descartar.
 2. WHEN a IA falha ou demora além do limite THEN the system SHALL manter o texto original e avisar.
 
+### P2: Parecer técnico do assistente técnico
+
+**User Story**: Como assistente técnico de uma das partes, quero emitir parecer técnico com o mesmo motor do laudo, para contestar ou complementar o laudo pericial.
+
+**Acceptance Criteria** (definido pelo usuário em 2026-10-31):
+
+1. WHEN a perícia tem `papel = assistente_tecnico` THEN the system SHALL oferecer o tipo de documento **parecer técnico** no lugar de laudo pericial, com modelos próprios.
+2. WHEN o assistente redige o parecer THEN the system SHALL permitir seções de medições de agentes quantitativos feitas junto com as do perito, quesitos complementares e suplementares e impugnação do laudo pericial.
+3. WHEN a justiça é trabalhista THEN the system SHALL nomear as partes reclamante/reclamada; WHEN cível THEN autor/réu — a lógica e os entregáveis são os mesmos.
+
 ### P2: Biblioteca padrão trabalhista
 
 **Acceptance Criteria**:
@@ -93,6 +102,7 @@ O laudo é o produto final do perito e hoje é escrito fora do Ethica, copiando 
 | LAU-03 | P1: Redigir e exportar | Specify | Pending |
 | LAU-04 | P2: Redação com IA | Specify | Pending |
 | LAU-05 | P2: Biblioteca padrão trabalhista | Specify | Pending |
+| LAU-06 | P2: Parecer técnico do assistente técnico | Specify | Pending |
 
 ## Success Criteria
 
