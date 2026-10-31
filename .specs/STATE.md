@@ -423,7 +423,48 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-10-31
 - **Status**: active
 
+### AD-114
+- **Decision**: A extração de dados do PDF da ata/despacho é feita por **regras sobre a camada de texto** do PDF, no `apps/api`: `unpdf` extrai o texto e `extrairAta` (expressões regulares e rótulos do PJe) monta o rascunho. Sem modelo de IA (nem no servidor, nem colando prompt/JSON de IA externa) e sem OCR: PDF escaneado sem texto é recusado com `pdf_without_text`. O PDF não é gravado.
+- **Reason**: escolha do usuário em 2026-10-31. Sem custo por documento e sem enviar dado pessoal do processo a terceiro (LGPD). A IA externa colada já tinha sido descartada na spec.
+- **Trade-off**: número, vara, datas e partes rotuladas saem bem; objeto e prazos em texto livre variam por tribunal e caem em "faltando" para o perito preencher. Trocar por IA depois é trocar `extrairAta` mantendo a resposta `{ draft, missing, warnings }`.
+- **Scope**: `apps/api/src/modules/pericia/importacao.*`, `apps/api/package.json` (`unpdf`); origem `.specs/features/importacao-processos/spec.md`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-115
+- **Decision**: Defaults da importação confirmados pelo usuário: (1) o PDF só preenche o formulário de cadastro, o perito confere e salva; (2) CSV com separador `;`, UTF-8 com ou sem BOM, datas `DD/MM/AAAA` ou `AAAA-MM-DD`; (3) o lote importa as linhas válidas e devolve relatório por linha (recusada com motivo, já cadastrada ignorada), sem parar; (4) parte é reaproveitada por CPF/CNPJ, advogado por OAB e, sem documento, pelo nome exato (espaços normalizados) e tipo; (5) período imprescrito sugerido quando há autuação: início = mais recente entre (autuação − 5 anos) e admissão, fim = demissão (ou a autuação, sem demissão).
+- **Reason**: respostas do usuário em 2026-10-31 à tabela "Assumptions & Open Questions" da spec.
+- **Trade-off**: duas pessoas homônimas sem documento viram o mesmo cadastro; o fim do período sem demissão é uma aproximação que o perito ajusta.
+- **Scope**: `apps/api/src/modules/pericia/{importacao,parte,pericia}.service.ts`, `packages/contracts/src/schemas/{pericia,importacao}.schema.ts`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-116
+- **Decision**: A feature `importacao-processos` entra inteira nesta rodada: IMP-01 (PDF), IMP-02 (CSV), IMP-03 (partes e advogados reutilizáveis) e IMP-04 (dados auxiliares trabalhistas).
+- **Reason**: escolha do usuário em 2026-10-31. Fazer só o P1 obrigaria PDF e CSV a gravar autor/réu como texto e refazer a importação quando as partes virassem cadastro.
+- **Trade-off**: PR maior, com troca de model da perícia.
+- **Scope**: `.specs/features/importacao-processos/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-117
+- **Decision**: Partes e advogados são uma collection `Parte` do módulo `pericia`, com `tipo` `party`/`lawyer` (documento CPF/CNPJ para parte, OAB para advogado, e-mail, telefone). A perícia guarda `partes: [{ Parte, polo: plaintiff|defendant, tipo, nome }]`, com o nome copiado para a busca da listagem e o resumo do feed/aviso; renomear a parte atualiza as cópias. Os campos de texto `autor`/`reu` saem do model, do contrato e do índice de busca. Sem migração: o seed é refeito (como AD-112/AD-113). Sem exclusão de parte nesta rodada.
+- **Reason**: um só cadastro para os dois tipos mantém uma tela, uma busca e uma regra de reaproveitamento; a cópia do nome evita consulta extra na listagem, no feed e no aviso e mantém a busca por parte no Atlas Search.
+- **Trade-off**: o nome existe em dois lugares (sincronizado só pela edição da parte); banco local antigo precisa do seed; parte criada por engano fica até existir exclusão/mesclagem.
+- **Scope**: `packages/db/src/models/{parte,pericia}.model.ts`, `packages/db/src/textSearch.ts`, `packages/contracts/src/schemas/{parte,pericia}.schema.ts`, `apps/api/src/modules/pericia/`, `apps/api/scripts/seed-demo.ts`, `apps/web/src/routes/_private/{pericias,partes}/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-118
+- **Decision**: Arquivo de importação vai **no corpo da requisição** com o próprio tipo (`application/pdf` até 10 MB, `text/csv` até 2 MB e 1000 linhas), com `express.raw`/`express.text` só na rota, sem multipart e sem armazenamento. Na importação, **justiça e tribunal saem do número CNJ** (`J`=5 ⇒ `labor`/`TRTnn`, 4 ⇒ `federal`/`TRFn`, 8 ⇒ `civil`/`TJ` + UF); outros segmentos são recusados na linha do CSV e ficam em branco no rascunho do PDF.
+- **Reason**: um arquivo por requisição dispensa biblioteca de multipart e decisão de storage (ainda aberta na gap analysis); o número CNJ já codifica o órgão, então a planilha não precisa de colunas que poderiam contradizê-lo.
+- **Trade-off**: o `express.json` global (100 kB) não serve para arquivo; cada rota de arquivo declara o seu parser e limite.
+- **Scope**: `apps/api/src/modules/pericia/pericia.router.ts`, `apps/api/src/modules/pericia/importacao.service.ts`, `apps/web/src/lib/api/client.api.ts`.
+- **Date**: 2026-10-31
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `importacao-processos` — concluída (AD-114 a AD-118, `validation.md` PASS, UAT no navegador). Pendências no `feature.md` (OCR, excluir/mesclar partes, atas de outros tribunais).
 - **Feature**: `prazos-recebimentos` — concluída (AD-109 a AD-112, `validation.md` PASS). Pendente só UAT visual e a trava por dia do aviso diário quando houver mais de uma réplica da API (`docs/features/prazos-recebimentos/feature.md`).
 - **Feature**: `fundacao-ethica` — base pronta (código + harness + docs).

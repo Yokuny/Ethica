@@ -6,4 +6,5 @@ export const DEFAULT_VALUES: PericiaFormValues = {
   objeto: '',
   justica: 'labor',
   papel: 'court_expert',
+  partes: [],
 };

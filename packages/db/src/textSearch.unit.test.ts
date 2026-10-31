@@ -30,10 +30,9 @@ describe('periciaSearchStages (montagem do $search)', () => {
     expect(must[0]?.compound.should.map((c) => c.autocomplete.path)).toEqual([
       'numeroProcesso',
       'objeto',
-      'autor',
-      'reu',
       'vara',
       'comarca',
+      'partes.nome',
     ]);
     expect(must[0]?.compound.minimumShouldMatch).toBe(1);
     expect(must[1]?.compound.should[0]?.autocomplete.query).toBe('metalúrgica');
@@ -46,8 +45,8 @@ describe('periciaSearchStages (montagem do $search)', () => {
     expect(must[0]?.compound.should[0]?.autocomplete.query).toHaveLength(15);
   });
 
-  it('o índice declarado cobre a collection de perícias', () => {
-    expect(SEARCH_INDEXES.map((index) => index.collection)).toEqual(['pericias']);
+  it('os índices declarados cobrem perícias e partes', () => {
+    expect(SEARCH_INDEXES.map((index) => index.collection)).toEqual(['pericias', 'partes']);
   });
 
   it('o $search nunca usa regex nem $text', () => {
@@ -66,8 +65,7 @@ describe('searchDefinitionMatches (definição normalizada pelo Atlas)', () => {
       fields: {
         comarca: { ...ac },
         vara: { ...ac },
-        reu: { ...ac },
-        autor: { ...ac },
+        partes: { fields: { nome: { ...ac } }, type: 'document', dynamic: false },
         objeto: { ...ac },
         numeroProcesso: { ...ac },
         Tenant: { type: 'objectId' },

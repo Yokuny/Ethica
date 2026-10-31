@@ -39,6 +39,22 @@ export const request = async <T>(path: string, method: Method, body?: unknown): 
   }
 };
 
+// Arquivo como corpo da requisição (AD-118): PDF e CSV da importação. O tipo vai explícito
+// porque o navegador nem sempre o conhece (CSV chega como `application/vnd.ms-excel` no Windows).
+export const postFile = async <T>(path: string, file: Blob, type: string): Promise<ApiResponse<T>> => {
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': type },
+      body: file,
+    });
+    return translateMessage((await res.json()) as ApiResponse<T>);
+  } catch {
+    return { success: false, message: CONNECTION_ERROR_MESSAGE };
+  }
+};
+
 export const get = <T>(path: string): Promise<ApiResponse<T>> => request<T>(path, 'GET');
 export const post = <T>(path: string, body?: unknown): Promise<ApiResponse<T>> => request<T>(path, 'POST', body);
 export const patch = <T>(path: string, body?: unknown): Promise<ApiResponse<T>> => request<T>(path, 'PATCH', body);

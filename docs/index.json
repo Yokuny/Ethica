@@ -48,9 +48,9 @@
     {
       "slug": "importacao-processos",
       "feature": "Importação de processos",
-      "descricao": "Cadastro de perícia a partir do PDF da ata, importação em lote por CSV, partes e advogados reutilizáveis",
+      "descricao": "Cadastro de perícia a partir do PDF da ata, importação em lote por CSV, partes e advogados reutilizáveis e dados trabalhistas",
       "data": "2026-10-31",
-      "status": "planejado",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -58,7 +58,14 @@
         "packages/db"
       ],
       "decisoes": [
-        "AD-103"
+        "AD-103",
+        "AD-107",
+        "AD-113",
+        "AD-114",
+        "AD-115",
+        "AD-116",
+        "AD-117",
+        "AD-118"
       ],
       "spec": [
         ".specs/features/importacao-processos"
@@ -461,6 +468,36 @@
     {
       "id": "AD-113",
       "decisao": "Todo valor de domínio que o back-end grava e devolve é uma chave em inglês: status, tipos, categorias, naturezas, atuação, justiça, status d",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-114",
+      "decisao": "A extração de dados do PDF da ata/despacho é feita por regras sobre a camada de texto do PDF, no `apps/api`: `unpdf` extrai o texto e `extra",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-115",
+      "decisao": "Defaults da importação confirmados pelo usuário: (1) o PDF só preenche o formulário de cadastro, o perito confere e salva; (2) CSV com separ",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-116",
+      "decisao": "A feature `importacao-processos` entra inteira nesta rodada: IMP-01 (PDF), IMP-02 (CSV), IMP-03 (partes e advogados reutilizáveis) e IMP-04",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-117",
+      "decisao": "Partes e advogados são uma collection `Parte` do módulo `pericia`, com `tipo` `party`/`lawyer` (documento CPF/CNPJ para parte, OAB para advo",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-118",
+      "decisao": "Arquivo de importação vai no corpo da requisição com o próprio tipo (`application/pdf` até 10 MB, `text/csv` até 2 MB e 1000 linhas), com `e",
       "data": "2026-10-31",
       "status": "active"
     }

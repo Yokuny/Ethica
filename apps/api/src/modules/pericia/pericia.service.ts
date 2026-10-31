@@ -1,7 +1,8 @@
-import { PRAZO_VENCE_EM_BREVE_DIAS } from '@ethica/contracts';
+import { PRAZO_VENCE_EM_BREVE_DIAS, sugerirPeriodoImprescrito } from '@ethica/contracts';
 import { TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import * as parteService from './parte.service.js';
 import * as periciaRepository from './pericia.repository.js';
 import type {
   CreatePericiaInput,
@@ -19,10 +20,24 @@ export class PericiaNotFoundError extends KeyedError {}
 const isDuplicateKeyError = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
 
-// O prazo do laudo informado no cadastro vira o prazo "Entrega do laudo" (AD-109).
-export const createPericia = async ({ prazoLaudo, ...input }: CreatePericiaInput): Promise<PericiaRecord> => {
+// Sem período imprescrito informado, grava o sugerido pelas datas do contrato (AD-115).
+const comPeriodoSugerido = <T extends CreatePericiaInput>(input: T): T => {
+  if (input.periodoImprescritoInicio || input.periodoImprescritoFim) return input;
+  const sugerido = sugerirPeriodoImprescrito(input);
+  return sugerido
+    ? { ...input, periodoImprescritoInicio: sugerido.inicio, periodoImprescritoFim: sugerido.fim }
+    : input;
+};
+
+// Caminho único de criação (formulário, PDF, CSV, oportunidade): resolve as partes no
+// cadastro (AD-117) e transforma o prazo do laudo no prazo "Entrega do laudo" (AD-109).
+export const createPericia = async (data: CreatePericiaInput): Promise<PericiaRecord> => {
+  const { prazoLaudo, partes, ...input } = comPeriodoSugerido(data);
   try {
-    const pericia = await periciaRepository.createPericia(input);
+    const pericia = await periciaRepository.createPericia({
+      ...input,
+      partes: await parteService.resolvePartes(input.tenant, partes ?? []),
+    });
     if (prazoLaudo) {
       await prazoRepository.createPrazo(input.tenant, pericia.id, {
         titulo: 'Entrega do laudo',
@@ -45,7 +60,11 @@ export const getPericia = async (tenantId: string, id: string): Promise<PericiaR
 
 export const updatePericia = async (tenantId: string, id: string, data: UpdatePericia): Promise<PericiaRecord> => {
   const before = await getPericia(tenantId, id);
-  const updated = await periciaRepository.updatePericia(tenantId, id, data);
+  const { partes, ...rest } = data;
+  const updated = await periciaRepository.updatePericia(tenantId, id, {
+    ...rest,
+    partes: partes ? await parteService.resolvePartes(tenantId, partes) : undefined,
+  });
   if (!updated) throw new PericiaNotFoundError('not_found');
   // Honorário fixado pelo juízo (novo ou alterado) vira receita a receber no financeiro.
   if (updated.honorariosFixadosCents && updated.honorariosFixadosCents !== before.honorariosFixadosCents) {

@@ -19,6 +19,8 @@ export type SearchStage = mongoose.PipelineStage;
 
 // Texto livre da caixa de busca: todas as palavras, em qualquer dos campos de texto da perícia.
 export type PericiaSearchSpec = { q: string };
+// Caixa de busca do cadastro de partes: nome, CPF/CNPJ ou OAB.
+export type ParteSearchSpec = { q: string };
 
 // Banco sem Atlas Search (ambiente mal configurado): a API responde
 // `search_unavailable` em vez de cair em regex (ENR-13.7).
@@ -72,8 +74,11 @@ const autocomplete = {
   foldDiacritics: true,
 };
 
-// Campos que a caixa de busca da listagem de perícias cobre.
-const PERICIA_SEARCH_PATHS = ['numeroProcesso', 'objeto', 'autor', 'reu', 'vara', 'comarca'] as const;
+// Campos que a caixa de busca da listagem de perícias cobre. `partes.nome` é a cópia do
+// nome do cadastro de partes guardada na perícia (AD-117).
+const PERICIA_SEARCH_PATHS = ['numeroProcesso', 'objeto', 'vara', 'comarca', 'partes.nome'] as const;
+export const PARTE_SEARCH_INDEX = 'parte_text';
+const PARTE_SEARCH_PATHS = ['nome', 'documento', 'oab'] as const;
 
 export const SEARCH_INDEXES = [
   {
@@ -84,7 +89,24 @@ export const SEARCH_INDEXES = [
         dynamic: false,
         fields: {
           Tenant: { type: 'objectId' },
-          ...Object.fromEntries(PERICIA_SEARCH_PATHS.map((path) => [path, autocomplete])),
+          numeroProcesso: autocomplete,
+          objeto: autocomplete,
+          vara: autocomplete,
+          comarca: autocomplete,
+          partes: { type: 'document', fields: { nome: autocomplete } },
+        },
+      },
+    },
+  },
+  {
+    collection: 'partes',
+    name: PARTE_SEARCH_INDEX,
+    definition: {
+      mappings: {
+        dynamic: false,
+        fields: {
+          Tenant: { type: 'objectId' },
+          ...Object.fromEntries(PARTE_SEARCH_PATHS.map((path) => [path, autocomplete])),
         },
       },
     },
@@ -111,6 +133,21 @@ export const periciaSearchStages = (tenantId: string, spec: PericiaSearchSpec): 
       must: words(spec.q).map((word) => ({
         compound: {
           should: PERICIA_SEARCH_PATHS.map((path) => ({ autocomplete: { query: word, path } })),
+          minimumShouldMatch: 1,
+        },
+      })),
+    },
+  }),
+];
+
+export const parteSearchStages = (tenantId: string, spec: ParteSearchSpec): SearchStage[] => [
+  searchStage({
+    index: PARTE_SEARCH_INDEX,
+    compound: {
+      filter: [tenantFilter(tenantId)],
+      must: words(spec.q).map((word) => ({
+        compound: {
+          should: PARTE_SEARCH_PATHS.map((path) => ({ autocomplete: { query: word, path } })),
           minimumShouldMatch: 1,
         },
       })),

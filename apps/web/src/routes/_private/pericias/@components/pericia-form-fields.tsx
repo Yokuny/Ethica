@@ -1,9 +1,11 @@
-import type { Control } from 'react-hook-form';
+import { type Control, useWatch } from 'react-hook-form';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DateField, MoneyField, SelectField, TextareaField, TextField } from '@/components/form-fields.js';
 import { JUSTICA_ITEMS, PAPEL_ITEMS, PERICIA_STATUS_ITEMS } from '@/components/pericia-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { PericiaFormValues } from '../@interface/pericias.interface.js';
+import { PericiaPartesFields } from './pericia-partes-fields.js';
+import { PericiaTrabalhistaFields } from './pericia-trabalhista-fields.js';
 
 // Campos da perícia compartilhados por `add` e `details` (edição). Na edição
 // entram também a etapa e o honorário fixado pelo juízo; o prazo do laudo só no
@@ -15,6 +17,7 @@ export function PericiaFormFields({
   control: Control<PericiaFormValues>;
   editing?: boolean;
 }) {
+  const justica = useWatch({ control, name: 'justica' });
   return (
     <DefaultFormLayout
       sections={[
@@ -61,7 +64,7 @@ export function PericiaFormFields({
         },
         {
           title: t('expert_case'),
-          description: t('object_parties_and_deadlines'),
+          description: t('object_and_deadlines'),
           fields: [
             <TextField
               key="objeto"
@@ -70,9 +73,7 @@ export function PericiaFormFields({
               label={t('object')}
               placeholder={t('example_object')}
             />,
-            <div key="partes" className="grid gap-4 sm:grid-cols-2">
-              <TextField control={control} name="autor" label={t('plaintiff')} placeholder={t('example_name')} />
-              <TextField control={control} name="reu" label={t('defendant')} placeholder={t('example_company')} />
+            <div key="datas" className="grid gap-4 sm:grid-cols-2">
               <DateField
                 control={control}
                 name="dataNomeacao"
@@ -99,6 +100,20 @@ export function PericiaFormFields({
             </div>,
           ],
         },
+        {
+          title: t('parties'),
+          description: t('parties_and_lawyers_description'),
+          fields: [<PericiaPartesFields key="partes" />],
+        },
+        ...(justica === 'labor'
+          ? [
+              {
+                title: t('labor_report_data'),
+                description: t('labor_report_data_description'),
+                fields: [<PericiaTrabalhistaFields key="trabalhista" />],
+              },
+            ]
+          : []),
         {
           title: t('fees'),
           description: t('proposed_and_fixed_fees'),

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { calendarDateSchema } from './date.schema.js';
+import { periciaParteInputSchema } from './parte.schema.js';
 
 export const JUSTICAS = ['labor', 'civil', 'federal'] as const;
 export type Justica = (typeof JUSTICAS)[number];
@@ -36,11 +37,19 @@ const periciaFields = z.object({
   vara: z.string().trim().max(120, 'vara inválida').optional(),
   comarca: z.string().trim().max(120, 'comarca inválida').optional(),
   objeto: z.string().trim().min(1, 'objeto é obrigatório').max(500, 'objeto inválido'),
-  autor: z.string().trim().max(200, 'autor inválido').optional(),
-  reu: z.string().trim().max(200, 'réu inválido').optional(),
+  // Autor, réu e advogados de cada polo, ligados ao cadastro de partes (AD-117).
+  partes: z.array(periciaParteInputSchema).max(30, 'partes demais').optional(),
   dataNomeacao: calendarDateSchema.optional(),
   honorariosPropostosCents: centsSchema.optional(),
   observacoes: z.string().trim().max(2000, 'observações inválidas').optional(),
+  // Dados auxiliares do laudo trabalhista (IMP-04).
+  dataAutuacao: calendarDateSchema.optional(),
+  dataAdmissao: calendarDateSchema.optional(),
+  dataDemissao: calendarDateSchema.optional(),
+  funcaoReclamante: z.string().trim().max(120, 'função inválida').optional(),
+  periodoImprescritoInicio: calendarDateSchema.optional(),
+  periodoImprescritoFim: calendarDateSchema.optional(),
+  localPericia: z.string().trim().max(300, 'endereço inválido').optional(),
 });
 
 // `prazoLaudo` só existe no cadastro: vira o prazo "Entrega do laudo" (AD-109), não é campo da perícia.
@@ -53,3 +62,18 @@ export const updatePericiaSchema = periciaFields
   .extend({ status: z.enum(PERICIA_STATUS).optional(), honorariosFixadosCents: centsSchema.optional() })
   .strict();
 export type UpdatePericia = z.infer<typeof updatePericiaSchema>;
+
+// Período imprescrito sugerido (AD-115): do mais recente entre (autuação − 5 anos) e a
+// admissão até a demissão; sem demissão, até a autuação. Sem autuação, sem sugestão.
+export const sugerirPeriodoImprescrito = (datas: {
+  dataAutuacao?: string;
+  dataAdmissao?: string;
+  dataDemissao?: string;
+}): { inicio: string; fim: string } | undefined => {
+  const { dataAutuacao, dataAdmissao, dataDemissao } = datas;
+  if (!dataAutuacao) return undefined;
+  const [ano, mes, dia] = dataAutuacao.split('-');
+  const cincoAnosAntes = `${Number(ano) - 5}-${mes}-${mes === '02' && dia === '29' ? '28' : dia}`;
+  const inicio = dataAdmissao && dataAdmissao > cincoAnosAntes ? dataAdmissao : cincoAnosAntes;
+  return { inicio, fim: dataDemissao ?? dataAutuacao };
+};

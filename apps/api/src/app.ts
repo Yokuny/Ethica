@@ -18,6 +18,7 @@ import { inviteRouter } from './modules/identity/invite.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
 import { createPreferencesRouter } from './modules/identity/preferences.router.js';
 import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
+import { createParteRouter } from './modules/pericia/parte.router.js';
 import { createPericiaRouter } from './modules/pericia/pericia.router.js';
 import { createProspeccaoRouter } from './modules/prospeccao/oportunidade.router.js';
 import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
@@ -78,6 +79,7 @@ export const buildApp = (options: { datajud?: DatajudClient } = {}): Express => 
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/pericias', createPericiaRouter({ validToken }));
+  app.use('/partes', createParteRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken }));
   app.use('/financeiro', createFinanceiroRouter({ validToken }));
   app.use('/prospeccao', createProspeccaoRouter({ validToken, datajud }));

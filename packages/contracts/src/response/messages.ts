@@ -39,6 +39,21 @@ export const API_MESSAGE_KEYS = [
   'invite_email_failed',
   // Perícias
   'expert_case_already_registered',
+  'party_not_found',
+  // Importação de perícias (AD-114, AD-115, AD-118): arquivo, linha do CSV e avisos do PDF
+  'unsupported_file_type',
+  'file_too_large',
+  'pdf_without_text',
+  'csv_empty',
+  'csv_invalid_header',
+  'csv_too_many_rows',
+  'invalid_process_number',
+  'invalid_date',
+  'invalid_field',
+  'missing_required_field',
+  'unsupported_court',
+  'multiple_process_numbers',
+  'deadline_calculated',
   // Financeiro (AD-111)
   'parcel_exceeds_balance',
   'fee_cannot_be_removed',

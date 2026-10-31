@@ -2,11 +2,24 @@ import {
   JUSTICAS,
   type Justica,
   PAPEIS_PERICIA,
+  PARTE_TIPOS,
   type PapelPericia,
+  type ParteTipo,
   PERICIA_STATUS,
   type PericiaStatus,
+  POLOS,
+  type Polo,
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
+
+// Parte ligada à perícia. `tipo` e `nome` são cópia do cadastro (AD-117): a busca da
+// listagem e o resumo do feed/aviso leem daqui; renomear a parte atualiza a cópia.
+export interface PericiaParteDocument {
+  Parte: mongoose.Types.ObjectId;
+  polo: Polo;
+  tipo: ParteTipo;
+  nome: string;
+}
 
 export interface PericiaDocument {
   _id: mongoose.Types.ObjectId;
@@ -18,14 +31,21 @@ export interface PericiaDocument {
   vara?: string;
   comarca?: string;
   objeto: string;
-  autor?: string;
-  reu?: string;
+  partes: PericiaParteDocument[];
   status: PericiaStatus;
   // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-036, AD-103), não instantes.
   dataNomeacao?: string;
   honorariosPropostosCents?: number;
   honorariosFixadosCents?: number;
   observacoes?: string;
+  // Dados auxiliares do laudo trabalhista (IMP-04); datas `YYYY-MM-DD` (AD-103).
+  dataAutuacao?: string;
+  dataAdmissao?: string;
+  dataDemissao?: string;
+  funcaoReclamante?: string;
+  periodoImprescritoInicio?: string;
+  periodoImprescritoFim?: string;
+  localPericia?: string;
   // Perícia que nasceu de uma oportunidade de prospecção (Datajud).
   Oportunidade?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -42,13 +62,32 @@ const periciaSchema = new Schema<PericiaDocument>(
     vara: { type: String, trim: true },
     comarca: { type: String, trim: true },
     objeto: { type: String, required: true, trim: true },
-    autor: { type: String, trim: true },
-    reu: { type: String, trim: true },
+    partes: {
+      type: [
+        new Schema<PericiaParteDocument>(
+          {
+            Parte: { type: Schema.Types.ObjectId, ref: 'Parte', required: true },
+            polo: { type: String, enum: POLOS, required: true },
+            tipo: { type: String, enum: PARTE_TIPOS, required: true },
+            nome: { type: String, required: true, trim: true },
+          },
+          { _id: false },
+        ),
+      ],
+      default: [],
+    },
     status: { type: String, enum: PERICIA_STATUS, default: 'appointed', required: true },
     dataNomeacao: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     honorariosPropostosCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     honorariosFixadosCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     observacoes: { type: String },
+    dataAutuacao: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
+    dataAdmissao: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
+    dataDemissao: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
+    funcaoReclamante: { type: String, trim: true },
+    periodoImprescritoInicio: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
+    periodoImprescritoFim: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
+    localPericia: { type: String, trim: true },
     Oportunidade: { type: Schema.Types.ObjectId, ref: 'Oportunidade' },
   },
   { timestamps: true },
@@ -59,5 +98,7 @@ const periciaSchema = new Schema<PericiaDocument>(
 periciaSchema.index({ Tenant: 1, numeroProcesso: 1 }, { unique: true });
 periciaSchema.index({ Tenant: 1, status: 1 });
 periciaSchema.index({ Tenant: 1, createdAt: -1 });
+// Perícias de uma parte (IMP-03) e cópia do nome ao renomear.
+periciaSchema.index({ Tenant: 1, 'partes.Parte': 1 });
 
 export const Pericia = mongoose.model<PericiaDocument>('Pericia', periciaSchema);
