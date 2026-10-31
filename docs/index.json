@@ -2,6 +2,114 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "benchmark-jusperia",
+      "feature": "Benchmark da Jusperia",
+      "descricao": "Engenharia reversa funcional do app da Jusperia (concorrente) e gap analysis contra o Ethica, com priorização em ondas",
+      "data": "2026-10-31",
+      "status": "concluido",
+      "areas": [
+        "docs"
+      ],
+      "decisoes": [
+        "AD-105",
+        "AD-106",
+        "AD-107"
+      ],
+      "spec": [
+        ".specs/features/benchmark-jusperia"
+      ],
+      "planos": [
+        ".specs/features/benchmark-jusperia/plans/2026-10-31-benchmark-jusperia.md"
+      ],
+      "doc": "features/benchmark-jusperia/feature.md"
+    },
+    {
+      "slug": "documentos-pdf",
+      "feature": "Base de documentos",
+      "descricao": "Identidade do escritório, dados profissionais e PDFs (ficha, checklist, prazos, financeiro, paradas) e exportação ZIP",
+      "data": "2026-10-31",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-107"
+      ],
+      "spec": [
+        ".specs/features/documentos-pdf"
+      ],
+      "planos": [],
+      "doc": "features/documentos-pdf/feature.md"
+    },
+    {
+      "slug": "importacao-processos",
+      "feature": "Importação de processos",
+      "descricao": "Cadastro de perícia a partir do PDF da ata, importação em lote por CSV, partes e advogados reutilizáveis",
+      "data": "2026-10-31",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103"
+      ],
+      "spec": [
+        ".specs/features/importacao-processos"
+      ],
+      "planos": [],
+      "doc": "features/importacao-processos/feature.md"
+    },
+    {
+      "slug": "laudos",
+      "feature": "Laudo automatizado",
+      "descricao": "Modelos de laudo por seções sim/não com variáveis, editor com IA e exportação em PDF e Word",
+      "data": "2026-10-31",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-107"
+      ],
+      "spec": [
+        ".specs/features/laudos"
+      ],
+      "planos": [],
+      "doc": "features/laudos/feature.md"
+    },
+    {
+      "slug": "prazos-recebimentos",
+      "feature": "Prazos e recebimentos",
+      "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
+      "data": "2026-10-31",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-106",
+        "AD-107"
+      ],
+      "spec": [
+        ".specs/features/prazos-recebimentos"
+      ],
+      "planos": [],
+      "doc": "features/prazos-recebimentos/feature.md"
+    },
+    {
       "slug": "fundacao-ethica",
       "feature": "Fundação do Ethica",
       "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
@@ -40,7 +148,9 @@
     }
   ],
   "planos_nao_arquivados": [],
-  "specs_sem_registro": [],
+  "specs_sem_registro": [
+    "prospeccao-datajud"
+  ],
   "decisoes": [
     {
       "id": "AD-001",
