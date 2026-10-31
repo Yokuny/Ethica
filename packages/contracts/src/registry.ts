@@ -6,7 +6,7 @@ import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
 import { idSchema } from './schemas/id.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
-import { createLancamentoSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
+import { createLancamentoSchema, createParcelaSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
 import { createPericiaSchema, numeroProcessoSchema, updatePericiaSchema } from './schemas/pericia.schema.js';
 import { createPrazoSchema, updatePrazoSchema } from './schemas/prazo.schema.js';
@@ -53,6 +53,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'updateCompromissoSchema', schema: updateCompromissoSchema },
   { name: 'createLancamentoSchema', schema: createLancamentoSchema },
   { name: 'updateLancamentoSchema', schema: updateLancamentoSchema },
+  { name: 'createParcelaSchema', schema: createParcelaSchema },
   { name: 'datajudSearchSchema', schema: datajudSearchSchema },
   { name: 'createOportunidadeSchema', schema: createOportunidadeSchema },
   { name: 'updateOportunidadeSchema', schema: updateOportunidadeSchema },

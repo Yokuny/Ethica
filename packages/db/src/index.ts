@@ -7,7 +7,7 @@ export type { CompromissoDocument, CompromissoOrigem } from './models/compromiss
 export { Compromisso } from './models/compromisso.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
-export type { LancamentoDocument } from './models/lancamento.model.js';
+export type { LancamentoDocument, ParcelaDocument } from './models/lancamento.model.js';
 export { Lancamento } from './models/lancamento.model.js';
 export type { OportunidadeDocument } from './models/oportunidade.model.js';
 export { Oportunidade } from './models/oportunidade.model.js';
@@ -26,6 +26,7 @@ export { resolveTestDatabaseUri, TEST_DATABASE_ENV, wipeTestDatabase } from './t
 export type { PericiaSearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
 export {
   isSearchUnavailableError,
+  newObjectId,
   periciaSearchStages,
   provisionSearchIndexes,
   SEARCH_INDEXES,

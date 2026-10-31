@@ -27,6 +27,7 @@ describe('schemaRegistry', () => {
         'updateCompromissoSchema',
         'createLancamentoSchema',
         'updateLancamentoSchema',
+        'createParcelaSchema',
         'datajudSearchSchema',
         'createOportunidadeSchema',
         'updateOportunidadeSchema',

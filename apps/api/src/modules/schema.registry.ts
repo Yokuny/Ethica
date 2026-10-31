@@ -9,6 +9,7 @@ import {
   fluxoQuerySchema,
   lancamentoIdParamSchema,
   listLancamentosQuerySchema,
+  parcelaIdParamSchema,
 } from './financeiro/lancamento.schema.js';
 import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } from './identity/auth.schema.js';
 import { tenantIdParamSchema } from './identity/platform.schema.js';
@@ -40,6 +41,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'upcomingCompromissosQuerySchema', schema: upcomingCompromissosQuerySchema },
   { name: 'lancamentoIdParamSchema', schema: lancamentoIdParamSchema },
   { name: 'listLancamentosQuerySchema', schema: listLancamentosQuerySchema },
+  { name: 'parcelaIdParamSchema', schema: parcelaIdParamSchema },
   { name: 'fluxoQuerySchema', schema: fluxoQuerySchema },
   { name: 'categoriasQuerySchema', schema: categoriasQuerySchema },
   { name: 'oportunidadeIdParamSchema', schema: oportunidadeIdParamSchema },

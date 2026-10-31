@@ -1,4 +1,4 @@
-import type { CompromissoDocument, LancamentoDocument } from '@ethica/db';
+import type { CompromissoDocument, LancamentoDocument, ParcelaDocument } from '@ethica/db';
 import {
   Compromisso,
   connect,
@@ -230,7 +230,7 @@ const run = async (): Promise<void> => {
         valorCents: 150_000 + month * 20_000,
         vencimento: day(offset - 10),
         status: 'liquidado',
-        liquidadoEm: day(offset - 8),
+        parcelas: [{ valorCents: 150_000 + month * 20_000, data: day(offset - 8) } as ParcelaDocument],
       },
       {
         natureza: 'despesa',
@@ -264,12 +264,13 @@ const run = async (): Promise<void> => {
     },
     {
       natureza: 'receita',
-      categoria: 'honorarios_parciais',
-      descricao: `1ª parcela — ${esclarecimentos?.numeroProcesso}`,
-      valorCents: 200_000,
+      categoria: 'honorarios_fixados',
+      descricao: `Honorários fixados — ${esclarecimentos?.numeroProcesso}`,
+      valorCents: 480_000,
       vencimento: day(-20),
-      status: 'liquidado',
-      liquidadoEm: day(-18),
+      // Recebimento parcial (AD-111): alvará de R$ 1.500,00, saldo de R$ 3.300,00.
+      status: 'parcial',
+      parcelas: [{ valorCents: 150_000, data: day(-18), conta: 'Banco do Brasil' } as ParcelaDocument],
       Pericia: esclarecimentos?._id,
     },
     {

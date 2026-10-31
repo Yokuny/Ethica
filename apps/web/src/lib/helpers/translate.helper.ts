@@ -158,7 +158,6 @@ const translations: Record<string, string> = {
   go_to_placeholder: 'Digite o nome de uma área',
   home: 'Início',
   honorarios_fixados: 'Honorários fixados',
-  honorarios_parciais: 'Honorários parciais',
   honorarios_previos: 'Honorários prévios',
   hour: 'hora',
   hours: 'horas',
@@ -203,7 +202,6 @@ const translations: Record<string, string> = {
   manager: 'Gestor',
   mark_as_done: 'Marcar como concluído',
   mark_as_paid: 'Marcar como pago',
-  mark_as_received: 'Marcar como recebido',
   mark_in_analysis: 'Marcar em análise',
   material: 'Material',
   medium: 'Médio',
@@ -403,6 +401,21 @@ const translations: Record<string, string> = {
   protocolado: 'Protocolado',
   register_filing: 'Registrar protocolo',
   remove_deadline_question: 'Remover este prazo?',
+  // Recebimentos parciais (AD-111)
+  amount_below_received: 'O valor não pode ficar abaixo do que já foi recebido.',
+  fee_cannot_be_removed: 'Honorário não pode ser excluído; registre ou estorne recebimentos.',
+  fee_status_comes_from_parcels: 'O status do honorário vem dos recebimentos registrados.',
+  parcel_exceeds_balance: 'O recebimento é maior que o saldo a receber.',
+  parcial: 'Parcial',
+  account_or_note: 'Conta ou observação',
+  balance_due: 'Saldo a receber',
+  example_bank_account: 'Ex.: Banco do Brasil, ag. 0001',
+  no_receipts_yet: 'Nenhum recebimento registrado.',
+  receipts: 'Recebimentos',
+  received_on: 'Recebido em',
+  register_receipt: 'Registrar recebimento',
+  reverse_receipt: 'Estornar',
+  reverse_receipt_question: 'Estornar este recebimento?',
 };
 
 // Idiomas suportados pelo app — hoje só o pt-BR (o default). Um idioma novo

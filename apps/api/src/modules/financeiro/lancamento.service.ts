@@ -1,9 +1,10 @@
 import { dateInDisplayTz } from '@ethica/db';
-import { KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as periciaService from '../pericia/pericia.service.js';
 import * as lancamentoRepository from './lancamento.repository.js';
 import type {
   CreateLancamento,
+  CreateParcela,
   LancamentoRecord,
   ListLancamentosQuery,
   UpdateLancamento,
@@ -46,21 +47,58 @@ export const createLancamento = async (tenantId: string, data: CreateLancamento)
   return lancamentoRepository.createLancamento(tenantId, data);
 };
 
+const findOrThrow = async (tenantId: string, id: string): Promise<LancamentoRecord> => {
+  const lancamento = await lancamentoRepository.findById(tenantId, id);
+  if (!lancamento) throw new LancamentoNotFoundError('not_found');
+  return lancamento;
+};
+
+// Honorário (AD-111): o status vem das parcelas, nunca do formulário, e o valor não fica
+// abaixo do que já entrou na conta. Despesa segue com liquidar/reabrir/cancelar à mão.
+// A natureza não muda depois de lançada: as regras de status são diferentes.
 export const updateLancamento = async (
   tenantId: string,
   id: string,
   data: UpdateLancamento,
   now: Date = new Date(),
 ): Promise<LancamentoRecord> => {
+  const current = await findOrThrow(tenantId, id);
+  if (data.natureza && data.natureza !== current.natureza) throw new CustomError('invalid_data', 422);
   if (data.periciaId) await periciaService.getPericia(tenantId, data.periciaId);
+
+  if (current.natureza === 'receita') {
+    if (data.status || data.liquidadoEm) throw new CustomError('fee_status_comes_from_parcels', 422);
+    const updated = await lancamentoRepository.updateReceita(tenantId, id, data);
+    if (!updated) throw new CustomError('amount_below_received', 422);
+    return updated;
+  }
+
+  if (data.status === 'parcial') throw new CustomError('invalid_data', 422);
   const updated = await lancamentoRepository.updateLancamento(tenantId, id, withLiquidacao(data, dateInDisplayTz(now)));
   if (!updated) throw new LancamentoNotFoundError('not_found');
   return updated;
 };
 
 export const deleteLancamento = async (tenantId: string, id: string): Promise<void> => {
+  const current = await findOrThrow(tenantId, id);
+  if (current.natureza === 'receita') throw new CustomError('fee_cannot_be_removed', 409);
   const { deletedCount } = await lancamentoRepository.deleteLancamento(tenantId, id);
   if (deletedCount === 0) throw new LancamentoNotFoundError('not_found');
+};
+
+// Recebimento parcial (PRZ-02): a parcela não passa do saldo; o status é recalculado junto.
+export const addParcela = async (tenantId: string, id: string, parcela: CreateParcela): Promise<LancamentoRecord> => {
+  const current = await findOrThrow(tenantId, id);
+  if (current.natureza !== 'receita') throw new CustomError('invalid_data', 422);
+  const updated = await lancamentoRepository.addParcela(tenantId, id, parcela);
+  if (!updated) throw new CustomError('parcel_exceeds_balance', 422);
+  return updated;
+};
+
+export const estornarParcela = async (tenantId: string, id: string, parcelaId: string): Promise<LancamentoRecord> => {
+  const updated = await lancamentoRepository.removeParcela(tenantId, id, parcelaId);
+  if (!updated) throw new LancamentoNotFoundError('not_found');
+  return updated;
 };
 
 export const listLancamentos = async (tenantId: string, query: ListLancamentosQuery, now: Date = new Date()) => {
@@ -90,11 +128,21 @@ export const fluxoMensal = (tenantId: string, meses: number, now: Date = new Dat
 export const totaisPorCategoria = (tenantId: string, natureza: string) =>
   lancamentoRepository.totaisPorCategoria(tenantId, natureza);
 
-// Subscriber de `pericia:honorarios_fixados`: o honorário vira receita a receber.
+// Subscriber de `pericia:honorarios_fixados`: o honorário vira receita a receber. Se a perícia
+// já tem o honorário fixado lançado, só o valor muda (AD-111) — recusado se ficar abaixo do
+// recebido, o que o bus apenas registra no log.
 export const lancarHonorariosFixados = async (
   input: { tenantId: string; periciaId: string; numeroProcesso: string; valorCents: number },
   now: Date = new Date(),
 ): Promise<void> => {
+  const existente = await lancamentoRepository.findHonorarioFixado(input.tenantId, input.periciaId);
+  if (existente) {
+    const updated = await lancamentoRepository.updateReceita(input.tenantId, existente.id, {
+      valorCents: input.valorCents,
+    });
+    if (!updated) throw new CustomError('amount_below_received', 422);
+    return;
+  }
   await lancamentoRepository.createLancamento(input.tenantId, {
     natureza: 'receita',
     categoria: 'honorarios_fixados',

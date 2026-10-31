@@ -3,18 +3,21 @@ import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { LancamentoRecord, LancamentoSituacao } from '@/query/lancamento.js';
 
-// `atrasado` é derivado na tela: previsto com vencimento antes de hoje.
+// `atrasado` é derivado na tela: previsto ou parcial com vencimento antes de hoje.
 export const situacaoDoLancamento = (lancamento: LancamentoRecord, today: string): LancamentoSituacao =>
-  lancamento.status === 'previsto' && lancamento.vencimento < today ? 'atrasado' : lancamento.status;
+  (lancamento.status === 'previsto' || lancamento.status === 'parcial') && lancamento.vencimento < today
+    ? 'atrasado'
+    : lancamento.status;
 
 export const SITUACAO_VARIANT: Record<LancamentoSituacao, IndicatorVariant> = {
   previsto: 'info',
+  parcial: 'warning',
   liquidado: 'success',
   cancelado: 'neutral',
   atrasado: 'error',
 };
 
-export const SITUACAO_ITEMS = (['previsto', 'atrasado', 'liquidado', 'cancelado'] as const).map((value) => ({
+export const SITUACAO_ITEMS = (['previsto', 'parcial', 'atrasado', 'liquidado', 'cancelado'] as const).map((value) => ({
   value,
   label: t(value),
 }));
