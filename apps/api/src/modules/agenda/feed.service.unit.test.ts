@@ -12,13 +12,13 @@ vi.mock('./compromisso.repository.js', () => ({ listInRange: vi.fn() }));
 const now = new Date('2026-11-01T10:00:00.000Z');
 const vistoria: CompromissoRecord = {
   id: 'c1',
-  tipo: 'vistoria',
+  tipo: 'inspection',
   titulo: 'Vistoria na fábrica',
   inicio: new Date('2026-11-10T12:00:00.000Z'),
   fim: new Date('2026-11-10T13:30:00.000Z'),
   local: 'Av. Industrial, 1500; galpão 2',
   periciaId: 'p1',
-  status: 'agendado',
+  status: 'scheduled',
   origem: 'manual',
   observacoes: 'Levar decibelímetro',
   createdAt: now,
@@ -29,7 +29,7 @@ const prazo: PrazoRecord = {
   periciaId: 'p1',
   titulo: 'Entrega do laudo',
   vencimento: '2026-11-30',
-  status: 'pendente',
+  status: 'pending',
   createdAt: now,
   updatedAt: now,
 };

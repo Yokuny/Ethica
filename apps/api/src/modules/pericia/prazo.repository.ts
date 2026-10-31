@@ -62,7 +62,7 @@ export const listPendentes = async (tenantId: string, range: { from?: string; to
     const docs = await Prazo.find(
       tenantScoped({
         Tenant: tenantId,
-        status: 'pendente' as const,
+        status: 'pending' as const,
         ...(Object.keys(vencimento).length ? { vencimento } : {}),
       }),
     )
@@ -76,7 +76,7 @@ export const listPendentes = async (tenantId: string, range: { from?: string; to
 // item volta com o seu, e o service separa por tenant antes de enviar.
 export const listPendentesNosDias = async (dias: string[]): Promise<PrazoDoAviso[]> =>
   withDbTiming('prazo.listPendentesNosDias', async () => {
-    const docs = await Prazo.find({ status: 'pendente', vencimento: { $in: dias } })
+    const docs = await Prazo.find({ status: 'pending', vencimento: { $in: dias } })
       .sort({ vencimento: 1, _id: 1 })
       .lean();
     return docs.map((doc) => ({ ...toRecord(doc), tenantId: doc.Tenant.toString() }));
@@ -87,7 +87,7 @@ export const proximosByPericiaIds = async (tenantId: string, ids: string[]): Pro
   withDbTiming('prazo.proximosByPericiaIds', async () => {
     if (ids.length === 0) return new Map();
     const rows = await Prazo.aggregate<{ _id: unknown; titulo: string; vencimento: string }>([
-      { $match: { Tenant: toObjectId(tenantId), status: 'pendente', Pericia: { $in: ids.map(toObjectId) } } },
+      { $match: { Tenant: toObjectId(tenantId), status: 'pending', Pericia: { $in: ids.map(toObjectId) } } },
       { $sort: { vencimento: 1, _id: 1 } },
       { $group: { _id: '$Pericia', titulo: { $first: '$titulo' }, vencimento: { $first: '$vencimento' } } },
     ]);

@@ -33,9 +33,9 @@ const renderHome = (role: Role[]) => {
   queryClient.setQueryData(['list-stats', '/pericias/stats'], {
     total: 12,
     groups: [
-      { key: 'abertas', count: 7 },
-      { key: 'prazo_vencido', count: 2 },
-      { key: 'prazo_proximo', count: 3 },
+      { key: 'open', count: 7 },
+      { key: 'overdue_deadlines', count: 2 },
+      { key: 'deadlines_due_soon', count: 3 },
     ],
   });
   queryClient.setQueryData(['lancamento', 'resumo'], {

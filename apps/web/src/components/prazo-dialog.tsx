@@ -60,7 +60,7 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
               { label: t('due_date'), value: day(prazo.vencimento) },
               { label: t('filed_on'), value: day(prazo.protocoladoEm) },
               {
-                label: t('pericia'),
+                label: t('expert_case'),
                 value: prazo.periciaNumero ? (
                   <AppLink to="/pericias/details" search={{ id: prazo.periciaId }}>
                     {prazo.periciaNumero}
@@ -74,7 +74,7 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
           },
         ]}
       />
-      {prazo.status === 'pendente' && (
+      {prazo.status === 'pending' && (
         <div className="grid gap-2">
           <ItemDescription className="line-clamp-none">{t('filing_date')}</ItemDescription>
           <div className="flex flex-wrap gap-2">
@@ -88,7 +88,7 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
             <Button
               size="field"
               disabled={isPending || !protocoladoEm}
-              onClick={() => setStatus({ status: 'protocolado', protocoladoEm })}
+              onClick={() => setStatus({ status: 'filed', protocoladoEm })}
             >
               {t('register_filing')}
             </Button>
@@ -100,12 +100,12 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
           {t('remove')}
         </Button>
         <div className="flex flex-wrap gap-2">
-          {prazo.status === 'pendente' ? (
-            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'perdido' })}>
+          {prazo.status === 'pending' ? (
+            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'missed' })}>
               {t('mark_as_missed')}
             </Button>
           ) : (
-            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'pendente' })}>
+            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'pending' })}>
               {t('reopen')}
             </Button>
           )}

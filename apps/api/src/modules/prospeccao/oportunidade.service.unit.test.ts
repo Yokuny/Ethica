@@ -40,13 +40,13 @@ describe('oportunidade.service', () => {
       ...processo,
       id: 'o1',
       orgaoJulgador: '1ª Vara do Trabalho',
-      status: 'em_analise',
+      status: 'under_review',
     } as never);
     vi.mocked(periciaService.createPericia).mockResolvedValue({ id: 'p1' } as never);
 
     const result = await converterOportunidade('t1', 'o1', {
-      justica: 'trabalhista',
-      papel: 'perito',
+      justica: 'labor',
+      papel: 'court_expert',
       objeto: 'Ruído',
     });
 
@@ -55,7 +55,7 @@ describe('oportunidade.service', () => {
       expect.objectContaining({ tenant: 't1', tribunal: 'TRT2', vara: '1ª Vara do Trabalho', oportunidadeId: 'o1' }),
     );
     expect(oportunidadeRepository.updateOportunidade).toHaveBeenCalledWith('t1', 'o1', {
-      status: 'convertida',
+      status: 'converted',
       periciaId: 'p1',
     });
   });

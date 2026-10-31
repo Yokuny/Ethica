@@ -21,7 +21,7 @@ const prazoSchema = new Schema<PrazoDocument>(
     Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia', required: true },
     titulo: { type: String, required: true, trim: true },
     vencimento: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
-    status: { type: String, enum: PRAZO_STATUS, default: 'pendente', required: true },
+    status: { type: String, enum: PRAZO_STATUS, default: 'pending', required: true },
     protocoladoEm: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     observacoes: { type: String },
   },
@@ -29,7 +29,7 @@ const prazoSchema = new Schema<PrazoDocument>(
 );
 
 prazoSchema.pre('validate', function () {
-  if (this.status === 'protocolado' && !this.protocoladoEm) {
+  if (this.status === 'filed' && !this.protocoladoEm) {
     this.invalidate('protocoladoEm', 'prazo protocolado precisa da data de protocolo');
   }
 });

@@ -44,7 +44,7 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
                 <FormLabel>{t('technical_subjects')}</FormLabel>
                 <Select<string, true>
                   multiple
-                  items={DATAJUD_ASSUNTOS_TECNICOS.map((value) => ({ value, label: value }))}
+                  items={DATAJUD_ASSUNTOS_TECNICOS.map((value) => ({ value, label: t(value) }))}
                   value={field.value}
                   onValueChange={(value) => field.onChange(value ?? [])}
                 >
@@ -54,7 +54,7 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
                         {(value: string[]) =>
                           value.length === DATAJUD_ASSUNTOS_TECNICOS.length
                             ? `${value.length} ${t('selected_count')}`
-                            : value.join(', ')
+                            : value.map((assunto) => t(assunto)).join(', ')
                         }
                       </SelectValue>
                     </SelectTrigger>
@@ -62,7 +62,7 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
                   <SelectContent>
                     {DATAJUD_ASSUNTOS_TECNICOS.map((assunto) => (
                       <SelectItem key={assunto} value={assunto}>
-                        {assunto}
+                        {t(assunto)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -82,7 +82,7 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
           control={form.control}
           name="orgaoJulgador"
           label={t('judging_body')}
-          placeholder={t('example_vara')}
+          placeholder={t('example_court_division')}
         />
         <NumberField
           control={form.control}

@@ -47,8 +47,8 @@ const seedSession = async (role: Role[] = ['admin']) => {
 };
 
 const HONORARIO = {
-  natureza: 'receita',
-  categoria: 'honorarios_fixados',
+  natureza: 'income',
+  categoria: 'fixed_fees',
   descricao: 'Honorários fixados',
   valorCents: 480_000,
   vencimento: '2026-12-01',
@@ -81,13 +81,13 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       conta: 'Banco do Brasil',
     });
     expect(parcial.status).toBe(201);
-    expect(parcial.body.data).toMatchObject({ status: 'parcial', recebidoCents: 150_000, saldoCents: 330_000 });
+    expect(parcial.body.data).toMatchObject({ status: 'partial', recebidoCents: 150_000, saldoCents: 330_000 });
     const [parcela] = parcial.body.data.parcelas;
     expect(parcela).toMatchObject({ valorCents: 150_000, data: today, conta: 'Banco do Brasil' });
 
     const estorno = await as(request(app).delete(`/financeiro/lancamentos/${id}/parcelas/${parcela.id}`));
     expect(estorno.body.data).toMatchObject({
-      status: 'previsto',
+      status: 'expected',
       recebidoCents: 0,
       saldoCents: 480_000,
       parcelas: [],
@@ -98,7 +98,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       valorCents: 180_000,
       data: today,
     });
-    expect(quitado.body.data).toMatchObject({ status: 'liquidado', saldoCents: 0 });
+    expect(quitado.body.data).toMatchObject({ status: 'settled', saldoCents: 0 });
   });
 
   it('parcela maior que o saldo é recusada com 422 parcel_exceeds_balance e nada muda', async () => {
@@ -124,7 +124,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect(excluir.status).toBe(409);
     expect(excluir.body.message).toBe('fee_cannot_be_removed');
 
-    const cancelar = await as(request(app).patch(`/financeiro/lancamentos/${id}`)).send({ status: 'cancelado' });
+    const cancelar = await as(request(app).patch(`/financeiro/lancamentos/${id}`)).send({ status: 'canceled' });
     expect(cancelar.status).toBe(422);
     expect(cancelar.body.message).toBe('fee_status_comes_from_parcels');
 
@@ -133,12 +133,12 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect(abaixo.body.message).toBe('amount_below_received');
 
     const igual = await as(request(app).patch(`/financeiro/lancamentos/${id}`)).send({ valorCents: 200_000 });
-    expect(igual.body.data).toMatchObject({ status: 'liquidado', saldoCents: 0 });
+    expect(igual.body.data).toMatchObject({ status: 'settled', saldoCents: 0 });
 
     const despesa = (
       await as(request(app).post('/financeiro/lancamentos')).send({
-        natureza: 'despesa',
-        categoria: 'material',
+        natureza: 'expense',
+        categoria: 'supplies',
         descricao: 'Calibração',
         valorCents: 10_000,
         vencimento: today,
@@ -165,7 +165,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     const fluxo = (await as(request(app).get('/financeiro/fluxo?meses=1'))).body.data;
     expect(fluxo).toEqual([{ mes: today.slice(0, 7), recebidoCents: 150_000, aReceberCents: 0, despesasCents: 0 }]);
 
-    const atrasados = (await as(request(app).get('/financeiro/lancamentos?situacao=atrasado'))).body.data;
+    const atrasados = (await as(request(app).get('/financeiro/lancamentos?situacao=overdue'))).body.data;
     expect(atrasados.items.map((item: { id: string }) => item.id)).toEqual([id]);
   });
 
@@ -174,8 +174,8 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     const pericia = (
       await as(request(app).post('/pericias')).send({
         numeroProcesso: '0001234-56.2026.5.02.0001',
-        justica: 'trabalhista',
-        papel: 'perito',
+        justica: 'labor',
+        papel: 'court_expert',
         tribunal: 'TRT2',
         objeto: 'Insalubridade',
       })

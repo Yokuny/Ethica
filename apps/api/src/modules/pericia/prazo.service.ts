@@ -19,7 +19,7 @@ const withPericiaNumero = async <T extends PrazoRecord>(tenantId: string, items:
 // `protocoladoEm` sem `status` não muda nada: a data só existe junto do protocolo.
 const toWrite = ({ status, protocoladoEm, ...rest }: UpdatePrazo, today: string): PrazoWrite => {
   if (!status) return rest;
-  return { ...rest, status, protocoladoEm: status === 'protocolado' ? (protocoladoEm ?? today) : null };
+  return { ...rest, status, protocoladoEm: status === 'filed' ? (protocoladoEm ?? today) : null };
 };
 
 // Perícia inexistente (ou de outro tenant) → PericiaNotFoundError, o mesmo 404 da perícia.

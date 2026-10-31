@@ -2,10 +2,10 @@ import { z } from 'zod';
 import { calendarDateSchema, wallTimeSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
-export const COMPROMISSO_TIPOS = ['vistoria', 'audiencia', 'reuniao', 'outro'] as const;
+export const COMPROMISSO_TIPOS = ['inspection', 'hearing', 'meeting', 'other'] as const;
 export type CompromissoTipo = (typeof COMPROMISSO_TIPOS)[number];
 
-export const COMPROMISSO_STATUS = ['agendado', 'concluido', 'cancelado'] as const;
+export const COMPROMISSO_STATUS = ['scheduled', 'done', 'canceled'] as const;
 export type CompromissoStatus = (typeof COMPROMISSO_STATUS)[number];
 
 // Data e hora chegam em hora de parede; o service converte para o instante UTC.

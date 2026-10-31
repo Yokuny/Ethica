@@ -90,7 +90,7 @@ export const listUpcoming = async (
     const docs = await Compromisso.find(
       tenantScoped({
         Tenant: tenantId,
-        status: 'agendado' as const,
+        status: 'scheduled' as const,
         fim: { $gte: options.now },
         ...(options.periciaId ? { Pericia: options.periciaId } : {}),
       }),

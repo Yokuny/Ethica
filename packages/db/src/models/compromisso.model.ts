@@ -1,7 +1,7 @@
 import { COMPROMISSO_STATUS, COMPROMISSO_TIPOS, type CompromissoStatus, type CompromissoTipo } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-export type CompromissoOrigem = 'manual' | 'automatico';
+export type CompromissoOrigem = 'manual' | 'automatic';
 
 export interface CompromissoDocument {
   _id: mongoose.Types.ObjectId;
@@ -29,8 +29,8 @@ const compromissoSchema = new Schema<CompromissoDocument>(
     fim: { type: Date, required: true },
     local: { type: String, trim: true },
     Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia' },
-    status: { type: String, enum: COMPROMISSO_STATUS, default: 'agendado', required: true },
-    origem: { type: String, enum: ['manual', 'automatico'], default: 'manual', required: true },
+    status: { type: String, enum: COMPROMISSO_STATUS, default: 'scheduled', required: true },
+    origem: { type: String, enum: ['manual', 'automatic'], default: 'manual', required: true },
     observacoes: { type: String },
   },
   { timestamps: true },

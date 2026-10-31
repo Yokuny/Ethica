@@ -44,7 +44,7 @@ const periciaSchema = new Schema<PericiaDocument>(
     objeto: { type: String, required: true, trim: true },
     autor: { type: String, trim: true },
     reu: { type: String, trim: true },
-    status: { type: String, enum: PERICIA_STATUS, default: 'nomeada', required: true },
+    status: { type: String, enum: PERICIA_STATUS, default: 'appointed', required: true },
     dataNomeacao: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     honorariosPropostosCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     honorariosFixadosCents: { type: Number, min: 0, validate: Number.isSafeInteger },

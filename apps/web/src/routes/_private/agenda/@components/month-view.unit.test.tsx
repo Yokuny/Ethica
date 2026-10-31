@@ -11,7 +11,7 @@ const prazo = (id: string, vencimento: string): PrazoRecord => ({
   periciaNumero: '0001234-56.2026.5.02.0001',
   titulo: `Prazo ${id}`,
   vencimento,
-  status: 'pendente',
+  status: 'pending',
 });
 
 // PRZ-01.6: o calendário mostra os prazos pendentes no dia do vencimento.

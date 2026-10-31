@@ -9,7 +9,7 @@ vi.mock('../pericia/pericia.service.js', () => ({ getPericia: vi.fn(), findResum
 describe('compromisso.service', () => {
   it('createCompromisso converte data/hora de parede + duração no intervalo UTC', async () => {
     await createCompromisso('t1', {
-      tipo: 'vistoria',
+      tipo: 'inspection',
       titulo: 'Vistoria na fábrica',
       date: '2026-11-10',
       time: '09:00',
@@ -17,7 +17,7 @@ describe('compromisso.service', () => {
     });
 
     expect(compromissoRepository.createCompromisso).toHaveBeenCalledWith('t1', {
-      tipo: 'vistoria',
+      tipo: 'inspection',
       titulo: 'Vistoria na fábrica',
       inicio: new Date('2026-11-10T12:00:00.000Z'),
       fim: new Date('2026-11-10T13:30:00.000Z'),

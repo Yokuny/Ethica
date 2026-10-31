@@ -18,7 +18,7 @@ const prazo = (id: string, tenantId: string, vencimento: string): PrazoDoAviso =
   periciaId: `per-${id}`,
   titulo: `Prazo ${id}`,
   vencimento,
-  status: 'pendente',
+  status: 'pending',
   createdAt: now,
   updatedAt: now,
 });

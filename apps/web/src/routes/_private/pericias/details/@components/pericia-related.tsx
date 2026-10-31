@@ -48,7 +48,7 @@ export function PericiaRelated({ periciaId, canSeeFinance }: { periciaId: string
                     key={item.id}
                     icon={Wallet}
                     render={<Link to="/financeiro/lancamentos" search={{ periciaId }} />}
-                    title={`${item.natureza === 'despesa' ? '−' : ''}${formatMoney(item.valorCents)}`}
+                    title={`${item.natureza === 'expense' ? '−' : ''}${formatMoney(item.valorCents)}`}
                     badges={<Badge variant={SITUACAO_VARIANT[situacao]}>{t(situacao)}</Badge>}
                     description={`${item.descricao} · ${formatDate(new Date(`${item.vencimento}T12:00:00`))}`}
                   />

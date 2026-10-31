@@ -1,22 +1,22 @@
 import { z } from 'zod';
 import { calendarDateSchema } from './date.schema.js';
 
-export const JUSTICAS = ['trabalhista', 'civel', 'federal'] as const;
+export const JUSTICAS = ['labor', 'civil', 'federal'] as const;
 export type Justica = (typeof JUSTICAS)[number];
 
-export const PAPEIS_PERICIA = ['perito', 'assistente_tecnico'] as const;
+export const PAPEIS_PERICIA = ['court_expert', 'technical_assistant'] as const;
 export type PapelPericia = (typeof PAPEIS_PERICIA)[number];
 
 // Etapas da perícia, na ordem do fluxo. `recusada` encerra sem laudo.
 export const PERICIA_STATUS = [
-  'nomeada',
-  'aceita',
-  'vistoria',
-  'em_laudo',
-  'laudo_entregue',
-  'esclarecimentos',
-  'concluida',
-  'recusada',
+  'appointed',
+  'accepted',
+  'inspection',
+  'drafting_report',
+  'report_delivered',
+  'clarifications',
+  'completed',
+  'declined',
 ] as const;
 export type PericiaStatus = (typeof PERICIA_STATUS)[number];
 

@@ -14,7 +14,7 @@ import { converterOportunidadeMutation, type OportunidadeRecord } from '../../@q
 import { type ConverterForm as ConverterValues, converterFormSchema } from '../@interface/oportunidades.interface.js';
 
 const justicaDoTribunal = (tribunal: string): ConverterValues['justica'] =>
-  tribunal.startsWith('trt') ? 'trabalhista' : tribunal.startsWith('trf') ? 'federal' : 'civel';
+  tribunal.startsWith('trt') ? 'labor' : tribunal.startsWith('trf') ? 'federal' : 'civil';
 
 // Converter em perícia: número, tribunal e vara vêm da oportunidade.
 export function ConverterForm({ oportunidade, onClose }: { oportunidade: OportunidadeRecord; onClose: () => void }) {
@@ -25,7 +25,7 @@ export function ConverterForm({ oportunidade, onClose }: { oportunidade: Oportun
     resolver: zodResolver(converterFormSchema),
     defaultValues: {
       justica: justicaDoTribunal(oportunidade.tribunal),
-      papel: 'perito',
+      papel: 'court_expert',
       objeto: oportunidade.assuntos[0] ?? '',
     },
   });
@@ -38,14 +38,14 @@ export function ConverterForm({ oportunidade, onClose }: { oportunidade: Oportun
   );
 
   return (
-    <FormDialog title={t('convert_into_pericia')} description={oportunidade.numeroProcesso} onClose={onClose}>
+    <FormDialog title={t('convert_into_expert_case')} description={oportunidade.numeroProcesso} onClose={onClose}>
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-6">
           <DefaultFormLayout
             layout="vertical"
             sections={[
               {
-                title: t('pericia'),
+                title: t('expert_case'),
                 fields: [
                   <div key="tipo" className="grid gap-4 sm:grid-cols-2">
                     <SelectField

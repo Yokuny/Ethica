@@ -3,7 +3,7 @@ import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } f
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-const config = { count: { label: t('pericias'), color: 'var(--chart-1)' } } satisfies ChartConfig;
+const config = { count: { label: t('expert_cases'), color: 'var(--chart-1)' } } satisfies ChartConfig;
 
 // Perícias por etapa, na ordem do fluxo (etapa sem perícia aparece zerada).
 export function PericiasStatusChart({ groups }: { groups: { key: string; count: number }[] }) {

@@ -8,7 +8,7 @@ import type { CategoriaTotal } from '@/query/lancamento.js';
 // Total por categoria de uma natureza (receitas ou despesas), maior primeiro.
 export function CategoriasChart({ natureza, data }: { natureza: LancamentoNatureza; data: CategoriaTotal[] }) {
   const config = {
-    totalCents: { label: t('total'), color: natureza === 'receita' ? 'var(--chart-1)' : 'var(--destructive)' },
+    totalCents: { label: t('total'), color: natureza === 'income' ? 'var(--chart-1)' : 'var(--destructive)' },
   } satisfies ChartConfig;
   const rows = data.map((row) => ({ categoria: t(row.categoria), totalCents: row.totalCents }));
   return (

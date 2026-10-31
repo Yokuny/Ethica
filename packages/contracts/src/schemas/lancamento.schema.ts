@@ -3,20 +3,20 @@ import { calendarDateSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
 // Receita (honorário a receber) e despesa operacional ficam separadas por natureza.
-export const LANCAMENTO_NATUREZAS = ['receita', 'despesa'] as const;
+export const LANCAMENTO_NATUREZAS = ['income', 'expense'] as const;
 export type LancamentoNatureza = (typeof LANCAMENTO_NATUREZAS)[number];
 
 export const LANCAMENTO_CATEGORIAS = {
-  receita: ['honorarios_previos', 'honorarios_fixados'],
-  despesa: ['deslocamento', 'material', 'taxas', 'outras_despesas'],
+  income: ['advance_fees', 'fixed_fees'],
+  expense: ['travel', 'supplies', 'fees_and_taxes', 'other_expenses'],
 } as const;
 export type LancamentoCategoria = (typeof LANCAMENTO_CATEGORIAS)[LancamentoNatureza][number];
-export const ALL_LANCAMENTO_CATEGORIAS = [...LANCAMENTO_CATEGORIAS.receita, ...LANCAMENTO_CATEGORIAS.despesa] as const;
+export const ALL_LANCAMENTO_CATEGORIAS = [...LANCAMENTO_CATEGORIAS.income, ...LANCAMENTO_CATEGORIAS.expense] as const;
 
 // `previsto` vencido aparece como atrasado na tela; não é um status gravado.
 // Receita (honorário, AD-111): status derivado das parcelas — previsto, parcial ou liquidado —
 // e nunca cancelado. Despesa: previsto, liquidado ou cancelado, sem parcial.
-export const LANCAMENTO_STATUS = ['previsto', 'parcial', 'liquidado', 'cancelado'] as const;
+export const LANCAMENTO_STATUS = ['expected', 'partial', 'settled', 'canceled'] as const;
 export type LancamentoStatus = (typeof LANCAMENTO_STATUS)[number];
 
 const lancamentoFields = z.object({

@@ -38,7 +38,7 @@ const withPericiaNumero = async (tenantId: string, items: LancamentoRecord[]): P
 
 // Liquidar sem informar a data grava o dia de hoje.
 const withLiquidacao = (data: UpdateLancamento, today: string): UpdateLancamento => {
-  if (data.status === 'liquidado') return { ...data, liquidadoEm: data.liquidadoEm ?? today };
+  if (data.status === 'settled') return { ...data, liquidadoEm: data.liquidadoEm ?? today };
   return data;
 };
 
@@ -66,14 +66,14 @@ export const updateLancamento = async (
   if (data.natureza && data.natureza !== current.natureza) throw new CustomError('invalid_data', 422);
   if (data.periciaId) await periciaService.getPericia(tenantId, data.periciaId);
 
-  if (current.natureza === 'receita') {
+  if (current.natureza === 'income') {
     if (data.status || data.liquidadoEm) throw new CustomError('fee_status_comes_from_parcels', 422);
     const updated = await lancamentoRepository.updateReceita(tenantId, id, data);
     if (!updated) throw new CustomError('amount_below_received', 422);
     return updated;
   }
 
-  if (data.status === 'parcial') throw new CustomError('invalid_data', 422);
+  if (data.status === 'partial') throw new CustomError('invalid_data', 422);
   const updated = await lancamentoRepository.updateLancamento(tenantId, id, withLiquidacao(data, dateInDisplayTz(now)));
   if (!updated) throw new LancamentoNotFoundError('not_found');
   return updated;
@@ -81,7 +81,7 @@ export const updateLancamento = async (
 
 export const deleteLancamento = async (tenantId: string, id: string): Promise<void> => {
   const current = await findOrThrow(tenantId, id);
-  if (current.natureza === 'receita') throw new CustomError('fee_cannot_be_removed', 409);
+  if (current.natureza === 'income') throw new CustomError('fee_cannot_be_removed', 409);
   const { deletedCount } = await lancamentoRepository.deleteLancamento(tenantId, id);
   if (deletedCount === 0) throw new LancamentoNotFoundError('not_found');
 };
@@ -89,7 +89,7 @@ export const deleteLancamento = async (tenantId: string, id: string): Promise<vo
 // Recebimento parcial (PRZ-02): a parcela não passa do saldo; o status é recalculado junto.
 export const addParcela = async (tenantId: string, id: string, parcela: CreateParcela): Promise<LancamentoRecord> => {
   const current = await findOrThrow(tenantId, id);
-  if (current.natureza !== 'receita') throw new CustomError('invalid_data', 422);
+  if (current.natureza !== 'income') throw new CustomError('invalid_data', 422);
   const updated = await lancamentoRepository.addParcela(tenantId, id, parcela);
   if (!updated) throw new CustomError('parcel_exceeds_balance', 422);
   return updated;
@@ -144,8 +144,8 @@ export const lancarHonorariosFixados = async (
     return;
   }
   await lancamentoRepository.createLancamento(input.tenantId, {
-    natureza: 'receita',
-    categoria: 'honorarios_fixados',
+    natureza: 'income',
+    categoria: 'fixed_fees',
     descricao: `Honorários fixados — ${input.numeroProcesso}`,
     valorCents: input.valorCents,
     vencimento: addDays(dateInDisplayTz(now), DIAS_PARA_RECEBER_HONORARIOS),

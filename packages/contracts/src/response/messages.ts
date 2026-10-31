@@ -38,7 +38,7 @@ export const API_MESSAGE_KEYS = [
   'pending_invite_exists',
   'invite_email_failed',
   // Perícias
-  'pericia_already_registered',
+  'expert_case_already_registered',
   // Financeiro (AD-111)
   'parcel_exceeds_balance',
   'fee_cannot_be_removed',

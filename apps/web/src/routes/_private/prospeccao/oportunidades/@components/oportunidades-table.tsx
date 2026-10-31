@@ -15,7 +15,7 @@ type OportunidadesTableProps = {
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
   onConvert: (row: OportunidadeRecord) => void;
-  onStatus: (row: OportunidadeRecord, status: 'nova' | 'em_analise' | 'descartada') => void;
+  onStatus: (row: OportunidadeRecord, status: 'new' | 'under_review' | 'discarded') => void;
   onRemove: (row: OportunidadeRecord) => void;
   onOpenPericia: (row: OportunidadeRecord) => void;
 };
@@ -45,7 +45,7 @@ export function OportunidadesTable({
         </TableHeader>
         <TableBody>
           {data.map((row) => {
-            const convertida = row.status === 'convertida';
+            const convertida = row.status === 'converted';
             return (
               <TableRow
                 key={row.id}
@@ -73,17 +73,17 @@ export function OportunidadesTable({
                 <TableCell>
                   <TableRowActions label={t('actions')}>
                     {convertida ? (
-                      <TableRowAction onClick={() => onOpenPericia(row)}>{t('open_pericia')}</TableRowAction>
+                      <TableRowAction onClick={() => onOpenPericia(row)}>{t('open_expert_case')}</TableRowAction>
                     ) : (
                       <>
-                        <TableRowAction onClick={() => onConvert(row)}>{t('convert_into_pericia')}</TableRowAction>
-                        {row.status !== 'em_analise' && (
-                          <TableRowAction onClick={() => onStatus(row, 'em_analise')}>
+                        <TableRowAction onClick={() => onConvert(row)}>{t('convert_into_expert_case')}</TableRowAction>
+                        {row.status !== 'under_review' && (
+                          <TableRowAction onClick={() => onStatus(row, 'under_review')}>
                             {t('mark_in_analysis')}
                           </TableRowAction>
                         )}
-                        {row.status !== 'descartada' && (
-                          <TableRowAction onClick={() => onStatus(row, 'descartada')}>{t('discard')}</TableRowAction>
+                        {row.status !== 'discarded' && (
+                          <TableRowAction onClick={() => onStatus(row, 'discarded')}>{t('discard')}</TableRowAction>
                         )}
                         <TableRowAction variant="destructive" onClick={() => onRemove(row)}>
                           {t('remove')}

@@ -44,8 +44,8 @@ const seedSession = async (role: Role[] = ['operator']) => {
 
 const PERICIA = {
   numeroProcesso: '0001234-56.2026.5.02.0001',
-  justica: 'trabalhista',
-  papel: 'perito',
+  justica: 'labor',
+  papel: 'court_expert',
   tribunal: 'TRT2',
   objeto: 'Insalubridade',
 };
@@ -76,7 +76,7 @@ describe('prazos da perícia (PRZ-01)', () => {
     const prazos = await as(request(app).get(`/pericias/${created.body.data.id}/prazos`));
     expect(prazos.status).toBe(200);
     expect(prazos.body.data).toEqual([
-      expect.objectContaining({ titulo: 'Entrega do laudo', vencimento: day(20), status: 'pendente' }),
+      expect.objectContaining({ titulo: 'Entrega do laudo', vencimento: day(20), status: 'pending' }),
     ]);
   });
 
@@ -89,20 +89,20 @@ describe('prazos da perícia (PRZ-01)', () => {
       vencimento: day(-3),
     });
     expect(criado.status).toBe(201);
-    expect(criado.body.data).toMatchObject({ status: 'pendente', vencimento: day(-3), periciaId: pericia.id });
+    expect(criado.body.data).toMatchObject({ status: 'pending', vencimento: day(-3), periciaId: pericia.id });
     const id = criado.body.data.id;
 
     const protocolado = await as(request(app).patch(`/pericias/prazos/${id}`)).send({
-      status: 'protocolado',
+      status: 'filed',
       protocoladoEm: day(-4),
     });
-    expect(protocolado.body.data).toMatchObject({ status: 'protocolado', protocoladoEm: day(-4) });
+    expect(protocolado.body.data).toMatchObject({ status: 'filed', protocoladoEm: day(-4) });
 
-    const semData = await as(request(app).patch(`/pericias/prazos/${id}`)).send({ status: 'protocolado' });
+    const semData = await as(request(app).patch(`/pericias/prazos/${id}`)).send({ status: 'filed' });
     expect(semData.body.data.protocoladoEm).toBe(day(0));
 
-    const perdido = await as(request(app).patch(`/pericias/prazos/${id}`)).send({ status: 'perdido' });
-    expect(perdido.body.data.status).toBe('perdido');
+    const perdido = await as(request(app).patch(`/pericias/prazos/${id}`)).send({ status: 'missed' });
+    expect(perdido.body.data.status).toBe('missed');
     expect(perdido.body.data).not.toHaveProperty('protocoladoEm');
 
     const pendentes = await as(request(app).get('/pericias/prazos'));
@@ -127,7 +127,7 @@ describe('prazos da perícia (PRZ-01)', () => {
     const groups = Object.fromEntries(
       stats.body.data.groups.map((g: { key: string; count: number }) => [g.key, g.count]),
     );
-    expect(groups).toMatchObject({ prazo_vencido: 1, prazo_proximo: 1 });
+    expect(groups).toMatchObject({ overdue_deadlines: 1, deadlines_due_soon: 1 });
   });
 
   it('calendário recebe só os pendentes do intervalo, com o número do processo (AC 6)', async () => {
@@ -149,9 +149,9 @@ describe('prazos da perícia (PRZ-01)', () => {
     const pericia = (await admin.as(request(app).post('/pericias')).send({ ...PERICIA, prazoLaudo: day(5) })).body.data;
     const [prazo] = (await admin.as(request(app).get(`/pericias/${pericia.id}/prazos`))).body.data;
 
-    expect(
-      (await outro.as(request(app).patch(`/pericias/prazos/${prazo.id}`)).send({ status: 'perdido' })).status,
-    ).toBe(404);
+    expect((await outro.as(request(app).patch(`/pericias/prazos/${prazo.id}`)).send({ status: 'missed' })).status).toBe(
+      404,
+    );
     expect(
       (await outro.as(request(app).post(`/pericias/${pericia.id}/prazos`)).send({ titulo: 'X', vencimento: day(1) }))
         .status,

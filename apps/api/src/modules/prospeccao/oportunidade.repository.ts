@@ -51,7 +51,7 @@ export const updateOportunidade = async (
       ...(periciaId ? { Pericia: periciaId } : {}),
     };
     const doc = await Oportunidade.findOneAndUpdate(
-      tenantScoped({ Tenant: tenantId, _id: id, status: { $ne: 'convertida' as const } }),
+      tenantScoped({ Tenant: tenantId, _id: id, status: { $ne: 'converted' as const } }),
       update,
       { returnDocument: 'after' },
     ).lean();
@@ -93,7 +93,7 @@ export const findIdsByNumeros = async (tenantId: string, numeros: string[]): Pro
 export const stats = async (tenantId: string): Promise<ListStats> =>
   withDbTiming('prospeccao.stats', async () => {
     const [{ total, groups }, trend] = await Promise.all([
-      groupStats(Oportunidade, tenantId, '$status', 'nova'),
+      groupStats(Oportunidade, tenantId, '$status', 'new'),
       dailyTrend(Oportunidade, tenantId, 'createdAt'),
     ]);
     return { total, trend, groups };

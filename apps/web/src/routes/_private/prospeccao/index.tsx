@@ -9,10 +9,10 @@ import { t } from '@/lib/helpers/translate.helper.js';
 export function ProspeccaoIndexPage() {
   return (
     <Card asPage>
-      <CardHeader title={t('prospeccao')} />
+      <CardHeader title={t('prospecting')} />
       <CardContent className="max-w-4xl gap-8">
         <PageIntro
-          title={t('prospeccao')}
+          title={t('prospecting')}
           description={t('find_possible_appointments_in_datajud')}
           illustration={<HubIllustration icon={Radar} />}
           heading={t('new_services_before_appointment')}
@@ -20,7 +20,7 @@ export function ProspeccaoIndexPage() {
           features={[
             { icon: Building2, label: t('labor_civil_federal_courts') },
             { icon: Search, label: t('search_by_movement') },
-            { icon: Sparkles, label: t('convert_into_pericia') },
+            { icon: Sparkles, label: t('convert_into_expert_case') },
           ]}
         />
         <LinkCardList>
@@ -44,5 +44,5 @@ export function ProspeccaoIndexPage() {
 
 export const Route = createFileRoute('/_private/prospeccao/')({
   component: ProspeccaoIndexPage,
-  staticData: { title: t('prospeccao') },
+  staticData: { title: t('prospecting') },
 });

@@ -10,10 +10,10 @@ import { t } from '@/lib/helpers/translate.helper.js';
 export function FinanceiroIndexPage() {
   return (
     <Card asPage>
-      <CardHeader title={t('financeiro')} />
+      <CardHeader title={t('finance')} />
       <CardContent className="max-w-4xl gap-8">
         <PageIntro
-          title={t('financeiro')}
+          title={t('finance')}
           description={t('fees_receivable_and_operating_expenses')}
           illustration={<HubIllustration icon={Wallet} />}
           heading={t('know_what_to_pay_and_receive')}
@@ -45,5 +45,5 @@ export function FinanceiroIndexPage() {
 
 export const Route = createFileRoute('/_private/financeiro/')({
   component: FinanceiroIndexPage,
-  staticData: { title: t('financeiro') },
+  staticData: { title: t('finance') },
 });

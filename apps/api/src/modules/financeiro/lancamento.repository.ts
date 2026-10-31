@@ -31,7 +31,7 @@ const toRecord = (doc: LancamentoDocument): LancamentoRecord => {
     status: doc.status,
     liquidadoEm: doc.liquidadoEm,
     parcelas,
-    ...(doc.natureza === 'receita' ? { recebidoCents, saldoCents: doc.valorCents - recebidoCents } : {}),
+    ...(doc.natureza === 'income' ? { recebidoCents, saldoCents: doc.valorCents - recebidoCents } : {}),
     periciaId: doc.Pericia?.toString(),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -50,7 +50,7 @@ const toDocumentFields = ({ periciaId, ...data }: UpdateLancamento) => {
 // nenhuma → previsto; menos que o valor → parcial; o valor todo → liquidado.
 const RECEBIDO = { $sum: '$parcelas.valorCents' };
 const STATUS_DA_RECEITA = {
-  $cond: [{ $eq: [RECEBIDO, 0] }, 'previsto', { $cond: [{ $lt: [RECEBIDO, '$valorCents'] }, 'parcial', 'liquidado'] }],
+  $cond: [{ $eq: [RECEBIDO, 0] }, 'expected', { $cond: [{ $lt: [RECEBIDO, '$valorCents'] }, 'partial', 'settled'] }],
 };
 
 export const createLancamento = async (tenantId: string, data: CreateLancamento): Promise<LancamentoRecord> =>
@@ -72,8 +72,8 @@ export const findHonorarioFixado = async (tenantId: string, periciaId: string): 
       tenantScoped({
         Tenant: tenantId,
         Pericia: periciaId,
-        natureza: 'receita' as const,
-        categoria: 'honorarios_fixados' as const,
+        natureza: 'income' as const,
+        categoria: 'fixed_fees' as const,
       }),
     )
       .sort({ createdAt: -1 })
@@ -110,7 +110,7 @@ export const updateReceita = async (
     );
     const doc = await Lancamento.findOneAndUpdate(
       {
-        ...tenantScoped({ Tenant: tenantId, _id: id, natureza: 'receita' as const }),
+        ...tenantScoped({ Tenant: tenantId, _id: id, natureza: 'income' as const }),
         ...(data.valorCents !== undefined ? { $expr: { $lte: [RECEBIDO, data.valorCents] } } : {}),
       },
       [{ $set: fields }, { $set: { status: STATUS_DA_RECEITA } }],
@@ -135,7 +135,7 @@ export const addParcela = async (
     };
     const doc = await Lancamento.findOneAndUpdate(
       {
-        ...tenantScoped({ Tenant: tenantId, _id: id, natureza: 'receita' as const }),
+        ...tenantScoped({ Tenant: tenantId, _id: id, natureza: 'income' as const }),
         $expr: { $lte: [{ $add: [RECEBIDO, parcela.valorCents] }, '$valorCents'] },
       },
       [
@@ -156,7 +156,7 @@ export const removeParcela = async (
   withDbTiming('financeiro.removeParcela', async () => {
     const parcelaOid = toObjectId(parcelaId);
     const doc = await Lancamento.findOneAndUpdate(
-      { ...tenantScoped({ Tenant: tenantId, _id: id, natureza: 'receita' as const }), 'parcelas._id': parcelaOid },
+      { ...tenantScoped({ Tenant: tenantId, _id: id, natureza: 'income' as const }), 'parcelas._id': parcelaOid },
       [
         { $set: { parcelas: { $filter: { input: '$parcelas', cond: { $ne: ['$$this._id', parcelaOid] } } } } },
         { $set: { status: STATUS_DA_RECEITA } },
@@ -172,11 +172,11 @@ export const deleteLancamento = async (tenantId: string, id: string): Promise<{ 
     return { deletedCount: result.deletedCount ?? 0 };
   });
 
-const ABERTOS: LancamentoStatus[] = ['previsto', 'parcial'];
+const ABERTOS: LancamentoStatus[] = ['expected', 'partial'];
 
 const situacaoFilter = (situacao: ListLancamentosQuery['situacao'], today: string) => {
   if (!situacao) return {};
-  if (situacao === 'atrasado') return { status: { $in: ABERTOS }, vencimento: { $lt: today } };
+  if (situacao === 'overdue') return { status: { $in: ABERTOS }, vencimento: { $lt: today } };
   return { status: situacao };
 };
 
@@ -227,19 +227,19 @@ export const resumo = async (
   withDbTiming('financeiro.resumo', async () => {
     const Tenant = toObjectId(tenantId);
     const mes = { $gte: range.monthStart, $lt: range.nextMonthStart };
-    const abertas = { Tenant, natureza: 'receita', status: { $in: ABERTOS } };
+    const abertas = { Tenant, natureza: 'income', status: { $in: ABERTOS } };
     const [aReceberCents, atrasadoCents, recebidoMesCents, despesasMesCents] = await Promise.all([
       sum([{ $match: abertas }, { $project: { valor: SALDO } }]),
       sum([{ $match: { ...abertas, vencimento: { $lt: range.today } } }, { $project: { valor: SALDO } }]),
       // Recebido no mês = parcelas pela data em que caíram na conta (PRZ-02.5).
       sum([
-        { $match: { Tenant, natureza: 'receita' } },
+        { $match: { Tenant, natureza: 'income' } },
         { $unwind: '$parcelas' },
         { $match: { 'parcelas.data': mes } },
         { $project: { valor: '$parcelas.valorCents' } },
       ]),
       sum([
-        { $match: { Tenant, natureza: 'despesa', status: { $ne: 'cancelado' }, vencimento: mes } },
+        { $match: { Tenant, natureza: 'expense', status: { $ne: 'canceled' }, vencimento: mes } },
         { $project: { valor: '$valorCents' } },
       ]),
     ]);
@@ -258,23 +258,23 @@ export const fluxoMensal = async (tenantId: string, meses: string[]): Promise<Fl
       { $match: { data: { $gte: first } } },
     ];
     const rows = await Lancamento.aggregate<{ _id: { mes: string; serie: string }; total: number }>([
-      { $match: { Tenant, status: { $ne: 'cancelado' } } },
+      { $match: { Tenant, status: { $ne: 'canceled' } } },
       {
         $facet: {
           recebido: [
-            { $match: { natureza: 'receita' } },
+            { $match: { natureza: 'income' } },
             { $unwind: '$parcelas' },
             ...porMes('recebido', '$parcelas.data', '$parcelas.valorCents'),
           ],
           aReceber: [
-            { $match: { natureza: 'receita', status: { $in: ABERTOS } } },
+            { $match: { natureza: 'income', status: { $in: ABERTOS } } },
             ...porMes('aReceber', '$vencimento', SALDO),
           ],
           despesas: [
-            { $match: { natureza: 'despesa' } },
+            { $match: { natureza: 'expense' } },
             ...porMes(
               'despesas',
-              { $cond: [{ $eq: ['$status', 'liquidado'] }, '$liquidadoEm', '$vencimento'] },
+              { $cond: [{ $eq: ['$status', 'settled'] }, '$liquidadoEm', '$vencimento'] },
               '$valorCents',
             ),
           ],
@@ -297,7 +297,7 @@ export const fluxoMensal = async (tenantId: string, meses: string[]): Promise<Fl
 export const totaisPorCategoria = async (tenantId: string, natureza: string): Promise<CategoriaTotal[]> =>
   withDbTiming('financeiro.totaisPorCategoria', async () => {
     const rows = await Lancamento.aggregate<{ _id: CategoriaTotal['categoria']; total: number }>([
-      { $match: { Tenant: toObjectId(tenantId), natureza, status: { $ne: 'cancelado' } } },
+      { $match: { Tenant: toObjectId(tenantId), natureza, status: { $ne: 'canceled' } } },
       { $group: { _id: '$categoria', total: { $sum: '$valorCents' } } },
       { $sort: { total: -1 } },
     ]);

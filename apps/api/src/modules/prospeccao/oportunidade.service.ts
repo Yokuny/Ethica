@@ -89,7 +89,7 @@ export const converterOportunidade = async (
   data: ConverterOportunidade,
 ): Promise<{ periciaId: string }> => {
   const oportunidade = await getOportunidade(tenantId, id);
-  if (oportunidade.status === 'convertida') throw new CustomError('opportunity_already_converted', 409);
+  if (oportunidade.status === 'converted') throw new CustomError('opportunity_already_converted', 409);
   const pericia = await periciaService.createPericia({
     ...data,
     tenant: tenantId,
@@ -98,6 +98,6 @@ export const converterOportunidade = async (
     vara: oportunidade.orgaoJulgador,
     oportunidadeId: oportunidade.id,
   });
-  await oportunidadeRepository.updateOportunidade(tenantId, id, { status: 'convertida', periciaId: pericia.id });
+  await oportunidadeRepository.updateOportunidade(tenantId, id, { status: 'converted', periciaId: pericia.id });
   return { periciaId: pericia.id };
 };

@@ -27,7 +27,7 @@ export function MobileDock() {
       </Link>
       <Link to="/pericias" className={cn(tileClassName, pathname.startsWith('/pericias') && 'text-primary')}>
         <Gavel className="size-5" />
-        {t('pericias')}
+        {t('expert_cases')}
       </Link>
       <Link to="/agenda" className={tileClassName}>
         <CalendarDays className="size-5" />
@@ -35,7 +35,7 @@ export function MobileDock() {
       </Link>
       <Link to="/prospeccao" className={cn(tileClassName, pathname.startsWith('/prospeccao') && 'text-primary')}>
         <Radar className="size-5" />
-        {t('prospeccao')}
+        {t('prospecting')}
       </Link>
       <button type="button" onClick={toggleSidebar} className={tileClassName}>
         <Menu className="size-5" />

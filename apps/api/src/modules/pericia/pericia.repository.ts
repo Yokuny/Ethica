@@ -43,7 +43,7 @@ const toRecord = (doc: PericiaDocument): PericiaRecord => ({
 });
 
 // Etapas em que a perícia ainda tem trabalho do perito pela frente.
-const ABERTAS = ['nomeada', 'aceita', 'vistoria', 'em_laudo', 'esclarecimentos'];
+const ABERTAS = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
 
 export const createPericia = async ({
   tenant,
@@ -141,23 +141,23 @@ export const stats = async (tenantId: string, venceEmBreveDias: number, now: Dat
     const today = dateInDisplayTz(now);
     const count = (extra: object) => Pericia.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
     const prazos = (vencimento: object) =>
-      Prazo.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pendente' as const, vencimento }));
+      Prazo.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pending' as const, vencimento }));
     const [total, abertas, vencidas, proximas, entregues, trend] = await Promise.all([
       count({}),
       count({ status: { $in: ABERTAS } }),
       prazos({ $lt: today }),
       prazos({ $gte: today, $lte: addDays(today, venceEmBreveDias) }),
-      count({ status: { $in: ['laudo_entregue', 'concluida'] } }),
+      count({ status: { $in: ['report_delivered', 'completed'] } }),
       dailyTrend(Pericia, tenantId, 'createdAt'),
     ]);
     return {
       total,
       trend,
       groups: [
-        { key: 'abertas', count: abertas },
-        { key: 'prazo_vencido', count: vencidas },
-        { key: 'prazo_proximo', count: proximas },
-        { key: 'laudos_entregues', count: entregues },
+        { key: 'open', count: abertas },
+        { key: 'overdue_deadlines', count: vencidas },
+        { key: 'deadlines_due_soon', count: proximas },
+        { key: 'reports_delivered', count: entregues },
       ],
     };
   });
@@ -165,8 +165,8 @@ export const stats = async (tenantId: string, venceEmBreveDias: number, now: Dat
 export const distribution = async (tenantId: string): Promise<PericiaDistribution> =>
   withDbTiming('pericia.distribution', async () => {
     const [status, justica] = await Promise.all([
-      groupStats(Pericia, tenantId, '$status', 'nomeada'),
-      groupStats(Pericia, tenantId, '$justica', 'civel'),
+      groupStats(Pericia, tenantId, '$status', 'appointed'),
+      groupStats(Pericia, tenantId, '$justica', 'civil'),
     ]);
     return { status: status.groups, justica: justica.groups };
   });

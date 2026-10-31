@@ -15,7 +15,7 @@ export type CompromissoRecord = {
   periciaId?: string;
   periciaNumero?: string;
   status: CompromissoStatus;
-  origem: 'manual' | 'automatico';
+  origem: 'manual' | 'automatic';
   observacoes?: string;
 };
 

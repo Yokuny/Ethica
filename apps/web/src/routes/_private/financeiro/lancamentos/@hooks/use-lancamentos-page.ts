@@ -24,7 +24,7 @@ export function useLancamentosPage() {
   }
 
   // Ações rápidas da linha: liquidar (hoje) e cancelar.
-  function setStatus(lancamento: LancamentoRecord, status: 'liquidado' | 'cancelado' | 'previsto') {
+  function setStatus(lancamento: LancamentoRecord, status: 'settled' | 'canceled' | 'expected') {
     updateMutation.mutate(
       { id: lancamento.id, data: { status } },
       { onError: (error: Error) => toast.error(error.message) },

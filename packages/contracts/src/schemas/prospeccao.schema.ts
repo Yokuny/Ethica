@@ -4,7 +4,7 @@ import { type JUSTICAS, numeroProcessoSchema } from './pericia.schema.js';
 // Alias do índice da API Pública do Datajud (`api_publica_<alias>`), por justiça.
 // Lista dos tribunais atendidos hoje; acrescente aqui para liberar outro tribunal.
 export const DATAJUD_TRIBUNAIS = {
-  trabalhista: [
+  labor: [
     'trt1',
     'trt2',
     'trt3',
@@ -31,7 +31,7 @@ export const DATAJUD_TRIBUNAIS = {
     'trt24',
   ],
   federal: ['trf1', 'trf2', 'trf3', 'trf4', 'trf5', 'trf6'],
-  civel: [
+  civil: [
     'tjac',
     'tjal',
     'tjam',
@@ -62,13 +62,15 @@ export const DATAJUD_TRIBUNAIS = {
   ],
 } as const satisfies Record<(typeof JUSTICAS)[number], readonly string[]>;
 export const ALL_DATAJUD_TRIBUNAIS = [
-  ...DATAJUD_TRIBUNAIS.trabalhista,
+  ...DATAJUD_TRIBUNAIS.labor,
   ...DATAJUD_TRIBUNAIS.federal,
-  ...DATAJUD_TRIBUNAIS.civel,
+  ...DATAJUD_TRIBUNAIS.civil,
 ] as const;
 export type DatajudTribunal = (typeof ALL_DATAJUD_TRIBUNAIS)[number];
 
-export const DATAJUD_ASSUNTOS_TECNICOS = ['Insalubridade', 'Periculosidade', 'Acidente de trabalho'] as const;
+// Chaves em inglês (AD-113); o nome do assunto no Datajud fica no client (`providers/datajudClient.ts`).
+export const DATAJUD_ASSUNTOS_TECNICOS = ['unhealthy_conditions', 'hazardous_conditions', 'work_accident'] as const;
+export type DatajudAssuntoTecnico = (typeof DATAJUD_ASSUNTOS_TECNICOS)[number];
 
 // Busca de possíveis nomeações: texto livre nos movimentos/assuntos/classe e
 // recorte por órgão julgador. `cursor` é o `sort` do último resultado
@@ -98,7 +100,7 @@ export const datajudSearchSchema = z
   .strict();
 export type DatajudSearch = z.infer<typeof datajudSearchSchema>;
 
-export const OPORTUNIDADE_STATUS = ['nova', 'em_analise', 'descartada', 'convertida'] as const;
+export const OPORTUNIDADE_STATUS = ['new', 'under_review', 'discarded', 'converted'] as const;
 export type OportunidadeStatus = (typeof OPORTUNIDADE_STATUS)[number];
 
 // Processo do Datajud guardado para análise. Os campos vêm do resultado da busca.
@@ -119,7 +121,7 @@ export type CreateOportunidade = z.infer<typeof createOportunidadeSchema>;
 // `convertida` só é alcançada por POST /prospeccao/oportunidades/:id/converter.
 export const updateOportunidadeSchema = z
   .object({
-    status: z.enum(['nova', 'em_analise', 'descartada']).optional(),
+    status: z.enum(['new', 'under_review', 'discarded']).optional(),
     observacoes: z.string().trim().max(2000).optional(),
   })
   .strict();

@@ -18,13 +18,13 @@ const now = new Date('2026-10-29T18:00:00.000Z');
 
 describe('lancamento.service', () => {
   it('liquidar despesa sem data grava o dia de hoje no fuso de exibição', async () => {
-    vi.mocked(lancamentoRepository.findById).mockResolvedValue({ id: 'l1', natureza: 'despesa' } as never);
+    vi.mocked(lancamentoRepository.findById).mockResolvedValue({ id: 'l1', natureza: 'expense' } as never);
     vi.mocked(lancamentoRepository.updateLancamento).mockResolvedValue({ id: 'l1' } as never);
 
-    await updateLancamento('t1', 'l1', { status: 'liquidado' }, now);
+    await updateLancamento('t1', 'l1', { status: 'settled' }, now);
 
     expect(lancamentoRepository.updateLancamento).toHaveBeenCalledWith('t1', 'l1', {
-      status: 'liquidado',
+      status: 'settled',
       liquidadoEm: '2026-10-29',
     });
   });
@@ -53,8 +53,8 @@ describe('lancamento.service', () => {
     );
 
     expect(lancamentoRepository.createLancamento).toHaveBeenCalledWith('t1', {
-      natureza: 'receita',
-      categoria: 'honorarios_fixados',
+      natureza: 'income',
+      categoria: 'fixed_fees',
       descricao: 'Honorários fixados — 0001',
       valorCents: 500_000,
       vencimento: '2026-11-28',

@@ -15,23 +15,23 @@ export function HomeOverview({ stats, resumo }: { stats?: ListStats; resumo?: Fi
   return (
     <RecordStats variant="band" role="group" aria-label={t('overview')}>
       <ListTrendStat
-        label={t('open_pericias')}
-        value={show(statCount(stats, 'abertas'))}
+        label={t('open_expert_cases')}
+        value={show(statCount(stats, 'open'))}
         trend={stats?.trend}
-        event={t('registered_pericias')}
+        event={t('registered_expert_cases')}
       />
       <RecordStat
         label={t('overdue_deadlines')}
-        value={show(statCount(stats, 'prazo_vencido'))}
+        value={show(statCount(stats, 'overdue_deadlines'))}
         render={<Link to="/pericias" />}
       />
-      <RecordStat label={t('deadlines_due_soon')} value={show(statCount(stats, 'prazo_proximo'))} />
+      <RecordStat label={t('deadlines_due_soon')} value={show(statCount(stats, 'deadlines_due_soon'))} />
       {resumo && (
         <RecordStat
           label={t('receivable')}
           value={formatMoney(resumo.aReceberCents)}
           hint={resumo.atrasadoCents ? `${formatMoney(resumo.atrasadoCents)} ${t('overdue')}` : undefined}
-          render={<Link to="/financeiro/lancamentos" search={{ situacao: 'previsto' }} />}
+          render={<Link to="/financeiro/lancamentos" search={{ situacao: 'expected' }} />}
         />
       )}
     </RecordStats>

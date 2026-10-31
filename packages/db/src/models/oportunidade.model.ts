@@ -36,7 +36,7 @@ const oportunidadeSchema = new Schema<OportunidadeDocument>(
     dataAjuizamento: { type: String },
     ultimoMovimento: { type: String },
     ultimoMovimentoEm: { type: String },
-    status: { type: String, enum: OPORTUNIDADE_STATUS, default: 'nova', required: true },
+    status: { type: String, enum: OPORTUNIDADE_STATUS, default: 'new', required: true },
     observacoes: { type: String },
     Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia' },
   },

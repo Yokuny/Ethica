@@ -67,8 +67,8 @@ describe('feed iCal (PRZ-03)', () => {
     const pericia = await Pericia.create({
       Tenant: tenant._id,
       numeroProcesso: '0001234-56.2026.5.02.0001',
-      justica: 'trabalhista',
-      papel: 'perito',
+      justica: 'labor',
+      papel: 'court_expert',
       tribunal: 'TRT2',
       objeto: 'Insalubridade',
       autor: 'Maria',
@@ -77,7 +77,7 @@ describe('feed iCal (PRZ-03)', () => {
     const amanha = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
     await Compromisso.create({
       Tenant: tenant._id,
-      tipo: 'vistoria',
+      tipo: 'inspection',
       titulo: 'Vistoria',
       inicio: wallClockToUtc(amanha, '09:00'),
       fim: wallClockToUtc(amanha, '10:00'),
@@ -86,11 +86,11 @@ describe('feed iCal (PRZ-03)', () => {
     });
     await Compromisso.create({
       Tenant: tenant._id,
-      tipo: 'reuniao',
+      tipo: 'meeting',
       titulo: 'Reunião cancelada',
       inicio: wallClockToUtc(amanha, '11:00'),
       fim: wallClockToUtc(amanha, '12:00'),
-      status: 'cancelado',
+      status: 'canceled',
     });
     await Prazo.create({ Tenant: tenant._id, Pericia: pericia._id, titulo: 'Entrega do laudo', vencimento: amanha });
 

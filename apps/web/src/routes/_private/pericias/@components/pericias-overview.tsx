@@ -5,23 +5,23 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { statCount } from '@/query/listStats.js';
 
 const number = new Intl.NumberFormat('pt-BR');
-const GROUPS = ['abertas', 'prazo_vencido', 'prazo_proximo', 'laudos_entregues'] as const;
+const GROUPS = ['open', 'overdue_deadlines', 'deadlines_due_soon', 'reports_delivered'] as const;
 const LABELS: Record<(typeof GROUPS)[number], string> = {
-  abertas: 'open_pericias',
-  prazo_vencido: 'overdue_deadlines',
-  prazo_proximo: 'deadlines_due_soon',
-  laudos_entregues: 'reports_delivered',
+  open: 'open_expert_cases',
+  overdue_deadlines: 'overdue_deadlines',
+  deadlines_due_soon: 'deadlines_due_soon',
+  reports_delivered: 'reports_delivered',
 };
 
 // Faixa de indicadores da listagem, a partir de GET /pericias/stats.
 export function PericiasOverview({ stats }: { stats?: ListStats }) {
   return (
-    <RecordStats variant="band" role="group" aria-label={t('pericias')}>
+    <RecordStats variant="band" role="group" aria-label={t('expert_cases')}>
       <ListTrendStat
-        label={t('pericias')}
+        label={t('expert_cases')}
         value={stats ? number.format(stats.total) : '—'}
         trend={stats?.trend}
-        event={t('registered_pericias')}
+        event={t('registered_expert_cases')}
       />
       {GROUPS.map((key) => {
         const count = statCount(stats, key);

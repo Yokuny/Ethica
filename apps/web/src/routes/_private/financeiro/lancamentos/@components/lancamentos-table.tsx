@@ -12,7 +12,7 @@ type LancamentosTableProps = {
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
   onRowClick: (row: LancamentoRecord) => void;
-  onStatus: (lancamento: LancamentoRecord, status: 'liquidado' | 'cancelado' | 'previsto') => void;
+  onStatus: (lancamento: LancamentoRecord, status: 'settled' | 'canceled' | 'expected') => void;
   onReceber: (lancamento: LancamentoRecord) => void;
 };
 

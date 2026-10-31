@@ -24,16 +24,16 @@ describe('PericiaPrazos (PRZ-01)', () => {
 
   it('lista cada prazo com status; vencido pendente ganha o selo "Vencido"; protocolado mostra a data', () => {
     renderPrazos([
-      { id: 'a', periciaId: 'p1', titulo: 'Entrega do laudo', vencimento: '2000-01-10', status: 'pendente' },
+      { id: 'a', periciaId: 'p1', titulo: 'Entrega do laudo', vencimento: '2000-01-10', status: 'pending' },
       {
         id: 'b',
         periciaId: 'p1',
         titulo: 'Esclarecimentos',
         vencimento: '2000-01-05',
-        status: 'protocolado',
+        status: 'filed',
         protocoladoEm: '2000-01-04',
       },
-      { id: 'c', periciaId: 'p1', titulo: 'Impugnação', vencimento: today, status: 'perdido' },
+      { id: 'c', periciaId: 'p1', titulo: 'Impugnação', vencimento: today, status: 'missed' },
     ]);
 
     const laudo = screen.getByText('Entrega do laudo').closest('li') as HTMLElement;

@@ -6,15 +6,15 @@ describe('alertaDoPrazo', () => {
   const today = '2026-11-10';
 
   it('pendente antes de hoje é vencido; hoje e até 15 dias vencem em breve; 16 dias não alerta', () => {
-    expect(alertaDoPrazo({ vencimento: '2026-11-09', status: 'pendente' }, today)).toBe('deadline_overdue');
-    expect(alertaDoPrazo({ vencimento: '2026-11-10', status: 'pendente' }, today)).toBe('due_soon');
-    expect(alertaDoPrazo({ vencimento: '2026-11-25', status: 'pendente' }, today)).toBe('due_soon');
-    expect(alertaDoPrazo({ vencimento: '2026-11-26', status: 'pendente' }, today)).toBeUndefined();
+    expect(alertaDoPrazo({ vencimento: '2026-11-09', status: 'pending' }, today)).toBe('deadline_overdue');
+    expect(alertaDoPrazo({ vencimento: '2026-11-10', status: 'pending' }, today)).toBe('due_soon');
+    expect(alertaDoPrazo({ vencimento: '2026-11-25', status: 'pending' }, today)).toBe('due_soon');
+    expect(alertaDoPrazo({ vencimento: '2026-11-26', status: 'pending' }, today)).toBeUndefined();
   });
 
   it('protocolado e perdido nunca alertam, mesmo vencidos', () => {
-    expect(alertaDoPrazo({ vencimento: '2026-11-01', status: 'protocolado' }, today)).toBeUndefined();
-    expect(alertaDoPrazo({ vencimento: '2026-11-01', status: 'perdido' }, today)).toBeUndefined();
+    expect(alertaDoPrazo({ vencimento: '2026-11-01', status: 'filed' }, today)).toBeUndefined();
+    expect(alertaDoPrazo({ vencimento: '2026-11-01', status: 'missed' }, today)).toBeUndefined();
   });
 
   it('sem status (próximo prazo da listagem, sempre pendente) alerta pelo vencimento', () => {

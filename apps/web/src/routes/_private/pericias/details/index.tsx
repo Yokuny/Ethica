@@ -64,7 +64,7 @@ export function PericiaDetailsPage() {
       )}
       {isConfirmingDelete && (
         <ConfirmDialog
-          title={t('remove_pericia_question')}
+          title={t('remove_expert_case_question')}
           description={t('action_cannot_be_undone')}
           confirmLabel={t('remove')}
           pending={isDeleting}
