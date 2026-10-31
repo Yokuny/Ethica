@@ -1,7 +1,7 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import type { PaginationState, Updater } from '@tanstack/react-table';
 import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
-import type { PericiaRecord } from '@/query/pericia.js';
+import type { PericiaListItem } from '@/query/pericia.js';
 import type { PericiasSearch } from '../@interface/pericias.interface.js';
 
 export function usePericiasSearch() {
@@ -20,7 +20,7 @@ export function usePericiasSearch() {
 
   const [searchInput, handleSearchInput] = useDebouncedSearch(search.q, (q: string) => update({ q, page: 1 }));
 
-  function handleRowClick(row: PericiaRecord) {
+  function handleRowClick(row: PericiaListItem) {
     navigate({ to: '/pericias/details', search: { id: row.id } });
   }
 

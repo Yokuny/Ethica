@@ -19,7 +19,6 @@ export type PericiaRecord = {
   reu?: string;
   status: PericiaStatus;
   dataNomeacao?: string;
-  prazoLaudo?: string;
   honorariosPropostosCents?: number;
   honorariosFixadosCents?: number;
   observacoes?: string;
@@ -36,7 +35,10 @@ export type PericiasQueryParams = {
   justica?: Justica;
 };
 
-export type PericiasListResult = { items: PericiaRecord[]; total: number };
+// Listagem: cada perícia com o prazo pendente mais próximo (AD-109), ausente se não há.
+export type PericiaListItem = PericiaRecord & { proximoPrazo?: { titulo: string; vencimento: string } };
+
+export type PericiasListResult = { items: PericiaListItem[]; total: number };
 
 export type PericiaDistribution = {
   status: { key: string; count: number }[];

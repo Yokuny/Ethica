@@ -21,11 +21,11 @@ export function HomeOverview({ stats, resumo }: { stats?: ListStats; resumo?: Fi
         event={t('registered_pericias')}
       />
       <RecordStat
-        label={t('overdue_deadline')}
+        label={t('overdue_deadlines')}
         value={show(statCount(stats, 'prazo_vencido'))}
         render={<Link to="/pericias" />}
       />
-      <RecordStat label={t('deadline_next_7_days')} value={show(statCount(stats, 'prazo_proximo'))} />
+      <RecordStat label={t('deadlines_due_soon')} value={show(statCount(stats, 'prazo_proximo'))} />
       {resumo && (
         <RecordStat
           label={t('receivable')}
