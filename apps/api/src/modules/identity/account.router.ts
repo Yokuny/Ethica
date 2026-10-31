@@ -21,5 +21,9 @@ export const createAccountRouter = (deps: AccountRouterDeps): Router => {
   router.put('/password', ...own, validBody(changePasswordSchema), accountController.changePassword);
   router.put('/avatar', ...own, validBody(updateAvatarSchema), accountController.updateAvatar);
   router.delete('/avatar', ...own, accountController.removeAvatar);
+  // PRZ-03: link secreto do feed iCal da própria pessoa (gerar substitui o anterior).
+  router.get('/calendar-feed', ...own, accountController.calendarFeedStatus);
+  router.post('/calendar-feed', ...own, accountController.gerarCalendarFeed);
+  router.delete('/calendar-feed', ...own, accountController.revogarCalendarFeed);
   return router;
 };

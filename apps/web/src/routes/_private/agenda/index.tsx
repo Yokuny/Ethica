@@ -3,7 +3,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
-import { addDaysToDisplayDate } from '@/lib/helpers/displayTime.helper.js';
+import { PrazoDialog } from '@/components/prazo-dialog.js';
+import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { CalendarToolbar } from './@components/calendar-toolbar.js';
 import { CompromissoDetail } from './@components/compromisso-detail.js';
@@ -15,8 +16,22 @@ import { type CalendarSearch, calendarSearchSchema } from './@interface/calendar
 
 export function AgendaIndexPage() {
   const state = useAgendaPage();
-  const { panel, setPanel, search, closePanel, query, view, date, from, handleSelectItem, clearFilters } = state;
+  const {
+    panel,
+    setPanel,
+    search,
+    closePanel,
+    query,
+    prazos,
+    view,
+    date,
+    from,
+    handleSelectItem,
+    handleSelectPrazo,
+    clearFilters,
+  } = state;
   const items = query.data ?? [];
+  const prazoProps = { prazos, onSelectPrazo: handleSelectPrazo, today: formatDisplayDate(new Date()) };
 
   return (
     <Card asPage>
@@ -36,12 +51,13 @@ export function AgendaIndexPage() {
             action={<Button onClick={clearFilters}>{t('clear_filters')}</Button>}
           />
         ) : view === 'month' ? (
-          <MonthView month={date} items={items} onSelect={handleSelectItem} />
+          <MonthView month={date} items={items} onSelect={handleSelectItem} {...prazoProps} />
         ) : (
           <TimeGridView
             days={view === 'day' ? [date] : Array.from({ length: 7 }, (_, index) => addDaysToDisplayDate(from, index))}
             items={items}
             onSelect={handleSelectItem}
+            {...prazoProps}
           />
         )}
       </CardContent>
@@ -56,6 +72,7 @@ export function AgendaIndexPage() {
           onClose={closePanel}
         />
       )}
+      {panel?.kind === 'prazo' && <PrazoDialog prazo={panel.prazo} onClose={closePanel} />}
     </Card>
   );
 }

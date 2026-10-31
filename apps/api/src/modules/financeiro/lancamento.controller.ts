@@ -77,3 +77,25 @@ export const totaisPorCategoria = async (req: Request, res: Response, next: Next
     next(e);
   }
 };
+
+export const addParcela = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const result = await lancamentoService.addParcela(tenantOf(req), req.params.id as string, req.body);
+    res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
+  } catch (e) {
+    notFoundAs404(e, next);
+  }
+};
+
+export const estornarParcela = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const result = await lancamentoService.estornarParcela(
+      tenantOf(req),
+      req.params.id as string,
+      req.params.parcelaId as string,
+    );
+    res.json(respObj({ data: result }));
+  } catch (e) {
+    notFoundAs404(e, next);
+  }
+};

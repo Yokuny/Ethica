@@ -1,6 +1,6 @@
-import type { UpdatePericia } from '@ethica/contracts';
+import type { PericiaFormValues } from '../../@interface/pericias.interface.js';
 
-export const DEFAULT_VALUES: UpdatePericia = {
+export const DEFAULT_VALUES: PericiaFormValues = {
   numeroProcesso: '',
   tribunal: '',
   objeto: '',

@@ -4,8 +4,9 @@ import { weekdayIndexOfDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
 import type { CompromissoRecord } from '@/query/compromisso.js';
+import type { PrazoRecord } from '@/query/prazo.js';
 import { computePositionedItems, HOUR_HEIGHT_PX, HOURS_IN_DAY } from '../@utils/calendar-grid.utils.js';
-import { CalendarEventChip } from './calendar-event.js';
+import { CalendarEventChip, CalendarPrazoChip } from './calendar-event.js';
 import {
   CalendarTimeGrid,
   CalendarTimeGridColumns,
@@ -19,6 +20,10 @@ export type TimeGridViewProps = {
   days: string[];
   items: CompromissoRecord[];
   onSelect: (item: CompromissoRecord) => void;
+  // Prazos pendentes: faixa "dia inteiro" sob o cabeçalho (prazo é um dia, não um horário).
+  prazos?: PrazoRecord[];
+  onSelectPrazo?: (prazo: PrazoRecord) => void;
+  today?: string;
 };
 
 const HOURS = Array.from({ length: HOURS_IN_DAY }, (_, hour) => hour);
@@ -42,7 +47,15 @@ const overlapStyle = (column: number): { left: string; width: string; zIndex: nu
 // Grade por hora com eventos posicionados por horário/duração
 // (calendar-grid.utils.ts). Moldura e linhas tracejadas vêm do primitivo
 // (components/ui/calendar-grid.tsx) — aqui só composição e posição.
-export function TimeGridView({ days, items, onSelect }: TimeGridViewProps) {
+export function TimeGridView({
+  days,
+  items,
+  onSelect,
+  prazos = [],
+  onSelectPrazo = () => {},
+  today = '',
+}: TimeGridViewProps) {
+  const hasPrazos = prazos.some((prazo) => days.includes(prazo.vencimento));
   return (
     <CalendarTimeGrid className="min-w-160 flex-col" data-testid="time-grid-view">
       {/* Cabeçalho fixo (fora do ScrollArea): régua de horas vazia + data de
@@ -60,6 +73,24 @@ export function TimeGridView({ days, items, onSelect }: TimeGridViewProps) {
           ))}
         </CalendarTimeGridColumns>
       </div>
+      {hasPrazos && (
+        <div className="flex" data-testid="time-grid-all-day">
+          <ItemDescription className="line-clamp-none w-10 shrink-0 pr-1 text-right text-[10px]">
+            {t('all_day')}
+          </ItemDescription>
+          <CalendarTimeGridColumns style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
+            {days.map((day) => (
+              <div key={day} className="grid content-start gap-1 p-1">
+                {prazos
+                  .filter((prazo) => prazo.vencimento === day)
+                  .map((prazo) => (
+                    <CalendarPrazoChip key={prazo.id} prazo={prazo} today={today} onSelect={onSelectPrazo} />
+                  ))}
+              </div>
+            ))}
+          </CalendarTimeGridColumns>
+        </div>
+      )}
       <ScrollArea style={{ height: GRID_BODY_HEIGHT_PX }}>
         <div className="flex">
           <div className="w-10 shrink-0">

@@ -2,6 +2,7 @@ import type { CreatePericia, Justica, PapelPericia, PericiaStatus, UpdatePericia
 import { createPericiaSchema, idSchema, JUSTICAS, PERICIA_STATUS, updatePericiaSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
+import type { ProximoPrazo } from './prazo.schema.js';
 
 export type { CreatePericia, UpdatePericia };
 export { createPericiaSchema, updatePericiaSchema };
@@ -35,7 +36,6 @@ export type PericiaRecord = {
   reu?: string;
   status: PericiaStatus;
   dataNomeacao?: string;
-  prazoLaudo?: string;
   honorariosPropostosCents?: number;
   honorariosFixadosCents?: number;
   observacoes?: string;
@@ -45,6 +45,12 @@ export type PericiaRecord = {
 };
 
 export type CreatePericiaInput = CreatePericia & { tenant: string; oportunidadeId?: string };
+
+// Listagem: cada perícia com o prazo pendente mais próximo (ausente se não há).
+export type PericiaListItem = PericiaRecord & { proximoPrazo?: ProximoPrazo };
+
+// Enriquecimento cross-módulo (agenda, financeiro, feed, aviso): número e partes.
+export type PericiaResumo = { numeroProcesso: string; autor?: string; reu?: string };
 
 export type PericiaDistribution = {
   status: { key: string; count: number }[];

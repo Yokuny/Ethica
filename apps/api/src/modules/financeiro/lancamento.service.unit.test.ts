@@ -4,17 +4,21 @@ import { fluxoMensal, lancarHonorariosFixados, resumo, updateLancamento } from '
 
 vi.mock('./lancamento.repository.js', () => ({
   createLancamento: vi.fn(),
+  findById: vi.fn(),
+  findHonorarioFixado: vi.fn(),
   updateLancamento: vi.fn(),
+  updateReceita: vi.fn(),
   resumo: vi.fn(),
   fluxoMensal: vi.fn(),
 }));
-vi.mock('../pericia/pericia.service.js', () => ({ getPericia: vi.fn(), findNumerosByIds: vi.fn() }));
+vi.mock('../pericia/pericia.service.js', () => ({ getPericia: vi.fn(), findResumosByIds: vi.fn() }));
 
 // 2026-10-29 15:00 em São Paulo.
 const now = new Date('2026-10-29T18:00:00.000Z');
 
 describe('lancamento.service', () => {
-  it('liquidar sem data grava o dia de hoje no fuso de exibição', async () => {
+  it('liquidar despesa sem data grava o dia de hoje no fuso de exibição', async () => {
+    vi.mocked(lancamentoRepository.findById).mockResolvedValue({ id: 'l1', natureza: 'despesa' } as never);
     vi.mocked(lancamentoRepository.updateLancamento).mockResolvedValue({ id: 'l1' } as never);
 
     await updateLancamento('t1', 'l1', { status: 'liquidado' }, now);
@@ -41,7 +45,8 @@ describe('lancamento.service', () => {
     expect(lancamentoRepository.fluxoMensal).toHaveBeenCalledWith('t1', ['2026-08', '2026-09', '2026-10']);
   });
 
-  it('honorários fixados viram receita prevista com vencimento em 30 dias', async () => {
+  it('honorários fixados sem lançamento anterior viram receita prevista com vencimento em 30 dias', async () => {
+    vi.mocked(lancamentoRepository.findHonorarioFixado).mockResolvedValue(null);
     await lancarHonorariosFixados(
       { tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 500_000 },
       now,
@@ -55,5 +60,28 @@ describe('lancamento.service', () => {
       vencimento: '2026-11-28',
       periciaId: 'p1',
     });
+  });
+
+  it('honorário fixado já lançado: o valor novo atualiza o mesmo lançamento (AD-111)', async () => {
+    vi.mocked(lancamentoRepository.createLancamento).mockClear();
+    vi.mocked(lancamentoRepository.findHonorarioFixado).mockResolvedValue({ id: 'l9' } as never);
+    vi.mocked(lancamentoRepository.updateReceita).mockResolvedValue({ id: 'l9' } as never);
+
+    await lancarHonorariosFixados(
+      { tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 650_000 },
+      now,
+    );
+
+    expect(lancamentoRepository.updateReceita).toHaveBeenCalledWith('t1', 'l9', { valorCents: 650_000 });
+    expect(lancamentoRepository.createLancamento).not.toHaveBeenCalled();
+  });
+
+  it('honorário fixado reduzido abaixo do recebido rejeita (o bus só registra no log)', async () => {
+    vi.mocked(lancamentoRepository.findHonorarioFixado).mockResolvedValue({ id: 'l9' } as never);
+    vi.mocked(lancamentoRepository.updateReceita).mockResolvedValue(null);
+
+    await expect(
+      lancarHonorariosFixados({ tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 1 }, now),
+    ).rejects.toMatchObject({ message: 'amount_below_received' });
   });
 });

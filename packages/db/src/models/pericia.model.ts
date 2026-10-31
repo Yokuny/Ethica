@@ -23,7 +23,6 @@ export interface PericiaDocument {
   status: PericiaStatus;
   // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-036, AD-103), não instantes.
   dataNomeacao?: string;
-  prazoLaudo?: string;
   honorariosPropostosCents?: number;
   honorariosFixadosCents?: number;
   observacoes?: string;
@@ -47,7 +46,6 @@ const periciaSchema = new Schema<PericiaDocument>(
     reu: { type: String, trim: true },
     status: { type: String, enum: PERICIA_STATUS, default: 'nomeada', required: true },
     dataNomeacao: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
-    prazoLaudo: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     honorariosPropostosCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     honorariosFixadosCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     observacoes: { type: String },
@@ -59,7 +57,7 @@ const periciaSchema = new Schema<PericiaDocument>(
 // Um processo aparece uma vez por tenant: o perito não pode cadastrar a mesma
 // nomeação duas vezes (o índice é quem garante, não o código).
 periciaSchema.index({ Tenant: 1, numeroProcesso: 1 }, { unique: true });
-periciaSchema.index({ Tenant: 1, status: 1, prazoLaudo: 1 });
+periciaSchema.index({ Tenant: 1, status: 1 });
 periciaSchema.index({ Tenant: 1, createdAt: -1 });
 
 export const Pericia = mongoose.model<PericiaDocument>('Pericia', periciaSchema);

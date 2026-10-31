@@ -10,6 +10,13 @@ import {
   periciaIdParamSchema,
   updatePericiaSchema,
 } from './pericia.schema.js';
+import * as prazoController from './prazo.controller.js';
+import {
+  createPrazoSchema,
+  listPrazosPendentesQuerySchema,
+  prazoIdParamSchema,
+  updatePrazoSchema,
+} from './prazo.schema.js';
 
 const canOperate = checkRole(['admin', 'manager', 'operator']);
 
@@ -20,8 +27,40 @@ export const createPericiaRouter = (deps: PericiaRouterDeps): Router => {
   router.post('/', ...guard, canOperate, validBody(createPericiaSchema), periciaController.createPericia);
   router.get('/stats', ...guard, canOperate, periciaController.periciaStats);
   router.get('/distribution', ...guard, canOperate, periciaController.periciaDistribution);
+  // Prazos (AD-109): operacionais, qualquer papel do tenant. `/prazos` vem antes de `/:id`.
+  router.get(
+    '/prazos',
+    ...guard,
+    canOperate,
+    validParsedQuery(listPrazosPendentesQuerySchema),
+    prazoController.listPrazosPendentes,
+  );
+  router.patch(
+    '/prazos/:prazoId',
+    ...guard,
+    canOperate,
+    validParams(prazoIdParamSchema),
+    validBody(updatePrazoSchema),
+    prazoController.updatePrazo,
+  );
+  router.delete('/prazos/:prazoId', ...guard, canOperate, validParams(prazoIdParamSchema), prazoController.deletePrazo);
   router.get('/', ...guard, canOperate, validParsedQuery(listPericiasQuerySchema), periciaController.listPericias);
   router.get('/:id', ...guard, canOperate, validParams(periciaIdParamSchema), periciaController.getPericia);
+  router.get(
+    '/:id/prazos',
+    ...guard,
+    canOperate,
+    validParams(periciaIdParamSchema),
+    prazoController.listPrazosDaPericia,
+  );
+  router.post(
+    '/:id/prazos',
+    ...guard,
+    canOperate,
+    validParams(periciaIdParamSchema),
+    validBody(createPrazoSchema),
+    prazoController.createPrazo,
+  );
   router.patch(
     '/:id',
     ...guard,

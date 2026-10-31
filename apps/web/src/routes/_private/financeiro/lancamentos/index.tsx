@@ -11,6 +11,7 @@ import { FinanceiroOverview } from './@components/financeiro-overview.js';
 import { LancamentoForm } from './@components/lancamento-form.js';
 import { LancamentosFilters } from './@components/lancamentos-filters.js';
 import { LancamentosTable } from './@components/lancamentos-table.js';
+import { RecebimentoForm } from './@components/recebimento-form.js';
 import { useLancamentosPage } from './@hooks/use-lancamentos-page.js';
 import { type LancamentosSearch, lancamentosSearchSchema } from './@interface/lancamentos.interface.js';
 
@@ -57,16 +58,14 @@ export function LancamentosIndexPage() {
               onPaginationChange={handlePaginationChange}
               onRowClick={(lancamento) => setPanel({ kind: 'edit', lancamento })}
               onStatus={setStatus}
+              onReceber={(lancamento) => setPanel({ kind: 'receber', lancamento })}
             />
           )}
         </DataTable>
       </CardContent>
-      {panel && (
-        <LancamentoForm
-          lancamento={panel.kind === 'edit' ? panel.lancamento : undefined}
-          onClose={() => setPanel(null)}
-        />
-      )}
+      {panel?.kind === 'create' && <LancamentoForm onClose={() => setPanel(null)} />}
+      {panel?.kind === 'edit' && <LancamentoForm lancamento={panel.lancamento} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'receber' && <RecebimentoForm lancamento={panel.lancamento} onClose={() => setPanel(null)} />}
     </Card>
   );
 }

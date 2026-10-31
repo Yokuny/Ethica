@@ -3,7 +3,9 @@ import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import { buildApp } from './app.js';
 
-vi.mock('@ethica/db', () => ({
+// Mock parcial: só a conexão é simulada; helpers puros (datas do aviso diário) seguem reais.
+vi.mock('@ethica/db', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@ethica/db')>()),
   connect: vi.fn().mockRejectedValue(new Error('Mongo indisponível')),
   syncIndexes: vi.fn(),
 }));

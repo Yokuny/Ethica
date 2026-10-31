@@ -21,9 +21,9 @@ apps/api/src/
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite)
-    ├── pericia/                    # Pericia — o processo em que o perito atua (núcleo, não depende de ninguém)
-    ├── agenda/                     # Compromisso — vistoria, audiência, prazo, reunião
-    ├── financeiro/                 # Lancamento — honorários a receber e despesas; resumo, fluxo, categorias
+    ├── pericia/                    # Pericia + Prazo (AD-109) — o processo e seus prazos (núcleo, não depende de ninguém)
+    ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal e aviso diário de prazos
+    ├── financeiro/                 # Lancamento — honorários (com parcelas, AD-111) e despesas; resumo, fluxo, categorias
     └── prospeccao/                 # Oportunidade + busca no Datajud; converte em perícia
 ```
 
@@ -39,18 +39,18 @@ import * as periciaService from '../pericia/pericia.service.js';
 import * as compromissoRepository from './compromisso.repository.js';
 ```
 
-Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma consulta em lote `$in` por collection referenciada** (`periciaService.findNumerosByIds`), nunca uma consulta por item num loop; referência ausente vira **campo ausente**, nunca `null`.
+Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma consulta em lote `$in` por collection referenciada** (`periciaService.findResumosByIds`), nunca uma consulta por item num loop; referência ausente vira **campo ausente**, nunca `null`.
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `pericia` e `identity` não dependem de ninguém (AD-106).
+Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `pericia` e `identity` não dependem de ninguém (AD-106, AD-109).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Invite transitionTenantStatus` |
-| `pericia` | `Pericia` |
+| `pericia` | `Pericia Prazo` |
 | `agenda` | `Compromisso` |
 | `financeiro` | `Lancamento` |
 | `prospeccao` | `Oportunidade` |
@@ -96,20 +96,20 @@ Processo compartilhado entre módulos cujo **resultado a resposta HTTP não usa*
 
 ```ts
 // event-types.ts
-export type DomainEventMap = { 'pericia:created': PericiaCreatedPayload; /* … */ };
+export type DomainEventMap = { 'pericia:honorarios_fixados': PericiaHonorariosFixadosPayload };
 
 // modules/pericia/pericia.service.ts — emissor não conhece o consumidor
-domainEventBus.emit('pericia:created', { tenantId, periciaId, numeroProcesso, prazoLaudo });
+domainEventBus.emit('pericia:honorarios_fixados', { tenantId, periciaId, numeroProcesso, valorCents });
 
-// events/subscribers/agenda.subscriber.ts — consumidor se registra
-domainEventBus.on('pericia:created', async ({ prazoLaudo, ...payload }) => {
-  if (prazoLaudo) await compromissoService.criarPrazoDoLaudo({ ...payload, prazoLaudo });
+// events/subscribers/financeiro.subscriber.ts — consumidor se registra
+domainEventBus.on('pericia:honorarios_fixados', async (payload) => {
+  await lancamentoService.lancarHonorariosFixados(payload);
 });
 ```
 
-Eventos atuais (AD-106): `pericia:created` → agenda cria o prazo do laudo; `pericia:honorarios_fixados` → financeiro lança a receita a receber.
+Evento atual: `pericia:honorarios_fixados` → financeiro lança a receita a receber ou atualiza o valor do honorário fixado já lançado (AD-106, AD-111). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `pericia.service` (AD-109), sem evento.
 
-- Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"pericia:created","message":"…"}`.
+- Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"pericia:honorarios_fixados","message":"…"}`.
 - `off(event, handler)` remove de fato (o bus guarda o wrapper por `(evento, handler)` internamente).
 - `registerAllSubscribers()` (chamado no topo de `buildApp()`) é **idempotente** — `buildApp()` roda várias vezes no mesmo processo em teste, e cada handler só executa uma vez por `emit`.
 - Services importam só `events/event-bus.js` — nunca `events/index.js` (que também exporta `registerAllSubscribers` e puxaria os subscribers junto, sem necessidade).

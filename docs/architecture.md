@@ -14,7 +14,7 @@ apps/web (React 19 + Vite 7)  ──HTTP + cookie de sessão──▶  apps/api 
 
 - **Módulos contidos** (AD-038): `identity`, `pericia`, `agenda`, `financeiro`, `prospeccao`, cada um com router → controller → service → repository → schema. Um módulo só consome o *service* de outro; dono único de cada model (`tests/structural/module-boundary.structural.test.ts`).
 - **Grafo**: `agenda`, `financeiro`, `prospeccao` → `pericia`. Sem ciclos.
-- **Eventos in-process** (AD-039, AD-106): `pericia:created` → agenda cria o prazo do laudo; `pericia:honorarios_fixados` → financeiro lança a receita. Fire-and-forget; falha só no log.
+- **Eventos in-process** (AD-039, AD-106, AD-111): `pericia:honorarios_fixados` → financeiro lança a receita ou atualiza o honorário fixado já lançado. Fire-and-forget; falha só no log. O prazo do laudo vira `Prazo` no próprio módulo `pericia` (AD-109).
 - **Tenant** sempre de `req.tenantUser` (AD-010); todo filtro de repository passa por `tenantScoped`.
 - **Sessão** de token único em cookie httpOnly, verificada no banco a cada request (AD-014).
 - **Tempo**: instante em UTC; data de calendário como `YYYY-MM-DD` (AD-036, AD-103).

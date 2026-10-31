@@ -25,7 +25,8 @@ import type { MailProvider } from './providers/mail/index.js';
 import { createLogMailProvider } from './providers/mail/log.mailProvider.js';
 import { createNodemailerMailProvider } from './providers/mail/nodemailer.mailProvider.js';
 
-const buildMailProvider = (): MailProvider => {
+// Compartilhado com server.ts (aviso diário de prazos, AD-110).
+export const buildMailProvider = (): MailProvider => {
   if (env.MAIL_PROVIDER === 'nodemailer') {
     const transport = nodemailer.createTransport({
       host: env.SMTP_HOST,

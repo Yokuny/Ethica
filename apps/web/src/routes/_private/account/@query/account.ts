@@ -1,6 +1,7 @@
 import type { ChangePassword, UpdateProfile } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
-import { del, patch, put } from '@/lib/api/client.api.js';
+import { queryOptions } from '@tanstack/react-query';
+import { apiUrl, del, get, patch, post, put } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { sessionKeys } from '@/query/session.js';
 import { userKeys } from '@/query/user.js';
@@ -41,4 +42,63 @@ export const setAvatarMutation = (queryClient: QueryClient): UseMutationOptions<
     return res.data;
   },
   onSuccess: () => refreshAccount(queryClient),
+});
+
+// Espelha UserPreferences de apps/api/src/modules/identity/preferences.schema.ts (AD-110).
+export type AccountPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean };
+
+export const accountKeys = {
+  preferences: ['account', 'preferences'] as const,
+  calendarFeed: ['account', 'calendar-feed'] as const,
+};
+
+export const preferencesQuery = queryOptions({
+  queryKey: accountKeys.preferences,
+  queryFn: async (): Promise<AccountPreferences> => {
+    const res = await get<AccountPreferences>('/me/preferences');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+    return res.data;
+  },
+});
+
+export const updatePreferencesMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<AccountPreferences, Error, Partial<AccountPreferences>> => ({
+  mutationFn: async (data) => {
+    const res = await patch<AccountPreferences>('/me/preferences', data);
+    if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
+    return res.data;
+  },
+  onSuccess: (data) => queryClient.setQueryData(accountKeys.preferences, data),
+});
+
+// PRZ-03: só se sabe se o link existe; o token aparece uma única vez, ao gerar.
+export const calendarFeedQuery = queryOptions({
+  queryKey: accountKeys.calendarFeed,
+  queryFn: async (): Promise<{ active: boolean }> => {
+    const res = await get<{ active: boolean }>('/me/calendar-feed');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+    return res.data;
+  },
+});
+
+// O calendário externo busca o feed de fora do navegador: a URL precisa ser absoluta.
+export const calendarFeedUrl = (token: string): string =>
+  new URL(apiUrl(`/agenda/feed/${token}.ics`), window.location.origin).href;
+
+export const gerarCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<string, Error, void> => ({
+  mutationFn: async () => {
+    const res = await post<{ token: string }>('/me/calendar-feed', {});
+    if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
+    return calendarFeedUrl(res.data.token);
+  },
+  onSuccess: () => queryClient.setQueryData(accountKeys.calendarFeed, { active: true }),
+});
+
+export const revogarCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, void> => ({
+  mutationFn: async () => {
+    const res = await del('/me/calendar-feed');
+    if (!res.success) throw new Error(res.message ?? t('action_error'));
+  },
+  onSuccess: () => queryClient.setQueryData(accountKeys.calendarFeed, { active: false }),
 });

@@ -5,6 +5,7 @@ import {
   dateInDisplayTz,
   groupStats,
   Pericia,
+  Prazo,
   periciaSearchStages,
   tenantScoped,
   toObjectId,
@@ -16,6 +17,7 @@ import type {
   ListPericiasQuery,
   PericiaDistribution,
   PericiaRecord,
+  PericiaResumo,
   UpdatePericia,
 } from './pericia.schema.js';
 
@@ -32,7 +34,6 @@ const toRecord = (doc: PericiaDocument): PericiaRecord => ({
   reu: doc.reu,
   status: doc.status,
   dataNomeacao: doc.dataNomeacao,
-  prazoLaudo: doc.prazoLaudo,
   honorariosPropostosCents: doc.honorariosPropostosCents,
   honorariosFixadosCents: doc.honorariosFixadosCents,
   observacoes: doc.observacoes,
@@ -44,7 +45,11 @@ const toRecord = (doc: PericiaDocument): PericiaRecord => ({
 // Etapas em que a perícia ainda tem trabalho do perito pela frente.
 const ABERTAS = ['nomeada', 'aceita', 'vistoria', 'em_laudo', 'esclarecimentos'];
 
-export const createPericia = async ({ tenant, oportunidadeId, ...data }: CreatePericiaInput): Promise<PericiaRecord> =>
+export const createPericia = async ({
+  tenant,
+  oportunidadeId,
+  ...data
+}: Omit<CreatePericiaInput, 'prazoLaudo'>): Promise<PericiaRecord> =>
   withDbTiming('pericia.createPericia', async () => {
     const doc = await Pericia.create({ ...data, Tenant: tenant, Oportunidade: oportunidadeId });
     return toRecord(doc);
@@ -112,13 +117,15 @@ export const listPericias = async (
   });
 
 // Enriquecimento cross-módulo: uma consulta `$in` por lote, nunca uma por item.
-export const findNumerosByIds = async (tenantId: string, ids: string[]): Promise<Map<string, string>> =>
-  withDbTiming('pericia.findNumerosByIds', async () => {
+export const findResumosByIds = async (tenantId: string, ids: string[]): Promise<Map<string, PericiaResumo>> =>
+  withDbTiming('pericia.findResumosByIds', async () => {
     if (ids.length === 0) return new Map();
     const docs = await Pericia.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } }))
-      .select('numeroProcesso')
+      .select('numeroProcesso autor reu')
       .lean();
-    return new Map(docs.map((doc) => [doc._id.toString(), doc.numeroProcesso]));
+    return new Map(
+      docs.map((doc) => [doc._id.toString(), { numeroProcesso: doc.numeroProcesso, autor: doc.autor, reu: doc.reu }]),
+    );
   });
 
 const addDays = (day: string, days: number): string => {
@@ -127,16 +134,19 @@ const addDays = (day: string, days: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
-// Faixa da listagem: abertas, prazo vencido, prazo nos próximos 7 dias e laudos entregues.
-export const stats = async (tenantId: string, now: Date = new Date()): Promise<ListStats> =>
+// Faixa da listagem: abertas, prazos pendentes vencidos, prazos que vencem em breve
+// (até `venceEmBreveDias`) e laudos entregues.
+export const stats = async (tenantId: string, venceEmBreveDias: number, now: Date = new Date()): Promise<ListStats> =>
   withDbTiming('pericia.stats', async () => {
     const today = dateInDisplayTz(now);
     const count = (extra: object) => Pericia.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
+    const prazos = (vencimento: object) =>
+      Prazo.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pendente' as const, vencimento }));
     const [total, abertas, vencidas, proximas, entregues, trend] = await Promise.all([
       count({}),
       count({ status: { $in: ABERTAS } }),
-      count({ status: { $in: ABERTAS }, prazoLaudo: { $lt: today } }),
-      count({ status: { $in: ABERTAS }, prazoLaudo: { $gte: today, $lte: addDays(today, 7) } }),
+      prazos({ $lt: today }),
+      prazos({ $gte: today, $lte: addDays(today, venceEmBreveDias) }),
       count({ status: { $in: ['laudo_entregue', 'concluida'] } }),
       dailyTrend(Pericia, tenantId, 'createdAt'),
     ]);

@@ -7,14 +7,16 @@ export const LANCAMENTO_NATUREZAS = ['receita', 'despesa'] as const;
 export type LancamentoNatureza = (typeof LANCAMENTO_NATUREZAS)[number];
 
 export const LANCAMENTO_CATEGORIAS = {
-  receita: ['honorarios_previos', 'honorarios_fixados', 'honorarios_parciais'],
+  receita: ['honorarios_previos', 'honorarios_fixados'],
   despesa: ['deslocamento', 'material', 'taxas', 'outras_despesas'],
 } as const;
 export type LancamentoCategoria = (typeof LANCAMENTO_CATEGORIAS)[LancamentoNatureza][number];
 export const ALL_LANCAMENTO_CATEGORIAS = [...LANCAMENTO_CATEGORIAS.receita, ...LANCAMENTO_CATEGORIAS.despesa] as const;
 
 // `previsto` vencido aparece como atrasado na tela; não é um status gravado.
-export const LANCAMENTO_STATUS = ['previsto', 'liquidado', 'cancelado'] as const;
+// Receita (honorário, AD-111): status derivado das parcelas — previsto, parcial ou liquidado —
+// e nunca cancelado. Despesa: previsto, liquidado ou cancelado, sem parcial.
+export const LANCAMENTO_STATUS = ['previsto', 'parcial', 'liquidado', 'cancelado'] as const;
 export type LancamentoStatus = (typeof LANCAMENTO_STATUS)[number];
 
 const lancamentoFields = z.object({
@@ -42,3 +44,13 @@ export const updateLancamentoSchema = lancamentoFields
   .strict()
   .refine(categoriaDaNatureza, { message: 'categoria não pertence à natureza', path: ['categoria'] });
 export type UpdateLancamento = z.infer<typeof updateLancamentoSchema>;
+
+// Recebimento parcial de um honorário (AD-111): valor, dia em que caiu na conta e a conta.
+export const createParcelaSchema = z
+  .object({
+    valorCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
+    data: calendarDateSchema,
+    conta: z.string().trim().max(120, 'conta inválida').optional(),
+  })
+  .strict();
+export type CreateParcela = z.infer<typeof createParcelaSchema>;

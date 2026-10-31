@@ -7,9 +7,11 @@ import type { FinanceiroRouterDeps } from './lancamento.schema.js';
 import {
   categoriasQuerySchema,
   createLancamentoSchema,
+  createParcelaSchema,
   fluxoQuerySchema,
   lancamentoIdParamSchema,
   listLancamentosQuerySchema,
+  parcelaIdParamSchema,
   updateLancamentoSchema,
 } from './lancamento.schema.js';
 
@@ -42,6 +44,20 @@ export const createFinanceiroRouter = (deps: FinanceiroRouterDeps): Router => {
     ...guard,
     validParams(lancamentoIdParamSchema),
     lancamentoController.deleteLancamento,
+  );
+  // Recebimentos parciais do honorário (AD-111).
+  router.post(
+    '/lancamentos/:id/parcelas',
+    ...guard,
+    validParams(lancamentoIdParamSchema),
+    validBody(createParcelaSchema),
+    lancamentoController.addParcela,
+  );
+  router.delete(
+    '/lancamentos/:id/parcelas/:parcelaId',
+    ...guard,
+    validParams(parcelaIdParamSchema),
+    lancamentoController.estornarParcela,
   );
 
   return router;

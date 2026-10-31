@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+import { hashToken } from '@ethica/db';
 import bcrypt from 'bcrypt';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as accountRepository from './account.repository.js';
@@ -32,3 +34,23 @@ export const changePassword = async (
 
 export const setAvatar = async (tenantId: string, userId: string, image: string | null): Promise<AccountView> =>
   found(await accountRepository.setAvatar(tenantId, userId, image));
+
+// PRZ-03: gera o link secreto do feed iCal. O token só existe nesta resposta; o banco guarda
+// o hash. Gerar de novo substitui o anterior (revoga o link antigo).
+export const gerarCalendarFeed = async (tenantId: string, userId: string): Promise<{ token: string }> => {
+  const token = crypto.randomBytes(32).toString('hex');
+  await accountRepository.setCalendarFeedTokenHash(tenantId, userId, hashToken(token));
+  return { token };
+};
+
+export const revogarCalendarFeed = (tenantId: string, userId: string) =>
+  accountRepository.setCalendarFeedTokenHash(tenantId, userId, null);
+
+export const calendarFeedStatus = async (tenantId: string, userId: string) => ({
+  active: await accountRepository.hasCalendarFeed(tenantId, userId),
+});
+
+export const findFeedOwner = (token: string) => accountRepository.findFeedOwner(hashToken(token));
+
+export const listDestinatariosAvisoPrazo = (tenantIds: string[]) =>
+  accountRepository.listDestinatariosAvisoPrazo(tenantIds);

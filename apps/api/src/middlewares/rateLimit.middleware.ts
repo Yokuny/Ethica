@@ -38,3 +38,9 @@ export const inviteRateLimit = rejectWithTooManyRequests('invite');
 // Busca no Datajud (API pública do CNJ, com cota): por tenant + IP. 60 buscas
 // por 15 min cobrem a prospecção manual sem virar varredura automatizada.
 export const datajudSearchRateLimit = rejectWithTooManyRequests('datajud_search', tenantAndIpKeyGenerator, 60);
+
+// Feed iCal (PRZ-03): rota pública consultada pelos servidores do Google/Outlook/Apple, que
+// compartilham IP entre milhares de assinantes — a chave é o próprio token do link.
+// 60 leituras por 15 min dão folga a qualquer intervalo de atualização de calendário.
+const feedTokenKeyGenerator = (req: Request): string => `feed:${String(req.params.token ?? 'sem-token')}`;
+export const calendarFeedRateLimit = rejectWithTooManyRequests('calendar_feed', feedTokenKeyGenerator, 60);

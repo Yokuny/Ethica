@@ -2,16 +2,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { OnChangeFn, PaginationState } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { TablePagination } from '@/components/table-pagination.js';
-import type { PericiaRecord } from '@/query/pericia.js';
+import type { PericiaListItem } from '@/query/pericia.js';
 import { periciaColumns } from '../@utils/pericia-columns.js';
 
 type PericiasTableProps = {
-  data: PericiaRecord[];
+  data: PericiaListItem[];
   pageCount: number;
   pageIndex: number;
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
-  onRowClick: (row: PericiaRecord) => void;
+  onRowClick: (row: PericiaListItem) => void;
 };
 
 // Tabela server-driven (paginação/filtros vêm da URL), linha abre o detalhe.

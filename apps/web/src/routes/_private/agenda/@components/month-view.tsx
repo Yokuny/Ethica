@@ -8,8 +8,9 @@ import {
 } from '@/lib/helpers/displayTime.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
 import type { CompromissoRecord } from '@/query/compromisso.js';
+import type { PrazoRecord } from '@/query/prazo.js';
 import { itemOverlapsDay } from '../@utils/calendar-grid.utils.js';
-import { CalendarEventChip } from './calendar-event.js';
+import { CalendarEventChip, CalendarPrazoChip } from './calendar-event.js';
 import { CalendarMonthCell, CalendarMonthGrid } from './calendar-grid.js';
 
 export type MonthViewProps = {
@@ -17,6 +18,10 @@ export type MonthViewProps = {
   month: string;
   items: CompromissoRecord[];
   onSelect: (item: CompromissoRecord) => void;
+  // Prazos pendentes: entram primeiro no dia do vencimento, sem contar no limite de compromissos.
+  prazos?: PrazoRecord[];
+  onSelectPrazo?: (prazo: PrazoRecord) => void;
+  today?: string;
 };
 
 const WEEKS_IN_GRID = 6;
@@ -25,7 +30,14 @@ const MAX_VISIBLE_PER_DAY = 3;
 
 // Grade 6x7 (semana começando segunda, mesma convenção do projeto) — dias
 // fora do mês (preenchendo a primeira/última semana) ficam esmaecidos.
-export function MonthView({ month, items, onSelect }: MonthViewProps) {
+export function MonthView({
+  month,
+  items,
+  onSelect,
+  prazos = [],
+  onSelectPrazo = () => {},
+  today = '',
+}: MonthViewProps) {
   const monthPrefix = startOfDisplayMonth(month).slice(0, 7);
   const gridStart = displayWeekStartOf(startOfDisplayMonth(month));
   const days = Array.from({ length: WEEKS_IN_GRID * DAYS_IN_WEEK }, (_, index) =>
@@ -55,6 +67,11 @@ export function MonthView({ month, items, onSelect }: MonthViewProps) {
         return (
           <CalendarMonthCell key={day} data-testid={`month-view-day-${day}`} outside={!day.startsWith(monthPrefix)}>
             <div className="text-right text-[10px]">{day.slice(-2)}</div>
+            {prazos
+              .filter((prazo) => prazo.vencimento === day)
+              .map((prazo) => (
+                <CalendarPrazoChip key={prazo.id} prazo={prazo} today={today} onSelect={onSelectPrazo} />
+              ))}
             {visible.map((item) => (
               <CalendarEventChip key={item.id} item={item} onSelect={onSelect} variant="compact" />
             ))}

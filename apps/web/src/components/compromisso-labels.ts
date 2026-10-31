@@ -5,7 +5,6 @@ import { t } from '@/lib/helpers/translate.helper.js';
 export const COMPROMISSO_TIPO_VARIANT: Record<CompromissoTipo, IndicatorVariant> = {
   vistoria: 'violet',
   audiencia: 'info',
-  prazo: 'error',
   reuniao: 'cyan',
   outro: 'neutral',
 };

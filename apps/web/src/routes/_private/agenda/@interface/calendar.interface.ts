@@ -1,6 +1,7 @@
 import { COMPROMISSO_TIPOS } from '@ethica/contracts';
 import { z } from 'zod';
 import type { CompromissoRecord } from '@/query/compromisso.js';
+import type { PrazoRecord } from '@/query/prazo.js';
 import { CALENDAR_VIEWS } from '../@consts/calendar.js';
 
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];
@@ -10,6 +11,7 @@ export type PanelState =
   | { kind: 'create'; date?: string }
   | { kind: 'detail'; compromisso: CompromissoRecord }
   | { kind: 'edit'; compromisso: CompromissoRecord }
+  | { kind: 'prazo'; prazo: PrazoRecord }
   | null;
 
 // `view`/`date`/`tipo` são a única fonte de verdade do que é renderizado:

@@ -13,6 +13,7 @@ type LancamentosTableProps = {
   onPaginationChange: OnChangeFn<PaginationState>;
   onRowClick: (row: LancamentoRecord) => void;
   onStatus: (lancamento: LancamentoRecord, status: 'liquidado' | 'cancelado' | 'previsto') => void;
+  onReceber: (lancamento: LancamentoRecord) => void;
 };
 
 export function LancamentosTable({
@@ -23,8 +24,9 @@ export function LancamentosTable({
   onPaginationChange,
   onRowClick,
   onStatus,
+  onReceber,
 }: LancamentosTableProps) {
-  const columns = lancamentoColumns({ onStatus });
+  const columns = lancamentoColumns({ onStatus, onReceber });
   const table = useReactTable({
     data,
     columns,

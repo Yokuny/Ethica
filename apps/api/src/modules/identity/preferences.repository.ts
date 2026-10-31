@@ -2,8 +2,11 @@ import { tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { UpdatePreferences, UserPreferences } from './preferences.schema.js';
 
-const toPreferences = (doc: { preferences?: { onboardingDismissed?: boolean } } | null): UserPreferences => ({
+const toPreferences = (
+  doc: { preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean } } | null,
+): UserPreferences => ({
   onboardingDismissed: doc?.preferences?.onboardingDismissed === true,
+  avisoPrazoEmail: doc?.preferences?.avisoPrazoEmail !== false,
 });
 
 // Usuário sem o campo (conta anterior à feature) lê o default, sem backfill.
@@ -24,7 +27,13 @@ export const updatePreferences = async (
   withDbTiming('preferences.updatePreferences', async () => {
     const doc = await User.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, _id: userId }),
-      { $set: { 'preferences.onboardingDismissed': data.onboardingDismissed } },
+      {
+        $set: Object.fromEntries(
+          Object.entries(data)
+            .filter(([, value]) => value !== undefined)
+            .map(([key, value]) => [`preferences.${key}`, value]),
+        ),
+      },
       { new: true },
     )
       .select('preferences')

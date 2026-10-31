@@ -8,6 +8,14 @@ import {
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
+// Parcela recebida de um honorário (AD-111): só receita tem parcelas.
+export interface ParcelaDocument {
+  _id: mongoose.Types.ObjectId;
+  valorCents: number;
+  data: string;
+  conta?: string;
+}
+
 export interface LancamentoDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
@@ -19,6 +27,7 @@ export interface LancamentoDocument {
   vencimento: string;
   status: LancamentoStatus;
   liquidadoEm?: string;
+  parcelas: ParcelaDocument[];
   Pericia?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -34,13 +43,24 @@ const lancamentoSchema = new Schema<LancamentoDocument>(
     vencimento: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
     status: { type: String, enum: LANCAMENTO_STATUS, default: 'previsto', required: true },
     liquidadoEm: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
+    parcelas: {
+      type: [
+        new Schema<ParcelaDocument>({
+          valorCents: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
+          data: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+          conta: { type: String, trim: true },
+        }),
+      ],
+      default: [],
+    },
     Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia' },
   },
   { timestamps: true },
 );
 
 lancamentoSchema.pre('validate', function () {
-  if (this.status === 'liquidado' && !this.liquidadoEm) {
+  // Receita liquida pelas parcelas; só despesa guarda a data de liquidação.
+  if (this.natureza === 'despesa' && this.status === 'liquidado' && !this.liquidadoEm) {
     this.invalidate('liquidadoEm', 'lançamento liquidado precisa da data de liquidação');
   }
 });

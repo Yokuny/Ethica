@@ -12,10 +12,6 @@ import type {
 
 export class CompromissoNotFoundError extends KeyedError {}
 
-// Horário do compromisso automático "entrega do laudo" no dia do prazo.
-const PRAZO_LAUDO_TIME = '18:00';
-const PRAZO_LAUDO_MINUTES = 60;
-
 // Data/hora de parede + duração -> intervalo em UTC (AD-036, AD-103).
 const toInterval = (date: string, time: string, duracaoMinutos: number) => {
   const inicio = wallClockToUtc(date, time);
@@ -24,9 +20,9 @@ const toInterval = (date: string, time: string, duracaoMinutos: number) => {
 
 const withPericiaNumero = async (tenantId: string, items: CompromissoRecord[]): Promise<CompromissoRecord[]> => {
   const ids = [...new Set(items.flatMap((item) => (item.periciaId ? [item.periciaId] : [])))];
-  const numeros = await periciaService.findNumerosByIds(tenantId, ids);
+  const resumos = await periciaService.findResumosByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = item.periciaId ? numeros.get(item.periciaId) : undefined;
+    const numero = item.periciaId ? resumos.get(item.periciaId)?.numeroProcesso : undefined;
     return numero ? { ...item, periciaNumero: numero } : item;
   });
 };
@@ -70,19 +66,3 @@ export const listCompromissos = async (tenantId: string, query: ListCompromissos
 
 export const listUpcoming = async (tenantId: string, query: UpcomingCompromissosQuery, now: Date = new Date()) =>
   withPericiaNumero(tenantId, await compromissoRepository.listUpcoming(tenantId, { now, ...query }));
-
-// Subscriber de `pericia:created`: o prazo do laudo aparece sozinho na agenda.
-export const criarPrazoDoLaudo = async (input: {
-  tenantId: string;
-  periciaId: string;
-  numeroProcesso: string;
-  prazoLaudo: string;
-}): Promise<void> => {
-  await compromissoRepository.createCompromisso(input.tenantId, {
-    tipo: 'prazo',
-    titulo: `Entrega do laudo — ${input.numeroProcesso}`,
-    periciaId: input.periciaId,
-    origem: 'automatico',
-    ...toInterval(input.prazoLaudo, PRAZO_LAUDO_TIME, PRAZO_LAUDO_MINUTES),
-  });
-};

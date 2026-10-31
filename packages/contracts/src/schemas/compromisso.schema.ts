@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calendarDateSchema, wallTimeSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
-export const COMPROMISSO_TIPOS = ['vistoria', 'audiencia', 'prazo', 'reuniao', 'outro'] as const;
+export const COMPROMISSO_TIPOS = ['vistoria', 'audiencia', 'reuniao', 'outro'] as const;
 export type CompromissoTipo = (typeof COMPROMISSO_TIPOS)[number];
 
 export const COMPROMISSO_STATUS = ['agendado', 'concluido', 'cancelado'] as const;

@@ -39,6 +39,11 @@ export const API_MESSAGE_KEYS = [
   'invite_email_failed',
   // Perícias
   'pericia_already_registered',
+  // Financeiro (AD-111)
+  'parcel_exceeds_balance',
+  'fee_cannot_be_removed',
+  'fee_status_comes_from_parcels',
+  'amount_below_received',
   // Prospecção (Datajud)
   'datajud_unavailable',
   'datajud_not_configured',

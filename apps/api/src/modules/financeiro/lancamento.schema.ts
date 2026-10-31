@@ -1,5 +1,6 @@
 import type {
   CreateLancamento,
+  CreateParcela,
   LancamentoCategoria,
   LancamentoNatureza,
   LancamentoStatus,
@@ -8,6 +9,7 @@ import type {
 import {
   calendarDateSchema,
   createLancamentoSchema,
+  createParcelaSchema,
   idSchema,
   LANCAMENTO_NATUREZAS,
   LANCAMENTO_STATUS,
@@ -16,12 +18,13 @@ import {
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
-export type { CreateLancamento, UpdateLancamento };
-export { createLancamentoSchema, updateLancamentoSchema };
+export type { CreateLancamento, CreateParcela, UpdateLancamento };
+export { createLancamentoSchema, createParcelaSchema, updateLancamentoSchema };
 
 export const lancamentoIdParamSchema = z.object({ id: idSchema }).strict();
+export const parcelaIdParamSchema = z.object({ id: idSchema, parcelaId: idSchema }).strict();
 
-// `atrasado` é um recorte derivado (previsto com vencimento antes de hoje), não um status gravado.
+// `atrasado` é um recorte derivado (previsto ou parcial com vencimento antes de hoje), não um status gravado.
 export const listLancamentosQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
@@ -51,11 +54,17 @@ export type LancamentoRecord = {
   vencimento: string;
   status: LancamentoStatus;
   liquidadoEm?: string;
+  // Só receita (AD-111): parcelas recebidas, soma recebida e o que falta receber.
+  parcelas: ParcelaRecord[];
+  recebidoCents?: number;
+  saldoCents?: number;
   periciaId?: string;
   periciaNumero?: string;
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type ParcelaRecord = { id: string; valorCents: number; data: string; conta?: string };
 
 // Visão de raio-X: o que está a receber, o que entrou e saiu no mês e o que atrasou.
 export type FinanceiroResumo = {

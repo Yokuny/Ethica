@@ -4,16 +4,19 @@ import {
   listCompromissosQuerySchema,
   upcomingCompromissosQuerySchema,
 } from './agenda/compromisso.schema.js';
+import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import {
   categoriasQuerySchema,
   fluxoQuerySchema,
   lancamentoIdParamSchema,
   listLancamentosQuerySchema,
+  parcelaIdParamSchema,
 } from './financeiro/lancamento.schema.js';
 import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } from './identity/auth.schema.js';
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import { listPericiasQuerySchema, periciaIdParamSchema } from './pericia/pericia.schema.js';
+import { listPrazosPendentesQuerySchema, prazoIdParamSchema } from './pericia/prazo.schema.js';
 import {
   converterOportunidadeSchema,
   listOportunidadesQuerySchema,
@@ -32,11 +35,15 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'updatePreferencesSchema', schema: updatePreferencesSchema },
   { name: 'periciaIdParamSchema', schema: periciaIdParamSchema },
   { name: 'listPericiasQuerySchema', schema: listPericiasQuerySchema },
+  { name: 'prazoIdParamSchema', schema: prazoIdParamSchema },
+  { name: 'listPrazosPendentesQuerySchema', schema: listPrazosPendentesQuerySchema },
   { name: 'compromissoIdParamSchema', schema: compromissoIdParamSchema },
   { name: 'listCompromissosQuerySchema', schema: listCompromissosQuerySchema },
   { name: 'upcomingCompromissosQuerySchema', schema: upcomingCompromissosQuerySchema },
+  { name: 'feedTokenParamSchema', schema: feedTokenParamSchema },
   { name: 'lancamentoIdParamSchema', schema: lancamentoIdParamSchema },
   { name: 'listLancamentosQuerySchema', schema: listLancamentosQuerySchema },
+  { name: 'parcelaIdParamSchema', schema: parcelaIdParamSchema },
   { name: 'fluxoQuerySchema', schema: fluxoQuerySchema },
   { name: 'categoriasQuerySchema', schema: categoriasQuerySchema },
   { name: 'oportunidadeIdParamSchema', schema: oportunidadeIdParamSchema },

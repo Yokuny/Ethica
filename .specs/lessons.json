@@ -3,6 +3,25 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 1,
-  "lessons": []
+  "next_id": 2,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "surviving_mutant::teste de agrega o por per odo precisa de um registro fora do per odo com dados s do per odo atual remover o filtro de data passa despercebido",
+      "text": "Teste de agregação por período precisa de um registro fora do período; com dados só do período atual, remover o filtro de data passa despercebido.",
+      "signal": "surviving_mutant",
+      "scope": "financeiro, aggregation",
+      "status": "candidate",
+      "features": [
+        "prazos-recebimentos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M7 apps/api/src/modules/financeiro/lancamento.repository.ts (resumo, filtro parcelas.data do mês) (financeiro, aggregation)"
+      ],
+      "created": "2026-10-31T13:51:53Z",
+      "last_seen": "2026-10-31T13:51:53Z"
+    }
+  ]
 }

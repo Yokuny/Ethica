@@ -8,8 +8,8 @@ const number = new Intl.NumberFormat('pt-BR');
 const GROUPS = ['abertas', 'prazo_vencido', 'prazo_proximo', 'laudos_entregues'] as const;
 const LABELS: Record<(typeof GROUPS)[number], string> = {
   abertas: 'open_pericias',
-  prazo_vencido: 'overdue_deadline',
-  prazo_proximo: 'deadline_next_7_days',
+  prazo_vencido: 'overdue_deadlines',
+  prazo_proximo: 'deadlines_due_soon',
   laudos_entregues: 'reports_delivered',
 };
 
@@ -30,7 +30,8 @@ export function PericiasOverview({ stats }: { stats?: ListStats }) {
             key={key}
             label={t(LABELS[key])}
             value={count === undefined ? '—' : number.format(count)}
-            ratio={count !== undefined && stats?.total ? count / stats.total : undefined}
+            // Prazos não são perícias: a proporção sobre o total só vale para as faixas de perícia.
+            ratio={count !== undefined && stats?.total && !key.startsWith('prazo_') ? count / stats.total : undefined}
             event={t(LABELS[key])}
           />
         );

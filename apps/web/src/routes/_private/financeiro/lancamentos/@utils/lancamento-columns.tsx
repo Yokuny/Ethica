@@ -8,11 +8,15 @@ import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { LancamentoRecord } from '@/query/lancamento.js';
 
-type Actions = { onStatus: (lancamento: LancamentoRecord, status: 'liquidado' | 'cancelado' | 'previsto') => void };
+type Actions = {
+  // Só despesa: liquidar, reabrir e cancelar à mão. Honorário recebe parcelas (AD-111).
+  onStatus: (lancamento: LancamentoRecord, status: 'liquidado' | 'cancelado' | 'previsto') => void;
+  onReceber: (lancamento: LancamentoRecord) => void;
+};
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
-export const lancamentoColumns = ({ onStatus }: Actions): ColumnDef<LancamentoRecord, unknown>[] => {
+export const lancamentoColumns = ({ onStatus, onReceber }: Actions): ColumnDef<LancamentoRecord, unknown>[] => {
   const today = formatDisplayDate(new Date());
   return [
     {
@@ -35,7 +39,11 @@ export const lancamentoColumns = ({ onStatus }: Actions): ColumnDef<LancamentoRe
       cell: ({ row }) => (
         <TableStack
           tone={row.original.natureza === 'despesa' ? 'error' : 'default'}
-          description={t(row.original.natureza)}
+          description={
+            row.original.status === 'parcial'
+              ? `${t('received')} ${formatMoney(row.original.recebidoCents ?? 0)} · ${t('balance_due')} ${formatMoney(row.original.saldoCents ?? 0)}`
+              : t(row.original.natureza)
+          }
         >
           {`${row.original.natureza === 'despesa' ? '−' : ''}${formatMoney(row.original.valorCents)}`}
         </TableStack>
@@ -64,23 +72,28 @@ export const lancamentoColumns = ({ onStatus }: Actions): ColumnDef<LancamentoRe
     {
       id: 'acoes',
       header: '',
-      cell: ({ row }) => (
-        <TableRowActions label={t('actions')}>
-          {row.original.status !== 'liquidado' && (
-            <TableRowAction onClick={() => onStatus(row.original, 'liquidado')}>
-              {t(row.original.natureza === 'receita' ? 'mark_as_received' : 'mark_as_paid')}
-            </TableRowAction>
-          )}
-          {row.original.status !== 'previsto' && (
-            <TableRowAction onClick={() => onStatus(row.original, 'previsto')}>{t('reopen')}</TableRowAction>
-          )}
-          {row.original.status !== 'cancelado' && (
-            <TableRowAction variant="destructive" onClick={() => onStatus(row.original, 'cancelado')}>
-              {t('cancel_entry')}
-            </TableRowAction>
-          )}
-        </TableRowActions>
-      ),
+      cell: ({ row }) =>
+        row.original.natureza === 'receita' ? (
+          row.original.status !== 'liquidado' && (
+            <TableRowActions label={t('actions')}>
+              <TableRowAction onClick={() => onReceber(row.original)}>{t('register_receipt')}</TableRowAction>
+            </TableRowActions>
+          )
+        ) : (
+          <TableRowActions label={t('actions')}>
+            {row.original.status !== 'liquidado' && (
+              <TableRowAction onClick={() => onStatus(row.original, 'liquidado')}>{t('mark_as_paid')}</TableRowAction>
+            )}
+            {row.original.status !== 'previsto' && (
+              <TableRowAction onClick={() => onStatus(row.original, 'previsto')}>{t('reopen')}</TableRowAction>
+            )}
+            {row.original.status !== 'cancelado' && (
+              <TableRowAction variant="destructive" onClick={() => onStatus(row.original, 'cancelado')}>
+                {t('cancel_entry')}
+              </TableRowAction>
+            )}
+          </TableRowActions>
+        ),
     },
   ];
 };

@@ -2,14 +2,18 @@ import { type UpdatePericia, updatePericiaSchema } from '@ethica/contracts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { type Resolver, useForm } from 'react-hook-form';
 import { updatePericiaMutation } from '@/query/pericia.js';
+import type { PericiaFormValues } from '../../@interface/pericias.interface.js';
 import type { PericiaEditFormProps } from '../@interface/pericia-details.interface.js';
 
 export function usePericiaEditForm({ pericia, onSaved }: Pick<PericiaEditFormProps, 'pericia' | 'onSaved'>) {
   const queryClient = useQueryClient();
   const { id: _id, createdAt: _c, updatedAt: _u, oportunidadeId: _o, ...defaultValues } = pericia;
-  const form = useForm<UpdatePericia>({ resolver: zodResolver(updatePericiaSchema), defaultValues });
+  const form = useForm<PericiaFormValues>({
+    resolver: zodResolver(updatePericiaSchema) as unknown as Resolver<PericiaFormValues>,
+    defaultValues,
+  });
   const mutation = useMutation(updatePericiaMutation(queryClient));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

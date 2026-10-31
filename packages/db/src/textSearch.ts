@@ -58,6 +58,7 @@ export const withSearch = async <T>(run: () => Promise<T>): Promise<T> => {
 // Tenant e valores casados em aggregate NÃO são convertidos pelo Mongoose
 // (diferente de `find`): o ObjectId precisa ser explícito.
 export const toObjectId = (id: string): mongoose.Types.ObjectId => new mongoose.Types.ObjectId(id);
+export const newObjectId = (): mongoose.Types.ObjectId => new mongoose.Types.ObjectId();
 
 // --- Índices (versionados aqui, provisionados por script) --------------------
 export const PERICIA_SEARCH_INDEX = 'pericia_text';

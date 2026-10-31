@@ -1,0 +1,14 @@
+import { z } from 'zod';
+import type { PericiaResumo } from '../pericia/pericia.schema.js';
+import type { PrazoRecord } from '../pericia/prazo.schema.js';
+import type { CompromissoRecord } from './compromisso.schema.js';
+
+// Token do link do feed iCal: 32 bytes aleatórios em hex (identity/account.service.ts).
+export const feedTokenParamSchema = z.object({ token: z.string().regex(/^[a-f0-9]{64}$/, 'link inválido') }).strict();
+
+export type FeedEntrada = {
+  compromissos: CompromissoRecord[];
+  prazos: PrazoRecord[];
+  resumos: Map<string, PericiaResumo>;
+  now: Date;
+};

@@ -4,6 +4,8 @@ import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { sessionQuery } from '@/query/session.js';
+import { AccountAvisoPrazo } from './@components/account-aviso-prazo.js';
+import { AccountCalendarFeed } from './@components/account-calendar-feed.js';
 import { AccountPasswordForm } from './@components/account-password-form.js';
 import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
@@ -33,6 +35,16 @@ export function AccountPage() {
               title: t('password'),
               description: t('change_password_description'),
               fields: [<AccountPasswordForm key="password" />],
+            },
+            {
+              title: t('deadline_alerts'),
+              description: t('deadline_alerts_description'),
+              fields: [<AccountAvisoPrazo key="aviso" />],
+            },
+            {
+              title: t('calendar_sync'),
+              description: t('calendar_sync_description'),
+              fields: [<AccountCalendarFeed key="feed" />],
             },
           ]}
         />

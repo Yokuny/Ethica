@@ -92,7 +92,7 @@
       "feature": "Prazos e recebimentos",
       "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
       "data": "2026-10-31",
-      "status": "planejado",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -102,7 +102,11 @@
       "decisoes": [
         "AD-103",
         "AD-106",
-        "AD-107"
+        "AD-107",
+        "AD-109",
+        "AD-110",
+        "AD-111",
+        "AD-112"
       ],
       "spec": [
         ".specs/features/prazos-recebimentos"
@@ -415,7 +419,7 @@
       "id": "AD-106",
       "decisao": "Efeitos entre módulos do domínio por evento (AD-039): `pericia:created` com `prazoLaudo` ⇒ a `agenda` cria o compromisso automático \"Entrega",
       "data": "2026-10-29",
-      "status": "active"
+      "status": "active; a parte `pericia:created` ⇒ compromisso \"Entrega do laudo\" foi superseded pela AD-109, e o trade-off do segundo lançamento ao alterar o honorário fixado foi superseded pela AD-111"
     },
     {
       "id": "AD-107",
@@ -428,6 +432,30 @@
       "decisao": "Permissões do tenant passam a ser uma matriz perfil × módulo × ação (acessar, visualizar, editar, inserir, excluir). Os perfis de equipe (eq",
       "data": "2026-10-31",
       "status": "proposed"
+    },
+    {
+      "id": "AD-109",
+      "decisao": "Prazo processual é entidade própria: collection `Prazo` no módulo `pericia` (dono do model), com título, vencimento `YYYY-MM-DD` (AD-103), s",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-110",
+      "decisao": "O aviso de prazo por e-mail é uma preferência por usuário: todo usuário com papel no tenant (qualquer papel) liga ou desliga o próprio aviso",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-111",
+      "decisao": "Honorário (lançamento de `natureza: receita`) não é excluído nem cancelado. Recebe parcelas (valor, data, conta/observação) gravadas dentro",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-112",
+      "decisao": "A troca de modelo da feature `prazos-recebimentos` (prazo do laudo vira `Prazo`, compromisso perde o tipo `prazo`, lançamento ganha parcelas",
+      "data": "2026-10-31",
+      "status": "active"
     }
   ]
 }

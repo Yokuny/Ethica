@@ -27,7 +27,6 @@ export function PericiaDetailsView({ pericia }: { pericia: PericiaRecord }) {
       </RecordHeader>
       <RecordStats>
         <RecordStat label={t('appointment_date')} value={day(pericia.dataNomeacao)} />
-        <RecordStat label={t('report_deadline')} value={day(pericia.prazoLaudo)} />
         <RecordStat label={t('proposed_fees')} value={money(pericia.honorariosPropostosCents)} />
         <RecordStat label={t('fixed_fees')} value={money(pericia.honorariosFixadosCents)} />
       </RecordStats>
