@@ -1,6 +1,6 @@
 # Jusperia — inventário funcional
 
-**Data**: 2026-10-31 · **Plano**: `.specs/plans/2026-10-31-benchmark-jusperia.md` · **Status**: em andamento (navegação passiva concluída; fluxos com escrita pendentes)
+**Data**: 2026-10-31 · **Plano**: `.specs/plans/2026-10-31-benchmark-jusperia.md` · **Status**: concluído
 
 > Engenharia reversa de comportamento, feita por navegação autenticada (conta real, plano SILVER, modo PERITO).
 > Dados pessoais da conta foram anonimizados. **Evidência**: `T` = tela (URL), `F` = formulário (action + campos lidos do DOM),
@@ -233,6 +233,114 @@ Todos os PDFs indicam o modo (PERITO/ASSISTENTE) e "Gerado em". Os três relató
 4. **Visualizar** (`visualizar.php?id=`): capa, sumário com âncoras, seções; **Baixar PDF** (`laudo_exportar_pdf.php`, 15 páginas, nome `<nº>_<modelo>.pdf`) e **Baixar Word** (`laudo_exportar_word.php`, `.doc` que é HTML com `application/vnd.ms-word`).
 - Auditoria: criação ("Status inicial: RASCUNHO"), edição de rascunho e visualização entram no Diário de Bordo.
 
-<!-- PRÓXIMAS SEÇÕES: modelos, cadastros, equipe, configurações, diário de bordo, app de campo, comunidade, clube -->
+### 7.3 Meus modelos — `Laudos/lista_meus_modelos.php`
+
+- **Novo modelo**: nome*, descrição, tipo (`LAUDO`; no modo assistente provavelmente parecer — não confirmado) e forma de criação: **Clonar padrão** / **Em branco** (`POST criar_modelo_perito.php` → `{sucesso, modelo_id}`) ou **Gerar com IA** (`gerar_modelo_ia.php`: tema*, esfera, foco técnico*, observações livres → `POST processar_modelo_ia.php` gera a estrutura → `POST salvar_modelo_ia.php` com `blocos` JSON).
+  - Observado: a geração por IA **falhou** com `{"sucesso":false,"erro":"Falha na IA (HTTP 401): API key not valid…"}` (chave do provedor inválida no concorrente). A IA de "melhorar texto" funcionou no mesmo dia.
+- **Editor de modelo** (`editar_modelo_perito.php?id=`): tabela de seções (código, título, ordem numérica, "apenas título", quebra de página) e, por seção, **texto padrão "Sim"** e **texto secundário "Não"** (TinyMCE com IA e variáveis; a lista de variáveis mostra exemplos de valor). Salvar (`salvar_bloco_perito.php`), excluir seção (`excluir_bloco_perito.php`), nova seção.
+
+## 8. Cadastros auxiliares
+
+| Cadastro | Rota | Campos | Ações |
+| --- | --- | --- | --- |
+| Reclamante/Autor | `autores.php` | nome/razão social*, CPF/CNPJ ("apenas números ou formatado", sem validação observada), e-mail, telefone/WhatsApp | novo, editar, **ver processos** (`api_get_processos.php?tipo=autor&id=`), busca local |
+| Reclamada/Réu | `reus.php` | idem (`tipo_padrao=REU`) | idem |
+| Advogados/Procuradores | `advogados.php` | nome*, OAB (ex. "SP 123456"), e-mail, telefone | idem (`tipo=advogado`) |
+| Locais frequentes | `locais.php` | nome do local*, endereço completo* ("aparece no laudo/e-mail"), latitude*, longitude* | novo, editar, excluir; usados como local de evento na agenda |
+
+- Partes e advogados **não têm exclusão** na interface. Partes são uma tabela única com `tipo_padrao` (AUTOR/REU) — export `partes.csv`.
+
+## 9. Equipe — `usuarios.php`
+
+- Colunas: nome, e-mail, cargo (sistema), atuação (jornada), status.
+- **Novo membro** (`POST usuarios_action.php`): nome*, e-mail de acesso*, senha*, **perfil de acesso** (`ASSISTENTE` "Equipe técnica — lida com laudos/processos" / `SECRETARIA` "lida com financeiro/agenda"; o titular é `PERITO_TITULAR` "Administrador"), **tipo de atuação** (`PERITO` fluxo completo / `ASSISTENTE` "fluxo reativo/pareceres"), CPF ("para laudos/alvará"), registro profissional (CREA/MTE), formação, status ativo/inativo. Editar com senha opcional.
+- O que cada perfil vê/pode: **não confirmado** (não foi criado usuário para não gerar acesso na conta).
+
+## 10. Configurações — `configuracoes.php`
+
+- **Assinatura**: plano (SILVER), vencimento com dias restantes, "Renovar" (ainda "Em breve: PIX/boleto/cartão").
+- **Privacidade e dados**: "Baixar meus dados (.ZIP)" (`exportar_dados_action.php`) → `meus_dados_jusperia_<data>.zip` com `empresas, usuarios, advogados, agenda, financeiro_honorarios, financeiro_recebimentos, partes, processos` em CSV (`;`, UTF-8 com BOM). **Não inclui despesas** nem laudos (laudos avisados na tela).
+- **Dados gerais e identidade visual** (`POST configuracoes_action.php`): nome do escritório*, CPF/CNPJ, telefone, **número de controle inicial** (sequência dos processos), **logotipo** (JPG/PNG, normalizado para 100 px de altura), **cabeçalho padrão** (TinyMCE, tags `[LOGO] [NOME_PERITO]`) e **rodapé padrão** (`[PAGINA_ATUAL] [TOTAL_PAGINAS]`) dos relatórios e laudos.
+- **Modelo de aviso por e-mail** (`salvar_modelo_email.php`, "Restaurar padrão"): corpo do e-mail de agendamento (§ 4) com tags `[TIPO_EVENTO] [DATA] [HORA] [ENDERECO] [NUMERO_PROCESSO] [NOME_PERITO] [VARA] [COMARCA]`. O padrão é uma petição ao juízo comunicando data/hora/local da diligência, regras de comparecimento (antecedência de 10 min), início independente da presença e art. 400 do CPC.
+
+## 11. Diário de bordo (auditoria) — `auditoria.php`
+
+- Filtros: período, usuário, módulo (Agenda, Agenda e Vistorias, Cadastros Auxiliares, Financeiro, Financeiro (Honorários), Financeiro (Recebimentos), Laudos, Prazos, Processos, Autenticação), busca na descrição. Colunas: data/hora, usuário, módulo, ação, descrição detalhada.
+- **Ações auditadas observadas**: criação/edição/baixa de prazo; criação rápida de parte/advogado; edição de processo e de nomeação; criação de evento; registro mobile de evidências e mudança de status mobile; criação de honorário, recebimento e despesa; laudo criado/editado/visualizado/exportado (PDF/Word)/mudança de status; login.
+- **Não auditado** (observado): **criação de processo** (#0002 não aparece), prazo automático do laudo, criação de modelo.
+
+## 12. Campo
+
+### 12.1 Rota de campo no celular — `Mobile/rota.php?data=`
+
+Aberta pelo QR do mapa. Mostra relógio, aviso "rota futura", e por evento: horário, status, tipo, endereço, observação, Waze/G. Maps, nº do processo e:
+- **Status rápido**: Feita (`REALIZADO`), Adiada (`CANCELADO`), Ausente (`CANCELADO`) — `POST rota.php acao=atualizar_status` → `{sucesso,msg}`.
+- **Formulário de vistoria** em abas: *Participantes* (paradigmas do reclamante e da reclamada: nome, função, trabalhou junto, quando), *Funções* (título, ano início/fim) e *Atividades* por função (o que fazia, frequência, tempo, local — versão do reclamante × da reclamada).
+- **Fotografias** (máx. 10): câmera, compressão para 1600 px no navegador com carimbo de texto (endereço e horário — inferido de `compressImage(file, endereco, instante)`), legenda por foto.
+- **Offline-first**: rascunho em **IndexedDB**, "Salvar rascunho local", mescla do rascunho local com o do servidor; envio `POST rota.php acao=salvar_evidencia` (`observacao`, `dados_vistoria` JSON, `fotos[]`, `legendas[]`, `foto_ids[]`) → `{sucesso, msg:"Registos e fotografias sincronizados!", fotos_resultados, fotos_falhas}`.
+- O export `agenda.csv` tem coluna **"Audio Campo"** (gravação de áudio em campo: não observada na tela).
+- **Defeito observado**: o formulário grava `participantes.testemunhas_reclamante/reclamada`, mas o editor de laudo lê `Paradigmas_reclamante/reclamada`; após enviar paradigmas, as variáveis `[PARADIGMA_*]` ficaram vazias e as de função (`[FUNCAO_1_TITULO]` = "Soldador MIG/MAG", `[FUNCAO_1_TEMPO_RTE]` = "8h por dia") foram preenchidas.
+
+### 12.2 App de Campo — `https://campo.jusperia.com.br`
+
+App separado com login próprio (e-mail e senha do perito; "conecte-se com internet para autenticar"). **Não acessado** (sem credencial; não se contornou o login). Supõe-se que seja a mesma rota de campo como app instalável — não confirmado.
+
+### 12.3 Na listagem de processos
+
+- **Dados de campo** (`ajax_dados_campo.php`: `listar_agendas`, `buscar_dados`): escolhe o evento do processo e mostra o formulário de vistoria preenchido.
+- **Galeria** (`ajax_galeria.php`: `listar`, upload com legenda, excluir, vincular a evento).
+
+## 13. Comunidade e clube
+
+- **Comunidade** (`comunidade/`): fórum entre assinantes com categorias (Suporte técnico, Dúvidas de perícia, Networking, Sugestões de melhoria), busca, tópicos com autor, jornada (PERITO/AMBOS), respostas e visualizações; novo tópico (título*, categoria*, conteúdo*). Nenhum tópico foi criado. Sugestões públicas observadas: variável para "anotações gerais", recebimento sem vínculo a processo, importar todos os prazos do calendário pericial.
+- **Clube de benefícios**: parceiros de SST/higiene ocupacional com desconto; resgate por link de WhatsApp ou formulário.
+
+## 14. Modo Assistente técnico (jornada ASSISTENTE)
+
+Não acessível na conta (plano exclusivo PERITO; o toggle abre upsell do "Plano Combo"). Indícios: o prompt de importação muda o "prazo do laudo" para prazo do parecer/impugnação; o export de processos tem a coluna **"Contratante"**; o relatório financeiro tem visão "Ambos"; a equipe tem jornada "Assistente técnico (fluxo reativo/pareceres)". Tudo **não confirmado**.
+
+## 15. Integrações observadas
+
+| Integração | Como | Evidência |
+| --- | --- | --- |
+| Geocodificação | ArcGIS World Geocoder, Nominatim (OSM), BrasilAPI CEP v2 — chamadas **do navegador** | JS `processo_detalhe.js`, inline de `mapa.php` |
+| Mapa e rotas | Leaflet + leaflet-routing-machine (OSRM), Google Maps e Waze por deep link | R `mapa.php` |
+| Calendário | feed **iCal** por token (`feed_agenda.php?token&empresa`) para Google/Outlook/Apple | T `agenda.php` (modal sincronizar) |
+| E-mail | `mailto:` montado no cliente (sem envio pelo servidor) | JS inline de `mapa.php` |
+| IA | servidor: melhorar texto (funcionando) e gerar modelo (falhando com 401 — mensagem no formato da API Gemini, inferência); importação de processo usa IA **externa** colada pelo usuário | R `melhorar_texto.php`, `processar_modelo_ia.php` |
+| WhatsApp | suporte, upsell e clube via `wa.me` | links |
+| Tribunais / PJe / **Datajud** | **nenhuma integração observada**: não há consulta automática de processo, movimentações ou prospecção. "PJe" só aparece como nome de fase | busca em todas as telas e JS |
+
+## 16. Notificações, alertas e automações
+
+- Sem notificação ativa observada (nenhum e-mail, push ou WhatsApp enviado pelo sistema); os alertas são visuais: dashboard (prazos próximos 30 dias/vencidos, vistorias atrasadas, financeiro em atraso), agenda (atrasados / urgente 7 dias / atenção 15 dias), listagem ("vence em breve"), relatório de prazos ("URGENTE: faltam N dias"), relatório de ociosos (> 60 dias).
+- Automações: `prazo_laudo` ⇒ prazo "Entrega do Laudo"; fase ⇒ status (cliente); concluir laudo ⇒ opção de mudar a fase; endereço do réu ⇒ local padrão da vistoria; dados de vistoria ⇒ variáveis do laudo; controle sequencial por escritório.
+
+## Log de registros criados na conta (2026-10-31)
+
+| Registro | Identificação | Como |
+| --- | --- | --- |
+| Autor | Rogério Albuquerque Mendes (id não exibido) | modal rápido (cenário REA, parcialmente executado) |
+| Réu | Metalúrgica Vale do Paranaíba Ltda | idem |
+| Advogada | Luciana Ferreira Bastos (OAB MG 128455) | idem |
+| Processo | #0002 · 0010847-62.2025.5.03.0168 (id 630) | cadastro manual; criado com DV errado e corrigido na edição; duas tentativas de duplicidade recusadas |
+| Prazos | "Entrega do Laudo" (id 567, automático) · "Apresentação de quesitos suplementares" (id 568, baixado) | |
+| Evento | Vistoria técnica 12/11/2026 09:00 (id 521), depois marcado REALIZADO com dados de vistoria | |
+| Honorário | id 82, R$ 4.800,00, recebimento parcial id 40 de R$ 1.500,00 | |
+| Despesa | Combustível R$ 231,40, paga | |
+| Laudo | id 174, concluído (mudou a fase do #0002) | |
+| Modelo | id 117 "Laudo Insalubridade – Ruído e Calor" (clonado) | |
+
+Nada foi removido até aqui. Registros pré-existentes da conta (processo #0001 e seus dados) não foram alterados; durante a sessão houve atividade simultânea de outra pessoa nele (edição de prazo e criação de laudo às 00:28–00:33).
+
+## Perguntas abertas
+
+1. Permissões reais dos perfis `ASSISTENTE` e `SECRETARIA` (exige criar um usuário na conta).
+2. Modo Assistente técnico: telas e campos ("Contratante", parecer, impugnação) — exige plano Combo.
+3. App de Campo `campo.jusperia.com.br`: é o mesmo `Mobile/rota.php` empacotado? Tem gravação de áudio?
+4. Conteúdo do feed iCal (só eventos ou também prazos?) e se é atualizado em tempo real.
+5. Limiar exato de "vence em breve" na listagem e o que conta como "movimentação" no relatório de ociosos.
+6. Importação por IA/CSV: tratamento de duplicados e de partes já cadastradas (não executada).
+
 
 
