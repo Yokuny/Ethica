@@ -6,6 +6,7 @@ export * from './schemas/account.schema.js';
 export * from './schemas/compromisso.schema.js';
 export * from './schemas/createInvite.schema.js';
 export * from './schemas/date.schema.js';
+export * from './schemas/documento.schema.js';
 export * from './schemas/id.schema.js';
 export * from './schemas/importacao.schema.js';
 export * from './schemas/inviteToken.schema.js';

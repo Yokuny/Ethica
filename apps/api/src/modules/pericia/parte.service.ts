@@ -76,3 +76,5 @@ export const resolvePartes = async (tenantId: string, inputs: PericiaParteInput[
   }
   return result;
 };
+
+export const listForExport = (tenantId: string) => parteRepository.listAll(tenantId);

@@ -3,7 +3,7 @@ import { hashToken } from '@ethica/db';
 import bcrypt from 'bcrypt';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as accountRepository from './account.repository.js';
-import type { AccountView, ChangePassword } from './account.schema.js';
+import type { AccountView, ChangePassword, UpdateProfile } from './account.schema.js';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -12,8 +12,11 @@ const found = (view: AccountView | null): AccountView => {
   return view;
 };
 
-export const updateProfile = async (tenantId: string, userId: string, name: string): Promise<AccountView> =>
-  found(await accountRepository.updateName(tenantId, userId, name));
+export const getProfile = async (tenantId: string, userId: string): Promise<AccountView> =>
+  found(await accountRepository.findProfile(tenantId, userId));
+
+export const updateProfile = async (tenantId: string, userId: string, data: UpdateProfile): Promise<AccountView> =>
+  found(await accountRepository.updateProfile(tenantId, userId, data));
 
 export const changePassword = async (
   tenantId: string,

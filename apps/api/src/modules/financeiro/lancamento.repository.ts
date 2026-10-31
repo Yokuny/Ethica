@@ -303,3 +303,23 @@ export const totaisPorCategoria = async (tenantId: string, natureza: string): Pr
     ]);
     return rows.map((row) => ({ categoria: row._id, totalCents: row.total }));
   });
+
+// Exportação de dados (DOC-04), ficha da perícia (com `periciaId`) e relatório do período
+// (com `periodo`: o que teve parcela, liquidação ou vencimento entre `from` e `to`).
+export const listAll = async (
+  tenantId: string,
+  filter: { periciaId?: string; periodo?: { from: string; to: string } } = {},
+): Promise<LancamentoRecord[]> =>
+  withDbTiming('financeiro.listAll', async () => {
+    const entre = filter.periodo ? { $gte: filter.periodo.from, $lte: filter.periodo.to } : undefined;
+    const docs = await Lancamento.find(
+      tenantScoped({
+        Tenant: tenantId,
+        ...(filter.periciaId ? { Pericia: filter.periciaId } : {}),
+        ...(entre ? { $or: [{ 'parcelas.data': entre }, { liquidadoEm: entre }, { vencimento: entre }] } : {}),
+      }),
+    )
+      .sort({ vencimento: 1 })
+      .lean();
+    return docs.map(toRecord);
+  });

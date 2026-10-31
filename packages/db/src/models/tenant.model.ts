@@ -7,6 +7,15 @@ export interface TenantDocument {
   name: string;
   document: string;
   status: TenantStatus;
+  // Identidade dos documentos (AD-121): texto com marcadores, trocados na geração do PDF.
+  cabecalho?: string;
+  rodape?: string;
+  // Arquivos no storage S3 (AD-120). `storageBytes` é o total usado, reservado no mesmo
+  // update que grava a referência do arquivo, para respeitar a cota do tenant.
+  logo?: { key: string; bytes: number; updatedAt: Date };
+  storageBytes: number;
+  // Exportações de dados (AD-122): quem e quando, só as últimas.
+  dataExports: Array<{ User: mongoose.Types.ObjectId; at: Date }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +29,20 @@ const tenantSchema = new Schema<TenantDocument>(
       enum: ['provisioned', 'active', 'suspended'],
       default: 'provisioned',
       required: true,
+    },
+    cabecalho: { type: String, maxlength: 1000 },
+    rodape: { type: String, maxlength: 1000 },
+    logo: {
+      type: new Schema(
+        { key: { type: String, required: true }, bytes: { type: Number, required: true }, updatedAt: Date },
+        { _id: false },
+      ),
+      required: false,
+    },
+    storageBytes: { type: Number, min: 0, default: 0, required: true },
+    dataExports: {
+      type: [new Schema({ User: { type: Schema.Types.ObjectId, ref: 'User' }, at: Date }, { _id: false })],
+      default: [],
     },
   },
   { timestamps: true },

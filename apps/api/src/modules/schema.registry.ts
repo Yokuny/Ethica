@@ -5,6 +5,7 @@ import {
   upcomingCompromissosQuerySchema,
 } from './agenda/compromisso.schema.js';
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
+import { documentoPericiaParamSchema } from './documentos/documentos.schema.js';
 import {
   categoriasQuerySchema,
   fluxoQuerySchema,
@@ -16,7 +17,7 @@ import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } fro
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import { listPartesQuerySchema, parteIdParamSchema } from './pericia/parte.schema.js';
-import { listPericiasQuerySchema, periciaIdParamSchema } from './pericia/pericia.schema.js';
+import { listPericiasQuerySchema, movimentacaoIdParamSchema, periciaIdParamSchema } from './pericia/pericia.schema.js';
 import { listPrazosPendentesQuerySchema, prazoIdParamSchema } from './pericia/prazo.schema.js';
 import {
   converterOportunidadeSchema,
@@ -36,6 +37,8 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'updatePreferencesSchema', schema: updatePreferencesSchema },
   { name: 'periciaIdParamSchema', schema: periciaIdParamSchema },
   { name: 'listPericiasQuerySchema', schema: listPericiasQuerySchema },
+  { name: 'movimentacaoIdParamSchema', schema: movimentacaoIdParamSchema },
+  { name: 'documentoPericiaParamSchema', schema: documentoPericiaParamSchema },
   { name: 'parteIdParamSchema', schema: parteIdParamSchema },
   { name: 'listPartesQuerySchema', schema: listPartesQuerySchema },
   { name: 'prazoIdParamSchema', schema: prazoIdParamSchema },

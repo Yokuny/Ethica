@@ -5,8 +5,11 @@ import * as lancamentoRepository from './lancamento.repository.js';
 import type {
   CreateLancamento,
   CreateParcela,
+  FinanceiroRelatorio,
+  FinanceiroRelatorioLinha,
   LancamentoRecord,
   ListLancamentosQuery,
+  PericiaFinanceiroResumo,
   UpdateLancamento,
 } from './lancamento.schema.js';
 
@@ -127,6 +130,82 @@ export const fluxoMensal = (tenantId: string, meses: number, now: Date = new Dat
 
 export const totaisPorCategoria = (tenantId: string, natureza: string) =>
   lancamentoRepository.totaisPorCategoria(tenantId, natureza);
+
+const soma = (linhas: FinanceiroRelatorioLinha[]) => linhas.reduce((total, linha) => total + linha.valorCents, 0);
+
+// DOC-03: datas inclusivas. Cancelado não entra; honorário conta pelas parcelas (AD-111).
+export const relatorioPeriodo = async (
+  tenantId: string,
+  periodo: { from: string; to: string },
+): Promise<FinanceiroRelatorio> => {
+  const noPeriodo = (day?: string): day is string => Boolean(day && day >= periodo.from && day <= periodo.to);
+  const itens = await withPericiaNumero(
+    tenantId,
+    (await lancamentoRepository.listAll(tenantId, { periodo })).filter((item) => item.status !== 'canceled'),
+  );
+  const linha = (item: LancamentoRecord, data: string, valorCents: number, conta?: string) => ({
+    data,
+    descricao: item.descricao,
+    categoria: item.categoria,
+    valorCents,
+    ...(item.periciaNumero ? { periciaNumero: item.periciaNumero } : {}),
+    ...(conta ? { conta } : {}),
+  });
+  const receitas = itens.filter((item) => item.natureza === 'income');
+  const despesas = itens.filter((item) => item.natureza === 'expense');
+  const recebidos = receitas
+    .flatMap((item) =>
+      item.parcelas.filter((parcela) => noPeriodo(parcela.data)).map((p) => linha(item, p.data, p.valorCents, p.conta)),
+    )
+    .sort((a, b) => a.data.localeCompare(b.data));
+  const pagos = despesas
+    .filter((item) => item.status === 'settled' && noPeriodo(item.liquidadoEm))
+    .map((item) => linha(item, item.liquidadoEm as string, item.valorCents))
+    .sort((a, b) => a.data.localeCompare(b.data));
+  const aReceber = receitas
+    .filter((item) => (item.saldoCents ?? 0) > 0 && noPeriodo(item.vencimento))
+    .map((item) => linha(item, item.vencimento, item.saldoCents as number));
+  const aPagar = despesas
+    .filter((item) => item.status === 'expected' && noPeriodo(item.vencimento))
+    .map((item) => linha(item, item.vencimento, item.valorCents));
+  const recebidoCents = soma(recebidos);
+  const pagoCents = soma(pagos);
+  const aReceberCents = soma(aReceber);
+  const aPagarCents = soma(aPagar);
+  return {
+    recebidos,
+    pagos,
+    aReceber,
+    aPagar,
+    totais: {
+      recebidoCents,
+      pagoCents,
+      saldoRealizadoCents: recebidoCents - pagoCents,
+      aReceberCents,
+      aPagarCents,
+      saldoPrevistoCents: recebidoCents - pagoCents + aReceberCents - aPagarCents,
+    },
+  };
+};
+
+export const resumoDaPericia = async (tenantId: string, periciaId: string): Promise<PericiaFinanceiroResumo> => {
+  const itens = (await lancamentoRepository.listAll(tenantId, { periciaId })).filter(
+    (item) => item.status !== 'canceled',
+  );
+  const receitas = itens.filter((item) => item.natureza === 'income');
+  const honorariosCents = receitas.reduce((total, item) => total + item.valorCents, 0);
+  const recebidoCents = receitas.reduce((total, item) => total + (item.recebidoCents ?? 0), 0);
+  return {
+    honorariosCents,
+    recebidoCents,
+    saldoCents: honorariosCents - recebidoCents,
+    despesasCents: itens
+      .filter((item) => item.natureza === 'expense')
+      .reduce((total, item) => total + item.valorCents, 0),
+  };
+};
+
+export const listForExport = (tenantId: string) => lancamentoRepository.listAll(tenantId);
 
 // Subscriber de `pericia:honorarios_fixados`: o honorário vira receita a receber. Se a perícia
 // já tem o honorário fixado lançado, só o valor muda (AD-111) — recusado se ficar abaixo do

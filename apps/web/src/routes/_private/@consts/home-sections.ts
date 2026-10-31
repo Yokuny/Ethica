@@ -1,4 +1,4 @@
-import { CalendarDays, Contact, Gavel, Radar, Users, Wallet } from 'lucide-react';
+import { Building2, CalendarDays, Contact, FileText, Gavel, Radar, Users, Wallet } from 'lucide-react';
 import type { HomeSection } from '../@interface/home.interface.js';
 
 export const HOME_SECTIONS = [
@@ -37,5 +37,13 @@ export const HOME_SECTIONS = [
     icon: Radar,
     access: 'everyone',
   },
+  {
+    to: '/relatorios',
+    titleKey: 'reports',
+    descriptionKey: 'reports_page_description',
+    icon: FileText,
+    access: 'everyone',
+  },
   { to: '/users', titleKey: 'users', descriptionKey: 'review_people_and_invite_to_team', icon: Users, access: 'admin' },
+  { to: '/office', titleKey: 'office', descriptionKey: 'office_page_description', icon: Building2, access: 'admin' },
 ] as const satisfies readonly HomeSection[];

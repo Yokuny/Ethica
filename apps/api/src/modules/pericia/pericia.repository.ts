@@ -1,9 +1,11 @@
-import type { ListStats } from '@ethica/contracts';
+import type { CreateMovimentacao, ListStats } from '@ethica/contracts';
+import { DISPLAY_TIMEZONE } from '@ethica/contracts';
 import type { PericiaDocument } from '@ethica/db';
 import {
   dailyTrend,
   dateInDisplayTz,
   groupStats,
+  newObjectId,
   Pericia,
   Prazo,
   periciaSearchStages,
@@ -17,6 +19,7 @@ import type {
   ListPericiasQuery,
   PericiaCreateWrite,
   PericiaDistribution,
+  PericiaParada,
   PericiaRecord,
   PericiaResumo,
   PericiaUpdateWrite,
@@ -49,6 +52,14 @@ const toRecord = (doc: PericiaDocument): PericiaRecord => ({
   periodoImprescritoInicio: doc.periodoImprescritoInicio,
   periodoImprescritoFim: doc.periodoImprescritoFim,
   localPericia: doc.localPericia,
+  movimentacoes: [...(doc.movimentacoes ?? [])]
+    .sort((a, b) => b.data.localeCompare(a.data))
+    .map((movimentacao) => ({
+      id: movimentacao._id.toString(),
+      tipo: movimentacao.tipo,
+      data: movimentacao.data,
+      observacoes: movimentacao.observacoes,
+    })),
   oportunidadeId: doc.Oportunidade?.toString(),
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
@@ -109,6 +120,103 @@ export const updatePericia = async (
       runValidators: true,
     }).lean();
     return doc ? toRecord(doc) : null;
+  });
+
+export const addMovimentacao = async (
+  tenantId: string,
+  id: string,
+  data: CreateMovimentacao,
+): Promise<PericiaRecord | null> =>
+  withDbTiming('pericia.addMovimentacao', async () => {
+    const doc = await Pericia.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, _id: id }),
+      { $push: { movimentacoes: { _id: newObjectId(), ...data } } },
+      { returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+// `null` quando a perícia ou a movimentação não existem.
+export const removeMovimentacao = async (
+  tenantId: string,
+  id: string,
+  movimentacaoId: string,
+): Promise<PericiaRecord | null> =>
+  withDbTiming('pericia.removeMovimentacao', async () => {
+    const oid = toObjectId(movimentacaoId);
+    const doc = await Pericia.findOneAndUpdate(
+      { ...tenantScoped({ Tenant: tenantId, _id: id }), 'movimentacoes._id': oid },
+      { $pull: { movimentacoes: { _id: oid } } },
+      { returnDocument: 'after' },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+// Perícia parada (AD-121): não encerrada e com a referência (última movimentação, senão a
+// nomeação, senão o dia do cadastro) antes de `limite`. Da mais antiga para a mais recente.
+export const listParadas = async (
+  tenantId: string,
+  limite: string,
+): Promise<Array<Omit<PericiaParada, 'diasParada'>>> =>
+  withDbTiming('pericia.listParadas', async () => {
+    const docs = await Pericia.aggregate<{
+      _id: { toString(): string };
+      numeroProcesso: string;
+      status: PericiaParada['status'];
+      tribunal: string;
+      vara?: string;
+      objeto: string;
+      ultima: string | null;
+      dataNomeacao?: string;
+      referencia: string;
+    }>([
+      { $match: { Tenant: toObjectId(tenantId), status: { $nin: ['completed', 'declined'] } } },
+      { $addFields: { ultima: { $max: '$movimentacoes.data' } } },
+      {
+        $addFields: {
+          referencia: {
+            $ifNull: [
+              '$ultima',
+              '$dataNomeacao',
+              { $dateToString: { date: '$createdAt', format: '%Y-%m-%d', timezone: DISPLAY_TIMEZONE } },
+            ],
+          },
+        },
+      },
+      { $match: { referencia: { $lt: limite } } },
+      { $sort: { referencia: 1, numeroProcesso: 1 } },
+      {
+        $project: {
+          numeroProcesso: 1,
+          status: 1,
+          tribunal: 1,
+          vara: 1,
+          objeto: 1,
+          ultima: 1,
+          dataNomeacao: 1,
+          referencia: 1,
+        },
+      },
+    ]);
+    return docs.map((doc) => ({
+      id: doc._id.toString(),
+      numeroProcesso: doc.numeroProcesso,
+      status: doc.status,
+      tribunal: doc.tribunal,
+      vara: doc.vara,
+      objeto: doc.objeto,
+      referencia: doc.referencia,
+      origem: doc.ultima ? 'movement' : doc.dataNomeacao ? 'appointment' : 'created',
+    }));
+  });
+
+// Exportação de dados (DOC-04): todas as perícias do tenant.
+export const listAll = async (tenantId: string): Promise<PericiaRecord[]> =>
+  withDbTiming('pericia.listAll', async () => {
+    const docs = await Pericia.find(tenantScoped({ Tenant: tenantId }))
+      .sort({ createdAt: 1 })
+      .lean();
+    return docs.map(toRecord);
   });
 
 export const deletePericia = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>

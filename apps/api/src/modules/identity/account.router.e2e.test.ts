@@ -119,6 +119,42 @@ describe('account routes (ACC-02..06)', () => {
     }
   });
 
+  it('GET/PATCH /me/profile keeps professional data (DOC-01) and clears an empty field', async () => {
+    const { user } = await seedUser('77777777000109');
+    const app = buildTestApp();
+    const cookie = await cookieFor(user.id);
+    const saved = await request(app).patch('/me/profile').set('Cookie', cookie).set('User-Agent', DEVICE).send({
+      name: 'Ana Souza',
+      cpf: '123.456.789-09',
+      registroProfissional: 'CREA-SP 123',
+      formacao: 'Eng. Segurança',
+    });
+    expect(saved.status).toBe(200);
+    expect(saved.body.data).toEqual({
+      name: 'Ana Souza',
+      cpf: '12345678909',
+      registroProfissional: 'CREA-SP 123',
+      formacao: 'Eng. Segurança',
+    });
+
+    const cleared = await request(app)
+      .patch('/me/profile')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ name: 'Ana Souza', formacao: '' });
+    expect(cleared.body.data).toEqual({ name: 'Ana Souza', cpf: '12345678909', registroProfissional: 'CREA-SP 123' });
+
+    const read = await request(app).get('/me/profile').set('Cookie', cookie).set('User-Agent', DEVICE);
+    expect(read.body.data).toEqual(cleared.body.data);
+
+    const badCpf = await request(app)
+      .patch('/me/profile')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ name: 'Ana Souza', cpf: '123' });
+    expect(badCpf.status).toBe(400);
+  });
+
   it('PUT /me/password checks the current password and ends the other sessions only', async () => {
     const { user } = await seedUser('77777777000103');
     const app = buildTestApp();

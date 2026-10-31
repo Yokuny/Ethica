@@ -1,14 +1,30 @@
-import type { CreatePericia, Justica, PapelPericia, PericiaStatus, UpdatePericia } from '@ethica/contracts';
-import { createPericiaSchema, idSchema, JUSTICAS, PERICIA_STATUS, updatePericiaSchema } from '@ethica/contracts';
+import type {
+  CreateMovimentacao,
+  CreatePericia,
+  Justica,
+  MovimentacaoTipo,
+  PapelPericia,
+  PericiaStatus,
+  UpdatePericia,
+} from '@ethica/contracts';
+import {
+  createMovimentacaoSchema,
+  createPericiaSchema,
+  idSchema,
+  JUSTICAS,
+  PERICIA_STATUS,
+  updatePericiaSchema,
+} from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { PericiaParteWrite } from './parte.schema.js';
 import type { ProximoPrazo } from './prazo.schema.js';
 
-export type { CreatePericia, UpdatePericia };
-export { createPericiaSchema, updatePericiaSchema };
+export type { CreateMovimentacao, CreatePericia, UpdatePericia };
+export { createMovimentacaoSchema, createPericiaSchema, updatePericiaSchema };
 
 export const periciaIdParamSchema = z.object({ id: idSchema }).strict();
+export const movimentacaoIdParamSchema = z.object({ id: idSchema, movimentacaoId: idSchema }).strict();
 
 // Paginação validada na borda (nunca clamp silencioso no service).
 export const listPericiasQuerySchema = z
@@ -46,9 +62,27 @@ export type PericiaRecord = {
   periodoImprescritoInicio?: string;
   periodoImprescritoFim?: string;
   localPericia?: string;
+  movimentacoes: MovimentacaoRecord[];
   oportunidadeId?: string;
   createdAt: Date;
   updatedAt: Date;
+};
+
+// Movimentação do processo (AD-121), da mais recente para a mais antiga.
+export type MovimentacaoRecord = { id: string; tipo: MovimentacaoTipo; data: string; observacoes?: string };
+
+// Perícia parada (DOC-03): `referencia` é a última movimentação ou, sem nenhuma, a nomeação
+// ou o dia do cadastro; `origem` diz qual delas.
+export type PericiaParada = {
+  id: string;
+  numeroProcesso: string;
+  status: PericiaStatus;
+  tribunal: string;
+  vara?: string;
+  objeto: string;
+  referencia: string;
+  origem: 'movement' | 'appointment' | 'created';
+  diasParada: number;
 };
 
 export type CreatePericiaInput = CreatePericia & { tenant: string; oportunidadeId?: string };

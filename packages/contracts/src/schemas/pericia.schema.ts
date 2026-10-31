@@ -63,6 +63,25 @@ export const updatePericiaSchema = periciaFields
   .strict();
 export type UpdatePericia = z.infer<typeof updatePericiaSchema>;
 
+// Movimentações que contam para a perícia parada (AD-121): entrega do laudo, notificação de
+// recebimento de honorários e intimação para esclarecimentos ou para laudo complementar.
+export const MOVIMENTACAO_TIPOS = [
+  'report_filed',
+  'fees_notice',
+  'clarification_summons',
+  'supplementary_report_summons',
+] as const;
+export type MovimentacaoTipo = (typeof MOVIMENTACAO_TIPOS)[number];
+
+export const createMovimentacaoSchema = z
+  .object({
+    tipo: z.enum(MOVIMENTACAO_TIPOS),
+    data: calendarDateSchema,
+    observacoes: z.string().trim().max(500, 'observações inválidas').optional(),
+  })
+  .strict();
+export type CreateMovimentacao = z.infer<typeof createMovimentacaoSchema>;
+
 // Período imprescrito sugerido (AD-115): do mais recente entre (autuação − 5 anos) e a
 // admissão até a demissão; sem demissão, até a autuação. Sem autuação, sem sugestão.
 export const sugerirPeriodoImprescrito = (datas: {

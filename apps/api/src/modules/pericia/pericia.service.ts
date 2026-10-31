@@ -1,13 +1,15 @@
-import { PRAZO_VENCE_EM_BREVE_DIAS, sugerirPeriodoImprescrito } from '@ethica/contracts';
-import { TextSearchUnavailableError } from '@ethica/db';
+import { PERICIA_PARADA_DIAS, PRAZO_VENCE_EM_BREVE_DIAS, sugerirPeriodoImprescrito } from '@ethica/contracts';
+import { dateInDisplayTz, TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as parteService from './parte.service.js';
 import * as periciaRepository from './pericia.repository.js';
 import type {
+  CreateMovimentacao,
   CreatePericiaInput,
   ListPericiasQuery,
   PericiaListItem,
+  PericiaParada,
   PericiaRecord,
   UpdatePericia,
 } from './pericia.schema.js';
@@ -109,6 +111,40 @@ export const listPericias = async (
     throw error;
   }
 };
+
+export const addMovimentacao = async (
+  tenantId: string,
+  id: string,
+  data: CreateMovimentacao,
+): Promise<PericiaRecord> => {
+  const updated = await periciaRepository.addMovimentacao(tenantId, id, data);
+  if (!updated) throw new PericiaNotFoundError('not_found');
+  return updated;
+};
+
+export const removeMovimentacao = async (
+  tenantId: string,
+  id: string,
+  movimentacaoId: string,
+): Promise<PericiaRecord> => {
+  const updated = await periciaRepository.removeMovimentacao(tenantId, id, movimentacaoId);
+  if (!updated) throw new PericiaNotFoundError('not_found');
+  return updated;
+};
+
+const DIA_MS = 86_400_000;
+const diasEntre = (de: string, ate: string): number =>
+  Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / DIA_MS);
+
+// DOC-03: abertas sem movimentação há mais de PERICIA_PARADA_DIAS dias (AD-121).
+export const listParadas = async (tenantId: string, now: Date = new Date()): Promise<PericiaParada[]> => {
+  const today = dateInDisplayTz(now);
+  const limite = new Date(Date.parse(`${today}T12:00:00Z`) - PERICIA_PARADA_DIAS * DIA_MS).toISOString().slice(0, 10);
+  const paradas = await periciaRepository.listParadas(tenantId, limite);
+  return paradas.map((parada) => ({ ...parada, diasParada: diasEntre(parada.referencia, today) }));
+};
+
+export const listForExport = (tenantId: string) => periciaRepository.listAll(tenantId);
 
 export const periciaStats = (tenantId: string) => periciaRepository.stats(tenantId, PRAZO_VENCE_EM_BREVE_DIAS);
 export const periciaDistribution = (tenantId: string) => periciaRepository.distribution(tenantId);

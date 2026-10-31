@@ -81,4 +81,38 @@ export type FluxoMensal = {
   despesasCents: number;
 };
 
+// Relatório financeiro de um período (DOC-03): o realizado (parcelas recebidas e despesas
+// pagas no período) e o previsto (saldo de honorários e despesas a pagar que vencem nele).
+export type FinanceiroRelatorioLinha = {
+  data: string;
+  descricao: string;
+  categoria: LancamentoCategoria;
+  valorCents: number;
+  periciaNumero?: string;
+  conta?: string;
+};
+
+export type FinanceiroRelatorio = {
+  recebidos: FinanceiroRelatorioLinha[];
+  pagos: FinanceiroRelatorioLinha[];
+  aReceber: FinanceiroRelatorioLinha[];
+  aPagar: FinanceiroRelatorioLinha[];
+  totais: {
+    recebidoCents: number;
+    pagoCents: number;
+    saldoRealizadoCents: number;
+    aReceberCents: number;
+    aPagarCents: number;
+    saldoPrevistoCents: number;
+  };
+};
+
+// Resumo financeiro na ficha da perícia (DOC-02), só para admin/manager (AD-107).
+export type PericiaFinanceiroResumo = {
+  honorariosCents: number;
+  recebidoCents: number;
+  saldoCents: number;
+  despesasCents: number;
+};
+
 export type CategoriaTotal = { categoria: LancamentoCategoria; totalCents: number };

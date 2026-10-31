@@ -1,29 +1,58 @@
 import { Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { AccountView, DestinatarioAviso, FeedOwner } from './account.schema.js';
+import type { AccountView, DestinatarioAviso, FeedOwner, UpdateProfile } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
 
 // Tenant e usuário vêm sempre da sessão (AD-010): todo filtro é a própria pessoa.
 const own = (tenantId: string, userId: string) => tenantScoped({ Tenant: tenantId, _id: userId });
 
+const ACCOUNT_FIELDS = 'name avatarUpdatedAt cpf registroProfissional formacao';
+
 const toAccountView = (
-  doc: { _id: { toString(): string }; name: string; avatarUpdatedAt?: Date } | null,
+  doc: {
+    _id: { toString(): string };
+    name: string;
+    avatarUpdatedAt?: Date;
+    cpf?: string;
+    registroProfissional?: string;
+    formacao?: string;
+  } | null,
 ): AccountView | null =>
   doc
     ? {
         name: doc.name,
         ...(doc.avatarUpdatedAt ? { avatar: avatarPath(doc._id.toString(), doc.avatarUpdatedAt) } : {}),
+        ...(doc.cpf ? { cpf: doc.cpf } : {}),
+        ...(doc.registroProfissional ? { registroProfissional: doc.registroProfissional } : {}),
+        ...(doc.formacao ? { formacao: doc.formacao } : {}),
       }
     : null;
 
-export const updateName = async (tenantId: string, userId: string, name: string): Promise<AccountView | null> =>
-  withDbTiming('account.updateName', async () =>
-    toAccountView(
-      await User.findOneAndUpdate(own(tenantId, userId), { $set: { name } }, { new: true })
-        .select('name avatarUpdatedAt')
-        .lean(),
-    ),
+export const findProfile = async (tenantId: string, userId: string): Promise<AccountView | null> =>
+  withDbTiming('account.findProfile', async () =>
+    toAccountView(await User.findOne(own(tenantId, userId)).select(ACCOUNT_FIELDS).lean()),
   );
+
+// DOC-01: campo profissional enviado vazio é apagado; ausente fica como está.
+export const updateProfile = async (
+  tenantId: string,
+  userId: string,
+  { name, ...profissional }: UpdateProfile,
+): Promise<AccountView | null> =>
+  withDbTiming('account.updateProfile', async () => {
+    const entries = Object.entries(profissional).filter(([, value]) => value !== undefined);
+    const $unset = Object.fromEntries(entries.filter(([, value]) => value === '').map(([key]) => [key, 1]));
+    const $set = { name, ...Object.fromEntries(entries.filter(([, value]) => value !== '')) };
+    return toAccountView(
+      await User.findOneAndUpdate(
+        own(tenantId, userId),
+        { $set, ...(Object.keys($unset).length ? { $unset } : {}) },
+        { new: true },
+      )
+        .select(ACCOUNT_FIELDS)
+        .lean(),
+    );
+  });
 
 export const findPasswordHash = async (tenantId: string, userId: string): Promise<string | null> =>
   withDbTiming('account.findPasswordHash', async () => {
@@ -53,7 +82,7 @@ export const setAvatar = async (tenantId: string, userId: string, image: string 
           : { $unset: { avatar: 1, avatarUpdatedAt: 1 } },
         { new: true },
       )
-        .select('name avatarUpdatedAt')
+        .select(ACCOUNT_FIELDS)
         .lean(),
     ),
   );

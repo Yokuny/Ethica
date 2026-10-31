@@ -55,6 +55,24 @@ export const postFile = async <T>(path: string, file: Blob, type: string): Promi
   }
 };
 
+// Arquivo gerado pela API (PDF e ZIP, AD-119/AD-122). Erro chega no formato de sempre (JSON
+// com a chave da mensagem); sucesso é o próprio arquivo, com o nome do Content-Disposition.
+export type FileResponse = { success: true; blob: Blob; filename: string } | { success: false; message: string };
+
+export const getFile = async (path: string): Promise<FileResponse> => {
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, { method: 'GET', credentials: 'include' });
+    if (!res.ok) {
+      const body = translateMessage((await res.json()) as ApiResponse<never>);
+      return { success: false, message: body.message || t('action_error') };
+    }
+    const filename = res.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] ?? 'documento';
+    return { success: true, blob: await res.blob(), filename };
+  } catch {
+    return { success: false, message: CONNECTION_ERROR_MESSAGE };
+  }
+};
+
 export const get = <T>(path: string): Promise<ApiResponse<T>> => request<T>(path, 'GET');
 export const post = <T>(path: string, body?: unknown): Promise<ApiResponse<T>> => request<T>(path, 'POST', body);
 export const patch = <T>(path: string, body?: unknown): Promise<ApiResponse<T>> => request<T>(path, 'PATCH', body);

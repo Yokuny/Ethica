@@ -7,8 +7,10 @@ import { validBody, validParams, validParsedQuery } from '../../middlewares/vali
 import * as periciaController from './pericia.controller.js';
 import type { PericiaRouterDeps } from './pericia.schema.js';
 import {
+  createMovimentacaoSchema,
   createPericiaSchema,
   listPericiasQuerySchema,
+  movimentacaoIdParamSchema,
   periciaIdParamSchema,
   updatePericiaSchema,
 } from './pericia.schema.js';
@@ -77,6 +79,22 @@ export const createPericiaRouter = (deps: PericiaRouterDeps): Router => {
     validParams(periciaIdParamSchema),
     validBody(createPrazoSchema),
     prazoController.createPrazo,
+  );
+  // Movimentações que contam para a perícia parada (AD-121): qualquer papel do tenant.
+  router.post(
+    '/:id/movimentacoes',
+    ...guard,
+    canOperate,
+    validParams(periciaIdParamSchema),
+    validBody(createMovimentacaoSchema),
+    periciaController.addMovimentacao,
+  );
+  router.delete(
+    '/:id/movimentacoes/:movimentacaoId',
+    ...guard,
+    canOperate,
+    validParams(movimentacaoIdParamSchema),
+    periciaController.removeMovimentacao,
   );
   router.patch(
     '/:id',

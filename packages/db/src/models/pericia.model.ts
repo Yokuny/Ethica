@@ -1,6 +1,8 @@
 import {
   JUSTICAS,
   type Justica,
+  MOVIMENTACAO_TIPOS,
+  type MovimentacaoTipo,
   PAPEIS_PERICIA,
   PARTE_TIPOS,
   type PapelPericia,
@@ -19,6 +21,14 @@ export interface PericiaParteDocument {
   polo: Polo;
   tipo: ParteTipo;
   nome: string;
+}
+
+// Movimentação do processo que conta para a perícia parada (AD-121). Data `YYYY-MM-DD`.
+export interface PericiaMovimentacaoDocument {
+  _id: mongoose.Types.ObjectId;
+  tipo: MovimentacaoTipo;
+  data: string;
+  observacoes?: string;
 }
 
 export interface PericiaDocument {
@@ -46,6 +56,7 @@ export interface PericiaDocument {
   periodoImprescritoInicio?: string;
   periodoImprescritoFim?: string;
   localPericia?: string;
+  movimentacoes: PericiaMovimentacaoDocument[];
   // Perícia que nasceu de uma oportunidade de prospecção (Datajud).
   Oportunidade?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -88,6 +99,16 @@ const periciaSchema = new Schema<PericiaDocument>(
     periodoImprescritoInicio: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     periodoImprescritoFim: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     localPericia: { type: String, trim: true },
+    movimentacoes: {
+      type: [
+        new Schema<PericiaMovimentacaoDocument>({
+          tipo: { type: String, enum: MOVIMENTACAO_TIPOS, required: true },
+          data: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+          observacoes: { type: String, trim: true },
+        }),
+      ],
+      default: [],
+    },
     Oportunidade: { type: Schema.Types.ObjectId, ref: 'Oportunidade' },
   },
   { timestamps: true },

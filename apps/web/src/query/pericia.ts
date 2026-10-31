@@ -1,6 +1,8 @@
 import type {
+  CreateMovimentacao,
   CreatePericia,
   Justica,
+  MovimentacaoTipo,
   PapelPericia,
   ParteTipo,
   PericiaStatus,
@@ -37,6 +39,8 @@ export type PericiaRecord = {
   periodoImprescritoInicio?: string;
   periodoImprescritoFim?: string;
   localPericia?: string;
+  // Movimentações que contam para a perícia parada (AD-121), da mais recente para a mais antiga.
+  movimentacoes: { id: string; tipo: MovimentacaoTipo; data: string; observacoes?: string }[];
   oportunidadeId?: string;
   createdAt: string;
   updatedAt: string;
@@ -142,4 +146,28 @@ export const deletePericiaMutation = (queryClient: QueryClient): UseMutationOpti
     if (!res.success) throw new Error(res.message ?? t('remove_error'));
   },
   onSuccess: () => queryClient.invalidateQueries({ queryKey: periciaKeys.all }),
+});
+
+export const addMovimentacaoMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<PericiaRecord, Error, { periciaId: string; data: CreateMovimentacao }> => ({
+  mutationFn: async ({ periciaId, data }) => {
+    const res = await post<PericiaRecord>(`/pericias/${encodeURIComponent(periciaId)}/movimentacoes`, data);
+    if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
+    return res.data;
+  },
+  onSuccess: (updated) => queryClient.setQueryData(periciaKeys.detail(updated.id), updated),
+});
+
+export const removeMovimentacaoMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<PericiaRecord, Error, { periciaId: string; movimentacaoId: string }> => ({
+  mutationFn: async ({ periciaId, movimentacaoId }) => {
+    const res = await del<PericiaRecord>(
+      `/pericias/${encodeURIComponent(periciaId)}/movimentacoes/${encodeURIComponent(movimentacaoId)}`,
+    );
+    if (!res.success || !res.data) throw new Error(res.message ?? t('remove_error'));
+    return res.data;
+  },
+  onSuccess: (updated) => queryClient.setQueryData(periciaKeys.detail(updated.id), updated),
 });

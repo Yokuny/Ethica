@@ -98,3 +98,12 @@ export const stats = async (tenantId: string): Promise<ListStats> =>
     ]);
     return { total, trend, groups };
   });
+
+// Exportação de dados (DOC-04).
+export const listAll = async (tenantId: string): Promise<OportunidadeRecord[]> =>
+  withDbTiming('oportunidade.listAll', async () => {
+    const docs = await Oportunidade.find(tenantScoped({ Tenant: tenantId }))
+      .sort({ createdAt: 1 })
+      .lean();
+    return docs.map(toRecord);
+  });

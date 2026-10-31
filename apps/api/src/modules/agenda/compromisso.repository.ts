@@ -100,3 +100,14 @@ export const listUpcoming = async (
       .lean();
     return docs.map(toRecord);
   });
+
+// Ficha da perícia (com `periciaId`) e exportação de dados (DOC-02, DOC-04), por início.
+export const listAll = async (tenantId: string, filter: { periciaId?: string } = {}): Promise<CompromissoRecord[]> =>
+  withDbTiming('compromisso.listAll', async () => {
+    const docs = await Compromisso.find(
+      tenantScoped({ Tenant: tenantId, ...(filter.periciaId ? { Pericia: filter.periciaId } : {}) }),
+    )
+      .sort({ inicio: 1 })
+      .lean();
+    return docs.map(toRecord);
+  });

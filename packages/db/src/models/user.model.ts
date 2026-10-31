@@ -19,6 +19,10 @@ export interface UserDocument {
   // só a rota da foto a lê; listas e sessão levam apenas a versão (avatarUpdatedAt).
   avatar?: string;
   avatarUpdatedAt?: Date;
+  // DOC-01: dados profissionais que vão nos documentos técnicos.
+  cpf?: string;
+  registroProfissional?: string;
+  formacao?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +46,9 @@ const userSchema = new Schema<UserDocument>(
     avatar: { type: String, select: false, required: false },
     avatarUpdatedAt: { type: Date, required: false },
     calendarFeedTokenHash: { type: String, required: false },
+    cpf: { type: String, match: /^\d{11}$/ },
+    registroProfissional: { type: String, trim: true },
+    formacao: { type: String, trim: true },
   },
   { timestamps: true },
 );

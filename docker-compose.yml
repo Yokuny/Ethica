@@ -5,9 +5,16 @@ x-app: &app
   env_file: .env
   environment:
     MONGODB_URI: mongodb://mongo:27017/ethica?directConnection=true
+    # Arquivos do tenant (AD-120) no s3 (RustFS) deste compose.
+    S3_ENDPOINT: http://s3:9000
+    S3_BUCKET: ethica
+    S3_ACCESS_KEY_ID: ethica
+    S3_SECRET_ACCESS_KEY: ethica-dev-secret
   depends_on:
     mongo:
       condition: service_healthy
+    s3-init:
+      condition: service_completed_successfully
   volumes:
     - .:/app
     - /app/node_modules
@@ -34,6 +41,37 @@ services:
       retries: 12
       start_period: 30s
 
+  # Storage S3 compatível (AD-120): RustFS, porque as imagens públicas do MinIO saíram do
+  # Docker Hub. Console em http://localhost:19001 (ethica / ethica-dev-secret).
+  s3:
+    image: rustfs/rustfs:1.0.1
+    container_name: ethica-s3
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: ethica
+      RUSTFS_SECRET_KEY: ethica-dev-secret
+      RUSTFS_CONSOLE_ENABLE: 'true'
+    ports:
+      - '19000:9000'
+      - '19001:9001'
+    volumes:
+      - s3-data:/data
+
+  # Cria o bucket privado `ethica` uma vez (idempotente), tentando até o s3 responder.
+  s3-init:
+    image: amazon/aws-cli:2.38.1
+    depends_on:
+      - s3
+    environment:
+      AWS_ACCESS_KEY_ID: ethica
+      AWS_SECRET_ACCESS_KEY: ethica-dev-secret
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: >
+      sh -c "for i in $$(seq 1 30); do
+      aws --endpoint-url http://s3:9000 s3api head-bucket --bucket ethica 2>/dev/null && exit 0;
+      aws --endpoint-url http://s3:9000 s3 mb s3://ethica && exit 0;
+      sleep 2; done; exit 1"
+
   api:
     <<: *app
     container_name: ethica-api
@@ -59,3 +97,4 @@ services:
 
 volumes:
   mongo-atlas-data:
+  s3-data:

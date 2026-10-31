@@ -66,3 +66,7 @@ export const listCompromissos = async (tenantId: string, query: ListCompromissos
 
 export const listUpcoming = async (tenantId: string, query: UpcomingCompromissosQuery, now: Date = new Date()) =>
   withPericiaNumero(tenantId, await compromissoRepository.listUpcoming(tenantId, { now, ...query }));
+
+export const listDaPericia = (tenantId: string, periciaId: string) =>
+  compromissoRepository.listAll(tenantId, { periciaId });
+export const listForExport = (tenantId: string) => compromissoRepository.listAll(tenantId);

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 // ACC-03: mesma regra de nome do aceite de convite (acceptInvite.schema.ts).
+// DOC-01: dados profissionais que vão nos documentos técnicos; `''` apaga o campo.
 export const updateProfileSchema = z
   .object({
     name: z
@@ -8,6 +9,13 @@ export const updateProfileSchema = z
       .trim()
       .min(3, 'nome deve ter entre 3 e 80 caracteres')
       .max(80, 'nome deve ter entre 3 e 80 caracteres'),
+    cpf: z
+      .string()
+      .transform((value) => value.replace(/\D/g, ''))
+      .refine((value) => value === '' || /^\d{11}$/.test(value), 'CPF inválido')
+      .optional(),
+    registroProfissional: z.string().trim().max(60, 'registro inválido').optional(),
+    formacao: z.string().trim().max(120, 'formação inválida').optional(),
   })
   .strict();
 

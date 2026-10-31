@@ -79,3 +79,12 @@ export const listPartes = async (
     ]);
     return { items: docs.map(toRecord), total };
   });
+
+// Exportação de dados (DOC-04).
+export const listAll = async (tenantId: string): Promise<ParteRecord[]> =>
+  withDbTiming('parte.listAll', async () => {
+    const docs = await Parte.find(tenantScoped({ Tenant: tenantId }))
+      .sort({ nome: 1 })
+      .lean();
+    return docs.map(toRecord);
+  });
