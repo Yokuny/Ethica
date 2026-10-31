@@ -26,6 +26,7 @@ const pericia: PericiaRecord = {
   papel: 'court_expert',
   tribunal: 'TRT2',
   objeto: 'Insalubridade',
+  partes: [],
   status: 'appointed',
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -69,6 +70,29 @@ describe('pericia.service', () => {
     await createPericia(semPrazo);
 
     expect(prazoRepository.createPrazo).not.toHaveBeenCalled();
+  });
+
+  it('createPericia grava o período imprescrito sugerido quando vem vazio (AD-115)', async () => {
+    vi.mocked(periciaRepository.createPericia).mockResolvedValue(pericia);
+
+    await createPericia({
+      ...input,
+      dataAutuacao: '2026-03-10',
+      dataAdmissao: '2018-02-01',
+      dataDemissao: '2025-12-20',
+    });
+    expect(periciaRepository.createPericia).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        periodoImprescritoInicio: '2021-03-10',
+        periodoImprescritoFim: '2025-12-20',
+        partes: [],
+      }),
+    );
+
+    await createPericia({ ...input, dataAutuacao: '2026-03-10', periodoImprescritoInicio: '2022-01-01' });
+    expect(periciaRepository.createPericia).toHaveBeenLastCalledWith(
+      expect.not.objectContaining({ periodoImprescritoFim: expect.anything() }),
+    );
   });
 
   it('deletePericia exclui os prazos da perícia; perícia inexistente não toca nos prazos', async () => {

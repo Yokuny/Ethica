@@ -1,6 +1,7 @@
 import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import * as importacaoService from './importacao.service.js';
 import type { ListPericiasQuery } from './pericia.schema.js';
 import * as periciaService from './pericia.service.js';
 import { PericiaNotFoundError } from './pericia.service.js';
@@ -67,6 +68,23 @@ export const periciaStats = async (req: Request, res: Response, next: NextFuncti
 export const periciaDistribution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await periciaService.periciaDistribution(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+// Importação (AD-114, AD-118): o arquivo chega como corpo pelo `fileBody` do router.
+export const importarPdf = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await importacaoService.extrairPdf(tenantOf(req), req.body) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const importarCsv = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await importacaoService.importarCsv(tenantOf(req), req.body) }));
   } catch (e) {
     next(e);
   }

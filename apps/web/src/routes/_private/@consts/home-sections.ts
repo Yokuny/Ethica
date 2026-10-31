@@ -1,4 +1,4 @@
-import { CalendarDays, Gavel, Radar, Users, Wallet } from 'lucide-react';
+import { CalendarDays, Contact, Gavel, Radar, Users, Wallet } from 'lucide-react';
 import type { HomeSection } from '../@interface/home.interface.js';
 
 export const HOME_SECTIONS = [
@@ -7,6 +7,13 @@ export const HOME_SECTIONS = [
     titleKey: 'expert_cases',
     descriptionKey: 'track_each_pericia_from_appointment_to_report',
     icon: Gavel,
+    access: 'everyone',
+  },
+  {
+    to: '/partes',
+    titleKey: 'parties',
+    descriptionKey: 'parties_page_description',
+    icon: Contact,
     access: 'everyone',
   },
   {

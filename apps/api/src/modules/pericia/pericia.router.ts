@@ -1,5 +1,7 @@
+import { CSV_IMPORT_MAX_BYTES, PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Router } from 'express';
 import { checkRole, isAdmin } from '../../middlewares/authorization.middleware.js';
+import { fileBody } from '../../middlewares/fileBody.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as periciaController from './pericia.controller.js';
@@ -25,6 +27,21 @@ export const createPericiaRouter = (deps: PericiaRouterDeps): Router => {
   const guard = [deps.validToken, tenantAssignmentCheck];
 
   router.post('/', ...guard, canOperate, validBody(createPericiaSchema), periciaController.createPericia);
+  // Importação (AD-114, AD-118): o PDF só devolve o rascunho; o CSV cria as perícias.
+  router.post(
+    '/import/pdf',
+    ...guard,
+    canOperate,
+    fileBody('application/pdf', PDF_IMPORT_MAX_BYTES),
+    periciaController.importarPdf,
+  );
+  router.post(
+    '/import/csv',
+    ...guard,
+    canOperate,
+    fileBody('text/csv', CSV_IMPORT_MAX_BYTES),
+    periciaController.importarCsv,
+  );
   router.get('/stats', ...guard, canOperate, periciaController.periciaStats);
   router.get('/distribution', ...guard, canOperate, periciaController.periciaDistribution);
   // Prazos (AD-109): operacionais, qualquer papel do tenant. `/prazos` vem antes de `/:id`.

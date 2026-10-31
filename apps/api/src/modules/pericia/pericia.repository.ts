@@ -12,13 +12,14 @@ import {
   withSearch,
 } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
+import type { PericiaParteWrite } from './parte.schema.js';
 import type {
-  CreatePericiaInput,
   ListPericiasQuery,
+  PericiaCreateWrite,
   PericiaDistribution,
   PericiaRecord,
   PericiaResumo,
-  UpdatePericia,
+  PericiaUpdateWrite,
 } from './pericia.schema.js';
 
 const toRecord = (doc: PericiaDocument): PericiaRecord => ({
@@ -30,17 +31,31 @@ const toRecord = (doc: PericiaDocument): PericiaRecord => ({
   vara: doc.vara,
   comarca: doc.comarca,
   objeto: doc.objeto,
-  autor: doc.autor,
-  reu: doc.reu,
+  partes: (doc.partes ?? []).map((parte) => ({
+    parteId: parte.Parte.toString(),
+    polo: parte.polo,
+    tipo: parte.tipo,
+    nome: parte.nome,
+  })),
   status: doc.status,
   dataNomeacao: doc.dataNomeacao,
   honorariosPropostosCents: doc.honorariosPropostosCents,
   honorariosFixadosCents: doc.honorariosFixadosCents,
   observacoes: doc.observacoes,
+  dataAutuacao: doc.dataAutuacao,
+  dataAdmissao: doc.dataAdmissao,
+  dataDemissao: doc.dataDemissao,
+  funcaoReclamante: doc.funcaoReclamante,
+  periodoImprescritoInicio: doc.periodoImprescritoInicio,
+  periodoImprescritoFim: doc.periodoImprescritoFim,
+  localPericia: doc.localPericia,
   oportunidadeId: doc.Oportunidade?.toString(),
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });
+
+const toPartesDocs = (partes: PericiaParteWrite[]) =>
+  partes.map(({ parteId, ...parte }) => ({ ...parte, Parte: parteId }));
 
 // Etapas em que a perícia ainda tem trabalho do perito pela frente.
 const ABERTAS = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
@@ -48,10 +63,16 @@ const ABERTAS = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clar
 export const createPericia = async ({
   tenant,
   oportunidadeId,
+  partes,
   ...data
-}: Omit<CreatePericiaInput, 'prazoLaudo'>): Promise<PericiaRecord> =>
+}: PericiaCreateWrite): Promise<PericiaRecord> =>
   withDbTiming('pericia.createPericia', async () => {
-    const doc = await Pericia.create({ ...data, Tenant: tenant, Oportunidade: oportunidadeId });
+    const doc = await Pericia.create({
+      ...data,
+      partes: toPartesDocs(partes),
+      Tenant: tenant,
+      Oportunidade: oportunidadeId,
+    });
     return toRecord(doc);
   });
 
@@ -63,10 +84,26 @@ export const findById = async (tenantId: string, id: string): Promise<PericiaRec
     return doc ? toRecord(doc) : null;
   });
 
+// Aviso de duplicado do PDF (IMP-01.3): o id da perícia com o mesmo número no tenant.
+export const findIdByNumero = async (tenantId: string, numeroProcesso: string): Promise<string | undefined> =>
+  withDbTiming('pericia.findIdByNumero', async () => {
+    const doc = await Pericia.findOne(tenantScoped({ Tenant: tenantId, numeroProcesso }))
+      .select('_id')
+      .lean();
+    return doc?._id.toString();
+  });
+
 // Só os campos informados entram no $set — um campo omitido nunca vira undefined.
-export const updatePericia = async (tenantId: string, id: string, data: UpdatePericia): Promise<PericiaRecord | null> =>
+export const updatePericia = async (
+  tenantId: string,
+  id: string,
+  { partes, ...data }: PericiaUpdateWrite,
+): Promise<PericiaRecord | null> =>
   withDbTiming('pericia.updatePericia', async () => {
-    const update = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined));
+    const update = {
+      ...Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined)),
+      ...(partes ? { partes: toPartesDocs(partes) } : {}),
+    };
     const doc = await Pericia.findOneAndUpdate(tenantScoped({ Tenant: tenantId, _id: id }), update, {
       returnDocument: 'after',
       runValidators: true,
@@ -121,11 +158,43 @@ export const findResumosByIds = async (tenantId: string, ids: string[]): Promise
   withDbTiming('pericia.findResumosByIds', async () => {
     if (ids.length === 0) return new Map();
     const docs = await Pericia.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } }))
-      .select('numeroProcesso autor reu')
+      .select('numeroProcesso partes')
       .lean();
+    const nomes = (partes: PericiaDocument['partes'], polo: string) =>
+      (partes ?? [])
+        .filter((parte) => parte.polo === polo && parte.tipo === 'party')
+        .map((parte) => parte.nome)
+        .join(', ') || undefined;
     return new Map(
-      docs.map((doc) => [doc._id.toString(), { numeroProcesso: doc.numeroProcesso, autor: doc.autor, reu: doc.reu }]),
+      docs.map((doc) => [
+        doc._id.toString(),
+        {
+          numeroProcesso: doc.numeroProcesso,
+          autor: nomes(doc.partes, 'plaintiff'),
+          reu: nomes(doc.partes, 'defendant'),
+        },
+      ]),
     );
+  });
+
+// Renomear a parte atualiza a cópia do nome em todas as perícias em que ela aparece (AD-117).
+export const renomearParte = async (tenantId: string, parteId: string, nome: string): Promise<void> =>
+  withDbTiming('pericia.renomearParte', async () => {
+    await Pericia.updateMany(
+      tenantScoped({ Tenant: tenantId, 'partes.Parte': toObjectId(parteId) }),
+      { $set: { 'partes.$[p].nome': nome } },
+      { arrayFilters: [{ 'p.Parte': toObjectId(parteId) }] },
+    );
+  });
+
+// Perícias em que a parte aparece (IMP-03), da mais recente para a mais antiga.
+export const listByParte = async (tenantId: string, parteId: string): Promise<PericiaRecord[]> =>
+  withDbTiming('pericia.listByParte', async () => {
+    const docs = await Pericia.find(tenantScoped({ Tenant: tenantId, 'partes.Parte': toObjectId(parteId) }))
+      .sort({ createdAt: -1, _id: 1 })
+      .limit(200)
+      .lean();
+    return docs.map(toRecord);
   });
 
 const addDays = (day: string, days: number): string => {

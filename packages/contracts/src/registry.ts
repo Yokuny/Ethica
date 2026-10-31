@@ -8,6 +8,13 @@ import { idSchema } from './schemas/id.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { createLancamentoSchema, createParcelaSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
+import {
+  createParteSchema,
+  documentoSchema,
+  oabSchema,
+  periciaParteInputSchema,
+  updateParteSchema,
+} from './schemas/parte.schema.js';
 import { createPericiaSchema, numeroProcessoSchema, updatePericiaSchema } from './schemas/pericia.schema.js';
 import { createPrazoSchema, updatePrazoSchema } from './schemas/prazo.schema.js';
 import {
@@ -47,6 +54,11 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'numeroProcessoSchema', schema: numeroProcessoSchema },
   { name: 'createPericiaSchema', schema: createPericiaSchema },
   { name: 'updatePericiaSchema', schema: updatePericiaSchema },
+  { name: 'documentoSchema', schema: documentoSchema },
+  { name: 'oabSchema', schema: oabSchema },
+  { name: 'createParteSchema', schema: createParteSchema },
+  { name: 'updateParteSchema', schema: updateParteSchema },
+  { name: 'periciaParteInputSchema', schema: periciaParteInputSchema },
   { name: 'createPrazoSchema', schema: createPrazoSchema },
   { name: 'updatePrazoSchema', schema: updatePrazoSchema },
   { name: 'createCompromissoSchema', schema: createCompromissoSchema },

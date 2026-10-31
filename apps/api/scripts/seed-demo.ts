@@ -6,6 +6,7 @@ import {
   disconnect,
   Lancamento,
   Oportunidade,
+  Parte,
   Pericia,
   Prazo,
   Session,
@@ -106,6 +107,7 @@ const run = async (): Promise<void> => {
     const users = await User.find({ Tenant: old._id }).select('_id').lean();
     await Promise.all([
       Pericia.deleteMany({ Tenant: old._id }),
+      Parte.deleteMany({ Tenant: old._id }),
       Prazo.deleteMany({ Tenant: old._id }),
       Compromisso.deleteMany({ Tenant: old._id }),
       Lancamento.deleteMany({ Tenant: old._id }),
@@ -128,6 +130,30 @@ const run = async (): Promise<void> => {
     })),
   );
 
+  // Partes e advogados reutilizáveis (AD-117): a mesma ré e os mesmos advogados em vários processos.
+  const [maria, jose, aurora, industria, construtora, inss, joao, ana] = await Parte.insertMany(
+    [
+      { tipo: 'party', nome: 'Maria da Silva', documento: '12345678909', telefone: '(11) 98888-1000' },
+      { tipo: 'party', nome: 'José Santos', documento: '98765432100' },
+      { tipo: 'party', nome: 'Condomínio Edifício Aurora', documento: '11222333000181' },
+      { tipo: 'party', nome: 'Indústria Exemplo Ltda.', documento: '12345678000195', email: 'juridico@exemplo.com' },
+      { tipo: 'party', nome: 'Construtora Alfa S.A.', documento: '33444555000172' },
+      { tipo: 'party', nome: 'Instituto Nacional do Seguro Social' },
+      { tipo: 'lawyer', nome: 'João Pereira', oab: 'SP123456', email: 'joao@advocacia.com' },
+      { tipo: 'lawyer', nome: 'Ana Souza', oab: 'SP654321' },
+    ].map((parte) => ({ ...parte, Tenant: tenant._id })),
+  );
+  const parte = (doc: typeof maria, polo: 'plaintiff' | 'defendant') =>
+    doc ? [{ Parte: doc._id, polo, tipo: doc.tipo, nome: doc.nome }] : [];
+  const PARTES = [
+    [maria, industria],
+    [jose, industria],
+    [aurora, construtora],
+    [jose, inss],
+    [maria, industria],
+    [aurora, construtora],
+  ];
+
   const pericias = await Pericia.insertMany(
     PERICIAS.map((p, index) => ({
       Tenant: tenant._id,
@@ -138,8 +164,24 @@ const run = async (): Promise<void> => {
       vara: p.vara,
       comarca: p.tribunal === 'TRT15' ? 'Campinas' : 'São Paulo',
       objeto: p.objeto,
-      autor: 'Maria da Silva',
-      reu: 'Indústria Exemplo Ltda.',
+      partes: [
+        ...parte(PARTES[index]?.[0], 'plaintiff'),
+        ...parte(joao, 'plaintiff'),
+        ...parte(PARTES[index]?.[1], 'defendant'),
+        ...parte(ana, 'defendant'),
+      ],
+      // Dados auxiliares do laudo trabalhista (IMP-04).
+      ...(p.justica === 'labor'
+        ? {
+            dataAutuacao: day(-120),
+            dataAdmissao: '2017-03-01',
+            dataDemissao: day(-150),
+            funcaoReclamante: 'Operador(a) de máquinas',
+            periodoImprescritoInicio: day(-120 - 5 * 365),
+            periodoImprescritoFim: day(-150),
+            localPericia: 'Av. Industrial, 1500 — São Paulo/SP',
+          }
+        : {}),
       status: p.status,
       dataNomeacao: day(-40 + index * 3),
       honorariosPropostosCents: p.propostos,

@@ -11,7 +11,9 @@ export type { LancamentoDocument, ParcelaDocument } from './models/lancamento.mo
 export { Lancamento } from './models/lancamento.model.js';
 export type { OportunidadeDocument } from './models/oportunidade.model.js';
 export { Oportunidade } from './models/oportunidade.model.js';
-export type { PericiaDocument } from './models/pericia.model.js';
+export type { ParteDocument } from './models/parte.model.js';
+export { Parte } from './models/parte.model.js';
+export type { PericiaDocument, PericiaParteDocument } from './models/pericia.model.js';
 export { Pericia } from './models/pericia.model.js';
 export type { PrazoDocument } from './models/prazo.model.js';
 export { Prazo } from './models/prazo.model.js';
@@ -23,10 +25,11 @@ export type { UserDocument } from './models/user.model.js';
 export { User } from './models/user.model.js';
 export { tenantScoped } from './tenantScoped.js';
 export { resolveTestDatabaseUri, TEST_DATABASE_ENV, wipeTestDatabase } from './testDatabase.js';
-export type { PericiaSearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
+export type { ParteSearchSpec, PericiaSearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
 export {
   isSearchUnavailableError,
   newObjectId,
+  parteSearchStages,
   periciaSearchStages,
   provisionSearchIndexes,
   SEARCH_INDEXES,
@@ -41,6 +44,7 @@ import { Compromisso } from './models/compromisso.model.js';
 import { Invite } from './models/invite.model.js';
 import { Lancamento } from './models/lancamento.model.js';
 import { Oportunidade } from './models/oportunidade.model.js';
+import { Parte } from './models/parte.model.js';
 import { Pericia } from './models/pericia.model.js';
 import { Prazo } from './models/prazo.model.js';
 import { Session } from './models/session.model.js';
@@ -54,6 +58,7 @@ export const syncIndexes = async (): Promise<void> => {
     Invite.createIndexes(),
     Session.createIndexes(),
     Pericia.createIndexes(),
+    Parte.createIndexes(),
     Prazo.createIndexes(),
     Compromisso.createIndexes(),
     Lancamento.createIndexes(),

@@ -21,7 +21,7 @@ apps/api/src/
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite)
-    ├── pericia/                    # Pericia + Prazo (AD-109) — o processo e seus prazos (núcleo, não depende de ninguém)
+    ├── pericia/                    # Pericia + Prazo (AD-109) + Parte (AD-117) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
     ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal e aviso diário de prazos
     ├── financeiro/                 # Lancamento — honorários (com parcelas, AD-111) e despesas; resumo, fluxo, categorias
     └── prospeccao/                 # Oportunidade + busca no Datajud; converte em perícia
@@ -50,7 +50,7 @@ Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Invite transitionTenantStatus` |
-| `pericia` | `Pericia Prazo` |
+| `pericia` | `Pericia Prazo Parte` |
 | `agenda` | `Compromisso` |
 | `financeiro` | `Lancamento` |
 | `prospeccao` | `Oportunidade` |

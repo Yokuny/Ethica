@@ -1,4 +1,12 @@
-import type { CreatePericia, Justica, PapelPericia, PericiaStatus, UpdatePericia } from '@ethica/contracts';
+import type {
+  CreatePericia,
+  Justica,
+  PapelPericia,
+  ParteTipo,
+  PericiaStatus,
+  Polo,
+  UpdatePericia,
+} from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
@@ -15,13 +23,20 @@ export type PericiaRecord = {
   vara?: string;
   comarca?: string;
   objeto: string;
-  autor?: string;
-  reu?: string;
+  // Cópia de tipo e nome do cadastro de partes (AD-117).
+  partes: { parteId: string; polo: Polo; tipo: ParteTipo; nome: string }[];
   status: PericiaStatus;
   dataNomeacao?: string;
   honorariosPropostosCents?: number;
   honorariosFixadosCents?: number;
   observacoes?: string;
+  dataAutuacao?: string;
+  dataAdmissao?: string;
+  dataDemissao?: string;
+  funcaoReclamante?: string;
+  periodoImprescritoInicio?: string;
+  periodoImprescritoFim?: string;
+  localPericia?: string;
   oportunidadeId?: string;
   createdAt: string;
   updatedAt: string;

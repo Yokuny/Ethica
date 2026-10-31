@@ -5,6 +5,7 @@ import {
   connect,
   disconnect,
   hashToken,
+  newObjectId,
   Pericia,
   Prazo,
   Session,
@@ -71,8 +72,10 @@ describe('feed iCal (PRZ-03)', () => {
       papel: 'court_expert',
       tribunal: 'TRT2',
       objeto: 'Insalubridade',
-      autor: 'Maria',
-      reu: 'Indústria',
+      partes: [
+        { Parte: newObjectId(), polo: 'plaintiff', tipo: 'party', nome: 'Maria' },
+        { Parte: newObjectId(), polo: 'defendant', tipo: 'party', nome: 'Indústria' },
+      ],
     });
     const amanha = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
     await Compromisso.create({

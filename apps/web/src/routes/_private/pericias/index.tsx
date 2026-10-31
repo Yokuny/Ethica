@@ -43,6 +43,12 @@ export function PericiasIndexPage() {
     <Card asPage>
       <CardHeader title={t('expert_cases')} description={t('track_each_expert_case_from_appointment_to_report')}>
         <CardAction>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            role="link"
+            render={<Link to="/pericias/import">{t('import_spreadsheet')}</Link>}
+          />
           <Button nativeButton={false} role="link" render={<Link to="/pericias/add">{t('add')}</Link>} />
         </CardAction>
       </CardHeader>
