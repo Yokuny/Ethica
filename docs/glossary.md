@@ -9,6 +9,9 @@ Termos de domínio usados no código, na interface e nos documentos. Valores de 
 | Justiça | `justica` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`). |
 | Atuação | `papel` | Perito do juízo (`court_expert`) ou assistente técnico de uma das partes (`technical_assistant`). |
 | Etapa | `status` da perícia | Nomeada → aceita → vistoria → em laudo → laudo entregue → esclarecimentos → concluída; recusada encerra sem laudo. |
+| Parte | `Parte` (`pericia`), `partes` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117). |
+| Período imprescrito | `periodoImprescritoInicio`/`Fim` | Parte do contrato de trabalho que ainda pode ser cobrada: do mais recente entre (autuação − 5 anos) e a admissão até a demissão (AD-115). |
+| Importação | `POST /pericias/import/{pdf,csv}` | PDF da ata/despacho preenche o cadastro para revisão; CSV cria as perícias em lote com relatório por linha (AD-114, AD-118). |
 | Nomeação | `dataNomeacao` | Dia em que o juízo nomeou o perito. |
 | Prazo do laudo | `prazoLaudo` (só no cadastro) | Dia limite de entrega; vira o prazo "Entrega do laudo" da perícia (AD-109). |
 | Prazo | `Prazo` (`pericia`) | Prazo processual da perícia (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo) ou perdido. **Vence em breve** = até 15 dias. |

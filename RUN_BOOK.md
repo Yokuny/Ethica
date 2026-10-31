@@ -76,7 +76,7 @@ Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis m
 | Testes (local e CI) | o mesmo servidor do dev | `ethica_test` |
 | Produção | cluster hospedado no MongoDB Atlas (`mongodb+srv://...`) | `ethica` |
 
-- Índices do Atlas Search (busca de perícias) não são índices Mongoose: rode `search:provision` em cada banco novo (ou depois de `docker compose down -v`). Sem eles a busca devolve lista vazia. Logo após subir o container o `mongot` pode levar alguns segundos: se falhar com `SearchIndexManagementHostUnreachable`, rode de novo.
+- Índices do Atlas Search (busca de perícias e de partes) não são índices Mongoose: rode `search:provision` em cada banco novo (ou depois de `docker compose down -v`). Sem eles a busca devolve lista vazia. Logo após subir o container o `mongot` pode levar alguns segundos: se falhar com `SearchIndexManagementHostUnreachable`, rode de novo.
 - `docker compose down -v` apaga o banco local.
 
 ### Testes
