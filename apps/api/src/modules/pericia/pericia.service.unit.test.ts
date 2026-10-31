@@ -22,11 +22,11 @@ vi.mock('./prazo.repository.js', () => ({
 const pericia: PericiaRecord = {
   id: 'p1',
   numeroProcesso: '0001234-56.2026.5.02.0001',
-  justica: 'trabalhista',
-  papel: 'perito',
+  justica: 'labor',
+  papel: 'court_expert',
   tribunal: 'TRT2',
   objeto: 'Insalubridade',
-  status: 'nomeada',
+  status: 'appointed',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -104,7 +104,7 @@ describe('pericia.service', () => {
     const error = await createPericia(input).catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(CustomError);
-    expect(error).toMatchObject({ message: 'pericia_already_registered', status: 409 });
+    expect(error).toMatchObject({ message: 'expert_case_already_registered', status: 409 });
   });
 
   it('updatePericia emite honorarios_fixados só quando o valor fixado muda', async () => {
@@ -112,7 +112,7 @@ describe('pericia.service', () => {
     vi.mocked(periciaRepository.findById).mockResolvedValue({ ...pericia, honorariosFixadosCents: 100_000 });
     vi.mocked(periciaRepository.updatePericia).mockResolvedValue({ ...pericia, honorariosFixadosCents: 100_000 });
 
-    await updatePericia('t1', 'p1', { status: 'aceita' });
+    await updatePericia('t1', 'p1', { status: 'accepted' });
     expect(emit).not.toHaveBeenCalled();
 
     vi.mocked(periciaRepository.updatePericia).mockResolvedValue({ ...pericia, honorariosFixadosCents: 250_000 });
@@ -128,6 +128,6 @@ describe('pericia.service', () => {
   it('updatePericia de id inexistente (ou de outro tenant) é PericiaNotFoundError', async () => {
     vi.mocked(periciaRepository.findById).mockResolvedValue(null);
 
-    await expect(updatePericia('t1', 'nope', { status: 'aceita' })).rejects.toBeInstanceOf(PericiaNotFoundError);
+    await expect(updatePericia('t1', 'nope', { status: 'accepted' })).rejects.toBeInstanceOf(PericiaNotFoundError);
   });
 });

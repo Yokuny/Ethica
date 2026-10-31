@@ -30,7 +30,7 @@ export const listLancamentosQuerySchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     natureza: z.enum(LANCAMENTO_NATUREZAS).optional(),
-    situacao: z.enum([...LANCAMENTO_STATUS, 'atrasado']).optional(),
+    situacao: z.enum([...LANCAMENTO_STATUS, 'overdue']).optional(),
     periciaId: idSchema.optional(),
     from: calendarDateSchema.optional(),
     to: calendarDateSchema.optional(),

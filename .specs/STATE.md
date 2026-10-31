@@ -415,6 +415,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-10-31
 - **Status**: active
 
+### AD-113
+- **Decision**: Todo valor de domínio que o back-end grava e devolve é uma **chave em inglês**: status, tipos, categorias, naturezas, atuação, justiça, status de oportunidade, origem do compromisso, chaves dos indicadores (`ListStats.groups[].key`) e assuntos técnicos do Datajud (`packages/contracts/src/schemas/*.schema.ts`), além das chaves de mensagem da API (já em inglês). O `apps/web` traduz tudo com `t()` antes de mostrar, e **todas** as chaves do dicionário (`apps/web/src/lib/helpers/translate.helper.ts`) são inglês; o texto em pt-BR fica só nos valores do dicionário. Exceções: o nome do assunto no Datajud fica no client (`apps/api/src/providers/datajudClient.ts`), porque a API do CNJ indexa em português; o e-mail de prazos e o feed iCal são montados no servidor para clientes externos e seguem em português. Nomes de campos, coleções e rotas continuam como estão. Sem migração: o seed foi refeito, como na AD-112.
+- **Reason**: pedido do usuário em 2026-10-31 ("tudo em inglês no back-end, retorna em inglês e é traduzido antes da apresentação"). Valor em português usado como chave de tradução misturava dado e texto de tela.
+- **Trade-off**: um banco local antigo precisa ser recriado com o seed; quem consulta o Mongo direto vê inglês. Chaves iguais de domínios diferentes (`canceled` no compromisso e no lançamento) compartilham o texto traduzido.
+- **Scope**: `packages/contracts/src/schemas/`, `packages/db/src/models/compromisso.model.ts`, `apps/api` (repositories, services, seed, testes), `apps/web` (labels, `translate.helper.ts`), `apps/api/src/providers/datajudClient.ts`.
+- **Date**: 2026-10-31
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `prazos-recebimentos` — concluída (AD-109 a AD-112, `validation.md` PASS). Pendente só UAT visual e a trava por dia do aviso diário quando houver mais de uma réplica da API (`docs/features/prazos-recebimentos/feature.md`).

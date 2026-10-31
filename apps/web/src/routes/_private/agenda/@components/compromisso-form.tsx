@@ -66,8 +66,8 @@ export function CompromissoForm({ compromisso, date, periciaId, onClose }: Compr
                     key="pericia"
                     control={control}
                     name="periciaId"
-                    label={t('pericia')}
-                    placeholder={t('no_linked_pericia')}
+                    label={t('expert_case')}
+                    placeholder={t('no_linked_expert_case')}
                     items={periciaItems}
                   />,
                   <TextField

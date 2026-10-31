@@ -4,7 +4,7 @@ import type { HomeSection } from '../@interface/home.interface.js';
 export const HOME_SECTIONS = [
   {
     to: '/pericias',
-    titleKey: 'pericias',
+    titleKey: 'expert_cases',
     descriptionKey: 'track_each_pericia_from_appointment_to_report',
     icon: Gavel,
     access: 'everyone',
@@ -18,14 +18,14 @@ export const HOME_SECTIONS = [
   },
   {
     to: '/financeiro',
-    titleKey: 'financeiro',
+    titleKey: 'finance',
     descriptionKey: 'fees_receivable_and_operating_expenses',
     icon: Wallet,
     access: 'finance',
   },
   {
     to: '/prospeccao',
-    titleKey: 'prospeccao',
+    titleKey: 'prospecting',
     descriptionKey: 'find_possible_appointments_in_datajud',
     icon: Radar,
     access: 'everyone',

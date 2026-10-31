@@ -44,13 +44,23 @@ export function PericiaFormFields({
                 placeholder={t('select')}
                 items={PAPEL_ITEMS}
               />
-              <TextField control={control} name="vara" label={t('vara')} placeholder={t('example_vara')} />
-              <TextField control={control} name="comarca" label={t('comarca')} placeholder={t('example_comarca')} />
+              <TextField
+                control={control}
+                name="vara"
+                label={t('court_division')}
+                placeholder={t('example_court_division')}
+              />
+              <TextField
+                control={control}
+                name="comarca"
+                label={t('judicial_district')}
+                placeholder={t('example_judicial_district')}
+              />
             </div>,
           ],
         },
         {
-          title: t('pericia'),
+          title: t('expert_case'),
           description: t('object_parties_and_deadlines'),
           fields: [
             <TextField

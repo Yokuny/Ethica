@@ -11,10 +11,10 @@ const DIAS_PASSADOS = 60;
 const DIAS_FUTUROS = 365;
 
 const TIPO_LABEL: Record<CompromissoRecord['tipo'], string> = {
-  vistoria: 'Vistoria',
-  audiencia: 'Audiência',
-  reuniao: 'Reunião',
-  outro: 'Outro',
+  inspection: 'Vistoria',
+  hearing: 'Audiência',
+  meeting: 'Reunião',
+  other: 'Outro',
 };
 
 // RFC 5545 §3.3.11: texto escapa `\`, `;`, `,` e quebra de linha.
@@ -83,7 +83,7 @@ export const montarIcs = ({ compromissos, prazos, resumos, now }: FeedEntrada): 
         `SUMMARY:${escapeText(item.titulo)}`,
         `DESCRIPTION:${escapeText(descricao(TIPO_LABEL[item.tipo], item.titulo, resumo, item.observacoes))}`,
         ...(item.local ? [`LOCATION:${escapeText(item.local)}`] : []),
-        `STATUS:${item.status === 'concluido' ? 'CONFIRMED' : 'TENTATIVE'}`,
+        `STATUS:${item.status === 'done' ? 'CONFIRMED' : 'TENTATIVE'}`,
         'END:VEVENT',
       ];
     }),
@@ -126,7 +126,7 @@ export const gerarFeed = async (token: string, now: Date = new Date()): Promise<
     }),
     prazoService.listPrazosPendentes(tenantId),
   ]);
-  const ativos = compromissos.filter((item) => item.status !== 'cancelado');
+  const ativos = compromissos.filter((item) => item.status !== 'canceled');
   const ids = [
     ...new Set([
       ...ativos.flatMap((item) => (item.periciaId ? [item.periciaId] : [])),

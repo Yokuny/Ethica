@@ -35,32 +35,32 @@ const at = (offset: number, time: string) => wallClockToUtc(day(offset), time);
 const PERICIAS = [
   {
     numero: '0001234-56.2026.5.02.0001',
-    justica: 'trabalhista',
+    justica: 'labor',
     tribunal: 'TRT2',
     vara: '1ª Vara do Trabalho de São Paulo',
     objeto: 'Insalubridade por ruído',
-    status: 'vistoria',
+    status: 'inspection',
     prazo: 12,
     propostos: 450_000,
   },
   {
     numero: '0002345-67.2026.5.02.0011',
-    justica: 'trabalhista',
+    justica: 'labor',
     tribunal: 'TRT2',
     vara: '11ª Vara do Trabalho de São Paulo',
     objeto: 'Periculosidade — inflamáveis',
-    status: 'em_laudo',
+    status: 'drafting_report',
     prazo: 3,
     propostos: 380_000,
     fixados: 350_000,
   },
   {
     numero: '0003456-78.2025.8.26.0100',
-    justica: 'civel',
+    justica: 'civil',
     tribunal: 'TJSP',
     vara: '5ª Vara Cível do Foro Central',
     objeto: 'Vícios construtivos em edifício',
-    status: 'nomeada',
+    status: 'appointed',
     prazo: 30,
     propostos: 900_000,
   },
@@ -70,29 +70,29 @@ const PERICIAS = [
     tribunal: 'TRF3',
     vara: '2ª Vara Federal Previdenciária',
     objeto: 'Aposentadoria especial — agentes químicos',
-    status: 'laudo_entregue',
+    status: 'report_delivered',
     prazo: -5,
     propostos: 320_000,
     fixados: 300_000,
   },
   {
     numero: '0005678-90.2025.5.15.0032',
-    justica: 'trabalhista',
+    justica: 'labor',
     tribunal: 'TRT15',
     vara: 'Vara do Trabalho de Campinas',
     objeto: 'Doença ocupacional — LER/DORT',
-    status: 'esclarecimentos',
+    status: 'clarifications',
     prazo: -2,
     propostos: 400_000,
     fixados: 400_000,
   },
   {
     numero: '0006789-01.2024.8.26.0224',
-    justica: 'civel',
+    justica: 'civil',
     tribunal: 'TJSP',
     vara: '3ª Vara Cível de Guarulhos',
     objeto: 'Avaliação de imóvel',
-    status: 'concluida',
+    status: 'completed',
     propostos: 250_000,
     fixados: 250_000,
   },
@@ -133,7 +133,7 @@ const run = async (): Promise<void> => {
       Tenant: tenant._id,
       numeroProcesso: p.numero,
       justica: p.justica,
-      papel: index === 2 ? 'assistente_tecnico' : 'perito',
+      papel: index === 2 ? 'technical_assistant' : 'court_expert',
       tribunal: p.tribunal,
       vara: p.vara,
       comarca: p.tribunal === 'TRT15' ? 'Campinas' : 'São Paulo',
@@ -154,14 +154,14 @@ const run = async (): Promise<void> => {
     ...PERICIAS.flatMap((p, index) => {
       const pericia = pericias[index];
       if (!('prazo' in p) || !pericia) return [];
-      const entregue = ['laudo_entregue', 'concluida'].includes(p.status);
+      const entregue = ['report_delivered', 'completed'].includes(p.status);
       return [
         {
           Tenant: tenant._id,
           Pericia: pericia._id,
           titulo: 'Entrega do laudo',
           vencimento: day(p.prazo),
-          status: entregue ? ('protocolado' as const) : ('pendente' as const),
+          status: entregue ? ('filed' as const) : ('pending' as const),
           protocoladoEm: entregue ? day(p.prazo - 1) : undefined,
         },
       ];
@@ -171,13 +171,13 @@ const run = async (): Promise<void> => {
       Pericia: esclarecimentos?._id,
       titulo: 'Resposta à impugnação',
       vencimento: day(10),
-      status: 'pendente' as const,
+      status: 'pending' as const,
     },
   ]);
 
   const compromissos: Partial<CompromissoDocument>[] = [
     {
-      tipo: 'vistoria',
+      tipo: 'inspection',
       titulo: 'Vistoria na linha de prensas',
       inicio: at(1, '09:00'),
       fim: at(1, '11:00'),
@@ -185,7 +185,7 @@ const run = async (): Promise<void> => {
       Pericia: vistoria?._id,
     },
     {
-      tipo: 'audiencia',
+      tipo: 'hearing',
       titulo: 'Audiência de esclarecimentos',
       inicio: at(4, '14:00'),
       fim: at(4, '15:00'),
@@ -193,14 +193,14 @@ const run = async (): Promise<void> => {
       Pericia: esclarecimentos?._id,
     },
     {
-      tipo: 'reuniao',
+      tipo: 'meeting',
       titulo: 'Reunião com assistente técnico',
       inicio: at(6, '10:00'),
       fim: at(6, '11:00'),
       Pericia: civel?._id,
     },
     {
-      tipo: 'vistoria',
+      tipo: 'inspection',
       titulo: 'Vistoria no edifício',
       inicio: at(9, '08:30'),
       fim: at(9, '12:00'),
@@ -208,12 +208,12 @@ const run = async (): Promise<void> => {
       Pericia: civel?._id,
     },
     {
-      tipo: 'vistoria',
+      tipo: 'inspection',
       titulo: 'Vistoria no posto de combustível',
       inicio: at(-6, '09:00'),
       fim: at(-6, '10:30'),
       Pericia: laudo?._id,
-      status: 'concluido',
+      status: 'done',
     },
   ];
   await Compromisso.insertMany(compromissos.map((compromisso) => ({ ...compromisso, Tenant: tenant._id })));
@@ -224,70 +224,70 @@ const run = async (): Promise<void> => {
     const offset = -month * 30;
     lancamentos.push(
       {
-        natureza: 'receita',
-        categoria: 'honorarios_previos',
+        natureza: 'income',
+        categoria: 'advance_fees',
         descricao: 'Honorários prévios',
         valorCents: 150_000 + month * 20_000,
         vencimento: day(offset - 10),
-        status: 'liquidado',
+        status: 'settled',
         parcelas: [{ valorCents: 150_000 + month * 20_000, data: day(offset - 8) } as ParcelaDocument],
       },
       {
-        natureza: 'despesa',
-        categoria: 'deslocamento',
+        natureza: 'expense',
+        categoria: 'travel',
         descricao: 'Deslocamento para vistoria',
         valorCents: 18_000 + month * 1_500,
         vencimento: day(offset - 5),
-        status: 'liquidado',
+        status: 'settled',
         liquidadoEm: day(offset - 5),
       },
     );
   }
   lancamentos.push(
     {
-      natureza: 'receita',
-      categoria: 'honorarios_fixados',
+      natureza: 'income',
+      categoria: 'fixed_fees',
       descricao: `Honorários fixados — ${laudo?.numeroProcesso}`,
       valorCents: 350_000,
       vencimento: day(20),
-      status: 'previsto',
+      status: 'expected',
       Pericia: laudo?._id,
     },
     {
-      natureza: 'receita',
-      categoria: 'honorarios_fixados',
+      natureza: 'income',
+      categoria: 'fixed_fees',
       descricao: `Honorários fixados — ${federal?.numeroProcesso}`,
       valorCents: 300_000,
       vencimento: day(-12),
-      status: 'previsto',
+      status: 'expected',
       Pericia: federal?._id,
     },
     {
-      natureza: 'receita',
-      categoria: 'honorarios_fixados',
+      natureza: 'income',
+      categoria: 'fixed_fees',
       descricao: `Honorários fixados — ${esclarecimentos?.numeroProcesso}`,
       valorCents: 480_000,
       vencimento: day(-20),
       // Recebimento parcial (AD-111): alvará de R$ 1.500,00, saldo de R$ 3.300,00.
-      status: 'parcial',
+      status: 'partial',
       parcelas: [{ valorCents: 150_000, data: day(-18), conta: 'Banco do Brasil' } as ParcelaDocument],
       Pericia: esclarecimentos?._id,
     },
     {
-      natureza: 'despesa',
-      categoria: 'material',
+      natureza: 'expense',
+      categoria: 'supplies',
       descricao: 'Decibelímetro — calibração',
       valorCents: 45_000,
       vencimento: day(7),
-      status: 'previsto',
+      status: 'expected',
     },
     {
-      natureza: 'despesa',
-      categoria: 'taxas',
+      natureza: 'expense',
+      categoria: 'fees_and_taxes',
       descricao: 'Anuidade do conselho',
       valorCents: 62_000,
       vencimento: day(15),
-      status: 'previsto',
+      status: 'expected',
     },
   );
   await Lancamento.insertMany(lancamentos.map((lancamento) => ({ ...lancamento, Tenant: tenant._id })));
@@ -301,7 +301,7 @@ const run = async (): Promise<void> => {
       assuntos: ['Adicional de Insalubridade'],
       orgaoJulgador: '45ª Vara do Trabalho de São Paulo',
       ultimoMovimento: 'Determinada a realização de perícia',
-      status: 'nova',
+      status: 'new',
     },
     {
       Tenant: tenant._id,
@@ -311,7 +311,7 @@ const run = async (): Promise<void> => {
       assuntos: ['Doença Ocupacional'],
       orgaoJulgador: '1ª Vara do Trabalho de Campinas',
       ultimoMovimento: 'Nomeado perito',
-      status: 'em_analise',
+      status: 'under_review',
     },
   ]);
 

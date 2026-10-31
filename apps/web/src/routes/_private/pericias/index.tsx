@@ -41,7 +41,7 @@ export function PericiasIndexPage() {
 
   return (
     <Card asPage>
-      <CardHeader title={t('pericias')} description={t('track_each_pericia_from_appointment_to_report')}>
+      <CardHeader title={t('expert_cases')} description={t('track_each_expert_case_from_appointment_to_report')}>
         <CardAction>
           <Button nativeButton={false} role="link" render={<Link to="/pericias/add">{t('add')}</Link>} />
         </CardAction>
@@ -66,7 +66,7 @@ export function PericiasIndexPage() {
                 action={<Button onClick={clearFilters}>{t('clear_filters')}</Button>}
               />
             ) : (
-              <DefaultEmptyData title={t('no_pericias_yet')} description={t('use_add_to_create_first')} />
+              <DefaultEmptyData title={t('no_expert_cases_yet')} description={t('use_add_to_create_first')} />
             )
           ) : (
             <PericiasTable
@@ -86,6 +86,6 @@ export function PericiasIndexPage() {
 
 export const Route = createFileRoute('/_private/pericias/')({
   component: PericiasIndexPage,
-  staticData: { title: t('pericias') },
+  staticData: { title: t('expert_cases') },
   validateSearch: (search: Record<string, unknown>): PericiasSearch => periciasSearchSchema.parse(search),
 });

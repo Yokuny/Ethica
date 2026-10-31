@@ -4,6 +4,7 @@ import { AppLink } from '@/components/app-link.js';
 import { COMPROMISSO_TIPO_VARIANT } from '@/components/compromisso-labels.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { FormDialog } from '@/components/form-dialog.js';
+import { PericiaRecebimentos } from '@/components/pericia-recebimentos.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -18,14 +19,14 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
     compromisso,
     onClose,
   );
-  const agendado = compromisso.status === 'agendado';
+  const agendado = compromisso.status === 'scheduled';
 
   return (
     <FormDialog title={compromisso.titulo} onClose={onClose}>
       <div className="flex flex-wrap gap-2">
         <Badge variant={COMPROMISSO_TIPO_VARIANT[compromisso.tipo]}>{t(compromisso.tipo)}</Badge>
         <Badge variant="secondary">{t(compromisso.status)}</Badge>
-        {compromisso.origem === 'automatico' && <Badge variant="outline">{t('created_automatically')}</Badge>}
+        {compromisso.origem === 'automatic' && <Badge variant="outline">{t('created_automatically')}</Badge>}
       </div>
       <ProductSpecs
         groups={[
@@ -37,7 +38,7 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
               { label: t('ends_at'), value: formatDateTime(compromisso.fim) },
               { label: t('location'), value: compromisso.local || '-' },
               {
-                label: t('pericia'),
+                label: t('expert_case'),
                 value:
                   compromisso.periciaId && compromisso.periciaNumero ? (
                     <AppLink to="/pericias/details" search={{ id: compromisso.periciaId }}>
@@ -52,13 +53,14 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
           },
         ]}
       />
+      {compromisso.periciaId && <PericiaRecebimentos periciaId={compromisso.periciaId} />}
       <div className="flex flex-wrap justify-between gap-2">
         <Button variant="destructive" disabled={isPending} onClick={askDelete}>
           {t('remove')}
         </Button>
         <div className="flex flex-wrap gap-2">
           {agendado && (
-            <Button variant="outline" disabled={isPending} onClick={() => setStatus('cancelado')}>
+            <Button variant="outline" disabled={isPending} onClick={() => setStatus('canceled')}>
               {t('cancel_commitment')}
             </Button>
           )}
@@ -66,7 +68,7 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
             {t('edit')}
           </Button>
           {agendado && (
-            <Button disabled={isPending} onClick={() => setStatus('concluido')}>
+            <Button disabled={isPending} onClick={() => setStatus('done')}>
               {t('mark_as_done')}
             </Button>
           )}

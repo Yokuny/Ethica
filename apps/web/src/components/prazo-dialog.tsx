@@ -2,7 +2,7 @@ import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
@@ -22,11 +22,13 @@ type PrazoDialogProps = {
   onClose: () => void;
   // Só o detalhe da perícia edita título/vencimento; a agenda abre a perícia.
   onEdit?: () => void;
+  // Bloco extra abaixo da leitura (a agenda mostra os recebimentos da perícia).
+  children?: ReactNode;
 };
 
 // Leitura do prazo com as ações do dia a dia (AD-109): protocolar com a data de
 // entrega, marcar perdido, reabrir e remover. Usado pela perícia e pela agenda.
-export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
+export function PrazoDialog({ prazo, onClose, onEdit, children }: PrazoDialogProps) {
   const queryClient = useQueryClient();
   const updateMutation = useMutation(updatePrazoMutation(queryClient));
   const deleteMutation = useMutation(deletePrazoMutation(queryClient));
@@ -60,7 +62,7 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
               { label: t('due_date'), value: day(prazo.vencimento) },
               { label: t('filed_on'), value: day(prazo.protocoladoEm) },
               {
-                label: t('pericia'),
+                label: t('expert_case'),
                 value: prazo.periciaNumero ? (
                   <AppLink to="/pericias/details" search={{ id: prazo.periciaId }}>
                     {prazo.periciaNumero}
@@ -74,7 +76,8 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
           },
         ]}
       />
-      {prazo.status === 'pendente' && (
+      {children}
+      {prazo.status === 'pending' && (
         <div className="grid gap-2">
           <ItemDescription className="line-clamp-none">{t('filing_date')}</ItemDescription>
           <div className="flex flex-wrap gap-2">
@@ -88,7 +91,7 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
             <Button
               size="field"
               disabled={isPending || !protocoladoEm}
-              onClick={() => setStatus({ status: 'protocolado', protocoladoEm })}
+              onClick={() => setStatus({ status: 'filed', protocoladoEm })}
             >
               {t('register_filing')}
             </Button>
@@ -100,12 +103,12 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
           {t('remove')}
         </Button>
         <div className="flex flex-wrap gap-2">
-          {prazo.status === 'pendente' ? (
-            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'perdido' })}>
+          {prazo.status === 'pending' ? (
+            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'missed' })}>
               {t('mark_as_missed')}
             </Button>
           ) : (
-            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'pendente' })}>
+            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'pending' })}>
               {t('reopen')}
             </Button>
           )}

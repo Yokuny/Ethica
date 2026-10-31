@@ -25,8 +25,8 @@ export function useLancamentoForm({ lancamento, onDone }: { lancamento?: Lancame
           periciaId: lancamento.periciaId,
         }
       : {
-          natureza: 'receita',
-          categoria: 'honorarios_previos',
+          natureza: 'income',
+          categoria: 'advance_fees',
           descricao: '',
           valorCents: 0,
           vencimento: formatDisplayDate(new Date()),

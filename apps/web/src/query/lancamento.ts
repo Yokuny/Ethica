@@ -31,7 +31,7 @@ export type LancamentoRecord = {
 
 export type ParcelaRecord = { id: string; valorCents: number; data: string; conta?: string };
 
-export type LancamentoSituacao = LancamentoStatus | 'atrasado';
+export type LancamentoSituacao = LancamentoStatus | 'overdue';
 
 export type LancamentosQueryParams = {
   page?: number;

@@ -40,7 +40,7 @@ export function useCompromissoForm({
     defaultValues: compromisso
       ? toValues(compromisso)
       : {
-          tipo: 'vistoria',
+          tipo: 'inspection',
           titulo: '',
           date: date ?? formatDisplayDate(new Date()),
           time: '09:00',

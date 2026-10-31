@@ -23,7 +23,7 @@ export function PericiaDetailsView({ pericia }: { pericia: PericiaRecord }) {
           title={pericia.numeroProcesso}
           description={pericia.objeto}
         />
-        <RecordStatus variant={variant} label={t(pericia.status)} pulse={pericia.status !== 'concluida'} />
+        <RecordStatus variant={variant} label={t(pericia.status)} pulse={pericia.status !== 'completed'} />
       </RecordHeader>
       <RecordStats>
         <RecordStat label={t('appointment_date')} value={day(pericia.dataNomeacao)} />
@@ -39,8 +39,8 @@ export function PericiaDetailsView({ pericia }: { pericia: PericiaRecord }) {
             specs: [
               { label: t('court_type'), value: justicaLabel(pericia.justica) },
               { label: t('tribunal'), value: pericia.tribunal },
-              { label: t('vara'), value: pericia.vara || '-' },
-              { label: t('comarca'), value: pericia.comarca || '-' },
+              { label: t('court_division'), value: pericia.vara || '-' },
+              { label: t('judicial_district'), value: pericia.comarca || '-' },
             ],
           },
           {

@@ -5,7 +5,7 @@ descricao: Vários prazos por perícia com protocolo, recebimento parcial de hon
 data: 2026-10-31
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112]
+decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112, AD-113]
 spec: [.specs/features/prazos-recebimentos]
 branches: [feat/prazos-recebimentos]
 ---
@@ -23,6 +23,7 @@ branches: [feat/prazos-recebimentos]
 - A listagem de perícias mostra o próximo prazo pendente com os selos "Vencido" e "Vence em breve" (até 15 dias); a faixa de indicadores e o início contam prazos vencidos e que vencem em até 15 dias.
 - A agenda mostra os prazos pendentes no calendário (dia inteiro) e abre o prazo para protocolar.
 - Honorários recebem parcelas (valor, data, conta) com saldo, status parcial e estorno; honorário não é excluído nem cancelado, e o fluxo de caixa conta o recebido pela data de cada parcela.
+- Ao abrir um compromisso ou prazo na agenda, admin e manager veem os recebimentos da perícia (honorários, recebido, saldo e parcelas).
 - Cada pessoa gera na conta um link secreto do feed iCal (compromissos e prazos) para assinar no Google, Outlook ou Apple, e liga ou desliga o e-mail diário de prazos (07:00, prazos que vencem em 15 dias, hoje e os vencidos ontem).
 
 ## Por que
@@ -50,6 +51,7 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 - `apps/web/src/routes/_private/agenda/@components/{calendar-event,month-view,time-grid-view}.tsx` — prazos no calendário.
 - `apps/web/src/routes/_private/financeiro/lancamentos/@components/{recebimento-form,parcelas-list}.tsx` — registrar e estornar recebimentos.
 - `apps/web/src/routes/_private/account/@components/{account-aviso-prazo,account-calendar-feed}.tsx` — seções da conta.
+- `apps/web/src/components/pericia-recebimentos.tsx` — recebimentos da perícia nos diálogos da agenda; `canSeeFinance` em `apps/web/src/query/session.ts`.
 - `apps/web/src/query/prazo.ts` — dados de prazo.
 
 ### `packages/contracts`
@@ -72,12 +74,14 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Pendências
 
-- [ ] UAT visual das telas e assinatura real do feed num Google Agenda (ver `validation.md`).
+- [x] UAT visual das telas com os três logins do `ACC.md` (perícias, detalhe, agenda, financeiro, conta; operador sem financeiro).
+- [ ] Assinatura real do feed num Google Agenda e envio por SMTP real.
 - [ ] Aviso diário roda num timer em memória: com mais de uma réplica da API, mandaria e-mail duplicado; API fora do ar às 07:00 perde o dia. Precisará de trava por dia no banco quando escalar.
 - [ ] Juízo reduzir o honorário fixado abaixo do já recebido só aparece no log (`domain_event.handler_failed`).
 
 ## Histórico
 
+- 2026-10-31 — Valores de domínio em inglês no back-end e chaves de tradução em inglês (AD-113); recebimentos da perícia no detalhe do evento da agenda; UAT visual feita.
 - 2026-10-31 — Implementado (AD-109 a AD-112). Divergências do design: chaves de erro em inglês no padrão do contrato; T1+T2 e T5+T6 em um commit cada; PRZ-04.3 (liga/desliga no tenant) trocado por preferência por usuário (AD-110).
 - 2026-10-31 — Spec criada (`.specs/features/prazos-recebimentos/spec.md`).
 

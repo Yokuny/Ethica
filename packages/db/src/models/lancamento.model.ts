@@ -41,7 +41,7 @@ const lancamentoSchema = new Schema<LancamentoDocument>(
     descricao: { type: String, required: true, trim: true },
     valorCents: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
     vencimento: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
-    status: { type: String, enum: LANCAMENTO_STATUS, default: 'previsto', required: true },
+    status: { type: String, enum: LANCAMENTO_STATUS, default: 'expected', required: true },
     liquidadoEm: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     parcelas: {
       type: [
@@ -60,7 +60,7 @@ const lancamentoSchema = new Schema<LancamentoDocument>(
 
 lancamentoSchema.pre('validate', function () {
   // Receita liquida pelas parcelas; só despesa guarda a data de liquidação.
-  if (this.natureza === 'despesa' && this.status === 'liquidado' && !this.liquidadoEm) {
+  if (this.natureza === 'expense' && this.status === 'settled' && !this.liquidadoEm) {
     this.invalidate('liquidadoEm', 'lançamento liquidado precisa da data de liquidação');
   }
 });

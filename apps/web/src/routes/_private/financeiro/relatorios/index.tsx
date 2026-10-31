@@ -20,8 +20,8 @@ export function RelatoriosPage() {
   const search = useSearch({ strict: false }) as RelatoriosSearch;
   const navigate = useNavigate({ from: '/financeiro/relatorios/' });
   const fluxo = useQuery(fluxoMensalQuery(Number(search.meses)));
-  const receitas = useQuery(categoriasQuery('receita'));
-  const despesas = useQuery(categoriasQuery('despesa'));
+  const receitas = useQuery(categoriasQuery('income'));
+  const despesas = useQuery(categoriasQuery('expense'));
 
   return (
     <Card asPage>
@@ -53,7 +53,7 @@ export function RelatoriosPage() {
             ) : !receitas.data?.length ? (
               <DefaultEmptyData title={t('no_entries_yet')} />
             ) : (
-              <CategoriasChart natureza="receita" data={receitas.data} />
+              <CategoriasChart natureza="income" data={receitas.data} />
             )}
           </Panel>
           <Panel size="sm" title={t('expenses_by_category')}>
@@ -62,7 +62,7 @@ export function RelatoriosPage() {
             ) : !despesas.data?.length ? (
               <DefaultEmptyData title={t('no_entries_yet')} />
             ) : (
-              <CategoriasChart natureza="despesa" data={despesas.data} />
+              <CategoriasChart natureza="expense" data={despesas.data} />
             )}
           </Panel>
         </div>

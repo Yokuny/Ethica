@@ -35,7 +35,7 @@ export function useOportunidadesPage() {
     handlePaginationChange,
     converting,
     setConverting,
-    setStatus: (oportunidade: OportunidadeRecord, status: 'nova' | 'em_analise' | 'descartada') =>
+    setStatus: (oportunidade: OportunidadeRecord, status: 'new' | 'under_review' | 'discarded') =>
       update.mutate({ id: oportunidade.id, data: { status } }, { onError }),
     remove: (oportunidade: OportunidadeRecord) => remove.mutate({ id: oportunidade.id }, { onError }),
     openPericia: (oportunidade: OportunidadeRecord) =>

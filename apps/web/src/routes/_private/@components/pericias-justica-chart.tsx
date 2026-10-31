@@ -11,9 +11,9 @@ import { Cell, Pie, PieChart } from 'recharts';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 const config = {
-  trabalhista: { label: t('justica_trabalhista'), color: 'var(--chart-1)' },
-  civel: { label: t('justica_civel'), color: 'var(--chart-3)' },
-  federal: { label: t('justica_federal'), color: 'var(--chart-5)' },
+  labor: { label: t('labor_court'), color: 'var(--chart-1)' },
+  civil: { label: t('civil_court'), color: 'var(--chart-3)' },
+  federal: { label: t('federal_court'), color: 'var(--chart-5)' },
 } satisfies ChartConfig;
 
 // Distribuição das perícias por justiça (trabalhista, cível, federal).

@@ -1,4 +1,4 @@
-import type { DatajudSearch, DatajudTribunal } from '@ethica/contracts';
+import type { DatajudAssuntoTecnico, DatajudSearch, DatajudTribunal } from '@ethica/contracts';
 
 // API Pública do Datajud (CNJ): um índice Elasticsearch por tribunal em
 // `${baseUrl}/api_publica_<tribunal>/_search`, autenticado por
@@ -49,6 +49,13 @@ export const formatNumeroCnj = (digits: string): string => {
   return `${d.slice(0, 7)}-${d.slice(7, 9)}.${d.slice(9, 13)}.${d.slice(13, 14)}.${d.slice(14, 16)}.${d.slice(16)}`;
 };
 
+// Nome do assunto processual como o Datajud o indexa (a API do Ethica fala as chaves em inglês, AD-113).
+const ASSUNTO_NO_DATAJUD: Record<DatajudAssuntoTecnico, string> = {
+  unhealthy_conditions: 'Insalubridade',
+  hazardous_conditions: 'Periculosidade',
+  work_accident: 'Acidente de trabalho',
+};
+
 export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown> => {
   const must: Record<string, unknown>[] = [];
   if (query.termo) {
@@ -58,7 +65,7 @@ export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown>
     must.push({
       bool: {
         should: query.assuntosTecnicos.map((assunto) => ({
-          match: { 'assuntos.nome': { query: assunto, operator: 'and' } },
+          match: { 'assuntos.nome': { query: ASSUNTO_NO_DATAJUD[assunto], operator: 'and' } },
         })),
         minimum_should_match: 1,
       },

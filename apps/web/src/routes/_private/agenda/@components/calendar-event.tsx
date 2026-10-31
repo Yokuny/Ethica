@@ -7,10 +7,10 @@ import type { PrazoRecord } from '@/query/prazo.js';
 
 // Cor por tipo de compromisso; cancelado esmaece e concluído fica esmaecido.
 const tipoClasses: Record<CompromissoRecord['tipo'], string> = {
-  vistoria: 'border-violet-500/30 bg-violet-50 text-violet-900',
-  audiencia: 'border-sky-500/30 bg-sky-50 text-sky-900',
-  reuniao: 'border-cyan-500/30 bg-cyan-50 text-cyan-900',
-  outro: 'bg-background',
+  inspection: 'border-violet-500/30 bg-violet-50 text-violet-900',
+  hearing: 'border-sky-500/30 bg-sky-50 text-sky-900',
+  meeting: 'border-cyan-500/30 bg-cyan-50 text-cyan-900',
+  other: 'bg-background',
 };
 
 export type CalendarEventChipProps = {
@@ -33,8 +33,8 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
         'rounded-sm border text-left text-xs',
         variant === 'compact' ? 'w-full truncate px-1.5 py-0.5' : 'overflow-hidden p-1.5',
         tipoClasses[item.tipo],
-        item.status === 'cancelado' && 'border-muted-foreground/30 bg-muted text-muted-foreground line-through',
-        item.status === 'concluido' && 'opacity-60',
+        item.status === 'canceled' && 'border-muted-foreground/30 bg-muted text-muted-foreground line-through',
+        item.status === 'done' && 'opacity-60',
         className,
       )}
     >

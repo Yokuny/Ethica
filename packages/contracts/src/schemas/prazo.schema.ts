@@ -3,7 +3,7 @@ import { calendarDateSchema } from './date.schema.js';
 
 // Prazo processual da perícia (AD-109). `protocolado` é o prazo cumprido, com a
 // data em que foi entregue; `perdido` fica no histórico sem contar como pendente.
-export const PRAZO_STATUS = ['pendente', 'protocolado', 'perdido'] as const;
+export const PRAZO_STATUS = ['pending', 'filed', 'missed'] as const;
 export type PrazoStatus = (typeof PRAZO_STATUS)[number];
 
 // "Vence em breve" (definido pelo usuário em 2026-10-31).

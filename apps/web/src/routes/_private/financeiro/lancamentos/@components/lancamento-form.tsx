@@ -71,15 +71,15 @@ export function LancamentoForm({ lancamento, onClose }: { lancamento?: Lancament
                     key="pericia"
                     control={control}
                     name="periciaId"
-                    label={t('pericia')}
-                    placeholder={t('no_linked_pericia')}
+                    label={t('expert_case')}
+                    placeholder={t('no_linked_expert_case')}
                     items={periciaItems}
                   />,
                 ],
               },
             ]}
           />
-          {lancamento?.natureza === 'receita' && <ParcelasList lancamento={lancamento} onChanged={onClose} />}
+          {lancamento?.natureza === 'income' && <ParcelasList lancamento={lancamento} onChanged={onClose} />}
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">
               {errorMessage}

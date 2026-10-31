@@ -4,6 +4,6 @@ export const DEFAULT_VALUES: PericiaFormValues = {
   numeroProcesso: '',
   tribunal: '',
   objeto: '',
-  justica: 'trabalhista',
-  papel: 'perito',
+  justica: 'labor',
+  papel: 'court_expert',
 };

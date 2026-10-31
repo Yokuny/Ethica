@@ -19,7 +19,7 @@ export function PericiaAddPage() {
     <Card asPage>
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="contents">
-          <CardHeader title={t('new_pericia')}>
+          <CardHeader title={t('new_expert_case')}>
             <CardAction>{formActions}</CardAction>
           </CardHeader>
           <CardContent>
@@ -41,5 +41,5 @@ export function PericiaAddPage() {
 
 export const Route = createFileRoute('/_private/pericias/add/')({
   component: PericiaAddPage,
-  staticData: { title: t('new_pericia') },
+  staticData: { title: t('new_expert_case') },
 });

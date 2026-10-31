@@ -32,7 +32,7 @@ export const createPericia = async ({ prazoLaudo, ...input }: CreatePericiaInput
     }
     return pericia;
   } catch (e) {
-    if (isDuplicateKeyError(e)) throw new CustomError('pericia_already_registered', 409);
+    if (isDuplicateKeyError(e)) throw new CustomError('expert_case_already_registered', 409);
     throw e;
   }
 };

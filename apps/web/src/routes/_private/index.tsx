@@ -32,7 +32,7 @@ export function PrivateIndexPage() {
     <Card asPage>
       <CardHeader title={t('home')}>
         <CardAction>
-          <Button nativeButton={false} role="link" render={<Link to="/pericias/add">{t('new_pericia')}</Link>} />
+          <Button nativeButton={false} role="link" render={<Link to="/pericias/add">{t('new_expert_case')}</Link>} />
         </CardAction>
       </CardHeader>
       <HomeOverview stats={stats.data} resumo={canSeeFinance ? resumo.data : undefined} />
@@ -52,18 +52,18 @@ export function PrivateIndexPage() {
           </Panel>
         )}
         <div className="grid gap-10 lg:grid-cols-2">
-          <Panel size="sm" title={t('pericias_by_stage')}>
+          <Panel size="sm" title={t('expert_cases_by_stage')}>
             {distribution.isLoading ? (
               <DefaultLoading />
             ) : (
               <PericiasStatusChart groups={distribution.data?.status ?? []} />
             )}
           </Panel>
-          <Panel size="sm" title={t('pericias_by_court')}>
+          <Panel size="sm" title={t('expert_cases_by_court')}>
             {distribution.isLoading ? (
               <DefaultLoading />
             ) : !distribution.data?.justica.length ? (
-              <DefaultEmptyData title={t('no_pericias_yet')} />
+              <DefaultEmptyData title={t('no_expert_cases_yet')} />
             ) : (
               <PericiasJusticaChart groups={distribution.data.justica} />
             )}
