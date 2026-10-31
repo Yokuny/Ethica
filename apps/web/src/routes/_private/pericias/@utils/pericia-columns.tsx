@@ -47,7 +47,7 @@ export const periciaColumns: ColumnDef<PericiaListItem, unknown>[] = [
         <TableStack
           tone={alerta === 'deadline_overdue' ? 'error' : 'default'}
           description={alerta ? `${t(alerta)} · ${prazo.titulo}` : prazo.titulo}
-          descriptionTone={alerta ? 'error' : 'muted'}
+          descriptionTone={alerta === 'deadline_overdue' ? 'error' : 'muted'}
         >
           {formatDate(toDate(prazo.vencimento))}
         </TableStack>

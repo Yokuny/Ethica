@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { PericiaRecebimentos } from '@/components/pericia-recebimentos.js';
 import { PrazoDialog } from '@/components/prazo-dialog.js';
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -72,7 +73,11 @@ export function AgendaIndexPage() {
           onClose={closePanel}
         />
       )}
-      {panel?.kind === 'prazo' && <PrazoDialog prazo={panel.prazo} onClose={closePanel} />}
+      {panel?.kind === 'prazo' && (
+        <PrazoDialog prazo={panel.prazo} onClose={closePanel}>
+          <PericiaRecebimentos periciaId={panel.prazo.periciaId} />
+        </PrazoDialog>
+      )}
     </Card>
   );
 }

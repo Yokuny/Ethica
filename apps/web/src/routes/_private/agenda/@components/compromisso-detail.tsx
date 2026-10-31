@@ -4,6 +4,7 @@ import { AppLink } from '@/components/app-link.js';
 import { COMPROMISSO_TIPO_VARIANT } from '@/components/compromisso-labels.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { FormDialog } from '@/components/form-dialog.js';
+import { PericiaRecebimentos } from '@/components/pericia-recebimentos.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -52,6 +53,7 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
           },
         ]}
       />
+      {compromisso.periciaId && <PericiaRecebimentos periciaId={compromisso.periciaId} />}
       <div className="flex flex-wrap justify-between gap-2">
         <Button variant="destructive" disabled={isPending} onClick={askDelete}>
           {t('remove')}

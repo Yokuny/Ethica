@@ -8,7 +8,7 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { periciaQuery } from '@/query/pericia.js';
-import { isAdminSession, sessionQuery } from '@/query/session.js';
+import { canSeeFinance, isAdminSession, sessionQuery } from '@/query/session.js';
 import { PericiaDetailsView } from './@components/pericia-details-view.js';
 import { PericiaEditForm } from './@components/pericia-edit-form.js';
 import { PericiaPrazos } from './@components/pericia-prazos.js';
@@ -23,7 +23,6 @@ export function PericiaDetailsPage() {
   const pericia = query.data;
   const { handleDelete, isDeleting, isConfirmingDelete, askDelete, cancelDelete } = usePericiaActions(pericia);
   const [isEditing, setIsEditing] = useState(false);
-  const canSeeFinance = session.role.some((role) => role === 'admin' || role === 'manager');
   const editAction = (
     <Button variant="outline" onClick={() => setIsEditing(true)}>
       {t('edit')}
@@ -53,7 +52,7 @@ export function PericiaDetailsPage() {
         <CardContent className="gap-10">
           <PericiaDetailsView pericia={pericia} />
           <PericiaPrazos periciaId={pericia.id} />
-          <PericiaRelated periciaId={pericia.id} canSeeFinance={canSeeFinance} />
+          <PericiaRelated periciaId={pericia.id} canSeeFinance={canSeeFinance(session)} />
         </CardContent>
       )}
       {pericia && !isEditing && (

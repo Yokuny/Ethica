@@ -2,7 +2,7 @@ import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
@@ -22,11 +22,13 @@ type PrazoDialogProps = {
   onClose: () => void;
   // Só o detalhe da perícia edita título/vencimento; a agenda abre a perícia.
   onEdit?: () => void;
+  // Bloco extra abaixo da leitura (a agenda mostra os recebimentos da perícia).
+  children?: ReactNode;
 };
 
 // Leitura do prazo com as ações do dia a dia (AD-109): protocolar com a data de
 // entrega, marcar perdido, reabrir e remover. Usado pela perícia e pela agenda.
-export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
+export function PrazoDialog({ prazo, onClose, onEdit, children }: PrazoDialogProps) {
   const queryClient = useQueryClient();
   const updateMutation = useMutation(updatePrazoMutation(queryClient));
   const deleteMutation = useMutation(deletePrazoMutation(queryClient));
@@ -74,6 +76,7 @@ export function PrazoDialog({ prazo, onClose, onEdit }: PrazoDialogProps) {
           },
         ]}
       />
+      {children}
       {prazo.status === 'pending' && (
         <div className="grid gap-2">
           <ItemDescription className="line-clamp-none">{t('filing_date')}</ItemDescription>

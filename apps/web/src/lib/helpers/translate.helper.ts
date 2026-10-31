@@ -423,6 +423,7 @@ const translations: Record<string, string> = {
   account_or_note: 'Conta ou observação',
   balance_due: 'Saldo a receber',
   example_bank_account: 'Ex.: Banco do Brasil, ag. 0001',
+  no_fees_yet: 'Nenhum honorário lançado para esta perícia.',
   no_receipts_yet: 'Nenhum recebimento registrado.',
   receipts: 'Recebimentos',
   received_on: 'Recebido em',
