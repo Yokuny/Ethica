@@ -106,7 +106,8 @@
         "AD-109",
         "AD-110",
         "AD-111",
-        "AD-112"
+        "AD-112",
+        "AD-113"
       ],
       "spec": [
         ".specs/features/prazos-recebimentos"
@@ -454,6 +455,12 @@
     {
       "id": "AD-112",
       "decisao": "A troca de modelo da feature `prazos-recebimentos` (prazo do laudo vira `Prazo`, compromisso perde o tipo `prazo`, lançamento ganha parcelas",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-113",
+      "decisao": "Todo valor de domínio que o back-end grava e devolve é uma chave em inglês: status, tipos, categorias, naturezas, atuação, justiça, status d",
       "data": "2026-10-31",
       "status": "active"
     }

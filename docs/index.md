@@ -44,6 +44,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-113** (2026-10-31, active) — Todo valor de domínio que o back-end grava e devolve é uma chave em inglês: status, tipos, categorias, naturezas, atuação, justiça, status d
 - **AD-112** (2026-10-31, active) — A troca de modelo da feature `prazos-recebimentos` (prazo do laudo vira `Prazo`, compromisso perde o tipo `prazo`, lançamento ganha parcelas
 - **AD-111** (2026-10-31, active) — Honorário (lançamento de `natureza: receita`) não é excluído nem cancelado. Recebe parcelas (valor, data, conta/observação) gravadas dentro
 - **AD-110** (2026-10-31, active) — O aviso de prazo por e-mail é uma preferência por usuário: todo usuário com papel no tenant (qualquer papel) liga ou desliga o próprio aviso
@@ -53,7 +54,6 @@ _Nenhum._
 - **AD-106** (2026-10-29, active; a parte `pericia:created` ⇒ compromisso "Entrega do laudo" foi superseded pela AD-109, e o trade-off do segundo lançamento ao alterar o honorário fixado foi superseded pela AD-111) — Efeitos entre módulos do domínio por evento (AD-039): `pericia:created` com `prazoLaudo` ⇒ a `agenda` cria o compromisso automático "Entrega
 - **AD-105** (2026-10-29, active) — Prospecção usa a API Pública do Datajud (CNJ) chamada só pelo `apps/api` (`providers/datajudClient.ts`, injetado em `buildApp`), com a chave
 - **AD-104** (2026-10-29, active) — Gráficos com recharts 3 através do primitivo `chart` do `packages/ui` (`ChartContainer`, `ChartTooltip`, `ChartTooltipContent`, `ChartLegend
-- **AD-103** (2026-10-29, active) — Complementa a AD-036. Data de calendário (prazo do laudo, data da nomeação, vencimento e liquidação de lançamento) trafega e é gravada como
 
 ## `.specs/` sem registro em `docs/features/`
 
