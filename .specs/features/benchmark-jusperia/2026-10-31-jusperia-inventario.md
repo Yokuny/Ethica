@@ -167,5 +167,72 @@
 - **Enviar para celular**: QR code para `/Mobile/rota.php?data=<dia>` (rota no celular).
 - Evidência: T `mapa.php?data=2026-11-12`; JS inline (`calcularRotaOtimizada`, `atualizarInterfaceRota`, `renderizarCard`, `abrirModalMobile`).
 
-<!-- PRÓXIMAS SEÇÕES: financeiro, laudos, modelos, cadastros, equipe, configurações, diário de bordo, relatórios, app de campo, comunidade, clube -->
+## 5. Financeiro
+
+Separado por jornada: os lançamentos pertencem ao modo atual (PERITO/ASSISTENTE); o relatório pode consolidar os dois. Quem usa: perfil "Secretaria" é descrito como "lida com financeiro/agenda" (§ 9); restrição real por perfil: não confirmado.
+
+### 5.1 Dashboard financeiro — `financeiro.php`
+
+- Cards do mês: **Entradas**, **Saídas**, **Saldo do mês** (observado: 1.500,00 − 231,40 = 1.268,60).
+- Gráfico "Fluxo de caixa diário" (últimos 30 + próximos 30 dias).
+- Listas **A receber** e **A pagar** (atrasados + próximos 30 dias).
+- **Relatório** (modal → `GET financeiro_relatorio_pdf.php?contexto=PERITO|AMBOS&data_inicio&data_fim`, todos obrigatórios): PDF "Relatório de Fluxo de Caixa" com cabeçalho do escritório (nome e documento das Configurações), **saldo realizado** (entradas − saídas no período), **saldo previsto** (a receber − a pagar), tabelas de recebimentos realizados, despesas pagas, contas a receber e contas a pagar.
+
+### 5.2 Recebimentos (honorários) — `financeiro_recebimentos.php`
+
+- Cards gerais: **Honorários fixados**, **Recebido**, **Em atraso**; gráfico de recebimentos diários (±30 dias).
+- **Filtros**: nº controle, busca (nº processo ou descrição), status (`EM_ABERTO` "não pagos" / `PENDENTE` / `PARCIAL` / `PAGO`), vencimento de/até, "teve recebimento em" (mês).
+- **Colunas**: controle · vencimento · processo/descrição · valor total · já recebido · a receber · status · ações.
+- **Novo lançamento** (`POST financeiro_honorario_action.php`): processo* (obrigatório — não há recebimento avulso; pedido da comunidade), descrição*, valor total fixado*, vencimento previsto*.
+- **Dar baixa** (`POST financeiro_recebimento_action.php`): valor da parcela* (sugere o saldo), data em que caiu na conta*, conta de destino/observação. Parcela menor que o saldo ⇒ status **Parcial** (observado: 4.800 − 1.500 ⇒ saldo 3.300, "Parcial").
+- **Histórico e estornos**: lista de parcelas; estorno por parcela (`financeiro_recebimento_delete_action.php`).
+- **Editar** (`financeiro_honorario_edit_action.php`) e **Excluir lançamento completo** (`financeiro_honorario_delete_action.php?id=`).
+- **Exportar relatório** (`financeiro_exportar_pdf.php` + filtros atuais): PDF "Relatório analítico financeiro" agrupado por processo (valor, parcelas recebidas, saldo) e resumo geral.
+- O detalhe do processo mostra o "Resumo financeiro" (total, saldo, histórico de recebimentos) e a ficha do processo também.
+
+### 5.3 Despesas — `financeiro_despesas.php`
+
+- Cards: **A pagar**, **Em atraso**, **Já pago**; gráfico de despesas diárias.
+- **Filtros**: busca, status, **categoria**, vencimento de/até, "paga em (mês)".
+- **Categorias** (lista fixa): Serviços terceiros/parceiros · Combustível/deslocamento · Alimentação · Hospedagem · Software/sistemas · Impostos/taxas · Material de escritório · Outros.
+- **Nova despesa** (`POST financeiro_despesa_action.php`): processo (opcional; vazio = "custo geral do escritório"), descrição*, categoria*, valor*, vencimento*, **"já foi pago total hoje"** (registra o pagamento com a **data de hoje**, não a do vencimento — observado no relatório), observações. Status exibido "Quitado".
+- **Pagar** (parcial ou total, `financeiro_despesa_pagar_action.php`: valor desembolsado*, data*, conta de origem), **histórico e estorno** por pagamento (`financeiro_despesa_estorno_action.php`), editar, excluir.
+
+## 6. Relatórios (PDF gerados no servidor)
+
+| Relatório | Rota | Conteúdo observado |
+| --- | --- | --- |
+| Cronograma de prazos | `relatorio_prazos_pdf.php` | prazos **pendentes** de processos ativos: processo/vara, evento/objeto, prazo limite e alerta **"URGENTE: FALTAM N DIAS"** (5 dias) ou "FALTAM: N DIAS" (34 dias) |
+| Produtividade de campo | `relatorio_produtividade_pdf.php` | ano base: total de visitas, realizadas, canceladas/ausentes, evidências/fotos e média por evento, por mês, com gráfico |
+| Processos ociosos | `relatorio_ociosos_pdf.php` | processos ativos **sem movimentação há mais de 60 dias**: total e maior tempo de inatividade ("Excelente gestão!" quando zero) |
+| Fluxo de caixa | `financeiro_relatorio_pdf.php` | § 5.1 |
+| Analítico financeiro | `financeiro_exportar_pdf.php` | § 5.2 |
+| Ficha analítica do processo | `processo_exportar_ficha.php?id=` | dados, partes e advogados, resumo, prazos com status, agenda, resumo financeiro (fixado/recebido/saldo) |
+| Checklist de campo pré-perícia | `gerar_checklist_pdf.php?id=` | cabeçalho do processo; participantes com assinatura; mapeamento de riscos (ruído, calor/frio/umidade, químicos anexos 11–13, biológicos anexo 14, periculosidade) com Sim/Não e EPI; matriz de divergências (versão reclamante × reclamada × constatação); documentos solicitados; anotações |
+
+Todos os PDFs indicam o modo (PERITO/ASSISTENTE) e "Gerado em". Os três relatórios do menu não têm filtro de entrada (o que caracteriza "movimentação" no relatório de ociosos: não confirmado).
+
+## 7. Laudos — `Laudos/index.php`
+
+### 7.1 Lista
+
+- Filtros: nº controle e processo vinculado (Tom Select com busca). Colunas: documento · controle · processo · última atualização · status · ações (mudar status, abrir editor, excluir).
+- **Status**: `RASCUNHO` ↔ `CONCLUIDO`. Concluir pede confirmação e oferece **atualizar a fase do processo** junto (`POST alterar_status_laudo.php`: `id`, `status`, `atualizar_processo`, `nova_fase` → `{"sucesso":true}`); observado: fase do #0002 foi para "Laudo entregue – aguardar impugnação das Partes". Laudo concluído **não** abre no editor ("altere o status de volta para Rascunho"). Concluir o laudo **não** baixa o prazo "Entrega do Laudo".
+- Dashboard: "Laudos em rascunho" conta os rascunhos.
+
+### 7.2 Criação em 3 passos
+
+1. Modal "Laudos": processo* + modelo estrutural* (`[LAUDO] Padrão Jusperia - Laudo Completo` ou modelos próprios) → `POST preparar_laudo.php`.
+2. **"O que deve constar no laudo?"**: resumo do processo (autor, réu, vara/comarca, objeto, autuação, prazo) e a árvore de seções do modelo (88 itens no padrão) com **checkbox** e, por seção, **variante "Sim (positivo/existente)" / "Não (negativo/inexistente)"** que escolhe o texto-base; seções "apenas título" agrupam. → `POST iniciar_laudo.php` (`blocos_selecionados[]`, `opcao_bloco[n]`) → 302 `editor_laudo.php?laudo_id=&processo_id=`.
+   - Seções do padrão: capa; objeto; considerações preliminares; introdução (amparo legal, insalubridade NR-15, periculosidade NR-16, ergonomia NR-17, acidente/NR-1, PPP, hierarquia de controle); preliminares (dados do processo, ata, prova pericial, comunicação); vistorias (local e data, presentes, período/função/atividades); locais de trabalho; medidas de proteção; documentação de segurança; **avaliação de insalubridade por anexo da NR-15 (1 a 14)**; **periculosidade por anexo da NR-16 (1 a 6 + radiações)**; acidente de trabalho (8 subseções); ergonomia (AET); meio ambiente de trabalho; PPP (LTCAT/PGR); respostas aos quesitos (reclamante, 1ª e 2ª reclamada, juízo); conclusão; honorários; considerações finais; encerramento; anexos I–IV (agendamento, avaliações ambientais, certificados de calibração, referências).
+3. **Editor** (`editor_laudo.php`): TinyMCE por seção, numeração recalculada ao remover seção, por seção **"IA"** (`POST melhorar_texto.php`: `texto_original` ofuscado + `laudo_id` → `{sucesso, texto_melhorado}`; ~41 s; mostra comparação para aceitar), **"Inserir variável"**, **"Remover seção deste laudo"**.
+   - **Variáveis** (substituídas automaticamente nos blocos): `[OBJETO_PERICIA] [PERIODO_IMPRESCRITO] [NOME_AUTOR] [NOME_REU] [NUMERO_PROCESSO] [VARA] [COMARCA] [ESFERA] [DATA_AUTUACAO] [DATA_ADMISSAO] [DATA_DEMISSAO] [PERITO_NOME] [PERITO_DOCUMENTO] [PERITO_REGISTRO] [DATA_EXTENSO] [LOCAL_VISTORIA] [DATA_VISTORIA] [HORA_VISTORIA]` e as vindas do **app de campo** da vistoria selecionada: paradigmas do reclamante/reclamada (nome, função, quando, trabalhou junto — até 2 cada) e histórico ocupacional (até 4 funções: título, ano início/fim, local, o que fazia, tempo de exposição, frequência — versão reclamante × reclamada).
+   - Painel **"Evidências de campo (vistoria)"**: rascunho interno que não sai na impressão, **"Puxar obs do app"**, galeria de fotos da vistoria (upload via `../ajax_galeria.php`) e inserção de imagem com legenda no texto.
+   - **Revisar ortografia** (liga o corretor do navegador). **Salvar rascunho** / **Gerar/visualizar**: `POST salvar_parte.php` `tipo=geral` (evidências) + um `tipo=bloco` por seção (`id_secao`, `codigo`, `titulo`, `conteudo` base64 invertido) + `tipo=sincronizar` (`ids_mantidos`) → `visualizar.php?id=`.
+   - Defeito observado no modelo padrão: a capa saiu "EXMO. SR. JUIZ DA 2ª Vara do Trabalho de Uberaba ª VARA DO TRABALHO DE Uberaba - MG" (variável concatenada a texto fixo) e "XXXXXXXX, 31 de outubro de 2026".
+4. **Visualizar** (`visualizar.php?id=`): capa, sumário com âncoras, seções; **Baixar PDF** (`laudo_exportar_pdf.php`, 15 páginas, nome `<nº>_<modelo>.pdf`) e **Baixar Word** (`laudo_exportar_word.php`, `.doc` que é HTML com `application/vnd.ms-word`).
+- Auditoria: criação ("Status inicial: RASCUNHO"), edição de rascunho e visualização entram no Diário de Bordo.
+
+<!-- PRÓXIMAS SEÇÕES: modelos, cadastros, equipe, configurações, diário de bordo, app de campo, comunidade, clube -->
+
 
