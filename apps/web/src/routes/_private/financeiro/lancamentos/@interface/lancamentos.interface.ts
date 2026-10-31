@@ -6,9 +6,13 @@ export const lancamentosSearchSchema = z.object({
   page: z.number().int().min(1).optional().default(1),
   limit: z.number().int().min(1).optional().default(20),
   natureza: z.enum(LANCAMENTO_NATUREZAS).optional(),
-  situacao: z.enum(['previsto', 'liquidado', 'cancelado', 'atrasado']).optional(),
+  situacao: z.enum(['previsto', 'parcial', 'liquidado', 'cancelado', 'atrasado']).optional(),
   periciaId: z.string().optional(),
 });
 export type LancamentosSearch = z.infer<typeof lancamentosSearchSchema>;
 
-export type LancamentoPanel = { kind: 'create' } | { kind: 'edit'; lancamento: LancamentoRecord } | null;
+export type LancamentoPanel =
+  | { kind: 'create' }
+  | { kind: 'edit'; lancamento: LancamentoRecord }
+  | { kind: 'receber'; lancamento: LancamentoRecord }
+  | null;

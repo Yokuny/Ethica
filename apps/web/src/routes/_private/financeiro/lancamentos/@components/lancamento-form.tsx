@@ -8,6 +8,7 @@ import { categoriaItems, NATUREZA_ITEMS } from '@/components/lancamento-labels.j
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { LancamentoRecord } from '@/query/lancamento.js';
 import { useLancamentoForm } from '../@hooks/use-lancamento-form.js';
+import { ParcelasList } from './parcelas-list.js';
 
 export function LancamentoForm({ lancamento, onClose }: { lancamento?: LancamentoRecord; onClose: () => void }) {
   const { form, natureza, onSubmit, handleNaturezaChange, isPending, errorMessage, periciaItems } = useLancamentoForm({
@@ -34,6 +35,8 @@ export function LancamentoForm({ lancamento, onClose }: { lancamento?: Lancament
                       placeholder={t('select')}
                       items={NATUREZA_ITEMS}
                       onValueChange={handleNaturezaChange}
+                      // A natureza não muda depois de lançada (regras de status diferentes, AD-111).
+                      disabled={Boolean(lancamento)}
                     />
                     <SelectField
                       control={control}
@@ -76,6 +79,7 @@ export function LancamentoForm({ lancamento, onClose }: { lancamento?: Lancament
               },
             ]}
           />
+          {lancamento?.natureza === 'receita' && <ParcelasList lancamento={lancamento} onChanged={onClose} />}
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">
               {errorMessage}

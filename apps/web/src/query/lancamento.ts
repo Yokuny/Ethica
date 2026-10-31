@@ -1,5 +1,6 @@
 import type {
   CreateLancamento,
+  CreateParcela,
   LancamentoCategoria,
   LancamentoNatureza,
   LancamentoStatus,
@@ -20,9 +21,15 @@ export type LancamentoRecord = {
   vencimento: string;
   status: LancamentoStatus;
   liquidadoEm?: string;
+  // Só receita (AD-111): parcelas recebidas, total recebido e saldo a receber.
+  parcelas: ParcelaRecord[];
+  recebidoCents?: number;
+  saldoCents?: number;
   periciaId?: string;
   periciaNumero?: string;
 };
+
+export type ParcelaRecord = { id: string; valorCents: number; data: string; conta?: string };
 
 export type LancamentoSituacao = LancamentoStatus | 'atrasado';
 
@@ -119,6 +126,31 @@ export const deleteLancamentoMutation = (
   mutationFn: async ({ id }) => {
     const res = await del<never>(`/financeiro/lancamentos/${encodeURIComponent(id)}`);
     if (!res.success) throw new Error(res.message ?? t('remove_error'));
+  },
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: lancamentoKeys.all }),
+});
+
+// Recebimento parcial do honorário (AD-111): a API recusa parcela acima do saldo.
+export const addParcelaMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<LancamentoRecord, Error, { id: string; data: CreateParcela }> => ({
+  mutationFn: async ({ id, data }) => {
+    const res = await post<LancamentoRecord>(`/financeiro/lancamentos/${encodeURIComponent(id)}/parcelas`, data);
+    if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
+    return res.data;
+  },
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: lancamentoKeys.all }),
+});
+
+export const estornarParcelaMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<LancamentoRecord, Error, { id: string; parcelaId: string }> => ({
+  mutationFn: async ({ id, parcelaId }) => {
+    const res = await del<LancamentoRecord>(
+      `/financeiro/lancamentos/${encodeURIComponent(id)}/parcelas/${encodeURIComponent(parcelaId)}`,
+    );
+    if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
+    return res.data;
   },
   onSuccess: () => queryClient.invalidateQueries({ queryKey: lancamentoKeys.all }),
 });
