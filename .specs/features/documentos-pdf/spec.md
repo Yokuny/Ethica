@@ -30,7 +30,7 @@ O perito precisa levar papel para a vistoria (checklist), entregar relatórios a
 | Onde guardar o logo | **Pendente de decisão (vira AD)** — mesma decisão de armazenamento de arquivos da onda 5 | Um único lugar para arquivos do tenant | No |
 | Cabeçalho e rodapé | Texto rico com marcadores `[LOGO]`, `[NOME_PERITO]`, `[PAGINA_ATUAL]`, `[TOTAL_PAGINAS]` | Mesmo modelo usado pelo concorrente e pelo laudo | No |
 | Quem gera relatório financeiro | Só `admin` e `manager` (AD-107) | Coerente com o acesso ao financeiro | No |
-| "Perícia parada" | Perícia aberta sem alteração de etapa, prazo, compromisso ou lançamento há mais de 60 dias | Definição explícita (o concorrente não diz o que conta como movimentação) | No |
+| "Perícia parada" | Perícia aberta há mais de 60 dias sem **movimentação**, que é: carregamento (entrega) do laudo, notificação de recebimento de honorários, intimação para prestar esclarecimentos ou para laudo complementar | Definido pelo usuário em 2026-10-31; o modelo precisa registrar esses eventos com data | Yes |
 
 ---
 
@@ -55,9 +55,9 @@ O perito precisa levar papel para a vistoria (checklist), entregar relatórios a
 
 **Acceptance Criteria**:
 
-1. WHEN o usuário gera o cronograma de prazos THEN the system SHALL listar prazos pendentes por vencimento com "faltam N dias" e destaque para até 7 dias.
+1. WHEN o usuário gera o cronograma de prazos THEN the system SHALL listar prazos pendentes por vencimento com "faltam N dias" e destaque "vence em breve" para até 15 dias.
 2. WHEN `admin`/`manager` gera o relatório financeiro de um período THEN the system SHALL mostrar recebido, pago, saldo realizado, a receber, a pagar e saldo previsto, com as tabelas de cada grupo.
-3. WHEN o usuário gera o relatório de perícias paradas THEN the system SHALL listar as perícias abertas sem movimentação há mais de 60 dias, com os dias parados.
+3. WHEN o usuário gera o relatório de perícias paradas THEN the system SHALL listar as perícias abertas sem movimentação (entrega do laudo, recebimento de honorários, intimação para esclarecimentos ou laudo complementar) há mais de 60 dias, com os dias parados.
 
 ### P2: Exportar todos os dados
 
