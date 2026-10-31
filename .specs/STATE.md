@@ -463,6 +463,38 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-10-31
 - **Status**: active
 
+### AD-119
+- **Decision**: PDF é gerado no `apps/api` por **HTML → PDF com Chromium headless** (`puppeteer-core` + pacote `chromium` do Debian na imagem `Dockerfile.dev`). O provider `apps/api/src/providers/pdf/` abre um navegador por processo na primeira geração e o reaproveita (uma página por documento); é injetável em `buildApp` como `datajud`, e os testes usam um renderizador falso. Os documentos são funções TS que devolvem HTML no módulo novo `documentos`, que só lê os services de `pericia`, `agenda`, `financeiro`, `prospeccao` e `identity`. Cabeçalho e rodapé usam o `headerTemplate`/`footerTemplate` do Chromium (número da página e total nativos).
+- **Reason**: escolha do usuário em 2026-10-31. HTML/CSS resolve tabela, assinatura e matriz do checklist sem desenhar coordenadas, e o HTML do editor do laudo (onda 4) vira PDF sem conversão.
+- **Trade-off**: a imagem da API cresce algumas centenas de MB e cada geração custa memória do navegador; o PDF não é testável fora do container (os testes conferem o HTML).
+- **Scope**: `Dockerfile.dev`, `apps/api/package.json`, `apps/api/src/providers/pdf/`, `apps/api/src/modules/documentos/`, `apps/api/src/app.ts`; origem `.specs/features/documentos-pdf/spec.md` e gap analysis §3 decisão 2.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-120
+- **Decision**: Arquivos do tenant ficam em **storage de objetos compatível com S3** (RustFS no docker local, já que as imagens públicas do MinIO saíram do Docker Hub; S3 ou R2 em produção) via `@aws-sdk/client-s3`, num bucket privado com chaves `tenants/<tenantId>/...`, servidos só pela API (sem URL pública ou assinada). Cota de **1 GB por tenant**, contada em `Tenant.storageBytes` e reservada no mesmo update que grava a referência do arquivo. O logo é o primeiro arquivo: PNG reduzido no navegador (até 600 px) e enviado no corpo da requisição como na AD-118, até 512 KB. Sem S3 configurado, o envio responde `storage_not_configured` (503) e os PDFs saem sem logo.
+- **Reason**: escolha do usuário em 2026-10-31: decidir o armazenamento uma vez, já para as fotos de vistoria da onda 5, em vez de guardar o logo no Mongo como o avatar.
+- **Trade-off**: mais um serviço no docker e credenciais no ambiente; a cota só conta o que a API grava (arquivo apagado fora da API não devolve espaço).
+- **Scope**: `docker-compose.yml`, `.env.example`, `apps/api/src/providers/storage/`, `apps/api/src/config/env.config.ts`, `packages/db/src/models/tenant.model.ts`, `apps/api/src/modules/identity/`; origem gap analysis §3 decisão 3.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-121
+- **Decision**: Defaults da `documentos-pdf` confirmados pelo usuário: (1) cabeçalho e rodapé são **texto simples de várias linhas** com os marcadores `[LOGO]`, `[NOME_PERITO]` (quem gera o documento), `[PAGINA_ATUAL]` e `[TOTAL_PAGINAS]`; o editor rico fica para o laudo; (2) relatório financeiro só para `admin`/`manager` e nenhum valor financeiro em PDF gerado por `operator` (AD-107); (3) **movimentações** são uma lista dentro da perícia (`movimentacoes: [{ tipo, data, observacoes }]`, tipos `report_filed`, `fees_notice`, `clarification_summons`, `supplementary_report_summons`), lançadas no detalhe por qualquer papel; perícia **parada** = etapa diferente de `completed`/`declined` e a última movimentação (sem nenhuma, a nomeação; sem nomeação, o cadastro) há mais de 60 dias.
+- **Reason**: respostas do usuário em 2026-10-31 à tabela "Assumptions & Open Questions" da spec. Texto simples dispensa decidir o editor agora; movimentação lançada à mão é a fonte única e exata da data.
+- **Trade-off**: protocolar o prazo "Entrega do laudo" ou receber uma parcela não lança movimentação sozinho; o perito lança as duas coisas.
+- **Scope**: `packages/contracts/src/schemas/{pericia,documento}.schema.ts`, `packages/db/src/models/pericia.model.ts`, `apps/api/src/modules/{pericia,documentos}/`, `apps/web/src/routes/_private/pericias/details/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-122
+- **Decision**: A `documentos-pdf` entra inteira nesta rodada (DOC-01 a DOC-04). A exportação é um ZIP (`fflate`) com um CSV por entidade do tenant, separador `;` e UTF-8 com BOM (mesmo formato da importação, AD-115), valores de domínio na chave em inglês (AD-113) e usuários sem senha nem hashes; cada exportação grava quem e quando em `Tenant.dataExports` (as 20 últimas), mostradas ao admin.
+- **Reason**: escolha do usuário em 2026-10-31; depois da base de PDF os relatórios são pequenos, e a exportação atende a portabilidade da LGPD.
+- **Trade-off**: PR maior; o registro de exportação fica no tenant até existir o diário de bordo (onda 6).
+- **Scope**: `.specs/features/documentos-pdf/`, `apps/api/src/modules/documentos/`, `packages/db/src/models/tenant.model.ts`.
+- **Date**: 2026-10-31
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `importacao-processos` — concluída (AD-114 a AD-118, `validation.md` PASS, UAT no navegador). Pendências no `feature.md` (OCR, excluir/mesclar partes, atas de outros tribunais).

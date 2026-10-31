@@ -26,10 +26,10 @@ O perito precisa levar papel para a vistoria (checklist), entregar relatórios a
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --- | --- | --- | --- |
-| Como gerar PDF | **Pendente de decisão (vira AD)**: HTML→PDF com navegador headless no `apps/api` × biblioteca programática | HTML reaproveita o editor do laudo e o cabeçalho rico; headless pesa na imagem Docker | No |
-| Onde guardar o logo | **Pendente de decisão (vira AD)** — mesma decisão de armazenamento de arquivos da onda 5 | Um único lugar para arquivos do tenant | No |
-| Cabeçalho e rodapé | Texto rico com marcadores `[LOGO]`, `[NOME_PERITO]`, `[PAGINA_ATUAL]`, `[TOTAL_PAGINAS]` | Mesmo modelo usado pelo concorrente e pelo laudo | No |
-| Quem gera relatório financeiro | Só `admin` e `manager` (AD-107) | Coerente com o acesso ao financeiro | No |
+| Como gerar PDF | HTML→PDF com Chromium headless no `apps/api` (AD-119) | HTML reaproveita o editor do laudo e o cabeçalho rico; headless pesa na imagem Docker | Yes |
+| Onde guardar o logo | Storage S3 compatível, cota de 1 GB por tenant (AD-120) | Um único lugar para arquivos do tenant | Yes |
+| Cabeçalho e rodapé | Texto simples de várias linhas com marcadores `[LOGO]`, `[NOME_PERITO]`, `[PAGINA_ATUAL]`, `[TOTAL_PAGINAS]` (AD-121) | Editor rico fica para o laudo | Yes |
+| Quem gera relatório financeiro | Só `admin` e `manager` (AD-107, AD-121) | Coerente com o acesso ao financeiro | Yes |
 | "Perícia parada" | Perícia aberta há mais de 60 dias sem **movimentação**, que é: carregamento (entrega) do laudo, notificação de recebimento de honorários, intimação para prestar esclarecimentos ou para laudo complementar | Definido pelo usuário em 2026-10-31; o modelo precisa registrar esses eventos com data | Yes |
 
 ---

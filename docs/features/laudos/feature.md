@@ -33,9 +33,10 @@ Sem código ainda. Os testes independentes de cada história estão na spec.
 
 ## Pendências
 
-- [ ] Decisões em aberto listadas na spec (viram AD-NNN).
+- [ ] Decisões em aberto listadas na spec (viram AD-NNN). A base de PDF já existe: HTML → Chromium (AD-119), identidade do escritório e marcadores (AD-121) em `docs/features/documentos-pdf/feature.md`; o editor rico do laudo deve gerar HTML compatível.
 - [ ] `design.md` e `tasks.md`.
 
 ## Histórico
 
+- 2026-10-31 — Pendência atualizada: a base de documentos (`documentos-pdf`, AD-119 a AD-122) está pronta para o laudo reaproveitar.
 - 2026-10-31 — Spec criada (`.specs/features/laudos/spec.md`).

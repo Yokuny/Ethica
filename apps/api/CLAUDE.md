@@ -18,13 +18,16 @@ apps/api/src/
 │   ├── index.ts
 │   └── subscribers/                # um *.subscriber.ts por consumidor + registerAllSubscribers()
 ├── providers/datajudClient.ts      # API Pública do Datajud (AD-105), injetado em buildApp
+├── providers/pdfRenderer.ts        # HTML → PDF com Chromium (AD-119), injetado em buildApp
+├── providers/fileStorage.ts        # arquivos do tenant em bucket S3 (AD-120), injetado em buildApp
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite)
     ├── pericia/                    # Pericia + Prazo (AD-109) + Parte (AD-117) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
     ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal e aviso diário de prazos
     ├── financeiro/                 # Lancamento — honorários (com parcelas, AD-111) e despesas; resumo, fluxo, categorias
-    └── prospeccao/                 # Oportunidade + busca no Datajud; converte em perícia
+    ├── prospeccao/                 # Oportunidade + busca no Datajud; converte em perícia
+    └── documentos/                 # PDFs (AD-119) e exportação ZIP (AD-122) — sem model, só lê os services dos outros
 ```
 
 Cada `modules/<modulo>/` é **auto-contido**: `<entidade>.router.ts .controller.ts .service.ts .repository.ts .schema.ts` + testes colocalizados (`.unit.test.ts .int.test.ts .e2e.test.ts`, nunca pasta `__test__` separada — AD-017). Um módulo pode agrupar mais de uma entidade (`identity`) quando elas compartilham dono de collection ou fronteira de domínio — granularidade é por **contexto**, não 1:1 com arquivo.
@@ -43,13 +46,13 @@ Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma co
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `pericia` e `identity` não dependem de ninguém (AD-106, AD-109).
+Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `documentos` → todos os outros (só leitura, ninguém depende dele); `pericia` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
-| `identity` | `Tenant User Session Invite transitionTenantStatus` |
+| `identity` | `Tenant User Session Invite transitionTenantStatus` (inclui identidade dos documentos e cota de arquivos, AD-120) |
 | `pericia` | `Pericia Prazo Parte` |
 | `agenda` | `Compromisso` |
 | `financeiro` | `Lancamento` |
