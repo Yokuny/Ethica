@@ -68,14 +68,27 @@ export const ALL_DATAJUD_TRIBUNAIS = [
 ] as const;
 export type DatajudTribunal = (typeof ALL_DATAJUD_TRIBUNAIS)[number];
 
+export const DATAJUD_ASSUNTOS_TECNICOS = ['Insalubridade', 'Periculosidade', 'Acidente de trabalho'] as const;
+
 // Busca de possíveis nomeações: texto livre nos movimentos/assuntos/classe e
 // recorte por órgão julgador. `cursor` é o `sort` do último resultado
 // (paginação `search_after` do Elasticsearch do Datajud).
 export const datajudSearchSchema = z
   .object({
     tribunal: z.enum(ALL_DATAJUD_TRIBUNAIS),
+    assuntosTecnicos: z.array(z.enum(DATAJUD_ASSUNTOS_TECNICOS)).max(DATAJUD_ASSUNTOS_TECNICOS.length).optional(),
     termo: z.string().trim().max(120, 'termo inválido').optional(),
     orgaoJulgador: z.string().trim().max(120, 'órgão julgador inválido').optional(),
+    numeroProcesso: z
+      .string()
+      .trim()
+      .regex(/^[\d.\-\s]*$/, 'número de processo inválido')
+      .transform((value) => value.replace(/\D/g, ''))
+      .refine((value) => value === '' || value.length === 20, 'informe os 20 dígitos do processo')
+      .transform((value) => value || undefined)
+      .optional(),
+    classeCodigo: z.number().int().positive().optional(),
+    orgaoJulgadorCodigo: z.number().int().positive().optional(),
     size: z.number().int().min(1).max(50).optional(),
     cursor: z
       .array(z.union([z.string(), z.number()]))
