@@ -375,6 +375,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-10-29
 - **Status**: active
 
+### AD-108
+- **Decision**: Permissões do tenant passam a ser uma **matriz perfil × módulo × ação** (acessar, visualizar, editar, inserir, excluir). Os perfis de equipe (equivalentes a "equipe técnica" e "secretaria") têm valores pré-selecionados diferentes, e o cadastro de um membro sempre passa pela etapa de conferir/ajustar as permissões. O primeiro acesso do escritório é administrador e é quem gerencia as permissões dos perfis.
+- **Reason**: definido pelo usuário em 2026-10-31 a partir do benchmark da Jusperia; os papéis fixos não cobrem escritórios em que a secretaria cuida do financeiro e da agenda e a equipe técnica cuida de perícias e laudos.
+- **Trade-off**: substitui a checagem por papel fixo (`checkRole`, `canOperate`) por consulta à matriz em toda rota e tela; quando aceita, supersede a parte de AD-107 que fixa o financeiro em `admin`/`manager`. Precisa de spec própria e de migração dos usuários atuais.
+- **Scope**: `apps/api/src/modules/identity/`, `apps/api/src/middlewares/`, `apps/web` (guardas de rota e ações), `.agents/skills/ethica-permissions/SKILL.md`; origem `.specs/features/benchmark-jusperia/2026-10-31-jusperia-inventario.md`.
+- **Date**: 2026-10-31
+- **Status**: proposed
+
 ## Handoff
 
 - **Feature**: `fundacao-ethica` — base pronta (código + harness + docs). Integração e e2e com Mongo **não foram executados** nesta sessão (sem Docker): rodar `docker compose up -d mongo && pnpm vitest run` antes do primeiro PR.
