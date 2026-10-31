@@ -381,6 +381,7 @@ const translations: Record<string, string> = {
   wrong_current_password: 'A senha atual não confere.',
   your_data: 'Seus dados',
   // Prazos processuais (AD-109)
+  all_day: 'Dia inteiro',
   add_deadline: 'Adicionar prazo',
   deadline: 'Prazo',
   deadline_overdue: 'Vencido',
