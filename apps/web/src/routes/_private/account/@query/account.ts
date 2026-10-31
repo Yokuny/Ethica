@@ -7,12 +7,19 @@ import { sessionKeys } from '@/query/session.js';
 import { userKeys } from '@/query/user.js';
 
 // Espelha AccountView de apps/api/src/modules/identity/account.schema.ts.
-export type AccountView = { name: string; avatar?: string };
+export type AccountView = {
+  name: string;
+  avatar?: string;
+  cpf?: string;
+  registroProfissional?: string;
+  formacao?: string;
+};
 
 // Nome e foto aparecem no menu (sessão), nos responsáveis (usersQuery) e no
 // diretório (sob userKeys.all): tudo é recarregado depois de mudar.
 const refreshAccount = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: sessionKeys.all });
+  queryClient.invalidateQueries({ queryKey: ['account', 'profile'] });
   queryClient.invalidateQueries({ queryKey: userKeys.all });
 };
 
@@ -48,9 +55,20 @@ export const setAvatarMutation = (queryClient: QueryClient): UseMutationOptions<
 export type AccountPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean };
 
 export const accountKeys = {
+  profile: ['account', 'profile'] as const,
   preferences: ['account', 'preferences'] as const,
   calendarFeed: ['account', 'calendar-feed'] as const,
 };
+
+// DOC-01: nome e dados profissionais (CPF, registro, formação) que vão nos documentos.
+export const profileQuery = queryOptions({
+  queryKey: accountKeys.profile,
+  queryFn: async (): Promise<AccountView> => {
+    const res = await get<AccountView>('/me/profile');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+    return res.data;
+  },
+});
 
 export const preferencesQuery = queryOptions({
   queryKey: accountKeys.preferences,

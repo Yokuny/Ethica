@@ -17,6 +17,7 @@ const canOperate = checkRole(['admin', 'manager', 'operator']);
 export const createAccountRouter = (deps: AccountRouterDeps): Router => {
   const router = Router();
   const own = [deps.validToken, tenantAssignmentCheck, canOperate];
+  router.get('/profile', ...own, accountController.getProfile);
   router.patch('/profile', ...own, validBody(updateProfileSchema), accountController.updateProfile);
   router.put('/password', ...own, validBody(changePasswordSchema), accountController.changePassword);
   router.put('/avatar', ...own, validBody(updateAvatarSchema), accountController.updateAvatar);

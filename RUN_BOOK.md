@@ -36,6 +36,9 @@ Os scripts da API carregam o `.env` da raiz (`--env-file-if-exists`); o web lê 
 | web (Vite) | http://localhost:15173 | — |
 | api | http://localhost:18080 | `curl localhost:18080/health` |
 | mongo (Atlas Local) | `localhost:37017` (host) / `mongo:27017` (rede do compose) | `docker compose ps` mostra `healthy` |
+| s3 (RustFS, AD-120) | `localhost:19000` (API S3) · console `http://localhost:19001` (`ethica` / `ethica-dev-secret`) | o `s3-init` termina com sucesso depois de criar o bucket `ethica` |
+
+PDFs (AD-119) usam o Chromium instalado na imagem `Dockerfile.dev` (`CHROMIUM_PATH`). Fora do Docker, aponte `CHROMIUM_PATH` para um Chrome/Chromium local e suba o `s3` com `docker compose up -d s3 s3-init` para enviar o logo (sem `S3_BUCKET` o logo fica desligado e os PDFs saem sem ele).
 
 ## Dados de demonstração
 
@@ -103,4 +106,5 @@ docker compose down          # os dados ficam no volume mongo-atlas-data
 ## Limitações conhecidas
 
 - `/auth/signin` tem rate limit de 5 tentativas/15 min por e-mail+IP; a busca no Datajud, 60/15 min por tenant+IP.
+- As imagens públicas do MinIO saíram do Docker Hub; o storage local é o RustFS (S3 compatível). Em produção, configure `S3_*` para S3 ou R2.
 - A consulta ao Datajud segue a documentação pública; validar com a chave real (AD-105).

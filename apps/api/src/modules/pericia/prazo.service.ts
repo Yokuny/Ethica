@@ -54,3 +54,5 @@ export const listPrazosPendentes = async (tenantId: string, range: { from?: stri
 
 // Aviso diário (sistema): pendentes que vencem nos dias pedidos, em todos os tenants.
 export const listPrazosParaAviso = (dias: string[]) => prazoRepository.listPendentesNosDias(dias);
+
+export const listForExport = (tenantId: string) => prazoRepository.listAll(tenantId);

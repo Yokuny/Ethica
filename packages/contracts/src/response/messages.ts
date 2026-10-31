@@ -54,6 +54,9 @@ export const API_MESSAGE_KEYS = [
   'unsupported_court',
   'multiple_process_numbers',
   'deadline_calculated',
+  // Arquivos do escritório (AD-120)
+  'storage_not_configured',
+  'storage_quota_exceeded',
   // Financeiro (AD-111)
   'parcel_exceeds_balance',
   'fee_cannot_be_removed',

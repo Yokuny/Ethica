@@ -89,3 +89,25 @@ export const importarCsv = async (req: Request, res: Response, next: NextFunctio
     next(e);
   }
 };
+
+export const addMovimentacao = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await periciaService.addMovimentacao(tenantOf(req), req.params.id as string, req.body);
+    res.status(201).json(respObj({ data, message: 'created_successfully' }));
+  } catch (e) {
+    notFoundAs404(e, next);
+  }
+};
+
+export const removeMovimentacao = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await periciaService.removeMovimentacao(
+      tenantOf(req),
+      req.params.id as string,
+      req.params.movimentacaoId as string,
+    );
+    res.json(respObj({ data, message: 'removed_successfully' }));
+  } catch (e) {
+    notFoundAs404(e, next);
+  }
+};

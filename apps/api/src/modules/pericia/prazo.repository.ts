@@ -93,3 +93,12 @@ export const proximosByPericiaIds = async (tenantId: string, ids: string[]): Pro
     ]);
     return new Map(rows.map((row) => [String(row._id), { titulo: row.titulo, vencimento: row.vencimento }]));
   });
+
+// Exportação de dados (DOC-04) e cronograma: todos os prazos do tenant, por vencimento.
+export const listAll = async (tenantId: string): Promise<PrazoRecord[]> =>
+  withDbTiming('prazo.listAll', async () => {
+    const docs = await Prazo.find(tenantScoped({ Tenant: tenantId }))
+      .sort({ vencimento: 1 })
+      .lean();
+    return docs.map(toRecord);
+  });

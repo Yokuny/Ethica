@@ -13,7 +13,7 @@ export type { OportunidadeDocument } from './models/oportunidade.model.js';
 export { Oportunidade } from './models/oportunidade.model.js';
 export type { ParteDocument } from './models/parte.model.js';
 export { Parte } from './models/parte.model.js';
-export type { PericiaDocument, PericiaParteDocument } from './models/pericia.model.js';
+export type { PericiaDocument, PericiaMovimentacaoDocument, PericiaParteDocument } from './models/pericia.model.js';
 export { Pericia } from './models/pericia.model.js';
 export type { PrazoDocument } from './models/prazo.model.js';
 export { Prazo } from './models/prazo.model.js';

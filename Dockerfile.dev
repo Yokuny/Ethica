@@ -4,8 +4,10 @@
 FROM node:24-bookworm
 
 # bcrypt (dependência do api) compila um addon nativo no install — sem
-# python3/make/g++ o `pnpm install` falha nessa etapa.
-RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
+# python3/make/g++ o `pnpm install` falha nessa etapa. `chromium` gera os PDFs
+# da api (AD-119, CHROMIUM_PATH=/usr/bin/chromium); `fonts-liberation` dá as
+# fontes métricas-compatíveis usadas pelo HTML dos documentos.
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ chromium fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
 RUN corepack enable && corepack prepare pnpm@11.11.0 --activate

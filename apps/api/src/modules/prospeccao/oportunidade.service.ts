@@ -101,3 +101,5 @@ export const converterOportunidade = async (
   await oportunidadeRepository.updateOportunidade(tenantId, id, { status: 'converted', periciaId: pericia.id });
   return { periciaId: pericia.id };
 };
+
+export const listForExport = (tenantId: string) => oportunidadeRepository.listAll(tenantId);

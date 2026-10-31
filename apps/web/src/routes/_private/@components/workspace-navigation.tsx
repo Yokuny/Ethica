@@ -25,8 +25,8 @@ import { CommandMenu, useCommandMenuShortcut } from './command-menu.js';
 
 const groups: { key: string; destinations: HomeSection['to'][]; heading: string }[] = [
   { key: 'work', destinations: ['/pericias', '/partes', '/agenda', '/prospeccao'], heading: 'work' },
-  { key: 'management', destinations: ['/financeiro'], heading: 'management' },
-  { key: 'admin', destinations: ['/users'], heading: 'settings' },
+  { key: 'management', destinations: ['/financeiro', '/relatorios'], heading: 'management' },
+  { key: 'admin', destinations: ['/users', '/office'], heading: 'settings' },
 ];
 
 function NavigationLink({ to, titleKey, icon: Icon }: Pick<HomeSection, 'to' | 'titleKey' | 'icon'>) {

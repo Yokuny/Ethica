@@ -1,4 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
+import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -6,11 +7,14 @@ import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
+import { PageMenu } from '@/components/page-menu.js';
+import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { periciaQuery } from '@/query/pericia.js';
 import { canSeeFinance, isAdminSession, sessionQuery } from '@/query/session.js';
 import { PericiaDetailsView } from './@components/pericia-details-view.js';
 import { PericiaEditForm } from './@components/pericia-edit-form.js';
+import { PericiaMovimentacoes } from './@components/pericia-movimentacoes.js';
 import { PericiaPrazos } from './@components/pericia-prazos.js';
 import { PericiaRelated } from './@components/pericia-related.js';
 import { usePericiaActions } from './@hooks/use-pericia-actions.js';
@@ -23,6 +27,24 @@ export function PericiaDetailsPage() {
   const pericia = query.data;
   const { handleDelete, isDeleting, isConfirmingDelete, askDelete, cancelDelete } = usePericiaActions(pericia);
   const [isEditing, setIsEditing] = useState(false);
+  const { download, pending } = useFileDownload();
+  // DOC-02: ficha e checklist em PDF; a ficha só traz valores para admin/manager (a API decide).
+  const documentsMenu = pericia && (
+    <PageMenu>
+      <DropdownMenuItem
+        disabled={Boolean(pending)}
+        onClick={() => download(`/documentos/pericias/${pericia.id}/ficha`)}
+      >
+        {t('expert_case_sheet_pdf')}
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        disabled={Boolean(pending)}
+        onClick={() => download(`/documentos/pericias/${pericia.id}/checklist`)}
+      >
+        {t('field_checklist_pdf')}
+      </DropdownMenuItem>
+    </PageMenu>
+  );
   const editAction = (
     <Button variant="outline" onClick={() => setIsEditing(true)}>
       {t('edit')}
@@ -36,7 +58,16 @@ export function PericiaDetailsPage() {
 
   return (
     <Card asPage>
-      {!isEditing && <CardHeader title={t('details')}>{pericia && <CardAction>{editAction}</CardAction>}</CardHeader>}
+      {!isEditing && (
+        <CardHeader title={t('details')}>
+          {pericia && (
+            <CardAction>
+              {editAction}
+              {documentsMenu}
+            </CardAction>
+          )}
+        </CardHeader>
+      )}
       {query.isLoading ? (
         <CardContent>
           <DefaultLoading />
@@ -52,6 +83,7 @@ export function PericiaDetailsPage() {
         <CardContent className="gap-10">
           <PericiaDetailsView pericia={pericia} />
           <PericiaPrazos periciaId={pericia.id} />
+          <PericiaMovimentacoes pericia={pericia} />
           <PericiaRelated periciaId={pericia.id} canSeeFinance={canSeeFinance(session)} />
         </CardContent>
       )}

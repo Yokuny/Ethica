@@ -8,8 +8,14 @@ export { changePasswordSchema, updateAvatarSchema, updateProfileSchema };
 export type AccountRouterDeps = { validToken: RequestHandler };
 
 // ACC-06: `avatar` é o caminho versionado da foto (GET /auth/users/:id/avatar?v=…),
-// ausente quando a pessoa não tem foto.
-export type AccountView = { name: string; avatar?: string };
+// ausente quando a pessoa não tem foto. DOC-01: dados profissionais, ausentes quando vazios.
+export type AccountView = {
+  name: string;
+  avatar?: string;
+  cpf?: string;
+  registroProfissional?: string;
+  formacao?: string;
+};
 
 // PRZ-03: dono do link do feed iCal — usuário ativo, com papel, de tenant não suspenso.
 export type FeedOwner = { userId: string; tenantId: string };

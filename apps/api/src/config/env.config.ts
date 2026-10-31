@@ -22,6 +22,14 @@ export const envSchema = z.object({
   // prospecção responde `datajud_not_configured` e o resto do app funciona.
   DATAJUD_API_KEY: optionalSecret,
   DATAJUD_BASE_URL: z.string().default('https://api-publica.datajud.cnj.jus.br'),
+  // PDF (AD-119): Chromium do sistema (pacote `chromium` do Debian no Dockerfile.dev).
+  CHROMIUM_PATH: z.string().default('/usr/bin/chromium'),
+  // Arquivos do tenant (AD-120). Sem bucket, o envio do logo responde `storage_not_configured`.
+  S3_ENDPOINT: optionalSecret,
+  S3_REGION: z.string().default('us-east-1'),
+  S3_BUCKET: optionalSecret,
+  S3_ACCESS_KEY_ID: optionalSecret,
+  S3_SECRET_ACCESS_KEY: optionalSecret,
 });
 
 export type Env = z.infer<typeof envSchema>;

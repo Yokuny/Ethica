@@ -27,6 +27,7 @@ const pericia: PericiaRecord = {
   tribunal: 'TRT2',
   objeto: 'Insalubridade',
   partes: [],
+  movimentacoes: [],
   status: 'appointed',
   createdAt: new Date(),
   updatedAt: new Date(),

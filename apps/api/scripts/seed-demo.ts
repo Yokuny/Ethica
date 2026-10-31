@@ -118,7 +118,14 @@ const run = async (): Promise<void> => {
     ]);
   }
 
-  const tenant = await Tenant.create({ name: 'Perícias Demo', document: DOCUMENT, status: 'active' });
+  // Identidade dos documentos (AD-121); o logo depende do storage e fica para a tela do escritório.
+  const tenant = await Tenant.create({
+    name: 'Perícias Demo',
+    document: DOCUMENT,
+    status: 'active',
+    cabecalho: '[LOGO]\nPerícias Demo — Engenharia de Segurança do Trabalho\nRua das Perícias, 100 — São Paulo/SP',
+    rodape: '[NOME_PERITO] · Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]',
+  });
   const password = await bcrypt.hash(PASSWORD, 10);
   await User.create(
     (['admin', 'manager', 'operator'] as const).map((role) => ({
@@ -127,6 +134,14 @@ const run = async (): Promise<void> => {
       password,
       Tenant: tenant._id,
       role: [role],
+      // Dados profissionais dos documentos (DOC-01).
+      ...(role === 'admin'
+        ? {
+            cpf: '52998224725',
+            registroProfissional: 'CREA-SP 5061234567',
+            formacao: 'Engenharia de Segurança do Trabalho',
+          }
+        : {}),
     })),
   );
 
@@ -183,7 +198,18 @@ const run = async (): Promise<void> => {
           }
         : {}),
       status: p.status,
-      dataNomeacao: day(-40 + index * 3),
+      // A cível (índice 2) foi nomeada há 95 dias e nunca se moveu: aparece em perícias paradas.
+      dataNomeacao: index === 2 ? day(-95) : day(-40 + index * 3),
+      // Movimentações (AD-121): laudo entregue há 70 dias (parada) e intimação recente (ativa).
+      movimentacoes:
+        p.status === 'report_delivered'
+          ? [{ tipo: 'report_filed', data: day(-70) }]
+          : p.status === 'clarifications'
+            ? [
+                { tipo: 'report_filed', data: day(-30) },
+                { tipo: 'clarification_summons', data: day(-8), observacoes: 'Quesitos complementares da reclamada' },
+              ]
+            : [],
       honorariosPropostosCents: p.propostos,
       honorariosFixadosCents: 'fixados' in p ? p.fixados : undefined,
     })),

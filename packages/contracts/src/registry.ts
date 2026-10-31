@@ -4,6 +4,7 @@ import { changePasswordSchema, updateAvatarSchema, updateProfileSchema } from '.
 import { createCompromissoSchema, updateCompromissoSchema } from './schemas/compromisso.schema.js';
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
+import { financeiroReportQuerySchema, updateOfficeSchema } from './schemas/documento.schema.js';
 import { idSchema } from './schemas/id.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { createLancamentoSchema, createParcelaSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
@@ -15,7 +16,12 @@ import {
   periciaParteInputSchema,
   updateParteSchema,
 } from './schemas/parte.schema.js';
-import { createPericiaSchema, numeroProcessoSchema, updatePericiaSchema } from './schemas/pericia.schema.js';
+import {
+  createMovimentacaoSchema,
+  createPericiaSchema,
+  numeroProcessoSchema,
+  updatePericiaSchema,
+} from './schemas/pericia.schema.js';
 import { createPrazoSchema, updatePrazoSchema } from './schemas/prazo.schema.js';
 import {
   createOportunidadeSchema,
@@ -54,6 +60,9 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'numeroProcessoSchema', schema: numeroProcessoSchema },
   { name: 'createPericiaSchema', schema: createPericiaSchema },
   { name: 'updatePericiaSchema', schema: updatePericiaSchema },
+  { name: 'createMovimentacaoSchema', schema: createMovimentacaoSchema },
+  { name: 'updateOfficeSchema', schema: updateOfficeSchema },
+  { name: 'financeiroReportQuerySchema', schema: financeiroReportQuerySchema },
   { name: 'documentoSchema', schema: documentoSchema },
   { name: 'oabSchema', schema: oabSchema },
   { name: 'createParteSchema', schema: createParteSchema },

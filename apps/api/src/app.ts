@@ -10,11 +10,13 @@ import { createAuthMiddleware } from './middlewares/authentication.middleware.js
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { responseTime } from './middlewares/responseTime.middleware.js';
 import { createAgendaRouter } from './modules/agenda/compromisso.router.js';
+import { createDocumentosRouter } from './modules/documentos/documentos.router.js';
 import { createFinanceiroRouter } from './modules/financeiro/lancamento.router.js';
 import { createAccountRouter } from './modules/identity/account.router.js';
 import { buildAuthDeps } from './modules/identity/auth.deps.js';
 import { createAuthRouter } from './modules/identity/auth.router.js';
 import { inviteRouter } from './modules/identity/invite.router.js';
+import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
 import { createPreferencesRouter } from './modules/identity/preferences.router.js';
 import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
@@ -22,9 +24,11 @@ import { createParteRouter } from './modules/pericia/parte.router.js';
 import { createPericiaRouter } from './modules/pericia/pericia.router.js';
 import { createProspeccaoRouter } from './modules/prospeccao/oportunidade.router.js';
 import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
+import { createS3FileStorage, type FileStorage } from './providers/fileStorage.js';
 import type { MailProvider } from './providers/mail/index.js';
 import { createLogMailProvider } from './providers/mail/log.mailProvider.js';
 import { createNodemailerMailProvider } from './providers/mail/nodemailer.mailProvider.js';
+import { createChromiumPdfRenderer, type PdfRenderer } from './providers/pdfRenderer.js';
 
 // Compartilhado com server.ts (aviso diário de prazos, AD-110).
 export const buildMailProvider = (): MailProvider => {
@@ -40,14 +44,17 @@ export const buildMailProvider = (): MailProvider => {
 };
 
 // Sem .listen() — testável via supertest sem abrir porta. start() (server.ts)
-// é quem efetivamente sobe o processo. `datajud` é injetável para os testes.
-export const buildApp = (options: { datajud?: DatajudClient } = {}): Express => {
+// é quem efetivamente sobe o processo. `datajud`, `pdf` e `storage` são injetáveis para os testes.
+export const buildApp = (
+  options: { datajud?: DatajudClient; pdf?: PdfRenderer; storage?: FileStorage | null } = {},
+): Express => {
   // Idempotente — vários buildApp() no mesmo processo (testes) não duplicam handler.
   registerAllSubscribers();
 
   const app = express();
 
-  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+  // Content-Disposition exposto: o web lê o nome do PDF/ZIP gerado (AD-119, AD-122).
+  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Content-Disposition'] }));
   app.use(cookieParser());
   app.use(express.json());
   app.use(responseTime);
@@ -61,6 +68,23 @@ export const buildApp = (options: { datajud?: DatajudClient } = {}): Express => 
       ? createDatajudClient({ baseUrl: env.DATAJUD_BASE_URL, apiKey: env.DATAJUD_API_KEY })
       : undefined);
 
+  // PDF (AD-119): o Chromium só abre na primeira geração.
+  const pdf = options.pdf ?? createChromiumPdfRenderer(env.CHROMIUM_PATH);
+  // Arquivos do tenant (AD-120): sem bucket, o logo fica indisponível. `null` desliga nos testes.
+  const storage =
+    options.storage === null
+      ? undefined
+      : (options.storage ??
+        (env.S3_BUCKET
+          ? createS3FileStorage({
+              endpoint: env.S3_ENDPOINT,
+              region: env.S3_REGION,
+              bucket: env.S3_BUCKET,
+              accessKeyId: env.S3_ACCESS_KEY_ID,
+              secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+            })
+          : undefined));
+
   app.get('/health', (_req, res) => {
     res.json(respObj({ data: { service: 'api' } }));
   });
@@ -73,6 +97,7 @@ export const buildApp = (options: { datajud?: DatajudClient } = {}): Express => 
   });
 
   app.use('/platform', createPlatformRouter({ validToken, mailProvider, inviteBaseUrl }));
+  app.use('/tenant/office', createOfficeRouter({ validToken, storage }));
   app.use('/tenant', createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/invites', inviteRouter);
   app.use('/auth', createAuthRouter({ validToken }));
@@ -82,6 +107,7 @@ export const buildApp = (options: { datajud?: DatajudClient } = {}): Express => 
   app.use('/partes', createParteRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken }));
   app.use('/financeiro', createFinanceiroRouter({ validToken }));
+  app.use('/documentos', createDocumentosRouter({ validToken, pdf, storage }));
   app.use('/prospeccao', createProspeccaoRouter({ validToken, datajud }));
 
   app.use(errorHandler);
