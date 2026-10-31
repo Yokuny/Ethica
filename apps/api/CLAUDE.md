@@ -27,7 +27,7 @@ apps/api/src/
     ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal e aviso diário de prazos
     ├── financeiro/                 # Lancamento — honorários (com parcelas, AD-111) e despesas; resumo, fluxo, categorias
     ├── prospeccao/                 # Oportunidade + busca no Datajud; converte em perícia
-    └── documentos/                 # PDFs (AD-119) e exportação ZIP (AD-122) — sem model, só lê os services dos outros
+    └── documentos/                 # PDFs (AD-119), exportação ZIP (AD-122) e laudos (Laudo + ModeloLaudo, AD-126) — ninguém depende dele
 ```
 
 Cada `modules/<modulo>/` é **auto-contido**: `<entidade>.router.ts .controller.ts .service.ts .repository.ts .schema.ts` + testes colocalizados (`.unit.test.ts .int.test.ts .e2e.test.ts`, nunca pasta `__test__` separada — AD-017). Um módulo pode agrupar mais de uma entidade (`identity`) quando elas compartilham dono de collection ou fronteira de domínio — granularidade é por **contexto**, não 1:1 com arquivo.
@@ -46,7 +46,7 @@ Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma co
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `documentos` → todos os outros (só leitura, ninguém depende dele); `pericia` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
+Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `documentos` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `pericia`; ninguém depende dele, e a exclusão da perícia chega por `pericia:deleted`); `pericia` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 
@@ -57,6 +57,7 @@ Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `
 | `agenda` | `Compromisso` |
 | `financeiro` | `Lancamento` |
 | `prospeccao` | `Oportunidade` |
+| `documentos` | `Laudo ModeloLaudo` (AD-126) |
 
 Helpers sem dono (`tenantScoped`, `hashToken`, datas, tipos) podem ser importados por qualquer módulo — a tabela só restringe **models e transições de negócio**. A tabela vive de verdade em `tests/structural/module-boundary.structural.test.ts`(`DB_OWNERSHIP`) — atualizar os dois lugares (aqui e lá) ao mudar o dono de algo.
 
@@ -110,7 +111,7 @@ domainEventBus.on('pericia:honorarios_fixados', async (payload) => {
 });
 ```
 
-Evento atual: `pericia:honorarios_fixados` → financeiro lança a receita a receber ou atualiza o valor do honorário fixado já lançado (AD-106, AD-111). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `pericia.service` (AD-109), sem evento.
+Eventos atuais: `pericia:honorarios_fixados` → financeiro lança a receita a receber ou atualiza o valor do honorário fixado já lançado (AD-106, AD-111); `pericia:deleted` → documentos exclui os laudos da perícia (AD-126). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `pericia.service` (AD-109), sem evento.
 
 - Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"pericia:honorarios_fixados","message":"…"}`.
 - `off(event, handler)` remove de fato (o bus guarda o wrapper por `(evento, handler)` internamente).

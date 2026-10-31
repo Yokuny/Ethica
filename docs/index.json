@@ -84,9 +84,9 @@
     {
       "slug": "laudos",
       "feature": "Laudo automatizado",
-      "descricao": "Modelos de laudo por seções sim/não com variáveis, editor com IA e exportação em PDF e Word",
+      "descricao": "Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word",
       "data": "2026-10-31",
-      "status": "planejado",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -94,7 +94,16 @@
         "packages/db"
       ],
       "decisoes": [
-        "AD-107"
+        "AD-103",
+        "AD-107",
+        "AD-113",
+        "AD-119",
+        "AD-121",
+        "AD-123",
+        "AD-124",
+        "AD-125",
+        "AD-126",
+        "AD-127"
       ],
       "spec": [
         ".specs/features/laudos"
@@ -530,6 +539,36 @@
     {
       "id": "AD-122",
       "decisao": "A `documentos-pdf` entra inteira nesta rodada (DOC-01 a DOC-04). A exportação é um ZIP (`fflate`) com um CSV por entidade do tenant, separad",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-123",
+      "decisao": "O texto do laudo e dos modelos é editado com Tiptap 3 no `apps/web` (StarterKit reduzido + tabela): parágrafo, títulos de nível 3 e 4, negri",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-124",
+      "decisao": "A redação com IA (LAU-04) fica fora desta rodada. Nenhum texto do laudo sai do Ethica; provedor, limite por tenant e tratamento LGPD serão d",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-125",
+      "decisao": "O laudo é exportado em Word com a biblioteca `docx` no `apps/api`, montado a partir do mesmo HTML saneado (AD-123) lido com `htmlparser2`: c",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-126",
+      "decisao": "Defaults da spec de `laudos` confirmados pelo usuário, com o modelo de dados: (1) `ModeloLaudo` e `Laudo` são collections do módulo `documen",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-127",
+      "decisao": "A feature `laudos` entra nesta rodada com LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (LAU-04 fora, AD-124). A biblioteca padrão trabalhista tra",
       "data": "2026-10-31",
       "status": "active"
     }

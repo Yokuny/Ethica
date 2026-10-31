@@ -11,6 +11,7 @@ import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { responseTime } from './middlewares/responseTime.middleware.js';
 import { createAgendaRouter } from './modules/agenda/compromisso.router.js';
 import { createDocumentosRouter } from './modules/documentos/documentos.router.js';
+import { createLaudoRouter } from './modules/documentos/laudo.router.js';
 import { createFinanceiroRouter } from './modules/financeiro/lancamento.router.js';
 import { createAccountRouter } from './modules/identity/account.router.js';
 import { buildAuthDeps } from './modules/identity/auth.deps.js';
@@ -56,6 +57,9 @@ export const buildApp = (
   // Content-Disposition exposto: o web lê o nome do PDF/ZIP gerado (AD-119, AD-122).
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Content-Disposition'] }));
   app.use(cookieParser());
+  // Seção de laudo com texto rico passa de 100 kB: 1 MB só em `/laudos`; o parser global
+  // ignora o corpo já lido (AD-126).
+  app.use('/laudos', express.json({ limit: '1mb' }));
   app.use(express.json());
   app.use(responseTime);
 
@@ -108,6 +112,7 @@ export const buildApp = (
   app.use('/agenda', createAgendaRouter({ validToken }));
   app.use('/financeiro', createFinanceiroRouter({ validToken }));
   app.use('/documentos', createDocumentosRouter({ validToken, pdf, storage }));
+  app.use('/laudos', createLaudoRouter({ validToken, pdf, storage }));
   app.use('/prospeccao', createProspeccaoRouter({ validToken, datajud }));
 
   app.use(errorHandler);

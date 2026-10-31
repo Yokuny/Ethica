@@ -33,7 +33,7 @@ O perito precisava de papel para a vistoria, relatórios para o escritório e o 
 
 ### `apps/api`
 
-- `apps/api/src/modules/documentos/` — módulo novo sem model: `documentos.router.ts` (`/documentos/*`, papéis por rota), `documentos.service.ts` (junta os dados pelos services de `pericia`, `agenda`, `financeiro`, `prospeccao`, `identity`; CSV e ZIP da exportação), `documentos.templates.ts` (um documento = função pura dados → HTML) e `documento.layout.ts` (CSS de impressão, escape, rótulos pt-BR e a troca dos marcadores no cabeçalho/rodapé).
+- `apps/api/src/modules/documentos/` — módulo novo (desde `laudos`, dono de `Laudo` e `ModeloLaudo`, AD-126): `documentos.router.ts` (`/documentos/*`, papéis por rota), `documentos.service.ts` (junta os dados pelos services de `pericia`, `agenda`, `financeiro`, `prospeccao`, `identity`; CSV e ZIP da exportação), `documentos.templates.ts` (um documento = função pura dados → HTML) e `documento.layout.ts` (CSS de impressão, escape, rótulos pt-BR e a troca dos marcadores no cabeçalho/rodapé).
 - `apps/api/src/providers/pdfRenderer.ts` — Chromium via `puppeteer-core`, um navegador por processo, sem JavaScript na página. `apps/api/src/providers/fileStorage.ts` — bucket privado S3 (`@aws-sdk/client-s3`). Os dois são criados em `apps/api/src/app.ts` e injetáveis nos testes; o CORS expõe `Content-Disposition` para o web ler o nome do arquivo.
 - `apps/api/src/modules/identity/office.*` — `/tenant/office` (texto, logo com cota reservada no mesmo update, registro de exportação, identidade para os PDFs). `account.*` ganhou `GET /me/profile` e os dados profissionais.
 - `apps/api/src/modules/pericia/` — `POST/DELETE /pericias/:id/movimentacoes` e `listParadas` (regra dos 60 dias em `pericia.service.ts`); funções `listForExport` nos services de cada módulo e `relatorioPeriodo`/`resumoDaPericia` em `financeiro/lancamento.service.ts`.
@@ -72,5 +72,6 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 
 ## Histórico
 
+- 2026-10-31 — `documento.layout.ts` ganhou `cabecalhoRodape`/`textosCabecalhoRodape` para o laudo e o Word reaproveitarem; o módulo passou a ter os models do laudo (`docs/features/laudos/feature.md`).
 - 2026-10-31 — Implementado DOC-01 a DOC-04 (AD-119 a AD-122); validação em `.specs/features/documentos-pdf/validation.md`. Divergências do design: storage local é RustFS em vez de MinIO (imagens públicas do MinIO indisponíveis); o CORS passou a expor `Content-Disposition`, achado na UAT.
 - 2026-10-31 — Spec criada (`.specs/features/documentos-pdf/spec.md`).

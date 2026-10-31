@@ -8,6 +8,15 @@ import { financeiroReportQuerySchema, updateOfficeSchema } from './schemas/docum
 import { idSchema } from './schemas/id.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { createLancamentoSchema, createParcelaSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
+import {
+  concluirLaudoSchema,
+  createLaudoSchema,
+  createModeloLaudoSchema,
+  modeloSecaoSchema,
+  moverSecaoSchema,
+  updateLaudoSecaoSchema,
+  updateModeloLaudoSchema,
+} from './schemas/laudo.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
 import {
   createParteSchema,
@@ -68,6 +77,13 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createParteSchema', schema: createParteSchema },
   { name: 'updateParteSchema', schema: updateParteSchema },
   { name: 'periciaParteInputSchema', schema: periciaParteInputSchema },
+  { name: 'createModeloLaudoSchema', schema: createModeloLaudoSchema },
+  { name: 'updateModeloLaudoSchema', schema: updateModeloLaudoSchema },
+  { name: 'modeloSecaoSchema', schema: modeloSecaoSchema },
+  { name: 'moverSecaoSchema', schema: moverSecaoSchema },
+  { name: 'createLaudoSchema', schema: createLaudoSchema },
+  { name: 'updateLaudoSecaoSchema', schema: updateLaudoSecaoSchema },
+  { name: 'concluirLaudoSchema', schema: concluirLaudoSchema },
   { name: 'createPrazoSchema', schema: createPrazoSchema },
   { name: 'updatePrazoSchema', schema: updatePrazoSchema },
   { name: 'createCompromissoSchema', schema: createCompromissoSchema },

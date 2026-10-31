@@ -14,6 +14,7 @@ import { periciaQuery } from '@/query/pericia.js';
 import { canSeeFinance, isAdminSession, sessionQuery } from '@/query/session.js';
 import { PericiaDetailsView } from './@components/pericia-details-view.js';
 import { PericiaEditForm } from './@components/pericia-edit-form.js';
+import { PericiaLaudos } from './@components/pericia-laudos.js';
 import { PericiaMovimentacoes } from './@components/pericia-movimentacoes.js';
 import { PericiaPrazos } from './@components/pericia-prazos.js';
 import { PericiaRelated } from './@components/pericia-related.js';
@@ -83,6 +84,7 @@ export function PericiaDetailsPage() {
         <CardContent className="gap-10">
           <PericiaDetailsView pericia={pericia} />
           <PericiaPrazos periciaId={pericia.id} />
+          <PericiaLaudos pericia={pericia} />
           <PericiaMovimentacoes pericia={pericia} />
           <PericiaRelated periciaId={pericia.id} canSeeFinance={canSeeFinance(session)} />
         </CardContent>

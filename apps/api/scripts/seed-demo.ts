@@ -5,6 +5,8 @@ import {
   dateInDisplayTz,
   disconnect,
   Lancamento,
+  Laudo,
+  ModeloLaudo,
   Oportunidade,
   Parte,
   Pericia,
@@ -16,6 +18,8 @@ import {
 } from '@ethica/db';
 import bcrypt from 'bcrypt';
 import { env } from '../src/config/env.config.js';
+import { MODELOS_PADRAO } from '../src/modules/documentos/laudo.biblioteca.js';
+import { resolverVariaveis } from '../src/modules/documentos/laudo.html.js';
 
 // Ferramenta de dev: cria (ou recria) o tenant de demonstração "Perícias Demo"
 // com equipe, perícias em várias etapas, agenda, lançamentos e oportunidades,
@@ -112,6 +116,8 @@ const run = async (): Promise<void> => {
       Compromisso.deleteMany({ Tenant: old._id }),
       Lancamento.deleteMany({ Tenant: old._id }),
       Oportunidade.deleteMany({ Tenant: old._id }),
+      Laudo.deleteMany({ Tenant: old._id }),
+      ModeloLaudo.deleteMany({ Tenant: old._id }),
       Session.deleteMany({ user: { $in: users.map((user) => user._id) } }),
       User.deleteMany({ Tenant: old._id }),
       Tenant.deleteOne({ _id: old._id }),
@@ -127,7 +133,7 @@ const run = async (): Promise<void> => {
     rodape: '[NOME_PERITO] · Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]',
   });
   const password = await bcrypt.hash(PASSWORD, 10);
-  await User.create(
+  const [admin] = await User.create(
     (['admin', 'manager', 'operator'] as const).map((role) => ({
       name: `${role[0]?.toUpperCase()}${role.slice(1)} Demo`,
       email: `${role}@pericias.example.com`,
@@ -359,6 +365,67 @@ const run = async (): Promise<void> => {
     },
   );
   await Lancamento.insertMany(lancamentos.map((lancamento) => ({ ...lancamento, Tenant: tenant._id })));
+
+  // Laudos (AD-126): um modelo do escritório clonado do padrão e um laudo em rascunho da perícia
+  // em elaboração, com as seções de periculosidade e uma variável pendente para mostrar o bloqueio.
+  const padrao = MODELOS_PADRAO.report;
+  await ModeloLaudo.create({
+    Tenant: tenant._id,
+    nome: 'Periculosidade — inflamáveis (escritório)',
+    tipo: 'report',
+    secoes: padrao.secoes
+      .filter((secao) => !secao.titulo.includes('NR-15') && !/^Anexo \d+ — (?!Inflamáveis)/.test(secao.titulo))
+      .map(({ id: _id, ...secao }) => secao),
+  });
+  const valores = {
+    '[NUMERO_PROCESSO]': PERICIAS[1].numero,
+    '[TRIBUNAL]': PERICIAS[1].tribunal,
+    '[VARA]': PERICIAS[1].vara,
+    '[OBJETO]': PERICIAS[1].objeto,
+    '[NOME_AUTOR]': 'José Santos',
+    '[NOME_REU]': 'Indústria Exemplo Ltda.',
+    '[DENOMINACAO_AUTOR]': 'Reclamante',
+    '[DENOMINACAO_REU]': 'Reclamada',
+    '[FUNCAO_RECLAMANTE]': 'Operador(a) de máquinas',
+    '[LOCAL_PERICIA]': 'Av. Industrial, 1500 — São Paulo/SP',
+    '[PERITO_NOME]': 'Admin Demo',
+    '[PERITO_REGISTRO]': 'CREA-SP 5061234567',
+    '[PERITO_FORMACAO]': 'Engenharia de Segurança do Trabalho',
+  };
+  const ESCOLHA: Record<string, 'yes' | 'no'> = {
+    'Identificação do processo': 'yes',
+    Objetivo: 'yes',
+    'Metodologia e vistoria': 'yes',
+    'Atividades exercidas': 'yes',
+    'Equipamentos de proteção individual': 'no',
+    'Periculosidade — NR-16': 'yes',
+    'Anexo 2 — Inflamáveis': 'yes',
+    Conclusão: 'yes',
+    'Honorários periciais': 'no',
+    Encerramento: 'yes',
+  };
+  await Laudo.create({
+    Tenant: tenant._id,
+    Pericia: laudo?._id,
+    tipo: 'report',
+    status: 'draft',
+    titulo: 'Laudo pericial',
+    modeloNome: padrao.nome,
+    CriadoPor: admin?._id,
+    secoes: padrao.secoes
+      .filter((secao) => secao.titulo in ESCOLHA)
+      .map((secao) => {
+        const variante = ESCOLHA[secao.titulo] ?? 'yes';
+        return {
+          titulo: resolverVariaveis(secao.titulo, valores, 'texto'),
+          nivel: secao.nivel,
+          apenasTitulo: secao.apenasTitulo,
+          quebraPagina: secao.quebraPagina,
+          variante,
+          html: resolverVariaveis(variante === 'yes' ? secao.textoSim : secao.textoNao, valores, 'html'),
+        };
+      }),
+  });
 
   await Oportunidade.create([
     {

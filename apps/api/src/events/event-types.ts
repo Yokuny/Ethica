@@ -7,8 +7,15 @@ export interface PericiaHonorariosFixadosPayload {
   valorCents: number;
 }
 
+// Perícia excluída: quem guarda dado ligado a ela (laudos, AD-126) apaga o seu.
+export interface PericiaDeletedPayload {
+  tenantId: string;
+  periciaId: string;
+}
+
 export type DomainEventMap = {
   'pericia:honorarios_fixados': PericiaHonorariosFixadosPayload;
+  'pericia:deleted': PericiaDeletedPayload;
 };
 
 export type DomainEventName = keyof DomainEventMap;

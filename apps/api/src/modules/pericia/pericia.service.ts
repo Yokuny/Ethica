@@ -14,6 +14,7 @@ import type {
   UpdatePericia,
 } from './pericia.schema.js';
 import * as prazoRepository from './prazo.repository.js';
+import { PRAZO_ENTREGA_LAUDO } from './prazo.schema.js';
 
 // AD-010: findById/update/delete já são tenant-scoped — um id de outro tenant
 // simplesmente não existe para esta sessão.
@@ -42,7 +43,7 @@ export const createPericia = async (data: CreatePericiaInput): Promise<PericiaRe
     });
     if (prazoLaudo) {
       await prazoRepository.createPrazo(input.tenant, pericia.id, {
-        titulo: 'Entrega do laudo',
+        titulo: PRAZO_ENTREGA_LAUDO,
         vencimento: prazoLaudo,
         observacoes: 'Gerado a partir do prazo do laudo informado no cadastro.',
       });
@@ -80,12 +81,14 @@ export const updatePericia = async (tenantId: string, id: string, data: UpdatePe
   return updated;
 };
 
-// Excluir é ação de admin (pericia.router.ts) e leva os prazos junto. Compromissos e
+// Excluir é ação de admin (pericia.router.ts) e leva os prazos junto; os laudos saem pelo
+// evento `pericia:deleted` (AD-126). Compromissos e
 // lançamentos que apontam para ela ficam sem o vínculo: referência ausente vira campo ausente.
 export const deletePericia = async (tenantId: string, id: string): Promise<void> => {
   const { deletedCount } = await periciaRepository.deletePericia(tenantId, id);
   if (deletedCount === 0) throw new PericiaNotFoundError('not_found');
   await prazoRepository.deleteByPericia(tenantId, id);
+  domainEventBus.emit('pericia:deleted', { tenantId, periciaId: id });
 };
 
 export const listPericias = async (

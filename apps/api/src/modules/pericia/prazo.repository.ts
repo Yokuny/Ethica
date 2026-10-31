@@ -37,6 +37,21 @@ export const updatePrazo = async (tenantId: string, id: string, data: PrazoWrite
     return doc ? toRecord(doc) : null;
   });
 
+export const protocolarPendente = async (
+  tenantId: string,
+  periciaId: string,
+  titulo: string,
+  protocoladoEm: string,
+): Promise<PrazoRecord | null> =>
+  withDbTiming('prazo.protocolarPendente', async () => {
+    const doc = await Prazo.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, Pericia: periciaId, titulo, status: 'pending' as const }),
+      { $set: { status: 'filed', protocoladoEm } },
+      { sort: { vencimento: 1, _id: 1 }, returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
 export const deletePrazo = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>
   withDbTiming('prazo.deletePrazo', async () => {
     const result = await Prazo.deleteOne(tenantScoped({ Tenant: tenantId, _id: id }));

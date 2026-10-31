@@ -17,6 +17,9 @@ export const isAdminSession = (session: SessionView): boolean => session.role.in
 // Mesmo papel do router `/financeiro` da API (AD-107).
 export const canSeeFinance = (session: SessionView): boolean =>
   session.role.some((role) => role === 'admin' || role === 'manager');
+// Modelos de laudo são padrão do escritório: só admin e manager editam (AD-126).
+export const canManageReportTemplates = (session: SessionView): boolean =>
+  session.role.some((role) => role === 'admin' || role === 'manager');
 
 export const sessionKeys = {
   all: ['session'] as const,

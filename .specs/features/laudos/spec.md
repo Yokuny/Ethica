@@ -97,12 +97,12 @@ O laudo é o produto final do perito e hoje é escrito fora do Ethica, copiando 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| LAU-01 | P1: Modelos de laudo | Specify | Pending |
-| LAU-02 | P1: Iniciar o laudo | Specify | Pending |
-| LAU-03 | P1: Redigir e exportar | Specify | Pending |
-| LAU-04 | P2: Redação com IA | Specify | Pending |
-| LAU-05 | P2: Biblioteca padrão trabalhista | Specify | Pending |
-| LAU-06 | P2: Parecer técnico do assistente técnico | Specify | Pending |
+| LAU-01 | P1: Modelos de laudo | Execute | Verified |
+| LAU-02 | P1: Iniciar o laudo | Execute | Verified |
+| LAU-03 | P1: Redigir e exportar | Execute | Verified |
+| LAU-04 | P2: Redação com IA | Specify | Deferred (AD-124) |
+| LAU-05 | P2: Biblioteca padrão trabalhista | Execute | Verified |
+| LAU-06 | P2: Parecer técnico do assistente técnico | Execute | Verified |
 
 ## Success Criteria
 

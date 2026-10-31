@@ -495,8 +495,49 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-10-31
 - **Status**: active
 
+### AD-123
+- **Decision**: O texto do laudo e dos modelos é editado com **Tiptap 3** no `apps/web` (StarterKit reduzido + tabela): parágrafo, títulos de nível 3 e 4, negrito, itálico, sublinhado, listas e tabela simples; sem link, imagem, cor, código ou HTML livre. A API **saneia todo HTML gravado** com `sanitize-html` e uma allowlist única (`LAUDO_HTML_TAGS` em `packages/contracts/src/schemas/laudo.schema.ts`, sem atributos além de `colspan`/`rowspan`), a mesma que o PDF e o Word sabem desenhar.
+- **Reason**: escolha do usuário em 2026-10-31. Tiptap é headless (estiliza com Tailwind, convive com Base UI) e gera HTML semântico que o Chromium (AD-119) renderiza sem conversão; o saneamento no servidor fecha a porta para HTML forjado pela API, já que o PDF é montado por concatenação.
+- **Trade-off**: +~150 kB no bundle da tela do editor (code splitting por rota); formatação fora da allowlist some ao salvar (colar do Word perde cor e fonte).
+- **Scope**: `apps/web/src/components/rich-text-editor.tsx`, `apps/web/package.json`, `apps/api/src/modules/documentos/laudo.html.ts`, `apps/api/package.json`, `packages/contracts/src/schemas/laudo.schema.ts`; origem `.specs/features/laudos/spec.md`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-124
+- **Decision**: A redação com IA (LAU-04) **fica fora desta rodada**. Nenhum texto do laudo sai do Ethica; provedor, limite por tenant e tratamento LGPD serão decididos numa spec própria antes de qualquer código.
+- **Reason**: escolha do usuário em 2026-10-31, coerente com a AD-114 (sem IA por custo e LGPD); o laudo traz dado de saúde do periciando.
+- **Trade-off**: o diferencial de "melhorar a redação" do concorrente fica para depois; a biblioteca padrão (LAU-05) reduz a redação do zero.
+- **Scope**: `.specs/features/laudos/spec.md` (LAU-04 adiada), `docs/features/laudos/feature.md` (pendência).
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-125
+- **Decision**: O laudo é exportado em **Word com a biblioteca `docx`** no `apps/api`, montado a partir do mesmo HTML saneado (AD-123) lido com `htmlparser2`: cada tag da allowlist vira o elemento equivalente do Word (parágrafo, título, lista, tabela, negrito/itálico/sublinhado). O arquivo tem capa, sumário (campo do Word, atualizado ao abrir), seções com os títulos numerados como estilos de título, quebra de página por seção, cabeçalho/rodapé do escritório com logo e os marcadores da AD-121 (`[PAGINA_ATUAL]`/`[TOTAL_PAGINAS]` viram campos de página). O PDF segue o HTML → Chromium (AD-119); o sumário do PDF lista as seções sem número de página.
+- **Reason**: escolha do usuário em 2026-10-31. Mapear só as tags permitidas dá controle sobre cabeçalho, sumário e numeração, que conversores HTML → DOCX não garantem.
+- **Trade-off**: fidelidade de estrutura, não de pixel, entre PDF e Word; tag nova na allowlist exige mapear nos dois. Sumário com página só no Word.
+- **Scope**: `apps/api/src/modules/documentos/laudo.docx.ts`, `apps/api/package.json`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-126
+- **Decision**: Defaults da spec de `laudos` confirmados pelo usuário, com o modelo de dados: (1) `ModeloLaudo` e `Laudo` são collections do módulo `documentos` (dono dos models, reaproveita layout e identidade); a seção tem título, **nível** (1 a 3), "apenas título", quebra de página e texto "sim"/"não" em HTML; a **numeração** ("2.1") é calculada pela posição e pelo nível, nunca gravada, e é o "código" da spec, o que torna a renumeração automática ao remover; (2) os **modelos padrão** (laudo pericial e parecer técnico) são constantes no código, listados para todo tenant como somente leitura e clonáveis; o laudo copia as seções na criação, então alterar o modelo não altera laudo existente; (3) **variáveis** são marcadores `[NOME]` da lista `LAUDO_VARIAVEIS` (`packages/contracts/src/schemas/laudo.schema.ts`), resolvidos com os dados da perícia, de quem gera e do escritório ao criar, de novo a cada abertura do rascunho (sem gravar; salvar a seção grava o texto já resolvido), na exportação e na conclusão (que grava o texto final), para que a tela mostre as mesmas pendências que bloqueiam; marcador da lista ainda sem valor bloqueia **exportar e concluir** (422 `laudo_unresolved_variables`, com as seções); (4) `draft` → `completed`, só leitura no servidor; concluir oferece registrar a entrega: protocola o prazo pendente "Entrega do laudo", lança a movimentação `report_filed` com a data do dia e avança a etapa para `report_delivered` quando ela ainda é anterior; (5) modelos só por `admin`/`manager`, laudo por qualquer papel (AD-107); laudo concluído não é excluído; (6) excluir a perícia exclui os laudos dela pelo evento `pericia:deleted` (o módulo `pericia` não conhece `documentos`).
+- **Reason**: respostas do usuário em 2026-10-31 à tabela "Assumptions & Open Questions" da spec. Número calculado elimina a renumeração manual; modelo padrão em código dispensa semear cada tenant e mantém o texto atualizável por deploy.
+- **Trade-off**: o texto resolvido fica gravado (perícia alterada depois da abertura só reflete em marcadores ainda não resolvidos); a exclusão em cascata é assíncrona (falha só no log, `domain_event.handler_failed`); laudo concluído por engano só sai excluindo a perícia.
+- **Scope**: `packages/db/src/models/{laudo,modeloLaudo}.model.ts`, `packages/contracts/src/schemas/laudo.schema.ts`, `apps/api/src/modules/documentos/`, `apps/api/src/modules/pericia/{pericia,prazo}.service.ts`, `apps/api/src/events/`, `apps/web/src/routes/_private/laudos/`, `tests/structural/module-boundary.structural.test.ts`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-127
+- **Decision**: A feature `laudos` entra nesta rodada com LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (LAU-04 fora, AD-124). A biblioteca padrão trabalhista traz todas as seções (identificação, objetivo, metodologia, NR-15 anexos 1 a 14, NR-16, quesitos do reclamante, da reclamada e do juízo, conclusão, honorários e encerramento) com **texto-base curto** citando a norma, em variante "sim" e "não", e um aviso de que deve ser revisado pelo perito; o parecer técnico tem seções próprias (medições com o perito, quesitos complementares e suplementares, impugnação do laudo pericial). A denominação das partes vem da justiça: trabalhista reclamante/reclamada, cível e federal autor/réu (`[DENOMINACAO_AUTOR]`, `[DENOMINACAO_REU]`).
+- **Reason**: escolha do usuário em 2026-10-31. O texto-base dá um laudo utilizável no primeiro dia sem afirmar conteúdo técnico como definitivo.
+- **Trade-off**: o texto-base não substitui a revisão técnica e jurídica; atualizar a biblioteca é deploy, não tela.
+- **Scope**: `apps/api/src/modules/documentos/laudo.biblioteca.ts`, `.specs/features/laudos/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `laudos` — concluída com LAU-01, 02, 03, 05 e 06 (AD-123 a AD-127, `validation.md` PASS, UAT no navegador). LAU-04 (IA) adiada (AD-124); pendências no `feature.md`.
 - **Feature**: `importacao-processos` — concluída (AD-114 a AD-118, `validation.md` PASS, UAT no navegador). Pendências no `feature.md` (OCR, excluir/mesclar partes, atas de outros tribunais).
 - **Feature**: `prazos-recebimentos` — concluída (AD-109 a AD-112, `validation.md` PASS). Pendente só UAT visual e a trava por dia do aviso diário quando houver mais de uma réplica da API (`docs/features/prazos-recebimentos/feature.md`).
 - **Feature**: `fundacao-ethica` — base pronta (código + harness + docs).

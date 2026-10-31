@@ -5,6 +5,9 @@ import { z } from 'zod';
 export type { CreatePrazo, UpdatePrazo };
 export { createPrazoSchema, updatePrazoSchema };
 
+// Prazo criado pelo `prazoLaudo` do cadastro (AD-109) e protocolado ao concluir o laudo (AD-126).
+export const PRAZO_ENTREGA_LAUDO = 'Entrega do laudo';
+
 export const prazoIdParamSchema = z.object({ prazoId: idSchema }).strict();
 
 // Calendário da agenda: prazos pendentes que vencem em [from, to) (datas do fuso de exibição).
