@@ -47,7 +47,7 @@ Cadastrar uma perícia exige ler a ata de audiência ou o despacho de nomeação
 
 1. WHEN o perito envia um PDF THEN the system SHALL extrair número do processo, vara, comarca, objeto, partes, advogados, data de nomeação e prazo do laudo quando presentes, e abrir o formulário de cadastro preenchido.
 2. WHEN um campo não é encontrado THEN the system SHALL deixá-lo vazio e sinalizá-lo para preenchimento.
-3. WHEN o número extraído é inválido ou já existe no tenant THEN the system SHALL avisar antes de salvar.
+3. WHEN o número extraído é inválido THEN the system SHALL avisar antes de salvar; WHEN já existe no tenant THEN the system SHALL avisar e não criar duplicado.
 4. WHEN o perito salva THEN the system SHALL criar a perícia e as partes/advogados ainda não cadastrados.
 5. WHEN o arquivo não é PDF ou excede o limite de tamanho THEN the system SHALL recusar com mensagem clara.
 
@@ -60,7 +60,7 @@ Cadastrar uma perícia exige ler a ata de audiência ou o despacho de nomeação
 **Acceptance Criteria**:
 
 1. WHEN o usuário baixa o modelo THEN the system SHALL entregar um CSV com as colunas aceitas e uma linha de exemplo.
-2. WHEN o CSV é enviado THEN the system SHALL criar uma perícia por linha válida e responder quantas foram criadas, ignoradas (duplicadas) e recusadas, com o motivo por linha.
+2. WHEN o CSV é enviado THEN the system SHALL criar uma perícia por linha válida e responder quantas foram criadas, ignoradas e recusadas, com o motivo por linha. Processo já cadastrado no tenant SHALL ser pulado sem interromper o lote, apenas com um aviso (usuário, 2026-10-31).
 3. WHEN uma linha traz partes ou advogados THEN the system SHALL reaproveitar cadastros existentes ou criá-los.
 
 **Independent Test**: CSV com 3 linhas válidas, 1 duplicada e 1 com número inválido ⇒ 3 criadas, 1 ignorada, 1 recusada.
