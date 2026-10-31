@@ -13,7 +13,8 @@
       "decisoes": [
         "AD-105",
         "AD-106",
-        "AD-107"
+        "AD-107",
+        "AD-108"
       ],
       "spec": [
         ".specs/features/benchmark-jusperia"
@@ -421,6 +422,12 @@
       "decisao": "O financeiro (`/financeiro/*` na API e no web) é restrito a `admin` e `manager`; perícias, agenda e prospecção são de qualquer papel do tena",
       "data": "2026-10-29",
       "status": "active"
+    },
+    {
+      "id": "AD-108",
+      "decisao": "Permissões do tenant passam a ser uma matriz perfil × módulo × ação (acessar, visualizar, editar, inserir, excluir). Os perfis de equipe (eq",
+      "data": "2026-10-31",
+      "status": "proposed"
     }
   ]
 }

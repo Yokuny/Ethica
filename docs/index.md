@@ -45,6 +45,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-108** (2026-10-31, proposed) — Permissões do tenant passam a ser uma matriz perfil × módulo × ação (acessar, visualizar, editar, inserir, excluir). Os perfis de equipe (eq
 - **AD-107** (2026-10-29, active) — O financeiro (`/financeiro/*` na API e no web) é restrito a `admin` e `manager`; perícias, agenda e prospecção são de qualquer papel do tena
 - **AD-106** (2026-10-29, active) — Efeitos entre módulos do domínio por evento (AD-039): `pericia:created` com `prazoLaudo` ⇒ a `agenda` cria o compromisso automático "Entrega
 - **AD-105** (2026-10-29, active) — Prospecção usa a API Pública do Datajud (CNJ) chamada só pelo `apps/api` (`providers/datajudClient.ts`, injetado em `buildApp`), com a chave
@@ -54,7 +55,6 @@ _Nenhum._
 - **AD-098** (2026-10-23, active) — Tenant `suspended` é barrado em `authenticateSession` (`apps/api/src/middlewares/authentication.middleware.ts`) com `403 tenant_suspended` n
 - **AD-097** (2026-10-19, active) — A conta da pessoa logada (`/account`: foto, nome, senha) escreve só em `/me/*` (`PATCH /me/profile`, `PUT /me/password`, `PUT`/`DELETE /me/a
 - **AD-095** (2026-10-19, active) — Todo `index.tsx` que redireciona para as páginas de um módulo (`/customers`, `/activities`, `/processes`, `/schedule`, `/kanban`, `/custom_f
-- **AD-094** (2026-10-19, active) — Página-hub que lista destinos (kanban `/kanban`, modelos de campos `/custom_fields`) abre com `PageIntro` (`apps/web/src/components/page-int
 
 ## `.specs/` sem registro em `docs/features/`
 
