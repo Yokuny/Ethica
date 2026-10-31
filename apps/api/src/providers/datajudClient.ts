@@ -40,6 +40,7 @@ type DatajudSource = {
 type DatajudHit = { _source?: DatajudSource; sort?: (string | number)[] };
 
 const DEFAULT_SIZE = 20;
+const DEFAULT_TIMEOUT_MS = 30_000;
 
 // O Datajud guarda o número só com dígitos; a tela e o cadastro usam a máscara do CNJ.
 export const formatNumeroCnj = (digits: string): string => {
@@ -53,7 +54,20 @@ export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown>
   if (query.termo) {
     must.push({ multi_match: { query: query.termo, fields: ['movimentos.nome', 'assuntos.nome', 'classe.nome'] } });
   }
+  if (query.assuntosTecnicos?.length) {
+    must.push({
+      bool: {
+        should: query.assuntosTecnicos.map((assunto) => ({
+          match: { 'assuntos.nome': { query: assunto, operator: 'and' } },
+        })),
+        minimum_should_match: 1,
+      },
+    });
+  }
   if (query.orgaoJulgador) must.push({ match: { 'orgaoJulgador.nome': query.orgaoJulgador } });
+  if (query.numeroProcesso) must.push({ match: { numeroProcesso: query.numeroProcesso.replace(/\D/g, '') } });
+  if (query.classeCodigo) must.push({ match: { 'classe.codigo': query.classeCodigo } });
+  if (query.orgaoJulgadorCodigo) must.push({ match: { 'orgaoJulgador.codigo': query.orgaoJulgadorCodigo } });
   return {
     size: query.size ?? DEFAULT_SIZE,
     query: must.length ? { bool: { must } } : { match_all: {} },
@@ -94,7 +108,7 @@ export const createDatajudClient = (options: {
           method: 'POST',
           headers: { Authorization: `APIKey ${options.apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify(buildDatajudQuery(query)),
-          signal: AbortSignal.timeout(options.timeoutMs ?? 15_000),
+          signal: AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS),
         });
       } catch {
         throw new DatajudUnavailableError();

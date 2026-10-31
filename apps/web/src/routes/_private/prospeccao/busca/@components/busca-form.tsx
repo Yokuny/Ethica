@@ -1,7 +1,9 @@
-import { DATAJUD_TRIBUNAIS, type Justica } from '@ethica/contracts';
+import { DATAJUD_ASSUNTOS_TECNICOS, DATAJUD_TRIBUNAIS, type Justica } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { Form } from '@ethica/ui/components/form';
-import { SelectField, TextField } from '@/components/form-fields.js';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ethica/ui/components/form';
+import { ItemDescription } from '@ethica/ui/components/item';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
+import { NumberField, SelectField, TextField } from '@/components/form-fields.js';
 import { justicaLabel } from '@/components/pericia-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { useBuscaDatajud } from '../@hooks/use-busca-datajud.js';
@@ -16,9 +18,10 @@ const TRIBUNAL_ITEMS = Object.entries(DATAJUD_TRIBUNAIS).flatMap(([justica, trib
 
 export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud> }) {
   const { form, onSubmit, isSearching } = state;
+  const tribunal = form.watch('tribunal');
   return (
     <Form {...form}>
-      <form noValidate onSubmit={onSubmit} className="grid items-end gap-4 sm:grid-cols-[14rem_1fr_1fr_auto]">
+      <form noValidate onSubmit={onSubmit} className="grid items-end gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SelectField
           control={form.control}
           name="tribunal"
@@ -26,6 +29,49 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
           placeholder={t('select')}
           items={TRIBUNAL_ITEMS}
         />
+        <TextField
+          control={form.control}
+          name="numeroProcesso"
+          label={t('process_number')}
+          placeholder={t('example_process_number')}
+        />
+        {tribunal.startsWith('trt') && (
+          <FormField
+            control={form.control}
+            name="assuntosTecnicos"
+            render={({ field }) => (
+              <FormItem className="sm:col-span-2">
+                <FormLabel>{t('technical_subjects')}</FormLabel>
+                <Select<string, true>
+                  multiple
+                  items={DATAJUD_ASSUNTOS_TECNICOS.map((value) => ({ value, label: value }))}
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value ?? [])}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('technical_subjects_placeholder')}>
+                        {(value: string[]) =>
+                          value.length === DATAJUD_ASSUNTOS_TECNICOS.length
+                            ? `${value.length} ${t('selected_count')}`
+                            : value.join(', ')
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {DATAJUD_ASSUNTOS_TECNICOS.map((assunto) => (
+                      <SelectItem key={assunto} value={assunto}>
+                        {assunto}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <TextField
           control={form.control}
           name="termo"
@@ -38,10 +84,28 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
           label={t('judging_body')}
           placeholder={t('example_vara')}
         />
+        <NumberField
+          control={form.control}
+          name="classeCodigo"
+          label={t('class_code')}
+          placeholder={t('example_class_code')}
+          min={1}
+          step={1}
+        />
+        <NumberField
+          control={form.control}
+          name="orgaoJulgadorCodigo"
+          label={t('judging_body_code')}
+          placeholder={t('example_judging_body_code')}
+          min={1}
+          step={1}
+        />
         <Button type="submit" size="field" disabled={isSearching}>
           {t('run_search')}
         </Button>
       </form>
+      <ItemDescription className="mt-3 line-clamp-none text-xs">{t('technical_subjects_description')}</ItemDescription>
+      <ItemDescription className="mt-1 line-clamp-none text-xs">{t('datajud_filter_types')}</ItemDescription>
     </Form>
   );
 }

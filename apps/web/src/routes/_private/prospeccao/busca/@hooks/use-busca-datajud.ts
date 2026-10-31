@@ -38,8 +38,12 @@ export function useBuscaDatajud() {
   function onSubmit(data: BuscaForm) {
     const next = {
       tribunal: data.tribunal,
+      assuntosTecnicos: data.tribunal.startsWith('trt') ? data.assuntosTecnicos : undefined,
       termo: data.termo || undefined,
       orgaoJulgador: data.orgaoJulgador || undefined,
+      numeroProcesso: data.numeroProcesso || undefined,
+      classeCodigo: data.classeCodigo,
+      orgaoJulgadorCodigo: data.orgaoJulgadorCodigo,
     };
     setQuery(next);
     run(next);
@@ -50,7 +54,16 @@ export function useBuscaDatajud() {
   }
 
   function saveItem(item: DatajudResultado) {
-    const { oportunidadeId: _id, ...data } = item;
+    const data = {
+      numeroProcesso: item.numeroProcesso,
+      tribunal: item.tribunal,
+      classe: item.classe,
+      assuntos: item.assuntos,
+      orgaoJulgador: item.orgaoJulgador,
+      dataAjuizamento: item.dataAjuizamento,
+      ultimoMovimento: item.ultimoMovimento,
+      ultimoMovimentoEm: item.ultimoMovimentoEm,
+    };
     save.mutate(data, {
       onSuccess: (created) => {
         setItems((prev) =>
