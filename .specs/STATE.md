@@ -365,7 +365,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: falha do subscriber só aparece no log (`domain_event.handler_failed`); alterar o honorário fixado de novo cria um segundo lançamento (o anterior fica para o perito cancelar).
 - **Scope**: `apps/api/src/events/`, `apps/api/src/modules/{pericia,agenda,financeiro}`.
 - **Date**: 2026-10-29
-- **Status**: active
+- **Status**: active; a parte `pericia:created` ⇒ compromisso "Entrega do laudo" foi superseded pela AD-109, e o trade-off do segundo lançamento ao alterar o honorário fixado foi superseded pela AD-111
 
 ### AD-107
 - **Decision**: O financeiro (`/financeiro/*` na API e no web) é restrito a `admin` e `manager`; perícias, agenda e prospecção são de qualquer papel do tenant (`canOperate`); excluir perícia é só `admin`. No web, a guarda é o `route.tsx` de layout de `financeiro/` e os blocos financeiros da home/detalhe somem para `operator`.
@@ -382,6 +382,38 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Scope**: `apps/api/src/modules/identity/`, `apps/api/src/middlewares/`, `apps/web` (guardas de rota e ações), `.agents/skills/ethica-permissions/SKILL.md`; origem `.specs/features/benchmark-jusperia/2026-10-31-jusperia-inventario.md`.
 - **Date**: 2026-10-31
 - **Status**: proposed
+
+### AD-109
+- **Decision**: Prazo processual é entidade própria: collection `Prazo` no módulo `pericia` (dono do model), com título, vencimento `YYYY-MM-DD` (AD-103), status `pendente`/`protocolado`/`perdido`, data de protocolo e observações; vários por perícia. O `prazoLaudo` informado no cadastro da perícia cria, na mesma chamada do `periciaService`, o prazo "Entrega do laudo" pendente, e deixa de ser campo gravado na `Pericia` (faixa de indicadores e "próximo prazo" da listagem passam a ler os prazos). A agenda mostra os prazos pendentes no calendário e no feed iCal lendo do `periciaService` (grafo `agenda → pericia` inalterado). O compromisso perde o tipo `prazo`, e o evento `pericia:created` com o subscriber da agenda é removido (ficou sem consumidor). Excluir a perícia exclui os prazos dela.
+- **Reason**: escolha do usuário em 2026-10-31. Prazo tem semântica de protocolo (entregue/perdido, data de entrega) que compromisso não tem, e é um dia, não um instante com hora; guardar como compromisso de 18:00 deformava o dado. Criar o prazo no mesmo módulo dispensa evento.
+- **Trade-off**: duas fontes no calendário (compromissos e prazos), juntadas na tela e no feed; a perícia deixa de carregar o prazo do laudo como campo, então quem precisa dele consulta os prazos.
+- **Scope**: `packages/db/src/models/{prazo,pericia,compromisso}.model.ts`, `packages/contracts/src/schemas/{prazo,pericia,compromisso}.schema.ts`, `apps/api/src/modules/{pericia,agenda}/`, `apps/api/src/events/`, `apps/web/src/routes/_private/{pericias,agenda}/`. Supersede da AD-106 a parte `pericia:created` ⇒ compromisso "Entrega do laudo"; origem `.specs/features/prazos-recebimentos/spec.md`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-110
+- **Decision**: O aviso de prazo por e-mail é uma preferência **por usuário**: todo usuário com papel no tenant (qualquer papel) liga ou desliga o próprio aviso na tela de conta, começando ligado. Não há liga/desliga no tenant. O envio é um consolidado diário às 07:00 de `America/Sao_Paulo` (AD-036) com os prazos pendentes que vencem em 15 dias, no dia e venceram ontem; prazo protocolado ou perdido sai do aviso. Tenant suspenso (AD-098) não recebe.
+- **Reason**: escolha do usuário em 2026-10-31; prazo é operacional (perícias e agenda são de qualquer papel, AD-107), e cada pessoa decide se quer o e-mail. Uma só chave elimina a combinação tenant × usuário.
+- **Trade-off**: o admin não consegue silenciar o escritório inteiro de uma vez; supersede o critério 3 de PRZ-04 da spec ("o tenant desliga os avisos"), registrado como divergência no `feature.md`.
+- **Scope**: `packages/db/src/models/user.model.ts`, `apps/api/src/modules/{identity,pericia}/`, `apps/api/src/providers/mail/`, `apps/web/src/routes/_private/account/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-111
+- **Decision**: Honorário (lançamento de `natureza: receita`) **não é excluído nem cancelado**. Recebe parcelas (valor, data, conta/observação) gravadas dentro do lançamento; o status é derivado da soma das parcelas: `previsto` (nenhuma), `parcial` (menor que o valor) ou `liquidado` (igual ao valor). Parcela que excede o saldo é recusada; estorno é por parcela e recalcula o status. Resumo e fluxo de caixa contam o recebido pela data de cada parcela. Quando o juízo altera o honorário fixado, o lançamento automático existente da perícia passa a ter o valor novo, recusado se ficar abaixo do já recebido, em vez de criar um segundo lançamento. Despesa continua como hoje (excluir, cancelar, liquidar com data única).
+- **Reason**: escolha do usuário em 2026-10-31 ("não é permitido excluir honorários, apenas alterar o status para pagamento parcial e pagamento total"); dinheiro que entrou na conta não pode sumir do fluxo de caixa. Sem cancelar, o lançamento duplicado da AD-106 deixaria de ter saída, então a alteração do valor atualiza o existente.
+- **Trade-off**: um honorário lançado por engano fica no histórico (corrige-se editando descrição/valor/vencimento); receita e despesa passam a ter regras de status diferentes no mesmo model. Supersede o trade-off da AD-106 sobre o segundo lançamento.
+- **Scope**: `packages/db/src/models/lancamento.model.ts`, `packages/contracts/src/schemas/lancamento.schema.ts`, `apps/api/src/modules/financeiro/`, `apps/api/src/events/subscribers/financeiro.subscriber.ts`, `apps/web/src/routes/_private/financeiro/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-112
+- **Decision**: A troca de modelo da feature `prazos-recebimentos` (prazo do laudo vira `Prazo`, compromisso perde o tipo `prazo`, lançamento ganha parcelas) **não tem script de migração**; só o `apps/api/scripts/seed-demo.ts` é atualizado para o modelo novo.
+- **Reason**: escolha do usuário em 2026-10-31; ainda não há tenant real, só o seed de demonstração.
+- **Trade-off**: um banco local antigo precisa ser recriado com o seed; se surgir dado real antes do deploy, a migração vira tarefa própria.
+- **Scope**: `apps/api/scripts/seed-demo.ts`.
+- **Date**: 2026-10-31
+- **Status**: active
 
 ## Handoff
 
