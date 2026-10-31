@@ -8,7 +8,7 @@ vi.mock('./lancamento.repository.js', () => ({
   resumo: vi.fn(),
   fluxoMensal: vi.fn(),
 }));
-vi.mock('../pericia/pericia.service.js', () => ({ getPericia: vi.fn(), findNumerosByIds: vi.fn() }));
+vi.mock('../pericia/pericia.service.js', () => ({ getPericia: vi.fn(), findResumosByIds: vi.fn() }));
 
 // 2026-10-29 15:00 em São Paulo.
 const now = new Date('2026-10-29T18:00:00.000Z');

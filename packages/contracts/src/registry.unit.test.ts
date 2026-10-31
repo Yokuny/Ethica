@@ -21,6 +21,8 @@ describe('schemaRegistry', () => {
         'numeroProcessoSchema',
         'createPericiaSchema',
         'updatePericiaSchema',
+        'createPrazoSchema',
+        'updatePrazoSchema',
         'createCompromissoSchema',
         'updateCompromissoSchema',
         'createLancamentoSchema',

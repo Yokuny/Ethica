@@ -14,6 +14,7 @@ import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } fro
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import { listPericiasQuerySchema, periciaIdParamSchema } from './pericia/pericia.schema.js';
+import { listPrazosPendentesQuerySchema, prazoIdParamSchema } from './pericia/prazo.schema.js';
 import {
   converterOportunidadeSchema,
   listOportunidadesQuerySchema,
@@ -32,6 +33,8 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'updatePreferencesSchema', schema: updatePreferencesSchema },
   { name: 'periciaIdParamSchema', schema: periciaIdParamSchema },
   { name: 'listPericiasQuerySchema', schema: listPericiasQuerySchema },
+  { name: 'prazoIdParamSchema', schema: prazoIdParamSchema },
+  { name: 'listPrazosPendentesQuerySchema', schema: listPrazosPendentesQuerySchema },
   { name: 'compromissoIdParamSchema', schema: compromissoIdParamSchema },
   { name: 'listCompromissosQuerySchema', schema: listCompromissosQuerySchema },
   { name: 'upcomingCompromissosQuerySchema', schema: upcomingCompromissosQuerySchema },

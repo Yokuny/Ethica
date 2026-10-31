@@ -9,6 +9,7 @@ import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { createLancamentoSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
 import { createPericiaSchema, numeroProcessoSchema, updatePericiaSchema } from './schemas/pericia.schema.js';
+import { createPrazoSchema, updatePrazoSchema } from './schemas/prazo.schema.js';
 import {
   createOportunidadeSchema,
   datajudSearchSchema,
@@ -46,6 +47,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'numeroProcessoSchema', schema: numeroProcessoSchema },
   { name: 'createPericiaSchema', schema: createPericiaSchema },
   { name: 'updatePericiaSchema', schema: updatePericiaSchema },
+  { name: 'createPrazoSchema', schema: createPrazoSchema },
+  { name: 'updatePrazoSchema', schema: updatePrazoSchema },
   { name: 'createCompromissoSchema', schema: createCompromissoSchema },
   { name: 'updateCompromissoSchema', schema: updateCompromissoSchema },
   { name: 'createLancamentoSchema', schema: createLancamentoSchema },

@@ -39,12 +39,12 @@ const periciaFields = z.object({
   autor: z.string().trim().max(200, 'autor inválido').optional(),
   reu: z.string().trim().max(200, 'réu inválido').optional(),
   dataNomeacao: calendarDateSchema.optional(),
-  prazoLaudo: calendarDateSchema.optional(),
   honorariosPropostosCents: centsSchema.optional(),
   observacoes: z.string().trim().max(2000, 'observações inválidas').optional(),
 });
 
-export const createPericiaSchema = periciaFields.strict();
+// `prazoLaudo` só existe no cadastro: vira o prazo "Entrega do laudo" (AD-109), não é campo da perícia.
+export const createPericiaSchema = periciaFields.extend({ prazoLaudo: calendarDateSchema.optional() }).strict();
 export type CreatePericia = z.infer<typeof createPericiaSchema>;
 
 // PATCH aceita qualquer subconjunto dos campos + a etapa e o honorário fixado pelo juízo.

@@ -1,17 +1,18 @@
-import type { UpdatePericia } from '@ethica/contracts';
 import type { Control } from 'react-hook-form';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DateField, MoneyField, SelectField, TextareaField, TextField } from '@/components/form-fields.js';
 import { JUSTICA_ITEMS, PAPEL_ITEMS, PERICIA_STATUS_ITEMS } from '@/components/pericia-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import type { PericiaFormValues } from '../@interface/pericias.interface.js';
 
 // Campos da perícia compartilhados por `add` e `details` (edição). Na edição
-// entram também a etapa e o honorário fixado pelo juízo.
+// entram também a etapa e o honorário fixado pelo juízo; o prazo do laudo só no
+// cadastro (depois os prazos são editados no painel de prazos do detalhe).
 export function PericiaFormFields({
   control,
   editing = false,
 }: {
-  control: Control<UpdatePericia>;
+  control: Control<PericiaFormValues>;
   editing?: boolean;
 }) {
   return (
@@ -68,12 +69,14 @@ export function PericiaFormFields({
                 label={t('appointment_date')}
                 placeholder={t('choose_day')}
               />
-              <DateField
-                control={control}
-                name="prazoLaudo"
-                label={t('report_deadline')}
-                placeholder={t('choose_day')}
-              />
+              {!editing && (
+                <DateField
+                  control={control}
+                  name="prazoLaudo"
+                  label={t('report_deadline')}
+                  placeholder={t('choose_day')}
+                />
+              )}
               {editing && (
                 <SelectField
                   control={control}

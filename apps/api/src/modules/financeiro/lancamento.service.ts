@@ -28,9 +28,9 @@ const addDays = (day: string, days: number): string => {
 
 const withPericiaNumero = async (tenantId: string, items: LancamentoRecord[]): Promise<LancamentoRecord[]> => {
   const ids = [...new Set(items.flatMap((item) => (item.periciaId ? [item.periciaId] : [])))];
-  const numeros = await periciaService.findNumerosByIds(tenantId, ids);
+  const resumos = await periciaService.findResumosByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = item.periciaId ? numeros.get(item.periciaId) : undefined;
+    const numero = item.periciaId ? resumos.get(item.periciaId)?.numeroProcesso : undefined;
     return numero ? { ...item, periciaNumero: numero } : item;
   });
 };

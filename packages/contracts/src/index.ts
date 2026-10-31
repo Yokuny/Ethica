@@ -11,6 +11,7 @@ export * from './schemas/inviteToken.schema.js';
 export * from './schemas/lancamento.schema.js';
 export * from './schemas/listStats.schema.js';
 export * from './schemas/pericia.schema.js';
+export * from './schemas/prazo.schema.js';
 export * from './schemas/prospeccao.schema.js';
 export * from './schemas/provisionTenant.schema.js';
 export * from './schemas/signin.schema.js';

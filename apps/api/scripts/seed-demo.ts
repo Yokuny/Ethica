@@ -7,6 +7,7 @@ import {
   Lancamento,
   Oportunidade,
   Pericia,
+  Prazo,
   Session,
   Tenant,
   User,
@@ -105,6 +106,7 @@ const run = async (): Promise<void> => {
     const users = await User.find({ Tenant: old._id }).select('_id').lean();
     await Promise.all([
       Pericia.deleteMany({ Tenant: old._id }),
+      Prazo.deleteMany({ Tenant: old._id }),
       Compromisso.deleteMany({ Tenant: old._id }),
       Lancamento.deleteMany({ Tenant: old._id }),
       Oportunidade.deleteMany({ Tenant: old._id }),
@@ -140,12 +142,38 @@ const run = async (): Promise<void> => {
       reu: 'Indústria Exemplo Ltda.',
       status: p.status,
       dataNomeacao: day(-40 + index * 3),
-      prazoLaudo: 'prazo' in p ? day(p.prazo) : undefined,
       honorariosPropostosCents: p.propostos,
       honorariosFixadosCents: 'fixados' in p ? p.fixados : undefined,
     })),
   );
   const [vistoria, laudo, civel, federal, esclarecimentos] = pericias;
+
+  // Prazos (AD-109): a entrega do laudo de cada perícia, protocolada nas que já entregaram,
+  // e um prazo de esclarecimentos já protocolado para mostrar o histórico.
+  await Prazo.insertMany([
+    ...PERICIAS.flatMap((p, index) => {
+      const pericia = pericias[index];
+      if (!('prazo' in p) || !pericia) return [];
+      const entregue = ['laudo_entregue', 'concluida'].includes(p.status);
+      return [
+        {
+          Tenant: tenant._id,
+          Pericia: pericia._id,
+          titulo: 'Entrega do laudo',
+          vencimento: day(p.prazo),
+          status: entregue ? ('protocolado' as const) : ('pendente' as const),
+          protocoladoEm: entregue ? day(p.prazo - 1) : undefined,
+        },
+      ];
+    }),
+    {
+      Tenant: tenant._id,
+      Pericia: esclarecimentos?._id,
+      titulo: 'Resposta à impugnação',
+      vencimento: day(10),
+      status: 'pendente' as const,
+    },
+  ]);
 
   const compromissos: Partial<CompromissoDocument>[] = [
     {
@@ -187,20 +215,6 @@ const run = async (): Promise<void> => {
       Pericia: laudo?._id,
       status: 'concluido',
     },
-    ...pericias.flatMap((p) =>
-      p.prazoLaudo && !['laudo_entregue', 'concluida'].includes(p.status)
-        ? [
-            {
-              tipo: 'prazo' as const,
-              titulo: `Entrega do laudo — ${p.numeroProcesso}`,
-              inicio: wallClockToUtc(p.prazoLaudo, '18:00'),
-              fim: wallClockToUtc(p.prazoLaudo, '19:00'),
-              Pericia: p._id,
-              origem: 'automatico' as const,
-            },
-          ]
-        : [],
-    ),
   ];
   await Compromisso.insertMany(compromissos.map((compromisso) => ({ ...compromisso, Tenant: tenant._id })));
 

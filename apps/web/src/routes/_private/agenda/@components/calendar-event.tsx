@@ -1,16 +1,13 @@
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import type { CSSProperties } from 'react';
 import { Time12h } from '@/components/time12h.js';
-import { isPastInstant } from '@/lib/helpers/displayTime.helper.js';
 import { cn } from '@/lib/utils.js';
 import type { CompromissoRecord } from '@/query/compromisso.js';
 
-// Cor por tipo de compromisso; cancelado esmaece, concluído fica verde e um
-// prazo ainda agendado que já passou é destacado como vencido.
+// Cor por tipo de compromisso; cancelado esmaece e concluído fica esmaecido.
 const tipoClasses: Record<CompromissoRecord['tipo'], string> = {
   vistoria: 'border-violet-500/30 bg-violet-50 text-violet-900',
   audiencia: 'border-sky-500/30 bg-sky-50 text-sky-900',
-  prazo: 'border-amber-500/40 bg-amber-50 text-amber-900',
   reuniao: 'border-cyan-500/30 bg-cyan-50 text-cyan-900',
   outro: 'bg-background',
 };
@@ -25,8 +22,6 @@ export type CalendarEventChipProps = {
 };
 
 export function CalendarEventChip({ item, onSelect, variant = 'timed', className, style }: CalendarEventChipProps) {
-  const isOverdue = item.status === 'agendado' && item.tipo === 'prazo' && isPastInstant(item.fim);
-
   return (
     <button
       type="button"
@@ -39,7 +34,6 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
         tipoClasses[item.tipo],
         item.status === 'cancelado' && 'border-muted-foreground/30 bg-muted text-muted-foreground line-through',
         item.status === 'concluido' && 'opacity-60',
-        isOverdue && 'border-destructive bg-destructive/10 text-destructive',
         className,
       )}
     >

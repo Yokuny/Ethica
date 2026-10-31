@@ -25,7 +25,7 @@ const MODULES_ROOT = join(API_SRC_ROOT, 'modules');
 // ficam fora da tabela e podem ser importados por qualquer módulo.
 const DB_OWNERSHIP: Record<string, readonly string[]> = {
   identity: ['Tenant', 'User', 'Session', 'Invite', 'transitionTenantStatus'],
-  pericia: ['Pericia'],
+  pericia: ['Pericia', 'Prazo'],
   agenda: ['Compromisso'],
   financeiro: ['Lancamento'],
   prospeccao: ['Oportunidade'],
