@@ -153,9 +153,14 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       await as(request(app).post('/financeiro/lancamentos')).send({ ...HONORARIO, vencimento: '2020-01-10' })
     ).body.data;
     await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({ valorCents: 150_000, data: today });
+    // Parcela de outro mês: entra no recebido do mês dela, não no deste (nem no fluxo de 1 mês).
+    await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({
+      valorCents: 50_000,
+      data: '2020-02-01',
+    });
 
     const resumo = (await as(request(app).get('/financeiro/resumo'))).body.data;
-    expect(resumo).toMatchObject({ aReceberCents: 330_000, atrasadoCents: 330_000, recebidoMesCents: 150_000 });
+    expect(resumo).toMatchObject({ aReceberCents: 280_000, atrasadoCents: 280_000, recebidoMesCents: 150_000 });
 
     const fluxo = (await as(request(app).get('/financeiro/fluxo?meses=1'))).body.data;
     expect(fluxo).toEqual([{ mes: today.slice(0, 7), recebidoCents: 150_000, aReceberCents: 0, despesasCents: 0 }]);
