@@ -31,7 +31,7 @@ O perito convive com vários prazos por processo (laudo, quesitos suplementares,
 | Prazo é entidade própria ou compromisso da agenda | **Pendente de decisão (vira AD)** — proposta: entidade `Prazo` no módulo `pericia`, mostrada também no calendário | Prazo tem semântica de protocolo (entregue/perdido) que compromisso não tem; AD-106 hoje cria compromisso | No |
 | O `prazoLaudo` da perícia | Passa a criar o prazo "Entrega do laudo" em vez do compromisso | Mantém o comportamento automático observado nos dois produtos | No |
 | Parcelas de recebimento | Ficam dentro do lançamento de receita (lista de parcelas); status `parcial` derivado | Um honorário, várias entradas; o relatório de fluxo de caixa usa a data da parcela | No |
-| Janela do aviso por e-mail | 7 dias antes, no dia e no dia seguinte ao vencimento, 07:00 de São Paulo | Mesmos limiares já usados nos indicadores (AD-103) | No |
+| Janela do aviso por e-mail | 15 dias antes, no dia e no dia seguinte ao vencimento, 07:00 de São Paulo | "Vence em breve" = 15 dias (usuário, 2026-10-31) | Yes (limiar) |
 | Quem recebe o aviso | Usuários `admin` e `manager` do tenant | Operador não vê financeiro (AD-107), mas prazo é operacional — confirmar | No |
 
 ---
@@ -48,7 +48,7 @@ O perito convive com vários prazos por processo (laudo, quesitos suplementares,
 2. WHEN o perito registra o protocolo com uma data THEN the system SHALL marcar o prazo como `protocolado` e guardar a data.
 3. WHEN o perito marca um prazo como `perdido` THEN the system SHALL mantê-lo no histórico sem contá-lo como pendente.
 4. WHEN a perícia é cadastrada com prazo do laudo THEN the system SHALL criar o prazo "Entrega do laudo" pendente.
-5. WHEN a listagem de perícias é exibida THEN the system SHALL mostrar o próximo prazo pendente e destacar os que vencem em até 7 dias e os vencidos.
+5. WHEN a listagem de perícias é exibida THEN the system SHALL mostrar o próximo prazo pendente e destacar como "vence em breve" os que vencem em até 15 dias e os vencidos (limiar definido pelo usuário em 2026-10-31).
 6. WHEN o calendário da agenda é exibido THEN the system SHALL mostrar os prazos pendentes no dia do vencimento.
 
 **Independent Test**: Cadastrar dois prazos, protocolar um, marcar outro como perdido e ver a listagem, o detalhe e o calendário.
@@ -85,7 +85,7 @@ O perito convive com vários prazos por processo (laudo, quesitos suplementares,
 
 **Acceptance Criteria**:
 
-1. WHEN um prazo pendente está a 7 dias, no dia ou 1 dia vencido THEN the system SHALL enviar um e-mail diário consolidado aos destinatários do tenant.
+1. WHEN um prazo pendente está a 15 dias, no dia ou 1 dia vencido THEN the system SHALL enviar um e-mail diário consolidado aos destinatários do tenant.
 2. WHEN o prazo é protocolado THEN the system SHALL parar de avisar.
 3. WHEN o tenant desliga os avisos THEN the system SHALL não enviar.
 
