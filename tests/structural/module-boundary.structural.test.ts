@@ -29,6 +29,7 @@ const DB_OWNERSHIP: Record<string, readonly string[]> = {
   agenda: ['Compromisso'],
   financeiro: ['Lancamento'],
   prospeccao: ['Oportunidade'],
+  documentos: ['Laudo', 'ModeloLaudo'],
 };
 const DB_OWNER_BY_NAME = new Map(
   Object.entries(DB_OWNERSHIP).flatMap(([owner, names]) => names.map((name) => [name, owner] as const)),

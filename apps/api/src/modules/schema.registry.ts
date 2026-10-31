@@ -7,6 +7,14 @@ import {
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import { documentoPericiaParamSchema } from './documentos/documentos.schema.js';
 import {
+  laudoIdParamSchema,
+  laudoSecaoParamSchema,
+  listLaudosQuerySchema,
+  listModelosQuerySchema,
+  modeloIdParamSchema,
+  modeloSecaoParamSchema,
+} from './documentos/laudo.schema.js';
+import {
   categoriasQuerySchema,
   fluxoQuerySchema,
   lancamentoIdParamSchema,
@@ -39,6 +47,12 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listPericiasQuerySchema', schema: listPericiasQuerySchema },
   { name: 'movimentacaoIdParamSchema', schema: movimentacaoIdParamSchema },
   { name: 'documentoPericiaParamSchema', schema: documentoPericiaParamSchema },
+  { name: 'modeloIdParamSchema', schema: modeloIdParamSchema },
+  { name: 'modeloSecaoParamSchema', schema: modeloSecaoParamSchema },
+  { name: 'laudoIdParamSchema', schema: laudoIdParamSchema },
+  { name: 'laudoSecaoParamSchema', schema: laudoSecaoParamSchema },
+  { name: 'listModelosQuerySchema', schema: listModelosQuerySchema },
+  { name: 'listLaudosQuerySchema', schema: listLaudosQuerySchema },
   { name: 'parteIdParamSchema', schema: parteIdParamSchema },
   { name: 'listPartesQuerySchema', schema: listPartesQuerySchema },
   { name: 'prazoIdParamSchema', schema: prazoIdParamSchema },

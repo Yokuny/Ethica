@@ -2,7 +2,13 @@ import { dateInDisplayTz } from '@ethica/db';
 import { KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as periciaService from './pericia.service.js';
 import * as prazoRepository from './prazo.repository.js';
-import type { CreatePrazo, PrazoRecord, PrazoWrite, UpdatePrazo } from './prazo.schema.js';
+import {
+  type CreatePrazo,
+  PRAZO_ENTREGA_LAUDO,
+  type PrazoRecord,
+  type PrazoWrite,
+  type UpdatePrazo,
+} from './prazo.schema.js';
 
 export class PrazoNotFoundError extends KeyedError {}
 
@@ -54,5 +60,10 @@ export const listPrazosPendentes = async (tenantId: string, range: { from?: stri
 
 // Aviso diário (sistema): pendentes que vencem nos dias pedidos, em todos os tenants.
 export const listPrazosParaAviso = (dias: string[]) => prazoRepository.listPendentesNosDias(dias);
+
+// Concluir o laudo com a entrega (AD-126): protocola hoje o prazo pendente "Entrega do laudo"
+// mais antigo da perícia; sem nenhum pendente, não faz nada.
+export const protocolarEntregaDoLaudo = (tenantId: string, periciaId: string, now: Date = new Date()) =>
+  prazoRepository.protocolarPendente(tenantId, periciaId, PRAZO_ENTREGA_LAUDO, dateInDisplayTz(now));
 
 export const listForExport = (tenantId: string) => prazoRepository.listAll(tenantId);

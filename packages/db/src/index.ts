@@ -9,6 +9,10 @@ export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
 export type { LancamentoDocument, ParcelaDocument } from './models/lancamento.model.js';
 export { Lancamento } from './models/lancamento.model.js';
+export type { LaudoDocument, LaudoSecaoDocument } from './models/laudo.model.js';
+export { Laudo } from './models/laudo.model.js';
+export type { ModeloLaudoDocument, ModeloLaudoSecaoDocument } from './models/modeloLaudo.model.js';
+export { ModeloLaudo } from './models/modeloLaudo.model.js';
 export type { OportunidadeDocument } from './models/oportunidade.model.js';
 export { Oportunidade } from './models/oportunidade.model.js';
 export type { ParteDocument } from './models/parte.model.js';
@@ -43,6 +47,8 @@ export { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from './time.js';
 import { Compromisso } from './models/compromisso.model.js';
 import { Invite } from './models/invite.model.js';
 import { Lancamento } from './models/lancamento.model.js';
+import { Laudo } from './models/laudo.model.js';
+import { ModeloLaudo } from './models/modeloLaudo.model.js';
 import { Oportunidade } from './models/oportunidade.model.js';
 import { Parte } from './models/parte.model.js';
 import { Pericia } from './models/pericia.model.js';
@@ -63,5 +69,7 @@ export const syncIndexes = async (): Promise<void> => {
     Compromisso.createIndexes(),
     Lancamento.createIndexes(),
     Oportunidade.createIndexes(),
+    Laudo.createIndexes(),
+    ModeloLaudo.createIndexes(),
   ]);
 };

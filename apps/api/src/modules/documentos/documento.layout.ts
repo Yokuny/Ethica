@@ -140,6 +140,23 @@ const template = (texto: string, identity: DocumentIdentity, nomePerito: string)
 export const CABECALHO_PADRAO = '[LOGO]\n';
 export const RODAPE_PADRAO = 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]';
 
+// Textos do cabeçalho e do rodapé do tenant, ou os padrões (AD-121); usados também pelo Word.
+export const textosCabecalhoRodape = (identity: DocumentIdentity): { cabecalho: string; rodape: string } => ({
+  cabecalho: identity.cabecalho ?? `${CABECALHO_PADRAO}${identity.name}`,
+  rodape: identity.rodape ?? RODAPE_PADRAO,
+});
+
+export const cabecalhoRodape = (
+  identity: DocumentIdentity,
+  nomePerito: string,
+): Pick<PdfDocument, 'headerTemplate' | 'footerTemplate'> => {
+  const { cabecalho, rodape } = textosCabecalhoRodape(identity);
+  return {
+    headerTemplate: template(cabecalho, identity, nomePerito),
+    footerTemplate: template(rodape, identity, nomePerito),
+  };
+};
+
 export const montarDocumento = (input: {
   titulo: string;
   subtitulo?: string;
@@ -147,14 +164,9 @@ export const montarDocumento = (input: {
   identity: DocumentIdentity;
   nomePerito: string;
   geradoEm: Date;
-}): PdfDocument => {
-  const { identity, nomePerito } = input;
-  const cabecalho = identity.cabecalho ?? `${CABECALHO_PADRAO}${identity.name}`;
-  return {
-    html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(input.titulo)}</title><style>${CSS}</style></head><body><h1>${esc(input.titulo)}</h1>${
-      input.subtitulo ? `<p class="subtitulo">${esc(input.subtitulo)}</p>` : ''
-    }${input.corpo}<p class="gerado">Gerado por ${esc(nomePerito)} em ${esc(dataHora(input.geradoEm))}.</p></body></html>`,
-    headerTemplate: template(cabecalho, identity, nomePerito),
-    footerTemplate: template(identity.rodape ?? RODAPE_PADRAO, identity, nomePerito),
-  };
-};
+}): PdfDocument => ({
+  html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(input.titulo)}</title><style>${CSS}</style></head><body><h1>${esc(input.titulo)}</h1>${
+    input.subtitulo ? `<p class="subtitulo">${esc(input.subtitulo)}</p>` : ''
+  }${input.corpo}<p class="gerado">Gerado por ${esc(input.nomePerito)} em ${esc(dataHora(input.geradoEm))}.</p></body></html>`,
+  ...cabecalhoRodape(input.identity, input.nomePerito),
+});

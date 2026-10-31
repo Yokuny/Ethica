@@ -57,6 +57,12 @@ export const API_MESSAGE_KEYS = [
   // Arquivos do escritório (AD-120)
   'storage_not_configured',
   'storage_quota_exceeded',
+  // Laudos (AD-126)
+  'standard_template_read_only',
+  'report_template_type_mismatch',
+  'report_completed',
+  'report_needs_section',
+  'laudo_unresolved_variables',
   // Financeiro (AD-111)
   'parcel_exceeds_balance',
   'fee_cannot_be_removed',
