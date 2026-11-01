@@ -73,10 +73,10 @@ pnpm run check && (cd apps/web && pnpm run build)
 - [ ] Sumário do PDF sem número de página (o Word tem, AD-125).
 - [ ] Laudo concluído por engano não reabre; só sai excluindo a perícia (AD-126).
 - [ ] Escolher uma subseção sem a seção-mãe a pendura na seção anterior na numeração (ex.: Anexo 1 sem "Insalubridade" vira 2.1 de "Objetivo").
-- [ ] Dados de vistoria do app de campo como variáveis (onda 5).
 
 ## Histórico
 
+- 2026-10-31 — Fotos da vistoria no laudo (`img` restrito às mídias do tenant, no PDF e no Word) e variáveis de campo da última vistoria feita, usadas no modelo padrão em "Metodologia e vistoria" e "Atividades exercidas" (`docs/features/campo-vistorias/feature.md`, AD-129, AD-130).
 - 2026-10-31 — Implementado LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (AD-123 a AD-127); validação em `.specs/features/laudos/validation.md`. Divergências do design: o rascunho passou a ser resolvido de novo a cada abertura (achado na UAT: a tela mostrava pendência que a exportação já resolvia); o limite de 1 MB do JSON ficou no prefixo `/laudos` em `app.ts`, porque o parser global corre antes da rota; `[DATA_VISTORIA]` lê `compromissoService.listDaPericia` em vez de uma função nova; o status do laudo tem rótulo próprio ("Concluído") em vez da chave `completed` da perícia.
 - 2026-10-31 — Pendência atualizada: a base de documentos (`documentos-pdf`, AD-119 a AD-122) está pronta para o laudo reaproveitar.
 - 2026-10-31 — Spec criada (`.specs/features/laudos/spec.md`).

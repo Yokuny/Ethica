@@ -535,8 +535,49 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-10-31
 - **Status**: active
 
+### AD-128
+- **Decision**: A tela de campo (`/campo`) funciona **sem conexão**: o `apps/web` vira PWA instalável (manifest + service worker escrito à mão em `apps/web/public/sw.js`, registrado só no build de produção, que guarda o app e responde a navegação com o `index.html` em cache) e guarda no **IndexedDB** (`idb-keyval`) a rota do dia, o rascunho de cada registro de vistoria e as mídias ainda não enviadas. Ao voltar a conexão, a fila é enviada sozinha e a tela mostra o que sincronizou e o que falhou. Cada registro tem `versao`: salvar com versão antiga responde **409** `inspection_conflict` com a versão do servidor, e a tela mostra as duas para o perito escolher; nada é sobrescrito em silêncio. Mídia tem id gerado no aparelho (UUID), então reenviar não duplica.
+- **Reason**: escolha do usuário em 2026-10-31; vistoria acontece em subsolo, zona rural e indústria sem sinal, e o concorrente perde dado nessa situação. Service worker à mão (cache dos assets com hash + fallback de navegação) tem menos conceitos que um plugin de build.
+- **Trade-off**: o recarregamento sem conexão só funciona no build de produção (o dev server do Vite não usa o service worker); o aparelho guarda dado pessoal da vistoria até sincronizar; conflito exige decisão do perito.
+- **Scope**: `apps/web/public/{sw.js,manifest.webmanifest}`, `apps/web/index.html`, `apps/web/src/main.tsx`, `apps/web/src/routes/_private/campo/`, `apps/api/src/modules/agenda/vistoria.*`; origem `.specs/features/campo-vistorias/spec.md`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-129
+- **Decision**: Mídias da vistoria ficam no storage S3 do tenant (AD-120) com chave `tenants/<tenantId>/vistorias/<compromissoId>/<midiaId>`, contadas na cota de 1 GB e devolvidas ao excluir. **Foto**: reduzida no navegador (lado maior 1600 px, JPEG) com carimbo de endereço, data e hora, até 2 MB e 30 por vistoria, com legenda. **Áudio**: gravado no navegador (`MediaRecorder`), até 20 MB e 10 por vistoria, **sem transcrição** (IA segue a AD-124). **Assinatura**: desenho na tela em PNG até 200 KB. O arquivo vai no corpo da requisição com o próprio tipo (AD-118). **Foto no laudo**: complementa a AD-123 — a allowlist ganha `img` com `src` restrito a `/vistorias/<compromissoId>/midias/<midiaId>` (outra origem ou caminho é removido no saneamento) e `alt` como legenda; o PDF recebe a foto em data URL (o Chromium segue sem rede e sem JavaScript) e o Word em `ImageRun`, ambos só com mídia do próprio tenant.
+- **Reason**: escolha do usuário em 2026-10-31 (fotos e áudio sem transcrição, foto no laudo). Reduzir no navegador economiza cota e envio em rede móvel; a allowlist restrita mantém o HTML do laudo seguro.
+- **Trade-off**: foto em 1600 px não serve para ampliação de detalhe; áudio do Safari e do Chrome têm formatos diferentes (`audio/mp4` × `audio/webm`), aceitos os dois; laudo com muitas fotos pesa no PDF e no Word.
+- **Scope**: `apps/api/src/modules/agenda/vistoria.*`, `apps/api/src/modules/identity/office.*` (reserva e devolução de cota), `apps/api/src/modules/documentos/laudo.{html,templates,docx,service}.ts`, `packages/contracts/src/schemas/{vistoria,laudo}.schema.ts`, `apps/web/src/components/rich-text-editor.tsx`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-130
+- **Decision**: O registro de vistoria é a collection `Vistoria` do módulo `agenda`, uma por compromisso (o `compromisso` continua sendo o evento da agenda), com: presentes (nome, qualidade, e-mail, assinatura), paradigmas por polo (nome, função, período, trabalhou junto), funções (título, anos, local) com a versão do reclamante e a da reclamada (atividades, frequência, tempo de exposição), agentes Sim/Não com EPI e observação (lista fixa `VISTORIA_AGENTES`, a mesma do checklist de campo), documentos solicitados (`VISTORIA_DOCUMENTOS` + livres), observações internas (não vão ao laudo) e mídias. O formulário é gravado inteiro (`PUT` com `versao`, AD-128). Status rápido: feita → `done`; adiada/ausente → `canceled` com `motivo` `postponed`/`absent` no compromisso. O laudo ganha variáveis lidas da **última vistoria feita** da perícia (`[HORA_VISTORIA]`, `[PRESENTES_VISTORIA]`, `[PARADIGMAS_AUTOR]`, `[PARADIGMAS_REU]`, `[FUNCOES_AUTOR]`, `[FUNCOES_REU]`, `[AGENTES_PRESENTES]`, `[AGENTES_AUSENTES]`, `[DOCUMENTOS_SOLICITADOS]`), montadas a partir do mesmo tipo do contrato que o formulário grava, com teste de ponta a ponta até o PDF. Excluir o compromisso exclui o registro e as mídias (devolvendo a cota); excluir a perícia mantém o compromisso e o registro sem o vínculo, como já acontece com a agenda.
+- **Reason**: escolha do usuário em 2026-10-31. Uma só definição de campo no contrato evita o defeito do concorrente (formulário grava uma chave, laudo lê outra). O compromisso já é o evento; o registro é o conteúdo colhido.
+- **Trade-off**: variáveis de lista viram texto corrido (separado por "; "), não tabela; vistoria sem perícia ligada não alimenta laudo.
+- **Scope**: `packages/db/src/models/{vistoria,compromisso}.model.ts`, `packages/contracts/src/schemas/{vistoria,compromisso,laudo}.schema.ts`, `apps/api/src/modules/agenda/`, `apps/api/src/modules/documentos/{laudo.variaveis,documentos.templates}.ts`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-131
+- **Decision**: **Mapa do dia** (`/campo/mapa`) com Leaflet e tiles do OpenStreetMap (atribuição na tela). O endereço do compromisso é geocodificado pela **API** com o Nominatim (provider `apps/api/src/providers/geocoder.ts`, injetado em `buildApp`, uma requisição por segundo, User-Agent próprio) e as coordenadas ficam gravadas no compromisso até o endereço mudar. O ponto de partida é a localização do aparelho ou um endereço digitado (guardado no `localStorage`). A ordem é a do **vizinho mais próximo** (Haversine) calculada no navegador, com reordenação manual, aviso de conflito de horário e a rota desenhada pelo **OSRM público** chamado do navegador (sem rota, ficam as linhas retas e os links Maps/Waze). **Aviso de agendamento** às partes por e-mail pelo `MailProvider`: modelo de assunto e corpo no escritório (só admin edita, marcadores `[TIPO_EVENTO] [DATA] [HORA] [ENDERECO] [NUMERO_PROCESSO] [NOME_PERITO] [VARA] [COMARCA]`), enviado a partes e advogados da perícia com e-mail cadastrado, por qualquer papel, com o envio registrado no compromisso (quem, quando, para quem).
+- **Reason**: escolha do usuário em 2026-10-31 ("tudo, com OpenStreetMap"): sem custo nem chave; o concorrente só gera `mailto:` e não registra o aviso.
+- **Trade-off**: Nominatim e OSRM públicos têm limite de uso e nenhuma garantia de disponibilidade (com volume, trocar por serviço pago ou próprio é trocar o provider); geocodificação de endereço brasileiro incompleto pode errar o ponto, e o perito corrige pela ordem manual.
+- **Scope**: `apps/api/src/providers/geocoder.ts`, `apps/api/src/config/env.config.ts`, `apps/api/src/modules/agenda/`, `apps/api/src/modules/identity/office.*`, `packages/db/src/models/{compromisso,tenant}.model.ts`, `apps/web/src/routes/_private/campo/mapa/`, `apps/web/src/routes/_private/_admin/office/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
+### AD-132
+- **Decision**: A feature `campo-vistorias` entra nesta rodada com CAM-01 a CAM-09, menos a transcrição de áudio (CAM-07.2, fora pela AD-124 até decisão própria). Tela `/campo` no mesmo `apps/web`, mesmo login e mesma API; qualquer papel do tenant registra vistoria, mídias e aviso (AD-107).
+- **Reason**: escolha do usuário em 2026-10-31.
+- **Trade-off**: PR grande, com PWA, mídia, mapa e e-mail na mesma rodada.
+- **Scope**: `.specs/features/campo-vistorias/`.
+- **Date**: 2026-10-31
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `campo-vistorias` — concluída com CAM-01 a CAM-09, menos a transcrição de áudio (AD-128 a AD-132, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.
 - **Feature**: `laudos` — concluída com LAU-01, 02, 03, 05 e 06 (AD-123 a AD-127, `validation.md` PASS, UAT no navegador). LAU-04 (IA) adiada (AD-124); pendências no `feature.md`.
 - **Feature**: `importacao-processos` — concluída (AD-114 a AD-118, `validation.md` PASS, UAT no navegador). Pendências no `feature.md` (OCR, excluir/mesclar partes, atas de outros tribunais).
 - **Feature**: `prazos-recebimentos` — concluída (AD-109 a AD-112, `validation.md` PASS). Pendente só UAT visual e a trava por dia do aviso diário quando houver mais de uma réplica da API (`docs/features/prazos-recebimentos/feature.md`).

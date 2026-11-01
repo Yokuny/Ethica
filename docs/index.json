@@ -25,6 +25,39 @@
       "doc": "features/benchmark-jusperia/feature.md"
     },
     {
+      "slug": "campo-vistorias",
+      "feature": "Campo e vistorias",
+      "descricao": "Rota de campo no celular com registro de vistoria, fotos, áudio e assinatura offline, mapa do dia, aviso às partes e campo no laudo",
+      "data": "2026-10-31",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-107",
+        "AD-113",
+        "AD-118",
+        "AD-120",
+        "AD-123",
+        "AD-124",
+        "AD-126",
+        "AD-128",
+        "AD-129",
+        "AD-130",
+        "AD-131",
+        "AD-132"
+      ],
+      "spec": [
+        ".specs/features/campo-vistorias"
+      ],
+      "planos": [],
+      "doc": "features/campo-vistorias/feature.md"
+    },
+    {
       "slug": "documentos-pdf",
       "feature": "Base de documentos",
       "descricao": "Identidade do escritório, dados profissionais, PDFs (ficha, checklist, prazos, financeiro, paradas) e exportação ZIP",
@@ -569,6 +602,36 @@
     {
       "id": "AD-127",
       "decisao": "A feature `laudos` entra nesta rodada com LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (LAU-04 fora, AD-124). A biblioteca padrão trabalhista tra",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-128",
+      "decisao": "A tela de campo (`/campo`) funciona sem conexão: o `apps/web` vira PWA instalável (manifest + service worker escrito à mão em `apps/web/publ",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-129",
+      "decisao": "Mídias da vistoria ficam no storage S3 do tenant (AD-120) com chave `tenants/<tenantId>/vistorias/<compromissoId>/<midiaId>`, contadas na co",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-130",
+      "decisao": "O registro de vistoria é a collection `Vistoria` do módulo `agenda`, uma por compromisso (o `compromisso` continua sendo o evento da agenda)",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-131",
+      "decisao": "Mapa do dia (`/campo/mapa`) com Leaflet e tiles do OpenStreetMap (atribuição na tela). O endereço do compromisso é geocodificado pela API co",
+      "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-132",
+      "decisao": "A feature `campo-vistorias` entra nesta rodada com CAM-01 a CAM-09, menos a transcrição de áudio (CAM-07.2, fora pela AD-124 até decisão pró",
       "data": "2026-10-31",
       "status": "active"
     }
