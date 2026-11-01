@@ -1,0 +1,215 @@
+import { numerarSecoes } from '@ethica/contracts';
+import { Badge } from '@ethica/ui/components/badge';
+import { Button } from '@ethica/ui/components/button';
+import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
+import { ArrowDown, ArrowUp, ListTree, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/confirm-dialog.js';
+import { DefaultEmptyData } from '@/components/default-empty-data.js';
+import { DefaultLoading } from '@/components/default-loading.js';
+import { LinkList, LinkListItem } from '@/components/link-list.js';
+import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
+import { PageMenu } from '@/components/page-menu.js';
+import { Panel } from '@/components/panel.js';
+import { RecordHeader, RecordHeading } from '@/components/record.js';
+import { t } from '@/lib/helpers/translate.helper.js';
+import {
+  deleteModeloMutation,
+  type ModeloSecaoRecord,
+  modeloQuery,
+  moverModeloSecaoMutation,
+  removeModeloSecaoMutation,
+} from '@/query/laudo.js';
+import { can, sessionQuery } from '@/query/session.js';
+import { ModeloCreateForm } from '../@components/modelo-create-form.js';
+import { ModeloSecaoForm } from './@components/modelo-secao-form.js';
+import { ModeloSecaoView } from './@components/modelo-secao-view.js';
+import { type ModeloDetailsSearch, modeloDetailsSearchSchema } from './@interface/modelo-details.interface.js';
+
+type Painel =
+  | { kind: 'secao'; secao?: ModeloSecaoRecord }
+  | { kind: 'ver'; secao: ModeloSecaoRecord }
+  | { kind: 'remover-secao'; secao: ModeloSecaoRecord }
+  | { kind: 'duplicar' }
+  | { kind: 'excluir' }
+  | null;
+
+// LAU-01.2: seções numeradas pela posição e pelo nível; o padrão é só leitura e se duplica.
+export function ModeloDetailsPage() {
+  const search = useSearch({ strict: false }) as ModeloDetailsSearch;
+  const navigate = useNavigate({ from: '/expert-reports/templates/details/' });
+  const queryClient = useQueryClient();
+  const { data: session } = useSuspenseQuery(sessionQuery);
+  const query = useQuery({ ...modeloQuery(search.id), retry: false });
+  const mover = useMutation(moverModeloSecaoMutation(queryClient));
+  const removerSecao = useMutation(removeModeloSecaoMutation(queryClient));
+  const excluir = useMutation(deleteModeloMutation(queryClient));
+  const [painel, setPainel] = useState<Painel>(null);
+  const modelo = query.data;
+  const podeEditar = Boolean(modelo && !modelo.padrao && can(session, 'modelos', 'update'));
+  const numeros = numerarSecoes(modelo?.secoes ?? []);
+  const onError = (error: Error) => toast.error(error.message);
+
+  return (
+    <Card asPage>
+      <CardHeader title={t('details')}>
+        {modelo && can(session, 'modelos', 'update') && (
+          <CardAction>
+            {podeEditar && <Button onClick={() => setPainel({ kind: 'secao' })}>{t('new_section')}</Button>}
+            <PageMenu>
+              <DropdownMenuItem onClick={() => setPainel({ kind: 'duplicar' })}>
+                {t('duplicate_template')}
+              </DropdownMenuItem>
+            </PageMenu>
+          </CardAction>
+        )}
+      </CardHeader>
+      {query.isLoading ? (
+        <CardContent>
+          <DefaultLoading />
+        </CardContent>
+      ) : !modelo ? (
+        <CardContent>
+          <DefaultEmptyData title={t('not_found')} />
+        </CardContent>
+      ) : (
+        <CardContent className="max-w-4xl gap-8">
+          <RecordHeader>
+            <RecordHeading
+              icon={<ListTree />}
+              label={t(modelo.tipo)}
+              title={modelo.nome}
+              badge={modelo.padrao && <Badge variant="info">{t('standard')}</Badge>}
+              description={modelo.padrao ? t('standard_template_review_notice') : undefined}
+            />
+          </RecordHeader>
+          <Panel title={t('sections')} description={`${modelo.secoes.length} ${t('sections').toLowerCase()}`}>
+            {!modelo.secoes.length ? (
+              <DefaultEmptyData title={t('no_sections_yet')} />
+            ) : (
+              <LinkList>
+                {modelo.secoes.map((secao, i) => (
+                  <LinkListItem
+                    key={secao.id}
+                    render={
+                      podeEditar ? undefined : (
+                        <button
+                          type="button"
+                          className="w-full text-left"
+                          onClick={() => setPainel({ kind: 'ver', secao })}
+                        />
+                      )
+                    }
+                    className={secao.nivel > 1 ? (secao.nivel > 2 ? 'pl-14' : 'pl-9') : undefined}
+                    title={`${numeros[i]}. ${secao.titulo}`}
+                    description={[secao.apenasTitulo && t('title_only'), secao.quebraPagina && t('page_break_before')]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  >
+                    {podeEditar && (
+                      <div className="flex shrink-0 gap-1">
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          aria-label={t('move_up')}
+                          disabled={i === 0 || mover.isPending}
+                          onClick={() => mover.mutate({ id: modelo.id, secaoId: secao.id, direcao: 'up' }, { onError })}
+                        >
+                          <ArrowUp />
+                        </Button>
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          aria-label={t('move_down')}
+                          disabled={i === modelo.secoes.length - 1 || mover.isPending}
+                          onClick={() =>
+                            mover.mutate({ id: modelo.id, secaoId: secao.id, direcao: 'down' }, { onError })
+                          }
+                        >
+                          <ArrowDown />
+                        </Button>
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          aria-label={t('edit')}
+                          onClick={() => setPainel({ kind: 'secao', secao })}
+                        >
+                          <Pencil />
+                        </Button>
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          aria-label={t('remove')}
+                          onClick={() => setPainel({ kind: 'remover-secao', secao })}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </div>
+                    )}
+                  </LinkListItem>
+                ))}
+              </LinkList>
+            )}
+          </Panel>
+        </CardContent>
+      )}
+      {modelo && podeEditar && (
+        <CardFooter className="justify-between gap-2">
+          <Button variant="destructive" onClick={() => setPainel({ kind: 'excluir' })}>
+            {t('remove')}
+          </Button>
+        </CardFooter>
+      )}
+      {modelo && painel?.kind === 'secao' && (
+        <ModeloSecaoForm modeloId={modelo.id} secao={painel.secao} onClose={() => setPainel(null)} />
+      )}
+      {painel?.kind === 'ver' && <ModeloSecaoView secao={painel.secao} onClose={() => setPainel(null)} />}
+      {modelo && painel?.kind === 'duplicar' && (
+        <ModeloCreateForm
+          base={modelo}
+          onClose={() => setPainel(null)}
+          onDone={(novo) => {
+            setPainel(null);
+            navigate({ search: { id: novo.id } });
+          }}
+        />
+      )}
+      {modelo && painel?.kind === 'remover-secao' && (
+        <ConfirmDialog
+          title={t('remove_section_question')}
+          description={painel.secao.titulo}
+          confirmLabel={t('remove')}
+          pending={removerSecao.isPending}
+          onClose={() => setPainel(null)}
+          onConfirm={() =>
+            removerSecao.mutate(
+              { id: modelo.id, secaoId: painel.secao.id },
+              { onSuccess: () => setPainel(null), onError },
+            )
+          }
+        />
+      )}
+      {modelo && painel?.kind === 'excluir' && (
+        <ConfirmDialog
+          title={t('remove_template_question')}
+          description={t('remove_template_description')}
+          confirmLabel={t('remove')}
+          pending={excluir.isPending}
+          onClose={() => setPainel(null)}
+          onConfirm={() =>
+            excluir.mutate({ id: modelo.id }, { onSuccess: () => navigate({ to: '/expert-reports/templates' }), onError })
+          }
+        />
+      )}
+    </Card>
+  );
+}
+
+export const Route = createFileRoute('/_private/laudos/modelos/details/')({
+  component: ModeloDetailsPage,
+  staticData: { title: t('details') },
+  validateSearch: (search: Record<string, unknown>): ModeloDetailsSearch => modeloDetailsSearchSchema.parse(search),
+});

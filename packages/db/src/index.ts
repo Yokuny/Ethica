@@ -3,6 +3,8 @@ export type { EncryptedSecret } from './crypto.helper.js';
 export { decrypt, encrypt, maskSecret, sha256 } from './crypto.helper.js';
 export { dailyTrend } from './dailyTrend.js';
 export { groupStats } from './groupStats.js';
+export type { AtividadeDocument } from './models/atividade.model.js';
+export { Atividade } from './models/atividade.model.js';
 export type { CompromissoDocument, CompromissoOrigem } from './models/compromisso.model.js';
 export { Compromisso } from './models/compromisso.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';

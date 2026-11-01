@@ -53,4 +53,29 @@ describe('_private beforeLoad guard (FND-10/AC3)', () => {
 
     expect(redirectMock).toHaveBeenCalledTimes(2);
   });
+
+  // AD-137: guarda única dos módulos pela matriz — sem `ver`, volta ao início.
+  it('redirects to / when the session cannot view the module of the URL', async () => {
+    const queryClient = new QueryClient();
+    vi.spyOn(queryClient, 'ensureQueryData').mockResolvedValue({
+      user: { id: '1', name: 'A', email: 'a@b.com' },
+      role: ['operator'],
+      permissoes: { expert_cases: ['view'] },
+    } as never);
+
+    await expect(
+      beforeLoad({ context: { queryClient }, location: { pathname: '/expert-cases/details' } }),
+    ).resolves.toBeUndefined();
+    await expect(beforeLoad({ context: { queryClient }, location: { pathname: '/finance/entries' } })).rejects.toEqual({
+      isRedirect: true,
+      to: '/',
+    });
+    await expect(
+      beforeLoad({ context: { queryClient }, location: { pathname: '/expert-reports/templates' } }),
+    ).rejects.toEqual({
+      isRedirect: true,
+      to: '/',
+    });
+    await expect(beforeLoad({ context: { queryClient }, location: { pathname: '/account' } })).resolves.toBeUndefined();
+  });
 });

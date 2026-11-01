@@ -2,7 +2,7 @@
   "name": "Ethica — gestão de perícias",
   "short_name": "Ethica",
   "description": "Perícias, agenda, campo e laudos.",
-  "start_url": "/campo",
+  "start_url": "/field",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f7f7f7",

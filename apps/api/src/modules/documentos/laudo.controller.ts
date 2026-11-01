@@ -1,4 +1,4 @@
-import { respObj } from '@ethica/contracts';
+import { pode, respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { PericiaNotFoundError } from '../pericia/pericia.service.js';
@@ -14,11 +14,10 @@ type Providers = Pick<LaudoRouterDeps, 'pdf' | 'storage'>;
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
 const contexto = (req: Request): DocumentoContexto => {
-  const role = req.tenantUser.role;
   return {
     tenantId: tenantOf(req),
     userId: req.tenantUser.user,
-    canSeeFinance: role.includes('admin') || role.includes('manager'),
+    canSeeFinance: pode(req.tenantUser.permissoes, 'finance', 'view'),
     now: new Date(),
   };
 };

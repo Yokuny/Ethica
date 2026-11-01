@@ -17,9 +17,9 @@ export const createOfficeRouter = (deps: OfficeRouterDeps): Router => {
   router.post('/logo', ...guard, fileBody('image/png', TENANT_LOGO_MAX_BYTES), officeController.setLogo(deps.storage));
   router.delete('/logo', ...guard, officeController.removeLogo(deps.storage));
   // Modelo do aviso de agendamento às partes (AD-131).
-  router.get('/aviso-agendamento', ...guard, officeController.getAvisoAgendamento);
+  router.get('/schedule-notice', ...guard, officeController.getAvisoAgendamento);
   router.put(
-    '/aviso-agendamento',
+    '/schedule-notice',
     ...guard,
     validBody(updateAvisoAgendamentoSchema),
     officeController.updateAvisoAgendamento,

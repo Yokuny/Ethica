@@ -7,6 +7,7 @@ import { register } from 'prom-client';
 import { env } from './config/env.config.js';
 import { registerAllSubscribers } from './events/index.js';
 import { createAuthMiddleware } from './middlewares/authentication.middleware.js';
+import { createDiarioMiddleware } from './middlewares/diario.middleware.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { responseTime } from './middlewares/responseTime.middleware.js';
 import { createAgendaRouter } from './modules/agenda/compromisso.router.js';
@@ -17,6 +18,8 @@ import { createFinanceiroRouter } from './modules/financeiro/lancamento.router.j
 import { createAccountRouter } from './modules/identity/account.router.js';
 import { buildAuthDeps } from './modules/identity/auth.deps.js';
 import { createAuthRouter } from './modules/identity/auth.router.js';
+import { createDiarioRouter } from './modules/identity/diario.router.js';
+import * as diarioService from './modules/identity/diario.service.js';
 import { inviteRouter } from './modules/identity/invite.router.js';
 import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
@@ -65,13 +68,15 @@ export const buildApp = (
   // Content-Disposition exposto: o web lê o nome do PDF/ZIP gerado (AD-119, AD-122).
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Content-Disposition'] }));
   app.use(cookieParser());
-  // Seção de laudo com texto rico passa de 100 kB: 1 MB só em `/laudos`; o parser global
+  // Seção de laudo com texto rico passa de 100 kB: 1 MB só em `/expert-reports`; o parser global
   // ignora o corpo já lido (AD-126).
-  app.use('/laudos', express.json({ limit: '1mb' }));
+  app.use('/expert-reports', express.json({ limit: '1mb' }));
   // Registro de vistoria com muitas funções e atividades (AD-130).
-  app.use('/vistorias', express.json({ limit: '1mb' }));
+  app.use('/inspections', express.json({ limit: '1mb' }));
   app.use(express.json());
   app.use(responseTime);
+  // Diário de bordo (AD-134): grava toda escrita bem-sucedida do tenant ao fim da resposta.
+  app.use(createDiarioMiddleware(diarioService.registrar));
 
   const { validToken } = createAuthMiddleware(buildAuthDeps());
   const mailProvider = options.mail ?? buildMailProvider();
@@ -116,19 +121,20 @@ export const buildApp = (
 
   app.use('/platform', createPlatformRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/tenant/office', createOfficeRouter({ validToken, storage }));
+  app.use('/tenant/activity-log', createDiarioRouter({ validToken }));
   app.use('/tenant', createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/invites', inviteRouter);
   app.use('/auth', createAuthRouter({ validToken }));
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
-  app.use('/pericias', createPericiaRouter({ validToken }));
-  app.use('/partes', createParteRouter({ validToken }));
+  app.use('/expert-cases', createPericiaRouter({ validToken }));
+  app.use('/parties', createParteRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));
-  app.use('/vistorias', createVistoriaRouter({ validToken, storage }));
-  app.use('/financeiro', createFinanceiroRouter({ validToken }));
-  app.use('/documentos', createDocumentosRouter({ validToken, pdf, storage }));
-  app.use('/laudos', createLaudoRouter({ validToken, pdf, storage }));
-  app.use('/prospeccao', createProspeccaoRouter({ validToken, datajud }));
+  app.use('/inspections', createVistoriaRouter({ validToken, storage }));
+  app.use('/finance', createFinanceiroRouter({ validToken }));
+  app.use('/documents', createDocumentosRouter({ validToken, pdf, storage }));
+  app.use('/expert-reports', createLaudoRouter({ validToken, pdf, storage }));
+  app.use('/prospecting', createProspeccaoRouter({ validToken, datajud }));
 
   app.use(errorHandler);
 

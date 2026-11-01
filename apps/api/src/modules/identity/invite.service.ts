@@ -38,6 +38,7 @@ export const acceptInvite = async (
     password: hashedPassword,
     tenant: invite.tenant,
     role: invite.role,
+    permissoes: invite.permissoes,
   });
 
   // provisioned -> active no primeiro convite aceito (FND-19); no-op guardado

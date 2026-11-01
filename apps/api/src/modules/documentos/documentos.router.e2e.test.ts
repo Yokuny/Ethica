@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
 import {
+  Atividade,
   connect,
   dateInDisplayTz,
   disconnect,
@@ -94,6 +95,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     rendered = undefined;
     await Promise.all([
       Lancamento.deleteMany({}),
+      Atividade.deleteMany({}),
       Prazo.deleteMany({}),
       Parte.deleteMany({}),
       Pericia.deleteMany({}),
@@ -110,11 +112,11 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const tenant = await seedTenant();
     const operador = await seedSession(tenant._id, ['operator']);
     const admin = await seedSession(tenant._id, ['admin']);
-    const created = await admin.as(request(app).post('/pericias')).send({ ...PERICIA, prazoLaudo: day(10) });
+    const created = await admin.as(request(app).post('/expert-cases')).send({ ...PERICIA, prazoLaudo: day(10) });
     const id = created.body.data.id;
 
     const deOperador = await operador
-      .as(request(app).get(`/documentos/pericias/${id}/ficha`))
+      .as(request(app).get(`/documents/expert-cases/${id}/sheet`))
       .buffer()
       .parse(binary);
     expect(deOperador.status).toBe(200);
@@ -126,27 +128,27 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(rendered?.html).toContain('CREA-SP 555');
 
     await admin
-      .as(request(app).get(`/documentos/pericias/${id}/ficha`))
+      .as(request(app).get(`/documents/expert-cases/${id}/sheet`))
       .buffer()
       .parse(binary);
     expect(rendered?.html).toContain('Resumo financeiro');
 
     const checklist = await operador
-      .as(request(app).get(`/documentos/pericias/${id}/checklist`))
+      .as(request(app).get(`/documents/expert-cases/${id}/checklist`))
       .buffer()
       .parse(binary);
     expect(checklist.status).toBe(200);
     expect(rendered?.html).toContain('Mapeamento de agentes');
 
     const outro = await seedSession((await seedTenant())._id, ['admin']);
-    expect((await outro.as(request(app).get(`/documentos/pericias/${id}/ficha`))).status).toBe(404);
+    expect((await outro.as(request(app).get(`/documents/expert-cases/${id}/sheet`))).status).toBe(404);
   });
 
   it('relatório financeiro: operador 403; admin recebe o período com recebido, pago e previsto', async () => {
     const tenant = await seedTenant();
     const operador = await seedSession(tenant._id, ['operator']);
     const manager = await seedSession(tenant._id, ['manager']);
-    const honorario = await manager.as(request(app).post('/financeiro/lancamentos')).send({
+    const honorario = await manager.as(request(app).post('/finance/entries')).send({
       natureza: 'income',
       categoria: 'fixed_fees',
       descricao: 'Honorários do processo',
@@ -154,20 +156,20 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       vencimento: day(5),
     });
     await manager
-      .as(request(app).post(`/financeiro/lancamentos/${honorario.body.data.id}/parcelas`))
+      .as(request(app).post(`/finance/entries/${honorario.body.data.id}/installments`))
       .send({ valorCents: 100000, data: day(0), conta: 'Banco X' });
-    const despesa = await manager.as(request(app).post('/financeiro/lancamentos')).send({
+    const despesa = await manager.as(request(app).post('/finance/entries')).send({
       natureza: 'expense',
       categoria: 'travel',
       descricao: 'Combustível',
       valorCents: 15000,
       vencimento: day(0),
     });
-    await manager.as(request(app).patch(`/financeiro/lancamentos/${despesa.body.data.id}`)).send({ status: 'settled' });
+    await manager.as(request(app).patch(`/finance/entries/${despesa.body.data.id}`)).send({ status: 'settled' });
 
-    const query = `/documentos/financeiro?from=${day(-1)}&to=${day(10)}`;
+    const query = `/documents/finance?from=${day(-1)}&to=${day(10)}`;
     expect((await operador.as(request(app).get(query))).status).toBe(403);
-    expect((await manager.as(request(app).get(`/documentos/financeiro?from=${day(1)}&to=${day(0)}`))).status).toBe(400);
+    expect((await manager.as(request(app).get(`/documents/finance?from=${day(1)}&to=${day(0)}`))).status).toBe(400);
 
     const res = await manager.as(request(app).get(query)).buffer().parse(binary);
     expect(res.status).toBe(200);
@@ -180,20 +182,20 @@ describe('documentos e movimentações (DOC-02..04)', () => {
   it('movimentações entram e saem da perícia; parada = aberta sem movimentação há mais de 60 dias', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['operator']);
-    const parada = await as(request(app).post('/pericias')).send({ ...PERICIA, dataNomeacao: day(-90) });
-    const ativa = await as(request(app).post('/pericias')).send({
+    const parada = await as(request(app).post('/expert-cases')).send({ ...PERICIA, dataNomeacao: day(-90) });
+    const ativa = await as(request(app).post('/expert-cases')).send({
       ...PERICIA,
       numeroProcesso: '0001234-56.2026.5.02.0002',
       dataNomeacao: day(-90),
     });
-    await as(request(app).post('/pericias')).send({
+    await as(request(app).post('/expert-cases')).send({
       ...PERICIA,
       numeroProcesso: '0001234-56.2026.5.02.0003',
       dataNomeacao: day(-200),
     });
     await Pericia.updateOne({ numeroProcesso: '0001234-56.2026.5.02.0003' }, { status: 'completed' });
 
-    const mov = await as(request(app).post(`/pericias/${ativa.body.data.id}/movimentacoes`)).send({
+    const mov = await as(request(app).post(`/expert-cases/${ativa.body.data.id}/movements`)).send({
       tipo: 'clarification_summons',
       data: day(-5),
       observacoes: 'Quesitos da reclamada',
@@ -203,28 +205,28 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       expect.objectContaining({ tipo: 'clarification_summons', data: day(-5) }),
     ]);
     expect(
-      (await as(request(app).post(`/pericias/${ativa.body.data.id}/movimentacoes`)).send({ tipo: 'x', data: day(0) }))
+      (await as(request(app).post(`/expert-cases/${ativa.body.data.id}/movements`)).send({ tipo: 'x', data: day(0) }))
         .status,
     ).toBe(400);
 
-    await as(request(app).get('/documentos/paradas')).buffer().parse(binary);
+    await as(request(app).get('/documents/stalled')).buffer().parse(binary);
     expect(rendered?.html).toContain(parada.body.data.numeroProcesso);
     expect(rendered?.html).toContain('>90<');
     expect(rendered?.html).not.toContain('0001234-56.2026.5.02.0002');
     expect(rendered?.html).not.toContain('0001234-56.2026.5.02.0003');
 
     const movId = mov.body.data.movimentacoes[0].id;
-    const removed = await as(request(app).delete(`/pericias/${ativa.body.data.id}/movimentacoes/${movId}`));
+    const removed = await as(request(app).delete(`/expert-cases/${ativa.body.data.id}/movements/${movId}`));
     expect(removed.status).toBe(200);
     expect(removed.body.data.movimentacoes).toEqual([]);
-    expect((await as(request(app).delete(`/pericias/${ativa.body.data.id}/movimentacoes/${movId}`))).status).toBe(404);
+    expect((await as(request(app).delete(`/expert-cases/${ativa.body.data.id}/movements/${movId}`))).status).toBe(404);
   });
 
   it('cronograma lista os prazos pendentes com "faltam N dias"', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['operator']);
-    await as(request(app).post('/pericias')).send({ ...PERICIA, prazoLaudo: day(3) });
-    const res = await as(request(app).get('/documentos/prazos')).buffer().parse(binary);
+    await as(request(app).post('/expert-cases')).send({ ...PERICIA, prazoLaudo: day(3) });
+    const res = await as(request(app).get('/documents/deadlines')).buffer().parse(binary);
     expect(res.status).toBe(200);
     expect(rendered?.html).toContain('Faltam 3 dias · vence em breve');
     expect(rendered?.html).toContain(PERICIA.numeroProcesso);
@@ -234,10 +236,10 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const tenant = await seedTenant();
     const operador = await seedSession(tenant._id, ['operator']);
     const admin = await seedSession(tenant._id, ['admin']);
-    await admin.as(request(app).post('/pericias')).send({ ...PERICIA, objeto: 'Ruído; calor "extremo"' });
+    await admin.as(request(app).post('/expert-cases')).send({ ...PERICIA, objeto: 'Ruído; calor "extremo"' });
 
-    expect((await operador.as(request(app).get('/documentos/export'))).status).toBe(403);
-    const res = await admin.as(request(app).get('/documentos/export')).buffer().parse(binary);
+    expect((await operador.as(request(app).get('/documents/export'))).status).toBe(403);
+    const res = await admin.as(request(app).get('/documents/export')).buffer().parse(binary);
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toBe('application/zip');
 
@@ -260,7 +262,9 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(usuarios).toContain(admin.user.email);
     expect(usuarios).not.toContain('hash-secreto');
 
-    const saved = await Tenant.findById(tenant._id).lean();
-    expect(saved?.dataExports).toEqual([expect.objectContaining({ User: admin.user._id })]);
+    // Quem exportou vai ao diário de bordo (AD-134), gravado ao fim da resposta.
+    await expect
+      .poll(async () => Atividade.findOne({ Tenant: tenant._id, acao: 'export' }).lean())
+      .toMatchObject({ User: admin.user._id, modulo: 'office' });
   });
 });

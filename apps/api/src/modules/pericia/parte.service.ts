@@ -72,7 +72,13 @@ export const resolvePartes = async (tenantId: string, inputs: PericiaParteInput[
   for (const input of inputs) {
     const parte = await resolveParte(tenantId, input);
     if (result.some((item) => item.parteId === parte.id && item.polo === input.polo)) continue;
-    result.push({ parteId: parte.id, polo: input.polo, tipo: parte.tipo, nome: parte.nome });
+    result.push({
+      parteId: parte.id,
+      polo: input.polo,
+      tipo: parte.tipo,
+      nome: parte.nome,
+      ...(input.contratante ? { contratante: true } : {}),
+    });
   }
   return result;
 };

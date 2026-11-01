@@ -73,9 +73,9 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
   it('R$ 4.800: parcela de 1.500 deixa parcial com saldo 3.300; estorno volta a previsto; quitação liquida', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/financeiro/lancamentos')).send(HONORARIO)).body.data;
+    const { id } = (await as(request(app).post('/finance/entries')).send(HONORARIO)).body.data;
 
-    const parcial = await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({
+    const parcial = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       valorCents: 150_000,
       data: today,
       conta: 'Banco do Brasil',
@@ -85,7 +85,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     const [parcela] = parcial.body.data.parcelas;
     expect(parcela).toMatchObject({ valorCents: 150_000, data: today, conta: 'Banco do Brasil' });
 
-    const estorno = await as(request(app).delete(`/financeiro/lancamentos/${id}/parcelas/${parcela.id}`));
+    const estorno = await as(request(app).delete(`/finance/entries/${id}/installments/${parcela.id}`));
     expect(estorno.body.data).toMatchObject({
       status: 'expected',
       recebidoCents: 0,
@@ -93,8 +93,8 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       parcelas: [],
     });
 
-    await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({ valorCents: 300_000, data: today });
-    const quitado = await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 300_000, data: today });
+    const quitado = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       valorCents: 180_000,
       data: today,
     });
@@ -103,10 +103,10 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
   it('parcela maior que o saldo é recusada com 422 parcel_exceeds_balance e nada muda', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/financeiro/lancamentos')).send(HONORARIO)).body.data;
-    await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({ valorCents: 400_000, data: today });
+    const { id } = (await as(request(app).post('/finance/entries')).send(HONORARIO)).body.data;
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 400_000, data: today });
 
-    const excede = await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({
+    const excede = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       valorCents: 80_001,
       data: today,
     });
@@ -117,26 +117,26 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
   it('honorário não é excluído nem tem status à mão; valor não fica abaixo do recebido; despesa continua excluível', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/financeiro/lancamentos')).send(HONORARIO)).body.data;
-    await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({ valorCents: 200_000, data: today });
+    const { id } = (await as(request(app).post('/finance/entries')).send(HONORARIO)).body.data;
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 200_000, data: today });
 
-    const excluir = await as(request(app).delete(`/financeiro/lancamentos/${id}`));
+    const excluir = await as(request(app).delete(`/finance/entries/${id}`));
     expect(excluir.status).toBe(409);
     expect(excluir.body.message).toBe('fee_cannot_be_removed');
 
-    const cancelar = await as(request(app).patch(`/financeiro/lancamentos/${id}`)).send({ status: 'canceled' });
+    const cancelar = await as(request(app).patch(`/finance/entries/${id}`)).send({ status: 'canceled' });
     expect(cancelar.status).toBe(422);
     expect(cancelar.body.message).toBe('fee_status_comes_from_parcels');
 
-    const abaixo = await as(request(app).patch(`/financeiro/lancamentos/${id}`)).send({ valorCents: 199_999 });
+    const abaixo = await as(request(app).patch(`/finance/entries/${id}`)).send({ valorCents: 199_999 });
     expect(abaixo.status).toBe(422);
     expect(abaixo.body.message).toBe('amount_below_received');
 
-    const igual = await as(request(app).patch(`/financeiro/lancamentos/${id}`)).send({ valorCents: 200_000 });
+    const igual = await as(request(app).patch(`/finance/entries/${id}`)).send({ valorCents: 200_000 });
     expect(igual.body.data).toMatchObject({ status: 'settled', saldoCents: 0 });
 
     const despesa = (
-      await as(request(app).post('/financeiro/lancamentos')).send({
+      await as(request(app).post('/finance/entries')).send({
         natureza: 'expense',
         categoria: 'supplies',
         descricao: 'Calibração',
@@ -144,35 +144,34 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
         vencimento: today,
       })
     ).body.data;
-    expect((await as(request(app).delete(`/financeiro/lancamentos/${despesa.id}`))).status).toBe(200);
+    expect((await as(request(app).delete(`/finance/entries/${despesa.id}`))).status).toBe(200);
   });
 
   it('resumo e fluxo contam o recebido pela data de cada parcela e o saldo como a receber (PRZ-02.5)', async () => {
     const as = await seedSession();
-    const { id } = (
-      await as(request(app).post('/financeiro/lancamentos')).send({ ...HONORARIO, vencimento: '2020-01-10' })
-    ).body.data;
-    await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({ valorCents: 150_000, data: today });
+    const { id } = (await as(request(app).post('/finance/entries')).send({ ...HONORARIO, vencimento: '2020-01-10' }))
+      .body.data;
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 150_000, data: today });
     // Parcela de outro mês: entra no recebido do mês dela, não no deste (nem no fluxo de 1 mês).
-    await as(request(app).post(`/financeiro/lancamentos/${id}/parcelas`)).send({
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       valorCents: 50_000,
       data: '2020-02-01',
     });
 
-    const resumo = (await as(request(app).get('/financeiro/resumo'))).body.data;
+    const resumo = (await as(request(app).get('/finance/summary'))).body.data;
     expect(resumo).toMatchObject({ aReceberCents: 280_000, atrasadoCents: 280_000, recebidoMesCents: 150_000 });
 
-    const fluxo = (await as(request(app).get('/financeiro/fluxo?meses=1'))).body.data;
+    const fluxo = (await as(request(app).get('/finance/flow?meses=1'))).body.data;
     expect(fluxo).toEqual([{ mes: today.slice(0, 7), recebidoCents: 150_000, aReceberCents: 0, despesasCents: 0 }]);
 
-    const atrasados = (await as(request(app).get('/financeiro/lancamentos?situacao=overdue'))).body.data;
+    const atrasados = (await as(request(app).get('/finance/entries?situacao=overdue'))).body.data;
     expect(atrasados.items.map((item: { id: string }) => item.id)).toEqual([id]);
   });
 
   it('alterar o honorário fixado da perícia atualiza o lançamento existente em vez de criar outro', async () => {
     const as = await seedSession();
     const pericia = (
-      await as(request(app).post('/pericias')).send({
+      await as(request(app).post('/expert-cases')).send({
         numeroProcesso: '0001234-56.2026.5.02.0001',
         justica: 'labor',
         papel: 'court_expert',
@@ -181,10 +180,10 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       })
     ).body.data;
 
-    await as(request(app).patch(`/pericias/${pericia.id}`)).send({ honorariosFixadosCents: 300_000 });
+    await as(request(app).patch(`/expert-cases/${pericia.id}`)).send({ honorariosFixadosCents: 300_000 });
     await expect.poll(() => Lancamento.countDocuments({ Pericia: pericia.id })).toBe(1);
 
-    await as(request(app).patch(`/pericias/${pericia.id}`)).send({ honorariosFixadosCents: 350_000 });
+    await as(request(app).patch(`/expert-cases/${pericia.id}`)).send({ honorariosFixadosCents: 350_000 });
     await expect.poll(async () => (await Lancamento.findOne({ Pericia: pericia.id }).lean())?.valorCents).toBe(350_000);
     expect(await Lancamento.countDocuments({ Pericia: pericia.id })).toBe(1);
   });

@@ -38,6 +38,18 @@ export const updateAvatarSchema = z
   })
   .strict();
 
+// Blocos do início (AD-136). A preferência guarda os ocultos: bloco novo aparece por padrão.
+export const HOME_BLOCOS = [
+  'overview',
+  'upcoming',
+  'cash_flow',
+  'stalled',
+  'by_stage',
+  'by_court',
+  'sections',
+] as const;
+export type HomeBloco = (typeof HOME_BLOCOS)[number];
+
 export type UpdateProfile = z.infer<typeof updateProfileSchema>;
 export type ChangePassword = z.infer<typeof changePasswordSchema>;
 export type UpdateAvatar = z.infer<typeof updateAvatarSchema>;

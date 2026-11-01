@@ -1,7 +1,7 @@
 import { TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
-import * as authRepository from './auth.repository.js';
+import * as diarioService from './diario.service.js';
 import * as officeRepository from './office.repository.js';
 import type {
   DocumentIdentity,
@@ -11,6 +11,7 @@ import type {
   UpdateOffice,
 } from './office.schema.js';
 
+const EXPORTS_SHOWN = 5;
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 const findOfficeOrThrow = async (tenantId: string) => {
@@ -26,21 +27,15 @@ const requireStorage = (storage: FileStorage | undefined): FileStorage => {
 
 export const getOffice = async (tenantId: string): Promise<OfficeView> => {
   const tenant = await findOfficeOrThrow(tenantId);
-  const exports = [...(tenant.dataExports ?? [])].reverse();
-  const names = await authRepository.findUserNamesByIds(tenantId, [
-    ...new Set(exports.map((item) => item.User.toString())),
-  ]);
-  const nameOf = new Map(names.map((user) => [user.id, user.name]));
+  // As últimas exportações vêm do diário de bordo (AD-134).
+  const exports = await diarioService.ultimasExportacoes(tenantId, EXPORTS_SHOWN);
   return {
     cabecalho: tenant.cabecalho ?? '',
     rodape: tenant.rodape ?? '',
     ...(tenant.logo ? { logo: `/tenant/office/logo?v=${tenant.logo.updatedAt?.getTime() ?? 0}` } : {}),
     storageBytes: tenant.storageBytes ?? 0,
     storageQuotaBytes: TENANT_STORAGE_QUOTA_BYTES,
-    dataExports: exports.map((item) => {
-      const userName = nameOf.get(item.User.toString());
-      return userName ? { userName, at: item.at } : { at: item.at };
-    }),
+    dataExports: exports.map((item) => ({ userName: item.userName, at: item.createdAt })),
   };
 };
 
@@ -98,9 +93,6 @@ export const getDocumentIdentity = async (
     ...(bytes ? { logoDataUrl: `data:image/png;base64,${bytes.toString('base64')}` } : {}),
   };
 };
-
-export const registrarExportacao = (tenantId: string, userId: string) =>
-  officeRepository.pushDataExport(tenantId, userId);
 
 // Cota de arquivos para outros módulos (mídias da vistoria, AD-129): reservar antes de gravar
 // a referência e devolver ao apagar o arquivo.

@@ -51,12 +51,8 @@ export const setAvatarMutation = (queryClient: QueryClient): UseMutationOptions<
   onSuccess: () => refreshAccount(queryClient),
 });
 
-// Espelha UserPreferences de apps/api/src/modules/identity/preferences.schema.ts (AD-110).
-export type AccountPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean };
-
 export const accountKeys = {
   profile: ['account', 'profile'] as const,
-  preferences: ['account', 'preferences'] as const,
   calendarFeed: ['account', 'calendar-feed'] as const,
 };
 
@@ -68,26 +64,6 @@ export const profileQuery = queryOptions({
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },
-});
-
-export const preferencesQuery = queryOptions({
-  queryKey: accountKeys.preferences,
-  queryFn: async (): Promise<AccountPreferences> => {
-    const res = await get<AccountPreferences>('/me/preferences');
-    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
-    return res.data;
-  },
-});
-
-export const updatePreferencesMutation = (
-  queryClient: QueryClient,
-): UseMutationOptions<AccountPreferences, Error, Partial<AccountPreferences>> => ({
-  mutationFn: async (data) => {
-    const res = await patch<AccountPreferences>('/me/preferences', data);
-    if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
-    return res.data;
-  },
-  onSuccess: (data) => queryClient.setQueryData(accountKeys.preferences, data),
 });
 
 // PRZ-03: só se sabe se o link existe; o token aparece uma única vez, ao gerar.

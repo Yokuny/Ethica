@@ -57,7 +57,7 @@ export const avisoAgendamentoKeys = { detail: ['office', 'aviso-agendamento'] as
 export const avisoAgendamentoQuery = queryOptions({
   queryKey: avisoAgendamentoKeys.detail,
   queryFn: async (): Promise<AvisoAgendamento> => {
-    const res = await get<AvisoAgendamento>('/tenant/office/aviso-agendamento');
+    const res = await get<AvisoAgendamento>('/tenant/office/schedule-notice');
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },
@@ -67,7 +67,7 @@ export const updateAvisoAgendamentoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<AvisoAgendamento, Error, AvisoAgendamento> => ({
   mutationFn: async (data) => {
-    const res = await put<AvisoAgendamento>('/tenant/office/aviso-agendamento', data);
+    const res = await put<AvisoAgendamento>('/tenant/office/schedule-notice', data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },

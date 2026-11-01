@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkRole } from '../../middlewares/authorization.middleware.js';
+import { can } from '../../middlewares/authorization.middleware.js';
 import { datajudSearchRateLimit } from '../../middlewares/rateLimit.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
@@ -14,44 +14,54 @@ import {
   updateOportunidadeSchema,
 } from './oportunidade.schema.js';
 
-const canOperate = checkRole(['admin', 'manager', 'operator']);
-
 export const createProspeccaoRouter = (deps: ProspeccaoRouterDeps): Router => {
   const router = Router();
-  const guard = [deps.validToken, tenantAssignmentCheck, canOperate];
+  const guard = [deps.validToken, tenantAssignmentCheck];
   const byId = validParams(oportunidadeIdParamSchema);
 
   router.post(
     '/datajud/search',
     ...guard,
+    can('prospecting', 'view'),
     datajudSearchRateLimit,
     validBody(datajudSearchSchema),
     oportunidadeController.searchDatajud(deps.datajud),
   );
-  router.get('/oportunidades/stats', ...guard, oportunidadeController.oportunidadeStats);
+  router.get('/opportunities/stats', ...guard, can('prospecting', 'view'), oportunidadeController.oportunidadeStats);
   router.get(
-    '/oportunidades',
+    '/opportunities',
     ...guard,
+    can('prospecting', 'view'),
     validParsedQuery(listOportunidadesQuerySchema),
     oportunidadeController.listOportunidades,
   );
   router.post(
-    '/oportunidades',
+    '/opportunities',
     ...guard,
+    can('prospecting', 'create'),
     validBody(createOportunidadeSchema),
     oportunidadeController.createOportunidade,
   );
   router.patch(
-    '/oportunidades/:id',
+    '/opportunities/:id',
     ...guard,
+    can('prospecting', 'update'),
     byId,
     validBody(updateOportunidadeSchema),
     oportunidadeController.updateOportunidade,
   );
-  router.delete('/oportunidades/:id', ...guard, byId, oportunidadeController.deleteOportunidade);
-  router.post(
-    '/oportunidades/:id/converter',
+  router.delete(
+    '/opportunities/:id',
     ...guard,
+    can('prospecting', 'delete'),
+    byId,
+    oportunidadeController.deleteOportunidade,
+  );
+  router.post(
+    '/opportunities/:id/convert',
+    ...guard,
+    can('prospecting', 'update'),
+    can('expert_cases', 'create'),
     byId,
     validBody(converterOportunidadeSchema),
     oportunidadeController.converterOportunidade,

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkRole } from '../../middlewares/authorization.middleware.js';
+import { can } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as lancamentoController from './lancamento.controller.js';
@@ -15,47 +15,67 @@ import {
   updateLancamentoSchema,
 } from './lancamento.schema.js';
 
-// Dinheiro do perito: só admin e manager leem e escrevem o financeiro.
-const canManage = checkRole(['admin', 'manager']);
-
 export const createFinanceiroRouter = (deps: FinanceiroRouterDeps): Router => {
   const router = Router();
-  const guard = [deps.validToken, tenantAssignmentCheck, canManage];
+  const guard = [deps.validToken, tenantAssignmentCheck];
 
-  router.get('/resumo', ...guard, lancamentoController.resumo);
-  router.get('/fluxo', ...guard, validParsedQuery(fluxoQuerySchema), lancamentoController.fluxoMensal);
-  router.get('/categorias', ...guard, validParsedQuery(categoriasQuerySchema), lancamentoController.totaisPorCategoria);
-  router.post('/lancamentos', ...guard, validBody(createLancamentoSchema), lancamentoController.createLancamento);
+  router.get('/summary', ...guard, can('finance', 'view'), lancamentoController.resumo);
   router.get(
-    '/lancamentos',
+    '/flow',
     ...guard,
+    can('finance', 'view'),
+    validParsedQuery(fluxoQuerySchema),
+    lancamentoController.fluxoMensal,
+  );
+  router.get(
+    '/categories',
+    ...guard,
+    can('finance', 'view'),
+    validParsedQuery(categoriasQuerySchema),
+    lancamentoController.totaisPorCategoria,
+  );
+  router.post(
+    '/entries',
+    ...guard,
+    can('finance', 'create'),
+    validBody(createLancamentoSchema),
+    lancamentoController.createLancamento,
+  );
+  router.get(
+    '/entries',
+    ...guard,
+    can('finance', 'view'),
     validParsedQuery(listLancamentosQuerySchema),
     lancamentoController.listLancamentos,
   );
   router.patch(
-    '/lancamentos/:id',
+    '/entries/:id',
     ...guard,
+    can('finance', 'update'),
     validParams(lancamentoIdParamSchema),
     validBody(updateLancamentoSchema),
     lancamentoController.updateLancamento,
   );
   router.delete(
-    '/lancamentos/:id',
+    '/entries/:id',
     ...guard,
+    can('finance', 'delete'),
     validParams(lancamentoIdParamSchema),
     lancamentoController.deleteLancamento,
   );
   // Recebimentos parciais do honorário (AD-111).
   router.post(
-    '/lancamentos/:id/parcelas',
+    '/entries/:id/installments',
     ...guard,
+    can('finance', 'update'),
     validParams(lancamentoIdParamSchema),
     validBody(createParcelaSchema),
     lancamentoController.addParcela,
   );
   router.delete(
-    '/lancamentos/:id/parcelas/:parcelaId',
+    '/entries/:id/installments/:parcelaId',
     ...guard,
+    can('finance', 'update'),
     validParams(parcelaIdParamSchema),
     lancamentoController.estornarParcela,
   );

@@ -1,4 +1,4 @@
-import type { LancamentoStatus } from '@ethica/contracts';
+import type { LancamentoCategoria, LancamentoStatus } from '@ethica/contracts';
 import type { LancamentoDocument } from '@ethica/db';
 import { Lancamento, newObjectId, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
@@ -73,7 +73,8 @@ export const findHonorarioFixado = async (tenantId: string, periciaId: string): 
         Tenant: tenantId,
         Pericia: periciaId,
         natureza: 'income' as const,
-        categoria: 'fixed_fees' as const,
+        // O honorário automático da perícia, fixado ou contratado (AD-135): um por perícia.
+        categoria: { $in: ['fixed_fees', 'contracted_fees'] as LancamentoCategoria[] },
       }),
     )
       .sort({ createdAt: -1 })

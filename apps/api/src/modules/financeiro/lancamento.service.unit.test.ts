@@ -48,7 +48,13 @@ describe('lancamento.service', () => {
   it('honorários fixados sem lançamento anterior viram receita prevista com vencimento em 30 dias', async () => {
     vi.mocked(lancamentoRepository.findHonorarioFixado).mockResolvedValue(null);
     await lancarHonorariosFixados(
-      { tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 500_000 },
+      {
+        tenantId: 't1',
+        periciaId: 'p1',
+        numeroProcesso: '0001',
+        valorCents: 500_000,
+        categoria: 'fixed_fees' as const,
+      },
       now,
     );
 
@@ -62,13 +68,32 @@ describe('lancamento.service', () => {
     });
   });
 
+  it('honorário contratado do assistente técnico vira receita contracted_fees (AD-135)', async () => {
+    vi.mocked(lancamentoRepository.findHonorarioFixado).mockResolvedValue(null);
+    await lancarHonorariosFixados(
+      { tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 300_000, categoria: 'contracted_fees' },
+      now,
+    );
+
+    expect(lancamentoRepository.createLancamento).toHaveBeenLastCalledWith(
+      't1',
+      expect.objectContaining({ categoria: 'contracted_fees', descricao: 'Honorários contratados — 0001' }),
+    );
+  });
+
   it('honorário fixado já lançado: o valor novo atualiza o mesmo lançamento (AD-111)', async () => {
     vi.mocked(lancamentoRepository.createLancamento).mockClear();
     vi.mocked(lancamentoRepository.findHonorarioFixado).mockResolvedValue({ id: 'l9' } as never);
     vi.mocked(lancamentoRepository.updateReceita).mockResolvedValue({ id: 'l9' } as never);
 
     await lancarHonorariosFixados(
-      { tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 650_000 },
+      {
+        tenantId: 't1',
+        periciaId: 'p1',
+        numeroProcesso: '0001',
+        valorCents: 650_000,
+        categoria: 'fixed_fees' as const,
+      },
       now,
     );
 
@@ -81,7 +106,10 @@ describe('lancamento.service', () => {
     vi.mocked(lancamentoRepository.updateReceita).mockResolvedValue(null);
 
     await expect(
-      lancarHonorariosFixados({ tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 1 }, now),
+      lancarHonorariosFixados(
+        { tenantId: 't1', periciaId: 'p1', numeroProcesso: '0001', valorCents: 1, categoria: 'fixed_fees' as const },
+        now,
+      ),
     ).rejects.toMatchObject({ message: 'amount_below_received' });
   });
 });

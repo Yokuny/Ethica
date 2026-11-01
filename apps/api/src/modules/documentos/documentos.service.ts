@@ -221,7 +221,6 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<ArquivoGera
     ),
   };
   const zip = zipSync(Object.fromEntries(Object.entries(arquivos).map(([nome, csv]) => [nome, strToU8(csv)])));
-  await officeService.registrarExportacao(tenantId, ctx.userId);
   return {
     nome: `ethica-dados-${dateInDisplayTz(ctx.now)}.zip`,
     tipo: 'application/zip',

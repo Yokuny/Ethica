@@ -21,6 +21,7 @@ export const buildAuthDeps = (): AuthDeps => ({
           id: user._id.toString(),
           tenant: user.Tenant?.toString(),
           role: user.role,
+          permissoes: user.permissoes,
           isPlatformAdmin: user.isPlatformAdmin,
           active: user.active,
         }

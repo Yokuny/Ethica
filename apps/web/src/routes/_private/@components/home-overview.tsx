@@ -23,7 +23,7 @@ export function HomeOverview({ stats, resumo }: { stats?: ListStats; resumo?: Fi
       <RecordStat
         label={t('overdue_deadlines')}
         value={show(statCount(stats, 'overdue_deadlines'))}
-        render={<Link to="/pericias" />}
+        render={<Link to="/expert-cases" />}
       />
       <RecordStat label={t('deadlines_due_soon')} value={show(statCount(stats, 'deadlines_due_soon'))} />
       {resumo && (
@@ -31,7 +31,7 @@ export function HomeOverview({ stats, resumo }: { stats?: ListStats; resumo?: Fi
           label={t('receivable')}
           value={formatMoney(resumo.aReceberCents)}
           hint={resumo.atrasadoCents ? `${formatMoney(resumo.atrasadoCents)} ${t('overdue')}` : undefined}
-          render={<Link to="/financeiro/lancamentos" search={{ situacao: 'expected' }} />}
+          render={<Link to="/finance/entries" search={{ situacao: 'expected' }} />}
         />
       )}
     </RecordStats>

@@ -79,26 +79,27 @@ export const laudosQuery = (params: LaudosQueryParams = {}) =>
   queryOptions({
     queryKey: laudoKeys.list(params),
     queryFn: async () =>
-      unwrap(await get<{ items: LaudoListItem[]; total: number }>(`/laudos${qs(params)}`), 'load_error'),
+      unwrap(await get<{ items: LaudoListItem[]; total: number }>(`/expert-reports${qs(params)}`), 'load_error'),
   });
 
 export const laudoQuery = (id: string) =>
   queryOptions({
     queryKey: laudoKeys.detail(id),
-    queryFn: async () => unwrap(await get<LaudoRecord>(`/laudos/${encodeURIComponent(id)}`), 'load_error'),
+    queryFn: async () => unwrap(await get<LaudoRecord>(`/expert-reports/${encodeURIComponent(id)}`), 'load_error'),
   });
 
 export const modelosQuery = (tipo?: LaudoTipo) =>
   queryOptions({
     queryKey: laudoKeys.modelos(tipo),
-    queryFn: async () => unwrap(await get<ModeloLaudoResumo[]>(`/laudos/modelos${qs({ tipo })}`), 'load_error'),
+    queryFn: async () =>
+      unwrap(await get<ModeloLaudoResumo[]>(`/expert-reports/templates${qs({ tipo })}`), 'load_error'),
   });
 
 export const modeloQuery = (id: string) =>
   queryOptions({
     queryKey: laudoKeys.modelo(id),
     queryFn: async () =>
-      unwrap(await get<ModeloLaudoRecord>(`/laudos/modelos/${encodeURIComponent(id)}`), 'load_error'),
+      unwrap(await get<ModeloLaudoRecord>(`/expert-reports/templates/${encodeURIComponent(id)}`), 'load_error'),
   });
 
 // Laudo: a resposta já é o laudo atualizado; grava no cache do detalhe e refaz as listas.
@@ -108,7 +109,7 @@ const laudoAtualizado = (queryClient: QueryClient, laudo: LaudoRecord) => {
 };
 
 export const createLaudoMutation = (queryClient: QueryClient): UseMutationOptions<LaudoRecord, Error, CreateLaudo> => ({
-  mutationFn: async (data) => unwrap(await post<LaudoRecord>('/laudos', data), 'create_error'),
+  mutationFn: async (data) => unwrap(await post<LaudoRecord>('/expert-reports', data), 'create_error'),
   onSuccess: (laudo) => laudoAtualizado(queryClient, laudo),
 });
 
@@ -116,7 +117,7 @@ export const updateLaudoSecaoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<LaudoRecord, Error, { id: string; secaoId: string; data: UpdateLaudoSecao }> => ({
   mutationFn: async ({ id, secaoId, data }) =>
-    unwrap(await patch<LaudoRecord>(`/laudos/${id}/secoes/${secaoId}`, data), 'save_error'),
+    unwrap(await patch<LaudoRecord>(`/expert-reports/${id}/sections/${secaoId}`, data), 'save_error'),
   onSuccess: (laudo) => laudoAtualizado(queryClient, laudo),
 });
 
@@ -124,7 +125,7 @@ export const removeLaudoSecaoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<LaudoRecord, Error, { id: string; secaoId: string }> => ({
   mutationFn: async ({ id, secaoId }) =>
-    unwrap(await del<LaudoRecord>(`/laudos/${id}/secoes/${secaoId}`), 'remove_error'),
+    unwrap(await del<LaudoRecord>(`/expert-reports/${id}/sections/${secaoId}`), 'remove_error'),
   onSuccess: (laudo) => laudoAtualizado(queryClient, laudo),
 });
 
@@ -132,7 +133,8 @@ export const removeLaudoSecaoMutation = (
 export const concluirLaudoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<LaudoRecord, Error, { id: string; data: ConcluirLaudo }> => ({
-  mutationFn: async ({ id, data }) => unwrap(await post<LaudoRecord>(`/laudos/${id}/concluir`, data), 'action_error'),
+  mutationFn: async ({ id, data }) =>
+    unwrap(await post<LaudoRecord>(`/expert-reports/${id}/complete`, data), 'action_error'),
   onSuccess: (laudo) => {
     laudoAtualizado(queryClient, laudo);
     queryClient.invalidateQueries({ queryKey: periciaKeys.all });
@@ -142,7 +144,7 @@ export const concluirLaudoMutation = (
 
 export const deleteLaudoMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id: string }> => ({
   mutationFn: async ({ id }) => {
-    const res = await del<never>(`/laudos/${id}`);
+    const res = await del<never>(`/expert-reports/${id}`);
     if (!res.success) throw new Error(res.message ?? t('remove_error'));
   },
   onSuccess: () => queryClient.invalidateQueries({ queryKey: laudoKeys.lists() }),
@@ -157,7 +159,7 @@ const modeloAtualizado = (queryClient: QueryClient, modelo: ModeloLaudoRecord) =
 export const createModeloMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<ModeloLaudoRecord, Error, CreateModeloLaudo> => ({
-  mutationFn: async (data) => unwrap(await post<ModeloLaudoRecord>('/laudos/modelos', data), 'create_error'),
+  mutationFn: async (data) => unwrap(await post<ModeloLaudoRecord>('/expert-reports/templates', data), 'create_error'),
   onSuccess: (modelo) => modeloAtualizado(queryClient, modelo),
 });
 
@@ -165,13 +167,13 @@ export const renameModeloMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<ModeloLaudoRecord, Error, { id: string; nome: string }> => ({
   mutationFn: async ({ id, nome }) =>
-    unwrap(await patch<ModeloLaudoRecord>(`/laudos/modelos/${id}`, { nome }), 'save_error'),
+    unwrap(await patch<ModeloLaudoRecord>(`/expert-reports/templates/${id}`, { nome }), 'save_error'),
   onSuccess: (modelo) => modeloAtualizado(queryClient, modelo),
 });
 
 export const deleteModeloMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id: string }> => ({
   mutationFn: async ({ id }) => {
-    const res = await del<never>(`/laudos/modelos/${id}`);
+    const res = await del<never>(`/expert-reports/templates/${id}`);
     if (!res.success) throw new Error(res.message ?? t('remove_error'));
   },
   onSuccess: () => queryClient.invalidateQueries({ queryKey: [...laudoKeys.all, 'modelos'] }),
@@ -183,8 +185,8 @@ export const saveModeloSecaoMutation = (
   mutationFn: async ({ id, secaoId, data }) =>
     unwrap(
       secaoId
-        ? await put<ModeloLaudoRecord>(`/laudos/modelos/${id}/secoes/${secaoId}`, data)
-        : await post<ModeloLaudoRecord>(`/laudos/modelos/${id}/secoes`, data),
+        ? await put<ModeloLaudoRecord>(`/expert-reports/templates/${id}/sections/${secaoId}`, data)
+        : await post<ModeloLaudoRecord>(`/expert-reports/templates/${id}/sections`, data),
       'save_error',
     ),
   onSuccess: (modelo) => modeloAtualizado(queryClient, modelo),
@@ -194,7 +196,7 @@ export const removeModeloSecaoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<ModeloLaudoRecord, Error, { id: string; secaoId: string }> => ({
   mutationFn: async ({ id, secaoId }) =>
-    unwrap(await del<ModeloLaudoRecord>(`/laudos/modelos/${id}/secoes/${secaoId}`), 'remove_error'),
+    unwrap(await del<ModeloLaudoRecord>(`/expert-reports/templates/${id}/sections/${secaoId}`), 'remove_error'),
   onSuccess: (modelo) => modeloAtualizado(queryClient, modelo),
 });
 
@@ -202,6 +204,9 @@ export const moverModeloSecaoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<ModeloLaudoRecord, Error, { id: string; secaoId: string; direcao: 'up' | 'down' }> => ({
   mutationFn: async ({ id, secaoId, direcao }) =>
-    unwrap(await post<ModeloLaudoRecord>(`/laudos/modelos/${id}/secoes/${secaoId}/mover`, { direcao }), 'save_error'),
+    unwrap(
+      await post<ModeloLaudoRecord>(`/expert-reports/templates/${id}/sections/${secaoId}/move`, { direcao }),
+      'save_error',
+    ),
   onSuccess: (modelo) => modeloAtualizado(queryClient, modelo),
 });

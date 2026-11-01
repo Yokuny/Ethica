@@ -67,6 +67,8 @@ export const periciaParteInputSchema = z
     nome: nomeSchema,
     documento: documentoSchema.optional(),
     oab: oabSchema.optional(),
+    // Quem contratou o assistente técnico (AD-135); no máximo um, só nessa perícia.
+    contratante: z.boolean().optional(),
   })
   .strict();
 export type PericiaParteInput = z.infer<typeof periciaParteInputSchema>;

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { Role, TenantUser } from '@ethica/contracts';
+import { type Permissoes, permissoesEfetivas, type Role, type TenantUser } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.config.js';
@@ -24,6 +24,7 @@ export type UserRecord = {
   id: string;
   tenant?: string;
   role: Role[];
+  permissoes?: Permissoes;
   isPlatformAdmin: boolean;
   active: boolean;
 };
@@ -107,6 +108,7 @@ export const authenticateSession = async (
     user: user.id,
     role: user.role,
     isPlatformAdmin: user.isPlatformAdmin,
+    permissoes: permissoesEfetivas(user.role, user.permissoes),
   };
 };
 

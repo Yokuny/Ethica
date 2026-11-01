@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { documentoSchema, normalizarOab, oabSchema } from './parte.schema.js';
-import { sugerirPeriodoImprescrito } from './pericia.schema.js';
+import {
+  contratanteValido,
+  etapaDaFase,
+  faseCabeNaEtapa,
+  situacaoDaPericia,
+  sugerirPeriodoImprescrito,
+} from './pericia.schema.js';
 
 describe('sugerirPeriodoImprescrito (AD-115)', () => {
   it('início é o mais recente entre autuação − 5 anos e admissão; fim é a demissão', () => {
@@ -34,5 +40,35 @@ describe('documento e OAB da parte', () => {
     expect(documentoSchema.parse('12.345.678/0001-95')).toBe('12345678000195');
     expect(documentoSchema.parse('')).toBeUndefined();
     expect(documentoSchema.safeParse('123').success).toBe(false);
+  });
+});
+
+describe('fase e situação da perícia (AD-133)', () => {
+  it('cada fase de etapa pertence a uma só etapa; suspensão não tem etapa', () => {
+    expect(etapaDaFase('answering_objection')).toBe('clarifications');
+    expect(etapaDaFase('awaiting_objections')).toBe('report_delivered');
+    expect(etapaDaFase('settlement')).toBeUndefined();
+  });
+
+  it('suspensão cabe em qualquer etapa aberta, nunca nas encerradas', () => {
+    expect(faseCabeNaEtapa('withdrawal', 'inspection')).toBe(true);
+    expect(faseCabeNaEtapa('withdrawal', 'completed')).toBe(false);
+    expect(faseCabeNaEtapa('reviewing_report', 'inspection')).toBe(false);
+  });
+
+  it('deriva a situação da etapa e da fase', () => {
+    expect(situacaoDaPericia({ status: 'inspection' })).toBe('active');
+    expect(situacaoDaPericia({ status: 'inspection', fase: 'settlement' })).toBe('suspended');
+    expect(situacaoDaPericia({ status: 'completed', fase: 'fees_received' })).toBe('closed');
+    expect(situacaoDaPericia({ status: 'declined' })).toBe('closed');
+  });
+
+  it('contratante: no máximo um e só na perícia de assistente técnico (AD-135)', () => {
+    expect(contratanteValido({ papel: 'technical_assistant', partes: [{ contratante: true }, {}] })).toBe(true);
+    expect(contratanteValido({ papel: 'court_expert', partes: [{ contratante: true }] })).toBe(false);
+    expect(
+      contratanteValido({ papel: 'technical_assistant', partes: [{ contratante: true }, { contratante: true }] }),
+    ).toBe(false);
+    expect(contratanteValido({ papel: 'court_expert', partes: [{}] })).toBe(true);
   });
 });

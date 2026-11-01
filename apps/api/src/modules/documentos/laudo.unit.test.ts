@@ -189,7 +189,7 @@ const JPEG = Buffer.from([
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0xf0, 0x01, 0x40, 0x03, 0x01,
   0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
 ]);
-const FOTO = '/vistorias/6560a0a0a0a0a0a0a0a0a0a0/midias/0f8fad5b-d9cb-469f-a165-70867728950e';
+const FOTO = '/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a165-70867728950e';
 
 const dados = (): LaudoExportDados => ({
   laudo: {
@@ -228,7 +228,7 @@ const dados = (): LaudoExportDados => ({
         apenasTitulo: false,
         quebraPagina: false,
         variante: 'no',
-        html: `<ol><li><p>um</p></li></ol><table><tbody><tr><th>A</th></tr><tr><td>1</td></tr></tbody></table><img src="${FOTO}" alt="Prensa"><img src="/vistorias/6560a0a0a0a0a0a0a0a0a0a1/midias/0f8fad5b-d9cb-469f-a165-70867728950f" alt="sumiu">`,
+        html: `<ol><li><p>um</p></li></ol><table><tbody><tr><th>A</th></tr><tr><td>1</td></tr></tbody></table><img src="${FOTO}" alt="Prensa"><img src="/inspections/6560a0a0a0a0a0a0a0a0a0a1/media/0f8fad5b-d9cb-469f-a165-70867728950f" alt="sumiu">`,
       },
     ],
   },
@@ -252,7 +252,7 @@ describe('exportação (LAU-03.2)', () => {
     expect(variaveisPendentes(html)).toEqual([]);
     // Foto da vistoria em data URL; a que sumiu sai do documento (AD-129).
     expect(html).toContain('<img src="data:image/jpeg;base64,');
-    expect(html).not.toContain('/midias/');
+    expect(html).not.toContain('/media/');
   });
 
   it('Word: documento válido com títulos numerados, sumário, lista e tabela', async () => {

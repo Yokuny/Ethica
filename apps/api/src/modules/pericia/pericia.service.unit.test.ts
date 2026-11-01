@@ -3,7 +3,14 @@ import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as periciaRepository from './pericia.repository.js';
 import type { PericiaRecord } from './pericia.schema.js';
-import { createPericia, deletePericia, listPericias, PericiaNotFoundError, updatePericia } from './pericia.service.js';
+import {
+  createPericia,
+  deletePericia,
+  listPericias,
+  PericiaNotFoundError,
+  resolverEtapaEFase,
+  updatePericia,
+} from './pericia.service.js';
 import * as prazoRepository from './prazo.repository.js';
 
 vi.mock('./pericia.repository.js', () => ({
@@ -29,6 +36,7 @@ const pericia: PericiaRecord = {
   partes: [],
   movimentacoes: [],
   status: 'appointed',
+  situacao: 'active',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -147,6 +155,7 @@ describe('pericia.service', () => {
       periciaId: 'p1',
       numeroProcesso: pericia.numeroProcesso,
       valorCents: 250_000,
+      categoria: 'fixed_fees',
     });
   });
 
@@ -154,5 +163,53 @@ describe('pericia.service', () => {
     vi.mocked(periciaRepository.findById).mockResolvedValue(null);
 
     await expect(updatePericia('t1', 'nope', { status: 'accepted' })).rejects.toBeInstanceOf(PericiaNotFoundError);
+  });
+});
+
+describe('resolverEtapaEFase (AD-133)', () => {
+  it('a fase de uma etapa leva a perícia a ela', () => {
+    expect(resolverEtapaEFase({ status: 'inspection' }, { fase: 'reviewing_report' })).toEqual({
+      status: 'drafting_report',
+      fase: 'reviewing_report',
+    });
+  });
+
+  it('suspensão mantém a etapa', () => {
+    expect(resolverEtapaEFase({ status: 'inspection' }, { fase: 'settlement' })).toEqual({
+      status: 'inspection',
+      fase: 'settlement',
+    });
+  });
+
+  it('mudar só a etapa apaga a fase que não cabe e mantém a que cabe', () => {
+    expect(
+      resolverEtapaEFase({ status: 'inspection', fase: 'awaiting_inspection' }, { status: 'drafting_report' }),
+    ).toEqual({ status: 'drafting_report', fase: null });
+    expect(resolverEtapaEFase({ status: 'inspection', fase: 'withdrawal' }, { status: 'drafting_report' })).toEqual({
+      status: 'drafting_report',
+      fase: 'withdrawal',
+    });
+  });
+
+  it('recusa fase e etapa incoerentes no mesmo pedido', () => {
+    expect(() =>
+      resolverEtapaEFase({ status: 'inspection' }, { status: 'completed', fase: 'reviewing_report' }),
+    ).toThrow(CustomError);
+  });
+
+  it('null apaga a fase', () => {
+    expect(resolverEtapaEFase({ status: 'inspection', fase: 'settlement' }, { fase: null })).toEqual({
+      status: 'inspection',
+      fase: null,
+    });
+  });
+});
+
+describe('contratante na perícia (AD-135)', () => {
+  it('recusa contratante em perícia de perito do juízo', async () => {
+    vi.mocked(periciaRepository.findById).mockResolvedValue(pericia);
+    await expect(
+      updatePericia('t1', 'p1', { partes: [{ polo: 'plaintiff', tipo: 'party', nome: 'Fulano', contratante: true }] }),
+    ).rejects.toMatchObject({ status: 422 });
   });
 });

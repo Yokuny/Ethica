@@ -4,6 +4,7 @@ import { changePasswordSchema, updateAvatarSchema, updateProfileSchema } from '.
 import { createCompromissoSchema, updateCompromissoSchema } from './schemas/compromisso.schema.js';
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
+import { listDiarioQuerySchema } from './schemas/diario.schema.js';
 import {
   financeiroReportQuerySchema,
   updateAvisoAgendamentoSchema,
@@ -35,6 +36,7 @@ import {
   numeroProcessoSchema,
   updatePericiaSchema,
 } from './schemas/pericia.schema.js';
+import { permissoesSchema, updatePermissoesSchema } from './schemas/permissao.schema.js';
 import { createPrazoSchema, updatePrazoSchema } from './schemas/prazo.schema.js';
 import {
   createOportunidadeSchema,
@@ -109,4 +111,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'vistoriaDadosSchema', schema: vistoriaDadosSchema },
   { name: 'saveVistoriaSchema', schema: saveVistoriaSchema },
   { name: 'updateMidiaSchema', schema: updateMidiaSchema },
+  { name: 'permissoesSchema', schema: permissoesSchema },
+  { name: 'updatePermissoesSchema', schema: updatePermissoesSchema },
+  { name: 'listDiarioQuerySchema', schema: listDiarioQuerySchema },
 ];

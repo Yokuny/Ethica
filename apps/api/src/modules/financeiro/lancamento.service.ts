@@ -34,8 +34,13 @@ const withPericiaNumero = async (tenantId: string, items: LancamentoRecord[]): P
   const ids = [...new Set(items.flatMap((item) => (item.periciaId ? [item.periciaId] : [])))];
   const resumos = await periciaService.findResumosByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = item.periciaId ? resumos.get(item.periciaId)?.numeroProcesso : undefined;
-    return numero ? { ...item, periciaNumero: numero } : item;
+    const resumo = item.periciaId ? resumos.get(item.periciaId) : undefined;
+    if (!resumo) return item;
+    return {
+      ...item,
+      periciaNumero: resumo.numeroProcesso,
+      ...(resumo.contratante ? { contratante: resumo.contratante } : {}),
+    };
   });
 };
 
@@ -145,7 +150,7 @@ export const relatorioPeriodo = async (
   );
   const linha = (item: LancamentoRecord, data: string, valorCents: number, conta?: string) => ({
     data,
-    descricao: item.descricao,
+    descricao: item.contratante ? `${item.descricao} · contratante: ${item.contratante}` : item.descricao,
     categoria: item.categoria,
     valorCents,
     ...(item.periciaNumero ? { periciaNumero: item.periciaNumero } : {}),
@@ -211,7 +216,13 @@ export const listForExport = (tenantId: string) => lancamentoRepository.listAll(
 // já tem o honorário fixado lançado, só o valor muda (AD-111) — recusado se ficar abaixo do
 // recebido, o que o bus apenas registra no log.
 export const lancarHonorariosFixados = async (
-  input: { tenantId: string; periciaId: string; numeroProcesso: string; valorCents: number },
+  input: {
+    tenantId: string;
+    periciaId: string;
+    numeroProcesso: string;
+    valorCents: number;
+    categoria: 'fixed_fees' | 'contracted_fees';
+  },
   now: Date = new Date(),
 ): Promise<void> => {
   const existente = await lancamentoRepository.findHonorarioFixado(input.tenantId, input.periciaId);
@@ -224,8 +235,8 @@ export const lancarHonorariosFixados = async (
   }
   await lancamentoRepository.createLancamento(input.tenantId, {
     natureza: 'income',
-    categoria: 'fixed_fees',
-    descricao: `Honorários fixados — ${input.numeroProcesso}`,
+    categoria: input.categoria,
+    descricao: `${input.categoria === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.numeroProcesso}`,
     valorCents: input.valorCents,
     vencimento: addDays(dateInDisplayTz(now), DIAS_PARA_RECEBER_HONORARIOS),
     periciaId: input.periciaId,

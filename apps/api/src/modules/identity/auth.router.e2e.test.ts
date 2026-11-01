@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { Role } from '@ethica/contracts';
+import { PERFIL_PERMISSOES, type Role, TODAS_PERMISSOES } from '@ethica/contracts';
 import { connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
 import bcrypt from 'bcrypt';
 import cookieParser from 'cookie-parser';
@@ -28,6 +28,7 @@ const buildAuthDeps = (): AuthDeps => ({
           id: user._id.toString(),
           tenant: user.Tenant?.toString(),
           role: user.role,
+          permissoes: user.permissoes,
           isPlatformAdmin: user.isPlatformAdmin,
           active: user.active,
         }
@@ -169,6 +170,7 @@ describe('auth routes', () => {
         tenant: { id: tenant.id, name: 'Empresa Renomeada', status: 'active' },
         user: { id: user.id, name: 'Nome Atualizado', email: 'login@empresa.com' },
         role: ['manager'],
+        permissoes: PERFIL_PERMISSOES.manager,
       });
 
       // AD-014: suspender o tenant vale no request seguinte; sair continua
@@ -346,6 +348,7 @@ describe('auth routes', () => {
           name: 'Ana',
           email: ana.email,
           role: ['operator'],
+          permissoes: PERFIL_PERMISSOES.operator,
           active: false,
           createdAt: ana.createdAt.toISOString(),
         },
@@ -354,6 +357,7 @@ describe('auth routes', () => {
           name: 'Usuária Login',
           email: 'login@empresa.com',
           role: ['admin'],
+          permissoes: TODAS_PERMISSOES,
           active: true,
           createdAt: admin.createdAt.toISOString(),
         },
@@ -384,6 +388,73 @@ describe('auth routes', () => {
         .set('User-Agent', DEVICE);
 
       expect(res.status).toBe(400);
+    });
+  });
+
+  const randomId = (): string => crypto.randomBytes(12).toString('hex');
+
+  // AD-137: matriz por membro, só o admin ajusta; vale na requisição seguinte.
+  describe('PATCH /auth/users/:id/permissoes', () => {
+    it('grava a matriz do membro e a sessão dele passa a refleti-la', async () => {
+      const { tenant, user: admin } = await seedUser({ role: ['admin'] });
+      const membro = await User.create({
+        name: 'Secretária',
+        email: `sec-${randomId()}@empresa.com`,
+        password: 'hash',
+        Tenant: tenant._id,
+        role: ['operator'],
+      });
+      const app = buildTestApp();
+      const adminCookie = await issueSessionCookie(admin.id);
+      const permissoes = { agenda: ['view', 'create'], finance: ['view'] };
+
+      const res = await request(app)
+        .patch(`/auth/users/${membro.id}/permissions`)
+        .set('Cookie', adminCookie)
+        .set('User-Agent', DEVICE)
+        .send({ permissoes });
+      expect(res.status).toBe(200);
+
+      const session = await request(app)
+        .get('/auth/session')
+        .set('Cookie', await issueSessionCookie(membro.id))
+        .set('User-Agent', DEVICE);
+      expect(session.body.data.permissoes).toEqual(permissoes);
+    });
+
+    it('recusa ajustar o admin (422), quem não é admin (403) e ação sem ver (400)', async () => {
+      const { tenant, user: admin } = await seedUser({ role: ['admin'] });
+      const gestor = await User.create({
+        name: 'Gestor',
+        email: `g-${randomId()}@empresa.com`,
+        password: 'hash',
+        Tenant: tenant._id,
+        role: ['manager'],
+      });
+      const app = buildTestApp();
+      const adminCookie = await issueSessionCookie(admin.id);
+
+      const self = await request(app)
+        .patch(`/auth/users/${admin.id}/permissions`)
+        .set('Cookie', adminCookie)
+        .set('User-Agent', DEVICE)
+        .send({ permissoes: {} });
+      expect(self.status).toBe(422);
+
+      const byManager = await request(app)
+        .patch(`/auth/users/${gestor.id}/permissions`)
+        .set('Cookie', await issueSessionCookie(gestor.id))
+        .set('User-Agent', DEVICE)
+        .send({ permissoes: {} });
+      expect(byManager.status).toBe(403);
+
+      const invalid = await request(app)
+        .patch(`/auth/users/${gestor.id}/permissions`)
+        .set('Cookie', adminCookie)
+        .set('User-Agent', DEVICE)
+        .send({ permissoes: { expert_cases: ['delete'] } });
+      expect(invalid.status).toBe(400);
+      expect((await User.findById(gestor.id).lean())?.permissoes).toBeUndefined();
     });
   });
 });

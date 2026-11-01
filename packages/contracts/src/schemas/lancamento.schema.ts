@@ -7,7 +7,7 @@ export const LANCAMENTO_NATUREZAS = ['income', 'expense'] as const;
 export type LancamentoNatureza = (typeof LANCAMENTO_NATUREZAS)[number];
 
 export const LANCAMENTO_CATEGORIAS = {
-  income: ['advance_fees', 'fixed_fees'],
+  income: ['advance_fees', 'fixed_fees', 'contracted_fees'],
   expense: ['travel', 'supplies', 'fees_and_taxes', 'other_expenses'],
 } as const;
 export type LancamentoCategoria = (typeof LANCAMENTO_CATEGORIAS)[LancamentoNatureza][number];

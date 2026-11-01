@@ -40,7 +40,7 @@ export const vistoriaDiaQuery = (date: string) =>
   queryOptions({
     queryKey: vistoriaKeys.dia(date),
     queryFn: async (): Promise<{ itens: VistoriaDoDia[]; doAparelho: boolean }> => {
-      const res = await get<VistoriaDoDia[]>(`/vistorias/dia?date=${date}`);
+      const res = await get<VistoriaDoDia[]>(`/inspections/day?date=${date}`);
       if (res.success && res.data) {
         await salvarDia(date, res.data);
         return { itens: res.data, doAparelho: false };
@@ -55,7 +55,7 @@ export const vistoriaQuery = (compromissoId: string) =>
   queryOptions({
     queryKey: vistoriaKeys.detail(compromissoId),
     queryFn: async (): Promise<VistoriaDoDia> => {
-      const res = await get<VistoriaDoDia>(`/vistorias/${compromissoId}`);
+      const res = await get<VistoriaDoDia>(`/inspections/${compromissoId}`);
       if (res.success && res.data) return res.data;
       const guardado = await lerRegistro(compromissoId);
       if (guardado) return guardado;
@@ -67,7 +67,7 @@ export const vistoriasDaPericiaQuery = (periciaId: string) =>
   queryOptions({
     queryKey: vistoriaKeys.pericia(periciaId),
     queryFn: async (): Promise<VistoriaDoDia[]> => {
-      const res = await get<VistoriaDoDia[]>(`/vistorias/pericia/${periciaId}`);
+      const res = await get<VistoriaDoDia[]>(`/inspections/expert-case/${periciaId}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },
@@ -89,7 +89,7 @@ export const enviarAvisoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<CompromissoRecord, Error, { id: string }> => ({
   mutationFn: async ({ id }) => {
-    const res = await post<CompromissoRecord>(`/agenda/${id}/aviso`);
+    const res = await post<CompromissoRecord>(`/agenda/${id}/notice`);
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
     return res.data;
   },

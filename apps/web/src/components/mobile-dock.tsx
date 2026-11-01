@@ -25,7 +25,7 @@ export function MobileDock() {
         <Home className="size-5" />
         {t('home')}
       </Link>
-      <Link to="/pericias" className={cn(tileClassName, pathname.startsWith('/pericias') && 'text-primary')}>
+      <Link to="/expert-cases" className={cn(tileClassName, pathname.startsWith('/expert-cases') && 'text-primary')}>
         <Gavel className="size-5" />
         {t('expert_cases')}
       </Link>
@@ -34,7 +34,7 @@ export function MobileDock() {
         {t('agenda')}
       </Link>
       {/* Campo (AD-128): a tela do celular na vistoria; prospecção segue no Menu. */}
-      <Link to="/campo" className={cn(tileClassName, pathname.startsWith('/campo') && 'text-primary')}>
+      <Link to="/field" className={cn(tileClassName, pathname.startsWith('/field') && 'text-primary')}>
         <MapPinned className="size-5" />
         {t('field')}
       </Link>

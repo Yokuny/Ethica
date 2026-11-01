@@ -373,7 +373,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: operador não vê se a perícia já foi paga; se precisar, é um booleano na resposta da perícia, não acesso ao financeiro.
 - **Scope**: `apps/api/src/modules/financeiro/lancamento.router.ts`, `apps/web/src/routes/_private/financeiro/route.tsx`, `apps/web/src/routes/_private/@utils/home-access.ts`.
 - **Date**: 2026-10-29
-- **Status**: active
+- **Status**: superseded by AD-137 (papéis de domínio viram a matriz de permissões)
 
 ### AD-108
 - **Decision**: Permissões do tenant passam a ser uma **matriz perfil × módulo × ação** (acessar, visualizar, editar, inserir, excluir). Os perfis de equipe (equivalentes a "equipe técnica" e "secretaria") têm valores pré-selecionados diferentes, e o cadastro de um membro sempre passa pela etapa de conferir/ajustar as permissões. O primeiro acesso do escritório é administrador e é quem gerencia as permissões dos perfis.
@@ -381,7 +381,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: substitui a checagem por papel fixo (`checkRole`, `canOperate`) por consulta à matriz em toda rota e tela; quando aceita, supersede a parte de AD-107 que fixa o financeiro em `admin`/`manager`. Precisa de spec própria e de migração dos usuários atuais.
 - **Scope**: `apps/api/src/modules/identity/`, `apps/api/src/middlewares/`, `apps/web` (guardas de rota e ações), `.agents/skills/ethica-permissions/SKILL.md`; origem `.specs/features/benchmark-jusperia/2026-10-31-jusperia-inventario.md`.
 - **Date**: 2026-10-31
-- **Status**: proposed
+- **Status**: superseded by AD-137
 
 ### AD-109
 - **Decision**: Prazo processual é entidade própria: collection `Prazo` no módulo `pericia` (dono do model), com título, vencimento `YYYY-MM-DD` (AD-103), status `pendente`/`protocolado`/`perdido`, data de protocolo e observações; vários por perícia. O `prazoLaudo` informado no cadastro da perícia cria, na mesma chamada do `periciaService`, o prazo "Entrega do laudo" pendente, e deixa de ser campo gravado na `Pericia` (faixa de indicadores e "próximo prazo" da listagem passam a ler os prazos). A agenda mostra os prazos pendentes no calendário e no feed iCal lendo do `periciaService` (grafo `agenda → pericia` inalterado). O compromisso perde o tipo `prazo`, e o evento `pericia:created` com o subscriber da agenda é removido (ficou sem consumidor). Excluir a perícia exclui os prazos dela.
@@ -421,7 +421,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: um banco local antigo precisa ser recriado com o seed; quem consulta o Mongo direto vê inglês. Chaves iguais de domínios diferentes (`canceled` no compromisso e no lançamento) compartilham o texto traduzido.
 - **Scope**: `packages/contracts/src/schemas/`, `packages/db/src/models/compromisso.model.ts`, `apps/api` (repositories, services, seed, testes), `apps/web` (labels, `translate.helper.ts`), `apps/api/src/providers/datajudClient.ts`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (nomes de rotas superseded by AD-138)
 
 ### AD-114
 - **Decision**: A extração de dados do PDF da ata/despacho é feita por **regras sobre a camada de texto** do PDF, no `apps/api`: `unpdf` extrai o texto e `extrairAta` (expressões regulares e rótulos do PJe) monta o rascunho. Sem modelo de IA (nem no servidor, nem colando prompt/JSON de IA externa) e sem OCR: PDF escaneado sem texto é recusado com `pdf_without_text`. O PDF não é gravado.
@@ -575,8 +575,57 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-10-31
 - **Status**: active
 
+### AD-133
+- **Decision**: A perícia mantém as 8 etapas (`PERICIA_STATUS`) e ganha uma **fase detalhada** opcional (`fase`) de lista fixa agrupada por etapa (`PERICIA_FASES_POR_ETAPA` em `packages/contracts/src/schemas/pericia.schema.ts`), mais três fases de **suspensão** (desistência, destituição, acordo) válidas em qualquer etapa aberta. A **situação** (`active`/`suspended`/`closed`) é derivada no servidor e nunca gravada: `closed` nas etapas `completed`/`declined`, `suspended` numa fase de suspensão, `active` no resto. Escolher uma fase de etapa ajusta a etapa; mudar só a etapa apaga a fase que não cabe nela; fase e etapa incoerentes no mesmo pedido são recusadas (422 `phase_stage_mismatch`). As rodadas numeradas do concorrente ("impugnação 1–4") viram uma fase só. Concluir o laudo com a entrega (AD-126) põe a etapa `report_delivered` e a fase `awaiting_objections`. Perícia suspensa sai da regra de perícia parada (AD-121).
+- **Reason**: escolha do usuário em 2026-11-01 (gestao-escritorio, pergunta 1). As etapas alimentam gráficos, a regra de parada e o laudo; trocar o enum mexeria em tudo. Situação derivada não fica incoerente, ao contrário do concorrente, que só a aplica no cliente.
+- **Trade-off**: duas noções (etapa e fase) na mesma tela; a fase é opcional.
+- **Scope**: `packages/contracts/src/schemas/pericia.schema.ts`, `packages/db/src/models/pericia.model.ts`, `apps/api/src/modules/pericia/`, `apps/api/src/modules/documentos/laudo.service.ts`, `apps/web/src/routes/_private/pericias/`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-134
+- **Decision**: **Diário de bordo** é a collection `Atividade` do módulo `identity` (dono, junto do tenant e dos usuários): quem (id e nome gravado), quando, módulo, ação, recurso e o registro afetado (id e rótulo legível). Registra **só escrita** bem-sucedida (POST/PUT/PATCH/DELETE com status < 400), a exportação de dados e a entrada no sistema. A gravação é **um middleware HTTP único** (`apps/api/src/middlewares/diario.middleware.ts`) montado em `app.ts` com a função de gravar injetada (a camada compartilhada não importa módulos): ao terminar a resposta, deduz módulo, recurso e ação pelo caminho e pelo método, o registro pelo primeiro id do caminho ou pelo `id` da resposta e o rótulo pelo corpo da resposta; nunca bloqueia nem derruba a ação (falha só vai ao log). Uma requisição é uma entrada (importação CSV em lote = uma entrada). Guarda de **1 ano** por índice TTL. Só `admin` consulta (`GET /tenant/diario`, paginado no servidor). Substitui `Tenant.dataExports` (AD-122): as últimas exportações do escritório passam a ser lidas do diário.
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 2). Um middleware cobre todas as rotas de escrita sem tocar cada controller nem criar dezenas de eventos; o recorte por escrita e o TTL limitam volume e atendem a LGPD.
+- **Trade-off**: o rótulo depende do que a resposta devolve (exclusão fica só com o id); ação nova com caminho fora do padrão precisa de uma linha no mapa do middleware.
+- **Scope**: `packages/db/src/models/atividade.model.ts`, `apps/api/src/middlewares/diario.middleware.ts`, `apps/api/src/modules/identity/diario.*`, `apps/api/src/modules/identity/office.*`, `apps/web/src/routes/_private/_admin/diario/`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-135
+- **Decision**: Na perícia em que o escritório é **assistente técnico** (`papel: technical_assistant`), o **contratante** é uma das partes ou advogados já ligados à perícia (marca `contratante` na entrada de `partes`, no máximo uma) e o campo de honorário definido (`honorariosFixadosCents`) passa a ser o **honorário contratado**. O evento `pericia:honorarios_fixados` leva a categoria: `fixed_fees` (fixado pelo juízo) ou `contracted_fees` (contratado, categoria nova de receita); o financeiro lança ou atualiza a receita com as regras da AD-111. Listagem do financeiro e relatório financeiro mostram o contratante (lido pelo `periciaService.findResumosByIds`). Operador vê o contratante na perícia, sem valores (AD-107/AD-137).
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 3). O assistente não tem honorário fixado pelo juízo; reaproveitar o campo e o evento evita um segundo caminho de receita.
+- **Trade-off**: o nome do campo (`honorariosFixadosCents`) fica genérico para os dois papéis; a tela troca o rótulo pelo papel.
+- **Scope**: `packages/contracts/src/schemas/{parte,pericia,lancamento}.schema.ts`, `apps/api/src/modules/{pericia,financeiro,documentos}/`, `apps/web/src/routes/_private/{pericias,financeiro}/`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-136
+- **Decision**: O **início é configurável por usuário**: a preferência `preferences.blocosOcultos` (lista de chaves de `HOME_BLOCOS` em `packages/contracts/src/schemas/account.schema.ts`) guarda os blocos escondidos, então bloco novo aparece por padrão, chave desconhecida é ignorada e "Restaurar padrão" esvazia a lista. Blocos: indicadores, próximos compromissos, fluxo de caixa, perícias paradas (novo), perícias por etapa, perícias por justiça e atalhos. Bloco que o usuário não pode ver pela matriz (AD-137) nunca é oferecido nem mostrado. O bloco "Perícias paradas" usa a mesma regra do PDF (AD-121) via `GET /pericias/paradas` e leva ao relatório.
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 3). Guardar o que está oculto, e não o que está visível, dispensa migração quando surge bloco novo.
+- **Trade-off**: sem ordenação dos blocos nesta rodada.
+- **Scope**: `apps/api/src/modules/identity/preferences.*`, `apps/web/src/routes/_private/index.tsx`, `apps/api/src/modules/pericia/pericia.router.ts`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-137
+- **Decision**: Aceita a AD-108 com a forma: **matriz de permissões por membro** (`User.permissoes` e `Invite.permissoes`: módulo → ações), com módulos `pericias` (inclui prazos, movimentações e importação), `partes`, `agenda` (inclui campo e vistorias), `laudos`, `modelos` (de laudo), `financeiro`, `prospeccao` e `relatorios`, e **quatro ações** `view`, `create`, `update`, `delete` (acessar e visualizar são uma só: sem `view` o módulo some do menu). O `admin` tem tudo sempre e é o único que gerencia usuários, escritório, diário e permissões (essas áreas ficam fora da matriz). No convite, o admin escolhe o perfil (`manager` = Gestor, `operator` = Operador), a matriz vem com o **preset do perfil** (`PERFIL_PERMISSOES` em `packages/contracts/src/schemas/permissao.schema.ts`, que reproduz a AD-107: gestor com tudo menos excluir perícia; operador sem financeiro, sem excluir perícia e só lendo modelos) e pode ser ajustada; depois, o admin ajusta em Usuários (`PATCH /auth/users/:id/permissoes`). A API checa com `can(modulo, acao)` (`apps/api/src/middlewares/authorization.middleware.ts`) a partir de `req.tenantUser.permissoes`, resolvidas do banco a cada requisição; o web lê as mesmas permissões em `GET /auth/session` e esconde menu, rota e ações. Usuário sem o campo lê o preset do papel (sem migração: o sistema está em desenvolvimento e o seed é refeito). Entram nesta rodada GES-01 a GES-06.
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 4 e rodada de complemento): matriz junto, sem migração; por membro com preset do perfil; quatro ações.
+- **Trade-off**: troca a guarda de papel fixo de todas as rotas de domínio; o papel continua existindo só para dizer quem é admin e qual preset usar.
+- **Scope**: `packages/contracts/src/schemas/permissao.schema.ts`, `packages/db/src/models/{user,invite}.model.ts`, `apps/api/src/middlewares/`, todos os `*.router.ts` de domínio, `apps/api/src/modules/identity/`, `apps/web` (sessão, navegação, guardas, convite e usuários), `.agents/skills/ethica-permissions/SKILL.md`. Supersede a AD-108 (proposta) e, na parte de papéis de domínio, a AD-107.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-138
+- **Decision**: Todo nome que vira URL ou valor gravado é **inglês**, traduzido no web: as pastas de rota do `apps/web` (`/expert-cases`, `/parties`, `/agenda`, `/field`, `/expert-reports` e `/expert-reports/templates`, `/finance` com `/entries` e `/reports`, `/prospecting` com `/search` e `/opportunities`, `/reports`, `/activity-log`) e as rotas da API com seus sub-recursos (`/expert-cases` com `/deadlines`, `/movements`, `/stalled`; `/parties`; `/inspections` com `/day`, `/media`; `/finance` com `/summary`, `/flow`, `/categories`, `/entries`, `/installments`; `/documents` com `/sheet`; `/expert-reports` com `/templates`, `/sections`, `/move`, `/complete`; `/prospecting/opportunities` com `/convert`; `/agenda/:id/notice`; `/tenant/office/schedule-notice`; `/tenant/activity-log`; `/auth/users/:id/permissions`). Os módulos da matriz e do diário viram `expert_cases`, `parties`, `agenda`, `expert_reports`, `report_templates`, `finance`, `prospecting`, `reports`, `office`, `users`, `account`. Nomes de campo, collections e pastas de módulo da API seguem como estão (AD-113).
+- **Reason**: pedido do usuário em 2026-11-01: nenhum valor em português, nem no nome das pastas que geram rotas.
+- **Trade-off**: links e favoritos antigos deixam de funcionar (sistema em desenvolvimento, sem redirecionamento); a foto do laudo passa a exigir `src` em `/inspections/<id>/media/<id>`, e laudos com a URL antiga perdem a foto (seed refeito).
+- **Scope**: `apps/web/src/routes/`, todos os `*.router.ts`, `apps/api/src/middlewares/diario.middleware.ts`, `packages/contracts/src/schemas/{permissao,diario,laudo}.schema.ts`, `apps/web/public/{sw.js,manifest.webmanifest}`. Supersede, na AD-113, a parte que mantinha os nomes de rotas.
+- **Date**: 2026-11-01
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `gestao-escritorio` — concluída com GES-01 a GES-06 (AD-133 a AD-137, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.
 - **Feature**: `campo-vistorias` — concluída com CAM-01 a CAM-09, menos a transcrição de áudio (AD-128 a AD-132, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.
 - **Feature**: `laudos` — concluída com LAU-01, 02, 03, 05 e 06 (AD-123 a AD-127, `validation.md` PASS, UAT no navegador). LAU-04 (IA) adiada (AD-124); pendências no `feature.md`.
 - **Feature**: `importacao-processos` — concluída (AD-114 a AD-118, `validation.md` PASS, UAT no navegador). Pendências no `feature.md` (OCR, excluir/mesclar partes, atas de outros tribunais).

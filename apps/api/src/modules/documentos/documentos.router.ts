@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkRole, isAdmin } from '../../middlewares/authorization.middleware.js';
+import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as documentosController from './documentos.controller.js';
@@ -9,25 +9,36 @@ import {
   financeiroReportQuerySchema,
 } from './documentos.schema.js';
 
-const canOperate = checkRole(['admin', 'manager', 'operator']);
-// Mesmo papel do router `/financeiro` (AD-107).
-const canManage = checkRole(['admin', 'manager']);
+// O relatório financeiro exige também ver o financeiro (AD-137).
 
-// PDFs (AD-119) e exportação de dados (AD-122). Montado em `/documentos`.
+// PDFs (AD-119) e exportação de dados (AD-122). Montado em `/documents`.
 export const createDocumentosRouter = (deps: DocumentosRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
   const providers = { pdf: deps.pdf, storage: deps.storage };
   const byId = validParams(documentoPericiaParamSchema);
 
-  router.get('/pericias/:id/ficha', ...guard, canOperate, byId, documentosController.ficha(providers));
-  router.get('/pericias/:id/checklist', ...guard, canOperate, byId, documentosController.checklist(providers));
-  router.get('/prazos', ...guard, canOperate, documentosController.cronograma(providers));
-  router.get('/paradas', ...guard, canOperate, documentosController.paradas(providers));
   router.get(
-    '/financeiro',
+    '/expert-cases/:id/sheet',
     ...guard,
-    canManage,
+    can('expert_cases', 'view'),
+    byId,
+    documentosController.ficha(providers),
+  );
+  router.get(
+    '/expert-cases/:id/checklist',
+    ...guard,
+    can('expert_cases', 'view'),
+    byId,
+    documentosController.checklist(providers),
+  );
+  router.get('/deadlines', ...guard, can('reports', 'view'), documentosController.cronograma(providers));
+  router.get('/stalled', ...guard, can('reports', 'view'), documentosController.paradas(providers));
+  router.get(
+    '/finance',
+    ...guard,
+    can('reports', 'view'),
+    can('finance', 'view'),
     validParsedQuery(financeiroReportQuerySchema),
     documentosController.financeiro(providers),
   );

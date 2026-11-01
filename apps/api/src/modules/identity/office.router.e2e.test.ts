@@ -90,7 +90,7 @@ describe('identidade do escritório (DOC-01)', () => {
     expect(saved.status).toBe(200);
     expect(saved.body.data).toMatchObject({ cabecalho: 'Laudos [NOME_PERITO]', storageBytes: 0 });
 
-    await admin.as(request(app).get('/documentos/prazos'));
+    await admin.as(request(app).get('/documents/deadlines'));
     expect(rendered?.headerTemplate).toContain(`Laudos ${admin.user.name}`);
 
     const cleared = await admin.as(request(app).put('/tenant/office')).send({ cabecalho: '', rodape: '' });
@@ -114,7 +114,7 @@ describe('identidade do escritório (DOC-01)', () => {
     expect(logo.status).toBe(200);
     expect(logo.headers['content-type']).toBe('image/png');
 
-    await admin.as(request(app).get('/documentos/prazos'));
+    await admin.as(request(app).get('/documents/deadlines'));
     expect(rendered?.headerTemplate).toContain('<img src="data:image/png;base64,');
 
     const removed = await admin.as(request(app).delete('/tenant/office/logo'));

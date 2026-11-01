@@ -5,7 +5,7 @@ description: Sistema de permissões do Ethica de ponta a ponta — onde o papel 
 
 # Permissões do Ethica
 
-O controle de acesso é **por papel, dentro de um tenant**, sem tabela de permissões: o `User` carrega uma lista de papéis (`admin`, `manager`, `operator`) e cada rota da API declara quais papéis aceita. O front repete a regra só para não mostrar o que a API vai recusar. **A API é a fonte da verdade.**
+O controle de acesso é uma **matriz de permissões por membro, dentro de um tenant** (AD-137): o `User` carrega o papel (`admin`, `manager`, `operator`) e a matriz `permissoes` (módulo → ações `view`/`create`/`update`/`delete`). O `admin` tem tudo; `manager` (Gestor) e `operator` (Operador) são perfis cujo **preset** preenche a matriz no convite, ajustável pelo admin. Cada rota de domínio declara módulo e ação com `can(modulo, acao)`; áreas de administração (usuários, escritório, diário, exportação, permissões) seguem `isAdmin`. O front repete a regra só para não mostrar o que a API vai recusar. **A API é a fonte da verdade.**
 
 A matriz atual (rota → guardas, regras de service, checagens no front) é lida do código, não desta skill:
 
@@ -21,11 +21,12 @@ Rode antes de responder "quem pode fazer X" ou de mexer em acesso. Os caminhos a
 
 | Collection (model) | Campo | O que é |
 | --- | --- | --- |
-| `users` (`packages/db/src/models/user.model.ts`) | `role: string[]` | Papéis da pessoa no tenant. Array com enum; default `[]`. É **o** dado de permissão. |
+| `users` (`packages/db/src/models/user.model.ts`) | `role: string[]` | Papéis da pessoa no tenant. Array com enum; default `[]`. Diz quem é admin e qual preset usar. |
+| | `permissoes` | Matriz do membro (AD-137), módulos e ações em `packages/contracts/src/schemas/permissao.schema.ts`. Ausente = preset do papel (`permissoesEfetivas`); admin ignora. |
 | | `Tenant` | Tenant do usuário. Obrigatório, exceto para `isPlatformAdmin` (AD-016). |
 | | `isPlatformAdmin: boolean` | Operador da plataforma (fora de qualquer tenant). Sem `Tenant`, `role: []`. |
 | | `active: boolean` | `false` derruba a sessão no request seguinte (401) e impede login. |
-| `invites` (`invite.model.ts`) | `role: string` | Papel **único** que o convite concede; vira `role: [invite.role]` no aceite. |
+| `invites` (`invite.model.ts`) | `role: string`, `permissoes` | Papel **único** e a matriz conferida no convite; viram `role: [invite.role]` e `permissoes` no aceite. |
 | `sessions` (`session.model.ts`) | `tokenHash`, `deviceInfo`, `expiresAt` | Sessão de token único (AD-014). Guarda só o hash do token; TTL índice apaga sozinho. Não guarda papel. |
 | `tenants` (`tenant.model.ts`) | `status` | `provisioned`/`active`/`suspended`. `suspended` derruba o acesso no request seguinte com 403 `tenant_suspended` (AD-098). |
 
@@ -36,13 +37,14 @@ Tipos compartilhados: `Role` e `TenantUser` em `packages/contracts/src/types.ts`
 - **Admin da plataforma**: só por script (`apps/api/scripts/seed-platform-admin.ts`), nunca por rota.
 - **Primeiro admin do tenant**: `POST /platform/tenants` cria o tenant; `POST /platform/tenants/:id/invites` emite convite com `role: 'admin'` forçado no service (`apps/api/src/modules/identity/platform.service.ts`, `inviteToTenant`).
 - **Equipe**: admin do tenant chama `POST /tenant/invites` escolhendo o papel (`inviteTeamMember`). O convidado aceita em `POST /invites/:token/accept` (público) e `invite.repository.ts` cria o `User` com `role: [invite.role]`.
+- **Matriz**: `PATCH /auth/users/:id/permissoes` (admin; alvo admin = 422 `admin_has_all_permissions`), tela de Usuários → "Permissões". Vale na requisição seguinte do membro.
 - **Não existe rota para trocar papel nem desativar usuário.** Hoje isso só muda direto no banco.
 
 ## 2. Transporte back → front
 
 1. `POST /auth/signin` (`identity/auth.service.ts`): valida senha, assina um JWT só com `{ user }` (4 dias), grava `Session { tokenHash, deviceInfo = User-Agent }` e devolve o token no cookie httpOnly `refreshToken` (`apps/api/src/config/cookie.config.ts`). **O papel não vai no token.**
-2. Todo request autenticado passa por `authenticateSession` (`apps/api/src/middlewares/authentication.middleware.ts`): verifica o JWT, busca a `Session` pelo hash, confere o User-Agent (diferente ⇒ revoga **todas** as sessões do usuário), relê `User` e `Tenant` do banco (tenant `suspended` ⇒ 403 `tenant_suspended`) e monta `req.tenantUser = { tenant, user, role, isPlatformAdmin }` (FND-05). Trocar o papel no banco vale no request seguinte.
-3. `GET /auth/session` devolve `SessionView = { tenant?, user, role }` (`identity/auth.service.ts`, `getSessionView`). `isPlatformAdmin` **não** vai para o front.
+2. Todo request autenticado passa por `authenticateSession` (`apps/api/src/middlewares/authentication.middleware.ts`): verifica o JWT, busca a `Session` pelo hash, confere o User-Agent (diferente ⇒ revoga **todas** as sessões do usuário), relê `User` e `Tenant` do banco (tenant `suspended` ⇒ 403 `tenant_suspended`) e monta `req.tenantUser = { tenant, user, role, isPlatformAdmin, permissoes }` (FND-05; `permissoes` já efetivas, AD-137). Trocar o papel no banco vale no request seguinte.
+3. `GET /auth/session` devolve `SessionView = { tenant?, user, role, permissoes }` (`identity/auth.service.ts`, `getSessionView`). `isPlatformAdmin` **não** vai para o front.
 4. O web lê isso em `sessionQuery` (`apps/web/src/query/session.ts`, `staleTime` 60s, `retry: false`). Não há Zustand nem access token (AD-014): o cookie vai sozinho com `credentials: 'include'` (`apps/web/src/lib/api/client.api.ts`).
 5. `authenticateSession` é função pura: um futuro WebSocket reusa a mesma validação no handshake.
 
@@ -58,13 +60,13 @@ router.post('/', deps.validToken, tenantAssignmentCheck, isAdmin, validBody(sche
 | --- | --- | --- |
 | `validToken` (via `createAuthMiddleware`) | `middlewares/authentication.middleware.ts` | 401 `invalid_session`; 403 `tenant_suspended` |
 | `tenantAssignmentCheck` | `middlewares/tenantAssign.middleware.ts` | 424 `company_link_required` (usuário sem tenant, ex. admin da plataforma) |
-| `checkRole([...])`, `isAdmin`, `isManager`, `isOperator`, `platformAdminOnly` | `middlewares/authorization.middleware.ts` | 403 `no_permission` |
+| `can(modulo, ...acoes)` (domínio, AD-137), `checkRole([...])`, `isAdmin`, `platformAdminOnly` | `middlewares/authorization.middleware.ts` | 403 `no_permission` |
 | Regra por recurso/dono no service | `modules/<m>/<m>.service.ts` | 403 `no_permission` ou 404 |
 | Isolamento de tenant no repository | `tenantScoped` (`packages/db/src/tenantScoped.ts`), tenant sempre de `req.tenantUser.tenant` (AD-010) | registro de outro tenant simplesmente não existe |
 
-`checkRole(allowed)` passa se **qualquer** papel do usuário estiver em `allowed` (OR). Os routers definem aliases locais: `const canOperate = checkRole(['admin', 'manager', 'operator'])` (qualquer papel do tenant, recusa `role: []`) e `const canManage = checkRole(['admin', 'manager'])`. Toda rota de tenant tem guarda de papel (AD-098): rota **sem** guarda depois de `tenantAssignmentCheck` aceitaria `role: []` e é bug.
+`can(modulo, ...acoes)` passa se a matriz efetiva tem **todas** as ações pedidas no módulo (ex.: converter oportunidade = `can('prospecting','update'), can('expert_cases','create')`). Sub-registros seguem o pai: prazos e movimentações = `expert_cases.update`; vistorias e mídias = `agenda`; parcelas = `finance.update`. `checkRole(allowed)` passa se **qualquer** papel estiver em `allowed` e sobra para `/me/*` e `/auth/users` (`canOperate`, qualquer papel, recusa `role: []`). Toda rota de tenant tem guarda (AD-098): rota **sem** guarda depois de `tenantAssignmentCheck` aceitaria `role: []` e é bug.
 
-**Regras no service** (o controller passa `actor = req.tenantUser`): quando a decisão depende do registro e não só da rota. Hoje nenhum módulo de domínio precisa disso — perícias, agenda e prospecção são do tenant inteiro; o financeiro é recortado por papel na rota. Quando surgir (ex.: perito só vê as próprias perícias), a regra vai no service do módulo.
+**Regras no service** (o controller passa `actor = req.tenantUser`): quando a decisão depende do registro e não só da rota. Hoje nenhum módulo de domínio precisa disso. Valores financeiros em PDF seguem `pode(req.tenantUser.permissoes, 'finance', 'view')` nos controllers de `documentos`. Quando surgir (ex.: perito só vê as próprias perícias), a regra vai no service do módulo.
 
 Regra: **403** quando a pessoa pode saber que o recurso existe; **404** quando nem a existência deve vazar.
 
@@ -76,39 +78,39 @@ O front esconde ou redireciona; nunca é a barreira. Todos leem `sessionQuery`.
 | --- | --- | --- |
 | Shell privado | `apps/web/src/routes/_private/route.tsx` | sem sessão ⇒ redirect `/auth`; tenant suspenso ⇒ `/suspended` |
 | Layout de admin (pathless `_admin`) | `apps/web/src/routes/_private/_admin/route.tsx` | não-admin ⇒ redirect `/`. Tudo em `_private/_admin/**` (usuários, campos, integrações) herda. |
-| Financeiro | `apps/web/src/routes/_private/financeiro/route.tsx` | `beforeLoad` de layout; não admin/manager ⇒ `/`. Toda rota em `financeiro/**` herda. |
-| Navegação (sidebar, home, command menu) | `HOME_SECTIONS` em `_private/@consts/home-sections.ts` (`access: 'everyone' \| 'finance' \| 'admin'`) filtrado por `canAccessHomeSection` (`_private/@utils/home-access.ts`) em `useHomePage` | item some do menu |
-| Ações inline | ex. `pericias/details/index.tsx` (excluir só admin; lançamentos só admin/manager), `_private/index.tsx` (indicadores e fluxo financeiro só admin/manager) | botão/bloco não aparece |
+| Módulos de domínio | `apps/web/src/routes/_private/route.tsx` (`moduloDaRota` em `_private/@utils/home-access.ts`) | guarda única: primeiro segmento da URL → módulo; sem `view` ⇒ `/` |
+| Navegação (sidebar, home, command menu) | `HOME_SECTIONS` em `_private/@consts/home-sections.ts` (`access: PermissaoModulo \| 'admin'`) filtrado por `canAccessHomeSection` (`_private/@utils/home-access.ts`) em `useHomePage` | item some do menu |
+| Ações inline | `can(session, modulo, acao)`: inserir/editar/excluir nas listagens e detalhes, blocos do início (`HOME_BLOCO_MODULO`), valores financeiros | botão/bloco não aparece |
 
-Helper central: `isAdminSession(session)` em `apps/web/src/query/session.ts`. A checagem admin/manager está escrita inline onde é usada. Quando a API responde 403, `client.api.ts` traduz `no_permission` e a tela mostra a mensagem como qualquer erro.
+Helpers centrais em `apps/web/src/query/session.ts`: `can(session, modulo, acao = 'view')` e `isAdminSession(session)`. Quando a API responde 403, `client.api.ts` traduz `no_permission` e a tela mostra a mensagem como qualquer erro.
 
-## 5. Papéis atuais
+## 5. Papéis e presets atuais
 
-Resumo do que cada um libera; o detalhe por rota sai do script.
+O detalhe por rota sai do script; os presets ficam em `PERFIL_PERMISSOES` (`packages/contracts/src/schemas/permissao.schema.ts`).
 
-| Papel | Libera | Bloqueia |
+| Papel | Matriz | Fora da matriz |
 | --- | --- | --- |
-| `isPlatformAdmin` | `/platform/*`: provisionar tenant e convidar o primeiro admin | Tudo que é do tenant (424), porque não tem tenant |
-| `admin` | Tudo do tenant: convidar equipe, diretório de usuários, excluir perícia, financeiro, tudo de `manager` | — |
-| `manager` | Operação + dinheiro: financeiro (`/financeiro/*`: lançamentos, resumo, fluxo, categorias) | Configuração e exclusões do admin |
-| `operator` | Operação do dia a dia: perícias (criar/editar), agenda, prospecção no Datajud e oportunidades, conta própria | Financeiro, exclusão de perícia, usuários |
-| sem papel (`role: []`) | Só `/auth/session`, sair e as rotas públicas | Toda rota do tenant (403) |
+| `isPlatformAdmin` | — | `/platform/*` |
+| `admin` | tudo, sempre | usuários, convites, permissões, escritório, diário de bordo, exportação |
+| `manager` (Gestor) | preset: tudo, menos excluir perícia | — |
+| `operator` (Operador) | preset: sem financeiro, sem excluir perícia ou parte, só ver modelos e relatórios | — |
+| sem papel (`role: []`) | nada | só `/auth/session`, sair e rotas públicas |
 
-Um usuário pode ter mais de um papel; vale a união.
+O admin ajusta a matriz de cada membro; o preset só preenche o convite e vale para quem não tem matriz gravada.
 
 ## 6. Como implementar uma permissão nova
 
-Comece sempre pelo papel existente que já resolve. Não crie tabela de permissões, RBAC configurável, decorator nem wrapper novo (princípio de reduzir complexidade em `AGENTS.md`); `checkRole` e a checagem no service bastam.
+Comece sempre pelo módulo e pela ação que já existem na matriz (AD-137). Não crie segunda camada de permissões, decorator nem wrapper novo (princípio de reduzir complexidade em `AGENTS.md`); `can`, `isAdmin` e a checagem no service bastam.
 
-### a) Restringir uma rota (ou rota nova) a papéis existentes
+### a) Rota nova de domínio ou de admin
 
-1. No router do módulo, depois de `tenantAssignmentCheck` e **antes** de qualquer validação de corpo: `isAdmin`, ou um alias local (`const canManage = checkRole(['admin', 'manager'])`) no mesmo estilo dos outros routers.
-2. Teste e2e no `*.router.e2e.test.ts` do módulo: um caso 403 por papel recusado, verificando que nada mudou no banco. Molde: `seedTenantUser(role)` no e2e de `apps/api/src/modules/pericia/pericia.router.e2e.test.ts`.
+1. No router do módulo, depois de `tenantAssignmentCheck` e **antes** de qualquer validação de corpo: `can('<modulo>', '<acao>')` (domínio) ou `isAdmin` (administração). Módulo novo na matriz = entrada em `PERMISSAO_MODULOS` + presets + rótulo em `apps/web/src/routes/_private/_admin/users/@consts/permissoes-labels.ts` + `moduloDaRota`.
+2. Teste e2e no `*.router.e2e.test.ts` do módulo: um caso 403 por ação ausente na matriz, verificando que nada mudou no banco. Molde: `seedSession(tenant, role, permissoes)` em `apps/api/src/modules/pericia/pericia.router.e2e.test.ts`.
 3. No web, a mesma regra no ponto de entrada certo:
    - página inteira de admin ⇒ coloque a rota sob `apps/web/src/routes/_private/_admin/`;
-   - página ou módulo com outro papel ⇒ `route.tsx` de layout com `beforeLoad` (`ensureQueryData(sessionQuery)` + `redirect`), no molde de `financeiro/route.tsx`;
-   - item de navegação ⇒ `access` em `HOME_SECTIONS` (se precisar de um nível novo, amplie o union em `_private/@interface/home.interface.ts` e `canAccessHomeSection`);
-   - botão/ação ⇒ condicione com `isAdminSession(session)` ou `session.role.some(...)`.
+   - página de módulo ⇒ a guarda central de `_private/route.tsx` já cobre pelo `moduloDaRota`;
+   - item de navegação ⇒ `access` em `HOME_SECTIONS` (módulo da matriz ou `admin`);
+   - botão/ação ⇒ `can(session, modulo, acao)` ou `isAdminSession(session)`.
 4. Se a decisão não for óbvia (quem pode e por quê), registre uma `AD-NNN` em `.specs/STATE.md` e atualize o `feature.md` da área.
 
 ### b) Regra que depende do registro (dono, responsável, visibilidade)

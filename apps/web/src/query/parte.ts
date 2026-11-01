@@ -41,7 +41,7 @@ export const partesQuery = (params: PartesQueryParams = {}) =>
   queryOptions({
     queryKey: parteKeys.list(params),
     queryFn: async (): Promise<PartesListResult> => {
-      const res = await get<PartesListResult>(`/partes${toQueryString(params)}`);
+      const res = await get<PartesListResult>(`/parties${toQueryString(params)}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },
@@ -51,7 +51,7 @@ export const parteQuery = (id: string) =>
   queryOptions({
     queryKey: parteKeys.detail(id),
     queryFn: async (): Promise<ParteRecord> => {
-      const res = await get<ParteRecord>(`/partes/${encodeURIComponent(id)}`);
+      const res = await get<ParteRecord>(`/parties/${encodeURIComponent(id)}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },
@@ -61,7 +61,7 @@ export const parteProcessosQuery = (id: string) =>
   queryOptions({
     queryKey: parteKeys.pericias(id),
     queryFn: async (): Promise<PericiaRecord[]> => {
-      const res = await get<PericiaRecord[]>(`/partes/${encodeURIComponent(id)}/pericias`);
+      const res = await get<PericiaRecord[]>(`/parties/${encodeURIComponent(id)}/expert-cases`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },
@@ -69,7 +69,7 @@ export const parteProcessosQuery = (id: string) =>
 
 export const createParteMutation = (queryClient: QueryClient): UseMutationOptions<ParteRecord, Error, CreateParte> => ({
   mutationFn: async (data) => {
-    const res = await post<ParteRecord>('/partes', data);
+    const res = await post<ParteRecord>('/parties', data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
     return res.data;
   },
@@ -81,7 +81,7 @@ export const updateParteMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<ParteRecord, Error, { id: string; data: UpdateParte }> => ({
   mutationFn: async ({ id, data }) => {
-    const res = await patch<ParteRecord>(`/partes/${encodeURIComponent(id)}`, data);
+    const res = await patch<ParteRecord>(`/parties/${encodeURIComponent(id)}`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },

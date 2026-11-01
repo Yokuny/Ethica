@@ -39,7 +39,7 @@ const montarEmail = (
       const itens = secao.prazos
         .map((prazo) => {
           const numero = resumos.get(prazo.periciaId)?.numeroProcesso ?? '';
-          const link = `${appUrl}/pericias/details?id=${encodeURIComponent(prazo.periciaId)}`;
+          const link = `${appUrl}/expert-cases/details?id=${encodeURIComponent(prazo.periciaId)}`;
           return `<li><a href="${escapeHtml(link)}">${escapeHtml(prazo.titulo)}</a> — ${escapeHtml(numero)} (${formatDay(prazo.vencimento)})</li>`;
         })
         .join('');

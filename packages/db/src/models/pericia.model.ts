@@ -7,7 +7,9 @@ import {
   PARTE_TIPOS,
   type PapelPericia,
   type ParteTipo,
+  PERICIA_FASES,
   PERICIA_STATUS,
+  type PericiaFase,
   type PericiaStatus,
   POLOS,
   type Polo,
@@ -21,6 +23,8 @@ export interface PericiaParteDocument {
   polo: Polo;
   tipo: ParteTipo;
   nome: string;
+  // Quem contratou o assistente técnico (AD-135).
+  contratante?: boolean;
 }
 
 // Movimentação do processo que conta para a perícia parada (AD-121). Data `YYYY-MM-DD`.
@@ -43,6 +47,8 @@ export interface PericiaDocument {
   objeto: string;
   partes: PericiaParteDocument[];
   status: PericiaStatus;
+  // Fase detalhada (AD-133), sempre coerente com a etapa (regra no service).
+  fase?: PericiaFase;
   // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-036, AD-103), não instantes.
   dataNomeacao?: string;
   honorariosPropostosCents?: number;
@@ -81,6 +87,7 @@ const periciaSchema = new Schema<PericiaDocument>(
             polo: { type: String, enum: POLOS, required: true },
             tipo: { type: String, enum: PARTE_TIPOS, required: true },
             nome: { type: String, required: true, trim: true },
+            contratante: { type: Boolean },
           },
           { _id: false },
         ),
@@ -88,6 +95,7 @@ const periciaSchema = new Schema<PericiaDocument>(
       default: [],
     },
     status: { type: String, enum: PERICIA_STATUS, default: 'appointed', required: true },
+    fase: { type: String, enum: PERICIA_FASES },
     dataNomeacao: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     honorariosPropostosCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     honorariosFixadosCents: { type: Number, min: 0, validate: Number.isSafeInteger },

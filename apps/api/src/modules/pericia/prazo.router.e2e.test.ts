@@ -69,11 +69,11 @@ describe('prazos da perícia (PRZ-01)', () => {
 
   it('cadastrar a perícia com prazo do laudo cria "Entrega do laudo" pendente; a perícia não guarda o campo', async () => {
     const { as } = await seedSession();
-    const created = await as(request(app).post('/pericias')).send({ ...PERICIA, prazoLaudo: day(20) });
+    const created = await as(request(app).post('/expert-cases')).send({ ...PERICIA, prazoLaudo: day(20) });
     expect(created.status).toBe(201);
     expect(created.body.data).not.toHaveProperty('prazoLaudo');
 
-    const prazos = await as(request(app).get(`/pericias/${created.body.data.id}/prazos`));
+    const prazos = await as(request(app).get(`/expert-cases/${created.body.data.id}/deadlines`));
     expect(prazos.status).toBe(200);
     expect(prazos.body.data).toEqual([
       expect.objectContaining({ titulo: 'Entrega do laudo', vencimento: day(20), status: 'pending' }),
@@ -82,9 +82,9 @@ describe('prazos da perícia (PRZ-01)', () => {
 
   it('cria pendente, protocola com data, marca perdido e reabre (AC 1–3)', async () => {
     const { as } = await seedSession();
-    const pericia = (await as(request(app).post('/pericias')).send(PERICIA)).body.data;
+    const pericia = (await as(request(app).post('/expert-cases')).send(PERICIA)).body.data;
 
-    const criado = await as(request(app).post(`/pericias/${pericia.id}/prazos`)).send({
+    const criado = await as(request(app).post(`/expert-cases/${pericia.id}/deadlines`)).send({
       titulo: 'Esclarecimentos',
       vencimento: day(-3),
     });
@@ -92,38 +92,38 @@ describe('prazos da perícia (PRZ-01)', () => {
     expect(criado.body.data).toMatchObject({ status: 'pending', vencimento: day(-3), periciaId: pericia.id });
     const id = criado.body.data.id;
 
-    const protocolado = await as(request(app).patch(`/pericias/prazos/${id}`)).send({
+    const protocolado = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({
       status: 'filed',
       protocoladoEm: day(-4),
     });
     expect(protocolado.body.data).toMatchObject({ status: 'filed', protocoladoEm: day(-4) });
 
-    const semData = await as(request(app).patch(`/pericias/prazos/${id}`)).send({ status: 'filed' });
+    const semData = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({ status: 'filed' });
     expect(semData.body.data.protocoladoEm).toBe(day(0));
 
-    const perdido = await as(request(app).patch(`/pericias/prazos/${id}`)).send({ status: 'missed' });
+    const perdido = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({ status: 'missed' });
     expect(perdido.body.data.status).toBe('missed');
     expect(perdido.body.data).not.toHaveProperty('protocoladoEm');
 
-    const pendentes = await as(request(app).get('/pericias/prazos'));
+    const pendentes = await as(request(app).get('/expert-cases/deadlines'));
     expect(pendentes.body.data).toEqual([]);
   });
 
   it('listagem mostra o próximo prazo pendente e a faixa conta vencidos e os que vencem em até 15 dias (AC 5)', async () => {
     const { as } = await seedSession();
-    const pericia = (await as(request(app).post('/pericias')).send(PERICIA)).body.data;
+    const pericia = (await as(request(app).post('/expert-cases')).send(PERICIA)).body.data;
     for (const [titulo, vencimento] of [
       ['Vencido', day(-1)],
       ['Em breve', day(15)],
       ['Longe', day(16)],
     ] as const) {
-      await as(request(app).post(`/pericias/${pericia.id}/prazos`)).send({ titulo, vencimento });
+      await as(request(app).post(`/expert-cases/${pericia.id}/deadlines`)).send({ titulo, vencimento });
     }
 
-    const lista = await as(request(app).get('/pericias'));
+    const lista = await as(request(app).get('/expert-cases'));
     expect(lista.body.data.items[0].proximoPrazo).toEqual({ titulo: 'Vencido', vencimento: day(-1) });
 
-    const stats = await as(request(app).get('/pericias/stats'));
+    const stats = await as(request(app).get('/expert-cases/stats'));
     const groups = Object.fromEntries(
       stats.body.data.groups.map((g: { key: string; count: number }) => [g.key, g.count]),
     );
@@ -132,11 +132,11 @@ describe('prazos da perícia (PRZ-01)', () => {
 
   it('calendário recebe só os pendentes do intervalo, com o número do processo (AC 6)', async () => {
     const { as } = await seedSession();
-    const pericia = (await as(request(app).post('/pericias')).send(PERICIA)).body.data;
-    await as(request(app).post(`/pericias/${pericia.id}/prazos`)).send({ titulo: 'Dentro', vencimento: day(2) });
-    await as(request(app).post(`/pericias/${pericia.id}/prazos`)).send({ titulo: 'Fora', vencimento: day(40) });
+    const pericia = (await as(request(app).post('/expert-cases')).send(PERICIA)).body.data;
+    await as(request(app).post(`/expert-cases/${pericia.id}/deadlines`)).send({ titulo: 'Dentro', vencimento: day(2) });
+    await as(request(app).post(`/expert-cases/${pericia.id}/deadlines`)).send({ titulo: 'Fora', vencimento: day(40) });
 
-    const res = await as(request(app).get(`/pericias/prazos?from=${day(0)}&to=${day(7)}`));
+    const res = await as(request(app).get(`/expert-cases/deadlines?from=${day(0)}&to=${day(7)}`));
     expect(res.status).toBe(200);
     expect(res.body.data).toEqual([
       expect.objectContaining({ titulo: 'Dentro', periciaNumero: PERICIA.numeroProcesso }),
@@ -146,18 +146,22 @@ describe('prazos da perícia (PRZ-01)', () => {
   it('excluir a perícia exclui os prazos; prazo de outro tenant é 404', async () => {
     const admin = await seedSession(['admin']);
     const outro = await seedSession();
-    const pericia = (await admin.as(request(app).post('/pericias')).send({ ...PERICIA, prazoLaudo: day(5) })).body.data;
-    const [prazo] = (await admin.as(request(app).get(`/pericias/${pericia.id}/prazos`))).body.data;
+    const pericia = (await admin.as(request(app).post('/expert-cases')).send({ ...PERICIA, prazoLaudo: day(5) })).body
+      .data;
+    const [prazo] = (await admin.as(request(app).get(`/expert-cases/${pericia.id}/deadlines`))).body.data;
 
-    expect((await outro.as(request(app).patch(`/pericias/prazos/${prazo.id}`)).send({ status: 'missed' })).status).toBe(
-      404,
-    );
     expect(
-      (await outro.as(request(app).post(`/pericias/${pericia.id}/prazos`)).send({ titulo: 'X', vencimento: day(1) }))
-        .status,
+      (await outro.as(request(app).patch(`/expert-cases/deadlines/${prazo.id}`)).send({ status: 'missed' })).status,
+    ).toBe(404);
+    expect(
+      (
+        await outro
+          .as(request(app).post(`/expert-cases/${pericia.id}/deadlines`))
+          .send({ titulo: 'X', vencimento: day(1) })
+      ).status,
     ).toBe(404);
 
-    expect((await admin.as(request(app).delete(`/pericias/${pericia.id}`))).status).toBe(200);
+    expect((await admin.as(request(app).delete(`/expert-cases/${pericia.id}`))).status).toBe(200);
     expect(await Prazo.countDocuments({ Pericia: pericia.id })).toBe(0);
   });
 });

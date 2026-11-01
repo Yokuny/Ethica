@@ -4,7 +4,7 @@ import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
 // Endpoints de panorama de listagem (GET .../stats): total e contagem por grupo.
-type StatsPath = '/pericias/stats' | '/prospeccao/oportunidades/stats';
+type StatsPath = '/expert-cases/stats' | '/prospecting/opportunities/stats';
 
 export const listStatsQuery = (path: StatsPath) =>
   queryOptions({

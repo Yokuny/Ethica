@@ -67,7 +67,7 @@ export const sincronizar = async (queryClient: QueryClient) => {
     }
     for (const rascunho of await listarRascunhos()) {
       if (rascunho.conflito) continue;
-      const res = await put<VistoriaRecord>(`/vistorias/${rascunho.compromissoId}`, {
+      const res = await put<VistoriaRecord>(`/inspections/${rascunho.compromissoId}`, {
         versao: rascunho.versao,
         dados: rascunho.dados,
       });
@@ -81,7 +81,7 @@ export const sincronizar = async (queryClient: QueryClient) => {
     for (const midia of await listarMidias()) {
       const query = new URLSearchParams({ tipo: midia.tipo, ...(midia.legenda ? { legenda: midia.legenda } : {}) });
       const res = await sendFile(
-        `/vistorias/${midia.compromissoId}/midias/${midia.midiaId}?${query.toString()}`,
+        `/inspections/${midia.compromissoId}/media/${midia.midiaId}?${query.toString()}`,
         midia.blob,
         midia.mime,
         'PUT',

@@ -4,6 +4,8 @@ import type {
   Justica,
   MovimentacaoTipo,
   PapelPericia,
+  PericiaFase,
+  PericiaSituacao,
   PericiaStatus,
   UpdatePericia,
 } from '@ethica/contracts';
@@ -12,6 +14,8 @@ import {
   createPericiaSchema,
   idSchema,
   JUSTICAS,
+  PERICIA_FASES,
+  PERICIA_SITUACOES,
   PERICIA_STATUS,
   updatePericiaSchema,
 } from '@ethica/contracts';
@@ -33,6 +37,8 @@ export const listPericiasQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(20),
     q: z.string().trim().max(120).optional(),
     status: z.enum(PERICIA_STATUS).optional(),
+    situacao: z.enum(PERICIA_SITUACOES).optional(),
+    fase: z.enum(PERICIA_FASES).optional(),
     justica: z.enum(JUSTICAS).optional(),
   })
   .strict();
@@ -51,6 +57,9 @@ export type PericiaRecord = {
   objeto: string;
   partes: PericiaParteWrite[];
   status: PericiaStatus;
+  fase?: PericiaFase;
+  // Derivada da etapa e da fase (AD-133), nunca gravada.
+  situacao: PericiaSituacao;
   dataNomeacao?: string;
   honorariosPropostosCents?: number;
   honorariosFixadosCents?: number;
@@ -89,6 +98,7 @@ export type CreatePericiaInput = CreatePericia & { tenant: string; oportunidadeI
 
 // O que o repository grava: partes já resolvidas no cadastro (AD-117), sem o prazo do laudo.
 export type PericiaCreateWrite = Omit<CreatePericiaInput, 'prazoLaudo' | 'partes'> & { partes: PericiaParteWrite[] };
+// `fase: null` vira `$unset` no repository (AD-133).
 export type PericiaUpdateWrite = Omit<UpdatePericia, 'partes'> & { partes?: PericiaParteWrite[] };
 
 // Listagem: cada perícia com o prazo pendente mais próximo (ausente se não há).
@@ -96,7 +106,8 @@ export type PericiaListItem = PericiaRecord & { proximoPrazo?: ProximoPrazo };
 
 // Enriquecimento cross-módulo (agenda, financeiro, feed, aviso): número e os nomes das
 // partes de cada polo (sem advogados), separados por vírgula.
-export type PericiaResumo = { numeroProcesso: string; autor?: string; reu?: string };
+// `contratante`: nome de quem contratou o assistente técnico (AD-135).
+export type PericiaResumo = { numeroProcesso: string; autor?: string; reu?: string; contratante?: string };
 
 export type PericiaDistribution = {
   status: { key: string; count: number }[];

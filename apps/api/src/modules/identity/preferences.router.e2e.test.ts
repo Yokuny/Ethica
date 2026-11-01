@@ -27,6 +27,7 @@ const buildAuthDeps = (): AuthDeps => ({
           id: user._id.toString(),
           tenant: user.Tenant?.toString(),
           role: user.role,
+          permissoes: user.permissoes,
           isPlatformAdmin: user.isPlatformAdmin,
           active: user.active,
         }
@@ -99,7 +100,7 @@ describe('preferences routes (ENR-03)', () => {
     const res = await request(buildTestApp()).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE);
 
     expect(res.status).toBe(200);
-    expect(res.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true });
+    expect(res.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true, blocosOcultos: [] });
   });
 
   it('PATCH persists the choice, can be undone, and is read back by GET', async () => {
@@ -113,12 +114,13 @@ describe('preferences routes (ENR-03)', () => {
       .set('User-Agent', DEVICE)
       .send({ onboardingDismissed: true });
     expect(dismissed.status).toBe(200);
-    expect(dismissed.body.data).toEqual({ onboardingDismissed: true, avisoPrazoEmail: true });
+    expect(dismissed.body.data).toEqual({ onboardingDismissed: true, avisoPrazoEmail: true, blocosOcultos: [] });
     expect(
       (await request(app).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE)).body.data,
     ).toEqual({
       onboardingDismissed: true,
       avisoPrazoEmail: true,
+      blocosOcultos: [],
     });
 
     const reopened = await request(app)
@@ -126,7 +128,7 @@ describe('preferences routes (ENR-03)', () => {
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
       .send({ onboardingDismissed: false });
-    expect(reopened.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true });
+    expect(reopened.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true, blocosOcultos: [] });
   });
 
   it('the preference never carries progress: unknown keys (steps, Tenant) are rejected and nothing is saved', async () => {
@@ -166,7 +168,7 @@ describe('preferences routes (ENR-03)', () => {
       .get('/me/preferences')
       .set('Cookie', await cookieFor(b.user.id))
       .set('User-Agent', DEVICE);
-    expect(resB.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true });
+    expect(resB.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: true, blocosOcultos: [] });
     expect((await User.findById(b.user.id).lean())?.preferences?.onboardingDismissed ?? false).toBe(false);
   });
 
@@ -194,5 +196,29 @@ describe('preferences routes (ENR-03)', () => {
     expect((await request(app).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE)).status).toBe(
       403,
     );
+  });
+
+  it('guarda os blocos ocultos do início e restaura o padrão com a lista vazia (AD-136)', async () => {
+    const { user } = await seedUser('66666666000199');
+    const cookie = await cookieFor(user.id);
+    const app = buildTestApp();
+    const oculto = await request(app)
+      .patch('/me/preferences')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ blocosOcultos: ['cash_flow', 'by_court'] });
+    expect(oculto.body.data.blocosOcultos).toEqual(['cash_flow', 'by_court']);
+    const invalido = await request(app)
+      .patch('/me/preferences')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ blocosOcultos: ['nao_existe'] });
+    expect(invalido.status).toBe(400);
+    const padrao = await request(app)
+      .patch('/me/preferences')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ blocosOcultos: [] });
+    expect(padrao.body.data.blocosOcultos).toEqual([]);
   });
 });

@@ -1,6 +1,6 @@
 import { CSV_IMPORT_MAX_BYTES, PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Router } from 'express';
-import { checkRole, isAdmin } from '../../middlewares/authorization.middleware.js';
+import { can } from '../../middlewares/authorization.middleware.js';
 import { fileBody } from '../../middlewares/fileBody.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
@@ -22,89 +22,118 @@ import {
   updatePrazoSchema,
 } from './prazo.schema.js';
 
-const canOperate = checkRole(['admin', 'manager', 'operator']);
-
 export const createPericiaRouter = (deps: PericiaRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
 
-  router.post('/', ...guard, canOperate, validBody(createPericiaSchema), periciaController.createPericia);
+  router.post(
+    '/',
+    ...guard,
+    can('expert_cases', 'create'),
+    validBody(createPericiaSchema),
+    periciaController.createPericia,
+  );
   // Importação (AD-114, AD-118): o PDF só devolve o rascunho; o CSV cria as perícias.
   router.post(
     '/import/pdf',
     ...guard,
-    canOperate,
+    can('expert_cases', 'create'),
     fileBody('application/pdf', PDF_IMPORT_MAX_BYTES),
     periciaController.importarPdf,
   );
   router.post(
     '/import/csv',
     ...guard,
-    canOperate,
+    can('expert_cases', 'create'),
     fileBody('text/csv', CSV_IMPORT_MAX_BYTES),
     periciaController.importarCsv,
   );
-  router.get('/stats', ...guard, canOperate, periciaController.periciaStats);
-  router.get('/distribution', ...guard, canOperate, periciaController.periciaDistribution);
-  // Prazos (AD-109): operacionais, qualquer papel do tenant. `/prazos` vem antes de `/:id`.
+  router.get('/stats', ...guard, can('expert_cases', 'view'), periciaController.periciaStats);
+  router.get('/stalled', ...guard, can('expert_cases', 'view'), periciaController.resumoParadas);
+  router.get('/distribution', ...guard, can('expert_cases', 'view'), periciaController.periciaDistribution);
+  // Prazos (AD-109) seguem a permissão de perícias (AD-137). `/deadlines` vem antes de `/:id`.
   router.get(
-    '/prazos',
+    '/deadlines',
     ...guard,
-    canOperate,
+    can('expert_cases', 'view'),
     validParsedQuery(listPrazosPendentesQuerySchema),
     prazoController.listPrazosPendentes,
   );
   router.patch(
-    '/prazos/:prazoId',
+    '/deadlines/:prazoId',
     ...guard,
-    canOperate,
+    can('expert_cases', 'update'),
     validParams(prazoIdParamSchema),
     validBody(updatePrazoSchema),
     prazoController.updatePrazo,
   );
-  router.delete('/prazos/:prazoId', ...guard, canOperate, validParams(prazoIdParamSchema), prazoController.deletePrazo);
-  router.get('/', ...guard, canOperate, validParsedQuery(listPericiasQuerySchema), periciaController.listPericias);
-  router.get('/:id', ...guard, canOperate, validParams(periciaIdParamSchema), periciaController.getPericia);
-  router.get(
-    '/:id/prazos',
+  router.delete(
+    '/deadlines/:prazoId',
     ...guard,
-    canOperate,
+    can('expert_cases', 'update'),
+    validParams(prazoIdParamSchema),
+    prazoController.deletePrazo,
+  );
+  router.get(
+    '/',
+    ...guard,
+    can('expert_cases', 'view'),
+    validParsedQuery(listPericiasQuerySchema),
+    periciaController.listPericias,
+  );
+  router.get(
+    '/:id',
+    ...guard,
+    can('expert_cases', 'view'),
+    validParams(periciaIdParamSchema),
+    periciaController.getPericia,
+  );
+  router.get(
+    '/:id/deadlines',
+    ...guard,
+    can('expert_cases', 'view'),
     validParams(periciaIdParamSchema),
     prazoController.listPrazosDaPericia,
   );
   router.post(
-    '/:id/prazos',
+    '/:id/deadlines',
     ...guard,
-    canOperate,
+    can('expert_cases', 'update'),
     validParams(periciaIdParamSchema),
     validBody(createPrazoSchema),
     prazoController.createPrazo,
   );
-  // Movimentações que contam para a perícia parada (AD-121): qualquer papel do tenant.
+  // Movimentações que contam para a perícia parada (AD-121).
   router.post(
-    '/:id/movimentacoes',
+    '/:id/movements',
     ...guard,
-    canOperate,
+    can('expert_cases', 'update'),
     validParams(periciaIdParamSchema),
     validBody(createMovimentacaoSchema),
     periciaController.addMovimentacao,
   );
   router.delete(
-    '/:id/movimentacoes/:movimentacaoId',
+    '/:id/movements/:movimentacaoId',
     ...guard,
-    canOperate,
+    can('expert_cases', 'update'),
     validParams(movimentacaoIdParamSchema),
     periciaController.removeMovimentacao,
   );
   router.patch(
     '/:id',
     ...guard,
-    canOperate,
+    can('expert_cases', 'update'),
     validParams(periciaIdParamSchema),
     validBody(updatePericiaSchema),
     periciaController.updatePericia,
   );
-  router.delete('/:id', ...guard, isAdmin, validParams(periciaIdParamSchema), periciaController.deletePericia);
+  router.delete(
+    '/:id',
+    ...guard,
+    can('expert_cases', 'delete'),
+    validParams(periciaIdParamSchema),
+    periciaController.deletePericia,
+  );
 
   return router;
 };

@@ -13,7 +13,7 @@ import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { lancamentosQuery } from '@/query/lancamento.js';
-import { canSeeFinance, sessionQuery } from '@/query/session.js';
+import { can, sessionQuery } from '@/query/session.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
@@ -21,7 +21,7 @@ const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 // da agenda. Só para quem vê o financeiro (AD-107): para os outros papéis não renderiza nada.
 export function PericiaRecebimentos({ periciaId }: { periciaId: string }) {
   const { data: session } = useSuspenseQuery(sessionQuery);
-  const allowed = canSeeFinance(session);
+  const allowed = can(session, 'finance');
   const query = useQuery({ ...lancamentosQuery({ periciaId, natureza: 'income', limit: 20 }), enabled: allowed });
   const today = formatDisplayDate(new Date());
 
@@ -41,7 +41,7 @@ export function PericiaRecebimentos({ periciaId }: { periciaId: string }) {
               <LinkListItem
                 key={honorario.id}
                 icon={Wallet}
-                render={<Link to="/financeiro/lancamentos" search={{ periciaId }} />}
+                render={<Link to="/finance/entries" search={{ periciaId }} />}
                 title={formatMoney(honorario.valorCents)}
                 badges={<Badge variant={SITUACAO_VARIANT[situacao]}>{t(situacao)}</Badge>}
                 description={`${honorario.descricao} · ${t('received')} ${formatMoney(honorario.recebidoCents ?? 0)} · ${t('balance_due')} ${formatMoney(honorario.saldoCents ?? 0)}`}

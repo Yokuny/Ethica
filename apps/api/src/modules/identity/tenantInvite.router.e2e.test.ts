@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { Role } from '@ethica/contracts';
+import { PERFIL_PERMISSOES, type Role } from '@ethica/contracts';
 import { connect, disconnect, hashToken, Invite, Session, Tenant, User } from '@ethica/db';
 import cookieParser from 'cookie-parser';
 import express from 'express';
@@ -29,6 +29,7 @@ const buildAuthDeps = (): AuthDeps => ({
           id: user._id.toString(),
           tenant: user.Tenant?.toString(),
           role: user.role,
+          permissoes: user.permissoes,
           isPlatformAdmin: user.isPlatformAdmin,
           active: user.active,
         }
@@ -244,5 +245,26 @@ describe('EQP — convites do admin do tenant', () => {
     expect(member?.role).toEqual(['operator']);
     expect(member?.isPlatformAdmin).toBe(false);
     expect(member?.Tenant?.toString()).toBe(tenant.id);
+    expect(member?.permissoes).toEqual(PERFIL_PERMISSOES.operator);
+  });
+
+  // AD-137: a matriz conferida no convite chega ao membro; admin não guarda matriz.
+  it('grava a matriz ajustada no convite e nenhuma para admin', async () => {
+    const { user } = await seedUser('66666666000910', ['admin']);
+    const app = buildTestApp();
+    const cookie = await cookieFor(user.id);
+    const permissoes = { agenda: ['view', 'create', 'update'], finance: ['view', 'create', 'update'] };
+    await request(app)
+      .post('/tenant/invites')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ email: 'secretaria@example.com', role: 'operator', permissoes });
+    await request(app)
+      .post('/tenant/invites')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ email: 'socio@example.com', role: 'admin', permissoes });
+    expect((await Invite.findOne({ email: 'secretaria@example.com' }).lean())?.permissoes).toEqual(permissoes);
+    expect((await Invite.findOne({ email: 'socio@example.com' }).lean())?.permissoes).toBeUndefined();
   });
 });

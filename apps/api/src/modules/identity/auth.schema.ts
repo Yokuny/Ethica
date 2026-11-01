@@ -1,11 +1,11 @@
-import type { SignIn, TenantUser } from '@ethica/contracts';
-import { idSchema, signinSchema } from '@ethica/contracts';
+import type { Permissoes, SignIn, TenantUser, UpdatePermissoes } from '@ethica/contracts';
+import { idSchema, signinSchema, updatePermissoesSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
-export type { SignIn, TenantUser };
+export type { Permissoes, SignIn, TenantUser, UpdatePermissoes };
 // MOD-08: schemas de entrada e tipos do módulo num lugar só.
-export { signinSchema };
+export { signinSchema, updatePermissoesSchema };
 
 // Diretório do tenant. `active=true` devolve só quem pode receber trabalho novo
 // (seletor de responsável); sem ele a lista traz também os inativos, que ainda
@@ -37,6 +37,8 @@ export type SessionView = {
   tenant?: { id: string; name: string; status: string };
   user: UserView;
   role: TenantUser['role'];
+  // Matriz efetiva (AD-137): o web esconde o que a API vai recusar.
+  permissoes: Permissoes;
 };
 
 // MOD-07: leitura em lote para outros módulos (order, conversation, card)
@@ -56,6 +58,8 @@ export type UserDirectoryEntry = {
   name: string;
   email: string;
   role: TenantUser['role'];
+  // Matriz efetiva (AD-137): admin com tudo, membro com a gravada ou o preset do perfil.
+  permissoes: Permissoes;
   active: boolean;
   // ISO 8601 (UTC): quando a pessoa entrou no time.
   createdAt: string;
