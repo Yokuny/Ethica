@@ -102,6 +102,9 @@ export const updateReportSection = json((req) =>
 );
 export const chooseReportSections = (providers: Providers) =>
   json((req) => reportService.chooseSections(providers, context(req), id(req), req.body));
+export const fillReportFromProcess = json((req) =>
+  reportService.fillFromProcess(context(req), id(req), req.body as Buffer),
+);
 export const removeReportSection = json((req) => reportService.removeSection(context(req), id(req), sectionId(req)));
 export const completeReport = (providers: Providers) =>
   json((req) => reportService.completeReport(providers, context(req), id(req), req.body));

@@ -1,9 +1,10 @@
+import { PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { FileSignature } from 'lucide-react';
-import { useState } from 'react';
+import { type ChangeEvent, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
@@ -19,12 +20,15 @@ import { caseInspectionsQuery } from '@/query/inspection.js';
 import {
   completeReportMutation,
   deleteReportMutation,
+  fillReportFromProcessMutation,
+  type ProcessFill,
   removeReportSectionMutation,
   reportQuery,
   updateReportSectionMutation,
   uploadReportPhotoMutation,
 } from '@/query/report.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
+import { ProcessFillDialog } from './@components/process-fill-dialog.js';
 import { ReportPreviewDialog } from './@components/report-preview-dialog.js';
 import { ReportSectionEditor, type SectionDraft } from './@components/report-section-editor.js';
 import { ReportSectionsDialog } from './@components/report-sections-dialog.js';
@@ -43,6 +47,9 @@ export function ReportDetailsPage() {
   const complete = useMutation(completeReportMutation(queryClient));
   const removal = useMutation(deleteReportMutation(queryClient));
   const uploadPhoto = useMutation(uploadReportPhotoMutation());
+  const fillFromProcess = useMutation(fillReportFromProcessMutation(queryClient));
+  const [processResult, setProcessResult] = useState<ProcessFill | null>(null);
+  const processInputRef = useRef<HTMLInputElement>(null);
   const { download, pending } = useFileDownload();
   // Photos of the case inspections for the editor's "Inserir foto" (AD-129).
   const inspections = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
@@ -83,6 +90,26 @@ export function ReportDetailsPage() {
     );
   }
 
+  // LMO-03: the full process PDF fills questions and claims; the dialog shows what was found.
+  function handleProcessFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || !report) return;
+    if (file.size > PDF_IMPORT_MAX_BYTES) return void toast.error(t('file_too_large'));
+    saveCurrent(() =>
+      fillFromProcess.mutate(
+        { id: report.id, file },
+        {
+          onSuccess: (result) => {
+            setDraft(null);
+            setProcessResult(result);
+          },
+          onError,
+        },
+      ),
+    );
+  }
+
   function runExport(format: 'pdf' | 'docx') {
     if (!report) return;
     saveCurrent(() => void download(`/expert-reports/${report.id}/${format}`));
@@ -108,6 +135,24 @@ export function ReportDetailsPage() {
             <Button variant="outline" onClick={() => saveCurrent(() => setDialog('preview'))}>
               {t('preview_pdf')}
             </Button>
+            {openDraft && (
+              <Button
+                variant="outline"
+                disabled={fillFromProcess.isPending}
+                onClick={() => processInputRef.current?.click()}
+              >
+                {fillFromProcess.isPending ? t('reading_pdf') : t('fill_from_process')}
+              </Button>
+            )}
+            <input
+              ref={processInputRef}
+              type="file"
+              accept="application/pdf"
+              className="sr-only"
+              tabIndex={-1}
+              aria-label={t('fill_from_process')}
+              onChange={handleProcessFile}
+            />
             {openDraft && (
               <Button variant="outline" onClick={() => saveCurrent(() => setDialog('sections'))}>
                 {t('template_sections')}
@@ -176,6 +221,9 @@ export function ReportDetailsPage() {
             {t('remove')}
           </Button>
         </CardFooter>
+      )}
+      {report && processResult && (
+        <ProcessFillDialog caseId={report.caseId} result={processResult} onClose={() => setProcessResult(null)} />
       )}
       {report && dialog === 'preview' && (
         <ReportPreviewDialog

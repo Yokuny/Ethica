@@ -157,6 +157,27 @@ export type ReportSectionsReplace = {
   sections: Array<ReportSectionWrite & { id?: string }>;
 };
 
+// Reading of the full process (LMO-03, AD-152).
+export type ProcessQuestionSide = 'plaintiff' | 'defendant' | 'court';
+export type ProcessExtraction = {
+  questions: Record<ProcessQuestionSide, string[]>;
+  labor: { hireDate?: string; terminationDate?: string; claimantJob?: string; location?: string };
+  claims: string[];
+  agents: string[];
+};
+// What was not found, as translation keys of the screen.
+export type ProcessMissing =
+  | 'plaintiff_questions'
+  | 'defendant_questions'
+  | 'court_questions'
+  | 'hiring_date'
+  | 'termination_date'
+  | 'claimant_job'
+  | 'initial_claims'
+  // Questions found, but the report has no "Quesitos …" section to receive them.
+  | 'questions_section';
+export type ProcessFill = { report: ReportRecord; labor: ProcessExtraction['labor']; missing: ProcessMissing[] };
+
 // What PDF and Word receive: sections with the variables resolved again (AD-126).
 export type ReportExportData = {
   report: ReportRecord;

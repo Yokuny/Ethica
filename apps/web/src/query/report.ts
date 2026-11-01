@@ -56,6 +56,12 @@ export type ReportRecord = {
   updatedAt: string;
 };
 export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues'> & { totalSections: number };
+// Full process read into the draft (LMO-03); `missing` are translation keys.
+export type ProcessFill = {
+  report: ReportRecord;
+  labor: { hireDate?: string; terminationDate?: string; claimantJob?: string; location?: string };
+  missing: string[];
+};
 export type ReportsQueryParams = { page?: number; limit?: number; status?: ReportStatus; caseId?: string };
 
 export const reportKeys = {
@@ -141,6 +147,14 @@ export const uploadReportPhotoMutation = (): UseMutationOptions<string, Error, {
       await sendFile<{ src: string }>(`/expert-reports/${id}/media/${crypto.randomUUID()}`, photo, 'image/jpeg', 'PUT'),
       'save_error',
     ).src,
+});
+
+export const fillReportFromProcessMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<ProcessFill, Error, { id: string; file: File }> => ({
+  mutationFn: async ({ id, file }) =>
+    unwrap(await sendFile<ProcessFill>(`/expert-reports/${id}/process`, file, 'application/pdf'), 'action_error'),
+  onSuccess: (result) => updatedReport(queryClient, result.report),
 });
 
 export const removeReportSectionMutation = (

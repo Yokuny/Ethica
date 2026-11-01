@@ -189,7 +189,8 @@ export const extractMinutes = (text: string): Omit<PdfExtraction, 'existingId'> 
   return { draft: clean, missing: esperados.filter((field) => !clean[field]), warnings };
 };
 
-export const extractPdf = async (tenantId: string, file: Buffer): Promise<PdfExtraction> => {
+// Text of a PDF with selectable text (AD-114); also read by the report from the full process (AD-152).
+export const extractPdfText = async (file: Buffer): Promise<string> => {
   if (!Buffer.isBuffer(file) || file.subarray(0, 5).toString('latin1') !== '%PDF-') {
     throw new CustomError('unsupported_file_type', 415);
   }
@@ -200,8 +201,11 @@ export const extractPdf = async (tenantId: string, file: Buffer): Promise<PdfExt
     throw new CustomError('unsupported_file_type', 415, error instanceof Error ? error.message : undefined);
   }
   if (!text.trim()) throw new CustomError('pdf_without_text', 422);
+  return text;
+};
 
-  const extraction = extractMinutes(text);
+export const extractPdf = async (tenantId: string, file: Buffer): Promise<PdfExtraction> => {
+  const extraction = extractMinutes(await extractPdfText(file));
   const number = extraction.draft.processNumber;
   const existingId = number ? await caseRepository.findIdByNumber(tenantId, number) : undefined;
   if (!existingId) return extraction;

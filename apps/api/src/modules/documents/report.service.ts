@@ -8,17 +8,21 @@ import * as inspectionService from '../agenda/inspection.service.js';
 import type { CaseRecord } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
+import * as importService from '../case/import.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as officeService from '../identity/office.service.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
 import { reportDocx } from './report.docx.js';
 import { issuesOf, type ReportValues, resolveVariables, sanitizeReportHtml } from './report.html.js';
+import { applyProcess, extractProcess } from './report.process.js';
 import * as reportRepository from './report.repository.js';
 import type {
   ChooseReportSections,
   CompleteReport,
   CreateReport,
   ListReportsQuery,
+  ProcessFill,
+  ProcessMissing,
   ReportListItem,
   ReportRecord,
   ReportSectionRecord,
@@ -215,6 +219,35 @@ export const updateSection = async (
     html: data.html === undefined ? undefined : sanitizeReportHtml(data.html),
   });
   return openReport(ctx, found(updated).id);
+};
+
+// LMO-03 (AD-152): reads the full process PDF and fills the draft with the questions and the claims; the
+// labor data found go back for the expert to confirm on the case. Nothing already written is deleted.
+export const fillFromProcess = async (ctx: DocumentContext, id: string, file: Buffer): Promise<ProcessFill> => {
+  const report = await editable(ctx.tenantId, id);
+  const extraction = extractProcess(await importService.extractPdfText(file));
+  const changed = applyProcess(report.sections, extraction);
+  for (const section of changed) {
+    await reportRepository.updateSection(ctx.tenantId, id, section.id, { html: sanitizeReportHtml(section.html) });
+  }
+  const { questions, labor, claims } = extraction;
+  const missing = (
+    [
+      [!questions.plaintiff.length, 'plaintiff_questions'],
+      [!questions.defendant.length, 'defendant_questions'],
+      [!questions.court.length, 'court_questions'],
+      [!labor.hireDate, 'hiring_date'],
+      [!labor.terminationDate, 'termination_date'],
+      [!labor.claimantJob, 'claimant_job'],
+      [!claims.length, 'initial_claims'],
+      [
+        Object.values(questions).some((list) => list.length) &&
+          !changed.some((section) => /^\s*quesitos\b/i.test(section.title)),
+        'questions_section',
+      ],
+    ] as const
+  ).flatMap(([absent, key]): ProcessMissing[] => (absent ? [key] : []));
+  return { report: await openReport(ctx, id), labor, missing };
 };
 
 // Removing renumbers by itself: the number comes from the position (AD-126). The last section stays.

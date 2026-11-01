@@ -1,4 +1,4 @@
-import { REPORT_MEDIA_LIMIT } from '@ethica/contracts';
+import { PDF_IMPORT_MAX_BYTES, REPORT_MEDIA_LIMIT } from '@ethica/contracts';
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
 import { fileBody } from '../../middlewares/fileBody.middleware.js';
@@ -153,6 +153,15 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     can('expert_reports', 'update'),
     reportSection,
     reportController.removeReportSection,
+  );
+  // Full process PDF in the body, like the minutes (AD-118, AD-152).
+  router.post(
+    '/:id/process',
+    ...guard,
+    can('expert_reports', 'update'),
+    report,
+    fileBody('application/pdf', PDF_IMPORT_MAX_BYTES),
+    reportController.fillReportFromProcess,
   );
   router.post(
     '/:id/complete',

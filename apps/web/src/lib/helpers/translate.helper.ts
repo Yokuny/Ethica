@@ -591,6 +591,18 @@ const translations: Record<string, string> = {
   standard_template_review_notice: 'Texto-base para o perito revisar e completar. Duplique para adaptar ao escritório.',
   template: 'Modelo',
   template_sections: 'Seções do modelo',
+  fill_from_process: 'Preencher pelo processo',
+  process_filled: 'Laudo preenchido pelo processo',
+  process_filled_description:
+    'Quesitos e pedidos da inicial entraram nas seções; confira o texto. Os dados do contrato só vão para a perícia se você salvar.',
+  found_in_process: 'Achado no processo',
+  not_found_in_process: 'Não achado',
+  save_on_expert_case: 'Salvar na perícia',
+  plaintiff_questions: 'Quesitos do reclamante ou autor',
+  defendant_questions: 'Quesitos da reclamada ou réu',
+  court_questions: 'Quesitos do juízo',
+  initial_claims: 'Pedidos da inicial',
+  questions_section: 'Seção de quesitos no laudo (marque em Seções do modelo)',
   preview_pdf: 'Visualizar PDF',
   preview_pdf_description:
     'Como o laudo vai sair. Dados ainda sem valor aparecem entre colchetes e impedem baixar e concluir.',
