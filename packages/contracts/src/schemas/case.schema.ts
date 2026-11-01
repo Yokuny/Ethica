@@ -149,8 +149,8 @@ export const suggestNonPrescribedPeriod = (datas: {
 }): { inicio: string; fim: string } | undefined => {
   const { docketingDate, hireDate, terminationDate } = datas;
   if (!docketingDate) return undefined;
-  const [ano, mes, dia] = docketingDate.split('-');
-  const cincoAnosAntes = `${Number(ano) - 5}-${mes}-${mes === '02' && dia === '29' ? '28' : dia}`;
-  const inicio = hireDate && hireDate > cincoAnosAntes ? hireDate : cincoAnosAntes;
+  const [year, month, day] = docketingDate.split('-');
+  const fiveYearsBefore = `${Number(year) - 5}-${month}-${month === '02' && day === '29' ? '28' : day}`;
+  const inicio = hireDate && hireDate > fiveYearsBefore ? hireDate : fiveYearsBefore;
   return { inicio, fim: terminationDate ?? docketingDate };
 };

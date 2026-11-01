@@ -48,7 +48,7 @@ export function AccountPage() {
             {
               title: t('deadline_alerts'),
               description: t('deadline_alerts_description'),
-              fields: [<AccountDeadlineReminder key="aviso" />],
+              fields: [<AccountDeadlineReminder key="notice" />],
             },
             {
               title: t('calendar_sync'),

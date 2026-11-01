@@ -15,6 +15,7 @@ import { PageMenu } from '@/components/page-menu.js';
 import { RecordHeader, RecordHeading, RecordStatus } from '@/components/record.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { caseInspectionsQuery } from '@/query/inspection.js';
 import {
   concluirLaudoMutation,
   deleteLaudoMutation,
@@ -22,9 +23,8 @@ import {
   removeLaudoSecaoMutation,
   updateLaudoSecaoMutation,
 } from '@/query/laudo.js';
-import { caseInspectionsQuery } from '@/query/vistoria.js';
 import { ConcluirLaudoDialog } from './@components/concluir-laudo-dialog.js';
-import { LaudoSecaoEditor, type SecaoRascunho } from './@components/laudo-secao-editor.js';
+import { LaudoSecaoEditor, type SectionDraft } from './@components/laudo-secao-editor.js';
 import { LaudoSecoesNav } from './@components/laudo-secoes-nav.js';
 import { type LaudoDetailsSearch, laudoDetailsSearchSchema } from './@interface/laudo-details.interface.js';
 
@@ -41,19 +41,19 @@ export function LaudoDetailsPage() {
   const excluir = useMutation(deleteLaudoMutation(queryClient));
   const { download, pending } = useFileDownload();
   // Fotos das vistorias da perícia para o "Inserir foto" do editor (AD-129).
-  const vistorias = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
-  const fotos = (vistorias.data ?? []).flatMap(({ compromisso, vistoria }) =>
-    vistoria.midias
-      .filter((midia) => midia.tipo === 'photo')
-      .map((midia) => ({ src: `/inspections/${compromisso.id}/media/${midia.id}`, legenda: midia.legenda })),
+  const inspections = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
+  const photos = (inspections.data ?? []).flatMap(({ appointment, inspection }) =>
+    inspection.media
+      .filter((media) => media.tipo === 'photo')
+      .map((media) => ({ src: `/inspections/${appointment.id}/media/${media.id}`, caption: media.caption })),
   );
-  const [rascunho, setRascunho] = useState<(SecaoRascunho & { secaoId: string }) | null>(null);
+  const [draft, setDraft] = useState<(SectionDraft & { secaoId: string }) | null>(null);
   const [dialogo, setDialogo] = useState<Dialogo>(null);
   const laudo = query.data;
   const secao = laudo?.secoes.find((item) => item.id === search.secao) ?? laudo?.secoes[0];
   const atual =
-    secao && rascunho?.secaoId === secao.id
-      ? rascunho
+    secao && draft?.secaoId === secao.id
+      ? draft
       : secao && { secaoId: secao.id, titulo: secao.titulo, html: secao.html };
   const dirty = Boolean(secao && atual && (atual.titulo !== secao.titulo || atual.html !== secao.html));
   const onError = (error: Error) => toast.error(error.message);
@@ -64,7 +64,7 @@ export function LaudoDetailsPage() {
       { id: laudo.id, secaoId: secao.id, data: { titulo: atual.titulo, html: atual.html } },
       {
         onSuccess: () => {
-          setRascunho(null);
+          setDraft(null);
           depois?.();
         },
         onError,
@@ -144,13 +144,13 @@ export function LaudoDetailsPage() {
             <LaudoSecaoEditor
               laudo={laudo}
               secao={secao}
-              rascunho={atual}
-              onChange={(next) => setRascunho({ ...next, secaoId: secao.id })}
+              draft={atual}
+              onChange={(next) => setDraft({ ...next, secaoId: secao.id })}
               dirty={dirty}
               saving={salvar.isPending || removerSecao.isPending}
               onSave={() => salvarAtual()}
               onRemove={() => setDialogo('remover-secao')}
-              fotos={fotos}
+              photos={photos}
             />
           </div>
         </CardContent>
@@ -193,7 +193,7 @@ export function LaudoDetailsPage() {
               {
                 onSuccess: () => {
                   setDialogo(null);
-                  setRascunho(null);
+                  setDraft(null);
                   navigate({ search: (prev: LaudoDetailsSearch) => ({ ...prev, secao: undefined }), replace: true });
                 },
                 onError,

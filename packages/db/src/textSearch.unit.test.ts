@@ -14,7 +14,7 @@ const stageOf = (stages: unknown[]) =>
 
 describe('periciaSearchStages (montagem do $search)', () => {
   it('o filtro de tenant vai DENTRO do $search, como ObjectId, e é o primeiro estágio', () => {
-    const stages = caseSearchStages(ID, { q: 'insalubridade' });
+    const stages = caseSearchStages(ID, { q: 'unhealthyConditions' });
     expect(Object.keys(stages[0] as object)).toEqual(['$search']);
     const filter = (stageOf(stages).compound.filter as { equals: { path: string; value: unknown } }[])[0];
     expect(filter?.equals.path).toBe('Tenant');

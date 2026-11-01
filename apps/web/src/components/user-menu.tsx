@@ -21,7 +21,7 @@ import { UserAvatar } from '@/components/user-chip.js';
 import { TextSizeOptions } from '@/components/user-menu.text-size.js';
 import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { limparAparelho } from '@/lib/offline/store.js';
+import { clearDevice } from '@/lib/offline/store.js';
 import { type SessionView, sessionKeys } from '@/query/session.js';
 
 // O conteúdo (sessão via cache, mutation de logout) só monta com o menu
@@ -40,7 +40,7 @@ function UserMenuContent() {
     onSuccess: () => {
       // Dados do tenant/usuário anterior não podem sobreviver no cache.
       queryClient.clear();
-      void limparAparelho();
+      void clearDevice();
       navigate({ to: '/auth' });
     },
     onError: (error: Error) => toast.error(error.message),

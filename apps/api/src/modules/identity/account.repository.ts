@@ -1,6 +1,6 @@
 import { Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { AccountView, DestinatarioAviso, FeedOwner, UpdateProfile } from './account.schema.js';
+import type { AccountView, FeedOwner, NoticeRecipient, UpdateProfile } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
 
 // Tenant e usuário vêm sempre da sessão (AD-010): todo filtro é a própria pessoa.
@@ -116,7 +116,7 @@ export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null
   });
 
 // AD-110: usuários ativos com papel e aviso ligado (ausente = ligado), de tenants não suspensos.
-export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promise<DestinatarioAviso[]> =>
+export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promise<NoticeRecipient[]> =>
   withDbTiming('account.listDeadlineReminderRecipients', async () => {
     if (tenantIds.length === 0) return [];
     const ativos = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, status: { $ne: 'suspended' } })

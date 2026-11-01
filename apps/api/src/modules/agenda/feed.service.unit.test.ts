@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { DeadlineRecord } from '../case/deadline.schema.js';
 import * as accountService from '../identity/account.service.js';
-import type { CompromissoRecord } from './compromisso.schema.js';
+import type { AppointmentRecord } from './appointment.schema.js';
 import { gerarFeed, montarIcs } from './feed.service.js';
 
 vi.mock('../identity/account.service.js', () => ({ findFeedOwner: vi.fn() }));
 vi.mock('../case/case.service.js', () => ({ findResumosByIds: vi.fn() }));
 vi.mock('../case/deadline.service.js', () => ({ listPendingDeadlines: vi.fn() }));
-vi.mock('./compromisso.repository.js', () => ({ listInRange: vi.fn() }));
+vi.mock('./appointment.repository.js', () => ({ listInRange: vi.fn() }));
 
 const now = new Date('2026-11-01T10:00:00.000Z');
-const vistoria: CompromissoRecord = {
+const inspection: AppointmentRecord = {
   id: 'c1',
   tipo: 'inspection',
   titulo: 'Vistoria na fábrica',
@@ -19,9 +19,9 @@ const vistoria: CompromissoRecord = {
   local: 'Av. Industrial, 1500; galpão 2',
   caseId: 'p1',
   status: 'scheduled',
-  origem: 'manual',
+  origin: 'manual',
   observacoes: 'Levar decibelímetro',
-  avisos: [],
+  notices: [],
   createdAt: now,
   updatedAt: now,
 };
@@ -53,7 +53,7 @@ const eventOf = (ics: string, uid: string) => {
 // PRZ-03.3: cada evento leva data, descrição (tipo, título, nº do processo, partes,
 // observações) e local (endereço do compromisso; vazio no prazo).
 describe('montarIcs', () => {
-  const ics = montarIcs({ compromissos: [vistoria], deadlines: [deadline], resumos, now });
+  const ics = montarIcs({ appointments: [inspection], deadlines: [deadline], resumos, now });
 
   it('é um VCALENDAR com linhas CRLF de no máximo 75 octetos', () => {
     expect(ics.startsWith('BEGIN:VCALENDAR\r\nVERSION:2.0\r\n')).toBe(true);

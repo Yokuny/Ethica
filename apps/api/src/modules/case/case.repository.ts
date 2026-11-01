@@ -210,7 +210,7 @@ export const listStalled = async (tenantId: string, limite: string): Promise<Arr
       division: doc.division,
       subject: doc.subject,
       referencia: doc.referencia,
-      origem: doc.ultima ? 'movement' : doc.nominationDate ? 'appointment' : 'created',
+      origin: doc.ultima ? 'movement' : doc.nominationDate ? 'appointment' : 'created',
     }));
   });
 

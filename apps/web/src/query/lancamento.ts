@@ -48,11 +48,11 @@ export type LancamentosListResult = { items: LancamentoRecord[]; total: number }
 export type FinanceiroResumo = {
   aReceberCents: number;
   lateCents: number;
-  recebidoMesCents: number;
-  despesasMesCents: number;
+  receivedMonthCents: number;
+  expensesMonthCents: number;
 };
 
-export type FluxoMensal = { mes: string; recebidoCents: number; aReceberCents: number; despesasCents: number };
+export type FluxoMensal = { month: string; recebidoCents: number; aReceberCents: number; despesasCents: number };
 export type CategoriaTotal = { categoria: LancamentoCategoria; totalCents: number };
 
 export const lancamentoKeys = {
@@ -60,7 +60,7 @@ export const lancamentoKeys = {
   lists: () => [...lancamentoKeys.all, 'list'] as const,
   list: (params: LancamentosQueryParams) => [...lancamentoKeys.lists(), params] as const,
   resumo: () => [...lancamentoKeys.all, 'resumo'] as const,
-  fluxo: (meses: number) => [...lancamentoKeys.all, 'fluxo', meses] as const,
+  fluxo: (months: number) => [...lancamentoKeys.all, 'fluxo', months] as const,
   categorias: (natureza: LancamentoNatureza) => [...lancamentoKeys.all, 'categorias', natureza] as const,
 };
 
@@ -87,10 +87,10 @@ export const financeiroResumoQuery = queryOptions({
   queryFn: () => fetchData<FinanceiroResumo>('/finance/summary'),
 });
 
-export const fluxoMensalQuery = (meses: number) =>
+export const fluxoMensalQuery = (months: number) =>
   queryOptions({
-    queryKey: lancamentoKeys.fluxo(meses),
-    queryFn: () => fetchData<FluxoMensal[]>(`/finance/flow?meses=${meses}`),
+    queryKey: lancamentoKeys.fluxo(months),
+    queryFn: () => fetchData<FluxoMensal[]>(`/finance/flow?months=${months}`),
   });
 
 export const categoriasQuery = (natureza: LancamentoNatureza) =>

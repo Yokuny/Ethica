@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
-import { type CompromissoRecord, compromissosQuery } from '@/query/compromisso.js';
+import { type AppointmentRecord, appointmentsQuery } from '@/query/appointment.js';
 import { type DeadlineRecord, pendingDeadlinesQuery } from '@/query/deadline.js';
 import { ALL_FILTER_VALUE, DEFAULT_VIEW } from '../@consts/calendar.js';
 import type { CalendarSearch, CalendarView, PanelState } from '../@interface/calendar.interface.js';
@@ -16,7 +16,7 @@ export function useAgendaPage() {
   const view = search.view ?? DEFAULT_VIEW;
   const date = search.date ?? formatDisplayDate(new Date());
   const { from, to } = rangeForView(view, date);
-  const query = useQuery(compromissosQuery({ from, to, tipo: search.tipo }));
+  const query = useQuery(appointmentsQuery({ from, to, tipo: search.tipo }));
   // Prazos pendentes do intervalo (AD-109); somem quando o filtro é um tipo de compromisso.
   const deadlinesQuery = useQuery({ ...pendingDeadlinesQuery({ from, to }), enabled: !search.tipo });
   const deadlines = search.tipo ? [] : (deadlinesQuery.data ?? []);
@@ -43,7 +43,7 @@ export function useAgendaPage() {
         ...prev,
         tipo: !value || value === ALL_FILTER_VALUE ? undefined : (value as CalendarSearch['tipo']),
       })),
-    handleSelectItem: (compromisso: CompromissoRecord) => setPanel({ kind: 'detail', compromisso }),
+    handleSelectItem: (appointment: AppointmentRecord) => setPanel({ kind: 'detail', appointment }),
     handleSelectDeadline: (deadline: DeadlineRecord) => setPanel({ kind: 'deadline', deadline }),
     closePanel: () => {
       setPanel(null);

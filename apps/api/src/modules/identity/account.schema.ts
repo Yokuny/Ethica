@@ -21,4 +21,4 @@ export type AccountView = {
 export type FeedOwner = { userId: string; tenantId: string };
 
 // AD-110: quem recebe o aviso diário de prazos.
-export type DestinatarioAviso = { tenantId: string; name: string; email: string };
+export type NoticeRecipient = { tenantId: string; name: string; email: string };

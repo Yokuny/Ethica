@@ -33,7 +33,7 @@ const isDuplicateKeyError = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
 
 // Sem período imprescrito informado, grava o sugerido pelas datas do contrato (AD-115).
-const comPeriodoSugerido = <T extends CreateCaseInput>(input: T): T => {
+const withSuggestedPeriod = <T extends CreateCaseInput>(input: T): T => {
   if (input.nonPrescribedPeriodStart || input.nonPrescribedPeriodEnd) return input;
   const sugerido = suggestNonPrescribedPeriod(input);
   return sugerido
@@ -59,7 +59,7 @@ export const resolveStatusAndPhase = (
 // Caminho único de criação (formulário, PDF, CSV, oportunidade): resolve as partes no
 // cadastro (AD-117) e transforma o prazo do laudo no prazo "Entrega do laudo" (AD-109).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
-  const { reportDeadline, parties, phase, ...input } = comPeriodoSugerido(data);
+  const { reportDeadline, parties, phase, ...input } = withSuggestedPeriod(data);
   if (!validClient({ role: input.role, parties })) throw new CustomError('invalid_contracting_party', 422);
   try {
     const legalCase = await caseRepository.createCase({
@@ -161,16 +161,16 @@ export const removeMovement = async (tenantId: string, id: string, movementId: s
   return updated;
 };
 
-const DIA_MS = 86_400_000;
-const diasEntre = (de: string, ate: string): number =>
-  Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / DIA_MS);
+const DAY_MS = 86_400_000;
+const daysBetween = (de: string, ate: string): number =>
+  Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / DAY_MS);
 
 // DOC-03: abertas sem movimentação há mais de PERICIA_PARADA_DIAS dias (AD-121).
 export const listStalled = async (tenantId: string, now: Date = new Date()): Promise<StalledCase[]> => {
   const today = dateInDisplayTz(now);
-  const limite = new Date(Date.parse(`${today}T12:00:00Z`) - STALLED_CASE_DAYS * DIA_MS).toISOString().slice(0, 10);
+  const limite = new Date(Date.parse(`${today}T12:00:00Z`) - STALLED_CASE_DAYS * DAY_MS).toISOString().slice(0, 10);
   const stalled = await caseRepository.listStalled(tenantId, limite);
-  return stalled.map((stalled) => ({ ...stalled, stalledDays: diasEntre(stalled.referencia, today) }));
+  return stalled.map((stalled) => ({ ...stalled, stalledDays: daysBetween(stalled.referencia, today) }));
 };
 
 export const listForExport = (tenantId: string) => caseRepository.listAll(tenantId);

@@ -63,7 +63,7 @@ export const listPendingDeadlines = async (tenantId: string, range: { from?: str
   withCaseNumber(tenantId, await deadlineRepository.listPending(tenantId, range));
 
 // Aviso diário (sistema): pendentes que vencem nos dias pedidos, em todos os tenants.
-export const listDeadlinesToNotice = (dias: string[]) => deadlineRepository.listPendingInDays(dias);
+export const listDeadlinesToNotice = (days: string[]) => deadlineRepository.listPendingInDays(days);
 
 // Concluir o laudo com a entrega (AD-126): protocola hoje o prazo pendente "Entrega do laudo"
 // mais antigo da perícia; sem nenhum pendente, não faz nada.

@@ -8,10 +8,10 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { FluxoFinanceiroChart } from '@/components/fluxo-financeiro-chart.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
-import { UpcomingCompromissos } from '@/components/upcoming-compromissos.js';
+import { UpcomingAppointments } from '@/components/upcoming-appointments.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { upcomingAppointmentsQuery } from '@/query/appointment.js';
 import { caseDistributionQuery, stalledCasesQuery } from '@/query/case.js';
-import { upcomingCompromissosQuery } from '@/query/compromisso.js';
 import { financeiroResumoQuery, fluxoMensalQuery } from '@/query/lancamento.js';
 import { listStatsQuery } from '@/query/listStats.js';
 import { preferencesQuery } from '@/query/preferences.js';
@@ -25,7 +25,7 @@ import { StalledCasesList } from './@components/stalled-cases.js';
 import { HOME_BLOCO_MODULO } from './@consts/home-blocos.js';
 import { useHomePage } from './@hooks/use-home-page.js';
 
-const FLUXO_MESES = 6;
+const FLOW_MONTHS = 6;
 
 // Início configurável por usuário (AD-136): só os blocos que a matriz deixa ver (AD-137),
 // menos os que a pessoa escondeu.
@@ -47,9 +47,9 @@ export function PrivateIndexPage() {
     enabled: mostra('by_stage') || mostra('by_court'),
   });
   const stalled = useQuery({ ...stalledCasesQuery, enabled: mostra('stalled') });
-  const upcoming = useQuery({ ...upcomingCompromissosQuery({ limit: 5 }), enabled: mostra('upcoming') });
+  const upcoming = useQuery({ ...upcomingAppointmentsQuery({ limit: 5 }), enabled: mostra('upcoming') });
   const resumo = useQuery({ ...financeiroResumoQuery, enabled: canSeeFinance && mostra('overview') });
-  const fluxo = useQuery({ ...fluxoMensalQuery(FLUXO_MESES), enabled: mostra('cash_flow') });
+  const fluxo = useQuery({ ...fluxoMensalQuery(FLOW_MONTHS), enabled: mostra('cash_flow') });
 
   return (
     <Card asPage>
@@ -76,7 +76,7 @@ export function PrivateIndexPage() {
             ) : !upcoming.data?.length ? (
               <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
             ) : (
-              <UpcomingCompromissos items={upcoming.data} />
+              <UpcomingAppointments items={upcoming.data} />
             )}
           </Panel>
         )}

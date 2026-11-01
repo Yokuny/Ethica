@@ -47,8 +47,8 @@ const ENCERRAMENTO: Secao = {
 };
 
 // NR-15: um anexo por agente. Grau do adicional conforme o item 15.2 da NR-15.
-const anexo = (numero: string, agente: string, sim: string, nao: string): Secao => ({
-  titulo: `Anexo ${numero} — ${agente}`,
+const anexo = (numero: string, agent: string, sim: string, nao: string): Secao => ({
+  titulo: `Anexo ${numero} — ${agent}`,
   nivel: 2,
   textoSim: p(sim),
   textoNao: p(nao),
@@ -143,7 +143,7 @@ const NR15: Secao[] = [
 ];
 
 // NR-16: adicional de 30% sobre o salário-base (art. 193 da CLT).
-const periculosidade = (titulo: string, sim: string, nao: string): Secao => ({
+const hazardousConditions = (titulo: string, sim: string, nao: string): Secao => ({
   titulo,
   nivel: 2,
   textoSim: p(`${sim} Caracteriza periculosidade, com adicional de 30% (art. 193 da CLT).`),
@@ -152,32 +152,32 @@ const periculosidade = (titulo: string, sim: string, nao: string): Secao => ({
 
 const NR16: Secao[] = [
   grupo('Periculosidade — NR-16', true),
-  periculosidade(
+  hazardousConditions(
     'Anexo 1 — Explosivos',
     'As atividades eram exercidas com explosivos ou em área de risco, nas condições do Anexo 1 da NR-16.',
     'Não há atividade ou permanência em área de risco com explosivos.',
   ),
-  periculosidade(
+  hazardousConditions(
     'Anexo 2 — Inflamáveis',
     'As atividades eram exercidas com inflamáveis ou em área de risco, nas condições do Anexo 2 da NR-16 (identificar a atividade e a área de risco).',
     'Não há atividade ou permanência habitual em área de risco com inflamáveis, nas condições do Anexo 2 da NR-16.',
   ),
-  periculosidade(
+  hazardousConditions(
     'Anexo 3 — Segurança pessoal ou patrimonial',
     'As atividades de segurança pessoal ou patrimonial expunham o trabalhador a roubos ou outras espécies de violência física, nas condições do Anexo 3 da NR-16.',
     'As atividades não se enquadram nas condições do Anexo 3 da NR-16.',
   ),
-  periculosidade(
+  hazardousConditions(
     'Anexo 4 — Energia elétrica',
     'As atividades eram exercidas em instalações ou equipamentos elétricos energizados, nas condições do Anexo 4 da NR-16.',
     'Não há atividade com exposição a energia elétrica nas condições do Anexo 4 da NR-16.',
   ),
-  periculosidade(
+  hazardousConditions(
     'Anexo 5 — Motocicleta',
     'As atividades exigiam o uso de motocicleta em vias públicas, nas condições do Anexo 5 da NR-16 (verificar a vigência aplicável ao período).',
     'As atividades não exigiam o uso de motocicleta em vias públicas, ou o uso era eventual.',
   ),
-  periculosidade(
+  hazardousConditions(
     'Radiações ionizantes ou substâncias radioativas',
     'As atividades se enquadram no quadro de atividades e operações perigosas com radiações ionizantes ou substâncias radioativas anexo à NR-16.',
     'Não há atividade com radiações ionizantes ou substâncias radioativas.',

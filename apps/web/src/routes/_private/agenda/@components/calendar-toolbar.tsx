@@ -4,7 +4,7 @@ import { ItemTitle } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { COMPROMISSO_TIPO_ITEMS } from '@/components/compromisso-labels.js';
+import { APPOINTMENT_TYPE_ITEMS } from '@/components/appointment-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { ALL_FILTER_VALUE, CALENDAR_VIEWS } from '../@consts/calendar.js';
 import type { useAgendaPage } from '../@hooks/use-agenda-page.js';
@@ -14,7 +14,7 @@ const monthTitle = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'nume
 export function CalendarToolbar({ state }: { state: ReturnType<typeof useAgendaPage> }) {
   const { view, date, search, setPanel, handleViewChange, handlePrevious, handleNext, handleToday, handleTipoChange } =
     state;
-  const tipoItems = [{ value: ALL_FILTER_VALUE, label: t('all_types') }, ...COMPROMISSO_TIPO_ITEMS];
+  const tipoItems = [{ value: ALL_FILTER_VALUE, label: t('all_types') }, ...APPOINTMENT_TYPE_ITEMS];
 
   return (
     <div className="flex flex-wrap items-center gap-2">

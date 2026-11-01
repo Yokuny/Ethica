@@ -68,13 +68,13 @@ const ROTULOS: Record<string, string> = {
 
 export const rotulo = (key: string | undefined): string => (key ? (ROTULOS[key] ?? key) : '');
 
-export const dia = (value: string | undefined): string => {
+export const day = (value: string | undefined): string => {
   if (!value) return '';
-  const [ano, mes, d] = value.split('-');
-  return `${d}/${mes}/${ano}`;
+  const [year, month, d] = value.split('-');
+  return `${d}/${month}/${year}`;
 };
 
-export const dataHora = (value: Date): string =>
+export const dateTime = (value: Date): string =>
   new Intl.DateTimeFormat('pt-BR', { timeZone: DISPLAY_TIMEZONE, dateStyle: 'short', timeStyle: 'short' }).format(
     value,
   );
@@ -94,10 +94,10 @@ export const tabela = (colunas: string[], linhas: string[][], classe = ''): stri
     .join('')}</tbody></table>`;
 
 // Pares rótulo/valor; valor vazio some.
-export const campos = (pares: Array<[string, string | undefined]>): string =>
+export const fields = (pares: Array<[string, string | undefined]>): string =>
   `<dl>${pares
     .filter(([, valor]) => valor)
-    .map(([rotuloCampo, valor]) => `<div><dt>${esc(rotuloCampo)}</dt><dd>${esc(valor)}</dd></div>`)
+    .map(([fieldLabel, valor]) => `<div><dt>${esc(fieldLabel)}</dt><dd>${esc(valor)}</dd></div>`)
     .join('')}</dl>`;
 
 const CSS = `
@@ -182,6 +182,6 @@ export const montarDocumento = (input: {
 }): PdfDocument => ({
   html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(input.titulo)}</title><style>${CSS}</style></head><body><h1>${esc(input.titulo)}</h1>${
     input.subtitulo ? `<p class="subtitulo">${esc(input.subtitulo)}</p>` : ''
-  }${input.corpo}<p class="gerado">Gerado por ${esc(input.expertName)} em ${esc(dataHora(input.geradoEm))}.</p></body></html>`,
+  }${input.corpo}<p class="gerado">Gerado por ${esc(input.expertName)} em ${esc(dateTime(input.geradoEm))}.</p></body></html>`,
   ...cabecalhoRodape(input.identity, input.expertName),
 });

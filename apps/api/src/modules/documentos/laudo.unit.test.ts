@@ -44,9 +44,9 @@ describe('saneamento da foto (AD-129)', () => {
   it('mantém só a foto da vistoria, sem a origem, e remove outras imagens', () => {
     expect(
       sanitizeLaudoHtml(
-        `<img src="http://localhost:18080${FOTO}" alt="Prensa" onerror="x()"><img src="https://evil.com/a.png"><img src="/tenant/office/logo">`,
+        `<img src="http://localhost:18080${PHOTO}" alt="Prensa" onerror="x()"><img src="https://evil.com/a.png"><img src="/tenant/office/logo">`,
       ),
-    ).toBe(`<img src="${FOTO}" alt="Prensa" />`);
+    ).toBe(`<img src="${PHOTO}" alt="Prensa" />`);
   });
 });
 
@@ -55,38 +55,38 @@ describe('variáveis de campo (AD-130)', () => {
     legalCase,
     expert: { name: 'Eng. Paula' },
     identity: { name: 'Escritório' },
-    compromissos: [{ tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:30:00Z') }] as never,
-    hoje: '2026-10-31',
+    appointments: [{ tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:30:00Z') }] as never,
+    today: '2026-10-31',
   };
 
   it('monta presentes, paradigmas, funções por parte, agentes e documentos do registro', () => {
     const valores = valoresDoLaudo({
       ...base,
-      campo: {
+      field: {
         inicio: new Date('2026-05-10T13:30:00Z'),
         dados: {
-          presentes: [
-            { id: 'a', nome: 'Ana', qualidade: 'plaintiff' },
-            { id: 'b', nome: 'Dr. Réu', qualidade: 'defendant_lawyer' },
+          attendees: [
+            { id: 'a', nome: 'Ana', capacity: 'plaintiff' },
+            { id: 'b', nome: 'Dr. Réu', capacity: 'defendant_lawyer' },
           ],
-          paradigmas: [{ id: 'p', side: 'plaintiff', nome: 'João', funcao: 'Soldador', trabalhouJunto: true }],
-          funcoes: [
+          comparators: [{ id: 'p', side: 'plaintiff', nome: 'João', job: 'Soldador', workedTogether: true }],
+          jobs: [
             {
               id: 'f',
               titulo: 'Soldador',
-              anoInicio: 2019,
-              anoFim: 2023,
+              yearStart: 2019,
+              yearEnd: 2023,
               plaintiff: { atividades: 'Solda MIG', timeExposure: '8h/dia' },
               defendant: {},
             },
           ],
-          agentes: [
-            { agente: 'noise', presente: 'yes', epi: 'protetor auricular' },
-            { agente: 'cold', presente: 'no' },
+          agents: [
+            { agent: 'noise', present: 'yes', ppe: 'protetor auricular' },
+            { agent: 'cold', present: 'no' },
           ],
           documentos: [
-            { id: 'd', documento: 'ltcat', solicitado: true },
-            { id: 'e', documento: 'ppp', solicitado: false },
+            { id: 'd', documento: 'ltcat', requested: true },
+            { id: 'e', documento: 'ppp', requested: false },
           ],
         },
       },
@@ -114,11 +114,11 @@ describe('variáveis (AD-126)', () => {
     legalCase,
     expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
     identity: { name: 'Escritório' },
-    compromissos: [
+    appointments: [
       { tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:00:00Z') },
       { tipo: 'inspection', status: 'canceled', inicio: new Date('2026-06-10T13:00:00Z') },
     ] as never,
-    hoje: '2026-10-31',
+    today: '2026-10-31',
   });
 
   it('denomina pela justiça, junta partes por polo e formata datas', () => {
@@ -137,8 +137,8 @@ describe('variáveis (AD-126)', () => {
       legalCase: { ...legalCase, courtType: 'civil' },
       expert: { name: 'X' },
       identity: { name: 'E' },
-      compromissos: [],
-      hoje: '2026-01-05',
+      appointments: [],
+      today: '2026-01-05',
     });
     expect(civil['[DENOMINACAO_AUTOR]']).toBe('Autor');
     expect(civil['[DATA_VISTORIA]']).toBeUndefined();
@@ -189,7 +189,7 @@ const JPEG = Buffer.from([
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0xf0, 0x01, 0x40, 0x03, 0x01,
   0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
 ]);
-const FOTO = '/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a165-70867728950e';
+const PHOTO = '/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a165-70867728950e';
 
 const dados = (): LaudoExportDados => ({
   laudo: {
@@ -228,7 +228,7 @@ const dados = (): LaudoExportDados => ({
         apenasTitulo: false,
         quebraPagina: false,
         variante: 'no',
-        html: `<ol><li><p>um</p></li></ol><table><tbody><tr><th>A</th></tr><tr><td>1</td></tr></tbody></table><img src="${FOTO}" alt="Prensa"><img src="/inspections/6560a0a0a0a0a0a0a0a0a0a1/media/0f8fad5b-d9cb-469f-a165-70867728950f" alt="sumiu">`,
+        html: `<ol><li><p>um</p></li></ol><table><tbody><tr><th>A</th></tr><tr><td>1</td></tr></tbody></table><img src="${PHOTO}" alt="Prensa"><img src="/inspections/6560a0a0a0a0a0a0a0a0a0a1/media/0f8fad5b-d9cb-469f-a165-70867728950f" alt="sumiu">`,
       },
     ],
   },
@@ -236,7 +236,7 @@ const dados = (): LaudoExportDados => ({
   identity: { name: 'Escritório', rodape: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' },
   expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
   valores: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
-  fotos: { [FOTO]: { body: JPEG, mime: 'image/jpeg' } },
+  photos: { [PHOTO]: { body: JPEG, mime: 'image/jpeg' } },
   geradoEm: new Date(),
 });
 

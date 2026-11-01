@@ -26,7 +26,7 @@ import type { LaudoExportDados } from './laudo.schema.js';
 // allowlist, mais capa, sumário (campo atualizado ao abrir) e cabeçalho/rodapé do escritório.
 
 type No = ReturnType<typeof parseDocument>['children'][number];
-type Fotos = LaudoExportDados['fotos'];
+type Photos = LaudoExportDados['photos'];
 type Formato = { bold?: boolean; italics?: boolean; underline?: boolean };
 type Bloco = Paragraph | Table;
 
@@ -61,7 +61,7 @@ const runs = (nos: No[], formato: Formato = {}): TextRun[] =>
 const linhasDaTabela = (no: No): No[] =>
   filhos(no).flatMap((filho) => (tag(filho) === 'tr' ? [filho] : tag(filho) ? linhasDaTabela(filho) : []));
 
-const tabela = (no: No, fotos: Fotos): Table =>
+const tabela = (no: No, photos: Photos): Table =>
   new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: linhasDaTabela(no).map(
@@ -70,7 +70,7 @@ const tabela = (no: No, fotos: Fotos): Table =>
           children: filhos(tr)
             .filter((celula) => tag(celula) === 'td' || tag(celula) === 'th')
             .map((celula) => {
-              const conteudo = blocos(filhos(celula), { bold: tag(celula) === 'th' }, fotos).filter(
+              const conteudo = blocos(filhos(celula), { bold: tag(celula) === 'th' }, photos).filter(
                 (bloco): bloco is Paragraph => bloco instanceof Paragraph,
               );
               const span = celula.type === 'tag' ? Number(celula.attribs.colspan) || 1 : 1;
@@ -120,9 +120,9 @@ export const dimensoesDaImagem = (imagem: Buffer): { width: number; height: numb
 };
 
 // Foto da vistoria (AD-129): no máximo 15 cm de largura e 12 cm de altura, centralizada.
-const foto = (no: No, fotos: Fotos): Paragraph[] => {
+const photo = (no: No, photos: Photos): Paragraph[] => {
   const src = no.type === 'tag' ? no.attribs.src : undefined;
-  const arquivo = src ? fotos[src] : undefined;
+  const arquivo = src ? photos[src] : undefined;
   const tamanho = arquivo ? dimensoesDaImagem(arquivo.body) : null;
   if (!arquivo || !tamanho) return [];
   const escala = Math.min(567 / tamanho.width, 454 / tamanho.height, 1);
@@ -141,7 +141,7 @@ const foto = (no: No, fotos: Fotos): Paragraph[] => {
   ];
 };
 
-function blocos(nos: No[], formato: Formato = {}, fotos: Fotos = {}): Bloco[] {
+function blocos(nos: No[], formato: Formato = {}, photos: Photos = {}): Bloco[] {
   return nos.flatMap((no): Bloco[] => {
     switch (tag(no)) {
       case 'p':
@@ -160,9 +160,9 @@ function blocos(nos: No[], formato: Formato = {}, fotos: Fotos = {}): Bloco[] {
       case 'ol':
         return lista(no, 0);
       case 'table':
-        return [tabela(no, fotos)];
+        return [tabela(no, photos)];
       case 'img':
-        return foto(no, fotos);
+        return photo(no, photos);
       default: {
         const texto = runs([no], formato);
         return texto.length ? [new Paragraph({ children: texto })] : [];
@@ -213,14 +213,14 @@ export const laudoDocx = async ({
   identity,
   expert,
   valores,
-  fotos,
+  photos,
 }: LaudoExportDados): Promise<Buffer> => {
   const numeros = numerarSecoes(laudo.secoes);
   const logo = identity.logoDataUrl
     ? Buffer.from(identity.logoDataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
     : undefined;
   const { cabecalho, rodape } = textosCabecalhoRodape(identity);
-  const linhaCapa = (rotulo: string | undefined, valor: string | undefined): Paragraph[] =>
+  const coverRow = (rotulo: string | undefined, valor: string | undefined): Paragraph[] =>
     rotulo && valor
       ? [
           new Paragraph({
@@ -229,18 +229,18 @@ export const laudoDocx = async ({
           }),
         ]
       : [];
-  const capa = [
+  const cover = [
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 1800, after: 900 },
       children: [new TextRun({ text: TIPO[laudo.tipo], bold: true, size: 40 })],
     }),
-    ...linhaCapa('Processo nº', legalCase.processNumber),
-    ...linhaCapa('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
-    ...linhaCapa('Tribunal', legalCase.court),
-    ...linhaCapa(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
-    ...linhaCapa(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
-    ...linhaCapa('Objeto', legalCase.subject),
+    ...coverRow('Processo nº', legalCase.processNumber),
+    ...coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
+    ...coverRow('Tribunal', legalCase.court),
+    ...coverRow(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
+    ...coverRow(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
+    ...coverRow('Objeto', legalCase.subject),
     ...[expert.name, expert.formacao, expert.registroProfissional, valores['[DATA_EXTENSO]']]
       .filter((linha): linha is string => Boolean(linha))
       .map(
@@ -258,7 +258,7 @@ export const laudoDocx = async ({
       pageBreakBefore: secao.quebraPagina,
       children: [new TextRun(`${numeros[i]}. ${secao.titulo}`)],
     }),
-    ...(secao.apenasTitulo ? [] : blocos(parseDocument(secao.html).children as No[], {}, fotos)),
+    ...(secao.apenasTitulo ? [] : blocos(parseDocument(secao.html).children as No[], {}, photos)),
   ]);
   const doc = new Document({
     features: { updateFields: true },
@@ -313,7 +313,7 @@ export const laudoDocx = async ({
         headers: { default: new Header({ children: linhasDoTemplate(cabecalho, logo, expert.name) }) },
         footers: { default: new Footer({ children: linhasDoTemplate(rodape, logo, expert.name) }) },
         children: [
-          ...capa,
+          ...cover,
           new Paragraph({ children: [new PageBreak()] }),
           new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'SUMÁRIO', bold: true })] }),
           new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-3' }),

@@ -1,13 +1,14 @@
 import { PERFIL_PERMISSOES } from '@ethica/contracts';
-import type { CompromissoDocument, LancamentoDocument, ParcelaDocument } from '@ethica/db';
+import type { AppointmentDocument, LancamentoDocument, ParcelaDocument } from '@ethica/db';
 import {
+  Appointment,
   Atividade,
   Case,
-  Compromisso,
   connect,
   Deadline,
   dateInDisplayTz,
   disconnect,
+  Inspection,
   Lancamento,
   Laudo,
   ModeloLaudo,
@@ -16,7 +17,6 @@ import {
   Session,
   Tenant,
   User,
-  Vistoria,
   wallClockToUtc,
 } from '@ethica/db';
 import bcrypt from 'bcrypt';
@@ -124,8 +124,8 @@ const run = async (): Promise<void> => {
       Case.deleteMany({ Tenant: old._id }),
       Party.deleteMany({ Tenant: old._id }),
       Deadline.deleteMany({ Tenant: old._id }),
-      Compromisso.deleteMany({ Tenant: old._id }),
-      Vistoria.deleteMany({ Tenant: old._id }),
+      Appointment.deleteMany({ Tenant: old._id }),
+      Inspection.deleteMany({ Tenant: old._id }),
       Lancamento.deleteMany({ Tenant: old._id }),
       Oportunidade.deleteMany({ Tenant: old._id }),
       Laudo.deleteMany({ Tenant: old._id }),
@@ -236,7 +236,7 @@ const run = async (): Promise<void> => {
       fixedFeesCents: 'fixed' in p ? p.fixed : undefined,
     })),
   );
-  const [vistoria, laudo, civel, federal, clarifications] = cases;
+  const [inspection, laudo, civel, federal, clarifications] = cases;
 
   // Prazos (AD-109): a entrega do laudo de cada perícia, protocolada nas que já entregaram,
   // e um prazo de esclarecimentos já protocolado para mostrar o histórico.
@@ -265,7 +265,7 @@ const run = async (): Promise<void> => {
     },
   ]);
 
-  const compromissos: Partial<CompromissoDocument>[] = [
+  const appointments: Partial<AppointmentDocument>[] = [
     // Rota de campo de hoje (CAM-01): duas vistorias em endereços reais para o mapa.
     {
       tipo: 'inspection',
@@ -273,7 +273,7 @@ const run = async (): Promise<void> => {
       inicio: at(0, '09:00'),
       fim: at(0, '11:00'),
       local: 'Avenida Paulista, 1578, São Paulo, SP',
-      Case: vistoria?._id,
+      Case: inspection?._id,
     },
     {
       tipo: 'inspection',
@@ -289,7 +289,7 @@ const run = async (): Promise<void> => {
       inicio: at(1, '09:00'),
       fim: at(1, '11:00'),
       local: 'Av. Industrial, 1500 — São Paulo',
-      Case: vistoria?._id,
+      Case: inspection?._id,
     },
     {
       tipo: 'hearing',
@@ -323,50 +323,50 @@ const run = async (): Promise<void> => {
       status: 'done',
     },
   ];
-  const criados = await Compromisso.insertMany(
-    compromissos.map((compromisso) => ({ ...compromisso, Tenant: tenant._id })),
+  const criados = await Appointment.insertMany(
+    appointments.map((appointment) => ({ ...appointment, Tenant: tenant._id })),
   );
 
   // Registro da vistoria já feita (AD-130): alimenta as variáveis de campo do laudo em rascunho.
-  const feita = criados.find((compromisso) => compromisso.status === 'done');
-  await Vistoria.create({
+  const done = criados.find((appointment) => appointment.status === 'done');
+  await Inspection.create({
     Tenant: tenant._id,
-    Compromisso: feita?._id,
+    Appointment: done?._id,
     Case: laudo?._id,
     versao: 1,
     dados: {
-      presentes: [
-        { id: 'p1', nome: 'José Santos', qualidade: 'plaintiff' },
-        { id: 'p2', nome: 'João Pereira', qualidade: 'plaintiff_lawyer', email: 'joao@advocacia.com' },
-        { id: 'p3', nome: 'Carlos Lima (encarregado)', qualidade: 'defendant' },
+      attendees: [
+        { id: 'p1', nome: 'José Santos', capacity: 'plaintiff' },
+        { id: 'p2', nome: 'João Pereira', capacity: 'plaintiff_lawyer', email: 'joao@advocacia.com' },
+        { id: 'p3', nome: 'Carlos Lima (encarregado)', capacity: 'defendant' },
       ],
-      paradigmas: [{ id: 'g1', side: 'plaintiff', nome: 'Pedro Alves', funcao: 'Frentista', trabalhouJunto: true }],
-      funcoes: [
+      comparators: [{ id: 'g1', side: 'plaintiff', nome: 'Pedro Alves', job: 'Frentista', workedTogether: true }],
+      jobs: [
         {
           id: 'f1',
           titulo: 'Frentista',
-          anoInicio: 2017,
-          anoFim: 2026,
+          yearStart: 2017,
+          yearEnd: 2026,
           local: 'Pista de abastecimento',
           plaintiff: {
             atividades: 'Abastecia veículos e conferia bombas',
-            frequencia: 'diária',
+            frequency: 'diária',
             timeExposure: '8h/dia',
           },
-          defendant: { atividades: 'Abastecia veículos', frequencia: 'diária', timeExposure: '6h/dia' },
+          defendant: { atividades: 'Abastecia veículos', frequency: 'diária', timeExposure: '6h/dia' },
         },
       ],
-      agentes: [
-        { agente: 'hazardous', presente: 'yes', observacoes: 'área de risco das bombas' },
-        { agente: 'noise', presente: 'no' },
+      agents: [
+        { agent: 'hazardous', present: 'yes', observacoes: 'área de risco das bombas' },
+        { agent: 'noise', present: 'no' },
       ],
       documentos: [
-        { id: 'd1', documento: 'risk_program', solicitado: true },
-        { id: 'd2', documento: 'ppe_records', solicitado: true },
+        { id: 'd1', documento: 'risk_program', requested: true },
+        { id: 'd2', documento: 'ppe_records', requested: true },
       ],
       observacoes: 'Encarregado confirmou a rotina na pista.',
     },
-    midias: [],
+    media: [],
   });
 
   // Seis meses de movimento para o fluxo de caixa.

@@ -23,7 +23,7 @@ export const createDocumentosRouter = (deps: DocumentosRouterDeps): Router => {
     ...guard,
     can('expert_cases', 'view'),
     byId,
-    documentosController.ficha(providers),
+    documentosController.sheet(providers),
   );
   router.get(
     '/expert-cases/:id/checklist',

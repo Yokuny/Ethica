@@ -46,7 +46,7 @@ const moduloDe = (literais: string[]): DiarioModulo | undefined => {
   if (primeiro === 'expert-reports') return segundo === 'templates' ? 'report_templates' : 'expert_reports';
   if (primeiro === 'tenant') return segundo === 'invites' ? 'users' : 'office';
   if (primeiro === 'auth') return 'users';
-  const mapa: Record<string, DiarioModulo> = {
+  const map: Record<string, DiarioModulo> = {
     'expert-cases': 'expert_cases',
     parties: 'parties',
     agenda: 'agenda',
@@ -56,7 +56,7 @@ const moduloDe = (literais: string[]): DiarioModulo | undefined => {
     documents: 'office',
     me: 'account',
   };
-  return primeiro ? mapa[primeiro] : undefined;
+  return primeiro ? map[primeiro] : undefined;
 };
 
 // Módulo, recurso e ação a partir do método e do caminho; `undefined` = não registra.
@@ -74,8 +74,8 @@ export const descreverRequisicao = (
   const ultimo = literais.at(-1) ?? '';
   const acao = literais.includes('import') ? 'import' : (ACAO_POR_SUFIXO[ultimo] ?? ACAO_POR_METODO[method]);
   if (!acao) return undefined;
-  const internos = literais.slice(modulo === 'report_templates' || literais[0] === 'tenant' ? 2 : 1);
-  const recurso = internos.filter((literal) => !(literal in ACAO_POR_SUFIXO) && literal !== 'import').at(-1);
+  const internal = literais.slice(modulo === 'report_templates' || literais[0] === 'tenant' ? 2 : 1);
+  const recurso = internal.filter((literal) => !(literal in ACAO_POR_SUFIXO) && literal !== 'import').at(-1);
   return { modulo, acao, recurso, registroId: segmentos.find((segmento) => OBJECT_ID.test(segmento)) };
 };
 

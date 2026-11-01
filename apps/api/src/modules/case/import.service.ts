@@ -34,23 +34,23 @@ export const orgaoDoNumero = (numero: string): { courtType: CourtType; court: st
 };
 
 // --- Datas --------------------------------------------------------------------
-const MESES = 'janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
+const MONTHS = 'janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
 
 // `DD/MM/AAAA` ou `AAAA-MM-DD` → `YYYY-MM-DD`; data impossível (31/02) → undefined.
 export const parseData = (raw: string): string | undefined => {
   const value = raw.trim();
   const br = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   const iso = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  const [ano, mes, dia] = br ? [br[3], br[2], br[1]] : iso ? [iso[1], iso[2], iso[3]] : [];
-  if (!ano || !mes || !dia) return undefined;
-  const date = new Date(Date.UTC(Number(ano), Number(mes) - 1, Number(dia)));
-  if (date.getUTCMonth() !== Number(mes) - 1 || date.getUTCDate() !== Number(dia)) return undefined;
+  const [year, month, day] = br ? [br[3], br[2], br[1]] : iso ? [iso[1], iso[2], iso[3]] : [];
+  if (!year || !month || !day) return undefined;
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  if (date.getUTCMonth() !== Number(month) - 1 || date.getUTCDate() !== Number(day)) return undefined;
   return date.toISOString().slice(0, 10);
 };
 
-const somarDias = (dia: string, dias: number): string => {
-  const date = new Date(`${dia}T12:00:00.000Z`);
-  date.setUTCDate(date.getUTCDate() + dias);
+const addDays = (day: string, days: number): string => {
+  const date = new Date(`${day}T12:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
 };
 
@@ -131,16 +131,16 @@ const extractNomination = (texto: string): string | undefined => {
   const numerica = frase.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0];
   if (numerica) return parseData(numerica);
   const extenso = texto.match(/(\d{1,2})º?\s+de\s+([a-zç]+)\s+de\s+(\d{4})/i);
-  const mes = extenso ? MESES.indexOf((extenso[2] ?? '').toLowerCase()) + 1 : 0;
-  return extenso && mes ? parseData(`${extenso[1]}/${mes}/${extenso[3]}`) : undefined;
+  const month = extenso ? MONTHS.indexOf((extenso[2] ?? '').toLowerCase()) + 1 : 0;
+  return extenso && month ? parseData(`${extenso[1]}/${month}/${extenso[3]}`) : undefined;
 };
 
 const extractDeadline = (texto: string, nomination?: string): { reportDeadline?: string; calculado: boolean } => {
   const frase = texto.match(/[^.]*\blaudo\b[^.]*/gi)?.find((f) => /prazo|at[ée]/i.test(f)) ?? '';
   const data = frase.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0];
   if (data) return { reportDeadline: parseData(data), calculado: false };
-  const dias = Number(frase.match(/prazo\s+de\s+(\d{1,3})/i)?.[1]);
-  return dias && nomination ? { reportDeadline: somarDias(nomination, dias), calculado: true } : { calculado: false };
+  const days = Number(frase.match(/prazo\s+de\s+(\d{1,3})/i)?.[1]);
+  return days && nomination ? { reportDeadline: addDays(nomination, days), calculado: true } : { calculado: false };
 };
 
 // Função pura: texto da ata/despacho → rascunho do cadastro + o que faltou + avisos.
@@ -182,7 +182,7 @@ export const extractMinutes = (texto: string): Omit<PdfExtraction, 'existingId'>
     'reportDeadline',
   ] as const;
   const clean = Object.fromEntries(Object.entries(draft).filter(([, value]) => value !== undefined)) as PdfDraft;
-  return { draft: clean, missing: esperados.filter((campo) => !clean[campo]), warnings };
+  return { draft: clean, missing: esperados.filter((field) => !clean[field]), warnings };
 };
 
 export const extrairPdf = async (tenantId: string, arquivo: Buffer): Promise<PdfExtraction> => {
@@ -208,7 +208,7 @@ export const extrairPdf = async (tenantId: string, arquivo: Buffer): Promise<Pdf
 // `;` como separador, aspas duplas para campo com `;`/quebra de linha, BOM ignorado.
 export const parseCsv = (texto: string): string[][] => {
   const registros: string[][] = [];
-  let campo = '';
+  let field = '';
   let registro: string[] = [];
   let aspas = false;
   const fonte = texto.replace(/^﻿/, '');
@@ -216,23 +216,23 @@ export const parseCsv = (texto: string): string[][] => {
     const c = fonte[i];
     if (aspas) {
       if (c === '"' && fonte[i + 1] === '"') {
-        campo += '"';
+        field += '"';
         i++;
       } else if (c === '"') aspas = false;
-      else campo += c;
+      else field += c;
     } else if (c === '"') aspas = true;
     else if (c === ';') {
-      registro.push(campo);
-      campo = '';
+      registro.push(field);
+      field = '';
     } else if (c === '\n' || c === '\r') {
       if (c === '\r' && fonte[i + 1] === '\n') i++;
-      registro.push(campo);
+      registro.push(field);
       registros.push(registro);
       registro = [];
-      campo = '';
-    } else campo += c;
+      field = '';
+    } else field += c;
   }
-  if (campo || registro.length) registros.push([...registro, campo]);
+  if (field || registro.length) registros.push([...registro, field]);
   return registros;
 };
 
@@ -269,10 +269,10 @@ const TEXTOS: [CsvImportColumn, keyof CreateCase][] = [
   ['observacoes', 'observacoes'],
 ];
 
-const COLUNA_DO_CAMPO: Partial<Record<string, CsvImportColumn>> = Object.fromEntries([
+const FIELD_COLUMN: Partial<Record<string, CsvImportColumn>> = Object.fromEntries([
   ['processNumber', 'numero_processo'],
   ['proposedFeesCents', 'honorarios_propostos'],
-  ...[...DATAS, ...TEXTOS].map(([coluna, campo]) => [campo, coluna]),
+  ...[...DATAS, ...TEXTOS].map(([coluna, field]) => [field, coluna]),
 ]);
 
 // Uma linha do CSV → cadastro validado pelo mesmo schema do formulário, ou o motivo da recusa.
@@ -290,12 +290,12 @@ export const rowToCase = (get: (coluna: CsvImportColumn) => string): { data: Cre
   if (!role) return { column: 'papel', reason: 'invalid_field' };
 
   const data: Record<string, unknown> = { processNumber, ...orgao, role };
-  for (const [coluna, campo] of TEXTOS) if (get(coluna)) data[campo] = get(coluna);
-  for (const [coluna, campo] of DATAS) {
+  for (const [coluna, field] of TEXTOS) if (get(coluna)) data[field] = get(coluna);
+  for (const [coluna, field] of DATAS) {
     if (!get(coluna)) continue;
-    const dia = parseData(get(coluna));
-    if (!dia) return { column: coluna, reason: 'invalid_date' };
-    data[campo] = dia;
+    const day = parseData(get(coluna));
+    if (!day) return { column: coluna, reason: 'invalid_date' };
+    data[field] = day;
   }
   if (get('honorarios_propostos')) {
     const cents = parseCentavos(get('honorarios_propostos'));
@@ -322,8 +322,8 @@ export const rowToCase = (get: (coluna: CsvImportColumn) => string): { data: Cre
 
   const parsed = createCaseSchema.safeParse(data);
   if (!parsed.success) {
-    const campo = String(parsed.error.issues[0]?.path[0] ?? '');
-    return { column: COLUNA_DO_CAMPO[campo], reason: 'invalid_field' };
+    const field = String(parsed.error.issues[0]?.path[0] ?? '');
+    return { column: FIELD_COLUMN[field], reason: 'invalid_field' };
   }
   return { data: parsed.data };
 };
@@ -333,8 +333,8 @@ export const rowToCase = (get: (coluna: CsvImportColumn) => string): { data: Cre
 export const importCsv = async (tenantId: string, texto: string): Promise<CsvImportResult> => {
   const [cabecalho, ...registros] = parseCsv(typeof texto === 'string' ? texto : '');
   const linhas = registros
-    .map((campos, index) => ({ campos, line: index + 2 }))
-    .filter(({ campos }) => campos.some((campo) => campo.trim()));
+    .map((fields, index) => ({ fields, line: index + 2 }))
+    .filter(({ fields }) => fields.some((field) => field.trim()));
   if (!cabecalho || !linhas.length) throw new CustomError('csv_empty', 400);
   if (linhas.length > CSV_IMPORT_MAX_ROWS) throw new CustomError('csv_too_many_rows', 400);
   const colunas = cabecalho.map((nome) => nome.trim().toLowerCase());
@@ -345,10 +345,10 @@ export const importCsv = async (tenantId: string, texto: string): Promise<CsvImp
   );
 
   const result: CsvImportResult = { created: 0, skipped: [], rejected: [] };
-  for (const { campos, line } of linhas) {
+  for (const { fields, line } of linhas) {
     const get = (coluna: CsvImportColumn) => {
       const i = posicao.get(coluna);
-      return i === undefined ? '' : (campos[i] ?? '').trim();
+      return i === undefined ? '' : (fields[i] ?? '').trim();
     };
     const linha = rowToCase(get);
     if (!('data' in linha)) {

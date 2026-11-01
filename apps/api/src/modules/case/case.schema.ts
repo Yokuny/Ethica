@@ -90,7 +90,7 @@ export type StalledCase = {
   division?: string;
   subject: string;
   referencia: string;
-  origem: 'movement' | 'appointment' | 'created';
+  origin: 'movement' | 'appointment' | 'created';
   stalledDays: number;
 };
 

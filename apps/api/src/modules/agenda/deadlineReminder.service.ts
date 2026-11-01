@@ -8,7 +8,7 @@ import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
 
 // Consolidado diário às 07:00 de São Paulo (AD-110, AD-036).
-const HORA_DO_AVISO = '07:00';
+const NOTICE_HOUR = '07:00';
 
 const addDays = (day: string, days: number): string => {
   const date = new Date(`${day}T12:00:00.000Z`);
@@ -24,8 +24,8 @@ const formatDay = (day: string): string => `${day.slice(8, 10)}/${day.slice(5, 7
 // Próximo 07:00 de São Paulo depois de `now` (instante UTC, offset resolvido na data alvo).
 export const proximaExecucao = (now: Date): Date => {
   const today = dateInDisplayTz(now);
-  const hoje = wallClockToUtc(today, HORA_DO_AVISO);
-  return hoje > now ? hoje : wallClockToUtc(addDays(today, 1), HORA_DO_AVISO);
+  const at = wallClockToUtc(today, NOTICE_HOUR);
+  return at > now ? at : wallClockToUtc(addDays(today, 1), NOTICE_HOUR);
 };
 
 const montarEmail = (
@@ -54,26 +54,26 @@ export const sendDeadlineNotices = async (
   deps: { mail: MailProvider; appUrl: string },
   now: Date = new Date(),
 ): Promise<{ enviados: number }> => {
-  const hoje = dateInDisplayTz(now);
-  const soon = addDays(hoje, DEADLINE_DUE_SOON_DAYS);
-  const ontem = addDays(hoje, -1);
-  const deadlines = await deadlineService.listDeadlinesToNotice([soon, hoje, ontem]);
+  const today = dateInDisplayTz(now);
+  const soon = addDays(today, DEADLINE_DUE_SOON_DAYS);
+  const ontem = addDays(today, -1);
+  const deadlines = await deadlineService.listDeadlinesToNotice([soon, today, ontem]);
   if (deadlines.length === 0) return { enviados: 0 };
 
   const porTenant = new Map<string, NoticeDeadline[]>();
   for (const deadline of deadlines)
     porTenant.set(deadline.tenantId, [...(porTenant.get(deadline.tenantId) ?? []), deadline]);
-  const destinatarios = await accountService.listDeadlineReminderRecipients([...porTenant.keys()]);
+  const recipients = await accountService.listDeadlineReminderRecipients([...porTenant.keys()]);
 
   let enviados = 0;
   for (const [tenantId, doTenant] of porTenant) {
-    const pessoas = destinatarios.filter((pessoa) => pessoa.tenantId === tenantId);
+    const pessoas = recipients.filter((pessoa) => pessoa.tenantId === tenantId);
     if (pessoas.length === 0) continue;
     const resumos = await caseService.findResumosByIds(tenantId, [...new Set(doTenant.map((p) => p.caseId))]);
     const html = montarEmail(
       [
         { titulo: 'Venceram ontem', deadlines: doTenant.filter((p) => p.vencimento === ontem) },
-        { titulo: 'Vencem hoje', deadlines: doTenant.filter((p) => p.vencimento === hoje) },
+        { titulo: 'Vencem hoje', deadlines: doTenant.filter((p) => p.vencimento === today) },
         {
           titulo: `Vencem em ${DEADLINE_DUE_SOON_DAYS} dias`,
           deadlines: doTenant.filter((p) => p.vencimento === soon),
@@ -83,7 +83,7 @@ export const sendDeadlineNotices = async (
       deps.appUrl,
     );
     for (const pessoa of pessoas) {
-      const { sent } = await deps.mail.send(pessoa.email, `Prazos das perícias — ${formatDay(hoje)}`, html);
+      const { sent } = await deps.mail.send(pessoa.email, `Prazos das perícias — ${formatDay(today)}`, html);
       if (sent) enviados += 1;
     }
   }

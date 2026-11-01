@@ -5,7 +5,7 @@ import type { TenantLogo, UpdateOffice } from './office.schema.js';
 
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
-    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes avisoAgendamento').lean(),
+    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes scheduleNotice').lean(),
   );
 
 // Texto vazio apaga o cabeçalho/rodapé: os documentos voltam ao padrão.
@@ -60,7 +60,7 @@ export const devolverBytes = async (tenantId: string, bytes: number): Promise<vo
     await Tenant.updateOne({ _id: tenantId }, { $inc: { storageBytes: -bytes } });
   });
 
-export const setAvisoAgendamento = async (tenantId: string, aviso: { assunto: string; corpo: string }) =>
-  withDbTiming('office.setAvisoAgendamento', async () => {
-    await Tenant.updateOne({ _id: tenantId }, { $set: { avisoAgendamento: aviso } });
+export const setScheduleNotice = async (tenantId: string, notice: { assunto: string; corpo: string }) =>
+  withDbTiming('office.setScheduleNotice', async () => {
+    await Tenant.updateOne({ _id: tenantId }, { $set: { scheduleNotice: notice } });
   });

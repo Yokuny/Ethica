@@ -18,7 +18,7 @@ const config = {
 } satisfies ChartConfig;
 
 const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'short', year: '2-digit', timeZone: 'UTC' });
-const formatMonth = (mes: string) => monthLabel.format(new Date(`${mes}-15T12:00:00Z`));
+const formatMonth = (month: string) => monthLabel.format(new Date(`${month}-15T12:00:00Z`));
 const compactMoney = new Intl.NumberFormat('pt-BR', { notation: 'compact', style: 'currency', currency: 'BRL' });
 
 // Fluxo de caixa por mês: recebido, a receber e despesas, lado a lado.
@@ -28,7 +28,7 @@ export function FluxoFinanceiroChart({ data }: { data: FluxoMensal[] }) {
     <ChartContainer config={config} className="aspect-auto h-72 w-full">
       <BarChart data={data} margin={{ left: 4, right: 4, top: 8 }}>
         <CartesianGrid vertical={false} />
-        <XAxis dataKey="mes" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={formatMonth} />
+        <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={formatMonth} />
         <YAxis
           tickLine={false}
           axisLine={false}

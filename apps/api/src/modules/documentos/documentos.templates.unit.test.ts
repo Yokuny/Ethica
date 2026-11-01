@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { FichaDados } from './documentos.schema.js';
-import { checklistHtml, cronogramaHtml, fichaHtml, stalledHtml } from './documentos.templates.js';
+import type { SheetData } from './documentos.schema.js';
+import { checklistHtml, cronogramaHtml, sheetHtml, stalledHtml } from './documentos.templates.js';
 
 const base = {
   identity: { name: 'Escritório Ribeiro' },
@@ -8,7 +8,7 @@ const base = {
   geradoEm: new Date('2026-10-31T15:00:00Z'),
 };
 
-const legalCase: FichaDados['legalCase'] = {
+const legalCase: SheetData['legalCase'] = {
   id: 'p1',
   processNumber: '0001234-56.2026.5.02.0001',
   courtType: 'labor',
@@ -25,7 +25,7 @@ const legalCase: FichaDados['legalCase'] = {
 
 describe('documentos (DOC-02, DOC-03)', () => {
   it('cabeçalho e rodapé trocam os marcadores, escapam o texto e somem com o logo ausente', () => {
-    const doc = fichaHtml({
+    const doc = sheetHtml({
       ...base,
       identity: {
         name: 'X',
@@ -34,7 +34,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
       },
       legalCase,
       deadlines: [],
-      compromissos: [],
+      appointments: [],
     });
     expect(doc.headerTemplate).not.toContain('<img');
     expect(doc.headerTemplate).toContain('Perito &lt;b&gt;Ana Perita&lt;/b&gt;');
@@ -47,7 +47,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
       ...base,
       identity: { name: 'Escritório Ribeiro', logoDataUrl: 'data:image/png;base64,AAAA' },
       deadlines: [],
-      hoje: '2026-10-31',
+      today: '2026-10-31',
     });
     expect(doc.headerTemplate).toContain('<img src="data:image/png;base64,AAAA"');
     expect(doc.headerTemplate).toContain('Escritório Ribeiro');
@@ -55,7 +55,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('ficha sem partes, prazos e compromissos identifica as seções vazias e escapa o conteúdo', () => {
-    const { html } = fichaHtml({ ...base, legalCase, deadlines: [], compromissos: [] });
+    const { html } = sheetHtml({ ...base, legalCase, deadlines: [], appointments: [] });
     expect(html).toContain('Nenhuma parte cadastrada.');
     expect(html).toContain('Nenhum prazo cadastrado.');
     expect(html).toContain('Nenhum compromisso cadastrado.');
@@ -64,14 +64,14 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('ficha só mostra o resumo financeiro quando recebe os valores (admin/manager)', () => {
-    const semValores = fichaHtml({ ...base, legalCase, deadlines: [], compromissos: [] }).html;
+    const semValores = sheetHtml({ ...base, legalCase, deadlines: [], appointments: [] }).html;
     expect(semValores).not.toContain('Resumo financeiro');
     expect(semValores).not.toContain('R$');
-    const comValores = fichaHtml({
+    const comValores = sheetHtml({
       ...base,
       legalCase,
       deadlines: [],
-      compromissos: [],
+      appointments: [],
       financeiro: { feesCents: 300000, recebidoCents: 100000, saldoCents: 200000, despesasCents: 5000 },
     }).html;
     expect(comValores).toContain('Resumo financeiro');
@@ -115,7 +115,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
     const { html } = cronogramaHtml({
       ...base,
       deadlines: [deadline('2026-10-30'), deadline('2026-11-10'), deadline('2026-12-31')],
-      hoje: '2026-10-31',
+      today: '2026-10-31',
     });
     expect(html).toContain('Vencido há 1 dia');
     expect(html).toContain('Faltam 10 dias · vence em breve');
@@ -133,7 +133,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
           court: 'TRT2',
           subject: 'x',
           referencia: '2026-08-01',
-          origem: 'appointment',
+          origin: 'appointment',
           stalledDays: 91,
         },
       ],

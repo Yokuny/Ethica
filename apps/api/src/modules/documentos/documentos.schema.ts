@@ -4,7 +4,7 @@ import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
-import type { CompromissoRecord } from '../agenda/compromisso.schema.js';
+import type { AppointmentRecord } from '../agenda/appointment.schema.js';
 import type { CaseRecord, StalledCase } from '../case/case.schema.js';
 import type { DeadlineRecord } from '../case/deadline.schema.js';
 import type { CaseFinanceSummary, FinanceiroRelatorio } from '../financeiro/lancamento.schema.js';
@@ -29,18 +29,18 @@ export type DocumentoContexto = {
 
 export type DocumentoBase = { identity: DocumentIdentity; expert: AccountView; geradoEm: Date };
 
-export type FichaDados = DocumentoBase & {
+export type SheetData = DocumentoBase & {
   legalCase: CaseRecord;
   deadlines: DeadlineRecord[];
-  compromissos: CompromissoRecord[];
+  appointments: AppointmentRecord[];
   financeiro?: CaseFinanceSummary;
 };
 
 export type ChecklistDados = DocumentoBase & { legalCase: CaseRecord };
 
-export type CronogramaDados = DocumentoBase & { deadlines: DeadlineRecord[]; hoje: string };
+export type CronogramaDados = DocumentoBase & { deadlines: DeadlineRecord[]; today: string };
 
-export type FinanceiroDados = DocumentoBase & { periodo: FinanceiroReportQuery; relatorio: FinanceiroRelatorio };
+export type FinanceiroDados = DocumentoBase & { period: FinanceiroReportQuery; relatorio: FinanceiroRelatorio };
 
 export type StalledData = DocumentoBase & { stalled: StalledCase[] };
 

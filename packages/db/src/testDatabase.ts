@@ -34,7 +34,7 @@ export const resolveTestDatabaseUri = (env: NodeJS.ProcessEnv = process.env): st
   const name = databaseNameOf(uri);
   if (!name || !/test/i.test(name)) {
     throw new Error(
-      `${TEST_DATABASE_ENV} recusada: o nome do banco na URI ("${name ?? 'ausente'}") precisa conter "test". ` +
+      `${TEST_DATABASE_ENV} recusada: o nome do banco na URI ("${name ?? 'absent'}") precisa conter "test". ` +
         'Os testes apagam documentos de todas as collections.',
     );
   }

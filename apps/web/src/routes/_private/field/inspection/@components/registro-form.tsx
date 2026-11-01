@@ -4,52 +4,52 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ethica/ui/components/
 import { useQueryClient } from '@tanstack/react-query';
 import { TextareaField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { guardarMidia, type Rascunho } from '@/lib/offline/store.js';
-import { atualizarPendencias, sincronizar } from '@/lib/offline/sync.js';
-import type { VistoriaDoDia } from '@/query/vistoria.js';
+import { type Draft, storeMedia } from '@/lib/offline/store.js';
+import { atualizarPendencias, runSync } from '@/lib/offline/sync.js';
+import type { DayInspection } from '@/query/inspection.js';
 import { useRegistro } from '../@hooks/use-registro.js';
-import { AgentesFields, DocumentosFields } from './agentes-documentos-fields.js';
-import { ConflitoDialog } from './conflito-dialog.js';
-import { FuncoesFields } from './funcoes-fields.js';
-import { MidiasPanel } from './midias-panel.js';
-import { ParadigmasFields } from './paradigmas-fields.js';
-import { PresentesFields } from './presentes-fields.js';
+import { AgentsFields, DocumentosFields } from './agents-documents-fields.js';
+import { AttendeesFields } from './attendees-fields.js';
+import { ComparatorsFields } from './comparators-fields.js';
+import { ConflictDialog } from './conflict-dialog.js';
+import { JobsFields } from './jobs-fields.js';
+import { MediaPanel } from './media-panel.js';
 
 const ABAS = [
-  ['presentes', 'attendees'],
-  ['paradigmas', 'paradigms'],
-  ['funcoes', 'job_roles'],
-  ['agentes', 'agents'],
+  ['attendees', 'attendees'],
+  ['comparators', 'paradigms'],
+  ['jobs', 'job_roles'],
+  ['agents', 'agents'],
   ['documentos', 'documents'],
-  ['midias', 'media'],
+  ['media', 'media'],
   ['observacoes', 'notes'],
 ] as const;
 
 // Registro em abas (CAM-02): tudo fica no aparelho a cada mudança e sobe sozinho (AD-128).
-export function RegistroForm({ item, rascunho }: { item: VistoriaDoDia; rascunho?: Rascunho }) {
+export function RegistroForm({ item, draft }: { item: DayInspection; draft?: Draft }) {
   const queryClient = useQueryClient();
-  const { form, conflito, keepMine, keepServer } = useRegistro(item, rascunho);
+  const { form, conflict, keepMine, keepServer } = useRegistro(item, draft);
 
   // Assinatura entra na fila de mídias com id do aparelho; o registro guarda o id.
-  async function guardarAssinatura(png: Blob): Promise<string> {
-    const midiaId = crypto.randomUUID();
-    await guardarMidia({
-      compromissoId: item.compromisso.id,
-      midiaId,
+  async function storeSignature(png: Blob): Promise<string> {
+    const mediaId = crypto.randomUUID();
+    await storeMedia({
+      appointmentId: item.appointment.id,
+      mediaId,
       tipo: 'signature',
       mime: 'image/png',
       blob: png,
       criadoEm: new Date().toISOString(),
     });
     await atualizarPendencias();
-    void sincronizar(queryClient);
-    return midiaId;
+    void runSync(queryClient);
+    return mediaId;
   }
 
   return (
     <Form {...form}>
       <form noValidate onSubmit={(event) => event.preventDefault()} className="flex flex-col gap-4">
-        <Tabs defaultValue="presentes">
+        <Tabs defaultValue="attendees">
           <div className="-mx-1 overflow-x-auto px-1">
             <TabsList variant="line">
               {ABAS.map(([valor, chave]) => (
@@ -59,23 +59,23 @@ export function RegistroForm({ item, rascunho }: { item: VistoriaDoDia; rascunho
               ))}
             </TabsList>
           </div>
-          <TabsContent value="presentes" className="pt-4">
-            <PresentesFields form={form} legalCase={item.legalCase} onAssinatura={guardarAssinatura} />
+          <TabsContent value="attendees" className="pt-4">
+            <AttendeesFields form={form} legalCase={item.legalCase} onSignature={storeSignature} />
           </TabsContent>
-          <TabsContent value="paradigmas" className="pt-4">
-            <ParadigmasFields form={form} />
+          <TabsContent value="comparators" className="pt-4">
+            <ComparatorsFields form={form} />
           </TabsContent>
-          <TabsContent value="funcoes" className="pt-4">
-            <FuncoesFields form={form} />
+          <TabsContent value="jobs" className="pt-4">
+            <JobsFields form={form} />
           </TabsContent>
-          <TabsContent value="agentes" className="pt-4">
-            <AgentesFields form={form} />
+          <TabsContent value="agents" className="pt-4">
+            <AgentsFields form={form} />
           </TabsContent>
           <TabsContent value="documentos" className="pt-4">
             <DocumentosFields form={form} />
           </TabsContent>
-          <TabsContent value="midias" className="pt-4">
-            <MidiasPanel item={item} />
+          <TabsContent value="media" className="pt-4">
+            <MediaPanel item={item} />
           </TabsContent>
           <TabsContent value="observacoes" className="grid gap-2 pt-4">
             <TextareaField
@@ -88,9 +88,9 @@ export function RegistroForm({ item, rascunho }: { item: VistoriaDoDia; rascunho
           </TabsContent>
         </Tabs>
       </form>
-      {conflito && (
-        <ConflitoDialog
-          server={conflito}
+      {conflict && (
+        <ConflictDialog
+          server={conflict}
           onManterMinha={() => void keepMine()}
           onUseServer={() => void keepServer()}
           onClose={() => void keepMine()}

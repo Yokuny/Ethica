@@ -1,31 +1,31 @@
-import type { CompromissoMotivo, CompromissoStatus, MidiaTipo, VistoriaDados } from '@ethica/contracts';
+import type { AppointmentReason, AppointmentStatus, InspectionData, MediaType } from '@ethica/contracts';
 import { clear, del, get, keys, set } from 'idb-keyval';
-import type { VistoriaDoDia, VistoriaRecord } from '@/query/vistoria.js';
+import type { DayInspection, InspectionRecord } from '@/query/inspection.js';
 
 // O que a tela de campo guarda no aparelho (AD-128), no IndexedDB:
 // - `dia:<data>` e `registro:<compromisso>`: a última cópia vinda da API, para abrir sem conexão;
 // - `rascunho:<compromisso>`: o formulário alterado e ainda não enviado (com a versão de base);
 // - `midia:<id>`: foto, áudio ou assinatura ainda não enviados, com o arquivo;
 // - `status:<compromisso>`: feita/adiada/ausente marcados sem conexão.
-export type Rascunho = {
-  compromissoId: string;
+export type Draft = {
+  appointmentId: string;
   versao: number;
-  dados: VistoriaDados;
+  dados: InspectionData;
   alteradoEm: string;
   // Versão do servidor quando o envio deu 409: o perito escolhe qual fica.
-  conflito?: VistoriaRecord;
+  conflict?: InspectionRecord;
 };
 export type PendingMedia = {
-  compromissoId: string;
-  midiaId: string;
-  tipo: MidiaTipo;
-  legenda?: string;
+  appointmentId: string;
+  mediaId: string;
+  tipo: MediaType;
+  caption?: string;
   mime: string;
   blob: Blob;
   criadoEm: string;
   falha?: string;
 };
-export type StatusPending = { compromissoId: string; status: CompromissoStatus; motivo?: CompromissoMotivo };
+export type StatusPending = { appointmentId: string; status: AppointmentStatus; reason?: AppointmentReason };
 
 const comPrefixo = async <T>(prefixo: string): Promise<T[]> => {
   const todas = (await keys()).filter((key): key is string => typeof key === 'string' && key.startsWith(prefixo));
@@ -34,25 +34,25 @@ const comPrefixo = async <T>(prefixo: string): Promise<T[]> => {
   ) as T[];
 };
 
-export const salvarDia = async (date: string, itens: VistoriaDoDia[]) => {
-  await set(`dia:${date}`, itens);
-  await Promise.all(itens.map((item) => set(`registro:${item.compromisso.id}`, item)));
+export const saveDay = async (date: string, itens: DayInspection[]) => {
+  await set(`day:${date}`, itens);
+  await Promise.all(itens.map((item) => set(`registro:${item.appointment.id}`, item)));
 };
-export const lerDia = (date: string) => get<VistoriaDoDia[]>(`dia:${date}`);
-export const lerRegistro = (compromissoId: string) => get<VistoriaDoDia>(`registro:${compromissoId}`);
-export const salvarRegistro = async (item: VistoriaDoDia) => set(`registro:${item.compromisso.id}`, item);
+export const readDay = (date: string) => get<DayInspection[]>(`day:${date}`);
+export const lerRegistro = (appointmentId: string) => get<DayInspection>(`registro:${appointmentId}`);
+export const salvarRegistro = async (item: DayInspection) => set(`registro:${item.appointment.id}`, item);
 
-export const lerRascunho = (compromissoId: string) => get<Rascunho>(`rascunho:${compromissoId}`);
-export const salvarRascunho = (rascunho: Rascunho) => set(`rascunho:${rascunho.compromissoId}`, rascunho);
-export const apagarRascunho = (compromissoId: string) => del(`rascunho:${compromissoId}`);
-export const listarRascunhos = () => comPrefixo<Rascunho>('rascunho:');
+export const readDraft = (appointmentId: string) => get<Draft>(`draft:${appointmentId}`);
+export const saveDraft = (draft: Draft) => set(`draft:${draft.appointmentId}`, draft);
+export const deleteDraft = (appointmentId: string) => del(`draft:${appointmentId}`);
+export const listDrafts = () => comPrefixo<Draft>('draft:');
 
-export const guardarMidia = (midia: PendingMedia) => set(`midia:${midia.midiaId}`, midia);
-export const apagarMidia = (midiaId: string) => del(`midia:${midiaId}`);
-export const listarMidias = () => comPrefixo<PendingMedia>('midia:');
+export const storeMedia = (media: PendingMedia) => set(`media:${media.mediaId}`, media);
+export const deleteMedia = (mediaId: string) => del(`media:${mediaId}`);
+export const listMedia = () => comPrefixo<PendingMedia>('media:');
 
-export const guardarStatus = (status: StatusPending) => set(`status:${status.compromissoId}`, status);
-export const apagarStatus = (compromissoId: string) => del(`status:${compromissoId}`);
+export const guardarStatus = (status: StatusPending) => set(`status:${status.appointmentId}`, status);
+export const apagarStatus = (appointmentId: string) => del(`status:${appointmentId}`);
 export const listarStatus = () => comPrefixo<StatusPending>('status:');
 
 // Sessão (AD-128): a última vista com conexão, para o app abrir sem rede. Só nome, papel e
@@ -73,7 +73,7 @@ export const lerSessao = async <T>(): Promise<T | undefined> => {
 };
 
 // Sair apaga tudo o que o aparelho guardou do escritório (rota, rascunhos, fila, sessão).
-export const limparAparelho = async (): Promise<void> => {
+export const clearDevice = async (): Promise<void> => {
   try {
     await clear();
   } catch {

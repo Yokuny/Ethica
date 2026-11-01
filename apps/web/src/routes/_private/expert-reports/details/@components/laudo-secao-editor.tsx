@@ -5,35 +5,35 @@ import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { variavelLabel } from '@/components/laudo-labels.js';
 import { Panel } from '@/components/panel.js';
-import { type FotoDoEditor, RichTextEditor } from '@/components/rich-text-editor.js';
+import { type PhotoEditor, RichTextEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { LaudoRecord, LaudoSecaoRecord } from '@/query/laudo.js';
 
-export type SecaoRascunho = { titulo: string; html: string };
+export type SectionDraft = { titulo: string; html: string };
 
 type LaudoSecaoEditorProps = {
   laudo: LaudoRecord;
   secao: LaudoSecaoRecord;
-  rascunho: SecaoRascunho;
-  onChange: (rascunho: SecaoRascunho) => void;
+  draft: SectionDraft;
+  onChange: (draft: SectionDraft) => void;
   dirty: boolean;
   saving: boolean;
   onSave: () => void;
   onRemove: () => void;
-  fotos?: FotoDoEditor[];
+  photos?: PhotoEditor[];
 };
 
 // Uma seção por vez (LAU-03.1): salvar grava só ela; o resto do laudo não muda.
 export function LaudoSecaoEditor({
   laudo,
   secao,
-  rascunho,
+  draft,
   onChange,
   dirty,
   saving,
   onSave,
   onRemove,
-  fotos,
+  photos,
 }: LaudoSecaoEditorProps) {
   const readOnly = laudo.status === 'completed';
   const numero = numerarSecoes(laudo.secoes)[laudo.secoes.findIndex((item) => item.id === secao.id)];
@@ -67,20 +67,20 @@ export function LaudoSecaoEditor({
         </div>
       )}
       <Input
-        value={rascunho.titulo}
+        value={draft.titulo}
         readOnly={readOnly}
         aria-label={t('section_title')}
         placeholder={t('section_title')}
-        onChange={(event) => onChange({ ...rascunho, titulo: event.target.value })}
+        onChange={(event) => onChange({ ...draft, titulo: event.target.value })}
       />
       {!secao.apenasTitulo && (
         <RichTextEditor
           key={`${laudo.id}-${secao.id}-${laudo.status}`}
-          value={rascunho.html}
+          value={draft.html}
           readOnly={readOnly}
           label={t('section_text')}
-          fotos={fotos}
-          onChange={(html) => onChange({ ...rascunho, html })}
+          photos={photos}
+          onChange={(html) => onChange({ ...draft, html })}
         />
       )}
     </Panel>

@@ -3,8 +3,8 @@ import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
-import * as compromissoService from '../agenda/compromisso.service.js';
-import * as vistoriaService from '../agenda/vistoria.service.js';
+import * as appointmentService from '../agenda/appointment.service.js';
+import * as inspectionService from '../agenda/inspection.service.js';
 import type { CaseRecord } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
@@ -56,19 +56,19 @@ const editavel = async (tenantId: string, id: string): Promise<LaudoRecord> => {
 
 // Dados da perícia, de quem gera e do escritório no momento (AD-126).
 const dadosAtuais = async (providers: Pick<Providers, 'storage'>, ctx: DocumentoContexto, legalCase: CaseRecord) => {
-  const [identity, expert, compromissos, campo] = await Promise.all([
+  const [identity, expert, appointments, field] = await Promise.all([
     officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
-    compromissoService.listByCase(ctx.tenantId, legalCase.id),
-    vistoriaService.lastDoneByCase(ctx.tenantId, legalCase.id),
+    appointmentService.listByCase(ctx.tenantId, legalCase.id),
+    inspectionService.lastDoneByCase(ctx.tenantId, legalCase.id),
   ]);
   const valores = valoresDoLaudo({
     legalCase,
     expert,
     identity,
-    compromissos,
-    campo: campo && { dados: campo.vistoria.dados, inicio: campo.compromisso.inicio },
-    hoje: dateInDisplayTz(ctx.now),
+    appointments,
+    field: field && { dados: field.inspection.dados, inicio: field.appointment.inicio },
+    today: dateInDisplayTz(ctx.now),
   });
   return { identity, expert, valores };
 };
@@ -210,7 +210,7 @@ export const concluirLaudo = async (
 
 export const deleteLaudo = async (tenantId: string, id: string): Promise<void> => {
   await editavel(tenantId, id);
-  const { deletedCount } = await laudoRepository.removeRascunho(tenantId, id);
+  const { deletedCount } = await laudoRepository.removeDraft(tenantId, id);
   if (deletedCount === 0) throw new LaudoNotFoundError('not_found');
 };
 
@@ -230,10 +230,12 @@ const paraExportar = async (providers: Providers, ctx: DocumentoContexto, id: st
     ),
   ];
   const lidas = await Promise.all(
-    srcs.map(async (src) => [src, await vistoriaService.lerFotoDoLaudo(providers.storage, ctx.tenantId, src)] as const),
+    srcs.map(
+      async (src) => [src, await inspectionService.readReportPhoto(providers.storage, ctx.tenantId, src)] as const,
+    ),
   );
-  const fotos = Object.fromEntries(lidas.flatMap(([src, foto]) => (foto ? [[src, foto]] : [])));
-  return { laudo: { ...laudo, secoes }, legalCase, identity, expert, valores, fotos, geradoEm: ctx.now };
+  const photos = Object.fromEntries(lidas.flatMap(([src, photo]) => (photo ? [[src, photo]] : [])));
+  return { laudo: { ...laudo, secoes }, legalCase, identity, expert, valores, photos, geradoEm: ctx.now };
 };
 
 const fileName = (laudo: LaudoRecord, legalCase: CaseRecord, extensao: string): string =>

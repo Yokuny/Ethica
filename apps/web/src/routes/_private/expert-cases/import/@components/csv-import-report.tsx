@@ -16,12 +16,12 @@ export function CsvImportReport({ result }: { result: CsvImportResult }) {
     ...result.rejected.map((item) => ({
       line: item.line,
       recusada: true,
-      motivo: item.column ? `${item.column}: ${t(item.reason)}` : t(item.reason),
+      reason: item.column ? `${item.column}: ${t(item.reason)}` : t(item.reason),
     })),
     ...result.skipped.map((item) => ({
       line: item.line,
       recusada: false,
-      motivo: `${item.processNumber}: ${t('expert_case_already_registered')}`,
+      reason: `${item.processNumber}: ${t('expert_case_already_registered')}`,
     })),
   ].sort((a, b) => a.line - b.line);
 
@@ -46,7 +46,7 @@ export function CsvImportReport({ result }: { result: CsvImportResult }) {
             }
           >
             <RecordTableCell label={t('line')} value={String(linha.line)} className="w-24" />
-            <RecordTableCell label={t('reason')} value={linha.motivo} />
+            <RecordTableCell label={t('reason')} value={linha.reason} />
           </RecordTableRow>
         ))}
       </RecordTable>

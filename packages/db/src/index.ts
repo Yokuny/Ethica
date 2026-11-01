@@ -3,14 +3,16 @@ export type { EncryptedSecret } from './crypto.helper.js';
 export { decrypt, encrypt, maskSecret, sha256 } from './crypto.helper.js';
 export { dailyTrend } from './dailyTrend.js';
 export { groupStats } from './groupStats.js';
+export type { AppointmentDocument, AppointmentOrigin } from './models/appointment.model.js';
+export { Appointment } from './models/appointment.model.js';
 export type { AtividadeDocument } from './models/atividade.model.js';
 export { Atividade } from './models/atividade.model.js';
 export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './models/case.model.js';
 export { Case } from './models/case.model.js';
-export type { CompromissoDocument, CompromissoOrigem } from './models/compromisso.model.js';
-export { Compromisso } from './models/compromisso.model.js';
 export type { DeadlineDocument } from './models/deadline.model.js';
 export { Deadline } from './models/deadline.model.js';
+export type { InspectionDocument, InspectionMediaDocument } from './models/inspection.model.js';
+export { Inspection } from './models/inspection.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
 export type { LancamentoDocument, ParcelaDocument } from './models/lancamento.model.js';
@@ -29,8 +31,6 @@ export type { TenantDocument, TenantStatus } from './models/tenant.model.js';
 export { Tenant, transitionTenantStatus } from './models/tenant.model.js';
 export type { UserDocument } from './models/user.model.js';
 export { User } from './models/user.model.js';
-export type { VistoriaDocument, VistoriaMidiaDocument } from './models/vistoria.model.js';
-export { Vistoria } from './models/vistoria.model.js';
 export { tenantScoped } from './tenantScoped.js';
 export { resolveTestDatabaseUri, TEST_DATABASE_ENV, wipeTestDatabase } from './testDatabase.js';
 export type { CaseSearchSpec, PartySearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
@@ -48,9 +48,10 @@ export {
 } from './textSearch.js';
 export { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from './time.js';
 
+import { Appointment } from './models/appointment.model.js';
 import { Case } from './models/case.model.js';
-import { Compromisso } from './models/compromisso.model.js';
 import { Deadline } from './models/deadline.model.js';
+import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
 import { Lancamento } from './models/lancamento.model.js';
 import { Laudo } from './models/laudo.model.js';
@@ -60,7 +61,6 @@ import { Party } from './models/party.model.js';
 import { Session } from './models/session.model.js';
 import { Tenant } from './models/tenant.model.js';
 import { User } from './models/user.model.js';
-import { Vistoria } from './models/vistoria.model.js';
 
 export const syncIndexes = async (): Promise<void> => {
   await Promise.all([
@@ -71,11 +71,11 @@ export const syncIndexes = async (): Promise<void> => {
     Case.createIndexes(),
     Party.createIndexes(),
     Deadline.createIndexes(),
-    Compromisso.createIndexes(),
+    Appointment.createIndexes(),
     Lancamento.createIndexes(),
     Oportunidade.createIndexes(),
     Laudo.createIndexes(),
     ModeloLaudo.createIndexes(),
-    Vistoria.createIndexes(),
+    Inspection.createIndexes(),
   ]);
 };

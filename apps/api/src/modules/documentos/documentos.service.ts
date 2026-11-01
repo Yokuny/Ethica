@@ -2,7 +2,7 @@ import { dateInDisplayTz } from '@ethica/db';
 import { strToU8, zipSync } from 'fflate';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfDocument, PdfRenderer } from '../../providers/pdfRenderer.js';
-import * as compromissoService from '../agenda/compromisso.service.js';
+import * as appointmentService from '../agenda/appointment.service.js';
 import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
 import * as partyService from '../case/party.service.js';
@@ -12,7 +12,7 @@ import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
 import * as oportunidadeService from '../prospeccao/oportunidade.service.js';
 import type { DocumentoBase, DocumentoContexto, FinanceiroReportQuery, GeneratedFile } from './documentos.schema.js';
-import { checklistHtml, cronogramaHtml, fichaHtml, financeiroHtml, stalledHtml } from './documentos.templates.js';
+import { checklistHtml, cronogramaHtml, financeiroHtml, sheetHtml, stalledHtml } from './documentos.templates.js';
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
@@ -31,18 +31,18 @@ const pdf = async (providers: Providers, nome: string, documento: PdfDocument): 
 });
 
 // DOC-02: o resumo financeiro só entra para admin/manager (AD-107).
-export const gerarFicha = async (providers: Providers, ctx: DocumentoContexto, caseId: string) => {
+export const generateSheet = async (providers: Providers, ctx: DocumentoContexto, caseId: string) => {
   const legalCase = await caseService.getCase(ctx.tenantId, caseId);
-  const [dadosBase, deadlines, compromissos, financeiro] = await Promise.all([
+  const [dadosBase, deadlines, appointments, financeiro] = await Promise.all([
     base(providers, ctx),
     deadlineService.listCaseDeadlines(ctx.tenantId, caseId),
-    compromissoService.listByCase(ctx.tenantId, caseId),
+    appointmentService.listByCase(ctx.tenantId, caseId),
     ctx.canSeeFinance ? lancamentoService.caseSummary(ctx.tenantId, caseId) : undefined,
   ]);
   return pdf(
     providers,
     `ficha-${legalCase.processNumber}.pdf`,
-    fichaHtml({ ...dadosBase, legalCase, deadlines, compromissos, financeiro }),
+    sheetHtml({ ...dadosBase, legalCase, deadlines, appointments, financeiro }),
   );
 };
 
@@ -63,19 +63,19 @@ export const gerarCronograma = async (providers: Providers, ctx: DocumentoContex
   return pdf(
     providers,
     'cronograma-de-prazos.pdf',
-    cronogramaHtml({ ...dadosBase, deadlines, hoje: dateInDisplayTz(ctx.now) }),
+    cronogramaHtml({ ...dadosBase, deadlines, today: dateInDisplayTz(ctx.now) }),
   );
 };
 
-export const gerarFinanceiro = async (providers: Providers, ctx: DocumentoContexto, periodo: FinanceiroReportQuery) => {
+export const gerarFinanceiro = async (providers: Providers, ctx: DocumentoContexto, period: FinanceiroReportQuery) => {
   const [dadosBase, relatorio] = await Promise.all([
     base(providers, ctx),
-    lancamentoService.relatorioPeriodo(ctx.tenantId, periodo),
+    lancamentoService.reportPeriod(ctx.tenantId, period),
   ]);
   return pdf(
     providers,
-    `relatorio-financeiro-${periodo.from}-a-${periodo.to}.pdf`,
-    financeiroHtml({ ...dadosBase, periodo, relatorio }),
+    `relatorio-financeiro-${period.from}-a-${period.to}.pdf`,
+    financeiroHtml({ ...dadosBase, period, relatorio }),
   );
 };
 
@@ -101,11 +101,11 @@ export const toCsv = <T>(colunas: Array<[string, (item: T) => Celula]>, itens: T
 // DOC-04: um CSV por entidade do tenant num ZIP; registra quem exportou e quando.
 export const exportarDados = async (ctx: DocumentoContexto): Promise<GeneratedFile> => {
   const { tenantId } = ctx;
-  const [cases, parties, deadlines, compromissos, lancamentos, usuarios, oportunidades] = await Promise.all([
+  const [cases, parties, deadlines, appointments, lancamentos, usuarios, oportunidades] = await Promise.all([
     caseService.listForExport(tenantId),
     partyService.listForExport(tenantId),
     deadlineService.listForExport(tenantId),
-    compromissoService.listForExport(tenantId),
+    appointmentService.listForExport(tenantId),
     lancamentoService.listForExport(tenantId),
     authService.listUserDirectory(tenantId),
     oportunidadeService.listForExport(tenantId),
@@ -174,10 +174,10 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<GeneratedFi
         ['fim', (c) => c.fim],
         ['local', (c) => c.local],
         ['status', (c) => c.status],
-        ['origem', (c) => c.origem],
+        ['origem', (c) => c.origin],
         ['observacoes', (c) => c.observacoes],
       ],
-      compromissos,
+      appointments,
     ),
     'lancamentos.csv': toCsv(
       [

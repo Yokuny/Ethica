@@ -141,7 +141,7 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
       { numero_processo: '0001234-56.2026.5.02.0001', objeto: 'x'.repeat(600) },
       { column: 'objeto', reason: 'invalid_field' },
     ],
-  ])('recusa a linha com o motivo (%j)', (valores, motivo) => {
-    expect(rowToCase(linha(valores as Partial<Record<CsvImportColumn, string>>))).toEqual(motivo);
+  ])('recusa a linha com o motivo (%j)', (valores, reason) => {
+    expect(rowToCase(linha(valores as Partial<Record<CsvImportColumn, string>>))).toEqual(reason);
   });
 });

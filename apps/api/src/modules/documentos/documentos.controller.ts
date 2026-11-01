@@ -40,8 +40,8 @@ const handler =
     }
   };
 
-export const ficha = (providers: Providers) =>
-  handler((req, ctx) => documentosService.gerarFicha(providers, ctx, req.params.id as string));
+export const sheet = (providers: Providers) =>
+  handler((req, ctx) => documentosService.generateSheet(providers, ctx, req.params.id as string));
 
 export const checklist = (providers: Providers) =>
   handler((req, ctx) => documentosService.gerarChecklist(providers, ctx, req.params.id as string));

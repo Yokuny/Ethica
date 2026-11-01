@@ -1,5 +1,5 @@
 import { formatDisplayDate, formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
-import type { CompromissoRecord } from '@/query/compromisso.js';
+import type { AppointmentRecord } from '@/query/appointment.js';
 
 export const HOUR_HEIGHT_PX = 48;
 export const HOURS_IN_DAY = 24;
@@ -8,7 +8,7 @@ const COLUMN_HEIGHT_PX = HOURS_IN_DAY * HOUR_HEIGHT_PX;
 const MIN_ITEM_HEIGHT_PX = 20;
 
 export type PositionedItem = {
-  item: CompromissoRecord;
+  item: AppointmentRecord;
   // px a partir do topo da coluna do dia (00:00) e altura em px — sempre
   // derivados de formatDisplayTime/formatDisplayDate (fuso de exibição),
   // nunca de date-fns/fuso do navegador (AD-036).
@@ -31,7 +31,7 @@ const displayMinutesOfDay = (instant: string): number => {
 // 00:00 -> 19/09 23:59): nos dias do meio o trecho é o dia inteiro, e nunca
 // passa de 24h — senão o item vaza da coluna. `null` quando o item não toca
 // o dia (inclusive quando termina exatamente às 00:00 dele).
-const daySegment = (item: CompromissoRecord, day: string): { startMinutes: number; endMinutes: number } | null => {
+const daySegment = (item: AppointmentRecord, day: string): { startMinutes: number; endMinutes: number } | null => {
   const startDay = formatDisplayDate(item.inicio);
   const endDay = formatDisplayDate(item.fim);
   if (startDay > day || endDay < day) return null;
@@ -43,7 +43,7 @@ const daySegment = (item: CompromissoRecord, day: string): { startMinutes: numbe
   return { startMinutes, endMinutes: Math.max(endMinutes, startMinutes) };
 };
 
-export const itemOverlapsDay = (item: CompromissoRecord, day: string): boolean => daySegment(item, day) !== null;
+export const itemOverlapsDay = (item: AppointmentRecord, day: string): boolean => daySegment(item, day) !== null;
 
 // Layout de itens sobrepostos pra uma grade de um único dia: agrupa os
 // trechos em clusters de horário que se cruzam e atribui a cada um um índice
@@ -52,7 +52,7 @@ export const itemOverlapsDay = (item: CompromissoRecord, day: string): boolean =
 // direita e fica um pouco mais estreito, sempre continuando legível) — nunca
 // pra dividir a largura em 1/N, que faz os cartões virarem lascas de 1
 // caractere quando há 3+ horários sobrepostos no mesmo dia.
-export function computePositionedItems(items: CompromissoRecord[], day: string): PositionedItem[] {
+export function computePositionedItems(items: AppointmentRecord[], day: string): PositionedItem[] {
   const entries = items
     .flatMap((item) => {
       const segment = daySegment(item, day);

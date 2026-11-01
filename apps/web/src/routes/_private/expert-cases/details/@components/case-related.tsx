@@ -8,29 +8,29 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { STATE_VARIANT, transactionState } from '@/components/lancamento-labels.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
-import { UpcomingCompromissos } from '@/components/upcoming-compromissos.js';
+import { UpcomingAppointments } from '@/components/upcoming-appointments.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { upcomingCompromissosQuery } from '@/query/compromisso.js';
+import { upcomingAppointmentsQuery } from '@/query/appointment.js';
 import { lancamentosQuery } from '@/query/lancamento.js';
 
 // Vínculos da perícia: próximos compromissos e (para quem vê o financeiro) lançamentos.
 export function CaseRelated({ caseId, canSeeFinance }: { caseId: string; canSeeFinance: boolean }) {
-  const compromissos = useQuery(upcomingCompromissosQuery({ limit: 10, caseId }));
+  const appointments = useQuery(upcomingAppointmentsQuery({ limit: 10, caseId }));
   const lancamentos = useQuery({ ...lancamentosQuery({ caseId, limit: 50 }), enabled: canSeeFinance });
   const today = formatDisplayDate(new Date());
 
   return (
     <div className="grid gap-10">
       <Panel size="sm" title={t('upcoming_commitments')} actions={<AppLink to="/agenda">{t('open_agenda')}</AppLink>}>
-        {compromissos.isLoading ? (
+        {appointments.isLoading ? (
           <DefaultLoading />
-        ) : !compromissos.data?.length ? (
+        ) : !appointments.data?.length ? (
           <DefaultEmptyData title={t('nothing_scheduled')} />
         ) : (
-          <UpcomingCompromissos items={compromissos.data} />
+          <UpcomingAppointments items={appointments.data} />
         )}
       </Panel>
       {canSeeFinance && (

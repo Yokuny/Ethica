@@ -1,0 +1,147 @@
+import type { InspectionData } from '@ethica/contracts';
+import { INSPECTION_EMPTY_DATA } from '@ethica/contracts';
+import type { InspectionDocument } from '@ethica/db';
+import { Inspection, tenantScoped, toObjectId } from '@ethica/db';
+import { withDbTiming } from '../../metrics/db.metric.js';
+import type { InspectionMediaWrite, InspectionRecord, MediaRecord } from './inspection.schema.js';
+
+const mediaToRecord = ({ key: _key, ...media }: InspectionMediaWrite): MediaRecord => media;
+
+const toRecord = (doc: InspectionDocument): InspectionRecord => ({
+  appointmentId: doc.Appointment.toString(),
+  caseId: doc.Case?.toString(),
+  versao: doc.versao,
+  dados: doc.dados,
+  media: doc.media.map(mediaToRecord),
+  updatedAt: doc.updatedAt,
+});
+
+const ofAppointment = (tenantId: string, appointmentId: string) =>
+  tenantScoped({ Tenant: tenantId, Appointment: appointmentId });
+
+export const findByAppointment = async (tenantId: string, appointmentId: string): Promise<InspectionRecord | null> =>
+  withDbTiming('inspection.findByAppointment', async () => {
+    const doc = await Inspection.findOne(ofAppointment(tenantId, appointmentId)).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+export const findByAppointments = async (tenantId: string, ids: string[]): Promise<Map<string, InspectionRecord>> =>
+  withDbTiming('inspection.findByAppointments', async () => {
+    if (!ids.length) return new Map();
+    const docs = await Inspection.find(tenantScoped({ Tenant: tenantId, Appointment: { $in: ids } })).lean();
+    return new Map(docs.map((doc) => [doc.Appointment.toString(), toRecord(doc)]));
+  });
+
+export const listByCase = async (tenantId: string, caseId: string): Promise<InspectionRecord[]> =>
+  withDbTiming('inspection.listByCase', async () => {
+    const docs = await Inspection.find(tenantScoped({ Tenant: tenantId, Case: caseId }))
+      .sort({ updatedAt: -1 })
+      .lean();
+    return docs.map(toRecord);
+  });
+
+const isDuplicateKeyError = (e: unknown): boolean =>
+  typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
+
+// Grava o formulário só se a versão do servidor for a que o aparelho conhecia (AD-128).
+// `versao` 0 cria o registro; `null`: outra gravação chegou antes (conflito).
+export const salvar = async (
+  tenantId: string,
+  appointmentId: string,
+  caseId: string | undefined,
+  versao: number,
+  dados: InspectionData,
+): Promise<InspectionRecord | null> =>
+  withDbTiming('inspection.salvar', async () => {
+    try {
+      const doc = await Inspection.findOneAndUpdate(
+        { ...ofAppointment(tenantId, appointmentId), versao },
+        {
+          $set: { dados, ...(caseId ? { Case: caseId } : {}) },
+          $inc: { versao: 1 },
+          $setOnInsert: { media: [] },
+        },
+        { upsert: versao === 0, returnDocument: 'after', runValidators: true },
+      ).lean();
+      return doc ? toRecord(doc) : null;
+    } catch (error) {
+      if (isDuplicateKeyError(error)) return null;
+      throw error;
+    }
+  });
+
+// Mídia pode chegar antes do formulário (offline): o registro nasce vazio, na versão 0.
+export const addMedia = async (
+  tenantId: string,
+  appointmentId: string,
+  caseId: string | undefined,
+  media: InspectionMediaWrite,
+): Promise<boolean> =>
+  withDbTiming('inspection.addMedia', async () => {
+    await Inspection.updateOne(
+      ofAppointment(tenantId, appointmentId),
+      {
+        $setOnInsert: {
+          versao: 0,
+          dados: INSPECTION_EMPTY_DATA,
+          ...(caseId ? { Case: toObjectId(caseId) } : {}),
+        },
+      },
+      { upsert: true },
+    ).catch((error: unknown) => {
+      if (!isDuplicateKeyError(error)) throw error;
+    });
+    const result = await Inspection.updateOne(
+      { ...ofAppointment(tenantId, appointmentId), 'media.id': { $ne: media.id } },
+      { $push: { media: media } },
+    );
+    return result.modifiedCount === 1;
+  });
+
+export const findMedia = async (
+  tenantId: string,
+  appointmentId: string,
+  mediaId: string,
+): Promise<InspectionMediaWrite | null> =>
+  withDbTiming('inspection.findMedia', async () => {
+    const doc = await Inspection.findOne(ofAppointment(tenantId, appointmentId), {
+      media: { $elemMatch: { id: mediaId } },
+    }).lean();
+    return doc?.media?.[0] ?? null;
+  });
+
+export const updateCaption = async (
+  tenantId: string,
+  appointmentId: string,
+  mediaId: string,
+  caption: string,
+): Promise<boolean> =>
+  withDbTiming('inspection.updateCaption', async () => {
+    const result = await Inspection.updateOne(
+      { ...ofAppointment(tenantId, appointmentId), 'media.id': mediaId },
+      { $set: { 'media.$.caption': caption } },
+    );
+    return result.matchedCount === 1;
+  });
+
+// Devolve a mídia tirada (para apagar o arquivo e devolver a cota) ou `null`.
+export const removeMedia = async (
+  tenantId: string,
+  appointmentId: string,
+  mediaId: string,
+): Promise<InspectionMediaWrite | null> =>
+  withDbTiming('inspection.removeMedia', async () => {
+    const before = await Inspection.findOneAndUpdate(
+      { ...ofAppointment(tenantId, appointmentId), 'media.id': mediaId },
+      { $pull: { media: { id: mediaId } } },
+      { returnDocument: 'before', projection: { media: { $elemMatch: { id: mediaId } } } },
+    ).lean();
+    return before?.media?.[0] ?? null;
+  });
+
+// Compromisso excluído leva o registro (AD-130); devolve as mídias para apagar os arquivos.
+export const deleteByAppointment = async (tenantId: string, appointmentId: string): Promise<InspectionMediaWrite[]> =>
+  withDbTiming('inspection.deleteByAppointment', async () => {
+    const doc = await Inspection.findOneAndDelete(ofAppointment(tenantId, appointmentId)).lean();
+    return doc?.media ?? [];
+  });

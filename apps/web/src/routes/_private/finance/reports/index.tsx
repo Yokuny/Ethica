@@ -10,8 +10,8 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { categoriasQuery, fluxoMensalQuery } from '@/query/lancamento.js';
 import { CategoriasChart } from './@components/categorias-chart.js';
 import {
-  PERIODO_LABEL,
-  PERIODOS,
+  PERIOD_LABEL,
+  PERIODS,
   type RelatoriosSearch,
   relatoriosSearchSchema,
 } from './@interface/relatorios.interface.js';
@@ -19,7 +19,7 @@ import {
 export function RelatoriosPage() {
   const search = useSearch({ strict: false }) as RelatoriosSearch;
   const navigate = useNavigate({ from: '/finance/reports/' });
-  const fluxo = useQuery(fluxoMensalQuery(Number(search.meses)));
+  const fluxo = useQuery(fluxoMensalQuery(Number(search.months)));
   const receitas = useQuery(categoriasQuery('income'));
   const despesas = useQuery(categoriasQuery('expense'));
 
@@ -29,14 +29,14 @@ export function RelatoriosPage() {
         <CardAction>
           <ToggleGroup
             aria-label={t('period')}
-            value={search.meses}
-            onValueChange={(meses) =>
-              navigate({ search: { meses: meses as RelatoriosSearch['meses'] }, replace: true })
+            value={search.months}
+            onValueChange={(months) =>
+              navigate({ search: { months: months as RelatoriosSearch['months'] }, replace: true })
             }
           >
-            {PERIODOS.map((meses) => (
-              <ToggleGroupItem key={meses} value={meses}>
-                {t(PERIODO_LABEL[meses])}
+            {PERIODS.map((months) => (
+              <ToggleGroupItem key={months} value={months}>
+                {t(PERIOD_LABEL[months])}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>

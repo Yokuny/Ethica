@@ -38,7 +38,7 @@ export const listLancamentosQuerySchema = z
   .strict();
 export type ListLancamentosQuery = z.infer<typeof listLancamentosQuerySchema>;
 
-export const fluxoQuerySchema = z.object({ meses: z.coerce.number().int().min(1).max(24).default(6) }).strict();
+export const fluxoQuerySchema = z.object({ months: z.coerce.number().int().min(1).max(24).default(6) }).strict();
 export type FluxoQuery = z.infer<typeof fluxoQuerySchema>;
 
 export const categoriasQuerySchema = z.object({ natureza: z.enum(LANCAMENTO_NATUREZAS) }).strict();
@@ -72,12 +72,12 @@ export type ParcelaRecord = { id: string; valorCents: number; data: string; cont
 export type FinanceiroResumo = {
   aReceberCents: number;
   lateCents: number;
-  recebidoMesCents: number;
-  despesasMesCents: number;
+  receivedMonthCents: number;
+  expensesMonthCents: number;
 };
 
 export type FluxoMensal = {
-  mes: string;
+  month: string;
   recebidoCents: number;
   aReceberCents: number;
   despesasCents: number;
@@ -102,7 +102,7 @@ export type FinanceiroRelatorio = {
   totais: {
     recebidoCents: number;
     pagoCents: number;
-    saldoRealizadoCents: number;
+    actualBalanceCents: number;
     aReceberCents: number;
     aPagarCents: number;
     saldoPrevistoCents: number;

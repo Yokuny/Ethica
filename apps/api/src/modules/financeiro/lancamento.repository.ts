@@ -227,53 +227,53 @@ export const resumo = async (
 ): Promise<FinanceiroResumo> =>
   withDbTiming('financeiro.resumo', async () => {
     const Tenant = toObjectId(tenantId);
-    const mes = { $gte: range.monthStart, $lt: range.nextMonthStart };
+    const month = { $gte: range.monthStart, $lt: range.nextMonthStart };
     const abertas = { Tenant, natureza: 'income', status: { $in: ABERTOS } };
-    const [aReceberCents, lateCents, recebidoMesCents, despesasMesCents] = await Promise.all([
+    const [aReceberCents, lateCents, receivedMonthCents, expensesMonthCents] = await Promise.all([
       sum([{ $match: abertas }, { $project: { valor: SALDO } }]),
       sum([{ $match: { ...abertas, vencimento: { $lt: range.today } } }, { $project: { valor: SALDO } }]),
       // Recebido no mês = parcelas pela data em que caíram na conta (PRZ-02.5).
       sum([
         { $match: { Tenant, natureza: 'income' } },
         { $unwind: '$parcelas' },
-        { $match: { 'parcelas.data': mes } },
+        { $match: { 'parcelas.data': month } },
         { $project: { valor: '$parcelas.valorCents' } },
       ]),
       sum([
-        { $match: { Tenant, natureza: 'expense', status: { $ne: 'canceled' }, vencimento: mes } },
+        { $match: { Tenant, natureza: 'expense', status: { $ne: 'canceled' }, vencimento: month } },
         { $project: { valor: '$valorCents' } },
       ]),
     ]);
-    return { aReceberCents, lateCents, recebidoMesCents, despesasMesCents };
+    return { aReceberCents, lateCents, receivedMonthCents, expensesMonthCents };
   });
 
 // Uma linha por mês (`YYYY-MM`): recebido pela data de cada parcela; a receber pelo saldo das
 // receitas abertas no mês do vencimento; despesa paga pelo mês da liquidação e prevista pelo
 // do vencimento. Meses sem movimento entram zerados.
-export const fluxoMensal = async (tenantId: string, meses: string[]): Promise<FluxoMensal[]> =>
+export const fluxoMensal = async (tenantId: string, months: string[]): Promise<FluxoMensal[]> =>
   withDbTiming('financeiro.fluxoMensal', async () => {
     const Tenant = toObjectId(tenantId);
-    const first = `${meses[0]}-01`;
-    const porMes = (serie: string, data: unknown, valor: unknown) => [
+    const first = `${months[0]}-01`;
+    const byMonth = (serie: string, data: unknown, valor: unknown) => [
       { $project: { serie: { $literal: serie }, data, valor } },
       { $match: { data: { $gte: first } } },
     ];
-    const rows = await Lancamento.aggregate<{ _id: { mes: string; serie: string }; total: number }>([
+    const rows = await Lancamento.aggregate<{ _id: { month: string; serie: string }; total: number }>([
       { $match: { Tenant, status: { $ne: 'canceled' } } },
       {
         $facet: {
           recebido: [
             { $match: { natureza: 'income' } },
             { $unwind: '$parcelas' },
-            ...porMes('recebido', '$parcelas.data', '$parcelas.valorCents'),
+            ...byMonth('recebido', '$parcelas.data', '$parcelas.valorCents'),
           ],
           aReceber: [
             { $match: { natureza: 'income', status: { $in: ABERTOS } } },
-            ...porMes('aReceber', '$vencimento', SALDO),
+            ...byMonth('aReceber', '$vencimento', SALDO),
           ],
           despesas: [
             { $match: { natureza: 'expense' } },
-            ...porMes(
+            ...byMonth(
               'despesas',
               { $cond: [{ $eq: ['$status', 'settled'] }, '$liquidadoEm', '$vencimento'] },
               '$valorCents',
@@ -284,14 +284,14 @@ export const fluxoMensal = async (tenantId: string, meses: string[]): Promise<Fl
       { $project: { linhas: { $concatArrays: ['$recebido', '$aReceber', '$despesas'] } } },
       { $unwind: '$linhas' },
       { $replaceRoot: { newRoot: '$linhas' } },
-      { $group: { _id: { mes: { $substrBytes: ['$data', 0, 7] }, serie: '$serie' }, total: { $sum: '$valor' } } },
+      { $group: { _id: { month: { $substrBytes: ['$data', 0, 7] }, serie: '$serie' }, total: { $sum: '$valor' } } },
     ]);
-    const totals = new Map(rows.map((row) => [`${row._id.mes}:${row._id.serie}`, row.total]));
-    return meses.map((mes) => ({
-      mes,
-      recebidoCents: totals.get(`${mes}:recebido`) ?? 0,
-      aReceberCents: totals.get(`${mes}:aReceber`) ?? 0,
-      despesasCents: totals.get(`${mes}:despesas`) ?? 0,
+    const totals = new Map(rows.map((row) => [`${row._id.month}:${row._id.serie}`, row.total]));
+    return months.map((month) => ({
+      month,
+      recebidoCents: totals.get(`${month}:recebido`) ?? 0,
+      aReceberCents: totals.get(`${month}:aReceber`) ?? 0,
+      despesasCents: totals.get(`${month}:despesas`) ?? 0,
     }));
   });
 
@@ -309,10 +309,10 @@ export const totaisPorCategoria = async (tenantId: string, natureza: string): Pr
 // (com `periodo`: o que teve parcela, liquidação ou vencimento entre `from` e `to`).
 export const listAll = async (
   tenantId: string,
-  filter: { caseId?: string; periodo?: { from: string; to: string } } = {},
+  filter: { caseId?: string; period?: { from: string; to: string } } = {},
 ): Promise<LancamentoRecord[]> =>
   withDbTiming('financeiro.listAll', async () => {
-    const entre = filter.periodo ? { $gte: filter.periodo.from, $lte: filter.periodo.to } : undefined;
+    const entre = filter.period ? { $gte: filter.period.from, $lte: filter.period.to } : undefined;
     const docs = await Lancamento.find(
       tenantScoped({
         Tenant: tenantId,

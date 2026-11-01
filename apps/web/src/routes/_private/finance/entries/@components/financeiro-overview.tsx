@@ -11,8 +11,8 @@ export function FinanceiroOverview({ resumo }: { resumo?: FinanceiroResumo }) {
     <RecordStats variant="band" role="group" aria-label={t('finance')}>
       <RecordStat label={t('receivable')} value={show(resumo?.aReceberCents)} />
       <RecordStat label={t('overdue')} value={show(resumo?.lateCents)} />
-      <RecordStat label={t('received_this_month')} value={show(resumo?.recebidoMesCents)} />
-      <RecordStat label={t('expenses_this_month')} value={show(resumo?.despesasMesCents)} />
+      <RecordStat label={t('received_this_month')} value={show(resumo?.receivedMonthCents)} />
+      <RecordStat label={t('expenses_this_month')} value={show(resumo?.expensesMonthCents)} />
     </RecordStats>
   );
 }

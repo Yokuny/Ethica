@@ -3,13 +3,7 @@ import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import * as diarioService from './diario.service.js';
 import * as officeRepository from './office.repository.js';
-import type {
-  DocumentIdentity,
-  OfficeView,
-  TenantLogo,
-  UpdateAvisoAgendamento,
-  UpdateOffice,
-} from './office.schema.js';
+import type { DocumentIdentity, OfficeView, TenantLogo, UpdateOffice, UpdateScheduleNotice } from './office.schema.js';
 
 const EXPORTS_SHOWN = 5;
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -103,7 +97,7 @@ export const reservarArquivo = async (tenantId: string, bytes: number): Promise<
 export const devolverArquivo = (tenantId: string, bytes: number) => officeRepository.devolverBytes(tenantId, bytes);
 
 // Modelo do aviso de agendamento às partes (AD-131); sem modelo gravado, vale o padrão.
-export const AVISO_AGENDAMENTO_PADRAO: UpdateAvisoAgendamento = {
+export const DEFAULT_SCHEDULE_NOTICE: UpdateScheduleNotice = {
   assunto: 'Aviso de agendamento: [TIPO_EVENTO] - Processo [NUMERO_PROCESSO]',
   corpo: [
     'Prezados,',
@@ -117,10 +111,10 @@ export const AVISO_AGENDAMENTO_PADRAO: UpdateAvisoAgendamento = {
   ].join('\n'),
 };
 
-export const getAvisoAgendamento = async (tenantId: string): Promise<UpdateAvisoAgendamento> =>
-  (await findOfficeOrThrow(tenantId)).avisoAgendamento ?? AVISO_AGENDAMENTO_PADRAO;
+export const getScheduleNotice = async (tenantId: string): Promise<UpdateScheduleNotice> =>
+  (await findOfficeOrThrow(tenantId)).scheduleNotice ?? DEFAULT_SCHEDULE_NOTICE;
 
-export const updateAvisoAgendamento = async (tenantId: string, aviso: UpdateAvisoAgendamento) => {
-  await officeRepository.setAvisoAgendamento(tenantId, aviso);
-  return getAvisoAgendamento(tenantId);
+export const updateScheduleNotice = async (tenantId: string, notice: UpdateScheduleNotice) => {
+  await officeRepository.setScheduleNotice(tenantId, notice);
+  return getScheduleNotice(tenantId);
 };

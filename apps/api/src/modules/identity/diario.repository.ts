@@ -27,7 +27,7 @@ export const registrar = async ({ tenantId, userId, ...data }: NovaAtividade): P
 export const listAtividades = async (
   tenantId: string,
   query: ListDiarioQuery,
-  periodo: { from?: Date; to?: Date },
+  period: { from?: Date; to?: Date },
 ): Promise<{ items: AtividadeRecord[]; total: number }> =>
   withDbTiming('diario.listAtividades', async () => {
     const filter = tenantScoped({
@@ -35,8 +35,8 @@ export const listAtividades = async (
       ...(query.userId ? { User: toObjectId(query.userId) } : {}),
       ...(query.modulo ? { modulo: query.modulo } : {}),
       ...(query.acao ? { acao: query.acao } : {}),
-      ...(periodo.from || periodo.to
-        ? { createdAt: { ...(periodo.from ? { $gte: periodo.from } : {}), ...(periodo.to ? { $lt: periodo.to } : {}) } }
+      ...(period.from || period.to
+        ? { createdAt: { ...(period.from ? { $gte: period.from } : {}), ...(period.to ? { $lt: period.to } : {}) } }
         : {}),
     });
     const [docs, total] = await Promise.all([

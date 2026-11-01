@@ -2,11 +2,11 @@ import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import type { CSSProperties } from 'react';
 import { Time12h } from '@/components/time12h.js';
 import { cn } from '@/lib/utils.js';
-import type { CompromissoRecord } from '@/query/compromisso.js';
+import type { AppointmentRecord } from '@/query/appointment.js';
 import type { DeadlineRecord } from '@/query/deadline.js';
 
 // Cor por tipo de compromisso; cancelado esmaece e concluído fica esmaecido.
-const tipoClasses: Record<CompromissoRecord['tipo'], string> = {
+const tipoClasses: Record<AppointmentRecord['tipo'], string> = {
   inspection: 'border-violet-500/30 bg-violet-50 text-violet-900',
   hearing: 'border-sky-500/30 bg-sky-50 text-sky-900',
   meeting: 'border-cyan-500/30 bg-cyan-50 text-cyan-900',
@@ -14,8 +14,8 @@ const tipoClasses: Record<CompromissoRecord['tipo'], string> = {
 };
 
 export type CalendarEventChipProps = {
-  item: CompromissoRecord;
-  onSelect: (item: CompromissoRecord) => void;
+  item: AppointmentRecord;
+  onSelect: (item: AppointmentRecord) => void;
   // 'timed': intervalo de horário completo (dia/semana). 'compact': uma linha (mês e "+N").
   variant?: 'timed' | 'compact';
   className?: string;

@@ -50,7 +50,7 @@ const VariaveisDestacadas = Extension.create({
 
 // Foto da vistoria no laudo (AD-129): o HTML gravado tem o caminho da mídia; no editor ela
 // carrega da API. A API tira a origem ao salvar.
-const FotoDaVistoria = Image.extend({
+const InspectionPhoto = Image.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -65,7 +65,7 @@ const FotoDaVistoria = Image.extend({
   },
 });
 
-export type FotoDoEditor = { src: string; legenda?: string };
+export type PhotoEditor = { src: string; caption?: string };
 
 const EXTENSOES = [
   StarterKit.configure({
@@ -78,7 +78,7 @@ const EXTENSOES = [
     link: false,
   }),
   TableKit.configure({ table: { resizable: false } }),
-  FotoDaVistoria.configure({ inline: false, allowBase64: false }),
+  InspectionPhoto.configure({ inline: false, allowBase64: false }),
   VariaveisDestacadas,
 ];
 
@@ -129,7 +129,7 @@ const FERRAMENTAS: Ferramenta[] = [
   },
 ];
 
-function Barra({ editor, fotos }: { editor: Editor; fotos?: FotoDoEditor[] }) {
+function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
   const ativos = useEditorState({ editor, selector: ({ editor: e }) => FERRAMENTAS.map((f) => f.ativo(e)) });
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-input p-1">
@@ -146,26 +146,26 @@ function Barra({ editor, fotos }: { editor: Editor; fotos?: FotoDoEditor[] }) {
           <ferramenta.icon />
         </Button>
       ))}
-      {fotos && fotos.length > 0 && (
+      {photos && photos.length > 0 && (
         <Select
-          items={fotos.map((foto, indice) => ({
-            value: foto.src,
-            label: foto.legenda || `${t('photo')} ${indice + 1}`,
+          items={photos.map((photo, indice) => ({
+            value: photo.src,
+            label: photo.caption || `${t('photo')} ${indice + 1}`,
           }))}
           value={null}
           onValueChange={(src) => {
-            const foto = fotos.find((item) => item.src === src);
-            if (!foto) return;
+            const photo = photos.find((item) => item.src === src);
+            if (!photo) return;
             editor
               .chain()
               .focus()
               .insertContent([
-                { type: 'image', attrs: { src: apiUrl(foto.src), alt: foto.legenda ?? '' } },
-                ...(foto.legenda
+                { type: 'image', attrs: { src: apiUrl(photo.src), alt: photo.caption ?? '' } },
+                ...(photo.caption
                   ? [
                       {
                         type: 'paragraph',
-                        content: [{ type: 'text', marks: [{ type: 'italic' }], text: foto.legenda }],
+                        content: [{ type: 'text', marks: [{ type: 'italic' }], text: photo.caption }],
                       },
                     ]
                   : []),
@@ -177,9 +177,9 @@ function Barra({ editor, fotos }: { editor: Editor; fotos?: FotoDoEditor[] }) {
             <SelectValue placeholder={t('insert_photo')} />
           </SelectTrigger>
           <SelectContent>
-            {fotos.map((foto, indice) => (
-              <SelectItem key={foto.src} value={foto.src}>
-                {foto.legenda || `${t('photo')} ${indice + 1}`}
+            {photos.map((photo, indice) => (
+              <SelectItem key={photo.src} value={photo.src}>
+                {photo.caption || `${t('photo')} ${indice + 1}`}
               </SelectItem>
             ))}
           </SelectContent>
@@ -190,7 +190,7 @@ function Barra({ editor, fotos }: { editor: Editor; fotos?: FotoDoEditor[] }) {
         value={null}
         onValueChange={(value) => value && editor.chain().focus().insertContent(value).run()}
       >
-        <SelectTrigger size="sm" className={fotos?.length ? undefined : 'ml-auto'} aria-label={t('insert_variable')}>
+        <SelectTrigger size="sm" className={photos?.length ? undefined : 'ml-auto'} aria-label={t('insert_variable')}>
           <SelectValue placeholder={t('insert_variable')} />
         </SelectTrigger>
         <SelectContent>
@@ -212,11 +212,11 @@ type RichTextEditorProps = {
   label?: string;
   className?: string;
   // Fotos das vistorias da perícia para inserir no texto (só no laudo).
-  fotos?: FotoDoEditor[];
+  photos?: PhotoEditor[];
 };
 
 // Não controlado depois de montar: quem troca de seção remonta pela `key`.
-export function RichTextEditor({ value, onChange, readOnly = false, label, className, fotos }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, readOnly = false, label, className, photos }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: EXTENSOES,
     content: value,
@@ -241,7 +241,7 @@ export function RichTextEditor({ value, onChange, readOnly = false, label, class
         className,
       )}
     >
-      {editor && !readOnly && <Barra editor={editor} fotos={fotos} />}
+      {editor && !readOnly && <Barra editor={editor} photos={photos} />}
       <EditorContent editor={editor} />
     </div>
   );

@@ -10,8 +10,8 @@ import { createAuthMiddleware } from './middlewares/authentication.middleware.js
 import { createDiarioMiddleware } from './middlewares/diario.middleware.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { responseTime } from './middlewares/responseTime.middleware.js';
-import { createAgendaRouter } from './modules/agenda/compromisso.router.js';
-import { createVistoriaRouter } from './modules/agenda/vistoria.router.js';
+import { createAgendaRouter } from './modules/agenda/appointment.router.js';
+import { createInspectionRouter } from './modules/agenda/inspection.router.js';
 import { createCaseRouter } from './modules/case/case.router.js';
 import { createPartyRouter } from './modules/case/party.router.js';
 import { createDocumentosRouter } from './modules/documentos/documentos.router.js';
@@ -130,7 +130,7 @@ export const buildApp = (
   app.use('/expert-cases', createCaseRouter({ validToken }));
   app.use('/parties', createPartyRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));
-  app.use('/inspections', createVistoriaRouter({ validToken, storage }));
+  app.use('/inspections', createInspectionRouter({ validToken, storage }));
   app.use('/finance', createFinanceiroRouter({ validToken }));
   app.use('/documents', createDocumentosRouter({ validToken, pdf, storage }));
   app.use('/expert-reports', createLaudoRouter({ validToken, pdf, storage }));

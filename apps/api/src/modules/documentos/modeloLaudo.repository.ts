@@ -84,7 +84,7 @@ export const updateSecao = async (
   secao: ModeloSecao,
 ): Promise<ModeloLaudoRecord | null> =>
   withDbTiming('modeloLaudo.updateSecao', async () => {
-    const $set = Object.fromEntries(Object.entries(secao).map(([campo, valor]) => [`secoes.$.${campo}`, valor]));
+    const $set = Object.fromEntries(Object.entries(secao).map(([field, valor]) => [`secoes.$.${field}`, valor]));
     const doc = await ModeloLaudo.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, _id: id, 'secoes._id': toObjectId(secaoId) }),
       { $set },

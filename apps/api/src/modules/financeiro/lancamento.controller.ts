@@ -62,8 +62,8 @@ export const resumo = async (req: Request, res: Response, next: NextFunction): P
 
 export const fluxoMensal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { meses } = req.query as unknown as FluxoQuery;
-    res.json(respObj({ data: await lancamentoService.fluxoMensal(tenantOf(req), meses) }));
+    const { months } = req.query as unknown as FluxoQuery;
+    res.json(respObj({ data: await lancamentoService.fluxoMensal(tenantOf(req), months) }));
   } catch (e) {
     next(e);
   }

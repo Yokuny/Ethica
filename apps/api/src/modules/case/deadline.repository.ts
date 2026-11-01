@@ -93,9 +93,9 @@ export const listPending = async (tenantId: string, range: { from?: string; to?:
 
 // Consulta do sistema (aviso diário): de propósito sem filtro de Tenant — cada
 // item volta com o seu, e o service separa por tenant antes de enviar.
-export const listPendingInDays = async (dias: string[]): Promise<NoticeDeadline[]> =>
+export const listPendingInDays = async (days: string[]): Promise<NoticeDeadline[]> =>
   withDbTiming('deadline.listPendingInDays', async () => {
-    const docs = await Deadline.find({ status: 'pending', vencimento: { $in: dias } })
+    const docs = await Deadline.find({ status: 'pending', vencimento: { $in: days } })
       .sort({ vencimento: 1, _id: 1 })
       .lean();
     return docs.map((doc) => ({ ...toRecord(doc), tenantId: doc.Tenant.toString() }));

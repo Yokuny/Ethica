@@ -7,9 +7,9 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { AppointmentDetail } from './@components/appointment-detail.js';
+import { AppointmentForm } from './@components/appointment-form.js';
 import { CalendarToolbar } from './@components/calendar-toolbar.js';
-import { CompromissoDetail } from './@components/compromisso-detail.js';
-import { CompromissoForm } from './@components/compromisso-form.js';
 import { MonthView } from './@components/month-view.js';
 import { TimeGridView } from './@components/time-grid-view.js';
 import { useAgendaPage } from './@hooks/use-agenda-page.js';
@@ -62,12 +62,12 @@ export function AgendaIndexPage() {
           />
         )}
       </CardContent>
-      {panel?.kind === 'create' && <CompromissoForm date={panel.date} caseId={search.caseId} onClose={closePanel} />}
-      {panel?.kind === 'edit' && <CompromissoForm compromisso={panel.compromisso} onClose={closePanel} />}
+      {panel?.kind === 'create' && <AppointmentForm date={panel.date} caseId={search.caseId} onClose={closePanel} />}
+      {panel?.kind === 'edit' && <AppointmentForm appointment={panel.appointment} onClose={closePanel} />}
       {panel?.kind === 'detail' && (
-        <CompromissoDetail
-          compromisso={panel.compromisso}
-          onEdit={() => setPanel({ kind: 'edit', compromisso: panel.compromisso })}
+        <AppointmentDetail
+          appointment={panel.appointment}
+          onEdit={() => setPanel({ kind: 'edit', appointment: panel.appointment })}
           onClose={closePanel}
         />
       )}

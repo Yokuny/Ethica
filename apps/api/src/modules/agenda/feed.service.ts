@@ -2,15 +2,15 @@ import type { CaseSummary } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
-import * as compromissoRepository from './compromisso.repository.js';
-import type { CompromissoRecord } from './compromisso.schema.js';
+import * as appointmentRepository from './appointment.repository.js';
+import type { AppointmentRecord } from './appointment.schema.js';
 import type { FeedEntrada } from './feed.schema.js';
 
 // Janela do feed: o calendário externo guarda o passado recente e o ano à frente.
-const DIAS_PASSADOS = 60;
-const DIAS_FUTUROS = 365;
+const PAST_DAYS = 60;
+const FUTURE_DAYS = 365;
 
-const TIPO_LABEL: Record<CompromissoRecord['tipo'], string> = {
+const TIPO_LABEL: Record<AppointmentRecord['tipo'], string> = {
   inspection: 'Vistoria',
   hearing: 'Audiência',
   meeting: 'Reunião',
@@ -72,10 +72,10 @@ const descricao = (tipo: string, titulo: string, resumo?: CaseSummary, observaco
 
 // Monta o calendário (função pura, testada à parte). Cada evento leva data, descrição
 // (tipo, título, processo, partes, observações) e local — definido pelo usuário em 2026-10-31.
-export const montarIcs = ({ compromissos, deadlines, resumos, now }: FeedEntrada): string => {
+export const montarIcs = ({ appointments, deadlines, resumos, now }: FeedEntrada): string => {
   const stamp = utcStamp(now);
   const events = [
-    ...compromissos.map((item) => {
+    ...appointments.map((item) => {
       const resumo = item.caseId ? resumos.get(item.caseId) : undefined;
       return [
         'BEGIN:VEVENT',
@@ -122,17 +122,17 @@ export const gerarFeed = async (token: string, now: Date = new Date()): Promise<
   const owner = await accountService.findFeedOwner(token);
   if (!owner) return null;
   const { tenantId } = owner;
-  const [compromissos, deadlines] = await Promise.all([
-    compromissoRepository.listInRange(tenantId, {
-      from: new Date(now.getTime() - DIAS_PASSADOS * 86_400_000),
-      to: new Date(now.getTime() + DIAS_FUTUROS * 86_400_000),
+  const [appointments, deadlines] = await Promise.all([
+    appointmentRepository.listInRange(tenantId, {
+      from: new Date(now.getTime() - PAST_DAYS * 86_400_000),
+      to: new Date(now.getTime() + FUTURE_DAYS * 86_400_000),
     }),
     deadlineService.listPendingDeadlines(tenantId),
   ]);
-  const ativos = compromissos.filter((item) => item.status !== 'canceled');
+  const ativos = appointments.filter((item) => item.status !== 'canceled');
   const ids = [
     ...new Set([...ativos.flatMap((item) => (item.caseId ? [item.caseId] : [])), ...deadlines.map((p) => p.caseId)]),
   ];
   const resumos = await caseService.findResumosByIds(tenantId, ids);
-  return montarIcs({ compromissos: ativos, deadlines, resumos, now });
+  return montarIcs({ appointments: ativos, deadlines, resumos, now });
 };

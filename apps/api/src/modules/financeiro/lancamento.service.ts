@@ -125,11 +125,11 @@ export const resumo = (tenantId: string, now: Date = new Date()) => {
 };
 
 // Os últimos `meses` meses até o atual, do mais antigo para o mais recente.
-export const fluxoMensal = (tenantId: string, meses: number, now: Date = new Date()) => {
+export const fluxoMensal = (tenantId: string, months: number, now: Date = new Date()) => {
   const month = dateInDisplayTz(now).slice(0, 7);
   return lancamentoRepository.fluxoMensal(
     tenantId,
-    Array.from({ length: meses }, (_, index) => shiftMonth(month, index - meses + 1)),
+    Array.from({ length: months }, (_, index) => shiftMonth(month, index - months + 1)),
   );
 };
 
@@ -139,14 +139,14 @@ export const totaisPorCategoria = (tenantId: string, natureza: string) =>
 const soma = (linhas: FinanceiroRelatorioLinha[]) => linhas.reduce((total, linha) => total + linha.valorCents, 0);
 
 // DOC-03: datas inclusivas. Cancelado não entra; honorário conta pelas parcelas (AD-111).
-export const relatorioPeriodo = async (
+export const reportPeriod = async (
   tenantId: string,
-  periodo: { from: string; to: string },
+  period: { from: string; to: string },
 ): Promise<FinanceiroRelatorio> => {
-  const noPeriodo = (day?: string): day is string => Boolean(day && day >= periodo.from && day <= periodo.to);
+  const inPeriod = (day?: string): day is string => Boolean(day && day >= period.from && day <= period.to);
   const itens = await withCaseNumber(
     tenantId,
-    (await lancamentoRepository.listAll(tenantId, { periodo })).filter((item) => item.status !== 'canceled'),
+    (await lancamentoRepository.listAll(tenantId, { period })).filter((item) => item.status !== 'canceled'),
   );
   const linha = (item: LancamentoRecord, data: string, valorCents: number, conta?: string) => ({
     data,
@@ -160,18 +160,18 @@ export const relatorioPeriodo = async (
   const despesas = itens.filter((item) => item.natureza === 'expense');
   const recebidos = receitas
     .flatMap((item) =>
-      item.parcelas.filter((parcela) => noPeriodo(parcela.data)).map((p) => linha(item, p.data, p.valorCents, p.conta)),
+      item.parcelas.filter((parcela) => inPeriod(parcela.data)).map((p) => linha(item, p.data, p.valorCents, p.conta)),
     )
     .sort((a, b) => a.data.localeCompare(b.data));
   const pagos = despesas
-    .filter((item) => item.status === 'settled' && noPeriodo(item.liquidadoEm))
+    .filter((item) => item.status === 'settled' && inPeriod(item.liquidadoEm))
     .map((item) => linha(item, item.liquidadoEm as string, item.valorCents))
     .sort((a, b) => a.data.localeCompare(b.data));
   const aReceber = receitas
-    .filter((item) => (item.saldoCents ?? 0) > 0 && noPeriodo(item.vencimento))
+    .filter((item) => (item.saldoCents ?? 0) > 0 && inPeriod(item.vencimento))
     .map((item) => linha(item, item.vencimento, item.saldoCents as number));
   const aPagar = despesas
-    .filter((item) => item.status === 'expected' && noPeriodo(item.vencimento))
+    .filter((item) => item.status === 'expected' && inPeriod(item.vencimento))
     .map((item) => linha(item, item.vencimento, item.valorCents));
   const recebidoCents = soma(recebidos);
   const pagoCents = soma(pagos);
@@ -185,7 +185,7 @@ export const relatorioPeriodo = async (
     totais: {
       recebidoCents,
       pagoCents,
-      saldoRealizadoCents: recebidoCents - pagoCents,
+      actualBalanceCents: recebidoCents - pagoCents,
       aReceberCents,
       aPagarCents,
       saldoPrevistoCents: recebidoCents - pagoCents + aReceberCents - aPagarCents,

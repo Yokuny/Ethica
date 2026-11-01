@@ -1,0 +1,209 @@
+import { INSPECTION_EMPTY_DATA, INSPECTION_MEDIA_LIMITS, LAUDO_IMG_SRC } from '@ethica/contracts';
+import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import type { FileStorage } from '../../providers/fileStorage.js';
+import * as caseService from '../case/case.service.js';
+import * as officeService from '../identity/office.service.js';
+import type { AppointmentRecord } from './appointment.schema.js';
+import * as appointmentService from './appointment.service.js';
+import * as inspectionRepository from './inspection.repository.js';
+import type {
+  DayInspection,
+  FieldCase,
+  InspectionRecord,
+  MediaRecord,
+  MediaUploadQuery,
+  SaveInspection,
+} from './inspection.schema.js';
+
+// Outra gravação chegou antes (AD-128): o controller devolve 409 com a versão do servidor.
+export class InspectionConflictError extends KeyedError {
+  constructor(readonly atual: InspectionRecord) {
+    super('inspection_conflict');
+  }
+}
+
+const vazia = (appointment: AppointmentRecord): InspectionRecord => ({
+  appointmentId: appointment.id,
+  caseId: appointment.caseId,
+  versao: 0,
+  dados: INSPECTION_EMPTY_DATA,
+  media: [],
+});
+
+const requireStorage = (storage: FileStorage | undefined): FileStorage => {
+  if (!storage) throw new CustomError('storage_not_configured', 503);
+  return storage;
+};
+
+const nextDay = (date: string): string => {
+  const next = new Date(`${date}T12:00:00Z`);
+  next.setUTCDate(next.getUTCDate() + 1);
+  return next.toISOString().slice(0, 10);
+};
+
+const fieldCases = async (tenantId: string, ids: string[]): Promise<Map<string, FieldCase>> => {
+  const resumos = await caseService.findResumosByIds(tenantId, ids);
+  return new Map([...resumos].map(([id, resumo]) => [id, { id, ...resumo }]));
+};
+
+// CAM-01: tudo do dia (por horário) com o registro de cada compromisso, para o celular guardar.
+export const listDay = async (tenantId: string, date: string): Promise<DayInspection[]> => {
+  const appointments = await appointmentService.listAppointments(tenantId, { from: date, to: nextDay(date) });
+  const [inspections, cases] = await Promise.all([
+    inspectionRepository.findByAppointments(
+      tenantId,
+      appointments.map((appointment) => appointment.id),
+    ),
+    fieldCases(tenantId, [...new Set(appointments.flatMap((c) => (c.caseId ? [c.caseId] : [])))]),
+  ]);
+  return appointments.map((appointment) => {
+    const legalCase = appointment.caseId ? cases.get(appointment.caseId) : undefined;
+    return {
+      appointment,
+      ...(legalCase ? { legalCase } : {}),
+      inspection: inspections.get(appointment.id) ?? vazia(appointment),
+    };
+  });
+};
+
+export const getInspection = async (tenantId: string, appointmentId: string): Promise<DayInspection> => {
+  const appointment = await appointmentService.getAppointment(tenantId, appointmentId);
+  const [inspection, cases] = await Promise.all([
+    inspectionRepository.findByAppointment(tenantId, appointmentId),
+    fieldCases(tenantId, appointment.caseId ? [appointment.caseId] : []),
+  ]);
+  const legalCase = appointment.caseId ? cases.get(appointment.caseId) : undefined;
+  return { appointment, ...(legalCase ? { legalCase } : {}), inspection: inspection ?? vazia(appointment) };
+};
+
+// CAM-02 e CAM-05: grava o formulário inteiro só sobre a versão que o aparelho conhecia.
+export const saveInspection = async (
+  tenantId: string,
+  appointmentId: string,
+  { versao, dados }: SaveInspection,
+): Promise<InspectionRecord> => {
+  const appointment = await appointmentService.getAppointment(tenantId, appointmentId);
+  const salvo = await inspectionRepository.salvar(tenantId, appointmentId, appointment.caseId, versao, dados);
+  if (salvo) return salvo;
+  throw new InspectionConflictError(
+    (await inspectionRepository.findByAppointment(tenantId, appointmentId)) ?? vazia(appointment),
+  );
+};
+
+// CAM-03/06/07: arquivo no storage com a cota reservada antes (AD-120, AD-129). Mesmo id de
+// novo devolve a mídia já gravada (reenvio do offline, AD-128).
+export const uploadMedia = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  appointmentId: string,
+  mediaId: string,
+  { tipo, caption }: MediaUploadQuery,
+  arquivo: { body: Buffer; mime: string },
+): Promise<MediaRecord> => {
+  const files = requireStorage(storage);
+  const limite = INSPECTION_MEDIA_LIMITS[tipo];
+  if (!limite.mimes.includes(arquivo.mime)) throw new CustomError('unsupported_file_type', 415, arquivo.mime);
+  if (arquivo.body.length > limite.maxBytes) throw new CustomError('file_too_large', 413);
+  const appointment = await appointmentService.getAppointment(tenantId, appointmentId);
+  const atual = await inspectionRepository.findByAppointment(tenantId, appointmentId);
+  const existente = atual?.media.find((media) => media.id === mediaId);
+  if (existente) return existente;
+  if ((atual?.media.filter((media) => media.tipo === tipo).length ?? 0) >= limite.maxByInspection) {
+    throw new CustomError('media_limit_reached', 422);
+  }
+  const media = {
+    id: mediaId,
+    tipo,
+    key: `tenants/${tenantId}/inspections/${appointmentId}/${mediaId}`,
+    bytes: arquivo.body.length,
+    mime: arquivo.mime,
+    ...(caption ? { caption } : {}),
+    createdAt: new Date(),
+  };
+  await officeService.reservarArquivo(tenantId, media.bytes);
+  try {
+    await files.put(media.key, arquivo.body, media.mime);
+    if (!(await inspectionRepository.addMedia(tenantId, appointmentId, appointment.caseId, media))) {
+      // Outro envio do mesmo id ganhou a corrida: o arquivo é o mesmo, só a reserva sobra.
+      await officeService.devolverArquivo(tenantId, media.bytes);
+    }
+  } catch (error) {
+    await officeService.devolverArquivo(tenantId, media.bytes);
+    throw error;
+  }
+  const { key: _key, ...record } = media;
+  return record;
+};
+
+export const getMedia = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  appointmentId: string,
+  mediaId: string,
+): Promise<{ body: Buffer; mime: string }> => {
+  const media = await inspectionRepository.findMedia(tenantId, appointmentId, mediaId);
+  const body = media && storage ? await storage.get(media.key) : null;
+  if (!media || !body) throw new CustomError('not_found', 404);
+  return { body, mime: media.mime };
+};
+
+// Foto do laudo (AD-129): `src` gravado no HTML → bytes, só do próprio tenant; `null` se sumiu.
+export const readReportPhoto = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  src: string,
+): Promise<{ body: Buffer; mime: string } | null> => {
+  if (!LAUDO_IMG_SRC.test(src)) return null;
+  const [, , appointmentId, , mediaId] = src.split('/');
+  return getMedia(storage, tenantId, appointmentId as string, mediaId as string).catch(() => null);
+};
+
+export const updateCaption = async (tenantId: string, appointmentId: string, mediaId: string, caption: string) => {
+  if (!(await inspectionRepository.updateCaption(tenantId, appointmentId, mediaId, caption))) {
+    throw new CustomError('not_found', 404);
+  }
+  return getInspection(tenantId, appointmentId);
+};
+
+// Excluir devolve a cota. Assinatura apagada deixa o `assinaturaId` sem arquivo: quem lê ignora.
+export const removeMedia = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  appointmentId: string,
+  mediaId: string,
+): Promise<void> => {
+  const files = requireStorage(storage);
+  const removida = await inspectionRepository.removeMedia(tenantId, appointmentId, mediaId);
+  if (!removida) throw new CustomError('not_found', 404);
+  await files.remove(removida.key);
+  await officeService.devolverArquivo(tenantId, removida.bytes);
+};
+
+// Registros da perícia (galeria e painel), cada um com o compromisso.
+export const listByCase = async (tenantId: string, caseId: string): Promise<DayInspection[]> => {
+  const appointments = (await appointmentService.listByCase(tenantId, caseId)).reverse();
+  const inspections = await inspectionRepository.findByAppointments(
+    tenantId,
+    appointments.map((appointment) => appointment.id),
+  );
+  return appointments.flatMap((appointment) => {
+    const inspection = inspections.get(appointment.id);
+    return inspection ? [{ appointment, inspection }] : [];
+  });
+};
+
+// Laudo (AD-130): a vistoria feita mais recente da perícia que tem registro.
+export const lastDoneByCase = async (tenantId: string, caseId: string) =>
+  (await listByCase(tenantId, caseId)).find(({ appointment }) => appointment.status === 'done');
+
+// Excluir o compromisso leva o registro e as mídias, devolvendo a cota (AD-130).
+export const removeAppointment = async (storage: FileStorage | undefined, tenantId: string, id: string) => {
+  await appointmentService.deleteAppointment(tenantId, id);
+  const media = await inspectionRepository.deleteByAppointment(tenantId, id);
+  if (!media.length) return;
+  await Promise.all(media.map((media) => storage?.remove(media.key)));
+  await officeService.devolverArquivo(
+    tenantId,
+    media.reduce((total, media) => total + media.bytes, 0),
+  );
+};

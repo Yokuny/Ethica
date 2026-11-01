@@ -20,7 +20,7 @@ const MODULO_POR_SEGMENTO: Record<string, PermissaoModulo> = {
   reports: 'reports',
 };
 
-export function moduloDaRota(pathname: string): PermissaoModulo | undefined {
+export function moduleFromRoute(pathname: string): PermissaoModulo | undefined {
   const [primeiro, segundo] = pathname.split('/').filter(Boolean);
   if (primeiro === 'expert-reports' && segundo === 'templates') return 'report_templates';
   return primeiro ? MODULO_POR_SEGMENTO[primeiro] : undefined;

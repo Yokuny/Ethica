@@ -1,11 +1,11 @@
-import { type VistoriaDados, vistoriaDadosSchema } from '@ethica/contracts';
+import { type InspectionData, inspectionDataSchema } from '@ethica/contracts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { apagarRascunho, lerRascunho, type Rascunho, salvarRascunho } from '@/lib/offline/store.js';
-import { atualizarPendencias, sincronizar } from '@/lib/offline/sync.js';
-import { type VistoriaDoDia, type VistoriaRecord, vistoriaKeys } from '@/query/vistoria.js';
+import { type Draft, deleteDraft, readDraft, saveDraft } from '@/lib/offline/store.js';
+import { atualizarPendencias, runSync } from '@/lib/offline/sync.js';
+import { type DayInspection, type InspectionRecord, inspectionKeys } from '@/query/inspection.js';
 
 // Campo opcional vazio no formulário vira ausente, como o contrato espera.
 const limpar = <T>(valor: T): T => {
@@ -24,38 +24,38 @@ const ENVIO_APOS_MS = 1500;
 
 // Registro da vistoria (CAM-02, CAM-05): cada mudança fica no aparelho na hora e é enviada
 // pouco depois, se houver conexão; a versão de base vem do rascunho ou do servidor (AD-128).
-export function useRegistro(item: VistoriaDoDia, rascunhoInicial?: Rascunho) {
+export function useRegistro(item: DayInspection, initialDraft?: Draft) {
   const queryClient = useQueryClient();
-  const compromissoId = item.compromisso.id;
-  const form = useForm<VistoriaDados>({
-    resolver: zodResolver(vistoriaDadosSchema),
-    defaultValues: rascunhoInicial?.dados ?? item.vistoria.dados,
+  const appointmentId = item.appointment.id;
+  const form = useForm<InspectionData>({
+    resolver: zodResolver(inspectionDataSchema),
+    defaultValues: initialDraft?.dados ?? item.inspection.dados,
   });
-  const [conflito, setConflito] = useState<VistoriaRecord | undefined>(rascunhoInicial?.conflito);
+  const [conflict, setConflict] = useState<InspectionRecord | undefined>(initialDraft?.conflict);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const ignorar = useRef(false);
 
   const serverVersion = () =>
-    queryClient.getQueryData<VistoriaDoDia>(vistoriaKeys.detail(compromissoId))?.vistoria.versao ??
-    item.vistoria.versao;
+    queryClient.getQueryData<DayInspection>(inspectionKeys.detail(appointmentId))?.inspection.versao ??
+    item.inspection.versao;
 
   async function enviar() {
     if (!(await form.trigger())) return;
-    await sincronizar(queryClient);
-    setConflito((await lerRascunho(compromissoId))?.conflito);
+    await runSync(queryClient);
+    setConflict((await readDraft(appointmentId))?.conflict);
   }
 
   useEffect(() => {
-    const assinatura = form.watch((valores) => {
+    const signature = form.watch((valores) => {
       if (ignorar.current) return;
       void (async () => {
-        const existente = await lerRascunho(compromissoId);
-        await salvarRascunho({
-          compromissoId,
+        const existente = await readDraft(appointmentId);
+        await saveDraft({
+          appointmentId,
           versao: existente?.versao ?? serverVersion(),
-          dados: limpar(valores) as VistoriaDados,
+          dados: limpar(valores) as InspectionData,
           alteradoEm: new Date().toISOString(),
-          ...(existente?.conflito ? { conflito: existente.conflito } : {}),
+          ...(existente?.conflict ? { conflict: existente.conflict } : {}),
         });
         await atualizarPendencias();
       })();
@@ -63,30 +63,30 @@ export function useRegistro(item: VistoriaDoDia, rascunhoInicial?: Rascunho) {
       timer.current = setTimeout(() => void enviar(), ENVIO_APOS_MS);
     });
     return () => {
-      assinatura.unsubscribe();
+      signature.unsubscribe();
       clearTimeout(timer.current);
     };
   });
 
   // Conflito: manter a versão do aparelho (grava sobre a do servidor) ou usar a do servidor.
   async function keepMine() {
-    const rascunho = await lerRascunho(compromissoId);
-    if (!rascunho || !conflito) return;
-    await salvarRascunho({ ...rascunho, versao: conflito.versao, conflito: undefined });
-    setConflito(undefined);
+    const draft = await readDraft(appointmentId);
+    if (!draft || !conflict) return;
+    await saveDraft({ ...draft, versao: conflict.versao, conflict: undefined });
+    setConflict(undefined);
     await enviar();
   }
 
   async function keepServer() {
-    if (!conflito) return;
-    await apagarRascunho(compromissoId);
+    if (!conflict) return;
+    await deleteDraft(appointmentId);
     ignorar.current = true;
-    form.reset(conflito.dados);
+    form.reset(conflict.dados);
     ignorar.current = false;
-    setConflito(undefined);
+    setConflict(undefined);
     await atualizarPendencias();
-    await queryClient.invalidateQueries({ queryKey: vistoriaKeys.detail(compromissoId) });
+    await queryClient.invalidateQueries({ queryKey: inspectionKeys.detail(appointmentId) });
   }
 
-  return { form, conflito, enviar, keepMine, keepServer };
+  return { form, conflict, enviar, keepMine, keepServer };
 }

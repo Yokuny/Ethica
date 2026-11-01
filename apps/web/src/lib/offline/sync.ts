@@ -1,17 +1,17 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { useSyncExternalStore } from 'react';
 import { patch, put, sendFile } from '@/lib/api/client.api.js';
-import { type VistoriaRecord, vistoriaKeys } from '@/query/vistoria.js';
+import { type InspectionRecord, inspectionKeys } from '@/query/inspection.js';
 import {
-  apagarMidia,
-  apagarRascunho,
   apagarStatus,
-  guardarMidia,
-  lerRascunho,
-  listarMidias,
-  listarRascunhos,
+  deleteDraft,
+  deleteMedia,
   listarStatus,
-  salvarRascunho,
+  listDrafts,
+  listMedia,
+  readDraft,
+  saveDraft,
+  storeMedia,
 } from './store.js';
 
 // Envio do que ficou no aparelho (AD-128): status, depois formulários, depois mídias. Formulário
@@ -19,17 +19,17 @@ import {
 // fica para a próxima tentativa, nunca some.
 export type EstadoSync = {
   online: boolean;
-  sincronizando: boolean;
+  syncing: boolean;
   pending: number;
-  conflitos: number;
+  conflicts: number;
   falhas: number;
 };
 
 let estado: EstadoSync = {
   online: typeof navigator === 'undefined' ? true : navigator.onLine,
-  sincronizando: false,
+  syncing: false,
   pending: 0,
-  conflitos: 0,
+  conflicts: 0,
   falhas: 0,
 };
 const ouvintes = new Set<() => void>();
@@ -49,56 +49,56 @@ export const useEstadoSync = (): EstadoSync =>
 
 // Conta o que ainda está só no aparelho, sem enviar.
 export const atualizarPendencias = async () => {
-  const [status, rascunhos, midias] = await Promise.all([listarStatus(), listarRascunhos(), listarMidias()]);
+  const [status, drafts, media] = await Promise.all([listarStatus(), listDrafts(), listMedia()]);
   publicar({
-    pending: status.length + rascunhos.length + midias.length,
-    conflitos: rascunhos.filter((rascunho) => rascunho.conflito).length,
-    falhas: midias.filter((midia) => midia.falha).length,
+    pending: status.length + drafts.length + media.length,
+    conflicts: drafts.filter((draft) => draft.conflict).length,
+    falhas: media.filter((media) => media.falha).length,
   });
 };
 
-export const sincronizar = async (queryClient: QueryClient) => {
-  if (estado.sincronizando || !navigator.onLine) return;
-  publicar({ sincronizando: true });
+export const runSync = async (queryClient: QueryClient) => {
+  if (estado.syncing || !navigator.onLine) return;
+  publicar({ syncing: true });
   try {
     for (const item of await listarStatus()) {
-      const res = await patch(`/agenda/${item.compromissoId}`, { status: item.status, motivo: item.motivo });
-      if (res.success) await apagarStatus(item.compromissoId);
+      const res = await patch(`/agenda/${item.appointmentId}`, { status: item.status, reason: item.reason });
+      if (res.success) await apagarStatus(item.appointmentId);
     }
-    for (const rascunho of await listarRascunhos()) {
-      if (rascunho.conflito) continue;
-      const res = await put<VistoriaRecord>(`/inspections/${rascunho.compromissoId}`, {
-        versao: rascunho.versao,
-        dados: rascunho.dados,
+    for (const draft of await listDrafts()) {
+      if (draft.conflict) continue;
+      const res = await put<InspectionRecord>(`/inspections/${draft.appointmentId}`, {
+        versao: draft.versao,
+        dados: draft.dados,
       });
       // Edição feita durante o envio continua no aparelho, agora sobre a versão nova.
-      const atual = await lerRascunho(rascunho.compromissoId);
+      const atual = await readDraft(draft.appointmentId);
       if (res.success && res.data) {
-        if (atual?.alteradoEm === rascunho.alteradoEm) await apagarRascunho(rascunho.compromissoId);
-        else if (atual) await salvarRascunho({ ...atual, versao: res.data.versao });
-      } else if (res.data && atual) await salvarRascunho({ ...atual, conflito: res.data });
+        if (atual?.alteradoEm === draft.alteradoEm) await deleteDraft(draft.appointmentId);
+        else if (atual) await saveDraft({ ...atual, versao: res.data.versao });
+      } else if (res.data && atual) await saveDraft({ ...atual, conflict: res.data });
     }
-    for (const midia of await listarMidias()) {
-      const query = new URLSearchParams({ tipo: midia.tipo, ...(midia.legenda ? { legenda: midia.legenda } : {}) });
+    for (const media of await listMedia()) {
+      const query = new URLSearchParams({ tipo: media.tipo, ...(media.caption ? { caption: media.caption } : {}) });
       const res = await sendFile(
-        `/inspections/${midia.compromissoId}/media/${midia.midiaId}?${query.toString()}`,
-        midia.blob,
-        midia.mime,
+        `/inspections/${media.appointmentId}/media/${media.mediaId}?${query.toString()}`,
+        media.blob,
+        media.mime,
         'PUT',
       );
-      if (res.success) await apagarMidia(midia.midiaId);
-      else if (navigator.onLine) await guardarFalha(midia.midiaId, res.message ?? '');
+      if (res.success) await deleteMedia(media.mediaId);
+      else if (navigator.onLine) await guardarFalha(media.mediaId, res.message ?? '');
     }
   } finally {
-    publicar({ sincronizando: false });
+    publicar({ syncing: false });
     await atualizarPendencias();
-    await queryClient.invalidateQueries({ queryKey: vistoriaKeys.all });
+    await queryClient.invalidateQueries({ queryKey: inspectionKeys.all });
   }
 };
 
-const guardarFalha = async (midiaId: string, falha: string) => {
-  const midia = (await listarMidias()).find((item) => item.midiaId === midiaId);
-  if (midia) await guardarMidia({ ...midia, falha });
+const guardarFalha = async (mediaId: string, falha: string) => {
+  const media = (await listMedia()).find((item) => item.mediaId === mediaId);
+  if (media) await storeMedia({ ...media, falha });
 };
 
 // Nova tentativa enquanto houver pendência: o evento `online` nem sempre chega (rede que volta
@@ -113,7 +113,7 @@ export const iniciarSync = (queryClient: QueryClient) => {
   iniciado = true;
   const tentar = () => {
     publicar({ online: navigator.onLine });
-    void sincronizar(queryClient);
+    void runSync(queryClient);
   };
   window.addEventListener('online', tentar);
   window.addEventListener('offline', () => publicar({ online: false }));
@@ -121,5 +121,5 @@ export const iniciarSync = (queryClient: QueryClient) => {
   setInterval(() => {
     if (estado.pending > 0 || !estado.online) tentar();
   }, NEW_ATTEMPT_MS);
-  void atualizarPendencias().then(() => sincronizar(queryClient));
+  void atualizarPendencias().then(() => runSync(queryClient));
 };

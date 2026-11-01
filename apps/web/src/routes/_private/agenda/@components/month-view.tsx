@@ -7,7 +7,7 @@ import {
   weekdayIndexOfDisplayDate,
 } from '@/lib/helpers/displayTime.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
-import type { CompromissoRecord } from '@/query/compromisso.js';
+import type { AppointmentRecord } from '@/query/appointment.js';
 import type { DeadlineRecord } from '@/query/deadline.js';
 import { itemOverlapsDay } from '../@utils/calendar-grid.utils.js';
 import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
@@ -16,8 +16,8 @@ import { CalendarMonthCell, CalendarMonthGrid } from './calendar-grid.js';
 export type MonthViewProps = {
   // Qualquer data de parede dentro do mês exibido (YYYY-MM-DD).
   month: string;
-  items: CompromissoRecord[];
-  onSelect: (item: CompromissoRecord) => void;
+  items: AppointmentRecord[];
+  onSelect: (item: AppointmentRecord) => void;
   // Prazos pendentes: entram primeiro no dia do vencimento, sem contar no limite de compromissos.
   deadlines?: DeadlineRecord[];
   onSelectDeadline?: (deadline: DeadlineRecord) => void;

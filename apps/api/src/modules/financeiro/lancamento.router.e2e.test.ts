@@ -149,10 +149,10 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     });
 
     const resumo = (await as(request(app).get('/finance/summary'))).body.data;
-    expect(resumo).toMatchObject({ aReceberCents: 280_000, lateCents: 280_000, recebidoMesCents: 150_000 });
+    expect(resumo).toMatchObject({ aReceberCents: 280_000, lateCents: 280_000, receivedMonthCents: 150_000 });
 
-    const fluxo = (await as(request(app).get('/finance/flow?meses=1'))).body.data;
-    expect(fluxo).toEqual([{ mes: today.slice(0, 7), recebidoCents: 150_000, aReceberCents: 0, despesasCents: 0 }]);
+    const fluxo = (await as(request(app).get('/finance/flow?months=1'))).body.data;
+    expect(fluxo).toEqual([{ month: today.slice(0, 7), recebidoCents: 150_000, aReceberCents: 0, despesasCents: 0 }]);
 
     const atrasados = (await as(request(app).get('/finance/entries?state=overdue'))).body.data;
     expect(atrasados.items.map((item: { id: string }) => item.id)).toEqual([id]);

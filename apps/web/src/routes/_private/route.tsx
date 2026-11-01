@@ -5,7 +5,7 @@ import { MobileDock } from '../../components/mobile-dock.js';
 import { t } from '../../lib/helpers/translate.helper.js';
 import { can, type SessionView, sessionQuery } from '../../query/session.js';
 import { WorkspaceNavigation } from './@components/workspace-navigation.js';
-import { moduloDaRota } from './@utils/home-access.js';
+import { moduleFromRoute } from './@utils/home-access.js';
 
 // Tech Decisions (design.md): beforeLoad + ensureQueryData(GET /auth/session),
 // NUNCA Zustand — evita a segunda fonte de verdade que causaria o loop de
@@ -29,7 +29,7 @@ export const beforeLoad = async ({
     throw redirect({ to: '/auth' });
   }
   // Guarda única dos módulos pela matriz (AD-137): sem `ver`, volta ao início.
-  const modulo = location ? moduloDaRota(location.pathname) : undefined;
+  const modulo = location ? moduleFromRoute(location.pathname) : undefined;
   if (modulo && !can(session, modulo)) throw redirect({ to: '/' });
 };
 

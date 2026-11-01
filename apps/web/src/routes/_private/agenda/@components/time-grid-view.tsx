@@ -3,7 +3,7 @@ import { ScrollArea } from '@ethica/ui/components/scroll-area';
 import { weekdayIndexOfDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
-import type { CompromissoRecord } from '@/query/compromisso.js';
+import type { AppointmentRecord } from '@/query/appointment.js';
 import type { DeadlineRecord } from '@/query/deadline.js';
 import { computePositionedItems, HOUR_HEIGHT_PX, HOURS_IN_DAY } from '../@utils/calendar-grid.utils.js';
 import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
@@ -18,8 +18,8 @@ export type TimeGridViewProps = {
   // Datas de parede (YYYY-MM-DD, fuso de exibição) das colunas — 1 elemento
   // pra visão de dia, 7 pra visão de semana; mesmo componente pros dois.
   days: string[];
-  items: CompromissoRecord[];
-  onSelect: (item: CompromissoRecord) => void;
+  items: AppointmentRecord[];
+  onSelect: (item: AppointmentRecord) => void;
   // Prazos pendentes: faixa "dia inteiro" sob o cabeçalho (prazo é um dia, não um horário).
   deadlines?: DeadlineRecord[];
   onSelectDeadline?: (deadline: DeadlineRecord) => void;

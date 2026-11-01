@@ -96,7 +96,7 @@ export const list = async (
   });
 
 // Escritas só valem em rascunho: o filtro por `status: 'draft'` é o bloqueio no servidor (AD-126).
-const rascunho = (tenantId: string, id: string, extra: Record<string, unknown> = {}) =>
+const draft = (tenantId: string, id: string, extra: Record<string, unknown> = {}) =>
   tenantScoped({ Tenant: tenantId, _id: id, status: 'draft' as const, ...extra });
 
 export const updateSecao = async (
@@ -109,10 +109,10 @@ export const updateSecao = async (
     const $set = Object.fromEntries(
       Object.entries(data)
         .filter(([, valor]) => valor !== undefined)
-        .map(([campo, valor]) => [`secoes.$.${campo}`, valor]),
+        .map(([field, valor]) => [`secoes.$.${field}`, valor]),
     );
     const doc = await Laudo.findOneAndUpdate(
-      rascunho(tenantId, id, { 'secoes._id': toObjectId(secaoId) }),
+      draft(tenantId, id, { 'secoes._id': toObjectId(secaoId) }),
       { $set },
       { returnDocument: 'after', runValidators: true },
     ).lean();
@@ -122,7 +122,7 @@ export const updateSecao = async (
 export const removeSecao = async (tenantId: string, id: string, secaoId: string): Promise<LaudoRecord | null> =>
   withDbTiming('laudo.removeSecao', async () => {
     const doc = await Laudo.findOneAndUpdate(
-      rascunho(tenantId, id, { 'secoes._id': toObjectId(secaoId), 'secoes.1': { $exists: true } }),
+      draft(tenantId, id, { 'secoes._id': toObjectId(secaoId), 'secoes.1': { $exists: true } }),
       { $pull: { secoes: { _id: toObjectId(secaoId) } } },
       { returnDocument: 'after' },
     ).lean();
@@ -139,7 +139,7 @@ export const concluir = async (
 ): Promise<LaudoRecord | null> =>
   withDbTiming('laudo.concluir', async () => {
     const doc = await Laudo.findOneAndUpdate(
-      rascunho(tenantId, id),
+      draft(tenantId, id),
       {
         $set: {
           status: 'completed',
@@ -153,9 +153,9 @@ export const concluir = async (
     return doc ? toRecord(doc) : null;
   });
 
-export const removeRascunho = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>
-  withDbTiming('laudo.removeRascunho', async () => {
-    const result = await Laudo.deleteOne(rascunho(tenantId, id));
+export const removeDraft = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>
+  withDbTiming('laudo.removeDraft', async () => {
+    const result = await Laudo.deleteOne(draft(tenantId, id));
     return { deletedCount: result.deletedCount ?? 0 };
   });
 

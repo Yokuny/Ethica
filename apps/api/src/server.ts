@@ -9,7 +9,7 @@ import { proximaExecucao, sendDeadlineNotices } from './modules/agenda/deadlineR
 // execução agenda a próxima. Uma réplica da API por ambiente (design.md, Risks).
 const scheduleDeadlineNotices = (): void => {
   const deps = { mail: buildMailProvider(), appUrl: env.CORS_ORIGIN };
-  const agendar = () => {
+  const schedule = () => {
     const delay = proximaExecucao(new Date()).getTime() - Date.now();
     setTimeout(async () => {
       try {
@@ -20,10 +20,10 @@ const scheduleDeadlineNotices = (): void => {
           JSON.stringify({ event: 'deadline_notice.failed', message: e instanceof Error ? e.message : String(e) }),
         );
       }
-      agendar();
+      schedule();
     }, delay).unref();
   };
-  agendar();
+  schedule();
 };
 
 // `opts` existe só pra permitir que o teste injete uma porta efêmera (0).

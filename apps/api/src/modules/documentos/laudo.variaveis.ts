@@ -1,13 +1,13 @@
-import type { Side, VistoriaDados } from '@ethica/contracts';
+import type { InspectionData, Side } from '@ethica/contracts';
 import { dateInDisplayTz, timeInDisplayTz } from '@ethica/db';
-import type { CompromissoRecord } from '../agenda/compromisso.schema.js';
+import type { AppointmentRecord } from '../agenda/appointment.schema.js';
 import type { CaseRecord } from '../case/case.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
-import { dia, rotulo } from './documento.layout.js';
+import { day, rotulo } from './documento.layout.js';
 import type { ValoresDoLaudo } from './laudo.html.js';
 
-const MESES = [
+const MONTHS = [
   'janeiro',
   'fevereiro',
   'março',
@@ -23,8 +23,8 @@ const MESES = [
 ];
 
 const porExtenso = (data: string): string => {
-  const [ano, mes, d] = data.split('-');
-  return `${Number(d)} de ${MESES[Number(mes) - 1]} de ${ano}`;
+  const [year, month, d] = data.split('-');
+  return `${Number(d)} de ${MONTHS[Number(month) - 1]} de ${year}`;
 };
 
 // Denominação das partes pela justiça (LAU-06): trabalhista reclamante/reclamada; cível e
@@ -45,11 +45,11 @@ export type DadosDasVariaveis = {
   legalCase: CaseRecord;
   expert: AccountView;
   identity: DocumentIdentity;
-  compromissos: CompromissoRecord[];
+  appointments: AppointmentRecord[];
   // Última vistoria feita com registro (AD-130): os dados e o início. Sem ela, as variáveis de
   // campo ficam pendentes e data/hora vêm da vistoria mais recente não cancelada.
-  campo?: { dados: VistoriaDados; inicio: Date };
-  hoje: string;
+  field?: { dados: InspectionData; inicio: Date };
+  today: string;
 };
 
 type Denominacao = (typeof DENOMINACAO)[keyof typeof DENOMINACAO];
@@ -58,7 +58,7 @@ type Denominacao = (typeof DENOMINACAO)[keyof typeof DENOMINACAO];
 const juntar = (itens: string[]): string => (itens.length ? itens.join('; ') : 'nenhum');
 const entre = (parties: Array<string | undefined>): string => parties.filter(Boolean).join(', ');
 
-const qualidade = (valor: VistoriaDados['presentes'][number]['qualidade'], denominacao: Denominacao): string => {
+const capacity = (valor: InspectionData['attendees'][number]['capacity'], denominacao: Denominacao): string => {
   if (valor === 'plaintiff') return denominacao.plaintiff;
   if (valor === 'defendant') return denominacao.defendant;
   if (valor === 'plaintiff_lawyer') return `advogado(a) do(a) ${denominacao.plaintiff.toLowerCase()}`;
@@ -66,51 +66,51 @@ const qualidade = (valor: VistoriaDados['presentes'][number]['qualidade'], denom
   return rotulo(valor).toLowerCase();
 };
 
-const valoresDeCampo = (campo: VistoriaDados, denominacao: Denominacao): ValoresDoLaudo => {
-  const paradigmas = (side: Side) =>
+const fieldValues = (field: InspectionData, denominacao: Denominacao): ValoresDoLaudo => {
+  const comparators = (side: Side) =>
     juntar(
-      campo.paradigmas
-        .filter((paradigma) => paradigma.side === side)
+      field.comparators
+        .filter((comparator) => comparator.side === side)
         .map((p) => {
-          const detalhes = entre([p.funcao, p.periodo, p.trabalhouJunto ? 'trabalhou junto' : undefined]);
+          const detalhes = entre([p.job, p.period, p.workedTogether ? 'trabalhou junto' : undefined]);
           return detalhes ? `${p.nome} (${detalhes})` : p.nome;
         }),
     );
-  const funcoes = (versao: 'plaintiff' | 'defendant') =>
+  const jobs = (versao: 'plaintiff' | 'defendant') =>
     juntar(
-      campo.funcoes.map((funcao) => {
-        const periodo = [funcao.anoInicio, funcao.anoFim].filter(Boolean).join(' a ');
-        const cabecalho = entre([periodo || undefined, funcao.local]);
-        const { atividades, frequencia, timeExposure } = funcao[versao];
-        const relato = entre([
+      field.jobs.map((job) => {
+        const period = [job.yearStart, job.yearEnd].filter(Boolean).join(' a ');
+        const cabecalho = entre([period || undefined, job.local]);
+        const { atividades, frequency, timeExposure } = job[versao];
+        const statement = entre([
           atividades,
-          frequencia && `frequência: ${frequencia}`,
+          frequency && `frequência: ${frequency}`,
           timeExposure && `exposição: ${timeExposure}`,
         ]);
-        return `${funcao.titulo}${cabecalho ? ` (${cabecalho})` : ''}: ${relato || 'sem relato'}`;
+        return `${job.titulo}${cabecalho ? ` (${cabecalho})` : ''}: ${statement || 'sem relato'}`;
       }),
     );
-  const agentes = (presente: 'yes' | 'no') =>
+  const agents = (present: 'yes' | 'no') =>
     juntar(
-      campo.agentes
-        .filter((agente) => agente.presente === presente)
-        .map((agente) => {
-          const detalhes = entre([agente.epi && `EPI: ${agente.epi}`, agente.observacoes]);
-          return detalhes ? `${rotulo(agente.agente)} (${detalhes})` : rotulo(agente.agente);
+      field.agents
+        .filter((agent) => agent.present === present)
+        .map((agent) => {
+          const detalhes = entre([agent.ppe && `EPI: ${agent.ppe}`, agent.observacoes]);
+          return detalhes ? `${rotulo(agent.agent)} (${detalhes})` : rotulo(agent.agent);
         }),
     );
   return {
     '[PRESENTES_VISTORIA]': juntar(
-      campo.presentes.map((presente) => `${presente.nome} (${qualidade(presente.qualidade, denominacao)})`),
+      field.attendees.map((attendee) => `${attendee.nome} (${capacity(attendee.capacity, denominacao)})`),
     ),
-    '[PARADIGMAS_AUTOR]': paradigmas('plaintiff'),
-    '[PARADIGMAS_REU]': paradigmas('defendant'),
-    '[FUNCOES_AUTOR]': funcoes('plaintiff'),
-    '[FUNCOES_REU]': funcoes('defendant'),
-    '[AGENTES_PRESENTES]': agentes('yes'),
-    '[AGENTES_AUSENTES]': agentes('no'),
+    '[PARADIGMAS_AUTOR]': comparators('plaintiff'),
+    '[PARADIGMAS_REU]': comparators('defendant'),
+    '[FUNCOES_AUTOR]': jobs('plaintiff'),
+    '[FUNCOES_REU]': jobs('defendant'),
+    '[AGENTES_PRESENTES]': agents('yes'),
+    '[AGENTES_AUSENTES]': agents('no'),
     '[DOCUMENTOS_SOLICITADOS]': juntar(
-      campo.documentos.filter((documento) => documento.solicitado).map((documento) => rotulo(documento.documento)),
+      field.documentos.filter((documento) => documento.requested).map((documento) => rotulo(documento.documento)),
     ),
   };
 };
@@ -120,15 +120,15 @@ export const valoresDoLaudo = ({
   legalCase,
   expert,
   identity,
-  compromissos,
-  campo,
-  hoje,
+  appointments,
+  field,
+  today,
 }: DadosDasVariaveis): ValoresDoLaudo => {
   const denominacao = DENOMINACAO[legalCase.courtType];
-  const inicioDaVistoria =
-    campo?.inicio ??
-    compromissos
-      .filter((compromisso) => compromisso.tipo === 'inspection' && compromisso.status !== 'canceled')
+  const inspectionStart =
+    field?.inicio ??
+    appointments
+      .filter((appointment) => appointment.tipo === 'inspection' && appointment.status !== 'canceled')
       .sort((a, b) => b.inicio.getTime() - a.inicio.getTime())[0]?.inicio;
   const { nonPrescribedPeriodStart: inicio, nonPrescribedPeriodEnd: fim } = legalCase;
   return {
@@ -144,19 +144,19 @@ export const valoresDoLaudo = ({
     '[DENOMINACAO_REU]': denominacao.defendant,
     '[ADVOGADOS_AUTOR]': nomes(legalCase, 'plaintiff', 'lawyer'),
     '[ADVOGADOS_REU]': nomes(legalCase, 'defendant', 'lawyer'),
-    '[DATA_NOMEACAO]': dia(legalCase.nominationDate),
-    '[DATA_VISTORIA]': inicioDaVistoria ? dia(dateInDisplayTz(inicioDaVistoria)) : undefined,
-    '[HORA_VISTORIA]': inicioDaVistoria ? timeInDisplayTz(inicioDaVistoria) : undefined,
+    '[DATA_NOMEACAO]': day(legalCase.nominationDate),
+    '[DATA_VISTORIA]': inspectionStart ? day(dateInDisplayTz(inspectionStart)) : undefined,
+    '[HORA_VISTORIA]': inspectionStart ? timeInDisplayTz(inspectionStart) : undefined,
     '[LOCAL_PERICIA]': legalCase.location,
     '[FUNCAO_RECLAMANTE]': legalCase.claimantJob,
-    '[DATA_ADMISSAO]': dia(legalCase.hireDate),
-    '[DATA_DEMISSAO]': dia(legalCase.terminationDate),
-    '[PERIODO_IMPRESCRITO]': inicio && fim ? `${dia(inicio)} a ${dia(fim)}` : undefined,
-    '[DATA_EXTENSO]': porExtenso(hoje),
+    '[DATA_ADMISSAO]': day(legalCase.hireDate),
+    '[DATA_DEMISSAO]': day(legalCase.terminationDate),
+    '[PERIODO_IMPRESCRITO]': inicio && fim ? `${day(inicio)} a ${day(fim)}` : undefined,
+    '[DATA_EXTENSO]': porExtenso(today),
     '[PERITO_NOME]': expert.name,
     '[PERITO_REGISTRO]': expert.registroProfissional,
     '[PERITO_FORMACAO]': expert.formacao,
     '[ESCRITORIO_NOME]': identity.name,
-    ...(campo ? valoresDeCampo(campo.dados, denominacao) : {}),
+    ...(field ? fieldValues(field.dados, denominacao) : {}),
   };
 };

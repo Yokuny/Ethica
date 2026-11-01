@@ -47,8 +47,8 @@ const renderHome = (role: Role[]) => {
   queryClient.setQueryData(['lancamento', 'resumo'], {
     aReceberCents: 1_250_000,
     lateCents: 0,
-    recebidoMesCents: 0,
-    despesasMesCents: 0,
+    receivedMonthCents: 0,
+    expensesMonthCents: 0,
   });
   render(
     <QueryClientProvider client={queryClient}>

@@ -39,25 +39,25 @@ img { display: block; max-width: 100%; max-height: 120mm; margin: 3mm auto 1mm; 
 
 const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 
-const linhaCapa = (rotulo: string | undefined, valor: string | undefined): string =>
+const coverRow = (rotulo: string | undefined, valor: string | undefined): string =>
   rotulo && valor ? `<div><dt>${esc(rotulo)}:</dt><dd>${esc(valor)}</dd></div>` : '';
 
 // Foto da vistoria vira data URL (o Chromium roda sem rede, AD-119/AD-129); a que sumiu sai.
-const comFotos = (html: string, fotos: LaudoExportDados['fotos']): string =>
+const withPhotos = (html: string, photos: LaudoExportDados['photos']): string =>
   html.replace(/<img([^>]*)src="([^"]+)"([^>]*)>/g, (_tag, antes: string, src: string, depois: string) => {
-    const foto = fotos[src];
-    return foto ? `<img${antes}src="data:${foto.mime};base64,${foto.body.toString('base64')}"${depois}>` : '';
+    const photo = photos[src];
+    return photo ? `<img${antes}src="data:${photo.mime};base64,${photo.body.toString('base64')}"${depois}>` : '';
   });
 
-export const laudoHtml = ({ laudo, legalCase, identity, expert, valores, fotos }: LaudoExportDados): PdfDocument => {
+export const laudoHtml = ({ laudo, legalCase, identity, expert, valores, photos }: LaudoExportDados): PdfDocument => {
   const numeros = numerarSecoes(laudo.secoes);
-  const capa = `<section class="capa"><div><p class="tipo">${TIPO[laudo.tipo]}</p><dl>${[
-    linhaCapa('Processo nº', legalCase.processNumber),
-    linhaCapa('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
-    linhaCapa('Tribunal', legalCase.court),
-    linhaCapa(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
-    linhaCapa(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
-    linhaCapa('Objeto', legalCase.subject),
+  const cover = `<section class="capa"><div><p class="tipo">${TIPO[laudo.tipo]}</p><dl>${[
+    coverRow('Processo nº', legalCase.processNumber),
+    coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
+    coverRow('Tribunal', legalCase.court),
+    coverRow(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
+    coverRow(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
+    coverRow('Objeto', legalCase.subject),
   ].join('')}</dl></div><div class="assinatura"><p><strong>${esc(expert.name)}</strong></p>${[
     expert.formacao,
     expert.registroProfissional,
@@ -72,11 +72,11 @@ export const laudoHtml = ({ laudo, legalCase, identity, expert, valores, fotos }
     .map((secao, i) => {
       const nivel = Math.min(secao.nivel, 3);
       const tag = `h${nivel + 1}`;
-      return `<section class="secao${secao.quebraPagina ? ' quebra' : ''}"><${tag} class="titulo-secao n${nivel}">${numeros[i]}. ${esc(secao.titulo)}</${tag}>${secao.apenasTitulo ? '' : comFotos(secao.html, fotos)}</section>`;
+      return `<section class="secao${secao.quebraPagina ? ' quebra' : ''}"><${tag} class="titulo-secao n${nivel}">${numeros[i]}. ${esc(secao.titulo)}</${tag}>${secao.apenasTitulo ? '' : withPhotos(secao.html, photos)}</section>`;
     })
     .join('');
   return {
-    html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(TIPO[laudo.tipo])} ${esc(legalCase.processNumber)}</title><style>${CSS}</style></head><body>${capa}${sumario}${secoes}</body></html>`,
+    html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(TIPO[laudo.tipo])} ${esc(legalCase.processNumber)}</title><style>${CSS}</style></head><body>${cover}${sumario}${secoes}</body></html>`,
     ...cabecalhoRodape(identity, expert.name),
   };
 };

@@ -1,17 +1,17 @@
 import type { ZodType } from 'zod';
 import {
-  compromissoIdParamSchema,
-  listCompromissosQuerySchema,
-  upcomingCompromissosQuerySchema,
-} from './agenda/compromisso.schema.js';
+  appointmentIdParamSchema,
+  listAppointmentsQuerySchema,
+  upcomingAppointmentsQuerySchema,
+} from './agenda/appointment.schema.js';
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import {
   inspectionCaseParamSchema,
-  midiaUploadQuerySchema,
-  vistoriaDiaQuerySchema,
-  vistoriaMidiaParamSchema,
-  vistoriaParamSchema,
-} from './agenda/vistoria.schema.js';
+  inspectionDayQuerySchema,
+  inspectionMediaParamSchema,
+  inspectionParamSchema,
+  mediaUploadQuerySchema,
+} from './agenda/inspection.schema.js';
 import { caseIdParamSchema, listCasesQuerySchema, movementIdParamSchema } from './case/case.schema.js';
 import { deadlineIdParamSchema, listPendingDeadlinesQuerySchema } from './case/deadline.schema.js';
 import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
@@ -54,11 +54,11 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listCasesQuerySchema', schema: listCasesQuerySchema },
   { name: 'movementIdParamSchema', schema: movementIdParamSchema },
   { name: 'documentCaseParamSchema', schema: documentCaseParamSchema },
-  { name: 'vistoriaParamSchema', schema: vistoriaParamSchema },
-  { name: 'vistoriaMidiaParamSchema', schema: vistoriaMidiaParamSchema },
+  { name: 'inspectionParamSchema', schema: inspectionParamSchema },
+  { name: 'inspectionMediaParamSchema', schema: inspectionMediaParamSchema },
   { name: 'inspectionCaseParamSchema', schema: inspectionCaseParamSchema },
-  { name: 'vistoriaDiaQuerySchema', schema: vistoriaDiaQuerySchema },
-  { name: 'midiaUploadQuerySchema', schema: midiaUploadQuerySchema },
+  { name: 'inspectionDayQuerySchema', schema: inspectionDayQuerySchema },
+  { name: 'mediaUploadQuerySchema', schema: mediaUploadQuerySchema },
   { name: 'modeloIdParamSchema', schema: modeloIdParamSchema },
   { name: 'modeloSecaoParamSchema', schema: modeloSecaoParamSchema },
   { name: 'laudoIdParamSchema', schema: laudoIdParamSchema },
@@ -69,9 +69,9 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
   { name: 'deadlineIdParamSchema', schema: deadlineIdParamSchema },
   { name: 'listPendingDeadlinesQuerySchema', schema: listPendingDeadlinesQuerySchema },
-  { name: 'compromissoIdParamSchema', schema: compromissoIdParamSchema },
-  { name: 'listCompromissosQuerySchema', schema: listCompromissosQuerySchema },
-  { name: 'upcomingCompromissosQuerySchema', schema: upcomingCompromissosQuerySchema },
+  { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
+  { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },
+  { name: 'upcomingAppointmentsQuerySchema', schema: upcomingAppointmentsQuerySchema },
   { name: 'feedTokenParamSchema', schema: feedTokenParamSchema },
   { name: 'lancamentoIdParamSchema', schema: lancamentoIdParamSchema },
   { name: 'listLancamentosQuerySchema', schema: listLancamentosQuerySchema },

@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import {
+  Appointment,
   Case,
-  Compromisso,
   connect,
   Deadline,
   disconnect,
@@ -56,7 +56,7 @@ describe('feed iCal (PRZ-03)', () => {
   });
   afterEach(async () => {
     await Promise.all(
-      [Compromisso, Deadline, Case, Session, User, Tenant].map((model) => (model as typeof User).deleteMany({})),
+      [Appointment, Deadline, Case, Session, User, Tenant].map((model) => (model as typeof User).deleteMany({})),
     );
   });
   afterAll(async () => {
@@ -78,7 +78,7 @@ describe('feed iCal (PRZ-03)', () => {
       ],
     });
     const amanha = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
-    await Compromisso.create({
+    await Appointment.create({
       Tenant: tenant._id,
       tipo: 'inspection',
       titulo: 'Vistoria',
@@ -87,7 +87,7 @@ describe('feed iCal (PRZ-03)', () => {
       local: 'Rua A, 10',
       Case: legalCase._id,
     });
-    await Compromisso.create({
+    await Appointment.create({
       Tenant: tenant._id,
       tipo: 'meeting',
       titulo: 'Reunião cancelada',
@@ -165,7 +165,7 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
       blocosOcultos: [],
     });
 
-    const destinatarios = await listDeadlineReminderRecipients([ana.tenant.id, bia.tenant.id, suspenso.tenant.id]);
-    expect(destinatarios.map((pessoa) => pessoa.email)).toEqual([ana.user.email]);
+    const recipients = await listDeadlineReminderRecipients([ana.tenant.id, bia.tenant.id, suspenso.tenant.id]);
+    expect(recipients.map((pessoa) => pessoa.email)).toEqual([ana.user.email]);
   });
 });

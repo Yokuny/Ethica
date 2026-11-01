@@ -1,11 +1,11 @@
-import { DEADLINE_DUE_SOON_DAYS, STALLED_CASE_DAYS, VISTORIA_AGENTES, VISTORIA_DOCUMENTOS } from '@ethica/contracts';
+import { DEADLINE_DUE_SOON_DAYS, INSPECTION_AGENTS, INSPECTION_DOCUMENTS, STALLED_CASE_DAYS } from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import {
-  campos,
-  dataHora,
-  dia,
+  dateTime,
+  day,
   dinheiro,
   esc,
+  fields,
   montarDocumento,
   rotulo,
   secao,
@@ -16,14 +16,14 @@ import type {
   ChecklistDados,
   CronogramaDados,
   DocumentoBase,
-  FichaDados,
   FinanceiroDados,
+  SheetData,
   StalledData,
 } from './documentos.schema.js';
 
 // Um documento = função pura (dados) → HTML do PDF; testada sem navegador.
 
-type Case = FichaDados['legalCase'];
+type Case = SheetData['legalCase'];
 
 // Trabalhista nomeia reclamante/reclamada; cível e federal, autor/réu.
 const sidesNames = (legalCase: Case) =>
@@ -48,7 +48,7 @@ const documento = (base: DocumentoBase, titulo: string, subtitulo: string | unde
   });
 
 const processData = (legalCase: Case) =>
-  campos([
+  fields([
     ['Número do processo', legalCase.processNumber],
     ['Justiça', rotulo(legalCase.courtType)],
     ['Tribunal', legalCase.court],
@@ -56,19 +56,19 @@ const processData = (legalCase: Case) =>
     ['Comarca', legalCase.district],
     ['Atuação', rotulo(legalCase.role)],
     ['Etapa', rotulo(legalCase.status)],
-    ['Nomeação', dia(legalCase.nominationDate)],
+    ['Nomeação', day(legalCase.nominationDate)],
     ['Objeto', legalCase.subject],
   ]);
 
 const laborData = (legalCase: Case) =>
-  campos([
-    ['Autuação', dia(legalCase.docketingDate)],
-    ['Admissão', dia(legalCase.hireDate)],
-    ['Demissão', dia(legalCase.terminationDate)],
+  fields([
+    ['Autuação', day(legalCase.docketingDate)],
+    ['Admissão', day(legalCase.hireDate)],
+    ['Demissão', day(legalCase.terminationDate)],
     [
       'Período imprescrito',
       legalCase.nonPrescribedPeriodStart
-        ? `${dia(legalCase.nonPrescribedPeriodStart)} a ${dia(legalCase.nonPrescribedPeriodEnd)}`
+        ? `${day(legalCase.nonPrescribedPeriodStart)} a ${day(legalCase.nonPrescribedPeriodEnd)}`
         : undefined,
     ],
     ['Função do reclamante', legalCase.claimantJob],
@@ -85,8 +85,8 @@ const hasLaborData = (legalCase: Case) =>
       legalCase.location,
   );
 
-export const fichaHtml = (dados: FichaDados): PdfDocument => {
-  const { legalCase, deadlines, compromissos, financeiro, expert } = dados;
+export const sheetHtml = (dados: SheetData): PdfDocument => {
+  const { legalCase, deadlines, appointments, financeiro, expert } = dados;
   const sides = sidesNames(legalCase);
   const parties = legalCase.parties.length
     ? tabela(
@@ -103,22 +103,22 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
         ['Prazo', 'Vencimento', 'Status'],
         deadlines.map((deadline) => [
           esc(deadline.titulo),
-          esc(dia(deadline.vencimento)),
+          esc(day(deadline.vencimento)),
           esc(
-            deadline.filedDate ? `${rotulo(deadline.status)} em ${dia(deadline.filedDate)}` : rotulo(deadline.status),
+            deadline.filedDate ? `${rotulo(deadline.status)} em ${day(deadline.filedDate)}` : rotulo(deadline.status),
           ),
         ]),
       )
     : vazio('Nenhum prazo cadastrado.');
-  const listaCompromissos = compromissos.length
+  const appointmentList = appointments.length
     ? tabela(
         ['Quando', 'Tipo', 'Compromisso', 'Local', 'Status'],
-        compromissos.map((compromisso) => [
-          esc(dataHora(compromisso.inicio)),
-          esc(rotulo(compromisso.tipo)),
-          esc(compromisso.titulo),
-          esc(compromisso.local),
-          esc(rotulo(compromisso.status)),
+        appointments.map((appointment) => [
+          esc(dateTime(appointment.inicio)),
+          esc(rotulo(appointment.tipo)),
+          esc(appointment.titulo),
+          esc(appointment.local),
+          esc(rotulo(appointment.status)),
         ]),
       )
     : vazio('Nenhum compromisso cadastrado.');
@@ -126,7 +126,7 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
     ? tabela(
         ['Data', 'Movimentação', 'Observações'],
         legalCase.movements.map((movement) => [
-          esc(dia(movement.data)),
+          esc(day(movement.data)),
           esc(rotulo(movement.tipo)),
           esc(movement.observacoes),
         ]),
@@ -135,7 +135,7 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
   const resumoFinanceiro = financeiro
     ? secao(
         'Resumo financeiro',
-        campos([
+        fields([
           ['Honorários propostos', dinheiro(legalCase.proposedFeesCents)],
           ['Honorários fixados', dinheiro(legalCase.fixedFeesCents)],
           ['Honorários lançados', dinheiro(financeiro.feesCents)],
@@ -155,12 +155,12 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
       hasLaborData(legalCase) ? secao('Dados do laudo trabalhista', laborData(legalCase)) : '',
       secao('Partes e advogados', parties),
       secao('Prazos', listDeadlines),
-      secao('Compromissos', listaCompromissos),
+      secao('Compromissos', appointmentList),
       secao('Movimentações', movements),
       resumoFinanceiro,
       secao(
         'Perito responsável',
-        campos([
+        fields([
           ['Nome', expert.name],
           ['Registro profissional', expert.registroProfissional],
           ['Formação', expert.formacao],
@@ -170,9 +170,9 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
   );
 };
 
-const AGENTES = VISTORIA_AGENTES.map(rotulo);
+const AGENTS = INSPECTION_AGENTS.map(rotulo);
 
-const DOCUMENTOS_SOLICITADOS = VISTORIA_DOCUMENTOS.map(rotulo);
+const REQUESTED_DOCUMENTS = INSPECTION_DOCUMENTS.map(rotulo);
 
 const CAIXA = '<span class="caixa"></span>';
 const rowsBlank = (quantidade: number, colunas: number) =>
@@ -181,7 +181,7 @@ const rowsBlank = (quantidade: number, colunas: number) =>
 export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
   const { legalCase, expert } = dados;
   const sides = sidesNames(legalCase);
-  const participantes = [
+  const participants = [
     ...legalCase.parties.map((party) => [
       esc(party.nome),
       esc(party.tipo === 'lawyer' ? `Advogado (${sides[party.side].toLowerCase()})` : sides[party.side]),
@@ -198,7 +198,7 @@ export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
     [
       secao(
         'Processo',
-        campos([
+        fields([
           ['Número do processo', legalCase.processNumber],
           ['Tribunal / vara', [legalCase.court, legalCase.division].filter(Boolean).join(' · ')],
           [sides.plaintiff, sideNames(legalCase, 'plaintiff') || '—'],
@@ -209,12 +209,12 @@ export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
           ['Data e hora da vistoria', '____/____/________   ____:____'],
         ]),
       ),
-      secao('Participantes', tabela(['Nome', 'Qualidade', 'Assinatura'], participantes, 'linhas')),
+      secao('Participantes', tabela(['Nome', 'Qualidade', 'Assinatura'], participants, 'linhas')),
       secao(
         'Mapeamento de agentes',
         tabela(
           ['Agente', 'Sim', 'Não', 'Observações'],
-          AGENTES.map((agente) => [esc(agente), CAIXA, CAIXA, '']),
+          AGENTS.map((agent) => [esc(agent), CAIXA, CAIXA, '']),
           'linhas',
         ),
       ),
@@ -227,7 +227,7 @@ export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
         tabela(
           ['', 'Documento', 'Observações'],
           [
-            ...DOCUMENTOS_SOLICITADOS.map((item) => [CAIXA, esc(item), '']),
+            ...REQUESTED_DOCUMENTS.map((item) => [CAIXA, esc(item), '']),
             ...rowsBlank(2, 3).map((l) => [CAIXA, ...l.slice(1)]),
           ],
           'linhas',
@@ -238,15 +238,15 @@ export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
   );
 };
 
-const DIA_MS = 86_400_000;
-const diasAte = (de: string, ate: string) =>
-  Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / DIA_MS);
+const DAY_MS = 86_400_000;
+const daysUntil = (de: string, ate: string) =>
+  Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / DAY_MS);
 
-const faltam = (dias: number) => {
-  if (dias < 0) return `<span class="vencido">Vencido há ${-dias} ${-dias === 1 ? 'dia' : 'dias'}</span>`;
-  if (dias === 0) return '<span class="alerta">Vence hoje</span>';
-  const texto = `Faltam ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
-  return dias <= DEADLINE_DUE_SOON_DAYS ? `<span class="alerta">${texto} · vence em breve</span>` : texto;
+const faltam = (days: number) => {
+  if (days < 0) return `<span class="vencido">Vencido há ${-days} ${-days === 1 ? 'dia' : 'dias'}</span>`;
+  if (days === 0) return '<span class="alerta">Vence hoje</span>';
+  const texto = `Faltam ${days} ${days === 1 ? 'dia' : 'dias'}`;
+  return days <= DEADLINE_DUE_SOON_DAYS ? `<span class="alerta">${texto} · vence em breve</span>` : texto;
 };
 
 export const cronogramaHtml = (dados: CronogramaDados): PdfDocument =>
@@ -258,8 +258,8 @@ export const cronogramaHtml = (dados: CronogramaDados): PdfDocument =>
       ? tabela(
           ['Vencimento', 'Situação', 'Processo', 'Prazo'],
           dados.deadlines.map((deadline) => [
-            esc(dia(deadline.vencimento)),
-            faltam(diasAte(dados.hoje, deadline.vencimento)),
+            esc(day(deadline.vencimento)),
+            faltam(daysUntil(dados.today, deadline.vencimento)),
             esc(deadline.caseNumber),
             esc(deadline.titulo),
           ]),
@@ -274,7 +274,7 @@ const financeRows = (titulo: string, linhas: FinanceiroDados['relatorio']['receb
       ? tabela(
           [rotuloData, 'Descrição', 'Categoria', 'Processo', 'Valor'],
           linhas.map((linha) => [
-            esc(dia(linha.data)),
+            esc(day(linha.data)),
             esc(linha.conta ? `${linha.descricao} (${linha.conta})` : linha.descricao),
             esc(rotulo(linha.categoria)),
             esc(linha.caseNumber),
@@ -285,21 +285,21 @@ const financeRows = (titulo: string, linhas: FinanceiroDados['relatorio']['receb
   );
 
 export const financeiroHtml = (dados: FinanceiroDados): PdfDocument => {
-  const { relatorio, periodo } = dados;
+  const { relatorio, period } = dados;
   const { totais } = relatorio;
   const total = (rotuloTotal: string, cents: number) =>
     `<div><dt>${esc(rotuloTotal)}</dt><dd>${esc(dinheiro(cents))}</dd></div>`;
   return documento(
     dados,
     'Relatório financeiro',
-    `Período de ${dia(periodo.from)} a ${dia(periodo.to)}`,
+    `Período de ${day(period.from)} a ${day(period.to)}`,
     [
       secao(
         'Totais',
         `<dl class="totais">${[
           total('Recebido', totais.recebidoCents),
           total('Pago', totais.pagoCents),
-          total('Saldo realizado', totais.saldoRealizadoCents),
+          total('Saldo realizado', totais.actualBalanceCents),
           total('A receber', totais.aReceberCents),
           total('A pagar', totais.aPagarCents),
           total('Saldo previsto', totais.saldoPrevistoCents),
@@ -325,7 +325,7 @@ export const stalledHtml = (dados: StalledData): PdfDocument =>
             esc(stalled.processNumber),
             esc(rotulo(stalled.status)),
             esc([stalled.court, stalled.division].filter(Boolean).join(' · ')),
-            esc(`${dia(stalled.referencia)} (${rotulo(stalled.origem)})`),
+            esc(`${day(stalled.referencia)} (${rotulo(stalled.origin)})`),
             `<span class="num">${stalled.stalledDays}</span>`,
           ]),
         )

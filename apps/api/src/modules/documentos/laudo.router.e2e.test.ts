@@ -257,12 +257,12 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       .send({ recordDelivery: true });
     expect(concluido.status).toBe(200);
     expect(concluido.body.data.status).toBe('completed');
-    const hoje = dateInDisplayTz(new Date());
+    const today = dateInDisplayTz(new Date());
     const deadline = await Deadline.findOne({ Case: caseId }).lean();
-    expect(deadline).toMatchObject({ status: 'filed', filedDate: hoje });
+    expect(deadline).toMatchObject({ status: 'filed', filedDate: today });
     const depois = await operador.as(request(app).get(`/expert-cases/${caseId}`));
     expect(depois.body.data.status).toBe('report_delivered');
-    expect(depois.body.data.movements).toEqual([expect.objectContaining({ tipo: 'report_filed', data: hoje })]);
+    expect(depois.body.data.movements).toEqual([expect.objectContaining({ tipo: 'report_filed', data: today })]);
 
     const editarConcluido = await operador
       .as(request(app).patch(`/expert-reports/${laudo.id}/sections/${laudo.secoes[0].id}`))

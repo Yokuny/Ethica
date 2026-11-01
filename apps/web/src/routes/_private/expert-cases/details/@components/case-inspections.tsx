@@ -10,16 +10,16 @@ import { Panel } from '@/components/panel.js';
 import { apiUrl } from '@/lib/api/client.api.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { caseInspectionsQuery } from '@/query/vistoria.js';
+import { caseInspectionsQuery } from '@/query/inspection.js';
 
 // Registros de vistoria da perícia (CAM-02.3) e a galeria das fotos (CAM-03.3).
 export function CaseInspections({ caseId }: { caseId: string }) {
   const query = useQuery(caseInspectionsQuery(caseId));
   const registros = query.data ?? [];
-  const fotos = registros.flatMap(({ compromisso, vistoria }) =>
-    vistoria.midias
-      .filter((midia) => midia.tipo === 'photo')
-      .map((midia) => ({ compromissoId: compromisso.id, midia })),
+  const photos = registros.flatMap(({ appointment, inspection }) =>
+    inspection.media
+      .filter((media) => media.tipo === 'photo')
+      .map((media) => ({ appointmentId: appointment.id, media })),
   );
 
   return (
@@ -31,32 +31,32 @@ export function CaseInspections({ caseId }: { caseId: string }) {
       ) : (
         <>
           <LinkList>
-            {registros.map(({ compromisso, vistoria }) => (
+            {registros.map(({ appointment, inspection }) => (
               <LinkListItem
-                key={compromisso.id}
+                key={appointment.id}
                 icon={ClipboardList}
-                render={<Link to="/field/inspection" search={{ id: compromisso.id }} />}
-                title={compromisso.titulo}
-                badges={<Badge variant="secondary">{t(compromisso.status)}</Badge>}
+                render={<Link to="/field/inspection" search={{ id: appointment.id }} />}
+                title={appointment.titulo}
+                badges={<Badge variant="secondary">{t(appointment.status)}</Badge>}
                 description={[
-                  formatDateTime(compromisso.inicio),
-                  `${vistoria.dados.presentes.length} ${t('attendees').toLowerCase()}`,
-                  `${vistoria.midias.filter((midia) => midia.tipo === 'photo').length} ${t('photos').toLowerCase()}`,
+                  formatDateTime(appointment.inicio),
+                  `${inspection.dados.attendees.length} ${t('attendees').toLowerCase()}`,
+                  `${inspection.media.filter((media) => media.tipo === 'photo').length} ${t('photos').toLowerCase()}`,
                 ].join(' · ')}
               />
             ))}
           </LinkList>
-          {fotos.length > 0 && (
+          {photos.length > 0 && (
             <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label={t('photos')}>
-              {fotos.map(({ compromissoId, midia }) => (
-                <li key={midia.id} className="grid gap-1">
+              {photos.map(({ appointmentId, media }) => (
+                <li key={media.id} className="grid gap-1">
                   <img
-                    src={apiUrl(`/inspections/${compromissoId}/media/${midia.id}`)}
-                    alt={midia.legenda ?? ''}
+                    src={apiUrl(`/inspections/${appointmentId}/media/${media.id}`)}
+                    alt={media.caption ?? ''}
                     loading="lazy"
                     className="aspect-4/3 w-full rounded-md object-cover"
                   />
-                  {midia.legenda && <ItemDescription>{midia.legenda}</ItemDescription>}
+                  {media.caption && <ItemDescription>{media.caption}</ItemDescription>}
                 </li>
               ))}
             </ul>
