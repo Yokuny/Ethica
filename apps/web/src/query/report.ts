@@ -1,4 +1,5 @@
 import type {
+  ChooseReportSections,
   CompleteReport,
   CreateReport,
   CreateTemplate,
@@ -30,6 +31,8 @@ export type TemplateSummary = Omit<TemplateRecord, 'sections'> & { totalSections
 
 export type ReportSectionRecord = {
   id: string;
+  // Template section it came from (LMO-01); missing in reports created before.
+  templateSectionId?: string;
   title: string;
   level: number;
   titleOnly: boolean;
@@ -44,6 +47,7 @@ export type ReportRecord = {
   type: ReportType;
   status: ReportStatus;
   title: string;
+  templateId?: string;
   templateName: string;
   sections: ReportSectionRecord[];
   issues: { sectionId: string; variables: ReportVariable[] }[];
@@ -119,6 +123,14 @@ export const updateReportSectionMutation = (
 ): UseMutationOptions<ReportRecord, Error, { id: string; sectionId: string; data: UpdateReportSection }> => ({
   mutationFn: async ({ id, sectionId, data }) =>
     unwrap(await patch<ReportRecord>(`/expert-reports/${id}/sections/${sectionId}`, data), 'save_error'),
+  onSuccess: (report) => updatedReport(queryClient, report),
+});
+
+export const chooseReportSectionsMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<ReportRecord, Error, { id: string; data: ChooseReportSections }> => ({
+  mutationFn: async ({ id, data }) =>
+    unwrap(await put<ReportRecord>(`/expert-reports/${id}/sections`, data), 'save_error'),
   onSuccess: (report) => updatedReport(queryClient, report),
 });
 

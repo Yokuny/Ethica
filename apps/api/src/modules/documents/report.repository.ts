@@ -8,11 +8,13 @@ import type {
   ReportListItem,
   ReportRecord,
   ReportSectionRecord,
+  ReportSectionsReplace,
   UpdateReportSection,
 } from './report.schema.js';
 
 const sectionToRecord = (section: ReportSectionDocument): ReportSectionRecord => ({
   id: section._id.toString(),
+  ...(section.templateSectionId ? { templateSectionId: section.templateSectionId } : {}),
   title: section.title,
   level: section.level,
   titleOnly: section.titleOnly,
@@ -29,6 +31,7 @@ const toRecord = (doc: ReportDocument): ReportRecord => {
     type: doc.type,
     status: doc.status,
     title: doc.title,
+    ...(doc.templateId ? { templateId: doc.templateId } : {}),
     templateName: doc.templateName,
     sections,
     issues: issuesOf(sections),
@@ -114,6 +117,28 @@ export const updateSection = async (
     const doc = await Report.findOneAndUpdate(
       draft(tenantId, id, { 'sections._id': toObjectId(sectionId) }),
       { $set },
+      { returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+export const replaceSections = async (
+  tenantId: string,
+  id: string,
+  { templateId, templateName, sections }: ReportSectionsReplace,
+): Promise<ReportRecord | null> =>
+  withDbTiming('report.replaceSections', async () => {
+    const doc = await Report.findOneAndUpdate(
+      draft(tenantId, id),
+      {
+        $set: {
+          templateId,
+          templateName,
+          sections: sections.map(({ id: sectionId, ...section }) =>
+            sectionId ? { ...section, _id: toObjectId(sectionId) } : section,
+          ),
+        },
+      },
       { returnDocument: 'after', runValidators: true },
     ).lean();
     return doc ? toRecord(doc) : null;

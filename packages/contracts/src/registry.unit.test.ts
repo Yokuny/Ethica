@@ -11,6 +11,7 @@ describe('schemaRegistry', () => {
         'acceptInviteSchema',
         'updateProfileSchema',
         'changePasswordSchema',
+        'chooseReportSectionsSchema',
         'updateAvatarSchema',
         'signinSchema',
         'idSchema',

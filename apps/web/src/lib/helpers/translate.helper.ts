@@ -17,6 +17,7 @@ const translations: Record<string, string> = {
   actions: 'Ações',
   active: 'Ativo',
   add: 'Adicionar',
+  apply: 'Aplicar',
   admin: 'Admin',
   agenda: 'Agenda',
   scheduled: 'Agendado',
@@ -589,6 +590,9 @@ const translations: Record<string, string> = {
   standard: 'Padrão',
   standard_template_review_notice: 'Texto-base para o perito revisar e completar. Duplique para adaptar ao escritório.',
   template: 'Modelo',
+  template_sections: 'Seções do modelo',
+  template_sections_description:
+    'Marque o que entra no laudo. Seção desmarcada sai com o texto editado; trocar o modelo recomeça todas as seções.',
   sections: 'Seções',
   updated_on: 'Atualizado em',
   expert_case_removed: 'Perícia removida',

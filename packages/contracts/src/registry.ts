@@ -33,6 +33,7 @@ import { permissionsSchema, updatePermissionsSchema } from './schemas/permission
 import { createOpportunitySchema, datajudSearchSchema, updateOpportunitySchema } from './schemas/prospecting.schema.js';
 import { provisionTenantSchema } from './schemas/provisionTenant.schema.js';
 import {
+  chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
   createTemplateSchema,
@@ -90,6 +91,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'templateSectionSchema', schema: templateSectionSchema },
   { name: 'moveSectionSchema', schema: moveSectionSchema },
   { name: 'createReportSchema', schema: createReportSchema },
+  { name: 'chooseReportSectionsSchema', schema: chooseReportSectionsSchema },
   { name: 'updateReportSectionSchema', schema: updateReportSectionSchema },
   { name: 'completeReportSchema', schema: completeReportSchema },
   { name: 'createDeadlineSchema', schema: createDeadlineSchema },

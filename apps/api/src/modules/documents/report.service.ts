@@ -15,12 +15,16 @@ import { reportDocx } from './report.docx.js';
 import { issuesOf, type ReportValues, resolveVariables, sanitizeReportHtml } from './report.html.js';
 import * as reportRepository from './report.repository.js';
 import type {
+  ChooseReportSections,
   CompleteReport,
   CreateReport,
   ListReportsQuery,
   ReportListItem,
   ReportRecord,
   ReportSectionRecord,
+  ReportSectionWrite,
+  TemplateRecord,
+  TemplateSectionRecord,
   UpdateReportSection,
 } from './report.schema.js';
 import { reportHtml } from './report.templates.js';
@@ -113,8 +117,38 @@ export const openReport = async (ctx: DocumentContext, id: string): Promise<Repo
   return { ...report, sections, issues: issuesOf(sections) };
 };
 
-// LAU-02: copies the chosen sections, in template order, with the variant text and the
-// variables already resolved. The type comes from the role on the case (LAU-06).
+// Chosen template sections, in template order, with the variant of each one (LAU-02, LMO-01).
+const chosenSections = async (
+  tenantId: string,
+  type: string,
+  { templateId, sections }: ChooseReportSections,
+): Promise<{ template: TemplateRecord; chosen: Array<[TemplateSectionRecord, 'yes' | 'no']> }> => {
+  const template = await templateService.getTemplate(tenantId, templateId);
+  if (template.type !== type) throw new CustomError('report_template_type_mismatch', 422);
+  const variants = new Map(sections.map((choice) => [choice.id, choice.variant]));
+  const chosen = template.sections.flatMap((section): Array<[TemplateSectionRecord, 'yes' | 'no']> => {
+    const variant = variants.get(section.id);
+    return variant ? [[section, variant]] : [];
+  });
+  if (chosen.length !== variants.size) throw new CustomError('invalid_data', 422, 'seção fora do modelo');
+  return { template, chosen };
+};
+
+// Template section copied into the report in the variant text, with the variables already resolved.
+const fromTemplate = (section: TemplateSectionRecord, variant: 'yes' | 'no', values: ReportValues) =>
+  ({
+    templateSectionId: section.id,
+    title: resolveVariables(section.title, values, 'text'),
+    level: section.level,
+    titleOnly: section.titleOnly,
+    pageBreak: section.pageBreak,
+    variant,
+    html: section.titleOnly
+      ? ''
+      : resolveVariables(variant === 'yes' ? section.yesText : section.noText, values, 'html'),
+  }) satisfies ReportSectionWrite;
+
+// LAU-02: copies the chosen sections. The type comes from the role on the case (LAU-06).
 export const createReport = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
@@ -122,11 +156,7 @@ export const createReport = async (
 ): Promise<ReportRecord> => {
   const legalCase = await caseService.getCase(ctx.tenantId, data.caseId);
   const type = reportRoleType(legalCase.role);
-  const template = await templateService.getTemplate(ctx.tenantId, data.templateId);
-  if (template.type !== type) throw new CustomError('report_template_type_mismatch', 422);
-  const variants = new Map(data.sections.map((choice) => [choice.id, choice.variant]));
-  const chosen = template.sections.filter((section) => variants.has(section.id));
-  if (chosen.length !== variants.size) throw new CustomError('invalid_data', 422, 'seção fora do modelo');
+  const { template, chosen } = await chosenSections(ctx.tenantId, type, data);
   const { values } = await currentData(providers, ctx, legalCase);
   const report = await reportRepository.create({
     tenantId: ctx.tenantId,
@@ -134,22 +164,42 @@ export const createReport = async (
     userId: ctx.userId,
     type,
     title: type === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial',
+    templateId: template.id,
     templateName: template.name,
-    sections: chosen.map((section) => {
-      const variant = variants.get(section.id) ?? 'yes';
-      return {
-        title: resolveVariables(section.title, values, 'text'),
-        level: section.level,
-        titleOnly: section.titleOnly,
-        pageBreak: section.pageBreak,
-        variant,
-        html: section.titleOnly
-          ? ''
-          : resolveVariables(variant === 'yes' ? section.yesText : section.noText, values, 'html'),
-      };
-    }),
+    sections: chosen.map(([section, variant]) => fromTemplate(section, variant, values)),
   });
   return { ...report, caseNumber: legalCase.processNumber };
+};
+
+// LMO-01: redoes the choice of sections in the draft. A section still chosen in the same variant keeps
+// the edited text; a new one comes from the template; an unchecked one leaves. Another template starts over.
+export const chooseSections = async (
+  providers: Pick<Providers, 'storage'>,
+  ctx: DocumentContext,
+  id: string,
+  data: ChooseReportSections,
+): Promise<ReportRecord> => {
+  const report = await editable(ctx.tenantId, id);
+  const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
+  const { template, chosen } = await chosenSections(ctx.tenantId, report.type, data);
+  const { values } = await currentData(providers, ctx, legalCase);
+  const current = new Map(
+    report.templateId === template.id
+      ? report.sections.flatMap((section) => (section.templateSectionId ? [[section.templateSectionId, section]] : []))
+      : [],
+  );
+  const sections = chosen.map(([section, variant]) => {
+    const kept = current.get(section.id);
+    return kept?.variant === variant ? kept : fromTemplate(section, variant, values);
+  });
+  found(
+    await reportRepository.replaceSections(ctx.tenantId, id, {
+      templateId: template.id,
+      templateName: template.name,
+      sections,
+    }),
+  );
+  return openReport(ctx, id);
 };
 
 export const updateSection = async (

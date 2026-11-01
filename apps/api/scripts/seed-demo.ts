@@ -496,6 +496,7 @@ const run = async (): Promise<void> => {
     type: 'report',
     status: 'draft',
     title: 'Laudo pericial',
+    templateId: isDefault.id,
     templateName: isDefault.name,
     CreatedBy: admin?._id,
     sections: isDefault.sections
@@ -503,6 +504,7 @@ const run = async (): Promise<void> => {
       .map((section) => {
         const variant = CHOICE[section.title] ?? 'yes';
         return {
+          templateSectionId: section.id,
           title: resolveVariables(section.title, values, 'text'),
           level: section.level,
           titleOnly: section.titleOnly,

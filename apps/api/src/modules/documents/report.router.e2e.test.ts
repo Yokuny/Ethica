@@ -272,6 +272,62 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect((await operator.as(request(app).delete(`/expert-reports/${report.id}`))).status).toBe(409);
   });
 
+  it('seções do modelo no rascunho: mantém o texto editado, acrescenta na ordem do modelo e troca o modelo (LMO-01)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const legalCase = await admin.as(request(app).post('/expert-cases')).send(CASE);
+    const { body: template } = await admin.as(request(app).get('/expert-reports/templates/standard-report'));
+    const identification = sectionByTitle(template.data.sections, 'Identificação do processo');
+    const objective = sectionByTitle(template.data.sections, 'Objetivo');
+    const conclusion = sectionByTitle(template.data.sections, 'Conclusão');
+    const created = await admin.as(request(app).post('/expert-reports')).send({
+      caseId: legalCase.body.data.id,
+      templateId: 'standard-report',
+      sections: [
+        { id: identification.id, variant: 'yes' },
+        { id: conclusion.id, variant: 'yes' },
+      ],
+    });
+    const report = created.body.data;
+    expect(report.templateId).toBe('standard-report');
+    await admin
+      .as(request(app).patch(`/expert-reports/${report.id}/sections/${report.sections[0].id}`))
+      .send({ html: '<p>Texto do perito.</p>' })
+      .expect(200);
+
+    const chosen = await admin.as(request(app).put(`/expert-reports/${report.id}/sections`)).send({
+      templateId: 'standard-report',
+      sections: [
+        { id: identification.id, variant: 'yes' },
+        { id: objective.id, variant: 'yes' },
+      ],
+    });
+    expect(chosen.status).toBe(200);
+    expect(chosen.body.data.sections.map((section: Section) => section.title)).toEqual([
+      'Identificação do processo',
+      'Objetivo',
+    ]);
+    expect(chosen.body.data.sections[0]).toMatchObject({ id: report.sections[0].id, html: '<p>Texto do perito.</p>' });
+
+    const clone = await admin
+      .as(request(app).post('/expert-reports/templates'))
+      .send({ name: 'Meu modelo', type: 'report', baseId: 'standard-report' });
+    const cloneIdentification = sectionByTitle(clone.body.data.sections, 'Identificação do processo');
+    const switched = await admin.as(request(app).put(`/expert-reports/${report.id}/sections`)).send({
+      templateId: clone.body.data.id,
+      sections: [{ id: cloneIdentification.id, variant: 'no' }],
+    });
+    expect(switched.body.data).toMatchObject({ templateId: clone.body.data.id, templateName: 'Meu modelo' });
+    expect(switched.body.data.sections).toHaveLength(1);
+    expect(switched.body.data.sections[0].html).not.toContain('Texto do perito');
+
+    const wrongType = await admin.as(request(app).put(`/expert-reports/${report.id}/sections`)).send({
+      templateId: 'standard-technical_opinion',
+      sections: [{ id: 'parecer-01', variant: 'yes' }],
+    });
+    expect(wrongType.status).toBe(422);
+  });
+
   it('parecer técnico para assistente técnico; tipo errado 422; excluir a perícia leva os laudos; outro tenant 404', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);

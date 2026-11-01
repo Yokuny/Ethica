@@ -13,6 +13,8 @@ import mongoose, { Schema } from 'mongoose';
 // resolved on opening (AD-126). Changing the template afterwards does not change the report.
 export interface ReportSectionDocument {
   _id: mongoose.Types.ObjectId;
+  // Template section it came from (LMO-01): keeps the edited text when the choice is redone.
+  templateSectionId?: string;
   title: string;
   level: number;
   titleOnly: boolean;
@@ -28,6 +30,7 @@ export interface ReportDocument {
   type: ReportType;
   status: ReportStatus;
   title: string;
+  templateId?: string;
   templateName: string;
   sections: ReportSectionDocument[];
   CreatedBy: mongoose.Types.ObjectId;
@@ -38,6 +41,7 @@ export interface ReportDocument {
 }
 
 const sectionSchema = new Schema<ReportSectionDocument>({
+  templateSectionId: { type: String },
   title: { type: String, required: true, trim: true },
   level: { type: Number, required: true, min: 1, max: REPORT_LEVEL_MAX },
   titleOnly: { type: Boolean, default: false },
@@ -53,6 +57,7 @@ const reportSchema = new Schema<ReportDocument>(
     type: { type: String, enum: REPORT_TYPES, required: true },
     status: { type: String, enum: REPORT_STATUS, default: 'draft', required: true },
     title: { type: String, required: true, trim: true },
+    templateId: { type: String },
     templateName: { type: String, required: true, trim: true },
     sections: { type: [sectionSchema], default: [] },
     CreatedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },

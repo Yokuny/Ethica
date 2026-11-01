@@ -156,6 +156,10 @@ export const createReportSchema = z
   .strict();
 export type CreateReport = z.infer<typeof createReportSchema>;
 
+// Sections of the template in the draft (LMO-01): the same choice as creating; another `templateId` changes the template.
+export const chooseReportSectionsSchema = createReportSchema.omit({ caseId: true }).strict();
+export type ChooseReportSections = z.infer<typeof chooseReportSectionsSchema>;
+
 export const updateReportSectionSchema = z
   .object({ title: titleSchema.optional(), html: htmlSchema.optional() })
   .strict();

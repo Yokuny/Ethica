@@ -4,6 +4,7 @@ import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as reportController from './report.controller.js';
 import {
+  chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
   createTemplateSchema,
@@ -110,6 +111,14 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
   );
   router.get('/:id', ...guard, can('expert_reports', 'view'), report, reportController.getReport);
   router.delete('/:id', ...guard, can('expert_reports', 'delete'), report, reportController.deleteReport);
+  router.put(
+    '/:id/sections',
+    ...guard,
+    can('expert_reports', 'update'),
+    report,
+    validBody(chooseReportSectionsSchema),
+    reportController.chooseReportSections(providers),
+  );
   router.patch(
     '/:id/sections/:sectionId',
     ...guard,

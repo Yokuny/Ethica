@@ -25,10 +25,11 @@ import {
 } from '@/query/report.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
 import { ReportSectionEditor, type SectionDraft } from './@components/report-section-editor.js';
+import { ReportSectionsDialog } from './@components/report-sections-dialog.js';
 import { ReportSectionsNav } from './@components/report-sections-nav.js';
 import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
-type Dialog = 'complete' | 'removal' | 'remove-section' | null;
+type Dialog = 'complete' | 'removal' | 'remove-section' | 'sections' | null;
 
 export function ReportDetailsPage() {
   const search = useSearch({ strict: false }) as ReportDetailsSearch;
@@ -102,6 +103,11 @@ export function ReportDetailsPage() {
         {report && (
           <CardAction>
             {openDraft && (
+              <Button variant="outline" onClick={() => saveCurrent(() => setDialog('sections'))}>
+                {t('template_sections')}
+              </Button>
+            )}
+            {openDraft && (
               <Button
                 disabled={report.issues.length > 0 || dirty}
                 title={report.issues.length ? t('fill_or_remove_variables') : undefined}
@@ -163,6 +169,15 @@ export function ReportDetailsPage() {
             {t('remove')}
           </Button>
         </CardFooter>
+      )}
+      {report && dialog === 'sections' && (
+        <ReportSectionsDialog
+          report={report}
+          onClose={() => {
+            setDialog(null);
+            navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: undefined }), replace: true });
+          }}
+        />
       )}
       {report && dialog === 'complete' && (
         <CompleteReportDialog

@@ -1,4 +1,5 @@
 import type {
+  ChooseReportSections,
   CompleteReport,
   CreateReport,
   CreateTemplate,
@@ -12,6 +13,7 @@ import type {
   UpdateTemplate,
 } from '@ethica/contracts';
 import {
+  chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
   createTemplateSchema,
@@ -33,6 +35,7 @@ import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
 
 export type {
+  ChooseReportSections,
   CompleteReport,
   CreateReport,
   CreateTemplate,
@@ -42,6 +45,7 @@ export type {
   UpdateTemplate,
 };
 export {
+  chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
   createTemplateSchema,
@@ -93,6 +97,7 @@ export type TemplateSummary = Omit<TemplateRecord, 'sections'> & { totalSections
 
 export type ReportSectionRecord = {
   id: string;
+  templateSectionId?: string;
   title: string;
   level: number;
   titleOnly: boolean;
@@ -114,6 +119,7 @@ export type ReportRecord = {
   type: ReportType;
   status: ReportStatus;
   title: string;
+  templateId?: string;
   templateName: string;
   sections: ReportSectionRecord[];
   issues: ReportIssue[];
@@ -130,8 +136,16 @@ export type ReportCreateInput = {
   userId: string;
   type: ReportType;
   title: string;
+  templateId: string;
   templateName: string;
   sections: ReportSectionWrite[];
+};
+
+// New list of sections (LMO-01): a kept section carries its `id`; a new one does not.
+export type ReportSectionsReplace = {
+  templateId: string;
+  templateName: string;
+  sections: Array<ReportSectionWrite & { id?: string }>;
 };
 
 // What PDF and Word receive: sections with the variables resolved again (AD-126).

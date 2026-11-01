@@ -21,6 +21,19 @@ type SectionsPickerProps = {
 export function SectionsPicker({ sections, choices, onChange }: SectionsPickerProps) {
   const numbers = numberSections(sections);
   const checked = sections.filter((section) => choices[section.id]).length;
+  // Checking a subsection also checks the sections above it, so it is not numbered under the wrong one.
+  const parentsOf = (index: number): string[] => {
+    const ids: string[] = [];
+    let level = sections[index]?.level ?? 1;
+    for (let i = index - 1; i >= 0 && level > 1; i--) {
+      const section = sections[i] as TemplateSectionRecord;
+      if (section.level < level) {
+        ids.push(section.id);
+        level = section.level;
+      }
+    }
+    return ids;
+  };
 
   return (
     <Panel
@@ -56,7 +69,17 @@ export function SectionsPicker({ sections, choices, onChange }: SectionsPickerPr
             >
               <Checkbox
                 checked={Boolean(variant)}
-                onCheckedChange={(checked) => onChange({ ...choices, [section.id]: checked ? 'yes' : undefined })}
+                onCheckedChange={(checked) =>
+                  onChange(
+                    checked
+                      ? {
+                          ...Object.fromEntries(parentsOf(i).map((id) => [id, choices[id] ?? 'yes'])),
+                          ...choices,
+                          [section.id]: 'yes',
+                        }
+                      : { ...choices, [section.id]: undefined },
+                  )
+                }
                 aria-label={section.title}
                 labelClassName="normal-case tracking-normal"
                 label={
