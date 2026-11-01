@@ -135,6 +135,12 @@ const NR15: Section[] = [
     'As atividades não envolviam contato com os agentes relacionados no Anexo 13 da NR-15, ou a proteção fornecida foi eficaz.',
   ),
   attachment(
+    '13-A',
+    'Benzeno',
+    'As atividades envolviam exposição ocupacional ao benzeno nas situações do Anexo 13-A da NR-15 (identificar a atividade, por exemplo abastecimento de combustíveis ou manuseio de produtos com benzeno). A exposição é avaliada qualitativamente e não admite neutralização por EPI. Caracteriza insalubridade em grau máximo.',
+    'As atividades não envolviam exposição ocupacional ao benzeno nas situações do Anexo 13-A da NR-15.',
+  ),
+  attachment(
     '14',
     'Agentes biológicos',
     'As atividades envolviam contato permanente com agentes biológicos nas situações do Anexo 14 da NR-15 (identificar: pacientes em isolamento, lixo urbano, estabelecimentos de saúde etc.). Caracteriza insalubridade em grau (médio ou máximo, conforme a situação).',
@@ -191,6 +197,48 @@ const questions = (de: string): Section => ({
   noText: p(`Não foram apresentados quesitos ${de}.`),
 });
 
+const LABOR_CONTRACT: Section = {
+  title: 'Dados do contrato de trabalho',
+  level: 1,
+  yesText: p(
+    'Admissão: [DATA_ADMISSAO].',
+    'Demissão: [DATA_DEMISSAO].',
+    'Função: [FUNCAO_RECLAMANTE].',
+    'Período imprescrito considerado: [PERIODO_IMPRESCRITO].',
+  ),
+  noText: p('Os dados do contrato de trabalho não constam dos autos (informar o que foi considerado).'),
+};
+
+const ANALYZED_DOCUMENTS: Section = {
+  title: 'Documentos analisados',
+  level: 1,
+  yesText: `${p('Foram analisados os seguintes documentos juntados aos autos ou apresentados na vistoria:')}<ul><li>Programa de Gerenciamento de Riscos (PGR) ou PPRA do período</li><li>Programa de Controle Médico de Saúde Ocupacional (PCMSO)</li><li>Laudo Técnico das Condições Ambientais do Trabalho (LTCAT)</li><li>Perfil Profissiográfico Previdenciário (PPP)</li><li>Fichas de entrega de EPI e Certificados de Aprovação</li><li>Ordens de serviço e registros de treinamento</li></ul>`,
+  noText: p(
+    'Não foram apresentados documentos de segurança e saúde do trabalho; a análise se baseou na vistoria e nas informações das partes.',
+  ),
+};
+
+const RISK_RECOGNITION: Section = {
+  title: 'Reconhecimento dos riscos',
+  level: 1,
+  yesText: p(
+    'Na vistoria foram identificados os seguintes agentes no ambiente de trabalho: [AGENTES_PRESENTES].',
+    'Não foram constatados: [AGENTES_AUSENTES].',
+  ),
+  noText: p('Não foram identificados agentes insalubres ou perigosos no ambiente de trabalho.'),
+};
+
+const LEGAL_BASIS: Section = {
+  title: 'Fundamentação legal',
+  level: 1,
+  yesText: p(
+    'A caracterização da insalubridade e da periculosidade é feita por perícia a cargo de engenheiro do trabalho ou médico do trabalho (art. 195 da CLT), segundo as normas do Ministério do Trabalho: NR-15 (atividades e operações insalubres, art. 189 da CLT) e NR-16 (atividades e operações perigosas, art. 193 da CLT).',
+    'O adicional de insalubridade é de 40%, 20% ou 10%, conforme o grau máximo, médio ou mínimo (art. 192 da CLT e item 15.2 da NR-15); o de periculosidade é de 30% sobre o salário-base (art. 193, § 1º, da CLT). Os adicionais não se acumulam (art. 193, § 2º, da CLT).',
+    'O fornecimento de EPI eficaz, com Certificado de Aprovação, treinamento e fiscalização do uso, elimina a insalubridade quando neutraliza o agente (Súmulas 80 e 289 do TST; NR-6).',
+  ),
+  noText: p('A análise segue a NR-15 e a NR-16 e os arts. 189 a 197 da CLT.'),
+};
+
 const EXPERT_REPORT: Section[] = [
   IDENTIFICATION,
   {
@@ -203,6 +251,7 @@ const EXPERT_REPORT: Section[] = [
       'O presente laudo tem por objetivo responder aos quesitos e esclarecer os pontos técnicos fixados pelo Juízo.',
     ),
   },
+  LABOR_CONTRACT,
   {
     title: 'Metodologia e vistoria',
     level: 1,
@@ -215,6 +264,7 @@ const EXPERT_REPORT: Section[] = [
       'A vistoria não pôde ser realizada no local de trabalho (informar o motivo). A análise foi feita com base nos documentos dos autos e nas informações prestadas pelas partes.',
     ),
   },
+  ANALYZED_DOCUMENTS,
   {
     title: 'Atividades exercidas',
     level: 1,
@@ -238,6 +288,8 @@ const EXPERT_REPORT: Section[] = [
       'Não houve comprovação de fornecimento regular de EPI com Certificado de Aprovação válido, de treinamento ou de fiscalização do uso (NR-6); a entrega, quando houve, não neutralizou o agente (Súmula 289 do TST).',
     ),
   },
+  RISK_RECOGNITION,
+  LEGAL_BASIS,
   ...NR15,
   ...NR16,
   group('Quesitos', true),

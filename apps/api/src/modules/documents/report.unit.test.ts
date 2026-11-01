@@ -172,7 +172,18 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
     for (let attachment = 1; attachment <= 14; attachment += 1) {
       expect(titulos.some((title) => title.startsWith(`Anexo ${attachment} — `))).toBe(true);
     }
-    expect(titulos).toEqual(expect.arrayContaining(['Periculosidade — NR-16', 'Conclusão', 'Honorários periciais']));
+    expect(titulos).toEqual(
+      expect.arrayContaining([
+        'Dados do contrato de trabalho',
+        'Documentos analisados',
+        'Reconhecimento dos riscos',
+        'Fundamentação legal',
+        'Anexo 13-A — Benzeno',
+        'Periculosidade — NR-16',
+        'Conclusão',
+        'Honorários periciais',
+      ]),
+    );
     expect(DEFAULT_TEMPLATES.technical_opinion.sections.map((section) => section.title)).toEqual(
       expect.arrayContaining([
         'Medições de agentes quantitativos',
