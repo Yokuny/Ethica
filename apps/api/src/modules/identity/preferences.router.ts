@@ -5,10 +5,10 @@ import { validBody } from '../../middlewares/validation.middleware.js';
 import * as preferencesController from './preferences.controller.js';
 import { type PreferencesRouterDeps, updatePreferencesSchema } from './preferences.schema.js';
 
-// Todo papel do tenant tem preferências; não há leitura de preferência alheia.
+// Every tenant role has preferences; there is no reading someone else's preference.
 const canOperate = checkRole(['admin', 'manager', 'operator']);
 
-// Montado em `/me` no composition root.
+// Mounted on `/me` in the composition root.
 export const createPreferencesRouter = (deps: PreferencesRouterDeps): Router => {
   const router = Router();
   router.get('/preferences', deps.validToken, tenantAssignmentCheck, canOperate, preferencesController.getPreferences);

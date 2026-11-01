@@ -7,14 +7,14 @@ import { apiUrl } from '@/lib/api/client.api.js';
 import { initials } from '@/lib/helpers/initials.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { UserDirectoryEntry } from '../@query/user-directory.js';
-import { PermissoesDialog } from './permissoes-dialog.js';
+import { PermissionsDialog } from './permissions-dialog.js';
 
-// REG-08: o time no layout Team 1 do Tailark Dusk. Uma grade só, gestores
-// primeiro; cada pessoa tem o papel como título acima do bloco quadrado (foto da
-// conta ou iniciais, ACC-09), nome e e-mail com botão de copiar. Sem tela de detalhe de usuário, os blocos são
-// estáticos.
-// Feedback do clique: o ícone troca de Copy para Check (escala + opacidade +
-// blur) e volta sozinho; o botão afunda um pouco enquanto pressionado.
+// REG-08: the team in Tailark Dusk's Team 1 layout. A single grid, managers
+// first; each person has the role as a title above the square block (account
+// photo or initials, ACC-09), name and e-mail with a copy button. With no user detail screen, the blocks are
+// static.
+// Click feedback: the icon switches from Copy to Check (scale + opacity +
+// blur) and comes back by itself; the button sinks a little while pressed.
 const COPIED_MS = 1500;
 const ICON_SWAP = 'absolute transition-[opacity,transform,filter] duration-200 ease-out';
 
@@ -82,7 +82,7 @@ function UserCard({ user, featured }: { user: UserDirectoryEntry; featured: bool
           </ItemDescription>
           <CopyEmailButton email={user.email} />
         </div>
-        {/* Admin tem tudo e não tem matriz (AD-137). */}
+        {/* Admin has everything and has no matrix (AD-137). */}
         {!user.role.includes('admin') && (
           <Button
             type="button"
@@ -96,7 +96,7 @@ function UserCard({ user, featured }: { user: UserDirectoryEntry; featured: bool
           </Button>
         )}
       </div>
-      {ajustando && <PermissoesDialog user={user} onClose={() => setAjustando(false)} />}
+      {ajustando && <PermissionsDialog user={user} onClose={() => setAjustando(false)} />}
     </div>
   );
 }

@@ -6,14 +6,14 @@ import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { OfficeAvisoAgendamento } from './@components/office-aviso-agendamento.js';
 import { OfficeExport } from './@components/office-export.js';
 import { OfficeLogo } from './@components/office-logo.js';
+import { OfficeScheduleNotice } from './@components/office-schedule-notice.js';
 import { OfficeStorage } from './@components/office-storage.js';
 import { OfficeTextsForm } from './@components/office-texts-form.js';
 import { officeQuery } from './@query/office.js';
 
-// DOC-01 e DOC-04: identidade do escritório nos documentos e exportação de dados (só admin).
+// DOC-01 and DOC-04: office identity on documents and data export (admin only).
 export function OfficePage() {
   const query = useQuery(officeQuery);
   const office = query.data;
@@ -44,7 +44,7 @@ export function OfficePage() {
               {
                 title: t('scheduling_notice'),
                 description: t('scheduling_notice_description'),
-                fields: [<OfficeAvisoAgendamento key="aviso" />],
+                fields: [<OfficeScheduleNotice key="notice" />],
               },
               {
                 title: t('storage'),

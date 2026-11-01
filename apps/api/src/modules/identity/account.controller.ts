@@ -29,7 +29,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
 
 export const changePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // validToken já garantiu que o token existe e é desta sessão.
+    // validToken already ensured the token exists and belongs to this session.
     await accountService.changePassword(
       req.tenantUser.tenant as string,
       req.tenantUser.user,
@@ -70,18 +70,18 @@ export const calendarFeedStatus = async (req: Request, res: Response, next: Next
   }
 };
 
-export const gerarCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const generateCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await accountService.gerarCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
+    const data = await accountService.generateCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
     res.status(201).json(respObj({ data, message: 'created_successfully' }));
   } catch (e) {
     next(e);
   }
 };
 
-export const revogarCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const revokeCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await accountService.revogarCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
+    await accountService.revokeCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
     res.json(respObj({ message: 'removed_successfully' }));
   } catch (e) {
     next(e);

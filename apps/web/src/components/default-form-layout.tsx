@@ -15,22 +15,22 @@ type DefaultFormLayoutProps = {
   layout?: 'horizontal' | 'vertical';
 };
 
-// Porte de ../IOT/iotlog-frontend-v2/src/components/default-form-layout.tsx
-// — cada seção vira um FieldSet com um título + subtítulo (description) à
-// esquerda e os campos em grid à direita (layout 'horizontal', o default) ou
-// empilhados (`vertical`). Export nomeado (não default): convenção do
-// projeto, mesma família de default-empty-data.tsx/default-loading.tsx.
+// Port of ../IOT/iotlog-frontend-v2/src/components/default-form-layout.tsx
+// — each section becomes a FieldSet with a title + subtitle (description) on the
+// left and the fields in a grid on the right ('horizontal' layout, the default) or
+// stacked (`vertical`). Named export (not default): project
+// convention, same family as default-empty-data.tsx/default-loading.tsx.
 export function DefaultFormLayout({ sections, layout = 'horizontal' }: DefaultFormLayoutProps) {
   return (
-    // Container query, não breakpoint de viewport: o mesmo formulário cabe numa
-    // página larga (rótulo à esquerda) e num Dialog estreito (empilhado).
+    // Container query, not a viewport breakpoint: the same form fits in a
+    // wide page (label on the left) and in a narrow Dialog (stacked).
     <div className="@container flex flex-col gap-8">
       {sections.map((section, index) => {
         const sectionLayout = section.layout || layout;
         const isLast = index === sections.length - 1;
         return (
           <FieldSet
-            // biome-ignore lint/suspicious/noArrayIndexKey: `sections` é lista estática do caller, nunca reordenada.
+            // biome-ignore lint/suspicious/noArrayIndexKey: `sections` is a static list from the caller, never reordered.
             key={`${section.title}-${index}`}
             className={cn(
               'block w-full p-0',
@@ -51,7 +51,7 @@ export function DefaultFormLayout({ sections, layout = 'horizontal' }: DefaultFo
               <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-6">
                 {section.fields.map((field, fieldIndex) => (
                   <div
-                    // biome-ignore lint/suspicious/noArrayIndexKey: `fields` é lista estática do caller, nunca reordenada.
+                    // biome-ignore lint/suspicious/noArrayIndexKey: `fields` is a static list from the caller, never reordered.
                     key={`${section.title}-${fieldIndex}`}
                     className="col-span-full"
                   >

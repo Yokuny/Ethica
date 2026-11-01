@@ -22,8 +22,8 @@ const tabsListVariants = cva(
     variants: {
       variant: {
         default: 'bg-muted',
-        // Abas sublinhadas: a lista é uma régua de largura total e a aba ativa
-        // assenta um traço de 2px na cor de ação sobre ela.
+        // Underlined tabs: the list is a full-width ruler and the active tab
+        // sets a 2px stroke in the action color over it.
         line: 'w-full justify-start gap-5 overflow-x-auto border-b bg-transparent p-0 group-data-horizontal/tabs:h-10',
       },
     },

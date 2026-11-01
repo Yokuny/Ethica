@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import type { ReactNode } from 'react';
 import { cn } from '../lib/utils.js';
 
-// Selo de status: fundo 50, texto 900 e anel interno por tom (paleta Tailwind).
+// Status badge: 50 background, 900 text and inner ring per tone (Tailwind palette).
 const tone = {
   success: 'bg-emerald-50 text-emerald-900 ring-emerald-600/30',
   warning: 'bg-yellow-50 text-yellow-900 ring-yellow-600/30',
@@ -33,7 +33,7 @@ const badgeVariants = cva(
         orange: tone.orange,
         cyan: tone.cyan,
         violet: tone.violet,
-        // Estados do domínio mapeados para os cinco tons.
+        // Domain states mapped to the five tones.
         active: tone.success,
         pending: tone.warning,
         waiting: tone.info,
@@ -69,7 +69,7 @@ function Badge({
   });
 }
 
-// Bolinha de status. Os estados do domínio usam o mesmo mapa de tons do Badge.
+// Status dot. The domain states use the same tone map as Badge.
 const dotTone: Record<keyof typeof tone, string> = {
   success: 'bg-emerald-500',
   warning: 'bg-yellow-500',
@@ -105,7 +105,7 @@ const variantTone: Partial<Record<BadgeVariant, keyof typeof tone>> = {
 
 type BadgeIndicatorProps = useRender.ComponentProps<'span'> & {
   variant?: BadgeVariant;
-  // Cor crua (hex/CSS) de status configurável por tenant; vence `variant`.
+  // Raw color (hex/CSS) of a tenant-configurable status; it beats `variant`.
   color?: string;
   pulse?: boolean;
   children?: ReactNode;
@@ -134,7 +134,7 @@ function Dot({
 
 function BadgeIndicator({ className, variant, color, pulse = false, render, children, ...props }: BadgeIndicatorProps) {
   const hasChildren = Boolean(children);
-  // useRender é hook: roda sempre; `enabled` decide se há wrapper.
+  // useRender is a hook: it always runs; `enabled` decides whether there is a wrapper.
   const rendered = useRender({
     enabled: hasChildren,
     defaultTagName: 'span',

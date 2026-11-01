@@ -5,10 +5,10 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { limparAparelho } from '@/lib/offline/store.js';
+import { clearDevice } from '@/lib/offline/store.js';
 
-// Destino do guard de _private quando GET /auth/session responde
-// `tenant_suspended`. Sair não passa por validToken, então funciona mesmo com
+// Destination of the _private guard when GET /auth/session answers
+// `tenant_suspended`. Signing out does not go through validToken, so it works even with
 // o tenant suspenso.
 export function SuspendedPage() {
   const queryClient = useQueryClient();
@@ -17,7 +17,7 @@ export function SuspendedPage() {
   const signOut = async () => {
     await post('/auth/signout');
     queryClient.clear();
-    void limparAparelho();
+    void clearDevice();
     navigate({ to: '/auth' });
   };
 

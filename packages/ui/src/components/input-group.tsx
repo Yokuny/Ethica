@@ -1,9 +1,9 @@
 import type * as React from 'react';
 import { cn } from '../lib/utils.js';
 
-// Campo com ícone/ação ao lado: o grupo leva a moldura, o <input> filho fica nu.
-// Dentro da toolbar de uma tabela (`data-table-toolbar`) o grupo perde borda e
-// fundo, como o "Search" da referência.
+// Field with an icon/action next to it: the group carries the frame, the child <input> stays bare.
+// Inside a table toolbar (`data-table-toolbar`) the group loses border and
+// background, like the reference "Search".
 function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

@@ -2,7 +2,7 @@ import { CSV_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type ChangeEvent, useState } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { importCsvMutation } from '../../@query/importacao.js';
+import { importCsvMutation } from '../../@query/import.js';
 
 export function useCsvImport() {
   const queryClient = useQueryClient();

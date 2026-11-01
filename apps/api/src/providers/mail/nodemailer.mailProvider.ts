@@ -1,9 +1,9 @@
 import type { Transporter } from 'nodemailer';
 import type { MailProvider } from './mailProvider.type.js';
 
-// Transporter injetado (fábrica testável sem SMTP real). Falha do transporte
-// nunca lança — vira {sent: false}, e o convite/operação que disparou o
-// e-mail segue seu fluxo normal (FND-12).
+// Injected transporter (factory testable without real SMTP). A transport failure
+// never throws — it becomes {sent: false}, and the invite/operation that triggered the
+// e-mail follows its normal flow (FND-12).
 export const createNodemailerMailProvider = (transport: Pick<Transporter, 'sendMail'>, from: string): MailProvider => ({
   send: async (to, subject, body) => {
     try {

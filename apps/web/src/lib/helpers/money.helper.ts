@@ -5,16 +5,16 @@ const moneyFormatter = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 });
 
-/** Exibe centavos inteiros como moeda BRL (apenas apresentação). */
+/** Displays integer cents as BRL currency (presentation only). */
 export function formatMoney(cents: number | null | undefined): string {
   if (cents == null || !Number.isFinite(cents)) return moneyFormatter.format(0);
   return moneyFormatter.format(cents / MONEY_SCALE);
 }
 
 /**
- * Exibe um valor inteiro na menor unidade (centavos, com `precision` casas)
- * como moeda do `code` informado — o formato dos campos `currency` do
- * field-engine, que variam de moeda/precisão por campo.
+ * Displays an integer value in the smallest unit (cents, with `precision` decimals)
+ * as the currency of the given `code` — the format of the field-engine `currency`
+ * fields, which vary currency/precision per field.
  */
 export function formatCurrency(minorUnits: number, code: string, precision: number): string {
   return new Intl.NumberFormat('pt-BR', {
@@ -25,14 +25,14 @@ export function formatCurrency(minorUnits: number, code: string, precision: numb
   }).format(minorUnits / 10 ** precision);
 }
 
-/** Extrai apenas dígitos de uma string de entrada. */
+/** Extracts only the digits of an input string. */
 function digitsOnly(raw: string): string {
   return raw.replace(/\D/g, '');
 }
 
 /**
- * Converte entrada do usuário (mascarada ou dígitos) em centavos inteiros.
- * Dígitos são interpretados como centavos (ex.: "9990" → 9990, "99,90" via máscara → 9990).
+ * Converts user input (masked or digits) into integer cents.
+ * Digits are read as cents (e.g. "9990" → 9990, "99,90" through the mask → 9990).
  */
 export function parseMoneyInput(raw: string | number): number {
   if (typeof raw === 'number') {
@@ -48,7 +48,7 @@ export function parseMoneyInput(raw: string | number): number {
 }
 
 /**
- * Máscara BRL durante digitação: trata entrada como centavos (últimos 2 dígitos = decimais).
+ * BRL mask while typing: treats the input as cents (last 2 digits = decimals).
  */
 export function maskMoneyInput(raw: string): string {
   const digits = digitsOnly(raw);
@@ -58,7 +58,7 @@ export function maskMoneyInput(raw: string): string {
   return formatMoney(cents);
 }
 
-/** Converte centavos para exibição em input (string mascarada). */
+/** Converts cents for display in an input (masked string). */
 export function centsToInputDisplay(cents: number): string {
   if (!Number.isFinite(cents) || cents <= 0) return '';
   return formatMoney(Math.trunc(cents));

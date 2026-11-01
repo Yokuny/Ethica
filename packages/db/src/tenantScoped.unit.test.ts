@@ -9,7 +9,7 @@ describe('tenantScoped', () => {
   });
 
   it('is a compile-time type error to call it without Tenant in the filter', () => {
-    // @ts-expect-error - filtro sem Tenant precisa ser erro de tipo (AD-010)
+    // @ts-expect-error - a filter without Tenant must be a type error (AD-010)
     tenantScoped({ status: 'active' });
   });
 });

@@ -6,12 +6,12 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { BuscaForm } from './@components/busca-form.js';
-import { BuscaResults } from './@components/busca-results.js';
-import { useBuscaDatajud } from './@hooks/use-busca-datajud.js';
+import { SearchForm } from './@components/search-form.js';
+import { SearchResults } from './@components/search-results.js';
+import { useSearchDatajud } from './@hooks/use-search-datajud.js';
 
-export function BuscaDatajudPage() {
-  const state = useBuscaDatajud();
+export function SearchDatajudPage() {
+  const state = useSearchDatajud();
   const { searched, items, hasMore, loadMore, isSearching, searchError, saveItem, isSaving } = state;
 
   return (
@@ -19,7 +19,7 @@ export function BuscaDatajudPage() {
       <CardHeader title={t('datajud_search')} description={t('datajud_search_description')} />
       <CardContent className="gap-8">
         <Panel>
-          <BuscaForm state={state} />
+          <SearchForm state={state} />
         </Panel>
         <DataTable>
           {isSearching && !items.length ? (
@@ -31,7 +31,7 @@ export function BuscaDatajudPage() {
           ) : !items.length ? (
             <DefaultEmptyData title={t('no_processes_found')} />
           ) : (
-            <BuscaResults items={items} onSave={saveItem} saving={isSaving} />
+            <SearchResults items={items} onSave={saveItem} saving={isSaving} />
           )}
         </DataTable>
         {hasMore && (
@@ -47,6 +47,6 @@ export function BuscaDatajudPage() {
 }
 
 export const Route = createFileRoute('/_private/prospecting/search/')({
-  component: BuscaDatajudPage,
+  component: SearchDatajudPage,
   staticData: { title: t('datajud_search') },
 });

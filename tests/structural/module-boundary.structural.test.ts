@@ -11,35 +11,35 @@ import {
   withFixture,
 } from './lib/module-scan.js';
 
-// AD-038: fronteiras entre os módulos de apps/api/src/modules. Mesmo
-// molde de mongoose-boundary.structural.test.ts (varredura do filesystem +
-// self-check com fixture), mas cada regra recebe a raiz como parâmetro para
-// que os fixtures vivam num diretório temporário. A varredura de
-// import/AST em si é genérica (lib/module-scan.ts).
+// AD-038: boundaries between the apps/api/src/modules modules. Same
+// mold as mongoose-boundary.structural.test.ts (filesystem scan +
+// self-check with a fixture), but each rule takes the root as a parameter so
+// the fixtures live in a temporary directory. The import/AST
+// scan itself is generic (lib/module-scan.ts).
 const REPO_ROOT = join(import.meta.dirname, '..', '..');
 const API_SRC_ROOT = join(REPO_ROOT, 'apps', 'api', 'src');
 const MODULES_ROOT = join(API_SRC_ROOT, 'modules');
 
-// design.md, "Ownership (MOD-05)": valores do @ethica/db que só o módulo dono
-// importa. Helpers sem dono (tenantScoped, hashToken, crypto, datas, tipos)
-// ficam fora da tabela e podem ser importados por qualquer módulo.
+// design.md, "Ownership (MOD-05)": @ethica/db values that only the owning module
+// imports. Helpers without an owner (tenantScoped, hashToken, crypto, dates, types)
+// stay out of the table and can be imported by any module.
 const DB_OWNERSHIP: Record<string, readonly string[]> = {
-  identity: ['Tenant', 'User', 'Session', 'Invite', 'Atividade', 'transitionTenantStatus'],
-  pericia: ['Pericia', 'Prazo', 'Parte'],
-  agenda: ['Compromisso', 'Vistoria'],
-  financeiro: ['Lancamento'],
-  prospeccao: ['Oportunidade'],
-  documentos: ['Laudo', 'ModeloLaudo'],
+  identity: ['Tenant', 'User', 'Session', 'Invite', 'Activity', 'transitionTenantStatus'],
+  case: ['Case', 'Deadline', 'Party'],
+  agenda: ['Appointment', 'Inspection'],
+  finance: ['Transaction'],
+  prospecting: ['Opportunity'],
+  documents: ['Report', 'Template'],
 };
 const DB_OWNER_BY_NAME = new Map(
   Object.entries(DB_OWNERSHIP).flatMap(([owner, names]) => names.map((name) => [name, owner] as const)),
 );
 
-// MOD-04: de outro módulo só se consome a camada service (e a de schema).
+// MOD-04: from another module only the service layer (and the schema one) is consumed.
 const CROSS_MODULE_ALLOWED_SUFFIXES = ['.service.js', '.schema.js'];
 
-// Regra (b) — MOD-05. Específica do api (a tabela de ownership acima só
-// faz sentido aqui), por isso não foi pro lib/module-scan.ts genérico.
+// Rule (b) — MOD-05. Specific to the api (the ownership table above only
+// makes sense here), so it did not go to the generic lib/module-scan.ts.
 const findDbOwnershipViolations = (root: string): string[] => {
   const violations: string[] = [];
   for (const file of findSourceFiles(root)) {
@@ -55,10 +55,10 @@ const findDbOwnershipViolations = (root: string): string[] => {
   return violations;
 };
 
-// Regra (d) — MOD-01: a partir da T22, nenhuma pasta de camada legada (nem o
-// antigo authDeps.ts) pode existir — todo código de domínio mora em
-// modules/<m>/, e o adapter de field value store das próprias modules/
-// (T7/T11/T12) já não vive mais em providers/fieldValueStore/.
+// Rule (d) — MOD-01: from T22 on, no legacy layer folder (nor the
+// old authDeps.ts) may exist — all domain code lives in
+// modules/<m>/, and the field value store adapter of modules/ itself
+// (T7/T11/T12) no longer lives in providers/fieldValueStore/.
 const LEGACY_LAYER_PATHS = [
   'routers',
   'controllers',
@@ -71,10 +71,10 @@ const LEGACY_LAYER_PATHS = [
 ];
 
 // Regra (e) — MOD-03: a camada compartilhada (config/ middlewares/
-// providers/ metrics/ events/) não importa de modules/. Exceções: `app.ts`/
-// `server.ts` (composition root, direto em src/, fora dessas pastas — nunca
-// varridos aqui) e `events/subscribers/**` (só ali um subscriber pode
-// importar `<módulo>/*.service.js` para reagir a um evento de domínio).
+// providers/ metrics/ events/) does not import from modules/. Exceptions: `app.ts`/
+// `server.ts` (composition root, directly in src/, outside those folders — never
+// scanned here) and `events/subscribers/**` (only there may a subscriber
+// import `<module>/*.service.js` to react to a domain event).
 const SHARED_LAYER_DIRS = ['config', 'middlewares', 'providers', 'metrics', 'events'];
 const EVENT_SUBSCRIBERS_PREFIX = join('events', 'subscribers') + sep;
 
@@ -103,16 +103,16 @@ describe('api module boundaries (AD-038)', () => {
     it('(b) flags a value import of an @ethica/db name owned by another module, but not type-only imports nor the owner', () => {
       withFixture(
         {
-          'a/x.repository.ts': "import { Pericia } from '@ethica/db';\nexport const x = Pericia;\n",
+          'a/x.repository.ts': "import { Case } from '@ethica/db';\nexport const x = Case;\n",
           'a/types.repository.ts': [
-            "import type { PericiaDocument } from '@ethica/db';",
-            "import { type Pericia, tenantScoped } from '@ethica/db';",
-            'export type T = PericiaDocument | typeof Pericia | typeof tenantScoped;',
+            "import type { CaseDocument } from '@ethica/db';",
+            "import { type Case, tenantScoped } from '@ethica/db';",
+            'export type T = CaseDocument | typeof Case | typeof tenantScoped;',
           ].join('\n'),
-          'pericia/pericia.repository.ts': "import { Pericia } from '@ethica/db';\nexport const c = Pericia;\n",
+          'case/case.repository.ts': "import { Case } from '@ethica/db';\nexport const c = Case;\n",
         },
         (root) => {
-          expect(findDbOwnershipViolations(root)).toEqual(['a/x.repository.ts: Pericia (dono: pericia)']);
+          expect(findDbOwnershipViolations(root)).toEqual(['a/x.repository.ts: Case (dono: case)']);
         },
       );
     });

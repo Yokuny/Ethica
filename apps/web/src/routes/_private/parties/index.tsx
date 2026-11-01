@@ -7,22 +7,22 @@ import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
-import { PARTE_TIPO_ITEMS } from '@/components/parte-labels.js';
+import { PARTY_TYPE_ITEMS } from '@/components/party-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { partesQuery } from '@/query/parte.js';
+import { partiesQuery } from '@/query/party.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { ParteForm } from './@components/parte-form.js';
-import { PartesTable } from './@components/partes-table.js';
-import { usePartesSearch } from './@hooks/use-partes-search.js';
-import { type PartesSearch, partesSearchSchema } from './@interface/partes.interface.js';
+import { PartiesTable } from './@components/parties-table.js';
+import { PartyForm } from './@components/party-form.js';
+import { usePartiesSearch } from './@hooks/use-parties-search.js';
+import { type PartiesSearch, partiesSearchSchema } from './@interface/parties.interface.js';
 
 const ALL = 'all';
 
-// Cadastro de partes e advogados reutilizáveis entre perícias (IMP-03, AD-117).
-export function PartesIndexPage() {
-  const { search, update, searchInput, handleSearchInput, handlePaginationChange, openParte } = usePartesSearch();
+// Registry of parties and lawyers reusable across cases (IMP-03, AD-117).
+export function PartiesIndexPage() {
+  const { search, update, searchInput, handleSearchInput, handlePaginationChange, openParty } = usePartiesSearch();
   const query = useQuery(
-    partesQuery({ page: search.page, limit: search.limit, q: search.q || undefined, tipo: search.tipo }),
+    partiesQuery({ page: search.page, limit: search.limit, q: search.q || undefined, type: search.type }),
   );
   const [creating, setCreating] = useState(false);
   const session = useQuery(sessionQuery).data;
@@ -39,15 +39,15 @@ export function PartesIndexPage() {
         )}
       </CardHeader>
       <Tabs
-        value={search.tipo ?? ALL}
+        value={search.type ?? ALL}
         onValueChange={(value) =>
-          update({ tipo: value === ALL ? undefined : (value as PartesSearch['tipo']), page: 1 })
+          update({ type: value === ALL ? undefined : (value as PartiesSearch['type']), page: 1 })
         }
         className="px-(--card-spacing)"
       >
         <TabsList variant="line">
           <TabsTrigger value={ALL}>{t('all')}</TabsTrigger>
-          {PARTE_TIPO_ITEMS.map((item) => (
+          {PARTY_TYPE_ITEMS.map((item) => (
             <TabsTrigger key={item.value} value={item.value}>
               {item.label}
             </TabsTrigger>
@@ -69,24 +69,24 @@ export function PartesIndexPage() {
               description={search.q ? undefined : t('parties_are_created_with_expert_cases')}
             />
           ) : (
-            <PartesTable
+            <PartiesTable
               data={items}
               pageCount={pageCount}
               pageIndex={search.page - 1}
               pageSize={search.limit}
               onPaginationChange={handlePaginationChange}
-              onRowClick={openParte}
+              onRowClick={openParty}
             />
           )}
         </DataTable>
       </CardContent>
-      {creating && <ParteForm onClose={() => setCreating(false)} onSaved={openParte} />}
+      {creating && <PartyForm onClose={() => setCreating(false)} onSaved={openParty} />}
     </Card>
   );
 }
 
 export const Route = createFileRoute('/_private/parties/')({
-  component: PartesIndexPage,
+  component: PartiesIndexPage,
   staticData: { title: t('parties') },
-  validateSearch: (search: Record<string, unknown>): PartesSearch => partesSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): PartiesSearch => partiesSearchSchema.parse(search),
 });

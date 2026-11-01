@@ -2,9 +2,9 @@ import { mkdirSync, readdirSync, readFileSync, rmdirSync, statSync, unlinkSync, 
 import { extname, join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// AD-010: nenhum model Mongoose fora de packages/db é invariante sem dono
-// automático. Este teste varre apps/** por `import ... from 'mongoose'` —
-// packages/db é a única exceção permitida (não faz parte da varredura).
+// AD-010: no Mongoose model outside packages/db is an invariant with no
+// automatic owner. This test scans apps/** for `import ... from 'mongoose'` —
+// packages/db is the only allowed exception (it is not part of the scan).
 const REPO_ROOT = join(import.meta.dirname, '..', '..');
 const APPS_ROOT = join(REPO_ROOT, 'apps');
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist']);

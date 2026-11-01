@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { PERFIL_PERMISSOES } from '@ethica/contracts';
+import { PROFILE_PERMISSIONS } from '@ethica/contracts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -42,7 +42,7 @@ describe('UserInvitePage', () => {
       expect(api.post).toHaveBeenCalledWith('/tenant/invites', {
         email: 'new@example.com',
         role: 'manager',
-        permissoes: PERFIL_PERMISSOES.manager,
+        permissions: PROFILE_PERMISSIONS.manager,
       }),
     );
     expect(await screen.findByRole('status')).toHaveTextContent('Convite enviado.');

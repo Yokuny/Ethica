@@ -3,25 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { FluxoFinanceiroChart } from '@/components/fluxo-financeiro-chart.js';
+import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { categoriasQuery, fluxoMensalQuery } from '@/query/lancamento.js';
-import { CategoriasChart } from './@components/categorias-chart.js';
-import {
-  PERIODO_LABEL,
-  PERIODOS,
-  type RelatoriosSearch,
-  relatoriosSearchSchema,
-} from './@interface/relatorios.interface.js';
+import { categoriesQuery, monthlyFlowQuery } from '@/query/transaction.js';
+import { CategoriesChart } from './@components/categories-chart.js';
+import { PERIOD_LABEL, PERIODS, type ReportsSearch, reportsSearchSchema } from './@interface/reports.interface.js';
 
-export function RelatoriosPage() {
-  const search = useSearch({ strict: false }) as RelatoriosSearch;
+export function ReportsPage() {
+  const search = useSearch({ strict: false }) as ReportsSearch;
   const navigate = useNavigate({ from: '/finance/reports/' });
-  const fluxo = useQuery(fluxoMensalQuery(Number(search.meses)));
-  const receitas = useQuery(categoriasQuery('income'));
-  const despesas = useQuery(categoriasQuery('expense'));
+  const flow = useQuery(monthlyFlowQuery(Number(search.months)));
+  const income = useQuery(categoriesQuery('income'));
+  const expenses = useQuery(categoriesQuery('expense'));
 
   return (
     <Card asPage>
@@ -29,14 +24,14 @@ export function RelatoriosPage() {
         <CardAction>
           <ToggleGroup
             aria-label={t('period')}
-            value={search.meses}
-            onValueChange={(meses) =>
-              navigate({ search: { meses: meses as RelatoriosSearch['meses'] }, replace: true })
+            value={search.months}
+            onValueChange={(months) =>
+              navigate({ search: { months: months as ReportsSearch['months'] }, replace: true })
             }
           >
-            {PERIODOS.map((meses) => (
-              <ToggleGroupItem key={meses} value={meses}>
-                {t(PERIODO_LABEL[meses])}
+            {PERIODS.map((months) => (
+              <ToggleGroupItem key={months} value={months}>
+                {t(PERIOD_LABEL[months])}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
@@ -44,25 +39,25 @@ export function RelatoriosPage() {
       </CardHeader>
       <CardContent className="gap-10 pb-16">
         <Panel size="sm" title={t('cash_flow')}>
-          {fluxo.isLoading ? <DefaultLoading /> : fluxo.data && <FluxoFinanceiroChart data={fluxo.data} />}
+          {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
         </Panel>
         <div className="grid gap-10 lg:grid-cols-2">
           <Panel size="sm" title={t('income_by_category')}>
-            {receitas.isLoading ? (
+            {income.isLoading ? (
               <DefaultLoading />
-            ) : !receitas.data?.length ? (
+            ) : !income.data?.length ? (
               <DefaultEmptyData title={t('no_entries_yet')} />
             ) : (
-              <CategoriasChart natureza="income" data={receitas.data} />
+              <CategoriesChart kind="income" data={income.data} />
             )}
           </Panel>
           <Panel size="sm" title={t('expenses_by_category')}>
-            {despesas.isLoading ? (
+            {expenses.isLoading ? (
               <DefaultLoading />
-            ) : !despesas.data?.length ? (
+            ) : !expenses.data?.length ? (
               <DefaultEmptyData title={t('no_entries_yet')} />
             ) : (
-              <CategoriasChart natureza="expense" data={despesas.data} />
+              <CategoriesChart kind="expense" data={expenses.data} />
             )}
           </Panel>
         </div>
@@ -72,7 +67,7 @@ export function RelatoriosPage() {
 }
 
 export const Route = createFileRoute('/_private/finance/reports/')({
-  component: RelatoriosPage,
+  component: ReportsPage,
   staticData: { title: t('reports') },
-  validateSearch: (search: Record<string, unknown>): RelatoriosSearch => relatoriosSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): ReportsSearch => reportsSearchSchema.parse(search),
 });

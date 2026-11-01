@@ -54,9 +54,9 @@ export const listUserDirectory = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const updatePermissoes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updatePermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await authService.updatePermissoes(req.tenantUser.tenant as string, req.params.id as string, req.body);
+    await authService.updatePermissions(req.tenantUser.tenant as string, req.params.id as string, req.body);
     res.json(respObj({}));
   } catch (e) {
     next(e);
@@ -66,7 +66,7 @@ export const updatePermissoes = async (req: Request, res: Response, next: NextFu
 export const getUserAvatar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const avatar = await authService.getUserAvatar(req.tenantUser.tenant as string, req.params.id as string);
-    // A URL leva a versão (?v=), então a imagem nunca muda sob o mesmo endereço.
+    // The URL carries the version (?v=), so the image never changes under the same address.
     res.set('Cache-Control', 'private, max-age=31536000, immutable');
     res.type(avatar.contentType).send(avatar.data);
   } catch (e) {

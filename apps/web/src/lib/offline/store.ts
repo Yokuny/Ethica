@@ -1,82 +1,80 @@
-import type { CompromissoMotivo, CompromissoStatus, MidiaTipo, VistoriaDados } from '@ethica/contracts';
+import type { AppointmentReason, AppointmentStatus, InspectionData, MediaType } from '@ethica/contracts';
 import { clear, del, get, keys, set } from 'idb-keyval';
-import type { VistoriaDoDia, VistoriaRecord } from '@/query/vistoria.js';
+import type { DayInspection, InspectionRecord } from '@/query/inspection.js';
 
-// O que a tela de campo guarda no aparelho (AD-128), no IndexedDB:
-// - `dia:<data>` e `registro:<compromisso>`: a última cópia vinda da API, para abrir sem conexão;
-// - `rascunho:<compromisso>`: o formulário alterado e ainda não enviado (com a versão de base);
-// - `midia:<id>`: foto, áudio ou assinatura ainda não enviados, com o arquivo;
-// - `status:<compromisso>`: feita/adiada/ausente marcados sem conexão.
-export type Rascunho = {
-  compromissoId: string;
-  versao: number;
-  dados: VistoriaDados;
-  alteradoEm: string;
-  // Versão do servidor quando o envio deu 409: o perito escolhe qual fica.
-  conflito?: VistoriaRecord;
+// What the field screen keeps on the device (AD-128), in IndexedDB:
+// - `day:<date>` and `record:<appointment>`: the last copy from the API, to open without a connection;
+// - `draft:<appointment>`: the changed form not yet sent (with the base version);
+// - `media:<id>`: photo, audio or signature not yet sent, with the file;
+// - `status:<appointment>`: done/postponed/absent marked without a connection.
+export type Draft = {
+  appointmentId: string;
+  version: number;
+  data: InspectionData;
+  changedAt: string;
+  // Server version when sending got a 409: the expert picks which one stays.
+  conflict?: InspectionRecord;
 };
-export type MidiaPendente = {
-  compromissoId: string;
-  midiaId: string;
-  tipo: MidiaTipo;
-  legenda?: string;
+export type PendingMedia = {
+  appointmentId: string;
+  mediaId: string;
+  type: MediaType;
+  caption?: string;
   mime: string;
   blob: Blob;
-  criadoEm: string;
-  falha?: string;
+  createdAt: string;
+  failure?: string;
 };
-export type StatusPendente = { compromissoId: string; status: CompromissoStatus; motivo?: CompromissoMotivo };
+export type StatusPending = { appointmentId: string; status: AppointmentStatus; reason?: AppointmentReason };
 
-const comPrefixo = async <T>(prefixo: string): Promise<T[]> => {
-  const todas = (await keys()).filter((key): key is string => typeof key === 'string' && key.startsWith(prefixo));
-  return (await Promise.all(todas.map((key) => get<T>(key)))).filter((item): item is Awaited<T> =>
-    Boolean(item),
-  ) as T[];
+const withPrefix = async <T>(prefix: string): Promise<T[]> => {
+  const all = (await keys()).filter((key): key is string => typeof key === 'string' && key.startsWith(prefix));
+  return (await Promise.all(all.map((key) => get<T>(key)))).filter((item): item is Awaited<T> => Boolean(item)) as T[];
 };
 
-export const salvarDia = async (date: string, itens: VistoriaDoDia[]) => {
-  await set(`dia:${date}`, itens);
-  await Promise.all(itens.map((item) => set(`registro:${item.compromisso.id}`, item)));
+export const saveDay = async (date: string, items: DayInspection[]) => {
+  await set(`day:${date}`, items);
+  await Promise.all(items.map((item) => set(`record:${item.appointment.id}`, item)));
 };
-export const lerDia = (date: string) => get<VistoriaDoDia[]>(`dia:${date}`);
-export const lerRegistro = (compromissoId: string) => get<VistoriaDoDia>(`registro:${compromissoId}`);
-export const salvarRegistro = async (item: VistoriaDoDia) => set(`registro:${item.compromisso.id}`, item);
+export const readDay = (date: string) => get<DayInspection[]>(`day:${date}`);
+export const readRecord = (appointmentId: string) => get<DayInspection>(`record:${appointmentId}`);
+export const saveRecord = async (item: DayInspection) => set(`record:${item.appointment.id}`, item);
 
-export const lerRascunho = (compromissoId: string) => get<Rascunho>(`rascunho:${compromissoId}`);
-export const salvarRascunho = (rascunho: Rascunho) => set(`rascunho:${rascunho.compromissoId}`, rascunho);
-export const apagarRascunho = (compromissoId: string) => del(`rascunho:${compromissoId}`);
-export const listarRascunhos = () => comPrefixo<Rascunho>('rascunho:');
+export const readDraft = (appointmentId: string) => get<Draft>(`draft:${appointmentId}`);
+export const saveDraft = (draft: Draft) => set(`draft:${draft.appointmentId}`, draft);
+export const deleteDraft = (appointmentId: string) => del(`draft:${appointmentId}`);
+export const listDrafts = () => withPrefix<Draft>('draft:');
 
-export const guardarMidia = (midia: MidiaPendente) => set(`midia:${midia.midiaId}`, midia);
-export const apagarMidia = (midiaId: string) => del(`midia:${midiaId}`);
-export const listarMidias = () => comPrefixo<MidiaPendente>('midia:');
+export const storeMedia = (media: PendingMedia) => set(`media:${media.mediaId}`, media);
+export const deleteMedia = (mediaId: string) => del(`media:${mediaId}`);
+export const listMedia = () => withPrefix<PendingMedia>('media:');
 
-export const guardarStatus = (status: StatusPendente) => set(`status:${status.compromissoId}`, status);
-export const apagarStatus = (compromissoId: string) => del(`status:${compromissoId}`);
-export const listarStatus = () => comPrefixo<StatusPendente>('status:');
+export const storeStatus = (status: StatusPending) => set(`status:${status.appointmentId}`, status);
+export const deleteStatus = (appointmentId: string) => del(`status:${appointmentId}`);
+export const listStatus = () => withPrefix<StatusPending>('status:');
 
-// Sessão (AD-128): a última vista com conexão, para o app abrir sem rede. Só nome, papel e
-// escritório; a credencial continua no cookie httpOnly. Sem IndexedDB (testes), não guarda.
-export const salvarSessao = async (sessao: unknown): Promise<void> => {
+// Session (AD-128): the last one seen with a connection, so the app opens without network. Only name, role and
+// office; the credential stays in the httpOnly cookie. Without IndexedDB (tests), it does not store.
+export const saveSession = async (session: unknown): Promise<void> => {
   try {
-    await set('sessao', sessao);
+    await set('session', session);
   } catch {
-    // Sem IndexedDB: o app só não abre sem conexão.
+    // Without IndexedDB: the app just does not open without a connection.
   }
 };
-export const lerSessao = async <T>(): Promise<T | undefined> => {
+export const readSession = async <T>(): Promise<T | undefined> => {
   try {
-    return await get<T>('sessao');
+    return await get<T>('session');
   } catch {
     return undefined;
   }
 };
 
-// Sair apaga tudo o que o aparelho guardou do escritório (rota, rascunhos, fila, sessão).
-export const limparAparelho = async (): Promise<void> => {
+// Signing out deletes everything the device kept from the office (route, drafts, queue, session).
+export const clearDevice = async (): Promise<void> => {
   try {
     await clear();
   } catch {
-    // Sem IndexedDB não há o que apagar.
+    // Without IndexedDB there is nothing to delete.
   }
 };

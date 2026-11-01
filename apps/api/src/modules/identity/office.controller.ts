@@ -42,7 +42,7 @@ export const removeLogo =
     }
   };
 
-// O caminho é versionado (?v=): o navegador pode guardar a imagem.
+// The path is versioned (?v=): the browser may cache the image.
 export const getLogo =
   (storage: FileStorage | undefined) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -54,17 +54,17 @@ export const getLogo =
     }
   };
 
-export const getAvisoAgendamento = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getScheduleNotice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    res.json(respObj({ data: await officeService.getAvisoAgendamento(req.tenantUser.tenant as string) }));
+    res.json(respObj({ data: await officeService.getScheduleNotice(req.tenantUser.tenant as string) }));
   } catch (e) {
     next(e);
   }
 };
 
-export const updateAvisoAgendamento = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateScheduleNotice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    res.json(respObj({ data: await officeService.updateAvisoAgendamento(req.tenantUser.tenant as string, req.body) }));
+    res.json(respObj({ data: await officeService.updateScheduleNotice(req.tenantUser.tenant as string, req.body) }));
   } catch (e) {
     next(e);
   }

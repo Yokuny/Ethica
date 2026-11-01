@@ -6,21 +6,21 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { financeiroResumoQuery, lancamentosQuery } from '@/query/lancamento.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { FinanceiroOverview } from './@components/financeiro-overview.js';
-import { LancamentoForm } from './@components/lancamento-form.js';
-import { LancamentosFilters } from './@components/lancamentos-filters.js';
-import { LancamentosTable } from './@components/lancamentos-table.js';
-import { RecebimentoForm } from './@components/recebimento-form.js';
-import { useLancamentosPage } from './@hooks/use-lancamentos-page.js';
-import { type LancamentosSearch, lancamentosSearchSchema } from './@interface/lancamentos.interface.js';
+import { financeSummaryQuery, transactionsQuery } from '@/query/transaction.js';
+import { FinanceOverview } from './@components/finance-overview.js';
+import { ReceiptForm } from './@components/receipt-form.js';
+import { TransactionForm } from './@components/transaction-form.js';
+import { TransactionsFilters } from './@components/transactions-filters.js';
+import { TransactionsTable } from './@components/transactions-table.js';
+import { useTransactionsPage } from './@hooks/use-transactions-page.js';
+import { type TransactionsSearch, transactionsSearchSchema } from './@interface/transactions.interface.js';
 
-export function LancamentosIndexPage() {
+export function TransactionsIndexPage() {
   const { search, update, panel, setPanel, handlePaginationChange, setStatus, activeFilters, clearFilters } =
-    useLancamentosPage();
-  const query = useQuery(lancamentosQuery(search));
-  const resumo = useQuery(financeiroResumoQuery);
+    useTransactionsPage();
+  const query = useQuery(transactionsQuery(search));
+  const summary = useQuery(financeSummaryQuery);
   const session = useQuery(sessionQuery).data;
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
@@ -34,9 +34,9 @@ export function LancamentosIndexPage() {
           </CardAction>
         )}
       </CardHeader>
-      <FinanceiroOverview resumo={resumo.data} />
+      <FinanceOverview summary={summary.data} />
       <CardContent>
-        <DataTable toolbar={<LancamentosFilters search={search} onChange={update} />}>
+        <DataTable toolbar={<TransactionsFilters search={search} onChange={update} />}>
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (
@@ -54,28 +54,28 @@ export function LancamentosIndexPage() {
               <DefaultEmptyData title={t('no_entries_yet')} description={t('use_add_to_create_first')} />
             )
           ) : (
-            <LancamentosTable
+            <TransactionsTable
               data={items}
               pageCount={pageCount}
               pageIndex={search.page - 1}
               pageSize={search.limit}
               onPaginationChange={handlePaginationChange}
-              onRowClick={(lancamento) => setPanel({ kind: 'edit', lancamento })}
+              onRowClick={(transaction) => setPanel({ kind: 'edit', transaction })}
               onStatus={setStatus}
-              onReceber={(lancamento) => setPanel({ kind: 'receber', lancamento })}
+              onReceive={(transaction) => setPanel({ kind: 'receive', transaction })}
             />
           )}
         </DataTable>
       </CardContent>
-      {panel?.kind === 'create' && <LancamentoForm onClose={() => setPanel(null)} />}
-      {panel?.kind === 'edit' && <LancamentoForm lancamento={panel.lancamento} onClose={() => setPanel(null)} />}
-      {panel?.kind === 'receber' && <RecebimentoForm lancamento={panel.lancamento} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'create' && <TransactionForm onClose={() => setPanel(null)} />}
+      {panel?.kind === 'edit' && <TransactionForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'receive' && <ReceiptForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
     </Card>
   );
 }
 
 export const Route = createFileRoute('/_private/finance/entries/')({
-  component: LancamentosIndexPage,
+  component: TransactionsIndexPage,
   staticData: { title: t('entries') },
-  validateSearch: (search: Record<string, unknown>): LancamentosSearch => lancamentosSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): TransactionsSearch => transactionsSearchSchema.parse(search),
 });

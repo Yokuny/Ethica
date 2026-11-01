@@ -67,7 +67,7 @@ function Field({
   ...props
 }: React.ComponentProps<'div'> & VariantProps<typeof fieldVariants>) {
   return (
-    // biome-ignore lint/a11y/useSemanticElements: <fieldset> traz estilo/semântica de formulário indesejados aqui — mesmo div+role="group" do registry oficial shadcn.
+    // biome-ignore lint/a11y/useSemanticElements: <fieldset> brings unwanted form style/semantics here — same div+role="group" as the official shadcn registry.
     <div
       role="group"
       data-slot="field"

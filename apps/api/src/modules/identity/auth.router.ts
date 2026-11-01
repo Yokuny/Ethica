@@ -8,26 +8,26 @@ import type { AuthRouterDeps } from './auth.schema.js';
 import {
   listUsersQuerySchema,
   signinSchema,
-  updatePermissoesSchema,
+  updatePermissionsSchema,
   userDirectoryQuerySchema,
   userIdParamSchema,
 } from './auth.schema.js';
 
-// Mesmo papel (canOperate) já exigido em GET /conversations
-// (conversation.router.ts) — /auth/users existe pra alimentar o filtro de
-// "responsável" da fila de conversas, então qualquer papel autenticado do
-// tenant que acessa o inbox também pode listar o diretório de usuários.
+// Same role (canOperate) already required in GET /conversations
+// (conversation.router.ts) — /auth/users exists to feed the "assignee" filter
+// of the conversation queue, so any authenticated tenant role
+// that reaches the inbox can also list the user directory.
 const canOperate = checkRole(['admin', 'manager', 'operator']);
-// REG-07 (AD-071): e-mail e papel de todo o time só para admin; /users acima
-// continua com só {id,name} para os seletores de responsável.
+// REG-07 (AD-071): e-mail and role of the whole team for admin only; /users above
+// keeps only {id,name} for the assignee selectors.
 const isAdmin = checkRole(['admin']);
 
 export const createAuthRouter = (deps: AuthRouterDeps): Router => {
   const router = Router();
 
   router.post('/signin', signinRateLimit, validBody(signinSchema), authController.signin);
-  // Sem validToken: sair precisa funcionar (e limpar o cookie) mesmo com a
-  // sessão já inválida.
+  // No validToken: signing out has to work (and clear the cookie) even with the
+  // session already invalid.
   router.post('/signout', authController.signout);
   router.get('/session', deps.validToken, authController.session);
   router.get(
@@ -46,17 +46,17 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     validParsedQuery(userDirectoryQuerySchema),
     authController.listUserDirectory,
   );
-  // AD-137: matriz de permissões do membro, só o admin ajusta.
+  // AD-137: member permission matrix, only the admin adjusts it.
   router.patch(
     '/users/:id/permissions',
     deps.validToken,
     tenantAssignmentCheck,
     isAdmin,
     validParams(userIdParamSchema),
-    validBody(updatePermissoesSchema),
-    authController.updatePermissoes,
+    validBody(updatePermissionsSchema),
+    authController.updatePermissions,
   );
-  // ACC-06: a foto aparece onde o responsável aparece, então segue o mesmo papel de /users.
+  // ACC-06: the photo shows up where the assignee shows up, so it follows the same role as /users.
   router.get(
     '/users/:id/avatar',
     deps.validToken,

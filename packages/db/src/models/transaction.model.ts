@@ -1,0 +1,72 @@
+import {
+  ALL_TRANSACTION_CATEGORIES,
+  TRANSACTION_KINDS,
+  TRANSACTION_STATUS,
+  type TransactionCategory,
+  type TransactionKind,
+  type TransactionStatus,
+} from '@ethica/contracts';
+import mongoose, { Schema } from 'mongoose';
+
+// Received installment of a fee (AD-111): only income has installments.
+export interface InstallmentDocument {
+  _id: mongoose.Types.ObjectId;
+  amountCents: number;
+  date: string;
+  account?: string;
+}
+
+export interface TransactionDocument {
+  _id: mongoose.Types.ObjectId;
+  Tenant: mongoose.Types.ObjectId;
+  kind: TransactionKind;
+  category: TransactionCategory;
+  description: string;
+  amountCents: number;
+  // Calendar dates `YYYY-MM-DD` in the display time zone (AD-036, AD-103).
+  dueDate: string;
+  status: TransactionStatus;
+  settledDate?: string;
+  installments: InstallmentDocument[];
+  Case?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const transactionSchema = new Schema<TransactionDocument>(
+  {
+    Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
+    kind: { type: String, enum: TRANSACTION_KINDS, required: true },
+    category: { type: String, enum: ALL_TRANSACTION_CATEGORIES, required: true },
+    description: { type: String, required: true, trim: true },
+    amountCents: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
+    dueDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+    status: { type: String, enum: TRANSACTION_STATUS, default: 'expected', required: true },
+    settledDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
+    installments: {
+      type: [
+        new Schema<InstallmentDocument>({
+          amountCents: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
+          date: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+          account: { type: String, trim: true },
+        }),
+      ],
+      default: [],
+    },
+    Case: { type: Schema.Types.ObjectId, ref: 'Case' },
+  },
+  { timestamps: true },
+);
+
+transactionSchema.pre('validate', function () {
+  // Income settles through the installments; only an expense keeps the settlement date.
+  if (this.kind === 'expense' && this.status === 'settled' && !this.settledDate) {
+    this.invalidate('settledDate', 'lançamento liquidado precisa da data de liquidação');
+  }
+});
+
+transactionSchema.index({ Tenant: 1, dueDate: 1 });
+transactionSchema.index({ Tenant: 1, Case: 1 });
+transactionSchema.index({ Tenant: 1, kind: 1, status: 1 });
+
+export const Transaction = mongoose.model<TransactionDocument>('Transaction', transactionSchema);

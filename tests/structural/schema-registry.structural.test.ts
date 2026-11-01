@@ -6,10 +6,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { type ZodType, z } from 'zod';
 import { apiSchemaRegistry } from '../../apps/api/src/modules/schema.registry.js';
 
-// AD-010: o guardrail mais importante do projeto dá falso verde se um schema
-// novo não for registrado. Este arquivo varre o filesystem em vez de
-// confiar só no registry declarado (design.md, Risk "registry apodrece em
-// silêncio").
+// AD-010: the most important guardrail of the project gives a false green if a new
+// schema is not registered. This file scans the filesystem instead of
+// trusting only the declared registry (design.md, Risk "registry rots
+// silently").
 const REPO_ROOT = join(import.meta.dirname, '..', '..');
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist']);
 
@@ -29,13 +29,13 @@ const findSchemaFiles = (dir: string): string[] => {
 
 type SchemaRegistry = ReadonlyArray<{ name: string; schema: ZodType }>;
 
-// MOD-09: um schema é "registrado" se está em @ethica/contracts OU no registry
-// do app (apps/api/src/modules/schema.registry.ts).
+// MOD-09: a schema is "registered" if it is in @ethica/contracts OR in the app
+// registry (apps/api/src/modules/schema.registry.ts).
 const registeredSchemas = (...registries: SchemaRegistry[]): ReadonlySet<ZodType> =>
   new Set(registries.flatMap((registry) => registry.map((entry) => entry.schema)));
 
-// Retorna "arquivo:exportName" para todo export ZodType, sob `roots`, que
-// não está (por referência de objeto, não por nome) em `registered`.
+// Returns "file:exportName" for every ZodType export, under `roots`, that
+// is not (by object reference, not by name) in `registered`.
 const findUnregisteredSchemaExports = async (roots: string[], registered: ReadonlySet<ZodType>): Promise<string[]> => {
   const unregistered: string[] = [];
 
@@ -44,7 +44,7 @@ const findUnregisteredSchemaExports = async (roots: string[], registered: Readon
     try {
       files = findSchemaFiles(root);
     } catch {
-      continue; // root pode não existir (ex.: fixture já removido)
+      continue; // root may not exist (e.g. fixture already removed)
     }
 
     for (const file of files) {

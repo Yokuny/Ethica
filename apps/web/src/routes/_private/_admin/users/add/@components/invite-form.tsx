@@ -1,4 +1,4 @@
-import { PERFIL_PERMISSOES } from '@ethica/contracts';
+import { PROFILE_PERMISSIONS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ethica/ui/components/form';
 import { Input } from '@ethica/ui/components/input';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { PermissoesMatrix } from '../../@components/permissoes-matrix.js';
+import { PermissionsMatrix } from '../../@components/permissions-matrix.js';
 import { INVITE_ROLES } from '../@consts/roles.js';
 import { useInviteForm } from '../@hooks/use-invite-form.js';
 export function InviteForm() {
@@ -57,8 +57,8 @@ export function InviteForm() {
                           value={field.value}
                           onValueChange={(role) => {
                             field.onChange(role);
-                            // Trocar o perfil traz o preset dele; o admin ajusta depois.
-                            if (role && role !== 'admin') form.setValue('permissoes', PERFIL_PERMISSOES[role]);
+                            // Changing the profile brings its preset; the admin adjusts it afterwards.
+                            if (role && role !== 'admin') form.setValue('permissions', PROFILE_PERMISSIONS[role]);
                           }}
                         >
                           <FormControl>
@@ -87,10 +87,10 @@ export function InviteForm() {
                       title: t('permissions'),
                       description: t('permissions_invite_description'),
                       fields: [
-                        <PermissoesMatrix
-                          key="permissoes"
-                          value={form.watch('permissoes') ?? {}}
-                          onChange={(permissoes) => form.setValue('permissoes', permissoes)}
+                        <PermissionsMatrix
+                          key="permissions"
+                          value={form.watch('permissions') ?? {}}
+                          onChange={(permissions) => form.setValue('permissions', permissions)}
                         />,
                       ],
                     },

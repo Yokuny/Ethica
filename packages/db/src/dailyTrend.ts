@@ -11,8 +11,8 @@ const shiftDay = (day: string, offset: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
-// Cada série compara eventos reais por dia no fuso de exibição; `match` contém
-// apenas condições de domínio, nunca o tenant injetado pelo servidor.
+// Each series compares real events per day in the display time zone; `match` holds
+// only domain conditions, never the tenant injected by the server.
 export const dailyTrend = async <T>(
   model: Model<T>,
   tenantId: string,

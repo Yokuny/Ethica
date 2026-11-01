@@ -18,7 +18,7 @@ export function useAvatarUpload() {
 
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    // Limpa o input: escolher o mesmo arquivo de novo ainda dispara o change.
+    // Clears the input: picking the same file again still fires the change.
     event.target.value = '';
     if (!file || mutation.isPending) return;
     const image = await resizeAvatar(file).catch(() => null);

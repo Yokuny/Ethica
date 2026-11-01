@@ -16,7 +16,7 @@ Dicionário: `apps/web/src/lib/helpers/translate.helper.ts` (objeto TS pt-BR, se
 7. **Chave dinâmica nunca é concat**: enum → `t(order.status)` (todo valor do enum no dicionário);
    índice → array exportado (`WEEKDAY_KEYS[n]`).
 8. Pasta de rota com filhos `add`/`details` precisa de chave homônima ao segmento da URL
-   (`pericias`, `agenda`…): o breadcrumb resolve o segmento sem `staticData` por `t(segmento)`.
+   (`cases`, `agenda`…): o breadcrumb resolve o segmento sem `staticData` por `t(segment)`.
 9. Remova a chave junto com o último uso.
 10. `translate.helper.unit.test.ts` trava 2, 7 e chave inexistente — rode `pnpm run check`.
 11. **`message` da API é chave** (`API_MESSAGE_KEYS`, `packages/contracts/src/response/messages.ts`);

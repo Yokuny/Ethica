@@ -6,9 +6,9 @@ import { createPlatformController } from './platform.controller.js';
 import type { PlatformRouterDeps } from './platform.schema.js';
 import { createInviteSchema, provisionTenantSchema, tenantIdParamSchema } from './platform.schema.js';
 
-// platformAdminOnly antes de QUALQUER outro middleware de negócio — 403 sem
-// tocar dados (FND-01/AC3); validToken vem primeiro porque platformAdminOnly
-// só lê req.tenantUser, já resolvido do banco.
+// platformAdminOnly before ANY other business middleware — 403 without
+// touching data (FND-01/AC3); validToken comes first because platformAdminOnly
+// only reads req.tenantUser, already resolved from the database.
 export const createPlatformRouter = (deps: PlatformRouterDeps): Router => {
   const controller = createPlatformController(deps);
   const router = Router();

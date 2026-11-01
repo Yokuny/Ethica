@@ -2,64 +2,10 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
-      "slug": "gestao-escritorio",
-      "feature": "Gestão do escritório",
-      "descricao": "Matriz de permissões por membro, diário de bordo, fase e situação da perícia, honorário do assistente técnico e início configurável",
-      "data": "2026-11-01",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db",
-        "harness"
-      ],
-      "decisoes": [
-        "AD-103",
-        "AD-113",
-        "AD-121",
-        "AD-126",
-        "AD-133",
-        "AD-134",
-        "AD-135",
-        "AD-136",
-        "AD-137",
-        "AD-138"
-      ],
-      "spec": [
-        ".specs/features/gestao-escritorio"
-      ],
-      "planos": [],
-      "doc": "features/gestao-escritorio/feature.md"
-    },
-    {
-      "slug": "benchmark-jusperia",
-      "feature": "Benchmark da Jusperia",
-      "descricao": "Engenharia reversa funcional do app da Jusperia (concorrente) e gap analysis contra o Ethica, com priorização em ondas",
-      "data": "2026-10-31",
-      "status": "concluido",
-      "areas": [
-        "docs"
-      ],
-      "decisoes": [
-        "AD-105",
-        "AD-106",
-        "AD-107",
-        "AD-108"
-      ],
-      "spec": [
-        ".specs/features/benchmark-jusperia"
-      ],
-      "planos": [
-        ".specs/features/benchmark-jusperia/plans/2026-10-31-benchmark-jusperia.md"
-      ],
-      "doc": "features/benchmark-jusperia/feature.md"
-    },
-    {
       "slug": "campo-vistorias",
       "feature": "Campo e vistorias",
       "descricao": "Rota de campo no celular com registro de vistoria, fotos, áudio e assinatura offline, mapa do dia, aviso às partes e campo no laudo",
-      "data": "2026-10-31",
+      "data": "2026-11-01",
       "status": "concluido",
       "areas": [
         "apps/api",
@@ -92,7 +38,7 @@
       "slug": "documentos-pdf",
       "feature": "Base de documentos",
       "descricao": "Identidade do escritório, dados profissionais, PDFs (ficha, checklist, prazos, financeiro, paradas) e exportação ZIP",
-      "data": "2026-10-31",
+      "data": "2026-11-01",
       "status": "concluido",
       "areas": [
         "apps/api",
@@ -118,96 +64,38 @@
       "doc": "features/documentos-pdf/feature.md"
     },
     {
-      "slug": "importacao-processos",
-      "feature": "Importação de processos",
-      "descricao": "Cadastro de perícia a partir do PDF da ata, importação em lote por CSV, partes e advogados reutilizáveis e dados trabalhistas",
-      "data": "2026-10-31",
+      "slug": "english-naming",
+      "feature": "Nomes de código em inglês",
+      "descricao": "Todo nome definido no código (campo, model, collection, módulo, arquivo, parâmetro, evento, comentário) em inglês, com um termo por conceito",
+      "data": "2026-11-01",
       "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
         "packages/contracts",
-        "packages/db"
+        "packages/db",
+        "tests",
+        "docs"
       ],
       "decisoes": [
-        "AD-103",
-        "AD-107",
         "AD-113",
-        "AD-114",
-        "AD-115",
-        "AD-116",
-        "AD-117",
-        "AD-118"
+        "AD-138",
+        "AD-139",
+        "AD-140",
+        "AD-141",
+        "AD-142"
       ],
       "spec": [
-        ".specs/features/importacao-processos"
+        ".specs/features/english-naming"
       ],
       "planos": [],
-      "doc": "features/importacao-processos/feature.md"
-    },
-    {
-      "slug": "laudos",
-      "feature": "Laudo automatizado",
-      "descricao": "Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word",
-      "data": "2026-10-31",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-103",
-        "AD-107",
-        "AD-113",
-        "AD-119",
-        "AD-121",
-        "AD-123",
-        "AD-124",
-        "AD-125",
-        "AD-126",
-        "AD-127"
-      ],
-      "spec": [
-        ".specs/features/laudos"
-      ],
-      "planos": [],
-      "doc": "features/laudos/feature.md"
-    },
-    {
-      "slug": "prazos-recebimentos",
-      "feature": "Prazos e recebimentos",
-      "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
-      "data": "2026-10-31",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-103",
-        "AD-106",
-        "AD-107",
-        "AD-109",
-        "AD-110",
-        "AD-111",
-        "AD-112",
-        "AD-113"
-      ],
-      "spec": [
-        ".specs/features/prazos-recebimentos"
-      ],
-      "planos": [],
-      "doc": "features/prazos-recebimentos/feature.md"
+      "doc": "features/english-naming/feature.md"
     },
     {
       "slug": "fundacao-ethica",
       "feature": "Fundação do Ethica",
       "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
-      "data": "2026-10-29",
+      "data": "2026-11-01",
       "status": "parcial",
       "areas": [
         "apps/api",
@@ -239,6 +127,146 @@
         ".specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md"
       ],
       "doc": "features/fundacao-ethica/feature.md"
+    },
+    {
+      "slug": "gestao-escritorio",
+      "feature": "Gestão do escritório",
+      "descricao": "Matriz de permissões por membro, diário de bordo, fase e situação da perícia, honorário do assistente técnico e início configurável",
+      "data": "2026-11-01",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db",
+        "harness"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-113",
+        "AD-121",
+        "AD-126",
+        "AD-133",
+        "AD-134",
+        "AD-135",
+        "AD-136",
+        "AD-137",
+        "AD-138"
+      ],
+      "spec": [
+        ".specs/features/gestao-escritorio"
+      ],
+      "planos": [],
+      "doc": "features/gestao-escritorio/feature.md"
+    },
+    {
+      "slug": "importacao-processos",
+      "feature": "Importação de processos",
+      "descricao": "Cadastro de perícia a partir do PDF da ata, importação em lote por CSV, partes e advogados reutilizáveis e dados trabalhistas",
+      "data": "2026-11-01",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-107",
+        "AD-113",
+        "AD-114",
+        "AD-115",
+        "AD-116",
+        "AD-117",
+        "AD-118"
+      ],
+      "spec": [
+        ".specs/features/importacao-processos"
+      ],
+      "planos": [],
+      "doc": "features/importacao-processos/feature.md"
+    },
+    {
+      "slug": "laudos",
+      "feature": "Laudo automatizado",
+      "descricao": "Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word",
+      "data": "2026-11-01",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-107",
+        "AD-113",
+        "AD-119",
+        "AD-121",
+        "AD-123",
+        "AD-124",
+        "AD-125",
+        "AD-126",
+        "AD-127"
+      ],
+      "spec": [
+        ".specs/features/laudos"
+      ],
+      "planos": [],
+      "doc": "features/laudos/feature.md"
+    },
+    {
+      "slug": "prazos-recebimentos",
+      "feature": "Prazos e recebimentos",
+      "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
+      "data": "2026-11-01",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-106",
+        "AD-107",
+        "AD-109",
+        "AD-110",
+        "AD-111",
+        "AD-112",
+        "AD-113"
+      ],
+      "spec": [
+        ".specs/features/prazos-recebimentos"
+      ],
+      "planos": [],
+      "doc": "features/prazos-recebimentos/feature.md"
+    },
+    {
+      "slug": "benchmark-jusperia",
+      "feature": "Benchmark da Jusperia",
+      "descricao": "Engenharia reversa funcional do app da Jusperia (concorrente) e gap analysis contra o Ethica, com priorização em ondas",
+      "data": "2026-10-31",
+      "status": "concluido",
+      "areas": [
+        "docs"
+      ],
+      "decisoes": [
+        "AD-105",
+        "AD-106",
+        "AD-107",
+        "AD-108"
+      ],
+      "spec": [
+        ".specs/features/benchmark-jusperia"
+      ],
+      "planos": [
+        ".specs/features/benchmark-jusperia/plans/2026-10-31-benchmark-jusperia.md"
+      ],
+      "doc": "features/benchmark-jusperia/feature.md"
     }
   ],
   "planos_nao_arquivados": [],
@@ -550,7 +578,7 @@
       "id": "AD-113",
       "decisao": "Todo valor de domínio que o back-end grava e devolve é uma chave em inglês: status, tipos, categorias, naturezas, atuação, justiça, status d",
       "data": "2026-10-31",
-      "status": "active (nomes de rotas superseded by AD-138)"
+      "status": "active (nomes de rotas superseded by AD-138; nomes de campo e collections superseded by AD-139)"
     },
     {
       "id": "AD-114",
@@ -699,6 +727,30 @@
     {
       "id": "AD-138",
       "decisao": "Todo nome que vira URL ou valor gravado é inglês, traduzido no web: as pastas de rota do `apps/web` (`/expert-cases`, `/parties`, `/agenda`,",
+      "data": "2026-11-01",
+      "status": "active (nomes de campo, collections e pastas de módulo superseded by AD-139)"
+    },
+    {
+      "id": "AD-139",
+      "decisao": "A padronização em inglês (`english-naming`) cobre todo nome definido no código: campos de model, de contrato, de payload HTTP e de evento; p",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-140",
+      "decisao": "Glossário único de tradução (variante curta), aplicado igual em todas as camadas: perícia `Case`, número do processo `processNumber`, laudo",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-141",
+      "decisao": "Renomear collections, campos, índices de busca e prefixo do S3 sem migração: o banco local é recriado com `pnpm --filter api run seed:demo`",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-142",
+      "decisao": "A padronização sai num PR único (`refactor/english-naming`), com um commit por fatia de domínio, cada uma atravessando db, contrato, API e w",
       "data": "2026-11-01",
       "status": "active"
     }

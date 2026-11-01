@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-// Banco de testes (RUN_BOOK.md#banco-de-dados): o banco da MONGODB_URI com sufixo `_test`, no
-// mesmo servidor. Os testes apagam documentos, então o nome do banco precisa conter "test" e
-// a URI nunca pode ser a do app. MONGODB_TEST_URI é um override opcional.
+// Test database (RUN_BOOK.md#banco-de-dados): the MONGODB_URI database with a `_test` suffix, on the
+// same server. The tests delete documents, so the database name must contain "test" and
+// the URI can never be the app one. MONGODB_TEST_URI is an optional override.
 export const TEST_DATABASE_ENV = 'MONGODB_TEST_URI';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', 'mongo']);
@@ -15,8 +15,8 @@ const hostAndDatabaseOf = (uri: string): string => {
   return match ? `${match[1]}/${match[2]}`.toLowerCase() : uri;
 };
 
-// Só deriva de servidor local (`mongodb://`, nunca `+srv`): a URI de produção jamais vira
-// banco de teste por acidente.
+// Only derives from a local server (`mongodb://`, never `+srv`): the production URI never becomes
+// a test database by accident.
 const deriveFromAppUri = (appUri: string): string | undefined => {
   const match = /^(mongodb:\/\/(?:[^@/]*@)?([^/?:]+)(?::\d+)?\/)([^/?]+)(\?.*)?$/.exec(appUri);
   if (!match || !LOCAL_HOSTS.has(match[2].toLowerCase())) return undefined;
@@ -34,7 +34,7 @@ export const resolveTestDatabaseUri = (env: NodeJS.ProcessEnv = process.env): st
   const name = databaseNameOf(uri);
   if (!name || !/test/i.test(name)) {
     throw new Error(
-      `${TEST_DATABASE_ENV} recusada: o nome do banco na URI ("${name ?? 'ausente'}") precisa conter "test". ` +
+      `${TEST_DATABASE_ENV} recusada: o nome do banco na URI ("${name ?? 'absent'}") precisa conter "test". ` +
         'Os testes apagam documentos de todas as collections.',
     );
   }
@@ -45,9 +45,9 @@ export const resolveTestDatabaseUri = (env: NodeJS.ProcessEnv = process.env): st
   return uri;
 };
 
-// Segunda guarda, na própria conexão: só apaga se o banco conectado é de teste.
-// Apaga os documentos de TODAS as collections existentes (não só dos models
-// carregados), sem dropar collections nem índices (inclusive os de busca).
+// Second guard, on the connection itself: it only deletes if the connected database is a test one.
+// Deletes the documents of ALL existing collections (not only of the loaded
+// models), without dropping collections or indexes (including the search ones).
 export const wipeTestDatabase = async (): Promise<void> => {
   const { name, db } = mongoose.connection;
   if (!db || !/test/i.test(name)) {

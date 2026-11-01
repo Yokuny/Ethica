@@ -13,8 +13,8 @@ export const createPlatformController = (deps: PlatformControllerDeps) => {
     }
   };
 
-  // 202 quando o envio falha, mas o convite já está persistido (FND-12) —
-  // nunca 500, o e-mail não é o que garante a criação do recurso.
+  // 202 when sending fails but the invite is already persisted (FND-12) —
+  // never 500, the e-mail is not what guarantees the resource creation.
   const inviteToTenant = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const result = await platformService.inviteToTenant(

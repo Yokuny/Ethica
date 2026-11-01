@@ -2,11 +2,11 @@ import type * as React from 'react';
 import { cn } from '../lib/utils.js';
 import { ItemDescription } from './item.js';
 
-// Rótulos descritivos seguem a caption mono em caixa alta em todo formulário.
+// Descriptive labels follow the uppercase mono caption in every form.
 function Label({ className, ...props }: React.ComponentProps<'label'>) {
   return (
     <ItemDescription
-      // biome-ignore lint/a11y/noLabelWithoutControl: o conteúdo e o htmlFor chegam pelo ItemDescription/props
+      // biome-ignore lint/a11y/noLabelWithoutControl: the content and htmlFor arrive through ItemDescription/props
       render={<label />}
       data-slot="label"
       className={cn(

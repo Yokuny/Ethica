@@ -1,32 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import { decrypt, encrypt, maskSecret, sha256 } from './crypto.helper.js';
 
-const KEY = Buffer.alloc(32, 7).toString('base64'); // 32 bytes, válida
+const KEY = Buffer.alloc(32, 7).toString('base64'); // 32 bytes, valid
 
 describe('crypto.helper', () => {
   describe('encrypt/decrypt', () => {
     it('round-trips a plaintext through encrypt then decrypt', () => {
-      const secret = encrypt('meu-token-secreto', KEY);
+      const secret = encrypt('my-token-secreto', KEY);
 
-      expect(decrypt(secret, KEY)).toBe('meu-token-secreto');
+      expect(decrypt(secret, KEY)).toBe('my-token-secreto');
     });
 
     it('throws when the authTag is tampered (integrity check)', () => {
-      const secret = encrypt('meu-token-secreto', KEY);
+      const secret = encrypt('my-token-secreto', KEY);
       const tampered = { ...secret, authTag: Buffer.alloc(16, 1).toString('base64') };
 
       expect(() => decrypt(tampered, KEY)).toThrow();
     });
 
     it('throws an error naming CHANNEL_ENC_KEY when the key is not 32 bytes', () => {
-      const secret = encrypt('meu-token-secreto', KEY);
+      const secret = encrypt('my-token-secreto', KEY);
       const shortKey = Buffer.alloc(16, 1).toString('base64');
 
       expect(() => decrypt(secret, shortKey)).toThrow('CHANNEL_ENC_KEY deve ter 32 bytes (base64)');
     });
 
     it('throws an error naming CHANNEL_ENC_KEY when the key is empty', () => {
-      const secret = encrypt('meu-token-secreto', KEY);
+      const secret = encrypt('my-token-secreto', KEY);
 
       expect(() => decrypt(secret, '')).toThrow('CHANNEL_ENC_KEY não configurada');
     });
@@ -45,7 +45,7 @@ describe('crypto.helper', () => {
 
   describe('sha256', () => {
     it('returns the known SHA-256 hex digest for a fixed input', () => {
-      // Vetor conhecido do algoritmo SHA-256 — verificável independente da implementação.
+      // Known vector of the SHA-256 algorithm — verifiable independently of the implementation.
       expect(sha256('')).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
     });
   });

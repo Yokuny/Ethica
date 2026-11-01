@@ -1,15 +1,15 @@
 import { Button } from '@ethica/ui/components/button';
 import { createFileRoute } from '@tanstack/react-router';
+import { CaseReceipts } from '@/components/case-receipts.js';
+import { DeadlineDialog } from '@/components/deadline-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
-import { PericiaRecebimentos } from '@/components/pericia-recebimentos.js';
-import { PrazoDialog } from '@/components/prazo-dialog.js';
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { AppointmentDetail } from './@components/appointment-detail.js';
+import { AppointmentForm } from './@components/appointment-form.js';
 import { CalendarToolbar } from './@components/calendar-toolbar.js';
-import { CompromissoDetail } from './@components/compromisso-detail.js';
-import { CompromissoForm } from './@components/compromisso-form.js';
 import { MonthView } from './@components/month-view.js';
 import { TimeGridView } from './@components/time-grid-view.js';
 import { useAgendaPage } from './@hooks/use-agenda-page.js';
@@ -23,16 +23,16 @@ export function AgendaIndexPage() {
     search,
     closePanel,
     query,
-    prazos,
+    deadlines,
     view,
     date,
     from,
     handleSelectItem,
-    handleSelectPrazo,
+    handleSelectDeadline,
     clearFilters,
   } = state;
   const items = query.data ?? [];
-  const prazoProps = { prazos, onSelectPrazo: handleSelectPrazo, today: formatDisplayDate(new Date()) };
+  const deadlineProps = { deadlines, onSelectDeadline: handleSelectDeadline, today: formatDisplayDate(new Date()) };
 
   return (
     <Card asPage>
@@ -46,37 +46,35 @@ export function AgendaIndexPage() {
             title={t('load_error')}
             action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
           />
-        ) : !items.length && search.tipo ? (
+        ) : !items.length && search.type ? (
           <DefaultEmptyData
             title={t('nothing_scheduled_in_period')}
             action={<Button onClick={clearFilters}>{t('clear_filters')}</Button>}
           />
         ) : view === 'month' ? (
-          <MonthView month={date} items={items} onSelect={handleSelectItem} {...prazoProps} />
+          <MonthView month={date} items={items} onSelect={handleSelectItem} {...deadlineProps} />
         ) : (
           <TimeGridView
             days={view === 'day' ? [date] : Array.from({ length: 7 }, (_, index) => addDaysToDisplayDate(from, index))}
             items={items}
             onSelect={handleSelectItem}
-            {...prazoProps}
+            {...deadlineProps}
           />
         )}
       </CardContent>
-      {panel?.kind === 'create' && (
-        <CompromissoForm date={panel.date} periciaId={search.periciaId} onClose={closePanel} />
-      )}
-      {panel?.kind === 'edit' && <CompromissoForm compromisso={panel.compromisso} onClose={closePanel} />}
+      {panel?.kind === 'create' && <AppointmentForm date={panel.date} caseId={search.caseId} onClose={closePanel} />}
+      {panel?.kind === 'edit' && <AppointmentForm appointment={panel.appointment} onClose={closePanel} />}
       {panel?.kind === 'detail' && (
-        <CompromissoDetail
-          compromisso={panel.compromisso}
-          onEdit={() => setPanel({ kind: 'edit', compromisso: panel.compromisso })}
+        <AppointmentDetail
+          appointment={panel.appointment}
+          onEdit={() => setPanel({ kind: 'edit', appointment: panel.appointment })}
           onClose={closePanel}
         />
       )}
-      {panel?.kind === 'prazo' && (
-        <PrazoDialog prazo={panel.prazo} onClose={closePanel}>
-          <PericiaRecebimentos periciaId={panel.prazo.periciaId} />
-        </PrazoDialog>
+      {panel?.kind === 'deadline' && (
+        <DeadlineDialog deadline={panel.deadline} onClose={closePanel}>
+          <CaseReceipts caseId={panel.deadline.caseId} />
+        </DeadlineDialog>
       )}
     </Card>
   );

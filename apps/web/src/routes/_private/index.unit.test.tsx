@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { permissoesEfetivas, type Role } from '@ethica/contracts';
+import { effectivePermissions, type Role } from '@ethica/contracts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '../../query/session.js';
 
-// useLocation/useMatches/useRouter: dependências do Card asPage — sem
-// <RouterProvider> neste teste isolado de página, os hooks reais do TanStack
-// Router lançam. Link vira <a> simples para conferir os destinos.
+// useLocation/useMatches/useRouter: dependencies of Card asPage — without
+// <RouterProvider> in this isolated page test, the real TanStack
+// Router hooks throw. Link becomes a plain <a> to check the destinations.
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>();
   return {
@@ -29,9 +29,13 @@ const renderHome = (role: Role[]) => {
     tenant: { id: 't1', name: 'Perícias Silva', status: 'active' },
     user: { id: 'u1', name: 'Ana', email: 'ana@pericias.com' },
     role,
-    permissoes: permissoesEfetivas(role),
+    permissions: effectivePermissions(role),
   });
-  queryClient.setQueryData(['preferences'], { onboardingDismissed: false, avisoPrazoEmail: true, blocosOcultos: [] });
+  queryClient.setQueryData(['preferences'], {
+    onboardingDismissed: false,
+    deadlineReminderEmail: true,
+    hiddenBlocks: [],
+  });
   queryClient.setQueryData(['list-stats', '/expert-cases/stats'], {
     total: 12,
     groups: [
@@ -40,11 +44,11 @@ const renderHome = (role: Role[]) => {
       { key: 'deadlines_due_soon', count: 3 },
     ],
   });
-  queryClient.setQueryData(['lancamento', 'resumo'], {
-    aReceberCents: 1_250_000,
-    atrasadoCents: 0,
-    recebidoMesCents: 0,
-    despesasMesCents: 0,
+  queryClient.setQueryData(['transaction', 'summary'], {
+    receivableCents: 1_250_000,
+    lateCents: 0,
+    receivedMonthCents: 0,
+    expensesMonthCents: 0,
   });
   render(
     <QueryClientProvider client={queryClient}>

@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Hub do módulo: introdução + um cartão por destino.
-export function FinanceiroIndexPage() {
+// Module hub: intro + one card per destination.
+export function FinanceIndexPage() {
   return (
     <Card asPage>
       <CardHeader title={t('finance')} />
@@ -44,6 +44,6 @@ export function FinanceiroIndexPage() {
 }
 
 export const Route = createFileRoute('/_private/finance/')({
-  component: FinanceiroIndexPage,
+  component: FinanceIndexPage,
   staticData: { title: t('finance') },
 });

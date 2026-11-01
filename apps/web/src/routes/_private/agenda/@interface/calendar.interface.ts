@@ -1,29 +1,29 @@
-import { COMPROMISSO_TIPOS } from '@ethica/contracts';
+import { APPOINTMENT_TYPES } from '@ethica/contracts';
 import { z } from 'zod';
-import type { CompromissoRecord } from '@/query/compromisso.js';
-import type { PrazoRecord } from '@/query/prazo.js';
+import type { AppointmentRecord } from '@/query/appointment.js';
+import type { DeadlineRecord } from '@/query/deadline.js';
 import { CALENDAR_VIEWS } from '../@consts/calendar.js';
 
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];
 
-// Qual dialog está aberto — nunca mais de um por vez.
+// Which dialog is open — never more than one at a time.
 export type PanelState =
   | { kind: 'create'; date?: string }
-  | { kind: 'detail'; compromisso: CompromissoRecord }
-  | { kind: 'edit'; compromisso: CompromissoRecord }
-  | { kind: 'prazo'; prazo: PrazoRecord }
+  | { kind: 'detail'; appointment: AppointmentRecord }
+  | { kind: 'edit'; appointment: AppointmentRecord }
+  | { kind: 'deadline'; deadline: DeadlineRecord }
   | null;
 
-// `view`/`date`/`tipo` são a única fonte de verdade do que é renderizado:
-// toda mudança passa por navigate() e refaz a consulta ao servidor.
+// `view`/`date`/`type` are the only source of truth for what is rendered:
+// every change goes through navigate() and redoes the server query.
 export const calendarSearchSchema = z.object({
   view: z.enum(CALENDAR_VIEWS).optional(),
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'date inválida (YYYY-MM-DD)')
     .optional(),
-  tipo: z.enum(COMPROMISSO_TIPOS).optional(),
-  // Atalho do detalhe da perícia: abre o "novo compromisso" já vinculado.
-  periciaId: z.string().optional(),
+  type: z.enum(APPOINTMENT_TYPES).optional(),
+  // Shortcut from the case detail: opens the "new appointment" already linked.
+  caseId: z.string().optional(),
 });
 export type CalendarSearch = z.infer<typeof calendarSearchSchema>;

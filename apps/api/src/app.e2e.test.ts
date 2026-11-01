@@ -3,17 +3,17 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from './app.js';
 
-// OPS-03/04/05: GET /metrics expõe register.metrics() (prom-client) sem
-// validToken (mesmo padrão não-autenticado de /health).
-// dbReqResTime/reqResTime já são registrados no `register` default no import
-// de db.metric.ts/responseTime.middleware.ts — nenhuma métrica nova criada.
+// OPS-03/04/05: GET /metrics exposes register.metrics() (prom-client) without
+// validToken (same unauthenticated pattern as /health).
+// dbReqResTime/reqResTime are already registered in the default `register` on import
+// of db.metric.ts/responseTime.middleware.ts — no new metric is created.
 //
-// Ordem dos testes importa aqui: o `register` do prom-client é um singleton
-// por arquivo (module cache do Vitest); o teste de OPS-05 (histogramas vazios)
-// precisa ser a PRIMEIRA requisição do arquivo para provar "antes de qualquer
-// request ter passado pelo responseTime" — os testes seguintes já vão
-// encontrar séries populadas pelas chamadas anteriores, o que não invalida
-// OPS-03/04 (que só verificam presença dos nomes de métrica, não vacuidade).
+// Test order matters here: the prom-client `register` is a singleton
+// per file (Vitest module cache); the OPS-05 test (empty histograms)
+// must be the FIRST request of the file to prove "before any
+// request went through responseTime" — the following tests will
+// find series populated by previous calls, which does not invalidate
+// OPS-03/04 (they only check that the metric names exist, not that they are empty).
 describe('GET /metrics', () => {
   beforeAll(async () => {
     await connect(process.env.MONGODB_URI as string);
@@ -29,8 +29,8 @@ describe('GET /metrics', () => {
     expect(res.status).toBe(200);
     expect(res.text).toContain('# HELP http_request_duration_seconds');
     expect(res.text).toContain('# HELP db_operation_duration_seconds');
-    // Nenhuma linha de amostra ainda (histogramas sem observações) — só
-    // metadado HELP/TYPE, nunca dado de série.
+    // No sample line yet (histograms without observations) — only
+    // HELP/TYPE metadata, never series data.
     expect(res.text).not.toMatch(/http_request_duration_seconds_bucket\{/);
     expect(res.text).not.toMatch(/db_operation_duration_seconds_bucket\{/);
   });

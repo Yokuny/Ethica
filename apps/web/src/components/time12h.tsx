@@ -2,12 +2,12 @@ import { type DateInput, formatTime12hParts } from '@/lib/helpers/formatDate.hel
 
 export type Time12hProps = { value: DateInput };
 
-// AM/PM colado ao número, numa fonte menor que ele (`text-[0.7em]`, relativo
-// ao font-size do pai — cada chamador aparece num contexto de tamanho
-// diferente: chip do calendário, detalhe do appointment, agenda semanal do
-// Professional) — só o split de formatTime12hParts pode fazer essa
-// distinção visual; a string pronta de formatTime12h não carrega onde o
-// período começa.
+// AM/PM glued to the number, in a smaller font than it (`text-[0.7em]`, relative
+// to the parent font-size — each caller shows up in a different size
+// context: calendar chip, appointment detail, weekly agenda of the
+// Professional) — only the formatTime12hParts split can make that
+// visual distinction; the ready-made string of formatTime12h does not carry where the
+// period starts.
 export function Time12h({ value }: Time12hProps) {
   const parts = formatTime12hParts(value);
   if (!parts) return null;

@@ -3,10 +3,10 @@ import { ScrollArea } from '@ethica/ui/components/scroll-area';
 import { weekdayIndexOfDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
-import type { CompromissoRecord } from '@/query/compromisso.js';
-import type { PrazoRecord } from '@/query/prazo.js';
+import type { AppointmentRecord } from '@/query/appointment.js';
+import type { DeadlineRecord } from '@/query/deadline.js';
 import { computePositionedItems, HOUR_HEIGHT_PX, HOURS_IN_DAY } from '../@utils/calendar-grid.utils.js';
-import { CalendarEventChip, CalendarPrazoChip } from './calendar-event.js';
+import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
 import {
   CalendarTimeGrid,
   CalendarTimeGridColumns,
@@ -15,51 +15,51 @@ import {
 } from './calendar-grid.js';
 
 export type TimeGridViewProps = {
-  // Datas de parede (YYYY-MM-DD, fuso de exibição) das colunas — 1 elemento
-  // pra visão de dia, 7 pra visão de semana; mesmo componente pros dois.
+  // Wall-clock dates (YYYY-MM-DD, display time zone) of the columns — 1 element
+  // for the day view, 7 for the week view; the same component for both.
   days: string[];
-  items: CompromissoRecord[];
-  onSelect: (item: CompromissoRecord) => void;
-  // Prazos pendentes: faixa "dia inteiro" sob o cabeçalho (prazo é um dia, não um horário).
-  prazos?: PrazoRecord[];
-  onSelectPrazo?: (prazo: PrazoRecord) => void;
+  items: AppointmentRecord[];
+  onSelect: (item: AppointmentRecord) => void;
+  // Pending deadlines: "all day" strip under the header (a deadline is a day, not a time).
+  deadlines?: DeadlineRecord[];
+  onSelectDeadline?: (deadline: DeadlineRecord) => void;
   today?: string;
 };
 
 const HOURS = Array.from({ length: HOURS_IN_DAY }, (_, hour) => hour);
 
-// Altura visível do corpo da grade (régua de horas + colunas dos dias): as
-// 24h (COLUMN_HEIGHT_PX = 24*48) raramente cabem inteiras na tela, então o
-// corpo rola verticalmente AQUI DENTRO (cabeçalho de dia fica fixo em cima)
-// em vez de esticar a página inteira.
+// Visible height of the grid body (hours ruler + day columns): the
+// 24h (COLUMN_HEIGHT_PX = 24*48) rarely fit whole on screen, so the
+// body scrolls vertically IN HERE (the day header stays fixed on top)
+// instead of stretching the whole page.
 const GRID_BODY_HEIGHT_PX = 640;
 
-// Sobreposição de horário empilha em cascata (ver computePositionedItems):
-// o primeiro item de um cluster fica 100% largo, cada um depois dele desloca
-// um pouco à direita e perde só um pouco de largura — nunca divide a coluna
-// em 1/N (o que virava lascas de 1 caractere com 3+ horários no mesmo slot).
+// Time overlap stacks in a cascade (see computePositionedItems):
+// the first item of a cluster is 100% wide, each one after it shifts
+// a bit to the right and loses only a bit of width — it never splits the column
+// into 1/N (which turned into 1-character slivers with 3+ times in the same slot).
 const overlapStyle = (column: number): { left: string; width: string; zIndex: number } => ({
   left: column === 0 ? '0%' : `${column * 10}%`,
   width: column === 0 ? '100%' : '90%',
   zIndex: 10 + column,
 });
 
-// Grade por hora com eventos posicionados por horário/duração
-// (calendar-grid.utils.ts). Moldura e linhas tracejadas vêm do primitivo
-// (components/ui/calendar-grid.tsx) — aqui só composição e posição.
+// Hour grid with events positioned by time/duration
+// (calendar-grid.utils.ts). Frame and dashed lines come from the primitive
+// (components/ui/calendar-grid.tsx) — here only composition and position.
 export function TimeGridView({
   days,
   items,
   onSelect,
-  prazos = [],
-  onSelectPrazo = () => {},
+  deadlines = [],
+  onSelectDeadline = () => {},
   today = '',
 }: TimeGridViewProps) {
-  const hasPrazos = prazos.some((prazo) => days.includes(prazo.vencimento));
+  const hasDeadlines = deadlines.some((deadline) => days.includes(deadline.dueDate));
   return (
     <CalendarTimeGrid className="min-w-160 flex-col" data-testid="time-grid-view">
-      {/* Cabeçalho fixo (fora do ScrollArea): régua de horas vazia + data de
-          cada dia, sempre visível enquanto o corpo rola por baixo dele. */}
+      {/* Fixed header (outside the ScrollArea): empty hours ruler + date of
+          each day, always visible while the body scrolls under it. */}
       <div className="flex">
         <div className="w-10 shrink-0">
           <CalendarTimeGridHeader />
@@ -73,7 +73,7 @@ export function TimeGridView({
           ))}
         </CalendarTimeGridColumns>
       </div>
-      {hasPrazos && (
+      {hasDeadlines && (
         <div className="flex" data-testid="time-grid-all-day">
           <ItemDescription className="line-clamp-none w-10 shrink-0 pr-1 text-right text-[10px]">
             {t('all_day')}
@@ -81,10 +81,15 @@ export function TimeGridView({
           <CalendarTimeGridColumns style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
             {days.map((day) => (
               <div key={day} className="grid content-start gap-1 p-1">
-                {prazos
-                  .filter((prazo) => prazo.vencimento === day)
-                  .map((prazo) => (
-                    <CalendarPrazoChip key={prazo.id} prazo={prazo} today={today} onSelect={onSelectPrazo} />
+                {deadlines
+                  .filter((deadline) => deadline.dueDate === day)
+                  .map((deadline) => (
+                    <CalendarDeadlineChip
+                      key={deadline.id}
+                      deadline={deadline}
+                      today={today}
+                      onSelect={onSelectDeadline}
+                    />
                   ))}
               </div>
             ))}

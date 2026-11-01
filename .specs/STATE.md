@@ -421,7 +421,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: um banco local antigo precisa ser recriado com o seed; quem consulta o Mongo direto vê inglês. Chaves iguais de domínios diferentes (`canceled` no compromisso e no lançamento) compartilham o texto traduzido.
 - **Scope**: `packages/contracts/src/schemas/`, `packages/db/src/models/compromisso.model.ts`, `apps/api` (repositories, services, seed, testes), `apps/web` (labels, `translate.helper.ts`), `apps/api/src/providers/datajudClient.ts`.
 - **Date**: 2026-10-31
-- **Status**: active (nomes de rotas superseded by AD-138)
+- **Status**: active (nomes de rotas superseded by AD-138; nomes de campo e collections superseded by AD-139)
 
 ### AD-114
 - **Decision**: A extração de dados do PDF da ata/despacho é feita por **regras sobre a camada de texto** do PDF, no `apps/api`: `unpdf` extrai o texto e `extrairAta` (expressões regulares e rótulos do PJe) monta o rascunho. Sem modelo de IA (nem no servidor, nem colando prompt/JSON de IA externa) e sem OCR: PDF escaneado sem texto é recusado com `pdf_without_text`. O PDF não é gravado.
@@ -621,10 +621,43 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: links e favoritos antigos deixam de funcionar (sistema em desenvolvimento, sem redirecionamento); a foto do laudo passa a exigir `src` em `/inspections/<id>/media/<id>`, e laudos com a URL antiga perdem a foto (seed refeito).
 - **Scope**: `apps/web/src/routes/`, todos os `*.router.ts`, `apps/api/src/middlewares/diario.middleware.ts`, `packages/contracts/src/schemas/{permissao,diario,laudo}.schema.ts`, `apps/web/public/{sw.js,manifest.webmanifest}`. Supersede, na AD-113, a parte que mantinha os nomes de rotas.
 - **Date**: 2026-11-01
+- **Status**: active (nomes de campo, collections e pastas de módulo superseded by AD-139)
+
+### AD-139
+- **Decision**: A padronização em inglês (`english-naming`) cobre **todo nome definido no código**: campos de model, de contrato, de payload HTTP e de evento; parâmetros de busca da URL e de query da API; models e collections; pastas e arquivos de módulo da API, do contrato, do db e do web; identificadores (schemas, tipos, constantes, funções, hooks, componentes, chaves de query, nomes de evento); índices de busca, prefixo do S3 e chaves do IndexedDB; e os **comentários** do código. Ficam em pt-BR só o texto lido pelo usuário: tela pelo `t()` (as poucas chaves do dicionário com termo em português seguem o glossário da AD-140), e-mail, feed iCal, PDF e Word montados no servidor, os marcadores do laudo (`[NUMERO_PROCESSO]`…, digitados pelo perito no modelo), os cabeçalhos e nomes de arquivo dos CSVs de importação e exportação, e o nome do assunto no client do Datajud (AD-113). Documentação (`docs/`, `.specs/`, skills) segue em português, citando os nomes novos.
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 1 da spec `english-naming`): um código só em inglês, sem tradução de cabeça entre camadas.
+- **Trade-off**: ~1.800 linhas de comentário reescritas; o histórico do git perde o rastro simples de nome (`git log --follow` cobre os arquivos movidos).
+- **Scope**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `tests/`. Supersede, na AD-113 e na AD-138, a parte que mantinha nomes de campo, collections e pastas de módulo em português.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-140
+- **Decision**: Glossário único de tradução (variante curta), aplicado igual em todas as camadas: perícia `Case`, número do processo `processNumber`, laudo `Report`, modelo de laudo `Template`, vistoria `Inspection`, compromisso `Appointment`, prazo `Deadline`, honorário `fee`, parcela `installment`, lançamento `Transaction`, parte `Party`, polo `side`, contratante `client`, movimentação `movement`, oportunidade `Opportunity`, atividade/diário `Activity`, justiça `courtType`, nomeação `nomination` (para não colidir com `Appointment`); a tabela completa e o mapa campo a campo ficam em `.specs/features/english-naming/design.md`. Convenções: data de calendário (AD-103) com sufixo `Date`, instante com `At`, dinheiro com `Cents`; campo-ref segue maiúsculo com o nome do model (`Case`, `Party`). Palavra reservada do JavaScript nunca vira nome de variável: a perícia isolada como variável é `legalCase` (plural `cases`), a classe processual é `caseClass`. Rotas (AD-138) e valores gravados (AD-113) **não mudam**: `/expert-cases`, `/expert-reports`, `/finance/entries` e os módulos da matriz `expert_cases`, `expert_reports`, `report_templates` continuam como estão.
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 2): nomes curtos. `nomination` evita que `appointmentDate` (nomeação) se confunda com o model `Appointment`.
+- **Trade-off**: o nome do model e o da rota divergem em três lugares (`Case` × `/expert-cases`, `Report` × `/expert-reports`, `Transaction` × `/finance/entries`); "report" passa a significar laudo no código, e os relatórios em PDF continuam sendo `documents`.
+- **Scope**: todo o código (ver AD-139).
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-141
+- **Decision**: Renomear collections, campos, índices de busca e prefixo do S3 **sem migração**: o banco local é recriado com `pnpm --filter api run seed:demo` e os índices com `pnpm --filter api run search:provision`; collections antigas ficam órfãs até o banco ser recriado.
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 3); sistema em desenvolvimento, sem dado de produção (como AD-112, AD-113, AD-117).
+- **Trade-off**: banco local antigo precisa ser recriado; mídias de vistoria e logos já enviados ao S3 com o prefixo antigo deixam de ser achados.
+- **Scope**: `packages/db`, `apps/api/scripts/`, `apps/api/src/modules/agenda/` (prefixo do S3).
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-142
+- **Decision**: A padronização sai num **PR único** (`refactor/english-naming`), com um commit por fatia de domínio, cada uma atravessando db, contrato, API e web e com `pnpm run check` verde: perícia (casos, partes, prazos, movimentações, importação) → agenda (compromissos, vistorias, campo) → financeiro → laudos e documentos → prospecção → identity (diário, permissões, preferências, escritório) → campos comuns → comentários. A base do PR é `feat/gestao-escritorio` enquanto o PR #9 não entra na `main`; depois, retarget para a `main`.
+- **Reason**: escolha do usuário em 2026-11-01 (pergunta 4): uma revisão só, com histórico legível por domínio e cada passo compilando.
+- **Trade-off**: PR grande; um conflito com outra branch aberta toca muitos arquivos.
+- **Scope**: processo de entrega da feature `english-naming`.
+- **Date**: 2026-11-01
 - **Status**: active
 
 ## Handoff
 
+- **Feature**: `english-naming` — concluída: todo nome de código em inglês pelo glossário da AD-140 (AD-139 a AD-142, `validation.md` PASS, UAT no navegador). Banco local antigo precisa ser recriado (AD-141).
 - **Feature**: `gestao-escritorio` — concluída com GES-01 a GES-06 (AD-133 a AD-137, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.
 - **Feature**: `campo-vistorias` — concluída com CAM-01 a CAM-09, menos a transcrição de áudio (AD-128 a AD-132, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.
 - **Feature**: `laudos` — concluída com LAU-01, 02, 03, 05 e 06 (AD-123 a AD-127, `validation.md` PASS, UAT no navegador). LAU-04 (IA) adiada (AD-124); pendências no `feature.md`.

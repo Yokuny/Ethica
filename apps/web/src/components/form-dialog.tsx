@@ -3,10 +3,10 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
 import type { ReactNode } from 'react';
 
-// REG-11 (AD-070): criar/editar/agir sobre um registro sem empurrar a página.
-// Montado = aberto: quem usa renderiza condicionalmente pelo próprio estado
-// (`panel`) e recebe `onClose` no Esc, no clique fora e no ✕. O corpo rola
-// dentro do dialog quando passa da altura da tela.
+// REG-11 (AD-070): create/edit/act on a record without pushing the page.
+// Mounted = open: the user renders it conditionally from its own state
+// (`panel`) and gets `onClose` on Esc, on click outside and on ✕. The body scrolls
+// inside the dialog when it goes past the screen height.
 const formDialogVariants = cva('max-h-[calc(100dvh-2rem)] overflow-y-auto', {
   variants: {
     size: {

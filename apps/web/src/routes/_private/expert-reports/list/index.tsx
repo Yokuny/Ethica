@@ -1,4 +1,4 @@
-import { LAUDO_STATUS } from '@ethica/contracts';
+import { REPORT_STATUS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useQuery } from '@tanstack/react-query';
@@ -7,26 +7,26 @@ import type { PaginationState, Updater } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { laudoStatusLabel } from '@/components/laudo-labels.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { reportStatusLabel } from '@/components/report-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { laudosQuery } from '@/query/laudo.js';
+import { reportsQuery } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { LaudosTable } from './@components/laudos-table.js';
-import { type LaudosSearch, laudosSearchSchema } from './@interface/laudos.interface.js';
+import { ReportsTable } from './@components/reports-table.js';
+import { type ReportsSearch, reportsSearchSchema } from './@interface/reports.interface.js';
 
 const ALL = 'all';
 
-export function LaudosListPage() {
-  const search = useSearch({ strict: false }) as LaudosSearch;
+export function ReportsListPage() {
+  const search = useSearch({ strict: false }) as ReportsSearch;
   const navigate = useNavigate({ from: '/expert-reports/list/' });
-  const query = useQuery(laudosQuery({ page: search.page, limit: search.limit, status: search.status }));
+  const query = useQuery(reportsQuery({ page: search.page, limit: search.limit, status: search.status }));
   const session = useQuery(sessionQuery).data;
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
-  function updateSearch(patch: Partial<LaudosSearch>) {
-    navigate({ search: (prev: LaudosSearch) => ({ ...prev, ...patch }), replace: true });
+  function updateSearch(patch: Partial<ReportsSearch>) {
+    navigate({ search: (prev: ReportsSearch) => ({ ...prev, ...patch }), replace: true });
   }
 
   function handlePaginationChange(updater: Updater<PaginationState>) {
@@ -51,15 +51,15 @@ export function LaudosListPage() {
       <Tabs
         value={search.status ?? ALL}
         onValueChange={(value) =>
-          updateSearch({ status: value === ALL ? undefined : (value as LaudosSearch['status']), page: 1 })
+          updateSearch({ status: value === ALL ? undefined : (value as ReportsSearch['status']), page: 1 })
         }
         className="px-(--card-spacing)"
       >
         <TabsList variant="line">
           <TabsTrigger value={ALL}>{t('all')}</TabsTrigger>
-          {LAUDO_STATUS.map((status) => (
+          {REPORT_STATUS.map((status) => (
             <TabsTrigger key={status} value={status}>
-              {laudoStatusLabel(status)}
+              {reportStatusLabel(status)}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -76,7 +76,7 @@ export function LaudosListPage() {
           ) : !items.length ? (
             <DefaultEmptyData title={t('no_reports_yet')} description={t('start_report_from_expert_case')} />
           ) : (
-            <LaudosTable
+            <ReportsTable
               data={items}
               pageCount={pageCount}
               pageIndex={search.page - 1}
@@ -92,7 +92,7 @@ export function LaudosListPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-reports/list/')({
-  component: LaudosListPage,
+  component: ReportsListPage,
   staticData: { title: t('reports_and_opinions') },
-  validateSearch: (search: Record<string, unknown>): LaudosSearch => laudosSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): ReportsSearch => reportsSearchSchema.parse(search),
 });

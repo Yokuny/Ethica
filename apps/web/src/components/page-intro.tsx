@@ -2,9 +2,9 @@ import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-// Introdução de uma página-hub: título e descrição da página, depois um cartão
-// com a ilustração, o que a tela permite e os recursos que ela cobre. A altura
-// do cartão é fixa (mobile e desktop) para ficar igual em todas as páginas-hub.
+// Hub page intro: page title and description, then a card
+// with the illustration, what the screen allows and the features it covers. The card
+// height is fixed (mobile and desktop) to look the same on every hub page.
 export function PageIntro({
   title,
   description,

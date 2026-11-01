@@ -3,9 +3,9 @@
 Cada molde aponta para um arquivo real que já segue o padrão — leia-o antes de escrever.
 Caminhos a partir de `apps/web/src/routes/_private/`.
 
-## Hub de módulo — `{modulo}/index.tsx`
+## Hub de módulo — `{module}/index.tsx`
 
-Referência: `financeiro/index.tsx`, `prospeccao/index.tsx`.
+Referência: `finance/index.tsx`, `prospecting/index.tsx`.
 
 ```tsx
 // SECTIONS vem de ./@consts/sections.js (um destino por sub-rota; `icon` é LucideIcon).
@@ -41,7 +41,7 @@ export function XIndexPage() {
 
 ## Listagem — `index.tsx` ou `list/index.tsx`
 
-Referência: `pericias/index.tsx` (busca + filtros em popover), `financeiro/lancamentos/index.tsx` (filtros na barra + Dialog de criar/editar), `prospeccao/oportunidades/index.tsx` (abas por status).
+Referência: `expert-cases/index.tsx` (busca + filtros em popover), `finance/entries/index.tsx` (filtros na barra + Dialog de criar/editar), `prospecting/opportunities/index.tsx` (abas por status).
 
 - Schema Zod dos search params (`page`, `limit`, filtros) em `@interface/`;
   `validateSearch` no `Route`.
@@ -92,11 +92,11 @@ dados prontos, nunca `isLoading` por prop.
 
 ## Detalhe — `details/index.tsx`
 
-Referência: `pericias/details/index.tsx`.
+Referência: `expert-cases/details/index.tsx`.
 
 - `search: { id }` validado por `z.object({ id: z.string().min(1) })`.
 - Somente-leitura por padrão (`XDetailsView` com `RecordHeader`/`RecordStats`/`ProductSpecs`).
-  `Editar` no `CardAction` troca para `XEditForm` com `Salvar` + `Cancelar`. Nunca form
+  `Edit` no `CardAction` troca para `XEditForm` com `Save` + `Cancelar`. Nunca form
   sempre-editável.
 - Erro de exclusão via `toast.error(error.message)`.
 - Registro não encontrado → `DefaultEmptyData` dentro do `Card`, nunca tela em branco.
@@ -104,21 +104,21 @@ Referência: `pericias/details/index.tsx`.
 
 ## Criação — `add/index.tsx`
 
-Referência: `pericias/add/index.tsx`.
+Referência: `expert-cases/add/index.tsx`.
 
 - `useForm<CreateX>({ resolver: zodResolver(createXSchema), defaultValues })` com schema de `@ethica/contracts`.
 - `<Form {...form}><form noValidate onSubmit={form.handleSubmit(onSubmit)}><DefaultFormLayout sections={[...]} /></form></Form>`
   — cada seção com título + descrição; `<Panel render={<form/>}>` quando o form é um bloco dentro de outra página.
 - `useMutation(createXMutation(queryClient))`; `onSuccess` navega para a listagem (ou detalhe).
-- Form compartilhado com o `details` → componente em `{modulo}/@components/` (ex.:
-  `pericias/@components/pericia-form-fields.tsx`, usado por `add` e pela edição em `details`).
+- Form compartilhado com o `details` → componente em `{module}/@components/` (ex.:
+  `expert-cases/@components/case-form-fields.tsx`, usado por `add` e pela edição em `details`).
 
 ## Dialog ou página `/add` (AD-070)
 
 Criar/editar/agir sobre registro abre `Dialog` (`@ethica/ui/components/dialog`) ou navega para uma
 página `/add` com `<DefaultFormLayout>`; a escolha é caso a caso, com o usuário. Moldes:
-`pericias/add/` (página), `agenda/@components/compromisso-form.tsx` e
-`financeiro/lancamentos/@components/lancamento-form.tsx` (`FormDialog`).
+`expert-cases/add/` (página), `agenda/@components/appointment-form.tsx` e
+`finance/entries/@components/transaction-form.tsx` (`FormDialog`).
 
 ## Teste de página
 

@@ -41,9 +41,9 @@ describe('sessionQuery', () => {
     expect(sessionQuery.queryKey).toEqual(sessionKeys.detail());
   });
 
-  // staleTime > 0 evita refetch a cada navegação privada; retry:false evita
-  // que uma sessão inválida atrase o redirect com novas tentativas — as duas
-  // condições que o guard de rota (T30) precisa para não fazer loop.
+  // staleTime > 0 avoids a refetch on every private navigation; retry:false keeps
+  // an invalid session from delaying the redirect with new attempts — the two
+  // conditions the route guard (T30) needs to not loop.
   it('sets a positive staleTime and retry:false, so the route guard (T30) neither refetches on every navigation nor retries a failed session', () => {
     expect(sessionQuery.staleTime).toBeGreaterThan(0);
     expect(sessionQuery.retry).toBe(false);

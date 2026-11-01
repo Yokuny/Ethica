@@ -5,15 +5,15 @@ import { cn } from 'cn';
 import { ArrowUpRight, type LucideIcon } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 
-// Lista de destinos (AD-075): todo cartão que leva a outra tela — atalho de
-// hub, contador do dia, indicador de relatório, registro relacionado — usa
-// esta moldura. Um contorno cinza (frame) envolve o cartão branco (panel), e
-// cada destino é uma linha: ladrilho do ícone, valor/título (+ selos), rótulo
-// e o botão de seta. A linha inteira é o link; a seta é só sinal visual.
+// Destination list (AD-075): every card that leads to another screen — hub
+// shortcut, day counter, report indicator, related record — uses
+// this frame. A gray outline (frame) wraps the white card (panel), and
+// each destination is a row: icon tile, value/title (+ badges), label
+// and the arrow button. The whole row is the link; the arrow is only a visual cue.
 //
-// `columns` quebra as linhas em grade a partir de `sm`; os fios de cada linha
-// (borda à direita e embaixo) passam 1px da moldura e o `overflow-hidden` do
-// cartão corta os da borda externa, inclusive com a última linha incompleta.
+// `columns` breaks the rows into a grid from `sm` up; each row's lines
+// (right and bottom border) go 1px past the frame and the card's `overflow-hidden`
+// cuts the outer ones, even with an incomplete last row.
 const columnsClass: Record<1 | 2 | 3 | 4, string> = {
   1: '',
   2: 'sm:grid-cols-2',
@@ -32,23 +32,23 @@ export function LinkList({ columns = 1, className, ...props }: LinkListProps) {
 }
 
 type LinkListItemProps = Omit<useRender.ComponentProps<'div'>, 'title'> & {
-  // Ícone do destino (ladrilho à esquerda).
+  // Destination icon (tile on the left).
   icon?: LucideIcon;
-  // No lugar do ladrilho, quando o destino tem rosto próprio (avatar).
+  // In place of the tile, when the destination has its own face (avatar).
   media?: ReactNode;
   title: ReactNode;
-  // `xl`: o título é um número de destaque (contador, soma, percentual).
+  // `xl`: the title is a highlight number (counter, sum, percentage).
   size?: 'default' | 'xl';
-  // Selos ao lado do título (status, variação, atraso).
+  // Badges next to the title (status, variation, delay).
   badges?: ReactNode;
   description?: ReactNode;
-  // Linhas extras abaixo do rótulo (regra do indicador, próxima ação, barra).
+  // Extra lines below the label (indicator rule, next action, bar).
   children?: ReactNode;
 };
 
-// Uma linha. Com `render={<Link …/>}` vira link e ganha a seta; sem `render`
-// é uma linha estática (indicador sem lista para abrir, origem indisponível).
-// O `<Link>` vai sem filhos: o conteúdo é montado aqui.
+// A row. With `render={<Link …/>}` it becomes a link and gets the arrow; without `render`
+// it is a static row (indicator without a list to open, unavailable source).
+// The `<Link>` goes without children: the content is built here.
 export function LinkListItem({
   icon: Icon,
   media,

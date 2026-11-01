@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 
 type DatePickerProps = {
-  // Data de calendário `YYYY-MM-DD` (fuso de exibição), como trafega na API.
+  // Calendar date `YYYY-MM-DD` (display time zone), as it travels in the API.
   value?: string;
   onChange: (value: string | undefined) => void;
   placeholder: string;
@@ -19,7 +19,7 @@ const toDate = (value: string): Date => new Date(`${value}T12:00:00`);
 const toCalendarDate = (date: Date): string =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-// Campo de data controlado para formulários (`FormControl` + react-hook-form).
+// Controlled date field for forms (`FormControl` + react-hook-form).
 export function DatePicker({ value, onChange, placeholder, disabled, id }: DatePickerProps) {
   const [open, setOpen] = useState(false);
 

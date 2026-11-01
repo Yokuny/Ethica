@@ -33,7 +33,7 @@ O nome do produto é **Ethica**. Contexto de produto e público: `PRODUCT.md`.
 
 | Workspace | Papel | Regras próprias |
 | --- | --- | --- |
-| `apps/api` | API (Express 5 + Mongoose), módulos em `src/modules/<modulo>/` (AD-038), eventos in-process (AD-039) | `apps/api/CLAUDE.md` |
+| `apps/api` | API (Express 5 + Mongoose), módulos em `src/modules/<module>/` (AD-038), eventos in-process (AD-039) | `apps/api/CLAUDE.md` |
 | `apps/web` | Front (React 19, Vite 7, TanStack Router/Query, Tailwind 4, shadcn/Base UI, recharts) | `apps/web/CLAUDE.md` + skill `ethica-web-standards` |
 | `packages/contracts` | Schemas Zod compartilhados entre API e web | — |
 | `packages/db` | Models Mongoose — único lugar que importa `mongoose` | — |

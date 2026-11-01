@@ -6,13 +6,13 @@ import { cn } from '../lib/utils.js';
 
 import { Separator } from './separator.js';
 
-// Duas formas de agrupar Items:
-// - `grid` (padrão): cada Item é um cartão próprio; quebram em 1/2/3/4 colunas
-//   por breakpoint. Sem `flex-1` de propósito: a última linha incompleta
-//   mantém a largura da coluna em vez de esticar.
-// - `list`: um único cartão com os Items como linhas separadas por fio — a
-//   lista densa de registro (arquivos, conversas, pedidos). O grupo desenha
-//   as linhas: o filho não leva utilitário de borda.
+// Two ways to group Items:
+// - `grid` (default): each Item is its own card; they wrap into 1/2/3/4 columns
+//   by breakpoint. No `flex-1` on purpose: an incomplete last row
+//   keeps the column width instead of stretching.
+// - `list`: a single card with the Items as rows split by a rule — the
+//   dense record list (files, conversations, orders). The group draws
+//   the lines: the child carries no border utility.
 const itemGroupVariants = cva('group/item-group w-full', {
   variants: {
     variant: {
@@ -38,16 +38,16 @@ function ItemGroup({
   );
 }
 
-// Bloco de conteúdo dentro de uma página (painel do inbox, painel de
-// agendamento/bloqueio, editor de horários, blocos do kanban). Mesma moldura
-// do ItemGroup, mas com padding e sem divisórias — é um contêiner de
-// composição livre, não uma lista. Existe pra que nenhuma rota precise
-// escrever `<div className="rounded-md border p-4">` à mão.
+// Content block inside a page (inbox panel, scheduling/block
+// panel, schedule editor, kanban blocks). Same frame
+// as ItemGroup, but with padding and without dividers — it is a free
+// composition container, not a list. It exists so that no route needs to
+// write `<div className="rounded-md border p-4">` by hand.
 //
-// O Panel cuida só da moldura e da densidade; o arranjo interno (grid, linha,
-// alinhamento) continua sendo className do caller — isso é layout local, não
-// identidade visual. `render` (mesma API do Item) cobre os casos em que o
-// painel é outro elemento, tipicamente um <form>.
+// Panel only handles the frame and the density; the inner arrangement (grid, row,
+// alignment) stays a className of the caller — that is local layout, not
+// visual identity. `render` (same API as Item) covers the cases where the
+// panel is another element, typically a <form>.
 function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Separator>) {
   return <Separator data-slot="item-separator" orientation="horizontal" className={cn('my-2', className)} {...props} />;
 }
@@ -58,9 +58,9 @@ const itemVariants = cva(
     variants: {
       variant: {
         default: '',
-        // Só o DefaultEmptyData usa: um "vão" esperando conteúdo, então fica
-        // num cinza abaixo do canvas em vez de subir pro --card como o
-        // conteúdo de verdade.
+        // Only DefaultEmptyData uses it: a "gap" waiting for content, so it stays
+        // a gray below the canvas instead of rising to --card like the
+        // real content.
         muted: 'bg-muted/60',
       },
       size: {
@@ -106,8 +106,8 @@ const itemMediaVariants = cva(
     variants: {
       variant: {
         default: 'bg-transparent',
-        // Ladrilho neutro: ícone é rótulo, não ação, então não leva cor. Quando
-        // o Item é um link, o hover acende o ícone na cor de ação.
+        // Neutral tile: the icon is a label, not an action, so it carries no color. When
+        // the Item is a link, hover lights the icon up in the action color.
         icon: "size-8 rounded-md border bg-muted/60 text-muted-foreground transition-colors [a:hover_&]:text-primary [&_svg:not([class*='size-'])]:size-4",
         image:
           'size-10 overflow-hidden rounded-md group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover',
@@ -147,9 +147,9 @@ function ItemContent({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
-// Base tipográfica compartilhada: ItemTitle é um <div> e ItemDescription um <p>.
-// O uso ajusta a apresentação com poucas classes locais; `render` troca a tag
-// quando a semântica pede (link, label, dt/dd, h2).
+// Shared typographic base: ItemTitle is a <div> and ItemDescription a <p>.
+// Usage adjusts the presentation with a few local classes; `render` swaps the tag
+// when the semantics ask for it (link, label, dt/dd, h2).
 function ItemTitle({ className, render, ...props }: useRender.ComponentProps<'div'>) {
   return useRender({
     defaultTagName: 'div',

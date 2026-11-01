@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
-import type { Permissoes } from '@ethica/contracts';
+import type { Permissions } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
-import { permissoesSchemaDb } from './user.model.js';
+import { permissionsSchemaDb } from './user.model.js';
 
 export type InviteStatus = 'pending' | 'accepted' | 'revoked';
 
@@ -10,8 +10,8 @@ export interface InviteDocument {
   Tenant: mongoose.Types.ObjectId;
   email: string;
   role: 'admin' | 'manager' | 'operator';
-  // Matriz que o membro recebe no aceite (AD-137); ausente para admin.
-  permissoes?: Permissoes;
+  // Matrix the member gets on acceptance (AD-137); missing for admin.
+  permissions?: Permissions;
   tokenHash: string;
   status: InviteStatus;
   expiresAt: Date;
@@ -26,7 +26,7 @@ const inviteSchema = new Schema<InviteDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     role: { type: String, enum: ['admin', 'manager', 'operator'], required: true },
-    permissoes: { type: permissoesSchemaDb, required: false },
+    permissions: { type: permissionsSchemaDb, required: false },
     tokenHash: { type: String, required: true, unique: true },
     status: { type: String, enum: ['pending', 'accepted', 'revoked'], default: 'pending', required: true },
     expiresAt: { type: Date, required: true },
@@ -36,13 +36,13 @@ const inviteSchema = new Schema<InviteDocument>(
   { timestamps: true },
 );
 
-// Nunca dois convites `pending` para o mesmo par Tenant+email (FND-13) — o
-// invariante é do índice parcial, não do código.
+// Never two `pending` invites for the same Tenant+email pair (FND-13) — the
+// invariant belongs to the partial index, not to the code.
 inviteSchema.index({ Tenant: 1, email: 1 }, { unique: true, partialFilterExpression: { status: 'pending' } });
 inviteSchema.index({ Tenant: 1, status: 1 });
 
 export const Invite = mongoose.model<InviteDocument>('Invite', inviteSchema);
 
-// O token opaco nunca é gravado — só o hash. Vazamento do banco não produz
-// convite utilizável.
+// The opaque token is never saved — only the hash. A database leak does not produce
+// a usable invite.
 export const hashToken = (token: string): string => crypto.createHash('sha256').update(token).digest('hex');

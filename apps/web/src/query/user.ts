@@ -2,9 +2,9 @@ import { queryOptions } from '@tanstack/react-query';
 import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Espelha UserSummary de apps/api/src/modules/identity/auth.schema.ts
-// — a verdade fica no back-end. `avatar` é o caminho versionado da foto,
-// ausente sem foto; o UserChip acha a foto do responsável por aqui (ACC-07).
+// Mirrors UserSummary of apps/api/src/modules/identity/auth.schema.ts
+// — the truth lives in the back-end. `avatar` is the versioned photo path,
+// missing without a photo; the UserChip finds the assignee photo through here (ACC-07).
 export type UserSummary = { id: string; name: string; avatar?: string };
 
 export const userKeys = {
@@ -13,9 +13,9 @@ export const userKeys = {
   activeLists: () => [...userKeys.all, 'list', 'active'] as const,
 };
 
-// Diretório do tenant da sessão (GET /auth/users, canOperate): popula o <Select>
-// de "responsável" e dá a foto de cada pessoa ao UserChip. O nome do responsável
-// de cada item continua vindo resolvido do server (assigneeName).
+// Session tenant directory (GET /auth/users, canOperate): populates the "assignee"
+// <Select> and gives each person's photo to the UserChip. The assignee name
+// of each item still comes resolved from the server (assigneeName).
 export const usersQuery = queryOptions({
   queryKey: userKeys.lists(),
   queryFn: async (): Promise<UserSummary[]> => {
@@ -23,14 +23,14 @@ export const usersQuery = queryOptions({
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },
-  // Cada UserChip da tela monta esta query; o time muda pouco, e a troca da
-  // própria conta invalida `userKeys.all` (query/account.ts).
+  // Every UserChip on screen mounts this query; the team changes little, and changing
+  // your own account invalidates `userKeys.all` (query/account.ts).
   staleTime: 5 * 60_000,
 });
 
-// Só quem pode receber trabalho novo (GET /auth/users?active=true): seletor de
-// responsável. Os filtros de lista continuam com `usersQuery`, que traz também
-// os inativos — dados antigos ainda apontam para eles.
+// Only who can get new work (GET /auth/users?active=true): assignee
+// selector. The list filters stay on `usersQuery`, which also brings
+// the inactive ones — old data still points to them.
 export const activeUsersQuery = queryOptions({
   queryKey: userKeys.activeLists(),
   queryFn: async (): Promise<UserSummary[]> => {

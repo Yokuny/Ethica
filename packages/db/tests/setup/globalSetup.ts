@@ -5,13 +5,13 @@ import { connect, disconnect } from '../../src/connection.js';
 import { resolveTestDatabaseUri, wipeTestDatabase } from '../../src/testDatabase.js';
 import { provisionSearchIndexes } from '../../src/textSearch.js';
 
-// Roda uma vez por project de banco (integration e e2e), no mesmo processo: resolve o banco de
-// testes (RUN_BOOK.md#banco-de-dados), injeta-o como MONGODB_URI nos workers, garante os
-// índices de busca e parte de um banco limpo.
+// Runs once per database project (integration and e2e), in the same process: resolves the test
+// database (RUN_BOOK.md#banco-de-dados), injects it as MONGODB_URI into the workers, ensures the
+// search indexes and starts from a clean database.
 const ROOT_ENV = fileURLToPath(new URL('../../../../.env', import.meta.url));
 
-// A segunda passada já encontra a MONGODB_URI trocada pela de teste; este marcador (no
-// ambiente, que persiste) guarda a URI original do app para derivar e comparar.
+// The second pass already finds MONGODB_URI swapped for the test one; this marker (in the
+// environment, which persists) keeps the app's original URI to derive and compare.
 const APP_URI_MARK = 'ETHICA_TEST_DB_APP_URI';
 
 export default async function setup(): Promise<() => Promise<void>> {
@@ -19,7 +19,7 @@ export default async function setup(): Promise<() => Promise<void>> {
     try {
       process.loadEnvFile(path.resolve(ROOT_ENV));
     } catch {
-      // sem .env: resolveTestDatabaseUri explica o que falta
+      // no .env: resolveTestDatabaseUri explains what is missing
     }
   }
   const appUri = process.env[APP_URI_MARK] ?? process.env.MONGODB_URI;
@@ -35,7 +35,7 @@ export default async function setup(): Promise<() => Promise<void>> {
   await wipeTestDatabase();
 
   return async () => {
-    // Os dois projects dividem a conexão do processo: o segundo teardown já a encontra fechada.
+    // Both projects share the process connection: the second teardown already finds it closed.
     if (mongoose.connection.readyState !== 1) return;
     await wipeTestDatabase();
     await disconnect();

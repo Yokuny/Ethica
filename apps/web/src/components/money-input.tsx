@@ -42,7 +42,7 @@ function MoneyInput({
         try {
           onChange(parseMoneyInput(masked || '0'));
         } catch {
-          // mantém último valor válido no form
+          // keeps the last valid value in the form
         }
       }}
       onBlur={(e) => {

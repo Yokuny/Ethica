@@ -8,7 +8,7 @@ describe('formatDate', () => {
   });
 
   it('formats an instant on its calendar day in DISPLAY_TIMEZONE (America/Sao_Paulo, UTC-3), not the runner timezone', () => {
-    // 02:00 UTC de 01/06 = 23:00 de 31/05 em America/Sao_Paulo.
+    // 02:00 UTC on 01/06 = 23:00 on 31/05 in America/Sao_Paulo.
     expect(formatDate('2026-06-01T02:00:00.000Z')).toBe('31 mai 2026');
     expect(formatDate(new Date('2026-06-01T02:00:00.000Z'))).toBe('31 mai 2026');
     expect(formatDate(Date.parse('2026-06-01T15:00:00.000Z'))).toBe('1 jun 2026');
@@ -27,7 +27,7 @@ describe('formatTime/formatDateTime', () => {
   });
 
   it('keeps midnight as 00:00 on the same day', () => {
-    // 03:00 UTC = 00:00 em America/Sao_Paulo.
+    // 03:00 UTC = 00:00 in America/Sao_Paulo.
     expect(formatDateTime('2026-06-01T03:00:00.000Z')).toBe('1 jun 2026 · 00:00');
   });
 });

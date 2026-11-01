@@ -1,7 +1,7 @@
 import puppeteer, { type Browser } from 'puppeteer-core';
 
-// HTML → PDF com Chromium headless (AD-119). Um navegador por processo, aberto na primeira
-// geração e reaproveitado; cada documento usa uma página própria, fechada ao terminar.
+// HTML → PDF with headless Chromium (AD-119). One browser per process, opened on the first
+// generation and reused; each document uses its own page, closed when done.
 export type PdfDocument = { html: string; headerTemplate: string; footerTemplate: string };
 
 export type PdfRenderer = { render: (document: PdfDocument) => Promise<Buffer> };
@@ -11,7 +11,7 @@ export const createChromiumPdfRenderer = (executablePath: string): PdfRenderer =
 
   const getBrowser = (): Promise<Browser> => {
     browser ??= puppeteer
-      // Root no container: sem sandbox; /dev/shm do Docker é pequeno demais para o Chromium.
+      // Root in the container: no sandbox; Docker's /dev/shm is too small for Chromium.
       .launch({ executablePath, args: ['--no-sandbox', '--disable-dev-shm-usage'] })
       .then((launched) => {
         launched.on('disconnected', () => {
@@ -30,7 +30,7 @@ export const createChromiumPdfRenderer = (executablePath: string): PdfRenderer =
     render: async ({ html, headerTemplate, footerTemplate }) => {
       const page = await (await getBrowser()).newPage();
       try {
-        // O HTML já vem escapado; sem JavaScript, nada do conteúdo do tenant executa.
+        // The HTML already comes escaped; without JavaScript, none of the tenant content runs.
         await page.setJavaScriptEnabled(false);
         await page.setContent(html, { waitUntil: 'load' });
         const pdf = await page.pdf({

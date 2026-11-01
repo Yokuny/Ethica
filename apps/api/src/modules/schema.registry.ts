@@ -1,84 +1,84 @@
 import type { ZodType } from 'zod';
 import {
-  compromissoIdParamSchema,
-  listCompromissosQuerySchema,
-  upcomingCompromissosQuerySchema,
-} from './agenda/compromisso.schema.js';
+  appointmentIdParamSchema,
+  listAppointmentsQuerySchema,
+  upcomingAppointmentsQuerySchema,
+} from './agenda/appointment.schema.js';
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import {
-  midiaUploadQuerySchema,
-  vistoriaDiaQuerySchema,
-  vistoriaMidiaParamSchema,
-  vistoriaParamSchema,
-  vistoriaPericiaParamSchema,
-} from './agenda/vistoria.schema.js';
-import { documentoPericiaParamSchema } from './documentos/documentos.schema.js';
+  inspectionCaseParamSchema,
+  inspectionDayQuerySchema,
+  inspectionMediaParamSchema,
+  inspectionParamSchema,
+  mediaUploadQuerySchema,
+} from './agenda/inspection.schema.js';
+import { caseIdParamSchema, listCasesQuerySchema, movementIdParamSchema } from './case/case.schema.js';
+import { deadlineIdParamSchema, listPendingDeadlinesQuerySchema } from './case/deadline.schema.js';
+import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
+import { documentCaseParamSchema } from './documents/documents.schema.js';
 import {
-  laudoIdParamSchema,
-  laudoSecaoParamSchema,
-  listLaudosQuerySchema,
-  listModelosQuerySchema,
-  modeloIdParamSchema,
-  modeloSecaoParamSchema,
-} from './documentos/laudo.schema.js';
+  listReportsQuerySchema,
+  listTemplatesQuerySchema,
+  reportIdParamSchema,
+  reportSectionParamSchema,
+  templateIdParamSchema,
+  templateSectionParamSchema,
+} from './documents/report.schema.js';
 import {
-  categoriasQuerySchema,
-  fluxoQuerySchema,
-  lancamentoIdParamSchema,
-  listLancamentosQuerySchema,
-  parcelaIdParamSchema,
-} from './financeiro/lancamento.schema.js';
+  categoriesQuerySchema,
+  flowQuerySchema,
+  installmentIdParamSchema,
+  listTransactionsQuerySchema,
+  transactionIdParamSchema,
+} from './finance/transaction.schema.js';
 import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } from './identity/auth.schema.js';
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
-import { listPartesQuerySchema, parteIdParamSchema } from './pericia/parte.schema.js';
-import { listPericiasQuerySchema, movimentacaoIdParamSchema, periciaIdParamSchema } from './pericia/pericia.schema.js';
-import { listPrazosPendentesQuerySchema, prazoIdParamSchema } from './pericia/prazo.schema.js';
 import {
-  converterOportunidadeSchema,
-  listOportunidadesQuerySchema,
-  oportunidadeIdParamSchema,
-} from './prospeccao/oportunidade.schema.js';
+  convertOpportunitySchema,
+  listOpportunitiesQuerySchema,
+  opportunityIdParamSchema,
+} from './prospecting/opportunity.schema.js';
 
-// Schemas Zod locais dos módulos (params/query dos routers, em
-// `<entidade>.schema.ts`). Mesmo shape do schemaRegistry de @ethica/contracts,
-// que não pode importar de apps/ — o schema-registry.structural valida a
-// união dos dois.
+// Local Zod schemas of the modules (router params/query, in
+// `<entity>.schema.ts`). Same shape as the @ethica/contracts schemaRegistry,
+// which cannot import from apps/ — schema-registry.structural validates the
+// union of both.
 export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = [
   { name: 'tenantIdParamSchema', schema: tenantIdParamSchema },
   { name: 'listUsersQuerySchema', schema: listUsersQuerySchema },
   { name: 'userDirectoryQuerySchema', schema: userDirectoryQuerySchema },
   { name: 'userIdParamSchema', schema: userIdParamSchema },
   { name: 'updatePreferencesSchema', schema: updatePreferencesSchema },
-  { name: 'periciaIdParamSchema', schema: periciaIdParamSchema },
-  { name: 'listPericiasQuerySchema', schema: listPericiasQuerySchema },
-  { name: 'movimentacaoIdParamSchema', schema: movimentacaoIdParamSchema },
-  { name: 'documentoPericiaParamSchema', schema: documentoPericiaParamSchema },
-  { name: 'vistoriaParamSchema', schema: vistoriaParamSchema },
-  { name: 'vistoriaMidiaParamSchema', schema: vistoriaMidiaParamSchema },
-  { name: 'vistoriaPericiaParamSchema', schema: vistoriaPericiaParamSchema },
-  { name: 'vistoriaDiaQuerySchema', schema: vistoriaDiaQuerySchema },
-  { name: 'midiaUploadQuerySchema', schema: midiaUploadQuerySchema },
-  { name: 'modeloIdParamSchema', schema: modeloIdParamSchema },
-  { name: 'modeloSecaoParamSchema', schema: modeloSecaoParamSchema },
-  { name: 'laudoIdParamSchema', schema: laudoIdParamSchema },
-  { name: 'laudoSecaoParamSchema', schema: laudoSecaoParamSchema },
-  { name: 'listModelosQuerySchema', schema: listModelosQuerySchema },
-  { name: 'listLaudosQuerySchema', schema: listLaudosQuerySchema },
-  { name: 'parteIdParamSchema', schema: parteIdParamSchema },
-  { name: 'listPartesQuerySchema', schema: listPartesQuerySchema },
-  { name: 'prazoIdParamSchema', schema: prazoIdParamSchema },
-  { name: 'listPrazosPendentesQuerySchema', schema: listPrazosPendentesQuerySchema },
-  { name: 'compromissoIdParamSchema', schema: compromissoIdParamSchema },
-  { name: 'listCompromissosQuerySchema', schema: listCompromissosQuerySchema },
-  { name: 'upcomingCompromissosQuerySchema', schema: upcomingCompromissosQuerySchema },
+  { name: 'caseIdParamSchema', schema: caseIdParamSchema },
+  { name: 'listCasesQuerySchema', schema: listCasesQuerySchema },
+  { name: 'movementIdParamSchema', schema: movementIdParamSchema },
+  { name: 'documentCaseParamSchema', schema: documentCaseParamSchema },
+  { name: 'inspectionParamSchema', schema: inspectionParamSchema },
+  { name: 'inspectionMediaParamSchema', schema: inspectionMediaParamSchema },
+  { name: 'inspectionCaseParamSchema', schema: inspectionCaseParamSchema },
+  { name: 'inspectionDayQuerySchema', schema: inspectionDayQuerySchema },
+  { name: 'mediaUploadQuerySchema', schema: mediaUploadQuerySchema },
+  { name: 'templateIdParamSchema', schema: templateIdParamSchema },
+  { name: 'templateSectionParamSchema', schema: templateSectionParamSchema },
+  { name: 'reportIdParamSchema', schema: reportIdParamSchema },
+  { name: 'reportSectionParamSchema', schema: reportSectionParamSchema },
+  { name: 'listTemplatesQuerySchema', schema: listTemplatesQuerySchema },
+  { name: 'listReportsQuerySchema', schema: listReportsQuerySchema },
+  { name: 'partyIdParamSchema', schema: partyIdParamSchema },
+  { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
+  { name: 'deadlineIdParamSchema', schema: deadlineIdParamSchema },
+  { name: 'listPendingDeadlinesQuerySchema', schema: listPendingDeadlinesQuerySchema },
+  { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
+  { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },
+  { name: 'upcomingAppointmentsQuerySchema', schema: upcomingAppointmentsQuerySchema },
   { name: 'feedTokenParamSchema', schema: feedTokenParamSchema },
-  { name: 'lancamentoIdParamSchema', schema: lancamentoIdParamSchema },
-  { name: 'listLancamentosQuerySchema', schema: listLancamentosQuerySchema },
-  { name: 'parcelaIdParamSchema', schema: parcelaIdParamSchema },
-  { name: 'fluxoQuerySchema', schema: fluxoQuerySchema },
-  { name: 'categoriasQuerySchema', schema: categoriasQuerySchema },
-  { name: 'oportunidadeIdParamSchema', schema: oportunidadeIdParamSchema },
-  { name: 'listOportunidadesQuerySchema', schema: listOportunidadesQuerySchema },
-  { name: 'converterOportunidadeSchema', schema: converterOportunidadeSchema },
+  { name: 'transactionIdParamSchema', schema: transactionIdParamSchema },
+  { name: 'listTransactionsQuerySchema', schema: listTransactionsQuerySchema },
+  { name: 'installmentIdParamSchema', schema: installmentIdParamSchema },
+  { name: 'flowQuerySchema', schema: flowQuerySchema },
+  { name: 'categoriesQuerySchema', schema: categoriesQuerySchema },
+  { name: 'opportunityIdParamSchema', schema: opportunityIdParamSchema },
+  { name: 'listOpportunitiesQuerySchema', schema: listOpportunitiesQuerySchema },
+  { name: 'convertOpportunitySchema', schema: convertOpportunitySchema },
 ];

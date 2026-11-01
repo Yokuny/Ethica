@@ -2,10 +2,10 @@ import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
 import { cn } from '../lib/utils.js';
 
-// Molde do `chart` do shadcn sobre recharts 3: o `config` dá rótulo e cor a cada
-// série; a cor vira a variável `--color-<chave>` dentro do container, e o
-// gráfico usa `fill="var(--color-<chave>)"`. As cores vêm dos tokens do tema
-// (`--chart-1..5`, `--destructive`…), nunca hex solto na tela.
+// Mold of shadcn `chart` over recharts 3: the `config` gives each series a label and a
+// color; the color becomes the `--color-<key>` variable inside the container, and the
+// chart uses `fill="var(--color-<key>)"`. Colors come from the theme tokens
+// (`--chart-1..5`, `--destructive`…), never a loose hex on screen.
 export type ChartConfig = Record<string, { label: React.ReactNode; color?: string; icon?: React.ComponentType }>;
 
 type ChartContextProps = { config: ChartConfig };
@@ -73,7 +73,7 @@ type ChartTooltipContentProps = {
   label?: React.ReactNode;
   className?: string;
   hideLabel?: boolean;
-  // Chave do `config` usada para o nome de cada linha (padrão: o `dataKey`/`name`).
+  // `config` key used for each row's name (default: the `dataKey`/`name`).
   nameKey?: string;
   labelFormatter?: (label: React.ReactNode) => React.ReactNode;
   valueFormatter?: (value: number) => React.ReactNode;
@@ -145,7 +145,7 @@ function ChartLegendContent({ payload, className }: ChartLegendContentProps) {
   return (
     <div className={cn('flex flex-wrap items-center justify-center gap-4 pt-3', className)}>
       {payload.map((item) => {
-        // Na pizza todas as fatias têm o mesmo `dataKey`: o nome da fatia (`value`) é que identifica.
+        // In the pie every slice has the same `dataKey`: the slice name (`value`) is what identifies it.
         const key = String(item.value ?? item.dataKey ?? 'value');
         const entry = config[key] ?? config[String(item.dataKey)];
         return (

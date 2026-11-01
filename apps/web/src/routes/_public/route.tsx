@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-// Layout pathless puramente visual (sem guard). Os menus comuns das rotas
-// públicas ficam na variante `Card asPage="public"` de cada página.
+// Purely visual pathless layout (no guard). The common menus of the public
+// routes live in each page's `Card asPage="public"` variant.
 function PublicLayout() {
   return (
     <main className="flex min-h-dvh w-full min-w-0 flex-col bg-background px-4 py-6 md:px-6">

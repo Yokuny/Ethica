@@ -5,27 +5,27 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-// Porta 15173 casa com CORS_ORIGIN do api (.env.example) — o back-end só
-// aceita credentials:'include' dessa origem. `strictPort` é obrigatório por
-// causa disso: sem ele o Vite cai em silêncio pra 15174 quando a 15173 está
-// ocupada (um dev server órfão basta), e aí TODA chamada morre com
-// "CORS Allow Origin Not Matching Origin" — erro que aponta pro back-end e
-// esconde a causa real. Com strictPort o dev server falha na cara, dizendo
-// qual porta está ocupada. envDir aponta pro .env único da
-// raiz do monorepo (mesmo arquivo que a api lê via
-// process.env) — sem isso, client.api.ts não encontra VITE_API_URL e toda
-// chamada falha com "Não foi possível conectar ao servidor".
+// Port 15173 matches the api CORS_ORIGIN (.env.example) — the back-end only
+// accepts credentials:'include' from that origin. `strictPort` is required because
+// of that: without it Vite silently falls back to 15174 when 15173 is
+// taken (an orphan dev server is enough), and then EVERY call dies with
+// "CORS Allow Origin Not Matching Origin" — an error that points to the back-end and
+// hides the real cause. With strictPort the dev server fails loudly, saying
+// which port is taken. envDir points to the single .env at the
+// monorepo root (same file the api reads through
+// process.env) — without it, client.api.ts does not find VITE_API_URL and every
+// call fails with "Não foi possível conectar ao servidor".
 //
-// devtools() PRECISA ser o PRIMEIRO plugin (doc oficial) — instrumenta os
-// outros plugins/transforms pra inspeção de fonte (go-to-source) e injeta o
-// piping de console antes de qualquer outra transformação rodar.
-// removeDevtoolsOnBuild (default true) já tira TanStackDevtools/painéis do
-// bundle de produção sozinho — main.tsx importa/monta sem guard manual de
+// devtools() MUST be the FIRST plugin (official docs) — it instruments the
+// other plugins/transforms for source inspection (go-to-source) and injects the
+// console piping before any other transformation runs.
+// removeDevtoolsOnBuild (default true) already strips TanStackDevtools/panels from the
+// production bundle by itself — main.tsx imports/mounts without a manual guard of
 // import.meta.env.DEV.
 //
-// tanstackRouter() PRECISA vir antes de react() (mesma ordem do front de
-// referência) — o plugin reescreve as rotas antes do Babel/SWC do
-// @vitejs/plugin-react processar os arquivos (AD-030).
+// tanstackRouter() MUST come before react() (same order as the reference
+// front) — the plugin rewrites the routes before the Babel/SWC of
+// @vitejs/plugin-react processes the files (AD-030).
 export default defineConfig({
   plugins: [
     devtools(),
@@ -33,9 +33,9 @@ export default defineConfig({
       target: 'react',
       autoCodeSplitting: true,
       routeFileIgnorePrefix: '@',
-      // *.unit.test.ts(x) fica lado a lado do arquivo de rota (não em @algo/)
-      // — sem isso, o plugin avisa "does not export a Route" pra cada um
-      // deles a cada build/dev (o aviso ignora --logLevel do Vite, sai
+      // *.unit.test.ts(x) sits next to the route file (not in @something/)
+      // — without it, the plugin warns "does not export a Route" for each one
+      // of them on every build/dev (the warning ignores Vite --logLevel, it goes
       // direto no stdout).
       routeFileIgnorePattern: '\\.unit\\.test\\.tsx?$',
       semicolons: true,
@@ -44,9 +44,9 @@ export default defineConfig({
     tailwindcss(),
   ],
   envDir: '../../',
-  // O prebundle muda import.meta.url do devtools-ui para .vite/deps e
-  // quebra os caminhos relativos das fontes (a requisição recebe HTML).
-  // Preserve o módulo original para o Vite resolver os assets do pacote.
+  // The prebundle changes the devtools-ui import.meta.url to .vite/deps and
+  // breaks the relative font paths (the request gets HTML).
+  // Keep the original module so Vite resolves the package assets.
   optimizeDeps: {
     exclude: ['@tanstack/react-devtools', '@tanstack/devtools', '@tanstack/devtools-ui'],
     include: ['@tanstack/react-devtools > @tanstack/devtools > @tanstack/devtools-ui > dayjs'],

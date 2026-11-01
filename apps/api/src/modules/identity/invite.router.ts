@@ -3,7 +3,7 @@ import { validBody, validParams } from '../../middlewares/validation.middleware.
 import * as inviteController from './invite.controller.js';
 import { acceptInviteSchema, inviteTokenParamSchema } from './invite.schema.js';
 
-// Totalmente público — nenhum validToken aqui (FND-03/AC1).
+// Fully public — no validToken here (FND-03/AC1).
 export const inviteRouter = Router();
 
 inviteRouter.get('/:token', validParams(inviteTokenParamSchema), inviteController.peekInvite);

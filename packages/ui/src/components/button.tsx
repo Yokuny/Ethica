@@ -7,8 +7,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Hover escurece (bg-primary-hover, index.css) em vez de `primary/80`: a
-        // transparência deixava o canvas cinza vazar e o verde ficava lavado.
+        // Hover darkens (bg-primary-hover, index.css) instead of `primary/80`: the
+        // transparency let the gray canvas bleed through and the green looked washed out.
         default: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary-hover',
         outline:
           'border-input bg-card text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground',
@@ -21,8 +21,8 @@ const buttonVariants = cva(
       },
       size: {
         default: 'h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
-        // Botão que ocupa o lugar de um campo (gatilho de data, ação ao lado de um input): mesma
-        // altura do Input/SelectTrigger. Ações de página (cabeçalho, rodapé, menus) ficam no default.
+        // Button that takes the place of a field (date trigger, action next to an input): same
+        // height as Input/SelectTrigger. Page actions (header, footer, menus) stay on the default.
         field: 'h-11 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
         xs: "h-6 gap-1 rounded-md px-2 font-sans text-xs has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-7 gap-1 rounded-md px-2.5 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",

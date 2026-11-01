@@ -16,8 +16,8 @@ const readStoredSize = (): TextSize => {
   }
 };
 
-// Ajusta apenas os tokens de texto em theme.css por data-text-size no html.
-// A preferência persiste no localStorage sem afetar o tema claro fixo.
+// Adjusts only the text tokens in theme.css through data-text-size on html.
+// The preference persists in localStorage without affecting the fixed light theme.
 export function useTextSize() {
   const [textSize, setTextSizeState] = useState<TextSize>(readStoredSize);
 
@@ -32,8 +32,8 @@ export function useTextSize() {
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch {
-      // Sem storage (private mode / cleared site data): o estado em memória
-      // ainda funciona para esta sessão, só não persiste.
+      // No storage (private mode / cleared site data): the in-memory state
+      // still works for this session, it just does not persist.
     }
   };
 

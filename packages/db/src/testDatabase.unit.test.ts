@@ -70,7 +70,7 @@ describe('resolveTestDatabaseUri (guardas do banco de testes)', () => {
 
 describe('wipeTestDatabase', () => {
   it('recusa apagar quando não há conexão com banco de teste', async () => {
-    // Sem conexão aberta o nome do banco é vazio: nunca apaga às cegas.
+    // Without an open connection the database name is empty: it never deletes blindly.
     await expect(wipeTestDatabase()).rejects.toThrow(/recusado/);
   });
 });

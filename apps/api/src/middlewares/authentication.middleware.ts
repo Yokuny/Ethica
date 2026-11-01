@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { type Permissoes, permissoesEfetivas, type Role, type TenantUser } from '@ethica/contracts';
+import { effectivePermissions, type Permissions, type Role, type TenantUser } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.config.js';
@@ -8,8 +8,8 @@ import { CustomError } from './errorHandler.middleware.js';
 declare global {
   namespace Express {
     interface Request {
-      // Populado por createAuthMiddleware a partir do BANCO — nunca do
-      // payload do token (FND-05).
+      // Populated by createAuthMiddleware from the DATABASE — never from the
+      // token payload (FND-05).
       tenantUser: TenantUser;
     }
   }
@@ -24,7 +24,7 @@ export type UserRecord = {
   id: string;
   tenant?: string;
   role: Role[];
-  permissoes?: Permissoes;
+  permissions?: Permissions;
   isPlatformAdmin: boolean;
   active: boolean;
 };
@@ -35,9 +35,9 @@ export type TenantRecord = {
   status: string;
 };
 
-// Injetado — os quatro pontos de contato com o banco que a fábrica precisa.
-// Mantém o middleware testável sem HTTP e sem acoplar a um repositório
-// concreto (a implementação real, sobre packages/db, é construída pelo
+// Injected — the four database touch points the factory needs.
+// Keeps the middleware testable without HTTP and without coupling to a
+// concrete repository (the real implementation, over packages/db, is built by
 // consumidor).
 export type AuthDeps = {
   findSessionByHash: (tokenHash: string) => Promise<SessionRecord | null>;
@@ -46,11 +46,11 @@ export type AuthDeps = {
   getTenantById: (tenantId: string) => Promise<TenantRecord | null>;
 };
 
-// Função pura: cookie httpOnly `refreshToken` OU header `Authorization: Bearer`.
-// A referência tinha `mobileUser?.length !== 2 && mobileUser?.[0] !== "Ease"`
-// (só rejeita quando AMBAS as condições falham). Aqui as duas condições de
-// malformação (tamanho errado OU scheme errado) são checadas juntas com um
-// único `||`, então qualquer uma sozinha já rejeita.
+// Pure function: httpOnly `refreshToken` cookie OR `Authorization: Bearer` header.
+// The reference had `mobileUser?.length !== 2 && mobileUser?.[0] !== "Ease"`
+// (it only rejects when BOTH conditions fail). Here the two malformation
+// conditions (wrong size OR wrong scheme) are checked together with a
+// single `||`, so either one alone already rejects.
 export const extractToken = (req: Request): string | undefined => {
   const cookieToken = req.cookies?.refreshToken;
   if (cookieToken) return cookieToken;
@@ -64,10 +64,10 @@ export const extractToken = (req: Request): string | undefined => {
   return parts[1];
 };
 
-// Função pura: validação jwt→hash→Session→device match→User/Tenant, fora do
-// pipeline Express para poder ser reusada (ex.: handshake de WebSocket).
-// `token` aceita `undefined` porque `extractToken` já pode retornar isso
-// quando a credencial não veio — o 401 é resolvido aqui.
+// Pure function: jwt→hash→Session→device match→User/Tenant validation, outside the
+// Express pipeline so it can be reused (e.g. WebSocket handshake).
+// `token` accepts `undefined` because `extractToken` can already return it
+// when the credential did not come — the 401 is resolved here.
 export const authenticateSession = async (
   token: string | undefined,
   deviceInfo: string,
@@ -108,7 +108,7 @@ export const authenticateSession = async (
     user: user.id,
     role: user.role,
     isPlatformAdmin: user.isPlatformAdmin,
-    permissoes: permissoesEfetivas(user.role, user.permissoes),
+    permissions: effectivePermissions(user.role, user.permissions),
   };
 };
 

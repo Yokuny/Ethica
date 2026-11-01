@@ -4,12 +4,12 @@ import type { DomainEventMap, DomainEventName } from './event-types.js';
 type DomainEventHandler<T extends DomainEventName> = (payload: DomainEventMap[T]) => Promise<void>;
 type Listener = (payload: unknown) => void;
 
-// Fire-and-forget : a falha de um handler nunca chega ao emissor —
-// é logada no mesmo formato JSON do errorHandler.middleware.ts.
+// Fire-and-forget: a handler failure never reaches the emitter —
+// it is logged in the same JSON format as errorHandler.middleware.ts.
 class DomainEventBus {
   private emitter = new EventEmitter();
-  // O EventEmitter registra o wrapper, não o handler: guardar o wrapper por
-  // (evento, handler) é o que permite `off` com o mesmo handler passado a `on`.
+  // The EventEmitter registers the wrapper, not the handler: keeping the wrapper by
+  // (event, handler) is what allows `off` with the same handler passed to `on`.
   private listeners = new Map<DomainEventName, Map<unknown, Listener>>();
 
   emit<T extends DomainEventName>(event: T, payload: DomainEventMap[T]): void {

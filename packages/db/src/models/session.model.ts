@@ -22,8 +22,8 @@ const sessionSchema = new Schema<SessionDocument>(
 );
 
 sessionSchema.index({ user: 1 });
-// TTL real (FND-16): o Mongo apaga o documento da sessão sozinho, sem afetar
-// o usuário — por isso é collection própria, e não refreshToken[] no User.
+// Real TTL (FND-16): Mongo deletes the session document by itself, without affecting
+// the user — that is why it is its own collection, and not refreshToken[] on User.
 sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const Session = mongoose.model<SessionDocument>('Session', sessionSchema);

@@ -6,25 +6,25 @@ import { useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
-import { identificacaoDaParte } from '@/components/parte-labels.js';
+import { partyIdentification } from '@/components/party-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { parteQuery } from '@/query/parte.js';
-import { ParteForm } from '../@components/parte-form.js';
-import { PartePericias } from './@components/parte-pericias.js';
-import { type ParteDetailsSearch, parteDetailsSearchSchema } from './@interface/parte-details.interface.js';
+import { partyQuery } from '@/query/party.js';
+import { PartyForm } from '../@components/party-form.js';
+import { PartyCases } from './@components/party-cases.js';
+import { type PartyDetailsSearch, partyDetailsSearchSchema } from './@interface/party-details.interface.js';
 
-export function ParteDetailsPage() {
-  const search = useSearch({ strict: false }) as ParteDetailsSearch;
-  const query = useQuery({ ...parteQuery(search.id), retry: false });
-  const parte = query.data;
+export function PartyDetailsPage() {
+  const search = useSearch({ strict: false }) as PartyDetailsSearch;
+  const query = useQuery({ ...partyQuery(search.id), retry: false });
+  const party = query.data;
   const [editing, setEditing] = useState(false);
 
   return (
     <Card asPage>
       <CardHeader title={t('details')}>
-        {parte && (
+        {party && (
           <CardAction>
             <Button variant="outline" onClick={() => setEditing(true)}>
               {t('edit')}
@@ -36,7 +36,7 @@ export function ParteDetailsPage() {
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !parte ? (
+      ) : !party ? (
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
@@ -44,10 +44,10 @@ export function ParteDetailsPage() {
         <CardContent className="gap-10">
           <RecordHeader>
             <RecordHeading
-              icon={parte.tipo === 'lawyer' ? <Briefcase /> : <User />}
-              label={t(parte.tipo)}
-              title={parte.nome}
-              description={identificacaoDaParte(parte)}
+              icon={party.type === 'lawyer' ? <Briefcase /> : <User />}
+              label={t(party.type)}
+              title={party.name}
+              description={partyIdentification(party)}
             />
           </RecordHeader>
           <ProductSpecs
@@ -58,25 +58,25 @@ export function ParteDetailsPage() {
                 icon: <Contact />,
                 specs: [
                   {
-                    label: parte.tipo === 'lawyer' ? 'OAB' : t('cpf_cnpj'),
-                    value: identificacaoDaParte(parte) ?? '-',
+                    label: party.type === 'lawyer' ? 'OAB' : t('cpf_cnpj'),
+                    value: partyIdentification(party) ?? '-',
                   },
-                  { label: t('email'), value: parte.email || '-' },
-                  { label: t('phone'), value: parte.telefone || '-' },
+                  { label: t('email'), value: party.email || '-' },
+                  { label: t('phone'), value: party.phone || '-' },
                 ],
               },
             ]}
           />
-          <PartePericias parteId={parte.id} />
+          <PartyCases partyId={party.id} />
         </CardContent>
       )}
-      {editing && parte && <ParteForm parte={parte} onClose={() => setEditing(false)} />}
+      {editing && party && <PartyForm party={party} onClose={() => setEditing(false)} />}
     </Card>
   );
 }
 
 export const Route = createFileRoute('/_private/parties/details/')({
-  component: ParteDetailsPage,
+  component: PartyDetailsPage,
   staticData: { title: t('details') },
-  validateSearch: (search: Record<string, unknown>): ParteDetailsSearch => parteDetailsSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): PartyDetailsSearch => partyDetailsSearchSchema.parse(search),
 });

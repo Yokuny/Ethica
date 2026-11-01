@@ -21,12 +21,12 @@ import { UserAvatar } from '@/components/user-chip.js';
 import { TextSizeOptions } from '@/components/user-menu.text-size.js';
 import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { limparAparelho } from '@/lib/offline/store.js';
+import { clearDevice } from '@/lib/offline/store.js';
 import { type SessionView, sessionKeys } from '@/query/session.js';
 
-// O conteúdo (sessão via cache, mutation de logout) só monta com o menu
-// aberto: os testes de página renderizam o shell sem QueryClientProvider e
-// nunca abrem o menu.
+// The content (session from the cache, logout mutation) only mounts with the menu
+// open: page tests render the shell without a QueryClientProvider and
+// never open the menu.
 function UserMenuContent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -38,9 +38,9 @@ function UserMenuContent() {
       if (!res.success) throw new Error(res.message ?? t('action_error'));
     },
     onSuccess: () => {
-      // Dados do tenant/usuário anterior não podem sobreviver no cache.
+      // Data from the previous tenant/user cannot survive in the cache.
       queryClient.clear();
-      void limparAparelho();
+      void clearDevice();
       navigate({ to: '/auth' });
     },
     onError: (error: Error) => toast.error(error.message),
@@ -80,7 +80,7 @@ function UserMenuContent() {
   );
 }
 
-// Usuário no rodapé da sidebar: conta, tamanho do texto e sair.
+// User in the sidebar footer: account, text size and sign out.
 export function UserMenu({ name, avatar }: { name: string; avatar?: string }) {
   const [open, setOpen] = useState(false);
   const { isMobile, state } = useSidebar();

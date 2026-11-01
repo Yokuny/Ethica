@@ -11,10 +11,10 @@ vi.mock('@/lib/api/client.api.js', () => ({ get: getMock, post: postMock }));
 
 const navigateMock = vi.fn();
 const searchMock = vi.fn();
-// useLocation/useMatches/useRouter: dependências da moldura pública — sem
-// <RouterProvider> nestes testes isolados de página, os hooks reais do
-// TanStack Router lançam. Mocks mínimos só para não quebrar o render; o
-// comportamento de breadcrumb/back-button do Card não é escopo destes testes.
+// useLocation/useMatches/useRouter: dependencies of the public frame — without
+// <RouterProvider> in these isolated page tests, the real
+// TanStack Router hooks throw. Minimal mocks only so the render does not break; the
+// Card breadcrumb/back-button behavior is not in the scope of these tests.
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>();
   return {

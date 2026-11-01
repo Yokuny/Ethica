@@ -13,10 +13,10 @@ import {
   weekdayIndexOfDisplayDate,
 } from './displayTime.helper.js';
 
-// design.md/T38 Done-when: "o instante 2026-09-16T00:00:00Z cai na coluna de
-// 15/09 às 21:00 — só passa se a formatação usar o fuso de exibição
-// (America/Sao_Paulo, UTC-3), não o do executor de testes (a CI roda em
-// UTC)." Esta é a asserção que prova isso.
+// design.md/T38 Done-when: "the instant 2026-09-16T00:00:00Z falls in the
+// 15/09 at 21:00 column — it only passes if the formatting uses the display time zone
+// (America/Sao_Paulo, UTC-3), not the test runner's (CI runs in
+// UTC)." This is the assertion that proves it.
 describe('formatDisplayDate/formatDisplayTime (T38, spec.md SCH-29/SCH-35)', () => {
   it('formats 2026-09-16T00:00:00Z as 2026-09-15 at 21:00 in DISPLAY_TIMEZONE (America/Sao_Paulo, UTC-3)', () => {
     const instant = '2026-09-16T00:00:00.000Z';
@@ -33,7 +33,7 @@ describe('formatDisplayDate/formatDisplayTime (T38, spec.md SCH-29/SCH-35)', () 
   });
 
   it('formats an instant that stays on the same calendar day in the display timezone', () => {
-    // 12:00 UTC = 09:00 em America/Sao_Paulo — mesmo dia civil.
+    // 12:00 UTC = 09:00 in America/Sao_Paulo — same civil day.
     expect(formatDisplayDate('2026-09-16T12:00:00.000Z')).toBe('2026-09-16');
     expect(formatDisplayTime('2026-09-16T12:00:00.000Z')).toBe('09:00');
   });
@@ -55,25 +55,25 @@ describe('addDaysToDisplayDate (T38)', () => {
 
 describe('weekdayIndexOfDisplayDate (T38)', () => {
   it('returns 0..6 (domingo..sábado, mesma faixa de weeklySchedule/t(WEEKDAY_KEYS[N]))', () => {
-    // 2026-09-15 é uma terça-feira.
+    // 2026-09-15 is a Tuesday.
     expect(weekdayIndexOfDisplayDate('2026-09-15')).toBe(2);
-    // 2026-09-14 é uma segunda-feira.
+    // 2026-09-14 is a Monday.
     expect(weekdayIndexOfDisplayDate('2026-09-14')).toBe(1);
-    // 2026-09-20 é um domingo.
+    // 2026-09-20 is a Sunday.
     expect(weekdayIndexOfDisplayDate('2026-09-20')).toBe(0);
   });
 });
 
 describe('currentDisplayWeekStart (T38, spec.md SCH-29)', () => {
   it('returns the Monday of the current week when "now" falls mid-week (display tz)', () => {
-    // 2026-09-16T12:00:00Z = 2026-09-16 09:00 em SP (quarta-feira).
+    // 2026-09-16T12:00:00Z = 2026-09-16 09:00 in SP (Wednesday).
     const now = new Date('2026-09-16T12:00:00.000Z');
 
     expect(currentDisplayWeekStart(now)).toBe('2026-09-14');
   });
 
   it('returns the Monday of the SAME week when "now" falls on a Sunday (display tz)', () => {
-    // 2026-09-20T12:00:00Z = 2026-09-20 09:00 em SP (domingo).
+    // 2026-09-20T12:00:00Z = 2026-09-20 09:00 in SP (Sunday).
     const now = new Date('2026-09-20T12:00:00.000Z');
 
     expect(currentDisplayWeekStart(now)).toBe('2026-09-14');
@@ -167,8 +167,8 @@ describe('isPastInstant (T38, spec.md SCH-35)', () => {
   });
 });
 
-// ENR-06/AD-036: o <input type="date|time"> do painel de tarefa entrega hora de
-// PAREDE; a API recebe o instante UTC. O fuso do navegador/CI não pode entrar.
+// ENR-06/AD-036: the task panel <input type="date|time"> delivers WALL-CLOCK
+// time; the API gets the UTC instant. The browser/CI time zone cannot leak in.
 describe('displayWallClockToUtcIso (ENR-06)', () => {
   it('turns 23:59 of the 10th into 02:59Z of the 11th (UTC−3)', () => {
     expect(displayWallClockToUtcIso('2026-10-10', '23:59')).toBe('2026-10-11T02:59:00.000Z');

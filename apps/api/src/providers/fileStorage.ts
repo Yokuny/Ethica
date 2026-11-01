@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, GetObjectCommand, NoSuchKey, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
-// Arquivos do tenant num bucket privado compatível com S3 (AD-120): RustFS no docker local,
-// S3 ou R2 em produção. Nada é público; a API lê e devolve os bytes.
+// Tenant files in a private S3-compatible bucket (AD-120): RustFS in local docker,
+// S3 or R2 in production. Nothing is public; the API reads and returns the bytes.
 export type FileStorage = {
   put: (key: string, body: Buffer, contentType: string) => Promise<void>;
   get: (key: string) => Promise<Buffer | null>;
@@ -17,7 +17,7 @@ export const createS3FileStorage = (config: {
 }): FileStorage => {
   const client = new S3Client({
     region: config.region,
-    // Endpoint próprio (RustFS/R2) usa o bucket no caminho, não no subdomínio.
+    // Custom endpoint (RustFS/R2) uses the bucket in the path, not the subdomain.
     ...(config.endpoint ? { endpoint: config.endpoint, forcePathStyle: true } : {}),
     ...(config.accessKeyId && config.secretAccessKey
       ? { credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey } }

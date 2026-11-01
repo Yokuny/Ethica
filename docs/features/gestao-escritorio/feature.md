@@ -33,26 +33,26 @@ Onda 6 da gap analysis (`.specs/features/benchmark-jusperia/2026-10-31-jusperia-
 
 ### `apps/api`
 
-- `apps/api/src/middlewares/authorization.middleware.ts` — `can(modulo, ...acoes)`; `authentication.middleware.ts` resolve `req.tenantUser.permissoes` (`permissoesEfetivas`). Todos os routers de domínio usam `can`; o mapa está em `node .agents/skills/ethica-permissions/scripts/matrix.mjs api`.
-- `apps/api/src/modules/identity/auth.*` — `PATCH /auth/users/:id/permissoes`, sessão e diretório com permissões; `platform.service.ts`/`invite.*` levam a matriz do convite ao usuário.
-- `apps/api/src/middlewares/diario.middleware.ts` (`descreverRequisicao`) montado em `apps/api/src/app.ts` com `diarioService.registrar`; `apps/api/src/modules/identity/diario.*` (`GET /tenant/diario`); o login registra em `auth.service.ts`; `office.service.ts` lê as exportações do diário.
-- `apps/api/src/modules/pericia/pericia.service.ts` — `resolverEtapaEFase`, contratante válido, categoria do honorário no evento; `pericia.repository.ts` — situação na leitura e no filtro, paradas sem suspensas; `GET /pericias/paradas`.
-- `apps/api/src/modules/financeiro/lancamento.*` — `contracted_fees` e contratante no enriquecimento e no relatório.
-- `apps/api/src/modules/documentos/laudo.service.ts` — fase ao concluir com a entrega; controllers de `documentos` decidem valores pela matriz.
-- `apps/api/src/modules/identity/preferences.*` — `blocosOcultos`.
+- `apps/api/src/middlewares/authorization.middleware.ts` — `can(module, ...actions)`; `authentication.middleware.ts` resolve `req.tenantUser.permissions` (`effectivePermissions`). Todos os routers de domínio usam `can`; o mapa está em `node .agents/skills/ethica-permissions/scripts/matrix.mjs api`.
+- `apps/api/src/modules/identity/auth.*` — `PATCH /auth/users/:id/permissions`, sessão e diretório com permissões; `platform.service.ts`/`invite.*` levam a matriz do convite ao usuário.
+- `apps/api/src/middlewares/activityLog.middleware.ts` (`describeRequest`) montado em `apps/api/src/app.ts` com `activityLogService.record`; `apps/api/src/modules/identity/activityLog.*` (`GET /tenant/activity-log`); o login registra em `auth.service.ts`; `office.service.ts` lê as exportações do diário.
+- `apps/api/src/modules/case/case.service.ts` — `resolveStatusAndPhase`, contratante válido, categoria do honorário no evento; `case.repository.ts` — situação na leitura e no filtro, paradas sem suspensas; `GET /expert-cases/stalled`.
+- `apps/api/src/modules/finance/transaction.*` — `contracted_fees` e contratante no enriquecimento e no relatório.
+- `apps/api/src/modules/documents/report.service.ts` — fase ao concluir com a entrega; controllers de `documents` decidem valores pela matriz.
+- `apps/api/src/modules/identity/preferences.*` — `hiddenBlocks`.
 
 ### `apps/web`
 
-- `apps/web/src/query/session.ts` (`can`), `apps/web/src/routes/_private/route.tsx` (guarda central por módulo, `moduloDaRota` em `_private/@utils/home-access.ts`); `financeiro/route.tsx` removido.
-- `apps/web/src/routes/_private/_admin/users/` — `PermissoesMatrix`, diálogo de permissões e matriz no convite.
+- `apps/web/src/query/session.ts` (`can`), `apps/web/src/routes/_private/route.tsx` (guarda central por módulo, `moduleFromRoute` em `_private/@utils/home-access.ts`); `finance/route.tsx` removido.
+- `apps/web/src/routes/_private/_admin/users/` — `PermissionsMatrix`, diálogo de permissões e matriz no convite.
 - `apps/web/src/routes/_private/_admin/activity-log/` — tela do diário.
-- `apps/web/src/routes/_private/expert-cases/` — fase, situação, contratante e filtros; `apps/web/src/components/pericia-labels.ts`.
-- `apps/web/src/routes/_private/index.tsx` e `@components/home-personalizar.tsx`, `@components/pericias-paradas.tsx`, `@consts/home-blocos.ts`; `apps/web/src/query/preferences.ts` (antes em `account/@query`).
+- `apps/web/src/routes/_private/expert-cases/` — fase, situação, contratante e filtros; `apps/web/src/components/case-labels.ts`.
+- `apps/web/src/routes/_private/index.tsx` e `@components/home-customize.tsx`, `@components/stalled-cases.tsx`, `@consts/home-blocks.ts`; `apps/web/src/query/preferences.ts` (antes em `account/@query`).
 
 ### `packages`
 
-- `packages/contracts/src/schemas/permissao.schema.ts` (módulos, ações, presets), `diario.schema.ts`, `pericia.schema.ts` (fases, situação, contratante), `account.schema.ts` (`HOME_BLOCOS`), `lancamento.schema.ts` (`contracted_fees`).
-- `packages/db/src/models/atividade.model.ts` (TTL de 1 ano); `user.model.ts`/`invite.model.ts` (`permissoes`); `pericia.model.ts` (`fase`, `partes[].contratante`); `tenant.model.ts` sem `dataExports`.
+- `packages/contracts/src/schemas/permission.schema.ts` (módulos, ações, presets), `activityLog.schema.ts`, `case.schema.ts` (fases, situação, contratante), `account.schema.ts` (`HOME_BLOCKS`), `transaction.schema.ts` (`contracted_fees`).
+- `packages/db/src/models/activity.model.ts` (TTL de 1 ano); `user.model.ts`/`invite.model.ts` (`permissions`); `case.model.ts` (`phase`, `parties[].client`); `tenant.model.ts` sem `dataExports`.
 
 ### `harness`
 
@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Rotas do web e da API, pastas de rota e valores da matriz e do diário passam a inglês, traduzidos no web (AD-138).
 - 2026-11-01 — Implementado GES-01 a GES-06 (AD-133 a AD-137); validação em `.specs/features/gestao-escritorio/validation.md`. Divergências do design: a regra do contratante ficou só no service (refine no schema quebraria o `.pick()` da conversão de oportunidade); o bloco de paradas leva ao relatório em PDF em vez de um filtro da listagem; rótulos da matriz e do diário viraram mapas de chave literal (o teste do dicionário proíbe chave montada); `preferencesQuery` subiu para `apps/web/src/query/`; a coluna de honorários da listagem some sem `finance.view` (achado na UAT).
 - 2026-11-01 — Spec criada (`.specs/features/gestao-escritorio/spec.md`).

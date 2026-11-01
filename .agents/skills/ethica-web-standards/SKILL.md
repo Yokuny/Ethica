@@ -40,7 +40,7 @@ src/routes/
 - **Proibido** `.` no nome (`edit.$id.tsx`), `$id` dinâmico e `details.tsx`/`_admin.tsx` soltos.
   Registro identificado por search param: `details/?id=` + `validateSearch` com schema Zod.
   Breadcrumb é path-based; path dinâmico o quebra.
-- **Layout pathless** = `route.tsx` dentro da pasta `_nome/`. `beforeLoad` + `redirect()` só para
+- **Layout pathless** = `route.tsx` dentro da pasta `_name/`. `beforeLoad` + `redirect()` só para
   guarda binária (autenticado/admin), nunca para navegar de um hub.
 - **Pastas `@`** (ignoradas pelo scanner via `routeFileIgnorePrefix: '@'`) pertencem à rota do
   mesmo nível:
@@ -69,7 +69,7 @@ src/routes/
 | Pasta | Conteúdo |
 | --- | --- |
 | `routes/` | páginas + `@` locais (seção 1) |
-| `components/` | componentes compartilhados entre módulos e wrappers de primitivo do app (`button`, `badge`, `checkbox`, `panel`, `page-card`, `table-pagination`, `form-fields`, `date-picker`, `fluxo-financeiro-chart`, `*-labels.ts`) |
+| `components/` | componentes compartilhados entre módulos e wrappers de primitivo do app (`button`, `badge`, `checkbox`, `panel`, `page-card`, `table-pagination`, `form-fields`, `date-picker`, `finance-flow-chart`, `*-labels.ts`) |
 | `query/<entidade>.ts` | chamadas à API de entidades compartilhadas por 2+ rotas: `xKeys`, `xQuery` (`queryOptions`), `xMutation(queryClient)`; factories locais em `routes/**/@query/` — ver `references/data-layer.md` |
 | `hooks/` | hooks de UI reaproveitáveis (`useDebouncedSearch`, `useTextSize`) — procure antes de criar |
 | `lib/api/` | cliente HTTP (`get/post/patch/del`) |
@@ -131,7 +131,7 @@ export const Route = createFileRoute('/_private/x/')({
 | Select | `<Select items={[{value,label}]}>` (`@ethica/ui/components/select`) — `items` obrigatório |
 | Leitura de registro (detalhe, integração) | `RecordHeader` (+ `RecordHeadingGroup` para vários pares) + `RecordStats` (faixa entre fios com divisórias) + `ProductSpecs` de `@/components/product-specs.js` (grupos colapsáveis rótulo/valor com ícone, ação e Expandir/Recolher tudo, AD-091) + `RecordTable` (lista livre tipo checklist), cabeçalho, faixa e lista de `@/components/record.js` (AD-072, AD-090); a tela só passa dados, sem `className` de identidade |
 | Faixa de indicadores da listagem | `<RecordStats variant="band">` + `ListTrendStat` (`@/components/list-trend-stat.js`) |
-| Gráfico | `ChartContainer` + `ChartTooltip`/`ChartTooltipContent`/`ChartLegend` (`@ethica/ui/components/chart`, recharts 3) com `config` de cores por token (`var(--chart-N)`, `var(--destructive)`); a tela passa os dados prontos, molde em `@/components/fluxo-financeiro-chart.js` (AD-104) |
+| Gráfico | `ChartContainer` + `ChartTooltip`/`ChartTooltipContent`/`ChartLegend` (`@ethica/ui/components/chart`, recharts 3) com `config` de cores por token (`var(--chart-N)`, `var(--destructive)`); a tela passa os dados prontos, molde em `@/components/finance-flow-chart.js` (AD-104) |
 | Criar/editar/agir sobre registro | `FormDialog` (`@/components/form-dialog.js`) ou página `/add` com `<DefaultFormLayout>`, decidido caso a caso (AD-070) |
 | Ícone | só `lucide-react`; link para outra página leva `ArrowUpRight` |
 

@@ -16,8 +16,8 @@ description: Regra de texto do Ethica (AD-073 e AD-087). Todo texto visível em 
 <ItemTitle render={<h2 />} className="text-2xl text-impact">{name}</ItemTitle>
 <ItemDescription className="text-inherit line-clamp-none">{meta}</ItemDescription>
 <ItemDescription role="alert" className="text-destructive line-clamp-none">{message}</ItemDescription>
-<AppLink to="/pericias/details" search={{ id }}>{name}</AppLink>
-<AppLink to="/pericias/details" search={{ id }} as="description">{name}</AppLink>
+<AppLink to="/expert-cases/details" search={{ id }}>{name}</AppLink>
+<AppLink to="/expert-cases/details" search={{ id }} as="description">{name}</AppLink>
 ```
 
 Não escreva texto visível diretamente em `p`, `span`, `h1–h6`, `dt`, `dd`, `label`, `a` ou `button` no código da tela. Primitivos que já têm tipografia própria (`Button`, `Badge`, `Table*`, `CardTitle`, `DialogTitle`, `Breadcrumb`, `Label`, `Form*` etc.) não precisam de wrapper adicional. Texto solto em `TableCell` também pode usar a tipografia da célula. Ícones, texto `sr-only` e tags usadas apenas para layout são exceções.
