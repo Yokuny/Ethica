@@ -2,7 +2,7 @@
 feature: Base de documentos
 slug: documentos-pdf
 descricao: Identidade do escritório, dados profissionais, PDFs (ficha, checklist, prazos, financeiro, paradas) e exportação ZIP
-data: 2026-10-31
+data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db, infra]
 decisoes: [AD-103, AD-107, AD-113, AD-118, AD-119, AD-120, AD-121, AD-122]
@@ -12,7 +12,7 @@ branches: [feat/documentos-pdf]
 
 # Base de documentos
 
-**Status**: concluido · **Atualizado**: 2026-10-31 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `infra`
+**Status**: concluido · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `infra`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), o código é a fonte da
 > verdade. Correlação com o git: `git log --oneline -i --grep='documentos-pdf'`.
@@ -33,23 +33,23 @@ O perito precisava de papel para a vistoria, relatórios para o escritório e o 
 
 ### `apps/api`
 
-- `apps/api/src/modules/documentos/` — módulo novo (desde `laudos`, dono de `Laudo` e `ModeloLaudo`, AD-126): `documentos.router.ts` (`/documents/*`, papéis por rota), `documentos.service.ts` (junta os dados pelos services de `pericia`, `agenda`, `financeiro`, `prospeccao`, `identity`; CSV e ZIP da exportação), `documentos.templates.ts` (um documento = função pura dados → HTML) e `documento.layout.ts` (CSS de impressão, escape, rótulos pt-BR e a troca dos marcadores no cabeçalho/rodapé).
+- `apps/api/src/modules/documents/` — módulo novo (desde `laudos`, dono de `Report` e `Template`, AD-126): `documents.router.ts` (`/documents/*`, papéis por rota), `documents.service.ts` (junta os dados pelos services de `case`, `agenda`, `finance`, `prospecting`, `identity`; CSV e ZIP da exportação), `documents.templates.ts` (um documento = função pura dados → HTML) e `document.layout.ts` (CSS de impressão, escape, rótulos pt-BR e a troca dos marcadores no cabeçalho/rodapé).
 - `apps/api/src/providers/pdfRenderer.ts` — Chromium via `puppeteer-core`, um navegador por processo, sem JavaScript na página. `apps/api/src/providers/fileStorage.ts` — bucket privado S3 (`@aws-sdk/client-s3`). Os dois são criados em `apps/api/src/app.ts` e injetáveis nos testes; o CORS expõe `Content-Disposition` para o web ler o nome do arquivo.
 - `apps/api/src/modules/identity/office.*` — `/tenant/office` (texto, logo com cota reservada no mesmo update, registro de exportação, identidade para os PDFs). `account.*` ganhou `GET /me/profile` e os dados profissionais.
-- `apps/api/src/modules/pericia/` — `POST/DELETE /pericias/:id/movimentacoes` e `listParadas` (regra dos 60 dias em `pericia.service.ts`); funções `listForExport` nos services de cada módulo e `relatorioPeriodo`/`resumoDaPericia` em `financeiro/lancamento.service.ts`.
+- `apps/api/src/modules/case/` — `POST/DELETE /expert-cases/:id/movements` e `listStalled` (regra dos 60 dias em `case.service.ts`); funções `listForExport` nos services de cada módulo e `reportPeriod`/`caseSummary` em `finance/transaction.service.ts`.
 
 ### `apps/web`
 
 - `apps/web/src/routes/_private/_admin/office/` — tela do escritório; o logo é reduzido no navegador (`@utils/resize-logo.ts`).
 - `apps/web/src/routes/_private/reports/` — relatórios em PDF; o financeiro só para admin/manager.
-- `apps/web/src/routes/_private/expert-cases/details/` — menu de PDFs e `@components/pericia-movimentacoes.tsx`.
+- `apps/web/src/routes/_private/expert-cases/details/` — menu de PDFs e `@components/case-movements.tsx`.
 - `apps/web/src/routes/_private/account/` — dados profissionais no formulário de perfil.
 - `apps/web/src/lib/api/client.api.ts` (`getFile`) e `apps/web/src/hooks/useFileDownload.ts` — download dos arquivos gerados.
 
 ### `packages`
 
-- `packages/contracts/src/schemas/documento.schema.ts` (marcadores, limites, cota, dias de perícia parada, período do relatório), `pericia.schema.ts` (tipos de movimentação), `account.schema.ts` (dados profissionais).
-- `packages/db/src/models/tenant.model.ts` (cabeçalho, rodapé, logo, `storageBytes`, `dataExports`), `user.model.ts`, `pericia.model.ts` (`movimentacoes`). Sem migração: seed refeito.
+- `packages/contracts/src/schemas/document.schema.ts` (marcadores, limites, cota, dias de perícia parada, período do relatório), `case.schema.ts` (tipos de movimentação), `account.schema.ts` (dados profissionais).
+- `packages/db/src/models/tenant.model.ts` (cabeçalho, rodapé, logo, `storageBytes`, `dataExports`), `user.model.ts`, `case.model.ts` (`movements`). Sem migração: seed refeito.
 
 ### Infra
 
@@ -72,8 +72,9 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 
 ## Histórico
 
+- 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — `Tenant.dataExports` saiu: quem exportou vai ao diário de bordo; perícia suspensa não conta como parada; valores dos PDFs seguem a matriz (`docs/features/gestao-escritorio/feature.md`, AD-133, AD-134, AD-137).
-- 2026-10-31 — O checklist de campo usa as listas de agentes e documentos do contrato (`VISTORIA_AGENTES`, `VISTORIA_DOCUMENTOS`), as mesmas do registro de vistoria (`campo-vistorias`, AD-130); a cota de arquivos agora também é usada pelas mídias da vistoria.
-- 2026-10-31 — `documento.layout.ts` ganhou `cabecalhoRodape`/`textosCabecalhoRodape` para o laudo e o Word reaproveitarem; o módulo passou a ter os models do laudo (`docs/features/laudos/feature.md`).
+- 2026-10-31 — O checklist de campo usa as listas de agentes e documentos do contrato (`INSPECTION_AGENTS`, `INSPECTION_DOCUMENTS`), as mesmas do registro de vistoria (`campo-vistorias`, AD-130); a cota de arquivos agora também é usada pelas mídias da vistoria.
+- 2026-10-31 — `document.layout.ts` ganhou `headerFooter`/`textsHeaderFooter` para o laudo e o Word reaproveitarem; o módulo passou a ter os models do laudo (`docs/features/laudos/feature.md`).
 - 2026-10-31 — Implementado DOC-01 a DOC-04 (AD-119 a AD-122); validação em `.specs/features/documentos-pdf/validation.md`. Divergências do design: storage local é RustFS em vez de MinIO (imagens públicas do MinIO indisponíveis); o CORS passou a expor `Content-Disposition`, achado na UAT.
 - 2026-10-31 — Spec criada (`.specs/features/documentos-pdf/spec.md`).

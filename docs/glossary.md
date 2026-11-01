@@ -4,28 +4,28 @@ Termos de domínio usados no código, na interface e nos documentos. Valores de 
 
 | Termo | Código | Significado |
 | --- | --- | --- |
-| Perícia | `Pericia` (`pericia` module) | Um processo judicial em que o perito (ou assistente técnico) atua. Identificada pelo número CNJ, única por tenant. |
-| Número do processo (CNJ) | `numeroProcesso` | Formato `NNNNNNN-DD.AAAA.J.TR.OOOO` (Resolução CNJ 65/2008). |
-| Justiça | `justica` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`). |
-| Atuação | `papel` | Perito do juízo (`court_expert`) ou assistente técnico de uma das partes (`technical_assistant`). |
+| Perícia | `Case` (`case` module) | Um processo judicial em que o perito (ou assistente técnico) atua. Identificada pelo número CNJ, única por tenant. |
+| Número do processo (CNJ) | `processNumber` | Formato `NNNNNNN-DD.AAAA.J.TR.OOOO` (Resolução CNJ 65/2008). |
+| Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`). |
+| Atuação | `role` | Perito do juízo (`court_expert`) ou assistente técnico de uma das partes (`technical_assistant`). |
 | Etapa | `status` da perícia | Nomeada → aceita → vistoria → em laudo → laudo entregue → esclarecimentos → concluída; recusada encerra sem laudo. |
-| Parte | `Parte` (`pericia`), `partes` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117). |
-| Período imprescrito | `periodoImprescritoInicio`/`Fim` | Parte do contrato de trabalho que ainda pode ser cobrada: do mais recente entre (autuação − 5 anos) e a admissão até a demissão (AD-115). |
-| Movimentação | `Pericia.movimentacoes` | Fato do processo com data (entrega do laudo, notificação de honorários, intimação para esclarecimentos ou laudo complementar) que reinicia a contagem de perícia parada (AD-121). |
-| Perícia parada | `GET /documentos/paradas` | Perícia não encerrada sem movimentação há mais de 60 dias (AD-121). |
-| Importação | `POST /pericias/import/{pdf,csv}` | PDF da ata/despacho preenche o cadastro para revisão; CSV cria as perícias em lote com relatório por linha (AD-114, AD-118). |
-| Nomeação | `dataNomeacao` | Dia em que o juízo nomeou o perito. |
-| Prazo do laudo | `prazoLaudo` (só no cadastro) | Dia limite de entrega; vira o prazo "Entrega do laudo" da perícia (AD-109). |
-| Prazo | `Prazo` (`pericia`) | Prazo processual da perícia (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo) ou perdido. **Vence em breve** = até 15 dias. |
-| Honorários propostos | `honorariosPropostosCents` | Proposta do perito. |
-| Honorários fixados | `honorariosFixadosCents` | Valor fixado pelo juízo; vira receita a receber no financeiro. |
-| Compromisso | `Compromisso` (`agenda`) | Item da agenda com horário: vistoria, audiência, reunião ou outro. Prazos aparecem no calendário, mas são `Prazo`. |
+| Parte | `Party` (`case`), `parties` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117). |
+| Período imprescrito | `nonPrescribedPeriodStart`/`End` | Parte do contrato de trabalho que ainda pode ser cobrada: do mais recente entre (autuação − 5 anos) e a admissão até a demissão (AD-115). |
+| Movimentação | `Case.movements` | Fato do processo com data (entrega do laudo, notificação de honorários, intimação para esclarecimentos ou laudo complementar) que reinicia a contagem de perícia parada (AD-121). |
+| Perícia parada | `GET /documents/stalled` | Perícia não encerrada sem movimentação há mais de 60 dias (AD-121). |
+| Importação | `POST /expert-cases/import/{pdf,csv}` | PDF da ata/despacho preenche o cadastro para revisão; CSV cria as perícias em lote com relatório por linha (AD-114, AD-118). |
+| Nomeação | `nominationDate` | Dia em que o juízo nomeou o perito. |
+| Prazo do laudo | `reportDeadline` (só no cadastro) | Dia limite de entrega; vira o prazo "Entrega do laudo" da perícia (AD-109). |
+| Prazo | `Deadline` (`case`) | Prazo processual da perícia (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo) ou perdido. **Vence em breve** = até 15 dias. |
+| Honorários propostos | `proposedFeesCents` | Proposta do perito. |
+| Honorários fixados | `fixedFeesCents` | Valor fixado pelo juízo; vira receita a receber no financeiro. |
+| Compromisso | `Appointment` (`agenda`) | Item da agenda com horário: vistoria, audiência, reunião ou outro. Prazos aparecem no calendário, mas são `Deadline`. |
 | Vistoria | `tipo: 'inspection'` | Visita técnica ao local periciado. |
-| Lançamento | `Lancamento` (`financeiro`) | Receita (honorário prévio ou fixado) ou despesa operacional (deslocamento, material, taxas, outras). |
-| Parcela (recebimento) | `parcelas` do lançamento de receita | Valor que caiu na conta contra um honorário, com data e conta; estornável. Honorário não é excluído nem cancelado (AD-111). |
+| Lançamento | `Transaction` (`finance`) | Receita (honorário prévio ou fixado) ou despesa operacional (deslocamento, material, taxas, outras). |
+| Parcela (recebimento) | `installments` do lançamento de receita | Valor que caiu na conta contra um honorário, com data e conta; estornável. Honorário não é excluído nem cancelado (AD-111). |
 | Previsto / parcial / liquidado / cancelado | `status` do lançamento (`expected`, `partial`, `settled`, `canceled`) | A receber/pagar, recebido em parte (só receita), já recebido/pago, desconsiderado (só despesa). No honorário, vem das parcelas. **Atrasado** é derivado: previsto ou parcial com vencimento antes de hoje. |
 | Feed iCal | `GET /agenda/feed/:token.ics` | Link secreto, só leitura, para assinar compromissos e prazos no Google/Outlook/Apple. |
 | Datajud | `providers/datajudClient.ts` | API Pública do CNJ com metadados e movimentos dos processos dos tribunais. |
-| Oportunidade | `Oportunidade` (`prospeccao`) | Processo encontrado no Datajud e salvo para análise; pode ser convertido em perícia. |
+| Oportunidade | `Opportunity` (`prospecting`) | Processo encontrado no Datajud e salvo para análise; pode ser convertido em perícia. |
 | Valor de domínio | enums em `packages/contracts/src/schemas/` | Gravado e devolvido pela API em inglês (AD-113); o web traduz com `t()` antes de mostrar. |
 | Tenant | `Tenant` | O escritório/perito cliente da plataforma; todo dado é isolado por tenant. |

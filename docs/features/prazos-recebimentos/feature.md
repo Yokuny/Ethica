@@ -2,7 +2,7 @@
 feature: Prazos e recebimentos
 slug: prazos-recebimentos
 descricao: Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail
-data: 2026-10-31
+data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
 decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112, AD-113]
@@ -12,7 +12,7 @@ branches: [feat/prazos-recebimentos]
 
 # Prazos e recebimentos
 
-**Status**: concluido · **Atualizado**: 2026-10-31 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='prazos-recebimentos'`.
@@ -28,39 +28,39 @@ branches: [feat/prazos-recebimentos]
 
 ## Por que
 
-Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PRODUCT.md`). O prazo é entidade própria no módulo `pericia` porque tem semântica de protocolo e é um dia, não um instante (AD-109, supersede a parte de agenda da AD-106). O honorário guarda as parcelas e deriva o status delas; por decisão do usuário ele nunca é excluído nem cancelado, e o juízo alterar o valor atualiza o lançamento existente (AD-111). O aviso por e-mail é escolha de cada pessoa, sem chave no tenant (AD-110). Não houve migração: só o seed foi atualizado (AD-112).
+Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PRODUCT.md`). O prazo é entidade própria no módulo `case` porque tem semântica de protocolo e é um dia, não um instante (AD-109, supersede a parte de agenda da AD-106). O honorário guarda as parcelas e deriva o status delas; por decisão do usuário ele nunca é excluído nem cancelado, e o juízo alterar o valor atualiza o lançamento existente (AD-111). O aviso por e-mail é escolha de cada pessoa, sem chave no tenant (AD-110). Não houve migração: só o seed foi atualizado (AD-112).
 
 ## Como
 
 ### `apps/api`
 
-- `apps/api/src/modules/pericia/prazo.{controller,service,repository,schema}.ts` (rotas em `pericia.router.ts`) — CRUD de prazo sob `/expert-cases` (`/expert-cases/deadlines`, `/expert-cases/:id/deadlines`, `/expert-cases/deadlines/:prazoId`).
-- `apps/api/src/modules/pericia/pericia.service.ts` — cria "Entrega do laudo", apaga os prazos ao excluir a perícia, anexa `proximoPrazo` na listagem; `findResumosByIds` (número e partes) para os outros módulos.
-- `apps/api/src/modules/financeiro/lancamento.repository.ts` — parcelas e status do honorário no próprio update (pipeline), resumo e fluxo pelas parcelas.
-- `apps/api/src/modules/financeiro/lancamento.service.ts` — regras do honorário (sem excluir/cancelar, valor ≥ recebido) e `lancarHonorariosFixados` que atualiza o existente.
+- `apps/api/src/modules/case/deadline.{controller,service,repository,schema}.ts` (rotas em `case.router.ts`) — CRUD de prazo sob `/expert-cases` (`/expert-cases/deadlines`, `/expert-cases/:id/deadlines`, `/expert-cases/deadlines/:deadlineId`).
+- `apps/api/src/modules/case/case.service.ts` — cria "Entrega do laudo", apaga os prazos ao excluir a perícia, anexa `nextDeadline` na listagem; `findSummariesByIds` (número e partes) para os outros módulos.
+- `apps/api/src/modules/finance/transaction.repository.ts` — parcelas e status do honorário no próprio update (pipeline), resumo e fluxo pelas parcelas.
+- `apps/api/src/modules/finance/transaction.service.ts` — regras do honorário (sem excluir/cancelar, valor ≥ recebido) e `postFixedFees` que atualiza o existente.
 - `apps/api/src/modules/agenda/feed.{service,controller,schema}.ts` — `GET /agenda/feed/:token.ics` público, `.ics` montado à mão, rate limit por token (`apps/api/src/middlewares/rateLimit.middleware.ts`).
-- `apps/api/src/modules/agenda/avisoPrazo.service.ts` + `apps/api/src/server.ts` — consolidado diário às 07:00 com timer em memória.
-- `apps/api/src/modules/identity/account.*` — `/me/calendar-feed` (gerar, status, revogar) e destinatários do aviso; `preferences.*` com `avisoPrazoEmail`.
-- Removidos: evento `pericia:created`, `events/subscribers/agenda.subscriber.ts`, `criarPrazoDoLaudo`.
+- `apps/api/src/modules/agenda/deadlineReminder.service.ts` + `apps/api/src/server.ts` — consolidado diário às 07:00 com timer em memória.
+- `apps/api/src/modules/identity/account.*` — `/me/calendar-feed` (gerar, status, revogar) e destinatários do aviso; `preferences.*` com `deadlineReminderEmail`.
+- Removidos: evento `case:created`, `events/subscribers/agenda.subscriber.ts`, `createReportDeadline`.
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/expert-cases/details/@components/pericia-prazos.tsx` e `prazo-form.tsx` — painel de prazos do detalhe.
-- `apps/web/src/components/prazo-dialog.tsx` e `prazo-labels.ts` — leitura/ações do prazo e selos, usados por perícias e agenda.
-- `apps/web/src/routes/_private/expert-cases/@utils/pericia-columns.tsx` — coluna "Próximo prazo".
+- `apps/web/src/routes/_private/expert-cases/details/@components/case-deadlines.tsx` e `deadline-form.tsx` — painel de prazos do detalhe.
+- `apps/web/src/components/deadline-dialog.tsx` e `deadline-labels.ts` — leitura/ações do prazo e selos, usados por perícias e agenda.
+- `apps/web/src/routes/_private/expert-cases/@utils/case-columns.tsx` — coluna "Próximo prazo".
 - `apps/web/src/routes/_private/agenda/@components/{calendar-event,month-view,time-grid-view}.tsx` — prazos no calendário.
-- `apps/web/src/routes/_private/finance/entries/@components/{recebimento-form,parcelas-list}.tsx` — registrar e estornar recebimentos.
-- `apps/web/src/routes/_private/account/@components/{account-aviso-prazo,account-calendar-feed}.tsx` — seções da conta.
-- `apps/web/src/components/pericia-recebimentos.tsx` — recebimentos da perícia nos diálogos da agenda; `canSeeFinance` em `apps/web/src/query/session.ts`.
-- `apps/web/src/query/prazo.ts` — dados de prazo.
+- `apps/web/src/routes/_private/finance/entries/@components/{receipt-form,installments-list}.tsx` — registrar e estornar recebimentos.
+- `apps/web/src/routes/_private/account/@components/{account-deadline-reminder,account-calendar-feed}.tsx` — seções da conta.
+- `apps/web/src/components/case-receipts.tsx` — recebimentos da perícia nos diálogos da agenda; `canSeeFinance` em `apps/web/src/query/session.ts`.
+- `apps/web/src/query/deadline.ts` — dados de prazo.
 
 ### `packages/contracts`
 
-- `packages/contracts/src/schemas/prazo.schema.ts`; `lancamento.schema.ts` (`createParcelaSchema`, status `parcial`); chaves de erro em `packages/contracts/src/response/messages.ts`.
+- `packages/contracts/src/schemas/deadline.schema.ts`; `transaction.schema.ts` (`createInstallmentSchema`, status `partial`); chaves de erro em `packages/contracts/src/response/messages.ts`.
 
 ### `packages/db`
 
-- `packages/db/src/models/prazo.model.ts`; `lancamento.model.ts` (`parcelas`); `user.model.ts` (`calendarFeedTokenHash`, `preferences.avisoPrazoEmail`).
+- `packages/db/src/models/deadline.model.ts`; `transaction.model.ts` (`installments`); `user.model.ts` (`calendarFeedTokenHash`, `preferences.deadlineReminderEmail`).
 
 ## Como testar
 
@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Honorário do assistente técnico lançado como `contracted_fees`, o mesmo automático por perícia (`docs/features/gestao-escritorio/feature.md`, AD-135).
 - 2026-10-31 — Valores de domínio em inglês no back-end e chaves de tradução em inglês (AD-113); recebimentos da perícia no detalhe do evento da agenda; UAT visual feita.
 - 2026-10-31 — Implementado (AD-109 a AD-112). Divergências do design: chaves de erro em inglês no padrão do contrato; T1+T2 e T5+T6 em um commit cada; PRZ-04.3 (liga/desliga no tenant) trocado por preferência por usuário (AD-110).

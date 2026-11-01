@@ -23,42 +23,44 @@ apps/api/src/
 ├── providers/geocoder.ts           # endereço → coordenadas pelo Nominatim (AD-131), injetado em buildApp
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
-    ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Atividade, AD-134)
-    ├── pericia/                    # Pericia + Prazo (AD-109) + Parte (AD-117) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
-    ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal, aviso diário de prazos, registro de vistoria e mídias (AD-130), aviso às partes e geocodificação (AD-131)
-    ├── financeiro/                 # Lancamento — honorários (com parcelas, AD-111) e despesas; resumo, fluxo, categorias
-    ├── prospeccao/                 # Oportunidade + busca no Datajud; converte em perícia
-    └── documentos/                 # PDFs (AD-119), exportação ZIP (AD-122) e laudos (Laudo + ModeloLaudo, AD-126) — ninguém depende dele
+    ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)
+    ├── case/                       # Case (perícia) + Deadline (AD-109) + Party (AD-117) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
+    ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, aviso diário de prazos, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
+    ├── finance/                    # Transaction — honorários (com installments, AD-111) e despesas; resumo, fluxo, categorias
+    ├── prospecting/                # Opportunity + busca no Datajud; converte em perícia
+    └── documents/                  # PDFs (AD-119), exportação ZIP (AD-122) e laudos (Report + Template, AD-126) — ninguém depende dele
 ```
 
-Cada `modules/<modulo>/` é **auto-contido**: `<entidade>.router.ts .controller.ts .service.ts .repository.ts .schema.ts` + testes colocalizados (`.unit.test.ts .int.test.ts .e2e.test.ts`, nunca pasta `__test__` separada — AD-017). Um módulo pode agrupar mais de uma entidade (`identity`) quando elas compartilham dono de collection ou fronteira de domínio — granularidade é por **contexto**, não 1:1 com arquivo.
+Nomes de código em inglês pelo glossário da AD-140 (`.specs/features/english-naming/design.md`): perícia `Case`, prazo `Deadline`, parte `Party`, compromisso `Appointment`, vistoria `Inspection`, lançamento `Transaction`, laudo `Report`, modelo `Template`, oportunidade `Opportunity`, diário `Activity`.
+
+Cada `modules/<module>/` é **auto-contido**: `<entidade>.router.ts .controller.ts .service.ts .repository.ts .schema.ts` + testes colocalizados (`.unit.test.ts .int.test.ts .e2e.test.ts`, nunca pasta `__test__` separada — AD-017). Um módulo pode agrupar mais de uma entidade (`identity`) quando elas compartilham dono de collection ou fronteira de domínio — granularidade é por **contexto**, não 1:1 com arquivo.
 
 ## Regra central: um módulo só fala com o *service* de outro
 
 Nunca repository, nunca model do `@ethica/db`, nunca controller de outro módulo. Dado de banco de outro domínio chega via função exposta pelo service dono — nunca acesso direto.
 
 ```ts
-// modules/agenda/compromisso.service.ts
-import * as periciaService from '../pericia/pericia.service.js';
-import * as compromissoRepository from './compromisso.repository.js';
+// modules/agenda/appointment.service.ts
+import * as caseService from '../case/case.service.js';
+import * as appointmentRepository from './appointment.repository.js';
 ```
 
-Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma consulta em lote `$in` por collection referenciada** (`periciaService.findResumosByIds`), nunca uma consulta por item num loop; referência ausente vira **campo ausente**, nunca `null`.
+Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma consulta em lote `$in` por collection referenciada** (`caseService.findSummariesByIds`), nunca uma consulta por item num loop; referência ausente vira **campo ausente**, nunca `null`.
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `documentos` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `pericia`; ninguém depende dele, e a exclusão da perícia chega por `pericia:deleted`); `pericia` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
+Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
-| `identity` | `Tenant User Session Invite Atividade transitionTenantStatus` (inclui identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
-| `pericia` | `Pericia Prazo Parte` |
-| `agenda` | `Compromisso Vistoria` (AD-130) |
-| `financeiro` | `Lancamento` |
-| `prospeccao` | `Oportunidade` |
-| `documentos` | `Laudo ModeloLaudo` (AD-126) |
+| `identity` | `Tenant User Session Invite Activity transitionTenantStatus` (inclui identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
+| `case` | `Case Deadline Party` |
+| `agenda` | `Appointment Inspection` (AD-130) |
+| `finance` | `Transaction` |
+| `prospecting` | `Opportunity` |
+| `documents` | `Report Template` (AD-126) |
 
 Helpers sem dono (`tenantScoped`, `hashToken`, datas, tipos) podem ser importados por qualquer módulo — a tabela só restringe **models e transições de negócio**. A tabela vive de verdade em `tests/structural/module-boundary.structural.test.ts`(`DB_OWNERSHIP`) — atualizar os dois lugares (aqui e lá) ao mudar o dono de algo.
 
@@ -79,15 +81,15 @@ Cada regra tem self-check com fixture sintético num diretório temporário (mes
 Um arquivo por entidade concentra: schemas Zod de **entrada** locais (params/query — nunca soltos no router), re-export dos schemas/tipos de `@ethica/contracts` que o módulo usa, e os tipos de **saída** (`*Record`, inputs de repository, tipos de query). Routers não têm `z.object` nem tipo local; services/controllers não exportam tipo, só função e classe de erro (exceto erro que outro módulo precisa checar com `instanceof` — aí o **service dono** o exporta).
 
 ```ts
-// modules/pericia/pericia.schema.ts
-export type { CreatePericia, UpdatePericia };
-export { createPericiaSchema, updatePericiaSchema }; // re-export de @ethica/contracts
+// modules/case/case.schema.ts
+export type { CreateCase, UpdateCase };
+export { createCaseSchema, updateCaseSchema }; // re-export de @ethica/contracts
 
-export const periciaIdParamSchema = z.object({ id: idSchema }).strict();
+export const caseIdParamSchema = z.object({ id: idSchema }).strict();
 // Paginação validada na borda (default/min/max no schema), nunca clamp silencioso no service.
-export const listPericiasQuerySchema = z.object({ page: z.coerce.number().int().min(1).default(1) /* … */ }).strict();
+export const listCasesQuerySchema = z.object({ page: z.coerce.number().int().min(1).default(1) /* … */ }).strict();
 
-export type PericiaRecord = { id: string; numeroProcesso: string /* … */ };
+export type CaseRecord = { id: string; processNumber: string /* … */ };
 ```
 
 Todo schema Zod local novo entra em `modules/schema.registry.ts` (`apiSchemaRegistry`) — sem isso, `tests/structural/schema-registry.structural.test.ts` falha (AD-010: nenhum schema pode ficar fora do registry, que também garante que nenhum deles aceita chave de tenant — `TENANT_FORBIDDEN_KEYS`). O registry de `@ethica/contracts` cobre os schemas compartilhados com `apps/web`; `apiSchemaRegistry` cobre os locais do `api`. O teste estrutural varre `apps/`+`packages/` e valida a união dos dois.
@@ -97,25 +99,25 @@ Query com paginação/filtro usa `validParsedQuery(schema)` (`middlewares/valida
 
 ## Event bus (`src/events/`, AD-039)
 
-Processo compartilhado entre módulos cujo **resultado a resposta HTTP não usa** vira evento — fire-and-forget. O que a resposta HTTP precisa continua chamada síncrona direta ao service do outro módulo (ex.: converter oportunidade chama `periciaService.createPericia` porque devolve o id da perícia).
+Processo compartilhado entre módulos cujo **resultado a resposta HTTP não usa** vira evento — fire-and-forget. O que a resposta HTTP precisa continua chamada síncrona direta ao service do outro módulo (ex.: converter oportunidade chama `caseService.createCase` porque devolve o id da perícia).
 
 ```ts
 // event-types.ts
-export type DomainEventMap = { 'pericia:honorarios_fixados': PericiaHonorariosFixadosPayload };
+export type DomainEventMap = { 'case:fixed_fees': CaseFixedFeesPayload };
 
-// modules/pericia/pericia.service.ts — emissor não conhece o consumidor
-domainEventBus.emit('pericia:honorarios_fixados', { tenantId, periciaId, numeroProcesso, valorCents });
+// modules/case/case.service.ts — emissor não conhece o consumidor
+domainEventBus.emit('case:fixed_fees', { tenantId, caseId, processNumber, amountCents });
 
-// events/subscribers/financeiro.subscriber.ts — consumidor se registra
-domainEventBus.on('pericia:honorarios_fixados', async (payload) => {
-  await lancamentoService.lancarHonorariosFixados(payload);
+// events/subscribers/finance.subscriber.ts — consumidor se registra
+domainEventBus.on('case:fixed_fees', async (payload) => {
+  await transactionService.postFixedFees(payload);
 });
 ```
 
-Eventos atuais: `pericia:honorarios_fixados` → financeiro lança a receita a receber (`fixed_fees` ou, na perícia de assistente técnico, `contracted_fees`, AD-135) ou atualiza o valor do honorário já lançado (AD-106, AD-111); `pericia:deleted` → documentos exclui os laudos da perícia (AD-126). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `pericia.service` (AD-109), sem evento.
+Eventos atuais: `case:fixed_fees` → financeiro lança a receita a receber (`fixed_fees` ou, na perícia de assistente técnico, `contracted_fees`, AD-135) ou atualiza o valor do honorário já lançado (AD-106, AD-111); `case:deleted` → documentos exclui os laudos da perícia (AD-126). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `case.service` (AD-109), sem evento.
 
-- Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"pericia:honorarios_fixados","message":"…"}`.
-- `off(event, handler)` remove de fato (o bus guarda o wrapper por `(evento, handler)` internamente).
+- Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"case:fixed_fees","message":"…"}`.
+- `off(event, handler)` remove de fato (o bus guarda o wrapper por `(event, handler)` internamente).
 - `registerAllSubscribers()` (chamado no topo de `buildApp()`) é **idempotente** — `buildApp()` roda várias vezes no mesmo processo em teste, e cada handler só executa uma vez por `emit`.
 - Services importam só `events/event-bus.js` — nunca `events/index.js` (que também exporta `registerAllSubscribers` e puxaria os subscribers junto, sem necessidade).
 - Novo evento: adicionar o payload em `DomainEventMap`, criar `events/subscribers/<consumidor>.subscriber.ts`(`registerXSubscriber()` chamando o service dono do efeito), registrar em `events/subscribers/index.ts` e emitir do service de origem.

@@ -2,7 +2,7 @@
 feature: Fundação do Ethica
 slug: fundacao-ethica
 descricao: Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
-data: 2026-10-29
+data: 2026-11-01
 status: parcial
 areas: [apps/api, apps/web, packages/contracts, packages/db, packages/ui, harness, docs, infra, tests]
 decisoes: [AD-001, AD-038, AD-039, AD-036, AD-102, AD-103, AD-104, AD-105, AD-106, AD-107]
@@ -11,7 +11,7 @@ spec: [.specs/features/fundacao-ethica]
 
 # Fundação do Ethica
 
-**Status**: parcial · **Atualizado**: 2026-10-29 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
+**Status**: parcial · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
 
 > Documento vivo. Onde divergir do plano (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fundacao-ethica'`.
@@ -34,25 +34,25 @@ Começar o produto de gestão de perícias já com a arquitetura, o harness e a 
 ### `apps/api`
 
 - `apps/api/src/app.ts` — composition root; injeta o `datajudClient` quando há `DATAJUD_API_KEY`.
-- `apps/api/src/modules/{identity,pericia,agenda,financeiro,prospeccao}/` — módulos contidos (AD-038).
-- `apps/api/src/events/` — `pericia:honorarios_fixados` com subscriber em `events/subscribers/` (AD-106; `pericia:created` removido pela AD-109).
+- `apps/api/src/modules/{identity,case,agenda,finance,prospecting}/` — módulos contidos (AD-038).
+- `apps/api/src/events/` — `case:fixed_fees` com subscriber em `events/subscribers/` (AD-106; `case:created` removido pela AD-109).
 - `apps/api/src/providers/datajudClient.ts` — consulta e mapeamento do Datajud (AD-105).
 - `apps/api/scripts/seed-demo.ts` — tenant de demonstração.
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/{index,pericias,agenda,financeiro,prospeccao}/` — telas no padrão `ethica-web-standards`.
+- `apps/web/src/routes/_private/{index,cases,agenda,finance,prospecting}/` — telas no padrão `ethica-web-standards`.
 - `apps/web/src/components/form-fields.tsx` — campos default de formulário (texto, select, dinheiro, data, hora, número, textarea).
-- `apps/web/src/components/{fluxo-financeiro-chart,upcoming-compromissos,hub-illustration,date-picker}.tsx` e `*-labels.ts`.
-- `apps/web/src/query/{pericia,compromisso,lancamento,listStats}.ts` — camada de dados compartilhada.
+- `apps/web/src/components/{finance-flow-chart,upcoming-appointments,hub-illustration,date-picker}.tsx` e `*-labels.ts`.
+- `apps/web/src/query/{case,appointment,transaction,listStats}.ts` — camada de dados compartilhada.
 
 ### `packages/contracts`
 
-- `packages/contracts/src/schemas/{pericia,compromisso,lancamento,prospeccao,date}.schema.ts` — payloads e enums do domínio.
+- `packages/contracts/src/schemas/{case,appointment,transaction,prospecting,date}.schema.ts` — payloads e enums do domínio.
 
 ### `packages/db`
 
-- `packages/db/src/models/{pericia,compromisso,lancamento,oportunidade}.model.ts`, `packages/db/src/time.ts`, índice de busca `pericia_text` em `textSearch.ts`.
+- `packages/db/src/models/{case,appointment,transaction,opportunity}.model.ts`, `packages/db/src/time.ts`, índice de busca `case_text` em `textSearch.ts`.
 
 ### `packages/ui`
 
@@ -87,15 +87,16 @@ pnpm run check && (cd apps/web && pnpm run build)
 ## Pendências
 
 - [ ] Rodar `integration`/`e2e` com o Mongo local (não executados na criação: sem Docker na sessão).
-- [ ] Testes e2e de router para `pericia`, `agenda`, `financeiro` e `prospeccao` (hoje: unit de service e provider).
+- [ ] Testes e2e de router para `case`, `agenda`, `finance` e `prospecting` (hoje: unit de service e provider).
 - [ ] Validar a consulta ao Datajud com a chave real (AD-105).
 - [ ] UAT visual de todas as telas com o seed de demonstração.
 - [ ] Tenant com CPF (perito pessoa física): `provisionTenantSchema` hoje exige CNPJ.
 
 ## Histórico
 
-- 2026-11-01 — Papéis fixos de domínio (AD-107) viraram a matriz de permissões por membro; `financeiro/route.tsx` saiu para a guarda central (`docs/features/gestao-escritorio/feature.md`, AD-137).
-- 2026-10-31 — Prazo do laudo vira `Prazo` da perícia, `pericia:created` sai e honorário ganha parcelas (`docs/features/prazos-recebimentos/feature.md`, AD-109, AD-111).
+- 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
+- 2026-11-01 — Papéis fixos de domínio (AD-107) viraram a matriz de permissões por membro; `finance/route.tsx` saiu para a guarda central (`docs/features/gestao-escritorio/feature.md`, AD-137).
+- 2026-10-31 — Prazo do laudo vira `Deadline` da perícia, `case:created` sai e honorário ganha parcelas (`docs/features/prazos-recebimentos/feature.md`, AD-109, AD-111).
 - 2026-10-29 — Fundação criada a partir do repo `CRM` (checkduplo) (`.specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md`, AD-102).
 
 ## Referências

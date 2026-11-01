@@ -42,7 +42,7 @@ que `fundacao-ethica` criou) — o `feature.md` da original cita a nova no "Hist
   `tlc-spec-driven` (em inglês), como nas features existentes.
 - **IDs de requisito**: prefixo de 2–4 letras por feature + número de 2 dígitos (`FND-01`,
   `PER-05`, `AGE-02`, `FIN-03`, `PRO-01`). Escolha um prefixo novo que não colida (`grep -rhoE '\b[A-Z]{2,4}-[0-9]{2}\b' .specs/features | cut -d- -f1 | sort -u`).
-- **Caminhos** sempre a partir da raiz (`apps/api/src/modules/pericia/...`).
+- **Caminhos** sempre a partir da raiz (`apps/api/src/modules/case/...`).
 - **Referências** a decisões como `AD-NNN` (link para `.specs/STATE.md`) e a termos de domínio
   conforme `docs/glossary.md`.
 - **Antes do design**: releia as ADs ativas da área. Pontos que já pegaram features passadas:
