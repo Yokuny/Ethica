@@ -48,7 +48,7 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
   );
   // AD-137: matriz de permissões do membro, só o admin ajusta.
   router.patch(
-    '/users/:id/permissoes',
+    '/users/:id/permissions',
     deps.validToken,
     tenantAssignmentCheck,
     isAdmin,

@@ -72,48 +72,48 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
   it('a matriz do membro decide cada ação, antes de tocar dados (AD-137)', async () => {
     const tenant = await seedTenant();
     const secretaria = await seedSession(tenant._id, ['operator'], {
-      pericias: ['view'],
-      financeiro: ['view', 'create', 'update'],
+      expert_cases: ['view'],
+      finance: ['view', 'create', 'update'],
     });
 
-    expect((await secretaria.as(request(app).get('/pericias'))).status).toBe(200);
-    expect((await secretaria.as(request(app).post('/pericias')).send(PERICIA)).status).toBe(403);
+    expect((await secretaria.as(request(app).get('/expert-cases'))).status).toBe(200);
+    expect((await secretaria.as(request(app).post('/expert-cases')).send(PERICIA)).status).toBe(403);
     expect(await Pericia.countDocuments()).toBe(0);
-    expect((await secretaria.as(request(app).get('/financeiro/resumo'))).status).toBe(200);
+    expect((await secretaria.as(request(app).get('/finance/summary'))).status).toBe(200);
     expect((await secretaria.as(request(app).get('/agenda'))).status).toBe(403);
 
     const operador = await seedSession(tenant._id, ['operator']);
-    expect((await operador.as(request(app).get('/financeiro/resumo'))).status).toBe(403);
-    expect((await operador.as(request(app).post('/pericias')).send(PERICIA)).status).toBe(201);
+    expect((await operador.as(request(app).get('/finance/summary'))).status).toBe(403);
+    expect((await operador.as(request(app).post('/expert-cases')).send(PERICIA)).status).toBe(201);
   });
 
   it('fase ajusta a etapa, suspensão muda a situação e a listagem filtra (AD-133)', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['admin']);
-    const { body } = await as(request(app).post('/pericias')).send(PERICIA);
+    const { body } = await as(request(app).post('/expert-cases')).send(PERICIA);
     const id = body.data.id as string;
 
-    const revisao = await as(request(app).patch(`/pericias/${id}`)).send({ fase: 'reviewing_report' });
+    const revisao = await as(request(app).patch(`/expert-cases/${id}`)).send({ fase: 'reviewing_report' });
     expect(revisao.body.data).toMatchObject({
       status: 'drafting_report',
       fase: 'reviewing_report',
       situacao: 'active',
     });
 
-    const incoerente = await as(request(app).patch(`/pericias/${id}`)).send({
+    const incoerente = await as(request(app).patch(`/expert-cases/${id}`)).send({
       status: 'completed',
       fase: 'reviewing_report',
     });
     expect(incoerente.status).toBe(422);
 
-    const acordo = await as(request(app).patch(`/pericias/${id}`)).send({ fase: 'settlement' });
+    const acordo = await as(request(app).patch(`/expert-cases/${id}`)).send({ fase: 'settlement' });
     expect(acordo.body.data).toMatchObject({ status: 'drafting_report', situacao: 'suspended' });
 
-    const suspensas = await as(request(app).get('/pericias?situacao=suspended'));
+    const suspensas = await as(request(app).get('/expert-cases?situacao=suspended'));
     expect(suspensas.body.data.items.map((item: { id: string }) => item.id)).toEqual([id]);
-    expect((await as(request(app).get('/pericias?situacao=active'))).body.data.total).toBe(0);
+    expect((await as(request(app).get('/expert-cases?situacao=active'))).body.data.total).toBe(0);
 
-    const encerrada = await as(request(app).patch(`/pericias/${id}`)).send({ status: 'completed' });
+    const encerrada = await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'completed' });
     expect(encerrada.body.data).toMatchObject({ situacao: 'closed' });
     expect(encerrada.body.data.fase).toBeUndefined();
   });
@@ -121,7 +121,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
   it('honorário contratado do assistente técnico vira receita com o contratante (AD-135)', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['admin']);
-    const { body } = await as(request(app).post('/pericias')).send({
+    const { body } = await as(request(app).post('/expert-cases')).send({
       ...PERICIA,
       papel: 'technical_assistant',
       partes: [
@@ -131,12 +131,12 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     });
     expect(body.data.partes[0]).toMatchObject({ nome: 'Maria Reclamante', contratante: true });
 
-    await as(request(app).patch(`/pericias/${body.data.id}`)).send({ honorariosFixadosCents: 300_000 });
+    await as(request(app).patch(`/expert-cases/${body.data.id}`)).send({ honorariosFixadosCents: 300_000 });
     await expect
-      .poll(async () => (await as(request(app).get('/financeiro/lancamentos'))).body.data?.items?.[0])
+      .poll(async () => (await as(request(app).get('/finance/entries'))).body.data?.items?.[0])
       .toMatchObject({ categoria: 'contracted_fees', valorCents: 300_000, contratante: 'Maria Reclamante' });
 
-    const perito = await as(request(app).post('/pericias')).send({
+    const perito = await as(request(app).post('/expert-cases')).send({
       ...PERICIA,
       numeroProcesso: '0001234-56.2026.5.02.0002',
       partes: [{ polo: 'plaintiff', tipo: 'party', nome: 'Outra', contratante: true }],
@@ -157,7 +157,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
         fase: 'withdrawal' as const,
       },
     ]);
-    const res = await as(request(app).get('/pericias/paradas'));
+    const res = await as(request(app).get('/expert-cases/stalled'));
     expect(res.status).toBe(200);
     expect(res.body.data.total).toBe(1);
     expect(res.body.data.items[0]).toMatchObject({ numeroProcesso: PERICIA.numeroProcesso });

@@ -52,7 +52,7 @@ self.addEventListener('fetch', (event) => {
   const doApp = url.origin === self.location.origin;
   if (
     (doApp && /^\/(assets|fonts|icons)\//.test(url.pathname)) ||
-    /\/vistorias\/[0-9a-f]{24}\/midias\//.test(url.pathname)
+    /\/inspections\/[0-9a-f]{24}\/media\//.test(url.pathname)
   ) {
     event.respondWith(cachePrimeiro(request));
   }

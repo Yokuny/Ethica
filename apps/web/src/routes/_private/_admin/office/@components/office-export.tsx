@@ -6,7 +6,7 @@ import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type OfficeView, officeKeys } from '../@query/office.js';
 
-const EXPORT_PATH = '/documentos/export';
+const EXPORT_PATH = '/documents/export';
 
 // DOC-04: ZIP com um CSV por entidade; a API registra quem exportou e quando.
 export function OfficeExport({ office }: { office: OfficeView }) {

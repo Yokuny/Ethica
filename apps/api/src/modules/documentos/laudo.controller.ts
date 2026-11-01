@@ -17,7 +17,7 @@ const contexto = (req: Request): DocumentoContexto => {
   return {
     tenantId: tenantOf(req),
     userId: req.tenantUser.user,
-    canSeeFinance: pode(req.tenantUser.permissoes, 'financeiro', 'view'),
+    canSeeFinance: pode(req.tenantUser.permissoes, 'finance', 'view'),
     now: new Date(),
   };
 };

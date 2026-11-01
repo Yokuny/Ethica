@@ -10,20 +10,26 @@ export const createParteRouter = (deps: PericiaRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
 
-  router.post('/', ...guard, can('partes', 'create'), validBody(createParteSchema), parteController.createParte);
-  router.get('/', ...guard, can('partes', 'view'), validParsedQuery(listPartesQuerySchema), parteController.listPartes);
-  router.get('/:id', ...guard, can('partes', 'view'), validParams(parteIdParamSchema), parteController.getParte);
+  router.post('/', ...guard, can('parties', 'create'), validBody(createParteSchema), parteController.createParte);
   router.get(
-    '/:id/pericias',
+    '/',
     ...guard,
-    can('partes', 'view'),
+    can('parties', 'view'),
+    validParsedQuery(listPartesQuerySchema),
+    parteController.listPartes,
+  );
+  router.get('/:id', ...guard, can('parties', 'view'), validParams(parteIdParamSchema), parteController.getParte);
+  router.get(
+    '/:id/expert-cases',
+    ...guard,
+    can('parties', 'view'),
     validParams(parteIdParamSchema),
     parteController.listPericiasDaParte,
   );
   router.patch(
     '/:id',
     ...guard,
-    can('partes', 'update'),
+    can('parties', 'update'),
     validParams(parteIdParamSchema),
     validBody(updateParteSchema),
     parteController.updateParte,

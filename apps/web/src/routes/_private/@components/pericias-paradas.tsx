@@ -14,14 +14,14 @@ export function PericiasParadasList({ paradas }: { paradas: PericiasParadas }) {
         {paradas.items.map((pericia) => (
           <LinkListItem
             key={pericia.id}
-            render={<Link to="/pericias/details" search={{ id: pericia.id }} />}
+            render={<Link to="/expert-cases/details" search={{ id: pericia.id }} />}
             icon={Hourglass}
             title={pericia.numeroProcesso}
             description={`${pericia.diasParada} ${t('days_without_movement')} · ${pericia.objeto}`}
           />
         ))}
       </LinkList>
-      <AppLink to="/relatorios" as="description">
+      <AppLink to="/reports" as="description">
         {`${paradas.total} ${t('stalled_more_than')} ${PERICIA_PARADA_DIAS} ${t('days')} · ${t('stalled_report_pdf')}`}
       </AppLink>
     </div>

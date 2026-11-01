@@ -92,7 +92,7 @@ export const periciasQuery = (params: PericiasQueryParams = {}) =>
   queryOptions({
     queryKey: periciaKeys.list(params),
     queryFn: async (): Promise<PericiasListResult> => {
-      const res = await get<PericiasListResult>(`/pericias${toQueryString(params)}`);
+      const res = await get<PericiasListResult>(`/expert-cases${toQueryString(params)}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },
@@ -102,7 +102,7 @@ export const periciaQuery = (id: string) =>
   queryOptions({
     queryKey: periciaKeys.detail(id),
     queryFn: async (): Promise<PericiaRecord> => {
-      const res = await get<PericiaRecord>(`/pericias/${encodeURIComponent(id)}`);
+      const res = await get<PericiaRecord>(`/expert-cases/${encodeURIComponent(id)}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },
@@ -111,7 +111,7 @@ export const periciaQuery = (id: string) =>
 export const periciaDistributionQuery = queryOptions({
   queryKey: periciaKeys.distribution(),
   queryFn: async (): Promise<PericiaDistribution> => {
-    const res = await get<PericiaDistribution>('/pericias/distribution');
+    const res = await get<PericiaDistribution>('/expert-cases/distribution');
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },
@@ -121,13 +121,13 @@ export const createPericiaMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<PericiaRecord, Error, CreatePericia> => ({
   mutationFn: async (data) => {
-    const res = await post<PericiaRecord>('/pericias', data);
+    const res = await post<PericiaRecord>('/expert-cases', data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
     return res.data;
   },
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: periciaKeys.all });
-    queryClient.invalidateQueries({ queryKey: ['list-stats', '/pericias/stats'] });
+    queryClient.invalidateQueries({ queryKey: ['list-stats', '/expert-cases/stats'] });
   },
 });
 
@@ -135,21 +135,21 @@ export const updatePericiaMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<PericiaRecord, Error, { id: string; data: UpdatePericia }> => ({
   mutationFn: async ({ id, data }) => {
-    const res = await patch<PericiaRecord>(`/pericias/${encodeURIComponent(id)}`, data);
+    const res = await patch<PericiaRecord>(`/expert-cases/${encodeURIComponent(id)}`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
   onSuccess: (updated) => {
     queryClient.setQueryData(periciaKeys.detail(updated.id), updated);
     queryClient.invalidateQueries({ queryKey: periciaKeys.lists() });
-    queryClient.invalidateQueries({ queryKey: ['list-stats', '/pericias/stats'] });
+    queryClient.invalidateQueries({ queryKey: ['list-stats', '/expert-cases/stats'] });
     queryClient.invalidateQueries({ queryKey: periciaKeys.distribution() });
   },
 });
 
 export const deletePericiaMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id: string }> => ({
   mutationFn: async ({ id }) => {
-    const res = await del<never>(`/pericias/${encodeURIComponent(id)}`);
+    const res = await del<never>(`/expert-cases/${encodeURIComponent(id)}`);
     if (!res.success) throw new Error(res.message ?? t('remove_error'));
   },
   onSuccess: () => queryClient.invalidateQueries({ queryKey: periciaKeys.all }),
@@ -159,7 +159,7 @@ export const addMovimentacaoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<PericiaRecord, Error, { periciaId: string; data: CreateMovimentacao }> => ({
   mutationFn: async ({ periciaId, data }) => {
-    const res = await post<PericiaRecord>(`/pericias/${encodeURIComponent(periciaId)}/movimentacoes`, data);
+    const res = await post<PericiaRecord>(`/expert-cases/${encodeURIComponent(periciaId)}/movements`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
     return res.data;
   },
@@ -171,7 +171,7 @@ export const removeMovimentacaoMutation = (
 ): UseMutationOptions<PericiaRecord, Error, { periciaId: string; movimentacaoId: string }> => ({
   mutationFn: async ({ periciaId, movimentacaoId }) => {
     const res = await del<PericiaRecord>(
-      `/pericias/${encodeURIComponent(periciaId)}/movimentacoes/${encodeURIComponent(movimentacaoId)}`,
+      `/expert-cases/${encodeURIComponent(periciaId)}/movements/${encodeURIComponent(movimentacaoId)}`,
     );
     if (!res.success || !res.data) throw new Error(res.message ?? t('remove_error'));
     return res.data;
@@ -193,7 +193,7 @@ export type PericiasParadas = { total: number; items: PericiaParada[] };
 export const periciasParadasQuery = queryOptions({
   queryKey: [...periciaKeys.all, 'paradas'] as const,
   queryFn: async (): Promise<PericiasParadas> => {
-    const res = await get<PericiasParadas>('/pericias/paradas');
+    const res = await get<PericiasParadas>('/expert-cases/stalled');
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },

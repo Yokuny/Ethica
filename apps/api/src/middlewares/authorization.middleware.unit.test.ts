@@ -32,21 +32,21 @@ describe('checkRole — matriz papel×rota (FND-08)', () => {
 
 describe('can — matriz de permissões (AD-137)', () => {
   it.each([
-    [{ pericias: ['view'] } as Permissoes, true],
-    [{ pericias: ['view', 'update'] } as Permissoes, true],
+    [{ expert_cases: ['view'] } as Permissoes, true],
+    [{ expert_cases: ['view', 'update'] } as Permissoes, true],
     [{ agenda: ['view', 'update'] } as Permissoes, false],
     [{} as Permissoes, false],
   ])('permissoes=%j em pericias.view -> permitted=%s', (permissoes, permitted) => {
     const next = vi.fn();
-    can('pericias', 'view')(buildReq({ permissoes }), {} as Response, next as unknown as NextFunction);
+    can('expert_cases', 'view')(buildReq({ permissoes }), {} as Response, next as unknown as NextFunction);
     if (permitted) expect(next).toHaveBeenCalledWith();
     else expect(asStatusError(next).status).toBe(403);
   });
 
   it('exige todas as ações pedidas', () => {
     const next = vi.fn();
-    can('financeiro', 'view', 'update')(
-      buildReq({ permissoes: { financeiro: ['view'] } }),
+    can('finance', 'view', 'update')(
+      buildReq({ permissoes: { finance: ['view'] } }),
       {} as Response,
       next as unknown as NextFunction,
     );

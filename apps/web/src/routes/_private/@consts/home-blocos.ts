@@ -2,12 +2,12 @@ import type { HomeBloco, PermissaoModulo } from '@ethica/contracts';
 
 // Módulo que cada bloco do início exige ver (AD-136, AD-137); `null` = qualquer pessoa.
 export const HOME_BLOCO_MODULO: Record<HomeBloco, PermissaoModulo | null> = {
-  overview: 'pericias',
+  overview: 'expert_cases',
   upcoming: 'agenda',
-  cash_flow: 'financeiro',
-  stalled: 'pericias',
-  by_stage: 'pericias',
-  by_court: 'pericias',
+  cash_flow: 'finance',
+  stalled: 'expert_cases',
+  by_stage: 'expert_cases',
+  by_court: 'expert_cases',
   sections: null,
 };
 

@@ -59,7 +59,7 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
     expect(html).toContain('Vencem hoje');
     expect(html).toContain('Vencem em 15 dias');
     expect(html).toContain('Prazo a');
-    expect(html).toContain('https://app.ethica/pericias/details?id=per-a');
+    expect(html).toContain('https://app.ethica/expert-cases/details?id=per-a');
     expect(html).not.toContain('Prazo d');
   });
 

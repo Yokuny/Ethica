@@ -113,30 +113,34 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const operador = await seedSession(tenant._id, ['operator']);
     const gestor = await seedSession(tenant._id, ['manager']);
 
-    const lista = await operador.as(request(app).get('/laudos/modelos?tipo=report'));
+    const lista = await operador.as(request(app).get('/expert-reports/templates?tipo=report'));
     expect(lista.status).toBe(200);
     expect(lista.body.data).toEqual([expect.objectContaining({ id: 'standard-report', padrao: true })]);
-    const padrao = await operador.as(request(app).get('/laudos/modelos/standard-report'));
+    const padrao = await operador.as(request(app).get('/expert-reports/templates/standard-report'));
     expect(padrao.body.data.secoes.length).toBeGreaterThan(30);
 
-    const negado = await operador.as(request(app).post('/laudos/modelos')).send({ nome: 'Meu', tipo: 'report' });
+    const negado = await operador
+      .as(request(app).post('/expert-reports/templates'))
+      .send({ nome: 'Meu', tipo: 'report' });
     expect(negado.status).toBe(403);
-    const renomearPadrao = await gestor.as(request(app).patch('/laudos/modelos/standard-report')).send({ nome: 'X' });
+    const renomearPadrao = await gestor
+      .as(request(app).patch('/expert-reports/templates/standard-report'))
+      .send({ nome: 'X' });
     expect(renomearPadrao.status).toBe(403);
     expect(renomearPadrao.body.message).toBe('standard_template_read_only');
 
     const clone = await gestor
-      .as(request(app).post('/laudos/modelos'))
+      .as(request(app).post('/expert-reports/templates'))
       .send({ nome: 'Insalubridade do escritório', tipo: 'report', baseId: 'standard-report' });
     expect(clone.status).toBe(201);
     expect(clone.body.data.secoes).toHaveLength(padrao.body.data.secoes.length);
     const tipoErrado = await gestor
-      .as(request(app).post('/laudos/modelos'))
+      .as(request(app).post('/expert-reports/templates'))
       .send({ nome: 'Errado', tipo: 'technical_opinion', baseId: 'standard-report' });
     expect(tipoErrado.status).toBe(422);
 
     const modeloId = clone.body.data.id;
-    const nova = await gestor.as(request(app).post(`/laudos/modelos/${modeloId}/secoes`)).send({
+    const nova = await gestor.as(request(app).post(`/expert-reports/templates/${modeloId}/sections`)).send({
       titulo: 'Anexo fotográfico',
       nivel: 1,
       apenasTitulo: false,
@@ -149,13 +153,15 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(adicionada.textoSim).toBe('<p>Fotos aqui</p>');
 
     const movida = await gestor
-      .as(request(app).post(`/laudos/modelos/${modeloId}/secoes/${adicionada.id}/mover`))
+      .as(request(app).post(`/expert-reports/templates/${modeloId}/sections/${adicionada.id}/move`))
       .send({ direcao: 'up' });
     expect(movida.body.data.secoes.at(-2).id).toBe(adicionada.id);
-    const removida = await gestor.as(request(app).delete(`/laudos/modelos/${modeloId}/secoes/${adicionada.id}`));
+    const removida = await gestor.as(
+      request(app).delete(`/expert-reports/templates/${modeloId}/sections/${adicionada.id}`),
+    );
     expect(removida.body.data.secoes).toHaveLength(padrao.body.data.secoes.length);
 
-    const doEscritorio = await operador.as(request(app).get('/laudos/modelos?tipo=report'));
+    const doEscritorio = await operador.as(request(app).get('/expert-reports/templates?tipo=report'));
     expect(doEscritorio.body.data).toHaveLength(2);
   });
 
@@ -163,14 +169,14 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const operador = await seedSession(tenant._id, ['operator']);
-    const pericia = await admin.as(request(app).post('/pericias')).send({ ...PERICIA, prazoLaudo: '2026-12-01' });
+    const pericia = await admin.as(request(app).post('/expert-cases')).send({ ...PERICIA, prazoLaudo: '2026-12-01' });
     const periciaId = pericia.body.data.id;
-    const { body: modelo } = await operador.as(request(app).get('/laudos/modelos/standard-report'));
+    const { body: modelo } = await operador.as(request(app).get('/expert-reports/templates/standard-report'));
     const identificacao = secaoPorTitulo(modelo.data.secoes, 'Identificação do processo');
     const conclusao = secaoPorTitulo(modelo.data.secoes, 'Conclusão');
     const encerramento = secaoPorTitulo(modelo.data.secoes, 'Encerramento');
 
-    const criado = await operador.as(request(app).post('/laudos')).send({
+    const criado = await operador.as(request(app).post('/expert-reports')).send({
       periciaId,
       modeloId: 'standard-report',
       secoes: [
@@ -199,10 +205,10 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     // Dado preenchido na perícia depois de criar o laudo resolve ao reabrir o rascunho.
     expect(laudo.secoes[1].html).toContain('[PERIODO_IMPRESCRITO]');
     await admin
-      .as(request(app).patch(`/pericias/${periciaId}`))
+      .as(request(app).patch(`/expert-cases/${periciaId}`))
       .send({ periodoImprescritoInicio: '2021-01-04', periodoImprescritoFim: '2024-05-31' })
       .expect(200);
-    const reaberto = await operador.as(request(app).get(`/laudos/${laudo.id}`));
+    const reaberto = await operador.as(request(app).get(`/expert-reports/${laudo.id}`));
     expect(reaberto.body.data.secoes[1].html).toContain('04/01/2021 a 31/05/2024');
     expect(reaberto.body.data.pendencias).toEqual([
       { secaoId: laudo.secoes[0].id, variaveis: ['[NOME_AUTOR]', '[NOME_REU]'] },
@@ -210,25 +216,27 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     ]);
 
     const bloqueado = await operador
-      .as(request(app).post(`/laudos/${laudo.id}/concluir`))
+      .as(request(app).post(`/expert-reports/${laudo.id}/complete`))
       .send({ registrarEntrega: true });
     expect(bloqueado.status).toBe(422);
     expect(bloqueado.body.message).toBe('laudo_unresolved_variables');
-    const pdfBloqueado = await operador.as(request(app).get(`/laudos/${laudo.id}/pdf`));
+    const pdfBloqueado = await operador.as(request(app).get(`/expert-reports/${laudo.id}/pdf`));
     expect(pdfBloqueado.status).toBe(422);
 
     for (const secao of laudo.secoes.slice(0, 2)) {
       const editada = await operador
-        .as(request(app).patch(`/laudos/${laudo.id}/secoes/${secao.id}`))
+        .as(request(app).patch(`/expert-reports/${laudo.id}/sections/${secao.id}`))
         .send({ html: '<p>Texto revisado pelo perito.</p>' });
       expect(editada.status).toBe(200);
     }
-    const removida = await operador.as(request(app).delete(`/laudos/${laudo.id}/secoes/${laudo.secoes[1].id}`));
+    const removida = await operador.as(
+      request(app).delete(`/expert-reports/${laudo.id}/sections/${laudo.secoes[1].id}`),
+    );
     expect(removida.body.data.secoes).toHaveLength(2);
     expect(removida.body.data.pendencias).toEqual([]);
 
     const pdf = await operador
-      .as(request(app).get(`/laudos/${laudo.id}/pdf`))
+      .as(request(app).get(`/expert-reports/${laudo.id}/pdf`))
       .buffer()
       .parse(binary);
     expect(pdf.status).toBe(200);
@@ -236,50 +244,50 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(rendered?.html).toContain('LAUDO PERICIAL');
     expect(rendered?.html).toContain('2. Encerramento');
     const docx = await operador
-      .as(request(app).get(`/laudos/${laudo.id}/docx`))
+      .as(request(app).get(`/expert-reports/${laudo.id}/docx`))
       .buffer()
       .parse(binary);
     expect(docx.status).toBe(200);
     expect((docx.body as Buffer).subarray(0, 2).toString()).toBe('PK');
 
     const concluido = await operador
-      .as(request(app).post(`/laudos/${laudo.id}/concluir`))
+      .as(request(app).post(`/expert-reports/${laudo.id}/complete`))
       .send({ registrarEntrega: true });
     expect(concluido.status).toBe(200);
     expect(concluido.body.data.status).toBe('completed');
     const hoje = dateInDisplayTz(new Date());
     const prazo = await Prazo.findOne({ Pericia: periciaId }).lean();
     expect(prazo).toMatchObject({ status: 'filed', protocoladoEm: hoje });
-    const depois = await operador.as(request(app).get(`/pericias/${periciaId}`));
+    const depois = await operador.as(request(app).get(`/expert-cases/${periciaId}`));
     expect(depois.body.data.status).toBe('report_delivered');
     expect(depois.body.data.movimentacoes).toEqual([expect.objectContaining({ tipo: 'report_filed', data: hoje })]);
 
     const editarConcluido = await operador
-      .as(request(app).patch(`/laudos/${laudo.id}/secoes/${laudo.secoes[0].id}`))
+      .as(request(app).patch(`/expert-reports/${laudo.id}/sections/${laudo.secoes[0].id}`))
       .send({ html: '<p>x</p>' });
     expect(editarConcluido.status).toBe(409);
     expect(editarConcluido.body.message).toBe('report_completed');
-    expect((await operador.as(request(app).delete(`/laudos/${laudo.id}`))).status).toBe(409);
+    expect((await operador.as(request(app).delete(`/expert-reports/${laudo.id}`))).status).toBe(409);
   });
 
   it('parecer técnico para assistente técnico; tipo errado 422; excluir a perícia leva os laudos; outro tenant 404', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const pericia = await admin
-      .as(request(app).post('/pericias'))
+      .as(request(app).post('/expert-cases'))
       .send({ ...PERICIA, justica: 'civil', papel: 'technical_assistant', tribunal: 'TJSP' });
     const periciaId = pericia.body.data.id;
-    const { body: modelo } = await admin.as(request(app).get('/laudos/modelos/standard-technical_opinion'));
+    const { body: modelo } = await admin.as(request(app).get('/expert-reports/templates/standard-technical_opinion'));
     const impugnacao = secaoPorTitulo(modelo.data.secoes, 'Impugnação do laudo pericial');
     const identificacao = secaoPorTitulo(modelo.data.secoes, 'Identificação do processo');
 
     const errado = await admin
-      .as(request(app).post('/laudos'))
+      .as(request(app).post('/expert-reports'))
       .send({ periciaId, modeloId: 'standard-report', secoes: [{ id: 'laudo-01', variante: 'yes' }] });
     expect(errado.status).toBe(422);
     expect(errado.body.message).toBe('report_template_type_mismatch');
 
-    const parecer = await admin.as(request(app).post('/laudos')).send({
+    const parecer = await admin.as(request(app).post('/expert-reports')).send({
       periciaId,
       modeloId: 'standard-technical_opinion',
       secoes: [
@@ -293,9 +301,9 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(parecer.body.data.secoes[1].html).toBe('<p>Não há impugnação ao laudo pericial.</p>');
 
     const outro = await seedSession((await seedTenant())._id, ['admin']);
-    expect((await outro.as(request(app).get(`/laudos/${parecer.body.data.id}`))).status).toBe(404);
+    expect((await outro.as(request(app).get(`/expert-reports/${parecer.body.data.id}`))).status).toBe(404);
 
-    await admin.as(request(app).delete(`/pericias/${periciaId}`)).expect(200);
+    await admin.as(request(app).delete(`/expert-cases/${periciaId}`)).expect(200);
     await expect.poll(() => Laudo.countDocuments({ Pericia: periciaId })).toBe(0);
   });
 });

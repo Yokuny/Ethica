@@ -4,14 +4,14 @@ import type { Role } from '../types.js';
 // Matriz de permissões por membro (AD-137): módulo → ações. O admin tem tudo e é o único
 // que gerencia usuários, escritório, diário e permissões — essas áreas ficam fora da matriz.
 export const PERMISSAO_MODULOS = [
-  'pericias',
-  'partes',
+  'expert_cases',
+  'parties',
   'agenda',
-  'laudos',
-  'modelos',
-  'financeiro',
-  'prospeccao',
-  'relatorios',
+  'expert_reports',
+  'report_templates',
+  'finance',
+  'prospecting',
+  'reports',
 ] as const;
 export type PermissaoModulo = (typeof PERMISSAO_MODULOS)[number];
 
@@ -46,15 +46,15 @@ export const TODAS_PERMISSOES: Permissoes = Object.fromEntries(PERMISSAO_MODULOS
 // Presets dos perfis, iguais aos papéis fixos da AD-107: gestor com tudo menos excluir
 // perícia; operador sem financeiro, sem excluir perícia e só lendo os modelos de laudo.
 export const PERFIL_PERMISSOES: Record<Exclude<Role, 'admin'>, Permissoes> = {
-  manager: { ...TODAS_PERMISSOES, pericias: SEM_EXCLUIR },
+  manager: { ...TODAS_PERMISSOES, expert_cases: SEM_EXCLUIR },
   operator: {
-    pericias: SEM_EXCLUIR,
-    partes: SEM_EXCLUIR,
+    expert_cases: SEM_EXCLUIR,
+    parties: SEM_EXCLUIR,
     agenda: TUDO,
-    laudos: TUDO,
-    modelos: ['view'],
-    prospeccao: TUDO,
-    relatorios: ['view'],
+    expert_reports: TUDO,
+    report_templates: ['view'],
+    prospecting: TUDO,
+    reports: ['view'],
   },
 };
 

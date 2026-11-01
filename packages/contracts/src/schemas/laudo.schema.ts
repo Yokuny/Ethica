@@ -90,7 +90,7 @@ export const LAUDO_HTML_TAGS = [
 ] as const;
 
 // Única imagem aceita no laudo (AD-129): foto de vistoria do próprio tenant, servida pela API.
-export const LAUDO_IMG_SRC = /^\/vistorias\/[0-9a-f]{24}\/midias\/[0-9a-f-]{36}$/i;
+export const LAUDO_IMG_SRC = /^\/inspections\/[0-9a-f]{24}\/media\/[0-9a-f-]{36}$/i;
 
 export const LAUDO_NIVEL_MAX = 3;
 

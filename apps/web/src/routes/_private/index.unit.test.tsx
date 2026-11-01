@@ -32,7 +32,7 @@ const renderHome = (role: Role[]) => {
     permissoes: permissoesEfetivas(role),
   });
   queryClient.setQueryData(['preferences'], { onboardingDismissed: false, avisoPrazoEmail: true, blocosOcultos: [] });
-  queryClient.setQueryData(['list-stats', '/pericias/stats'], {
+  queryClient.setQueryData(['list-stats', '/expert-cases/stats'], {
     total: 12,
     groups: [
       { key: 'open', count: 7 },
@@ -61,7 +61,7 @@ describe('PrivateIndexPage', () => {
 
     expect(screen.getByText('Início')).toBeInTheDocument();
     expect(screen.getByText('7')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Perícias/ })).toHaveAttribute('href', '/pericias');
+    expect(screen.getByRole('link', { name: /Perícias/ })).toHaveAttribute('href', '/expert-cases');
     expect(screen.getByRole('link', { name: /Agenda/ })).toHaveAttribute('href', '/agenda');
     expect(screen.getByRole('link', { name: /Usuários/ })).toHaveAttribute('href', '/users');
   });

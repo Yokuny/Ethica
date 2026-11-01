@@ -35,7 +35,7 @@ describe('vistoriaDadosSchema (AD-130)', () => {
 
 describe('LAUDO_IMG_SRC (AD-129)', () => {
   it('só aceita o caminho da mídia de vistoria', () => {
-    expect(LAUDO_IMG_SRC.test('/vistorias/6560a0a0a0a0a0a0a0a0a0a0/midias/0f8fad5b-d9cb-469f-a165-70867728950e')).toBe(
+    expect(LAUDO_IMG_SRC.test('/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a165-70867728950e')).toBe(
       true,
     );
     expect(LAUDO_IMG_SRC.test('https://x.com/a.png')).toBe(false);

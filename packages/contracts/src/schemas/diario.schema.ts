@@ -4,16 +4,16 @@ import { idSchema } from './id.schema.js';
 
 // Diário de bordo (AD-134): módulos e ações registrados. Chaves em inglês, traduzidas no web (AD-113).
 export const DIARIO_MODULOS = [
-  'pericias',
-  'partes',
+  'expert_cases',
+  'parties',
   'agenda',
-  'laudos',
-  'modelos',
-  'financeiro',
-  'prospeccao',
-  'escritorio',
-  'usuarios',
-  'conta',
+  'expert_reports',
+  'report_templates',
+  'finance',
+  'prospecting',
+  'office',
+  'users',
+  'account',
 ] as const;
 export type DiarioModulo = (typeof DIARIO_MODULOS)[number];
 

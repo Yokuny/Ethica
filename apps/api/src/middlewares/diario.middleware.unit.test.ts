@@ -5,32 +5,44 @@ const ID = '6650f1a2b3c4d5e6f7a8b9c0';
 
 describe('descreverRequisicao — diário de bordo (AD-134)', () => {
   it.each([
-    ['POST', '/pericias', { modulo: 'pericias', acao: 'create' }],
-    ['PATCH', `/pericias/${ID}`, { modulo: 'pericias', acao: 'update', registroId: ID }],
-    ['POST', `/pericias/${ID}/prazos`, { modulo: 'pericias', acao: 'create', recurso: 'prazos', registroId: ID }],
-    ['PATCH', `/pericias/prazos/${ID}`, { modulo: 'pericias', acao: 'update', recurso: 'prazos', registroId: ID }],
-    ['POST', '/pericias/import/csv', { modulo: 'pericias', acao: 'import', recurso: 'csv' }],
-    ['POST', `/laudos/${ID}/concluir`, { modulo: 'laudos', acao: 'complete', registroId: ID }],
-    ['PUT', `/laudos/modelos/${ID}/secoes/${ID}`, { modulo: 'modelos', acao: 'update', recurso: 'secoes' }],
-    ['POST', `/financeiro/lancamentos/${ID}/parcelas`, { modulo: 'financeiro', acao: 'create', recurso: 'parcelas' }],
-    ['PUT', `/vistorias/${ID}`, { modulo: 'agenda', acao: 'update', recurso: undefined }],
-    ['POST', `/agenda/${ID}/aviso`, { modulo: 'agenda', acao: 'notify' }],
-    ['POST', `/prospeccao/oportunidades/${ID}/converter`, { modulo: 'prospeccao', acao: 'convert' }],
-    ['GET', '/documentos/export', { modulo: 'escritorio', acao: 'export' }],
-    ['PUT', '/tenant/office', { modulo: 'escritorio', acao: 'update' }],
-    ['POST', '/tenant/invites', { modulo: 'usuarios', acao: 'create' }],
-    ['PATCH', `/auth/users/${ID}/permissoes`, { modulo: 'usuarios', acao: 'update', recurso: 'permissoes' }],
-    ['PATCH', '/me/profile', { modulo: 'conta', acao: 'update', recurso: 'profile' }],
+    ['POST', '/expert-cases', { modulo: 'expert_cases', acao: 'create' }],
+    ['PATCH', `/expert-cases/${ID}`, { modulo: 'expert_cases', acao: 'update', registroId: ID }],
+    [
+      'POST',
+      `/expert-cases/${ID}/deadlines`,
+      { modulo: 'expert_cases', acao: 'create', recurso: 'deadlines', registroId: ID },
+    ],
+    [
+      'PATCH',
+      `/expert-cases/deadlines/${ID}`,
+      { modulo: 'expert_cases', acao: 'update', recurso: 'deadlines', registroId: ID },
+    ],
+    ['POST', '/expert-cases/import/csv', { modulo: 'expert_cases', acao: 'import', recurso: 'csv' }],
+    ['POST', `/expert-reports/${ID}/complete`, { modulo: 'expert_reports', acao: 'complete', registroId: ID }],
+    [
+      'PUT',
+      `/expert-reports/templates/${ID}/sections/${ID}`,
+      { modulo: 'report_templates', acao: 'update', recurso: 'sections' },
+    ],
+    ['POST', `/finance/entries/${ID}/installments`, { modulo: 'finance', acao: 'create', recurso: 'installments' }],
+    ['PUT', `/inspections/${ID}`, { modulo: 'agenda', acao: 'update', recurso: undefined }],
+    ['POST', `/agenda/${ID}/notice`, { modulo: 'agenda', acao: 'notify' }],
+    ['POST', `/prospecting/opportunities/${ID}/convert`, { modulo: 'prospecting', acao: 'convert' }],
+    ['GET', '/documents/export', { modulo: 'office', acao: 'export' }],
+    ['PUT', '/tenant/office', { modulo: 'office', acao: 'update' }],
+    ['POST', '/tenant/invites', { modulo: 'users', acao: 'create' }],
+    ['PATCH', `/auth/users/${ID}/permissions`, { modulo: 'users', acao: 'update', recurso: 'permissions' }],
+    ['PATCH', '/me/profile', { modulo: 'account', acao: 'update', recurso: 'profile' }],
   ])('%s %s', (method, path, esperado) => {
     expect(descreverRequisicao(method, path)).toMatchObject(esperado);
   });
 
   it.each([
-    ['GET', '/pericias'],
-    ['GET', `/laudos/${ID}/pdf`],
+    ['GET', '/expert-cases'],
+    ['GET', `/expert-reports/${ID}/pdf`],
     ['PATCH', '/me/preferences'],
     ['POST', `/agenda/${ID}/geocode`],
-    ['POST', '/prospeccao/datajud/search'],
+    ['POST', '/prospecting/datajud/search'],
     ['POST', '/auth/signin'],
     ['POST', '/invites/abc/accept'],
   ])('não registra %s %s', (method, path) => {

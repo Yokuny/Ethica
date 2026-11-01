@@ -63,7 +63,7 @@ describe('diário de bordo (GES-01, AD-134)', () => {
     const admin = await seedSession(tenant._id, ['admin']);
     const operador = await seedSession(tenant._id, ['operator']);
 
-    const criada = await operador.as(request(app).post('/pericias')).send({
+    const criada = await operador.as(request(app).post('/expert-cases')).send({
       numeroProcesso: '0001234-56.2026.5.02.0001',
       justica: 'labor',
       papel: 'court_expert',
@@ -72,22 +72,22 @@ describe('diário de bordo (GES-01, AD-134)', () => {
     });
     expect(criada.status).toBe(201);
     // Leitura não entra no diário.
-    await operador.as(request(app).get('/pericias'));
+    await operador.as(request(app).get('/expert-cases'));
 
-    await expect.poll(async () => (await admin.as(request(app).get('/tenant/diario'))).body.data?.total).toBe(1);
-    const res = await admin.as(request(app).get(`/tenant/diario?modulo=pericias&userId=${operador.user.id}`));
+    await expect.poll(async () => (await admin.as(request(app).get('/tenant/activity-log'))).body.data?.total).toBe(1);
+    const res = await admin.as(request(app).get(`/tenant/activity-log?modulo=expert_cases&userId=${operador.user.id}`));
     expect(res.body.data.items[0]).toMatchObject({
       userName: operador.user.name,
-      modulo: 'pericias',
+      modulo: 'expert_cases',
       acao: 'create',
       registroId: criada.body.data.id,
       rotulo: '0001234-56.2026.5.02.0001',
     });
 
-    const vazio = await admin.as(request(app).get('/tenant/diario?acao=delete'));
+    const vazio = await admin.as(request(app).get('/tenant/activity-log?acao=delete'));
     expect(vazio.body.data.total).toBe(0);
 
-    const negado = await operador.as(request(app).get('/tenant/diario'));
+    const negado = await operador.as(request(app).get('/tenant/activity-log'));
     expect(negado.status).toBe(403);
   });
 
@@ -97,12 +97,12 @@ describe('diário de bordo (GES-01, AD-134)', () => {
     const operador = await seedSession(tenant._id, ['operator']);
     const adminOutro = await seedSession(outro._id, ['admin']);
 
-    const recusada = await operador.as(request(app).delete('/pericias/6650f1a2b3c4d5e6f7a8b9c0'));
+    const recusada = await operador.as(request(app).delete('/expert-cases/6650f1a2b3c4d5e6f7a8b9c0'));
     expect(recusada.status).toBe(403);
     await operador.as(request(app).patch('/me/profile')).send({ name: 'Nome Novo' });
 
     await expect.poll(async () => Atividade.countDocuments({ Tenant: tenant._id })).toBe(1);
-    const res = await adminOutro.as(request(app).get('/tenant/diario'));
+    const res = await adminOutro.as(request(app).get('/tenant/activity-log'));
     expect(res.body.data.total).toBe(0);
   });
 });

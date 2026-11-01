@@ -30,7 +30,7 @@ export const userDirectoryQuery = queryOptions({
 
 export const updatePermissoesMutation = (queryClient: QueryClient) => ({
   mutationFn: async ({ userId, permissoes }: { userId: string; permissoes: Permissoes }) => {
-    const res = await patch(`/auth/users/${userId}/permissoes`, { permissoes });
+    const res = await patch(`/auth/users/${userId}/permissions`, { permissoes });
     if (!res.success) throw new Error(res.message ?? t('action_error'));
   },
   onSettled: () => queryClient.invalidateQueries({ queryKey: userDirectoryQuery.queryKey }),

@@ -39,9 +39,9 @@ export function PrivateIndexPage() {
   });
   const ocultos = preferences.data?.blocosOcultos ?? [];
   const mostra = (bloco: HomeBloco) => permitidos.includes(bloco) && !ocultos.includes(bloco);
-  const canCreate = can(session, 'pericias', 'create');
+  const canCreate = can(session, 'expert_cases', 'create');
 
-  const stats = useQuery({ ...listStatsQuery('/pericias/stats'), enabled: mostra('overview') });
+  const stats = useQuery({ ...listStatsQuery('/expert-cases/stats'), enabled: mostra('overview') });
   const distribution = useQuery({
     ...periciaDistributionQuery,
     enabled: mostra('by_stage') || mostra('by_court'),
@@ -59,7 +59,11 @@ export function PrivateIndexPage() {
             {t('customize')}
           </Button>
           {canCreate && (
-            <Button nativeButton={false} role="link" render={<Link to="/pericias/add">{t('new_expert_case')}</Link>} />
+            <Button
+              nativeButton={false}
+              role="link"
+              render={<Link to="/expert-cases/add">{t('new_expert_case')}</Link>}
+            />
           )}
         </CardAction>
       </CardHeader>

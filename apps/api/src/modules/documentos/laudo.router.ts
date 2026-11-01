@@ -22,7 +22,7 @@ import {
 
 // Modelo é padrão do escritório: só admin e manager editam (AD-126).
 
-// Laudos e modelos (LAU-01..03, 05, 06). Montado em `/laudos`; `/modelos` vem antes de `/:id`.
+// Laudos e modelos (LAU-01..03, 05, 06). Montado em `/expert-reports`; `/templates` vem antes de `/:id`.
 export const createLaudoRouter = (deps: LaudoRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
@@ -33,95 +33,101 @@ export const createLaudoRouter = (deps: LaudoRouterDeps): Router => {
   const laudoSecao = validParams(laudoSecaoParamSchema);
 
   router.get(
-    '/modelos',
+    '/templates',
     ...guard,
-    can('modelos', 'view'),
+    can('report_templates', 'view'),
     validParsedQuery(listModelosQuerySchema),
     laudoController.listModelos,
   );
   router.post(
-    '/modelos',
+    '/templates',
     ...guard,
-    can('modelos', 'create'),
+    can('report_templates', 'create'),
     validBody(createModeloLaudoSchema),
     laudoController.createModelo,
   );
-  router.get('/modelos/:id', ...guard, can('modelos', 'view'), modelo, laudoController.getModelo);
+  router.get('/templates/:id', ...guard, can('report_templates', 'view'), modelo, laudoController.getModelo);
   router.patch(
-    '/modelos/:id',
+    '/templates/:id',
     ...guard,
-    can('modelos', 'update'),
+    can('report_templates', 'update'),
     modelo,
     validBody(updateModeloLaudoSchema),
     laudoController.renameModelo,
   );
-  router.delete('/modelos/:id', ...guard, can('modelos', 'delete'), modelo, laudoController.deleteModelo);
+  router.delete('/templates/:id', ...guard, can('report_templates', 'delete'), modelo, laudoController.deleteModelo);
   router.post(
-    '/modelos/:id/secoes',
+    '/templates/:id/sections',
     ...guard,
-    can('modelos', 'update'),
+    can('report_templates', 'update'),
     modelo,
     validBody(modeloSecaoSchema),
     laudoController.addModeloSecao,
   );
   router.put(
-    '/modelos/:id/secoes/:secaoId',
+    '/templates/:id/sections/:secaoId',
     ...guard,
-    can('modelos', 'update'),
+    can('report_templates', 'update'),
     modeloSecao,
     validBody(modeloSecaoSchema),
     laudoController.updateModeloSecao,
   );
   router.delete(
-    '/modelos/:id/secoes/:secaoId',
+    '/templates/:id/sections/:secaoId',
     ...guard,
-    can('modelos', 'update'),
+    can('report_templates', 'update'),
     modeloSecao,
     laudoController.removeModeloSecao,
   );
   router.post(
-    '/modelos/:id/secoes/:secaoId/mover',
+    '/templates/:id/sections/:secaoId/move',
     ...guard,
-    can('modelos', 'update'),
+    can('report_templates', 'update'),
     modeloSecao,
     validBody(moverSecaoSchema),
     laudoController.moverModeloSecao,
   );
 
-  router.get('/', ...guard, can('laudos', 'view'), validParsedQuery(listLaudosQuerySchema), laudoController.listLaudos);
+  router.get(
+    '/',
+    ...guard,
+    can('expert_reports', 'view'),
+    validParsedQuery(listLaudosQuerySchema),
+    laudoController.listLaudos,
+  );
   router.post(
     '/',
     ...guard,
-    can('laudos', 'create'),
+    can('expert_reports', 'create'),
     validBody(createLaudoSchema),
     laudoController.createLaudo(providers),
   );
-  router.get('/:id', ...guard, can('laudos', 'view'), laudo, laudoController.getLaudo);
-  router.delete('/:id', ...guard, can('laudos', 'delete'), laudo, laudoController.deleteLaudo);
+  router.get('/:id', ...guard, can('expert_reports', 'view'), laudo, laudoController.getLaudo);
+  router.delete('/:id', ...guard, can('expert_reports', 'delete'), laudo, laudoController.deleteLaudo);
   router.patch(
-    '/:id/secoes/:secaoId',
+    '/:id/sections/:secaoId',
     ...guard,
-    can('laudos', 'update'),
+    can('expert_reports', 'update'),
     laudoSecao,
     validBody(updateLaudoSecaoSchema),
     laudoController.updateLaudoSecao,
   );
   router.delete(
-    '/:id/secoes/:secaoId',
+    '/:id/sections/:secaoId',
     ...guard,
-    can('laudos', 'update'),
+    can('expert_reports', 'update'),
     laudoSecao,
     laudoController.removeLaudoSecao,
   );
   router.post(
-    '/:id/concluir',
+    '/:id/complete',
     ...guard,
-    can('laudos', 'update'),
+    can('expert_reports', 'update'),
     laudo,
     validBody(concluirLaudoSchema),
     laudoController.concluirLaudo(providers),
   );
-  router.get('/:id/pdf', ...guard, can('laudos', 'view'), laudo, laudoController.laudoPdf(providers));
-  router.get('/:id/docx', ...guard, can('laudos', 'view'), laudo, laudoController.laudoDocx(providers));
+  router.get('/:id/pdf', ...guard, can('expert_reports', 'view'), laudo, laudoController.laudoPdf(providers));
+  router.get('/:id/docx', ...guard, can('expert_reports', 'view'), laudo, laudoController.laudoDocx(providers));
   return router;
 };

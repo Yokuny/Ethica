@@ -64,7 +64,7 @@ export function PrazoDialog({ prazo, onClose, onEdit, children }: PrazoDialogPro
               {
                 label: t('expert_case'),
                 value: prazo.periciaNumero ? (
-                  <AppLink to="/pericias/details" search={{ id: prazo.periciaId }}>
+                  <AppLink to="/expert-cases/details" search={{ id: prazo.periciaId }}>
                     {prazo.periciaNumero}
                   </AppLink>
                 ) : (

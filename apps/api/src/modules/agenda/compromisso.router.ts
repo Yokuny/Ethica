@@ -66,7 +66,7 @@ export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
     compromissoController.geocodificar(deps.geocoder),
   );
   router.post(
-    '/:id/aviso',
+    '/:id/notice',
     ...guard,
     can('agenda', 'update'),
     validParams(compromissoIdParamSchema),

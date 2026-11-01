@@ -1,0 +1,78 @@
+import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
+import { useQuery } from '@tanstack/react-query';
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
+import { DefaultEmptyData } from '@/components/default-empty-data.js';
+import { DefaultLoading } from '@/components/default-loading.js';
+import { FluxoFinanceiroChart } from '@/components/fluxo-financeiro-chart.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { Panel } from '@/components/panel.js';
+import { t } from '@/lib/helpers/translate.helper.js';
+import { categoriasQuery, fluxoMensalQuery } from '@/query/lancamento.js';
+import { CategoriasChart } from './@components/categorias-chart.js';
+import {
+  PERIODO_LABEL,
+  PERIODOS,
+  type RelatoriosSearch,
+  relatoriosSearchSchema,
+} from './@interface/relatorios.interface.js';
+
+export function RelatoriosPage() {
+  const search = useSearch({ strict: false }) as RelatoriosSearch;
+  const navigate = useNavigate({ from: '/finance/reports/' });
+  const fluxo = useQuery(fluxoMensalQuery(Number(search.meses)));
+  const receitas = useQuery(categoriasQuery('income'));
+  const despesas = useQuery(categoriasQuery('expense'));
+
+  return (
+    <Card asPage>
+      <CardHeader title={t('reports')} description={t('cash_flow_and_categories')}>
+        <CardAction>
+          <ToggleGroup
+            aria-label={t('period')}
+            value={search.meses}
+            onValueChange={(meses) =>
+              navigate({ search: { meses: meses as RelatoriosSearch['meses'] }, replace: true })
+            }
+          >
+            {PERIODOS.map((meses) => (
+              <ToggleGroupItem key={meses} value={meses}>
+                {t(PERIODO_LABEL[meses])}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </CardAction>
+      </CardHeader>
+      <CardContent className="gap-10 pb-16">
+        <Panel size="sm" title={t('cash_flow')}>
+          {fluxo.isLoading ? <DefaultLoading /> : fluxo.data && <FluxoFinanceiroChart data={fluxo.data} />}
+        </Panel>
+        <div className="grid gap-10 lg:grid-cols-2">
+          <Panel size="sm" title={t('income_by_category')}>
+            {receitas.isLoading ? (
+              <DefaultLoading />
+            ) : !receitas.data?.length ? (
+              <DefaultEmptyData title={t('no_entries_yet')} />
+            ) : (
+              <CategoriasChart natureza="income" data={receitas.data} />
+            )}
+          </Panel>
+          <Panel size="sm" title={t('expenses_by_category')}>
+            {despesas.isLoading ? (
+              <DefaultLoading />
+            ) : !despesas.data?.length ? (
+              <DefaultEmptyData title={t('no_entries_yet')} />
+            ) : (
+              <CategoriasChart natureza="expense" data={despesas.data} />
+            )}
+          </Panel>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export const Route = createFileRoute('/_private/financeiro/relatorios/')({
+  component: RelatoriosPage,
+  staticData: { title: t('reports') },
+  validateSearch: (search: Record<string, unknown>): RelatoriosSearch => relatoriosSearchSchema.parse(search),
+});

@@ -32,28 +32,28 @@ const fetchData = async <T>(path: string): Promise<T> => {
 export const prazosDaPericiaQuery = (periciaId: string) =>
   queryOptions({
     queryKey: prazoKeys.daPericia(periciaId),
-    queryFn: () => fetchData<PrazoRecord[]>(`/pericias/${encodeURIComponent(periciaId)}/prazos`),
+    queryFn: () => fetchData<PrazoRecord[]>(`/expert-cases/${encodeURIComponent(periciaId)}/deadlines`),
   });
 
 // Calendário da agenda: pendentes que vencem em [from, to).
 export const prazosPendentesQuery = (range: { from: string; to: string }) =>
   queryOptions({
     queryKey: prazoKeys.pendentes(range),
-    queryFn: () => fetchData<PrazoRecord[]>(`/pericias/prazos?from=${range.from}&to=${range.to}`),
+    queryFn: () => fetchData<PrazoRecord[]>(`/expert-cases/deadlines?from=${range.from}&to=${range.to}`),
   });
 
 // Prazo muda o "próximo prazo" da listagem e a faixa de indicadores das perícias.
 const refreshPrazos = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: prazoKeys.all });
   queryClient.invalidateQueries({ queryKey: periciaKeys.lists() });
-  queryClient.invalidateQueries({ queryKey: ['list-stats', '/pericias/stats'] });
+  queryClient.invalidateQueries({ queryKey: ['list-stats', '/expert-cases/stats'] });
 };
 
 export const createPrazoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<PrazoRecord, Error, { periciaId: string; data: CreatePrazo }> => ({
   mutationFn: async ({ periciaId, data }) => {
-    const res = await post<PrazoRecord>(`/pericias/${encodeURIComponent(periciaId)}/prazos`, data);
+    const res = await post<PrazoRecord>(`/expert-cases/${encodeURIComponent(periciaId)}/deadlines`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
     return res.data;
   },
@@ -64,7 +64,7 @@ export const updatePrazoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<PrazoRecord, Error, { id: string; data: UpdatePrazo }> => ({
   mutationFn: async ({ id, data }) => {
-    const res = await patch<PrazoRecord>(`/pericias/prazos/${encodeURIComponent(id)}`, data);
+    const res = await patch<PrazoRecord>(`/expert-cases/deadlines/${encodeURIComponent(id)}`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
@@ -73,7 +73,7 @@ export const updatePrazoMutation = (
 
 export const deletePrazoMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id: string }> => ({
   mutationFn: async ({ id }) => {
-    const res = await del<never>(`/pericias/prazos/${encodeURIComponent(id)}`);
+    const res = await del<never>(`/expert-cases/deadlines/${encodeURIComponent(id)}`);
     if (!res.success) throw new Error(res.message ?? t('remove_error'));
   },
   onSuccess: () => refreshPrazos(queryClient),

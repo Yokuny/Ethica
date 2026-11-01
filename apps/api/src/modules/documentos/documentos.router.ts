@@ -11,28 +11,34 @@ import {
 
 // O relatório financeiro exige também ver o financeiro (AD-137).
 
-// PDFs (AD-119) e exportação de dados (AD-122). Montado em `/documentos`.
+// PDFs (AD-119) e exportação de dados (AD-122). Montado em `/documents`.
 export const createDocumentosRouter = (deps: DocumentosRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
   const providers = { pdf: deps.pdf, storage: deps.storage };
   const byId = validParams(documentoPericiaParamSchema);
 
-  router.get('/pericias/:id/ficha', ...guard, can('pericias', 'view'), byId, documentosController.ficha(providers));
   router.get(
-    '/pericias/:id/checklist',
+    '/expert-cases/:id/sheet',
     ...guard,
-    can('pericias', 'view'),
+    can('expert_cases', 'view'),
+    byId,
+    documentosController.ficha(providers),
+  );
+  router.get(
+    '/expert-cases/:id/checklist',
+    ...guard,
+    can('expert_cases', 'view'),
     byId,
     documentosController.checklist(providers),
   );
-  router.get('/prazos', ...guard, can('relatorios', 'view'), documentosController.cronograma(providers));
-  router.get('/paradas', ...guard, can('relatorios', 'view'), documentosController.paradas(providers));
+  router.get('/deadlines', ...guard, can('reports', 'view'), documentosController.cronograma(providers));
+  router.get('/stalled', ...guard, can('reports', 'view'), documentosController.paradas(providers));
   router.get(
-    '/financeiro',
+    '/finance',
     ...guard,
-    can('relatorios', 'view'),
-    can('financeiro', 'view'),
+    can('reports', 'view'),
+    can('finance', 'view'),
     validParsedQuery(financeiroReportQuerySchema),
     documentosController.financeiro(providers),
   );

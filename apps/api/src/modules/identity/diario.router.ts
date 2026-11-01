@@ -5,7 +5,7 @@ import { validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as diarioController from './diario.controller.js';
 import { type DiarioRouterDeps, listDiarioQuerySchema } from './diario.schema.js';
 
-// Diário de bordo (AD-134): só o admin consulta. Montado em `/tenant/diario`.
+// Diário de bordo (AD-134): só o admin consulta. Montado em `/tenant/activity-log`.
 export const createDiarioRouter = (deps: DiarioRouterDeps): Router => {
   const router = Router();
   router.get(

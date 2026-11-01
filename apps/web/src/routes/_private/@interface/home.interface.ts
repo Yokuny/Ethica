@@ -2,17 +2,17 @@ import type { PermissaoModulo } from '@ethica/contracts';
 import type { LucideIcon } from 'lucide-react';
 export type HomeSection = {
   to:
-    | '/pericias'
-    | '/campo'
-    | '/laudos'
-    | '/partes'
+    | '/expert-cases'
+    | '/field'
+    | '/expert-reports'
+    | '/parties'
     | '/agenda'
-    | '/financeiro'
-    | '/prospeccao'
-    | '/relatorios'
+    | '/finance'
+    | '/prospecting'
+    | '/reports'
     | '/users'
     | '/office'
-    | '/diario';
+    | '/activity-log';
   titleKey: string;
   descriptionKey: string;
   icon: LucideIcon;

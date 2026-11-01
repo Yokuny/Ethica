@@ -68,11 +68,11 @@ export const buildApp = (
   // Content-Disposition exposto: o web lê o nome do PDF/ZIP gerado (AD-119, AD-122).
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Content-Disposition'] }));
   app.use(cookieParser());
-  // Seção de laudo com texto rico passa de 100 kB: 1 MB só em `/laudos`; o parser global
+  // Seção de laudo com texto rico passa de 100 kB: 1 MB só em `/expert-reports`; o parser global
   // ignora o corpo já lido (AD-126).
-  app.use('/laudos', express.json({ limit: '1mb' }));
+  app.use('/expert-reports', express.json({ limit: '1mb' }));
   // Registro de vistoria com muitas funções e atividades (AD-130).
-  app.use('/vistorias', express.json({ limit: '1mb' }));
+  app.use('/inspections', express.json({ limit: '1mb' }));
   app.use(express.json());
   app.use(responseTime);
   // Diário de bordo (AD-134): grava toda escrita bem-sucedida do tenant ao fim da resposta.
@@ -121,20 +121,20 @@ export const buildApp = (
 
   app.use('/platform', createPlatformRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/tenant/office', createOfficeRouter({ validToken, storage }));
-  app.use('/tenant/diario', createDiarioRouter({ validToken }));
+  app.use('/tenant/activity-log', createDiarioRouter({ validToken }));
   app.use('/tenant', createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/invites', inviteRouter);
   app.use('/auth', createAuthRouter({ validToken }));
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
-  app.use('/pericias', createPericiaRouter({ validToken }));
-  app.use('/partes', createParteRouter({ validToken }));
+  app.use('/expert-cases', createPericiaRouter({ validToken }));
+  app.use('/parties', createParteRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));
-  app.use('/vistorias', createVistoriaRouter({ validToken, storage }));
-  app.use('/financeiro', createFinanceiroRouter({ validToken }));
-  app.use('/documentos', createDocumentosRouter({ validToken, pdf, storage }));
-  app.use('/laudos', createLaudoRouter({ validToken, pdf, storage }));
-  app.use('/prospeccao', createProspeccaoRouter({ validToken, datajud }));
+  app.use('/inspections', createVistoriaRouter({ validToken, storage }));
+  app.use('/finance', createFinanceiroRouter({ validToken }));
+  app.use('/documents', createDocumentosRouter({ validToken, pdf, storage }));
+  app.use('/expert-reports', createLaudoRouter({ validToken, pdf, storage }));
+  app.use('/prospecting', createProspeccaoRouter({ validToken, datajud }));
 
   app.use(errorHandler);
 

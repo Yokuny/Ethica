@@ -91,7 +91,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
   it('PDF devolve o rascunho sem gravar; número já cadastrado traz existingId (IMP-01.1, IMP-01.3)', async () => {
     const { as } = await seedSession();
     const enviar = () =>
-      as(request(app).post('/pericias/import/pdf')).set('Content-Type', 'application/pdf').send(pdfDe(ATA));
+      as(request(app).post('/expert-cases/import/pdf')).set('Content-Type', 'application/pdf').send(pdfDe(ATA));
 
     const primeira = await enviar();
     expect(primeira.status).toBe(200);
@@ -107,7 +107,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     expect(primeira.body.data).not.toHaveProperty('existingId');
     expect(await Pericia.countDocuments({})).toBe(0);
 
-    const salva = await as(request(app).post('/pericias')).send(primeira.body.data.draft);
+    const salva = await as(request(app).post('/expert-cases')).send(primeira.body.data.draft);
     expect(salva.status).toBe(201);
     expect(salva.body.data.partes).toHaveLength(2);
 
@@ -118,7 +118,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
 
   it('recusa arquivo que não é PDF (415), PDF grande demais (413) e PDF sem texto (422) (IMP-01.5)', async () => {
     const { as } = await seedSession();
-    const post = () => as(request(app).post('/pericias/import/pdf'));
+    const post = () => as(request(app).post('/expert-cases/import/pdf'));
 
     const tipo = await post().set('Content-Type', 'image/png').send(Buffer.from('x'));
     expect(tipo.status).toBe(415);
@@ -140,7 +140,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
 
   it('CSV com 3 válidas, 1 já cadastrada e 1 inválida ⇒ 3 criadas, 1 ignorada, 1 recusada (IMP-02.2–3)', async () => {
     const { as } = await seedSession();
-    await as(request(app).post('/pericias')).send({
+    await as(request(app).post('/expert-cases')).send({
       numeroProcesso: '0000004-00.2026.5.02.0001',
       justica: 'labor',
       papel: 'court_expert',
@@ -157,7 +157,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       '',
     ].join('\r\n');
 
-    const res = await as(request(app).post('/pericias/import/csv')).set('Content-Type', 'text/csv').send(`﻿${csv}`);
+    const res = await as(request(app).post('/expert-cases/import/csv')).set('Content-Type', 'text/csv').send(`﻿${csv}`);
 
     expect(res.status).toBe(200);
     expect(res.body.data).toEqual({
@@ -176,7 +176,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
   it('CSV vazio ou sem coluna obrigatória é recusado inteiro', async () => {
     const { as } = await seedSession();
     const post = (body: string) =>
-      as(request(app).post('/pericias/import/csv')).set('Content-Type', 'text/csv').send(body);
+      as(request(app).post('/expert-cases/import/csv')).set('Content-Type', 'text/csv').send(body);
 
     const vazio = await post(`${CABECALHO}\n`);
     expect(vazio.status).toBe(400);

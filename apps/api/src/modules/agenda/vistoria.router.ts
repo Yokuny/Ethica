@@ -20,21 +20,21 @@ const MIMES = Object.values(VISTORIA_MIDIA_LIMITES).flatMap((limite) => limite.m
 const MAIOR = Math.max(...Object.values(VISTORIA_MIDIA_LIMITES).map((limite) => limite.maxBytes));
 
 // Campo (CAM-01..07): registro de vistoria e mídias, permissão da agenda (AD-137).
-// Montado em `/vistorias`; `/dia` e `/pericia` vêm antes de `/:compromissoId`.
+// Montado em `/inspections`; `/day` e `/expert-case` vêm antes de `/:compromissoId`.
 export const createVistoriaRouter = (deps: VistoriaRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
   const midia = validParams(vistoriaMidiaParamSchema);
 
   router.get(
-    '/dia',
+    '/day',
     ...guard,
     can('agenda', 'view'),
     validParsedQuery(vistoriaDiaQuerySchema),
     vistoriaController.listDia,
   );
   router.get(
-    '/pericia/:periciaId',
+    '/expert-case/:periciaId',
     ...guard,
     can('agenda', 'view'),
     validParams(vistoriaPericiaParamSchema),
@@ -56,7 +56,7 @@ export const createVistoriaRouter = (deps: VistoriaRouterDeps): Router => {
     vistoriaController.salvarVistoria,
   );
   router.put(
-    '/:compromissoId/midias/:midiaId',
+    '/:compromissoId/media/:midiaId',
     ...guard,
     can('agenda', 'update'),
     midia,
@@ -65,14 +65,14 @@ export const createVistoriaRouter = (deps: VistoriaRouterDeps): Router => {
     vistoriaController.uploadMidia(deps.storage),
   );
   router.get(
-    '/:compromissoId/midias/:midiaId',
+    '/:compromissoId/media/:midiaId',
     ...guard,
     can('agenda', 'view'),
     midia,
     vistoriaController.getMidia(deps.storage),
   );
   router.patch(
-    '/:compromissoId/midias/:midiaId',
+    '/:compromissoId/media/:midiaId',
     ...guard,
     can('agenda', 'update'),
     midia,
@@ -80,7 +80,7 @@ export const createVistoriaRouter = (deps: VistoriaRouterDeps): Router => {
     vistoriaController.updateLegenda,
   );
   router.delete(
-    '/:compromissoId/midias/:midiaId',
+    '/:compromissoId/media/:midiaId',
     ...guard,
     can('agenda', 'delete'),
     midia,

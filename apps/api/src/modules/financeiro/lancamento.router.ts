@@ -19,63 +19,63 @@ export const createFinanceiroRouter = (deps: FinanceiroRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
 
-  router.get('/resumo', ...guard, can('financeiro', 'view'), lancamentoController.resumo);
+  router.get('/summary', ...guard, can('finance', 'view'), lancamentoController.resumo);
   router.get(
-    '/fluxo',
+    '/flow',
     ...guard,
-    can('financeiro', 'view'),
+    can('finance', 'view'),
     validParsedQuery(fluxoQuerySchema),
     lancamentoController.fluxoMensal,
   );
   router.get(
-    '/categorias',
+    '/categories',
     ...guard,
-    can('financeiro', 'view'),
+    can('finance', 'view'),
     validParsedQuery(categoriasQuerySchema),
     lancamentoController.totaisPorCategoria,
   );
   router.post(
-    '/lancamentos',
+    '/entries',
     ...guard,
-    can('financeiro', 'create'),
+    can('finance', 'create'),
     validBody(createLancamentoSchema),
     lancamentoController.createLancamento,
   );
   router.get(
-    '/lancamentos',
+    '/entries',
     ...guard,
-    can('financeiro', 'view'),
+    can('finance', 'view'),
     validParsedQuery(listLancamentosQuerySchema),
     lancamentoController.listLancamentos,
   );
   router.patch(
-    '/lancamentos/:id',
+    '/entries/:id',
     ...guard,
-    can('financeiro', 'update'),
+    can('finance', 'update'),
     validParams(lancamentoIdParamSchema),
     validBody(updateLancamentoSchema),
     lancamentoController.updateLancamento,
   );
   router.delete(
-    '/lancamentos/:id',
+    '/entries/:id',
     ...guard,
-    can('financeiro', 'delete'),
+    can('finance', 'delete'),
     validParams(lancamentoIdParamSchema),
     lancamentoController.deleteLancamento,
   );
   // Recebimentos parciais do honorário (AD-111).
   router.post(
-    '/lancamentos/:id/parcelas',
+    '/entries/:id/installments',
     ...guard,
-    can('financeiro', 'update'),
+    can('finance', 'update'),
     validParams(lancamentoIdParamSchema),
     validBody(createParcelaSchema),
     lancamentoController.addParcela,
   );
   router.delete(
-    '/lancamentos/:id/parcelas/:parcelaId',
+    '/entries/:id/installments/:parcelaId',
     ...guard,
-    can('financeiro', 'update'),
+    can('finance', 'update'),
     validParams(parcelaIdParamSchema),
     lancamentoController.estornarParcela,
   );

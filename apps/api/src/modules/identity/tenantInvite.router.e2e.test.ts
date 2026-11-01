@@ -253,7 +253,7 @@ describe('EQP — convites do admin do tenant', () => {
     const { user } = await seedUser('66666666000910', ['admin']);
     const app = buildTestApp();
     const cookie = await cookieFor(user.id);
-    const permissoes = { agenda: ['view', 'create', 'update'], financeiro: ['view', 'create', 'update'] };
+    const permissoes = { agenda: ['view', 'create', 'update'], finance: ['view', 'create', 'update'] };
     await request(app)
       .post('/tenant/invites')
       .set('Cookie', cookie)

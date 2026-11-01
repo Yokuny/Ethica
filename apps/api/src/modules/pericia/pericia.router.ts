@@ -29,7 +29,7 @@ export const createPericiaRouter = (deps: PericiaRouterDeps): Router => {
   router.post(
     '/',
     ...guard,
-    can('pericias', 'create'),
+    can('expert_cases', 'create'),
     validBody(createPericiaSchema),
     periciaController.createPericia,
   );
@@ -37,92 +37,92 @@ export const createPericiaRouter = (deps: PericiaRouterDeps): Router => {
   router.post(
     '/import/pdf',
     ...guard,
-    can('pericias', 'create'),
+    can('expert_cases', 'create'),
     fileBody('application/pdf', PDF_IMPORT_MAX_BYTES),
     periciaController.importarPdf,
   );
   router.post(
     '/import/csv',
     ...guard,
-    can('pericias', 'create'),
+    can('expert_cases', 'create'),
     fileBody('text/csv', CSV_IMPORT_MAX_BYTES),
     periciaController.importarCsv,
   );
-  router.get('/stats', ...guard, can('pericias', 'view'), periciaController.periciaStats);
-  router.get('/paradas', ...guard, can('pericias', 'view'), periciaController.resumoParadas);
-  router.get('/distribution', ...guard, can('pericias', 'view'), periciaController.periciaDistribution);
-  // Prazos (AD-109) seguem a permissão de perícias (AD-137). `/prazos` vem antes de `/:id`.
+  router.get('/stats', ...guard, can('expert_cases', 'view'), periciaController.periciaStats);
+  router.get('/stalled', ...guard, can('expert_cases', 'view'), periciaController.resumoParadas);
+  router.get('/distribution', ...guard, can('expert_cases', 'view'), periciaController.periciaDistribution);
+  // Prazos (AD-109) seguem a permissão de perícias (AD-137). `/deadlines` vem antes de `/:id`.
   router.get(
-    '/prazos',
+    '/deadlines',
     ...guard,
-    can('pericias', 'view'),
+    can('expert_cases', 'view'),
     validParsedQuery(listPrazosPendentesQuerySchema),
     prazoController.listPrazosPendentes,
   );
   router.patch(
-    '/prazos/:prazoId',
+    '/deadlines/:prazoId',
     ...guard,
-    can('pericias', 'update'),
+    can('expert_cases', 'update'),
     validParams(prazoIdParamSchema),
     validBody(updatePrazoSchema),
     prazoController.updatePrazo,
   );
   router.delete(
-    '/prazos/:prazoId',
+    '/deadlines/:prazoId',
     ...guard,
-    can('pericias', 'update'),
+    can('expert_cases', 'update'),
     validParams(prazoIdParamSchema),
     prazoController.deletePrazo,
   );
   router.get(
     '/',
     ...guard,
-    can('pericias', 'view'),
+    can('expert_cases', 'view'),
     validParsedQuery(listPericiasQuerySchema),
     periciaController.listPericias,
   );
   router.get(
     '/:id',
     ...guard,
-    can('pericias', 'view'),
+    can('expert_cases', 'view'),
     validParams(periciaIdParamSchema),
     periciaController.getPericia,
   );
   router.get(
-    '/:id/prazos',
+    '/:id/deadlines',
     ...guard,
-    can('pericias', 'view'),
+    can('expert_cases', 'view'),
     validParams(periciaIdParamSchema),
     prazoController.listPrazosDaPericia,
   );
   router.post(
-    '/:id/prazos',
+    '/:id/deadlines',
     ...guard,
-    can('pericias', 'update'),
+    can('expert_cases', 'update'),
     validParams(periciaIdParamSchema),
     validBody(createPrazoSchema),
     prazoController.createPrazo,
   );
   // Movimentações que contam para a perícia parada (AD-121).
   router.post(
-    '/:id/movimentacoes',
+    '/:id/movements',
     ...guard,
-    can('pericias', 'update'),
+    can('expert_cases', 'update'),
     validParams(periciaIdParamSchema),
     validBody(createMovimentacaoSchema),
     periciaController.addMovimentacao,
   );
   router.delete(
-    '/:id/movimentacoes/:movimentacaoId',
+    '/:id/movements/:movimentacaoId',
     ...guard,
-    can('pericias', 'update'),
+    can('expert_cases', 'update'),
     validParams(movimentacaoIdParamSchema),
     periciaController.removeMovimentacao,
   );
   router.patch(
     '/:id',
     ...guard,
-    can('pericias', 'update'),
+    can('expert_cases', 'update'),
     validParams(periciaIdParamSchema),
     validBody(updatePericiaSchema),
     periciaController.updatePericia,
@@ -130,7 +130,7 @@ export const createPericiaRouter = (deps: PericiaRouterDeps): Router => {
   router.delete(
     '/:id',
     ...guard,
-    can('pericias', 'delete'),
+    can('expert_cases', 'delete'),
     validParams(periciaIdParamSchema),
     periciaController.deletePericia,
   );

@@ -78,25 +78,25 @@ export const lancamentosQuery = (params: LancamentosQueryParams = {}) =>
         Object.entries(params).flatMap(([key, value]) => (value === undefined ? [] : [[key, String(value)]])),
       );
       const qs = search.toString();
-      return fetchData<LancamentosListResult>(`/financeiro/lancamentos${qs ? `?${qs}` : ''}`);
+      return fetchData<LancamentosListResult>(`/finance/entries${qs ? `?${qs}` : ''}`);
     },
   });
 
 export const financeiroResumoQuery = queryOptions({
   queryKey: lancamentoKeys.resumo(),
-  queryFn: () => fetchData<FinanceiroResumo>('/financeiro/resumo'),
+  queryFn: () => fetchData<FinanceiroResumo>('/finance/summary'),
 });
 
 export const fluxoMensalQuery = (meses: number) =>
   queryOptions({
     queryKey: lancamentoKeys.fluxo(meses),
-    queryFn: () => fetchData<FluxoMensal[]>(`/financeiro/fluxo?meses=${meses}`),
+    queryFn: () => fetchData<FluxoMensal[]>(`/finance/flow?meses=${meses}`),
   });
 
 export const categoriasQuery = (natureza: LancamentoNatureza) =>
   queryOptions({
     queryKey: lancamentoKeys.categorias(natureza),
-    queryFn: () => fetchData<CategoriaTotal[]>(`/financeiro/categorias?natureza=${natureza}`),
+    queryFn: () => fetchData<CategoriaTotal[]>(`/finance/categories?natureza=${natureza}`),
   });
 
 // Toda escrita mexe nos totais: invalida listas, resumo, fluxo e categorias de uma vez.
@@ -104,7 +104,7 @@ export const createLancamentoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<LancamentoRecord, Error, CreateLancamento> => ({
   mutationFn: async (data) => {
-    const res = await post<LancamentoRecord>('/financeiro/lancamentos', data);
+    const res = await post<LancamentoRecord>('/finance/entries', data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
     return res.data;
   },
@@ -115,7 +115,7 @@ export const updateLancamentoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<LancamentoRecord, Error, { id: string; data: UpdateLancamento }> => ({
   mutationFn: async ({ id, data }) => {
-    const res = await patch<LancamentoRecord>(`/financeiro/lancamentos/${encodeURIComponent(id)}`, data);
+    const res = await patch<LancamentoRecord>(`/finance/entries/${encodeURIComponent(id)}`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
@@ -126,7 +126,7 @@ export const deleteLancamentoMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<void, Error, { id: string }> => ({
   mutationFn: async ({ id }) => {
-    const res = await del<never>(`/financeiro/lancamentos/${encodeURIComponent(id)}`);
+    const res = await del<never>(`/finance/entries/${encodeURIComponent(id)}`);
     if (!res.success) throw new Error(res.message ?? t('remove_error'));
   },
   onSuccess: () => queryClient.invalidateQueries({ queryKey: lancamentoKeys.all }),
@@ -137,7 +137,7 @@ export const addParcelaMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<LancamentoRecord, Error, { id: string; data: CreateParcela }> => ({
   mutationFn: async ({ id, data }) => {
-    const res = await post<LancamentoRecord>(`/financeiro/lancamentos/${encodeURIComponent(id)}/parcelas`, data);
+    const res = await post<LancamentoRecord>(`/finance/entries/${encodeURIComponent(id)}/installments`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
@@ -149,7 +149,7 @@ export const estornarParcelaMutation = (
 ): UseMutationOptions<LancamentoRecord, Error, { id: string; parcelaId: string }> => ({
   mutationFn: async ({ id, parcelaId }) => {
     const res = await del<LancamentoRecord>(
-      `/financeiro/lancamentos/${encodeURIComponent(id)}/parcelas/${encodeURIComponent(parcelaId)}`,
+      `/finance/entries/${encodeURIComponent(id)}/installments/${encodeURIComponent(parcelaId)}`,
     );
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
     return res.data;

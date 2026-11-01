@@ -8,7 +8,7 @@ export function useHomePage() {
 
   return {
     session: data,
-    canSeeFinance: can(data, 'financeiro'),
+    canSeeFinance: can(data, 'finance'),
     sections: HOME_SECTIONS.filter((section) => canAccessHomeSection(section, data)),
   };
 }

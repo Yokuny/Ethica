@@ -10,18 +10,18 @@ export function canAccessHomeSection(section: HomeSection, session: SessionView)
 
 // Primeiro segmento da URL → módulo da matriz; `undefined` = tela sem módulo (início, conta, admin).
 const MODULO_POR_SEGMENTO: Record<string, PermissaoModulo> = {
-  pericias: 'pericias',
-  partes: 'partes',
+  'expert-cases': 'expert_cases',
+  parties: 'parties',
   agenda: 'agenda',
-  campo: 'agenda',
-  laudos: 'laudos',
-  financeiro: 'financeiro',
-  prospeccao: 'prospeccao',
-  relatorios: 'relatorios',
+  field: 'agenda',
+  'expert-reports': 'expert_reports',
+  finance: 'finance',
+  prospecting: 'prospecting',
+  reports: 'reports',
 };
 
 export function moduloDaRota(pathname: string): PermissaoModulo | undefined {
   const [primeiro, segundo] = pathname.split('/').filter(Boolean);
-  if (primeiro === 'laudos' && segundo === 'modelos') return 'modelos';
+  if (primeiro === 'expert-reports' && segundo === 'templates') return 'report_templates';
   return primeiro ? MODULO_POR_SEGMENTO[primeiro] : undefined;
 }

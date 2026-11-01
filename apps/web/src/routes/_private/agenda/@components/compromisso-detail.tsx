@@ -49,7 +49,7 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
                 label: t('expert_case'),
                 value:
                   compromisso.periciaId && compromisso.periciaNumero ? (
-                    <AppLink to="/pericias/details" search={{ id: compromisso.periciaId }}>
+                    <AppLink to="/expert-cases/details" search={{ id: compromisso.periciaId }}>
                       {compromisso.periciaNumero}
                     </AppLink>
                   ) : (
@@ -73,7 +73,7 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
         <Button
           variant="outline"
           nativeButton={false}
-          render={<Link to="/campo/vistoria" search={{ id: compromisso.id }} />}
+          render={<Link to="/field/inspection" search={{ id: compromisso.id }} />}
         >
           <ClipboardList />
           {t('inspection_record')}

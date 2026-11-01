@@ -60,19 +60,19 @@ describe('_private beforeLoad guard (FND-10/AC3)', () => {
     vi.spyOn(queryClient, 'ensureQueryData').mockResolvedValue({
       user: { id: '1', name: 'A', email: 'a@b.com' },
       role: ['operator'],
-      permissoes: { pericias: ['view'] },
+      permissoes: { expert_cases: ['view'] },
     } as never);
 
     await expect(
-      beforeLoad({ context: { queryClient }, location: { pathname: '/pericias/details' } }),
+      beforeLoad({ context: { queryClient }, location: { pathname: '/expert-cases/details' } }),
     ).resolves.toBeUndefined();
-    await expect(
-      beforeLoad({ context: { queryClient }, location: { pathname: '/financeiro/lancamentos' } }),
-    ).rejects.toEqual({
+    await expect(beforeLoad({ context: { queryClient }, location: { pathname: '/finance/entries' } })).rejects.toEqual({
       isRedirect: true,
       to: '/',
     });
-    await expect(beforeLoad({ context: { queryClient }, location: { pathname: '/laudos/modelos' } })).rejects.toEqual({
+    await expect(
+      beforeLoad({ context: { queryClient }, location: { pathname: '/expert-reports/templates' } }),
+    ).rejects.toEqual({
       isRedirect: true,
       to: '/',
     });

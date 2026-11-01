@@ -406,10 +406,10 @@ describe('auth routes', () => {
       });
       const app = buildTestApp();
       const adminCookie = await issueSessionCookie(admin.id);
-      const permissoes = { agenda: ['view', 'create'], financeiro: ['view'] };
+      const permissoes = { agenda: ['view', 'create'], finance: ['view'] };
 
       const res = await request(app)
-        .patch(`/auth/users/${membro.id}/permissoes`)
+        .patch(`/auth/users/${membro.id}/permissions`)
         .set('Cookie', adminCookie)
         .set('User-Agent', DEVICE)
         .send({ permissoes });
@@ -435,24 +435,24 @@ describe('auth routes', () => {
       const adminCookie = await issueSessionCookie(admin.id);
 
       const self = await request(app)
-        .patch(`/auth/users/${admin.id}/permissoes`)
+        .patch(`/auth/users/${admin.id}/permissions`)
         .set('Cookie', adminCookie)
         .set('User-Agent', DEVICE)
         .send({ permissoes: {} });
       expect(self.status).toBe(422);
 
       const byManager = await request(app)
-        .patch(`/auth/users/${gestor.id}/permissoes`)
+        .patch(`/auth/users/${gestor.id}/permissions`)
         .set('Cookie', await issueSessionCookie(gestor.id))
         .set('User-Agent', DEVICE)
         .send({ permissoes: {} });
       expect(byManager.status).toBe(403);
 
       const invalid = await request(app)
-        .patch(`/auth/users/${gestor.id}/permissoes`)
+        .patch(`/auth/users/${gestor.id}/permissions`)
         .set('Cookie', adminCookie)
         .set('User-Agent', DEVICE)
-        .send({ permissoes: { pericias: ['delete'] } });
+        .send({ permissoes: { expert_cases: ['delete'] } });
       expect(invalid.status).toBe(400);
       expect((await User.findById(gestor.id).lean())?.permissoes).toBeUndefined();
     });

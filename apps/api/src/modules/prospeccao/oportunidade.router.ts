@@ -22,46 +22,46 @@ export const createProspeccaoRouter = (deps: ProspeccaoRouterDeps): Router => {
   router.post(
     '/datajud/search',
     ...guard,
-    can('prospeccao', 'view'),
+    can('prospecting', 'view'),
     datajudSearchRateLimit,
     validBody(datajudSearchSchema),
     oportunidadeController.searchDatajud(deps.datajud),
   );
-  router.get('/oportunidades/stats', ...guard, can('prospeccao', 'view'), oportunidadeController.oportunidadeStats);
+  router.get('/opportunities/stats', ...guard, can('prospecting', 'view'), oportunidadeController.oportunidadeStats);
   router.get(
-    '/oportunidades',
+    '/opportunities',
     ...guard,
-    can('prospeccao', 'view'),
+    can('prospecting', 'view'),
     validParsedQuery(listOportunidadesQuerySchema),
     oportunidadeController.listOportunidades,
   );
   router.post(
-    '/oportunidades',
+    '/opportunities',
     ...guard,
-    can('prospeccao', 'create'),
+    can('prospecting', 'create'),
     validBody(createOportunidadeSchema),
     oportunidadeController.createOportunidade,
   );
   router.patch(
-    '/oportunidades/:id',
+    '/opportunities/:id',
     ...guard,
-    can('prospeccao', 'update'),
+    can('prospecting', 'update'),
     byId,
     validBody(updateOportunidadeSchema),
     oportunidadeController.updateOportunidade,
   );
   router.delete(
-    '/oportunidades/:id',
+    '/opportunities/:id',
     ...guard,
-    can('prospeccao', 'delete'),
+    can('prospecting', 'delete'),
     byId,
     oportunidadeController.deleteOportunidade,
   );
   router.post(
-    '/oportunidades/:id/converter',
+    '/opportunities/:id/convert',
     ...guard,
-    can('prospeccao', 'update'),
-    can('pericias', 'create'),
+    can('prospecting', 'update'),
+    can('expert_cases', 'create'),
     byId,
     validBody(converterOportunidadeSchema),
     oportunidadeController.converterOportunidade,
