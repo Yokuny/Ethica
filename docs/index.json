@@ -282,7 +282,7 @@
       "feature": "Montagem do laudo",
       "descricao": "Seções e modelo editáveis no rascunho, modelo trabalhista completo, pré-preenchimento pelo processo, pré-visualização e fotos 2x3 nos anexos",
       "data": "2026-11-01",
-      "status": "planejado",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -290,6 +290,7 @@
       ],
       "decisoes": [
         "AD-114",
+        "AD-120",
         "AD-123",
         "AD-126",
         "AD-127",
