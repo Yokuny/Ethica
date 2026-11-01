@@ -2,12 +2,22 @@
 
 Direção, não compromisso. Cada item vira `docs/features/<slug>/` quando começar (protocolo em `AGENTS.md`).
 
-| Ordem | Item | Notas |
+## Agora — spec pronta, aguardando design
+
+| Item | Feature | Notas |
 | --- | --- | --- |
-| 1 | Validar a busca do Datajud com a chave real | Ajustar campos da consulta e mapeamento (AD-105) |
-| 2 | Extração do PDF por IA no servidor | Hoje é por regras sobre o texto (`importacao-processos`, AD-114); IA trocaria só `extractMinutes`. Importação por CSV já existe |
-| 6 | Vistorias com fotos e áudios (offline-first) | Feito em `campo-vistorias` (AD-128 a AD-132); falta a transcrição do áudio (AD-124) |
-| 7 | Laudos automatizados | Modelos, editor e exportação PDF/Word já existem (`laudos`, AD-123 a AD-127); faltam IA de redação (AD-124) e fotos e anotações da vistoria |
-| 8 | Notificações de vencimentos financeiros e push | Aviso de prazo por e-mail já existe (`prazos-recebimentos`, AD-110) |
-| 9 | Rotas inteligentes para vistorias | Mapa do dia com vizinho mais próximo e OSRM público em `campo-vistorias` (AD-131); faltam ponto de partida por endereço e serviço de rota próprio |
-| 10 | Monitoramento de movimentos no Datajud | Alertar nova movimentação nas perícias e oportunidades |
+| Fotos e anotações da vistoria no laudo; editar e excluir laudo | `laudo-vistoria` | AD-149 |
+| Avisos de vencimento financeiro, notificações push e varredura agendada | `avisos-notificacoes` | AD-147 |
+| Rotas de vistoria com ponto de partida e serviço de rota próprio | `rotas-vistoria` | AD-150 |
+| CRUD de membros só do admin | `gestao-membros` | AD-148 |
+| Imagem de produção da API e arquivos por perícia no S3 | `producao-api` | AD-146 |
+
+Em paralelo: validação do que já existe pela perita, com pequenas correções direto na `main` (AD-143).
+
+## Depois
+
+| Item | Notas |
+| --- | --- |
+| Validar a busca do Datajud com a chave real | Ajustar campos da consulta e mapeamento (AD-105); adiado (AD-145) |
+| IA: leitura do PDF da ata, redação do laudo e transcrição do áudio | Spec própria com provedor, limite por tenant e LGPD (AD-114, AD-124); adiado (AD-145) |
+| Monitoramento de movimentos no Datajud | Alertar nova movimentação nas perícias e oportunidades |

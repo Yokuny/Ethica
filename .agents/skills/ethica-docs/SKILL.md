@@ -35,7 +35,7 @@ O `slug` (kebab-case, curto) é a identidade da feature: pasta em `docs/features
 
 ## Registro
 
-Só depois do aceite do gate único do `AGENTS.md` (passo 3: documentação, commit e PR). Trabalho parcial é registrado com `status: em-andamento` e as pendências listadas.
+Faz parte do passo 3 do `AGENTS.md` (verificar, validar, registrar e enviar), sem pedir autorização: depois do gate técnico e da validação, antes do commit. Trabalho parcial é registrado com `status: em-andamento` e as pendências listadas.
 
 ### 1. Criar ou atualizar
 
@@ -76,7 +76,7 @@ pnpm docs:sync    # regrava docs/index.md e docs/index.json; falha com erro de v
 pnpm docs:check   # o que o CI roda
 ```
 
-A documentação vai no commit `docs(<slug>): registra <assunto>`, na mesma branch e no mesmo PR do código (skill `ethica-commit-standards`).
+A documentação vai no commit `docs(<slug>): registra <assunto>`, no mesmo push para a `main` do código (skill `ethica-commit-standards`).
 
 ## O que NÃO entra no `feature.md`
 

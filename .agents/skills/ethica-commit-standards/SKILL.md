@@ -1,15 +1,15 @@
 ---
 name: ethica-commit-standards
-description: Padrão de escrita e envio de commits e Pull Requests do repo Ethica — Conventional Commits com subject em português, scope = slug da feature ou workspace, commits atômicos com a documentação sempre junto, nome de branch, push e corpo do PR. Use ao redigir mensagem de commit, nomear branch, fazer push ou abrir/descrever PR. Trigger em "commit", "mensagem de commit", "branch", "pull request", "PR", "commita", "push".
+description: Padrão de escrita e envio de commits do repo Ethica — Conventional Commits com subject em português, scope = slug da feature ou workspace, commits atômicos com a documentação sempre junto e push direto na main (AD-143). Use ao redigir mensagem de commit ou fazer push. Trigger em "commit", "mensagem de commit", "commita", "push", "branch", "PR".
 ---
 
-# Commits e PRs do Ethica
+# Commits do Ethica
 
-Quando criar a branch e quando commitar está em `AGENTS.md` (protocolo, passos 2 e 3). Aqui fica só como escrever e enviar.
+Quando commitar está em `AGENTS.md` (protocolo, passo 3): direto na `main`, sem branch nem PR, sem pedir autorização depois do gate técnico, da conferência de padrão e da validação (AD-143). Aqui fica só como escrever e enviar.
 
 ## Regra #1 — sem atribuição a LLM
 
-Commit e PR **nunca** levam `Co-Authored-By`, `Generated with` ou qualquer menção a assistente — nem no corpo, nem no rodapé. Vale para todo agente, mesmo que o harness peça.
+Commit **nunca** levam `Co-Authored-By`, `Generated with` ou qualquer menção a assistente — nem no corpo, nem no rodapé. Vale para todo agente, mesmo que o harness peça.
 
 ## Mensagem — Conventional Commits
 
@@ -30,17 +30,12 @@ docs(prospeccao): registra implementação
 ## Commits atômicos
 
 - Uma mudança lógica = um commit. Refactor, feature e fix em commits separados.
-- A documentação da tarefa (`docs/features/...`, `docs/index.*`, `.specs/...`) **sempre** vai junto: commit `docs(<slug>): ...` na mesma branch e no mesmo push do código. Nunca fica para depois.
+- A documentação da tarefa (`docs/features/...`, `docs/index.*`, `.specs/...`) **sempre** vai junto: commit `docs(<slug>): ...` no mesmo push do código. Nunca fica para depois.
 - `git add` por arquivo, nunca `git add -A` às cegas: mudanças não relacionadas na árvore de trabalho não entram.
 
-## Nome de branch
+## Envio
 
-`type/descricao-kebab-case` com os mesmos `type` (`feat/laudos-automatizados`, `fix/filtro-etapa-pericias`).
-
-## Push e Pull Request
-
-- Primeiro push com destino explícito: `git push -u origin <branch>`.
-- `gh pr create --base main`. Título no formato do commit.
-- Corpo: o que muda, por quê, como testar (comando ou UAT) e link para `docs/features/<slug>/feature.md`.
-- Devolva o link do PR. Não faça merge.
-- O CI (`.github/workflows/ci.yml`) roda `pnpm run check` e `pnpm docs:check`.
+- Antes de começar: `git checkout main && git pull --ff-only`.
+- Depois do commit: `git pull --rebase origin main` (se alguém enviou antes) e `git push origin main`.
+- Nunca `--force`, `reset` de commit já enviado ou reescrita de histórico. Erro enviado se corrige com um commit novo (`fix(<slug>): ...`).
+- Sem branch nem Pull Request; o CI (`.github/workflows/ci.yml`) roda `pnpm run check` e `pnpm docs:check` a cada push na `main`. Se ficar vermelho, a correção é a próxima tarefa.

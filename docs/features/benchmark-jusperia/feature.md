@@ -2,7 +2,7 @@
 feature: Benchmark da Jusperia
 slug: benchmark-jusperia
 descricao: Engenharia reversa funcional do app da Jusperia (concorrente) e gap analysis contra o Ethica, com priorização em ondas
-data: 2026-10-31
+data: 2026-11-01
 status: concluido
 areas: [docs]
 decisoes: [AD-105, AD-106, AD-107, AD-108]
@@ -38,12 +38,13 @@ Saber o que o concorrente direto entrega ao perito e onde o Ethica já está à 
 
 ## Pendências
 
-- [ ] Spec da matriz de permissões (AD-108, proposta) e da jornada do assistente técnico fora do laudo.
-- [ ] Redefinir a onda 5 (campo) como pré-laudo offline com áudio e assinatura.
-- [ ] Ondas 5 (campo) e 6 (gestão) sem spec.
+- [x] Matriz de permissões e jornada do assistente técnico: feitas em `gestao-escritorio` (AD-137).
+- [x] Onda 5 (campo) feita como `campo-vistorias`.
+- [x] Ondas 5 e 6 viraram `campo-vistorias` e `gestao-escritorio`.
 
 ## Histórico
 
+- 2026-11-01 — Pendências fechadas: as ondas 5 e 6 e a matriz de permissões já foram entregues.
 - 2026-10-31 — Respostas do usuário às perguntas abertas registradas no inventário; specs ajustadas (vence em breve = 15 dias, movimentação, duplicados pulados com aviso, parecer técnico em `laudos`); AD-108 proposta (matriz de permissões); novos itens na gap analysis (§5).
 - 2026-10-31 — Inventário, gap analysis e specs das ondas 1–4 (plano `.specs/features/benchmark-jusperia/plans/2026-10-31-benchmark-jusperia.md`). Onda 2 ajustada pelo usuário: importação por PDF e CSV, sem IA externa colada. Registros criados na conta da Jusperia mantidos a pedido do usuário.
 

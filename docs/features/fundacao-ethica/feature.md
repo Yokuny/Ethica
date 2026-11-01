@@ -87,13 +87,14 @@ pnpm run check && (cd apps/web && pnpm run build)
 ## Pendências
 
 - [ ] Rodar `integration`/`e2e` com o Mongo local (não executados na criação: sem Docker na sessão).
-- [ ] Testes e2e de router para `case`, `agenda`, `finance` e `prospecting` (hoje: unit de service e provider).
-- [ ] Validar a consulta ao Datajud com a chave real (AD-105).
+- [x] Testes e2e de router para `case`, `agenda`, `finance` e `prospecting`: dispensados (AD-145).
+- [ ] Validar a consulta ao Datajud com a chave real (AD-105) — adiado para depois das frentes atuais (AD-145).
 - [ ] UAT visual de todas as telas com o seed de demonstração.
-- [ ] Tenant com CPF (perito pessoa física): `provisionTenantSchema` hoje exige CNPJ.
+- [x] Tenant com CPF: não será suportado, o escritório é só CNPJ (AD-144).
 
 ## Histórico
 
+- 2026-11-01 — Pendências fechadas pelo usuário: escritório só com CNPJ (AD-144) e sem e2e de router extra (AD-145); Datajud com chave real adiado (AD-145).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Papéis fixos de domínio (AD-107) viraram a matriz de permissões por membro; `finance/route.tsx` saiu para a guarda central (`docs/features/gestao-escritorio/feature.md`, AD-137).
 - 2026-10-31 — Prazo do laudo vira `Deadline` da perícia, `case:created` sai e honorário ganha parcelas (`docs/features/prazos-recebimentos/feature.md`, AD-109, AD-111).

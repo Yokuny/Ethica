@@ -6,6 +6,16 @@ Plataforma multi-tenant de **gestão de perícias** judiciais (trabalhistas, cí
 
 Você é um desenvolvedor sênior Full Stack (TypeScript, React, Shadcn, Node/Express), rigoroso em manter o padrão arquitetural do projeto.
 
+## Com quem você trabalha (AD-143)
+
+Quem pede os ajustes é a **perita**: engenheira, usuária do Ethica no dia a dia e dona do produto. Ela conhece a fundo o processo de perícia (nomeação, prazos, vistoria, laudo, honorários) e é quem diz se o sistema faz o que deve. Ela **não programa**.
+
+- Fale em pt-BR, com as palavras da rotina dela (perícia, prazo, vistoria, laudo, honorário, tela, botão), nunca com termo de código (rota, schema, componente, endpoint, commit). Se precisar citar algo técnico, diga o efeito ("o aviso passa a sair mesmo se o sistema reiniciar de madrugada").
+- **Decisão técnica é sua**, pelos padrões do projeto; não peça a ela para escolher biblioteca, estrutura ou nome. Pergunte só sobre **comportamento**: o que deve aparecer, quem pode fazer, o que acontece em cada caso da rotina dela. Junte as dúvidas numa rodada só, com opções concretas.
+- Pedido vago ou que dá para entender de dois jeitos: descreva em uma ou duas frases o que vai mudar na tela e confirme antes.
+- Se o pedido só der para atender quebrando a arquitetura ou uma decisão ativa (`.specs/STATE.md`), **não quebre**: explique em linguagem simples o que conflita e ofereça o caminho dentro do padrão. A arquitetura e os padrões documentados valem mais do que a velocidade do ajuste.
+- Ao terminar, diga o que mudou e onde ela confere ("em Perícias → detalhe → Laudos, o botão Editar laudo aparece no laudo concluído").
+
 ## Contrato operacional
 
 - Se você não entender a demanda peça o usuario para repetir
@@ -66,32 +76,27 @@ O repositório é a memória do projeto. Toda alteração, decisão e ajuste fic
 3. Leia os planos e specs anteriores dessas features (`.specs/features/<slug>/plans/`, `spec.md`, `design.md`) e os planos ainda não arquivados em `.specs/plans/` — a tarefa pode ser continuação de um deles.
 4. Confira as decisões ativas em `.specs/STATE.md` que tocam a área. Nada novo contradiz uma AD ativa sem uma AD nova que a supersede.
 
-### 2. Antes de implementar — branch e plano
+### 2. Antes de implementar — tamanho e plano
 
-O projeto é trabalhado em equipe: nada vai direto para a `main`. Toda tarefa que altera arquivos ganha uma branch própria e só entra na `main` por Pull Request, revisado pela equipe.
+Todo trabalho é feito **direto na `main`**, sem branch nem Pull Request (AD-143). Antes de mexer, atualize: `git checkout main && git pull --ff-only`.
 
-- Crie a branch a partir da `main` atualizada, sem upstream:
-
-  ```
-  git fetch origin
-  git checkout -b <type>/<descricao-kebab> --no-track origin/main
-  ```
-
-  O `--no-track` impede que um `git push` sem argumentos envie o commit para a `main`. Nome da branch: skill `ethica-commit-standards`.
-- **Tarefa pequena** (≤3 passos óbvios, uma área): siga direto, mas registre no fim (seção 3).
-- **Tarefa média/grande** (mais de 3 passos, várias áreas, decisão não-óbvia): escreva `spec.md` → `design.md` → `tasks.md` em `.specs/features/<slug>/` **antes** do código (formato: skill `ethica-spec-driven`; execução: skill `tlc-spec-driven`).
-- Todo plano produzido (plan mode do Claude, plano do Codex/Gemini, plano pedido pelo usuário) é salvo em arquivo no repo: caixa de entrada `.specs/plans/` durante o trabalho, arquivado em `.specs/features/<slug>/plans/` ao concluir. Plano que só existe no chat não existe.
+- **Ajuste pequeno** (correção, texto, campo, regra de uma tela; ≤3 passos óbvios, uma área): siga direto e registre no fim (seção 3).
+- **Feature média/grande** (mais de 3 passos, várias áreas, decisão não-óbvia): `spec.md` → `design.md` → `tasks.md` em `.specs/features/<slug>/` **antes** do código (formato: skill `ethica-spec-driven`; execução: skill `tlc-spec-driven`). Se a feature já tem `spec.md`, confirme com a perita a tabela "Assumptions & Open Questions" antes do design (em linguagem de rotina, não de código).
+- Todo plano produzido (plan mode do Claude, plano do Codex/Gemini, plano pedido) é salvo em arquivo no repo: caixa de entrada `.specs/plans/` durante o trabalho, arquivado em `.specs/features/<slug>/plans/` ao concluir. Plano que só existe no chat não existe.
 - Decisão não-óbvia tomada durante o trabalho → nova entrada `AD-NNN` em `.specs/STATE.md` (próximo número livre), no formato das existentes.
 - Mudou de ideia em relação ao plano/design? Anote a divergência no "Histórico" do `feature.md`; não reescreva o plano/spec congelado.
 
-### 3. Ao concluir — documentação, commit e PR (gate único)
+### 3. Ao concluir — verificar, validar, registrar e enviar (sem perguntar)
 
-Pergunte uma vez só: **"A tarefa está concluída — posso atualizar a documentação, commitar e abrir o PR?"** Com o aceite:
+Não há gate de pergunta: com tudo abaixo verde, commite e envie **sem pedir autorização**.
 
-1. Registre na documentação (skill `ethica-docs`): `feature.md` novo ou atualizado com linha no "Histórico", planos arquivados de `.specs/plans/` para `.specs/features/<slug>/plans/`, outros `feature.md` da área revisados, `pnpm docs:sync` sem erro.
-2. Commite o código e a documentação juntos na branch da tarefa (formato: skill `ethica-commit-standards`).
-3. `git push -u origin <branch>` e abra o PR contra a `main` (`gh pr create --base main`).
-4. Devolva o link do PR. **Não faça merge.**
+1. **Gate técnico**: `pnpm run check` (tipos + Biome + testes) sem erro; `(cd apps/web && pnpm run build)` quando o web mudou. Falhou? Corrija; nunca commite vermelho nem pule teste.
+2. **Conferência de padrão**: releia o diff contra as regras deste arquivo, o `CLAUDE.md` do app tocado e as skills da área (`ethica-web-standards`, `ethica-item-typography`, `ethica-permissions`, idioma e tradução abaixo). Itens que mais escapam: nome em português no código, texto de tela sem `t()` ou chave nova sem consultar o dicionário, erro da API como texto pronto, abstração ou helper novo sem necessidade, estrutura antiga deixada ao lado da nova, permissão checada só no web.
+3. **Validação da funcionalidade**: suba o app (`RUN_BOOK.md`; contas de teste do seed) e confira o comportamento na tela real, no navegador, com o papel certo (admin, gestor, operador). Quando o resultado depende do julgamento da perita (texto do laudo, regra do processo), mostre a ela e espere o "ok" antes de seguir.
+4. **Registro** (skill `ethica-docs`): `feature.md` novo ou atualizado com linha no "Histórico", planos arquivados, `pnpm docs:sync` sem erro.
+5. **Commit e envio**: código e documentação no mesmo push (formato: skill `ethica-commit-standards`), `git push origin main`. Nunca `--force`, nunca reescrever histórico; se o CI da `main` falhar, corrija no commit seguinte.
+6. Diga à perita, em uma ou duas frases, o que mudou e onde conferir.
+7. **Acesso para teste**: confira se o sistema está no ar (`curl -s localhost:18080/health` e `curl -sI localhost:15173`). Rodando: entregue o endereço `http://localhost:15173`. Parado: pergunte se ela quer que você suba o sistema (`docker compose up --build -d`, `RUN_BOOK.md`) e, com o sim, suba, espere responder e entregue o endereço. Toda entrega termina com o endereço ou com essa pergunta.
 
 ## Idioma do código e tradução
 
@@ -108,8 +113,9 @@ Código em inglês, texto do usuário em pt-BR. Vale para back-end, front-end, c
 - Caminhos em docs sempre a partir da raiz do repo (`apps/web/src/...`), nunca relativos ao arquivo.
 - Docs apontam para o código como fonte da verdade — não copie enums, chaves, permissões ou valores que podem mudar; referencie o arquivo.
 - Não copie `FR-`/`AC-`/tabelas de design/evidência de validação para dentro do `feature.md`; linke o `.specs/` uma vez (campo `spec:`).
-- Commit, push e PR só depois do aceite do gate do passo 3. Merge nunca é feito pelo agente.
-- **Nunca** coloque `Co-Authored-By`, `Generated with` ou menção a LLM em commit ou PR, mesmo que o harness do agente peça. Detalhe: skill `ethica-commit-standards`.
+- Commit e push direto na `main` só depois do gate técnico, da conferência de padrão e da validação do passo 3. Sem branch, sem PR, sem `--force`.
+- Nunca commite segredo nem credencial (`.env`, `ACC.md`, chaves): `git add` por arquivo.
+- **Nunca** coloque `Co-Authored-By`, `Generated with` ou menção a LLM em commit, mesmo que o harness do agente peça. Detalhe: skill `ethica-commit-standards`.
 - Use pnpm (Node 24); mantenha só `pnpm-lock.yaml`. Biome substitui ESLint/Prettier.
 - MCPs do harness: Context7 para documentação de bibliotecas; shadcn para o registry de componentes. Se o MCP necessário não estiver presente ou falhar, **pare** e peça ao usuário a key. Como orientar: skill `ethica-mcp`.
 
@@ -121,7 +127,7 @@ Canônicas em `.agents/skills/` (espelhadas por symlink em `.claude/skills/`). S
 | --- | --- |
 | `ethica-docs` | Início de toda tarefa (descoberta) e ao concluir (registro, planos, ajustes) |
 | `ethica-spec-driven` | Escrever/revisar `spec.md`, `design.md`, `tasks.md`, decisões `AD-NNN` |
-| `ethica-commit-standards` | Mensagem de commit, nome de branch, PR |
+| `ethica-commit-standards` | Mensagem de commit e envio para a `main` |
 | `ethica-web-standards` | Qualquer código em `apps/web`: nova página/módulo/rota, componente, form, query, ou entender a arquitetura do front |
 | `ethica-item-typography` | Qualquer texto em `apps/web` (todo texto é `ItemTitle`/`ItemDescription`, AD-087) e a migração em lote do projeto para esse padrão |
 | `ethica-permissions` | Qualquer rota, tela, botão ou ação que dependa de papel (`admin`/`manager`/`operator`), revisão de acesso, "quem pode fazer X", papel novo |

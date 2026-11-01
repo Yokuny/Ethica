@@ -397,7 +397,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o admin não consegue silenciar o escritório inteiro de uma vez; supersede o critério 3 de PRZ-04 da spec ("o tenant desliga os avisos"), registrado como divergência no `feature.md`.
 - **Scope**: `packages/db/src/models/user.model.ts`, `apps/api/src/modules/{identity,pericia}/`, `apps/api/src/providers/mail/`, `apps/web/src/routes/_private/account/`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (disparo por timer às 07:00 superseded by AD-147)
 
 ### AD-111
 - **Decision**: Honorário (lançamento de `natureza: receita`) **não é excluído nem cancelado**. Recebe parcelas (valor, data, conta/observação) gravadas dentro do lançamento; o status é derivado da soma das parcelas: `previsto` (nenhuma), `parcial` (menor que o valor) ou `liquidado` (igual ao valor). Parcela que excede o saldo é recusada; estorno é por parcela e recalcula o status. Resumo e fluxo de caixa contam o recebido pela data de cada parcela. Quando o juízo altera o honorário fixado, o lançamento automático existente da perícia passa a ter o valor novo, recusado se ficar abaixo do já recebido, em vez de criar um segundo lançamento. Despesa continua como hoje (excluir, cancelar, liquidar com data única).
@@ -525,7 +525,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o texto resolvido fica gravado (perícia alterada depois da abertura só reflete em marcadores ainda não resolvidos); a exclusão em cascata é assíncrona (falha só no log, `domain_event.handler_failed`); laudo concluído por engano só sai excluindo a perícia.
 - **Scope**: `packages/db/src/models/{laudo,modeloLaudo}.model.ts`, `packages/contracts/src/schemas/laudo.schema.ts`, `apps/api/src/modules/documentos/`, `apps/api/src/modules/pericia/{pericia,prazo}.service.ts`, `apps/api/src/events/`, `apps/web/src/routes/_private/laudos/`, `tests/structural/module-boundary.structural.test.ts`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (laudo concluído só leitura e não excluível superseded by AD-149)
 
 ### AD-127
 - **Decision**: A feature `laudos` entra nesta rodada com LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (LAU-04 fora, AD-124). A biblioteca padrão trabalhista traz todas as seções (identificação, objetivo, metodologia, NR-15 anexos 1 a 14, NR-16, quesitos do reclamante, da reclamada e do juízo, conclusão, honorários e encerramento) com **texto-base curto** citando a norma, em variante "sim" e "não", e um aviso de que deve ser revisado pelo perito; o parecer técnico tem seções próprias (medições com o perito, quesitos complementares e suplementares, impugnação do laudo pericial). A denominação das partes vem da justiça: trabalhista reclamante/reclamada, cível e federal autor/réu (`[DENOMINACAO_AUTOR]`, `[DENOMINACAO_REU]`).
@@ -549,7 +549,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: foto em 1600 px não serve para ampliação de detalhe; áudio do Safari e do Chrome têm formatos diferentes (`audio/mp4` × `audio/webm`), aceitos os dois; laudo com muitas fotos pesa no PDF e no Word.
 - **Scope**: `apps/api/src/modules/agenda/vistoria.*`, `apps/api/src/modules/identity/office.*` (reserva e devolução de cota), `apps/api/src/modules/documentos/laudo.{html,templates,docx,service}.ts`, `packages/contracts/src/schemas/{vistoria,laudo}.schema.ts`, `apps/web/src/components/rich-text-editor.tsx`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (forma da chave no storage superseded by AD-146)
 
 ### AD-130
 - **Decision**: O registro de vistoria é a collection `Vistoria` do módulo `agenda`, uma por compromisso (o `compromisso` continua sendo o evento da agenda), com: presentes (nome, qualidade, e-mail, assinatura), paradigmas por polo (nome, função, período, trabalhou junto), funções (título, anos, local) com a versão do reclamante e a da reclamada (atividades, frequência, tempo de exposição), agentes Sim/Não com EPI e observação (lista fixa `VISTORIA_AGENTES`, a mesma do checklist de campo), documentos solicitados (`VISTORIA_DOCUMENTOS` + livres), observações internas (não vão ao laudo) e mídias. O formulário é gravado inteiro (`PUT` com `versao`, AD-128). Status rápido: feita → `done`; adiada/ausente → `canceled` com `motivo` `postponed`/`absent` no compromisso. O laudo ganha variáveis lidas da **última vistoria feita** da perícia (`[HORA_VISTORIA]`, `[PRESENTES_VISTORIA]`, `[PARADIGMAS_AUTOR]`, `[PARADIGMAS_REU]`, `[FUNCOES_AUTOR]`, `[FUNCOES_REU]`, `[AGENTES_PRESENTES]`, `[AGENTES_AUSENTES]`, `[DOCUMENTOS_SOLICITADOS]`), montadas a partir do mesmo tipo do contrato que o formulário grava, com teste de ponta a ponta até o PDF. Excluir o compromisso exclui o registro e as mídias (devolvendo a cota); excluir a perícia mantém o compromisso e o registro sem o vínculo, como já acontece com a agenda.
@@ -565,7 +565,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: Nominatim e OSRM públicos têm limite de uso e nenhuma garantia de disponibilidade (com volume, trocar por serviço pago ou próprio é trocar o provider); geocodificação de endereço brasileiro incompleto pode errar o ponto, e o perito corrige pela ordem manual.
 - **Scope**: `apps/api/src/providers/geocoder.ts`, `apps/api/src/config/env.config.ts`, `apps/api/src/modules/agenda/`, `apps/api/src/modules/identity/office.*`, `packages/db/src/models/{compromisso,tenant}.model.ts`, `apps/web/src/routes/_private/campo/mapa/`, `apps/web/src/routes/_private/_admin/office/`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (OSRM público pelo navegador e partida no localStorage superseded by AD-150)
 
 ### AD-132
 - **Decision**: A feature `campo-vistorias` entra nesta rodada com CAM-01 a CAM-09, menos a transcrição de áudio (CAM-07.2, fora pela AD-124 até decisão própria). Tela `/campo` no mesmo `apps/web`, mesmo login e mesma API; qualquer papel do tenant registra vistoria, mídias e aviso (AD-107).
@@ -655,8 +655,73 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-01
 - **Status**: active
 
+### AD-143
+- **Decision**: A partir de 2026-11-01 o Ethica é desenvolvido pela **própria perita** (engenheira, usuária final do produto, sem formação em programação) com um agente de IA. Fluxo: cada ajuste pedido por ela é implementado **direto na `main`**, sem branch nem Pull Request; depois de `pnpm run check` verde (mais `pnpm run build` do web quando o web muda), da conferência do diff contra as regras e skills do projeto e da funcionalidade validada com ela, o agente **commita e faz `git push origin main` sem perguntar**, com a documentação no mesmo commit. Toda entrega termina com o endereço local de teste (`http://localhost:15173`) se o sistema estiver no ar, ou com a pergunta se ela quer que o agente o suba. O agente fala com ela em pt-BR e em termos do dia a dia da perícia, nunca de código, e pergunta só sobre comportamento do sistema. Nada disso relaxa a arquitetura: se o pedido exigir quebrar uma regra ou AD ativa, o agente para e explica a escolha em linguagem simples antes de qualquer código.
+- **Reason**: escolha do usuário em 2026-11-01: a perita conhece o processo e é quem valida; branch, PR e revisão por outra pessoa não existem nesse arranjo e só travariam o trabalho.
+- **Trade-off**: sem revisão humana de código, a qualidade depende do gate (`pnpm run check`, CI no push da `main`) e do agente seguir as skills; um commit quebrado vai direto para a `main` (o CI acusa e o agente corrige no commit seguinte, sem reescrever histórico).
+- **Scope**: `AGENTS.md` (protocolo, seções 2 e 3), `CLAUDE.md`, `.agents/skills/ethica-commit-standards/SKILL.md`, `.agents/skills/ethica-docs/SKILL.md`. Substitui o fluxo de branch + PR de toda tarefa; a AD-142 vale só para o histórico da `english-naming`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-144
+- **Decision**: O escritório (tenant) é cadastrado **só com CNPJ**; perito pessoa física (CPF) não é suportado. `provisionTenantSchema` continua exigindo 14 dígitos.
+- **Reason**: escolha do usuário em 2026-11-01, fechando a pendência de `fundacao-ethica` ("Tenant com CPF").
+- **Trade-off**: perito sem empresa aberta não usa o Ethica como escritório próprio.
+- **Scope**: `packages/contracts/src/schemas/provisionTenant.schema.ts`, `docs/features/fundacao-ethica/feature.md`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-145
+- **Decision**: Não serão escritos testes e2e de router para `case`, `agenda`, `finance` e `prospecting` além dos que já existem; a cobertura atual (unit de service e provider, e2e já presentes) é suficiente. IA (redação do laudo, transcrição do áudio, leitura do PDF da ata — AD-124, AD-114) e a validação do Datajud com a chave real (AD-105) ficam para uma rodada posterior.
+- **Reason**: escolha do usuário em 2026-11-01; a prioridade é validar e corrigir o que já existe com a perita e entregar as frentes de laudo, avisos, rotas, membros e produção.
+- **Trade-off**: regressão de rota nesses módulos aparece no UAT, não no CI.
+- **Scope**: `docs/features/fundacao-ethica/feature.md`, `docs/roadmap.md`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-146
+- **Decision**: As chaves do storage S3 (AD-120) passam a ser **por escritório e por perícia**: `tenants/<tenantId>/office/…` para o que é do escritório (logo) e `tenants/<tenantId>/cases/<caseId>/…` para o que é da perícia, com subpasta por tipo (`inspections/<appointmentId>/<mediaId>`, `reports/<reportId>/…`). Excluir a perícia apaga a pasta dela e devolve a cota. A troca do RustFS local para o bucket S3 de produção é **só configuração** (`S3_*`), sem código. Detalhe e perguntas em aberto em `.specs/features/producao-api/spec.md`.
+- **Reason**: escolha do usuário em 2026-11-01 ("pastas separadas por tenant e agrupadas por perícia, usadas dentro dos laudos"; "estruture para depois só mudar a conexão").
+- **Trade-off**: arquivos de dev gravados na chave antiga ficam órfãos (sem migração, seed refeito, AD-141).
+- **Scope**: `apps/api/src/providers/fileStorage.ts`, `apps/api/src/modules/{agenda,identity,documents}/`, `apps/api/src/events/`, `RUN_BOOK.md`. Supersede a forma da chave da AD-129 (`tenants/<tenantId>/inspections/…`).
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-147
+- **Decision**: Os avisos (prazos hoje; financeiro e push em `avisos-notificacoes`) passam a sair de uma **varredura agendada** (cron no processo da API, a cada hora) que envia a partir das 07:00 de `America/Sao_Paulo` o que ainda não foi enviado no dia, com cada envio (pessoa × dia × tipo) gravado no banco com índice único como trava. O `setTimeout` encadeado de `apps/api/src/server.ts` sai. Detalhe em `.specs/features/avisos-notificacoes/spec.md`.
+- **Reason**: escolha do usuário em 2026-11-01 ("cron job no servidor a cada x tempo verificando se tem coisa com vencimento próximo"); recupera o dia perdido com a API fora do ar e evita duplicidade com mais de uma réplica.
+- **Trade-off**: uma collection a mais só para a trava; o aviso pode chegar até uma hora depois das 07:00 quando a API volta.
+- **Scope**: `apps/api/src/server.ts`, `apps/api/src/modules/agenda/deadlineReminder.service.ts`, `packages/db`. Supersede, na AD-110, o disparo único às 07:00 por timer (preferência por usuário e conteúdo do aviso continuam).
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-148
+- **Decision**: Membros do escritório têm CRUD **só do admin**: convidar (já existe), editar nome e perfil, desativar e reativar, e cancelar ou reenviar convite pendente. "Remover" é **desativar** (`User.active: false`, sessões encerradas): o membro nunca é apagado, para o diário de bordo e os registros em que é responsável continuarem legíveis. O admin não desativa a si mesmo nem troca o próprio perfil. Detalhe em `.specs/features/gestao-membros/spec.md`.
+- **Reason**: escolha do usuário em 2026-11-01 ("crie o CRUD apenas para o admin"); AD-137 já reserva usuários ao admin.
+- **Trade-off**: e-mail de membro desativado continua ocupado (não dá para convidar o mesmo e-mail como membro novo; reativa-se o antigo).
+- **Scope**: `apps/api/src/modules/identity/`, `apps/web/src/routes/_private/_admin/users/`, `packages/contracts`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-149
+- **Decision**: Laudo concluído pode ser **reaberto** ("Editar laudo") por quem tem `expert_reports` `update`: volta a rascunho sem desfazer prazo protocolado, movimentação de entrega nem etapa da perícia. Laudo (rascunho ou concluído) pode ser **excluído** por quem tem `expert_reports` `delete`, só depois de digitar o número do processo no diálogo de confirmação. Detalhe em `.specs/features/laudo-vistoria/spec.md`.
+- **Reason**: escolha do usuário em 2026-11-01 ("o laudo pode ser concluído sem querer; excluir pode existir, mas depende de confirmação explícita").
+- **Trade-off**: laudo concluído deixa de ser imutável; quem precisa da versão entregue guarda o PDF exportado.
+- **Scope**: `apps/api/src/modules/documents/report.*`, `apps/web/src/routes/_private/expert-reports/details/`. Supersede, na AD-126, "laudo concluído é só leitura" e "laudo concluído não é excluído".
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-150
+- **Decision**: O mapa do dia ganha **ponto de partida escolhido** (localização, endereço do escritório ou endereço digitado, lembrado por pessoa no servidor) e a rota pelas ruas passa a vir de um **OSRM próprio** (container com o mapa do OpenStreetMap) chamado **pela API** por um provider (`ROUTING_URL`), no lugar do OSRM público chamado do navegador. Sem serviço configurado, o mapa mostra linhas retas e os atalhos Maps/Waze. Detalhe em `.specs/features/rotas-vistoria/spec.md`.
+- **Reason**: escolha do usuário em 2026-11-01 ("rotas de vistoria partindo de um endereço digitado, com serviço de rota próprio").
+- **Trade-off**: o container de rota pede vários GB de RAM para o mapa do Brasil; o geocode continua no Nominatim por provider (trocável por configuração).
+- **Scope**: `apps/api/src/providers/`, `apps/api/src/modules/agenda/`, `apps/api/src/modules/identity/office.*`, `apps/web/src/routes/_private/field/map/`, `docker-compose.yml`. Supersede, na AD-131, o OSRM público pelo navegador e o endereço de partida no `localStorage`.
+- **Date**: 2026-11-01
+- **Status**: active
+
 ## Handoff
 
+- **Fluxo**: a partir de 2026-11-01 a perita desenvolve com um agente direto na `main` (AD-143). Próximas frentes com spec pronta e perguntas em aberto a confirmar com ela: `laudo-vistoria`, `avisos-notificacoes`, `rotas-vistoria`, `gestao-membros`, `producao-api` (AD-146 a AD-150). IA e Datajud ficam para depois (AD-145).
 - **Feature**: `english-naming` — concluída: todo nome de código em inglês pelo glossário da AD-140 (AD-139 a AD-142, `validation.md` PASS, UAT no navegador). Banco local antigo precisa ser recriado (AD-141).
 - **Feature**: `gestao-escritorio` — concluída com GES-01 a GES-06 (AD-133 a AD-137, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.
 - **Feature**: `campo-vistorias` — concluída com CAM-01 a CAM-09, menos a transcrição de áudio (AD-128 a AD-132, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.
