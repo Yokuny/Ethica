@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { Checkbox } from '@/components/checkbox.js';
 import { SelectField, TextField } from '@/components/form-fields.js';
 import { identificacaoDaParte, PARTE_TIPO_ITEMS, POLO_ITEMS } from '@/components/parte-labels.js';
 import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
@@ -62,8 +63,9 @@ function ParteNomeField({ index }: { index: number }) {
 }
 
 function ParteRow({ index, onRemove }: { index: number; onRemove: () => void }) {
-  const { control } = useFormContext<PericiaFormValues>();
+  const { control, getValues, setValue } = useFormContext<PericiaFormValues>();
   const tipo = useWatch({ control, name: `partes.${index}.tipo` });
+  const papel = useWatch({ control, name: 'papel' });
   return (
     <div className="flex items-start gap-2">
       <div className="grid flex-1 gap-4 sm:grid-cols-2">
@@ -90,6 +92,29 @@ function ParteRow({ index, onRemove }: { index: number; onRemove: () => void }) 
             name={`partes.${index}.documento`}
             label={t('cpf_cnpj')}
             placeholder="000.000.000-00"
+          />
+        )}
+        {/* Quem contratou o assistente técnico (AD-135): marcar uma parte desmarca as outras. */}
+        {papel === 'technical_assistant' && (
+          <FormField
+            control={control}
+            name={`partes.${index}.contratante`}
+            render={({ field }) => (
+              <FormItem className="sm:col-span-2">
+                <Checkbox
+                  label={t('contracting_party')}
+                  checked={field.value === true}
+                  onCheckedChange={(marcado) => {
+                    if (marcado) {
+                      (getValues('partes') ?? []).forEach((_, outro) => {
+                        if (outro !== index) setValue(`partes.${outro}.contratante`, undefined);
+                      });
+                    }
+                    field.onChange(marcado === true ? true : undefined);
+                  }}
+                />
+              </FormItem>
+            )}
           />
         )}
       </div>

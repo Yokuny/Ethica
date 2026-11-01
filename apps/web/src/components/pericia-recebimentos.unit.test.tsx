@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import type { Role } from '@ethica/contracts';
+import { permissoesEfetivas, type Role } from '@ethica/contracts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -17,7 +17,11 @@ const { PericiaRecebimentos } = await import('./pericia-recebimentos.js');
 
 const renderRecebimentos = (role: Role[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
-  queryClient.setQueryData(sessionQuery.queryKey, { user: { id: 'u1', name: 'Ana', email: 'a@x.com' }, role });
+  queryClient.setQueryData(sessionQuery.queryKey, {
+    user: { id: 'u1', name: 'Ana', email: 'a@x.com' },
+    role,
+    permissoes: permissoesEfetivas(role),
+  });
   queryClient.setQueryData(lancamentosQuery({ periciaId: 'p1', natureza: 'income', limit: 20 }).queryKey, {
     total: 1,
     items: [

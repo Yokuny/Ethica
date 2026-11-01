@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
 import {
+  Atividade,
   connect,
   dateInDisplayTz,
   disconnect,
@@ -94,6 +95,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     rendered = undefined;
     await Promise.all([
       Lancamento.deleteMany({}),
+      Atividade.deleteMany({}),
       Prazo.deleteMany({}),
       Parte.deleteMany({}),
       Pericia.deleteMany({}),
@@ -260,7 +262,9 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(usuarios).toContain(admin.user.email);
     expect(usuarios).not.toContain('hash-secreto');
 
-    const saved = await Tenant.findById(tenant._id).lean();
-    expect(saved?.dataExports).toEqual([expect.objectContaining({ User: admin.user._id })]);
+    // Quem exportou vai ao diário de bordo (AD-134), gravado ao fim da resposta.
+    await expect
+      .poll(async () => Atividade.findOne({ Tenant: tenant._id, acao: 'export' }).lean())
+      .toMatchObject({ User: admin.user._id, modulo: 'escritorio' });
   });
 });

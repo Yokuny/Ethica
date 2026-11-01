@@ -1,12 +1,13 @@
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { apiUrl } from '@/lib/api/client.api.js';
 import { initials } from '@/lib/helpers/initials.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { UserDirectoryEntry } from '../@query/user-directory.js';
+import { PermissoesDialog } from './permissoes-dialog.js';
 
 // REG-08: o time no layout Team 1 do Tailark Dusk. Uma grade só, gestores
 // primeiro; cada pessoa tem o papel como título acima do bloco quadrado (foto da
@@ -57,6 +58,7 @@ function CopyEmailButton({ email }: { email: string }) {
 }
 
 function UserCard({ user, featured }: { user: UserDirectoryEntry; featured: boolean }) {
+  const [ajustando, setAjustando] = useState(false);
   return (
     <div className="group min-w-0" data-testid={featured ? 'featured-user' : undefined}>
       <ItemDescription className="line-clamp-1 pb-3 text-xs font-medium tracking-wide opacity-50 uppercase">
@@ -80,7 +82,21 @@ function UserCard({ user, featured }: { user: UserDirectoryEntry; featured: bool
           </ItemDescription>
           <CopyEmailButton email={user.email} />
         </div>
+        {/* Admin tem tudo e não tem matriz (AD-137). */}
+        {!user.role.includes('admin') && (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="justify-self-start"
+            onClick={() => setAjustando(true)}
+          >
+            <ShieldCheck aria-hidden="true" />
+            {t('permissions')}
+          </Button>
+        )}
       </div>
+      {ajustando && <PermissoesDialog user={user} onClose={() => setAjustando(false)} />}
     </div>
   );
 }

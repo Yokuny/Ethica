@@ -51,6 +51,9 @@ describe('schemaRegistry', () => {
         'vistoriaDadosSchema',
         'saveVistoriaSchema',
         'updateMidiaSchema',
+        'permissoesSchema',
+        'updatePermissoesSchema',
+        'listDiarioQuerySchema',
       ].sort(),
     );
   });

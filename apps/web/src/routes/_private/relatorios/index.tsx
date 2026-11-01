@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { canSeeFinance, sessionQuery } from '@/query/session.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { FinanceiroReportForm } from './@components/financeiro-report-form.js';
 
 const REPORTS = [
@@ -34,7 +34,7 @@ export function RelatoriosPage() {
             }
           />
         ))}
-        {canSeeFinance(session) && (
+        {can(session, 'financeiro') && (
           <Panel size="sm" title={t('financial_report')} description={t('financial_report_description')}>
             <FinanceiroReportForm />
           </Panel>

@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { canSeeFinance, sessionQuery } from '@/query/session.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { HOME_SECTIONS } from '../@consts/home-sections.js';
 import { canAccessHomeSection } from '../@utils/home-access.js';
 
@@ -8,7 +8,7 @@ export function useHomePage() {
 
   return {
     session: data,
-    canSeeFinance: canSeeFinance(data),
+    canSeeFinance: can(data, 'financeiro'),
     sections: HOME_SECTIONS.filter((section) => canAccessHomeSection(section, data)),
   };
 }

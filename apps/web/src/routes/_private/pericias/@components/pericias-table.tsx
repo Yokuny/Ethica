@@ -12,6 +12,8 @@ type PericiasTableProps = {
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
   onRowClick: (row: PericiaListItem) => void;
+  // Valores só para quem vê o financeiro (AD-137).
+  canSeeFinance: boolean;
 };
 
 // Tabela server-driven (paginação/filtros vêm da URL), linha abre o detalhe.
@@ -22,12 +24,13 @@ export function PericiasTable({
   pageSize,
   onPaginationChange,
   onRowClick,
+  canSeeFinance,
 }: PericiasTableProps) {
   const table = useReactTable({
     data,
     columns: periciaColumns,
     pageCount,
-    state: { pagination: { pageIndex, pageSize } },
+    state: { pagination: { pageIndex, pageSize }, columnVisibility: { honorarios: canSeeFinance } },
     onPaginationChange,
     manualPagination: true,
     manualSorting: true,

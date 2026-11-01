@@ -24,6 +24,7 @@ describe('domainEventBus', () => {
       periciaId: 'p1',
       numeroProcesso: '0000001-00.2026.5.02.0001',
       valorCents: 100_000,
+      categoria: 'fixed_fees' as const,
     };
 
     domainEventBus.emit('pericia:honorarios_fixados', payload);
@@ -43,6 +44,7 @@ describe('domainEventBus', () => {
         periciaId: 'p1',
         numeroProcesso: '0000001-00.2026.5.02.0001',
         valorCents: 100_000,
+        categoria: 'fixed_fees' as const,
       }),
     ).not.toThrow();
 
@@ -57,6 +59,7 @@ describe('domainEventBus', () => {
       periciaId: 'p1',
       numeroProcesso: '0000001-00.2026.5.02.0001',
       valorCents: 100_000,
+      categoria: 'fixed_fees' as const,
     });
   });
 
@@ -67,6 +70,7 @@ describe('domainEventBus', () => {
       periciaId: 'p1',
       numeroProcesso: '0000001-00.2026.5.02.0001',
       valorCents: 100_000,
+      categoria: 'fixed_fees' as const,
     });
     expect(handler).toHaveBeenCalledTimes(1);
 
@@ -76,6 +80,7 @@ describe('domainEventBus', () => {
       periciaId: 'p2',
       numeroProcesso: '0000002-00.2026.5.02.0001',
       valorCents: 100_000,
+      categoria: 'fixed_fees' as const,
     });
 
     expect(handler).toHaveBeenCalledTimes(1);

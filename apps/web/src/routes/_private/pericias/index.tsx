@@ -8,6 +8,7 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { t } from '@/lib/helpers/translate.helper.js';
 import { listStatsQuery } from '@/query/listStats.js';
 import { periciasQuery } from '@/query/pericia.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { PericiasFilters } from './@components/pericias-filters.js';
 import { PericiasOverview } from './@components/pericias-overview.js';
 import { PericiasTable } from './@components/pericias-table.js';
@@ -32,25 +33,31 @@ export function PericiasIndexPage() {
       limit: search.limit,
       q: search.q || undefined,
       status: search.status,
+      situacao: search.situacao,
+      fase: search.fase,
       justica: search.justica,
     }),
   );
   const statsQuery = useQuery(listStatsQuery('/pericias/stats'));
+  const session = useQuery(sessionQuery).data;
+  const canCreate = Boolean(session && can(session, 'pericias', 'create'));
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
   return (
     <Card asPage>
       <CardHeader title={t('expert_cases')} description={t('track_each_expert_case_from_appointment_to_report')}>
-        <CardAction>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            role="link"
-            render={<Link to="/pericias/import">{t('import_spreadsheet')}</Link>}
-          />
-          <Button nativeButton={false} role="link" render={<Link to="/pericias/add">{t('add')}</Link>} />
-        </CardAction>
+        {canCreate && (
+          <CardAction>
+            <Button
+              variant="outline"
+              nativeButton={false}
+              role="link"
+              render={<Link to="/pericias/import">{t('import_spreadsheet')}</Link>}
+            />
+            <Button nativeButton={false} role="link" render={<Link to="/pericias/add">{t('add')}</Link>} />
+          </CardAction>
+        )}
       </CardHeader>
       <PericiasOverview stats={statsQuery.data} />
       <CardContent>
@@ -76,6 +83,7 @@ export function PericiasIndexPage() {
             )
           ) : (
             <PericiasTable
+              canSeeFinance={Boolean(session && can(session, 'financeiro'))}
               data={items}
               pageCount={pageCount}
               pageIndex={search.page - 1}

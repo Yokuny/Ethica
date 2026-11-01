@@ -27,6 +27,7 @@ export const API_MESSAGE_KEYS = [
   'no_permission',
   'company_link_required',
   'tenant_suspended',
+  'admin_has_all_permissions',
   'signed_in_successfully',
   'signed_out_successfully',
   'wrong_current_password',
@@ -39,6 +40,8 @@ export const API_MESSAGE_KEYS = [
   'invite_email_failed',
   // Perícias
   'expert_case_already_registered',
+  'phase_stage_mismatch',
+  'invalid_contracting_party',
   'party_not_found',
   // Importação de perícias (AD-114, AD-115, AD-118): arquivo, linha do CSV e avisos do PDF
   'unsupported_file_type',

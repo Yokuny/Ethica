@@ -1,6 +1,11 @@
 import { BriefcaseBusiness, FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
-import { justicaLabel, PERICIA_STATUS_VARIANT } from '@/components/pericia-labels.js';
+import {
+  faseLabel,
+  justicaLabel,
+  PERICIA_SITUACAO_VARIANT,
+  PERICIA_STATUS_VARIANT,
+} from '@/components/pericia-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -14,8 +19,9 @@ const money = (value?: number) => (value ? formatMoney(value) : '-');
 
 // Página de registro: cabeçalho com processo e etapa, faixa com prazos e
 // honorários, e os grupos de leitura (juízo, partes, observações).
-export function PericiaDetailsView({ pericia }: { pericia: PericiaRecord }) {
+export function PericiaDetailsView({ pericia, canSeeFinance }: { pericia: PericiaRecord; canSeeFinance: boolean }) {
   const variant = PERICIA_STATUS_VARIANT[pericia.status];
+  const contratante = pericia.partes.find((parte) => parte.contratante)?.nome;
   return (
     <div className="grid gap-6">
       <RecordHeader>
@@ -23,14 +29,25 @@ export function PericiaDetailsView({ pericia }: { pericia: PericiaRecord }) {
           icon={<Scale />}
           label={t(pericia.papel)}
           title={pericia.numeroProcesso}
-          description={pericia.objeto}
+          description={pericia.fase ? `${pericia.objeto} · ${faseLabel(pericia.fase)}` : pericia.objeto}
         />
-        <RecordStatus variant={variant} label={t(pericia.status)} pulse={pericia.status !== 'completed'} />
+        {pericia.situacao === 'suspended' ? (
+          <RecordStatus variant={PERICIA_SITUACAO_VARIANT.suspended} label={t('situation_suspended')} />
+        ) : (
+          <RecordStatus variant={variant} label={t(pericia.status)} pulse={pericia.situacao === 'active'} />
+        )}
       </RecordHeader>
       <RecordStats>
         <RecordStat label={t('appointment_date')} value={day(pericia.dataNomeacao)} />
-        <RecordStat label={t('proposed_fees')} value={money(pericia.honorariosPropostosCents)} />
-        <RecordStat label={t('fixed_fees')} value={money(pericia.honorariosFixadosCents)} />
+        {contratante && <RecordStat label={t('contracting_party')} value={contratante} />}
+        {/* Valores só para quem vê o financeiro (AD-137). */}
+        {canSeeFinance && <RecordStat label={t('proposed_fees')} value={money(pericia.honorariosPropostosCents)} />}
+        {canSeeFinance && (
+          <RecordStat
+            label={pericia.papel === 'technical_assistant' ? t('contracted_fees') : t('fixed_fees')}
+            value={money(pericia.honorariosFixadosCents)}
+          />
+        )}
       </RecordStats>
       <ProductSpecs
         groups={[
@@ -51,7 +68,9 @@ export function PericiaDetailsView({ pericia }: { pericia: PericiaRecord }) {
             icon: <Users />,
             specs: pericia.partes.length
               ? pericia.partes.map((parte) => ({
-                  label: `${t(parte.polo)} · ${t(parte.tipo)}`,
+                  label: [t(parte.polo), t(parte.tipo), parte.contratante ? t('contracting_party') : '']
+                    .filter(Boolean)
+                    .join(' · '),
                   value: (
                     <AppLink to="/partes/details" search={{ id: parte.parteId }}>
                       {parte.nome}

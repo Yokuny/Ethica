@@ -20,10 +20,18 @@ describe('registerAllSubscribers', () => {
   it('pericia:honorarios_fixados lança a receita a receber', async () => {
     registerAllSubscribers();
 
-    domainEventBus.emit('pericia:honorarios_fixados', { ...PERICIA, valorCents: 350_000 });
+    domainEventBus.emit('pericia:honorarios_fixados', {
+      ...PERICIA,
+      valorCents: 350_000,
+      categoria: 'fixed_fees' as const,
+    });
 
     await vi.waitFor(() =>
-      expect(lancamentoService.lancarHonorariosFixados).toHaveBeenCalledWith({ ...PERICIA, valorCents: 350_000 }),
+      expect(lancamentoService.lancarHonorariosFixados).toHaveBeenCalledWith({
+        ...PERICIA,
+        valorCents: 350_000,
+        categoria: 'fixed_fees' as const,
+      }),
     );
   });
 });

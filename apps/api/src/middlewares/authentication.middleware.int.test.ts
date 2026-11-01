@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { PERFIL_PERMISSOES } from '@ethica/contracts';
 import { connect, disconnect, Session, Tenant, User } from '@ethica/db';
 import cookieParser from 'cookie-parser';
 import type { Request } from 'express';
@@ -72,6 +73,7 @@ describe('createAuthMiddleware', () => {
             id: user._id.toString(),
             tenant: user.Tenant?.toString(),
             role: user.role,
+            permissoes: user.permissoes,
             isPlatformAdmin: user.isPlatformAdmin,
             active: user.active,
           }
@@ -144,6 +146,7 @@ describe('createAuthMiddleware', () => {
       user: user.id,
       role: ['operator'],
       isPlatformAdmin: false,
+      permissoes: PERFIL_PERMISSOES.operator,
     });
   });
 
@@ -338,7 +341,13 @@ describe('createAuthMiddleware', () => {
 
       const result = await authenticateSession(rawToken, 'agent-1', buildDeps());
 
-      expect(result).toEqual({ tenant: tenant.id, user: user.id, role: ['manager'], isPlatformAdmin: false });
+      expect(result).toEqual({
+        tenant: tenant.id,
+        user: user.id,
+        role: ['manager'],
+        isPlatformAdmin: false,
+        permissoes: PERFIL_PERMISSOES.manager,
+      });
     });
   });
 });

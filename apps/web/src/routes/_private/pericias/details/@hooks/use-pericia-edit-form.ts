@@ -9,7 +9,15 @@ import type { PericiaEditFormProps } from '../@interface/pericia-details.interfa
 
 export function usePericiaEditForm({ pericia, onSaved }: Pick<PericiaEditFormProps, 'pericia' | 'onSaved'>) {
   const queryClient = useQueryClient();
-  const { id: _id, createdAt: _c, updatedAt: _u, oportunidadeId: _o, ...defaultValues } = pericia;
+  const {
+    id: _id,
+    createdAt: _c,
+    updatedAt: _u,
+    oportunidadeId: _o,
+    situacao: _s,
+    movimentacoes: _m,
+    ...defaultValues
+  } = pericia;
   const form = useForm<PericiaFormValues>({
     resolver: zodResolver(updatePericiaSchema) as unknown as Resolver<PericiaFormValues>,
     defaultValues,

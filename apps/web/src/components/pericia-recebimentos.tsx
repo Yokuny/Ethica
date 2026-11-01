@@ -13,7 +13,7 @@ import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { lancamentosQuery } from '@/query/lancamento.js';
-import { canSeeFinance, sessionQuery } from '@/query/session.js';
+import { can, sessionQuery } from '@/query/session.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
@@ -21,7 +21,7 @@ const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 // da agenda. Só para quem vê o financeiro (AD-107): para os outros papéis não renderiza nada.
 export function PericiaRecebimentos({ periciaId }: { periciaId: string }) {
   const { data: session } = useSuspenseQuery(sessionQuery);
-  const allowed = canSeeFinance(session);
+  const allowed = can(session, 'financeiro');
   const query = useQuery({ ...lancamentosQuery({ periciaId, natureza: 'income', limit: 20 }), enabled: allowed });
   const today = formatDisplayDate(new Date());
 

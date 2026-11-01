@@ -1,7 +1,7 @@
-import type { AcceptInvite, Role } from '@ethica/contracts';
+import type { AcceptInvite, Permissoes, Role } from '@ethica/contracts';
 import { acceptInviteSchema, inviteTokenParamSchema } from '@ethica/contracts';
 
-export type { AcceptInvite, Role };
+export type { AcceptInvite, Permissoes, Role };
 // MOD-08: schemas de entrada e tipos do módulo num lugar só.
 export { acceptInviteSchema, inviteTokenParamSchema };
 
@@ -13,6 +13,7 @@ export type InviteWithTenant = {
   tenantName: string;
   email: string;
   role: Role;
+  permissoes?: Permissoes;
   status: 'pending' | 'accepted' | 'revoked';
   expiresAt: Date;
 };

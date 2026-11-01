@@ -24,11 +24,11 @@ export function usePericiasSearch() {
     navigate({ to: '/pericias/details', search: { id: row.id } });
   }
 
-  const activeFilters = [search.status, search.justica].filter(Boolean).length;
+  const activeFilters = [search.situacao, search.status, search.fase, search.justica].filter(Boolean).length;
   const hasFilters = Boolean(search.q) || activeFilters > 0;
 
   function clearFilters() {
-    update({ q: '', status: undefined, justica: undefined, page: 1 });
+    update({ q: '', situacao: undefined, status: undefined, fase: undefined, justica: undefined, page: 1 });
   }
 
   return {

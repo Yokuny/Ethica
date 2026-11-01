@@ -1,3 +1,4 @@
+import { HOME_BLOCOS, type HomeBloco } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -7,9 +8,14 @@ export type PreferencesRouterDeps = { validToken: RequestHandler };
 // receber o aviso diário de prazos por e-mail. O progresso do checklist nunca é gravado aqui.
 // Strict: qualquer outra chave (inclusive Tenant, AD-010) é recusada; vazio também.
 export const updatePreferencesSchema = z
-  .object({ onboardingDismissed: z.boolean().optional(), avisoPrazoEmail: z.boolean().optional() })
+  .object({
+    onboardingDismissed: z.boolean().optional(),
+    avisoPrazoEmail: z.boolean().optional(),
+    // AD-136: blocos do início que a pessoa escondeu; `[]` restaura o padrão.
+    blocosOcultos: z.array(z.enum(HOME_BLOCOS)).max(HOME_BLOCOS.length).optional(),
+  })
   .strict()
   .refine((data) => Object.keys(data).length > 0, { message: 'nenhuma preferência informada' });
 
 export type UpdatePreferences = z.infer<typeof updatePreferencesSchema>;
-export type UserPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean };
+export type UserPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean; blocosOcultos: HomeBloco[] };

@@ -7,6 +7,7 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { financeiroResumoQuery, lancamentosQuery } from '@/query/lancamento.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { FinanceiroOverview } from './@components/financeiro-overview.js';
 import { LancamentoForm } from './@components/lancamento-form.js';
 import { LancamentosFilters } from './@components/lancamentos-filters.js';
@@ -20,15 +21,18 @@ export function LancamentosIndexPage() {
     useLancamentosPage();
   const query = useQuery(lancamentosQuery(search));
   const resumo = useQuery(financeiroResumoQuery);
+  const session = useQuery(sessionQuery).data;
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
   return (
     <Card asPage>
       <CardHeader title={t('entries')} description={t('receivable_and_expenses')}>
-        <CardAction>
-          <Button onClick={() => setPanel({ kind: 'create' })}>{t('add')}</Button>
-        </CardAction>
+        {session && can(session, 'financeiro', 'create') && (
+          <CardAction>
+            <Button onClick={() => setPanel({ kind: 'create' })}>{t('add')}</Button>
+          </CardAction>
+        )}
       </CardHeader>
       <FinanceiroOverview resumo={resumo.data} />
       <CardContent>

@@ -1,3 +1,4 @@
+import { PERMISSAO_MODULOS, type Permissoes } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 export interface UserDocument {
@@ -9,10 +10,12 @@ export interface UserDocument {
   role: Array<'admin' | 'manager' | 'operator'>;
   isPlatformAdmin: boolean;
   active: boolean;
+  // Matriz de permissões do membro (AD-137). Ausente = preset do papel; admin ignora.
+  permissoes?: Permissoes;
   // ENR-03: preferências da própria pessoa. Guardam só escolhas de interface
   // (ex.: dispensar o guia de primeiros passos) — nunca fatos de progresso.
   // AD-110: `avisoPrazoEmail` ausente = ligado.
-  preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean };
+  preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean; blocosOcultos?: string[] };
   // Feed iCal (PRZ-03): só o hash do token secreto, como sessão e convite. Ausente = sem link.
   calendarFeedTokenHash?: string;
   // ACC-02: foto 256×256 já reduzida no navegador, como data URL. `select: false`:
@@ -27,6 +30,12 @@ export interface UserDocument {
   updatedAt: Date;
 }
 
+// Um array de ações por módulo; a validação de forma é do contrato (permissoesSchema).
+export const permissoesSchemaDb = new Schema<Permissoes>(
+  Object.fromEntries(PERMISSAO_MODULOS.map((modulo) => [modulo, { type: [String], default: undefined }])),
+  { _id: false },
+);
+
 const userSchema = new Schema<UserDocument>(
   {
     name: { type: String, minlength: 3, maxlength: 80, required: true },
@@ -36,9 +45,14 @@ const userSchema = new Schema<UserDocument>(
     role: { type: [String], enum: ['admin', 'manager', 'operator'], default: [] },
     isPlatformAdmin: { type: Boolean, default: false, required: true },
     active: { type: Boolean, default: true, required: true },
+    permissoes: { type: permissoesSchemaDb, required: false },
     preferences: {
       type: new Schema(
-        { onboardingDismissed: { type: Boolean, default: false }, avisoPrazoEmail: { type: Boolean } },
+        {
+          onboardingDismissed: { type: Boolean, default: false },
+          avisoPrazoEmail: { type: Boolean },
+          blocosOcultos: { type: [String], default: undefined },
+        },
         { _id: false },
       ),
       required: false,

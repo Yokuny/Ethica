@@ -23,7 +23,7 @@ import {
   moverModeloSecaoMutation,
   removeModeloSecaoMutation,
 } from '@/query/laudo.js';
-import { canManageReportTemplates, sessionQuery } from '@/query/session.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { ModeloCreateForm } from '../@components/modelo-create-form.js';
 import { ModeloSecaoForm } from './@components/modelo-secao-form.js';
 import { ModeloSecaoView } from './@components/modelo-secao-view.js';
@@ -49,14 +49,14 @@ export function ModeloDetailsPage() {
   const excluir = useMutation(deleteModeloMutation(queryClient));
   const [painel, setPainel] = useState<Painel>(null);
   const modelo = query.data;
-  const podeEditar = Boolean(modelo && !modelo.padrao && canManageReportTemplates(session));
+  const podeEditar = Boolean(modelo && !modelo.padrao && can(session, 'modelos', 'update'));
   const numeros = numerarSecoes(modelo?.secoes ?? []);
   const onError = (error: Error) => toast.error(error.message);
 
   return (
     <Card asPage>
       <CardHeader title={t('details')}>
-        {modelo && canManageReportTemplates(session) && (
+        {modelo && can(session, 'modelos', 'update') && (
           <CardAction>
             {podeEditar && <Button onClick={() => setPainel({ kind: 'secao' })}>{t('new_section')}</Button>}
             <PageMenu>

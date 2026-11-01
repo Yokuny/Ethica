@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root';
 import { Route as PublicRouteRouteImport } from './routes/_public/route';
 import { Route as PrivateRouteRouteImport } from './routes/_private/route';
 import { Route as PrivateIndexRouteImport } from './routes/_private/index';
-import { Route as PrivateFinanceiroRouteRouteImport } from './routes/_private/financeiro/route';
 import { Route as PrivateAdminRouteRouteImport } from './routes/_private/_admin/route';
 import { Route as PublicSuspendedIndexRouteImport } from './routes/_public/suspended/index';
 import { Route as PublicInviteIndexRouteImport } from './routes/_public/invite/index';
@@ -42,6 +41,7 @@ import { Route as PrivateCampoVistoriaIndexRouteImport } from './routes/_private
 import { Route as PrivateCampoMapaIndexRouteImport } from './routes/_private/campo/mapa/index';
 import { Route as PrivateAdminUsersIndexRouteImport } from './routes/_private/_admin/users/index';
 import { Route as PrivateAdminOfficeIndexRouteImport } from './routes/_private/_admin/office/index';
+import { Route as PrivateAdminDiarioIndexRouteImport } from './routes/_private/_admin/diario/index';
 import { Route as PrivateLaudosModelosDetailsIndexRouteImport } from './routes/_private/laudos/modelos/details/index';
 import { Route as PrivateAdminUsersAddIndexRouteImport } from './routes/_private/_admin/users/add/index';
 
@@ -56,11 +56,6 @@ const PrivateRouteRoute = PrivateRouteRouteImport.update({
 const PrivateIndexRoute = PrivateIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => PrivateRouteRoute,
-} as any);
-const PrivateFinanceiroRouteRoute = PrivateFinanceiroRouteRouteImport.update({
-  id: '/financeiro',
-  path: '/financeiro',
   getParentRoute: () => PrivateRouteRoute,
 } as any);
 const PrivateAdminRouteRoute = PrivateAdminRouteRouteImport.update({
@@ -108,9 +103,9 @@ const PrivateLaudosIndexRoute = PrivateLaudosIndexRouteImport.update({
   getParentRoute: () => PrivateRouteRoute,
 } as any);
 const PrivateFinanceiroIndexRoute = PrivateFinanceiroIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PrivateFinanceiroRouteRoute,
+  id: '/financeiro/',
+  path: '/financeiro/',
+  getParentRoute: () => PrivateRouteRoute,
 } as any);
 const PrivateCampoIndexRoute = PrivateCampoIndexRouteImport.update({
   id: '/campo/',
@@ -186,15 +181,15 @@ const PrivateLaudosAddIndexRoute = PrivateLaudosAddIndexRouteImport.update({
 } as any);
 const PrivateFinanceiroRelatoriosIndexRoute =
   PrivateFinanceiroRelatoriosIndexRouteImport.update({
-    id: '/relatorios/',
-    path: '/relatorios/',
-    getParentRoute: () => PrivateFinanceiroRouteRoute,
+    id: '/financeiro/relatorios/',
+    path: '/financeiro/relatorios/',
+    getParentRoute: () => PrivateRouteRoute,
   } as any);
 const PrivateFinanceiroLancamentosIndexRoute =
   PrivateFinanceiroLancamentosIndexRouteImport.update({
-    id: '/lancamentos/',
-    path: '/lancamentos/',
-    getParentRoute: () => PrivateFinanceiroRouteRoute,
+    id: '/financeiro/lancamentos/',
+    path: '/financeiro/lancamentos/',
+    getParentRoute: () => PrivateRouteRoute,
   } as any);
 const PrivateCampoVistoriaIndexRoute =
   PrivateCampoVistoriaIndexRouteImport.update({
@@ -217,6 +212,11 @@ const PrivateAdminOfficeIndexRoute = PrivateAdminOfficeIndexRouteImport.update({
   path: '/office/',
   getParentRoute: () => PrivateAdminRouteRoute,
 } as any);
+const PrivateAdminDiarioIndexRoute = PrivateAdminDiarioIndexRouteImport.update({
+  id: '/diario/',
+  path: '/diario/',
+  getParentRoute: () => PrivateAdminRouteRoute,
+} as any);
 const PrivateLaudosModelosDetailsIndexRoute =
   PrivateLaudosModelosDetailsIndexRouteImport.update({
     id: '/laudos/modelos/details/',
@@ -232,7 +232,6 @@ const PrivateAdminUsersAddIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof PrivateIndexRoute;
-  '/financeiro': typeof PrivateFinanceiroRouteRouteWithChildren;
   '/account/': typeof PrivateAccountIndexRoute;
   '/agenda/': typeof PrivateAgendaIndexRoute;
   '/campo/': typeof PrivateCampoIndexRoute;
@@ -245,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof PublicAuthIndexRoute;
   '/invite/': typeof PublicInviteIndexRoute;
   '/suspended/': typeof PublicSuspendedIndexRoute;
+  '/diario/': typeof PrivateAdminDiarioIndexRoute;
   '/office/': typeof PrivateAdminOfficeIndexRoute;
   '/users/': typeof PrivateAdminUsersIndexRoute;
   '/campo/mapa/': typeof PrivateCampoMapaIndexRoute;
@@ -278,6 +278,7 @@ export interface FileRoutesByTo {
   '/auth': typeof PublicAuthIndexRoute;
   '/invite': typeof PublicInviteIndexRoute;
   '/suspended': typeof PublicSuspendedIndexRoute;
+  '/diario': typeof PrivateAdminDiarioIndexRoute;
   '/office': typeof PrivateAdminOfficeIndexRoute;
   '/users': typeof PrivateAdminUsersIndexRoute;
   '/campo/mapa': typeof PrivateCampoMapaIndexRoute;
@@ -302,7 +303,6 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteRouteWithChildren;
   '/_public': typeof PublicRouteRouteWithChildren;
   '/_private/_admin': typeof PrivateAdminRouteRouteWithChildren;
-  '/_private/financeiro': typeof PrivateFinanceiroRouteRouteWithChildren;
   '/_private/': typeof PrivateIndexRoute;
   '/_private/account/': typeof PrivateAccountIndexRoute;
   '/_private/agenda/': typeof PrivateAgendaIndexRoute;
@@ -316,6 +316,7 @@ export interface FileRoutesById {
   '/_public/auth/': typeof PublicAuthIndexRoute;
   '/_public/invite/': typeof PublicInviteIndexRoute;
   '/_public/suspended/': typeof PublicSuspendedIndexRoute;
+  '/_private/_admin/diario/': typeof PrivateAdminDiarioIndexRoute;
   '/_private/_admin/office/': typeof PrivateAdminOfficeIndexRoute;
   '/_private/_admin/users/': typeof PrivateAdminUsersIndexRoute;
   '/_private/campo/mapa/': typeof PrivateCampoMapaIndexRoute;
@@ -339,7 +340,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
-    | '/financeiro'
     | '/account/'
     | '/agenda/'
     | '/campo/'
@@ -352,6 +352,7 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/invite/'
     | '/suspended/'
+    | '/diario/'
     | '/office/'
     | '/users/'
     | '/campo/mapa/'
@@ -385,6 +386,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/invite'
     | '/suspended'
+    | '/diario'
     | '/office'
     | '/users'
     | '/campo/mapa'
@@ -408,7 +410,6 @@ export interface FileRouteTypes {
     | '/_private'
     | '/_public'
     | '/_private/_admin'
-    | '/_private/financeiro'
     | '/_private/'
     | '/_private/account/'
     | '/_private/agenda/'
@@ -422,6 +423,7 @@ export interface FileRouteTypes {
     | '/_public/auth/'
     | '/_public/invite/'
     | '/_public/suspended/'
+    | '/_private/_admin/diario/'
     | '/_private/_admin/office/'
     | '/_private/_admin/users/'
     | '/_private/campo/mapa/'
@@ -468,13 +470,6 @@ declare module '@tanstack/react-router' {
       path: '/';
       fullPath: '/';
       preLoaderRoute: typeof PrivateIndexRouteImport;
-      parentRoute: typeof PrivateRouteRoute;
-    };
-    '/_private/financeiro': {
-      id: '/_private/financeiro';
-      path: '/financeiro';
-      fullPath: '/financeiro';
-      preLoaderRoute: typeof PrivateFinanceiroRouteRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
     '/_private/_admin': {
@@ -542,10 +537,10 @@ declare module '@tanstack/react-router' {
     };
     '/_private/financeiro/': {
       id: '/_private/financeiro/';
-      path: '/';
+      path: '/financeiro';
       fullPath: '/financeiro/';
       preLoaderRoute: typeof PrivateFinanceiroIndexRouteImport;
-      parentRoute: typeof PrivateFinanceiroRouteRoute;
+      parentRoute: typeof PrivateRouteRoute;
     };
     '/_private/campo/': {
       id: '/_private/campo/';
@@ -640,17 +635,17 @@ declare module '@tanstack/react-router' {
     };
     '/_private/financeiro/relatorios/': {
       id: '/_private/financeiro/relatorios/';
-      path: '/relatorios';
+      path: '/financeiro/relatorios';
       fullPath: '/financeiro/relatorios/';
       preLoaderRoute: typeof PrivateFinanceiroRelatoriosIndexRouteImport;
-      parentRoute: typeof PrivateFinanceiroRouteRoute;
+      parentRoute: typeof PrivateRouteRoute;
     };
     '/_private/financeiro/lancamentos/': {
       id: '/_private/financeiro/lancamentos/';
-      path: '/lancamentos';
+      path: '/financeiro/lancamentos';
       fullPath: '/financeiro/lancamentos/';
       preLoaderRoute: typeof PrivateFinanceiroLancamentosIndexRouteImport;
-      parentRoute: typeof PrivateFinanceiroRouteRoute;
+      parentRoute: typeof PrivateRouteRoute;
     };
     '/_private/campo/vistoria/': {
       id: '/_private/campo/vistoria/';
@@ -680,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateAdminOfficeIndexRouteImport;
       parentRoute: typeof PrivateAdminRouteRoute;
     };
+    '/_private/_admin/diario/': {
+      id: '/_private/_admin/diario/';
+      path: '/diario';
+      fullPath: '/diario/';
+      preLoaderRoute: typeof PrivateAdminDiarioIndexRouteImport;
+      parentRoute: typeof PrivateAdminRouteRoute;
+    };
     '/_private/laudos/modelos/details/': {
       id: '/_private/laudos/modelos/details/';
       path: '/laudos/modelos/details';
@@ -698,12 +700,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface PrivateAdminRouteRouteChildren {
+  PrivateAdminDiarioIndexRoute: typeof PrivateAdminDiarioIndexRoute;
   PrivateAdminOfficeIndexRoute: typeof PrivateAdminOfficeIndexRoute;
   PrivateAdminUsersIndexRoute: typeof PrivateAdminUsersIndexRoute;
   PrivateAdminUsersAddIndexRoute: typeof PrivateAdminUsersAddIndexRoute;
 }
 
 const PrivateAdminRouteRouteChildren: PrivateAdminRouteRouteChildren = {
+  PrivateAdminDiarioIndexRoute: PrivateAdminDiarioIndexRoute,
   PrivateAdminOfficeIndexRoute: PrivateAdminOfficeIndexRoute,
   PrivateAdminUsersIndexRoute: PrivateAdminUsersIndexRoute,
   PrivateAdminUsersAddIndexRoute: PrivateAdminUsersAddIndexRoute,
@@ -712,33 +716,13 @@ const PrivateAdminRouteRouteChildren: PrivateAdminRouteRouteChildren = {
 const PrivateAdminRouteRouteWithChildren =
   PrivateAdminRouteRoute._addFileChildren(PrivateAdminRouteRouteChildren);
 
-interface PrivateFinanceiroRouteRouteChildren {
-  PrivateFinanceiroIndexRoute: typeof PrivateFinanceiroIndexRoute;
-  PrivateFinanceiroLancamentosIndexRoute: typeof PrivateFinanceiroLancamentosIndexRoute;
-  PrivateFinanceiroRelatoriosIndexRoute: typeof PrivateFinanceiroRelatoriosIndexRoute;
-}
-
-const PrivateFinanceiroRouteRouteChildren: PrivateFinanceiroRouteRouteChildren =
-  {
-    PrivateFinanceiroIndexRoute: PrivateFinanceiroIndexRoute,
-    PrivateFinanceiroLancamentosIndexRoute:
-      PrivateFinanceiroLancamentosIndexRoute,
-    PrivateFinanceiroRelatoriosIndexRoute:
-      PrivateFinanceiroRelatoriosIndexRoute,
-  };
-
-const PrivateFinanceiroRouteRouteWithChildren =
-  PrivateFinanceiroRouteRoute._addFileChildren(
-    PrivateFinanceiroRouteRouteChildren,
-  );
-
 interface PrivateRouteRouteChildren {
   PrivateAdminRouteRoute: typeof PrivateAdminRouteRouteWithChildren;
-  PrivateFinanceiroRouteRoute: typeof PrivateFinanceiroRouteRouteWithChildren;
   PrivateIndexRoute: typeof PrivateIndexRoute;
   PrivateAccountIndexRoute: typeof PrivateAccountIndexRoute;
   PrivateAgendaIndexRoute: typeof PrivateAgendaIndexRoute;
   PrivateCampoIndexRoute: typeof PrivateCampoIndexRoute;
+  PrivateFinanceiroIndexRoute: typeof PrivateFinanceiroIndexRoute;
   PrivateLaudosIndexRoute: typeof PrivateLaudosIndexRoute;
   PrivatePartesIndexRoute: typeof PrivatePartesIndexRoute;
   PrivatePericiasIndexRoute: typeof PrivatePericiasIndexRoute;
@@ -746,6 +730,8 @@ interface PrivateRouteRouteChildren {
   PrivateRelatoriosIndexRoute: typeof PrivateRelatoriosIndexRoute;
   PrivateCampoMapaIndexRoute: typeof PrivateCampoMapaIndexRoute;
   PrivateCampoVistoriaIndexRoute: typeof PrivateCampoVistoriaIndexRoute;
+  PrivateFinanceiroLancamentosIndexRoute: typeof PrivateFinanceiroLancamentosIndexRoute;
+  PrivateFinanceiroRelatoriosIndexRoute: typeof PrivateFinanceiroRelatoriosIndexRoute;
   PrivateLaudosAddIndexRoute: typeof PrivateLaudosAddIndexRoute;
   PrivateLaudosDetailsIndexRoute: typeof PrivateLaudosDetailsIndexRoute;
   PrivateLaudosListIndexRoute: typeof PrivateLaudosListIndexRoute;
@@ -761,11 +747,11 @@ interface PrivateRouteRouteChildren {
 
 const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateAdminRouteRoute: PrivateAdminRouteRouteWithChildren,
-  PrivateFinanceiroRouteRoute: PrivateFinanceiroRouteRouteWithChildren,
   PrivateIndexRoute: PrivateIndexRoute,
   PrivateAccountIndexRoute: PrivateAccountIndexRoute,
   PrivateAgendaIndexRoute: PrivateAgendaIndexRoute,
   PrivateCampoIndexRoute: PrivateCampoIndexRoute,
+  PrivateFinanceiroIndexRoute: PrivateFinanceiroIndexRoute,
   PrivateLaudosIndexRoute: PrivateLaudosIndexRoute,
   PrivatePartesIndexRoute: PrivatePartesIndexRoute,
   PrivatePericiasIndexRoute: PrivatePericiasIndexRoute,
@@ -773,6 +759,9 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateRelatoriosIndexRoute: PrivateRelatoriosIndexRoute,
   PrivateCampoMapaIndexRoute: PrivateCampoMapaIndexRoute,
   PrivateCampoVistoriaIndexRoute: PrivateCampoVistoriaIndexRoute,
+  PrivateFinanceiroLancamentosIndexRoute:
+    PrivateFinanceiroLancamentosIndexRoute,
+  PrivateFinanceiroRelatoriosIndexRoute: PrivateFinanceiroRelatoriosIndexRoute,
   PrivateLaudosAddIndexRoute: PrivateLaudosAddIndexRoute,
   PrivateLaudosDetailsIndexRoute: PrivateLaudosDetailsIndexRoute,
   PrivateLaudosListIndexRoute: PrivateLaudosListIndexRoute,

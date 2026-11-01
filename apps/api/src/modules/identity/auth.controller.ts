@@ -54,6 +54,15 @@ export const listUserDirectory = async (req: Request, res: Response, next: NextF
   }
 };
 
+export const updatePermissoes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await authService.updatePermissoes(req.tenantUser.tenant as string, req.params.id as string, req.body);
+    res.json(respObj({}));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const getUserAvatar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const avatar = await authService.getUserAvatar(req.tenantUser.tenant as string, req.params.id as string);

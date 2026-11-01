@@ -21,6 +21,52 @@ export const PERICIA_STATUS = [
 ] as const;
 export type PericiaStatus = (typeof PERICIA_STATUS)[number];
 
+// Fase detalhada (AD-133): opcional, cada uma de uma etapa. As de suspensão cabem em qualquer
+// etapa aberta e não mudam a etapa. A situação é derivada, nunca gravada.
+export const PERICIA_FASES_POR_ETAPA = {
+  appointed: ['awaiting_acceptance_signature'],
+  accepted: ['awaiting_site_info', 'scheduling_inspection'],
+  inspection: ['awaiting_inspection', 'return_environmental_assessment', 'return_complement_inspection'],
+  drafting_report: ['writing_report', 'reviewing_report', 'awaiting_report_approval'],
+  report_delivered: ['awaiting_objections'],
+  clarifications: [
+    'answering_objection',
+    'awaiting_objection_reply',
+    'awaiting_clarification_approval',
+    'awaiting_clarification_reply',
+    'awaiting_new_clarifications',
+    'awaiting_judge_decision',
+    'drafting_petition',
+  ],
+  completed: ['monitoring_fees', 'fees_received'],
+  declined: [],
+} as const satisfies Record<PericiaStatus, readonly string[]>;
+export const PERICIA_FASES_SUSPENSAO = ['withdrawal', 'removal', 'settlement'] as const;
+export const PERICIA_FASES = [
+  ...Object.values(PERICIA_FASES_POR_ETAPA).flat(),
+  ...PERICIA_FASES_SUSPENSAO,
+] as readonly PericiaFase[];
+export type PericiaFase =
+  | (typeof PERICIA_FASES_POR_ETAPA)[PericiaStatus][number]
+  | (typeof PERICIA_FASES_SUSPENSAO)[number];
+
+export const PERICIA_SITUACOES = ['active', 'suspended', 'closed'] as const;
+export type PericiaSituacao = (typeof PERICIA_SITUACOES)[number];
+export const PERICIA_ETAPAS_ENCERRADAS: readonly PericiaStatus[] = ['completed', 'declined'];
+
+const ehSuspensao = (fase: PericiaFase): boolean => (PERICIA_FASES_SUSPENSAO as readonly string[]).includes(fase);
+
+export const etapaDaFase = (fase: PericiaFase): PericiaStatus | undefined =>
+  PERICIA_STATUS.find((status) => (PERICIA_FASES_POR_ETAPA[status] as readonly string[]).includes(fase));
+
+export const faseCabeNaEtapa = (fase: PericiaFase, status: PericiaStatus): boolean =>
+  ehSuspensao(fase) ? !PERICIA_ETAPAS_ENCERRADAS.includes(status) : etapaDaFase(fase) === status;
+
+export const situacaoDaPericia = ({ status, fase }: { status: PericiaStatus; fase?: PericiaFase }): PericiaSituacao => {
+  if (PERICIA_ETAPAS_ENCERRADAS.includes(status)) return 'closed';
+  return fase && ehSuspensao(fase) ? 'suspended' : 'active';
+};
+
 // Número único do CNJ (Resolução 65/2008): NNNNNNN-DD.AAAA.J.TR.OOOO.
 export const numeroProcessoSchema = z
   .string()
@@ -53,15 +99,29 @@ const periciaFields = z.object({
 });
 
 // `prazoLaudo` só existe no cadastro: vira o prazo "Entrega do laudo" (AD-109), não é campo da perícia.
-export const createPericiaSchema = periciaFields.extend({ prazoLaudo: calendarDateSchema.optional() }).strict();
+export const createPericiaSchema = periciaFields
+  .extend({ prazoLaudo: calendarDateSchema.optional(), fase: z.enum(PERICIA_FASES).optional() })
+  .strict();
 export type CreatePericia = z.infer<typeof createPericiaSchema>;
 
-// PATCH aceita qualquer subconjunto dos campos + a etapa e o honorário fixado pelo juízo.
+// PATCH aceita qualquer subconjunto dos campos + a etapa, a fase (`null` apaga, AD-133) e o
+// honorário fixado pelo juízo ou, na perícia de assistente, o contratado (AD-135).
 export const updatePericiaSchema = periciaFields
   .partial()
-  .extend({ status: z.enum(PERICIA_STATUS).optional(), honorariosFixadosCents: centsSchema.optional() })
+  .extend({
+    status: z.enum(PERICIA_STATUS).optional(),
+    fase: z.enum(PERICIA_FASES).nullable().optional(),
+    honorariosFixadosCents: centsSchema.optional(),
+  })
   .strict();
 export type UpdatePericia = z.infer<typeof updatePericiaSchema>;
+
+// Contratante (AD-135): no máximo um, e só na perícia de assistente técnico. Conferido no
+// service contra o resultado final (papel e partes podem vir em pedidos separados).
+export const contratanteValido = (data: { papel?: PapelPericia; partes?: Array<{ contratante?: boolean }> }) => {
+  const contratantes = (data.partes ?? []).filter((parte) => parte.contratante).length;
+  return contratantes === 0 || (contratantes === 1 && data.papel === 'technical_assistant');
+};
 
 // Movimentações que contam para a perícia parada (AD-121): entrega do laudo, notificação de
 // recebimento de honorários e intimação para esclarecimentos ou para laudo complementar.

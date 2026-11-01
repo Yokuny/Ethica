@@ -5,6 +5,8 @@ export interface PericiaHonorariosFixadosPayload {
   periciaId: string;
   numeroProcesso: string;
   valorCents: number;
+  // Fixado pelo juízo ou contratado pela parte que contratou o assistente técnico (AD-135).
+  categoria: 'fixed_fees' | 'contracted_fees';
 }
 
 // Perícia excluída: quem guarda dado ligado a ela (laudos, AD-126) apaga o seu.

@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
+import { PERFIL_PERMISSOES } from '@ethica/contracts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -38,7 +39,11 @@ describe('UserInvitePage', () => {
     await user.click(await screen.findByRole('option', { name: 'Gestor' }));
     await user.click(screen.getAllByRole('button', { name: 'Enviar convite' })[0] as HTMLElement);
     await waitFor(() =>
-      expect(api.post).toHaveBeenCalledWith('/tenant/invites', { email: 'new@example.com', role: 'manager' }),
+      expect(api.post).toHaveBeenCalledWith('/tenant/invites', {
+        email: 'new@example.com',
+        role: 'manager',
+        permissoes: PERFIL_PERMISSOES.manager,
+      }),
     );
     expect(await screen.findByRole('status')).toHaveTextContent('Convite enviado.');
     expect(screen.getByLabelText('E-mail')).toHaveValue('');

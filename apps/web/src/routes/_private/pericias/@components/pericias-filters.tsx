@@ -1,6 +1,11 @@
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
-import { JUSTICA_ITEMS, PERICIA_STATUS_ITEMS } from '@/components/pericia-labels.js';
+import {
+  JUSTICA_ITEMS,
+  PERICIA_FASE_ITEMS,
+  PERICIA_SITUACAO_ITEMS,
+  PERICIA_STATUS_ITEMS,
+} from '@/components/pericia-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { PericiasSearch } from '../@interface/pericias.interface.js';
 
@@ -41,7 +46,7 @@ function FilterSelect({
   );
 }
 
-// Conteúdo do popover "Filtros" da listagem: etapa e justiça.
+// Conteúdo do popover "Filtros" da listagem: situação, etapa, fase (AD-133) e justiça.
 export function PericiasFilters({
   search,
   onChange,
@@ -52,10 +57,22 @@ export function PericiasFilters({
   return (
     <>
       <FilterSelect
+        label={t('situation')}
+        items={PERICIA_SITUACAO_ITEMS}
+        value={search.situacao}
+        onChange={(situacao) => onChange({ situacao: situacao as PericiasSearch['situacao'], page: 1 })}
+      />
+      <FilterSelect
         label={t('stage')}
         items={PERICIA_STATUS_ITEMS}
         value={search.status}
         onChange={(status) => onChange({ status: status as PericiasSearch['status'], page: 1 })}
+      />
+      <FilterSelect
+        label={t('phase')}
+        items={PERICIA_FASE_ITEMS}
+        value={search.fase}
+        onChange={(fase) => onChange({ fase: fase as PericiasSearch['fase'], page: 1 })}
       />
       <FilterSelect
         label={t('court_type')}

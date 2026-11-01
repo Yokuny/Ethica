@@ -3,12 +3,9 @@ import { Tenant } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { TenantLogo, UpdateOffice } from './office.schema.js';
 
-// Exportações guardadas no tenant (AD-122): só as últimas.
-const EXPORTS_KEPT = 20;
-
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
-    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes dataExports avisoAgendamento').lean(),
+    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes avisoAgendamento').lean(),
   );
 
 // Texto vazio apaga o cabeçalho/rodapé: os documentos voltam ao padrão.
@@ -44,14 +41,6 @@ export const removeLogo = async (tenantId: string, current: TenantLogo): Promise
     await Tenant.updateOne(
       { _id: tenantId, 'logo.key': current.key },
       { $unset: { logo: 1 }, $inc: { storageBytes: -current.bytes } },
-    );
-  });
-
-export const pushDataExport = async (tenantId: string, userId: string): Promise<void> =>
-  withDbTiming('office.pushDataExport', async () => {
-    await Tenant.updateOne(
-      { _id: tenantId },
-      { $push: { dataExports: { $each: [{ User: userId, at: new Date() }], $slice: -EXPORTS_KEPT } } },
     );
   });
 

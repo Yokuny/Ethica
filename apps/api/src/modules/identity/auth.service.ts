@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.config.js';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as authRepository from './auth.repository.js';
-import type { SessionView, SignIn, TenantUser } from './auth.schema.js';
+import type { SessionView, SignIn, TenantUser, UpdatePermissoes } from './auth.schema.js';
+import * as diarioService from './diario.service.js';
 
 const SESSION_TTL_MS = 4 * 24 * 60 * 60 * 1000;
 
@@ -26,6 +27,9 @@ export const signin = async (data: SignIn, deviceInfo: string): Promise<string> 
     deviceInfo,
     expiresAt: new Date(Date.now() + SESSION_TTL_MS),
   });
+  // Entrada no sistema vai ao diário de bordo (AD-134); quem não tem tenant (plataforma) não.
+  if (user.tenant)
+    void diarioService.registrar({ tenantId: user.tenant, userId: user.id, modulo: 'conta', acao: 'signin' });
 
   return sessionToken;
 };
@@ -48,7 +52,7 @@ export const getSessionView = async (tenantUser: TenantUser): Promise<SessionVie
 
   const tenant = tenantUser.tenant ? await authRepository.findTenantView(tenantUser.tenant) : undefined;
 
-  return { tenant: tenant ?? undefined, user, role: tenantUser.role };
+  return { tenant: tenant ?? undefined, user, role: tenantUser.role, permissoes: tenantUser.permissoes };
 };
 
 // MOD-07: leitura em lote para outros módulos (order.getOrder — T13)
@@ -59,6 +63,14 @@ export const findUserNamesByIds = authRepository.findUserNamesByIds;
 // conversas (inbox) — mesmo shape de findUserNamesByIds, sem o `$in` de ids.
 export const listUsers = (tenantId: string, options: { activeOnly?: boolean } = {}) =>
   authRepository.listUsers(tenantId, options);
+
+// AD-137: o admin ajusta a matriz de um membro; admin tem tudo e não tem matriz.
+export const updatePermissoes = async (tenantId: string, userId: string, data: UpdatePermissoes) => {
+  const target = await authRepository.findUserRole(tenantId, userId);
+  if (!target) throw new CustomError('not_found', 404);
+  if (target.includes('admin')) throw new CustomError('admin_has_all_permissions', 422);
+  await authRepository.updatePermissoes(tenantId, userId, data.permissoes);
+};
 
 // REG-07 (AD-071): diretório completo para a tela de usuários (só admin).
 export const listUserDirectory = (tenantId: string) => authRepository.listUserDirectory(tenantId);

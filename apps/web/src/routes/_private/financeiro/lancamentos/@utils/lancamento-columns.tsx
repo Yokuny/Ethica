@@ -26,7 +26,9 @@ export const lancamentoColumns = ({ onStatus, onReceber }: Actions): ColumnDef<L
         <TableIdentity
           icon={row.original.natureza === 'income' ? ArrowDownLeft : ArrowUpRight}
           title={row.original.descricao}
-          description={[t(row.original.categoria), row.original.periciaNumero].filter(Boolean).join(' · ')}
+          description={[t(row.original.categoria), row.original.periciaNumero, row.original.contratante]
+            .filter(Boolean)
+            .join(' · ')}
           link={
             row.original.periciaId ? { to: '/pericias/details', search: { id: row.original.periciaId } } : undefined
           }

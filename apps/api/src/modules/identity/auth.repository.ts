@@ -1,6 +1,9 @@
+import { permissoesEfetivas } from '@ethica/contracts';
 import { Session, Tenant, tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type {
+  Permissoes,
+  TenantUser,
   TenantView,
   UserAvatarImage,
   UserDirectoryEntry,
@@ -71,7 +74,7 @@ export const listUsers = async (tenantId: string, options: { activeOnly?: boolea
 export const listUserDirectory = async (tenantId: string): Promise<UserDirectoryEntry[]> =>
   withDbTiming('auth.listUserDirectory', async () => {
     const users = await User.find(tenantScoped({ Tenant: tenantId }))
-      .select('name email role active createdAt avatarUpdatedAt')
+      .select('name email role permissoes active createdAt avatarUpdatedAt')
       .sort({ name: 1 })
       .lean();
     return users.map((user) => ({
@@ -79,10 +82,24 @@ export const listUserDirectory = async (tenantId: string): Promise<UserDirectory
       name: user.name,
       email: user.email,
       role: user.role,
+      permissoes: permissoesEfetivas(user.role, user.permissoes),
       active: user.active,
       createdAt: user.createdAt.toISOString(),
       ...avatarOf(user),
     }));
+  });
+
+export const findUserRole = async (tenantId: string, userId: string): Promise<TenantUser['role'] | null> =>
+  withDbTiming('auth.findUserRole', async () => {
+    const user = await User.findOne(tenantScoped({ Tenant: tenantId, _id: userId }))
+      .select('role')
+      .lean();
+    return user?.role ?? null;
+  });
+
+export const updatePermissoes = async (tenantId: string, userId: string, permissoes: Permissoes): Promise<void> =>
+  withDbTiming('auth.updatePermissoes', async () => {
+    await User.updateOne(tenantScoped({ Tenant: tenantId, _id: userId }), { $set: { permissoes } });
   });
 
 // ACC-06: a foto em si, só de alguém do mesmo tenant (AD-010).

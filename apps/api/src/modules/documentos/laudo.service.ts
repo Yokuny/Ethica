@@ -31,7 +31,8 @@ export class LaudoNotFoundError extends KeyedError {}
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
-// Etapas anteriores à entrega: concluir com a entrega avança para `report_delivered` (AD-126).
+// Etapas anteriores à entrega: concluir com a entrega avança para `report_delivered` (AD-126)
+// com a fase "aguardando manifestação das partes" (AD-133).
 const ANTES_DA_ENTREGA = new Set(['appointed', 'accepted', 'inspection', 'drafting_report']);
 
 const comNumero = async <T extends { periciaId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
@@ -198,7 +199,10 @@ export const concluirLaudo = async (
       observacoes: `${laudo.titulo} concluído no Ethica.`,
     });
     if (ANTES_DA_ENTREGA.has(pericia.status)) {
-      await periciaService.updatePericia(ctx.tenantId, pericia.id, { status: 'report_delivered' });
+      await periciaService.updatePericia(ctx.tenantId, pericia.id, {
+        status: 'report_delivered',
+        fase: 'awaiting_objections',
+      });
     }
   }
   return getLaudo(ctx.tenantId, id);

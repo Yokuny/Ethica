@@ -1,4 +1,15 @@
-import { JUSTICAS, type Justica, PAPEIS_PERICIA, PERICIA_STATUS, type PericiaStatus } from '@ethica/contracts';
+import {
+  JUSTICAS,
+  type Justica,
+  PAPEIS_PERICIA,
+  PERICIA_FASES,
+  PERICIA_FASES_POR_ETAPA,
+  PERICIA_FASES_SUSPENSAO,
+  PERICIA_SITUACOES,
+  PERICIA_STATUS,
+  type PericiaSituacao,
+  type PericiaStatus,
+} from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { t } from '@/lib/helpers/translate.helper.js';
 
@@ -16,6 +27,31 @@ export const PERICIA_STATUS_VARIANT: Record<PericiaStatus, IndicatorVariant> = {
 };
 
 export const PERICIA_STATUS_ITEMS = PERICIA_STATUS.map((value) => ({ value, label: t(value) }));
+
+// Fase detalhada e situação (AD-133). A chave da fase é o próprio valor, como a etapa.
+export const faseLabel = (fase: string): string => t(fase);
+export const SEM_FASE = 'none';
+// No formulário: as fases da etapa escolhida, as de suspensão e "sem fase".
+export const faseItems = (status: PericiaStatus) => [
+  { value: SEM_FASE, label: t('no_detailed_phase') },
+  ...[
+    ...PERICIA_FASES_POR_ETAPA[status],
+    ...(['completed', 'declined'].includes(status) ? [] : PERICIA_FASES_SUSPENSAO),
+  ].map((value) => ({ value, label: faseLabel(value) })),
+];
+export const PERICIA_FASE_ITEMS = PERICIA_FASES.map((value) => ({ value, label: faseLabel(value) }));
+export const PERICIA_SITUACAO_VARIANT: Record<PericiaSituacao, IndicatorVariant> = {
+  active: 'success',
+  suspended: 'warning',
+  closed: 'neutral',
+};
+const SITUACAO_KEY: Record<PericiaSituacao, string> = {
+  active: 'situation_active',
+  suspended: 'situation_suspended',
+  closed: 'situation_closed',
+};
+export const situacaoLabel = (situacao: PericiaSituacao): string => t(SITUACAO_KEY[situacao]);
+export const PERICIA_SITUACAO_ITEMS = PERICIA_SITUACOES.map((value) => ({ value, label: situacaoLabel(value) }));
 // A chave da justiça leva sufixo (`civil` sozinho seria ambíguo no dicionário).
 const JUSTICA_KEY: Record<Justica, string> = {
   labor: 'labor_court',

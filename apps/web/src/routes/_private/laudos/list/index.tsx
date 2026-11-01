@@ -11,6 +11,7 @@ import { laudoStatusLabel } from '@/components/laudo-labels.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { laudosQuery } from '@/query/laudo.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { LaudosTable } from './@components/laudos-table.js';
 import { type LaudosSearch, laudosSearchSchema } from './@interface/laudos.interface.js';
 
@@ -20,6 +21,7 @@ export function LaudosListPage() {
   const search = useSearch({ strict: false }) as LaudosSearch;
   const navigate = useNavigate({ from: '/laudos/list/' });
   const query = useQuery(laudosQuery({ page: search.page, limit: search.limit, status: search.status }));
+  const session = useQuery(sessionQuery).data;
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -36,9 +38,11 @@ export function LaudosListPage() {
   return (
     <Card asPage>
       <CardHeader title={t('reports_and_opinions')}>
-        <CardAction>
-          <Button nativeButton={false} role="link" render={<Link to="/laudos/add">{t('start_report')}</Link>} />
-        </CardAction>
+        {session && can(session, 'laudos', 'create') && (
+          <CardAction>
+            <Button nativeButton={false} role="link" render={<Link to="/laudos/add">{t('start_report')}</Link>} />
+          </CardAction>
+        )}
       </CardHeader>
       <Tabs
         value={search.status ?? ALL}

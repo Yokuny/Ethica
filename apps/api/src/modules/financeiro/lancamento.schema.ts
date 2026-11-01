@@ -60,6 +60,8 @@ export type LancamentoRecord = {
   saldoCents?: number;
   periciaId?: string;
   periciaNumero?: string;
+  // Quem contratou o assistente técnico da perícia (AD-135).
+  contratante?: string;
   createdAt: Date;
   updatedAt: Date;
 };

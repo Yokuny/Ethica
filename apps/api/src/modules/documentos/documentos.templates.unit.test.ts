@@ -18,6 +18,7 @@ const pericia: FichaDados['pericia'] = {
   partes: [],
   movimentacoes: [],
   status: 'inspection',
+  situacao: 'active',
   createdAt: new Date(),
   updatedAt: new Date(),
 };

@@ -1,5 +1,7 @@
+import { PERFIL_PERMISSOES } from '@ethica/contracts';
 import type { CompromissoDocument, LancamentoDocument, ParcelaDocument } from '@ethica/db';
 import {
+  Atividade,
   Compromisso,
   connect,
   dateInDisplayTz,
@@ -46,6 +48,7 @@ const PERICIAS = [
     vara: '1ª Vara do Trabalho de São Paulo',
     objeto: 'Insalubridade por ruído',
     status: 'inspection',
+    fase: 'awaiting_inspection',
     prazo: 12,
     propostos: 450_000,
   },
@@ -56,6 +59,7 @@ const PERICIAS = [
     vara: '11ª Vara do Trabalho de São Paulo',
     objeto: 'Periculosidade — inflamáveis',
     status: 'drafting_report',
+    fase: 'reviewing_report',
     prazo: 3,
     propostos: 380_000,
     fixados: 350_000,
@@ -69,6 +73,8 @@ const PERICIAS = [
     status: 'appointed',
     prazo: 30,
     propostos: 900_000,
+    // Assistente técnico contratado pela autora (AD-135): honorário contratado.
+    fixados: 600_000,
   },
   {
     numero: '0004567-89.2025.4.03.6100',
@@ -77,6 +83,7 @@ const PERICIAS = [
     vara: '2ª Vara Federal Previdenciária',
     objeto: 'Aposentadoria especial — agentes químicos',
     status: 'report_delivered',
+    fase: 'awaiting_objections',
     prazo: -5,
     propostos: 320_000,
     fixados: 300_000,
@@ -88,6 +95,7 @@ const PERICIAS = [
     vara: 'Vara do Trabalho de Campinas',
     objeto: 'Doença ocupacional — LER/DORT',
     status: 'clarifications',
+    fase: 'answering_objection',
     prazo: -2,
     propostos: 400_000,
     fixados: 400_000,
@@ -99,6 +107,7 @@ const PERICIAS = [
     vara: '3ª Vara Cível de Guarulhos',
     objeto: 'Avaliação de imóvel',
     status: 'completed',
+    fase: 'fees_received',
     propostos: 250_000,
     fixados: 250_000,
   },
@@ -111,6 +120,7 @@ const run = async (): Promise<void> => {
   if (old) {
     const users = await User.find({ Tenant: old._id }).select('_id').lean();
     await Promise.all([
+      Atividade.deleteMany({ Tenant: old._id }),
       Pericia.deleteMany({ Tenant: old._id }),
       Parte.deleteMany({ Tenant: old._id }),
       Prazo.deleteMany({ Tenant: old._id }),
@@ -142,6 +152,8 @@ const run = async (): Promise<void> => {
       password,
       Tenant: tenant._id,
       role: [role],
+      // Matriz de permissões (AD-137): gestor e operador com o preset do perfil; admin tem tudo.
+      ...(role === 'admin' ? {} : { permissoes: PERFIL_PERMISSOES[role] }),
       // Dados profissionais dos documentos (DOC-01).
       ...(role === 'admin'
         ? {
@@ -188,7 +200,8 @@ const run = async (): Promise<void> => {
       comarca: p.tribunal === 'TRT15' ? 'Campinas' : 'São Paulo',
       objeto: p.objeto,
       partes: [
-        ...parte(PARTES[index]?.[0], 'plaintiff'),
+        // Na perícia de assistente técnico (índice 2), a autora é quem contratou (AD-135).
+        ...parte(PARTES[index]?.[0], 'plaintiff').map((item) => (index === 2 ? { ...item, contratante: true } : item)),
         ...parte(joao, 'plaintiff'),
         ...parte(PARTES[index]?.[1], 'defendant'),
         ...parte(ana, 'defendant'),
@@ -206,6 +219,7 @@ const run = async (): Promise<void> => {
           }
         : {}),
       status: p.status,
+      ...('fase' in p ? { fase: p.fase } : {}),
       // A cível (índice 2) foi nomeada há 95 dias e nunca se moveu: aparece em perícias paradas.
       dataNomeacao: index === 2 ? day(-95) : day(-40 + index * 3),
       // Movimentações (AD-121): laudo entregue há 70 dias (parada) e intimação recente (ativa).
@@ -385,6 +399,15 @@ const run = async (): Promise<void> => {
       vencimento: day(20),
       status: 'expected',
       Pericia: laudo?._id,
+    },
+    {
+      natureza: 'income',
+      categoria: 'contracted_fees',
+      descricao: `Honorários contratados — ${civel?.numeroProcesso}`,
+      valorCents: 600_000,
+      vencimento: day(25),
+      status: 'expected',
+      Pericia: civel?._id,
     },
     {
       natureza: 'income',

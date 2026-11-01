@@ -7,6 +7,7 @@ import { register } from 'prom-client';
 import { env } from './config/env.config.js';
 import { registerAllSubscribers } from './events/index.js';
 import { createAuthMiddleware } from './middlewares/authentication.middleware.js';
+import { createDiarioMiddleware } from './middlewares/diario.middleware.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { responseTime } from './middlewares/responseTime.middleware.js';
 import { createAgendaRouter } from './modules/agenda/compromisso.router.js';
@@ -17,6 +18,8 @@ import { createFinanceiroRouter } from './modules/financeiro/lancamento.router.j
 import { createAccountRouter } from './modules/identity/account.router.js';
 import { buildAuthDeps } from './modules/identity/auth.deps.js';
 import { createAuthRouter } from './modules/identity/auth.router.js';
+import { createDiarioRouter } from './modules/identity/diario.router.js';
+import * as diarioService from './modules/identity/diario.service.js';
 import { inviteRouter } from './modules/identity/invite.router.js';
 import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
@@ -72,6 +75,8 @@ export const buildApp = (
   app.use('/vistorias', express.json({ limit: '1mb' }));
   app.use(express.json());
   app.use(responseTime);
+  // Diário de bordo (AD-134): grava toda escrita bem-sucedida do tenant ao fim da resposta.
+  app.use(createDiarioMiddleware(diarioService.registrar));
 
   const { validToken } = createAuthMiddleware(buildAuthDeps());
   const mailProvider = options.mail ?? buildMailProvider();
@@ -116,6 +121,7 @@ export const buildApp = (
 
   app.use('/platform', createPlatformRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/tenant/office', createOfficeRouter({ validToken, storage }));
+  app.use('/tenant/diario', createDiarioRouter({ validToken }));
   app.use('/tenant', createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/invites', inviteRouter);
   app.use('/auth', createAuthRouter({ validToken }));

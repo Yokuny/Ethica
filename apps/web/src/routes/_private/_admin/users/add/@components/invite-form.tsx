@@ -1,3 +1,4 @@
+import { PERFIL_PERMISSOES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ethica/ui/components/form';
 import { Input } from '@ethica/ui/components/input';
@@ -6,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { PermissoesMatrix } from '../../@components/permissoes-matrix.js';
 import { INVITE_ROLES } from '../@consts/roles.js';
 import { useInviteForm } from '../@hooks/use-invite-form.js';
 export function InviteForm() {
   const { form, notice, errorMessage, isPending, onSubmit } = useInviteForm();
+  const role = form.watch('role');
   const formActions = (
     <Button type="submit" disabled={isPending}>
       {t('send_invitation')}
@@ -52,7 +55,11 @@ export function InviteForm() {
                         <Select
                           items={INVITE_ROLES.map((value) => ({ value, label: t(value) }))}
                           value={field.value}
-                          onValueChange={field.onChange}
+                          onValueChange={(role) => {
+                            field.onChange(role);
+                            // Trocar o perfil traz o preset dele; o admin ajusta depois.
+                            if (role && role !== 'admin') form.setValue('permissoes', PERFIL_PERMISSOES[role]);
+                          }}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -73,6 +80,21 @@ export function InviteForm() {
                   />,
                 ],
               },
+              ...(role === 'admin'
+                ? []
+                : [
+                    {
+                      title: t('permissions'),
+                      description: t('permissions_invite_description'),
+                      fields: [
+                        <PermissoesMatrix
+                          key="permissoes"
+                          value={form.watch('permissoes') ?? {}}
+                          onChange={(permissoes) => form.setValue('permissoes', permissoes)}
+                        />,
+                      ],
+                    },
+                  ]),
             ]}
           />
           {errorMessage && (

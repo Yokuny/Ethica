@@ -10,7 +10,7 @@ import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { modelosQuery } from '@/query/laudo.js';
-import { canManageReportTemplates, sessionQuery } from '@/query/session.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { ModeloCreateForm } from './@components/modelo-create-form.js';
 
 // LAU-01: biblioteca padrão (só leitura) e modelos do escritório.
@@ -19,7 +19,7 @@ export function ModelosPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const query = useQuery(modelosQuery());
   const [creating, setCreating] = useState(false);
-  const podeEditar = canManageReportTemplates(session);
+  const podeEditar = can(session, 'modelos', 'create');
 
   return (
     <Card asPage>

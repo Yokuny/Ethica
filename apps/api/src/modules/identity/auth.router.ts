@@ -5,7 +5,13 @@ import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as authController from './auth.controller.js';
 import type { AuthRouterDeps } from './auth.schema.js';
-import { listUsersQuerySchema, signinSchema, userDirectoryQuerySchema, userIdParamSchema } from './auth.schema.js';
+import {
+  listUsersQuerySchema,
+  signinSchema,
+  updatePermissoesSchema,
+  userDirectoryQuerySchema,
+  userIdParamSchema,
+} from './auth.schema.js';
 
 // Mesmo papel (canOperate) já exigido em GET /conversations
 // (conversation.router.ts) — /auth/users existe pra alimentar o filtro de
@@ -39,6 +45,16 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     isAdmin,
     validParsedQuery(userDirectoryQuerySchema),
     authController.listUserDirectory,
+  );
+  // AD-137: matriz de permissões do membro, só o admin ajusta.
+  router.patch(
+    '/users/:id/permissoes',
+    deps.validToken,
+    tenantAssignmentCheck,
+    isAdmin,
+    validParams(userIdParamSchema),
+    validBody(updatePermissoesSchema),
+    authController.updatePermissoes,
   );
   // ACC-06: a foto aparece onde o responsável aparece, então segue o mesmo papel de /users.
   router.get(

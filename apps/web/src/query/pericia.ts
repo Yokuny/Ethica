@@ -5,6 +5,8 @@ import type {
   MovimentacaoTipo,
   PapelPericia,
   ParteTipo,
+  PericiaFase,
+  PericiaSituacao,
   PericiaStatus,
   Polo,
   UpdatePericia,
@@ -26,8 +28,11 @@ export type PericiaRecord = {
   comarca?: string;
   objeto: string;
   // Cópia de tipo e nome do cadastro de partes (AD-117).
-  partes: { parteId: string; polo: Polo; tipo: ParteTipo; nome: string }[];
+  partes: { parteId: string; polo: Polo; tipo: ParteTipo; nome: string; contratante?: boolean }[];
   status: PericiaStatus;
+  // Fase detalhada e situação derivada no servidor (AD-133).
+  fase?: PericiaFase;
+  situacao: PericiaSituacao;
   dataNomeacao?: string;
   honorariosPropostosCents?: number;
   honorariosFixadosCents?: number;
@@ -51,6 +56,8 @@ export type PericiasQueryParams = {
   limit?: number;
   q?: string;
   status?: PericiaStatus;
+  situacao?: PericiaSituacao;
+  fase?: PericiaFase;
   justica?: Justica;
 };
 
@@ -170,4 +177,24 @@ export const removeMovimentacaoMutation = (
     return res.data;
   },
   onSuccess: (updated) => queryClient.setQueryData(periciaKeys.detail(updated.id), updated),
+});
+
+// Bloco "Perícias paradas" do início (GES-05): mesma regra do PDF (AD-121), sem as suspensas.
+export type PericiaParada = {
+  id: string;
+  numeroProcesso: string;
+  status: PericiaStatus;
+  objeto: string;
+  referencia: string;
+  diasParada: number;
+};
+export type PericiasParadas = { total: number; items: PericiaParada[] };
+
+export const periciasParadasQuery = queryOptions({
+  queryKey: [...periciaKeys.all, 'paradas'] as const,
+  queryFn: async (): Promise<PericiasParadas> => {
+    const res = await get<PericiasParadas>('/pericias/paradas');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+    return res.data;
+  },
 });

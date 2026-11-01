@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { Checkbox } from '@/components/checkbox.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { preferencesQuery, updatePreferencesMutation } from '../@query/account.js';
+import { preferencesQuery, updatePreferencesMutation } from '@/query/preferences.js';
 
 // AD-110: cada pessoa liga ou desliga o próprio aviso diário de prazos (começa ligado).
 export function AccountAvisoPrazo() {

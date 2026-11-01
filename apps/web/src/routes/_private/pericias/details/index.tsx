@@ -11,7 +11,7 @@ import { PageMenu } from '@/components/page-menu.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { periciaQuery } from '@/query/pericia.js';
-import { canSeeFinance, isAdminSession, sessionQuery } from '@/query/session.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { PericiaDetailsView } from './@components/pericia-details-view.js';
 import { PericiaEditForm } from './@components/pericia-edit-form.js';
 import { PericiaLaudos } from './@components/pericia-laudos.js';
@@ -47,12 +47,12 @@ export function PericiaDetailsPage() {
       </DropdownMenuItem>
     </PageMenu>
   );
-  const editAction = (
+  const editAction = can(session, 'pericias', 'update') && (
     <Button variant="outline" onClick={() => setIsEditing(true)}>
       {t('edit')}
     </Button>
   );
-  const deleteAction = isAdminSession(session) && (
+  const deleteAction = can(session, 'pericias', 'delete') && (
     <Button variant="destructive" disabled={isDeleting} onClick={askDelete}>
       {t('remove')}
     </Button>
@@ -83,12 +83,12 @@ export function PericiaDetailsPage() {
         <PericiaEditForm pericia={pericia} onSaved={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
       ) : (
         <CardContent className="gap-10">
-          <PericiaDetailsView pericia={pericia} />
+          <PericiaDetailsView pericia={pericia} canSeeFinance={can(session, 'financeiro')} />
           <PericiaPrazos periciaId={pericia.id} />
           <PericiaVistorias periciaId={pericia.id} />
           <PericiaLaudos pericia={pericia} />
           <PericiaMovimentacoes pericia={pericia} />
-          <PericiaRelated periciaId={pericia.id} canSeeFinance={canSeeFinance(session)} />
+          <PericiaRelated periciaId={pericia.id} canSeeFinance={can(session, 'financeiro')} />
         </CardContent>
       )}
       {pericia && !isEditing && (

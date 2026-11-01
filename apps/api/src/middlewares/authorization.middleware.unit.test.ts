@@ -1,9 +1,9 @@
-import type { Role } from '@ethica/contracts';
+import type { Permissoes, Role } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
-import { checkRole, isAdmin, isManager, isOperator, platformAdminOnly } from './authorization.middleware.js';
+import { can, checkRole, isAdmin, isManager, isOperator, platformAdminOnly } from './authorization.middleware.js';
 
-const buildReq = (tenantUser: { role?: Role[]; isPlatformAdmin?: boolean }): Request =>
+const buildReq = (tenantUser: { role?: Role[]; isPlatformAdmin?: boolean; permissoes?: Permissoes }): Request =>
   ({ tenantUser }) as unknown as Request;
 
 const asStatusError = (next: ReturnType<typeof vi.fn>): { status: number } =>
@@ -27,6 +27,30 @@ describe('checkRole — matriz papel×rota (FND-08)', () => {
     } else {
       expect(asStatusError(next).status).toBe(403);
     }
+  });
+});
+
+describe('can — matriz de permissões (AD-137)', () => {
+  it.each([
+    [{ pericias: ['view'] } as Permissoes, true],
+    [{ pericias: ['view', 'update'] } as Permissoes, true],
+    [{ agenda: ['view', 'update'] } as Permissoes, false],
+    [{} as Permissoes, false],
+  ])('permissoes=%j em pericias.view -> permitted=%s', (permissoes, permitted) => {
+    const next = vi.fn();
+    can('pericias', 'view')(buildReq({ permissoes }), {} as Response, next as unknown as NextFunction);
+    if (permitted) expect(next).toHaveBeenCalledWith();
+    else expect(asStatusError(next).status).toBe(403);
+  });
+
+  it('exige todas as ações pedidas', () => {
+    const next = vi.fn();
+    can('financeiro', 'view', 'update')(
+      buildReq({ permissoes: { financeiro: ['view'] } }),
+      {} as Response,
+      next as unknown as NextFunction,
+    );
+    expect(asStatusError(next).status).toBe(403);
   });
 });
 

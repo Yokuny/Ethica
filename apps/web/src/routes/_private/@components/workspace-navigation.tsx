@@ -30,7 +30,7 @@ const groups: { key: string; destinations: HomeSection['to'][]; heading: string 
     heading: 'work',
   },
   { key: 'management', destinations: ['/financeiro', '/relatorios'], heading: 'management' },
-  { key: 'admin', destinations: ['/users', '/office'], heading: 'settings' },
+  { key: 'admin', destinations: ['/users', '/office', '/diario'], heading: 'settings' },
 ];
 
 function NavigationLink({ to, titleKey, icon: Icon }: Pick<HomeSection, 'to' | 'titleKey' | 'icon'>) {

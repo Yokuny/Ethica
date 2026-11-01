@@ -1,7 +1,12 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
-import { justicaLabel, PERICIA_STATUS_VARIANT } from '@/components/pericia-labels.js';
+import {
+  faseLabel,
+  justicaLabel,
+  PERICIA_SITUACAO_VARIANT,
+  PERICIA_STATUS_VARIANT,
+} from '@/components/pericia-labels.js';
 import { alertaDoPrazo } from '@/components/prazo-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -33,7 +38,14 @@ export const periciaColumns: ColumnDef<PericiaListItem, unknown>[] = [
     id: 'status',
     header: t('stage'),
     cell: ({ row }) => (
-      <TableStatus variant={PERICIA_STATUS_VARIANT[row.original.status]}>{t(row.original.status)}</TableStatus>
+      // Suspensa aparece no lugar da etapa: é o que pede atenção (AD-133).
+      <TableStack description={row.original.fase ? faseLabel(row.original.fase) : undefined}>
+        {row.original.situacao === 'suspended' ? (
+          <TableStatus variant={PERICIA_SITUACAO_VARIANT.suspended}>{t('situation_suspended')}</TableStatus>
+        ) : (
+          <TableStatus variant={PERICIA_STATUS_VARIANT[row.original.status]}>{t(row.original.status)}</TableStatus>
+        )}
+      </TableStack>
     ),
   },
   {
@@ -58,10 +70,12 @@ export const periciaColumns: ColumnDef<PericiaListItem, unknown>[] = [
     id: 'honorarios',
     header: t('fees'),
     cell: ({ row }) => {
-      const { honorariosFixadosCents, honorariosPropostosCents } = row.original;
+      const { honorariosFixadosCents, honorariosPropostosCents, papel } = row.original;
       const value = honorariosFixadosCents ?? honorariosPropostosCents;
+      // Na perícia de assistente técnico o valor definido é o contratado (AD-135).
+      const definido = papel === 'technical_assistant' ? t('contracted') : t('fixed');
       return (
-        <TableStack description={honorariosFixadosCents ? t('fixed') : value ? t('proposed') : undefined}>
+        <TableStack description={honorariosFixadosCents ? definido : value ? t('proposed') : undefined}>
           {value ? formatMoney(value) : '—'}
         </TableStack>
       );

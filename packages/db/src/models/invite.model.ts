@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
+import type { Permissoes } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
+import { permissoesSchemaDb } from './user.model.js';
 
 export type InviteStatus = 'pending' | 'accepted' | 'revoked';
 
@@ -8,6 +10,8 @@ export interface InviteDocument {
   Tenant: mongoose.Types.ObjectId;
   email: string;
   role: 'admin' | 'manager' | 'operator';
+  // Matriz que o membro recebe no aceite (AD-137); ausente para admin.
+  permissoes?: Permissoes;
   tokenHash: string;
   status: InviteStatus;
   expiresAt: Date;
@@ -22,6 +26,7 @@ const inviteSchema = new Schema<InviteDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     role: { type: String, enum: ['admin', 'manager', 'operator'], required: true },
+    permissoes: { type: permissoesSchemaDb, required: false },
     tokenHash: { type: String, required: true, unique: true },
     status: { type: String, enum: ['pending', 'accepted', 'revoked'], default: 'pending', required: true },
     expiresAt: { type: Date, required: true },

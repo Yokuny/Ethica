@@ -1,3 +1,4 @@
+import { pode } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { PericiaNotFoundError } from '../pericia/pericia.service.js';
@@ -12,11 +13,10 @@ import * as documentosService from './documentos.service.js';
 type Providers = Pick<DocumentosRouterDeps, 'pdf' | 'storage'>;
 
 const contexto = (req: Request): DocumentoContexto => {
-  const role = req.tenantUser.role;
   return {
     tenantId: req.tenantUser.tenant as string,
     userId: req.tenantUser.user,
-    canSeeFinance: role.includes('admin') || role.includes('manager'),
+    canSeeFinance: pode(req.tenantUser.permissoes, 'financeiro', 'view'),
     now: new Date(),
   };
 };

@@ -1,7 +1,8 @@
-import { type Control, useWatch } from 'react-hook-form';
+import { faseCabeNaEtapa, type PericiaStatus } from '@ethica/contracts';
+import { type Control, useFormContext, useWatch } from 'react-hook-form';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DateField, MoneyField, SelectField, TextareaField, TextField } from '@/components/form-fields.js';
-import { JUSTICA_ITEMS, PAPEL_ITEMS, PERICIA_STATUS_ITEMS } from '@/components/pericia-labels.js';
+import { faseItems, JUSTICA_ITEMS, PAPEL_ITEMS, PERICIA_STATUS_ITEMS, SEM_FASE } from '@/components/pericia-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { PericiaFormValues } from '../@interface/pericias.interface.js';
 import { PericiaPartesFields } from './pericia-partes-fields.js';
@@ -17,7 +18,10 @@ export function PericiaFormFields({
   control: Control<PericiaFormValues>;
   editing?: boolean;
 }) {
+  const { getValues, setValue } = useFormContext<PericiaFormValues>();
   const justica = useWatch({ control, name: 'justica' });
+  const papel = useWatch({ control, name: 'papel' });
+  const status = useWatch({ control, name: 'status' });
   return (
     <DefaultFormLayout
       sections={[
@@ -95,6 +99,23 @@ export function PericiaFormFields({
                   label={t('stage')}
                   placeholder={t('select')}
                   items={PERICIA_STATUS_ITEMS}
+                  // A fase que não cabe na etapa nova sai (AD-133); a API recusaria a combinação.
+                  onValueChange={(etapa) => {
+                    const fase = getValues('fase');
+                    if (fase && !faseCabeNaEtapa(fase, etapa as PericiaStatus)) setValue('fase', null);
+                  }}
+                />
+              )}
+              {editing && status && (
+                <SelectField
+                  control={control}
+                  name="fase"
+                  label={t('phase')}
+                  placeholder={t('no_detailed_phase')}
+                  items={faseItems(status)}
+                  onValueChange={(fase) => {
+                    if (fase === SEM_FASE) setValue('fase', null);
+                  }}
                 />
               )}
             </div>,
@@ -129,7 +150,8 @@ export function PericiaFormFields({
                 <MoneyField
                   control={control}
                   name="honorariosFixadosCents"
-                  label={t('fixed_fees')}
+                  // Na perícia de assistente técnico é o honorário combinado com o contratante (AD-135).
+                  label={papel === 'technical_assistant' ? t('contracted_fees') : t('fixed_fees')}
                   placeholder={t('example_money')}
                 />
               )}

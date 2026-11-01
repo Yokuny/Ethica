@@ -1,4 +1,11 @@
-import { type CreatePericia, JUSTICAS, PERICIA_STATUS, type UpdatePericia } from '@ethica/contracts';
+import {
+  type CreatePericia,
+  JUSTICAS,
+  PERICIA_FASES,
+  PERICIA_SITUACOES,
+  PERICIA_STATUS,
+  type UpdatePericia,
+} from '@ethica/contracts';
 import { z } from 'zod';
 
 export const periciasSearchSchema = z.object({
@@ -6,6 +13,8 @@ export const periciasSearchSchema = z.object({
   limit: z.number().int().min(1).optional().default(20),
   q: z.string().optional().default(''),
   status: z.enum(PERICIA_STATUS).optional(),
+  situacao: z.enum(PERICIA_SITUACOES).optional(),
+  fase: z.enum(PERICIA_FASES).optional(),
   justica: z.enum(JUSTICAS).optional(),
 });
 export type PericiasSearch = z.infer<typeof periciasSearchSchema>;

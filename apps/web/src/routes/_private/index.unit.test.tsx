@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import type { Role } from '@ethica/contracts';
+import { permissoesEfetivas, type Role } from '@ethica/contracts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -29,7 +29,9 @@ const renderHome = (role: Role[]) => {
     tenant: { id: 't1', name: 'Perícias Silva', status: 'active' },
     user: { id: 'u1', name: 'Ana', email: 'ana@pericias.com' },
     role,
+    permissoes: permissoesEfetivas(role),
   });
+  queryClient.setQueryData(['preferences'], { onboardingDismissed: false, avisoPrazoEmail: true, blocosOcultos: [] });
   queryClient.setQueryData(['list-stats', '/pericias/stats'], {
     total: 12,
     groups: [

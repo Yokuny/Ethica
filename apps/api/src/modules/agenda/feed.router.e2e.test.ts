@@ -156,9 +156,10 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
     expect((await ana.as(request(app).get('/me/preferences'))).body.data).toEqual({
       onboardingDismissed: false,
       avisoPrazoEmail: true,
+      blocosOcultos: [],
     });
     const desligado = await bia.as(request(app).patch('/me/preferences')).send({ avisoPrazoEmail: false });
-    expect(desligado.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: false });
+    expect(desligado.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: false, blocosOcultos: [] });
 
     const destinatarios = await listDestinatariosAvisoPrazo([ana.tenant.id, bia.tenant.id, suspenso.tenant.id]);
     expect(destinatarios.map((pessoa) => pessoa.email)).toEqual([ana.user.email]);

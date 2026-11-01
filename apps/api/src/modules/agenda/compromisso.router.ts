@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkRole } from '../../middlewares/authorization.middleware.js';
+import { can } from '../../middlewares/authorization.middleware.js';
 import { calendarFeedRateLimit } from '../../middlewares/rateLimit.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
@@ -15,25 +15,37 @@ import {
 import * as feedController from './feed.controller.js';
 import { feedTokenParamSchema } from './feed.schema.js';
 
-const canOperate = checkRole(['admin', 'manager', 'operator']);
-
 export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
   const router = Router();
-  const guard = [deps.validToken, tenantAssignmentCheck, canOperate];
+  const guard = [deps.validToken, tenantAssignmentCheck];
 
   // Feed iCal (PRZ-03): sem sessão — o token secreto do link é a credencial.
   router.get('/feed/:token.ics', calendarFeedRateLimit, validParams(feedTokenParamSchema), feedController.calendarFeed);
-  router.post('/', ...guard, validBody(createCompromissoSchema), compromissoController.createCompromisso);
+  router.post(
+    '/',
+    ...guard,
+    can('agenda', 'create'),
+    validBody(createCompromissoSchema),
+    compromissoController.createCompromisso,
+  );
   router.get(
     '/upcoming',
     ...guard,
+    can('agenda', 'view'),
     validParsedQuery(upcomingCompromissosQuerySchema),
     compromissoController.listUpcoming,
   );
-  router.get('/', ...guard, validParsedQuery(listCompromissosQuerySchema), compromissoController.listCompromissos);
+  router.get(
+    '/',
+    ...guard,
+    can('agenda', 'view'),
+    validParsedQuery(listCompromissosQuerySchema),
+    compromissoController.listCompromissos,
+  );
   router.patch(
     '/:id',
     ...guard,
+    can('agenda', 'update'),
     validParams(compromissoIdParamSchema),
     validBody(updateCompromissoSchema),
     compromissoController.updateCompromisso,
@@ -41,6 +53,7 @@ export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
   router.delete(
     '/:id',
     ...guard,
+    can('agenda', 'delete'),
     validParams(compromissoIdParamSchema),
     compromissoController.deleteCompromisso(deps.storage),
   );
@@ -48,12 +61,14 @@ export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
   router.post(
     '/:id/geocode',
     ...guard,
+    can('agenda', 'update'),
     validParams(compromissoIdParamSchema),
     compromissoController.geocodificar(deps.geocoder),
   );
   router.post(
     '/:id/aviso',
     ...guard,
+    can('agenda', 'update'),
     validParams(compromissoIdParamSchema),
     compromissoController.enviarAviso(deps.mail),
   );

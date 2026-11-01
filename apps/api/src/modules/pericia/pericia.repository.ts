@@ -1,5 +1,10 @@
 import type { CreateMovimentacao, ListStats } from '@ethica/contracts';
-import { DISPLAY_TIMEZONE } from '@ethica/contracts';
+import {
+  DISPLAY_TIMEZONE,
+  PERICIA_ETAPAS_ENCERRADAS,
+  PERICIA_FASES_SUSPENSAO,
+  situacaoDaPericia,
+} from '@ethica/contracts';
 import type { PericiaDocument } from '@ethica/db';
 import {
   dailyTrend,
@@ -39,8 +44,11 @@ const toRecord = (doc: PericiaDocument): PericiaRecord => ({
     polo: parte.polo,
     tipo: parte.tipo,
     nome: parte.nome,
+    ...(parte.contratante ? { contratante: true } : {}),
   })),
   status: doc.status,
+  fase: doc.fase,
+  situacao: situacaoDaPericia(doc),
   dataNomeacao: doc.dataNomeacao,
   honorariosPropostosCents: doc.honorariosPropostosCents,
   honorariosFixadosCents: doc.honorariosFixadosCents,
@@ -67,6 +75,13 @@ const toRecord = (doc: PericiaDocument): PericiaRecord => ({
 
 const toPartesDocs = (partes: PericiaParteWrite[]) =>
   partes.map(({ parteId, ...parte }) => ({ ...parte, Parte: parteId }));
+
+// Situação derivada (AD-133) como filtro do banco: a mesma regra de `situacaoDaPericia`.
+const situacaoFilter = {
+  closed: { status: { $in: PERICIA_ETAPAS_ENCERRADAS } },
+  suspended: { status: { $nin: PERICIA_ETAPAS_ENCERRADAS }, fase: { $in: PERICIA_FASES_SUSPENSAO } },
+  active: { status: { $nin: PERICIA_ETAPAS_ENCERRADAS }, fase: { $nin: PERICIA_FASES_SUSPENSAO } },
+};
 
 // Etapas em que a perícia ainda tem trabalho do perito pela frente.
 const ABERTAS = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
@@ -111,9 +126,12 @@ export const updatePericia = async (
   { partes, ...data }: PericiaUpdateWrite,
 ): Promise<PericiaRecord | null> =>
   withDbTiming('pericia.updatePericia', async () => {
+    const { fase, ...rest } = data;
     const update = {
-      ...Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined)),
+      ...Object.fromEntries(Object.entries(rest).filter(([, value]) => value !== undefined)),
       ...(partes ? { partes: toPartesDocs(partes) } : {}),
+      ...(fase ? { fase } : {}),
+      ...(fase === null ? { $unset: { fase: 1 } } : {}),
     };
     const doc = await Pericia.findOneAndUpdate(tenantScoped({ Tenant: tenantId, _id: id }), update, {
       returnDocument: 'after',
@@ -170,7 +188,14 @@ export const listParadas = async (
       dataNomeacao?: string;
       referencia: string;
     }>([
-      { $match: { Tenant: toObjectId(tenantId), status: { $nin: ['completed', 'declined'] } } },
+      // Suspensa (AD-133) não está parada: espera um fato fora do controle do perito.
+      {
+        $match: {
+          Tenant: toObjectId(tenantId),
+          status: { $nin: ['completed', 'declined'] },
+          fase: { $nin: PERICIA_FASES_SUSPENSAO },
+        },
+      },
       { $addFields: { ultima: { $max: '$movimentacoes.data' } } },
       {
         $addFields: {
@@ -232,7 +257,9 @@ export const listPericias = async (
   withDbTiming('pericia.listPericias', async () => {
     const filters = {
       ...(query.status ? { status: query.status } : {}),
+      ...(query.fase ? { fase: query.fase } : {}),
       ...(query.justica ? { justica: query.justica } : {}),
+      ...(query.situacao ? { $and: [situacaoFilter[query.situacao]] } : {}),
     };
     const skip = (query.page - 1) * query.limit;
 
@@ -280,6 +307,7 @@ export const findResumosByIds = async (tenantId: string, ids: string[]): Promise
           numeroProcesso: doc.numeroProcesso,
           autor: nomes(doc.partes, 'plaintiff'),
           reu: nomes(doc.partes, 'defendant'),
+          contratante: doc.partes?.find((parte) => parte.contratante)?.nome,
         },
       ]),
     );

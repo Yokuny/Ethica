@@ -1,12 +1,17 @@
+import { HOME_BLOCOS, type HomeBloco } from '@ethica/contracts';
 import { tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { UpdatePreferences, UserPreferences } from './preferences.schema.js';
 
 const toPreferences = (
-  doc: { preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean } } | null,
+  doc: { preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean; blocosOcultos?: string[] } } | null,
 ): UserPreferences => ({
   onboardingDismissed: doc?.preferences?.onboardingDismissed === true,
   avisoPrazoEmail: doc?.preferences?.avisoPrazoEmail !== false,
+  // Chave que deixou de existir é ignorada (AD-136).
+  blocosOcultos: (doc?.preferences?.blocosOcultos ?? []).filter((bloco): bloco is HomeBloco =>
+    (HOME_BLOCOS as readonly string[]).includes(bloco),
+  ),
 });
 
 // Usuário sem o campo (conta anterior à feature) lê o default, sem backfill.

@@ -13,6 +13,8 @@ const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(e instanceof PericiaNotFoundError ? new CustomError(e.message, 404, e.detail) : e);
 };
 
+const PARADAS_NO_INICIO = 5;
+
 export const createPericia = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const result = await periciaService.createPericia({ ...req.body, tenant: tenantOf(req) });
@@ -68,6 +70,16 @@ export const periciaStats = async (req: Request, res: Response, next: NextFuncti
 export const periciaDistribution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await periciaService.periciaDistribution(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+// Bloco "Perícias paradas" do início (GES-05): o total e as mais antigas, mesma regra do PDF.
+export const resumoParadas = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const paradas = await periciaService.listParadas(tenantOf(req));
+    res.json(respObj({ data: { total: paradas.length, items: paradas.slice(0, PARADAS_NO_INICIO) } }));
   } catch (e) {
     next(e);
   }

@@ -10,6 +10,7 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { PARTE_TIPO_ITEMS } from '@/components/parte-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { partesQuery } from '@/query/parte.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { ParteForm } from './@components/parte-form.js';
 import { PartesTable } from './@components/partes-table.js';
 import { usePartesSearch } from './@hooks/use-partes-search.js';
@@ -24,15 +25,18 @@ export function PartesIndexPage() {
     partesQuery({ page: search.page, limit: search.limit, q: search.q || undefined, tipo: search.tipo }),
   );
   const [creating, setCreating] = useState(false);
+  const session = useQuery(sessionQuery).data;
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
   return (
     <Card asPage>
       <CardHeader title={t('parties')} description={t('parties_page_description')}>
-        <CardAction>
-          <Button onClick={() => setCreating(true)}>{t('add')}</Button>
-        </CardAction>
+        {session && can(session, 'partes', 'create') && (
+          <CardAction>
+            <Button onClick={() => setCreating(true)}>{t('add')}</Button>
+          </CardAction>
+        )}
       </CardHeader>
       <Tabs
         value={search.tipo ?? ALL}

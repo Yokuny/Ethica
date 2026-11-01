@@ -30,4 +30,4 @@ export type ParteRecord = {
 };
 
 // Parte já resolvida para gravar na perícia (cópia de tipo e nome, AD-117).
-export type PericiaParteWrite = { parteId: string; polo: Polo; tipo: ParteTipo; nome: string };
+export type PericiaParteWrite = { parteId: string; polo: Polo; tipo: ParteTipo; nome: string; contratante?: boolean };
