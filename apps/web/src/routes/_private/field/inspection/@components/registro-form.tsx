@@ -52,8 +52,8 @@ export function RegistroForm({ item, draft }: { item: DayInspection; draft?: Dra
         <Tabs defaultValue="attendees">
           <div className="-mx-1 overflow-x-auto px-1">
             <TabsList variant="line">
-              {ABAS.map(([valor, chave]) => (
-                <TabsTrigger key={valor} value={valor}>
+              {ABAS.map(([amount, chave]) => (
+                <TabsTrigger key={amount} value={amount}>
                   {t(chave)}
                 </TabsTrigger>
               ))}

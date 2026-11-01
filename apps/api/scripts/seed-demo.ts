@@ -1,5 +1,5 @@
 import { PERFIL_PERMISSOES } from '@ethica/contracts';
-import type { AppointmentDocument, LancamentoDocument, ParcelaDocument } from '@ethica/db';
+import type { AppointmentDocument, InstallmentDocument, TransactionDocument } from '@ethica/db';
 import {
   Appointment,
   Atividade,
@@ -9,13 +9,13 @@ import {
   dateInDisplayTz,
   disconnect,
   Inspection,
-  Lancamento,
   Laudo,
   ModeloLaudo,
   Oportunidade,
   Party,
   Session,
   Tenant,
+  Transaction,
   User,
   wallClockToUtc,
 } from '@ethica/db';
@@ -126,7 +126,7 @@ const run = async (): Promise<void> => {
       Deadline.deleteMany({ Tenant: old._id }),
       Appointment.deleteMany({ Tenant: old._id }),
       Inspection.deleteMany({ Tenant: old._id }),
-      Lancamento.deleteMany({ Tenant: old._id }),
+      Transaction.deleteMany({ Tenant: old._id }),
       Oportunidade.deleteMany({ Tenant: old._id }),
       Laudo.deleteMany({ Tenant: old._id }),
       ModeloLaudo.deleteMany({ Tenant: old._id }),
@@ -250,7 +250,7 @@ const run = async (): Promise<void> => {
           Tenant: tenant._id,
           Case: legalCase._id,
           titulo: 'Entrega do laudo',
-          vencimento: day(p.deadline),
+          dueDate: day(p.deadline),
           status: entregue ? ('filed' as const) : ('pending' as const),
           filedDate: entregue ? day(p.deadline - 1) : undefined,
         },
@@ -260,7 +260,7 @@ const run = async (): Promise<void> => {
       Tenant: tenant._id,
       Case: clarifications?._id,
       titulo: 'Resposta à impugnação',
-      vencimento: day(10),
+      dueDate: day(10),
       status: 'pending' as const,
     },
   ]);
@@ -370,87 +370,87 @@ const run = async (): Promise<void> => {
   });
 
   // Seis meses de movimento para o fluxo de caixa.
-  const lancamentos: Partial<LancamentoDocument>[] = [];
+  const transactions: Partial<TransactionDocument>[] = [];
   for (let month = 5; month >= 0; month -= 1) {
     const offset = -month * 30;
-    lancamentos.push(
+    transactions.push(
       {
-        natureza: 'income',
-        categoria: 'advance_fees',
+        kind: 'income',
+        category: 'advance_fees',
         descricao: 'Honorários prévios',
-        valorCents: 150_000 + month * 20_000,
-        vencimento: day(offset - 10),
+        amountCents: 150_000 + month * 20_000,
+        dueDate: day(offset - 10),
         status: 'settled',
-        parcelas: [{ valorCents: 150_000 + month * 20_000, data: day(offset - 8) } as ParcelaDocument],
+        installments: [{ amountCents: 150_000 + month * 20_000, data: day(offset - 8) } as InstallmentDocument],
       },
       {
-        natureza: 'expense',
-        categoria: 'travel',
+        kind: 'expense',
+        category: 'travel',
         descricao: 'Deslocamento para vistoria',
-        valorCents: 18_000 + month * 1_500,
-        vencimento: day(offset - 5),
+        amountCents: 18_000 + month * 1_500,
+        dueDate: day(offset - 5),
         status: 'settled',
-        liquidadoEm: day(offset - 5),
+        settledDate: day(offset - 5),
       },
     );
   }
-  lancamentos.push(
+  transactions.push(
     {
-      natureza: 'income',
-      categoria: 'fixed_fees',
+      kind: 'income',
+      category: 'fixed_fees',
       descricao: `Honorários fixados — ${laudo?.processNumber}`,
-      valorCents: 350_000,
-      vencimento: day(20),
+      amountCents: 350_000,
+      dueDate: day(20),
       status: 'expected',
       Case: laudo?._id,
     },
     {
-      natureza: 'income',
-      categoria: 'contracted_fees',
+      kind: 'income',
+      category: 'contracted_fees',
       descricao: `Honorários contratados — ${civel?.processNumber}`,
-      valorCents: 600_000,
-      vencimento: day(25),
+      amountCents: 600_000,
+      dueDate: day(25),
       status: 'expected',
       Case: civel?._id,
     },
     {
-      natureza: 'income',
-      categoria: 'fixed_fees',
+      kind: 'income',
+      category: 'fixed_fees',
       descricao: `Honorários fixados — ${federal?.processNumber}`,
-      valorCents: 300_000,
-      vencimento: day(-12),
+      amountCents: 300_000,
+      dueDate: day(-12),
       status: 'expected',
       Case: federal?._id,
     },
     {
-      natureza: 'income',
-      categoria: 'fixed_fees',
+      kind: 'income',
+      category: 'fixed_fees',
       descricao: `Honorários fixados — ${clarifications?.processNumber}`,
-      valorCents: 480_000,
-      vencimento: day(-20),
+      amountCents: 480_000,
+      dueDate: day(-20),
       // Recebimento parcial (AD-111): alvará de R$ 1.500,00, saldo de R$ 3.300,00.
       status: 'partial',
-      parcelas: [{ valorCents: 150_000, data: day(-18), conta: 'Banco do Brasil' } as ParcelaDocument],
+      installments: [{ amountCents: 150_000, data: day(-18), account: 'Banco do Brasil' } as InstallmentDocument],
       Case: clarifications?._id,
     },
     {
-      natureza: 'expense',
-      categoria: 'supplies',
+      kind: 'expense',
+      category: 'supplies',
       descricao: 'Decibelímetro — calibração',
-      valorCents: 45_000,
-      vencimento: day(7),
+      amountCents: 45_000,
+      dueDate: day(7),
       status: 'expected',
     },
     {
-      natureza: 'expense',
-      categoria: 'fees_and_taxes',
+      kind: 'expense',
+      category: 'fees_and_taxes',
       descricao: 'Anuidade do conselho',
-      valorCents: 62_000,
-      vencimento: day(15),
+      amountCents: 62_000,
+      dueDate: day(15),
       status: 'expected',
     },
   );
-  await Lancamento.insertMany(lancamentos.map((lancamento) => ({ ...lancamento, Tenant: tenant._id })));
+  await Transaction.insertMany(transactions.map((transaction) => ({ ...transaction, Tenant: tenant._id })));
 
   // Laudos (AD-126): um modelo do escritório clonado do padrão e um laudo em rascunho da perícia
   // em elaboração, com as seções de periculosidade e uma variável pendente para mostrar o bloqueio.
@@ -463,7 +463,7 @@ const run = async (): Promise<void> => {
       .filter((secao) => !secao.titulo.includes('NR-15') && !/^Anexo \d+ — (?!Inflamáveis)/.test(secao.titulo))
       .map(({ id: _id, ...secao }) => secao),
   });
-  const valores = {
+  const values = {
     '[NUMERO_PROCESSO]': CASES[1].numero,
     '[TRIBUNAL]': CASES[1].court,
     '[VARA]': CASES[1].division,
@@ -503,12 +503,12 @@ const run = async (): Promise<void> => {
       .map((secao) => {
         const variante = ESCOLHA[secao.titulo] ?? 'yes';
         return {
-          titulo: resolveVariables(secao.titulo, valores, 'texto'),
+          titulo: resolveVariables(secao.titulo, values, 'texto'),
           nivel: secao.nivel,
           apenasTitulo: secao.apenasTitulo,
           quebraPagina: secao.quebraPagina,
           variante,
-          html: resolveVariables(variante === 'yes' ? secao.textoSim : secao.textoNao, valores, 'html'),
+          html: resolveVariables(variante === 'yes' ? secao.textoSim : secao.textoNao, values, 'html'),
         };
       }),
   });

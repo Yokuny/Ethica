@@ -14,9 +14,9 @@ export class DeadlineNotFoundError extends KeyedError {}
 
 const withCaseNumber = async <T extends DeadlineRecord>(tenantId: string, items: T[]): Promise<T[]> => {
   const ids = [...new Set(items.map((item) => item.caseId))];
-  const resumos = await caseService.findResumosByIds(tenantId, ids);
+  const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = resumos.get(item.caseId)?.processNumber;
+    const numero = summaries.get(item.caseId)?.processNumber;
     return numero ? { ...item, caseNumber: numero } : item;
   });
 };

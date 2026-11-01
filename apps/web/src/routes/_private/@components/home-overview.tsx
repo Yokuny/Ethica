@@ -4,14 +4,14 @@ import { ListTrendStat } from '@/components/list-trend-stat.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { FinanceiroResumo } from '@/query/lancamento.js';
 import { statCount } from '@/query/listStats.js';
+import type { FinanceSummary } from '@/query/transaction.js';
 
 const number = new Intl.NumberFormat('pt-BR');
 const show = (value: number | undefined) => (value === undefined ? '—' : number.format(value));
 
 // Faixa do início: o que pede atenção hoje. Valores financeiros só para quem os vê.
-export function HomeOverview({ stats, resumo }: { stats?: ListStats; resumo?: FinanceiroResumo }) {
+export function HomeOverview({ stats, summary }: { stats?: ListStats; summary?: FinanceSummary }) {
   return (
     <RecordStats variant="band" role="group" aria-label={t('overview')}>
       <ListTrendStat
@@ -26,11 +26,11 @@ export function HomeOverview({ stats, resumo }: { stats?: ListStats; resumo?: Fi
         render={<Link to="/expert-cases" />}
       />
       <RecordStat label={t('deadlines_due_soon')} value={show(statCount(stats, 'deadlines_due_soon'))} />
-      {resumo && (
+      {summary && (
         <RecordStat
           label={t('receivable')}
-          value={formatMoney(resumo.aReceberCents)}
-          hint={resumo.lateCents ? `${formatMoney(resumo.lateCents)} ${t('overdue')}` : undefined}
+          value={formatMoney(summary.receivableCents)}
+          hint={summary.lateCents ? `${formatMoney(summary.lateCents)} ${t('overdue')}` : undefined}
           render={<Link to="/finance/entries" search={{ state: 'expected' }} />}
         />
       )}

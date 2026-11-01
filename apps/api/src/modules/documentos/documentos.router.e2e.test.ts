@@ -9,10 +9,10 @@ import {
   dateInDisplayTz,
   disconnect,
   hashToken,
-  Lancamento,
   Party,
   Session,
   Tenant,
+  Transaction,
   User,
 } from '@ethica/db';
 import { strFromU8, unzipSync } from 'fflate';
@@ -94,7 +94,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
   afterEach(async () => {
     rendered = undefined;
     await Promise.all([
-      Lancamento.deleteMany({}),
+      Transaction.deleteMany({}),
       Atividade.deleteMany({}),
       Deadline.deleteMany({}),
       Party.deleteMany({}),
@@ -149,23 +149,23 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const operador = await seedSession(tenant._id, ['operator']);
     const manager = await seedSession(tenant._id, ['manager']);
     const fee = await manager.as(request(app).post('/finance/entries')).send({
-      natureza: 'income',
-      categoria: 'fixed_fees',
+      kind: 'income',
+      category: 'fixed_fees',
       descricao: 'Honorários do processo',
-      valorCents: 300000,
-      vencimento: day(5),
+      amountCents: 300000,
+      dueDate: day(5),
     });
     await manager
       .as(request(app).post(`/finance/entries/${fee.body.data.id}/installments`))
-      .send({ valorCents: 100000, data: day(0), conta: 'Banco X' });
-    const despesa = await manager.as(request(app).post('/finance/entries')).send({
-      natureza: 'expense',
-      categoria: 'travel',
+      .send({ amountCents: 100000, data: day(0), account: 'Banco X' });
+    const expense = await manager.as(request(app).post('/finance/entries')).send({
+      kind: 'expense',
+      category: 'travel',
       descricao: 'Combustível',
-      valorCents: 15000,
-      vencimento: day(0),
+      amountCents: 15000,
+      dueDate: day(0),
     });
-    await manager.as(request(app).patch(`/finance/entries/${despesa.body.data.id}`)).send({ status: 'settled' });
+    await manager.as(request(app).patch(`/finance/entries/${expense.body.data.id}`)).send({ status: 'settled' });
 
     const query = `/documents/finance?from=${day(-1)}&to=${day(10)}`;
     expect((await operador.as(request(app).get(query))).status).toBe(403);

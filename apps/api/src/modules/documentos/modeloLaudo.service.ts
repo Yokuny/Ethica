@@ -2,13 +2,7 @@ import { isModeloPadrao, type LaudoTipo } from '@ethica/contracts';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import { MODELOS_PADRAO } from './laudo.biblioteca.js';
 import { sanitizeLaudoHtml } from './laudo.html.js';
-import type {
-  CreateModeloLaudo,
-  ModeloLaudoRecord,
-  ModeloLaudoResumo,
-  ModeloSecao,
-  MoverSecao,
-} from './laudo.schema.js';
+import type { CreateModeloLaudo, ModeloLaudoRecord, ModeloSecao, MoverSecao, TemplateSummary } from './laudo.schema.js';
 import * as modeloLaudoRepository from './modeloLaudo.repository.js';
 
 export class ModeloLaudoNotFoundError extends KeyedError {}
@@ -31,7 +25,7 @@ const saneada = (secao: ModeloSecao): ModeloSecao => ({
   textoNao: sanitizeLaudoHtml(secao.textoNao),
 });
 
-export const listModelos = async (tenantId: string, tipo?: LaudoTipo): Promise<ModeloLaudoResumo[]> => [
+export const listModelos = async (tenantId: string, tipo?: LaudoTipo): Promise<TemplateSummary[]> => [
   ...PADROES.filter((modelo) => !tipo || modelo.tipo === tipo).map(({ secoes, ...modelo }) => ({
     ...modelo,
     totalSecoes: secoes.length,

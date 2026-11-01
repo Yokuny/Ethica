@@ -26,7 +26,7 @@ export type ModeloLaudoRecord = {
   secoes: ModeloSecaoRecord[];
   updatedAt?: string;
 };
-export type ModeloLaudoResumo = Omit<ModeloLaudoRecord, 'secoes'> & { totalSecoes: number };
+export type TemplateSummary = Omit<ModeloLaudoRecord, 'secoes'> & { totalSecoes: number };
 
 export type LaudoSecaoRecord = {
   id: string;
@@ -91,8 +91,7 @@ export const laudoQuery = (id: string) =>
 export const modelosQuery = (tipo?: LaudoTipo) =>
   queryOptions({
     queryKey: laudoKeys.modelos(tipo),
-    queryFn: async () =>
-      unwrap(await get<ModeloLaudoResumo[]>(`/expert-reports/templates${qs({ tipo })}`), 'load_error'),
+    queryFn: async () => unwrap(await get<TemplateSummary[]>(`/expert-reports/templates${qs({ tipo })}`), 'load_error'),
   });
 
 export const modeloQuery = (id: string) =>

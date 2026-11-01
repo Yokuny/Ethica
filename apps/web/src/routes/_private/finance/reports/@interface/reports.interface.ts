@@ -5,5 +5,5 @@ export const PERIOD_LABEL: Record<(typeof PERIODS)[number], string> = {
   '6': 'last_6_months',
   '12': 'last_12_months',
 };
-export const relatoriosSearchSchema = z.object({ months: z.enum(PERIODS).optional().default('6') });
-export type RelatoriosSearch = z.infer<typeof relatoriosSearchSchema>;
+export const reportsSearchSchema = z.object({ months: z.enum(PERIODS).optional().default('6') });
+export type ReportsSearch = z.infer<typeof reportsSearchSchema>;

@@ -14,12 +14,12 @@ export type DeadlineAlert = 'deadline_overdue' | 'due_soon';
 // Só prazo pendente alerta: vencido (antes de hoje) ou vence em breve (até 15 dias).
 // A chave devolvida é a própria chave de tradução do selo.
 export const deadlineAlert = (
-  deadline: { vencimento: string; status?: DeadlineStatus },
+  deadline: { dueDate: string; status?: DeadlineStatus },
   today: string,
 ): DeadlineAlert | undefined => {
   if (deadline.status && deadline.status !== 'pending') return undefined;
-  if (deadline.vencimento < today) return 'deadline_overdue';
-  if (deadline.vencimento <= addDaysToDisplayDate(today, DEADLINE_DUE_SOON_DAYS)) return 'due_soon';
+  if (deadline.dueDate < today) return 'deadline_overdue';
+  if (deadline.dueDate <= addDaysToDisplayDate(today, DEADLINE_DUE_SOON_DAYS)) return 'due_soon';
   return undefined;
 };
 

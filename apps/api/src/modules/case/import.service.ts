@@ -130,9 +130,9 @@ const extractNomination = (texto: string): string | undefined => {
   const frase = texto.match(/[^.\n]*\b(nomei|nomead|nomea[çc][ãa]o|design)[^.\n]*/i)?.[0] ?? '';
   const numerica = frase.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0];
   if (numerica) return parseData(numerica);
-  const extenso = texto.match(/(\d{1,2})º?\s+de\s+([a-zç]+)\s+de\s+(\d{4})/i);
-  const month = extenso ? MONTHS.indexOf((extenso[2] ?? '').toLowerCase()) + 1 : 0;
-  return extenso && month ? parseData(`${extenso[1]}/${month}/${extenso[3]}`) : undefined;
+  const words = texto.match(/(\d{1,2})º?\s+de\s+([a-zç]+)\s+de\s+(\d{4})/i);
+  const month = words ? MONTHS.indexOf((words[2] ?? '').toLowerCase()) + 1 : 0;
+  return words && month ? parseData(`${words[1]}/${month}/${words[3]}`) : undefined;
 };
 
 const extractDeadline = (texto: string, nomination?: string): { reportDeadline?: string; calculado: boolean } => {

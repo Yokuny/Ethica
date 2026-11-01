@@ -80,7 +80,7 @@ describe('account routes (ACC-02..06)', () => {
     counter += 1;
     const user = await User.create({
       name: `Pessoa ${counter}`,
-      email: `conta-${counter}@empresa.com`,
+      email: `account-${counter}@empresa.com`,
       password: await bcrypt.hash('senha-antiga', 4),
       Tenant: tenant._id,
       role,

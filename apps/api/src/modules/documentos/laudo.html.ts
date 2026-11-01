@@ -22,15 +22,15 @@ export const sanitizeLaudoHtml = (html: string): string =>
     exclusiveFilter: (frame) => frame.tag === 'img' && !LAUDO_IMG_SRC.test(frame.attribs.src ?? ''),
   }).trim();
 
-export type ValoresDoLaudo = Partial<Record<LaudoVariavel, string>>;
+export type ReportValues = Partial<Record<LaudoVariavel, string>>;
 
 // Troca só os marcadores que têm valor; o que fica é pendência (AD-126). No HTML o valor é
 // escapado; no título (texto simples) vai cru e é escapado na hora de desenhar.
-export const resolveVariables = (texto: string, valores: ValoresDoLaudo, formato: 'html' | 'texto'): string =>
+export const resolveVariables = (texto: string, values: ReportValues, formato: 'html' | 'texto'): string =>
   LAUDO_VARIAVEIS.reduce((resultado, variavel) => {
-    const valor = valores[variavel]?.trim();
-    if (!valor) return resultado;
-    return resultado.replaceAll(variavel, formato === 'html' ? esc(valor) : valor);
+    const amount = values[variavel]?.trim();
+    if (!amount) return resultado;
+    return resultado.replaceAll(variavel, formato === 'html' ? esc(amount) : amount);
   }, texto);
 
 // Marcadores ainda sem valor, por seção (título e texto): bloqueiam exportar e concluir (AD-126).

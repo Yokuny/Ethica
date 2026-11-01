@@ -39,8 +39,8 @@ img { display: block; max-width: 100%; max-height: 120mm; margin: 3mm auto 1mm; 
 
 const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 
-const coverRow = (rotulo: string | undefined, valor: string | undefined): string =>
-  rotulo && valor ? `<div><dt>${esc(rotulo)}:</dt><dd>${esc(valor)}</dd></div>` : '';
+const coverRow = (rotulo: string | undefined, amount: string | undefined): string =>
+  rotulo && amount ? `<div><dt>${esc(rotulo)}:</dt><dd>${esc(amount)}</dd></div>` : '';
 
 // Foto da vistoria vira data URL (o Chromium roda sem rede, AD-119/AD-129); a que sumiu sai.
 const withPhotos = (html: string, photos: LaudoExportDados['photos']): string =>
@@ -49,14 +49,14 @@ const withPhotos = (html: string, photos: LaudoExportDados['photos']): string =>
     return photo ? `<img${antes}src="data:${photo.mime};base64,${photo.body.toString('base64')}"${depois}>` : '';
   });
 
-export const laudoHtml = ({ laudo, legalCase, identity, expert, valores, photos }: LaudoExportDados): PdfDocument => {
+export const laudoHtml = ({ laudo, legalCase, identity, expert, values, photos }: LaudoExportDados): PdfDocument => {
   const numeros = numerarSecoes(laudo.secoes);
   const cover = `<section class="capa"><div><p class="tipo">${TIPO[laudo.tipo]}</p><dl>${[
     coverRow('Processo nº', legalCase.processNumber),
     coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
     coverRow('Tribunal', legalCase.court),
-    coverRow(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
-    coverRow(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
+    coverRow(values['[DENOMINACAO_AUTOR]'], values['[NOME_AUTOR]']),
+    coverRow(values['[DENOMINACAO_REU]'], values['[NOME_REU]']),
     coverRow('Objeto', legalCase.subject),
   ].join('')}</dl></div><div class="assinatura"><p><strong>${esc(expert.name)}</strong></p>${[
     expert.formacao,
@@ -64,7 +64,7 @@ export const laudoHtml = ({ laudo, legalCase, identity, expert, valores, photos 
   ]
     .filter(Boolean)
     .map((linha) => `<p>${esc(linha)}</p>`)
-    .join('')}<p>${esc(valores['[DATA_EXTENSO]'])}</p></div></section>`;
+    .join('')}<p>${esc(values['[DATA_EXTENSO]'])}</p></div></section>`;
   const sumario = `<section class="sumario"><p class="titulo-sumario"><strong>SUMÁRIO</strong></p><ol>${laudo.secoes
     .map((secao, i) => `<li class="n${secao.nivel}">${numeros[i]}. ${esc(secao.titulo)}</li>`)
     .join('')}</ol></section>`;

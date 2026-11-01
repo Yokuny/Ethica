@@ -9,6 +9,6 @@ export const feedTokenParamSchema = z.object({ token: z.string().regex(/^[a-f0-9
 export type FeedEntrada = {
   appointments: AppointmentRecord[];
   deadlines: DeadlineRecord[];
-  resumos: Map<string, CaseSummary>;
+  summaries: Map<string, CaseSummary>;
   now: Date;
 };

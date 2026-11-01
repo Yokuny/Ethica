@@ -25,9 +25,9 @@ const toInterval = (date: string, time: string, durationMinutes: number) => {
 
 const withCaseNumber = async (tenantId: string, items: AppointmentRecord[]): Promise<AppointmentRecord[]> => {
   const ids = [...new Set(items.flatMap((item) => (item.caseId ? [item.caseId] : [])))];
-  const resumos = await caseService.findResumosByIds(tenantId, ids);
+  const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = item.caseId ? resumos.get(item.caseId)?.processNumber : undefined;
+    const numero = item.caseId ? summaries.get(item.caseId)?.processNumber : undefined;
     return numero ? { ...item, caseNumber: numero } : item;
   });
 };
@@ -132,7 +132,7 @@ export const sendNotice = async (
     officeService.getScheduleNotice(ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
   ]);
-  const valores: Record<string, string> = {
+  const values: Record<string, string> = {
     '[TIPO_EVENTO]': TYPE_EVENT[appointment.tipo],
     '[DATA]': day(appointment.inicio),
     '[HORA]': timeInDisplayTz(appointment.inicio),
@@ -143,7 +143,7 @@ export const sendNotice = async (
     '[COMARCA]': legalCase.district ?? '',
   };
   const preencher = (texto: string) =>
-    Object.entries(valores).reduce((resultado, [marcador, valor]) => resultado.replaceAll(marcador, valor), texto);
+    Object.entries(values).reduce((resultado, [marcador, amount]) => resultado.replaceAll(marcador, amount), texto);
   const assunto = preencher(modelo.assunto);
   const corpo = preencher(modelo.corpo);
   const enviados: string[] = [];

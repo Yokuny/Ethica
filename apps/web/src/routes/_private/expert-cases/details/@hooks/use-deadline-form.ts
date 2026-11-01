@@ -20,7 +20,7 @@ export function useDeadlineForm({
     resolver: zodResolver(createDeadlineSchema),
     defaultValues: {
       titulo: deadline?.titulo ?? '',
-      vencimento: deadline?.vencimento ?? '',
+      dueDate: deadline?.dueDate ?? '',
       observacoes: deadline?.observacoes ?? '',
     },
   });

@@ -10,20 +10,26 @@ import { Panel } from '@/components/panel.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { estornarParcelaMutation, type LancamentoRecord, type ParcelaRecord } from '@/query/lancamento.js';
+import { type InstallmentRecord, reverseInstallmentMutation, type TransactionRecord } from '@/query/transaction.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
 // Histórico de recebimentos do honorário (AD-111): recebido, saldo e estorno por parcela.
-export function ParcelasList({ lancamento, onChanged }: { lancamento: LancamentoRecord; onChanged: () => void }) {
+export function InstallmentsList({
+  transaction,
+  onChanged,
+}: {
+  transaction: TransactionRecord;
+  onChanged: () => void;
+}) {
   const queryClient = useQueryClient();
-  const mutation = useMutation(estornarParcelaMutation(queryClient));
-  const [estornando, setEstornando] = useState<ParcelaRecord | null>(null);
+  const mutation = useMutation(reverseInstallmentMutation(queryClient));
+  const [reversing, setReversing] = useState<InstallmentRecord | null>(null);
 
   function handleEstorno() {
-    if (!estornando) return;
+    if (!reversing) return;
     mutation.mutate(
-      { id: lancamento.id, parcelaId: estornando.id },
+      { id: transaction.id, installmentId: reversing.id },
       { onSuccess: onChanged, onError: (error: Error) => toast.error(error.message) },
     );
   }
@@ -32,21 +38,21 @@ export function ParcelasList({ lancamento, onChanged }: { lancamento: Lancamento
     <Panel
       size="sm"
       title={t('receipts')}
-      description={`${t('received')} ${formatMoney(lancamento.recebidoCents ?? 0)} · ${t('balance_due')} ${formatMoney(lancamento.saldoCents ?? 0)}`}
+      description={`${t('received')} ${formatMoney(transaction.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(transaction.balanceCents ?? 0)}`}
     >
-      {!lancamento.parcelas.length ? (
+      {!transaction.installments.length ? (
         <DefaultEmptyData title={t('no_receipts_yet')} />
       ) : (
         <LinkList>
-          {lancamento.parcelas.map((parcela) => (
+          {transaction.installments.map((installment) => (
             <LinkListItem
-              key={parcela.id}
+              key={installment.id}
               icon={Banknote}
-              title={formatMoney(parcela.valorCents)}
-              description={[day(parcela.data), parcela.conta].filter(Boolean).join(' · ')}
+              title={formatMoney(installment.amountCents)}
+              description={[day(installment.data), installment.account].filter(Boolean).join(' · ')}
             >
               <div>
-                <Button variant="outline" disabled={mutation.isPending} onClick={() => setEstornando(parcela)}>
+                <Button variant="outline" disabled={mutation.isPending} onClick={() => setReversing(installment)}>
                   {t('reverse_receipt')}
                 </Button>
               </div>
@@ -54,14 +60,14 @@ export function ParcelasList({ lancamento, onChanged }: { lancamento: Lancamento
           ))}
         </LinkList>
       )}
-      {estornando && (
+      {reversing && (
         <ConfirmDialog
           title={t('reverse_receipt_question')}
-          description={`${formatMoney(estornando.valorCents)} · ${day(estornando.data)}`}
+          description={`${formatMoney(reversing.amountCents)} · ${day(reversing.data)}`}
           confirmLabel={t('reverse_receipt')}
           pending={mutation.isPending}
           onConfirm={handleEstorno}
-          onClose={() => setEstornando(null)}
+          onClose={() => setReversing(null)}
         />
       )}
     </Panel>

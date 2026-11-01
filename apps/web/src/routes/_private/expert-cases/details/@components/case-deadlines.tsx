@@ -67,7 +67,7 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
                   </>
                 }
                 description={[
-                  `${t('due_on')} ${day(deadline.vencimento)}`,
+                  `${t('due_on')} ${day(deadline.dueDate)}`,
                   deadline.filedDate && `${t('filed_on')} ${day(deadline.filedDate)}`,
                 ]
                   .filter(Boolean)

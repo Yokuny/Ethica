@@ -6,7 +6,7 @@ import { Panel } from '@/components/panel.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { FinanceiroReportForm } from './@components/financeiro-report-form.js';
+import { FinanceReportForm } from './@components/finance-report-form.js';
 
 const REPORTS = [
   { path: '/documents/deadlines', title: 'deadline_schedule', description: 'deadline_schedule_description' },
@@ -14,7 +14,7 @@ const REPORTS = [
 ] as const;
 
 // DOC-03: relatórios gerenciais em PDF. O financeiro só aparece para admin/manager (AD-107).
-export function RelatoriosPage() {
+export function ReportsPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const { download, pending } = useFileDownload();
   return (
@@ -36,7 +36,7 @@ export function RelatoriosPage() {
         ))}
         {can(session, 'finance') && (
           <Panel size="sm" title={t('financial_report')} description={t('financial_report_description')}>
-            <FinanceiroReportForm />
+            <FinanceReportForm />
           </Panel>
         )}
       </CardContent>
@@ -45,6 +45,6 @@ export function RelatoriosPage() {
 }
 
 export const Route = createFileRoute('/_private/reports/')({
-  component: RelatoriosPage,
+  component: ReportsPage,
   staticData: { title: t('reports') },
 });

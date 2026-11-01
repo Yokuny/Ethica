@@ -18,7 +18,7 @@ export function DeadlineForm({ caseId, deadline, onClose }: DeadlineFormProps) {
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <TextField control={control} name="titulo" label={t('title')} placeholder={t('example_deadline_title')} />
-          <DateField control={control} name="vencimento" label={t('due_date')} placeholder={t('choose_day')} />
+          <DateField control={control} name="dueDate" label={t('due_date')} placeholder={t('choose_day')} />
           <TextareaField control={control} name="observacoes" label={t('notes')} placeholder={t('notes_placeholder')} />
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">

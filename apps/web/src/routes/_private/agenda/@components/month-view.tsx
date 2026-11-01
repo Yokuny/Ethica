@@ -68,7 +68,7 @@ export function MonthView({
           <CalendarMonthCell key={day} data-testid={`month-view-day-${day}`} outside={!day.startsWith(monthPrefix)}>
             <div className="text-right text-[10px]">{day.slice(-2)}</div>
             {deadlines
-              .filter((deadline) => deadline.vencimento === day)
+              .filter((deadline) => deadline.dueDate === day)
               .map((deadline) => (
                 <CalendarDeadlineChip key={deadline.id} deadline={deadline} today={today} onSelect={onSelectDeadline} />
               ))}

@@ -1,5 +1,5 @@
-import type { FinanceiroReportQuery } from '@ethica/contracts';
-import { financeiroReportQuerySchema, idSchema } from '@ethica/contracts';
+import type { FinanceReportQuery } from '@ethica/contracts';
+import { financeReportQuerySchema, idSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -7,12 +7,12 @@ import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import type { AppointmentRecord } from '../agenda/appointment.schema.js';
 import type { CaseRecord, StalledCase } from '../case/case.schema.js';
 import type { DeadlineRecord } from '../case/deadline.schema.js';
-import type { CaseFinanceSummary, FinanceiroRelatorio } from '../financeiro/lancamento.schema.js';
+import type { CaseFinanceSummary, FinanceReport } from '../finance/transaction.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
 
-export type { DocumentIdentity, FinanceiroReportQuery };
-export { financeiroReportQuerySchema };
+export type { DocumentIdentity, FinanceReportQuery };
+export { financeReportQuerySchema };
 
 export const documentCaseParamSchema = z.object({ id: idSchema }).strict();
 
@@ -33,14 +33,14 @@ export type SheetData = DocumentoBase & {
   legalCase: CaseRecord;
   deadlines: DeadlineRecord[];
   appointments: AppointmentRecord[];
-  financeiro?: CaseFinanceSummary;
+  finance?: CaseFinanceSummary;
 };
 
 export type ChecklistDados = DocumentoBase & { legalCase: CaseRecord };
 
 export type CronogramaDados = DocumentoBase & { deadlines: DeadlineRecord[]; today: string };
 
-export type FinanceiroDados = DocumentoBase & { period: FinanceiroReportQuery; relatorio: FinanceiroRelatorio };
+export type FinanceData = DocumentoBase & { period: FinanceReportQuery; report: FinanceReport };
 
 export type StalledData = DocumentoBase & { stalled: StalledCase[] };
 

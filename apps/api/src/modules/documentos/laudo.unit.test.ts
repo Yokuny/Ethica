@@ -7,7 +7,7 @@ import { dimensoesDaImagem, laudoDocx } from './laudo.docx.js';
 import { resolveVariables, sanitizeLaudoHtml } from './laudo.html.js';
 import type { LaudoExportDados } from './laudo.schema.js';
 import { laudoHtml } from './laudo.templates.js';
-import { valoresDoLaudo } from './laudo.variaveis.js';
+import { reportValues } from './laudo.variaveis.js';
 
 const legalCase = {
   id: 'p1',
@@ -60,7 +60,7 @@ describe('variáveis de campo (AD-130)', () => {
   };
 
   it('monta presentes, paradigmas, funções por parte, agentes e documentos do registro', () => {
-    const valores = valoresDoLaudo({
+    const values = reportValues({
       ...base,
       field: {
         inicio: new Date('2026-05-10T13:30:00Z'),
@@ -91,7 +91,7 @@ describe('variáveis de campo (AD-130)', () => {
         },
       },
     });
-    expect(valores).toMatchObject({
+    expect(values).toMatchObject({
       '[HORA_VISTORIA]': '10:30',
       '[PRESENTES_VISTORIA]': 'Ana (Reclamante); Dr. Réu (advogado(a) do(a) reclamada)',
       '[PARADIGMAS_AUTOR]': 'João (Soldador, trabalhou junto)',
@@ -105,12 +105,12 @@ describe('variáveis de campo (AD-130)', () => {
   });
 
   it('sem vistoria registrada as variáveis de campo ficam pendentes', () => {
-    expect(valoresDoLaudo(base)['[PRESENTES_VISTORIA]']).toBeUndefined();
+    expect(reportValues(base)['[PRESENTES_VISTORIA]']).toBeUndefined();
   });
 });
 
 describe('variáveis (AD-126)', () => {
-  const valores = valoresDoLaudo({
+  const values = reportValues({
     legalCase,
     expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
     identity: { name: 'Escritório' },
@@ -122,7 +122,7 @@ describe('variáveis (AD-126)', () => {
   });
 
   it('denomina pela justiça, junta partes por polo e formata datas', () => {
-    expect(valores).toMatchObject({
+    expect(values).toMatchObject({
       '[DENOMINACAO_AUTOR]': 'Reclamante',
       '[DENOMINACAO_REU]': 'Reclamada',
       '[NOME_AUTOR]': 'Ana <Silva>',
@@ -131,9 +131,9 @@ describe('variáveis (AD-126)', () => {
       '[DATA_VISTORIA]': '10/05/2026',
       '[DATA_EXTENSO]': '31 de outubro de 2026',
     });
-    expect(valores['[VARA]']).toBe('1ª Vara');
-    expect(valores['[ADVOGADOS_AUTOR]']).toBe('');
-    const civil = valoresDoLaudo({
+    expect(values['[VARA]']).toBe('1ª Vara');
+    expect(values['[ADVOGADOS_AUTOR]']).toBe('');
+    const civil = reportValues({
       legalCase: { ...legalCase, courtType: 'civil' },
       expert: { name: 'X' },
       identity: { name: 'E' },
@@ -145,10 +145,10 @@ describe('variáveis (AD-126)', () => {
   });
 
   it('troca só o que tem valor e escapa no HTML', () => {
-    expect(resolveVariables('<p>[NOME_AUTOR] / [ADVOGADOS_AUTOR] / [COMARCA]</p>', valores, 'html')).toBe(
+    expect(resolveVariables('<p>[NOME_AUTOR] / [ADVOGADOS_AUTOR] / [COMARCA]</p>', values, 'html')).toBe(
       '<p>Ana &lt;Silva&gt; / [ADVOGADOS_AUTOR] / [COMARCA]</p>',
     );
-    expect(resolveVariables('Quesitos do(a) [DENOMINACAO_AUTOR]', valores, 'texto')).toBe('Quesitos do(a) Reclamante');
+    expect(resolveVariables('Quesitos do(a) [DENOMINACAO_AUTOR]', values, 'texto')).toBe('Quesitos do(a) Reclamante');
   });
 });
 
@@ -235,7 +235,7 @@ const dados = (): LaudoExportDados => ({
   legalCase,
   identity: { name: 'Escritório', rodape: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' },
   expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
-  valores: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
+  values: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
   photos: { [PHOTO]: { body: JPEG, mime: 'image/jpeg' } },
   geradoEm: new Date(),
 });

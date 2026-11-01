@@ -6,13 +6,13 @@ import * as appointmentService from '../agenda/appointment.service.js';
 import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
 import * as partyService from '../case/party.service.js';
-import * as lancamentoService from '../financeiro/lancamento.service.js';
+import * as transactionService from '../finance/transaction.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
 import * as oportunidadeService from '../prospeccao/oportunidade.service.js';
-import type { DocumentoBase, DocumentoContexto, FinanceiroReportQuery, GeneratedFile } from './documentos.schema.js';
-import { checklistHtml, cronogramaHtml, financeiroHtml, sheetHtml, stalledHtml } from './documentos.templates.js';
+import type { DocumentoBase, DocumentoContexto, FinanceReportQuery, GeneratedFile } from './documentos.schema.js';
+import { checklistHtml, cronogramaHtml, financeHtml, sheetHtml, stalledHtml } from './documentos.templates.js';
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
@@ -33,16 +33,16 @@ const pdf = async (providers: Providers, nome: string, documento: PdfDocument): 
 // DOC-02: o resumo financeiro só entra para admin/manager (AD-107).
 export const generateSheet = async (providers: Providers, ctx: DocumentoContexto, caseId: string) => {
   const legalCase = await caseService.getCase(ctx.tenantId, caseId);
-  const [dadosBase, deadlines, appointments, financeiro] = await Promise.all([
+  const [dadosBase, deadlines, appointments, finance] = await Promise.all([
     base(providers, ctx),
     deadlineService.listCaseDeadlines(ctx.tenantId, caseId),
     appointmentService.listByCase(ctx.tenantId, caseId),
-    ctx.canSeeFinance ? lancamentoService.caseSummary(ctx.tenantId, caseId) : undefined,
+    ctx.canSeeFinance ? transactionService.caseSummary(ctx.tenantId, caseId) : undefined,
   ]);
   return pdf(
     providers,
     `ficha-${legalCase.processNumber}.pdf`,
-    sheetHtml({ ...dadosBase, legalCase, deadlines, appointments, financeiro }),
+    sheetHtml({ ...dadosBase, legalCase, deadlines, appointments, finance }),
   );
 };
 
@@ -67,15 +67,15 @@ export const gerarCronograma = async (providers: Providers, ctx: DocumentoContex
   );
 };
 
-export const gerarFinanceiro = async (providers: Providers, ctx: DocumentoContexto, period: FinanceiroReportQuery) => {
-  const [dadosBase, relatorio] = await Promise.all([
+export const generateFinance = async (providers: Providers, ctx: DocumentoContexto, period: FinanceReportQuery) => {
+  const [dadosBase, report] = await Promise.all([
     base(providers, ctx),
-    lancamentoService.reportPeriod(ctx.tenantId, period),
+    transactionService.reportPeriod(ctx.tenantId, period),
   ]);
   return pdf(
     providers,
     `relatorio-financeiro-${period.from}-a-${period.to}.pdf`,
-    financeiroHtml({ ...dadosBase, period, relatorio }),
+    financeHtml({ ...dadosBase, period, report }),
   );
 };
 
@@ -94,19 +94,19 @@ const celula = (value: Celula): string => {
   return /[;"\n\r]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
 };
 export const toCsv = <T>(colunas: Array<[string, (item: T) => Celula]>, itens: T[]): string =>
-  `﻿${[colunas.map(([nome]) => nome), ...itens.map((item) => colunas.map(([, valor]) => valor(item)))]
-    .map((linha) => linha.map((valor) => celula(valor as Celula)).join(';'))
+  `﻿${[colunas.map(([nome]) => nome), ...itens.map((item) => colunas.map(([, amount]) => amount(item)))]
+    .map((linha) => linha.map((amount) => celula(amount as Celula)).join(';'))
     .join('\r\n')}\r\n`;
 
 // DOC-04: um CSV por entidade do tenant num ZIP; registra quem exportou e quando.
 export const exportarDados = async (ctx: DocumentoContexto): Promise<GeneratedFile> => {
   const { tenantId } = ctx;
-  const [cases, parties, deadlines, appointments, lancamentos, usuarios, oportunidades] = await Promise.all([
+  const [cases, parties, deadlines, appointments, transactions, usuarios, oportunidades] = await Promise.all([
     caseService.listForExport(tenantId),
     partyService.listForExport(tenantId),
     deadlineService.listForExport(tenantId),
     appointmentService.listForExport(tenantId),
-    lancamentoService.listForExport(tenantId),
+    transactionService.listForExport(tenantId),
     authService.listUserDirectory(tenantId),
     oportunidadeService.listForExport(tenantId),
   ]);
@@ -157,7 +157,7 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<GeneratedFi
         ['id', (p) => p.id],
         ['periciaId', (p) => p.caseId],
         ['titulo', (p) => p.titulo],
-        ['vencimento', (p) => p.vencimento],
+        ['vencimento', (p) => p.dueDate],
         ['status', (p) => p.status],
         ['protocoladoEm', (p) => p.filedDate],
         ['observacoes', (p) => p.observacoes],
@@ -183,17 +183,17 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<GeneratedFi
       [
         ['id', (l) => l.id],
         ['periciaId', (l) => l.caseId],
-        ['natureza', (l) => l.natureza],
-        ['categoria', (l) => l.categoria],
+        ['natureza', (l) => l.kind],
+        ['categoria', (l) => l.category],
         ['descricao', (l) => l.descricao],
-        ['valorCents', (l) => l.valorCents],
-        ['vencimento', (l) => l.vencimento],
+        ['valorCents', (l) => l.amountCents],
+        ['vencimento', (l) => l.dueDate],
         ['status', (l) => l.status],
-        ['liquidadoEm', (l) => l.liquidadoEm],
-        ['recebidoCents', (l) => l.recebidoCents],
-        ['parcelas', (l) => l.parcelas.map((p) => `${p.data}:${p.valorCents}`).join(' | ')],
+        ['liquidadoEm', (l) => l.settledDate],
+        ['recebidoCents', (l) => l.receivedCents],
+        ['parcelas', (l) => l.installments.map((p) => `${p.data}:${p.amountCents}`).join(' | ')],
       ],
-      lancamentos,
+      transactions,
     ),
     // Sem senha, sem hashes de sessão ou do feed (AD-122).
     'usuarios.csv': toCsv(

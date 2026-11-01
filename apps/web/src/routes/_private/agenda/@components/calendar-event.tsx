@@ -72,7 +72,7 @@ export function CalendarDeadlineChip({
       className={cn(
         'w-full truncate rounded-sm border px-1.5 py-0.5 text-left text-xs',
         'border-amber-500/40 bg-amber-50 text-amber-900',
-        deadline.vencimento < today && 'border-destructive bg-destructive/10 text-destructive',
+        deadline.dueDate < today && 'border-destructive bg-destructive/10 text-destructive',
       )}
     >
       <ItemDescription className="text-inherit line-clamp-none">

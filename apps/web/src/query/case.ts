@@ -62,7 +62,7 @@ export type CasesQueryParams = {
 };
 
 // Listagem: cada perícia com o prazo pendente mais próximo (AD-109), ausente se não há.
-export type CaseListItem = CaseRecord & { nextDeadline?: { titulo: string; vencimento: string } };
+export type CaseListItem = CaseRecord & { nextDeadline?: { titulo: string; dueDate: string } };
 
 export type CasesListResult = { items: CaseListItem[]; total: number };
 

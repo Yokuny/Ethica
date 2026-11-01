@@ -1,28 +1,28 @@
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
-import { NATUREZA_ITEMS, STATE_ITEMS } from '@/components/lancamento-labels.js';
+import { KIND_ITEMS, STATE_ITEMS } from '@/components/transaction-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { LancamentosSearch } from '../@interface/lancamentos.interface.js';
+import type { TransactionsSearch } from '../@interface/transactions.interface.js';
 
 const ALL = '__all__';
 
 // Filtros rápidos na própria barra da tabela: natureza e situação.
-export function LancamentosFilters({
+export function TransactionsFilters({
   search,
   onChange,
 }: {
-  search: LancamentosSearch;
-  onChange: (patch: Partial<LancamentosSearch>) => void;
+  search: TransactionsSearch;
+  onChange: (patch: Partial<TransactionsSearch>) => void;
 }) {
   return (
     <>
       <ToggleGroup
         aria-label={t('nature')}
-        value={search.natureza ?? ALL}
+        value={search.kind ?? ALL}
         onValueChange={(value) =>
-          onChange({ natureza: value === ALL ? undefined : (value as LancamentosSearch['natureza']), page: 1 })
+          onChange({ kind: value === ALL ? undefined : (value as TransactionsSearch['kind']), page: 1 })
         }
       >
-        {[{ value: ALL, label: t('all') }, ...NATUREZA_ITEMS].map((item) => (
+        {[{ value: ALL, label: t('all') }, ...KIND_ITEMS].map((item) => (
           <ToggleGroupItem key={item.value} value={item.value}>
             {item.label}
           </ToggleGroupItem>
@@ -32,7 +32,7 @@ export function LancamentosFilters({
         aria-label={t('status')}
         value={search.state ?? ALL}
         onValueChange={(value) =>
-          onChange({ state: value === ALL ? undefined : (value as LancamentosSearch['state']), page: 1 })
+          onChange({ state: value === ALL ? undefined : (value as TransactionsSearch['state']), page: 1 })
         }
       >
         {[{ value: ALL, label: t('all') }, ...STATE_ITEMS].map((item) => (

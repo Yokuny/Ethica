@@ -7,7 +7,7 @@ export interface DeadlineDocument {
   Case: mongoose.Types.ObjectId;
   titulo: string;
   // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-103): prazo é um dia, não um instante.
-  vencimento: string;
+  dueDate: string;
   status: DeadlineStatus;
   filedDate?: string;
   observacoes?: string;
@@ -20,7 +20,7 @@ const deadlineSchema = new Schema<DeadlineDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     Case: { type: Schema.Types.ObjectId, ref: 'Case', required: true },
     titulo: { type: String, required: true, trim: true },
-    vencimento: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+    dueDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
     status: { type: String, enum: DEADLINE_STATUS, default: 'pending', required: true },
     filedDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     observacoes: { type: String },
@@ -34,9 +34,9 @@ deadlineSchema.pre('validate', function () {
   }
 });
 
-deadlineSchema.index({ Tenant: 1, Case: 1, vencimento: 1 });
-deadlineSchema.index({ Tenant: 1, status: 1, vencimento: 1 });
+deadlineSchema.index({ Tenant: 1, Case: 1, dueDate: 1 });
+deadlineSchema.index({ Tenant: 1, status: 1, dueDate: 1 });
 // Aviso diário por e-mail: varre os pendentes de alguns dias em todos os tenants.
-deadlineSchema.index({ status: 1, vencimento: 1 });
+deadlineSchema.index({ status: 1, dueDate: 1 });
 
 export const Deadline = mongoose.model<DeadlineDocument>('Deadline', deadlineSchema);

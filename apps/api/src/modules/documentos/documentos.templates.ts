@@ -16,7 +16,7 @@ import type {
   ChecklistDados,
   CronogramaDados,
   DocumentoBase,
-  FinanceiroDados,
+  FinanceData,
   SheetData,
   StalledData,
 } from './documentos.schema.js';
@@ -86,7 +86,7 @@ const hasLaborData = (legalCase: Case) =>
   );
 
 export const sheetHtml = (dados: SheetData): PdfDocument => {
-  const { legalCase, deadlines, appointments, financeiro, expert } = dados;
+  const { legalCase, deadlines, appointments, finance, expert } = dados;
   const sides = sidesNames(legalCase);
   const parties = legalCase.parties.length
     ? tabela(
@@ -103,7 +103,7 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
         ['Prazo', 'Vencimento', 'Status'],
         deadlines.map((deadline) => [
           esc(deadline.titulo),
-          esc(day(deadline.vencimento)),
+          esc(day(deadline.dueDate)),
           esc(
             deadline.filedDate ? `${rotulo(deadline.status)} em ${day(deadline.filedDate)}` : rotulo(deadline.status),
           ),
@@ -132,16 +132,16 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
         ]),
       )
     : vazio('Nenhuma movimentação lançada.');
-  const resumoFinanceiro = financeiro
+  const financeSummary = finance
     ? secao(
         'Resumo financeiro',
         fields([
           ['Honorários propostos', dinheiro(legalCase.proposedFeesCents)],
           ['Honorários fixados', dinheiro(legalCase.fixedFeesCents)],
-          ['Honorários lançados', dinheiro(financeiro.feesCents)],
-          ['Recebido', dinheiro(financeiro.recebidoCents)],
-          ['Saldo a receber', dinheiro(financeiro.saldoCents)],
-          ['Despesas', dinheiro(financeiro.despesasCents)],
+          ['Honorários lançados', dinheiro(finance.feesCents)],
+          ['Recebido', dinheiro(finance.receivedCents)],
+          ['Saldo a receber', dinheiro(finance.balanceCents)],
+          ['Despesas', dinheiro(finance.expensesCents)],
         ]),
       )
     : '';
@@ -157,7 +157,7 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
       secao('Prazos', listDeadlines),
       secao('Compromissos', appointmentList),
       secao('Movimentações', movements),
-      resumoFinanceiro,
+      financeSummary,
       secao(
         'Perito responsável',
         fields([
@@ -258,8 +258,8 @@ export const cronogramaHtml = (dados: CronogramaDados): PdfDocument =>
       ? tabela(
           ['Vencimento', 'Situação', 'Processo', 'Prazo'],
           dados.deadlines.map((deadline) => [
-            esc(day(deadline.vencimento)),
-            faltam(daysUntil(dados.today, deadline.vencimento)),
+            esc(day(deadline.dueDate)),
+            faltam(daysUntil(dados.today, deadline.dueDate)),
             esc(deadline.caseNumber),
             esc(deadline.titulo),
           ]),
@@ -267,7 +267,7 @@ export const cronogramaHtml = (dados: CronogramaDados): PdfDocument =>
       : vazio('Nenhum prazo pendente.'),
   );
 
-const financeRows = (titulo: string, linhas: FinanceiroDados['relatorio']['recebidos'], rotuloData: string) =>
+const financeRows = (titulo: string, linhas: FinanceData['report']['received'], rotuloData: string) =>
   secao(
     titulo,
     linhas.length
@@ -275,18 +275,18 @@ const financeRows = (titulo: string, linhas: FinanceiroDados['relatorio']['receb
           [rotuloData, 'Descrição', 'Categoria', 'Processo', 'Valor'],
           linhas.map((linha) => [
             esc(day(linha.data)),
-            esc(linha.conta ? `${linha.descricao} (${linha.conta})` : linha.descricao),
-            esc(rotulo(linha.categoria)),
+            esc(linha.account ? `${linha.descricao} (${linha.account})` : linha.descricao),
+            esc(rotulo(linha.category)),
             esc(linha.caseNumber),
-            `<span class="num">${esc(dinheiro(linha.valorCents))}</span>`,
+            `<span class="num">${esc(dinheiro(linha.amountCents))}</span>`,
           ]),
         )
       : vazio('Nada no período.'),
   );
 
-export const financeiroHtml = (dados: FinanceiroDados): PdfDocument => {
-  const { relatorio, period } = dados;
-  const { totais } = relatorio;
+export const financeHtml = (dados: FinanceData): PdfDocument => {
+  const { report, period } = dados;
+  const { totals } = report;
   const total = (rotuloTotal: string, cents: number) =>
     `<div><dt>${esc(rotuloTotal)}</dt><dd>${esc(dinheiro(cents))}</dd></div>`;
   return documento(
@@ -297,18 +297,18 @@ export const financeiroHtml = (dados: FinanceiroDados): PdfDocument => {
       secao(
         'Totais',
         `<dl class="totais">${[
-          total('Recebido', totais.recebidoCents),
-          total('Pago', totais.pagoCents),
-          total('Saldo realizado', totais.actualBalanceCents),
-          total('A receber', totais.aReceberCents),
-          total('A pagar', totais.aPagarCents),
-          total('Saldo previsto', totais.saldoPrevistoCents),
+          total('Recebido', totals.receivedCents),
+          total('Pago', totals.paidCents),
+          total('Saldo realizado', totals.actualBalanceCents),
+          total('A receber', totals.receivableCents),
+          total('A pagar', totals.payableCents),
+          total('Saldo previsto', totals.expectedBalanceCents),
         ].join('')}</dl>`,
       ),
-      financeRows('Recebido', relatorio.recebidos, 'Data'),
-      financeRows('Pago', relatorio.pagos, 'Data'),
-      financeRows('A receber', relatorio.aReceber, 'Vencimento'),
-      financeRows('A pagar', relatorio.aPagar, 'Vencimento'),
+      financeRows('Recebido', report.received, 'Data'),
+      financeRows('Pago', report.paid, 'Data'),
+      financeRows('A receber', report.receivable, 'Vencimento'),
+      financeRows('A pagar', report.payable, 'Vencimento'),
     ].join(''),
   );
 };

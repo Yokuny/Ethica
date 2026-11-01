@@ -76,7 +76,7 @@ describe('prazos da perícia (PRZ-01)', () => {
     const deadlines = await as(request(app).get(`/expert-cases/${created.body.data.id}/deadlines`));
     expect(deadlines.status).toBe(200);
     expect(deadlines.body.data).toEqual([
-      expect.objectContaining({ titulo: 'Entrega do laudo', vencimento: day(20), status: 'pending' }),
+      expect.objectContaining({ titulo: 'Entrega do laudo', dueDate: day(20), status: 'pending' }),
     ]);
   });
 
@@ -86,10 +86,10 @@ describe('prazos da perícia (PRZ-01)', () => {
 
     const criado = await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
       titulo: 'Esclarecimentos',
-      vencimento: day(-3),
+      dueDate: day(-3),
     });
     expect(criado.status).toBe(201);
-    expect(criado.body.data).toMatchObject({ status: 'pending', vencimento: day(-3), caseId: legalCase.id });
+    expect(criado.body.data).toMatchObject({ status: 'pending', dueDate: day(-3), caseId: legalCase.id });
     const id = criado.body.data.id;
 
     const filed = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({
@@ -112,16 +112,16 @@ describe('prazos da perícia (PRZ-01)', () => {
   it('listagem mostra o próximo prazo pendente e a faixa conta vencidos e os que vencem em até 15 dias (AC 5)', async () => {
     const { as } = await seedSession();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
-    for (const [titulo, vencimento] of [
+    for (const [titulo, dueDate] of [
       ['Vencido', day(-1)],
       ['Em breve', day(15)],
       ['Longe', day(16)],
     ] as const) {
-      await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({ titulo, vencimento });
+      await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({ titulo, dueDate });
     }
 
     const lista = await as(request(app).get('/expert-cases'));
-    expect(lista.body.data.items[0].nextDeadline).toEqual({ titulo: 'Vencido', vencimento: day(-1) });
+    expect(lista.body.data.items[0].nextDeadline).toEqual({ titulo: 'Vencido', dueDate: day(-1) });
 
     const stats = await as(request(app).get('/expert-cases/stats'));
     const groups = Object.fromEntries(
@@ -135,11 +135,11 @@ describe('prazos da perícia (PRZ-01)', () => {
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
     await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
       titulo: 'Dentro',
-      vencimento: day(2),
+      dueDate: day(2),
     });
     await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
       titulo: 'Fora',
-      vencimento: day(40),
+      dueDate: day(40),
     });
 
     const res = await as(request(app).get(`/expert-cases/deadlines?from=${day(0)}&to=${day(7)}`));
@@ -161,7 +161,7 @@ describe('prazos da perícia (PRZ-01)', () => {
       (
         await outro
           .as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`))
-          .send({ titulo: 'X', vencimento: day(1) })
+          .send({ titulo: 'X', dueDate: day(1) })
       ).status,
     ).toBe(404);
 

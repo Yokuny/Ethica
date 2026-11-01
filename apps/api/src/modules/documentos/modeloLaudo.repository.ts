@@ -2,7 +2,7 @@ import type { LaudoTipo } from '@ethica/contracts';
 import type { ModeloLaudoDocument, ModeloLaudoSecaoDocument } from '@ethica/db';
 import { ModeloLaudo, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { ModeloLaudoRecord, ModeloLaudoResumo, ModeloSecao, ModeloSecaoRecord } from './laudo.schema.js';
+import type { ModeloLaudoRecord, ModeloSecao, ModeloSecaoRecord, TemplateSummary } from './laudo.schema.js';
 
 const secaoToRecord = (secao: ModeloLaudoSecaoDocument): ModeloSecaoRecord => ({
   id: secao._id.toString(),
@@ -23,7 +23,7 @@ const toRecord = (doc: ModeloLaudoDocument): ModeloLaudoRecord => ({
   updatedAt: doc.updatedAt,
 });
 
-export const list = async (tenantId: string, tipo?: LaudoTipo): Promise<ModeloLaudoResumo[]> =>
+export const list = async (tenantId: string, tipo?: LaudoTipo): Promise<TemplateSummary[]> =>
   withDbTiming('modeloLaudo.list', async () => {
     const rows = await ModeloLaudo.aggregate<{
       _id: unknown;
@@ -84,7 +84,7 @@ export const updateSecao = async (
   secao: ModeloSecao,
 ): Promise<ModeloLaudoRecord | null> =>
   withDbTiming('modeloLaudo.updateSecao', async () => {
-    const $set = Object.fromEntries(Object.entries(secao).map(([field, valor]) => [`secoes.$.${field}`, valor]));
+    const $set = Object.fromEntries(Object.entries(secao).map(([field, amount]) => [`secoes.$.${field}`, amount]));
     const doc = await ModeloLaudo.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, _id: id, 'secoes._id': toObjectId(secaoId) }),
       { $set },

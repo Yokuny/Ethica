@@ -7,7 +7,7 @@ const toRecord = (doc: DeadlineDocument): DeadlineRecord => ({
   id: doc._id.toString(),
   caseId: doc.Case.toString(),
   titulo: doc.titulo,
-  vencimento: doc.vencimento,
+  dueDate: doc.dueDate,
   status: doc.status,
   filedDate: doc.filedDate,
   observacoes: doc.observacoes,
@@ -51,7 +51,7 @@ export const filePending = async (
     const doc = await Deadline.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, Case: caseId, titulo, status: 'pending' as const }),
       { $set: { status: 'filed', filedDate } },
-      { sort: { vencimento: 1, _id: 1 }, returnDocument: 'after', runValidators: true },
+      { sort: { dueDate: 1, _id: 1 }, returnDocument: 'after', runValidators: true },
     ).lean();
     return doc ? toRecord(doc) : null;
   });
@@ -70,22 +70,22 @@ export const deleteByCase = async (tenantId: string, caseId: string): Promise<vo
 export const listByCase = async (tenantId: string, caseId: string): Promise<DeadlineRecord[]> =>
   withDbTiming('deadline.listByCase', async () => {
     const docs = await Deadline.find(tenantScoped({ Tenant: tenantId, Case: caseId }))
-      .sort({ vencimento: 1, _id: 1 })
+      .sort({ dueDate: 1, _id: 1 })
       .lean();
     return docs.map(toRecord);
   });
 
 export const listPending = async (tenantId: string, range: { from?: string; to?: string }): Promise<DeadlineRecord[]> =>
   withDbTiming('deadline.listPending', async () => {
-    const vencimento = { ...(range.from ? { $gte: range.from } : {}), ...(range.to ? { $lt: range.to } : {}) };
+    const dueDate = { ...(range.from ? { $gte: range.from } : {}), ...(range.to ? { $lt: range.to } : {}) };
     const docs = await Deadline.find(
       tenantScoped({
         Tenant: tenantId,
         status: 'pending' as const,
-        ...(Object.keys(vencimento).length ? { vencimento } : {}),
+        ...(Object.keys(dueDate).length ? { dueDate } : {}),
       }),
     )
-      .sort({ vencimento: 1, _id: 1 })
+      .sort({ dueDate: 1, _id: 1 })
       .limit(500)
       .lean();
     return docs.map(toRecord);
@@ -95,8 +95,8 @@ export const listPending = async (tenantId: string, range: { from?: string; to?:
 // item volta com o seu, e o service separa por tenant antes de enviar.
 export const listPendingInDays = async (days: string[]): Promise<NoticeDeadline[]> =>
   withDbTiming('deadline.listPendingInDays', async () => {
-    const docs = await Deadline.find({ status: 'pending', vencimento: { $in: days } })
-      .sort({ vencimento: 1, _id: 1 })
+    const docs = await Deadline.find({ status: 'pending', dueDate: { $in: days } })
+      .sort({ dueDate: 1, _id: 1 })
       .lean();
     return docs.map((doc) => ({ ...toRecord(doc), tenantId: doc.Tenant.toString() }));
   });
@@ -105,19 +105,19 @@ export const listPendingInDays = async (days: string[]): Promise<NoticeDeadline[
 export const upcomingByCaseIds = async (tenantId: string, ids: string[]): Promise<Map<string, NextDeadline>> =>
   withDbTiming('deadline.upcomingByCaseIds', async () => {
     if (ids.length === 0) return new Map();
-    const rows = await Deadline.aggregate<{ _id: unknown; titulo: string; vencimento: string }>([
+    const rows = await Deadline.aggregate<{ _id: unknown; titulo: string; dueDate: string }>([
       { $match: { Tenant: toObjectId(tenantId), status: 'pending', Case: { $in: ids.map(toObjectId) } } },
-      { $sort: { vencimento: 1, _id: 1 } },
-      { $group: { _id: '$Case', titulo: { $first: '$titulo' }, vencimento: { $first: '$vencimento' } } },
+      { $sort: { dueDate: 1, _id: 1 } },
+      { $group: { _id: '$Case', titulo: { $first: '$titulo' }, dueDate: { $first: '$dueDate' } } },
     ]);
-    return new Map(rows.map((row) => [String(row._id), { titulo: row.titulo, vencimento: row.vencimento }]));
+    return new Map(rows.map((row) => [String(row._id), { titulo: row.titulo, dueDate: row.dueDate }]));
   });
 
 // Exportação de dados (DOC-04) e cronograma: todos os prazos do tenant, por vencimento.
 export const listAll = async (tenantId: string): Promise<DeadlineRecord[]> =>
   withDbTiming('deadline.listAll', async () => {
     const docs = await Deadline.find(tenantScoped({ Tenant: tenantId }))
-      .sort({ vencimento: 1 })
+      .sort({ dueDate: 1 })
       .lean();
     return docs.map(toRecord);
   });

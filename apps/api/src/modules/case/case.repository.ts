@@ -268,8 +268,8 @@ export const listCases = async (
   });
 
 // Enriquecimento cross-módulo: uma consulta `$in` por lote, nunca uma por item.
-export const findResumosByIds = async (tenantId: string, ids: string[]): Promise<Map<string, CaseSummary>> =>
-  withDbTiming('case.findResumosByIds', async () => {
+export const findSummariesByIds = async (tenantId: string, ids: string[]): Promise<Map<string, CaseSummary>> =>
+  withDbTiming('case.findSummariesByIds', async () => {
     if (ids.length === 0) return new Map();
     const docs = await Case.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } }))
       .select('processNumber parties')
@@ -324,8 +324,8 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
   withDbTiming('case.stats', async () => {
     const today = dateInDisplayTz(now);
     const count = (extra: object) => Case.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
-    const deadlines = (vencimento: object) =>
-      Deadline.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pending' as const, vencimento }));
+    const deadlines = (dueDate: object) =>
+      Deadline.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pending' as const, dueDate }));
     const [total, abertas, vencidas, proximas, entregues, trend] = await Promise.all([
       count({}),
       count({ status: { $in: ABERTAS } }),

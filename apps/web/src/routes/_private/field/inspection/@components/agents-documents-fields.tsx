@@ -24,8 +24,8 @@ export function AgentsFields({ form }: Props) {
       <ul className="flex flex-col divide-y divide-border">
         {INSPECTION_AGENTS.map((agent) => {
           const atual = agents.find((item) => item.agent === agent);
-          const alterar = (parcial: Partial<InspectionData['agents'][number]>) =>
-            definir(agents.map((item) => (item.agent === agent ? { ...item, ...parcial } : item)));
+          const alterar = (partial: Partial<InspectionData['agents'][number]>) =>
+            definir(agents.map((item) => (item.agent === agent ? { ...item, ...partial } : item)));
           return (
             <li key={agent} className="grid gap-2 py-3">
               <div className="flex flex-wrap items-center gap-3">

@@ -30,12 +30,12 @@ export function LaudoAddPage() {
   const modeloId = search.modeloId ?? (tipo ? LAUDO_MODELOS_PADRAO[tipo] : '');
   const modelo = useQuery({ ...modeloQuery(modeloId), enabled: Boolean(modeloId) });
   const create = useMutation(createLaudoMutation(queryClient));
-  const [escolhas, setEscolhas] = useState<{ modeloId: string; valores: Escolhas } | null>(null);
+  const [escolhas, setEscolhas] = useState<{ modeloId: string; values: Escolhas } | null>(null);
 
   // Ao trocar de modelo, todas as seções começam marcadas na variante "sim".
   const atuais: Escolhas =
     escolhas?.modeloId === modeloId
-      ? escolhas.valores
+      ? escolhas.values
       : Object.fromEntries((modelo.data?.secoes ?? []).map((secao) => [secao.id, 'yes']));
   const escolhidas = Object.entries(atuais).filter((entry): entry is [string, 'yes' | 'no'] => Boolean(entry[1]));
   const parties = (side: 'plaintiff' | 'defendant') =>
@@ -119,7 +119,7 @@ export function LaudoAddPage() {
               <SecoesPicker
                 secoes={modelo.data.secoes}
                 escolhas={atuais}
-                onChange={(valores) => setEscolhas({ modeloId, valores })}
+                onChange={(values) => setEscolhas({ modeloId, values })}
               />
             ) : null}
           </CardContent>

@@ -22,11 +22,11 @@ export const updateOfficeSchema = z
 export type UpdateOffice = z.infer<typeof updateOfficeSchema>;
 
 // Relatório financeiro de um período (DOC-03): datas inclusivas.
-export const financeiroReportQuerySchema = z
+export const financeReportQuerySchema = z
   .object({ from: calendarDateSchema, to: calendarDateSchema })
   .strict()
   .refine((value) => value.from <= value.to, { message: 'período inválido', path: ['to'] });
-export type FinanceiroReportQuery = z.infer<typeof financeiroReportQuerySchema>;
+export type FinanceReportQuery = z.infer<typeof financeReportQuerySchema>;
 
 // Aviso de agendamento às partes por e-mail (AD-131): marcadores trocados no envio.
 export const SCHEDULE_NOTICE_MARKERS = [

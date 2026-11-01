@@ -2,21 +2,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { OnChangeFn, PaginationState } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { TablePagination } from '@/components/table-pagination.js';
-import type { LancamentoRecord } from '@/query/lancamento.js';
-import { lancamentoColumns } from '../@utils/lancamento-columns.js';
+import type { TransactionRecord } from '@/query/transaction.js';
+import { transactionColumns } from '../@utils/transaction-columns.js';
 
-type LancamentosTableProps = {
-  data: LancamentoRecord[];
+type TransactionsTableProps = {
+  data: TransactionRecord[];
   pageCount: number;
   pageIndex: number;
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
-  onRowClick: (row: LancamentoRecord) => void;
-  onStatus: (lancamento: LancamentoRecord, status: 'settled' | 'canceled' | 'expected') => void;
-  onReceber: (lancamento: LancamentoRecord) => void;
+  onRowClick: (row: TransactionRecord) => void;
+  onStatus: (transaction: TransactionRecord, status: 'settled' | 'canceled' | 'expected') => void;
+  onReceive: (transaction: TransactionRecord) => void;
 };
 
-export function LancamentosTable({
+export function TransactionsTable({
   data,
   pageCount,
   pageIndex,
@@ -24,9 +24,9 @@ export function LancamentosTable({
   onPaginationChange,
   onRowClick,
   onStatus,
-  onReceber,
-}: LancamentosTableProps) {
-  const columns = lancamentoColumns({ onStatus, onReceber });
+  onReceive,
+}: TransactionsTableProps) {
+  const columns = transactionColumns({ onStatus, onReceive });
   const table = useReactTable({
     data,
     columns,

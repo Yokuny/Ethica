@@ -54,15 +54,15 @@ const nextDay = (day: string): string => {
   return date.toISOString().slice(0, 10);
 };
 
-const descricao = (tipo: string, titulo: string, resumo?: CaseSummary, observacoes?: string): string => {
+const descricao = (tipo: string, titulo: string, summary?: CaseSummary, observacoes?: string): string => {
   const parties =
-    resumo && (resumo.plaintiff || resumo.defendant)
-      ? [resumo.plaintiff, resumo.defendant].filter(Boolean).join(' × ')
+    summary && (summary.plaintiff || summary.defendant)
+      ? [summary.plaintiff, summary.defendant].filter(Boolean).join(' × ')
       : '';
   return [
     `Tipo: ${tipo}`,
     `Título: ${titulo}`,
-    resumo ? `Processo: ${resumo.processNumber}` : '',
+    summary ? `Processo: ${summary.processNumber}` : '',
     parties ? `Partes: ${parties}` : '',
     observacoes ? `Observações: ${observacoes}` : '',
   ]
@@ -72,11 +72,11 @@ const descricao = (tipo: string, titulo: string, resumo?: CaseSummary, observaco
 
 // Monta o calendário (função pura, testada à parte). Cada evento leva data, descrição
 // (tipo, título, processo, partes, observações) e local — definido pelo usuário em 2026-10-31.
-export const montarIcs = ({ appointments, deadlines, resumos, now }: FeedEntrada): string => {
+export const montarIcs = ({ appointments, deadlines, summaries, now }: FeedEntrada): string => {
   const stamp = utcStamp(now);
   const events = [
     ...appointments.map((item) => {
-      const resumo = item.caseId ? resumos.get(item.caseId) : undefined;
+      const summary = item.caseId ? summaries.get(item.caseId) : undefined;
       return [
         'BEGIN:VEVENT',
         `UID:compromisso-${item.id}@ethica`,
@@ -84,7 +84,7 @@ export const montarIcs = ({ appointments, deadlines, resumos, now }: FeedEntrada
         `DTSTART:${utcStamp(item.inicio)}`,
         `DTEND:${utcStamp(item.fim)}`,
         `SUMMARY:${escapeText(item.titulo)}`,
-        `DESCRIPTION:${escapeText(descricao(TIPO_LABEL[item.tipo], item.titulo, resumo, item.observacoes))}`,
+        `DESCRIPTION:${escapeText(descricao(TIPO_LABEL[item.tipo], item.titulo, summary, item.observacoes))}`,
         ...(item.local ? [`LOCATION:${escapeText(item.local)}`] : []),
         `STATUS:${item.status === 'done' ? 'CONFIRMED' : 'TENTATIVE'}`,
         'END:VEVENT',
@@ -95,10 +95,10 @@ export const montarIcs = ({ appointments, deadlines, resumos, now }: FeedEntrada
       'BEGIN:VEVENT',
       `UID:prazo-${deadline.id}@ethica`,
       `DTSTAMP:${stamp}`,
-      `DTSTART;VALUE=DATE:${dateValue(deadline.vencimento)}`,
-      `DTEND;VALUE=DATE:${dateValue(nextDay(deadline.vencimento))}`,
+      `DTSTART;VALUE=DATE:${dateValue(deadline.dueDate)}`,
+      `DTEND;VALUE=DATE:${dateValue(nextDay(deadline.dueDate))}`,
       `SUMMARY:${escapeText(`Prazo: ${deadline.titulo}`)}`,
-      `DESCRIPTION:${escapeText(descricao('Prazo', deadline.titulo, resumos.get(deadline.caseId), deadline.observacoes))}`,
+      `DESCRIPTION:${escapeText(descricao('Prazo', deadline.titulo, summaries.get(deadline.caseId), deadline.observacoes))}`,
       'TRANSP:TRANSPARENT',
       'END:VEVENT',
     ]),
@@ -133,6 +133,6 @@ export const gerarFeed = async (token: string, now: Date = new Date()): Promise<
   const ids = [
     ...new Set([...ativos.flatMap((item) => (item.caseId ? [item.caseId] : [])), ...deadlines.map((p) => p.caseId)]),
   ];
-  const resumos = await caseService.findResumosByIds(tenantId, ids);
-  return montarIcs({ appointments: ativos, deadlines, resumos, now });
+  const summaries = await caseService.findSummariesByIds(tenantId, ids);
+  return montarIcs({ appointments: ativos, deadlines, summaries, now });
 };

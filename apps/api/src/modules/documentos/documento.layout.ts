@@ -96,8 +96,8 @@ export const tabela = (colunas: string[], linhas: string[][], classe = ''): stri
 // Pares rótulo/valor; valor vazio some.
 export const fields = (pares: Array<[string, string | undefined]>): string =>
   `<dl>${pares
-    .filter(([, valor]) => valor)
-    .map(([fieldLabel, valor]) => `<div><dt>${esc(fieldLabel)}</dt><dd>${esc(valor)}</dd></div>`)
+    .filter(([, amount]) => amount)
+    .map(([fieldLabel, amount]) => `<div><dt>${esc(fieldLabel)}</dt><dd>${esc(amount)}</dd></div>`)
     .join('')}</dl>`;
 
 const CSS = `

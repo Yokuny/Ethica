@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import * as lancamentoService from '../../modules/financeiro/lancamento.service.js';
+import * as transactionService from '../../modules/finance/transaction.service.js';
 import { domainEventBus } from '../event-bus.js';
 import { registerAllSubscribers } from './index.js';
 
-vi.mock('../../modules/financeiro/lancamento.service.js', () => ({
+vi.mock('../../modules/finance/transaction.service.js', () => ({
   postFixedFees: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -22,15 +22,15 @@ describe('registerAllSubscribers', () => {
 
     domainEventBus.emit('case:fixed_fees', {
       ...CASE,
-      valorCents: 350_000,
-      categoria: 'fixed_fees' as const,
+      amountCents: 350_000,
+      category: 'fixed_fees' as const,
     });
 
     await vi.waitFor(() =>
-      expect(lancamentoService.postFixedFees).toHaveBeenCalledWith({
+      expect(transactionService.postFixedFees).toHaveBeenCalledWith({
         ...CASE,
-        valorCents: 350_000,
-        categoria: 'fixed_fees' as const,
+        amountCents: 350_000,
+        category: 'fixed_fees' as const,
       }),
     );
   });

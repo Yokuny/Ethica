@@ -12,7 +12,7 @@ import * as accountService from '../identity/account.service.js';
 import * as officeService from '../identity/office.service.js';
 import type { DocumentoContexto, GeneratedFile } from './documentos.schema.js';
 import { laudoDocx } from './laudo.docx.js';
-import { pendenciasDe, resolveVariables, sanitizeLaudoHtml, type ValoresDoLaudo } from './laudo.html.js';
+import { pendenciasDe, type ReportValues, resolveVariables, sanitizeLaudoHtml } from './laudo.html.js';
 import * as laudoRepository from './laudo.repository.js';
 import type {
   ConcluirLaudo,
@@ -24,7 +24,7 @@ import type {
   UpdateLaudoSecao,
 } from './laudo.schema.js';
 import { laudoHtml } from './laudo.templates.js';
-import { valoresDoLaudo } from './laudo.variaveis.js';
+import { reportValues } from './laudo.variaveis.js';
 import * as modeloLaudoService from './modeloLaudo.service.js';
 
 export class LaudoNotFoundError extends KeyedError {}
@@ -36,9 +36,9 @@ type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 const BEFORE_DELIVERY = new Set(['appointed', 'accepted', 'inspection', 'drafting_report']);
 
 const comNumero = async <T extends { caseId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
-  const resumos = await caseService.findResumosByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
+  const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
   return items.map((item) => {
-    const numero = resumos.get(item.caseId)?.processNumber;
+    const numero = summaries.get(item.caseId)?.processNumber;
     return numero ? { ...item, caseNumber: numero } : item;
   });
 };
@@ -62,7 +62,7 @@ const dadosAtuais = async (providers: Pick<Providers, 'storage'>, ctx: Documento
     appointmentService.listByCase(ctx.tenantId, legalCase.id),
     inspectionService.lastDoneByCase(ctx.tenantId, legalCase.id),
   ]);
-  const valores = valoresDoLaudo({
+  const values = reportValues({
     legalCase,
     expert,
     identity,
@@ -70,14 +70,14 @@ const dadosAtuais = async (providers: Pick<Providers, 'storage'>, ctx: Documento
     field: field && { dados: field.inspection.dados, inicio: field.appointment.inicio },
     today: dateInDisplayTz(ctx.now),
   });
-  return { identity, expert, valores };
+  return { identity, expert, values };
 };
 
-const resolveSections = (secoes: LaudoSecaoRecord[], valores: ValoresDoLaudo): LaudoSecaoRecord[] =>
+const resolveSections = (secoes: LaudoSecaoRecord[], values: ReportValues): LaudoSecaoRecord[] =>
   secoes.map((secao) => ({
     ...secao,
-    titulo: resolveVariables(secao.titulo, valores, 'texto'),
-    html: resolveVariables(secao.html, valores, 'html'),
+    titulo: resolveVariables(secao.titulo, values, 'texto'),
+    html: resolveVariables(secao.html, values, 'html'),
   }));
 
 // Nenhum documento sai nem é concluído com marcador sem valor (AD-126).
@@ -108,8 +108,8 @@ export const abrirLaudo = async (ctx: DocumentoContexto, id: string): Promise<La
   const laudo = await getLaudo(ctx.tenantId, id);
   if (laudo.status === 'completed') return laudo;
   const legalCase = await caseService.getCase(ctx.tenantId, laudo.caseId);
-  const { valores } = await dadosAtuais({}, ctx, legalCase);
-  const secoes = resolveSections(laudo.secoes, valores);
+  const { values } = await dadosAtuais({}, ctx, legalCase);
+  const secoes = resolveSections(laudo.secoes, values);
   return { ...laudo, secoes, pendencias: pendenciasDe(secoes) };
 };
 
@@ -127,7 +127,7 @@ export const createLaudo = async (
   const variantes = new Map(data.secoes.map((escolha) => [escolha.id, escolha.variante]));
   const escolhidas = modelo.secoes.filter((secao) => variantes.has(secao.id));
   if (escolhidas.length !== variantes.size) throw new CustomError('invalid_data', 422, 'seção fora do modelo');
-  const { valores } = await dadosAtuais(providers, ctx, legalCase);
+  const { values } = await dadosAtuais(providers, ctx, legalCase);
   const laudo = await laudoRepository.create({
     tenantId: ctx.tenantId,
     caseId: legalCase.id,
@@ -138,14 +138,14 @@ export const createLaudo = async (
     secoes: escolhidas.map((secao) => {
       const variante = variantes.get(secao.id) ?? 'yes';
       return {
-        titulo: resolveVariables(secao.titulo, valores, 'texto'),
+        titulo: resolveVariables(secao.titulo, values, 'texto'),
         nivel: secao.nivel,
         apenasTitulo: secao.apenasTitulo,
         quebraPagina: secao.quebraPagina,
         variante,
         html: secao.apenasTitulo
           ? ''
-          : resolveVariables(variante === 'yes' ? secao.textoSim : secao.textoNao, valores, 'html'),
+          : resolveVariables(variante === 'yes' ? secao.textoSim : secao.textoNao, values, 'html'),
       };
     }),
   });
@@ -187,8 +187,8 @@ export const concluirLaudo = async (
 ): Promise<LaudoRecord> => {
   const laudo = await editavel(ctx.tenantId, id);
   const legalCase = await caseService.getCase(ctx.tenantId, laudo.caseId);
-  const { valores } = await dadosAtuais(providers, ctx, legalCase);
-  const secoes = resolveSections(laudo.secoes, valores);
+  const { values } = await dadosAtuais(providers, ctx, legalCase);
+  const secoes = resolveSections(laudo.secoes, values);
   semPendencias(secoes);
   encontrado(await laudoRepository.concluir(ctx.tenantId, id, ctx.userId, ctx.now, secoes));
   if (recordDelivery) {
@@ -220,8 +220,8 @@ export const deleteByCase = (tenantId: string, caseId: string) => laudoRepositor
 const paraExportar = async (providers: Providers, ctx: DocumentoContexto, id: string) => {
   const laudo = await getLaudo(ctx.tenantId, id);
   const legalCase = await caseService.getCase(ctx.tenantId, laudo.caseId);
-  const { identity, expert, valores } = await dadosAtuais(providers, ctx, legalCase);
-  const secoes = resolveSections(laudo.secoes, valores);
+  const { identity, expert, values } = await dadosAtuais(providers, ctx, legalCase);
+  const secoes = resolveSections(laudo.secoes, values);
   semPendencias(secoes);
   // Fotos da vistoria no texto (AD-129): bytes lidos aqui, só do próprio tenant.
   const srcs = [
@@ -235,7 +235,7 @@ const paraExportar = async (providers: Providers, ctx: DocumentoContexto, id: st
     ),
   );
   const photos = Object.fromEntries(lidas.flatMap(([src, photo]) => (photo ? [[src, photo]] : [])));
-  return { laudo: { ...laudo, secoes }, legalCase, identity, expert, valores, photos, geradoEm: ctx.now };
+  return { laudo: { ...laudo, secoes }, legalCase, identity, expert, values, photos, geradoEm: ctx.now };
 };
 
 const fileName = (laudo: LaudoRecord, legalCase: CaseRecord, extensao: string): string =>

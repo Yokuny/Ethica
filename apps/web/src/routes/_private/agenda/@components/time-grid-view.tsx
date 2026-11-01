@@ -55,7 +55,7 @@ export function TimeGridView({
   onSelectDeadline = () => {},
   today = '',
 }: TimeGridViewProps) {
-  const hasDeadlines = deadlines.some((deadline) => days.includes(deadline.vencimento));
+  const hasDeadlines = deadlines.some((deadline) => days.includes(deadline.dueDate));
   return (
     <CalendarTimeGrid className="min-w-160 flex-col" data-testid="time-grid-view">
       {/* Cabeçalho fixo (fora do ScrollArea): régua de horas vazia + data de
@@ -82,7 +82,7 @@ export function TimeGridView({
             {days.map((day) => (
               <div key={day} className="grid content-start gap-1 p-1">
                 {deadlines
-                  .filter((deadline) => deadline.vencimento === day)
+                  .filter((deadline) => deadline.dueDate === day)
                   .map((deadline) => (
                     <CalendarDeadlineChip
                       key={deadline.id}

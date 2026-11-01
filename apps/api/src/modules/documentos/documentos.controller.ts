@@ -5,7 +5,7 @@ import { CaseNotFoundError } from '../case/case.service.js';
 import type {
   DocumentoContexto,
   DocumentosRouterDeps,
-  FinanceiroReportQuery,
+  FinanceReportQuery,
   GeneratedFile,
 } from './documentos.schema.js';
 import * as documentosService from './documentos.service.js';
@@ -49,10 +49,8 @@ export const checklist = (providers: Providers) =>
 export const cronograma = (providers: Providers) =>
   handler((_req, ctx) => documentosService.gerarCronograma(providers, ctx));
 
-export const financeiro = (providers: Providers) =>
-  handler((req, ctx) =>
-    documentosService.gerarFinanceiro(providers, ctx, req.query as unknown as FinanceiroReportQuery),
-  );
+export const finance = (providers: Providers) =>
+  handler((req, ctx) => documentosService.generateFinance(providers, ctx, req.query as unknown as FinanceReportQuery));
 
 export const stalled = (providers: Providers) =>
   handler((_req, ctx) => documentosService.generateStalled(providers, ctx));

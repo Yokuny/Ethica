@@ -95,7 +95,7 @@ describe('feed iCal (PRZ-03)', () => {
       fim: wallClockToUtc(amanha, '12:00'),
       status: 'canceled',
     });
-    await Deadline.create({ Tenant: tenant._id, Case: legalCase._id, titulo: 'Entrega do laudo', vencimento: amanha });
+    await Deadline.create({ Tenant: tenant._id, Case: legalCase._id, titulo: 'Entrega do laudo', dueDate: amanha });
 
     expect((await as(request(app).get('/me/calendar-feed'))).body.data).toEqual({ active: false });
     const generated = await as(request(app).post('/me/calendar-feed'));

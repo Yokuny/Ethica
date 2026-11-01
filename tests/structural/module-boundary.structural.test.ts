@@ -27,7 +27,7 @@ const DB_OWNERSHIP: Record<string, readonly string[]> = {
   identity: ['Tenant', 'User', 'Session', 'Invite', 'Atividade', 'transitionTenantStatus'],
   case: ['Case', 'Deadline', 'Party'],
   agenda: ['Appointment', 'Inspection'],
-  financeiro: ['Lancamento'],
+  finance: ['Transaction'],
   prospeccao: ['Oportunidade'],
   documentos: ['Laudo', 'ModeloLaudo'],
 };

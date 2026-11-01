@@ -70,7 +70,7 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
     if (reportDeadline) {
       await deadlineRepository.createDeadline(input.tenant, legalCase.id, {
         titulo: REPORT_DELIVERY_DEADLINE,
-        vencimento: reportDeadline,
+        dueDate: reportDeadline,
         observacoes: 'Gerado a partir do prazo do laudo informado no cadastro.',
       });
     }
@@ -108,8 +108,8 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
       tenantId,
       caseId: updated.id,
       processNumber: updated.processNumber,
-      valorCents: updated.fixedFeesCents,
-      categoria: updated.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
+      amountCents: updated.fixedFeesCents,
+      category: updated.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
     });
   }
   return updated;
@@ -177,4 +177,4 @@ export const listForExport = (tenantId: string) => caseRepository.listAll(tenant
 
 export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DEADLINE_DUE_SOON_DAYS);
 export const caseDistribution = (tenantId: string) => caseRepository.distribution(tenantId);
-export const findResumosByIds = (tenantId: string, ids: string[]) => caseRepository.findResumosByIds(tenantId, ids);
+export const findSummariesByIds = (tenantId: string, ids: string[]) => caseRepository.findSummariesByIds(tenantId, ids);

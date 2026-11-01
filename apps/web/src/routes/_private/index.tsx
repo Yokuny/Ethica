@@ -5,17 +5,17 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { FluxoFinanceiroChart } from '@/components/fluxo-financeiro-chart.js';
+import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { UpcomingAppointments } from '@/components/upcoming-appointments.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { upcomingAppointmentsQuery } from '@/query/appointment.js';
 import { caseDistributionQuery, stalledCasesQuery } from '@/query/case.js';
-import { financeiroResumoQuery, fluxoMensalQuery } from '@/query/lancamento.js';
 import { listStatsQuery } from '@/query/listStats.js';
 import { preferencesQuery } from '@/query/preferences.js';
 import { can } from '@/query/session.js';
+import { financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CasesCourtTypeChart } from './@components/cases-court-type-chart.js';
 import { CasesStatusChart } from './@components/cases-status-chart.js';
 import { HomeOverview } from './@components/home-overview.js';
@@ -48,8 +48,8 @@ export function PrivateIndexPage() {
   });
   const stalled = useQuery({ ...stalledCasesQuery, enabled: mostra('stalled') });
   const upcoming = useQuery({ ...upcomingAppointmentsQuery({ limit: 5 }), enabled: mostra('upcoming') });
-  const resumo = useQuery({ ...financeiroResumoQuery, enabled: canSeeFinance && mostra('overview') });
-  const fluxo = useQuery({ ...fluxoMensalQuery(FLOW_MONTHS), enabled: mostra('cash_flow') });
+  const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance && mostra('overview') });
+  const flow = useQuery({ ...monthlyFlowQuery(FLOW_MONTHS), enabled: mostra('cash_flow') });
 
   return (
     <Card asPage>
@@ -67,7 +67,7 @@ export function PrivateIndexPage() {
           )}
         </CardAction>
       </CardHeader>
-      {mostra('overview') && <HomeOverview stats={stats.data} resumo={canSeeFinance ? resumo.data : undefined} />}
+      {mostra('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
       <CardContent className="gap-10 pb-16">
         {mostra('upcoming') && (
           <Panel size="sm" title={t('upcoming_commitments')}>
@@ -93,7 +93,7 @@ export function PrivateIndexPage() {
         )}
         {mostra('cash_flow') && (
           <Panel size="sm" title={t('cash_flow')} description={t('last_6_months')}>
-            {fluxo.isLoading ? <DefaultLoading /> : fluxo.data && <FluxoFinanceiroChart data={fluxo.data} />}
+            {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
           </Panel>
         )}
         {(mostra('by_stage') || mostra('by_court')) && (

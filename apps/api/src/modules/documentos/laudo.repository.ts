@@ -108,8 +108,8 @@ export const updateSecao = async (
   withDbTiming('laudo.updateSecao', async () => {
     const $set = Object.fromEntries(
       Object.entries(data)
-        .filter(([, valor]) => valor !== undefined)
-        .map(([field, valor]) => [`secoes.$.${field}`, valor]),
+        .filter(([, amount]) => amount !== undefined)
+        .map(([field, amount]) => [`secoes.$.${field}`, amount]),
     );
     const doc = await Laudo.findOneAndUpdate(
       draft(tenantId, id, { 'secoes._id': toObjectId(secaoId) }),

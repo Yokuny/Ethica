@@ -42,8 +42,8 @@ const nextDay = (date: string): string => {
 };
 
 const fieldCases = async (tenantId: string, ids: string[]): Promise<Map<string, FieldCase>> => {
-  const resumos = await caseService.findResumosByIds(tenantId, ids);
-  return new Map([...resumos].map(([id, resumo]) => [id, { id, ...resumo }]));
+  const summaries = await caseService.findSummariesByIds(tenantId, ids);
+  return new Map([...summaries].map(([id, summary]) => [id, { id, ...summary }]));
 };
 
 // CAM-01: tudo do dia (por horário) com o registro de cada compromisso, para o celular guardar.

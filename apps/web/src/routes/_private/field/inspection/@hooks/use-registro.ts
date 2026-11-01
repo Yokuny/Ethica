@@ -8,16 +8,16 @@ import { atualizarPendencias, runSync } from '@/lib/offline/sync.js';
 import { type DayInspection, type InspectionRecord, inspectionKeys } from '@/query/inspection.js';
 
 // Campo opcional vazio no formulário vira ausente, como o contrato espera.
-const limpar = <T>(valor: T): T => {
-  if (Array.isArray(valor)) return valor.map(limpar) as T;
-  if (valor && typeof valor === 'object') {
+const limpar = <T>(amount: T): T => {
+  if (Array.isArray(amount)) return amount.map(limpar) as T;
+  if (amount && typeof amount === 'object') {
     return Object.fromEntries(
-      Object.entries(valor)
+      Object.entries(amount)
         .filter(([, item]) => item !== '' && item !== undefined && !(typeof item === 'number' && Number.isNaN(item)))
         .map(([chave, item]) => [chave, limpar(item)]),
     ) as T;
   }
-  return valor;
+  return amount;
 };
 
 const ENVIO_APOS_MS = 1500;
@@ -46,14 +46,14 @@ export function useRegistro(item: DayInspection, initialDraft?: Draft) {
   }
 
   useEffect(() => {
-    const signature = form.watch((valores) => {
+    const signature = form.watch((values) => {
       if (ignorar.current) return;
       void (async () => {
         const existente = await readDraft(appointmentId);
         await saveDraft({
           appointmentId,
           versao: existente?.versao ?? serverVersion(),
-          dados: limpar(valores) as InspectionData,
+          dados: limpar(values) as InspectionData,
           alteradoEm: new Date().toISOString(),
           ...(existente?.conflict ? { conflict: existente.conflict } : {}),
         });

@@ -59,7 +59,7 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
             id: 'deadline',
             name: t('deadline'),
             specs: [
-              { label: t('due_date'), value: day(deadline.vencimento) },
+              { label: t('due_date'), value: day(deadline.dueDate) },
               { label: t('filed_on'), value: day(deadline.filedDate) },
               {
                 label: t('expert_case'),

@@ -13,7 +13,7 @@ import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
 import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
 import { listDiarioQuerySchema } from './schemas/diario.schema.js';
 import {
-  financeiroReportQuerySchema,
+  financeReportQuerySchema,
   updateOfficeSchema,
   updateScheduleNoticeSchema,
 } from './schemas/documento.schema.js';
@@ -25,7 +25,6 @@ import {
   updateMediaSchema,
 } from './schemas/inspection.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
-import { createLancamentoSchema, createParcelaSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
 import {
   concluirLaudoSchema,
   createLaudoSchema,
@@ -51,6 +50,11 @@ import {
 } from './schemas/prospeccao.schema.js';
 import { provisionTenantSchema } from './schemas/provisionTenant.schema.js';
 import { signinSchema } from './schemas/signin.schema.js';
+import {
+  createInstallmentSchema,
+  createTransactionSchema,
+  updateTransactionSchema,
+} from './schemas/transaction.schema.js';
 
 export const TENANT_FORBIDDEN_KEYS = [
   'tenant',
@@ -83,7 +87,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'updateCaseSchema', schema: updateCaseSchema },
   { name: 'createMovementSchema', schema: createMovementSchema },
   { name: 'updateOfficeSchema', schema: updateOfficeSchema },
-  { name: 'financeiroReportQuerySchema', schema: financeiroReportQuerySchema },
+  { name: 'financeReportQuerySchema', schema: financeReportQuerySchema },
   { name: 'documentoSchema', schema: documentoSchema },
   { name: 'oabSchema', schema: oabSchema },
   { name: 'createPartySchema', schema: createPartySchema },
@@ -100,9 +104,9 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'updateDeadlineSchema', schema: updateDeadlineSchema },
   { name: 'createAppointmentSchema', schema: createAppointmentSchema },
   { name: 'updateAppointmentSchema', schema: updateAppointmentSchema },
-  { name: 'createLancamentoSchema', schema: createLancamentoSchema },
-  { name: 'updateLancamentoSchema', schema: updateLancamentoSchema },
-  { name: 'createParcelaSchema', schema: createParcelaSchema },
+  { name: 'createTransactionSchema', schema: createTransactionSchema },
+  { name: 'updateTransactionSchema', schema: updateTransactionSchema },
+  { name: 'createInstallmentSchema', schema: createInstallmentSchema },
   { name: 'datajudSearchSchema', schema: datajudSearchSchema },
   { name: 'createOportunidadeSchema', schema: createOportunidadeSchema },
   { name: 'updateOportunidadeSchema', schema: updateOportunidadeSchema },

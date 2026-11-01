@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import { Case, connect, dateInDisplayTz, disconnect, hashToken, Lancamento, Session, Tenant, User } from '@ethica/db';
+import { Case, connect, dateInDisplayTz, disconnect, hashToken, Session, Tenant, Transaction, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -37,11 +37,11 @@ const seedSession = async (role: Role[] = ['admin']) => {
 };
 
 const FEE = {
-  natureza: 'income',
-  categoria: 'fixed_fees',
+  kind: 'income',
+  category: 'fixed_fees',
   descricao: 'Honorários fixados',
-  valorCents: 480_000,
-  vencimento: '2026-12-01',
+  amountCents: 480_000,
+  dueDate: '2026-12-01',
 };
 
 describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
@@ -50,7 +50,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
   });
   afterEach(async () => {
     await Promise.all([
-      Lancamento.deleteMany({}),
+      Transaction.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
@@ -65,50 +65,50 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
 
-    const parcial = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
-      valorCents: 150_000,
+    const partial = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
+      amountCents: 150_000,
       data: today,
-      conta: 'Banco do Brasil',
+      account: 'Banco do Brasil',
     });
-    expect(parcial.status).toBe(201);
-    expect(parcial.body.data).toMatchObject({ status: 'partial', recebidoCents: 150_000, saldoCents: 330_000 });
-    const [parcela] = parcial.body.data.parcelas;
-    expect(parcela).toMatchObject({ valorCents: 150_000, data: today, conta: 'Banco do Brasil' });
+    expect(partial.status).toBe(201);
+    expect(partial.body.data).toMatchObject({ status: 'partial', receivedCents: 150_000, balanceCents: 330_000 });
+    const [installment] = partial.body.data.installments;
+    expect(installment).toMatchObject({ amountCents: 150_000, data: today, account: 'Banco do Brasil' });
 
-    const estorno = await as(request(app).delete(`/finance/entries/${id}/installments/${parcela.id}`));
+    const estorno = await as(request(app).delete(`/finance/entries/${id}/installments/${installment.id}`));
     expect(estorno.body.data).toMatchObject({
       status: 'expected',
-      recebidoCents: 0,
-      saldoCents: 480_000,
-      parcelas: [],
+      receivedCents: 0,
+      balanceCents: 480_000,
+      installments: [],
     });
 
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 300_000, data: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 300_000, data: today });
     const quitado = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
-      valorCents: 180_000,
+      amountCents: 180_000,
       data: today,
     });
-    expect(quitado.body.data).toMatchObject({ status: 'settled', saldoCents: 0 });
+    expect(quitado.body.data).toMatchObject({ status: 'settled', balanceCents: 0 });
   });
 
   it('parcela maior que o saldo é recusada com 422 parcel_exceeds_balance e nada muda', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 400_000, data: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 400_000, data: today });
 
     const excede = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
-      valorCents: 80_001,
+      amountCents: 80_001,
       data: today,
     });
     expect(excede.status).toBe(422);
     expect(excede.body.message).toBe('parcel_exceeds_balance');
-    expect((await Lancamento.findById(id).lean())?.parcelas).toHaveLength(1);
+    expect((await Transaction.findById(id).lean())?.installments).toHaveLength(1);
   });
 
   it('honorário não é excluído nem tem status à mão; valor não fica abaixo do recebido; despesa continua excluível', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 200_000, data: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 200_000, data: today });
 
     const excluir = await as(request(app).delete(`/finance/entries/${id}`));
     expect(excluir.status).toBe(409);
@@ -118,41 +118,40 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect(cancelar.status).toBe(422);
     expect(cancelar.body.message).toBe('fee_status_comes_from_parcels');
 
-    const abaixo = await as(request(app).patch(`/finance/entries/${id}`)).send({ valorCents: 199_999 });
+    const abaixo = await as(request(app).patch(`/finance/entries/${id}`)).send({ amountCents: 199_999 });
     expect(abaixo.status).toBe(422);
     expect(abaixo.body.message).toBe('amount_below_received');
 
-    const igual = await as(request(app).patch(`/finance/entries/${id}`)).send({ valorCents: 200_000 });
-    expect(igual.body.data).toMatchObject({ status: 'settled', saldoCents: 0 });
+    const igual = await as(request(app).patch(`/finance/entries/${id}`)).send({ amountCents: 200_000 });
+    expect(igual.body.data).toMatchObject({ status: 'settled', balanceCents: 0 });
 
-    const despesa = (
+    const expense = (
       await as(request(app).post('/finance/entries')).send({
-        natureza: 'expense',
-        categoria: 'supplies',
+        kind: 'expense',
+        category: 'supplies',
         descricao: 'Calibração',
-        valorCents: 10_000,
-        vencimento: today,
+        amountCents: 10_000,
+        dueDate: today,
       })
     ).body.data;
-    expect((await as(request(app).delete(`/finance/entries/${despesa.id}`))).status).toBe(200);
+    expect((await as(request(app).delete(`/finance/entries/${expense.id}`))).status).toBe(200);
   });
 
   it('resumo e fluxo contam o recebido pela data de cada parcela e o saldo como a receber (PRZ-02.5)', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, vencimento: '2020-01-10' })).body
-      .data;
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 150_000, data: today });
+    const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, dueDate: '2020-01-10' })).body.data;
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 150_000, data: today });
     // Parcela de outro mês: entra no recebido do mês dela, não no deste (nem no fluxo de 1 mês).
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({
-      valorCents: 50_000,
+      amountCents: 50_000,
       data: '2020-02-01',
     });
 
-    const resumo = (await as(request(app).get('/finance/summary'))).body.data;
-    expect(resumo).toMatchObject({ aReceberCents: 280_000, lateCents: 280_000, receivedMonthCents: 150_000 });
+    const summary = (await as(request(app).get('/finance/summary'))).body.data;
+    expect(summary).toMatchObject({ receivableCents: 280_000, lateCents: 280_000, receivedMonthCents: 150_000 });
 
-    const fluxo = (await as(request(app).get('/finance/flow?months=1'))).body.data;
-    expect(fluxo).toEqual([{ month: today.slice(0, 7), recebidoCents: 150_000, aReceberCents: 0, despesasCents: 0 }]);
+    const flow = (await as(request(app).get('/finance/flow?months=1'))).body.data;
+    expect(flow).toEqual([{ month: today.slice(0, 7), receivedCents: 150_000, receivableCents: 0, expensesCents: 0 }]);
 
     const atrasados = (await as(request(app).get('/finance/entries?state=overdue'))).body.data;
     expect(atrasados.items.map((item: { id: string }) => item.id)).toEqual([id]);
@@ -171,10 +170,12 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     ).body.data;
 
     await as(request(app).patch(`/expert-cases/${legalCase.id}`)).send({ fixedFeesCents: 300_000 });
-    await expect.poll(() => Lancamento.countDocuments({ Case: legalCase.id })).toBe(1);
+    await expect.poll(() => Transaction.countDocuments({ Case: legalCase.id })).toBe(1);
 
     await as(request(app).patch(`/expert-cases/${legalCase.id}`)).send({ fixedFeesCents: 350_000 });
-    await expect.poll(async () => (await Lancamento.findOne({ Case: legalCase.id }).lean())?.valorCents).toBe(350_000);
-    expect(await Lancamento.countDocuments({ Case: legalCase.id })).toBe(1);
+    await expect
+      .poll(async () => (await Transaction.findOne({ Case: legalCase.id }).lean())?.amountCents)
+      .toBe(350_000);
+    expect(await Transaction.countDocuments({ Case: legalCase.id })).toBe(1);
   });
 });

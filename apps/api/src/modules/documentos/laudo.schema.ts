@@ -89,7 +89,7 @@ export type ModeloLaudoRecord = {
   updatedAt?: Date;
 };
 
-export type ModeloLaudoResumo = Omit<ModeloLaudoRecord, 'secoes'> & { totalSecoes: number };
+export type TemplateSummary = Omit<ModeloLaudoRecord, 'secoes'> & { totalSecoes: number };
 
 export type LaudoSecaoRecord = {
   id: string;
@@ -140,7 +140,7 @@ export type LaudoExportDados = {
   legalCase: CaseRecord;
   identity: DocumentIdentity;
   expert: AccountView;
-  valores: Partial<Record<LaudoVariavel, string>>;
+  values: Partial<Record<LaudoVariavel, string>>;
   // `src` da foto no HTML → bytes (AD-129); foto que sumiu fica fora e o `img` some.
   photos: Record<string, { body: Buffer; mime: string }>;
   geradoEm: Date;

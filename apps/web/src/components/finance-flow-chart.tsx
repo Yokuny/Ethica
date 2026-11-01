@@ -9,12 +9,12 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { FluxoMensal } from '@/query/lancamento.js';
+import type { MonthlyFlow } from '@/query/transaction.js';
 
 const config = {
-  recebidoCents: { label: t('received'), color: 'var(--chart-1)' },
-  aReceberCents: { label: t('receivable'), color: 'var(--chart-4)' },
-  despesasCents: { label: t('expenses'), color: 'var(--destructive)' },
+  receivedCents: { label: t('received'), color: 'var(--chart-1)' },
+  receivableCents: { label: t('receivable'), color: 'var(--chart-4)' },
+  expensesCents: { label: t('expenses'), color: 'var(--destructive)' },
 } satisfies ChartConfig;
 
 const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'short', year: '2-digit', timeZone: 'UTC' });
@@ -23,7 +23,7 @@ const compactMoney = new Intl.NumberFormat('pt-BR', { notation: 'compact', style
 
 // Fluxo de caixa por mês: recebido, a receber e despesas, lado a lado.
 // Quem busca o dado decide loading/vazio; aqui chega pronto.
-export function FluxoFinanceiroChart({ data }: { data: FluxoMensal[] }) {
+export function FinanceFlowChart({ data }: { data: MonthlyFlow[] }) {
   return (
     <ChartContainer config={config} className="aspect-auto h-72 w-full">
       <BarChart data={data} margin={{ left: 4, right: 4, top: 8 }}>
@@ -42,9 +42,9 @@ export function FluxoFinanceiroChart({ data }: { data: FluxoMensal[] }) {
           }
         />
         <ChartLegend content={<ChartLegendContent />} />
-        <Bar dataKey="recebidoCents" fill="var(--color-recebidoCents)" radius={[3, 3, 0, 0]} />
-        <Bar dataKey="aReceberCents" fill="var(--color-aReceberCents)" radius={[3, 3, 0, 0]} />
-        <Bar dataKey="despesasCents" fill="var(--color-despesasCents)" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="receivedCents" fill="var(--color-recebidoCents)" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="receivableCents" fill="var(--color-aReceberCents)" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="expensesCents" fill="var(--color-despesasCents)" radius={[3, 3, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );

@@ -3,11 +3,7 @@ import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as documentosController from './documentos.controller.js';
-import {
-  type DocumentosRouterDeps,
-  documentCaseParamSchema,
-  financeiroReportQuerySchema,
-} from './documentos.schema.js';
+import { type DocumentosRouterDeps, documentCaseParamSchema, financeReportQuerySchema } from './documentos.schema.js';
 
 // O relatório financeiro exige também ver o financeiro (AD-137).
 
@@ -39,8 +35,8 @@ export const createDocumentosRouter = (deps: DocumentosRouterDeps): Router => {
     ...guard,
     can('reports', 'view'),
     can('finance', 'view'),
-    validParsedQuery(financeiroReportQuerySchema),
-    documentosController.financeiro(providers),
+    validParsedQuery(financeReportQuerySchema),
+    documentosController.finance(providers),
   );
   router.get('/export', ...guard, isAdmin, documentosController.exportar);
   return router;

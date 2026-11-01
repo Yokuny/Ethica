@@ -30,7 +30,7 @@ export const proximaExecucao = (now: Date): Date => {
 
 const montarEmail = (
   secoes: { titulo: string; deadlines: NoticeDeadline[] }[],
-  resumos: Map<string, CaseSummary>,
+  summaries: Map<string, CaseSummary>,
   appUrl: string,
 ): string =>
   secoes
@@ -38,9 +38,9 @@ const montarEmail = (
     .map((secao) => {
       const itens = secao.deadlines
         .map((deadline) => {
-          const numero = resumos.get(deadline.caseId)?.processNumber ?? '';
+          const numero = summaries.get(deadline.caseId)?.processNumber ?? '';
           const link = `${appUrl}/expert-cases/details?id=${encodeURIComponent(deadline.caseId)}`;
-          return `<li><a href="${escapeHtml(link)}">${escapeHtml(deadline.titulo)}</a> — ${escapeHtml(numero)} (${formatDay(deadline.vencimento)})</li>`;
+          return `<li><a href="${escapeHtml(link)}">${escapeHtml(deadline.titulo)}</a> — ${escapeHtml(numero)} (${formatDay(deadline.dueDate)})</li>`;
         })
         .join('');
       return `<h3>${escapeHtml(secao.titulo)}</h3><ul>${itens}</ul>`;
@@ -69,17 +69,17 @@ export const sendDeadlineNotices = async (
   for (const [tenantId, doTenant] of porTenant) {
     const pessoas = recipients.filter((pessoa) => pessoa.tenantId === tenantId);
     if (pessoas.length === 0) continue;
-    const resumos = await caseService.findResumosByIds(tenantId, [...new Set(doTenant.map((p) => p.caseId))]);
+    const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(doTenant.map((p) => p.caseId))]);
     const html = montarEmail(
       [
-        { titulo: 'Venceram ontem', deadlines: doTenant.filter((p) => p.vencimento === ontem) },
-        { titulo: 'Vencem hoje', deadlines: doTenant.filter((p) => p.vencimento === today) },
+        { titulo: 'Venceram ontem', deadlines: doTenant.filter((p) => p.dueDate === ontem) },
+        { titulo: 'Vencem hoje', deadlines: doTenant.filter((p) => p.dueDate === today) },
         {
           titulo: `Vencem em ${DEADLINE_DUE_SOON_DAYS} dias`,
-          deadlines: doTenant.filter((p) => p.vencimento === soon),
+          deadlines: doTenant.filter((p) => p.dueDate === soon),
         },
       ],
-      resumos,
+      summaries,
       deps.appUrl,
     );
     for (const pessoa of pessoas) {

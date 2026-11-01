@@ -5,7 +5,7 @@ import type { CaseRecord } from '../case/case.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
 import { day, rotulo } from './documento.layout.js';
-import type { ValoresDoLaudo } from './laudo.html.js';
+import type { ReportValues } from './laudo.html.js';
 
 const MONTHS = [
   'janeiro',
@@ -22,7 +22,7 @@ const MONTHS = [
   'dezembro',
 ];
 
-const porExtenso = (data: string): string => {
+const byWords = (data: string): string => {
   const [year, month, d] = data.split('-');
   return `${Number(d)} de ${MONTHS[Number(month) - 1]} de ${year}`;
 };
@@ -58,15 +58,15 @@ type Denominacao = (typeof DENOMINACAO)[keyof typeof DENOMINACAO];
 const juntar = (itens: string[]): string => (itens.length ? itens.join('; ') : 'nenhum');
 const entre = (parties: Array<string | undefined>): string => parties.filter(Boolean).join(', ');
 
-const capacity = (valor: InspectionData['attendees'][number]['capacity'], denominacao: Denominacao): string => {
-  if (valor === 'plaintiff') return denominacao.plaintiff;
-  if (valor === 'defendant') return denominacao.defendant;
-  if (valor === 'plaintiff_lawyer') return `advogado(a) do(a) ${denominacao.plaintiff.toLowerCase()}`;
-  if (valor === 'defendant_lawyer') return `advogado(a) do(a) ${denominacao.defendant.toLowerCase()}`;
-  return rotulo(valor).toLowerCase();
+const capacity = (amount: InspectionData['attendees'][number]['capacity'], denominacao: Denominacao): string => {
+  if (amount === 'plaintiff') return denominacao.plaintiff;
+  if (amount === 'defendant') return denominacao.defendant;
+  if (amount === 'plaintiff_lawyer') return `advogado(a) do(a) ${denominacao.plaintiff.toLowerCase()}`;
+  if (amount === 'defendant_lawyer') return `advogado(a) do(a) ${denominacao.defendant.toLowerCase()}`;
+  return rotulo(amount).toLowerCase();
 };
 
-const fieldValues = (field: InspectionData, denominacao: Denominacao): ValoresDoLaudo => {
+const fieldValues = (field: InspectionData, denominacao: Denominacao): ReportValues => {
   const comparators = (side: Side) =>
     juntar(
       field.comparators
@@ -116,14 +116,14 @@ const fieldValues = (field: InspectionData, denominacao: Denominacao): ValoresDo
 };
 
 // Valor de cada marcador de LAUDO_VARIAVEIS; dado ausente fica sem chave e vira pendência.
-export const valoresDoLaudo = ({
+export const reportValues = ({
   legalCase,
   expert,
   identity,
   appointments,
   field,
   today,
-}: DadosDasVariaveis): ValoresDoLaudo => {
+}: DadosDasVariaveis): ReportValues => {
   const denominacao = DENOMINACAO[legalCase.courtType];
   const inspectionStart =
     field?.inicio ??
@@ -152,7 +152,7 @@ export const valoresDoLaudo = ({
     '[DATA_ADMISSAO]': day(legalCase.hireDate),
     '[DATA_DEMISSAO]': day(legalCase.terminationDate),
     '[PERIODO_IMPRESCRITO]': inicio && fim ? `${day(inicio)} a ${day(fim)}` : undefined,
-    '[DATA_EXTENSO]': porExtenso(today),
+    '[DATA_EXTENSO]': byWords(today),
     '[PERITO_NOME]': expert.name,
     '[PERITO_REGISTRO]': expert.registroProfissional,
     '[PERITO_FORMACAO]': expert.formacao,

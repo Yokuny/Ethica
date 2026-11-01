@@ -5,7 +5,7 @@ import type { AppointmentRecord } from './appointment.schema.js';
 import { gerarFeed, montarIcs } from './feed.service.js';
 
 vi.mock('../identity/account.service.js', () => ({ findFeedOwner: vi.fn() }));
-vi.mock('../case/case.service.js', () => ({ findResumosByIds: vi.fn() }));
+vi.mock('../case/case.service.js', () => ({ findSummariesByIds: vi.fn() }));
 vi.mock('../case/deadline.service.js', () => ({ listPendingDeadlines: vi.fn() }));
 vi.mock('./appointment.repository.js', () => ({ listInRange: vi.fn() }));
 
@@ -29,12 +29,12 @@ const deadline: DeadlineRecord = {
   id: 'z1',
   caseId: 'p1',
   titulo: 'Entrega do laudo',
-  vencimento: '2026-11-30',
+  dueDate: '2026-11-30',
   status: 'pending',
   createdAt: now,
   updatedAt: now,
 };
-const resumos = new Map([
+const summaries = new Map([
   [
     'p1',
     { processNumber: '0001234-56.2026.5.02.0001', plaintiff: 'Maria da Silva', defendant: 'Indústria Exemplo Ltda.' },
@@ -53,7 +53,7 @@ const eventOf = (ics: string, uid: string) => {
 // PRZ-03.3: cada evento leva data, descrição (tipo, título, nº do processo, partes,
 // observações) e local (endereço do compromisso; vazio no prazo).
 describe('montarIcs', () => {
-  const ics = montarIcs({ appointments: [inspection], deadlines: [deadline], resumos, now });
+  const ics = montarIcs({ appointments: [inspection], deadlines: [deadline], summaries, now });
 
   it('é um VCALENDAR com linhas CRLF de no máximo 75 octetos', () => {
     expect(ics.startsWith('BEGIN:VCALENDAR\r\nVERSION:2.0\r\n')).toBe(true);

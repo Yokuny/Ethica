@@ -11,7 +11,7 @@ export type DeadlineRecord = {
   caseId: string;
   caseNumber?: string;
   titulo: string;
-  vencimento: string;
+  dueDate: string;
   status: DeadlineStatus;
   filedDate?: string;
   observacoes?: string;

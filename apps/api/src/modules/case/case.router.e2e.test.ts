@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { Permissoes, Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
-import { Case, connect, Deadline, disconnect, hashToken, Lancamento, Party, Session, Tenant, User } from '@ethica/db';
+import { Case, connect, Deadline, disconnect, hashToken, Party, Session, Tenant, Transaction, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -56,7 +56,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
   });
   afterEach(async () => {
     await Promise.all([
-      Lancamento.deleteMany({}),
+      Transaction.deleteMany({}),
       Deadline.deleteMany({}),
       Party.deleteMany({}),
       Case.deleteMany({}),
@@ -134,7 +134,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     await as(request(app).patch(`/expert-cases/${body.data.id}`)).send({ fixedFeesCents: 300_000 });
     await expect
       .poll(async () => (await as(request(app).get('/finance/entries'))).body.data?.items?.[0])
-      .toMatchObject({ categoria: 'contracted_fees', valorCents: 300_000, client: 'Maria Reclamante' });
+      .toMatchObject({ category: 'contracted_fees', amountCents: 300_000, client: 'Maria Reclamante' });
 
     const expert = await as(request(app).post('/expert-cases')).send({
       ...CASE,

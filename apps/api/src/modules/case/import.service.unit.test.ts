@@ -84,8 +84,7 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
     ]);
   });
 
-  const linha = (valores: Partial<Record<CsvImportColumn, string>>) => (coluna: CsvImportColumn) =>
-    valores[coluna] ?? '';
+  const linha = (values: Partial<Record<CsvImportColumn, string>>) => (coluna: CsvImportColumn) => values[coluna] ?? '';
 
   it('linha válida vira cadastro com órgão pelo número, datas, dinheiro e partes', () => {
     const result = rowToCase(
@@ -141,7 +140,7 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
       { numero_processo: '0001234-56.2026.5.02.0001', objeto: 'x'.repeat(600) },
       { column: 'objeto', reason: 'invalid_field' },
     ],
-  ])('recusa a linha com o motivo (%j)', (valores, reason) => {
-    expect(rowToCase(linha(valores as Partial<Record<CsvImportColumn, string>>))).toEqual(reason);
+  ])('recusa a linha com o motivo (%j)', (values, reason) => {
+    expect(rowToCase(linha(values as Partial<Record<CsvImportColumn, string>>))).toEqual(reason);
   });
 });

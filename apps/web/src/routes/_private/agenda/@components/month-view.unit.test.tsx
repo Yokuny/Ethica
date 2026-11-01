@@ -5,12 +5,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { DeadlineRecord } from '@/query/deadline.js';
 import { MonthView } from './month-view.js';
 
-const deadline = (id: string, vencimento: string): DeadlineRecord => ({
+const deadline = (id: string, dueDate: string): DeadlineRecord => ({
   id,
   caseId: 'p1',
   caseNumber: '0001234-56.2026.5.02.0001',
   titulo: `Prazo ${id}`,
-  vencimento,
+  dueDate,
   status: 'pending',
 });
 

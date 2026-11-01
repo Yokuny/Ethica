@@ -2,10 +2,10 @@ import { Button } from '@ethica/ui/components/button';
 import { Form } from '@ethica/ui/components/form';
 import { DateField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { useFinanceiroReportForm } from '../@hooks/use-financeiro-report-form.js';
+import { useFinanceReportForm } from '../@hooks/use-finance-report-form.js';
 
-export function FinanceiroReportForm() {
-  const { form, onSubmit, isPending } = useFinanceiroReportForm();
+export function FinanceReportForm() {
+  const { form, onSubmit, isPending } = useFinanceReportForm();
   const { control } = form;
   return (
     <Form {...form}>

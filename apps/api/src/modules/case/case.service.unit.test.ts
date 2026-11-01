@@ -68,7 +68,7 @@ describe('case.service', () => {
     expect(deadlineRepository.createDeadline).toHaveBeenCalledWith(
       't1',
       'p1',
-      expect.objectContaining({ titulo: 'Entrega do laudo', vencimento: '2026-12-01' }),
+      expect.objectContaining({ titulo: 'Entrega do laudo', dueDate: '2026-12-01' }),
     );
   });
 
@@ -121,14 +121,14 @@ describe('case.service', () => {
       total: 2,
     });
     vi.mocked(deadlineRepository.upcomingByCaseIds).mockResolvedValue(
-      new Map([['p2', { titulo: 'Esclarecimentos', vencimento: '2026-11-10' }]]),
+      new Map([['p2', { titulo: 'Esclarecimentos', dueDate: '2026-11-10' }]]),
     );
 
     const result = await listCases('t1', { page: 1, limit: 20 });
 
     expect(deadlineRepository.upcomingByCaseIds).toHaveBeenCalledWith('t1', ['p1', 'p2']);
     expect(result.items[0]).not.toHaveProperty('nextDeadline');
-    expect(result.items[1]?.nextDeadline).toEqual({ titulo: 'Esclarecimentos', vencimento: '2026-11-10' });
+    expect(result.items[1]?.nextDeadline).toEqual({ titulo: 'Esclarecimentos', dueDate: '2026-11-10' });
   });
 
   it('createPericia traduz número duplicado no tenant em 409 pericia_already_registered', async () => {
@@ -154,8 +154,8 @@ describe('case.service', () => {
       tenantId: 't1',
       caseId: 'p1',
       processNumber: legalCase.processNumber,
-      valorCents: 250_000,
-      categoria: 'fixed_fees',
+      amountCents: 250_000,
+      category: 'fixed_fees',
     });
   });
 

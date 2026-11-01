@@ -64,18 +64,18 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('ficha só mostra o resumo financeiro quando recebe os valores (admin/manager)', () => {
-    const semValores = sheetHtml({ ...base, legalCase, deadlines: [], appointments: [] }).html;
-    expect(semValores).not.toContain('Resumo financeiro');
-    expect(semValores).not.toContain('R$');
-    const comValores = sheetHtml({
+    const withoutValues = sheetHtml({ ...base, legalCase, deadlines: [], appointments: [] }).html;
+    expect(withoutValues).not.toContain('Resumo financeiro');
+    expect(withoutValues).not.toContain('R$');
+    const withValues = sheetHtml({
       ...base,
       legalCase,
       deadlines: [],
       appointments: [],
-      financeiro: { feesCents: 300000, recebidoCents: 100000, saldoCents: 200000, despesasCents: 5000 },
+      finance: { feesCents: 300000, receivedCents: 100000, balanceCents: 200000, expensesCents: 5000 },
     }).html;
-    expect(comValores).toContain('Resumo financeiro');
-    expect(comValores).toMatch(/R\$\s2\.000,00/);
+    expect(withValues).toContain('Resumo financeiro');
+    expect(withValues).toMatch(/R\$\s2\.000,00/);
   });
 
   it('checklist traz participantes, agentes, divergências com os polos trabalhistas e documentos', () => {
@@ -102,12 +102,12 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('cronograma marca "vence em breve" até 15 dias e vencido no passado', () => {
-    const deadline = (vencimento: string) => ({
-      id: vencimento,
+    const deadline = (dueDate: string) => ({
+      id: dueDate,
       caseId: 'p1',
       caseNumber: legalCase.processNumber,
       titulo: 'Entrega do laudo',
-      vencimento,
+      dueDate,
       status: 'pending' as const,
       createdAt: new Date(),
       updatedAt: new Date(),

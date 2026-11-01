@@ -5,15 +5,15 @@ import { Link } from '@tanstack/react-router';
 import { Wallet } from 'lucide-react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { STATE_VARIANT, transactionState } from '@/components/lancamento-labels.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
+import { STATE_VARIANT, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { lancamentosQuery } from '@/query/lancamento.js';
 import { can, sessionQuery } from '@/query/session.js';
+import { transactionsQuery } from '@/query/transaction.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
@@ -22,7 +22,7 @@ const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 export function CaseReceipts({ caseId }: { caseId: string }) {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const allowed = can(session, 'finance');
-  const query = useQuery({ ...lancamentosQuery({ caseId, natureza: 'income', limit: 20 }), enabled: allowed });
+  const query = useQuery({ ...transactionsQuery({ caseId, kind: 'income', limit: 20 }), enabled: allowed });
   const today = formatDisplayDate(new Date());
 
   if (!allowed) return null;
@@ -42,13 +42,15 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
                 key={fee.id}
                 icon={Wallet}
                 render={<Link to="/finance/entries" search={{ caseId }} />}
-                title={formatMoney(fee.valorCents)}
+                title={formatMoney(fee.amountCents)}
                 badges={<Badge variant={STATE_VARIANT[state]}>{t(state)}</Badge>}
-                description={`${fee.descricao} · ${t('received')} ${formatMoney(fee.recebidoCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.saldoCents ?? 0)}`}
+                description={`${fee.descricao} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}
               >
-                {fee.parcelas.map((parcela) => (
-                  <ItemDescription key={parcela.id} className="line-clamp-none">
-                    {[day(parcela.data), formatMoney(parcela.valorCents), parcela.conta].filter(Boolean).join(' · ')}
+                {fee.installments.map((installment) => (
+                  <ItemDescription key={installment.id} className="line-clamp-none">
+                    {[day(installment.data), formatMoney(installment.amountCents), installment.account]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </ItemDescription>
                 ))}
               </LinkListItem>

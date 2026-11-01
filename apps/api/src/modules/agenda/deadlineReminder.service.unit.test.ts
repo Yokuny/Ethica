@@ -6,18 +6,18 @@ import * as accountService from '../identity/account.service.js';
 import { proximaExecucao, sendDeadlineNotices } from './deadlineReminder.service.js';
 
 vi.mock('../identity/account.service.js', () => ({ listDeadlineReminderRecipients: vi.fn() }));
-vi.mock('../case/case.service.js', () => ({ findResumosByIds: vi.fn() }));
+vi.mock('../case/case.service.js', () => ({ findSummariesByIds: vi.fn() }));
 vi.mock('../case/deadline.service.js', () => ({ listDeadlinesToNotice: vi.fn() }));
 
 // 2026-11-10 07:00 em São Paulo = 10:00 UTC.
 const now = new Date('2026-11-10T10:00:00.000Z');
 
-const deadline = (id: string, tenantId: string, vencimento: string): NoticeDeadline => ({
+const deadline = (id: string, tenantId: string, dueDate: string): NoticeDeadline => ({
   id,
   tenantId,
   caseId: `per-${id}`,
   titulo: `Prazo ${id}`,
-  vencimento,
+  dueDate,
   status: 'pending',
   createdAt: now,
   updatedAt: now,
@@ -43,7 +43,7 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
       { tenantId: 't1', name: 'Ana', email: 'ana@x.com' },
       { tenantId: 't1', name: 'Bia', email: 'bia@x.com' },
     ]);
-    vi.mocked(caseService.findResumosByIds).mockResolvedValue(new Map([['per-a', { processNumber: '0001' }]]));
+    vi.mocked(caseService.findSummariesByIds).mockResolvedValue(new Map([['per-a', { processNumber: '0001' }]]));
     const send = vi.fn().mockResolvedValue({ sent: true });
 
     const result = await sendDeadlineNotices({ mail: { send }, appUrl: 'https://app.ethica' }, now);
@@ -80,7 +80,7 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
     vi.mocked(accountService.listDeadlineReminderRecipients).mockResolvedValue([
       { tenantId: 't1', name: 'Ana', email: 'ana@x.com' },
     ]);
-    vi.mocked(caseService.findResumosByIds).mockResolvedValue(new Map());
+    vi.mocked(caseService.findSummariesByIds).mockResolvedValue(new Map());
     const send = vi.fn().mockResolvedValue({ sent: true });
 
     await sendDeadlineNotices({ mail: { send }, appUrl: '' }, now);

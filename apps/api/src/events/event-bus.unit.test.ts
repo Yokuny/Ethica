@@ -23,8 +23,8 @@ describe('domainEventBus', () => {
       tenantId: 't1',
       caseId: 'p1',
       processNumber: '0000001-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     };
 
     domainEventBus.emit('case:fixed_fees', payload);
@@ -43,8 +43,8 @@ describe('domainEventBus', () => {
         tenantId: 't1',
         caseId: 'p1',
         processNumber: '0000001-00.2026.5.02.0001',
-        valorCents: 100_000,
-        categoria: 'fixed_fees' as const,
+        amountCents: 100_000,
+        category: 'fixed_fees' as const,
       }),
     ).not.toThrow();
 
@@ -58,8 +58,8 @@ describe('domainEventBus', () => {
       tenantId: 't1',
       caseId: 'p1',
       processNumber: '0000001-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     });
   });
 
@@ -69,8 +69,8 @@ describe('domainEventBus', () => {
       tenantId: 't1',
       caseId: 'p1',
       processNumber: '0000001-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     });
     expect(handler).toHaveBeenCalledTimes(1);
 
@@ -79,8 +79,8 @@ describe('domainEventBus', () => {
       tenantId: 't2',
       caseId: 'p2',
       processNumber: '0000002-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     });
 
     expect(handler).toHaveBeenCalledTimes(1);

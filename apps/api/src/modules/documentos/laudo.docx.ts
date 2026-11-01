@@ -212,7 +212,7 @@ export const laudoDocx = async ({
   legalCase,
   identity,
   expert,
-  valores,
+  values,
   photos,
 }: LaudoExportDados): Promise<Buffer> => {
   const numeros = numerarSecoes(laudo.secoes);
@@ -220,12 +220,12 @@ export const laudoDocx = async ({
     ? Buffer.from(identity.logoDataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
     : undefined;
   const { cabecalho, rodape } = textosCabecalhoRodape(identity);
-  const coverRow = (rotulo: string | undefined, valor: string | undefined): Paragraph[] =>
-    rotulo && valor
+  const coverRow = (rotulo: string | undefined, amount: string | undefined): Paragraph[] =>
+    rotulo && amount
       ? [
           new Paragraph({
             spacing: { after: 120 },
-            children: [new TextRun({ text: `${rotulo}: `, bold: true }), new TextRun(valor)],
+            children: [new TextRun({ text: `${rotulo}: `, bold: true }), new TextRun(amount)],
           }),
         ]
       : [];
@@ -238,10 +238,10 @@ export const laudoDocx = async ({
     ...coverRow('Processo nº', legalCase.processNumber),
     ...coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
     ...coverRow('Tribunal', legalCase.court),
-    ...coverRow(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
-    ...coverRow(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
+    ...coverRow(values['[DENOMINACAO_AUTOR]'], values['[NOME_AUTOR]']),
+    ...coverRow(values['[DENOMINACAO_REU]'], values['[NOME_REU]']),
     ...coverRow('Objeto', legalCase.subject),
-    ...[expert.name, expert.formacao, expert.registroProfissional, valores['[DATA_EXTENSO]']]
+    ...[expert.name, expert.formacao, expert.registroProfissional, values['[DATA_EXTENSO]']]
       .filter((linha): linha is string => Boolean(linha))
       .map(
         (linha, i) =>

@@ -44,8 +44,8 @@ const renderHome = (role: Role[]) => {
       { key: 'deadlines_due_soon', count: 3 },
     ],
   });
-  queryClient.setQueryData(['lancamento', 'resumo'], {
-    aReceberCents: 1_250_000,
+  queryClient.setQueryData(['transaction', 'summary'], {
+    receivableCents: 1_250_000,
     lateCents: 0,
     receivedMonthCents: 0,
     expensesMonthCents: 0,

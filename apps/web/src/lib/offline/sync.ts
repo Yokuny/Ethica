@@ -33,8 +33,8 @@ let estado: EstadoSync = {
   falhas: 0,
 };
 const ouvintes = new Set<() => void>();
-const publicar = (parcial: Partial<EstadoSync>) => {
-  estado = { ...estado, ...parcial };
+const publicar = (partial: Partial<EstadoSync>) => {
+  estado = { ...estado, ...partial };
   for (const ouvinte of ouvintes) ouvinte();
 };
 

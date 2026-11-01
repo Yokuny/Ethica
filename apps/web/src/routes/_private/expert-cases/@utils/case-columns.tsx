@@ -56,7 +56,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
           description={alerta ? `${t(alerta)} · ${deadline.titulo}` : deadline.titulo}
           descriptionTone={alerta === 'deadline_overdue' ? 'error' : 'muted'}
         >
-          {formatDate(toDate(deadline.vencimento))}
+          {formatDate(toDate(deadline.dueDate))}
         </TableStack>
       );
     },
