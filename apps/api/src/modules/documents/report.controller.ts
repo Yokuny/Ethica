@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
-import type { ListReportsQuery, ListTemplatesQuery, ReportRouterDeps } from './report.schema.js';
+import type { ListReportsQuery, ListTemplatesQuery, ReportPdfQuery, ReportRouterDeps } from './report.schema.js';
 import * as reportService from './report.service.js';
 import { ReportNotFoundError } from './report.service.js';
 import * as templateService from './template.service.js';
@@ -107,6 +107,10 @@ export const completeReport = (providers: Providers) =>
   json((req) => reportService.completeReport(providers, context(req), id(req), req.body));
 export const deleteReport = removed((req) => reportService.deleteReport(tenantOf(req), id(req)));
 export const reportPdf = (providers: Providers) =>
-  file((req) => reportService.generatePdf(providers, context(req), id(req)));
+  file((req) =>
+    reportService.generatePdf(providers, context(req), id(req), {
+      preview: (req.query as unknown as ReportPdfQuery).preview === 'true',
+    }),
+  );
 export const reportDocx = (providers: Providers) =>
   file((req) => reportService.generateDocx(providers, context(req), id(req)));

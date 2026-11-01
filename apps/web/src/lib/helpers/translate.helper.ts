@@ -591,6 +591,9 @@ const translations: Record<string, string> = {
   standard_template_review_notice: 'Texto-base para o perito revisar e completar. Duplique para adaptar ao escritório.',
   template: 'Modelo',
   template_sections: 'Seções do modelo',
+  preview_pdf: 'Visualizar PDF',
+  preview_pdf_description:
+    'Como o laudo vai sair. Dados ainda sem valor aparecem entre colchetes e impedem baixar e concluir.',
   template_sections_description:
     'Marque o que entra no laudo. Seção desmarcada sai com o texto editado; trocar o modelo recomeça todas as seções.',
   sections: 'Seções',

@@ -24,12 +24,13 @@ import {
   updateReportSectionMutation,
 } from '@/query/report.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
+import { ReportPreviewDialog } from './@components/report-preview-dialog.js';
 import { ReportSectionEditor, type SectionDraft } from './@components/report-section-editor.js';
 import { ReportSectionsDialog } from './@components/report-sections-dialog.js';
 import { ReportSectionsNav } from './@components/report-sections-nav.js';
 import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
-type Dialog = 'complete' | 'removal' | 'remove-section' | 'sections' | null;
+type Dialog = 'complete' | 'removal' | 'remove-section' | 'sections' | 'preview' | null;
 
 export function ReportDetailsPage() {
   const search = useSearch({ strict: false }) as ReportDetailsSearch;
@@ -102,6 +103,9 @@ export function ReportDetailsPage() {
       <CardHeader title={t('details')}>
         {report && (
           <CardAction>
+            <Button variant="outline" onClick={() => saveCurrent(() => setDialog('preview'))}>
+              {t('preview_pdf')}
+            </Button>
             {openDraft && (
               <Button variant="outline" onClick={() => saveCurrent(() => setDialog('sections'))}>
                 {t('template_sections')}
@@ -169,6 +173,14 @@ export function ReportDetailsPage() {
             {t('remove')}
           </Button>
         </CardFooter>
+      )}
+      {report && dialog === 'preview' && (
+        <ReportPreviewDialog
+          reportId={report.id}
+          downloading={Boolean(pending)}
+          onDownload={runExport}
+          onClose={() => setDialog(null)}
+        />
       )}
       {report && dialog === 'sections' && (
         <ReportSectionsDialog

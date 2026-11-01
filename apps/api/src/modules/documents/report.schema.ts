@@ -66,6 +66,10 @@ export const templateSectionParamSchema = z.object({ id: templateIdSchema, secti
 export const reportIdParamSchema = z.object({ id: idSchema }).strict();
 export const reportSectionParamSchema = z.object({ id: idSchema, sectionId: idSchema }).strict();
 
+// Preview (LMO-04): the PDF also leaves with pending markers, which stay visible in the text.
+export const reportPdfQuerySchema = z.object({ preview: z.enum(['true']).optional() }).strict();
+export type ReportPdfQuery = z.infer<typeof reportPdfQuerySchema>;
+
 export const listTemplatesQuerySchema = z.object({ type: z.enum(REPORT_TYPES).optional() }).strict();
 export type ListTemplatesQuery = z.infer<typeof listTemplatesQuerySchema>;
 

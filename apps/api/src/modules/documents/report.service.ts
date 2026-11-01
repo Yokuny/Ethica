@@ -266,13 +266,14 @@ export const deleteReport = async (tenantId: string, id: string): Promise<void> 
 
 export const deleteByCase = (tenantId: string, caseId: string) => reportRepository.deleteByCase(tenantId, caseId);
 
-// Export (LAU-03.2): same variables resolved again, without saving; pending → 422.
-const toExport = async (providers: Providers, ctx: DocumentContext, id: string) => {
+// Export (LAU-03.2): same variables resolved again, without saving; pending → 422, except in the
+// preview (LMO-04), where the marker stays in the text for the expert to see.
+const toExport = async (providers: Providers, ctx: DocumentContext, id: string, preview = false) => {
   const report = await getReport(ctx.tenantId, id);
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
   const { identity, expert, values } = await currentData(providers, ctx, legalCase);
   const sections = resolveSections(report.sections, values);
-  withoutIssues(sections);
+  if (!preview) withoutIssues(sections);
   // Inspection photos in the text (AD-129): bytes read here, only from the same tenant.
   const srcs = [
     ...new Set(
@@ -291,8 +292,13 @@ const toExport = async (providers: Providers, ctx: DocumentContext, id: string) 
 const fileName = (report: ReportRecord, legalCase: CaseRecord, extension: string): string =>
   `${report.type === 'technical_opinion' ? 'technical-opinion' : 'report'}-${legalCase.processNumber}.${extension}`;
 
-export const generatePdf = async (providers: Providers, ctx: DocumentContext, id: string): Promise<GeneratedFile> => {
-  const data = await toExport(providers, ctx, id);
+export const generatePdf = async (
+  providers: Providers,
+  ctx: DocumentContext,
+  id: string,
+  { preview = false }: { preview?: boolean } = {},
+): Promise<GeneratedFile> => {
+  const data = await toExport(providers, ctx, id, preview);
   return {
     name: fileName(data.report, data.legalCase, 'pdf'),
     type: 'application/pdf',

@@ -13,6 +13,7 @@ import {
   moveSectionSchema,
   type ReportRouterDeps,
   reportIdParamSchema,
+  reportPdfQuerySchema,
   reportSectionParamSchema,
   templateIdParamSchema,
   templateSectionParamSchema,
@@ -142,7 +143,14 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     validBody(completeReportSchema),
     reportController.completeReport(providers),
   );
-  router.get('/:id/pdf', ...guard, can('expert_reports', 'view'), report, reportController.reportPdf(providers));
+  router.get(
+    '/:id/pdf',
+    ...guard,
+    can('expert_reports', 'view'),
+    report,
+    validParsedQuery(reportPdfQuerySchema),
+    reportController.reportPdf(providers),
+  );
   router.get('/:id/docx', ...guard, can('expert_reports', 'view'), report, reportController.reportDocx(providers));
   return router;
 };

@@ -224,6 +224,10 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(bloqueado.body.message).toBe('report_unresolved_variables');
     const pdfBloqueado = await operator.as(request(app).get(`/expert-reports/${report.id}/pdf`));
     expect(pdfBloqueado.status).toBe(422);
+    // The preview leaves with the pending markers visible (LMO-04).
+    const preview = await operator.as(request(app).get(`/expert-reports/${report.id}/pdf?preview=true`));
+    expect(preview.status).toBe(200);
+    expect(rendered?.html).toContain('[NOME_AUTOR]');
 
     for (const section of report.sections.slice(0, 2)) {
       const editada = await operator
