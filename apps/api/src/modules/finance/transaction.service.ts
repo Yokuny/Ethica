@@ -148,7 +148,7 @@ export const monthlyFlow = (tenantId: string, months: number, now: Date = new Da
 export const totalsByCategory = (tenantId: string, kind: string) =>
   transactionRepository.totalsByCategory(tenantId, kind);
 
-const soma = (linhas: FinanceReportRow[]) => linhas.reduce((total, linha) => total + linha.amountCents, 0);
+const soma = (rows: FinanceReportRow[]) => rows.reduce((total, row) => total + row.amountCents, 0);
 
 // DOC-03: datas inclusivas. Cancelado não entra; honorário conta pelas parcelas (AD-111).
 export const reportPeriod = async (tenantId: string, period: { from: string; to: string }): Promise<FinanceReport> => {
@@ -157,7 +157,7 @@ export const reportPeriod = async (tenantId: string, period: { from: string; to:
     tenantId,
     (await transactionRepository.listAll(tenantId, { period })).filter((item) => item.status !== 'canceled'),
   );
-  const linha = (item: TransactionRecord, data: string, amountCents: number, account?: string) => ({
+  const row = (item: TransactionRecord, data: string, amountCents: number, account?: string) => ({
     data,
     descricao: item.client ? `${item.descricao} · contratante: ${item.client}` : item.descricao,
     category: item.category,
@@ -171,19 +171,19 @@ export const reportPeriod = async (tenantId: string, period: { from: string; to:
     .flatMap((item) =>
       item.installments
         .filter((installment) => inPeriod(installment.data))
-        .map((p) => linha(item, p.data, p.amountCents, p.account)),
+        .map((p) => row(item, p.data, p.amountCents, p.account)),
     )
     .sort((a, b) => a.data.localeCompare(b.data));
   const paid = expenses
     .filter((item) => item.status === 'settled' && inPeriod(item.settledDate))
-    .map((item) => linha(item, item.settledDate as string, item.amountCents))
+    .map((item) => row(item, item.settledDate as string, item.amountCents))
     .sort((a, b) => a.data.localeCompare(b.data));
   const receivable = income
     .filter((item) => (item.balanceCents ?? 0) > 0 && inPeriod(item.dueDate))
-    .map((item) => linha(item, item.dueDate, item.balanceCents as number));
+    .map((item) => row(item, item.dueDate, item.balanceCents as number));
   const payable = expenses
     .filter((item) => item.status === 'expected' && inPeriod(item.dueDate))
-    .map((item) => linha(item, item.dueDate, item.amountCents));
+    .map((item) => row(item, item.dueDate, item.amountCents));
   const receivedCents = soma(received);
   const paidCents = soma(paid);
   const receivableCents = soma(receivable);

@@ -11,7 +11,7 @@ import { apiUrl, del, patch } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { preparePhoto } from '@/lib/offline/photo.js';
 import { deleteMedia, listMedia, type PendingMedia, storeMedia } from '@/lib/offline/store.js';
-import { atualizarPendencias, runSync } from '@/lib/offline/sync.js';
+import { runSync, updateIssues } from '@/lib/offline/sync.js';
 import { type DayInspection, inspectionKeys } from '@/query/inspection.js';
 
 // Arquivo ainda só no aparelho: mostrado pela URL local do blob.
@@ -48,18 +48,18 @@ export function MediaPanel({ item }: { item: DayInspection }) {
 
   async function enfileirar(media: Omit<PendingMedia, 'appointmentId' | 'mediaId' | 'criadoEm'>) {
     await storeMedia({ ...media, appointmentId, mediaId: crypto.randomUUID(), criadoEm: new Date().toISOString() });
-    await atualizarPendencias();
+    await updateIssues();
     await queryClient.invalidateQueries({ queryKey: inspectionKeys.pending(appointmentId) });
     void runSync(queryClient);
   }
 
-  async function addPhotos(arquivos: FileList | null) {
-    for (const arquivo of [...(arquivos ?? [])]) {
+  async function addPhotos(files: FileList | null) {
+    for (const file of [...(files ?? [])]) {
       if (photos + (pending.data?.length ?? 0) >= INSPECTION_MEDIA_LIMITS.photo.maxByInspection) {
         toast.error(t('media_limit_reached'));
         break;
       }
-      const blob = await preparePhoto(arquivo, item.appointment.local);
+      const blob = await preparePhoto(file, item.appointment.local);
       await enfileirar({ tipo: 'photo', mime: 'image/jpeg', blob });
     }
   }
@@ -156,7 +156,7 @@ export function MediaPanel({ item }: { item: DayInspection }) {
                   aria-label={t('remove')}
                   onClick={async () => {
                     await deleteMedia(media.mediaId);
-                    await atualizarPendencias();
+                    await updateIssues();
                     await pending.refetch();
                   }}
                 >

@@ -22,7 +22,7 @@ export const normalizarOab = (raw: string): string => {
 // Campo vazio do formulário vira ausente, nunca string vazia gravada.
 const emptyAsUndefined = (value: string) => value || undefined;
 
-export const documentoSchema = z
+export const documentSchema = z
   .string()
   .transform((value) => value.replace(/\D/g, ''))
   .refine((value) => value === '' || /^(\d{11}|\d{14})$/.test(value), 'CPF/CNPJ inválido')
@@ -39,7 +39,7 @@ const nomeSchema = z.string().trim().min(1, 'nome é obrigatório').max(200, 'no
 
 const partyFields = z.object({
   nome: nomeSchema,
-  documento: documentoSchema.optional(),
+  document: documentSchema.optional(),
   oab: oabSchema.optional(),
   email: z
     .string()
@@ -65,7 +65,7 @@ export const casePartyInputSchema = z
     side: z.enum(SIDES),
     tipo: z.enum(PARTY_TYPES),
     nome: nomeSchema,
-    documento: documentoSchema.optional(),
+    document: documentSchema.optional(),
     oab: oabSchema.optional(),
     // Quem contratou o assistente técnico (AD-135); no máximo um, só nessa perícia.
     client: z.boolean().optional(),

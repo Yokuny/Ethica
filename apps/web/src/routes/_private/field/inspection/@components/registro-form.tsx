@@ -5,10 +5,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { TextareaField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type Draft, storeMedia } from '@/lib/offline/store.js';
-import { atualizarPendencias, runSync } from '@/lib/offline/sync.js';
+import { runSync, updateIssues } from '@/lib/offline/sync.js';
 import type { DayInspection } from '@/query/inspection.js';
 import { useRegistro } from '../@hooks/use-registro.js';
-import { AgentsFields, DocumentosFields } from './agents-documents-fields.js';
+import { AgentsFields, DocumentsFields } from './agents-documents-fields.js';
 import { AttendeesFields } from './attendees-fields.js';
 import { ComparatorsFields } from './comparators-fields.js';
 import { ConflictDialog } from './conflict-dialog.js';
@@ -20,7 +20,7 @@ const ABAS = [
   ['comparators', 'paradigms'],
   ['jobs', 'job_roles'],
   ['agents', 'agents'],
-  ['documentos', 'documents'],
+  ['documents', 'documents'],
   ['media', 'media'],
   ['observacoes', 'notes'],
 ] as const;
@@ -41,7 +41,7 @@ export function RegistroForm({ item, draft }: { item: DayInspection; draft?: Dra
       blob: png,
       criadoEm: new Date().toISOString(),
     });
-    await atualizarPendencias();
+    await updateIssues();
     void runSync(queryClient);
     return mediaId;
   }
@@ -71,8 +71,8 @@ export function RegistroForm({ item, draft }: { item: DayInspection; draft?: Dra
           <TabsContent value="agents" className="pt-4">
             <AgentsFields form={form} />
           </TabsContent>
-          <TabsContent value="documentos" className="pt-4">
-            <DocumentosFields form={form} />
+          <TabsContent value="documents" className="pt-4">
+            <DocumentsFields form={form} />
           </TabsContent>
           <TabsContent value="media" className="pt-4">
             <MediaPanel item={item} />

@@ -7,7 +7,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { Checkbox } from '@/components/checkbox.js';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { AGENT_KEY, DOCUMENTO_KEY } from '../../@consts/field-labels.js';
+import { AGENT_KEY, DOCUMENT_KEY } from '../../@consts/field-labels.js';
 
 const NENHUM = 'none';
 const PADRAO: readonly string[] = INSPECTION_DOCUMENTS;
@@ -74,10 +74,10 @@ export function AgentsFields({ form }: Props) {
 }
 
 // Documentos pedidos às partes (CAM-02): os padrões do checklist e os que o perito escrever.
-export function DocumentosFields({ form }: Props) {
-  const documentos = form.watch('documentos');
-  const definir = (lista: InspectionData['documentos']) => form.setValue('documentos', lista, { shouldDirty: true });
-  const free = documentos.filter((documento) => !PADRAO.includes(documento.documento));
+export function DocumentsFields({ form }: Props) {
+  const documents = form.watch('documents');
+  const definir = (lista: InspectionData['documents']) => form.setValue('documents', lista, { shouldDirty: true });
+  const free = documents.filter((document) => !PADRAO.includes(document.document));
 
   return (
     <Panel
@@ -86,7 +86,7 @@ export function DocumentosFields({ form }: Props) {
         <Button
           type="button"
           variant="outline"
-          onClick={() => definir([...documentos, { id: crypto.randomUUID(), documento: '', requested: true }])}
+          onClick={() => definir([...documents, { id: crypto.randomUUID(), document: '', requested: true }])}
         >
           {t('add_document')}
         </Button>
@@ -94,41 +94,39 @@ export function DocumentosFields({ form }: Props) {
     >
       <div className="grid gap-2">
         {INSPECTION_DOCUMENTS.map((chave) => {
-          const marcado = documentos.some((documento) => documento.documento === chave);
+          const checked = documents.some((document) => document.document === chave);
           return (
             <Checkbox
               key={chave}
-              checked={marcado}
+              checked={checked}
               labelClassName="normal-case tracking-normal"
-              label={t(DOCUMENTO_KEY[chave] ?? chave)}
+              label={t(DOCUMENT_KEY[chave] ?? chave)}
               onCheckedChange={(checked) =>
                 definir(
                   checked
-                    ? [...documentos, { id: chave, documento: chave, requested: true }]
-                    : documentos.filter((documento) => documento.documento !== chave),
+                    ? [...documents, { id: chave, document: chave, requested: true }]
+                    : documents.filter((document) => document.document !== chave),
                 )
               }
             />
           );
         })}
-        {free.map((documento) => (
-          <div key={documento.id} className="flex gap-2">
+        {free.map((document) => (
+          <div key={document.id} className="flex gap-2">
             <Input
               aria-label={t('document')}
               placeholder={t('document_placeholder')}
-              value={documento.documento}
+              value={document.document}
               onChange={(event) =>
                 definir(
-                  documentos.map((item) =>
-                    item.id === documento.id ? { ...item, documento: event.target.value } : item,
-                  ),
+                  documents.map((item) => (item.id === document.id ? { ...item, document: event.target.value } : item)),
                 )
               }
             />
             <Button
               type="button"
               variant="ghost"
-              onClick={() => definir(documentos.filter((item) => item.id !== documento.id))}
+              onClick={() => definir(documents.filter((item) => item.id !== document.id))}
             >
               {t('remove')}
             </Button>

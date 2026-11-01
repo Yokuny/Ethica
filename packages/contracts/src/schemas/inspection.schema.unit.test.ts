@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { INSPECTION_EMPTY_DATA, inspectionDataSchema, saveInspectionSchema } from './inspection.schema.js';
-import { LAUDO_IMG_SRC } from './laudo.schema.js';
+import { REPORT_IMG_SRC } from './report.schema.js';
 
 describe('vistoriaDadosSchema (AD-130)', () => {
   it('aceita o formulário completo e recusa chave desconhecida', () => {
@@ -17,7 +17,7 @@ describe('vistoriaDadosSchema (AD-130)', () => {
         },
       ],
       agents: [{ agent: 'noise', present: 'yes', ppe: 'Protetor auricular' }],
-      documentos: [{ id: 'd1', documento: 'ltcat', requested: true }],
+      documents: [{ id: 'd1', document: 'ltcat', requested: true }],
       observacoes: 'internal',
     };
     expect(inspectionDataSchema.safeParse(dados).success).toBe(true);
@@ -35,10 +35,10 @@ describe('vistoriaDadosSchema (AD-130)', () => {
 
 describe('LAUDO_IMG_SRC (AD-129)', () => {
   it('só aceita o caminho da mídia de vistoria', () => {
-    expect(LAUDO_IMG_SRC.test('/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a165-70867728950e')).toBe(
-      true,
-    );
-    expect(LAUDO_IMG_SRC.test('https://x.com/a.png')).toBe(false);
-    expect(LAUDO_IMG_SRC.test('/tenant/office/logo')).toBe(false);
+    expect(
+      REPORT_IMG_SRC.test('/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a165-70867728950e'),
+    ).toBe(true);
+    expect(REPORT_IMG_SRC.test('https://x.com/a.png')).toBe(false);
+    expect(REPORT_IMG_SRC.test('/tenant/office/logo')).toBe(false);
   });
 });

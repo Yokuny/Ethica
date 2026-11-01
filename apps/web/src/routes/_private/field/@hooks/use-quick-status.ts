@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { patch } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { guardarStatus } from '@/lib/offline/store.js';
-import { atualizarPendencias } from '@/lib/offline/sync.js';
+import { updateIssues } from '@/lib/offline/sync.js';
 import { appointmentKeys } from '@/query/appointment.js';
 import { inspectionKeys } from '@/query/inspection.js';
 
@@ -19,7 +19,7 @@ export function useQuickStatus() {
       toast.success(t('status_updated'));
     } else if (!res || !navigator.onLine) {
       await guardarStatus({ appointmentId, status, reason });
-      await atualizarPendencias();
+      await updateIssues();
       toast.info(t('saved_on_device'));
     } else {
       toast.error(res.message);

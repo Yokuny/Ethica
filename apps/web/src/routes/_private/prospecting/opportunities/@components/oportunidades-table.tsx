@@ -45,11 +45,11 @@ export function OportunidadesTable({
         </TableHeader>
         <TableBody>
           {data.map((row) => {
-            const convertida = row.status === 'converted';
+            const converted = row.status === 'converted';
             return (
               <TableRow
                 key={row.id}
-                onClick={() => (convertida ? onOpenCase(row) : onConvert(row))}
+                onClick={() => (converted ? onOpenCase(row) : onConvert(row))}
                 className="cursor-pointer"
               >
                 <TableCell>
@@ -72,7 +72,7 @@ export function OportunidadesTable({
                 </TableCell>
                 <TableCell>
                   <TableRowActions label={t('actions')}>
-                    {convertida ? (
+                    {converted ? (
                       <TableRowAction onClick={() => onOpenCase(row)}>{t('open_expert_case')}</TableRowAction>
                     ) : (
                       <>

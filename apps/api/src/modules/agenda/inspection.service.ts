@@ -1,4 +1,4 @@
-import { INSPECTION_EMPTY_DATA, INSPECTION_MEDIA_LIMITS, LAUDO_IMG_SRC } from '@ethica/contracts';
+import { INSPECTION_EMPTY_DATA, INSPECTION_MEDIA_LIMITS, REPORT_IMG_SRC } from '@ethica/contracts';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import * as caseService from '../case/case.service.js';
@@ -98,12 +98,12 @@ export const uploadMedia = async (
   appointmentId: string,
   mediaId: string,
   { tipo, caption }: MediaUploadQuery,
-  arquivo: { body: Buffer; mime: string },
+  file: { body: Buffer; mime: string },
 ): Promise<MediaRecord> => {
   const files = requireStorage(storage);
   const limite = INSPECTION_MEDIA_LIMITS[tipo];
-  if (!limite.mimes.includes(arquivo.mime)) throw new CustomError('unsupported_file_type', 415, arquivo.mime);
-  if (arquivo.body.length > limite.maxBytes) throw new CustomError('file_too_large', 413);
+  if (!limite.mimes.includes(file.mime)) throw new CustomError('unsupported_file_type', 415, file.mime);
+  if (file.body.length > limite.maxBytes) throw new CustomError('file_too_large', 413);
   const appointment = await appointmentService.getAppointment(tenantId, appointmentId);
   const atual = await inspectionRepository.findByAppointment(tenantId, appointmentId);
   const existente = atual?.media.find((media) => media.id === mediaId);
@@ -115,20 +115,20 @@ export const uploadMedia = async (
     id: mediaId,
     tipo,
     key: `tenants/${tenantId}/inspections/${appointmentId}/${mediaId}`,
-    bytes: arquivo.body.length,
-    mime: arquivo.mime,
+    bytes: file.body.length,
+    mime: file.mime,
     ...(caption ? { caption } : {}),
     createdAt: new Date(),
   };
-  await officeService.reservarArquivo(tenantId, media.bytes);
+  await officeService.reserveFile(tenantId, media.bytes);
   try {
-    await files.put(media.key, arquivo.body, media.mime);
+    await files.put(media.key, file.body, media.mime);
     if (!(await inspectionRepository.addMedia(tenantId, appointmentId, appointment.caseId, media))) {
       // Outro envio do mesmo id ganhou a corrida: o arquivo é o mesmo, só a reserva sobra.
-      await officeService.devolverArquivo(tenantId, media.bytes);
+      await officeService.returnFile(tenantId, media.bytes);
     }
   } catch (error) {
-    await officeService.devolverArquivo(tenantId, media.bytes);
+    await officeService.returnFile(tenantId, media.bytes);
     throw error;
   }
   const { key: _key, ...record } = media;
@@ -153,7 +153,7 @@ export const readReportPhoto = async (
   tenantId: string,
   src: string,
 ): Promise<{ body: Buffer; mime: string } | null> => {
-  if (!LAUDO_IMG_SRC.test(src)) return null;
+  if (!REPORT_IMG_SRC.test(src)) return null;
   const [, , appointmentId, , mediaId] = src.split('/');
   return getMedia(storage, tenantId, appointmentId as string, mediaId as string).catch(() => null);
 };
@@ -176,7 +176,7 @@ export const removeMedia = async (
   const removida = await inspectionRepository.removeMedia(tenantId, appointmentId, mediaId);
   if (!removida) throw new CustomError('not_found', 404);
   await files.remove(removida.key);
-  await officeService.devolverArquivo(tenantId, removida.bytes);
+  await officeService.returnFile(tenantId, removida.bytes);
 };
 
 // Registros da perícia (galeria e painel), cada um com o compromisso.
@@ -202,7 +202,7 @@ export const removeAppointment = async (storage: FileStorage | undefined, tenant
   const media = await inspectionRepository.deleteByAppointment(tenantId, id);
   if (!media.length) return;
   await Promise.all(media.map((media) => storage?.remove(media.key)));
-  await officeService.devolverArquivo(
+  await officeService.returnFile(
     tenantId,
     media.reduce((total, media) => total + media.bytes, 0),
   );

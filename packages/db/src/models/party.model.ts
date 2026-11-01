@@ -8,7 +8,7 @@ export interface PartyDocument {
   tipo: PartyType;
   nome: string;
   // CPF/CNPJ só com dígitos (parte); OAB normalizada, ex.: SP123456 (advogado).
-  documento?: string;
+  document?: string;
   oab?: string;
   email?: string;
   telefone?: string;
@@ -21,7 +21,7 @@ const partySchema = new Schema<PartyDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     tipo: { type: String, enum: PARTY_TYPES, required: true },
     nome: { type: String, required: true, trim: true },
-    documento: { type: String, match: /^(\d{11}|\d{14})$/ },
+    document: { type: String, match: /^(\d{11}|\d{14})$/ },
     oab: { type: String, trim: true },
     email: { type: String, trim: true },
     telefone: { type: String, trim: true },
@@ -30,7 +30,7 @@ const partySchema = new Schema<PartyDocument>(
 );
 
 // Reaproveitamento na importação e no cadastro da perícia (AD-115).
-partySchema.index({ Tenant: 1, tipo: 1, documento: 1 });
+partySchema.index({ Tenant: 1, tipo: 1, document: 1 });
 partySchema.index({ Tenant: 1, tipo: 1, oab: 1 });
 partySchema.index({ Tenant: 1, tipo: 1, nome: 1 });
 

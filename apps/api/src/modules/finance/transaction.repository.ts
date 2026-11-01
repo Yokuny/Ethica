@@ -289,9 +289,9 @@ export const monthlyFlow = async (tenantId: string, months: string[]): Promise<M
           ],
         },
       },
-      { $project: { linhas: { $concatArrays: ['$received', '$receivable', '$expenses'] } } },
-      { $unwind: '$linhas' },
-      { $replaceRoot: { newRoot: '$linhas' } },
+      { $project: { rows: { $concatArrays: ['$received', '$receivable', '$expenses'] } } },
+      { $unwind: '$rows' },
+      { $replaceRoot: { newRoot: '$rows' } },
       { $group: { _id: { month: { $substrBytes: ['$data', 0, 7] }, serie: '$serie' }, total: { $sum: '$amount' } } },
     ]);
     const totals = new Map(rows.map((row) => [`${row._id.month}:${row._id.serie}`, row.total]));

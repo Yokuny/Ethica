@@ -128,7 +128,7 @@ export const sendNotice = async (
   );
   const emails = [...new Set(parties.flatMap((party) => (party.email ? [party.email] : [])))];
   if (!emails.length) throw new CustomError('no_recipients', 422);
-  const [modelo, expert] = await Promise.all([
+  const [template, expert] = await Promise.all([
     officeService.getScheduleNotice(ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
   ]);
@@ -143,9 +143,9 @@ export const sendNotice = async (
     '[COMARCA]': legalCase.district ?? '',
   };
   const preencher = (texto: string) =>
-    Object.entries(values).reduce((resultado, [marcador, amount]) => resultado.replaceAll(marcador, amount), texto);
-  const assunto = preencher(modelo.assunto);
-  const corpo = preencher(modelo.corpo);
+    Object.entries(values).reduce((resultado, [marker, amount]) => resultado.replaceAll(marker, amount), texto);
+  const assunto = preencher(template.assunto);
+  const corpo = preencher(template.corpo);
   const enviados: string[] = [];
   for (const email of emails) {
     if ((await mail.send(email, assunto, corpo)).sent) enviados.push(email);

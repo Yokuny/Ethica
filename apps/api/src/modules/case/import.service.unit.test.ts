@@ -31,9 +31,9 @@ describe('extrairAta (AD-114)', () => {
       reportDeadline: '2026-11-14',
     });
     expect(draft.parties).toEqual([
-      { side: 'plaintiff', tipo: 'party', nome: 'MARIA DA SILVA', documento: '12345678909' },
+      { side: 'plaintiff', tipo: 'party', nome: 'MARIA DA SILVA', document: '12345678909' },
       { side: 'plaintiff', tipo: 'lawyer', nome: 'JOÃO PEREIRA', oab: 'SP123456' },
-      { side: 'defendant', tipo: 'party', nome: 'INDÚSTRIA EXEMPLO LTDA', documento: '12345678000195' },
+      { side: 'defendant', tipo: 'party', nome: 'INDÚSTRIA EXEMPLO LTDA', document: '12345678000195' },
       { side: 'defendant', tipo: 'lawyer', nome: 'ANA SOUZA', oab: 'SP654321' },
     ]);
     expect(missing).toEqual([]);
@@ -84,11 +84,11 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
     ]);
   });
 
-  const linha = (values: Partial<Record<CsvImportColumn, string>>) => (coluna: CsvImportColumn) => values[coluna] ?? '';
+  const row = (values: Partial<Record<CsvImportColumn, string>>) => (column: CsvImportColumn) => values[column] ?? '';
 
   it('linha válida vira cadastro com órgão pelo número, datas, dinheiro e partes', () => {
     const result = rowToCase(
-      linha({
+      row({
         numero_processo: '0001234-56.2026.5.02.0001',
         objeto: 'Insalubridade',
         papel: 'Assistente',
@@ -112,7 +112,7 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
         parties: [
           { side: 'plaintiff', tipo: 'party', nome: 'Maria' },
           { side: 'plaintiff', tipo: 'lawyer', nome: 'João', oab: 'SP123456' },
-          { side: 'defendant', tipo: 'party', nome: 'Indústria', documento: '12345678000195' },
+          { side: 'defendant', tipo: 'party', nome: 'Indústria', document: '12345678000195' },
         ],
       }),
     });
@@ -141,6 +141,6 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
       { column: 'objeto', reason: 'invalid_field' },
     ],
   ])('recusa a linha com o motivo (%j)', (values, reason) => {
-    expect(rowToCase(linha(values as Partial<Record<CsvImportColumn, string>>))).toEqual(reason);
+    expect(rowToCase(row(values as Partial<Record<CsvImportColumn, string>>))).toEqual(reason);
   });
 });

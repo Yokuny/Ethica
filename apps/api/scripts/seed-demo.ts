@@ -9,11 +9,11 @@ import {
   dateInDisplayTz,
   disconnect,
   Inspection,
-  Laudo,
-  ModeloLaudo,
   Oportunidade,
   Party,
+  Report,
   Session,
+  Template,
   Tenant,
   Transaction,
   User,
@@ -21,8 +21,8 @@ import {
 } from '@ethica/db';
 import bcrypt from 'bcrypt';
 import { env } from '../src/config/env.config.js';
-import { MODELOS_PADRAO } from '../src/modules/documentos/laudo.biblioteca.js';
-import { resolveVariables } from '../src/modules/documentos/laudo.html.js';
+import { resolveVariables } from '../src/modules/documents/report.html.js';
+import { DEFAULT_TEMPLATES } from '../src/modules/documents/report.library.js';
 
 // Ferramenta de dev: cria (ou recria) o tenant de demonstração "Perícias Demo"
 // com equipe, perícias em várias etapas, agenda, lançamentos e oportunidades,
@@ -128,8 +128,8 @@ const run = async (): Promise<void> => {
       Inspection.deleteMany({ Tenant: old._id }),
       Transaction.deleteMany({ Tenant: old._id }),
       Oportunidade.deleteMany({ Tenant: old._id }),
-      Laudo.deleteMany({ Tenant: old._id }),
-      ModeloLaudo.deleteMany({ Tenant: old._id }),
+      Report.deleteMany({ Tenant: old._id }),
+      Template.deleteMany({ Tenant: old._id }),
       Session.deleteMany({ user: { $in: users.map((user) => user._id) } }),
       User.deleteMany({ Tenant: old._id }),
       Tenant.deleteOne({ _id: old._id }),
@@ -141,8 +141,8 @@ const run = async (): Promise<void> => {
     name: 'Perícias Demo',
     document: DOCUMENT,
     status: 'active',
-    cabecalho: '[LOGO]\nPerícias Demo — Engenharia de Segurança do Trabalho\nRua das Perícias, 100 — São Paulo/SP',
-    rodape: '[NOME_PERITO] · Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]',
+    header: '[LOGO]\nPerícias Demo — Engenharia de Segurança do Trabalho\nRua das Perícias, 100 — São Paulo/SP',
+    footer: '[NOME_PERITO] · Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]',
   });
   const password = await bcrypt.hash(PASSWORD, 10);
   const [admin] = await User.create(
@@ -168,11 +168,11 @@ const run = async (): Promise<void> => {
   // Partes e advogados reutilizáveis (AD-117): a mesma ré e os mesmos advogados em vários processos.
   const [maria, jose, aurora, industria, construtora, inss, joao, ana] = await Party.insertMany(
     [
-      { tipo: 'party', nome: 'Maria da Silva', documento: '12345678909', telefone: '(11) 98888-1000' },
-      { tipo: 'party', nome: 'José Santos', documento: '98765432100' },
-      { tipo: 'party', nome: 'Condomínio Edifício Aurora', documento: '11222333000181' },
-      { tipo: 'party', nome: 'Indústria Exemplo Ltda.', documento: '12345678000195', email: 'juridico@exemplo.com' },
-      { tipo: 'party', nome: 'Construtora Alfa S.A.', documento: '33444555000172' },
+      { tipo: 'party', nome: 'Maria da Silva', document: '12345678909', telefone: '(11) 98888-1000' },
+      { tipo: 'party', nome: 'José Santos', document: '98765432100' },
+      { tipo: 'party', nome: 'Condomínio Edifício Aurora', document: '11222333000181' },
+      { tipo: 'party', nome: 'Indústria Exemplo Ltda.', document: '12345678000195', email: 'juridico@exemplo.com' },
+      { tipo: 'party', nome: 'Construtora Alfa S.A.', document: '33444555000172' },
       { tipo: 'party', nome: 'Instituto Nacional do Seguro Social' },
       { tipo: 'lawyer', nome: 'João Pereira', oab: 'SP123456', email: 'joao@advocacia.com' },
       { tipo: 'lawyer', nome: 'Ana Souza', oab: 'SP654321' },
@@ -236,7 +236,7 @@ const run = async (): Promise<void> => {
       fixedFeesCents: 'fixed' in p ? p.fixed : undefined,
     })),
   );
-  const [inspection, laudo, civel, federal, clarifications] = cases;
+  const [inspection, report, civel, federal, clarifications] = cases;
 
   // Prazos (AD-109): a entrega do laudo de cada perícia, protocolada nas que já entregaram,
   // e um prazo de esclarecimentos já protocolado para mostrar o histórico.
@@ -319,7 +319,7 @@ const run = async (): Promise<void> => {
       titulo: 'Vistoria no posto de combustível',
       inicio: at(-6, '09:00'),
       fim: at(-6, '10:30'),
-      Case: laudo?._id,
+      Case: report?._id,
       status: 'done',
     },
   ];
@@ -332,7 +332,7 @@ const run = async (): Promise<void> => {
   await Inspection.create({
     Tenant: tenant._id,
     Appointment: done?._id,
-    Case: laudo?._id,
+    Case: report?._id,
     versao: 1,
     dados: {
       attendees: [
@@ -360,9 +360,9 @@ const run = async (): Promise<void> => {
         { agent: 'hazardous', present: 'yes', observacoes: 'área de risco das bombas' },
         { agent: 'noise', present: 'no' },
       ],
-      documentos: [
-        { id: 'd1', documento: 'risk_program', requested: true },
-        { id: 'd2', documento: 'ppe_records', requested: true },
+      documents: [
+        { id: 'd1', document: 'risk_program', requested: true },
+        { id: 'd2', document: 'ppe_records', requested: true },
       ],
       observacoes: 'Encarregado confirmou a rotina na pista.',
     },
@@ -398,11 +398,11 @@ const run = async (): Promise<void> => {
     {
       kind: 'income',
       category: 'fixed_fees',
-      descricao: `Honorários fixados — ${laudo?.processNumber}`,
+      descricao: `Honorários fixados — ${report?.processNumber}`,
       amountCents: 350_000,
       dueDate: day(20),
       status: 'expected',
-      Case: laudo?._id,
+      Case: report?._id,
     },
     {
       kind: 'income',
@@ -454,14 +454,14 @@ const run = async (): Promise<void> => {
 
   // Laudos (AD-126): um modelo do escritório clonado do padrão e um laudo em rascunho da perícia
   // em elaboração, com as seções de periculosidade e uma variável pendente para mostrar o bloqueio.
-  const padrao = MODELOS_PADRAO.report;
-  await ModeloLaudo.create({
+  const padrao = DEFAULT_TEMPLATES.report;
+  await Template.create({
     Tenant: tenant._id,
     nome: 'Periculosidade — inflamáveis (escritório)',
     tipo: 'report',
-    secoes: padrao.secoes
-      .filter((secao) => !secao.titulo.includes('NR-15') && !/^Anexo \d+ — (?!Inflamáveis)/.test(secao.titulo))
-      .map(({ id: _id, ...secao }) => secao),
+    sections: padrao.sections
+      .filter((section) => !section.titulo.includes('NR-15') && !/^Anexo \d+ — (?!Inflamáveis)/.test(section.titulo))
+      .map(({ id: _id, ...section }) => section),
   });
   const values = {
     '[NUMERO_PROCESSO]': CASES[1].numero,
@@ -490,25 +490,25 @@ const run = async (): Promise<void> => {
     'Honorários periciais': 'no',
     Encerramento: 'yes',
   };
-  await Laudo.create({
+  await Report.create({
     Tenant: tenant._id,
-    Case: laudo?._id,
+    Case: report?._id,
     tipo: 'report',
     status: 'draft',
     titulo: 'Laudo pericial',
-    modeloNome: padrao.nome,
-    CriadoPor: admin?._id,
-    secoes: padrao.secoes
-      .filter((secao) => secao.titulo in ESCOLHA)
-      .map((secao) => {
-        const variante = ESCOLHA[secao.titulo] ?? 'yes';
+    templateName: padrao.nome,
+    CreatedBy: admin?._id,
+    sections: padrao.sections
+      .filter((section) => section.titulo in ESCOLHA)
+      .map((section) => {
+        const variant = ESCOLHA[section.titulo] ?? 'yes';
         return {
-          titulo: resolveVariables(secao.titulo, values, 'texto'),
-          nivel: secao.nivel,
-          apenasTitulo: secao.apenasTitulo,
-          quebraPagina: secao.quebraPagina,
-          variante,
-          html: resolveVariables(variante === 'yes' ? secao.textoSim : secao.textoNao, values, 'html'),
+          titulo: resolveVariables(section.titulo, values, 'texto'),
+          level: section.level,
+          titleOnly: section.titleOnly,
+          pageBreak: section.pageBreak,
+          variant,
+          html: resolveVariables(variant === 'yes' ? section.yesText : section.noText, values, 'html'),
         };
       }),
   });

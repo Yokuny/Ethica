@@ -111,8 +111,8 @@ export const inspectionDataSchema = z
         })
         .strict(),
     ),
-    documentos: lista(
-      z.object({ id: itemId, documento: curto.min(1), requested: z.boolean(), observacoes: curto.optional() }).strict(),
+    documents: lista(
+      z.object({ id: itemId, document: curto.min(1), requested: z.boolean(), observacoes: curto.optional() }).strict(),
     ),
     // Internas: nunca vão ao laudo.
     observacoes: z.string().trim().max(10_000, 'observações muito longas').optional(),
@@ -125,7 +125,7 @@ export const INSPECTION_EMPTY_DATA: InspectionData = {
   comparators: [],
   jobs: [],
   agents: [],
-  documentos: [],
+  documents: [],
 };
 
 // Salvar o formulário inteiro com a versão que o aparelho conhecia (AD-128).

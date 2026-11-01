@@ -34,8 +34,8 @@ export function HomePersonalizar({
             label={t(HOME_BLOCO_KEY[bloco])}
             checked={!ocultos.includes(bloco)}
             disabled={mutation.isPending}
-            onCheckedChange={(marcado) =>
-              salvar(marcado ? ocultos.filter((item) => item !== bloco) : [...ocultos, bloco])
+            onCheckedChange={(checked) =>
+              salvar(checked ? ocultos.filter((item) => item !== bloco) : [...ocultos, bloco])
             }
           />
         ))}

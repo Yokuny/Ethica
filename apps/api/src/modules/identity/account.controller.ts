@@ -70,9 +70,9 @@ export const calendarFeedStatus = async (req: Request, res: Response, next: Next
   }
 };
 
-export const gerarCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const generateCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await accountService.gerarCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
+    const data = await accountService.generateCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
     res.status(201).json(respObj({ data, message: 'created_successfully' }));
   } catch (e) {
     next(e);

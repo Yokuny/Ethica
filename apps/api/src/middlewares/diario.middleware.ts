@@ -41,8 +41,8 @@ const IGNORADAS = [
 ];
 const ROTULOS = ['processNumber', 'titulo', 'nome', 'descricao', 'email'] as const;
 
-const moduloDe = (literais: string[]): DiarioModulo | undefined => {
-  const [primeiro, segundo] = literais;
+const moduloDe = (literals: string[]): DiarioModulo | undefined => {
+  const [primeiro, segundo] = literals;
   if (primeiro === 'expert-reports') return segundo === 'templates' ? 'report_templates' : 'expert_reports';
   if (primeiro === 'tenant') return segundo === 'invites' ? 'users' : 'office';
   if (primeiro === 'auth') return 'users';
@@ -64,17 +64,17 @@ export const descreverRequisicao = (
   method: string,
   path: string,
 ): { modulo: DiarioModulo; recurso?: string; acao: DiarioAcao; registroId?: string } | undefined => {
-  const exportacao = method === 'GET' && path === '/documents/export';
-  if (!ESCRITA.has(method) && !exportacao) return undefined;
+  const dataExport = method === 'GET' && path === '/documents/export';
+  if (!ESCRITA.has(method) && !dataExport) return undefined;
   if (IGNORADAS.some((prefixo) => path.startsWith(prefixo)) || path.endsWith('/geocode')) return undefined;
   const segmentos = path.split('/').filter(Boolean);
-  const literais = segmentos.filter((segmento) => !OBJECT_ID.test(segmento));
-  const modulo = moduloDe(literais);
+  const literals = segmentos.filter((segmento) => !OBJECT_ID.test(segmento));
+  const modulo = moduloDe(literals);
   if (!modulo) return undefined;
-  const ultimo = literais.at(-1) ?? '';
-  const acao = literais.includes('import') ? 'import' : (ACAO_POR_SUFIXO[ultimo] ?? ACAO_POR_METODO[method]);
+  const ultimo = literals.at(-1) ?? '';
+  const acao = literals.includes('import') ? 'import' : (ACAO_POR_SUFIXO[ultimo] ?? ACAO_POR_METODO[method]);
   if (!acao) return undefined;
-  const internal = literais.slice(modulo === 'report_templates' || literais[0] === 'tenant' ? 2 : 1);
+  const internal = literals.slice(modulo === 'report_templates' || literals[0] === 'tenant' ? 2 : 1);
   const recurso = internal.filter((literal) => !(literal in ACAO_POR_SUFIXO) && literal !== 'import').at(-1);
   return { modulo, acao, recurso, registroId: segmentos.find((segmento) => OBJECT_ID.test(segmento)) };
 };

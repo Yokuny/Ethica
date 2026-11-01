@@ -15,15 +15,15 @@ import {
 import { caseIdParamSchema, listCasesQuerySchema, movementIdParamSchema } from './case/case.schema.js';
 import { deadlineIdParamSchema, listPendingDeadlinesQuerySchema } from './case/deadline.schema.js';
 import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
-import { documentCaseParamSchema } from './documentos/documentos.schema.js';
+import { documentCaseParamSchema } from './documents/documents.schema.js';
 import {
-  laudoIdParamSchema,
-  laudoSecaoParamSchema,
-  listLaudosQuerySchema,
-  listModelosQuerySchema,
-  modeloIdParamSchema,
-  modeloSecaoParamSchema,
-} from './documentos/laudo.schema.js';
+  listReportsQuerySchema,
+  listTemplatesQuerySchema,
+  reportIdParamSchema,
+  reportSectionParamSchema,
+  templateIdParamSchema,
+  templateSectionParamSchema,
+} from './documents/report.schema.js';
 import {
   categoriesQuerySchema,
   flowQuerySchema,
@@ -59,12 +59,12 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'inspectionCaseParamSchema', schema: inspectionCaseParamSchema },
   { name: 'inspectionDayQuerySchema', schema: inspectionDayQuerySchema },
   { name: 'mediaUploadQuerySchema', schema: mediaUploadQuerySchema },
-  { name: 'modeloIdParamSchema', schema: modeloIdParamSchema },
-  { name: 'modeloSecaoParamSchema', schema: modeloSecaoParamSchema },
-  { name: 'laudoIdParamSchema', schema: laudoIdParamSchema },
-  { name: 'laudoSecaoParamSchema', schema: laudoSecaoParamSchema },
-  { name: 'listModelosQuerySchema', schema: listModelosQuerySchema },
-  { name: 'listLaudosQuerySchema', schema: listLaudosQuerySchema },
+  { name: 'templateIdParamSchema', schema: templateIdParamSchema },
+  { name: 'templateSectionParamSchema', schema: templateSectionParamSchema },
+  { name: 'reportIdParamSchema', schema: reportIdParamSchema },
+  { name: 'reportSectionParamSchema', schema: reportSectionParamSchema },
+  { name: 'listTemplatesQuerySchema', schema: listTemplatesQuerySchema },
+  { name: 'listReportsQuerySchema', schema: listReportsQuerySchema },
   { name: 'partyIdParamSchema', schema: partyIdParamSchema },
   { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
   { name: 'deadlineIdParamSchema', schema: deadlineIdParamSchema },

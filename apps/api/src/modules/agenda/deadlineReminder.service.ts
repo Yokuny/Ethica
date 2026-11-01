@@ -28,22 +28,22 @@ export const proximaExecucao = (now: Date): Date => {
   return at > now ? at : wallClockToUtc(addDays(today, 1), NOTICE_HOUR);
 };
 
-const montarEmail = (
-  secoes: { titulo: string; deadlines: NoticeDeadline[] }[],
+const buildEmail = (
+  sections: { titulo: string; deadlines: NoticeDeadline[] }[],
   summaries: Map<string, CaseSummary>,
   appUrl: string,
 ): string =>
-  secoes
-    .filter((secao) => secao.deadlines.length > 0)
-    .map((secao) => {
-      const itens = secao.deadlines
+  sections
+    .filter((section) => section.deadlines.length > 0)
+    .map((section) => {
+      const itens = section.deadlines
         .map((deadline) => {
           const numero = summaries.get(deadline.caseId)?.processNumber ?? '';
           const link = `${appUrl}/expert-cases/details?id=${encodeURIComponent(deadline.caseId)}`;
           return `<li><a href="${escapeHtml(link)}">${escapeHtml(deadline.titulo)}</a> — ${escapeHtml(numero)} (${formatDay(deadline.dueDate)})</li>`;
         })
         .join('');
-      return `<h3>${escapeHtml(secao.titulo)}</h3><ul>${itens}</ul>`;
+      return `<h3>${escapeHtml(section.titulo)}</h3><ul>${itens}</ul>`;
     })
     .join('');
 
@@ -70,7 +70,7 @@ export const sendDeadlineNotices = async (
     const pessoas = recipients.filter((pessoa) => pessoa.tenantId === tenantId);
     if (pessoas.length === 0) continue;
     const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(doTenant.map((p) => p.caseId))]);
-    const html = montarEmail(
+    const html = buildEmail(
       [
         { titulo: 'Venceram ontem', deadlines: doTenant.filter((p) => p.dueDate === ontem) },
         { titulo: 'Vencem hoje', deadlines: doTenant.filter((p) => p.dueDate === today) },

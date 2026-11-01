@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { caseState, phaseFitsInStatus, phaseStatus, suggestNonPrescribedPeriod, validClient } from './case.schema.js';
-import { documentoSchema, normalizarOab, oabSchema } from './party.schema.js';
+import { documentSchema, normalizarOab, oabSchema } from './party.schema.js';
 
 describe('sugerirPeriodoImprescrito (AD-115)', () => {
   it('início é o mais recente entre autuação − 5 anos e admissão; fim é a demissão', () => {
@@ -38,10 +38,10 @@ describe('documento e OAB da parte', () => {
   });
 
   it('CPF/CNPJ só com dígitos; vazio vira ausente', () => {
-    expect(documentoSchema.parse('123.456.789-09')).toBe('12345678909');
-    expect(documentoSchema.parse('12.345.678/0001-95')).toBe('12345678000195');
-    expect(documentoSchema.parse('')).toBeUndefined();
-    expect(documentoSchema.safeParse('123').success).toBe(false);
+    expect(documentSchema.parse('123.456.789-09')).toBe('12345678909');
+    expect(documentSchema.parse('12.345.678/0001-95')).toBe('12345678000195');
+    expect(documentSchema.parse('')).toBeUndefined();
+    expect(documentSchema.safeParse('123').success).toBe(false);
   });
 });
 

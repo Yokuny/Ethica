@@ -57,13 +57,13 @@ const resolveParty = async (tenantId: string, input: CasePartyInput): Promise<Pa
     return party;
   }
   const nome = normalizarNome(input.nome);
-  const documento = input.tipo === 'party' ? input.documento : undefined;
+  const document = input.tipo === 'party' ? input.document : undefined;
   const oab = input.tipo === 'lawyer' ? input.oab : undefined;
   const existing = await partyRepository.findOneBy(
     tenantId,
-    documento ? { tipo: input.tipo, documento } : oab ? { tipo: input.tipo, oab } : { tipo: input.tipo, nome },
+    document ? { tipo: input.tipo, document } : oab ? { tipo: input.tipo, oab } : { tipo: input.tipo, nome },
   );
-  return existing ?? partyRepository.createParty(tenantId, { tipo: input.tipo, nome, documento, oab });
+  return existing ?? partyRepository.createParty(tenantId, { tipo: input.tipo, nome, document, oab });
 };
 
 // Em sequência: a mesma parte repetida na lista (ou no lote) resolve para um só cadastro.

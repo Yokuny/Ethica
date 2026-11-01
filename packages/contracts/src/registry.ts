@@ -12,11 +12,7 @@ import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
 import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
 import { listDiarioQuerySchema } from './schemas/diario.schema.js';
-import {
-  financeReportQuerySchema,
-  updateOfficeSchema,
-  updateScheduleNoticeSchema,
-} from './schemas/documento.schema.js';
+import { financeReportQuerySchema, updateOfficeSchema, updateScheduleNoticeSchema } from './schemas/document.schema.js';
 import { idSchema } from './schemas/id.schema.js';
 import {
   inspectionDataSchema,
@@ -25,20 +21,11 @@ import {
   updateMediaSchema,
 } from './schemas/inspection.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
-import {
-  concluirLaudoSchema,
-  createLaudoSchema,
-  createModeloLaudoSchema,
-  modeloSecaoSchema,
-  moverSecaoSchema,
-  updateLaudoSecaoSchema,
-  updateModeloLaudoSchema,
-} from './schemas/laudo.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
 import {
   casePartyInputSchema,
   createPartySchema,
-  documentoSchema,
+  documentSchema,
   oabSchema,
   updatePartySchema,
 } from './schemas/party.schema.js';
@@ -49,6 +36,15 @@ import {
   updateOportunidadeSchema,
 } from './schemas/prospeccao.schema.js';
 import { provisionTenantSchema } from './schemas/provisionTenant.schema.js';
+import {
+  completeReportSchema,
+  createReportSchema,
+  createTemplateSchema,
+  moveSectionSchema,
+  templateSectionSchema,
+  updateReportSectionSchema,
+  updateTemplateSchema,
+} from './schemas/report.schema.js';
 import { signinSchema } from './schemas/signin.schema.js';
 import {
   createInstallmentSchema,
@@ -88,18 +84,18 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createMovementSchema', schema: createMovementSchema },
   { name: 'updateOfficeSchema', schema: updateOfficeSchema },
   { name: 'financeReportQuerySchema', schema: financeReportQuerySchema },
-  { name: 'documentoSchema', schema: documentoSchema },
+  { name: 'documentSchema', schema: documentSchema },
   { name: 'oabSchema', schema: oabSchema },
   { name: 'createPartySchema', schema: createPartySchema },
   { name: 'updatePartySchema', schema: updatePartySchema },
   { name: 'casePartyInputSchema', schema: casePartyInputSchema },
-  { name: 'createModeloLaudoSchema', schema: createModeloLaudoSchema },
-  { name: 'updateModeloLaudoSchema', schema: updateModeloLaudoSchema },
-  { name: 'modeloSecaoSchema', schema: modeloSecaoSchema },
-  { name: 'moverSecaoSchema', schema: moverSecaoSchema },
-  { name: 'createLaudoSchema', schema: createLaudoSchema },
-  { name: 'updateLaudoSecaoSchema', schema: updateLaudoSecaoSchema },
-  { name: 'concluirLaudoSchema', schema: concluirLaudoSchema },
+  { name: 'createTemplateSchema', schema: createTemplateSchema },
+  { name: 'updateTemplateSchema', schema: updateTemplateSchema },
+  { name: 'templateSectionSchema', schema: templateSectionSchema },
+  { name: 'moveSectionSchema', schema: moveSectionSchema },
+  { name: 'createReportSchema', schema: createReportSchema },
+  { name: 'updateReportSectionSchema', schema: updateReportSectionSchema },
+  { name: 'completeReportSchema', schema: completeReportSchema },
   { name: 'createDeadlineSchema', schema: createDeadlineSchema },
   { name: 'updateDeadlineSchema', schema: updateDeadlineSchema },
   { name: 'createAppointmentSchema', schema: createAppointmentSchema },

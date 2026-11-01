@@ -38,7 +38,7 @@ export function PartyForm({ party, onClose, onSaved }: PartyFormProps) {
           {tipo === 'lawyer' ? (
             <TextField control={control} name="oab" label="OAB" placeholder={t('example_oab')} />
           ) : (
-            <TextField control={control} name="documento" label={t('cpf_cnpj')} placeholder="000.000.000-00" />
+            <TextField control={control} name="document" label={t('cpf_cnpj')} placeholder="000.000.000-00" />
           )}
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField control={control} name="email" label={t('email')} placeholder={t('example_email')} />

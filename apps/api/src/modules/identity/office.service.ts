@@ -22,10 +22,10 @@ const requireStorage = (storage: FileStorage | undefined): FileStorage => {
 export const getOffice = async (tenantId: string): Promise<OfficeView> => {
   const tenant = await findOfficeOrThrow(tenantId);
   // As últimas exportações vêm do diário de bordo (AD-134).
-  const exports = await diarioService.ultimasExportacoes(tenantId, EXPORTS_SHOWN);
+  const exports = await diarioService.latestExports(tenantId, EXPORTS_SHOWN);
   return {
-    cabecalho: tenant.cabecalho ?? '',
-    rodape: tenant.rodape ?? '',
+    header: tenant.header ?? '',
+    footer: tenant.footer ?? '',
     ...(tenant.logo ? { logo: `/tenant/office/logo?v=${tenant.logo.updatedAt?.getTime() ?? 0}` } : {}),
     storageBytes: tenant.storageBytes ?? 0,
     storageQuotaBytes: TENANT_STORAGE_QUOTA_BYTES,
@@ -82,19 +82,19 @@ export const getDocumentIdentity = async (
   const bytes = tenant.logo && storage ? await storage.get(tenant.logo.key) : null;
   return {
     name: tenant.name,
-    ...(tenant.cabecalho ? { cabecalho: tenant.cabecalho } : {}),
-    ...(tenant.rodape ? { rodape: tenant.rodape } : {}),
+    ...(tenant.header ? { header: tenant.header } : {}),
+    ...(tenant.footer ? { footer: tenant.footer } : {}),
     ...(bytes ? { logoDataUrl: `data:image/png;base64,${bytes.toString('base64')}` } : {}),
   };
 };
 
 // Cota de arquivos para outros módulos (mídias da vistoria, AD-129): reservar antes de gravar
 // a referência e devolver ao apagar o arquivo.
-export const reservarArquivo = async (tenantId: string, bytes: number): Promise<void> => {
+export const reserveFile = async (tenantId: string, bytes: number): Promise<void> => {
   if (!(await officeRepository.reservarBytes(tenantId, bytes))) throw new CustomError('storage_quota_exceeded', 422);
 };
 
-export const devolverArquivo = (tenantId: string, bytes: number) => officeRepository.devolverBytes(tenantId, bytes);
+export const returnFile = (tenantId: string, bytes: number) => officeRepository.devolverBytes(tenantId, bytes);
 
 // Modelo do aviso de agendamento às partes (AD-131); sem modelo gravado, vale o padrão.
 export const DEFAULT_SCHEDULE_NOTICE: UpdateScheduleNotice = {

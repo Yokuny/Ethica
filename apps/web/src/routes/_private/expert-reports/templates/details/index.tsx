@@ -1,4 +1,4 @@
-import { numerarSecoes } from '@ethica/contracts';
+import { numberSections } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
@@ -17,48 +17,48 @@ import { Panel } from '@/components/panel.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import {
-  deleteModeloMutation,
-  type ModeloSecaoRecord,
-  modeloQuery,
-  moverModeloSecaoMutation,
-  removeModeloSecaoMutation,
-} from '@/query/laudo.js';
+  deleteTemplateMutation,
+  moveTemplateSectionMutation,
+  removeTemplateSectionMutation,
+  type TemplateSectionRecord,
+  templateQuery,
+} from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { ModeloCreateForm } from '../@components/modelo-create-form.js';
-import { ModeloSecaoForm } from './@components/modelo-secao-form.js';
-import { ModeloSecaoView } from './@components/modelo-secao-view.js';
-import { type ModeloDetailsSearch, modeloDetailsSearchSchema } from './@interface/modelo-details.interface.js';
+import { TemplateCreateForm } from '../@components/template-create-form.js';
+import { TemplateSectionForm } from './@components/template-section-form.js';
+import { TemplateSectionView } from './@components/template-section-view.js';
+import { type TemplateDetailsSearch, templateDetailsSearchSchema } from './@interface/template-details.interface.js';
 
 type Painel =
-  | { kind: 'secao'; secao?: ModeloSecaoRecord }
-  | { kind: 'ver'; secao: ModeloSecaoRecord }
-  | { kind: 'remover-secao'; secao: ModeloSecaoRecord }
+  | { kind: 'section'; section?: TemplateSectionRecord }
+  | { kind: 'ver'; section: TemplateSectionRecord }
+  | { kind: 'remove-section'; section: TemplateSectionRecord }
   | { kind: 'duplicar' }
   | { kind: 'excluir' }
   | null;
 
 // LAU-01.2: seções numeradas pela posição e pelo nível; o padrão é só leitura e se duplica.
-export function ModeloDetailsPage() {
-  const search = useSearch({ strict: false }) as ModeloDetailsSearch;
+export function TemplateDetailsPage() {
+  const search = useSearch({ strict: false }) as TemplateDetailsSearch;
   const navigate = useNavigate({ from: '/expert-reports/templates/details/' });
   const queryClient = useQueryClient();
   const { data: session } = useSuspenseQuery(sessionQuery);
-  const query = useQuery({ ...modeloQuery(search.id), retry: false });
-  const mover = useMutation(moverModeloSecaoMutation(queryClient));
-  const removerSecao = useMutation(removeModeloSecaoMutation(queryClient));
-  const excluir = useMutation(deleteModeloMutation(queryClient));
+  const query = useQuery({ ...templateQuery(search.id), retry: false });
+  const mover = useMutation(moveTemplateSectionMutation(queryClient));
+  const dropSection = useMutation(removeTemplateSectionMutation(queryClient));
+  const excluir = useMutation(deleteTemplateMutation(queryClient));
   const [painel, setPainel] = useState<Painel>(null);
-  const modelo = query.data;
-  const podeEditar = Boolean(modelo && !modelo.padrao && can(session, 'report_templates', 'update'));
-  const numeros = numerarSecoes(modelo?.secoes ?? []);
+  const template = query.data;
+  const podeEditar = Boolean(template && !template.padrao && can(session, 'report_templates', 'update'));
+  const numeros = numberSections(template?.sections ?? []);
   const onError = (error: Error) => toast.error(error.message);
 
   return (
     <Card asPage>
       <CardHeader title={t('details')}>
-        {modelo && can(session, 'report_templates', 'update') && (
+        {template && can(session, 'report_templates', 'update') && (
           <CardAction>
-            {podeEditar && <Button onClick={() => setPainel({ kind: 'secao' })}>{t('new_section')}</Button>}
+            {podeEditar && <Button onClick={() => setPainel({ kind: 'section' })}>{t('new_section')}</Button>}
             <PageMenu>
               <DropdownMenuItem onClick={() => setPainel({ kind: 'duplicar' })}>
                 {t('duplicate_template')}
@@ -71,7 +71,7 @@ export function ModeloDetailsPage() {
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !modelo ? (
+      ) : !template ? (
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
@@ -80,32 +80,32 @@ export function ModeloDetailsPage() {
           <RecordHeader>
             <RecordHeading
               icon={<ListTree />}
-              label={t(modelo.tipo)}
-              title={modelo.nome}
-              badge={modelo.padrao && <Badge variant="info">{t('standard')}</Badge>}
-              description={modelo.padrao ? t('standard_template_review_notice') : undefined}
+              label={t(template.tipo)}
+              title={template.nome}
+              badge={template.padrao && <Badge variant="info">{t('standard')}</Badge>}
+              description={template.padrao ? t('standard_template_review_notice') : undefined}
             />
           </RecordHeader>
-          <Panel title={t('sections')} description={`${modelo.secoes.length} ${t('sections').toLowerCase()}`}>
-            {!modelo.secoes.length ? (
+          <Panel title={t('sections')} description={`${template.sections.length} ${t('sections').toLowerCase()}`}>
+            {!template.sections.length ? (
               <DefaultEmptyData title={t('no_sections_yet')} />
             ) : (
               <LinkList>
-                {modelo.secoes.map((secao, i) => (
+                {template.sections.map((section, i) => (
                   <LinkListItem
-                    key={secao.id}
+                    key={section.id}
                     render={
                       podeEditar ? undefined : (
                         <button
                           type="button"
                           className="w-full text-left"
-                          onClick={() => setPainel({ kind: 'ver', secao })}
+                          onClick={() => setPainel({ kind: 'ver', section })}
                         />
                       )
                     }
-                    className={secao.nivel > 1 ? (secao.nivel > 2 ? 'pl-14' : 'pl-9') : undefined}
-                    title={`${numeros[i]}. ${secao.titulo}`}
-                    description={[secao.apenasTitulo && t('title_only'), secao.quebraPagina && t('page_break_before')]
+                    className={section.level > 1 ? (section.level > 2 ? 'pl-14' : 'pl-9') : undefined}
+                    title={`${numeros[i]}. ${section.titulo}`}
+                    description={[section.titleOnly && t('title_only'), section.pageBreak && t('page_break_before')]
                       .filter(Boolean)
                       .join(' · ')}
                   >
@@ -116,7 +116,9 @@ export function ModeloDetailsPage() {
                           variant="ghost"
                           aria-label={t('move_up')}
                           disabled={i === 0 || mover.isPending}
-                          onClick={() => mover.mutate({ id: modelo.id, secaoId: secao.id, direcao: 'up' }, { onError })}
+                          onClick={() =>
+                            mover.mutate({ id: template.id, sectionId: section.id, direcao: 'up' }, { onError })
+                          }
                         >
                           <ArrowUp />
                         </Button>
@@ -124,9 +126,9 @@ export function ModeloDetailsPage() {
                           size="icon-sm"
                           variant="ghost"
                           aria-label={t('move_down')}
-                          disabled={i === modelo.secoes.length - 1 || mover.isPending}
+                          disabled={i === template.sections.length - 1 || mover.isPending}
                           onClick={() =>
-                            mover.mutate({ id: modelo.id, secaoId: secao.id, direcao: 'down' }, { onError })
+                            mover.mutate({ id: template.id, sectionId: section.id, direcao: 'down' }, { onError })
                           }
                         >
                           <ArrowDown />
@@ -135,7 +137,7 @@ export function ModeloDetailsPage() {
                           size="icon-sm"
                           variant="ghost"
                           aria-label={t('edit')}
-                          onClick={() => setPainel({ kind: 'secao', secao })}
+                          onClick={() => setPainel({ kind: 'section', section })}
                         >
                           <Pencil />
                         </Button>
@@ -143,7 +145,7 @@ export function ModeloDetailsPage() {
                           size="icon-sm"
                           variant="ghost"
                           aria-label={t('remove')}
-                          onClick={() => setPainel({ kind: 'remover-secao', secao })}
+                          onClick={() => setPainel({ kind: 'remove-section', section })}
                         >
                           <Trash2 />
                         </Button>
@@ -156,20 +158,20 @@ export function ModeloDetailsPage() {
           </Panel>
         </CardContent>
       )}
-      {modelo && podeEditar && (
+      {template && podeEditar && (
         <CardFooter className="justify-between gap-2">
           <Button variant="destructive" onClick={() => setPainel({ kind: 'excluir' })}>
             {t('remove')}
           </Button>
         </CardFooter>
       )}
-      {modelo && painel?.kind === 'secao' && (
-        <ModeloSecaoForm modeloId={modelo.id} secao={painel.secao} onClose={() => setPainel(null)} />
+      {template && painel?.kind === 'section' && (
+        <TemplateSectionForm templateId={template.id} section={painel.section} onClose={() => setPainel(null)} />
       )}
-      {painel?.kind === 'ver' && <ModeloSecaoView secao={painel.secao} onClose={() => setPainel(null)} />}
-      {modelo && painel?.kind === 'duplicar' && (
-        <ModeloCreateForm
-          base={modelo}
+      {painel?.kind === 'ver' && <TemplateSectionView section={painel.section} onClose={() => setPainel(null)} />}
+      {template && painel?.kind === 'duplicar' && (
+        <TemplateCreateForm
+          base={template}
           onClose={() => setPainel(null)}
           onDone={(novo) => {
             setPainel(null);
@@ -177,22 +179,22 @@ export function ModeloDetailsPage() {
           }}
         />
       )}
-      {modelo && painel?.kind === 'remover-secao' && (
+      {template && painel?.kind === 'remove-section' && (
         <ConfirmDialog
           title={t('remove_section_question')}
-          description={painel.secao.titulo}
+          description={painel.section.titulo}
           confirmLabel={t('remove')}
-          pending={removerSecao.isPending}
+          pending={dropSection.isPending}
           onClose={() => setPainel(null)}
           onConfirm={() =>
-            removerSecao.mutate(
-              { id: modelo.id, secaoId: painel.secao.id },
+            dropSection.mutate(
+              { id: template.id, sectionId: painel.section.id },
               { onSuccess: () => setPainel(null), onError },
             )
           }
         />
       )}
-      {modelo && painel?.kind === 'excluir' && (
+      {template && painel?.kind === 'excluir' && (
         <ConfirmDialog
           title={t('remove_template_question')}
           description={t('remove_template_description')}
@@ -201,7 +203,7 @@ export function ModeloDetailsPage() {
           onClose={() => setPainel(null)}
           onConfirm={() =>
             excluir.mutate(
-              { id: modelo.id },
+              { id: template.id },
               { onSuccess: () => navigate({ to: '/expert-reports/templates' }), onError },
             )
           }
@@ -212,7 +214,7 @@ export function ModeloDetailsPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-reports/templates/details/')({
-  component: ModeloDetailsPage,
+  component: TemplateDetailsPage,
   staticData: { title: t('details') },
-  validateSearch: (search: Record<string, unknown>): ModeloDetailsSearch => modeloDetailsSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): TemplateDetailsSearch => templateDetailsSearchSchema.parse(search),
 });

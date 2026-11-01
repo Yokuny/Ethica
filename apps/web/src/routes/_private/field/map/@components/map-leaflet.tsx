@@ -14,9 +14,9 @@ const atribuicao = (): string => {
 
 // Marcador numerado sem imagem (o ícone padrão do Leaflet quebra com o bundler).
 const stopNumber = (numero: number): HTMLElement => {
-  const marcador = document.createElement('span');
-  marcador.textContent = String(numero);
-  Object.assign(marcador.style, {
+  const marker = document.createElement('span');
+  marker.textContent = String(numero);
+  Object.assign(marker.style, {
     display: 'grid',
     placeItems: 'center',
     width: '28px',
@@ -26,25 +26,25 @@ const stopNumber = (numero: number): HTMLElement => {
     color: '#ffffff',
     font: '600 13px system-ui',
   });
-  return marcador;
+  return marker;
 };
 
 type MapLeafletProps = {
   stops: Array<{ id: string; numero: number; ponto: Ponto; titulo: string }>;
   partida?: Ponto;
-  linha: Ponto[];
+  row: Ponto[];
 };
 
 // Mapa do dia (AD-131): tiles do OpenStreetMap, paradas numeradas e a rota. Leaflet é imperativo,
 // então o mapa vive num efeito ligado ao elemento; marcadores sem imagem (divIcon).
-export function MapLeaflet({ stops, partida, linha }: MapLeafletProps) {
-  const elemento = useRef<HTMLElement>(null);
+export function MapLeaflet({ stops, partida, row }: MapLeafletProps) {
+  const element = useRef<HTMLElement>(null);
   const map = useRef<L.Map | null>(null);
   const camada = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
-    if (!elemento.current || map.current) return;
-    map.current = L.map(elemento.current, { zoomControl: true }).setView([-23.55, -46.63], 11);
+    if (!element.current || map.current) return;
+    map.current = L.map(element.current, { zoomControl: true }).setView([-23.55, -46.63], 11);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: atribuicao() }).addTo(
       map.current,
     );
@@ -78,13 +78,13 @@ export function MapLeaflet({ stops, partida, linha }: MapLeafletProps) {
       }).addTo(grupo);
       pontos.push([stop.ponto.lat, stop.ponto.lng]);
     }
-    if (linha.length > 1)
+    if (row.length > 1)
       L.polyline(
-        linha.map((p) => [p.lat, p.lng]),
+        row.map((p) => [p.lat, p.lng]),
         { color: '#2563eb', weight: 4 },
       ).addTo(grupo);
     if (pontos.length) map.current.fitBounds(L.latLngBounds(pontos), { padding: [32, 32], maxZoom: 15 });
-  }, [stops, partida, linha]);
+  }, [stops, partida, row]);
 
-  return <section ref={elemento} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('day_map')} />;
+  return <section ref={element} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('day_map')} />;
 }

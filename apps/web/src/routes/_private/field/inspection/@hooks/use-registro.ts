@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type Draft, deleteDraft, readDraft, saveDraft } from '@/lib/offline/store.js';
-import { atualizarPendencias, runSync } from '@/lib/offline/sync.js';
+import { runSync, updateIssues } from '@/lib/offline/sync.js';
 import { type DayInspection, type InspectionRecord, inspectionKeys } from '@/query/inspection.js';
 
 // Campo opcional vazio no formulário vira ausente, como o contrato espera.
@@ -57,7 +57,7 @@ export function useRegistro(item: DayInspection, initialDraft?: Draft) {
           alteradoEm: new Date().toISOString(),
           ...(existente?.conflict ? { conflict: existente.conflict } : {}),
         });
-        await atualizarPendencias();
+        await updateIssues();
       })();
       clearTimeout(timer.current);
       timer.current = setTimeout(() => void enviar(), ENVIO_APOS_MS);
@@ -84,7 +84,7 @@ export function useRegistro(item: DayInspection, initialDraft?: Draft) {
     form.reset(conflict.dados);
     ignorar.current = false;
     setConflict(undefined);
-    await atualizarPendencias();
+    await updateIssues();
     await queryClient.invalidateQueries({ queryKey: inspectionKeys.detail(appointmentId) });
   }
 

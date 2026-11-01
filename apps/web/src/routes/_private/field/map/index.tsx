@@ -131,7 +131,7 @@ export function MapPage() {
                 </Button>
               )}
             </div>
-            <MapLeaflet stops={stops} partida={partida} linha={itinerary.data ?? pontos} />
+            <MapLeaflet stops={stops} partida={partida} row={itinerary.data ?? pontos} />
             {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
             <ItemGroup variant="list">
               {ordenados.map((item, indice) => {

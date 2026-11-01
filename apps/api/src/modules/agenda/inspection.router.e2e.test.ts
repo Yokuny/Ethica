@@ -10,8 +10,8 @@ import {
   disconnect,
   hashToken,
   Inspection,
-  Laudo,
   Party,
+  Report,
   Session,
   Tenant,
   User,
@@ -109,7 +109,7 @@ const DADOS = {
   ...INSPECTION_EMPTY_DATA,
   attendees: [{ id: 'a', nome: 'Ana Reclamante', capacity: 'plaintiff', email: 'ana@x.com' }],
   agents: [{ agent: 'noise', present: 'yes', ppe: 'protetor auricular' }],
-  documentos: [{ id: 'd', documento: 'ltcat', requested: true }],
+  documents: [{ id: 'd', document: 'ltcat', requested: true }],
 };
 
 const media = () => crypto.randomUUID();
@@ -125,7 +125,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
     rendered = undefined;
     await Promise.all([
       Inspection.deleteMany({}),
-      Laudo.deleteMany({}),
+      Report.deleteMany({}),
       Appointment.deleteMany({}),
       Deadline.deleteMany({}),
       Party.deleteMany({}),
@@ -322,38 +322,40 @@ describe('campo e vistorias (CAM-01..09)', () => {
       .set('Content-Type', 'image/jpeg')
       .send(JPEG)
       .expect(200);
-    const { body: modelo } = await operador.as(request(app).get('/expert-reports/templates/standard-report'));
-    const encerramento = modelo.data.secoes.find((secao: { titulo: string }) => secao.titulo === 'Encerramento');
-    const laudo = await operador.as(request(app).post('/expert-reports')).send({
+    const { body: template } = await operador.as(request(app).get('/expert-reports/templates/standard-report'));
+    const encerramento = template.data.sections.find(
+      (section: { titulo: string }) => section.titulo === 'Encerramento',
+    );
+    const report = await operador.as(request(app).post('/expert-reports')).send({
       caseId,
-      modeloId: 'standard-report',
-      secoes: [{ id: encerramento.id, variante: 'no' }],
+      templateId: 'standard-report',
+      sections: [{ id: encerramento.id, variant: 'no' }],
     });
-    const secaoId = laudo.body.data.secoes[0].id;
+    const sectionId = report.body.data.sections[0].id;
     const withField = await operador
-      .as(request(app).patch(`/expert-reports/${laudo.body.data.id}/sections/${secaoId}`))
+      .as(request(app).patch(`/expert-reports/${report.body.data.id}/sections/${sectionId}`))
       .send({
         html: `<p>Presentes: [PRESENTES_VISTORIA]. Agentes: [AGENTES_PRESENTES]. Documentos: [DOCUMENTOS_SOLICITADOS].</p><img src="http://localhost:18080/inspections/${id}/media/${photoId}" alt="Prensa"><img src="https://evil.com/x.png">`,
       });
     // Vistoria ainda agendada: variáveis de campo pendentes.
-    expect(withField.body.data.pendencias[0].variaveis).toContain('[PRESENTES_VISTORIA]');
+    expect(withField.body.data.issues[0].variables).toContain('[PRESENTES_VISTORIA]');
     await operador
       .as(request(app).patch(`/agenda/${id}`))
       .send({ status: 'done' })
       .expect(200);
-    const reaberto = await operador.as(request(app).get(`/expert-reports/${laudo.body.data.id}`));
-    expect(reaberto.body.data.pendencias).toEqual([]);
-    expect(reaberto.body.data.secoes[0].html).toContain(
+    const reaberto = await operador.as(request(app).get(`/expert-reports/${report.body.data.id}`));
+    expect(reaberto.body.data.issues).toEqual([]);
+    expect(reaberto.body.data.sections[0].html).toContain(
       'Presentes: Ana Reclamante (Reclamante). Agentes: Ruído (EPI: protetor auricular). Documentos: LTCAT.',
     );
-    expect(reaberto.body.data.secoes[0].html).toContain(
+    expect(reaberto.body.data.sections[0].html).toContain(
       `<img src="/inspections/${id}/media/${photoId}" alt="Prensa" />`,
     );
-    expect(reaberto.body.data.secoes[0].html).not.toContain('evil.com');
+    expect(reaberto.body.data.sections[0].html).not.toContain('evil.com');
 
-    await operador.as(request(app).get(`/expert-reports/${laudo.body.data.id}/pdf`)).expect(200);
+    await operador.as(request(app).get(`/expert-reports/${report.body.data.id}/pdf`)).expect(200);
     expect(rendered?.html).toContain(`data:image/jpeg;base64,${JPEG.toString('base64')}`);
-    const docx = await operador.as(request(app).get(`/expert-reports/${laudo.body.data.id}/docx`));
+    const docx = await operador.as(request(app).get(`/expert-reports/${report.body.data.id}/docx`));
     expect(docx.status).toBe(200);
   });
 });

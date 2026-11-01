@@ -86,16 +86,16 @@ describe('identidade do escritório (DOC-01)', () => {
 
     const saved = await admin
       .as(request(app).put('/tenant/office'))
-      .send({ cabecalho: 'Laudos [NOME_PERITO]', rodape: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' });
+      .send({ header: 'Laudos [NOME_PERITO]', footer: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' });
     expect(saved.status).toBe(200);
-    expect(saved.body.data).toMatchObject({ cabecalho: 'Laudos [NOME_PERITO]', storageBytes: 0 });
+    expect(saved.body.data).toMatchObject({ header: 'Laudos [NOME_PERITO]', storageBytes: 0 });
 
     await admin.as(request(app).get('/documents/deadlines'));
     expect(rendered?.headerTemplate).toContain(`Laudos ${admin.user.name}`);
 
-    const cleared = await admin.as(request(app).put('/tenant/office')).send({ cabecalho: '', rodape: '' });
-    expect(cleared.body.data).toMatchObject({ cabecalho: '', rodape: '' });
-    expect((await Tenant.findById(admin.tenant).lean())?.cabecalho).toBeUndefined();
+    const cleared = await admin.as(request(app).put('/tenant/office')).send({ header: '', footer: '' });
+    expect(cleared.body.data).toMatchObject({ header: '', footer: '' });
+    expect((await Tenant.findById(admin.tenant).lean())?.header).toBeUndefined();
   });
 
   it('logo PNG vai para o storage, conta na cota, troca apaga o anterior e entra no cabeçalho', async () => {

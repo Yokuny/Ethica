@@ -65,7 +65,7 @@ export const API_MESSAGE_KEYS = [
   'report_template_type_mismatch',
   'report_completed',
   'report_needs_section',
-  'laudo_unresolved_variables',
+  'report_unresolved_variables',
   // Campo e vistorias (AD-128 a AD-131)
   'inspection_conflict',
   'media_limit_reached',

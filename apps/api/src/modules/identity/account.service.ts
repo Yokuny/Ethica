@@ -40,7 +40,7 @@ export const setAvatar = async (tenantId: string, userId: string, image: string 
 
 // PRZ-03: gera o link secreto do feed iCal. O token só existe nesta resposta; o banco guarda
 // o hash. Gerar de novo substitui o anterior (revoga o link antigo).
-export const gerarCalendarFeed = async (tenantId: string, userId: string): Promise<{ token: string }> => {
+export const generateCalendarFeed = async (tenantId: string, userId: string): Promise<{ token: string }> => {
   const token = crypto.randomBytes(32).toString('hex');
   await accountRepository.setCalendarFeedTokenHash(tenantId, userId, hashToken(token));
   return { token };

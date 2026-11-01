@@ -48,7 +48,7 @@ export const useEstadoSync = (): EstadoSync =>
   );
 
 // Conta o que ainda está só no aparelho, sem enviar.
-export const atualizarPendencias = async () => {
+export const updateIssues = async () => {
   const [status, drafts, media] = await Promise.all([listarStatus(), listDrafts(), listMedia()]);
   publicar({
     pending: status.length + drafts.length + media.length,
@@ -91,7 +91,7 @@ export const runSync = async (queryClient: QueryClient) => {
     }
   } finally {
     publicar({ syncing: false });
-    await atualizarPendencias();
+    await updateIssues();
     await queryClient.invalidateQueries({ queryKey: inspectionKeys.all });
   }
 };
@@ -121,5 +121,5 @@ export const iniciarSync = (queryClient: QueryClient) => {
   setInterval(() => {
     if (estado.pending > 0 || !estado.online) tentar();
   }, NEW_ATTEMPT_MS);
-  void atualizarPendencias().then(() => runSync(queryClient));
+  void updateIssues().then(() => runSync(queryClient));
 };

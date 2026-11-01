@@ -17,10 +17,10 @@ export function alternarPermissao(
   permissoes: Permissoes,
   modulo: PermissaoModulo,
   acao: PermissaoAcao,
-  marcado: boolean,
+  checked: boolean,
 ): Permissoes {
   const atuais = new Set(permissoes[modulo] ?? []);
-  if (marcado) {
+  if (checked) {
     atuais.add(acao);
     atuais.add('view');
   } else if (acao === 'view') {
@@ -62,7 +62,7 @@ export function PermissoesMatrix({
                   aria-label={`${t(PERMISSAO_MODULO_KEY[modulo])}: ${t(PERMISSAO_ACAO_KEY[acao])}`}
                   checked={value[modulo]?.includes(acao) ?? false}
                   disabled={disabled}
-                  onCheckedChange={(marcado) => onChange(alternarPermissao(value, modulo, acao, marcado === true))}
+                  onCheckedChange={(checked) => onChange(alternarPermissao(value, modulo, acao, checked === true))}
                 />
               </TableCell>
             ))}

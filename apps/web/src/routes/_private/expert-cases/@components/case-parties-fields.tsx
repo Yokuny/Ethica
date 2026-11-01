@@ -89,7 +89,7 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
         ) : (
           <TextField
             control={control}
-            name={`parties.${index}.documento`}
+            name={`parties.${index}.document`}
             label={t('cpf_cnpj')}
             placeholder="000.000.000-00"
           />
@@ -104,13 +104,13 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
                 <Checkbox
                   label={t('contracting_party')}
                   checked={field.value === true}
-                  onCheckedChange={(marcado) => {
-                    if (marcado) {
+                  onCheckedChange={(checked) => {
+                    if (checked) {
                       (getValues('parties') ?? []).forEach((_, outro) => {
                         if (outro !== index) setValue(`parties.${outro}.client`, undefined);
                       });
                     }
-                    field.onChange(marcado === true ? true : undefined);
+                    field.onChange(checked === true ? true : undefined);
                   }}
                 />
               </FormItem>

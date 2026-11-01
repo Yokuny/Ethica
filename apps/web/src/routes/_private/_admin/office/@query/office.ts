@@ -6,8 +6,8 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 // Espelha OfficeView de apps/api/src/modules/identity/office.schema.ts.
 export type OfficeView = {
-  cabecalho: string;
-  rodape: string;
+  header: string;
+  footer: string;
   logo?: string;
   storageBytes: number;
   storageQuotaBytes: number;

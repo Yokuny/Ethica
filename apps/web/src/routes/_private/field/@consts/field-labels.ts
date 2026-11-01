@@ -26,7 +26,7 @@ export const AGENT_KEY: Record<InspectionAgent, string> = {
   hazardous: 'agent_hazardous',
 };
 
-export const DOCUMENTO_KEY: Record<string, string> = {
+export const DOCUMENT_KEY: Record<string, string> = {
   risk_program: 'document_risk_program',
   ltcat: 'document_ltcat',
   pcmso: 'document_pcmso',

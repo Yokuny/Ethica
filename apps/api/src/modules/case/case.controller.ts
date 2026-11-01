@@ -88,7 +88,7 @@ export const stalledSummary = async (req: Request, res: Response, next: NextFunc
 // Importação (AD-114, AD-118): o arquivo chega como corpo pelo `fileBody` do router.
 export const importPdf = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    res.json(respObj({ data: await importService.extrairPdf(tenantOf(req), req.body) }));
+    res.json(respObj({ data: await importService.extractPdf(tenantOf(req), req.body) }));
   } catch (e) {
     next(e);
   }

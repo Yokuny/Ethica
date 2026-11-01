@@ -1,4 +1,4 @@
-import { LAUDO_VARIAVEIS } from '@ethica/contracts';
+import { REPORT_VARIABLES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import Image from '@tiptap/extension-image';
@@ -11,17 +11,17 @@ import { cn } from 'cn';
 import { Bold, Heading3, Italic, List, ListOrdered, type LucideIcon, Table, Underline } from 'lucide-react';
 import { apiUrl } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { variavelItems } from './laudo-labels.js';
+import { variableItems } from './report-labels.js';
 
 // Editor do laudo e dos modelos (AD-123): só o que a allowlist da API aceita — parágrafo,
 // título (níveis 3 e 4), negrito, itálico, sublinhado, listas e tabela simples. A API saneia
 // o HTML de novo ao gravar.
 
-const VARIAVEIS: readonly string[] = LAUDO_VARIAVEIS;
+const VARIABLES: readonly string[] = REPORT_VARIABLES;
 
 // Marcador de variável ainda no texto fica destacado: é pendência que bloqueia concluir (AD-126).
-const VariaveisDestacadas = Extension.create({
-  name: 'variaveisDestacadas',
+const HighlightedVariables = Extension.create({
+  name: 'highlightedVariables',
   addProseMirrorPlugins() {
     return [
       new Plugin({
@@ -31,7 +31,7 @@ const VariaveisDestacadas = Extension.create({
             state.doc.descendants((node, pos) => {
               if (!node.isText || !node.text) return;
               for (const match of node.text.matchAll(/\[[A-Z_]+\]/g)) {
-                if (!VARIAVEIS.includes(match[0])) continue;
+                if (!VARIABLES.includes(match[0])) continue;
                 const from = pos + (match.index ?? 0);
                 marcas.push(
                   Decoration.inline(from, from + match[0].length, {
@@ -56,8 +56,8 @@ const InspectionPhoto = Image.extend({
       ...this.parent?.(),
       src: {
         default: null,
-        parseHTML: (elemento: HTMLElement) => {
-          const src = elemento.getAttribute('src') ?? '';
+        parseHTML: (element: HTMLElement) => {
+          const src = element.getAttribute('src') ?? '';
           return src.startsWith('/') ? apiUrl(src) : src;
         },
       },
@@ -79,7 +79,7 @@ const EXTENSOES = [
   }),
   TableKit.configure({ table: { resizable: false } }),
   InspectionPhoto.configure({ inline: false, allowBase64: false }),
-  VariaveisDestacadas,
+  HighlightedVariables,
 ];
 
 type Ferramenta = {
@@ -186,7 +186,7 @@ function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
         </Select>
       )}
       <Select
-        items={variavelItems}
+        items={variableItems}
         value={null}
         onValueChange={(value) => value && editor.chain().focus().insertContent(value).run()}
       >
@@ -194,7 +194,7 @@ function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
           <SelectValue placeholder={t('insert_variable')} />
         </SelectTrigger>
         <SelectContent>
-          {variavelItems.map((item) => (
+          {variableItems.map((item) => (
             <SelectItem key={item.value} value={item.value}>
               {item.label}
             </SelectItem>

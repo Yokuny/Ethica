@@ -14,8 +14,8 @@ import { createAgendaRouter } from './modules/agenda/appointment.router.js';
 import { createInspectionRouter } from './modules/agenda/inspection.router.js';
 import { createCaseRouter } from './modules/case/case.router.js';
 import { createPartyRouter } from './modules/case/party.router.js';
-import { createDocumentosRouter } from './modules/documentos/documentos.router.js';
-import { createLaudoRouter } from './modules/documentos/laudo.router.js';
+import { createDocumentsRouter } from './modules/documents/documents.router.js';
+import { createReportRouter } from './modules/documents/report.router.js';
 import { createFinanceRouter } from './modules/finance/transaction.router.js';
 import { createAccountRouter } from './modules/identity/account.router.js';
 import { buildAuthDeps } from './modules/identity/auth.deps.js';
@@ -132,8 +132,8 @@ export const buildApp = (
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));
   app.use('/inspections', createInspectionRouter({ validToken, storage }));
   app.use('/finance', createFinanceRouter({ validToken }));
-  app.use('/documents', createDocumentosRouter({ validToken, pdf, storage }));
-  app.use('/expert-reports', createLaudoRouter({ validToken, pdf, storage }));
+  app.use('/documents', createDocumentsRouter({ validToken, pdf, storage }));
+  app.use('/expert-reports', createReportRouter({ validToken, pdf, storage }));
   app.use('/prospecting', createProspeccaoRouter({ validToken, datajud }));
 
   app.use(errorHandler);

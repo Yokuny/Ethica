@@ -5,7 +5,7 @@ import type { TenantLogo, UpdateOffice } from './office.schema.js';
 
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
-    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes scheduleNotice').lean(),
+    Tenant.findById(tenantId).select('name header footer logo storageBytes scheduleNotice').lean(),
   );
 
 // Texto vazio apaga o cabeçalho/rodapé: os documentos voltam ao padrão.

@@ -36,9 +36,9 @@ describe('PericiaPrazos (PRZ-01)', () => {
       { id: 'c', caseId: 'p1', titulo: 'Impugnação', dueDate: today, status: 'missed' },
     ]);
 
-    const laudo = screen.getByText('Entrega do laudo').closest('li') as HTMLElement;
-    expect(within(laudo).getByText('Pendente')).toBeInTheDocument();
-    expect(within(laudo).getByText('Vencido')).toBeInTheDocument();
+    const report = screen.getByText('Entrega do laudo').closest('li') as HTMLElement;
+    expect(within(report).getByText('Pendente')).toBeInTheDocument();
+    expect(within(report).getByText('Vencido')).toBeInTheDocument();
 
     const clarifications = screen.getByText('Esclarecimentos').closest('li') as HTMLElement;
     expect(within(clarifications).getByText('Protocolado')).toBeInTheDocument();

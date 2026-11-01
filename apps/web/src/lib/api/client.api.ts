@@ -72,7 +72,7 @@ export const getFile = async (path: string): Promise<FileResponse> => {
       const body = translateMessage((await res.json()) as ApiResponse<never>);
       return { success: false, message: body.message || t('action_error') };
     }
-    const filename = res.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] ?? 'documento';
+    const filename = res.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] ?? 'document';
     return { success: true, blob: await res.blob(), filename };
   } catch {
     return { success: false, message: CONNECTION_ERROR_MESSAGE };

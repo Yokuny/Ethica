@@ -51,8 +51,8 @@ export const listAtividades = async (
   });
 
 // As últimas exportações de dados do escritório (substitui `Tenant.dataExports`, AD-134).
-export const ultimasExportacoes = async (tenantId: string, limit: number): Promise<AtividadeRecord[]> =>
-  withDbTiming('diario.ultimasExportacoes', async () => {
+export const latestExports = async (tenantId: string, limit: number): Promise<AtividadeRecord[]> =>
+  withDbTiming('diario.latestExports', async () => {
     const docs = await Atividade.find(tenantScoped({ Tenant: tenantId, acao: 'export' as const }))
       .sort({ createdAt: -1 })
       .limit(limit)

@@ -80,7 +80,7 @@ export const calendarFeedQuery = queryOptions({
 export const calendarFeedUrl = (token: string): string =>
   new URL(apiUrl(`/agenda/feed/${token}.ics`), window.location.origin).href;
 
-export const gerarCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<string, Error, void> => ({
+export const generateCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<string, Error, void> => ({
   mutationFn: async () => {
     const res = await post<{ token: string }>('/me/calendar-feed', {});
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));

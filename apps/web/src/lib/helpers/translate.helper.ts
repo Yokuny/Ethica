@@ -565,8 +565,7 @@ const translations: Record<string, string> = {
   storage_not_configured: 'Armazenamento de arquivos não configurado.',
   storage_quota_exceeded: 'O espaço de arquivos do escritório acabou.',
   // Laudos (AD-123 a AD-127)
-  laudos: 'Laudos',
-  modelos: 'Modelos',
+  templates: 'Modelos',
   report: 'Laudo pericial',
   technical_opinion: 'Parecer técnico',
   draft: 'Rascunho',
@@ -677,7 +676,7 @@ const translations: Record<string, string> = {
   report_template_type_mismatch: 'O modelo é de outro tipo de documento.',
   report_completed: 'Laudo concluído não pode ser alterado.',
   report_needs_section: 'O laudo precisa de ao menos uma seção.',
-  laudo_unresolved_variables: 'Há variáveis sem valor. Preencha ou remova antes de continuar.',
+  report_unresolved_variables: 'Há variáveis sem valor. Preencha ou remova antes de continuar.',
   // Campo e vistorias (AD-128 a AD-132)
   map: 'Mapa',
   field_page_description: 'Vistorias do dia no celular, registro, fotos e mapa, mesmo sem conexão.',

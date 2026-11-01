@@ -22,5 +22,4 @@ export const listAtividades = (tenantId: string, query: ListDiarioQuery) =>
     to: query.to ? new Date(wallClockToUtc(query.to, '00:00').getTime() + DAY_MS) : undefined,
   });
 
-export const ultimasExportacoes = (tenantId: string, limit: number) =>
-  diarioRepository.ultimasExportacoes(tenantId, limit);
+export const latestExports = (tenantId: string, limit: number) => diarioRepository.latestExports(tenantId, limit);

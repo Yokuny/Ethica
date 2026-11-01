@@ -1,4 +1,4 @@
-import { registerDocumentosSubscriber } from './documentos.subscriber.js';
+import { registerDocumentsSubscriber } from './documents.subscriber.js';
 import { registerFinanceSubscriber } from './finance.subscriber.js';
 
 // buildApp() roda várias vezes no mesmo processo (testes), então o registro é
@@ -9,5 +9,5 @@ export const registerAllSubscribers = (): void => {
   if (registered) return;
   registered = true;
   registerFinanceSubscriber();
-  registerDocumentosSubscriber();
+  registerDocumentsSubscriber();
 };

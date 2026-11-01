@@ -78,7 +78,7 @@ const autocomplete = {
 // nome do cadastro de partes guardada na perícia (AD-117).
 const CASE_SEARCH_PATHS = ['processNumber', 'subject', 'division', 'district', 'parties.nome'] as const;
 export const PARTY_SEARCH_INDEX = 'party_text';
-const PARTY_SEARCH_PATHS = ['nome', 'documento', 'oab'] as const;
+const PARTY_SEARCH_PATHS = ['nome', 'document', 'oab'] as const;
 
 export const SEARCH_INDEXES = [
   {

@@ -6,17 +6,17 @@ import { Link } from '@tanstack/react-router';
 import { FileSignature } from 'lucide-react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LAUDO_STATUS_VARIANT, laudoStatusLabel } from '@/components/laudo-labels.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
+import { REPORT_STATUS_VARIANT, reportStatusLabel } from '@/components/report-labels.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseRecord } from '@/query/case.js';
-import { laudosQuery } from '@/query/laudo.js';
+import { reportsQuery } from '@/query/report.js';
 
 // Laudos (ou pareceres, LAU-06) da perícia, com atalho para iniciar um novo.
 export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
-  const query = useQuery(laudosQuery({ caseId: legalCase.id, limit: 20 }));
+  const query = useQuery(reportsQuery({ caseId: legalCase.id, limit: 20 }));
   const tipo = reportRoleType(legalCase.role);
 
   return (
@@ -41,14 +41,14 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
         <DefaultEmptyData title={t('no_reports_yet')} />
       ) : (
         <LinkList>
-          {query.data.items.map((laudo) => (
+          {query.data.items.map((report) => (
             <LinkListItem
-              key={laudo.id}
+              key={report.id}
               icon={FileSignature}
-              render={<Link to="/expert-reports/details" search={{ id: laudo.id }} />}
-              title={laudo.modeloNome}
-              badges={<Badge variant={LAUDO_STATUS_VARIANT[laudo.status]}>{laudoStatusLabel(laudo.status)}</Badge>}
-              description={`${t('updated_on')} ${formatDate(laudo.updatedAt)}`}
+              render={<Link to="/expert-reports/details" search={{ id: report.id }} />}
+              title={report.templateName}
+              badges={<Badge variant={REPORT_STATUS_VARIANT[report.status]}>{reportStatusLabel(report.status)}</Badge>}
+              description={`${t('updated_on')} ${formatDate(report.updatedAt)}`}
             />
           ))}
         </LinkList>

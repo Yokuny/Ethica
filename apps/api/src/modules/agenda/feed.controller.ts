@@ -6,7 +6,7 @@ import * as feedService from './feed.service.js';
 // ou tenant suspenso respondem o mesmo 404 — nada diz se o token já existiu.
 export const calendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const ics = await feedService.gerarFeed(req.params.token as string);
+    const ics = await feedService.generateFeed(req.params.token as string);
     if (!ics) {
       next(new CustomError('not_found', 404));
       return;

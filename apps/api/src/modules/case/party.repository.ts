@@ -7,7 +7,7 @@ const toRecord = (doc: PartyDocument): PartyRecord => ({
   id: doc._id.toString(),
   tipo: doc.tipo,
   nome: doc.nome,
-  documento: doc.documento,
+  document: doc.document,
   oab: doc.oab,
   email: doc.email,
   telefone: doc.telefone,
@@ -34,7 +34,7 @@ export const findByIds = async (tenantId: string, ids: string[]): Promise<PartyR
 // Reaproveitamento (AD-115): o primeiro cadastro do tipo com o mesmo documento, OAB ou nome.
 export const findOneBy = async (
   tenantId: string,
-  filter: Pick<PartyRecord, 'tipo'> & Partial<Pick<PartyRecord, 'documento' | 'oab' | 'nome'>>,
+  filter: Pick<PartyRecord, 'tipo'> & Partial<Pick<PartyRecord, 'document' | 'oab' | 'nome'>>,
 ): Promise<PartyRecord | null> =>
   withDbTiming('party.findOneBy', async () => {
     const doc = await Party.findOne(tenantScoped({ Tenant: tenantId, ...filter }))

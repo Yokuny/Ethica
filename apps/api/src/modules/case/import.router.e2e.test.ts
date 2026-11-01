@@ -36,9 +36,9 @@ const seedSession = async () => {
 };
 
 // PDF mínimo com uma linha de texto por item (Helvetica, WinAnsi), sem biblioteca.
-const pdfDe = (linhas: string[]): Buffer => {
+const pdfDe = (rows: string[]): Buffer => {
   const esc = (s: string) => s.replace(/[\\()]/g, (c) => `\\${c}`);
-  const content = ['BT', '/F1 11 Tf', '14 TL', '50 780 Td', ...linhas.map((l) => `(${esc(l)}) Tj T*`), 'ET'].join('\n');
+  const content = ['BT', '/F1 11 Tf', '14 TL', '50 780 Td', ...rows.map((l) => `(${esc(l)}) Tj T*`), 'ET'].join('\n');
   const objs = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
@@ -68,7 +68,7 @@ const MINUTES = [
   'O laudo deverá ser entregue até 30/11/2026.',
 ];
 
-const CABECALHO = 'numero_processo;papel;objeto;data_nomeacao;prazo_laudo;reu;reu_documento';
+const HEADER = 'numero_processo;papel;objeto;data_nomeacao;prazo_laudo;reu;reu_documento';
 
 describe('importação de perícias (IMP-01, IMP-02)', () => {
   beforeAll(async () => {
@@ -148,7 +148,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       subject: 'Já cadastrada',
     });
     const csv = [
-      CABECALHO,
+      HEADER,
       '0000001-00.2026.5.02.0001;perito;Insalubridade;15/10/2026;30/11/2026;Indústria Exemplo;12.345.678/0001-95',
       '0000002-00.2026.8.26.0100;assistente;"Perícia contábil; apuração";2026-10-01;;Indústria Exemplo;12345678000195',
       '0000003-00.2026.4.03.6100;;Médica;;;;',
@@ -178,7 +178,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     const post = (body: string) =>
       as(request(app).post('/expert-cases/import/csv')).set('Content-Type', 'text/csv').send(body);
 
-    const vazio = await post(`${CABECALHO}\n`);
+    const vazio = await post(`${HEADER}\n`);
     expect(vazio.status).toBe(400);
     expect(vazio.body.message).toBe('csv_empty');
 

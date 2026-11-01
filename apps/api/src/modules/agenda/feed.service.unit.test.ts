@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { DeadlineRecord } from '../case/deadline.schema.js';
 import * as accountService from '../identity/account.service.js';
 import type { AppointmentRecord } from './appointment.schema.js';
-import { gerarFeed, montarIcs } from './feed.service.js';
+import { buildIcs, generateFeed } from './feed.service.js';
 
 vi.mock('../identity/account.service.js', () => ({ findFeedOwner: vi.fn() }));
 vi.mock('../case/case.service.js', () => ({ findSummariesByIds: vi.fn() }));
@@ -52,8 +52,8 @@ const eventOf = (ics: string, uid: string) => {
 
 // PRZ-03.3: cada evento leva data, descrição (tipo, título, nº do processo, partes,
 // observações) e local (endereço do compromisso; vazio no prazo).
-describe('montarIcs', () => {
-  const ics = montarIcs({ appointments: [inspection], deadlines: [deadline], summaries, now });
+describe('buildIcs', () => {
+  const ics = buildIcs({ appointments: [inspection], deadlines: [deadline], summaries, now });
 
   it('é um VCALENDAR com linhas CRLF de no máximo 75 octetos', () => {
     expect(ics.startsWith('BEGIN:VCALENDAR\r\nVERSION:2.0\r\n')).toBe(true);
@@ -82,9 +82,9 @@ describe('montarIcs', () => {
   });
 });
 
-describe('gerarFeed', () => {
+describe('generateFeed', () => {
   it('link inexistente, revogado ou de tenant suspenso (sem dono) devolve null', async () => {
     vi.mocked(accountService.findFeedOwner).mockResolvedValue(null);
-    await expect(gerarFeed('a'.repeat(64), now)).resolves.toBeNull();
+    await expect(generateFeed('a'.repeat(64), now)).resolves.toBeNull();
   });
 });

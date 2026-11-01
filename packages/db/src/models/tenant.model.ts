@@ -8,8 +8,8 @@ export interface TenantDocument {
   document: string;
   status: TenantStatus;
   // Identidade dos documentos (AD-121): texto com marcadores, trocados na geração do PDF.
-  cabecalho?: string;
-  rodape?: string;
+  header?: string;
+  footer?: string;
   // Arquivos no storage S3 (AD-120). `storageBytes` é o total usado, reservado no mesmo
   // update que grava a referência do arquivo, para respeitar a cota do tenant.
   logo?: { key: string; bytes: number; updatedAt: Date };
@@ -30,8 +30,8 @@ const tenantSchema = new Schema<TenantDocument>(
       default: 'provisioned',
       required: true,
     },
-    cabecalho: { type: String, maxlength: 1000 },
-    rodape: { type: String, maxlength: 1000 },
+    header: { type: String, maxlength: 1000 },
+    footer: { type: String, maxlength: 1000 },
     logo: {
       type: new Schema(
         { key: { type: String, required: true }, bytes: { type: Number, required: true }, updatedAt: Date },

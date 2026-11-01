@@ -68,7 +68,7 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
     const primeira = await as(request(app).post('/expert-cases')).send(
       legalCase('0001234-56.2026.5.02.0001', {
         parties: [
-          { side: 'plaintiff', tipo: 'party', nome: 'Maria  da Silva', documento: '123.456.789-09' },
+          { side: 'plaintiff', tipo: 'party', nome: 'Maria  da Silva', document: '123.456.789-09' },
           { side: 'plaintiff', tipo: 'lawyer', nome: 'João Pereira', oab: 'OAB/SP 123456' },
           { side: 'defendant', tipo: 'party', nome: 'Indústria Exemplo Ltda.' },
         ],
@@ -84,7 +84,7 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
     const segunda = await as(request(app).post('/expert-cases')).send(
       legalCase('0009999-11.2026.5.02.0002', {
         parties: [
-          { side: 'plaintiff', tipo: 'party', nome: 'MARIA S.', documento: '12345678909' },
+          { side: 'plaintiff', tipo: 'party', nome: 'MARIA S.', document: '12345678909' },
           { side: 'plaintiff', tipo: 'lawyer', nome: 'Dr. João', oab: 'SP123456' },
           { side: 'defendant', tipo: 'party', nome: 'Indústria Exemplo Ltda.' },
           { side: 'defendant', tipo: 'party', nome: 'Outra Ré S.A.' },

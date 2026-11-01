@@ -15,16 +15,16 @@ export type { InspectionDocument, InspectionMediaDocument } from './models/inspe
 export { Inspection } from './models/inspection.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
-export type { LaudoDocument, LaudoSecaoDocument } from './models/laudo.model.js';
-export { Laudo } from './models/laudo.model.js';
-export type { ModeloLaudoDocument, ModeloLaudoSecaoDocument } from './models/modeloLaudo.model.js';
-export { ModeloLaudo } from './models/modeloLaudo.model.js';
 export type { OportunidadeDocument } from './models/oportunidade.model.js';
 export { Oportunidade } from './models/oportunidade.model.js';
 export type { PartyDocument } from './models/party.model.js';
 export { Party } from './models/party.model.js';
+export type { ReportDocument, ReportSectionDocument } from './models/report.model.js';
+export { Report } from './models/report.model.js';
 export type { SessionDocument } from './models/session.model.js';
 export { Session } from './models/session.model.js';
+export type { TemplateDocument, TemplateSectionDocument } from './models/template.model.js';
+export { Template } from './models/template.model.js';
 export type { TenantDocument, TenantStatus } from './models/tenant.model.js';
 export { Tenant, transitionTenantStatus } from './models/tenant.model.js';
 export type { InstallmentDocument, TransactionDocument } from './models/transaction.model.js';
@@ -53,11 +53,11 @@ import { Case } from './models/case.model.js';
 import { Deadline } from './models/deadline.model.js';
 import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
-import { Laudo } from './models/laudo.model.js';
-import { ModeloLaudo } from './models/modeloLaudo.model.js';
 import { Oportunidade } from './models/oportunidade.model.js';
 import { Party } from './models/party.model.js';
+import { Report } from './models/report.model.js';
 import { Session } from './models/session.model.js';
+import { Template } from './models/template.model.js';
 import { Tenant } from './models/tenant.model.js';
 import { Transaction } from './models/transaction.model.js';
 import { User } from './models/user.model.js';
@@ -74,8 +74,8 @@ export const syncIndexes = async (): Promise<void> => {
     Appointment.createIndexes(),
     Transaction.createIndexes(),
     Oportunidade.createIndexes(),
-    Laudo.createIndexes(),
-    ModeloLaudo.createIndexes(),
+    Report.createIndexes(),
+    Template.createIndexes(),
     Inspection.createIndexes(),
   ]);
 };

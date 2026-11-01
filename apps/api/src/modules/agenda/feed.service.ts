@@ -72,7 +72,7 @@ const descricao = (tipo: string, titulo: string, summary?: CaseSummary, observac
 
 // Monta o calendário (função pura, testada à parte). Cada evento leva data, descrição
 // (tipo, título, processo, partes, observações) e local — definido pelo usuário em 2026-10-31.
-export const montarIcs = ({ appointments, deadlines, summaries, now }: FeedEntrada): string => {
+export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntrada): string => {
   const stamp = utcStamp(now);
   const events = [
     ...appointments.map((item) => {
@@ -118,7 +118,7 @@ export const montarIcs = ({ appointments, deadlines, summaries, now }: FeedEntra
 
 // Feed por token (PRZ-03): `null` quando o link não existe, foi revogado, o usuário está
 // inativo ou o tenant suspenso. Compromissos não cancelados da janela + prazos pendentes.
-export const gerarFeed = async (token: string, now: Date = new Date()): Promise<string | null> => {
+export const generateFeed = async (token: string, now: Date = new Date()): Promise<string | null> => {
   const owner = await accountService.findFeedOwner(token);
   if (!owner) return null;
   const { tenantId } = owner;
@@ -134,5 +134,5 @@ export const gerarFeed = async (token: string, now: Date = new Date()): Promise<
     ...new Set([...ativos.flatMap((item) => (item.caseId ? [item.caseId] : [])), ...deadlines.map((p) => p.caseId)]),
   ];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
-  return montarIcs({ appointments: ativos, deadlines, summaries, now });
+  return buildIcs({ appointments: ativos, deadlines, summaries, now });
 };

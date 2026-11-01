@@ -13,7 +13,7 @@ export function usePartyForm({ party, onDone }: { party?: PartyRecord; onDone: (
     defaultValues: {
       tipo: party?.tipo ?? 'party',
       nome: party?.nome ?? '',
-      documento: party?.documento ?? '',
+      document: party?.document ?? '',
       oab: party?.oab ?? '',
       email: party?.email ?? '',
       telefone: party?.telefone ?? '',

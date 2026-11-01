@@ -21,7 +21,7 @@ export type PartyRecord = {
   id: string;
   tipo: PartyType;
   nome: string;
-  documento?: string;
+  document?: string;
   oab?: string;
   email?: string;
   telefone?: string;
