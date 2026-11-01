@@ -22,6 +22,7 @@ import {
   removeLaudoSecaoMutation,
   updateLaudoSecaoMutation,
 } from '@/query/laudo.js';
+import { vistoriasDaPericiaQuery } from '@/query/vistoria.js';
 import { ConcluirLaudoDialog } from './@components/concluir-laudo-dialog.js';
 import { LaudoSecaoEditor, type SecaoRascunho } from './@components/laudo-secao-editor.js';
 import { LaudoSecoesNav } from './@components/laudo-secoes-nav.js';
@@ -39,6 +40,13 @@ export function LaudoDetailsPage() {
   const concluir = useMutation(concluirLaudoMutation(queryClient));
   const excluir = useMutation(deleteLaudoMutation(queryClient));
   const { download, pending } = useFileDownload();
+  // Fotos das vistorias da perícia para o "Inserir foto" do editor (AD-129).
+  const vistorias = useQuery({ ...vistoriasDaPericiaQuery(query.data?.periciaId ?? ''), enabled: Boolean(query.data) });
+  const fotos = (vistorias.data ?? []).flatMap(({ compromisso, vistoria }) =>
+    vistoria.midias
+      .filter((midia) => midia.tipo === 'photo')
+      .map((midia) => ({ src: `/vistorias/${compromisso.id}/midias/${midia.id}`, legenda: midia.legenda })),
+  );
   const [rascunho, setRascunho] = useState<(SecaoRascunho & { secaoId: string }) | null>(null);
   const [dialogo, setDialogo] = useState<Dialogo>(null);
   const laudo = query.data;
@@ -142,6 +150,7 @@ export function LaudoDetailsPage() {
               saving={salvar.isPending || removerSecao.isPending}
               onSave={() => salvarAtual()}
               onRemove={() => setDialogo('remover-secao')}
+              fotos={fotos}
             />
           </div>
         </CardContent>

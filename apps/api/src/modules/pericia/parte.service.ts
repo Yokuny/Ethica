@@ -77,4 +77,7 @@ export const resolvePartes = async (tenantId: string, inputs: PericiaParteInput[
   return result;
 };
 
+// Destinatários do aviso de agendamento (AD-131): partes e advogados num só lote.
+export const findByIds = (tenantId: string, ids: string[]) => parteRepository.findByIds(tenantId, ids);
+
 export const listForExport = (tenantId: string) => parteRepository.listAll(tenantId);

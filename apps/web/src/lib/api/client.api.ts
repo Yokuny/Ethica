@@ -39,12 +39,18 @@ export const request = async <T>(path: string, method: Method, body?: unknown): 
   }
 };
 
-// Arquivo como corpo da requisição (AD-118): PDF e CSV da importação. O tipo vai explícito
-// porque o navegador nem sempre o conhece (CSV chega como `application/vnd.ms-excel` no Windows).
-export const postFile = async <T>(path: string, file: Blob, type: string): Promise<ApiResponse<T>> => {
+// Arquivo como corpo da requisição (AD-118): PDF e CSV da importação (POST) e mídia da vistoria
+// (PUT, idempotente pelo id, AD-129). O tipo vai explícito porque o navegador nem sempre o
+// conhece (CSV chega como `application/vnd.ms-excel` no Windows).
+export const sendFile = async <T>(
+  path: string,
+  file: Blob,
+  type: string,
+  method: 'POST' | 'PUT' = 'POST',
+): Promise<ApiResponse<T>> => {
   try {
     const res = await fetch(`${BASE_URL}${path}`, {
-      method: 'POST',
+      method,
       credentials: 'include',
       headers: { 'Content-Type': type },
       body: file,

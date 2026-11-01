@@ -50,6 +50,16 @@ export const LAUDO_VARIAVEIS = [
   '[PERITO_REGISTRO]',
   '[PERITO_FORMACAO]',
   '[ESCRITORIO_NOME]',
+  // Da última vistoria feita da perícia (AD-130).
+  '[HORA_VISTORIA]',
+  '[PRESENTES_VISTORIA]',
+  '[PARADIGMAS_AUTOR]',
+  '[PARADIGMAS_REU]',
+  '[FUNCOES_AUTOR]',
+  '[FUNCOES_REU]',
+  '[AGENTES_PRESENTES]',
+  '[AGENTES_AUSENTES]',
+  '[DOCUMENTOS_SOLICITADOS]',
 ] as const;
 export type LaudoVariavel = (typeof LAUDO_VARIAVEIS)[number];
 
@@ -76,7 +86,11 @@ export const LAUDO_HTML_TAGS = [
   'tr',
   'th',
   'td',
+  'img',
 ] as const;
+
+// Única imagem aceita no laudo (AD-129): foto de vistoria do próprio tenant, servida pela API.
+export const LAUDO_IMG_SRC = /^\/vistorias\/[0-9a-f]{24}\/midias\/[0-9a-f-]{36}$/i;
 
 export const LAUDO_NIVEL_MAX = 3;
 

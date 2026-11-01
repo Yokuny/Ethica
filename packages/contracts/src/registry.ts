@@ -4,7 +4,11 @@ import { changePasswordSchema, updateAvatarSchema, updateProfileSchema } from '.
 import { createCompromissoSchema, updateCompromissoSchema } from './schemas/compromisso.schema.js';
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
-import { financeiroReportQuerySchema, updateOfficeSchema } from './schemas/documento.schema.js';
+import {
+  financeiroReportQuerySchema,
+  updateAvisoAgendamentoSchema,
+  updateOfficeSchema,
+} from './schemas/documento.schema.js';
 import { idSchema } from './schemas/id.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { createLancamentoSchema, createParcelaSchema, updateLancamentoSchema } from './schemas/lancamento.schema.js';
@@ -39,6 +43,12 @@ import {
 } from './schemas/prospeccao.schema.js';
 import { provisionTenantSchema } from './schemas/provisionTenant.schema.js';
 import { signinSchema } from './schemas/signin.schema.js';
+import {
+  midiaIdSchema,
+  saveVistoriaSchema,
+  updateMidiaSchema,
+  vistoriaDadosSchema,
+} from './schemas/vistoria.schema.js';
 
 export const TENANT_FORBIDDEN_KEYS = [
   'tenant',
@@ -94,4 +104,9 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'datajudSearchSchema', schema: datajudSearchSchema },
   { name: 'createOportunidadeSchema', schema: createOportunidadeSchema },
   { name: 'updateOportunidadeSchema', schema: updateOportunidadeSchema },
+  { name: 'updateAvisoAgendamentoSchema', schema: updateAvisoAgendamentoSchema },
+  { name: 'midiaIdSchema', schema: midiaIdSchema },
+  { name: 'vistoriaDadosSchema', schema: vistoriaDadosSchema },
+  { name: 'saveVistoriaSchema', schema: saveVistoriaSchema },
+  { name: 'updateMidiaSchema', schema: updateMidiaSchema },
 ];

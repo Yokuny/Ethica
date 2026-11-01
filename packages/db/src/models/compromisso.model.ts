@@ -1,4 +1,11 @@
-import { COMPROMISSO_STATUS, COMPROMISSO_TIPOS, type CompromissoStatus, type CompromissoTipo } from '@ethica/contracts';
+import {
+  COMPROMISSO_MOTIVOS,
+  COMPROMISSO_STATUS,
+  COMPROMISSO_TIPOS,
+  type CompromissoMotivo,
+  type CompromissoStatus,
+  type CompromissoTipo,
+} from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 export type CompromissoOrigem = 'manual' | 'automatic';
@@ -16,6 +23,12 @@ export interface CompromissoDocument {
   status: CompromissoStatus;
   origem: CompromissoOrigem;
   observacoes?: string;
+  // Cancelado no campo: adiado ou parte ausente (AD-130).
+  motivo?: CompromissoMotivo;
+  // Geocodificação do `local` (AD-131), válida enquanto `endereco` for igual ao `local`.
+  coordenadas?: { lat: number; lng: number; endereco: string };
+  // Avisos de agendamento enviados às partes (AD-131).
+  avisos: Array<{ User: mongoose.Types.ObjectId; at: Date; destinatarios: string[] }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +45,17 @@ const compromissoSchema = new Schema<CompromissoDocument>(
     status: { type: String, enum: COMPROMISSO_STATUS, default: 'scheduled', required: true },
     origem: { type: String, enum: ['manual', 'automatic'], default: 'manual', required: true },
     observacoes: { type: String },
+    motivo: { type: String, enum: COMPROMISSO_MOTIVOS },
+    coordenadas: { type: new Schema({ lat: Number, lng: Number, endereco: String }, { _id: false }) },
+    avisos: {
+      type: [
+        new Schema(
+          { User: { type: Schema.Types.ObjectId, ref: 'User' }, at: Date, destinatarios: [String] },
+          { _id: false },
+        ),
+      ],
+      default: [],
+    },
   },
   { timestamps: true },
 );

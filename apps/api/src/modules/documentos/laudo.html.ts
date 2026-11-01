@@ -1,15 +1,25 @@
 import type { LaudoVariavel } from '@ethica/contracts';
-import { LAUDO_HTML_TAGS, LAUDO_VARIAVEIS, variaveisPendentes } from '@ethica/contracts';
+import { LAUDO_HTML_TAGS, LAUDO_IMG_SRC, LAUDO_VARIAVEIS, variaveisPendentes } from '@ethica/contracts';
 import sanitizeHtml from 'sanitize-html';
 import { esc } from './documento.layout.js';
 
 // Todo HTML do laudo e dos modelos passa por aqui antes de ser gravado (AD-123): só as tags
-// que o editor produz e que o PDF e o Word sabem desenhar; atributo, só colspan/rowspan.
-// Tag fora da lista some e o texto dela fica; script e style somem com o conteúdo.
+// que o editor produz e que o PDF e o Word sabem desenhar; atributo, só colspan/rowspan e o
+// `src`/`alt` da foto. Tag fora da lista some e o texto dela fica; script e style somem com o
+// conteúdo. Foto só da vistoria (AD-129): o editor grava a URL absoluta da API, aqui fica o
+// caminho; qualquer outra imagem é removida.
 export const sanitizeLaudoHtml = (html: string): string =>
   sanitizeHtml(html, {
     allowedTags: [...LAUDO_HTML_TAGS],
-    allowedAttributes: { th: ['colspan', 'rowspan'], td: ['colspan', 'rowspan'] },
+    allowedAttributes: { th: ['colspan', 'rowspan'], td: ['colspan', 'rowspan'], img: ['src', 'alt'] },
+    allowedSchemesByTag: { img: ['http', 'https'] },
+    transformTags: {
+      img: (tagName, attribs) => ({
+        tagName,
+        attribs: { ...attribs, src: (attribs.src ?? '').replace(/^https?:\/\/[^/]+/, '') },
+      }),
+    },
+    exclusiveFilter: (frame) => frame.tag === 'img' && !LAUDO_IMG_SRC.test(frame.attribs.src ?? ''),
   }).trim();
 
 export type ValoresDoLaudo = Partial<Record<LaudoVariavel, string>>;

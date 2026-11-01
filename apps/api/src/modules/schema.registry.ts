@@ -5,6 +5,13 @@ import {
   upcomingCompromissosQuerySchema,
 } from './agenda/compromisso.schema.js';
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
+import {
+  midiaUploadQuerySchema,
+  vistoriaDiaQuerySchema,
+  vistoriaMidiaParamSchema,
+  vistoriaParamSchema,
+  vistoriaPericiaParamSchema,
+} from './agenda/vistoria.schema.js';
 import { documentoPericiaParamSchema } from './documentos/documentos.schema.js';
 import {
   laudoIdParamSchema,
@@ -47,6 +54,11 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listPericiasQuerySchema', schema: listPericiasQuerySchema },
   { name: 'movimentacaoIdParamSchema', schema: movimentacaoIdParamSchema },
   { name: 'documentoPericiaParamSchema', schema: documentoPericiaParamSchema },
+  { name: 'vistoriaParamSchema', schema: vistoriaParamSchema },
+  { name: 'vistoriaMidiaParamSchema', schema: vistoriaMidiaParamSchema },
+  { name: 'vistoriaPericiaParamSchema', schema: vistoriaPericiaParamSchema },
+  { name: 'vistoriaDiaQuerySchema', schema: vistoriaDiaQuerySchema },
+  { name: 'midiaUploadQuerySchema', schema: midiaUploadQuerySchema },
   { name: 'modeloIdParamSchema', schema: modeloIdParamSchema },
   { name: 'modeloSecaoParamSchema', schema: modeloSecaoParamSchema },
   { name: 'laudoIdParamSchema', schema: laudoIdParamSchema },

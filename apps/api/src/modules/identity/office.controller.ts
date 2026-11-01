@@ -53,3 +53,19 @@ export const getLogo =
       next(e);
     }
   };
+
+export const getAvisoAgendamento = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await officeService.getAvisoAgendamento(req.tenantUser.tenant as string) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const updateAvisoAgendamento = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await officeService.updateAvisoAgendamento(req.tenantUser.tenant as string, req.body) }));
+  } catch (e) {
+    next(e);
+  }
+};

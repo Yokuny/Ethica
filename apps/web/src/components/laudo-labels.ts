@@ -28,6 +28,15 @@ const VARIAVEL_KEY: Record<LaudoVariavel, string> = {
   '[PERITO_REGISTRO]': 'variable_expert_registration',
   '[PERITO_FORMACAO]': 'variable_expert_degree',
   '[ESCRITORIO_NOME]': 'variable_office_name',
+  '[HORA_VISTORIA]': 'variable_inspection_time',
+  '[PRESENTES_VISTORIA]': 'variable_inspection_attendees',
+  '[PARADIGMAS_AUTOR]': 'variable_plaintiff_paradigms',
+  '[PARADIGMAS_REU]': 'variable_defendant_paradigms',
+  '[FUNCOES_AUTOR]': 'variable_plaintiff_roles',
+  '[FUNCOES_REU]': 'variable_defendant_roles',
+  '[AGENTES_PRESENTES]': 'variable_agents_present',
+  '[AGENTES_AUSENTES]': 'variable_agents_absent',
+  '[DOCUMENTOS_SOLICITADOS]': 'variable_requested_documents',
 };
 
 export const variavelLabel = (variavel: LaudoVariavel): string => t(VARIAVEL_KEY[variavel]);

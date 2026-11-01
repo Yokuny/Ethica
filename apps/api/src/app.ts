@@ -10,6 +10,7 @@ import { createAuthMiddleware } from './middlewares/authentication.middleware.js
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { responseTime } from './middlewares/responseTime.middleware.js';
 import { createAgendaRouter } from './modules/agenda/compromisso.router.js';
+import { createVistoriaRouter } from './modules/agenda/vistoria.router.js';
 import { createDocumentosRouter } from './modules/documentos/documentos.router.js';
 import { createLaudoRouter } from './modules/documentos/laudo.router.js';
 import { createFinanceiroRouter } from './modules/financeiro/lancamento.router.js';
@@ -26,6 +27,7 @@ import { createPericiaRouter } from './modules/pericia/pericia.router.js';
 import { createProspeccaoRouter } from './modules/prospeccao/oportunidade.router.js';
 import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
 import { createS3FileStorage, type FileStorage } from './providers/fileStorage.js';
+import { createNominatimGeocoder, type Geocoder } from './providers/geocoder.js';
 import type { MailProvider } from './providers/mail/index.js';
 import { createLogMailProvider } from './providers/mail/log.mailProvider.js';
 import { createNodemailerMailProvider } from './providers/mail/nodemailer.mailProvider.js';
@@ -47,7 +49,13 @@ export const buildMailProvider = (): MailProvider => {
 // Sem .listen() — testável via supertest sem abrir porta. start() (server.ts)
 // é quem efetivamente sobe o processo. `datajud`, `pdf` e `storage` são injetáveis para os testes.
 export const buildApp = (
-  options: { datajud?: DatajudClient; pdf?: PdfRenderer; storage?: FileStorage | null } = {},
+  options: {
+    datajud?: DatajudClient;
+    pdf?: PdfRenderer;
+    storage?: FileStorage | null;
+    mail?: MailProvider;
+    geocoder?: Geocoder;
+  } = {},
 ): Express => {
   // Idempotente — vários buildApp() no mesmo processo (testes) não duplicam handler.
   registerAllSubscribers();
@@ -60,11 +68,13 @@ export const buildApp = (
   // Seção de laudo com texto rico passa de 100 kB: 1 MB só em `/laudos`; o parser global
   // ignora o corpo já lido (AD-126).
   app.use('/laudos', express.json({ limit: '1mb' }));
+  // Registro de vistoria com muitas funções e atividades (AD-130).
+  app.use('/vistorias', express.json({ limit: '1mb' }));
   app.use(express.json());
   app.use(responseTime);
 
   const { validToken } = createAuthMiddleware(buildAuthDeps());
-  const mailProvider = buildMailProvider();
+  const mailProvider = options.mail ?? buildMailProvider();
   const inviteBaseUrl = `${env.CORS_ORIGIN}/invite`;
   const datajud =
     options.datajud ??
@@ -89,6 +99,10 @@ export const buildApp = (
             })
           : undefined));
 
+  // Mapa de campo (AD-131): coordenadas do endereço do compromisso.
+  const geocoder =
+    options.geocoder ?? createNominatimGeocoder({ baseUrl: env.GEOCODER_URL, userAgent: env.GEOCODER_USER_AGENT });
+
   app.get('/health', (_req, res) => {
     res.json(respObj({ data: { service: 'api' } }));
   });
@@ -109,7 +123,8 @@ export const buildApp = (
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/pericias', createPericiaRouter({ validToken }));
   app.use('/partes', createParteRouter({ validToken }));
-  app.use('/agenda', createAgendaRouter({ validToken }));
+  app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));
+  app.use('/vistorias', createVistoriaRouter({ validToken, storage }));
   app.use('/financeiro', createFinanceiroRouter({ validToken }));
   app.use('/documentos', createDocumentosRouter({ validToken, pdf, storage }));
   app.use('/laudos', createLaudoRouter({ validToken, pdf, storage }));

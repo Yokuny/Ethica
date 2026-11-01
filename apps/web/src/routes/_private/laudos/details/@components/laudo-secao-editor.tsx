@@ -5,7 +5,7 @@ import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { variavelLabel } from '@/components/laudo-labels.js';
 import { Panel } from '@/components/panel.js';
-import { RichTextEditor } from '@/components/rich-text-editor.js';
+import { type FotoDoEditor, RichTextEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { LaudoRecord, LaudoSecaoRecord } from '@/query/laudo.js';
 
@@ -20,6 +20,7 @@ type LaudoSecaoEditorProps = {
   saving: boolean;
   onSave: () => void;
   onRemove: () => void;
+  fotos?: FotoDoEditor[];
 };
 
 // Uma seção por vez (LAU-03.1): salvar grava só ela; o resto do laudo não muda.
@@ -32,6 +33,7 @@ export function LaudoSecaoEditor({
   saving,
   onSave,
   onRemove,
+  fotos,
 }: LaudoSecaoEditorProps) {
   const readOnly = laudo.status === 'completed';
   const numero = numerarSecoes(laudo.secoes)[laudo.secoes.findIndex((item) => item.id === secao.id)];
@@ -77,6 +79,7 @@ export function LaudoSecaoEditor({
           value={rascunho.html}
           readOnly={readOnly}
           label={t('section_text')}
+          fotos={fotos}
           onChange={(html) => onChange({ ...rascunho, html })}
         />
       )}

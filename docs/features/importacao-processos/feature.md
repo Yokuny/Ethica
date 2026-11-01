@@ -45,7 +45,7 @@ Partes deixaram de ser texto livre (`autor`/`reu` foram removidos) e viraram o c
 - `apps/web/src/routes/_private/pericias/add/` — ação "Preencher com PDF" (`@hooks/use-pdf-import.ts`) e o aviso do que faltou (`@components/pdf-import-notice.tsx`).
 - `apps/web/src/routes/_private/pericias/import/` — página de importação por CSV; o modelo é gerado em `@utils/csv-template.ts` a partir de `CSV_IMPORT_COLUMNS`.
 - `apps/web/src/routes/_private/pericias/@components/pericia-partes-fields.tsx` e `pericia-trabalhista-fields.tsx` — partes por polo (com sugestão do cadastro) e o grupo trabalhista, usados no cadastro e na edição.
-- `apps/web/src/routes/_private/pericias/@query/importacao.ts` — mutations de PDF e CSV (`postFile` em `apps/web/src/lib/api/client.api.ts`).
+- `apps/web/src/routes/_private/pericias/@query/importacao.ts` — mutations de PDF e CSV (`sendFile` em `apps/web/src/lib/api/client.api.ts`, antes `postFile`).
 - `apps/web/src/routes/_private/partes/` — listagem, `FormDialog` de criar/editar e `details/` com as perícias da parte; `apps/web/src/query/parte.ts` e `apps/web/src/components/parte-labels.ts`. Entrada no grupo "Trabalho" da navegação (`apps/web/src/routes/_private/@consts/home-sections.ts`).
 
 ### `packages/contracts`

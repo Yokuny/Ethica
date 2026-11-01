@@ -72,6 +72,7 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 
 ## Histórico
 
+- 2026-10-31 — O checklist de campo usa as listas de agentes e documentos do contrato (`VISTORIA_AGENTES`, `VISTORIA_DOCUMENTOS`), as mesmas do registro de vistoria (`campo-vistorias`, AD-130); a cota de arquivos agora também é usada pelas mídias da vistoria.
 - 2026-10-31 — `documento.layout.ts` ganhou `cabecalhoRodape`/`textosCabecalhoRodape` para o laudo e o Word reaproveitarem; o módulo passou a ter os models do laudo (`docs/features/laudos/feature.md`).
 - 2026-10-31 — Implementado DOC-01 a DOC-04 (AD-119 a AD-122); validação em `.specs/features/documentos-pdf/validation.md`. Divergências do design: storage local é RustFS em vez de MinIO (imagens públicas do MinIO indisponíveis); o CORS passou a expor `Content-Disposition`, achado na UAT.
 - 2026-10-31 — Spec criada (`.specs/features/documentos-pdf/spec.md`).

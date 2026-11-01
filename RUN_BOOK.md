@@ -40,6 +40,8 @@ Os scripts da API carregam o `.env` da raiz (`--env-file-if-exists`); o web lê 
 
 PDFs (AD-119) usam o Chromium instalado na imagem `Dockerfile.dev` (`CHROMIUM_PATH`). Fora do Docker, aponte `CHROMIUM_PATH` para um Chrome/Chromium local e suba o `s3` com `docker compose up -d s3 s3-init` para enviar o logo (sem `S3_BUCKET` o logo fica desligado e os PDFs saem sem ele).
 
+Campo (AD-128, AD-131): o mapa geocodifica pelo Nominatim público (`GEOCODER_URL`, `GEOCODER_USER_AGENT`) e desenha a rota pelo OSRM público, os dois a partir da rede do container e do navegador. O app só recarrega sem conexão no build de produção, porque o service worker não roda no dev server. O `.env` local tem `NODE_ENV=development`, que o Vite aplica ao build; para testar o PWA, use `NODE_ENV=production pnpm --filter web run build` e `pnpm --filter web exec vite preview`.
+
 ## Dados de demonstração
 
 ```bash

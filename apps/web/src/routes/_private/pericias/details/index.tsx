@@ -18,6 +18,7 @@ import { PericiaLaudos } from './@components/pericia-laudos.js';
 import { PericiaMovimentacoes } from './@components/pericia-movimentacoes.js';
 import { PericiaPrazos } from './@components/pericia-prazos.js';
 import { PericiaRelated } from './@components/pericia-related.js';
+import { PericiaVistorias } from './@components/pericia-vistorias.js';
 import { usePericiaActions } from './@hooks/use-pericia-actions.js';
 import { type PericiaDetailsSearch, periciaDetailsSearchSchema } from './@interface/pericia-details.interface.js';
 
@@ -84,6 +85,7 @@ export function PericiaDetailsPage() {
         <CardContent className="gap-10">
           <PericiaDetailsView pericia={pericia} />
           <PericiaPrazos periciaId={pericia.id} />
+          <PericiaVistorias periciaId={pericia.id} />
           <PericiaLaudos pericia={pericia} />
           <PericiaMovimentacoes pericia={pericia} />
           <PericiaRelated periciaId={pericia.id} canSeeFinance={canSeeFinance(session)} />

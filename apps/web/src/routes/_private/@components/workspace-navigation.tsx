@@ -24,7 +24,11 @@ import type { HomeSection } from '../@interface/home.interface.js';
 import { CommandMenu, useCommandMenuShortcut } from './command-menu.js';
 
 const groups: { key: string; destinations: HomeSection['to'][]; heading: string }[] = [
-  { key: 'work', destinations: ['/pericias', '/laudos', '/partes', '/agenda', '/prospeccao'], heading: 'work' },
+  {
+    key: 'work',
+    destinations: ['/pericias', '/laudos', '/campo', '/partes', '/agenda', '/prospeccao'],
+    heading: 'work',
+  },
   { key: 'management', destinations: ['/financeiro', '/relatorios'], heading: 'management' },
   { key: 'admin', destinations: ['/users', '/office'], heading: 'settings' },
 ];

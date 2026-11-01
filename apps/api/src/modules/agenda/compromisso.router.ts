@@ -38,7 +38,25 @@ export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
     validBody(updateCompromissoSchema),
     compromissoController.updateCompromisso,
   );
-  router.delete('/:id', ...guard, validParams(compromissoIdParamSchema), compromissoController.deleteCompromisso);
+  router.delete(
+    '/:id',
+    ...guard,
+    validParams(compromissoIdParamSchema),
+    compromissoController.deleteCompromisso(deps.storage),
+  );
+  // Mapa de campo e aviso às partes (AD-131).
+  router.post(
+    '/:id/geocode',
+    ...guard,
+    validParams(compromissoIdParamSchema),
+    compromissoController.geocodificar(deps.geocoder),
+  );
+  router.post(
+    '/:id/aviso',
+    ...guard,
+    validParams(compromissoIdParamSchema),
+    compromissoController.enviarAviso(deps.mail),
+  );
 
   return router;
 };

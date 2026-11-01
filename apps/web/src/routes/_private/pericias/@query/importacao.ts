@@ -1,6 +1,6 @@
 import type { CreatePericia, CsvImportColumn } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
-import { postFile } from '@/lib/api/client.api.js';
+import { sendFile } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { periciaKeys } from '@/query/pericia.js';
 
@@ -22,7 +22,7 @@ export type CsvImportResult = {
 // PDF da ata/despacho → rascunho do cadastro (AD-114); nada é gravado.
 export const importPdfMutation = (): UseMutationOptions<PdfExtraction, Error, File> => ({
   mutationFn: async (file) => {
-    const res = await postFile<PdfExtraction>('/pericias/import/pdf', file, 'application/pdf');
+    const res = await sendFile<PdfExtraction>('/pericias/import/pdf', file, 'application/pdf');
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
     return res.data;
   },
@@ -31,7 +31,7 @@ export const importPdfMutation = (): UseMutationOptions<PdfExtraction, Error, Fi
 // CSV → cria as perícias das linhas válidas e devolve o relatório por linha (AD-115).
 export const importCsvMutation = (queryClient: QueryClient): UseMutationOptions<CsvImportResult, Error, File> => ({
   mutationFn: async (file) => {
-    const res = await postFile<CsvImportResult>('/pericias/import/csv', file, 'text/csv');
+    const res = await sendFile<CsvImportResult>('/pericias/import/csv', file, 'text/csv');
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
     return res.data;
   },

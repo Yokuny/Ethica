@@ -27,6 +27,8 @@ export type { TenantDocument, TenantStatus } from './models/tenant.model.js';
 export { Tenant, transitionTenantStatus } from './models/tenant.model.js';
 export type { UserDocument } from './models/user.model.js';
 export { User } from './models/user.model.js';
+export type { VistoriaDocument, VistoriaMidiaDocument } from './models/vistoria.model.js';
+export { Vistoria } from './models/vistoria.model.js';
 export { tenantScoped } from './tenantScoped.js';
 export { resolveTestDatabaseUri, TEST_DATABASE_ENV, wipeTestDatabase } from './testDatabase.js';
 export type { ParteSearchSpec, PericiaSearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
@@ -56,6 +58,7 @@ import { Prazo } from './models/prazo.model.js';
 import { Session } from './models/session.model.js';
 import { Tenant } from './models/tenant.model.js';
 import { User } from './models/user.model.js';
+import { Vistoria } from './models/vistoria.model.js';
 
 export const syncIndexes = async (): Promise<void> => {
   await Promise.all([
@@ -71,5 +74,6 @@ export const syncIndexes = async (): Promise<void> => {
     Oportunidade.createIndexes(),
     Laudo.createIndexes(),
     ModeloLaudo.createIndexes(),
+    Vistoria.createIndexes(),
   ]);
 };

@@ -34,6 +34,7 @@ th, td { border: 0.3mm solid #444; padding: 1.5mm 2mm; text-align: left; vertica
 th { background: #eee; }
 td p, th p { margin: 0; text-align: left; }
 tr { break-inside: avoid; }
+img { display: block; max-width: 100%; max-height: 120mm; margin: 3mm auto 1mm; break-inside: avoid; }
 `;
 
 const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
@@ -41,7 +42,14 @@ const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' }
 const linhaCapa = (rotulo: string | undefined, valor: string | undefined): string =>
   rotulo && valor ? `<div><dt>${esc(rotulo)}:</dt><dd>${esc(valor)}</dd></div>` : '';
 
-export const laudoHtml = ({ laudo, pericia, identity, perito, valores }: LaudoExportDados): PdfDocument => {
+// Foto da vistoria vira data URL (o Chromium roda sem rede, AD-119/AD-129); a que sumiu sai.
+const comFotos = (html: string, fotos: LaudoExportDados['fotos']): string =>
+  html.replace(/<img([^>]*)src="([^"]+)"([^>]*)>/g, (_tag, antes: string, src: string, depois: string) => {
+    const foto = fotos[src];
+    return foto ? `<img${antes}src="data:${foto.mime};base64,${foto.body.toString('base64')}"${depois}>` : '';
+  });
+
+export const laudoHtml = ({ laudo, pericia, identity, perito, valores, fotos }: LaudoExportDados): PdfDocument => {
   const numeros = numerarSecoes(laudo.secoes);
   const capa = `<section class="capa"><div><p class="tipo">${TIPO[laudo.tipo]}</p><dl>${[
     linhaCapa('Processo nº', pericia.numeroProcesso),
@@ -64,7 +72,7 @@ export const laudoHtml = ({ laudo, pericia, identity, perito, valores }: LaudoEx
     .map((secao, i) => {
       const nivel = Math.min(secao.nivel, 3);
       const tag = `h${nivel + 1}`;
-      return `<section class="secao${secao.quebraPagina ? ' quebra' : ''}"><${tag} class="titulo-secao n${nivel}">${numeros[i]}. ${esc(secao.titulo)}</${tag}>${secao.apenasTitulo ? '' : secao.html}</section>`;
+      return `<section class="secao${secao.quebraPagina ? ' quebra' : ''}"><${tag} class="titulo-secao n${nivel}">${numeros[i]}. ${esc(secao.titulo)}</${tag}>${secao.apenasTitulo ? '' : comFotos(secao.html, fotos)}</section>`;
     })
     .join('');
   return {

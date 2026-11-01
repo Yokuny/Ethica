@@ -4,6 +4,7 @@ import { CustomError, KeyedError } from '../../middlewares/errorHandler.middlewa
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as compromissoService from '../agenda/compromisso.service.js';
+import * as vistoriaService from '../agenda/vistoria.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as officeService from '../identity/office.service.js';
 import type { PericiaRecord } from '../pericia/pericia.schema.js';
@@ -54,12 +55,20 @@ const editavel = async (tenantId: string, id: string): Promise<LaudoRecord> => {
 
 // Dados da perícia, de quem gera e do escritório no momento (AD-126).
 const dadosAtuais = async (providers: Pick<Providers, 'storage'>, ctx: DocumentoContexto, pericia: PericiaRecord) => {
-  const [identity, perito, compromissos] = await Promise.all([
+  const [identity, perito, compromissos, campo] = await Promise.all([
     officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
     compromissoService.listDaPericia(ctx.tenantId, pericia.id),
+    vistoriaService.ultimaFeitaDaPericia(ctx.tenantId, pericia.id),
   ]);
-  const valores = valoresDoLaudo({ pericia, perito, identity, compromissos, hoje: dateInDisplayTz(ctx.now) });
+  const valores = valoresDoLaudo({
+    pericia,
+    perito,
+    identity,
+    compromissos,
+    campo: campo && { dados: campo.vistoria.dados, inicio: campo.compromisso.inicio },
+    hoje: dateInDisplayTz(ctx.now),
+  });
   return { identity, perito, valores };
 };
 
@@ -211,7 +220,17 @@ const paraExportar = async (providers: Providers, ctx: DocumentoContexto, id: st
   const { identity, perito, valores } = await dadosAtuais(providers, ctx, pericia);
   const secoes = resolverSecoes(laudo.secoes, valores);
   semPendencias(secoes);
-  return { laudo: { ...laudo, secoes }, pericia, identity, perito, valores, geradoEm: ctx.now };
+  // Fotos da vistoria no texto (AD-129): bytes lidos aqui, só do próprio tenant.
+  const srcs = [
+    ...new Set(
+      secoes.flatMap((secao) => [...secao.html.matchAll(/<img[^>]*src="([^"]+)"/g)].map((m) => m[1] as string)),
+    ),
+  ];
+  const lidas = await Promise.all(
+    srcs.map(async (src) => [src, await vistoriaService.lerFotoDoLaudo(providers.storage, ctx.tenantId, src)] as const),
+  );
+  const fotos = Object.fromEntries(lidas.flatMap(([src, foto]) => (foto ? [[src, foto]] : [])));
+  return { laudo: { ...laudo, secoes }, pericia, identity, perito, valores, fotos, geradoEm: ctx.now };
 };
 
 const nomeArquivo = (laudo: LaudoRecord, pericia: PericiaRecord, extensao: string): string =>

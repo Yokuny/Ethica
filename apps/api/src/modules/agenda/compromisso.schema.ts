@@ -1,4 +1,10 @@
-import type { CompromissoStatus, CompromissoTipo, CreateCompromisso, UpdateCompromisso } from '@ethica/contracts';
+import type {
+  CompromissoMotivo,
+  CompromissoStatus,
+  CompromissoTipo,
+  CreateCompromisso,
+  UpdateCompromisso,
+} from '@ethica/contracts';
 import {
   COMPROMISSO_TIPOS,
   calendarDateSchema,
@@ -9,6 +15,9 @@ import {
 import type { CompromissoOrigem } from '@ethica/db';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
+import type { FileStorage } from '../../providers/fileStorage.js';
+import type { Geocoder } from '../../providers/geocoder.js';
+import type { MailProvider } from '../../providers/mail/index.js';
 
 export type { CreateCompromisso, UpdateCompromisso };
 export { createCompromissoSchema, updateCompromissoSchema };
@@ -42,7 +51,12 @@ export const upcomingCompromissosQuerySchema = z
   .strict();
 export type UpcomingCompromissosQuery = z.infer<typeof upcomingCompromissosQuerySchema>;
 
-export type AgendaRouterDeps = { validToken: RequestHandler };
+export type AgendaRouterDeps = {
+  validToken: RequestHandler;
+  storage?: FileStorage;
+  mail: MailProvider;
+  geocoder: Geocoder;
+};
 
 export type CompromissoRecord = {
   id: string;
@@ -57,9 +71,15 @@ export type CompromissoRecord = {
   status: CompromissoStatus;
   origem: CompromissoOrigem;
   observacoes?: string;
+  motivo?: CompromissoMotivo;
+  // Só quando a geocodificação é do endereço atual (AD-131).
+  coordenadas?: { lat: number; lng: number };
+  avisos: AvisoAgendamentoRecord[];
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type AvisoAgendamentoRecord = { userId: string; at: Date; destinatarios: string[] };
 
 export type CompromissoWrite = {
   tipo?: CompromissoTipo;
@@ -71,4 +91,6 @@ export type CompromissoWrite = {
   status?: CompromissoStatus;
   origem?: CompromissoOrigem;
   observacoes?: string;
+  // `null` apaga: o compromisso deixou de estar cancelado.
+  motivo?: CompromissoMotivo | null;
 };

@@ -26,6 +26,7 @@ import type { LaudoExportDados } from './laudo.schema.js';
 // allowlist, mais capa, sumário (campo atualizado ao abrir) e cabeçalho/rodapé do escritório.
 
 type No = ReturnType<typeof parseDocument>['children'][number];
+type Fotos = LaudoExportDados['fotos'];
 type Formato = { bold?: boolean; italics?: boolean; underline?: boolean };
 type Bloco = Paragraph | Table;
 
@@ -60,7 +61,7 @@ const runs = (nos: No[], formato: Formato = {}): TextRun[] =>
 const linhasDaTabela = (no: No): No[] =>
   filhos(no).flatMap((filho) => (tag(filho) === 'tr' ? [filho] : tag(filho) ? linhasDaTabela(filho) : []));
 
-const tabela = (no: No): Table =>
+const tabela = (no: No, fotos: Fotos): Table =>
   new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: linhasDaTabela(no).map(
@@ -69,7 +70,7 @@ const tabela = (no: No): Table =>
           children: filhos(tr)
             .filter((celula) => tag(celula) === 'td' || tag(celula) === 'th')
             .map((celula) => {
-              const conteudo = blocos(filhos(celula), { bold: tag(celula) === 'th' }).filter(
+              const conteudo = blocos(filhos(celula), { bold: tag(celula) === 'th' }, fotos).filter(
                 (bloco): bloco is Paragraph => bloco instanceof Paragraph,
               );
               const span = celula.type === 'tag' ? Number(celula.attribs.colspan) || 1 : 1;
@@ -102,7 +103,45 @@ const lista = (no: No, nivel: number): Paragraph[] => {
     ]);
 };
 
-function blocos(nos: No[], formato: Formato = {}): Bloco[] {
+// Largura e altura em pixels pelo cabeçalho do arquivo: IHDR do PNG ou SOF do JPEG.
+export const dimensoesDaImagem = (imagem: Buffer): { width: number; height: number } | null => {
+  if (imagem.subarray(1, 4).toString() === 'PNG')
+    return { width: imagem.readUInt32BE(16), height: imagem.readUInt32BE(20) };
+  let offset = 2;
+  while (offset + 9 < imagem.length && imagem[offset] === 0xff) {
+    const marcador = imagem[offset + 1] as number;
+    // SOF0..SOF15, menos DHT (C4), JPG (C8) e DAC (CC).
+    if (marcador >= 0xc0 && marcador <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marcador)) {
+      return { height: imagem.readUInt16BE(offset + 5), width: imagem.readUInt16BE(offset + 7) };
+    }
+    offset += 2 + imagem.readUInt16BE(offset + 2);
+  }
+  return null;
+};
+
+// Foto da vistoria (AD-129): no máximo 15 cm de largura e 12 cm de altura, centralizada.
+const foto = (no: No, fotos: Fotos): Paragraph[] => {
+  const src = no.type === 'tag' ? no.attribs.src : undefined;
+  const arquivo = src ? fotos[src] : undefined;
+  const tamanho = arquivo ? dimensoesDaImagem(arquivo.body) : null;
+  if (!arquivo || !tamanho) return [];
+  const escala = Math.min(567 / tamanho.width, 454 / tamanho.height, 1);
+  return [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 120 },
+      children: [
+        new ImageRun({
+          type: arquivo.mime === 'image/png' ? 'png' : 'jpg',
+          data: arquivo.body,
+          transformation: { width: Math.round(tamanho.width * escala), height: Math.round(tamanho.height * escala) },
+        }),
+      ],
+    }),
+  ];
+};
+
+function blocos(nos: No[], formato: Formato = {}, fotos: Fotos = {}): Bloco[] {
   return nos.flatMap((no): Bloco[] => {
     switch (tag(no)) {
       case 'p':
@@ -121,7 +160,9 @@ function blocos(nos: No[], formato: Formato = {}): Bloco[] {
       case 'ol':
         return lista(no, 0);
       case 'table':
-        return [tabela(no)];
+        return [tabela(no, fotos)];
+      case 'img':
+        return foto(no, fotos);
       default: {
         const texto = runs([no], formato);
         return texto.length ? [new Paragraph({ children: texto })] : [];
@@ -129,12 +170,6 @@ function blocos(nos: No[], formato: Formato = {}): Bloco[] {
     }
   });
 }
-
-// Largura e altura do PNG (cabeçalho IHDR), para o logo manter a proporção.
-const tamanhoPng = (png: Buffer): { width: number; height: number } => ({
-  width: png.readUInt32BE(16),
-  height: png.readUInt32BE(20),
-});
 
 const linhasDoTemplate = (texto: string, logo: Buffer | undefined, nomePerito: string): Paragraph[] =>
   texto
@@ -151,7 +186,7 @@ const linhasDoTemplate = (texto: string, logo: Buffer | undefined, nomePerito: s
             .map((parte) => {
               if (parte === '[LOGO]') {
                 if (!logo) return new TextRun('');
-                const { width, height } = tamanhoPng(logo);
+                const { width, height } = dimensoesDaImagem(logo) ?? { width: 1, height: 1 };
                 const escala = Math.min(45 / height, 227 / width, 1);
                 return new ImageRun({
                   type: 'png',
@@ -172,7 +207,14 @@ const linhasDoTemplate = (texto: string, logo: Buffer | undefined, nomePerito: s
 
 const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 
-export const laudoDocx = async ({ laudo, pericia, identity, perito, valores }: LaudoExportDados): Promise<Buffer> => {
+export const laudoDocx = async ({
+  laudo,
+  pericia,
+  identity,
+  perito,
+  valores,
+  fotos,
+}: LaudoExportDados): Promise<Buffer> => {
   const numeros = numerarSecoes(laudo.secoes);
   const logo = identity.logoDataUrl
     ? Buffer.from(identity.logoDataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
@@ -216,7 +258,7 @@ export const laudoDocx = async ({ laudo, pericia, identity, perito, valores }: L
       pageBreakBefore: secao.quebraPagina,
       children: [new TextRun(`${numeros[i]}. ${secao.titulo}`)],
     }),
-    ...(secao.apenasTitulo ? [] : blocos(parseDocument(secao.html).children as No[])),
+    ...(secao.apenasTitulo ? [] : blocos(parseDocument(secao.html).children as No[], {}, fotos)),
   ]);
   const doc = new Document({
     features: { updateFields: true },

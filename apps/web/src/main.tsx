@@ -12,6 +12,11 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import { queryClient, router } from './router.js';
 
+// PWA (AD-128): o service worker só no build de produção; o dev server do Vite não o usa.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => void navigator.serviceWorker.register('/sw.js'));
+}
+
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Elemento #root não encontrado.');
 
