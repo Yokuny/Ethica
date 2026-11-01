@@ -11,7 +11,7 @@ Express 5 + TypeScript 5 (`moduleResolution: nodenext` — todo import relativo 
 ```
 apps/api/src/
 ├── app.ts / server.ts / index.ts   # composition root: monta routers, injeta providers, registerAllSubscribers()
-├── config/ middlewares/ providers/ metrics/   # camada compartilhada — nunca importa de modules/
+├── config/ middlewares/ providers/ metrics/   # camada compartilhada — nunca importa de modules/ (o diário de bordo é um middleware com a gravação injetada em app.ts, AD-134)
 ├── events/                         # event bus in-process (AD-039)
 │   ├── event-bus.ts                # DomainEventBus: emit/on/off/listenerCount
 │   ├── event-types.ts              # DomainEventMap
@@ -23,7 +23,7 @@ apps/api/src/
 ├── providers/geocoder.ts           # endereço → coordenadas pelo Nominatim (AD-131), injetado em buildApp
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
-    ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite)
+    ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Atividade, AD-134)
     ├── pericia/                    # Pericia + Prazo (AD-109) + Parte (AD-117) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
     ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal, aviso diário de prazos, registro de vistoria e mídias (AD-130), aviso às partes e geocodificação (AD-131)
     ├── financeiro/                 # Lancamento — honorários (com parcelas, AD-111) e despesas; resumo, fluxo, categorias
@@ -53,7 +53,7 @@ Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `
 
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
-| `identity` | `Tenant User Session Invite transitionTenantStatus` (inclui identidade dos documentos e cota de arquivos, AD-120) |
+| `identity` | `Tenant User Session Invite Atividade transitionTenantStatus` (inclui identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
 | `pericia` | `Pericia Prazo Parte` |
 | `agenda` | `Compromisso Vistoria` (AD-130) |
 | `financeiro` | `Lancamento` |
@@ -112,7 +112,7 @@ domainEventBus.on('pericia:honorarios_fixados', async (payload) => {
 });
 ```
 
-Eventos atuais: `pericia:honorarios_fixados` → financeiro lança a receita a receber ou atualiza o valor do honorário fixado já lançado (AD-106, AD-111); `pericia:deleted` → documentos exclui os laudos da perícia (AD-126). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `pericia.service` (AD-109), sem evento.
+Eventos atuais: `pericia:honorarios_fixados` → financeiro lança a receita a receber (`fixed_fees` ou, na perícia de assistente técnico, `contracted_fees`, AD-135) ou atualiza o valor do honorário já lançado (AD-106, AD-111); `pericia:deleted` → documentos exclui os laudos da perícia (AD-126). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `pericia.service` (AD-109), sem evento.
 
 - Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"pericia:honorarios_fixados","message":"…"}`.
 - `off(event, handler)` remove de fato (o bus guarda o wrapper por `(evento, handler)` internamente).

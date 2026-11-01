@@ -94,6 +94,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-01 — Papéis fixos de domínio (AD-107) viraram a matriz de permissões por membro; `financeiro/route.tsx` saiu para a guarda central (`docs/features/gestao-escritorio/feature.md`, AD-137).
 - 2026-10-31 — Prazo do laudo vira `Prazo` da perícia, `pericia:created` sai e honorário ganha parcelas (`docs/features/prazos-recebimentos/feature.md`, AD-109, AD-111).
 - 2026-10-29 — Fundação criada a partir do repo `CRM` (checkduplo) (`.specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md`, AD-102).
 

@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-01 — Honorário do assistente técnico lançado como `contracted_fees`, o mesmo automático por perícia (`docs/features/gestao-escritorio/feature.md`, AD-135).
 - 2026-10-31 — Valores de domínio em inglês no back-end e chaves de tradução em inglês (AD-113); recebimentos da perícia no detalhe do evento da agenda; UAT visual feita.
 - 2026-10-31 — Implementado (AD-109 a AD-112). Divergências do design: chaves de erro em inglês no padrão do contrato; T1+T2 e T5+T6 em um commit cada; PRZ-04.3 (liga/desliga no tenant) trocado por preferência por usuário (AD-110).
 - 2026-10-31 — Spec criada (`.specs/features/prazos-recebimentos/spec.md`).

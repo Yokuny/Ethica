@@ -17,7 +17,7 @@ const walk = (dir) =>
     return /\.(ts|tsx)$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name) ? [rel] : [];
   });
 
-const GUARD = /validToken|tenantAssignmentCheck|isAdmin|isManager|isOperator|platformAdminOnly|checkRole|^can[A-Z]\w*$|^\.\.\.\w+$/;
+const GUARD = /validToken|tenantAssignmentCheck|^can\(|isAdmin|isManager|isOperator|platformAdminOnly|checkRole|^can[A-Z]\w*$|^\.\.\.\w+$/;
 
 const api = () => {
   const appSrc = read('apps/api/src/app.ts');

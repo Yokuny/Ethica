@@ -2,6 +2,36 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "gestao-escritorio",
+      "feature": "Gestão do escritório",
+      "descricao": "Matriz de permissões por membro, diário de bordo, fase e situação da perícia, honorário do assistente técnico e início configurável",
+      "data": "2026-11-01",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db",
+        "harness"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-113",
+        "AD-121",
+        "AD-126",
+        "AD-133",
+        "AD-134",
+        "AD-135",
+        "AD-136",
+        "AD-137"
+      ],
+      "spec": [
+        ".specs/features/gestao-escritorio"
+      ],
+      "planos": [],
+      "doc": "features/gestao-escritorio/feature.md"
+    },
+    {
       "slug": "benchmark-jusperia",
       "feature": "Benchmark da Jusperia",
       "descricao": "Engenharia reversa funcional do app da Jusperia (concorrente) e gap analysis contra o Ethica, com priorização em ondas",
@@ -483,13 +513,13 @@
       "id": "AD-107",
       "decisao": "O financeiro (`/financeiro/*` na API e no web) é restrito a `admin` e `manager`; perícias, agenda e prospecção são de qualquer papel do tena",
       "data": "2026-10-29",
-      "status": "active"
+      "status": "superseded by AD-137 (papéis de domínio viram a matriz de permissões)"
     },
     {
       "id": "AD-108",
       "decisao": "Permissões do tenant passam a ser uma matriz perfil × módulo × ação (acessar, visualizar, editar, inserir, excluir). Os perfis de equipe (eq",
       "data": "2026-10-31",
-      "status": "proposed"
+      "status": "superseded by AD-137"
     },
     {
       "id": "AD-109",
@@ -633,6 +663,36 @@
       "id": "AD-132",
       "decisao": "A feature `campo-vistorias` entra nesta rodada com CAM-01 a CAM-09, menos a transcrição de áudio (CAM-07.2, fora pela AD-124 até decisão pró",
       "data": "2026-10-31",
+      "status": "active"
+    },
+    {
+      "id": "AD-133",
+      "decisao": "A perícia mantém as 8 etapas (`PERICIA_STATUS`) e ganha uma fase detalhada opcional (`fase`) de lista fixa agrupada por etapa (`PERICIA_FASE",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-134",
+      "decisao": "Diário de bordo é a collection `Atividade` do módulo `identity` (dono, junto do tenant e dos usuários): quem (id e nome gravado), quando, mó",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-135",
+      "decisao": "Na perícia em que o escritório é assistente técnico (`papel: technical_assistant`), o contratante é uma das partes ou advogados já ligados à",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-136",
+      "decisao": "O início é configurável por usuário: a preferência `preferences.blocosOcultos` (lista de chaves de `HOME_BLOCOS` em `packages/contracts/src/",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-137",
+      "decisao": "Aceita a AD-108 com a forma: matriz de permissões por membro (`User.permissoes` e `Invite.permissoes`: módulo → ações), com módulos `pericia",
+      "data": "2026-11-01",
       "status": "active"
     }
   ]
