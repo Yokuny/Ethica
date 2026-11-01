@@ -13,7 +13,7 @@ import { templatesQuery } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { TemplateCreateForm } from './@components/template-create-form.js';
 
-// LAU-01: biblioteca padrão (só leitura) e modelos do escritório.
+// LAU-01: default library (read-only) and office templates.
 export function TemplatesPage() {
   const navigate = useNavigate({ from: '/expert-reports/templates/' });
   const { data: session } = useSuspenseQuery(sessionQuery);

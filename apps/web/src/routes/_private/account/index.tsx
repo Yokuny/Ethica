@@ -12,8 +12,8 @@ import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
 import { profileQuery } from './@query/account.js';
 
-// ACC-01: a conta de quem está logado. Cada bloco salva sozinho; a sessão
-// (garantida pelo guard de _private) dá nome e foto atuais.
+// ACC-01: the signed-in person's account. Each block saves on its own; the session
+// (guaranteed by the _private guard) gives the current name and photo.
 export function AccountPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const { name, avatar } = session.user;

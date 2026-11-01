@@ -8,7 +8,7 @@ import { NumberField, SelectField, TextField } from '@/components/form-fields.js
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { useSearchDatajud } from '../@hooks/use-search-datajud.js';
 
-// Rótulo com a justiça: "TRT2 · Trabalhista".
+// Label with the court type: "TRT2 · Trabalhista".
 const COURT_ITEMS = Object.entries(DATAJUD_COURTS).flatMap(([courtType, courts]) =>
   courts.map((court) => ({
     value: court,

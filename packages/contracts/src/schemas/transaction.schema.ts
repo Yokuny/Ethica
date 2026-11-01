@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calendarDateSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
-// Receita (honorário a receber) e despesa operacional ficam separadas por natureza.
+// Income (receivable fee) and operating expense are separated by kind.
 export const TRANSACTION_KINDS = ['income', 'expense'] as const;
 export type TransactionKind = (typeof TRANSACTION_KINDS)[number];
 
@@ -16,9 +16,9 @@ export const ALL_TRANSACTION_CATEGORIES = [
   ...TRANSACTION_CATEGORIES.expense,
 ] as const;
 
-// `previsto` vencido aparece como atrasado na tela; não é um status gravado.
-// Receita (honorário, AD-111): status derivado das parcelas — previsto, parcial ou liquidado —
-// e nunca cancelado. Despesa: previsto, liquidado ou cancelado, sem parcial.
+// An overdue `expected` shows as overdue on screen; it is not a stored status.
+// Income (fee, AD-111): status derived from the installments — expected, partial or settled —
+// and never canceled. Expense: expected, settled or canceled, without partial.
 export const TRANSACTION_STATUS = ['expected', 'partial', 'settled', 'canceled'] as const;
 export type TransactionStatus = (typeof TRANSACTION_STATUS)[number];
 
@@ -46,7 +46,7 @@ export const updateTransactionSchema = transactionFields
   .refine(kindCategory, { message: 'categoria não pertence à natureza', path: ['category'] });
 export type UpdateTransaction = z.infer<typeof updateTransactionSchema>;
 
-// Recebimento parcial de um honorário (AD-111): valor, dia em que caiu na conta e a conta.
+// Partial receipt of a fee (AD-111): amount, day it hit the account and the account.
 export const createInstallmentSchema = z
   .object({
     amountCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),

@@ -7,7 +7,7 @@ import { type Draft, deleteDraft, readDraft, saveDraft } from '@/lib/offline/sto
 import { runSync, updateIssues } from '@/lib/offline/sync.js';
 import { type DayInspection, type InspectionRecord, inspectionKeys } from '@/query/inspection.js';
 
-// Campo opcional vazio no formulário vira ausente, como o contrato espera.
+// An empty optional field in the form becomes missing, as the contract expects.
 const clear = <T>(amount: T): T => {
   if (Array.isArray(amount)) return amount.map(clear) as T;
   if (amount && typeof amount === 'object') {
@@ -22,8 +22,8 @@ const clear = <T>(amount: T): T => {
 
 const SEND_AFTER_MS = 1500;
 
-// Registro da vistoria (CAM-02, CAM-05): cada mudança fica no aparelho na hora e é enviada
-// pouco depois, se houver conexão; a versão de base vem do rascunho ou do servidor (AD-128).
+// Inspection record (CAM-02, CAM-05): each change stays on the device immediately and is sent
+// shortly after, if there is a connection; the base version comes from the draft or the server (AD-128).
 export function useRecord(item: DayInspection, initialDraft?: Draft) {
   const queryClient = useQueryClient();
   const appointmentId = item.appointment.id;
@@ -68,7 +68,7 @@ export function useRecord(item: DayInspection, initialDraft?: Draft) {
     };
   });
 
-  // Conflito: manter a versão do aparelho (grava sobre a do servidor) ou usar a do servidor.
+  // Conflict: keep the device version (saves over the server one) or use the server one.
   async function keepMine() {
     const draft = await readDraft(appointmentId);
     if (!draft || !conflict) return;

@@ -12,7 +12,7 @@ import * as inspectionService from './inspection.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
-// Compromisso ou perícia vinculada inexistentes (ou de outro tenant) -> 404.
+// Appointment or linked case missing (or from another tenant) -> 404.
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(
     e instanceof AppointmentNotFoundError || e instanceof CaseNotFoundError
@@ -57,7 +57,7 @@ export const updateAppointment = async (req: Request, res: Response, next: NextF
   }
 };
 
-// Excluir leva o registro de vistoria e as mídias (AD-130).
+// Deleting takes the inspection record and the media with it (AD-130).
 export const deleteAppointment =
   (storage: FileStorage | undefined) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

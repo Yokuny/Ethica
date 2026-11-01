@@ -15,7 +15,7 @@ import type {
 
 export class TransactionNotFoundError extends KeyedError {}
 
-// Prazo padrão para receber honorários fixados quando o juízo não define data.
+// Default term to receive fixed fees when the court does not set a date.
 const DAYS_TO_RECEIVE_FEES = 30;
 
 const shiftMonth = (month: string, offset: number): string => {
@@ -44,7 +44,7 @@ const withCaseNumber = async (tenantId: string, items: TransactionRecord[]): Pro
   });
 };
 
-// Liquidar sem informar a data grava o dia de hoje.
+// Settling without a date saves today.
 const withLiquidacao = (data: UpdateTransaction, today: string): UpdateTransaction => {
   if (data.status === 'settled') return { ...data, settledDate: data.settledDate ?? today };
   return data;
@@ -61,9 +61,9 @@ const findOrThrow = async (tenantId: string, id: string): Promise<TransactionRec
   return transaction;
 };
 
-// Honorário (AD-111): o status vem das parcelas, nunca do formulário, e o valor não fica
-// abaixo do que já entrou na conta. Despesa segue com liquidar/reabrir/cancelar à mão.
-// A natureza não muda depois de lançada: as regras de status são diferentes.
+// Fee (AD-111): the status comes from the installments, never from the form, and the amount does not go
+// below what already hit the account. An expense keeps settle/reopen/cancel by hand.
+// The kind does not change after posting: the status rules are different.
 export const updateTransaction = async (
   tenantId: string,
   id: string,
@@ -98,7 +98,7 @@ export const deleteTransaction = async (tenantId: string, id: string): Promise<v
   if (deletedCount === 0) throw new TransactionNotFoundError('not_found');
 };
 
-// Recebimento parcial (PRZ-02): a parcela não passa do saldo; o status é recalculado junto.
+// Partial receipt (PRZ-02): the installment does not exceed the balance; the status is recalculated with it.
 export const addInstallment = async (
   tenantId: string,
   id: string,
@@ -136,7 +136,7 @@ export const summary = (tenantId: string, now: Date = new Date()) => {
   });
 };
 
-// Os últimos `meses` meses até o atual, do mais antigo para o mais recente.
+// The last `months` months up to the current one, from oldest to newest.
 export const monthlyFlow = (tenantId: string, months: number, now: Date = new Date()) => {
   const month = dateInDisplayTz(now).slice(0, 7);
   return transactionRepository.monthlyFlow(
@@ -150,7 +150,7 @@ export const totalsByCategory = (tenantId: string, kind: string) =>
 
 const soma = (rows: FinanceReportRow[]) => rows.reduce((total, row) => total + row.amountCents, 0);
 
-// DOC-03: datas inclusivas. Cancelado não entra; honorário conta pelas parcelas (AD-111).
+// DOC-03: inclusive dates. Canceled does not count; a fee counts by its installments (AD-111).
 export const reportPeriod = async (tenantId: string, period: { from: string; to: string }): Promise<FinanceReport> => {
   const inPeriod = (day?: string): day is string => Boolean(day && day >= period.from && day <= period.to);
   const items = await withCaseNumber(
@@ -221,9 +221,9 @@ export const caseSummary = async (tenantId: string, caseId: string): Promise<Cas
 
 export const listForExport = (tenantId: string) => transactionRepository.listAll(tenantId);
 
-// Subscriber de `pericia:honorarios_fixados`: o honorário vira receita a receber. Se a perícia
-// já tem o honorário fixado lançado, só o valor muda (AD-111) — recusado se ficar abaixo do
-// recebido, o que o bus apenas registra no log.
+// Subscriber of `case:fixed_fees`: the fee becomes receivable income. If the case
+// already has the fixed fee posted, only the amount changes (AD-111) — rejected if it goes below
+// what was received, which the bus only records in the log.
 export const postFixedFees = async (
   input: {
     tenantId: string;

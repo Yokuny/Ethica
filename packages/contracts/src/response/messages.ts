@@ -1,14 +1,14 @@
-// Toda `message` de ApiResponse é uma CHAVE de tradução, nunca texto pronto:
-// o back-end só escolhe a chave, o front-end (apps/web, `t()` de
-// translate.helper.ts) é quem a traduz. Esta lista é o contrato entre os dois
-// lados — `respObj`/`badRespObj`/`CustomError` só aceitam `ApiMessageKey`, e o
-// teste-guarda do web (translate.helper.unit.test.ts) trava qualquer chave
-// daqui que falte no dicionário. Mesmas regras de chave de apps/web/CLAUDE.md
-// ("Tradução"): snake_case plana, nomeia o texto (nunca a tela/entidade),
-// reaproveita uma genérica antes de criar uma nova. Detalhe técnico (campo
-// inválido, id, nome) nunca vai na chave — vai no log do servidor.
+// Every ApiResponse `message` is a translation KEY, never ready-made text:
+// the back-end only picks the key, the front-end (apps/web, `t()` from
+// translate.helper.ts) translates it. This list is the contract between the two
+// sides — `respObj`/`badRespObj`/`CustomError` only accept `ApiMessageKey`, and the
+// web guard test (translate.helper.unit.test.ts) catches any key
+// from here missing in the dictionary. Same key rules as apps/web/CLAUDE.md
+// ("Tradução"): flat snake_case, names the text (never the screen/entity),
+// reuses a generic one before creating a new one. Technical detail (invalid
+// field, id, name) never goes in the key — it goes in the server log.
 export const API_MESSAGE_KEYS = [
-  // Genéricas
+  // Generic
   'not_found',
   'already_exists',
   'request_conflict',
@@ -20,7 +20,7 @@ export const API_MESSAGE_KEYS = [
   'too_many_attempts',
   'created_successfully',
   'removed_successfully',
-  // Autenticação e acesso
+  // Authentication and access
   'invalid_credentials',
   'invalid_session',
   'invalid_access',
@@ -38,12 +38,12 @@ export const API_MESSAGE_KEYS = [
   'email_already_registered',
   'pending_invite_exists',
   'invite_email_failed',
-  // Perícias
+  // Cases
   'expert_case_already_registered',
   'phase_stage_mismatch',
   'invalid_contracting_party',
   'party_not_found',
-  // Importação de perícias (AD-114, AD-115, AD-118): arquivo, linha do CSV e avisos do PDF
+  // Case import (AD-114, AD-115, AD-118): file, CSV row and PDF warnings
   'unsupported_file_type',
   'file_too_large',
   'pdf_without_text',
@@ -57,7 +57,7 @@ export const API_MESSAGE_KEYS = [
   'unsupported_court',
   'multiple_process_numbers',
   'deadline_calculated',
-  // Arquivos do escritório (AD-120)
+  // Office files (AD-120)
   'storage_not_configured',
   'storage_quota_exceeded',
   // Laudos (AD-126)
@@ -78,7 +78,7 @@ export const API_MESSAGE_KEYS = [
   'fee_cannot_be_removed',
   'fee_status_comes_from_parcels',
   'amount_below_received',
-  // Prospecção (Datajud)
+  // Prospecting (Datajud)
   'datajud_unavailable',
   'datajud_not_configured',
   'opportunity_already_saved',

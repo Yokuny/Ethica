@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createDeadlineMutation, type DeadlineRecord, updateDeadlineMutation } from '@/query/deadline.js';
 
-// Mesmo formulário para criar e editar o prazo: com `prazo` edita, sem ele cria na perícia.
+// Same form to create and edit the deadline: with `deadline` it edits, without it it creates on the case.
 export function useDeadlineForm({
   caseId,
   deadline,

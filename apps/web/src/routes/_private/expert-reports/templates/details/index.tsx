@@ -37,7 +37,7 @@ type PanelState =
   | { kind: 'removal' }
   | null;
 
-// LAU-01.2: seções numeradas pela posição e pelo nível; o padrão é só leitura e se duplica.
+// LAU-01.2: sections numbered by position and level; the default is read-only and gets duplicated.
 export function TemplateDetailsPage() {
   const search = useSearch({ strict: false }) as TemplateDetailsSearch;
   const navigate = useNavigate({ from: '/expert-reports/templates/details/' });

@@ -7,6 +7,6 @@ export type TenantUser = {
   user: string;
   role: Role[];
   isPlatformAdmin: boolean;
-  // Matriz efetiva (AD-137), resolvida do banco a cada requisição.
+  // Effective matrix (AD-137), resolved from the database on every request.
   permissions: Permissions;
 };

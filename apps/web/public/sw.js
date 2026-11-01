@@ -1,7 +1,7 @@
-// Service worker do Ethica (AD-128): guarda o app para abrir a tela de campo sem conexão.
-// Navegação: rede primeiro, cópia do index.html sem rede. Arquivos com hash do build e fontes:
-// cache primeiro. Mídia da vistoria (imutável, id novo a cada arquivo): cache primeiro. O resto
-// (a API) passa direto; os dados offline do campo ficam no IndexedDB, não aqui.
+// Ethica service worker (AD-128): keeps the app so the field screen opens without a connection.
+// Navigation: network first, copy of index.html without network. Build-hashed files and fonts:
+// cache first. Inspection media (immutable, new id for each file): cache first. The rest
+// (the API) passes straight through; the field offline data lives in IndexedDB, not here.
 const VERSION = 'ethica-v1';
 const ESSENCIAIS = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 

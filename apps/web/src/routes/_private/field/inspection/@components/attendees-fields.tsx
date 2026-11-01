@@ -18,7 +18,7 @@ type AttendeesFieldsProps = {
   onSignature: (blob: Blob) => Promise<string>;
 };
 
-// Quem estava na vistoria (CAM-02, CAM-06): nome, qualidade, e-mail e assinatura na tela.
+// Who was at the inspection (CAM-02, CAM-06): name, capacity, e-mail and on-screen signature.
 export function AttendeesFields({ form, legalCase, onSignature }: AttendeesFieldsProps) {
   const { fields, append, remove, update } = useFieldArray({ control: form.control, name: 'attendees' });
   const [signing, setSigning] = useState<number | null>(null);

@@ -14,7 +14,7 @@ import { type InstallmentRecord, reverseInstallmentMutation, type TransactionRec
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
-// Histórico de recebimentos do honorário (AD-111): recebido, saldo e estorno por parcela.
+// Fee receipt history (AD-111): received, balance and reversal per installment.
 export function InstallmentsList({
   transaction,
   onChanged,

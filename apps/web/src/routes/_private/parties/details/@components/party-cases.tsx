@@ -10,7 +10,7 @@ import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { partyProcessesQuery } from '@/query/party.js';
 
-// Perícias em que a parte aparece (IMP-03.3), com o polo e o papel dela em cada uma.
+// Cases the party appears in (IMP-03.3), with its side and role in each one.
 export function PartyCases({ partyId }: { partyId: string }) {
   const query = useQuery(partyProcessesQuery(partyId));
   return (

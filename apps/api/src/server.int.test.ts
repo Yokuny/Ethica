@@ -3,7 +3,7 @@ import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import { buildApp } from './app.js';
 
-// Mock parcial: só a conexão é simulada; helpers puros (datas do aviso diário) seguem reais.
+// Partial mock: only the connection is simulated; pure helpers (daily reminder dates) stay real.
 vi.mock('@ethica/db', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@ethica/db')>()),
   connect: vi.fn().mockRejectedValue(new Error('Mongo indisponível')),
@@ -40,8 +40,8 @@ describe('start', () => {
   });
 });
 
-// `connect` é sobrescrito só para ESTA chamada (mockResolvedValueOnce) — o
-// mock default do arquivo (sempre rejeita) continua valendo pros outros testes.
+// `connect` is overridden only for THIS call (mockResolvedValueOnce) — the
+// file's default mock (always rejects) still applies to the other tests.
 describe('start (success path — wiring smoke test)', () => {
   it('returns {httpServer} listening on the given port', async () => {
     vi.mocked(connect).mockResolvedValueOnce(undefined);

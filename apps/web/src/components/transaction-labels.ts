@@ -3,7 +3,7 @@ import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { TransactionRecord, TransactionState } from '@/query/transaction.js';
 
-// `atrasado` é derivado na tela: previsto ou parcial com vencimento antes de hoje.
+// `overdue` is derived on screen: expected or partial with a due date before today.
 export const transactionState = (transaction: TransactionRecord, today: string): TransactionState =>
   (transaction.status === 'expected' || transaction.status === 'partial') && transaction.dueDate < today
     ? 'overdue'

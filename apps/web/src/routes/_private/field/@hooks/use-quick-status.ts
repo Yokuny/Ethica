@@ -8,8 +8,8 @@ import { updateIssues } from '@/lib/offline/sync.js';
 import { appointmentKeys } from '@/query/appointment.js';
 import { inspectionKeys } from '@/query/inspection.js';
 
-// Feita / adiada / ausente (CAM-01.2): com conexão vai direto; sem ela, fica no aparelho e
-// sobe com a sincronização (AD-128).
+// Done / postponed / absent (CAM-01.2): with a connection it goes straight; without it, it stays on the device and
+// goes up with the sync (AD-128).
 export function useQuickStatus() {
   const queryClient = useQueryClient();
 

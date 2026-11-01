@@ -1,10 +1,10 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 
-// Portado de DentalEase-BackEnd/src/helpers/crypto.helper.ts (mesmo
-// algoritmo/formato — design.md Tech Decisions). Segredo cifrado em repouso
-// (AES-256-GCM). Os três campos são base64. `authTag` garante
-// integridade/autenticidade — decifrar falha se adulterado. Usado pelo token
-// do Channel (chave `CHANNEL_ENC_KEY`, AIG-01).
+// Ported from DentalEase-BackEnd/src/helpers/crypto.helper.ts (same
+// algorithm/format — design.md Tech Decisions). Secret encrypted at rest
+// (AES-256-GCM). The three fields are base64. `authTag` ensures
+// integrity/authenticity — decrypting fails if tampered with. Used by the
+// Channel token (`CHANNEL_ENC_KEY` key, AIG-01).
 export interface EncryptedSecret {
   ciphertext: string;
   iv: string;
@@ -12,7 +12,7 @@ export interface EncryptedSecret {
 }
 
 const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH = 12; // 96 bits — recomendado para GCM
+const IV_LENGTH = 12; // 96 bits — recommended for GCM
 const KEY_LENGTH = 32; // 256 bits
 
 const resolveKey = (base64Key: string): Buffer => {
@@ -42,7 +42,7 @@ export const decrypt = (payload: EncryptedSecret, base64Key: string): string => 
   return plaintext.toString('utf8');
 };
 
-/** Mascara um segredo expondo apenas os últimos 4 caracteres (ex.: "****d407"). */
+/** Masks a secret exposing only the last 4 characters (e.g. "****d407"). */
 export const maskSecret = (secret: string): string => {
   if (!secret || secret.length <= 4) return '****';
   return `****${secret.slice(-4)}`;

@@ -9,7 +9,7 @@ export class TemplateNotFoundError extends KeyedError {}
 
 const DEFAULT = Object.values(DEFAULT_TEMPLATES);
 
-// Modelo padrão é só leitura (AD-126): o escritório clona para adaptar.
+// The default template is read-only (AD-126): the office clones it to adapt.
 const ofOffice = (id: string): void => {
   if (isDefaultTemplate(id)) throw new CustomError('standard_template_read_only', 403);
 };
@@ -36,7 +36,7 @@ export const listTemplates = async (tenantId: string, type?: ReportType): Promis
 export const getTemplate = async (tenantId: string, id: string): Promise<TemplateRecord> =>
   DEFAULT.find((template) => template.id === id) ?? found(await templateRepository.findById(tenantId, id));
 
-// Em branco ou clonando outro modelo do mesmo tipo (LAU-01).
+// Blank or cloning another template of the same type (LAU-01).
 export const createTemplate = async (tenantId: string, data: CreateTemplate): Promise<TemplateRecord> => {
   const base = data.baseId ? await getTemplate(tenantId, data.baseId) : undefined;
   if (base && base.type !== data.type) throw new CustomError('report_template_type_mismatch', 422);
@@ -78,7 +78,7 @@ export const removeSection = async (tenantId: string, id: string, sectionId: str
   return found(await templateRepository.removeSection(tenantId, id, sectionId));
 };
 
-// Sobe ou desce uma posição; nas pontas não muda nada.
+// Moves one position up or down; at the ends nothing changes.
 export const moveSection = async (
   tenantId: string,
   id: string,

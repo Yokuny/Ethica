@@ -10,13 +10,13 @@ const toPreferences = (
 ): UserPreferences => ({
   onboardingDismissed: doc?.preferences?.onboardingDismissed === true,
   deadlineReminderEmail: doc?.preferences?.deadlineReminderEmail !== false,
-  // Chave que deixou de existir é ignorada (AD-136).
+  // A key that no longer exists is ignored (AD-136).
   hiddenBlocks: (doc?.preferences?.hiddenBlocks ?? []).filter((block): block is HomeBlock =>
     (HOME_BLOCKS as readonly string[]).includes(block),
   ),
 });
 
-// Usuário sem o campo (conta anterior à feature) lê o default, sem backfill.
+// A user without the field (account older than the feature) reads the default, no backfill.
 export const findPreferences = async (tenantId: string, userId: string): Promise<UserPreferences | null> =>
   withDbTiming('preferences.findPreferences', async () => {
     const doc = await User.findOne(tenantScoped({ Tenant: tenantId, _id: userId }))
@@ -25,7 +25,7 @@ export const findPreferences = async (tenantId: string, userId: string): Promise
     return doc ? toPreferences(doc) : null;
   });
 
-// $set por chave: uma preferência nova no futuro não apaga as outras.
+// $set per key: a new preference in the future does not wipe the others.
 export const updatePreferences = async (
   tenantId: string,
   userId: string,

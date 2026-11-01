@@ -20,9 +20,9 @@ import {
   updateTemplateSchema,
 } from './report.schema.js';
 
-// Modelo é padrão do escritório: só admin e manager editam (AD-126).
+// A template is an office default: only admin and manager edit it (AD-126).
 
-// Laudos e modelos (LAU-01..03, 05, 06). Montado em `/expert-reports`; `/templates` vem antes de `/:id`.
+// Reports and templates (LAU-01..03, 05, 06). Mounted on `/expert-reports`; `/templates` comes before `/:id`.
 export const createReportRouter = (deps: ReportRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];

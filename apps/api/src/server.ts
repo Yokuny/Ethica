@@ -5,8 +5,8 @@ import { buildApp, buildMailProvider } from './app.js';
 import { env } from './config/env.config.js';
 import { nextExecution, sendDeadlineNotices } from './modules/agenda/deadlineReminder.service.js';
 
-// Aviso diário de prazos às 07:00 de São Paulo (AD-110). Timer em memória, encadeado: cada
-// execução agenda a próxima. Uma réplica da API por ambiente (design.md, Risks).
+// Daily deadline reminder at 07:00 São Paulo time (AD-110). In-memory chained timer: each
+// run schedules the next. One API replica per environment (design.md, Risks).
 const scheduleDeadlineNotices = (): void => {
   const deps = { mail: buildMailProvider(), appUrl: env.CORS_ORIGIN };
   const schedule = () => {
@@ -26,13 +26,13 @@ const scheduleDeadlineNotices = (): void => {
   schedule();
 };
 
-// `opts` existe só pra permitir que o teste injete uma porta efêmera (0).
+// `opts` only exists so the test can inject an ephemeral port (0).
 export type StartOptions = { port?: number };
 
 export type StartHandle = { httpServer: Server };
 
-// env → connect → syncIndexes → listen, com catch explícito: Mongo
-// indisponível nunca deixa o processo de pé aceitando tráfego.
+// env → connect → syncIndexes → listen, with an explicit catch: Mongo
+// unavailable never leaves the process up accepting traffic.
 export const start = async (opts: StartOptions = {}): Promise<StartHandle | undefined> => {
   try {
     await connect(env.MONGODB_URI);

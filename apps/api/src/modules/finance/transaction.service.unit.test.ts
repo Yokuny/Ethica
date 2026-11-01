@@ -13,7 +13,7 @@ vi.mock('./transaction.repository.js', () => ({
 }));
 vi.mock('../case/case.service.js', () => ({ getCase: vi.fn(), findSummariesByIds: vi.fn() }));
 
-// 2026-10-29 15:00 em São Paulo.
+// 2026-10-29 15:00 in São Paulo.
 const now = new Date('2026-10-29T18:00:00.000Z');
 
 describe('transaction.service', () => {

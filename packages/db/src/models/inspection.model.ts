@@ -1,7 +1,7 @@
 import { type InspectionData, MEDIA_TYPES, type MediaType } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-// Mídia da vistoria no storage do tenant (AD-129). `id` vem do aparelho (UUID, AD-128).
+// Inspection media in the tenant storage (AD-129). `id` comes from the device (UUID, AD-128).
 export interface InspectionMediaDocument {
   id: string;
   type: MediaType;
@@ -12,8 +12,8 @@ export interface InspectionMediaDocument {
   createdAt: Date;
 }
 
-// Registro da vistoria (AD-130): um por compromisso. `dados` é o formulário inteiro, no
-// formato de `vistoriaDadosSchema` (validado na API); `versao` resolve o conflito do offline.
+// Inspection record (AD-130): one per appointment. `data` is the whole form, in the
+// `inspectionDataSchema` format (validated in the API); `version` resolves the offline conflict.
 export interface InspectionDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;

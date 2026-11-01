@@ -75,8 +75,8 @@ function SidebarProvider({
         _setOpen(openState);
       }
 
-      // Estado visual do shell; o cookie preserva a preferência entre páginas.
-      // biome-ignore lint/suspicious/noDocumentCookie: o componente oficial do shadcn usa cookie para interoperar com renderização no servidor.
+      // Shell visual state; the cookie keeps the preference across pages.
+      // biome-ignore lint/suspicious/noDocumentCookie: the official shadcn component uses a cookie to interoperate with server rendering.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open],

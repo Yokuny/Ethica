@@ -14,8 +14,8 @@ const isDuplicateKeyError = (e: unknown): boolean =>
 export const provisionTenant = (data: ProvisionTenant): Promise<{ id: string }> =>
   platformRepository.createTenant(data);
 
-// Sem rollback quando o envio falha: o convite fica gravado e reenviável
-// (FND-12) — lição do auth.service.ts de referência, resolvida sem desfazer
+// No rollback when sending fails: the invite stays saved and resendable
+// (FND-12) — lesson from the reference auth.service.ts, solved without undoing
 // a escrita.
 export const inviteToTenant = async (
   tenantId: string,
@@ -56,10 +56,10 @@ const issueInvite = async (
   const tokenHash = hashToken(token);
   const expiresAt = new Date(Date.now() + SEVEN_DAYS_MS);
 
-  // FND-13: reenviar para um e-mail com convite pending reaproveita — revoga
-  // o anterior e emite um novo, nunca deixando dois válidos. O catch abaixo
-  // continua como rede de segurança para a corrida genuína (duas revogações
-  // concorrentes seguidas de dois creates); não é mais o caminho normal.
+  // FND-13: resending to an e-mail with a pending invite reuses it — revokes
+  // the previous one and issues a new one, never leaving two valid. The catch below
+  // stays as a safety net for the genuine race (two concurrent
+  // revocations followed by two creates); it is no longer the normal path.
   await platformRepository.revokePendingInvites(tenantId, data.email);
 
   let invite: { id: string };
@@ -68,7 +68,7 @@ const issueInvite = async (
       tenant: tenantId,
       email: data.email,
       role: data.role,
-      // AD-137: admin tem tudo; o membro recebe a matriz conferida ou o preset do perfil.
+      // AD-137: admin has everything; the member gets the granted matrix or the profile preset.
       permissions: data.role === 'admin' ? undefined : (data.permissions ?? PROFILE_PERMISSIONS[data.role]),
       tokenHash,
       expiresAt,

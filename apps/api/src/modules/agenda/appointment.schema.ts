@@ -26,8 +26,8 @@ export const MAX_RANGE_DAYS = 62;
 
 export const appointmentIdParamSchema = z.object({ id: idSchema }).strict();
 
-// Intervalo [from, to) em datas de calendário do fuso de exibição; a visão de
-// mês da agenda pede no máximo 6 semanas.
+// [from, to) range in calendar dates of the display time zone; the agenda month
+// view asks for at most 6 weeks.
 export const listAppointmentsQuerySchema = z
   .object({
     from: calendarDateSchema,
@@ -66,13 +66,13 @@ export type AppointmentRecord = {
   end: Date;
   location?: string;
   caseId?: string;
-  // Enriquecido pelo service com o número do processo; ausente se a perícia não existe mais.
+  // Enriched by the service with the process number; missing if the case no longer exists.
   caseNumber?: string;
   status: AppointmentStatus;
   origin: AppointmentOrigin;
   notes?: string;
   reason?: AppointmentReason;
-  // Só quando a geocodificação é do endereço atual (AD-131).
+  // Only when the geocoding is of the current address (AD-131).
   coordinates?: { lat: number; lng: number };
   notices: ScheduleNoticeRecord[];
   createdAt: Date;
@@ -91,6 +91,6 @@ export type AppointmentWrite = {
   status?: AppointmentStatus;
   origin?: AppointmentOrigin;
   notes?: string;
-  // `null` apaga: o compromisso deixou de estar cancelado.
+  // `null` clears it: the appointment is no longer canceled.
   reason?: AppointmentReason | null;
 };

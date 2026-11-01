@@ -15,7 +15,7 @@ import type {
   SaveInspection,
 } from './inspection.schema.js';
 
-// Outra gravação chegou antes (AD-128): o controller devolve 409 com a versão do servidor.
+// Another save got there first (AD-128): the controller returns 409 with the server version.
 export class InspectionConflictError extends KeyedError {
   constructor(readonly current: InspectionRecord) {
     super('inspection_conflict');
@@ -46,7 +46,7 @@ const fieldCases = async (tenantId: string, ids: string[]): Promise<Map<string, 
   return new Map([...summaries].map(([id, summary]) => [id, { id, ...summary }]));
 };
 
-// CAM-01: tudo do dia (por horário) com o registro de cada compromisso, para o celular guardar.
+// CAM-01: everything of the day (by time) with each appointment's record, for the phone to keep.
 export const listDay = async (tenantId: string, date: string): Promise<DayInspection[]> => {
   const appointments = await appointmentService.listAppointments(tenantId, { from: date, to: nextDay(date) });
   const [inspections, cases] = await Promise.all([
@@ -76,7 +76,7 @@ export const getInspection = async (tenantId: string, appointmentId: string): Pr
   return { appointment, ...(legalCase ? { legalCase } : {}), inspection: inspection ?? empty(appointment) };
 };
 
-// CAM-02 e CAM-05: grava o formulário inteiro só sobre a versão que o aparelho conhecia.
+// CAM-02 and CAM-05: saves the whole form only over the version the device knew.
 export const saveInspection = async (
   tenantId: string,
   appointmentId: string,
@@ -90,8 +90,8 @@ export const saveInspection = async (
   );
 };
 
-// CAM-03/06/07: arquivo no storage com a cota reservada antes (AD-120, AD-129). Mesmo id de
-// novo devolve a mídia já gravada (reenvio do offline, AD-128).
+// CAM-03/06/07: file in storage with the quota reserved first (AD-120, AD-129). The same id
+// again returns the media already saved (offline resend, AD-128).
 export const uploadMedia = async (
   storage: FileStorage | undefined,
   tenantId: string,
@@ -124,7 +124,7 @@ export const uploadMedia = async (
   try {
     await files.put(media.key, file.body, media.mime);
     if (!(await inspectionRepository.addMedia(tenantId, appointmentId, appointment.caseId, media))) {
-      // Outro envio do mesmo id ganhou a corrida: o arquivo é o mesmo, só a reserva sobra.
+      // Another upload of the same id won the race: the file is the same, only the reservation is left over.
       await officeService.returnFile(tenantId, media.bytes);
     }
   } catch (error) {
@@ -147,7 +147,7 @@ export const getMedia = async (
   return { body, mime: media.mime };
 };
 
-// Foto do laudo (AD-129): `src` gravado no HTML → bytes, só do próprio tenant; `null` se sumiu.
+// Report photo (AD-129): `src` stored in the HTML → bytes, only from the same tenant; `null` if it is gone.
 export const readReportPhoto = async (
   storage: FileStorage | undefined,
   tenantId: string,
@@ -165,7 +165,7 @@ export const updateCaption = async (tenantId: string, appointmentId: string, med
   return getInspection(tenantId, appointmentId);
 };
 
-// Excluir devolve a cota. Assinatura apagada deixa o `assinaturaId` sem arquivo: quem lê ignora.
+// Deleting gives the quota back. A deleted signature leaves `signatureId` without a file: readers ignore it.
 export const removeMedia = async (
   storage: FileStorage | undefined,
   tenantId: string,
@@ -179,7 +179,7 @@ export const removeMedia = async (
   await officeService.returnFile(tenantId, removida.bytes);
 };
 
-// Registros da perícia (galeria e painel), cada um com o compromisso.
+// Records of the case (gallery and panel), each with its appointment.
 export const listByCase = async (tenantId: string, caseId: string): Promise<DayInspection[]> => {
   const appointments = (await appointmentService.listByCase(tenantId, caseId)).reverse();
   const inspections = await inspectionRepository.findByAppointments(
@@ -192,11 +192,11 @@ export const listByCase = async (tenantId: string, caseId: string): Promise<DayI
   });
 };
 
-// Laudo (AD-130): a vistoria feita mais recente da perícia que tem registro.
+// Report (AD-130): the most recent done inspection of the case that has a record.
 export const lastDoneByCase = async (tenantId: string, caseId: string) =>
   (await listByCase(tenantId, caseId)).find(({ appointment }) => appointment.status === 'done');
 
-// Excluir o compromisso leva o registro e as mídias, devolvendo a cota (AD-130).
+// Deleting the appointment takes the record and the media, giving the quota back (AD-130).
 export const removeAppointment = async (storage: FileStorage | undefined, tenantId: string, id: string) => {
   await appointmentService.deleteAppointment(tenantId, id);
   const media = await inspectionRepository.deleteByAppointment(tenantId, id);

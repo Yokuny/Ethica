@@ -1,7 +1,7 @@
 import { cn } from 'cn';
 import type { ComponentProps } from 'react';
 
-// Barra nativa com a identidade do app; ausência de valor nunca significa zero.
+// Native bar with the app identity; a missing value never means zero.
 export function Progress({ className, ...props }: ComponentProps<'progress'>) {
   return (
     <progress

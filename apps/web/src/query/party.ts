@@ -5,7 +5,7 @@ import { get, patch, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 import { type CaseRecord, caseKeys } from './case.js';
 
-// Espelha ParteRecord de apps/api/src/modules/pericia/parte.schema.ts (AD-117).
+// Mirrors PartyRecord of apps/api/src/modules/case/party.schema.ts (AD-117).
 export type PartyRecord = {
   id: string;
   type: PartyType;
@@ -76,7 +76,7 @@ export const createPartyMutation = (queryClient: QueryClient): UseMutationOption
   onSuccess: () => queryClient.invalidateQueries({ queryKey: partyKeys.lists() }),
 });
 
-// Renomear atualiza a cópia do nome nas perícias (AD-117): as perícias são recarregadas.
+// Renaming updates the name copy on the cases (AD-117): the cases are reloaded.
 export const updatePartyMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<PartyRecord, Error, { id: string; data: UpdateParty }> => ({

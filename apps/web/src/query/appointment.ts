@@ -10,7 +10,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Espelha CompromissoRecord de apps/api/src/modules/agenda/compromisso.schema.ts.
+// Mirrors AppointmentRecord of apps/api/src/modules/agenda/appointment.schema.ts.
 export type AppointmentRecord = {
   id: string;
   type: AppointmentType;
@@ -23,13 +23,13 @@ export type AppointmentRecord = {
   status: AppointmentStatus;
   origin: 'manual' | 'automatic';
   notes?: string;
-  // Campo (AD-130, AD-131): motivo do cancelamento, coordenadas do endereço e avisos enviados.
+  // Field (AD-130, AD-131): cancellation reason, address coordinates and sent notices.
   reason?: AppointmentReason;
   coordinates?: { lat: number; lng: number };
   notices?: { userId: string; at: string; recipients: string[] }[];
 };
 
-// `from`/`to`: datas de calendário do fuso de exibição, intervalo [from, to).
+// `from`/`to`: calendar dates of the display time zone, [from, to) range.
 export type AppointmentsQueryParams = { from: string; to: string; type?: AppointmentType; caseId?: string };
 
 export const appointmentKeys = {

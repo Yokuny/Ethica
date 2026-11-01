@@ -148,11 +148,11 @@ describe('platform routes', () => {
       const { tenant, cookie } = await seedAdminAndTenant();
       const before = Date.now();
 
-      // Envia 'operator' de propósito: este endpoint convida especificamente
-      // o primeiro admin (FND-02/AC2) — o papel do body nunca deve vazar para
-      // o Invite criado, mesmo que o schema aceite outros papéis (reuso futuro
-      // de FND-20). Se o servidor apenas repassasse `data.role`, este teste
-      // pegaria a regressão.
+      // Sends 'operator' on purpose: this endpoint specifically invites
+      // the first admin (FND-02/AC2) — the body role must never leak into
+      // the created Invite, even if the schema accepts other roles (future reuse
+      // for FND-20). If the server just passed `data.role` along, this test
+      // would catch the regression.
       const res = await request(buildTestApp(alwaysSentMailProvider))
         .post(`/platform/tenants/${tenant.id}/invites`)
         .set('Cookie', cookie)
@@ -210,8 +210,8 @@ describe('platform routes', () => {
         .set('User-Agent', DEVICE)
         .send({ email: 'duplicado@empresa.com', role: 'admin' });
 
-      // Reaproveita: 201 de novo (nunca 409), um segundo Invite é criado, e o
-      // primeiro é revogado — nunca dois `pending` válidos ao mesmo tempo.
+      // Reuses: 201 again (never 409), a second Invite is created, and the
+      // first is revoked — never two valid `pending` at the same time.
       expect(second.status).toBe(201);
       expect(second.body.data.id).not.toBe(first.body.data.id);
 

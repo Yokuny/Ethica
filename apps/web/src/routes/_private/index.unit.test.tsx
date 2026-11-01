@@ -7,9 +7,9 @@ import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '../../query/session.js';
 
-// useLocation/useMatches/useRouter: dependências do Card asPage — sem
-// <RouterProvider> neste teste isolado de página, os hooks reais do TanStack
-// Router lançam. Link vira <a> simples para conferir os destinos.
+// useLocation/useMatches/useRouter: dependencies of Card asPage — without
+// <RouterProvider> in this isolated page test, the real TanStack
+// Router hooks throw. Link becomes a plain <a> to check the destinations.
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>();
   return {

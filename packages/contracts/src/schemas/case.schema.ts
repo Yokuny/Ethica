@@ -8,7 +8,7 @@ export type CourtType = (typeof COURTTYPES)[number];
 export const CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
 export type CaseRole = (typeof CASE_ROLES)[number];
 
-// Etapas da perícia, na ordem do fluxo. `recusada` encerra sem laudo.
+// Case statuses, in flow order. `declined` closes without a report.
 export const CASE_STATUS = [
   'appointed',
   'accepted',
@@ -21,8 +21,8 @@ export const CASE_STATUS = [
 ] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
 
-// Fase detalhada (AD-133): opcional, cada uma de uma etapa. As de suspensão cabem em qualquer
-// etapa aberta e não mudam a etapa. A situação é derivada, nunca gravada.
+// Detailed phase (AD-133): optional, each one belonging to a status. The suspension ones fit any
+// open status and do not change the status. The state is derived, never stored.
 export const CASE_PHASES_BY_STATUS = {
   appointed: ['awaiting_acceptance_signature'],
   accepted: ['awaiting_site_info', 'scheduling_inspection'],
@@ -65,7 +65,7 @@ export const caseState = ({ status, phase }: { status: CaseStatus; phase?: CaseP
   return phase && isSuspension(phase) ? 'suspended' : 'active';
 };
 
-// Número único do CNJ (Resolução 65/2008): NNNNNNN-DD.AAAA.J.TR.OOOO.
+// CNJ unique number (Resolution 65/2008): NNNNNNN-DD.AAAA.J.TR.OOOO.
 export const processNumberSchema = z
   .string()
   .trim()
@@ -81,12 +81,12 @@ const caseFields = z.object({
   division: z.string().trim().max(120, 'vara inválida').optional(),
   district: z.string().trim().max(120, 'comarca inválida').optional(),
   subject: z.string().trim().min(1, 'objeto é obrigatório').max(500, 'objeto inválido'),
-  // Autor, réu e advogados de cada polo, ligados ao cadastro de partes (AD-117).
+  // Plaintiff, defendant and the lawyers of each side, linked to the party registry (AD-117).
   parties: z.array(casePartyInputSchema).max(30, 'partes demais').optional(),
   nominationDate: calendarDateSchema.optional(),
   proposedFeesCents: centsSchema.optional(),
   notes: z.string().trim().max(2000, 'observações inválidas').optional(),
-  // Dados auxiliares do laudo trabalhista (IMP-04).
+  // Labor report auxiliary data (IMP-04).
   docketingDate: calendarDateSchema.optional(),
   hireDate: calendarDateSchema.optional(),
   terminationDate: calendarDateSchema.optional(),
@@ -96,14 +96,14 @@ const caseFields = z.object({
   location: z.string().trim().max(300, 'endereço inválido').optional(),
 });
 
-// `prazoLaudo` só existe no cadastro: vira o prazo "Entrega do laudo" (AD-109), não é campo da perícia.
+// `reportDeadline` only exists at registration: it becomes the "Entrega do laudo" deadline (AD-109), not a case field.
 export const createCaseSchema = caseFields
   .extend({ reportDeadline: calendarDateSchema.optional(), phase: z.enum(CASE_PHASES).optional() })
   .strict();
 export type CreateCase = z.infer<typeof createCaseSchema>;
 
-// PATCH aceita qualquer subconjunto dos campos + a etapa, a fase (`null` apaga, AD-133) e o
-// honorário fixado pelo juízo ou, na perícia de assistente, o contratado (AD-135).
+// PATCH accepts any subset of the fields + the status, the phase (`null` clears it, AD-133) and the
+// fee fixed by the court or, in an assistant case, the contracted one (AD-135).
 export const updateCaseSchema = caseFields
   .partial()
   .extend({
@@ -114,15 +114,15 @@ export const updateCaseSchema = caseFields
   .strict();
 export type UpdateCase = z.infer<typeof updateCaseSchema>;
 
-// Contratante (AD-135): no máximo um, e só na perícia de assistente técnico. Conferido no
-// service contra o resultado final (papel e partes podem vir em pedidos separados).
+// Client (AD-135): at most one, and only in a technical assistant case. Checked in the
+// service against the final result (role and parties may come in separate requests).
 export const validClient = (data: { role?: CaseRole; parties?: Array<{ client?: boolean }> }) => {
   const clients = (data.parties ?? []).filter((party) => party.client).length;
   return clients === 0 || (clients === 1 && data.role === 'technical_assistant');
 };
 
-// Movimentações que contam para a perícia parada (AD-121): entrega do laudo, notificação de
-// recebimento de honorários e intimação para esclarecimentos ou para laudo complementar.
+// Movements that count for the stalled case (AD-121): report delivery, fee
+// receipt notice and summons for clarifications or for a supplementary report.
 export const MOVEMENT_TYPES = [
   'report_filed',
   'fees_notice',
@@ -140,8 +140,8 @@ export const createMovementSchema = z
   .strict();
 export type CreateMovement = z.infer<typeof createMovementSchema>;
 
-// Período imprescrito sugerido (AD-115): do mais recente entre (autuação − 5 anos) e a
-// admissão até a demissão; sem demissão, até a autuação. Sem autuação, sem sugestão.
+// Suggested non-prescribed period (AD-115): from the latest of (docketing − 5 years) and the
+// hire date up to the termination; without termination, up to the docketing. Without docketing, no suggestion.
 export const suggestNonPrescribedPeriod = (dates: {
   docketingDate?: string;
   hireDate?: string;

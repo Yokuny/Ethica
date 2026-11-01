@@ -40,10 +40,10 @@ import {
   opportunityIdParamSchema,
 } from './prospecting/opportunity.schema.js';
 
-// Schemas Zod locais dos módulos (params/query dos routers, em
-// `<entidade>.schema.ts`). Mesmo shape do schemaRegistry de @ethica/contracts,
-// que não pode importar de apps/ — o schema-registry.structural valida a
-// união dos dois.
+// Local Zod schemas of the modules (router params/query, in
+// `<entity>.schema.ts`). Same shape as the @ethica/contracts schemaRegistry,
+// which cannot import from apps/ — schema-registry.structural validates the
+// union of both.
 export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = [
   { name: 'tenantIdParamSchema', schema: tenantIdParamSchema },
   { name: 'listUsersQuerySchema', schema: listUsersQuerySchema },

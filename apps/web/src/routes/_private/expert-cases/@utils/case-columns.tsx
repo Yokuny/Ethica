@@ -11,7 +11,7 @@ import type { CaseListItem } from '@/query/case.js';
 
 const toDate = (day: string) => new Date(`${day}T12:00:00`);
 
-// O servidor não aceita sort: nenhuma coluna é ordenável.
+// The server does not accept sort: no column is sortable.
 export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
   {
     id: 'process',
@@ -33,7 +33,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     id: 'status',
     header: t('stage'),
     cell: ({ row }) => (
-      // Suspensa aparece no lugar da etapa: é o que pede atenção (AD-133).
+      // Suspended shows in place of the status: it is what needs attention (AD-133).
       <TableStack description={row.original.phase ? phaseLabel(row.original.phase) : undefined}>
         {row.original.state === 'suspended' ? (
           <TableStatus variant={CASE_STATE_VARIANT.suspended}>{t('situation_suspended')}</TableStatus>
@@ -67,7 +67,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     cell: ({ row }) => {
       const { fixedFeesCents, proposedFeesCents, role } = row.original;
       const value = fixedFeesCents ?? proposedFeesCents;
-      // Na perícia de assistente técnico o valor definido é o contratado (AD-135).
+      // In a technical assistant case the set amount is the contracted one (AD-135).
       const definido = role === 'technical_assistant' ? t('contracted') : t('fixed');
       return (
         <TableStack description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>

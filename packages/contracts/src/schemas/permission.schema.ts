@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import type { Role } from '../types.js';
 
-// Matriz de permissões por membro (AD-137): módulo → ações. O admin tem tudo e é o único
-// que gerencia usuários, escritório, diário e permissões — essas áreas ficam fora da matriz.
+// Per-member permission matrix (AD-137): module → actions. The admin has everything and is the only one
+// who manages users, office, activity log and permissions — those areas stay outside the matrix.
 export const PERMISSION_MODULES = [
   'expert_cases',
   'parties',
@@ -15,7 +15,7 @@ export const PERMISSION_MODULES = [
 ] as const;
 export type PermissionModule = (typeof PERMISSION_MODULES)[number];
 
-// Acessar e visualizar são uma só ação: sem `view` o módulo some do menu.
+// Accessing and viewing are a single action: without `view` the module disappears from the menu.
 export const PERMISSION_ACTIONS = ['view', 'create', 'update', 'delete'] as const;
 export type PermissionAction = (typeof PERMISSION_ACTIONS)[number];
 
@@ -43,8 +43,8 @@ const WITHOUT_DELETE: PermissionAction[] = ['view', 'create', 'update'];
 
 export const ALL_PERMISSIONS: Permissions = Object.fromEntries(PERMISSION_MODULES.map((module) => [module, TUDO]));
 
-// Presets dos perfis, iguais aos papéis fixos da AD-107: gestor com tudo menos excluir
-// perícia; operador sem financeiro, sem excluir perícia e só lendo os modelos de laudo.
+// Profile presets, the same as the fixed roles of AD-107: manager with everything except deleting
+// a case; operator without finance, without deleting a case and only reading report templates.
 export const PROFILE_PERMISSIONS: Record<Exclude<Role, 'admin'>, Permissions> = {
   manager: { ...ALL_PERMISSIONS, expert_cases: WITHOUT_DELETE },
   operator: {
@@ -58,7 +58,7 @@ export const PROFILE_PERMISSIONS: Record<Exclude<Role, 'admin'>, Permissions> = 
   },
 };
 
-// Admin tem tudo; os outros usam a matriz gravada ou, sem ela, o preset do papel.
+// Admin has everything; the others use the saved matrix or, without it, the role preset.
 export const effectivePermissions = (role: Role[], permissions?: Permissions): Permissions => {
   if (role.includes('admin')) return ALL_PERMISSIONS;
   if (permissions) return permissions;

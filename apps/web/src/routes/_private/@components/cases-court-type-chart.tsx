@@ -16,7 +16,7 @@ const config = {
   federal: { label: t('federal_court'), color: 'var(--chart-5)' },
 } satisfies ChartConfig;
 
-// Distribuição das perícias por justiça (trabalhista, cível, federal).
+// Case distribution by court type (labor, civil, federal).
 export function CasesCourtTypeChart({ groups }: { groups: { key: string; count: number }[] }) {
   const counts = new Map(groups.map((group) => [group.key, group.count]));
   const data = COURTTYPES.map((courtType) => ({ courtType, count: counts.get(courtType) ?? 0 })).filter(

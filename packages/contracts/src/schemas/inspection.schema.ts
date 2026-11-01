@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { SIDES } from './party.schema.js';
 
-// Registro da vistoria (AD-130): um só tipo para o formulário de campo e para as variáveis do
-// laudo, para que o que é gravado seja exatamente o que o laudo lê.
+// Inspection record (AD-130): a single type for the field form and for the report
+// variables, so what is saved is exactly what the report reads.
 
-// Agentes do mapeamento de campo, os mesmos do checklist em PDF (DOC-02).
+// Field mapping agents, the same as the PDF checklist (DOC-02).
 export const INSPECTION_AGENTS = [
   'noise',
   'heat',
@@ -16,7 +16,7 @@ export const INSPECTION_AGENTS = [
 ] as const;
 export type InspectionAgent = (typeof INSPECTION_AGENTS)[number];
 
-// Documentos pedidos às partes; além destes, o perito escreve o que precisar.
+// Documents requested from the parties; besides these, the expert writes whatever is needed.
 export const INSPECTION_DOCUMENTS = [
   'risk_program',
   'ltcat',
@@ -40,7 +40,7 @@ export type InspectionCapacity = (typeof INSPECTION_CAPACITIES)[number];
 export const MEDIA_TYPES = ['photo', 'audio', 'signature'] as const;
 export type MediaType = (typeof MEDIA_TYPES)[number];
 
-// Limites por tipo de mídia (AD-129); tudo conta na cota do escritório (AD-120).
+// Limits per media type (AD-129); everything counts against the office quota (AD-120).
 export const INSPECTION_MEDIA_LIMITS: Record<
   MediaType,
   { maxBytes: number; maxByInspection: number; mimes: string[] }
@@ -50,7 +50,7 @@ export const INSPECTION_MEDIA_LIMITS: Record<
   signature: { maxBytes: 200 * 1024, maxByInspection: 30, mimes: ['image/png'] },
 };
 
-// Mídia tem id gerado no aparelho (AD-128): reenviar a mesma não duplica.
+// Media has an id generated on the device (AD-128): resending the same one does not duplicate it.
 export const mediaIdSchema = z.uuid('id de mídia inválido');
 
 const short = z.string().trim().max(200, 'texto muito longo');
@@ -114,7 +114,7 @@ export const inspectionDataSchema = z
     documents: list(
       z.object({ id: itemId, document: short.min(1), requested: z.boolean(), notes: short.optional() }).strict(),
     ),
-    // Internas: nunca vão ao laudo.
+    // Internal: they never go into the report.
     notes: z.string().trim().max(10_000, 'observações muito longas').optional(),
   })
   .strict();
@@ -128,7 +128,7 @@ export const INSPECTION_EMPTY_DATA: InspectionData = {
   documents: [],
 };
 
-// Salvar o formulário inteiro com a versão que o aparelho conhecia (AD-128).
+// Save the whole form with the version the device knew (AD-128).
 export const saveInspectionSchema = z.object({ version: z.number().int().min(0), data: inspectionDataSchema }).strict();
 export type SaveInspection = z.infer<typeof saveInspectionSchema>;
 

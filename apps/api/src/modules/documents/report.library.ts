@@ -1,9 +1,9 @@
 import { REPORT_DEFAULT_TEMPLATES, type ReportType } from '@ethica/contracts';
 import type { TemplateRecord, TemplateSectionRecord } from './report.schema.js';
 
-// Biblioteca padrão (LAU-05, LAU-06, AD-127): texto-base curto citando a norma, nas variantes
-// "sim" e "não", para o perito revisar e completar. Trecho entre parênteses é o que ele
-// preenche. Vale para todo tenant, só leitura; o escritório clona para adaptar (AD-126).
+// Default library (LAU-05, LAU-06, AD-127): short base text citing the standard, in the variants
+// "yes" and "no", for the expert to review and complete. Text in parentheses is what they
+// fill in. Applies to every tenant, read-only; the office clones it to adapt (AD-126).
 
 const p = (...paragraphs: string[]): string => paragraphs.map((text) => `<p>${text}</p>`).join('');
 
@@ -46,7 +46,7 @@ const ENCERRAMENTO: Section = {
   noText: p('Encerra-se o presente documento.', '[DATA_EXTENSO].', '[PERITO_NOME]<br />[PERITO_REGISTRO]'),
 };
 
-// NR-15: um anexo por agente. Grau do adicional conforme o item 15.2 da NR-15.
+// NR-15: one annex per agent. Additional pay grade per item 15.2 of NR-15.
 const attachment = (number: string, agent: string, sim: string, nao: string): Section => ({
   title: `Anexo ${number} — ${agent}`,
   level: 2,
@@ -142,7 +142,7 @@ const NR15: Section[] = [
   ),
 ];
 
-// NR-16: adicional de 30% sobre o salário-base (art. 193 da CLT).
+// NR-16: 30% additional pay over the base salary (art. 193 of the CLT).
 const hazardousConditions = (title: string, sim: string, nao: string): Section => ({
   title,
   level: 2,

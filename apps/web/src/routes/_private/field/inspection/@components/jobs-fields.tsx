@@ -6,7 +6,7 @@ import { NumberField, TextareaField, TextField } from '@/components/form-fields.
 import { t } from '@/lib/helpers/translate.helper.js';
 import { FieldList } from './field-list.js';
 
-// Histórico de funções com a versão de cada parte (CAM-02): [FUNCOES_AUTOR]/[FUNCOES_REU].
+// Job history with each party's version (CAM-02): [FUNCOES_AUTOR]/[FUNCOES_REU].
 export function JobsFields({ form }: { form: UseFormReturn<InspectionData> }) {
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'jobs' });
   return (

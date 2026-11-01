@@ -21,7 +21,7 @@ const toValues = (appointment: AppointmentRecord): CreateAppointment => ({
   notes: appointment.notes,
 });
 
-// Mesmo formulário para criar e remarcar: com `compromisso` edita, sem ele cria.
+// Same form to create and reschedule: with `appointment` it edits, without it it creates.
 export function useAppointmentForm({
   appointment,
   date,

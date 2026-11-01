@@ -12,7 +12,7 @@ export function usePasswordForm() {
   const mutation = useMutation(changePasswordMutation());
   const form = useForm<PasswordForm>({ resolver: zodResolver(passwordFormSchema), defaultValues: DEFAULT_VALUES });
 
-  // A confirmação fica no formulário: a API recusa chave desconhecida.
+  // The confirmation stays in the form: the API rejects an unknown key.
   function onSubmit({ currentPassword, newPassword }: PasswordForm) {
     if (mutation.isPending) return;
     mutation.mutate(

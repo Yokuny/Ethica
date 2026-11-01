@@ -10,20 +10,20 @@ import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 import { readSession, saveSession } from '../lib/offline/store.js';
 
-// Espelha SessionView de apps/api/src/modules/identity/auth.service.ts — a
-// verdade fica no back-end; este tipo só descreve o que a tela consome.
+// Mirrors SessionView of apps/api/src/modules/identity/auth.service.ts — the
+// truth lives in the back-end; this type only describes what the screen consumes.
 export type SessionView = {
   tenant?: { id: string; name: string; status: string };
   user: { id: string; name: string; email: string; avatar?: string };
   role: Role[];
-  // Matriz efetiva (AD-137); a sessão guardada no aparelho antes dela pode vir sem.
+  // Effective matrix (AD-137); a session stored on the device before it may come without one.
   permissions?: Permissions;
 };
 
-// Mesma regra de `isAdmin` do back-end (authorization.middleware.ts): o
-// papel `admin` na lista de papéis do usuário no tenant.
+// Same `isAdmin` rule as the back-end (authorization.middleware.ts): the
+// `admin` role in the user's role list in the tenant.
 export const isAdminSession = (session: SessionView): boolean => session.role.includes('admin');
-// Mesma matriz que a API checa com `can()` (AD-137): o web só esconde o que ela recusaria.
+// Same matrix the API checks with `hasPermission()` (AD-137): the web only hides what it would reject.
 export const can = (session: SessionView, module: PermissionModule, action: PermissionAction = 'view'): boolean =>
   hasPermission(session.permissions ?? {}, module, action);
 
@@ -32,11 +32,11 @@ export const sessionKeys = {
   detail: () => [...sessionKeys.all, 'detail'] as const,
 };
 
-// staleTime > 0: o guard de rota (_private/route.tsx, T30) chama
-// ensureQueryData(sessionQuery) em todo beforeLoad — sem staleTime a sessão
-// seria refeita a cada navegação privada. retry:false: uma sessão inválida
-// deve falhar na primeira tentativa, nunca re-tentar e atrasar o redirect
-// (Tech Decisions: guarda de rota sem loop).
+// staleTime > 0: the route guard (_private/route.tsx, T30) calls
+// ensureQueryData(sessionQuery) on every beforeLoad — without staleTime the session
+// would be refetched on every private navigation. retry:false: an invalid session
+// must fail on the first attempt, never retry and delay the redirect
+// (Tech Decisions: route guard without a loop).
 export const sessionQuery = queryOptions({
   queryKey: sessionKeys.detail(),
   queryFn: async (): Promise<SessionView> => {
@@ -45,7 +45,7 @@ export const sessionQuery = queryOptions({
       void saveSession(res.data);
       return res.data;
     }
-    // Sem rede (AD-128): a última sessão vista mantém o app aberto; sessão inválida não passa.
+    // No network (AD-128): the last session seen keeps the app open; an invalid session does not pass.
     if (res.message === t('connection_error')) {
       const copy = await readSession<SessionView>();
       if (copy) return copy;

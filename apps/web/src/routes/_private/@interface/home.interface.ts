@@ -16,6 +16,6 @@ export type HomeSection = {
   titleKey: string;
   descriptionKey: string;
   icon: LucideIcon;
-  // Módulo da matriz que precisa de `ver` (AD-137), ou `admin`.
+  // Matrix module that needs `view` (AD-137), or `admin`.
   access: PermissionModule | 'admin';
 };

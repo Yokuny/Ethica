@@ -4,30 +4,30 @@ import { cn } from 'cn';
 import type { ComponentProps, ReactNode } from 'react';
 import { AppLink } from './app-link.js';
 
-// Linha do tempo vertical para qualquer histórico cronológico (jornada,
-// atividades, pedidos). Cada item: ponto colorido pelo resultado, fio até o
-// próximo item, data pequena em caixa alta, título (com um prefixo apagado
-// opcional), descrição curta e linhas livres embaixo (ações, selos, autor).
+// Vertical timeline for any chronological history (journey,
+// activities, orders). Each item: dot colored by the result, line to the
+// next item, small uppercase date, title (with an optional faded
+// prefix), short description and free lines below (actions, badges, author).
 export function DefaultTimeline({ className, ...props }: ComponentProps<'ol'>) {
   return <ol className={cn('flex flex-col', className)} {...props} />;
 }
 
-// Destino do título quando o evento leva a outro registro.
+// Title destination when the event leads to another record.
 export type TimelineLink = Pick<ComponentProps<typeof AppLink>, 'to' | 'search'>;
 
 type DefaultTimelineItemProps = Omit<ComponentProps<'li'>, 'title'> & {
   date: ReactNode;
-  // ISO do instante, para o `<time datetime>`.
+  // ISO of the instant, for `<time datetime>`.
   dateTime?: string;
-  // Cor do ponto: os mesmos tons do Badge (success, warning, error, info…).
+  // Dot color: the same Badge tones (success, warning, error, info…).
   variant?: IndicatorVariant;
-  // Texto apagado antes do título ("Concluído" Programa beta).
+  // Faded text before the title ("Concluído" Beta program).
   lead?: ReactNode;
   title: ReactNode;
-  // Com `link` o título vira o link padrão do sistema (AppLink).
+  // With `link` the title becomes the system default link (AppLink).
   link?: TimelineLink;
   description?: ReactNode;
-  // Linhas abaixo da descrição: selos, responsável.
+  // Lines below the description: badges, assignee.
   children?: ReactNode;
 };
 

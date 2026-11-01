@@ -1,29 +1,29 @@
 import mongoose from 'mongoose';
 
-// ENR-13.7 (AD-054): busca de texto por MongoDB Atlas Search (`$search`), nunca
-// `$text` nem `$regex`. Tudo que monta ou executa `$search` mora aqui; os
-// repositórios só pedem "os estágios que restringem a estes registros".
+// ENR-13.7 (AD-054): text search through MongoDB Atlas Search (`$search`), never
+// `$text` or `$regex`. Everything that builds or runs `$search` lives here; the
+// repositories only ask for "the stages that restrict to these records".
 //
 // Fatos conferidos contra o Atlas Search:
-// - `autocomplete` com tokenização nGram (minGrams 1) preserva o comportamento
-//   de "contém" de quem digita no meio da palavra, com acento ignorado;
-// - uma consulta com várias palavras é OR por padrão; para ficar E, cada
-//   palavra vira uma cláusula `must`;
-// - o termo da consulta é cortado em `maxGrams` por precaução (nos testes uma
-//   palavra maior que isso ainda casa; o corte só evita depender disso);
-// - `$search` com índice inexistente devolve vazio SEM erro (por isso o
-//   provisionamento reporta o estado dos índices).
+// - `autocomplete` with nGram tokenization (minGrams 1) keeps the "contains"
+//   behavior for whoever types in the middle of the word, ignoring accents;
+// - a query with several words is OR by default; to become AND, each
+//   word becomes a `must` clause;
+// - the query term is cut at `maxGrams` as a precaution (in the tests a
+//   word longer than that still matches; the cut only avoids depending on it);
+// - `$search` with a missing index returns empty WITHOUT an error (that is why
+//   provisioning reports the state of the indexes).
 
-// Estágio de aggregate pronto para o `Model.aggregate` (o Mongoose não tipa `$search` à parte).
+// Aggregate stage ready for `Model.aggregate` (Mongoose does not type `$search` separately).
 export type SearchStage = mongoose.PipelineStage;
 
-// Texto livre da caixa de busca: todas as palavras, em qualquer dos campos de texto da perícia.
+// Free text of the search box: all the words, in any of the case text fields.
 export type CaseSearchSpec = { q: string };
-// Caixa de busca do cadastro de partes: nome, CPF/CNPJ ou OAB.
+// Search box of the party registry: name, CPF/CNPJ or OAB.
 export type PartySearchSpec = { q: string };
 
-// Banco sem Atlas Search (ambiente mal configurado): a API responde
-// `search_unavailable` em vez de cair em regex (ENR-13.7).
+// Database without Atlas Search (misconfigured environment): the API answers
+// `search_unavailable` instead of falling back to regex (ENR-13.7).
 export class TextSearchUnavailableError extends Error {
   constructor(cause?: unknown) {
     super('Atlas Search indisponível');
@@ -32,22 +32,22 @@ export class TextSearchUnavailableError extends Error {
   }
 }
 
-// `$search` num mongod comum: "Unrecognized pipeline stage name" (40324) ou erro
-// de conexão com o mongot / serviço de índices (31082). A mensagem cobre
-// variações entre versões e provedores.
+// `$search` on a plain mongod: "Unrecognized pipeline stage name" (40324) or a
+// connection error to mongot / the index service (31082). The message covers
+// variations across versions and providers.
 const SEARCH_UNAVAILABLE_CODES = new Set([40324, 31082]);
 export const isSearchUnavailableError = (error: unknown): boolean => {
   const e = error as { code?: number; message?: string } | null;
   if (!e || typeof e !== 'object') return false;
   if (typeof e.code === 'number' && SEARCH_UNAVAILABLE_CODES.has(e.code)) return true;
-  // Só mensagens de AMBIENTE: um `$search` malformado por bug nosso não pode
-  // virar "indisponível" e esconder a falha.
+  // Only ENVIRONMENT messages: a `$search` malformed by a bug of ours cannot
+  // become "unavailable" and hide the failure.
   return /unrecognized pipeline stage name: '?\$search|\$search is not (enabled|allowed|supported)|\$search stage is only allowed|mongot|search index management|SearchNotEnabled/i.test(
     e.message ?? '',
   );
 };
 
-// Executa uma consulta que usa `$search` convertendo a falha de ambiente em erro tipado.
+// Runs a query that uses `$search`, turning an environment failure into a typed error.
 export const withSearch = async <T>(run: () => Promise<T>): Promise<T> => {
   try {
     return await run();
@@ -57,12 +57,12 @@ export const withSearch = async <T>(run: () => Promise<T>): Promise<T> => {
   }
 };
 
-// Tenant e valores casados em aggregate NÃO são convertidos pelo Mongoose
-// (diferente de `find`): o ObjectId precisa ser explícito.
+// Tenant and values matched in an aggregate are NOT converted by Mongoose
+// (unlike `find`): the ObjectId has to be explicit.
 export const toObjectId = (id: string): mongoose.Types.ObjectId => new mongoose.Types.ObjectId(id);
 export const newObjectId = (): mongoose.Types.ObjectId => new mongoose.Types.ObjectId();
 
-// --- Índices (versionados aqui, provisionados por script) --------------------
+// --- Indexes (versioned here, provisioned by script) -------------------------
 export const CASE_SEARCH_INDEX = 'case_text';
 const MAX_GRAMS = 15;
 
@@ -74,8 +74,8 @@ const autocomplete = {
   foldDiacritics: true,
 };
 
-// Campos que a caixa de busca da listagem de perícias cobre. `partes.nome` é a cópia do
-// nome do cadastro de partes guardada na perícia (AD-117).
+// Fields the case listing search box covers. `parties.name` is the copy of the
+// party registry name kept on the case (AD-117).
 const CASE_SEARCH_PATHS = ['processNumber', 'subject', 'division', 'district', 'parties.name'] as const;
 export const PARTY_SEARCH_INDEX = 'party_text';
 const PARTY_SEARCH_PATHS = ['name', 'document', 'oab'] as const;
@@ -113,7 +113,7 @@ export const SEARCH_INDEXES = [
   },
 ] as const;
 
-// --- Implementação Atlas ------------------------------------------------------
+// --- Atlas implementation -----------------------------------------------------
 const words = (q: string): string[] =>
   q
     .split(/\s+/)
@@ -124,7 +124,7 @@ const tenantFilter = (tenantId: string) => ({ equals: { path: 'Tenant', value: t
 
 const searchStage = (spec: Record<string, unknown>): SearchStage => ({ $search: spec }) as unknown as SearchStage;
 
-// Cada palavra precisa aparecer em algum dos campos (E entre palavras, OU entre campos).
+// Each word has to show up in one of the fields (AND between words, OR between fields).
 export const caseSearchStages = (tenantId: string, spec: CaseSearchSpec): SearchStage[] => [
   searchStage({
     index: CASE_SEARCH_INDEX,
@@ -168,8 +168,8 @@ type ListedSearchIndex = {
   queryable?: boolean;
   latestDefinition?: unknown;
 };
-// Driver nativo (sem models): o provisionamento roda também no setup dos testes e em
-// scripts, onde carregar os models só para achar o nome da collection seria acoplamento à toa.
+// Native driver (no models): provisioning also runs in the test setup and in
+// scripts, where loading the models just to find the collection name would be pointless coupling.
 const collectionOf = (name: string) => {
   const db = mongoose.connection.db;
   if (!db) throw new Error('provisionSearchIndexes: sem conexão com o banco.');
@@ -181,11 +181,11 @@ const listIndex = async (collection: string, name: string): Promise<ListedSearch
     (index) => index.name === name,
   );
 
-// O Atlas devolve a definição NORMALIZADA (reordena chaves, acrescenta defaults
-// como `fields: {}`, `store`, `norms`), então comparar por JSON sempre acharia
-// diferença e reescreveria o índice a cada rodada. O que importa é que tudo o
-// que a nossa definição pede esteja lá; e, nos mapeamentos de `fields`, que não
-// sobre campo que deixamos de pedir.
+// Atlas returns the NORMALIZED definition (reorders keys, adds defaults
+// like `fields: {}`, `store`, `norms`), so comparing by JSON would always find a
+// difference and rewrite the index on every run. What matters is that everything
+// our definition asks for is there; and, in the `fields` mappings, that no
+// field we stopped asking for is left over.
 const covers = (stored: unknown, wanted: unknown, key?: string): boolean => {
   if (Array.isArray(wanted)) {
     return (
@@ -207,9 +207,9 @@ export const searchDefinitionMatches = (stored: unknown, wanted: unknown): boole
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Idempotente: cria o que falta, atualiza o que difere, e espera ficar pronto.
-// Um índice de busca não é índice Mongoose (`syncIndexes` não o cobre): precisa
-// de um Atlas Search de verdade e leva alguns segundos para ficar consultável.
+// Idempotent: creates what is missing, updates what differs, and waits until it is ready.
+// A search index is not a Mongoose index (`syncIndexes` does not cover it): it needs
+// a real Atlas Search and takes a few seconds to become queryable.
 export const provisionSearchIndexes = async (options: { timeoutMs?: number } = {}): Promise<SearchIndexStatus[]> => {
   const timeoutMs = options.timeoutMs ?? 60_000;
   const results: SearchIndexStatus[] = [];
@@ -218,7 +218,7 @@ export const provisionSearchIndexes = async (options: { timeoutMs?: number } = {
     try {
       await mongoose.connection.db?.createCollection(collection);
     } catch {
-      // já existe
+      // already exists
     }
     const existing = await listIndex(collection, name);
     let action: SearchIndexStatus['action'] = 'unchanged';

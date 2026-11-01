@@ -9,7 +9,7 @@ vi.mock('../identity/account.service.js', () => ({ listDeadlineReminderRecipient
 vi.mock('../case/case.service.js', () => ({ findSummariesByIds: vi.fn() }));
 vi.mock('../case/deadline.service.js', () => ({ listDeadlinesToNotice: vi.fn() }));
 
-// 2026-11-10 07:00 em São Paulo = 10:00 UTC.
+// 2026-11-10 07:00 in São Paulo = 10:00 UTC.
 const now = new Date('2026-11-10T10:00:00.000Z');
 
 const deadline = (id: string, tenantId: string, dueDate: string): NoticeDeadline => ({
@@ -50,7 +50,7 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
 
     expect(deadlineService.listDeadlinesToNotice).toHaveBeenCalledWith(['2026-11-25', '2026-11-10', '2026-11-09']);
     expect(accountService.listDeadlineReminderRecipients).toHaveBeenCalledWith(['t1', 't2']);
-    // t2 não tem destinatário (aviso desligado, inativo ou suspenso): nenhum e-mail.
+    // t2 has no recipient (reminder off, inactive or suspended): no e-mail.
     expect(send.mock.calls.map((call) => call[0])).toEqual(['ana@x.com', 'bia@x.com']);
     expect(result).toEqual({ sent: 2 });
 

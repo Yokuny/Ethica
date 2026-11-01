@@ -5,7 +5,7 @@ import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CategoryTotal } from '@/query/transaction.js';
 
-// Total por categoria de uma natureza (receitas ou despesas), maior primeiro.
+// Total per category of a kind (income or expenses), largest first.
 export function CategoriesChart({ kind, data }: { kind: TransactionKind; data: CategoryTotal[] }) {
   const config = {
     totalCents: { label: t('total'), color: kind === 'income' ? 'var(--chart-1)' : 'var(--destructive)' },

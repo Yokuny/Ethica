@@ -18,9 +18,9 @@ import * as caseRepository from './case.repository.js';
 import * as caseService from './case.service.js';
 import type { CsvImportColumn, CsvImportResult, PdfDraft, PdfExtraction } from './import.schema.js';
 
-// --- Órgão pelo número CNJ (AD-118) ------------------------------------------
-// NNNNNNN-DD.AAAA.J.TR.OOOO: J é o segmento da justiça, TR o tribunal.
-// Código TR da justiça estadual, em ordem: 01 = AC … 27 = TO.
+// --- Court from the CNJ number (AD-118) ---------------------------------------
+// NNNNNNN-DD.AAAA.J.TR.OOOO: J is the court branch segment, TR the court.
+// TR code of the state courts, in order: 01 = AC … 27 = TO.
 const STATE_BY_COURT = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SE SP TO'.split(' ');
 
 export const courtUnitFromNumber = (number: string): { courtType: CourtType; court: string } | undefined => {
@@ -36,7 +36,7 @@ export const courtUnitFromNumber = (number: string): { courtType: CourtType; cou
 // --- Datas --------------------------------------------------------------------
 const MONTHS = 'janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
 
-// `DD/MM/AAAA` ou `AAAA-MM-DD` → `YYYY-MM-DD`; data impossível (31/02) → undefined.
+// `DD/MM/AAAA` or `AAAA-MM-DD` → `YYYY-MM-DD`; impossible date (31/02) → undefined.
 export const parseData = (raw: string): string | undefined => {
   const value = raw.trim();
   const br = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -54,9 +54,9 @@ const addDays = (day: string, days: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
-// --- Extração da ata/despacho (AD-114) ----------------------------------------
+// --- Extraction from the minutes/order (AD-114) -------------------------------
 const CNJ = /\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/g;
-// Rótulos do cabeçalho do PJe; o advogado que vem depois pertence ao último polo lido.
+// PJe header labels; the lawyer that comes next belongs to the last side read.
 const LABEL_SIDE: [RegExp, Side][] = [
   [/^(RECLAMANTE|AUTORA?|REQUERENTE|EXEQUENTE)S?\s*:/i, 'plaintiff'],
   [/^(RECLAMAD[OA]|R[ÉE]U|R[ÉE]|REQUERID[OA]|EXECUTAD[OA])S?\s*:/i, 'defendant'],
@@ -110,7 +110,7 @@ const extractDivision = (rows: string[], text: string): Pick<PdfDraft, 'division
   const labeledDistrict = text.match(/\b(?:Comarca|Foro)\s+(?:de|da|do)\s+([A-ZÀ-Ú][^\n,–-]*)/)?.[1]?.trim();
   const row = rows.find((l) => /\bVara\b/i.test(l) && l.length <= 120);
   if (!row) return { district: labeledDistrict };
-  // "1ª Vara do Trabalho de São Paulo" → vara "1ª Vara do Trabalho", comarca "São Paulo".
+  // "1ª Vara do Trabalho de São Paulo" → division "1ª Vara do Trabalho", district "São Paulo".
   const separada = row.match(/^(.*\bVara\b.*?(?:Trabalho|Federal|C[íi]vel|Criminal)[^\n]*?)\s+de\s+([A-ZÀ-Ú][^\n]*)$/);
   return separada
     ? { division: separada[1]?.trim(), district: labeledDistrict ?? separada[2]?.trim() }
@@ -141,7 +141,7 @@ const extractDeadline = (text: string, nomination?: string): { reportDeadline?: 
   return days && nomination ? { reportDeadline: addDays(nomination, days), calculado: true } : { calculado: false };
 };
 
-// Função pura: texto da ata/despacho → rascunho do cadastro + o que faltou + avisos.
+// Pure function: minutes/order text → registration draft + what was missing + warnings.
 export const extractMinutes = (text: string): Omit<PdfExtraction, 'existingId'> => {
   const rows = text
     .split(/\r?\n/)
@@ -203,7 +203,7 @@ export const extractPdf = async (tenantId: string, file: Buffer): Promise<PdfExt
 };
 
 // --- CSV (AD-115) ---------------------------------------------------------------
-// `;` como separador, aspas duplas para campo com `;`/quebra de linha, BOM ignorado.
+// `;` as separator, double quotes for a field with `;`/line break, BOM ignored.
 export const parseCsv = (text: string): string[][] => {
   const records: string[][] = [];
   let field = '';
@@ -273,7 +273,7 @@ const FIELD_COLUMN: Partial<Record<string, CsvImportColumn>> = Object.fromEntrie
   ...[...DATES, ...TEXTS].map(([column, field]) => [field, column]),
 ]);
 
-// Uma linha do CSV → cadastro validado pelo mesmo schema do formulário, ou o motivo da recusa.
+// One CSV row → registration validated by the same schema as the form, or the rejection reason.
 export const rowToCase = (get: (column: CsvImportColumn) => string): { data: CreateCase } | DeclinedRow => {
   for (const column of CSV_IMPORT_REQUIRED_COLUMNS) {
     if (!get(column)) return { column: column, reason: 'missing_required_field' };
@@ -326,8 +326,8 @@ export const rowToCase = (get: (column: CsvImportColumn) => string): { data: Cre
   return { data: parsed.data };
 };
 
-// Importa as linhas válidas uma a uma pelo mesmo caminho do formulário e devolve o relatório
-// por linha (a linha 1 é o cabeçalho). Número já cadastrado é ignorado sem parar o lote.
+// Imports the valid rows one by one through the same path as the form and returns the report
+// per row (row 1 is the header). A number already registered is skipped without stopping the batch.
 export const importCsv = async (tenantId: string, text: string): Promise<CsvImportResult> => {
   const [header, ...records] = parseCsv(typeof text === 'string' ? text : '');
   const rows = records

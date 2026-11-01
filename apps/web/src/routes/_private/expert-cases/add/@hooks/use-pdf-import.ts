@@ -7,7 +7,7 @@ import type { CaseFormValues } from '../../@interface/cases.interface.js';
 import { importPdfMutation, type PdfExtraction } from '../../@query/import.js';
 import { DEFAULT_VALUES } from '../@consts/default-values.js';
 
-// IMP-01: o PDF preenche o formulário; o perito confere e salva (AD-115).
+// IMP-01: the PDF fills the form; the expert checks and saves (AD-115).
 export function usePdfImport(form: UseFormReturn<CaseFormValues>) {
   const mutation = useMutation(importPdfMutation());
   const [extraction, setExtraction] = useState<PdfExtraction | null>(null);

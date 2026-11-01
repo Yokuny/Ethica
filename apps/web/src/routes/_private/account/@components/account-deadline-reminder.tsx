@@ -5,7 +5,7 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { preferencesQuery, updatePreferencesMutation } from '@/query/preferences.js';
 
-// AD-110: cada pessoa liga ou desliga o próprio aviso diário de prazos (começa ligado).
+// AD-110: each person turns their own daily deadline reminder on or off (starts on).
 export function AccountDeadlineReminder() {
   const queryClient = useQueryClient();
   const query = useQuery(preferencesQuery);

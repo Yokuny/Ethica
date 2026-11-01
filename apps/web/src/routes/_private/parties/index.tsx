@@ -18,7 +18,7 @@ import { type PartiesSearch, partiesSearchSchema } from './@interface/parties.in
 
 const ALL = 'all';
 
-// Cadastro de partes e advogados reutilizáveis entre perícias (IMP-03, AD-117).
+// Registry of parties and lawyers reusable across cases (IMP-03, AD-117).
 export function PartiesIndexPage() {
   const { search, update, searchInput, handleSearchInput, handlePaginationChange, openParty } = usePartiesSearch();
   const query = useQuery(

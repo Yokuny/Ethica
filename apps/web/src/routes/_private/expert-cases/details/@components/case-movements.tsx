@@ -16,8 +16,8 @@ const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
 type Movement = CaseRecord['movements'][number];
 
-// Movimentações do processo (AD-121): sem nenhuma há mais de 60 dias, a perícia aparece
-// no relatório de perícias paradas. Tocar numa linha oferece removê-la.
+// Process movements (AD-121): with none for more than 60 days, the case shows up
+// in the stalled cases report. Tapping a row offers to remove it.
 export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
   const queryClient = useQueryClient();
   const removeMutation = useMutation(removeMovementMutation(queryClient));

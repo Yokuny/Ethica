@@ -2,8 +2,8 @@ import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as feedService from './feed.service.js';
 
-// Rota pública (PRZ-03): o token é a credencial. Link inexistente, revogado, usuário inativo
-// ou tenant suspenso respondem o mesmo 404 — nada diz se o token já existiu.
+// Public route (PRZ-03): the token is the credential. A missing or revoked link, an inactive user
+// or a suspended tenant all answer the same 404 — nothing tells whether the token ever existed.
 export const calendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const ics = await feedService.generateFeed(req.params.token as string);

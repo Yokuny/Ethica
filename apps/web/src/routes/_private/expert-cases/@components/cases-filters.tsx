@@ -41,7 +41,7 @@ function FilterSelect({
   );
 }
 
-// Conteúdo do popover "Filtros" da listagem: situação, etapa, fase (AD-133) e justiça.
+// Listing "Filtros" popover content: state, status, phase (AD-133) and court type.
 export function CasesFilters({
   search,
   onChange,

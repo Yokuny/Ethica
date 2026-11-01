@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { decrypt, encrypt, maskSecret, sha256 } from './crypto.helper.js';
 
-const KEY = Buffer.alloc(32, 7).toString('base64'); // 32 bytes, válida
+const KEY = Buffer.alloc(32, 7).toString('base64'); // 32 bytes, valid
 
 describe('crypto.helper', () => {
   describe('encrypt/decrypt', () => {
@@ -45,7 +45,7 @@ describe('crypto.helper', () => {
 
   describe('sha256', () => {
     it('returns the known SHA-256 hex digest for a fixed input', () => {
-      // Vetor conhecido do algoritmo SHA-256 — verificável independente da implementação.
+      // Known vector of the SHA-256 algorithm — verifiable independently of the implementation.
       expect(sha256('')).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
     });
   });

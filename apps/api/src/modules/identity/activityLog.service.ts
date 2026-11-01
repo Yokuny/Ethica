@@ -4,7 +4,7 @@ import type { ListActivityLogQuery, NewActivity } from './activityLog.schema.js'
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Nunca derruba a ação de quem gerou a entrada (GES-01.4): a falha só vai ao log.
+// Never brings down the action of whoever generated the entry (GES-01.4): the failure only goes to the log.
 export const record = async (activity: NewActivity): Promise<void> => {
   try {
     await activityLogRepository.record(activity);
@@ -15,7 +15,7 @@ export const record = async (activity: NewActivity): Promise<void> => {
   }
 };
 
-// `from`/`to` são dias de calendário (AD-103), inclusivos: o fim vai até o início do dia seguinte.
+// `from`/`to` are calendar days (AD-103), inclusive: the end goes up to the start of the next day.
 export const listActivities = (tenantId: string, query: ListActivityLogQuery) =>
   activityLogRepository.listActivities(tenantId, query, {
     from: query.from ? wallClockToUtc(query.from, '00:00') : undefined,

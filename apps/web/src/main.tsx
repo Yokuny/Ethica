@@ -8,11 +8,11 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { ThemeProvider } from 'next-themes';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-// Geist e Geist Mono são servidas localmente via theme.css.
+// Geist and Geist Mono are served locally through theme.css.
 import './index.css';
 import { queryClient, router } from './router.js';
 
-// PWA (AD-128): o service worker só no build de produção; o dev server do Vite não o usa.
+// PWA (AD-128): the service worker only in the production build; the Vite dev server does not use it.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => void navigator.serviceWorker.register('/sw.js'));
 }
@@ -20,15 +20,15 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Elemento #root não encontrado.');
 
-// Toaster montado uma única vez na raiz (T11) — toast() de qualquer tela
-// (ex.: erro do kanban, WEB-03) renderiza aqui, fora da árvore de rotas.
-// TanStackDevtools (idem, montado uma única vez): removeDevtoolsOnBuild do
-// plugin @tanstack/devtools-vite (vite.config.ts) já tira isto do bundle de
-// produção sozinho, sem guard de import.meta.env.DEV aqui.
+// Toaster mounted only once at the root (T11) — toast() from any screen
+// (e.g. kanban error, WEB-03) renders here, outside the route tree.
+// TanStackDevtools (likewise, mounted only once): removeDevtoolsOnBuild of the
+// @tanstack/devtools-vite plugin (vite.config.ts) already strips this from the production
+// bundle by itself, without an import.meta.env.DEV guard here.
 createRoot(rootElement).render(
   <StrictMode>
-    {/* Sonner lê useTheme() do pacote compartilhado. O provider fixa "light"
-        para que toast e controles nativos acompanhem o tema claro único. */}
+    {/* Sonner reads useTheme() from the shared package. The provider pins "light"
+        so toast and native controls follow the single light theme. */}
     <ThemeProvider
       attribute="class"
       defaultTheme="light"

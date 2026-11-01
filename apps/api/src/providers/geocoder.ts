@@ -1,6 +1,6 @@
-// Endereço → coordenadas pelo Nominatim do OpenStreetMap (AD-131). A política de uso pede no
-// máximo uma requisição por segundo e um User-Agent que identifique a aplicação; as
-// coordenadas ficam gravadas no compromisso, então cada endereço é consultado uma vez.
+// Address → coordinates through OpenStreetMap Nominatim (AD-131). The usage policy asks for at
+// most one request per second and a User-Agent that identifies the application; the
+// coordinates are stored on the appointment, so each address is queried once.
 export type Coordinates = { lat: number; lng: number };
 
 export type Geocoder = { geocode: (address: string) => Promise<Coordinates | null> };
@@ -23,7 +23,7 @@ export const createNominatimGeocoder = (config: { baseUrl: string; userAgent: st
   };
 
   return {
-    // Uma consulta por vez, com intervalo, mesmo com vários pedidos simultâneos.
+    // One query at a time, with an interval, even with several simultaneous requests.
     geocode: (address) => {
       const result = queue.then(() => lookup(address));
       queue = result.catch(() => undefined).then(() => new Promise((ok) => setTimeout(ok, INTERVALO_MS)));

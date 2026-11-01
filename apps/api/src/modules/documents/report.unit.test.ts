@@ -184,7 +184,7 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
   });
 });
 
-// JPEG mínimo para o teste: SOI, APP0 e SOF0 com 320×240 (o docx só embute os bytes).
+// Minimal JPEG for the test: SOI, APP0 and SOF0 with 320×240 (the docx only embeds the bytes).
 const JPEG = Buffer.from([
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0xf0, 0x01, 0x40, 0x03, 0x01,
   0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
@@ -250,7 +250,7 @@ describe('exportação (LAU-03.2)', () => {
     expect(html).toContain('<section class="secao quebra">');
     expect(footerTemplate).toContain('pageNumber');
     expect(pendingVariables(html)).toEqual([]);
-    // Foto da vistoria em data URL; a que sumiu sai do documento (AD-129).
+    // Inspection photo as a data URL; one that is gone leaves the document (AD-129).
     expect(html).toContain('<img src="data:image/jpeg;base64,');
     expect(html).not.toContain('/media/');
   });

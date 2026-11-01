@@ -2,8 +2,8 @@ import { hasPermission, type PermissionAction, type PermissionModule, type Role 
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from './errorHandler.middleware.js';
 
-// checkRole é síncrono e só lê req.tenantUser (já resolvido do banco por
-// createAuthMiddleware) — nunca toca dados antes de decidir (FND-08).
+// checkRole is synchronous and only reads req.tenantUser (already resolved from the database by
+// createAuthMiddleware) — it never touches data before deciding (FND-08).
 export const checkRole = (allowedRoles: Role[]) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const userRoles = req.tenantUser?.role ?? [];
@@ -18,8 +18,8 @@ export const checkRole = (allowedRoles: Role[]) => {
   };
 };
 
-// Matriz de permissões (AD-137): todas as ações pedidas no módulo. Como checkRole, só lê
-// req.tenantUser e decide antes de qualquer dado.
+// Permission matrix (AD-137): every requested action on the module. Like checkRole, it only reads
+// req.tenantUser and decides before any data.
 export const can = (module: PermissionModule, ...actions: PermissionAction[]) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const permissions = req.tenantUser?.permissions ?? {};
@@ -35,9 +35,9 @@ export const isAdmin = checkRole(['admin']);
 export const isManager = checkRole(['manager']);
 export const isOperator = checkRole(['operator']);
 
-// 403 antes de QUALQUER acesso a dados/controller (FND-01/AC3) — chamar
-// next(err) aqui é o que impede o Express de seguir para a rota; só a flag
-// isPlatformAdmin já resolvida por createAuthMiddleware decide, nunca o body.
+// 403 before ANY access to data/controller (FND-01/AC3) — calling
+// next(err) here is what stops Express from moving on to the route; only the
+// isPlatformAdmin flag already resolved by createAuthMiddleware decides, never the body.
 export const platformAdminOnly = (req: Request, _res: Response, next: NextFunction): void => {
   if (!req.tenantUser?.isPlatformAdmin) {
     next(new CustomError('no_permission', 403, 'restrito a administradores da plataforma'));

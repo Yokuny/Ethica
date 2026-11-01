@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// ACC-03: mesma regra de nome do aceite de convite (acceptInvite.schema.ts).
-// DOC-01: dados profissionais que vão nos documentos técnicos; `''` apaga o campo.
+// ACC-03: same name rule as the invite acceptance (acceptInvite.schema.ts).
+// DOC-01: professional data that goes on the technical documents; `''` clears the field.
 export const updateProfileSchema = z
   .object({
     name: z
@@ -19,7 +19,7 @@ export const updateProfileSchema = z
   })
   .strict();
 
-// ACC-04: a nova senha segue o mínimo do aceite de convite; a confirmação é só do formulário.
+// ACC-04: the new password follows the invite acceptance minimum; the confirmation belongs only to the form.
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'senha atual é obrigatória'),
@@ -27,8 +27,8 @@ export const changePasswordSchema = z
   })
   .strict();
 
-// ACC-02: o navegador já recorta e reduz a foto (256×256 WebP). O teto de 100 mil
-// caracteres mantém o corpo dentro do limite padrão do express.json (100 kB).
+// ACC-02: the browser already crops and shrinks the photo (256×256 WebP). The ceiling of 100 thousand
+// characters keeps the body within the express.json default limit (100 kB).
 export const updateAvatarSchema = z
   .object({
     image: z
@@ -38,7 +38,7 @@ export const updateAvatarSchema = z
   })
   .strict();
 
-// Blocos do início (AD-136). A preferência guarda os ocultos: bloco novo aparece por padrão.
+// Home blocks (AD-136). The preference keeps the hidden ones: a new block shows by default.
 export const HOME_BLOCKS = [
   'overview',
   'upcoming',

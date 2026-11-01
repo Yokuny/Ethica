@@ -5,9 +5,9 @@ import { validParams, validParsedQuery } from '../../middlewares/validation.midd
 import * as documentsController from './documents.controller.js';
 import { type DocumentsRouterDeps, documentCaseParamSchema, financeReportQuerySchema } from './documents.schema.js';
 
-// O relatório financeiro exige também ver o financeiro (AD-137).
+// The finance report also requires viewing finance (AD-137).
 
-// PDFs (AD-119) e exportação de dados (AD-122). Montado em `/documents`.
+// PDFs (AD-119) and data export (AD-122). Mounted on `/documents`.
 export const createDocumentsRouter = (deps: DocumentsRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];

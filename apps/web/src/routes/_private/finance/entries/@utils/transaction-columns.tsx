@@ -9,7 +9,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { TransactionRecord } from '@/query/transaction.js';
 
 type Actions = {
-  // Só despesa: liquidar, reabrir e cancelar à mão. Honorário recebe parcelas (AD-111).
+  // Expense only: settle, reopen and cancel by hand. A fee gets installments (AD-111).
   onStatus: (transaction: TransactionRecord, status: 'settled' | 'canceled' | 'expected') => void;
   onReceive: (transaction: TransactionRecord) => void;
 };

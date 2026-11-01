@@ -4,7 +4,7 @@ import { Ellipsis } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Menu "…" do cabeçalho da página: ações secundárias como `DropdownMenuItem`.
+// Page header "…" menu: secondary actions as `DropdownMenuItem`.
 export function PageMenu({ children }: { children: ReactNode }) {
   return (
     <DropdownMenu>

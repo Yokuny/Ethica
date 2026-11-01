@@ -43,8 +43,8 @@ export const listByCase = async (tenantId: string, caseId: string): Promise<Insp
 const isDuplicateKeyError = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
 
-// Grava o formulário só se a versão do servidor for a que o aparelho conhecia (AD-128).
-// `versao` 0 cria o registro; `null`: outra gravação chegou antes (conflito).
+// Saves the form only if the server version is the one the device knew (AD-128).
+// `version` 0 creates the record; `null`: another save got there first (conflict).
 export const save = async (
   tenantId: string,
   appointmentId: string,
@@ -70,7 +70,7 @@ export const save = async (
     }
   });
 
-// Mídia pode chegar antes do formulário (offline): o registro nasce vazio, na versão 0.
+// Media can arrive before the form (offline): the record starts empty, at version 0.
 export const addMedia = async (
   tenantId: string,
   appointmentId: string,
@@ -124,7 +124,7 @@ export const updateCaption = async (
     return result.matchedCount === 1;
   });
 
-// Devolve a mídia tirada (para apagar o arquivo e devolver a cota) ou `null`.
+// Returns the removed media (to delete the file and give the quota back) or `null`.
 export const removeMedia = async (
   tenantId: string,
   appointmentId: string,
@@ -139,7 +139,7 @@ export const removeMedia = async (
     return before?.media?.[0] ?? null;
   });
 
-// Compromisso excluído leva o registro (AD-130); devolve as mídias para apagar os arquivos.
+// A deleted appointment takes the record with it (AD-130); returns the media so the files are deleted.
 export const deleteByAppointment = async (tenantId: string, appointmentId: string): Promise<InspectionMediaWrite[]> =>
   withDbTiming('inspection.deleteByAppointment', async () => {
     const doc = await Inspection.findOneAndDelete(ofAppointment(tenantId, appointmentId)).lean();

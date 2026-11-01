@@ -27,7 +27,7 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
   const guard = [deps.validToken, tenantAssignmentCheck];
 
   router.post('/', ...guard, can('expert_cases', 'create'), validBody(createCaseSchema), caseController.createCase);
-  // Importação (AD-114, AD-118): o PDF só devolve o rascunho; o CSV cria as perícias.
+  // Import (AD-114, AD-118): the PDF only returns the draft; the CSV creates the cases.
   router.post(
     '/import/pdf',
     ...guard,
@@ -45,7 +45,7 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
   router.get('/stats', ...guard, can('expert_cases', 'view'), caseController.caseStats);
   router.get('/stalled', ...guard, can('expert_cases', 'view'), caseController.stalledSummary);
   router.get('/distribution', ...guard, can('expert_cases', 'view'), caseController.caseDistribution);
-  // Prazos (AD-109) seguem a permissão de perícias (AD-137). `/deadlines` vem antes de `/:id`.
+  // Deadlines (AD-109) follow the cases permission (AD-137). `/deadlines` comes before `/:id`.
   router.get(
     '/deadlines',
     ...guard,
@@ -91,7 +91,7 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
     validBody(createDeadlineSchema),
     deadlineController.createDeadline,
   );
-  // Movimentações que contam para a perícia parada (AD-121).
+  // Movements that count for the stalled case (AD-121).
   router.post(
     '/:id/movements',
     ...guard,

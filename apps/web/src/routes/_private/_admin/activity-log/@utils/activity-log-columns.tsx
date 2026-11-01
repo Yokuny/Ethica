@@ -10,7 +10,7 @@ import {
 } from '../@consts/activity-log-labels.js';
 import type { Activity } from '../@query/activityLog.js';
 
-// Módulos com tela de detalhe: o registro vira link enquanto existir.
+// Modules with a detail screen: the record becomes a link while it exists.
 const DETAIL = {
   expert_cases: '/expert-cases/details',
   parties: '/parties/details',

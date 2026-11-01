@@ -35,7 +35,7 @@ export function TransactionForm({ transaction, onClose }: { transaction?: Transa
                       placeholder={t('select')}
                       items={KIND_ITEMS}
                       onValueChange={handleKindChange}
-                      // A natureza não muda depois de lançada (regras de status diferentes, AD-111).
+                      // The kind does not change after posting (different status rules, AD-111).
                       disabled={Boolean(transaction)}
                     />
                     <SelectField

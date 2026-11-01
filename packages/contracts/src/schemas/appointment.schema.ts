@@ -8,11 +8,11 @@ export type AppointmentType = (typeof APPOINTMENT_TYPES)[number];
 export const APPOINTMENT_STATUS = ['scheduled', 'done', 'canceled'] as const;
 export type AppointmentStatus = (typeof APPOINTMENT_STATUS)[number];
 
-// Por que o compromisso foi cancelado no campo (AD-130): adiado ou parte ausente.
+// Why the appointment was canceled in the field (AD-130): postponed or absent party.
 export const APPOINTMENT_REASONS = ['postponed', 'absent'] as const;
 export type AppointmentReason = (typeof APPOINTMENT_REASONS)[number];
 
-// Data e hora chegam em hora de parede; o service converte para o instante UTC.
+// Date and time arrive as wall-clock time; the service converts them to the UTC instant.
 export const createAppointmentSchema = z
   .object({
     type: z.enum(APPOINTMENT_TYPES),

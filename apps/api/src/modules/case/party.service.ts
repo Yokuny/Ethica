@@ -24,7 +24,7 @@ export const getParty = async (tenantId: string, id: string): Promise<PartyRecor
   return party;
 };
 
-// Renomear atualiza a cópia do nome guardada nas perícias (AD-117).
+// Renaming updates the name copy kept on the cases (AD-117).
 export const updateParty = async (tenantId: string, id: string, data: UpdateParty): Promise<PartyRecord> => {
   const before = await getParty(tenantId, id);
   const name = data.name ? normalizeName(data.name) : undefined;
@@ -48,8 +48,8 @@ export const listPartyCases = async (tenantId: string, id: string) => {
   return caseRepository.listByParty(tenantId, id);
 };
 
-// Com `parteId`, usa o cadastro escolhido. Sem ele (AD-115): parte com CPF/CNPJ e advogado
-// com OAB são procurados só pelo documento; sem documento, pelo nome exato e tipo; senão cria.
+// With `partyId`, uses the chosen record. Without it (AD-115): a party with CPF/CNPJ and a lawyer
+// with OAB are looked up only by the document; without a document, by exact name and type; otherwise it creates one.
 const resolveParty = async (tenantId: string, input: CasePartyInput): Promise<PartyRecord> => {
   if (input.partyId) {
     const party = await partyRepository.findById(tenantId, input.partyId);
@@ -66,7 +66,7 @@ const resolveParty = async (tenantId: string, input: CasePartyInput): Promise<Pa
   return existing ?? partyRepository.createParty(tenantId, { type: input.type, name, document, oab });
 };
 
-// Em sequência: a mesma parte repetida na lista (ou no lote) resolve para um só cadastro.
+// In sequence: the same party repeated in the list (or in the batch) resolves to a single record.
 export const resolveParties = async (tenantId: string, inputs: CasePartyInput[]): Promise<CasePartyWrite[]> => {
   const result: CasePartyWrite[] = [];
   for (const input of inputs) {
@@ -83,7 +83,7 @@ export const resolveParties = async (tenantId: string, inputs: CasePartyInput[])
   return result;
 };
 
-// Destinatários do aviso de agendamento (AD-131): partes e advogados num só lote.
+// Schedule notice recipients (AD-131): parties and lawyers in a single batch.
 export const findByIds = (tenantId: string, ids: string[]) => partyRepository.findByIds(tenantId, ids);
 
 export const listForExport = (tenantId: string) => partyRepository.listAll(tenantId);

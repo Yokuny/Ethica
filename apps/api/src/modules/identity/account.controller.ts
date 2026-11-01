@@ -29,7 +29,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
 
 export const changePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // validToken já garantiu que o token existe e é desta sessão.
+    // validToken already ensured the token exists and belongs to this session.
     await accountService.changePassword(
       req.tenantUser.tenant as string,
       req.tenantUser.user,

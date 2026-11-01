@@ -1,12 +1,12 @@
-// Dicionário fixo pt-BR: toda string voltada ao usuário do app passa
-// por `t(key)` — sem biblioteca de i18n nem seletor de idioma. Inclui as
-// chaves que a API devolve em `message` (API_MESSAGE_KEYS de
+// Fixed pt-BR dictionary: every user-facing string of the app goes
+// through `t(key)` — no i18n library or language selector. It includes the
+// keys the API returns in `message` (API_MESSAGE_KEYS from
 // @ethica/contracts), traduzidas por lib/api/client.api.ts.
-// Regras de uso e criação de chave: ver apps/web/CLAUDE.md
-// ("Tradução (t()) e datas"). Resumo: chave plana, snake_case, nomeia
-// O TEXTO (nunca a tela/feature/papel); busca e reaproveita uma chave
-// genérica existente antes de criar uma nova; nova chave só 1:1 com o
-// texto, sem template/concat pra montar chave dinâmica.
+// Key usage and creation rules: see apps/web/CLAUDE.md
+// ("Tradução (t()) e datas"). Summary: flat key, snake_case, names
+// THE TEXT (never the screen/feature/role); search for and reuse an existing generic
+// key before creating a new one; a new key only 1:1 with the
+// text, no template/concat to build a dynamic key.
 const translations: Record<string, string> = {
   accept_invite: 'Aceitar convite',
   account: 'Conta',
@@ -434,7 +434,7 @@ const translations: Record<string, string> = {
   register_receipt: 'Registrar recebimento',
   reverse_receipt: 'Estornar',
   reverse_receipt_question: 'Estornar este recebimento?',
-  // Assuntos técnicos do Datajud (AD-113)
+  // Datajud technical subjects (AD-113)
   hazardous_conditions: 'Periculosidade',
   unhealthy_conditions: 'Insalubridade',
   work_accident: 'Acidente de trabalho',
@@ -505,7 +505,7 @@ const translations: Record<string, string> = {
   unsupported_court: 'Justiça não atendida (só trabalhista, estadual e federal).',
   multiple_process_numbers: 'O PDF tem mais de um número de processo; usamos o primeiro.',
   deadline_calculated: 'Prazo do laudo calculado em dias corridos a partir da nomeação. Confira.',
-  // Base de documentos (DOC-01..04)
+  // Document base (DOC-01..04)
   new_movement: 'Nova movimentação',
   movement_description: 'Fato do processo que reinicia a contagem de perícia parada.',
   choose_type: 'Escolha o tipo',
@@ -825,7 +825,7 @@ const translations: Record<string, string> = {
   no_recipients: 'Nenhuma parte ou advogado da perícia tem e-mail cadastrado.',
   geocoding_unavailable: 'Localização de endereços indisponível agora.',
   notice_sent: 'Aviso enviado às partes.',
-  // Gestão do escritório (gestao-escritorio): matriz, diário, fases, contratante e início.
+  // Office management (gestao-escritorio): matrix, activity log, phases, client and home.
   permissions: 'Permissões',
   permissions_invite_description:
     'O perfil traz as permissões sugeridas; ajuste o que este membro pode ver, inserir, editar e excluir.',
@@ -902,20 +902,20 @@ const translations: Record<string, string> = {
   stalled_report_pdf: 'ver o relatório',
 };
 
-// Idiomas suportados pelo app — hoje só o pt-BR (o default). Um idioma novo
-// entra aqui e o `Record<Language, ...>` de formatDate.helper.ts passa a
-// exigir os formatos de data dele.
+// Languages supported by the app — today only pt-BR (the default). A new language
+// goes here and the `Record<Language, ...>` of formatDate.helper.ts starts
+// requiring its date formats.
 export type Language = 'pt-BR';
 export const DEFAULT_LANGUAGE: Language = 'pt-BR';
 
-// Índice 0=domingo..6=sábado (Date#getUTCDay), mesma faixa de
-// `weeklySchedule` — usar pra chave dinâmica de dia da semana, nunca
+// Index 0=Sunday..6=Saturday (Date#getUTCDay), same range as
+// `weeklySchedule` — use it for a dynamic weekday key, never
 // montar `weekday.${n}`.
 export const WEEKDAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
 
 export const t = (key: string): string => translations[key] ?? key;
 
-// `t()` não distingue "chave existe" de "chave sumiu" (os dois caem no ??
-// key) — este helper existe só pro teste-guarda (translate.helper.unit.test.ts)
-// conseguir validar de verdade que toda chave usada no código está aqui.
+// `t()` does not tell "key exists" from "key is gone" (both fall into ??
+// key) — this helper only exists so the guard test (translate.helper.unit.test.ts)
+// can really validate that every key used in the code is here.
 export const translationKeys = new Set(Object.keys(translations));

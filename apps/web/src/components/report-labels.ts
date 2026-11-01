@@ -2,7 +2,7 @@ import { REPORT_VARIABLES, type ReportStatus, type ReportVariable } from '@ethic
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Rótulo de cada variável do laudo com um exemplo de valor (LAU-01.3).
+// Label of each report variable with a sample value (LAU-01.3).
 const VARIABLE_KEY: Record<ReportVariable, string> = {
   '[NUMERO_PROCESSO]': 'variable_process_number',
   '[TRIBUNAL]': 'variable_court',
@@ -46,7 +46,7 @@ export const variableItems = REPORT_VARIABLES.map((variable) => ({
   label: `${variable} — ${variableLabel(variable)}`,
 }));
 
-// Laudo é masculino: rótulo próprio em vez do `completed` da perícia ("Concluída").
+// "Laudo" is masculine: its own label instead of the case `completed` ("Concluída").
 const REPORT_STATUS_KEY: Record<ReportStatus, string> = { draft: 'draft', completed: 'completed_report' };
 export const reportStatusLabel = (status: ReportStatus): string => t(REPORT_STATUS_KEY[status]);
 

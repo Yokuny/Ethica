@@ -6,7 +6,7 @@ import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { StalledCases } from '@/query/case.js';
 
-// Bloco "Perícias paradas" (GES-05): as mais antigas sem movimentação e o caminho para o PDF.
+// "Stalled cases" block (GES-05): the oldest ones without movement and the way to the PDF.
 export function StalledCasesList({ stalled }: { stalled: StalledCases }) {
   return (
     <div className="grid gap-3">

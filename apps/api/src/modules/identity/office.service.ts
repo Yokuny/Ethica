@@ -21,7 +21,7 @@ const requireStorage = (storage: FileStorage | undefined): FileStorage => {
 
 export const getOffice = async (tenantId: string): Promise<OfficeView> => {
   const tenant = await findOfficeOrThrow(tenantId);
-  // As últimas exportações vêm do diário de bordo (AD-134).
+  // The latest exports come from the activity log (AD-134).
   const exports = await activityLogService.latestExports(tenantId, EXPORTS_SHOWN);
   return {
     header: tenant.header ?? '',
@@ -38,8 +38,8 @@ export const updateOffice = async (tenantId: string, data: UpdateOffice): Promis
   return getOffice(tenantId);
 };
 
-// O arquivo novo vai primeiro para o storage com chave própria; só depois a cota é reservada.
-// Sem cota, o novo é apagado e o logo atual fica; com sucesso, o anterior sai do storage.
+// The new file goes to storage first with its own key; only then the quota is reserved.
+// Without quota, the new one is deleted and the current logo stays; on success, the previous one leaves storage.
 export const setLogo = async (storage: FileStorage | undefined, tenantId: string, png: Buffer): Promise<OfficeView> => {
   const files = requireStorage(storage);
   if (!png.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
@@ -73,7 +73,7 @@ export const getLogo = async (storage: FileStorage | undefined, tenantId: string
   return bytes;
 };
 
-// Para os PDFs (AD-121): sem logo, ou sem storage configurado, o marcador [LOGO] some.
+// For the PDFs (AD-121): without a logo, or without storage configured, the [LOGO] marker is dropped.
 export const getDocumentIdentity = async (
   storage: FileStorage | undefined,
   tenantId: string,
@@ -88,15 +88,15 @@ export const getDocumentIdentity = async (
   };
 };
 
-// Cota de arquivos para outros módulos (mídias da vistoria, AD-129): reservar antes de gravar
-// a referência e devolver ao apagar o arquivo.
+// File quota for other modules (inspection media, AD-129): reserve before saving
+// the reference and give back when the file is deleted.
 export const reserveFile = async (tenantId: string, bytes: number): Promise<void> => {
   if (!(await officeRepository.reserveBytes(tenantId, bytes))) throw new CustomError('storage_quota_exceeded', 422);
 };
 
 export const returnFile = (tenantId: string, bytes: number) => officeRepository.returnBytes(tenantId, bytes);
 
-// Modelo do aviso de agendamento às partes (AD-131); sem modelo gravado, vale o padrão.
+// Template of the schedule notice to the parties (AD-131); with no saved template, the default applies.
 export const DEFAULT_SCHEDULE_NOTICE: UpdateScheduleNotice = {
   subject: 'Aviso de agendamento: [TIPO_EVENTO] - Processo [NUMERO_PROCESSO]',
   body: [

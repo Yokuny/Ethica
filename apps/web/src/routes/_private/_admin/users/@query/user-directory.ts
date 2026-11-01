@@ -4,18 +4,18 @@ import { get, patch } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { userKeys } from '@/query/user.js';
 
-// REG-07/08 (AD-071): diretório da tela de usuários, só admin. Consumidor
-// único, por isso local; a chave fica sob userKeys.all para invalidar junto.
+// REG-07/08 (AD-071): users screen directory, admin only. Single
+// consumer, hence local; the key lives under userKeys.all to be invalidated together.
 export type UserDirectoryEntry = {
   id: string;
   name: string;
   email: string;
   role: Array<'admin' | 'manager' | 'operator'>;
-  // Matriz efetiva (AD-137): admin com tudo.
+  // Effective matrix (AD-137): admin with everything.
   permissions: Permissions;
   active: boolean;
   createdAt: string;
-  // Caminho versionado da foto (ACC-09), ausente sem foto.
+  // Versioned photo path (ACC-09), missing without a photo.
   avatar?: string;
 };
 

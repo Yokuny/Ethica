@@ -22,8 +22,8 @@ import { parseDocument } from 'htmlparser2';
 import { textsHeaderFooter } from './document.layout.js';
 import type { ReportExportData } from './report.schema.js';
 
-// Laudo em Word (AD-125): o mesmo HTML saneado (AD-123) lido com htmlparser2, tag por tag da
-// allowlist, mais capa, sumário (campo atualizado ao abrir) e cabeçalho/rodapé do escritório.
+// Report in Word (AD-125): the same sanitized HTML (AD-123) read with htmlparser2, tag by tag of the
+// allowlist, plus cover, table of contents (field updated on open) and office header/footer.
 
 type No = ReturnType<typeof parseDocument>['children'][number];
 type Photos = ReportExportData['photos'];
@@ -103,7 +103,7 @@ const list = (no: No, level: number): Paragraph[] => {
     ]);
 };
 
-// Largura e altura em pixels pelo cabeçalho do arquivo: IHDR do PNG ou SOF do JPEG.
+// Width and height in pixels from the file header: PNG IHDR or JPEG SOF.
 export const imageDimensions = (image: Buffer): { width: number; height: number } | null => {
   if (image.subarray(1, 4).toString() === 'PNG')
     return { width: image.readUInt32BE(16), height: image.readUInt32BE(20) };
@@ -119,7 +119,7 @@ export const imageDimensions = (image: Buffer): { width: number; height: number 
   return null;
 };
 
-// Foto da vistoria (AD-129): no máximo 15 cm de largura e 12 cm de altura, centralizada.
+// Inspection photo (AD-129): at most 15 cm wide and 12 cm tall, centered.
 const photo = (no: No, photos: Photos): Paragraph[] => {
   const src = no.type === 'tag' ? no.attribs.src : undefined;
   const file = src ? photos[src] : undefined;
@@ -152,7 +152,7 @@ function blocks(nos: No[], format: Format = {}, photos: Photos = {}): Block[] {
             children: runs(children(no), format),
           }),
         ];
-      // Título dentro do texto: negrito, fora do sumário (que lista só as seções).
+      // Heading inside the text: bold, left out of the table of contents (which only lists sections).
       case 'h3':
       case 'h4':
         return [new Paragraph({ spacing: { before: 120 }, children: runs(children(no), { ...format, bold: true }) })];

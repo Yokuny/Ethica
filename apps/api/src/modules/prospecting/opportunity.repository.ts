@@ -38,7 +38,7 @@ export const findById = async (tenantId: string, id: string): Promise<Opportunit
     return doc ? toRecord(doc) : null;
   });
 
-// A guarda contra editar uma convertida é a própria query (status ≠ convertida).
+// The guard against editing a converted one is the query itself (status ≠ converted).
 export const updateOpportunity = async (
   tenantId: string,
   id: string,
@@ -99,7 +99,7 @@ export const stats = async (tenantId: string): Promise<ListStats> =>
     return { total, trend, groups };
   });
 
-// Exportação de dados (DOC-04).
+// Data export (DOC-04).
 export const listAll = async (tenantId: string): Promise<OpportunityRecord[]> =>
   withDbTiming('opportunity.listAll', async () => {
     const docs = await Opportunity.find(tenantScoped({ Tenant: tenantId }))

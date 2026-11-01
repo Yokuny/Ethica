@@ -18,7 +18,7 @@ export class OpportunityNotFoundError extends KeyedError {}
 const isDuplicateKeyError = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
 
-// Busca de possíveis nomeações no Datajud; cada resultado já salvo leva o id da oportunidade.
+// Search for possible nominations on Datajud; each result already saved carries the opportunity id.
 export const searchDatajud = async (
   client: DatajudClient | undefined,
   tenantId: string,
@@ -66,7 +66,7 @@ export const updateOpportunity = async (
 ): Promise<OpportunityRecord> => {
   const updated = await opportunityRepository.updateOpportunity(tenantId, id, data);
   if (updated) return updated;
-  // Sem atualização: ou não existe, ou já foi convertida.
+  // No update: either it does not exist or it was already converted.
   await getOpportunity(tenantId, id);
   throw new CustomError('opportunity_already_converted', 409);
 };
@@ -80,8 +80,8 @@ export const listOpportunities = (tenantId: string, query: ListOpportunitiesQuer
   opportunityRepository.listOpportunities(tenantId, query);
 export const opportunityStats = (tenantId: string) => opportunityRepository.stats(tenantId);
 
-// A resposta precisa do id da perícia criada, então a criação é chamada direta
-// ao service dono (não evento). Perícia já cadastrada responde 409 e a
+// The response needs the id of the created case, so creation is a direct call
+// to the owning service (not an event). A case already registered answers 409 and the
 // oportunidade continua aberta.
 export const convertOpportunity = async (
   tenantId: string,

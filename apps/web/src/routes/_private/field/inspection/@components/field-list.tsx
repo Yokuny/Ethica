@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Bloco repetível do registro: um item por linha, com remover e adicionar.
+// Repeatable record block: one item per row, with remove and add.
 export function FieldList({
   title,
   empty,

@@ -6,9 +6,9 @@ import {
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-// Diário de bordo (AD-134): uma entrada por ação de escrita bem-sucedida, exportação ou
-// entrada no sistema. Nome e rótulo são gravados para a entrada sobreviver à exclusão
-// do usuário ou do registro.
+// Activity log (AD-134): one entry per successful write action, export or
+// sign-in. Name and label are saved so the entry survives the deletion
+// of the user or of the record.
 export interface ActivityDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
@@ -22,7 +22,7 @@ export interface ActivityDocument {
   createdAt: Date;
 }
 
-// Guarda de 1 ano (AD-134): o índice TTL apaga a entrada sozinho.
+// 1-year retention (AD-134): the TTL index deletes the entry by itself.
 export const ACTIVITY_TTL_SECONDS = 365 * 24 * 60 * 60;
 
 const activitySchema = new Schema<ActivityDocument>(

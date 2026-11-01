@@ -20,14 +20,14 @@ const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`
 type DeadlineDialogProps = {
   deadline: DeadlineRecord;
   onClose: () => void;
-  // Só o detalhe da perícia edita título/vencimento; a agenda abre a perícia.
+  // Only the case detail edits title/due date; the agenda opens the case.
   onEdit?: () => void;
-  // Bloco extra abaixo da leitura (a agenda mostra os recebimentos da perícia).
+  // Extra block below the read view (the agenda shows the case receipts).
   children?: ReactNode;
 };
 
-// Leitura do prazo com as ações do dia a dia (AD-109): protocolar com a data de
-// entrega, marcar perdido, reabrir e remover. Usado pela perícia e pela agenda.
+// Deadline read view with the day-to-day actions (AD-109): file with the delivery
+// date, mark missed, reopen and remove. Used by the case and by the agenda.
 export function DeadlineDialog({ deadline, onClose, onEdit, children }: DeadlineDialogProps) {
   const queryClient = useQueryClient();
   const updateMutation = useMutation(updateDeadlineMutation(queryClient));

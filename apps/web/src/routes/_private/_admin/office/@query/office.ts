@@ -4,7 +4,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { del, get, put, sendFile } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Espelha OfficeView de apps/api/src/modules/identity/office.schema.ts.
+// Mirrors OfficeView of apps/api/src/modules/identity/office.schema.ts.
 export type OfficeView = {
   header: string;
   footer: string;
@@ -38,7 +38,7 @@ export const updateOfficeMutation = (
   onSuccess: setOffice(queryClient),
 });
 
-// `png` já reduzido no navegador (AD-120); `null` remove o logo.
+// `png` already shrunk in the browser (AD-120); `null` removes the logo.
 export const setLogoMutation = (queryClient: QueryClient): UseMutationOptions<OfficeView, Error, Blob | null> => ({
   mutationFn: async (png) => {
     const res = png
@@ -50,7 +50,7 @@ export const setLogoMutation = (queryClient: QueryClient): UseMutationOptions<Of
   onSuccess: setOffice(queryClient),
 });
 
-// Modelo do aviso de agendamento às partes (AD-131); a API devolve o padrão quando não há.
+// Template of the schedule notice to the parties (AD-131); the API returns the default when there is none.
 export type ScheduleNotice = { subject: string; body: string };
 export const scheduleNoticeKeys = { detail: ['office', 'schedule-notice'] as const };
 

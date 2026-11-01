@@ -71,14 +71,14 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
 const toPartiesDocs = (parties: CasePartyWrite[]) =>
   parties.map(({ partyId, ...party }) => ({ ...party, Party: partyId }));
 
-// Situação derivada (AD-133) como filtro do banco: a mesma regra de `situacaoDaPericia`.
+// Derived state (AD-133) as a database filter: the same rule as `caseState`.
 const stateFilter = {
   closed: { status: { $in: CASE_CLOSED_STATUSES } },
   suspended: { status: { $nin: CASE_CLOSED_STATUSES }, phase: { $in: CASE_PHASES_SUSPENSION } },
   active: { status: { $nin: CASE_CLOSED_STATUSES }, phase: { $nin: CASE_PHASES_SUSPENSION } },
 };
 
-// Etapas em que a perícia ainda tem trabalho do perito pela frente.
+// Statuses in which the case still has work ahead for the expert.
 const OPEN = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
 
 export const createCase = async ({ tenant, opportunityId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
@@ -92,15 +92,15 @@ export const createCase = async ({ tenant, opportunityId, parties, ...data }: Ca
     return toRecord(doc);
   });
 
-// Toda rota por :id passa por aqui: o filtro carrega o Tenant, então o id de
-// outro tenant simplesmente não existe (AD-010).
+// Every route by :id goes through here: the filter carries the Tenant, so an id from
+// another tenant simply does not exist (AD-010).
 export const findById = async (tenantId: string, id: string): Promise<CaseRecord | null> =>
   withDbTiming('case.findById', async () => {
     const doc = await Case.findOne(tenantScoped({ Tenant: tenantId, _id: id })).lean();
     return doc ? toRecord(doc) : null;
   });
 
-// Aviso de duplicado do PDF (IMP-01.3): o id da perícia com o mesmo número no tenant.
+// PDF duplicate warning (IMP-01.3): the id of the case with the same number in the tenant.
 export const findIdByNumber = async (tenantId: string, processNumber: string): Promise<string | undefined> =>
   withDbTiming('case.findIdByNumber', async () => {
     const doc = await Case.findOne(tenantScoped({ Tenant: tenantId, processNumber }))
@@ -109,7 +109,7 @@ export const findIdByNumber = async (tenantId: string, processNumber: string): P
     return doc?._id.toString();
   });
 
-// Só os campos informados entram no $set — um campo omitido nunca vira undefined.
+// Only the given fields go into $set — an omitted field never becomes undefined.
 export const updateCase = async (
   tenantId: string,
   id: string,
@@ -140,7 +140,7 @@ export const addMovement = async (tenantId: string, id: string, data: CreateMove
     return doc ? toRecord(doc) : null;
   });
 
-// `null` quando a perícia ou a movimentação não existem.
+// `null` when the case or the movement does not exist.
 export const removeMovement = async (tenantId: string, id: string, movementId: string): Promise<CaseRecord | null> =>
   withDbTiming('case.removeMovement', async () => {
     const oid = toObjectId(movementId);
@@ -152,8 +152,8 @@ export const removeMovement = async (tenantId: string, id: string, movementId: s
     return doc ? toRecord(doc) : null;
   });
 
-// Perícia parada (AD-121): não encerrada e com a referência (última movimentação, senão a
-// nomeação, senão o dia do cadastro) antes de `limite`. Da mais antiga para a mais recente.
+// Stalled case (AD-121): not closed and with the reference (last movement, otherwise the
+// nomination, otherwise the registration day) before `limit`. From oldest to newest.
 export const listStalled = async (tenantId: string, limit: string): Promise<Array<Omit<StalledCase, 'stalledDays'>>> =>
   withDbTiming('case.listStalled', async () => {
     const docs = await Case.aggregate<{
@@ -167,7 +167,7 @@ export const listStalled = async (tenantId: string, limit: string): Promise<Arra
       nominationDate?: string;
       reference: string;
     }>([
-      // Suspensa (AD-133) não está parada: espera um fato fora do controle do perito.
+      // Suspended (AD-133) is not stalled: it waits for a fact outside the expert's control.
       {
         $match: {
           Tenant: toObjectId(tenantId),
@@ -214,7 +214,7 @@ export const listStalled = async (tenantId: string, limit: string): Promise<Arra
     }));
   });
 
-// Exportação de dados (DOC-04): todas as perícias do tenant.
+// Data export (DOC-04): every case of the tenant.
 export const listAll = async (tenantId: string): Promise<CaseRecord[]> =>
   withDbTiming('case.listAll', async () => {
     const docs = await Case.find(tenantScoped({ Tenant: tenantId }))
@@ -242,7 +242,7 @@ export const listCases = async (
     };
     const skip = (query.page - 1) * query.limit;
 
-    // Busca de texto no Atlas Search (AD-054): trechos de palavras, sem acento, nunca regex.
+    // Text search on Atlas Search (AD-054): word fragments, accent-insensitive, never regex.
     if (query.q) {
       const [result] = await withSearch(() =>
         Case.aggregate<{ items: CaseDocument[]; total: { n: number }[] }>([
@@ -267,7 +267,7 @@ export const listCases = async (
     return { items: docs.map(toRecord), total };
   });
 
-// Enriquecimento cross-módulo: uma consulta `$in` por lote, nunca uma por item.
+// Cross-module enrichment: one `$in` query per batch, never one per item.
 export const findSummariesByIds = async (tenantId: string, ids: string[]): Promise<Map<string, CaseSummary>> =>
   withDbTiming('case.findSummariesByIds', async () => {
     if (ids.length === 0) return new Map();
@@ -292,7 +292,7 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
     );
   });
 
-// Renomear a parte atualiza a cópia do nome em todas as perícias em que ela aparece (AD-117).
+// Renaming the party updates the name copy in every case it appears in (AD-117).
 export const renameParty = async (tenantId: string, partyId: string, name: string): Promise<void> =>
   withDbTiming('case.renameParty', async () => {
     await Case.updateMany(
@@ -302,7 +302,7 @@ export const renameParty = async (tenantId: string, partyId: string, name: strin
     );
   });
 
-// Perícias em que a parte aparece (IMP-03), da mais recente para a mais antiga.
+// Cases the party appears in (IMP-03), from newest to oldest.
 export const listByParty = async (tenantId: string, partyId: string): Promise<CaseRecord[]> =>
   withDbTiming('case.listByParty', async () => {
     const docs = await Case.find(tenantScoped({ Tenant: tenantId, 'parties.Party': toObjectId(partyId) }))
@@ -318,8 +318,8 @@ const addDays = (day: string, days: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
-// Faixa da listagem: abertas, prazos pendentes vencidos, prazos que vencem em breve
-// (até `venceEmBreveDias`) e laudos entregues.
+// Listing strip: open, overdue pending deadlines, deadlines due soon
+// (up to `dueSoonDays`) and delivered reports.
 export const stats = async (tenantId: string, dueSoonDays: number, now: Date = new Date()): Promise<ListStats> =>
   withDbTiming('case.stats', async () => {
     const today = dateInDisplayTz(now);

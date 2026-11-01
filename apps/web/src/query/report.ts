@@ -16,7 +16,7 @@ import { t } from '../lib/helpers/translate.helper.js';
 import { caseKeys } from './case.js';
 import { deadlineKeys } from './deadline.js';
 
-// Espelha os records de apps/api/src/modules/documentos/laudo.schema.ts.
+// Mirrors the records of apps/api/src/modules/documents/report.schema.ts.
 export type TemplateSectionRecord = TemplateSection & { id: string };
 export type TemplateRecord = {
   id: string;
@@ -101,7 +101,7 @@ export const templateQuery = (id: string) =>
       unwrap(await get<TemplateRecord>(`/expert-reports/templates/${encodeURIComponent(id)}`), 'load_error'),
   });
 
-// Laudo: a resposta já é o laudo atualizado; grava no cache do detalhe e refaz as listas.
+// Report: the response is already the updated report; saves it in the detail cache and refetches the lists.
 const updatedReport = (queryClient: QueryClient, report: ReportRecord) => {
   queryClient.setQueryData(reportKeys.detail(report.id), report);
   queryClient.invalidateQueries({ queryKey: reportKeys.lists() });
@@ -130,7 +130,7 @@ export const removeReportSectionMutation = (
   onSuccess: (report) => updatedReport(queryClient, report),
 });
 
-// Concluir com a entrega mexe no prazo, nas movimentações e na etapa da perícia (AD-126).
+// Completing with delivery touches the case deadline, movements and status (AD-126).
 export const completeReportMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<ReportRecord, Error, { id: string; data: CompleteReport }> => ({
@@ -151,7 +151,7 @@ export const deleteReportMutation = (queryClient: QueryClient): UseMutationOptio
   onSuccess: () => queryClient.invalidateQueries({ queryKey: reportKeys.lists() }),
 });
 
-// Modelos: grava o detalhe e refaz as listas de modelos.
+// Templates: saves the detail and refetches the template lists.
 const updatedTemplate = (queryClient: QueryClient, template: TemplateRecord) => {
   queryClient.setQueryData(reportKeys.template(template.id), template);
   queryClient.invalidateQueries({ queryKey: [...reportKeys.all, 'templates'] });

@@ -1,8 +1,8 @@
 import { REPORT_LEVEL_MAX, REPORT_TYPES, type ReportType } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-// Seção do modelo (LAU-01): a ordem é a do array e o número ("2.1") é calculado pelo nível,
-// nunca gravado (AD-126). Os textos são HTML saneado na API (AD-123).
+// Template section (LAU-01): the order is the array order and the number ("2.1") is calculated from the level,
+// never stored (AD-126). The texts are HTML sanitized in the API (AD-123).
 export interface TemplateSectionDocument {
   _id: mongoose.Types.ObjectId;
   title: string;

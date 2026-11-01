@@ -1,8 +1,8 @@
 import type { ActivityLogAction, ActivityLogModule } from '@ethica/contracts';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
-// Diário de bordo (AD-134): um middleware único grava toda escrita bem-sucedida do tenant.
-// A gravação é injetada pelo `app.ts` (a camada compartilhada não importa módulos) e nunca
+// Activity log (AD-134): a single middleware records every successful tenant write.
+// The writer is injected by `app.ts` (the shared layer does not import modules) and never
 // segura nem derruba a resposta.
 export type Activity = {
   tenantId: string;
@@ -22,7 +22,7 @@ const ACTION_BY_METHOD: Record<string, ActivityLogAction> = {
   PATCH: 'update',
   DELETE: 'delete',
 };
-// Sufixo de caminho que nomeia a ação melhor que o método.
+// Path suffix that names the action better than the method.
 const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
   complete: 'complete',
   convert: 'convert',
@@ -30,7 +30,7 @@ const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
   export: 'export',
   move: 'update',
 };
-// Efeito técnico ou leitura com POST: não é ação de quem usa o sistema.
+// Technical effect or a read through POST: not an action of whoever uses the system.
 const IGNORED = [
   '/me/preferences',
   '/auth/signin',
@@ -59,7 +59,7 @@ const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
   return first ? map[first] : undefined;
 };
 
-// Módulo, recurso e ação a partir do método e do caminho; `undefined` = não registra.
+// Module, resource and action from the method and the path; `undefined` = not recorded.
 export const describeRequest = (
   method: string,
   path: string,

@@ -2,9 +2,9 @@
 
 import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible';
 
-// Porte do collapsible shadcn do iotlog-frontend-v2 (Radix) para Base UI: o
-// `CollapsibleContent` do Radix é o `Collapsible.Panel` aqui, e `asChild` vira
-// `render`. Sem estilo: quem usa (apps/web/src/components/record.tsx) desenha.
+// Port of the iotlog-frontend-v2 shadcn collapsible (Radix) to Base UI: Radix
+// `CollapsibleContent` is `Collapsible.Panel` here, and `asChild` becomes
+// `render`. No style: whoever uses it (apps/web/src/components/record.tsx) draws it.
 function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {
   return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />;
 }

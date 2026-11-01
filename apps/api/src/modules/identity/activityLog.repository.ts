@@ -23,7 +23,7 @@ export const record = async ({ tenantId, userId, ...data }: NewActivity): Promis
     await Activity.create({ ...data, Tenant: tenantId, User: userId, userName: user.name });
   });
 
-// Período em dias de calendário no fuso de exibição: limites como instantes (AD-036/AD-103).
+// Period in calendar days in the display time zone: bounds as instants (AD-036/AD-103).
 export const listActivities = async (
   tenantId: string,
   query: ListActivityLogQuery,
@@ -50,7 +50,7 @@ export const listActivities = async (
     return { items: docs.map(toRecord), total };
   });
 
-// As últimas exportações de dados do escritório (substitui `Tenant.dataExports`, AD-134).
+// The office's latest data exports (replaces `Tenant.dataExports`, AD-134).
 export const latestExports = async (tenantId: string, limit: number): Promise<ActivityRecord[]> =>
   withDbTiming('activityLog.latestExports', async () => {
     const docs = await Activity.find(tenantScoped({ Tenant: tenantId, action: 'export' as const }))

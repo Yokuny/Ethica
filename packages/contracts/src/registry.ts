@@ -58,9 +58,9 @@ export const TENANT_FORBIDDEN_KEYS = [
   'company',
 ] as const;
 
-// Todo schema Zod exportado de um *.schema.ts entra aqui: o teste estrutural
-// (tests/structural/schema-registry.structural.test.ts) varre o repo, falha no
-// schema esquecido e garante que nenhum aceita chave de tenant (AD-010).
+// Every Zod schema exported from a *.schema.ts goes here: the structural test
+// (tests/structural/schema-registry.structural.test.ts) scans the repo, fails on a
+// forgotten schema and ensures none accepts a tenant key (AD-010).
 export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = [
   { name: 'provisionTenantSchema', schema: provisionTenantSchema },
   { name: 'createInviteSchema', schema: createInviteSchema },

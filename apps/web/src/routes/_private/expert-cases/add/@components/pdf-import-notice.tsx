@@ -5,7 +5,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { PdfExtraction } from '../../@query/import.js';
 import { FIELD_LABEL } from '../@consts/field-label.js';
 
-// O que o PDF não trouxe e os avisos da extração, acima do formulário já preenchido.
+// What the PDF did not bring and the extraction warnings, above the already filled form.
 export function PdfImportNotice({ extraction }: { extraction: PdfExtraction }) {
   const { missing, warnings, existingId } = extraction;
   return (

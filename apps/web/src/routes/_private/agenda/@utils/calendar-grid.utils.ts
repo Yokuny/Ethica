@@ -9,15 +9,15 @@ const MIN_ITEM_HEIGHT_PX = 20;
 
 export type PositionedItem = {
   item: AppointmentRecord;
-  // px a partir do topo da coluna do dia (00:00) e altura em px — sempre
-  // derivados de formatDisplayTime/formatDisplayDate (fuso de exibição),
-  // nunca de date-fns/fuso do navegador (AD-036).
+  // px from the top of the day column (00:00) and height in px — always
+  // derived from formatDisplayTime/formatDisplayDate (display time zone),
+  // never from date-fns/browser time zone (AD-036).
   top: number;
   height: number;
-  // Posição do item dentro do cluster de itens sobrepostos que ele pertence
-  // (0 = não sobrepõe nada antes dele). A visão usa isso pra "empilhar em
-  // cascata" quem sobrepõe, nunca pra dividir a largura da coluna em N —
-  // ver comentário de computePositionedItems.
+  // Position of the item inside the cluster of overlapping items it belongs to
+  // (0 = overlaps nothing before it). The view uses it to "stack in a
+  // cascade" whoever overlaps, never to split the column width into N —
+  // see the computePositionedItems comment.
   column: number;
 };
 
@@ -26,11 +26,11 @@ const displayMinutesOfDay = (instant: string): number => {
   return hours * 60 + minutes;
 };
 
-// Trecho do item que cai dentro de `day` (YYYY-MM-DD, fuso de exibição), em
-// minutos desde 00:00. Um bloqueio pode atravessar vários dias (ex.: 18/09
-// 00:00 -> 19/09 23:59): nos dias do meio o trecho é o dia inteiro, e nunca
-// passa de 24h — senão o item vaza da coluna. `null` quando o item não toca
-// o dia (inclusive quando termina exatamente às 00:00 dele).
+// Part of the item that falls inside `day` (YYYY-MM-DD, display time zone), in
+// minutes since 00:00. A block can span several days (e.g. 18/09
+// 00:00 -> 19/09 23:59): on the middle days the part is the whole day, and it never
+// goes past 24h — otherwise the item leaks out of the column. `null` when the item does not touch
+// the day (including when it ends exactly at its 00:00).
 const daySegment = (item: AppointmentRecord, day: string): { startMinutes: number; endMinutes: number } | null => {
   const startDay = formatDisplayDate(item.start);
   const endDay = formatDisplayDate(item.end);
@@ -45,13 +45,13 @@ const daySegment = (item: AppointmentRecord, day: string): { startMinutes: numbe
 
 export const itemOverlapsDay = (item: AppointmentRecord, day: string): boolean => daySegment(item, day) !== null;
 
-// Layout de itens sobrepostos pra uma grade de um único dia: agrupa os
-// trechos em clusters de horário que se cruzam e atribui a cada um um índice
-// de coluna (algoritmo guloso de coloração de intervalo). A visão usa esse
-// índice pra empilhar em CASCATA (cada item sobreposto desloca um pouco pra
-// direita e fica um pouco mais estreito, sempre continuando legível) — nunca
-// pra dividir a largura em 1/N, que faz os cartões virarem lascas de 1
-// caractere quando há 3+ horários sobrepostos no mesmo dia.
+// Overlapping item layout for a single-day grid: groups the
+// parts into clusters of crossing times and gives each one a column
+// index (greedy interval coloring algorithm). The view uses that
+// index to stack in a CASCADE (each overlapping item shifts a bit to the
+// right and gets a bit narrower, always staying readable) — never
+// to split the width into 1/N, which turns the cards into 1-character
+// slivers when there are 3+ overlapping times on the same day.
 export function computePositionedItems(items: AppointmentRecord[], day: string): PositionedItem[] {
   const entries = items
     .flatMap((item) => {
@@ -76,8 +76,8 @@ export function computePositionedItems(items: AppointmentRecord[], day: string):
 
     cluster.forEach((entry, index) => {
       const height = Math.max(((entry.endMinutes - entry.startMinutes) / 60) * HOUR_HEIGHT_PX, MIN_ITEM_HEIGHT_PX);
-      // Item curtinho no fim do dia (ex.: 23:50) ganha a altura mínima e
-      // passaria da última linha — sobe o bastante pra caber na coluna.
+      // A very short item at the end of the day (e.g. 23:50) gets the minimum height and
+      // would go past the last line — it moves up enough to fit in the column.
       const top = Math.min((entry.startMinutes / 60) * HOUR_HEIGHT_PX, COLUMN_HEIGHT_PX - height);
       positioned.push({ item: entry.item, top, height, column: columnByEntry[index] as number });
     });

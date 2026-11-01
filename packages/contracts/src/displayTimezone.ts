@@ -1,7 +1,7 @@
-// AD-036: convenção de tempo do projeto — instante sempre em UTC, conversão
-// para hora local só na borda de apresentação (tela e texto que a IA envia).
-// Vive em packages/contracts, não em packages/db (correção da fase Tasks):
-// apps/web depende de contracts mas nunca de db, e o front precisa da mesma
-// constante para formatar o mesmo horário que o back-end grava, qualquer que
-// seja o fuso do navegador.
+// AD-036: project time convention — instants always in UTC, conversion
+// to local time only at the presentation edge (screen and text the AI sends).
+// Lives in packages/contracts, not in packages/db (fix from the Tasks phase):
+// apps/web depends on contracts but never on db, and the front needs the same
+// constant to format the same time the back-end saves, whatever
+// the browser time zone.
 export const DISPLAY_TIMEZONE = 'America/Sao_Paulo';

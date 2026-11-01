@@ -7,7 +7,7 @@ import type { NoticeDeadline } from '../case/deadline.schema.js';
 import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
 
-// Consolidado diário às 07:00 de São Paulo (AD-110, AD-036).
+// Daily digest at 07:00 São Paulo time (AD-110, AD-036).
 const NOTICE_HOUR = '07:00';
 
 const addDays = (day: string, days: number): string => {
@@ -21,7 +21,7 @@ const escapeHtml = (value: string): string =>
 
 const formatDay = (day: string): string => `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
 
-// Próximo 07:00 de São Paulo depois de `now` (instante UTC, offset resolvido na data alvo).
+// Next 07:00 in São Paulo after `now` (UTC instant, offset resolved on the target date).
 export const nextExecution = (now: Date): Date => {
   const today = dateInDisplayTz(now);
   const at = wallClockToUtc(today, NOTICE_HOUR);
@@ -47,9 +47,9 @@ const buildEmail = (
     })
     .join('');
 
-// PRZ-04: um e-mail por pessoa com os prazos pendentes que vencem em 15 dias, hoje e
-// ontem. Prazo protocolado ou perdido não aparece (a consulta só traz pendentes); quem
-// desligou o aviso, usuário inativo e tenant suspenso não recebem (AD-110, AD-098).
+// PRZ-04: one e-mail per person with the pending deadlines due in 15 days, today and
+// yesterday. A filed or missed deadline does not show up (the query only brings pending ones); whoever
+// turned the reminder off, an inactive user and a suspended tenant do not get it (AD-110, AD-098).
 export const sendDeadlineNotices = async (
   deps: { mail: MailProvider; appUrl: string },
   now: Date = new Date(),

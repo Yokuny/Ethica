@@ -50,8 +50,8 @@ const eventOf = (ics: string, uid: string) => {
   return block.split('END:VEVENT')[0] as string;
 };
 
-// PRZ-03.3: cada evento leva data, descrição (tipo, título, nº do processo, partes,
-// observações) e local (endereço do compromisso; vazio no prazo).
+// PRZ-03.3: each event carries date, description (type, title, process number, parties,
+// notes) and location (appointment address; empty for a deadline).
 describe('buildIcs', () => {
   const ics = buildIcs({ appointments: [inspection], deadlines: [deadline], summaries, now });
 

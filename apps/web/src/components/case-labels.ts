@@ -13,8 +13,8 @@ import {
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Rótulos e tons de status da perícia, compartilhados por listagem, detalhe,
-// início e gráficos. A chave de tradução é o próprio valor do enum.
+// Case status labels and tones, shared by listing, detail,
+// home and charts. The translation key is the enum value itself.
 export const CASE_STATUS_VARIANT: Record<CaseStatus, IndicatorVariant> = {
   appointed: 'info',
   accepted: 'info',
@@ -28,10 +28,10 @@ export const CASE_STATUS_VARIANT: Record<CaseStatus, IndicatorVariant> = {
 
 export const CASE_STATUS_ITEMS = CASE_STATUS.map((value) => ({ value, label: t(value) }));
 
-// Fase detalhada e situação (AD-133). A chave da fase é o próprio valor, como a etapa.
+// Detailed phase and state (AD-133). The phase key is the value itself, like the status.
 export const phaseLabel = (phase: string): string => t(phase);
 export const WITHOUT_PHASE = 'none';
-// No formulário: as fases da etapa escolhida, as de suspensão e "sem fase".
+// In the form: the phases of the chosen status, the suspension ones and "no phase".
 export const phaseItems = (status: CaseStatus) => [
   { value: WITHOUT_PHASE, label: t('no_detailed_phase') },
   ...[
@@ -52,7 +52,7 @@ const STATE_KEY: Record<CaseState, string> = {
 };
 export const stateLabel = (state: CaseState): string => t(STATE_KEY[state]);
 export const CASE_STATE_ITEMS = CASE_STATES.map((value) => ({ value, label: stateLabel(value) }));
-// A chave da justiça leva sufixo (`civil` sozinho seria ambíguo no dicionário).
+// The court type key has a suffix (`civil` alone would be ambiguous in the dictionary).
 const COURT_TYPE_KEY: Record<CourtType, string> = {
   labor: 'labor_court',
   civil: 'civil_court',

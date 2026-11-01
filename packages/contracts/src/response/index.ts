@@ -2,8 +2,8 @@ import type { ApiMessageKey } from './messages.js';
 
 export * from './messages.js';
 
-// `message` é sempre uma chave de tradução (messages.ts) — o front-end a
-// traduz com `t()`. `''` só no sucesso sem mensagem (default de respObj).
+// `message` is always a translation key (messages.ts) — the front-end
+// translates it with `t()`. `''` only on success without a message (respObj default).
 export type ApiResponse<T = undefined> = {
   success: boolean;
   data?: T;

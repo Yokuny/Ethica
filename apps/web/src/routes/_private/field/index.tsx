@@ -17,7 +17,7 @@ import { FieldConnection } from './@components/field-connection.js';
 import { useQuickStatus } from './@hooks/use-quick-status.js';
 import { type FieldSearch, fieldSearchSchema } from './@interface/field.interface.js';
 
-// Rota de campo do dia (CAM-01), pensada para o celular e para funcionar sem conexão (AD-128).
+// Field route of the day (CAM-01), designed for the phone and to work without a connection (AD-128).
 export function FieldPage() {
   const search = useSearch({ strict: false }) as FieldSearch;
   const navigate = useNavigate({ from: '/field/' });
@@ -27,7 +27,7 @@ export function FieldPage() {
   const { mark } = useQuickStatus();
   const items = query.data?.items ?? [];
 
-  // A sincronização escuta a volta da conexão: liga uma vez ao abrir o campo.
+  // The sync listens for the connection coming back: it starts once when the field opens.
   useEffect(() => startSync(queryClient), [queryClient]);
 
   const goTo = (days: number) => navigate({ search: { date: addDaysToDisplayDate(date, days) }, replace: true });

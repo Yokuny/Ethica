@@ -8,8 +8,8 @@ export { updateOfficeSchema, updateScheduleNoticeSchema };
 
 export type OfficeRouterDeps = { validToken: RequestHandler; storage?: FileStorage };
 
-// Configuração do escritório para o admin (DOC-01, DOC-04). `logo` é o caminho versionado
-// de GET /tenant/office/logo, ausente sem logo.
+// Office configuration for the admin (DOC-01, DOC-04). `logo` is the versioned path
+// of GET /tenant/office/logo, missing without a logo.
 export type OfficeView = {
   header: string;
   footer: string;
@@ -21,5 +21,5 @@ export type OfficeView = {
 
 export type TenantLogo = { key: string; bytes: number; updatedAt?: Date };
 
-// Identidade usada na geração dos PDFs (AD-121): o logo já em data URL.
+// Identity used when generating the PDFs (AD-121): the logo already as a data URL.
 export type DocumentIdentity = { name: string; header?: string; footer?: string; logoDataUrl?: string };

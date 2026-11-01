@@ -3,8 +3,8 @@ import { type QueryClient, queryOptions, type UseMutationOptions } from '@tansta
 import { get, patch } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Espelha UserPreferences de apps/api/src/modules/identity/preferences.schema.ts: aviso de
-// prazos (AD-110, na conta) e blocos ocultos do início (AD-136).
+// Mirrors UserPreferences of apps/api/src/modules/identity/preferences.schema.ts: deadline
+// reminder (AD-110, in the account) and hidden home blocks (AD-136).
 export type UserPreferences = {
   onboardingDismissed: boolean;
   deadlineReminderEmail: boolean;

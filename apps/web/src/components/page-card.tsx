@@ -22,10 +22,10 @@ function routeTitle(staticData: { getTitle?: () => string; title?: string } | un
   return undefined;
 }
 
-// Página pública: o breadcrumb não leva à casinha (o início é área privada).
+// Public page: the breadcrumb does not lead to the house (home is a private area).
 const PublicPage = React.createContext(false);
 
-// Só o primeiro nível leva ícone: o do módulo, igual ao da sidebar.
+// Only the first level gets an icon: the module one, same as the sidebar.
 const crumbIcon = (segment: string, index: number): LucideIcon | undefined =>
   index === 0 ? HOME_SECTIONS.find((section) => section.to === `/${segment}`)?.icon : undefined;
 
@@ -57,9 +57,9 @@ function Card({
   );
 }
 
-// Linha única de cabeçalho: o breadcrumb é o título (o último item é a página
-// atual) e as ações (`CardAction`) ficam à direita. Sem botão voltar — o
-// caminho de volta é o próprio breadcrumb.
+// Single header line: the breadcrumb is the title (the last item is the current
+// page) and the actions (`CardAction`) sit on the right. No back button — the
+// way back is the breadcrumb itself.
 function CardHeader({
   className,
   title,
@@ -89,10 +89,10 @@ function CardHeader({
       data-slot="card-header"
       className={cn(
         'group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-none px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-(--card-spacing)',
-        // Abaixo de sm as ações descem para uma linha própria, alinhadas à
-        // esquerda e quebrando linha: vários botões não empurram a página para o lado.
+        // Below sm the actions move to their own line, left-aligned
+        // and wrapping: several buttons do not push the page sideways.
         'max-sm:has-data-[slot=card-action]:grid-cols-1 max-sm:*:data-[slot=card-action]:col-start-1 max-sm:*:data-[slot=card-action]:row-span-1 max-sm:*:data-[slot=card-action]:row-start-auto max-sm:*:data-[slot=card-action]:mt-2 max-sm:*:data-[slot=card-action]:flex-wrap max-sm:*:data-[slot=card-action]:justify-self-start',
-        // Filtro de visão (toggle) e faixa de indicadores ocupam a largura toda, abaixo do título.
+        // View filter (toggle) and indicator strip take the full width, below the title.
         '*:data-[slot=toggle-group]:col-span-full *:data-[slot=toggle-group]:mt-2 *:data-[slot=record-stats]:col-span-full *:data-[slot=record-stats]:mt-2',
         className,
       )}
@@ -100,7 +100,7 @@ function CardHeader({
     >
       <Breadcrumb className="col-start-1 flex min-h-8 items-center">
         <BreadcrumbList>
-          {/* Primeira etapa é a casinha levando ao início — exceto no próprio início e em página pública. */}
+          {/* The first step is the house leading home — except on home itself and on a public page. */}
           {pathnames.length > 0 && !isPublic && (
             <>
               <BreadcrumbItem>
@@ -143,7 +143,7 @@ function CardHeader({
         </BreadcrumbList>
       </Breadcrumb>
       {description && (
-        // Propósito da tela em uma frase (ENR-01): texto visível, nunca só tooltip/placeholder.
+        // Screen purpose in one sentence (ENR-01): visible text, never only a tooltip/placeholder.
         <ItemDescription data-slot="card-description" className="line-clamp-none col-start-1">
           {description}
         </ItemDescription>

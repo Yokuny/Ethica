@@ -21,14 +21,14 @@ const withCaseNumber = async <T extends DeadlineRecord>(tenantId: string, items:
   });
 };
 
-// Protocolar sem data grava hoje; voltar a pendente ou marcar perdido apaga a data.
-// `protocoladoEm` sem `status` não muda nada: a data só existe junto do protocolo.
+// Filing without a date saves today; going back to pending or marking missed clears the date.
+// `filedDate` without `status` changes nothing: the date only exists with the filing.
 const toWrite = ({ status, filedDate, ...rest }: UpdateDeadline, today: string): DeadlineWrite => {
   if (!status) return rest;
   return { ...rest, status, filedDate: status === 'filed' ? (filedDate ?? today) : null };
 };
 
-// Perícia inexistente (ou de outro tenant) → PericiaNotFoundError, o mesmo 404 da perícia.
+// Missing case (or from another tenant) → CaseNotFoundError, the same 404 as the case.
 export const createDeadline = async (
   tenantId: string,
   caseId: string,
@@ -62,11 +62,11 @@ export const deleteDeadline = async (tenantId: string, id: string): Promise<void
 export const listPendingDeadlines = async (tenantId: string, range: { from?: string; to?: string } = {}) =>
   withCaseNumber(tenantId, await deadlineRepository.listPending(tenantId, range));
 
-// Aviso diário (sistema): pendentes que vencem nos dias pedidos, em todos os tenants.
+// Daily reminder (system): pending ones due on the requested days, across all tenants.
 export const listDeadlinesToNotice = (days: string[]) => deadlineRepository.listPendingInDays(days);
 
-// Concluir o laudo com a entrega (AD-126): protocola hoje o prazo pendente "Entrega do laudo"
-// mais antigo da perícia; sem nenhum pendente, não faz nada.
+// Completing the report with delivery (AD-126): files today the oldest pending "Entrega do laudo"
+// deadline of the case; with none pending, does nothing.
 export const fileReportDelivery = (tenantId: string, caseId: string, now: Date = new Date()) =>
   deadlineRepository.filePending(tenantId, caseId, REPORT_DELIVERY_DEADLINE, dateInDisplayTz(now));
 

@@ -38,8 +38,8 @@ export const changePassword = async (
 export const setAvatar = async (tenantId: string, userId: string, image: string | null): Promise<AccountView> =>
   found(await accountRepository.setAvatar(tenantId, userId, image));
 
-// PRZ-03: gera o link secreto do feed iCal. O token só existe nesta resposta; o banco guarda
-// o hash. Gerar de novo substitui o anterior (revoga o link antigo).
+// PRZ-03: generates the secret iCal feed link. The token only exists in this response; the database keeps
+// the hash. Generating again replaces the previous one (revokes the old link).
 export const generateCalendarFeed = async (tenantId: string, userId: string): Promise<{ token: string }> => {
   const token = crypto.randomBytes(32).toString('hex');
   await accountRepository.setCalendarFeedTokenHash(tenantId, userId, hashToken(token));

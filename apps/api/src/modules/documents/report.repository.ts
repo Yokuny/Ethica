@@ -95,7 +95,7 @@ export const list = async (
     };
   });
 
-// Escritas só valem em rascunho: o filtro por `status: 'draft'` é o bloqueio no servidor (AD-126).
+// Writes only apply to drafts: the `status: 'draft'` filter is the server-side lock (AD-126).
 const draft = (tenantId: string, id: string, extra: Record<string, unknown> = {}) =>
   tenantScoped({ Tenant: tenantId, _id: id, status: 'draft' as const, ...extra });
 
@@ -129,7 +129,7 @@ export const removeSection = async (tenantId: string, id: string, sectionId: str
     return doc ? toRecord(doc) : null;
   });
 
-// Grava o texto final, já com as variáveis resolvidas de novo, junto com o status.
+// Saves the final text, with the variables resolved again, together with the status.
 export const complete = async (
   tenantId: string,
   id: string,

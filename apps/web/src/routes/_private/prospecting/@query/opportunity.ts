@@ -13,8 +13,8 @@ import { del, get, patch, post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 // Espelha apps/api/src/modules/prospeccao/oportunidade.schema.ts e
-// apps/api/src/providers/datajudClient.ts. Local à prospecção: busca e
-// oportunidades são as duas únicas rotas que usam.
+// apps/api/src/providers/datajudClient.ts. Local to prospecting: search and
+// opportunities are the only two routes that use it.
 export type DatajudResult = {
   processNumber: string;
   court: DatajudCourt;
@@ -58,7 +58,7 @@ const invalidateAll = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ['list-stats', '/prospecting/opportunities/stats'] });
 };
 
-// A busca no Datajud é uma mutation (POST, com cota e rate limit): só roda quando a pessoa pede.
+// The Datajud search is a mutation (POST, with quota and rate limit): it only runs when the person asks.
 export const searchDatajudMutation = (): UseMutationOptions<DatajudSearchResult, Error, DatajudSearch> => ({
   mutationFn: async (query) => {
     const res = await post<DatajudSearchResult>('/prospecting/datajud/search', query);

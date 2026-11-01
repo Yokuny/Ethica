@@ -17,7 +17,7 @@ const json =
     try {
       res.json(respObj({ data: await run(req) }));
     } catch (e) {
-      // Conflito do offline (AD-128): 409 com a versão do servidor para o aparelho comparar.
+      // Offline conflict (AD-128): 409 with the server version for the device to compare.
       if (e instanceof InspectionConflictError) {
         res.status(409).json({ ...respObj({ data: e.current, message: e.message }), success: false });
         return;
@@ -56,7 +56,7 @@ export const removeMedia = (storage: FileStorage | undefined) =>
     await inspectionService.removeMedia(storage, tenantOf(req), appointmentId(req), mediaId(req));
   });
 
-// Mídia é imutável (id novo a cada arquivo): o navegador pode guardar à vontade.
+// Media is immutable (new id for each file): the browser may cache it freely.
 export const getMedia =
   (storage: FileStorage | undefined) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

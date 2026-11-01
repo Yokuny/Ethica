@@ -13,7 +13,7 @@ const REPORTS = [
   { path: '/documents/stalled', title: 'stalled_cases', description: 'stalled_cases_description' },
 ] as const;
 
-// DOC-03: relatórios gerenciais em PDF. O financeiro só aparece para admin/manager (AD-107).
+// DOC-03: management reports as PDF. Finance only shows up for admin/manager (AD-107).
 export function ReportsPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const { download, pending } = useFileDownload();

@@ -23,7 +23,7 @@ type ReportSectionEditorProps = {
   photos?: PhotoEditor[];
 };
 
-// Uma seção por vez (LAU-03.1): salvar grava só ela; o resto do laudo não muda.
+// One section at a time (LAU-03.1): saving saves only it; the rest of the report does not change.
 export function ReportSectionEditor({
   report,
   section,

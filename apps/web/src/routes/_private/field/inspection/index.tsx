@@ -18,12 +18,12 @@ import { FieldConnection } from '../@components/field-connection.js';
 import { RecordForm } from './@components/record-form.js';
 import { type InspectionSearch, inspectionSearchSchema } from './@interface/inspection.interface.js';
 
-// Registro da vistoria no celular (CAM-02 a CAM-07), funcionando sem conexão (AD-128).
+// Inspection record on the phone (CAM-02 to CAM-07), working without a connection (AD-128).
 export function InspectionPage() {
   const search = useSearch({ strict: false }) as InspectionSearch;
   const queryClient = useQueryClient();
   const query = useQuery({ ...inspectionQuery(search.id), networkMode: 'always', retry: false });
-  // O rascunho do aparelho manda sobre a cópia do servidor ao abrir.
+  // The device draft takes precedence over the server copy when opening.
   const draft = useQuery({
     queryKey: ['draft', search.id],
     queryFn: async () => (await readDraft(search.id)) ?? null,

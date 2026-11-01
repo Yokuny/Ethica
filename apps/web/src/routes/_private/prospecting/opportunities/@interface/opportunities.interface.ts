@@ -8,7 +8,7 @@ export const opportunitiesSearchSchema = z.object({
 });
 export type OpportunitiesSearch = z.infer<typeof opportunitiesSearchSchema>;
 
-// Mesmo recorte do `converterOportunidadeSchema` da API.
+// Same slice as the API `convertOpportunitySchema`.
 export const convertFormSchema = createCaseSchema
   .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDeadline: true })
   .strict();

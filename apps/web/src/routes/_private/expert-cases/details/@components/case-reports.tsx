@@ -14,7 +14,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseRecord } from '@/query/case.js';
 import { reportsQuery } from '@/query/report.js';
 
-// Laudos (ou pareceres, LAU-06) da perícia, com atalho para iniciar um novo.
+// Reports (or opinions, LAU-06) of the case, with a shortcut to start a new one.
 export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
   const query = useQuery(reportsQuery({ caseId: legalCase.id, limit: 20 }));
   const type = reportRoleType(legalCase.role);

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { idSchema } from './id.schema.js';
 
-// Cadastro reutilizável de partes e advogados (AD-117). `party` guarda CPF/CNPJ;
+// Reusable registry of parties and lawyers (AD-117). `party` keeps CPF/CNPJ;
 // `lawyer` guarda a OAB.
 export const PARTY_TYPES = ['party', 'lawyer'] as const;
 export type PartyType = (typeof PARTY_TYPES)[number];
@@ -19,7 +19,7 @@ export const normalizeOab = (raw: string): string => {
   return reversed ? `${reversed[2]}${reversed[1]}` : value;
 };
 
-// Campo vazio do formulário vira ausente, nunca string vazia gravada.
+// An empty form field becomes missing, never a saved empty string.
 const emptyAsUndefined = (value: string) => value || undefined;
 
 export const documentSchema = z
@@ -53,12 +53,12 @@ const partyFields = z.object({
 export const createPartySchema = partyFields.extend({ type: z.enum(PARTY_TYPES) }).strict();
 export type CreateParty = z.infer<typeof createPartySchema>;
 
-// O tipo não muda depois do cadastro: as perícias guardam uma cópia dele.
+// The type does not change after registration: the cases keep a copy of it.
 export const updatePartySchema = partyFields.partial().strict();
 export type UpdateParty = z.infer<typeof updatePartySchema>;
 
-// Parte informada no cadastro/edição da perícia: `parteId` usa o cadastro escolhido;
-// sem ele, a API reaproveita por documento/OAB ou nome exato, ou cria (AD-115).
+// Party given in the case registration/edit: `partyId` uses the chosen record;
+// without it, the API reuses by document/OAB or exact name, or creates one (AD-115).
 export const casePartyInputSchema = z
   .object({
     partyId: idSchema.optional(),
@@ -67,7 +67,7 @@ export const casePartyInputSchema = z
     name: nameSchema,
     document: documentSchema.optional(),
     oab: oabSchema.optional(),
-    // Quem contratou o assistente técnico (AD-135); no máximo um, só nessa perícia.
+    // Whoever hired the technical assistant (AD-135); at most one, only in that case.
     client: z.boolean().optional(),
   })
   .strict();

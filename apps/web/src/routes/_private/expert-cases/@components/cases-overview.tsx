@@ -13,7 +13,7 @@ const LABELS: Record<(typeof GROUPS)[number], string> = {
   reports_delivered: 'reports_delivered',
 };
 
-// Faixa de indicadores da listagem, a partir de GET /pericias/stats.
+// Listing indicator strip, from GET /expert-cases/stats.
 export function CasesOverview({ stats }: { stats?: ListStats }) {
   return (
     <RecordStats variant="band" role="group" aria-label={t('expert_cases')}>
@@ -30,7 +30,7 @@ export function CasesOverview({ stats }: { stats?: ListStats }) {
             key={key}
             label={t(LABELS[key])}
             value={count === undefined ? '—' : number.format(count)}
-            // Prazos não são perícias: a proporção sobre o total só vale para as faixas de perícia.
+            // Deadlines are not cases: the ratio over the total only applies to the case strips.
             ratio={
               count !== undefined && stats?.total && !key.startsWith('deadline_') ? count / stats.total : undefined
             }

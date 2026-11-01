@@ -13,7 +13,7 @@ import {
   searchFormSchema,
 } from '../@interface/search.interface.js';
 
-// Busca paginada por cursor (`search_after`): "Carregar mais" acrescenta à lista.
+// Cursor-paginated search (`search_after`): "Carregar mais" appends to the list.
 export function useSearchDatajud() {
   const queryClient = useQueryClient();
   const form = useForm<SearchForm>({ resolver: zodResolver(searchFormSchema), defaultValues: DEFAULT_SEARCH });

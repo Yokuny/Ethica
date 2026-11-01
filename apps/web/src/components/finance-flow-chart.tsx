@@ -21,8 +21,8 @@ const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'short', year: '2-d
 const formatMonth = (month: string) => monthLabel.format(new Date(`${month}-15T12:00:00Z`));
 const compactMoney = new Intl.NumberFormat('pt-BR', { notation: 'compact', style: 'currency', currency: 'BRL' });
 
-// Fluxo de caixa por mês: recebido, a receber e despesas, lado a lado.
-// Quem busca o dado decide loading/vazio; aqui chega pronto.
+// Cash flow per month: received, receivable and expenses, side by side.
+// Whoever fetches the data decides loading/empty; here it arrives ready.
 export function FinanceFlowChart({ data }: { data: MonthlyFlow[] }) {
   return (
     <ChartContainer config={config} className="aspect-auto h-72 w-full">

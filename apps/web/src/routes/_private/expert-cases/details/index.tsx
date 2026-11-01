@@ -30,7 +30,7 @@ export function CaseDetailsPage() {
   const { handleDelete, isDeleting, isConfirmingDelete, askDelete, cancelDelete } = useCaseActions(legalCase);
   const [isEditing, setIsEditing] = useState(false);
   const { download, pending } = useFileDownload();
-  // DOC-02: ficha e checklist em PDF; a ficha só traz valores para admin/manager (a API decide).
+  // DOC-02: sheet and checklist as PDF; the sheet only carries amounts for admin/manager (the API decides).
   const documentsMenu = legalCase && (
     <PageMenu>
       <DropdownMenuItem
@@ -75,7 +75,7 @@ export function CaseDetailsPage() {
           <DefaultLoading />
         </CardContent>
       ) : !legalCase ? (
-        // id inexistente ou de outro tenant: a API responde 404 (a consulta é escopada ao tenant).
+        // Missing id or from another tenant: the API answers 404 (the query is scoped to the tenant).
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>

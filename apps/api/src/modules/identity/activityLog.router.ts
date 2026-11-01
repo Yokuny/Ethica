@@ -5,7 +5,7 @@ import { validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as activityLogController from './activityLog.controller.js';
 import { type ActivityLogRouterDeps, listActivityLogQuerySchema } from './activityLog.schema.js';
 
-// Diário de bordo (AD-134): só o admin consulta. Montado em `/tenant/activity-log`.
+// Activity log (AD-134): only the admin queries it. Mounted on `/tenant/activity-log`.
 export const createActivityLogRouter = (deps: ActivityLogRouterDeps): Router => {
   const router = Router();
   router.get(

@@ -9,7 +9,7 @@ import { createTransactionMutation, type TransactionRecord, updateTransactionMut
 
 const CASES_LIMIT = 100;
 
-// Mesmo formulário para lançar e editar: com `lancamento` edita, sem ele cria.
+// Same form to post and edit: with `transaction` it edits, without it it creates.
 export function useTransactionForm({ transaction, onDone }: { transaction?: TransactionRecord; onDone: () => void }) {
   const queryClient = useQueryClient();
   const cases = useQuery(casesQuery({ limit: CASES_LIMIT }));
@@ -46,7 +46,7 @@ export function useTransactionForm({ transaction, onDone }: { transaction?: Tran
     else createMutation.mutate(data, options);
   }
 
-  // Trocar a natureza leva a categoria para a primeira daquela natureza.
+  // Changing the kind moves the category to the first one of that kind.
   function handleKindChange(value: string) {
     form.setValue('category', TRANSACTION_CATEGORIES[value as CreateTransaction['kind']][0]);
   }

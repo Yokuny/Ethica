@@ -248,7 +248,7 @@ describe('EQP — convites do admin do tenant', () => {
     expect(member?.permissions).toEqual(PROFILE_PERMISSIONS.operator);
   });
 
-  // AD-137: a matriz conferida no convite chega ao membro; admin não guarda matriz.
+  // AD-137: the matrix granted in the invite reaches the member; admin keeps no matrix.
   it('grava a matriz ajustada no convite e nenhuma para admin', async () => {
     const { user } = await seedUser('66666666000910', ['admin']);
     const app = buildTestApp();

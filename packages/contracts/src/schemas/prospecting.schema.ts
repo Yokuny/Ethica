@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { type COURTTYPES, processNumberSchema } from './case.schema.js';
 
-// Alias do índice da API Pública do Datajud (`api_publica_<alias>`), por justiça.
-// Lista dos tribunais atendidos hoje; acrescente aqui para liberar outro tribunal.
+// Datajud Public API index alias (`api_publica_<alias>`), by court type.
+// List of the courts served today; add here to enable another court.
 export const DATAJUD_COURTS = {
   labor: [
     'trt1',
@@ -68,13 +68,13 @@ export const ALL_DATAJUD_COURTS = [
 ] as const;
 export type DatajudCourt = (typeof ALL_DATAJUD_COURTS)[number];
 
-// Chaves em inglês (AD-113); o nome do assunto no Datajud fica no client (`providers/datajudClient.ts`).
+// English keys (AD-113); the subject name on Datajud stays in the client (`providers/datajudClient.ts`).
 export const DATAJUD_TECHNICAL_SUBJECTS = ['unhealthy_conditions', 'hazardous_conditions', 'work_accident'] as const;
 export type DatajudTechnicalSubject = (typeof DATAJUD_TECHNICAL_SUBJECTS)[number];
 
-// Busca de possíveis nomeações: texto livre nos movimentos/assuntos/classe e
-// recorte por órgão julgador. `cursor` é o `sort` do último resultado
-// (paginação `search_after` do Elasticsearch do Datajud).
+// Search for possible nominations: free text over movements/subjects/class and
+// a slice by court unit. `cursor` is the `sort` of the last result
+// (Datajud Elasticsearch `search_after` pagination).
 export const datajudSearchSchema = z
   .object({
     court: z.enum(ALL_DATAJUD_COURTS),
@@ -103,7 +103,7 @@ export type DatajudSearch = z.infer<typeof datajudSearchSchema>;
 export const OPPORTUNITY_STATUS = ['new', 'under_review', 'discarded', 'converted'] as const;
 export type OpportunityStatus = (typeof OPPORTUNITY_STATUS)[number];
 
-// Processo do Datajud guardado para análise. Os campos vêm do resultado da busca.
+// Datajud process saved for analysis. The fields come from the search result.
 export const createOpportunitySchema = z
   .object({
     processNumber: processNumberSchema,
@@ -118,7 +118,7 @@ export const createOpportunitySchema = z
   .strict();
 export type CreateOpportunity = z.infer<typeof createOpportunitySchema>;
 
-// `convertida` só é alcançada por POST /prospeccao/oportunidades/:id/converter.
+// `converted` is only reached through POST /prospecting/opportunities/:id/convert.
 export const updateOpportunitySchema = z
   .object({
     status: z.enum(['new', 'under_review', 'discarded']).optional(),

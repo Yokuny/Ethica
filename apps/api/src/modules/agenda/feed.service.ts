@@ -6,7 +6,7 @@ import * as appointmentRepository from './appointment.repository.js';
 import type { AppointmentRecord } from './appointment.schema.js';
 import type { FeedEntry } from './feed.schema.js';
 
-// Janela do feed: o calendário externo guarda o passado recente e o ano à frente.
+// Feed window: the external calendar keeps the recent past and the year ahead.
 const PAST_DAYS = 60;
 const FUTURE_DAYS = 365;
 
@@ -17,12 +17,12 @@ const TYPE_LABEL: Record<AppointmentRecord['type'], string> = {
   other: 'Outro',
 };
 
-// RFC 5545 §3.3.11: texto escapa `\`, `;`, `,` e quebra de linha.
+// RFC 5545 §3.3.11: text escapes `\`, `;`, `,` and line breaks.
 const escapeText = (value: string): string =>
   value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 
-// RFC 5545 §3.1: linha com mais de 75 octetos é dobrada; a continuação começa com espaço.
-// Corta por octeto sem partir caractere multibyte (acentos são comuns aqui).
+// RFC 5545 §3.1: a line longer than 75 octets is folded; the continuation starts with a space.
+// Cuts by octet without splitting a multibyte character (accents are common here).
 const foldLine = (line: string): string => {
   const parts: string[] = [];
   let current = '';
@@ -70,8 +70,8 @@ const description = (type: string, title: string, summary?: CaseSummary, notes?:
     .join('\n');
 };
 
-// Monta o calendário (função pura, testada à parte). Cada evento leva data, descrição
-// (tipo, título, processo, partes, observações) e local — definido pelo usuário em 2026-10-31.
+// Builds the calendar (pure function, tested on its own). Each event carries date, description
+// (type, title, process, parties, notes) and location — defined by the user on 2026-10-31.
 export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntry): string => {
   const stamp = utcStamp(now);
   const events = [
@@ -90,7 +90,7 @@ export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntry)
         'END:VEVENT',
       ];
     }),
-    // Prazo é um dia (AD-103): evento de dia inteiro, DTEND exclusivo no dia seguinte, sem local.
+    // A deadline is a day (AD-103): all-day event, DTEND exclusive on the next day, no location.
     ...deadlines.map((deadline) => [
       'BEGIN:VEVENT',
       `UID:prazo-${deadline.id}@ethica`,
@@ -116,8 +116,8 @@ export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntry)
   return `${lines.map(foldLine).join('\r\n')}\r\n`;
 };
 
-// Feed por token (PRZ-03): `null` quando o link não existe, foi revogado, o usuário está
-// inativo ou o tenant suspenso. Compromissos não cancelados da janela + prazos pendentes.
+// Feed by token (PRZ-03): `null` when the link does not exist, was revoked, the user is
+// inactive or the tenant suspended. Non-canceled appointments in the window + pending deadlines.
 export const generateFeed = async (token: string, now: Date = new Date()): Promise<string | null> => {
   const owner = await accountService.findFeedOwner(token);
   if (!owner) return null;

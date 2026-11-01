@@ -6,7 +6,7 @@ export interface DeadlineDocument {
   Tenant: mongoose.Types.ObjectId;
   Case: mongoose.Types.ObjectId;
   title: string;
-  // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-103): prazo é um dia, não um instante.
+  // Calendar dates `YYYY-MM-DD` in the display time zone (AD-103): a deadline is a day, not an instant.
   dueDate: string;
   status: DeadlineStatus;
   filedDate?: string;
@@ -36,7 +36,7 @@ deadlineSchema.pre('validate', function () {
 
 deadlineSchema.index({ Tenant: 1, Case: 1, dueDate: 1 });
 deadlineSchema.index({ Tenant: 1, status: 1, dueDate: 1 });
-// Aviso diário por e-mail: varre os pendentes de alguns dias em todos os tenants.
+// Daily e-mail reminder: scans the pending ones of a few days across all tenants.
 deadlineSchema.index({ status: 1, dueDate: 1 });
 
 export const Deadline = mongoose.model<DeadlineDocument>('Deadline', deadlineSchema);

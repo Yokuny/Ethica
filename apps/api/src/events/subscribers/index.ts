@@ -1,8 +1,8 @@
 import { registerDocumentsSubscriber } from './documents.subscriber.js';
 import { registerFinanceSubscriber } from './finance.subscriber.js';
 
-// buildApp() roda várias vezes no mesmo processo (testes), então o registro é
-// idempotente — cada handler executa uma única vez por emit.
+// buildApp() runs several times in the same process (tests), so registration is
+// idempotent — each handler runs only once per emit.
 let registered = false;
 
 export const registerAllSubscribers = (): void => {

@@ -30,7 +30,7 @@ export { createCaseSchema, createMovementSchema, updateCaseSchema };
 export const caseIdParamSchema = z.object({ id: idSchema }).strict();
 export const movementIdParamSchema = z.object({ id: idSchema, movementId: idSchema }).strict();
 
-// Paginação validada na borda (nunca clamp silencioso no service).
+// Pagination validated at the edge (never a silent clamp in the service).
 export const listCasesQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
@@ -58,7 +58,7 @@ export type CaseRecord = {
   parties: CasePartyWrite[];
   status: CaseStatus;
   phase?: CasePhase;
-  // Derivada da etapa e da fase (AD-133), nunca gravada.
+  // Derived from status and phase (AD-133), never stored.
   state: CaseState;
   nominationDate?: string;
   proposedFeesCents?: number;
@@ -77,11 +77,11 @@ export type CaseRecord = {
   updatedAt: Date;
 };
 
-// Movimentação do processo (AD-121), da mais recente para a mais antiga.
+// Process movement (AD-121), from newest to oldest.
 export type MovementRecord = { id: string; type: MovementType; date: string; notes?: string };
 
-// Perícia parada (DOC-03): `referencia` é a última movimentação ou, sem nenhuma, a nomeação
-// ou o dia do cadastro; `origem` diz qual delas.
+// Stalled case (DOC-03): `reference` is the last movement or, without any, the nomination
+// or the registration day; `origin` says which one.
 export type StalledCase = {
   id: string;
   processNumber: string;
@@ -96,17 +96,17 @@ export type StalledCase = {
 
 export type CreateCaseInput = CreateCase & { tenant: string; opportunityId?: string };
 
-// O que o repository grava: partes já resolvidas no cadastro (AD-117), sem o prazo do laudo.
+// What the repository saves: parties already resolved in the registry (AD-117), without the report deadline.
 export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties'> & { parties: CasePartyWrite[] };
-// `fase: null` vira `$unset` no repository (AD-133).
+// `phase: null` becomes `$unset` in the repository (AD-133).
 export type CaseUpdateWrite = Omit<UpdateCase, 'parties'> & { parties?: CasePartyWrite[] };
 
-// Listagem: cada perícia com o prazo pendente mais próximo (ausente se não há).
+// Listing: each case with its nearest pending deadline (missing if there is none).
 export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };
 
-// Enriquecimento cross-módulo (agenda, financeiro, feed, aviso): número e os nomes das
-// partes de cada polo (sem advogados), separados por vírgula.
-// `contratante`: nome de quem contratou o assistente técnico (AD-135).
+// Cross-module enrichment (agenda, finance, feed, reminder): number and the names of the
+// parties on each side (without lawyers), comma-separated.
+// `client`: name of whoever hired the technical assistant (AD-135).
 export type CaseSummary = { processNumber: string; plaintiff?: string; defendant?: string; client?: string };
 
 export type CaseDistribution = {

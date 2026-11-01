@@ -15,7 +15,7 @@ type SearchResultsProps = {
 
 const maybeDate = (value?: string) => (value && !Number.isNaN(Date.parse(value)) ? formatDate(value) : undefined);
 
-// Resultado da busca no Datajud: processo, classe/assuntos, último movimento e "Salvar".
+// Datajud search result: process, class/subjects, last movement and "Salvar".
 export function SearchResults({ items, onSave, saving }: SearchResultsProps) {
   return (
     <Table>

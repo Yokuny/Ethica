@@ -94,7 +94,7 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
     expect(segunda.status).toBe(201);
     const ids = (body: { data: { parties: { partyId: string }[] } }) => body.data.parties.map((p) => p.partyId);
     expect(ids(segunda.body).slice(0, 3)).toEqual(ids(first.body));
-    // A cópia guarda o nome do cadastro reaproveitado, não o digitado.
+    // The copy keeps the name of the reused record, not the typed one.
     expect(segunda.body.data.parties[0].name).toBe('Maria da Silva');
     expect(await Party.countDocuments({})).toBe(4);
 

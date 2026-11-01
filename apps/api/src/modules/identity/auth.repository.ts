@@ -13,8 +13,8 @@ import type {
   UserView,
 } from './auth.schema.js';
 
-// ACC-06: caminho da foto com a versão na query — a URL muda quando a foto muda,
-// então a resposta da imagem pode ficar em cache para sempre.
+// ACC-06: photo path with the version in the query — the URL changes when the photo changes,
+// so the image response can be cached forever.
 export const avatarPath = (userId: string, updatedAt: Date): string =>
   `/auth/users/${userId}/avatar?v=${updatedAt.getTime()}`;
 
@@ -41,9 +41,9 @@ export const findTenantView = async (tenantId: string): Promise<TenantView | nul
     return tenant ? { id: tenant._id.toString(), name: tenant.name, status: tenant.status } : null;
   });
 
-// MOD-07: UMA consulta `$in` por lote — sem ids não há consulta alguma. Um id
-// sem User correspondente (ou de outro tenant, AD-010) simplesmente fica de
-// fora do array devolvido.
+// MOD-07: ONE `$in` query per batch — without ids there is no query at all. An id
+// without a matching User (or from another tenant, AD-010) is simply left
+// out of the returned array.
 export const findUserNamesByIds = async (tenantId: string, ids: string[]): Promise<UserNameSummary[]> => {
   if (ids.length === 0) return [];
 
@@ -55,10 +55,10 @@ export const findUserNamesByIds = async (tenantId: string, ids: string[]): Promi
   });
 };
 
-// Diretório completo do tenant (sem filtro de ids) — usado pelo filtro de
-// "responsável" da fila de conversas (inbox), que precisa oferecer TODA
-// operadora do tenant como opção, não só as que já aparecem numa página de
-// resultados. Ordenado por nome pra ficar estável e legível num <Select>.
+// Full tenant directory (no id filter) — used by the "assignee" filter of the
+// conversation queue (inbox), which needs to offer EVERY
+// operator of the tenant as an option, not only those already in a page of
+// results. Sorted by name to stay stable and readable in a <Select>.
 export const listUsers = async (tenantId: string, options: { activeOnly?: boolean } = {}): Promise<UserSummary[]> =>
   withDbTiming('auth.listUsers', async () => {
     const users = await User.find(tenantScoped({ Tenant: tenantId, ...(options.activeOnly ? { active: true } : {}) }))
@@ -68,9 +68,9 @@ export const listUsers = async (tenantId: string, options: { activeOnly?: boolea
     return users.map((user) => ({ id: user._id.toString(), name: user.name, ...avatarOf(user) }));
   });
 
-// REG-07 (AD-071): diretório da tela de usuários (admin) — mesmo tenant scope e
-// ordem de listUsers, com e-mail, papel e situação. `select` explícito: a senha
-// nunca sai do banco por aqui.
+// REG-07 (AD-071): directory for the users screen (admin) — same tenant scope and
+// order as listUsers, with e-mail, role and state. Explicit `select`: the password
+// never leaves the database through here.
 export const listUserDirectory = async (tenantId: string): Promise<UserDirectoryEntry[]> =>
   withDbTiming('auth.listUserDirectory', async () => {
     const users = await User.find(tenantScoped({ Tenant: tenantId }))
@@ -102,7 +102,7 @@ export const updatePermissions = async (tenantId: string, userId: string, permis
     await User.updateOne(tenantScoped({ Tenant: tenantId, _id: userId }), { $set: { permissions } });
   });
 
-// ACC-06: a foto em si, só de alguém do mesmo tenant (AD-010).
+// ACC-06: the photo itself, only from someone in the same tenant (AD-010).
 export const findUserAvatar = async (tenantId: string, userId: string): Promise<UserAvatarImage | null> =>
   withDbTiming('auth.findUserAvatar', async () => {
     const user = await User.findOne(tenantScoped({ Tenant: tenantId, _id: userId }))
@@ -112,11 +112,11 @@ export const findUserAvatar = async (tenantId: string, userId: string): Promise<
     return match ? { contentType: match[1] as string, data: Buffer.from(match[2] as string, 'base64') } : null;
   });
 
-// MOD-04/MOD-05 (T21): outros módulos (card) confirmam a existência de um
-// User só por aqui, nunca com `User.exists` direto — mesmo tenant scope de
-// findUserView, sem trazer o documento inteiro.
-// ENR-07: só um User ATIVO do tenant pode receber trabalho novo (responsável
-// de Process/tarefa); quem foi desativado continua visível, mas não é elegível.
+// MOD-04/MOD-05 (T21): other modules (card) confirm a
+// User's existence only through here, never with `User.exists` directly — same tenant scope as
+// findUserView, without fetching the whole document.
+// ENR-07: only an ACTIVE User of the tenant can get new work (assignee
+// of a Process/task); whoever was deactivated stays visible but is not eligible.
 export const userIsActive = async (tenantId: string, id: string): Promise<boolean> =>
   withDbTiming('auth.userIsActive', async () =>
     Boolean(await User.exists(tenantScoped({ Tenant: tenantId, _id: id, active: true }))),
@@ -125,8 +125,8 @@ export const userIsActive = async (tenantId: string, id: string): Promise<boolea
 export const userExists = async (tenantId: string, id: string): Promise<boolean> =>
   withDbTiming('auth.userExists', async () => Boolean(await User.exists(tenantScoped({ Tenant: tenantId, _id: id }))));
 
-// Escrita da sessão sempre AWAITADA pelo chamador (service) — o cookie nunca
-// pode chegar ao cliente antes de o registro existir no banco (Risk 5).
+// Session writes are always AWAITED by the caller (service) — the cookie can never
+// reach the client before the record exists in the database (Risk 5).
 export const createSession = async (data: {
   user: string;
   tenant?: string;

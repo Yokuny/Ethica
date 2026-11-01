@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { saveTemplateSectionMutation, type TemplateSectionRecord } from '@/query/report.js';
 
-// Criar ou editar uma seção do modelo (LAU-01.2): com `secao` edita, sem ela acrescenta no fim.
+// Create or edit a template section (LAU-01.2): with `section` it edits, without it it appends at the end.
 export function useTemplateSectionForm({
   templateId,
   section,

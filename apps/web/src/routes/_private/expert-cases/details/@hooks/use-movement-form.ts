@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { addMovementMutation } from '@/query/case.js';
 
-// Lança uma movimentação do processo (AD-121) na perícia.
+// Posts a process movement (AD-121) on the case.
 export function useMovementForm({ caseId, onDone }: { caseId: string; onDone: () => void }) {
   const queryClient = useQueryClient();
   const form = useForm<CreateMovement>({

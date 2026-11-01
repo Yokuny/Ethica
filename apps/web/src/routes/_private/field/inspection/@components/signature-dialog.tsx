@@ -6,7 +6,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 type SignatureDialogProps = { name: string; onConfirm: (png: Blob) => Promise<void>; onClose: () => void };
 
-// Assinatura desenhada na tela (CAM-06, AD-129): vira PNG e vai para a fila de mídias.
+// Signature drawn on screen (CAM-06, AD-129): it becomes a PNG and goes into the media queue.
 export function SignatureDialog({ name, onConfirm, onClose }: SignatureDialogProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);

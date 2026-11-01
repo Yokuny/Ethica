@@ -12,11 +12,11 @@ type CasesTableProps = {
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
   onRowClick: (row: CaseListItem) => void;
-  // Valores só para quem vê o financeiro (AD-137).
+  // Amounts only for whoever sees finance (AD-137).
   canSeeFinance: boolean;
 };
 
-// Tabela server-driven (paginação/filtros vêm da URL), linha abre o detalhe.
+// Server-driven table (pagination/filters come from the URL), the row opens the detail.
 export function CasesTable({
   data,
   pageCount,

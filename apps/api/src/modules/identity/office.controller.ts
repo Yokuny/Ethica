@@ -42,7 +42,7 @@ export const removeLogo =
     }
   };
 
-// O caminho é versionado (?v=): o navegador pode guardar a imagem.
+// The path is versioned (?v=): the browser may cache the image.
 export const getLogo =
   (storage: FileStorage | undefined) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -14,7 +14,7 @@ const DEFAULT: readonly string[] = INSPECTION_DOCUMENTS;
 
 type Props = { form: UseFormReturn<InspectionData> };
 
-// Mapeamento de agentes (CAM-02): Sim/Não com EPI e observação; só os marcados vão para o registro.
+// Agent mapping (CAM-02): Yes/No with PPE and a note; only the checked ones go into the record.
 export function AgentsFields({ form }: Props) {
   const agents = form.watch('agents');
   const set = (list: InspectionData['agents']) => form.setValue('agents', list, { shouldDirty: true });
@@ -73,7 +73,7 @@ export function AgentsFields({ form }: Props) {
   );
 }
 
-// Documentos pedidos às partes (CAM-02): os padrões do checklist e os que o perito escrever.
+// Documents requested from the parties (CAM-02): the checklist defaults and whatever the expert writes.
 export function DocumentsFields({ form }: Props) {
   const documents = form.watch('documents');
   const set = (list: InspectionData['documents']) => form.setValue('documents', list, { shouldDirty: true });

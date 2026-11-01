@@ -2,9 +2,9 @@ import { connect, disconnect, User } from '@ethica/db';
 import bcrypt from 'bcrypt';
 import { env } from '../src/config/env.config.js';
 
-// Ferramenta de dev/ops — não é rota. `isPlatformAdmin` nunca é aceito por
-// requisição HTTP (design.md, Tech Decisions: "a flag nunca é aceita por
-// rota (só seed/script)"); este é o script. Idempotente: upsert por e-mail.
+// Dev/ops tool — not a route. `isPlatformAdmin` is never accepted through an
+// HTTP request (design.md, Tech Decisions: "the flag is never accepted through a
+// route (only seed/script)"); this is the script. Idempotent: upsert by e-mail.
 const BCRYPT_COST = 10;
 
 const email = process.env.SEED_EMAIL || 'admin@platform.local';

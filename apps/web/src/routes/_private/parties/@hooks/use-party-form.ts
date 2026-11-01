@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
 import { createPartyMutation, type PartyRecord, updatePartyMutation } from '@/query/party.js';
 
-// Mesmo formulário para cadastrar e editar a parte; o tipo só se escolhe no cadastro (AD-117).
+// Same form to register and edit the party; the type is only chosen at registration (AD-117).
 export function usePartyForm({ party, onDone }: { party?: PartyRecord; onDone: (saved: PartyRecord) => void }) {
   const queryClient = useQueryClient();
   const form = useForm<CreateParty>({

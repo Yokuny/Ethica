@@ -24,7 +24,7 @@ export { createInstallmentSchema, createTransactionSchema, updateTransactionSche
 export const transactionIdParamSchema = z.object({ id: idSchema }).strict();
 export const installmentIdParamSchema = z.object({ id: idSchema, installmentId: idSchema }).strict();
 
-// `atrasado` é um recorte derivado (previsto ou parcial com vencimento antes de hoje), não um status gravado.
+// `overdue` is a derived slice (expected or partial with a due date before today), not a stored status.
 export const listTransactionsQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
@@ -54,13 +54,13 @@ export type TransactionRecord = {
   dueDate: string;
   status: TransactionStatus;
   settledDate?: string;
-  // Só receita (AD-111): parcelas recebidas, soma recebida e o que falta receber.
+  // Income only (AD-111): received installments, received sum and what is left to receive.
   installments: InstallmentRecord[];
   receivedCents?: number;
   balanceCents?: number;
   caseId?: string;
   caseNumber?: string;
-  // Quem contratou o assistente técnico da perícia (AD-135).
+  // Whoever hired the case's technical assistant (AD-135).
   client?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -68,7 +68,7 @@ export type TransactionRecord = {
 
 export type InstallmentRecord = { id: string; amountCents: number; date: string; account?: string };
 
-// Visão de raio-X: o que está a receber, o que entrou e saiu no mês e o que atrasou.
+// X-ray view: what is receivable, what came in and went out in the month and what is overdue.
 export type FinanceSummary = {
   receivableCents: number;
   lateCents: number;
@@ -83,8 +83,8 @@ export type MonthlyFlow = {
   expensesCents: number;
 };
 
-// Relatório financeiro de um período (DOC-03): o realizado (parcelas recebidas e despesas
-// pagas no período) e o previsto (saldo de honorários e despesas a pagar que vencem nele).
+// Finance report for a period (DOC-03): the actual (received installments and expenses
+// paid in the period) and the expected (fee balance and payable expenses due in it).
 export type FinanceReportRow = {
   date: string;
   description: string;
@@ -109,7 +109,7 @@ export type FinanceReport = {
   };
 };
 
-// Resumo financeiro na ficha da perícia (DOC-02), só para admin/manager (AD-107).
+// Finance summary on the case sheet (DOC-02), only for admin/manager (AD-107).
 export type CaseFinanceSummary = {
   feesCents: number;
   receivedCents: number;

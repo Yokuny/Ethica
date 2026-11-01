@@ -3,7 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Endpoints de panorama de listagem (GET .../stats): total e contagem por grupo.
+// Listing overview endpoints (GET .../stats): total and count per group.
 type StatsPath = '/expert-cases/stats' | '/prospecting/opportunities/stats';
 
 export const listStatsQuery = (path: StatsPath) =>
@@ -16,6 +16,6 @@ export const listStatsQuery = (path: StatsPath) =>
     },
   });
 
-// Contagem de um grupo; `undefined` enquanto o panorama não carregou.
+// Count of a group; `undefined` while the overview has not loaded.
 export const statCount = (stats: ListStats | undefined, key: string): number | undefined =>
   stats ? (stats.groups.find((group) => group.key === key)?.count ?? 0) : undefined;

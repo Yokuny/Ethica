@@ -36,7 +36,7 @@ import { createLogMailProvider } from './providers/mail/log.mailProvider.js';
 import { createNodemailerMailProvider } from './providers/mail/nodemailer.mailProvider.js';
 import { createChromiumPdfRenderer, type PdfRenderer } from './providers/pdfRenderer.js';
 
-// Compartilhado com server.ts (aviso diário de prazos, AD-110).
+// Shared with server.ts (daily deadline reminder, AD-110).
 export const buildMailProvider = (): MailProvider => {
   if (env.MAIL_PROVIDER === 'nodemailer') {
     const transport = nodemailer.createTransport({
@@ -49,8 +49,8 @@ export const buildMailProvider = (): MailProvider => {
   return createLogMailProvider();
 };
 
-// Sem .listen() — testável via supertest sem abrir porta. start() (server.ts)
-// é quem efetivamente sobe o processo. `datajud`, `pdf` e `storage` são injetáveis para os testes.
+// No .listen() — testable through supertest without opening a port. start() (server.ts)
+// is what actually brings the process up. `datajud`, `pdf` and `storage` are injectable for tests.
 export const buildApp = (
   options: {
     datajud?: DatajudClient;
@@ -60,22 +60,22 @@ export const buildApp = (
     geocoder?: Geocoder;
   } = {},
 ): Express => {
-  // Idempotente — vários buildApp() no mesmo processo (testes) não duplicam handler.
+  // Idempotent — several buildApp() calls in the same process (tests) do not duplicate handlers.
   registerAllSubscribers();
 
   const app = express();
 
-  // Content-Disposition exposto: o web lê o nome do PDF/ZIP gerado (AD-119, AD-122).
+  // Content-Disposition exposed: the web reads the name of the generated PDF/ZIP (AD-119, AD-122).
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Content-Disposition'] }));
   app.use(cookieParser());
-  // Seção de laudo com texto rico passa de 100 kB: 1 MB só em `/expert-reports`; o parser global
-  // ignora o corpo já lido (AD-126).
+  // A report section with rich text goes past 100 kB: 1 MB only on `/expert-reports`; the global parser
+  // ignores the body already read (AD-126).
   app.use('/expert-reports', express.json({ limit: '1mb' }));
-  // Registro de vistoria com muitas funções e atividades (AD-130).
+  // Inspection record with many jobs and activities (AD-130).
   app.use('/inspections', express.json({ limit: '1mb' }));
   app.use(express.json());
   app.use(responseTime);
-  // Diário de bordo (AD-134): grava toda escrita bem-sucedida do tenant ao fim da resposta.
+  // Activity log (AD-134): records every successful tenant write when the response ends.
   app.use(createActivityLogMiddleware(activityLogService.record));
 
   const { validToken } = createAuthMiddleware(buildAuthDeps());
@@ -87,9 +87,9 @@ export const buildApp = (
       ? createDatajudClient({ baseUrl: env.DATAJUD_BASE_URL, apiKey: env.DATAJUD_API_KEY })
       : undefined);
 
-  // PDF (AD-119): o Chromium só abre na primeira geração.
+  // PDF (AD-119): Chromium only starts on the first generation.
   const pdf = options.pdf ?? createChromiumPdfRenderer(env.CHROMIUM_PATH);
-  // Arquivos do tenant (AD-120): sem bucket, o logo fica indisponível. `null` desliga nos testes.
+  // Tenant files (AD-120): without a bucket the logo is unavailable. `null` turns it off in tests.
   const storage =
     options.storage === null
       ? undefined
@@ -104,7 +104,7 @@ export const buildApp = (
             })
           : undefined));
 
-  // Mapa de campo (AD-131): coordenadas do endereço do compromisso.
+  // Field map (AD-131): coordinates of the appointment address.
   const geocoder =
     options.geocoder ?? createNominatimGeocoder({ baseUrl: env.GEOCODER_URL, userAgent: env.GEOCODER_USER_AGENT });
 
@@ -112,10 +112,10 @@ export const buildApp = (
     res.json(respObj({ data: { service: 'api' } }));
   });
 
-  // Sem validToken (mesmo padrão de /health): métricas Prometheus de request e banco.
+  // No validToken (same pattern as /health): Prometheus request and database metrics.
   app.get('/metrics', async (_req, res) => {
     res.set('Content-Type', register.contentType);
-    // res.end (não res.send): res.send() reordena os parâmetros do Content-Type.
+    // res.end (not res.send): res.send() reorders the Content-Type parameters.
     res.end(await register.metrics());
   });
 

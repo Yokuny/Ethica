@@ -10,19 +10,19 @@ export interface UserDocument {
   role: Array<'admin' | 'manager' | 'operator'>;
   isPlatformAdmin: boolean;
   active: boolean;
-  // Matriz de permissões do membro (AD-137). Ausente = preset do papel; admin ignora.
+  // Member permission matrix (AD-137). Missing = role preset; admin ignores it.
   permissions?: Permissions;
-  // ENR-03: preferências da própria pessoa. Guardam só escolhas de interface
-  // (ex.: dispensar o guia de primeiros passos) — nunca fatos de progresso.
+  // ENR-03: the person's own preferences. They only keep interface choices
+  // (e.g. dismissing the getting started guide) — never progress facts.
   // AD-110: `avisoPrazoEmail` ausente = ligado.
   preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; hiddenBlocks?: string[] };
-  // Feed iCal (PRZ-03): só o hash do token secreto, como sessão e convite. Ausente = sem link.
+  // iCal feed (PRZ-03): only the hash of the secret token, like session and invite. Missing = no link.
   calendarFeedTokenHash?: string;
-  // ACC-02: foto 256×256 já reduzida no navegador, como data URL. `select: false`:
-  // só a rota da foto a lê; listas e sessão levam apenas a versão (avatarUpdatedAt).
+  // ACC-02: 256×256 photo already shrunk in the browser, as a data URL. `select: false`:
+  // only the photo route reads it; lists and session only carry the version (avatarUpdatedAt).
   avatar?: string;
   avatarUpdatedAt?: Date;
-  // DOC-01: dados profissionais que vão nos documentos técnicos.
+  // DOC-01: professional data that goes on the technical documents.
   cpf?: string;
   professionalRegistration?: string;
   education?: string;
@@ -30,7 +30,7 @@ export interface UserDocument {
   updatedAt: Date;
 }
 
-// Um array de ações por módulo; a validação de forma é do contrato (permissoesSchema).
+// One array of actions per module; the shape validation belongs to the contract (permissionsSchema).
 export const permissionsSchemaDb = new Schema<Permissions>(
   Object.fromEntries(PERMISSION_MODULES.map((module) => [module, { type: [String], default: undefined }])),
   { _id: false },
@@ -67,8 +67,8 @@ const userSchema = new Schema<UserDocument>(
   { timestamps: true },
 );
 
-// AD-016: Tenant é obrigatório exatamente quando o usuário não é admin da
-// plataforma — isPlatformAdmin é a única exceção a ter Tenant ausente.
+// AD-016: Tenant is required exactly when the user is not a platform
+// admin — isPlatformAdmin is the only exception allowed to have no Tenant.
 userSchema.pre('validate', function () {
   if (!this.isPlatformAdmin && !this.Tenant) {
     this.invalidate('Tenant', 'Tenant é obrigatório para usuários que não são admin da plataforma');

@@ -8,7 +8,7 @@ import { type OfficeView, officeKeys } from '../@query/office.js';
 
 const EXPORT_PATH = '/documents/export';
 
-// DOC-04: ZIP com um CSV por entidade; a API registra quem exportou e quando.
+// DOC-04: ZIP with one CSV per entity; the API records who exported and when.
 export function OfficeExport({ office }: { office: OfficeView }) {
   const queryClient = useQueryClient();
   const { download, pending } = useFileDownload();

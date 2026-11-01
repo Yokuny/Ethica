@@ -4,10 +4,10 @@ import { CustomError } from './errorHandler.middleware.js';
 
 type ValidationTarget = 'body' | 'params' | 'query';
 
-// O cliente só recebe a chave genérica `invalid_data`; o detalhe por campo
-// (`path: mensagem do Zod`) vai em `detail`, que só o log do errorHandler lê.
-// Reusado pelas validações de query feitas à mão nos routers (workaround do
-// getter de `req.query` do Express 5).
+// The client only gets the generic `invalid_data` key; the per-field detail
+// (`path: Zod message`) goes in `detail`, which only the errorHandler log reads.
+// Reused by the query validations done by hand in the routers (workaround for the
+// Express 5 `req.query` getter).
 export const invalidDataError = (error: ZodError, target: string): CustomError =>
   new CustomError(
     'invalid_data',
@@ -15,10 +15,10 @@ export const invalidDataError = (error: ZodError, target: string): CustomError =
     error.issues.map((issue) => `${issue.path.join('.') || target}: ${issue.message}`).join('; '),
   );
 
-// safeParse (nunca parse/try-catch): elimina de raiz o bug da referência —
-// `next()` chamado dentro de um `for` sobre os erros (Risk: ERR_HTTP_HEADERS_SENT
-// com múltiplos campos inválidos). Aqui só existe UM caminho de saída por
-// chamada, e a leitura é sempre `error.issues` (Zod 4), nunca `error.errors`.
+// safeParse (never parse/try-catch): removes the reference bug at the root —
+// `next()` called inside a `for` over the errors (Risk: ERR_HTTP_HEADERS_SENT
+// with multiple invalid fields). Here there is only ONE way out per
+// call, and the read is always `error.issues` (Zod 4), never `error.errors`.
 const validate = (schema: ZodType, target: ValidationTarget) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req[target]);
@@ -28,9 +28,9 @@ const validate = (schema: ZodType, target: ValidationTarget) => {
       return;
     }
 
-    // Mutação in-place (não reatribuição): em Express 5, req.query pode ser
-    // um getter — Object.assign preserva a referência e ainda aplica as
-    // transformações do schema (ex.: e-mail em minúsculas).
+    // In-place mutation (not reassignment): in Express 5, req.query can be
+    // a getter — Object.assign keeps the reference and still applies the
+    // schema transformations (e.g. lowercase e-mail).
     if (target === 'body' && req.body === undefined) req.body = {};
     Object.assign(req[target] as object, result.data);
     next();
@@ -41,10 +41,10 @@ export const validBody = (schema: ZodType) => validate(schema, 'body');
 export const validParams = (schema: ZodType) => validate(schema, 'params');
 export const validQuery = (schema: ZodType) => validate(schema, 'query');
 
-// MOD-10: no Express 5, req.query é um getter sem cache — o Object.assign de
-// validQuery se perde antes do controller ler de novo. Aqui req.query é
-// substituído por um valor gravável de fato: o resultado do parse, com a
-// coerção e os defaults do schema. Substitui as cópias locais dos routers.
+// MOD-10: in Express 5, req.query is a getter without cache — the Object.assign of
+// validQuery is lost before the controller reads it again. Here req.query is
+// replaced by a truly writable value: the parse result, with the
+// schema coercion and defaults. Replaces the local copies in the routers.
 export const validParsedQuery = (schema: ZodType) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req.query);

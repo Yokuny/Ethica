@@ -101,8 +101,8 @@ describe('createAuthMiddleware', () => {
     deviceInfo: string;
     payloadOverride?: Record<string, unknown>;
   }) => {
-    // jti aleatório: sem isso, duas chamadas no mesmo segundo (mesmo `iat`)
-    // gerariam o MESMO JWT — e o mesmo tokenHash, que é unique no Session.
+    // Random jti: without it, two calls in the same second (same `iat`)
+    // would generate the SAME JWT — and the same tokenHash, which is unique in Session.
     const rawToken = jwt.sign(
       { user: params.userId, jti: crypto.randomUUID(), ...params.payloadOverride },
       env.SESSION_JWT_SECRET,
@@ -235,10 +235,10 @@ describe('createAuthMiddleware', () => {
     expect(matched.body.tenantUser.user).toBe(user.id);
   });
 
-  // T2/design.md Componente 1: authenticateSession chamada diretamente, sem
-  // Express — mesmo caminho que o handshake WS (inboxSocket.ts, T4) vai usar.
-  // Todas as branches replicam exatamente o comportamento já provado acima
-  // via HTTP, confirmando que a extração não mudou nada observável.
+  // T2/design.md Component 1: authenticateSession called directly, without
+  // Express — the same path the WS handshake (inboxSocket.ts, T4) will use.
+  // Every branch replicates exactly the behavior already proven above
+  // through HTTP, confirming the extraction changed nothing observable.
   describe('authenticateSession (called directly, outside Express)', () => {
     it('throws CustomError(401, "invalid_session") when no token is provided', async () => {
       let caught: unknown;

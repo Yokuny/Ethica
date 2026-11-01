@@ -23,8 +23,8 @@ type DeadlinePanel =
   | { kind: 'detail'; deadline: DeadlineRecord }
   | null;
 
-// Todos os prazos do processo (PRZ-01), por vencimento: pendentes com alerta de
-// vencido/vence em breve, protocolados com a data de entrega, perdidos no histórico.
+// Every deadline of the process (PRZ-01), by due date: pending ones with an overdue/due soon
+// alert, filed ones with the delivery date, missed ones in the history.
 export function CaseDeadlines({ caseId }: { caseId: string }) {
   const query = useQuery(caseDeadlinesQuery(caseId));
   const [panel, setPanel] = useState<DeadlinePanel>(null);

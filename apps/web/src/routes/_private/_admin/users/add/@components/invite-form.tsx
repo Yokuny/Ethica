@@ -57,7 +57,7 @@ export function InviteForm() {
                           value={field.value}
                           onValueChange={(role) => {
                             field.onChange(role);
-                            // Trocar o perfil traz o preset dele; o admin ajusta depois.
+                            // Changing the profile brings its preset; the admin adjusts it afterwards.
                             if (role && role !== 'admin') form.setValue('permissions', PROFILE_PERMISSIONS[role]);
                           }}
                         >

@@ -5,7 +5,7 @@ import type { FinanceSummary } from '@/query/transaction.js';
 
 const show = (value: number | undefined) => (value === undefined ? '—' : formatMoney(value));
 
-// Raio-X do dinheiro: a receber, atrasado, recebido e despesas do mês.
+// Money X-ray: receivable, overdue, received and expenses of the month.
 export function FinanceOverview({ summary }: { summary?: FinanceSummary }) {
   return (
     <RecordStats variant="band" role="group" aria-label={t('finance')}>

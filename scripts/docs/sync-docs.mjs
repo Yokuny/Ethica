@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Gera o gateway de documentação (docs/index.md + docs/index.json) a partir do
-// frontmatter de docs/features/*/feature.md, do log de decisões em .specs/STATE.md,
-// das pastas em .specs/features/ e dos planos em .specs/plans/ (caixa de entrada) e
-// .specs/features/*/plans/ (arquivados). Node puro, sem dependências.
+// Generates the documentation gateway (docs/index.md + docs/index.json) from the
+// frontmatter of docs/features/*/feature.md, the decision log in .specs/STATE.md,
+// the folders in .specs/features/ and the plans in .specs/plans/ (inbox) and
+// .specs/features/*/plans/ (archived). Plain Node, no dependencies.
 //
 // Uso:
-//   node scripts/docs/sync-docs.mjs            # regrava os índices
-//   node scripts/docs/sync-docs.mjs --check    # não escreve; exit 1 se divergir ou houver erro
-//   node scripts/docs/sync-docs.mjs --context  # resumo curto para o início de sessão (hook)
+//   node scripts/docs/sync-docs.mjs            # rewrites the indexes
+//   node scripts/docs/sync-docs.mjs --check    # does not write; exit 1 if it diverges or there is an error
+//   node scripts/docs/sync-docs.mjs --context  # short summary for the session start (hook)
 
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
@@ -32,7 +32,7 @@ const REQUIRED_SECTIONS = [
   '## Pendências',
   '## Histórico',
 ];
-// Áreas fora dos workspaces pnpm que uma feature pode tocar.
+// Areas outside the pnpm workspaces that a feature can touch.
 const EXTRA_AREAS = ['infra', 'docs', 'evals', 'tests', 'harness'];
 
 const args = process.argv.slice(2);
@@ -188,11 +188,11 @@ function readFeatures(areas, decisionIds, errors) {
       doc: `features/${slug}/feature.md`,
     });
   }
-  // mais recentes primeiro; desempate por slug para saída determinística
+  // most recent first; tie broken by slug for deterministic output
   return features.sort((a, b) => b.data.localeCompare(a.data) || a.slug.localeCompare(b.slug));
 }
 
-// ---------- geração ----------
+// ---------- generation ----------
 
 const cell = (s) => String(s).replace(/\|/g, '\\|');
 

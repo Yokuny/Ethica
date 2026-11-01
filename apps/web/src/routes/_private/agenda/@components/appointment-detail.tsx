@@ -18,7 +18,7 @@ import { useAppointmentActions } from '../@hooks/use-appointment-actions.js';
 
 type AppointmentDetailProps = { appointment: AppointmentRecord; onEdit: () => void; onClose: () => void };
 
-// Leitura do compromisso com as ações do dia a dia: concluir, cancelar, remarcar e remover.
+// Appointment read view with the day-to-day actions: complete, cancel, reschedule and remove.
 export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentDetailProps) {
   const { isPending, setStatus, isConfirmingDelete, askDelete, cancelDelete, handleDelete } = useAppointmentActions(
     appointment,
@@ -66,7 +66,7 @@ export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentD
         ]}
       />
       {appointment.caseId && <CaseReceipts caseId={appointment.caseId} />}
-      {/* Campo (AD-130, AD-131): registro da vistoria no celular e aviso às partes por e-mail. */}
+      {/* Field (AD-130, AD-131): inspection record on the phone and notice to the parties by e-mail. */}
       <div className="flex flex-wrap gap-2">
         <Button
           variant="outline"

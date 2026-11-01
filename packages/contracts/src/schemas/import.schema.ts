@@ -1,5 +1,5 @@
-// Importação de perícias (AD-115, AD-118). As colunas do CSV são a fonte única do
-// modelo que o web oferece para download e do parser da API.
+// Case import (AD-115, AD-118). The CSV columns are the single source of the
+// template the web offers for download and of the API parser.
 export const CSV_IMPORT_COLUMNS = [
   'numero_processo',
   'papel',
@@ -28,7 +28,7 @@ export type CsvImportColumn = (typeof CSV_IMPORT_COLUMNS)[number];
 
 export const CSV_IMPORT_REQUIRED_COLUMNS: readonly CsvImportColumn[] = ['numero_processo', 'objeto'];
 
-// Linha de exemplo do modelo, na ordem de `CSV_IMPORT_COLUMNS`.
+// Template sample row, in `CSV_IMPORT_COLUMNS` order.
 export const CSV_IMPORT_EXAMPLE: Record<CsvImportColumn, string> = {
   numero_processo: '0001234-56.2026.5.02.0001',
   papel: 'expert',

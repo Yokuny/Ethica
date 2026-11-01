@@ -8,7 +8,7 @@ export const findOffice = async (tenantId: string) =>
     Tenant.findById(tenantId).select('name header footer logo storageBytes scheduleNotice').lean(),
   );
 
-// Texto vazio apaga o cabeçalho/rodapé: os documentos voltam ao padrão.
+// Empty text clears the header/footer: the documents go back to the default.
 export const updateTexts = async (tenantId: string, data: UpdateOffice): Promise<void> =>
   withDbTiming('office.updateTexts', async () => {
     const entries = Object.entries(data);
@@ -20,8 +20,8 @@ export const updateTexts = async (tenantId: string, data: UpdateOffice): Promise
     );
   });
 
-// Troca o logo reservando a diferença de tamanho na cota (AD-120). A condição sobre o logo
-// atual impede que duas trocas simultâneas contem errado. `false`: a cota não comporta.
+// Swaps the logo reserving the size difference in the quota (AD-120). The condition on the current
+// logo prevents two simultaneous swaps from counting wrong. `false`: the quota does not fit it.
 export const replaceLogo = async (tenantId: string, logo: TenantLogo, current?: TenantLogo): Promise<boolean> =>
   withDbTiming('office.replaceLogo', async () => {
     const delta = logo.bytes - (current?.bytes ?? 0);
@@ -44,8 +44,8 @@ export const removeLogo = async (tenantId: string, current: TenantLogo): Promise
     );
   });
 
-// Arquivo novo de outro módulo (mídia da vistoria, AD-129) reserva o espaço na cota no mesmo
-// update que confere o limite. `false`: a cota não comporta.
+// A new file from another module (inspection media, AD-129) reserves the quota space in the same
+// update that checks the limit. `false`: the quota does not fit it.
 export const reserveBytes = async (tenantId: string, bytes: number): Promise<boolean> =>
   withDbTiming('office.reserveBytes', async () => {
     const result = await Tenant.updateOne(

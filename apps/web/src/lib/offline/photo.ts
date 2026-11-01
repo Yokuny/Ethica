@@ -1,7 +1,7 @@
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 
-// Foto da vistoria (AD-129): reduzida no aparelho (lado maior 1600 px, JPEG) e carimbada com o
-// endereço e a data/hora, antes de ir para a fila. Economiza cota e rede móvel.
+// Inspection photo (AD-129): shrunk on the device (longest side 1600 px, JPEG) and stamped with the
+// address and date/time, before going into the queue. Saves quota and mobile data.
 const MAX_SIDE = 1600;
 const CAPACITY = 0.82;
 
@@ -19,7 +19,7 @@ export const preparePhoto = async (file: Blob, address: string | undefined, quan
   if (!ctx) throw new Error('canvas indisponível');
   ctx.drawImage(image, 0, 0, width, height);
   image.close();
-  // Faixa escura no rodapé com o carimbo, legível em qualquer foto.
+  // Dark strip at the bottom with the stamp, readable on any photo.
   const font = Math.max(14, Math.round(width / 50));
   const text = [address, formatDateTime(quando.toISOString())].filter(Boolean).join(' · ');
   ctx.font = `600 ${font}px system-ui, sans-serif`;

@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { calendarDateSchema } from './date.schema.js';
 
-// Prazo processual da perícia (AD-109). `protocolado` é o prazo cumprido, com a
-// data em que foi entregue; `perdido` fica no histórico sem contar como pendente.
+// Case procedural deadline (AD-109). `filed` is the deadline met, with the
+// date it was delivered; `missed` stays in the history without counting as pending.
 export const DEADLINE_STATUS = ['pending', 'filed', 'missed'] as const;
 export type DeadlineStatus = (typeof DEADLINE_STATUS)[number];
 
-// "Vence em breve" (definido pelo usuário em 2026-10-31).
+// "Due soon" (defined by the user on 2026-10-31).
 export const DEADLINE_DUE_SOON_DAYS = 15;
 
 const deadlineFields = z.object({
@@ -18,7 +18,7 @@ const deadlineFields = z.object({
 export const createDeadlineSchema = deadlineFields.strict();
 export type CreateDeadline = z.infer<typeof createDeadlineSchema>;
 
-// Protocolar sem data grava hoje; voltar a pendente/perdido apaga a data.
+// Filing without a date saves today; going back to pending/missed clears the date.
 export const updateDeadlineSchema = deadlineFields
   .partial()
   .extend({ status: z.enum(DEADLINE_STATUS).optional(), filedDate: calendarDateSchema.optional() })

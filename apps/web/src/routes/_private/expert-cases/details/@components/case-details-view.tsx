@@ -12,8 +12,8 @@ const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`
 const period = (start?: string, end?: string) => (start || end ? `${day(start)} – ${day(end)}` : '-');
 const money = (value?: number) => (value ? formatMoney(value) : '-');
 
-// Página de registro: cabeçalho com processo e etapa, faixa com prazos e
-// honorários, e os grupos de leitura (juízo, partes, observações).
+// Record page: header with process and status, strip with deadlines and
+// fees, and the read groups (court, parties, notes).
 export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseRecord; canSeeFinance: boolean }) {
   const variant = CASE_STATUS_VARIANT[legalCase.status];
   const client = legalCase.parties.find((party) => party.client)?.name;
@@ -35,7 +35,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
       <RecordStats>
         <RecordStat label={t('appointment_date')} value={day(legalCase.nominationDate)} />
         {client && <RecordStat label={t('contracting_party')} value={client} />}
-        {/* Valores só para quem vê o financeiro (AD-137). */}
+        {/* Amounts only for whoever sees finance (AD-137). */}
         {canSeeFinance && <RecordStat label={t('proposed_fees')} value={money(legalCase.proposedFeesCents)} />}
         {canSeeFinance && (
           <RecordStat

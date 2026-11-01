@@ -31,8 +31,8 @@ export class ReportNotFoundError extends KeyedError {}
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
-// Etapas anteriores à entrega: concluir com a entrega avança para `report_delivered` (AD-126)
-// com a fase "aguardando manifestação das partes" (AD-133).
+// Statuses before delivery: completing with delivery moves to `report_delivered` (AD-126)
+// with the "waiting for the parties' response" phase (AD-133).
 const BEFORE_DELIVERY = new Set(['appointed', 'accepted', 'inspection', 'drafting_report']);
 
 const withNumber = async <T extends { caseId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
@@ -54,7 +54,7 @@ const editable = async (tenantId: string, id: string): Promise<ReportRecord> => 
   return report;
 };
 
-// Dados da perícia, de quem gera e do escritório no momento (AD-126).
+// Data of the case, of whoever generates it and of the office at the moment (AD-126).
 const currentData = async (providers: Pick<Providers, 'storage'>, ctx: DocumentContext, legalCase: CaseRecord) => {
   const [identity, expert, appointments, field] = await Promise.all([
     officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
@@ -80,7 +80,7 @@ const resolveSections = (sections: ReportSectionRecord[], values: ReportValues):
     html: resolveVariables(section.html, values, 'html'),
   }));
 
-// Nenhum documento sai nem é concluído com marcador sem valor (AD-126).
+// No document leaves or is completed with a marker without a value (AD-126).
 const withoutIssues = (sections: ReportSectionRecord[]): void => {
   const pending = issuesOf(sections);
   if (pending.length) {
@@ -101,9 +101,9 @@ const getReport = async (tenantId: string, id: string): Promise<ReportRecord> =>
   return report as ReportRecord;
 };
 
-// Abrir o rascunho resolve de novo as variáveis com os dados atuais, sem gravar: a tela mostra
-// o mesmo texto e as mesmas pendências que a exportação e a conclusão vão usar (AD-126). Salvar
-// a seção grava o texto já resolvido; o concluído é devolvido como foi gravado.
+// Opening the draft resolves the variables again with the current data, without saving: the screen shows
+// the same text and the same issues that export and completion will use (AD-126). Saving
+// the section saves the text already resolved; the completed one is returned as it was saved.
 export const openReport = async (ctx: DocumentContext, id: string): Promise<ReportRecord> => {
   const report = await getReport(ctx.tenantId, id);
   if (report.status === 'completed') return report;
@@ -113,8 +113,8 @@ export const openReport = async (ctx: DocumentContext, id: string): Promise<Repo
   return { ...report, sections, issues: issuesOf(sections) };
 };
 
-// LAU-02: copia as seções escolhidas, na ordem do modelo, com o texto da variante e as
-// variáveis já resolvidas. O tipo vem do papel na perícia (LAU-06).
+// LAU-02: copies the chosen sections, in template order, with the variant text and the
+// variables already resolved. The type comes from the role on the case (LAU-06).
 export const createReport = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
@@ -167,7 +167,7 @@ export const updateSection = async (
   return openReport(ctx, found(updated).id);
 };
 
-// Remover renumera sozinho: o número vem da posição (AD-126). A última seção fica.
+// Removing renumbers by itself: the number comes from the position (AD-126). The last section stays.
 export const removeSection = async (ctx: DocumentContext, id: string, sectionId: string): Promise<ReportRecord> => {
   const { tenantId } = ctx;
   const report = await editable(tenantId, id);
@@ -177,8 +177,8 @@ export const removeSection = async (ctx: DocumentContext, id: string, sectionId:
   return openReport(ctx, id);
 };
 
-// LAU-03.4: resolve de novo com os dados atuais, grava o texto final e bloqueia a edição.
-// Com a entrega: protocola o prazo, lança a movimentação e avança a etapa (AD-126).
+// LAU-03.4: resolves again with the current data, saves the final text and locks editing.
+// With delivery: files the deadline, posts the movement and advances the status (AD-126).
 export const completeReport = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
@@ -216,14 +216,14 @@ export const deleteReport = async (tenantId: string, id: string): Promise<void> 
 
 export const deleteByCase = (tenantId: string, caseId: string) => reportRepository.deleteByCase(tenantId, caseId);
 
-// Exportar (LAU-03.2): mesmas variáveis resolvidas de novo, sem gravar; pendente → 422.
+// Export (LAU-03.2): same variables resolved again, without saving; pending → 422.
 const toExport = async (providers: Providers, ctx: DocumentContext, id: string) => {
   const report = await getReport(ctx.tenantId, id);
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
   const { identity, expert, values } = await currentData(providers, ctx, legalCase);
   const sections = resolveSections(report.sections, values);
   withoutIssues(sections);
-  // Fotos da vistoria no texto (AD-129): bytes lidos aqui, só do próprio tenant.
+  // Inspection photos in the text (AD-129): bytes read here, only from the same tenant.
   const srcs = [
     ...new Set(
       sections.flatMap((section) => [...section.html.matchAll(/<img[^>]*src="([^"]+)"/g)].map((m) => m[1] as string)),

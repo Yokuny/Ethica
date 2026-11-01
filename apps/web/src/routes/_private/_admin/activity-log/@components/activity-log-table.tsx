@@ -13,7 +13,7 @@ type ActivityLogTableProps = {
   onPaginationChange: OnChangeFn<PaginationState>;
 };
 
-// Tabela server-driven (paginação/filtros vêm da URL); a linha é só leitura.
+// Server-driven table (pagination/filters come from the URL); the row is read-only.
 export function ActivityLogTable({ data, pageCount, pageIndex, pageSize, onPaginationChange }: ActivityLogTableProps) {
   const table = useReactTable({
     data,

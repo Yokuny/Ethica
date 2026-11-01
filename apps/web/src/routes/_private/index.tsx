@@ -27,8 +27,8 @@ import { useHomePage } from './@hooks/use-home-page.js';
 
 const FLOW_MONTHS = 6;
 
-// Início configurável por usuário (AD-136): só os blocos que a matriz deixa ver (AD-137),
-// menos os que a pessoa escondeu.
+// Home configurable per user (AD-136): only the blocks the matrix allows viewing (AD-137),
+// minus those the person hid.
 export function PrivateIndexPage() {
   const { session, canSeeFinance, sections } = useHomePage();
   const preferences = useQuery(preferencesQuery);

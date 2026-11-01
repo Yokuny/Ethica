@@ -1,6 +1,6 @@
 import { env } from './env.config.js';
 
-// Portado literal de DentalEase-BackEnd/src/config/cookie.config.ts.
+// Ported verbatim from DentalEase-BackEnd/src/config/cookie.config.ts.
 export const cookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV !== 'development',

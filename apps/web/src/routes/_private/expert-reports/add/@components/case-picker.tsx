@@ -10,7 +10,7 @@ import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { casesQuery } from '@/query/case.js';
 
-// Primeiro passo de LAU-02: achar a perícia pelo número ou pelas partes.
+// First step of LAU-02: find the case by number or by parties.
 export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
   const [q, setQ] = useState('');
   const [input, setInput] = useDebouncedSearch(q, setQ);

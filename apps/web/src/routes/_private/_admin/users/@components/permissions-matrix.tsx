@@ -11,8 +11,8 @@ import { Checkbox } from '@/components/checkbox.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { PERMISSION_ACTION_KEY, PERMISSION_MODULE_KEY } from '../@consts/permissions-labels.js';
 
-// Matriz módulo × ação do membro (AD-137), no convite e em Usuários. Marcar inserir, editar
-// ou excluir marca ver; desmarcar ver limpa a linha (a API recusa ação sem ver).
+// Member module × action matrix (AD-137), in the invite and in Users. Checking create, update
+// or delete checks view; unchecking view clears the row (the API rejects an action without view).
 export function togglePermission(
   permissions: Permissions,
   module: PermissionModule,

@@ -1,8 +1,8 @@
 import type { DatajudCourt, DatajudSearch, DatajudTechnicalSubject } from '@ethica/contracts';
 
-// API Pública do Datajud (CNJ): um índice Elasticsearch por tribunal em
+// Datajud Public API (CNJ): one Elasticsearch index per court at
 // `${baseUrl}/api_publica_<tribunal>/_search`, autenticado por
-// `Authorization: APIKey <chave>`. Só leitura; nenhum dado do tenant sai daqui.
+// `Authorization: APIKey <key>`. Read-only; no tenant data leaves from here.
 export type DatajudProcess = {
   processNumber: string;
   court: DatajudCourt;
@@ -30,7 +30,7 @@ type Named = { nome?: string };
 type DatajudSource = {
   numeroProcesso?: string;
   classe?: Named;
-  // Alguns tribunais devolvem assuntos aninhados em listas.
+  // Some courts return subjects nested in lists.
   assuntos?: Array<Named | Named[]>;
   orgaoJulgador?: Named;
   dataAjuizamento?: string;
@@ -42,14 +42,14 @@ type DatajudHit = { _source?: DatajudSource; sort?: (string | number)[] };
 const DEFAULT_SIZE = 20;
 const DEFAULT_TIMEOUT_MS = 30_000;
 
-// O Datajud guarda o número só com dígitos; a tela e o cadastro usam a máscara do CNJ.
+// Datajud stores the number with digits only; the screen and the registry use the CNJ mask.
 export const formatCnjNumber = (digits: string): string => {
   const d = digits.replace(/\D/g, '');
   if (d.length !== 20) return digits;
   return `${d.slice(0, 7)}-${d.slice(7, 9)}.${d.slice(9, 13)}.${d.slice(13, 14)}.${d.slice(14, 16)}.${d.slice(16)}`;
 };
 
-// Nome do assunto processual como o Datajud o indexa (a API do Ethica fala as chaves em inglês, AD-113).
+// Subject name as Datajud indexes it (the Ethica API speaks English keys, AD-113).
 const SUBJECT_IN_DATAJUD: Record<DatajudTechnicalSubject, string> = {
   unhealthy_conditions: 'Insalubridade',
   hazardous_conditions: 'Periculosidade',

@@ -1,9 +1,9 @@
 import { Histogram } from 'prom-client';
 
-// Latência por operação de banco (FND-17) — reuso do padrão de
-// .../src/repositories/user.repository.ts (timer por chamada de
-// repositório), com um wrapper único em vez de try/timer/catch repetido em
-// cada função — mesmo instrumento, menos boilerplate por repositório.
+// Latency per database operation (FND-17) — reuses the pattern from
+// .../src/repositories/user.repository.ts (one timer per
+// repository call), with a single wrapper instead of try/timer/catch repeated in
+// each function — same instrument, less boilerplate per repository.
 export const dbReqResTime = new Histogram({
   name: 'db_operation_duration_seconds',
   help: 'Duração das operações de banco em segundos',

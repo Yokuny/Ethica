@@ -2,17 +2,17 @@ import type { AppointmentReason, AppointmentStatus, InspectionData, MediaType } 
 import { clear, del, get, keys, set } from 'idb-keyval';
 import type { DayInspection, InspectionRecord } from '@/query/inspection.js';
 
-// O que a tela de campo guarda no aparelho (AD-128), no IndexedDB:
-// - `dia:<data>` e `registro:<compromisso>`: a última cópia vinda da API, para abrir sem conexão;
-// - `rascunho:<compromisso>`: o formulário alterado e ainda não enviado (com a versão de base);
-// - `midia:<id>`: foto, áudio ou assinatura ainda não enviados, com o arquivo;
-// - `status:<compromisso>`: feita/adiada/ausente marcados sem conexão.
+// What the field screen keeps on the device (AD-128), in IndexedDB:
+// - `day:<date>` and `record:<appointment>`: the last copy from the API, to open without a connection;
+// - `draft:<appointment>`: the changed form not yet sent (with the base version);
+// - `media:<id>`: photo, audio or signature not yet sent, with the file;
+// - `status:<appointment>`: done/postponed/absent marked without a connection.
 export type Draft = {
   appointmentId: string;
   version: number;
   data: InspectionData;
   changedAt: string;
-  // Versão do servidor quando o envio deu 409: o perito escolhe qual fica.
+  // Server version when sending got a 409: the expert picks which one stays.
   conflict?: InspectionRecord;
 };
 export type PendingMedia = {
@@ -53,13 +53,13 @@ export const storeStatus = (status: StatusPending) => set(`status:${status.appoi
 export const deleteStatus = (appointmentId: string) => del(`status:${appointmentId}`);
 export const listStatus = () => withPrefix<StatusPending>('status:');
 
-// Sessão (AD-128): a última vista com conexão, para o app abrir sem rede. Só nome, papel e
-// escritório; a credencial continua no cookie httpOnly. Sem IndexedDB (testes), não guarda.
+// Session (AD-128): the last one seen with a connection, so the app opens without network. Only name, role and
+// office; the credential stays in the httpOnly cookie. Without IndexedDB (tests), it does not store.
 export const saveSession = async (session: unknown): Promise<void> => {
   try {
     await set('session', session);
   } catch {
-    // Sem IndexedDB: o app só não abre sem conexão.
+    // Without IndexedDB: the app just does not open without a connection.
   }
 };
 export const readSession = async <T>(): Promise<T | undefined> => {
@@ -70,11 +70,11 @@ export const readSession = async <T>(): Promise<T | undefined> => {
   }
 };
 
-// Sair apaga tudo o que o aparelho guardou do escritório (rota, rascunhos, fila, sessão).
+// Signing out deletes everything the device kept from the office (route, drafts, queue, session).
 export const clearDevice = async (): Promise<void> => {
   try {
     await clear();
   } catch {
-    // Sem IndexedDB não há o que apagar.
+    // Without IndexedDB there is nothing to delete.
   }
 };

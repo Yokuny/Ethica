@@ -71,7 +71,7 @@ export const deleteAppointment = async (tenantId: string, id: string): Promise<{
     return { deletedCount: result.deletedCount ?? 0 };
   });
 
-// Tudo que toca o intervalo: começa antes do fim e termina depois do início.
+// Everything that touches the range: starts before the end and ends after the start.
 export const listInRange = async (
   tenantId: string,
   range: { from: Date; to: Date; type?: AppointmentType; caseId?: string },
@@ -111,7 +111,7 @@ export const listUpcoming = async (
     return docs.map(toRecord);
   });
 
-// Ficha da perícia (com `periciaId`) e exportação de dados (DOC-02, DOC-04), por início.
+// Case sheet (with `caseId`) and data export (DOC-02, DOC-04), by start.
 export const listAll = async (tenantId: string, filter: { caseId?: string } = {}): Promise<AppointmentRecord[]> =>
   withDbTiming('appointment.listAll', async () => {
     const docs = await Appointment.find(
@@ -122,7 +122,7 @@ export const listAll = async (tenantId: string, filter: { caseId?: string } = {}
     return docs.map(toRecord);
   });
 
-// Cache da geocodificação do endereço atual (AD-131).
+// Geocoding cache of the current address (AD-131).
 export const setCoordinates = async (
   tenantId: string,
   id: string,

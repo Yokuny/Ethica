@@ -10,7 +10,7 @@ export interface InviteDocument {
   Tenant: mongoose.Types.ObjectId;
   email: string;
   role: 'admin' | 'manager' | 'operator';
-  // Matriz que o membro recebe no aceite (AD-137); ausente para admin.
+  // Matrix the member gets on acceptance (AD-137); missing for admin.
   permissions?: Permissions;
   tokenHash: string;
   status: InviteStatus;
@@ -36,13 +36,13 @@ const inviteSchema = new Schema<InviteDocument>(
   { timestamps: true },
 );
 
-// Nunca dois convites `pending` para o mesmo par Tenant+email (FND-13) — o
-// invariante é do índice parcial, não do código.
+// Never two `pending` invites for the same Tenant+email pair (FND-13) — the
+// invariant belongs to the partial index, not to the code.
 inviteSchema.index({ Tenant: 1, email: 1 }, { unique: true, partialFilterExpression: { status: 'pending' } });
 inviteSchema.index({ Tenant: 1, status: 1 });
 
 export const Invite = mongoose.model<InviteDocument>('Invite', inviteSchema);
 
-// O token opaco nunca é gravado — só o hash. Vazamento do banco não produz
-// convite utilizável.
+// The opaque token is never saved — only the hash. A database leak does not produce
+// a usable invite.
 export const hashToken = (token: string): string => crypto.createHash('sha256').update(token).digest('hex');

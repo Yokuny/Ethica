@@ -14,11 +14,11 @@ export const findUserByEmailInTenant = async (tenantId: string, email: string): 
     return user ? { id: user._id.toString() } : null;
   });
 
-// FND-13: reenvio reaproveita — o convite pending anterior (se houver) é
-// revogado antes de criar o novo, nunca deixando dois válidos ao mesmo
-// tempo. O índice parcial único do model continua sendo a garganta de
-// segurança contra corrida (duas revogações concorrentes seguidas de dois
-// creates), não o caminho normal de reenvio.
+// FND-13: resending reuses — the previous pending invite (if any) is
+// revoked before creating the new one, never leaving two valid at the same
+// time. The model's unique partial index stays the safety
+// net against a race (two concurrent revocations followed by two
+// creates), not the normal resend path.
 export const revokePendingInvites = async (tenantId: string, email: string): Promise<void> =>
   withDbTiming('platform.revokePendingInvites', async () => {
     await Invite.updateMany({ Tenant: tenantId, email, status: 'pending' }, { $set: { status: 'revoked' } });
@@ -38,7 +38,7 @@ export const createInvite = async (data: CreateInviteInput): Promise<{ id: strin
     return { id: invite.id };
   });
 
-// sentAt ausente = e-mail não saiu (FND-12); só marcado quando o envio confirma sucesso.
+// Missing sentAt = the e-mail did not go out (FND-12); only set when sending confirms success.
 export const markInviteSent = async (id: string): Promise<void> =>
   withDbTiming('platform.markInviteSent', async () => {
     await Invite.findByIdAndUpdate(id, { sentAt: new Date() });

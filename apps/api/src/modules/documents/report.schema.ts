@@ -51,7 +51,7 @@ export {
   updateTemplateSchema,
 };
 
-// Modelo padrão tem id fixo (AD-126); o do escritório, ObjectId.
+// The default template has a fixed id (AD-126); the office one, an ObjectId.
 const templateIdSchema = z.union([
   idSchema,
   z.enum([REPORT_DEFAULT_TEMPLATES.report, REPORT_DEFAULT_TEMPLATES.technical_opinion]),
@@ -83,7 +83,7 @@ export type TemplateRecord = {
   id: string;
   name: string;
   type: ReportType;
-  // Modelo da biblioteca padrão: só leitura, clonável (AD-126).
+  // Default library template: read-only, clonable (AD-126).
   isDefault: boolean;
   sections: TemplateSectionRecord[];
   updatedAt?: Date;
@@ -103,13 +103,13 @@ export type ReportSectionRecord = {
 
 export type ReportSectionWrite = Omit<ReportSectionRecord, 'id'>;
 
-// Marcadores sem valor por seção (AD-126): bloqueiam exportar e concluir.
+// Markers without a value by section (AD-126): they block export and completion.
 export type ReportIssue = { sectionId: string; variables: ReportVariable[] };
 
 export type ReportRecord = {
   id: string;
   caseId: string;
-  // Enriquecido pelo service; ausente se a perícia não existe mais.
+  // Enriched by the service; missing if the case no longer exists.
   caseNumber?: string;
   type: ReportType;
   status: ReportStatus;
@@ -134,14 +134,14 @@ export type ReportCreateInput = {
   sections: ReportSectionWrite[];
 };
 
-// O que o PDF e o Word recebem: seções com as variáveis já resolvidas de novo (AD-126).
+// What PDF and Word receive: sections with the variables resolved again (AD-126).
 export type ReportExportData = {
   report: ReportRecord;
   legalCase: CaseRecord;
   identity: DocumentIdentity;
   expert: AccountView;
   values: Partial<Record<ReportVariable, string>>;
-  // `src` da foto no HTML → bytes (AD-129); foto que sumiu fica fora e o `img` some.
+  // Photo `src` in the HTML → bytes (AD-129); a photo that is gone is left out and the `img` is dropped.
   photos: Record<string, { body: Buffer; mime: string }>;
   generatedAt: Date;
 };

@@ -1,6 +1,6 @@
 import type { PermissionAction, PermissionModule } from '@ethica/contracts';
 
-// Chaves de tradução da matriz (AD-137): literais, para o dicionário conferir cada uma.
+// Matrix translation keys (AD-137): literals, so the dictionary checks each one.
 export const PERMISSION_MODULE_KEY: Record<PermissionModule, string> = {
   expert_cases: 'expert_cases',
   parties: 'parties',

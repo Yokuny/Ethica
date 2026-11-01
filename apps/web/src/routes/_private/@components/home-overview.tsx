@@ -10,7 +10,7 @@ import type { FinanceSummary } from '@/query/transaction.js';
 const number = new Intl.NumberFormat('pt-BR');
 const show = (value: number | undefined) => (value === undefined ? '—' : number.format(value));
 
-// Faixa do início: o que pede atenção hoje. Valores financeiros só para quem os vê.
+// Home strip: what needs attention today. Financial values only for whoever sees them.
 export function HomeOverview({ stats, summary }: { stats?: ListStats; summary?: FinanceSummary }) {
   return (
     <RecordStats variant="band" role="group" aria-label={t('overview')}>

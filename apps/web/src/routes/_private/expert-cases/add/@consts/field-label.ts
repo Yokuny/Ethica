@@ -1,6 +1,6 @@
 import type { CreateCase } from '@ethica/contracts';
 
-// Chave de tradução do rótulo de cada campo que o PDF pode deixar de trazer.
+// Translation key of the label of each field the PDF may fail to bring.
 export const FIELD_LABEL: Partial<Record<keyof CreateCase, string>> = {
   processNumber: 'process_number',
   court: 'court',

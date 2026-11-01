@@ -7,7 +7,7 @@ export { listActivityLogQuerySchema };
 
 export type ActivityLogRouterDeps = { validToken: RequestHandler };
 
-// O que o middleware (ou o login) informa; o nome de quem fez é lido aqui.
+// What the middleware (or the sign-in) reports; the name of whoever did it is read here.
 export type NewActivity = {
   tenantId: string;
   userId: string;

@@ -11,7 +11,7 @@ import { DEFAULT_VALUES } from '../@consts/default-values.js';
 export function useCaseForm() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  // Os campos são os mesmos da edição (+ prazo do laudo); a validação é a da criação.
+  // The fields are the same as in editing (+ report deadline); the validation is the creation one.
   const form = useForm<CaseFormValues>({
     resolver: zodResolver(createCaseSchema) as unknown as Resolver<CaseFormValues>,
     defaultValues: DEFAULT_VALUES,

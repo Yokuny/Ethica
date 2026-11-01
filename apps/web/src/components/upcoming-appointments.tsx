@@ -8,7 +8,7 @@ import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
 
-// Próximos compromissos; cada linha abre a agenda no dia dele.
+// Upcoming appointments; each row opens the agenda on its day.
 export function UpcomingAppointments({ items }: { items: AppointmentRecord[] }) {
   return (
     <LinkList>

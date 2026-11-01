@@ -79,10 +79,10 @@ describe('auth routes', () => {
     return { tenant, user };
   };
 
-  // GET /auth/users não precisa passar pelo POST /auth/signin de verdade (e
-  // consumir seu orçamento de 5 tentativas/15min, signinRateLimit) — mesmo
-  // atalho de issueSessionCookie em conversation.router.e2e.test.ts, que
-  // grava a Session direto e assina o JWT com o mesmo segredo/shape.
+  // GET /auth/users does not need to go through the real POST /auth/signin (and
+  // spend its budget of 5 attempts/15min, signinRateLimit) — same
+  // issueSessionCookie shortcut as in conversation.router.e2e.test.ts, which
+  // writes the Session directly and signs the JWT with the same secret/shape.
   const issueSessionCookie = async (userId: string): Promise<string> => {
     const rawToken = jwt.sign({ user: userId, jti: crypto.randomUUID() }, env.SESSION_JWT_SECRET);
     await Session.create({
@@ -157,9 +157,9 @@ describe('auth routes', () => {
         .send({ email: 'login@empresa.com', password: 'passwordCorreta123' });
       const cookie = (signinRes.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
 
-      // Muda o estado no banco DEPOIS de emitida a sessão — se a resposta
-      // vier do payload do token (ou de algo cacheado), o valor antigo
-      // apareceria; vindo do banco, reflete a mudança.
+      // Changes the state in the database AFTER the session is issued — if the response
+      // came from the token payload (or from something cached), the old value
+      // would show up; coming from the database, it reflects the change.
       await User.findByIdAndUpdate(user._id, { name: 'Nome Atualizado' });
       await Tenant.findByIdAndUpdate(tenant._id, { name: 'Empresa Renomeada' });
 
@@ -173,8 +173,8 @@ describe('auth routes', () => {
         permissions: PROFILE_PERMISSIONS.manager,
       });
 
-      // AD-014: suspender o tenant vale no request seguinte; sair continua
-      // possível, para a tela de conta suspensa conseguir encerrar a sessão.
+      // AD-014: suspending the tenant applies on the next request; signing out stays
+      // possible, so the suspended account screen can end the session.
       await Tenant.findByIdAndUpdate(tenant._id, { status: 'suspended' });
 
       const suspendedRes = await request(app).get('/auth/session').set('Cookie', cookie).set('User-Agent', DEVICE);
@@ -230,8 +230,8 @@ describe('auth routes', () => {
     });
   });
 
-  // Diretório do tenant que alimenta o filtro de "responsável" da fila de
-  // conversas (inbox) — mesmo canOperate já usado em GET /conversations.
+  // Tenant directory that feeds the "assignee" filter of the conversation
+  // queue (inbox) — same canOperate already used in GET /conversations.
   describe('GET /auth/users', () => {
     const randomId = (): string => crypto.randomBytes(12).toString('hex');
 
@@ -311,8 +311,8 @@ describe('auth routes', () => {
     });
   });
 
-  // REG-07 (AD-071): diretório da tela de usuários — e-mail, papel e situação,
-  // só para admin; /auth/users continua {id,name} para qualquer operador.
+  // REG-07 (AD-071): users screen directory — e-mail, role and state,
+  // admin only; /auth/users stays {id,name} for any operator.
   describe('GET /auth/users/directory', () => {
     const randomId = (): string => crypto.randomBytes(12).toString('hex');
 
@@ -393,7 +393,7 @@ describe('auth routes', () => {
 
   const randomId = (): string => crypto.randomBytes(12).toString('hex');
 
-  // AD-137: matriz por membro, só o admin ajusta; vale na requisição seguinte.
+  // AD-137: per-member matrix, only the admin adjusts it; applies on the next request.
   describe('PATCH /auth/users/:id/permissoes', () => {
     it('grava a matriz do membro e a sessão dele passa a refleti-la', async () => {
       const { tenant, user: admin } = await seedUser({ role: ['admin'] });

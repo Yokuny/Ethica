@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 import { FormDialog } from '@/components/form-dialog.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Confirmação de ação irreversível (remover, arquivar, rejeitar) em Dialog:
-// nada apaga no primeiro clique. Montado = aberto, como o FormDialog — quem usa
-// renderiza condicionalmente e fecha em `onClose` (Esc, clique fora, ✕, Cancelar).
+// Confirmation of an irreversible action (remove, archive, reject) in a Dialog:
+// nothing is deleted on the first click. Mounted = open, like FormDialog — the user
+// renders it conditionally and closes on `onClose` (Esc, click outside, ✕, Cancel).
 type ConfirmDialogProps = {
   title: string;
   description: string;

@@ -59,7 +59,7 @@ describe('searchDefinitionMatches (definição normalizada pelo Atlas)', () => {
   const [legalCase] = SEARCH_INDEXES;
   const wanted = legalCase.definition;
   const ac = { type: 'autocomplete', minGrams: 1, maxGrams: 15, foldDiacritics: true, tokenization: 'nGram' };
-  // O que o Atlas devolve: chaves reordenadas e defaults acrescentados.
+  // What Atlas returns: reordered keys and added defaults.
   const normalized = {
     mappings: {
       fields: {

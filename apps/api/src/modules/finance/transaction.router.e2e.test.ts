@@ -141,7 +141,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, dueDate: '2020-01-10' })).body.data;
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 150_000, date: today });
-    // Parcela de outro mês: entra no recebido do mês dela, não no deste (nem no fluxo de 1 mês).
+    // Installment from another month: goes into that month's received, not this one's (nor the 1-month flow).
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       amountCents: 50_000,
       date: '2020-02-01',

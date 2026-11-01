@@ -14,7 +14,7 @@ type PartiesTableProps = {
   onRowClick: (row: PartyRecord) => void;
 };
 
-// Tabela server-driven (paginação/filtros vêm da URL), linha abre o detalhe.
+// Server-driven table (pagination/filters come from the URL), the row opens the detail.
 export function PartiesTable({
   data,
   pageCount,

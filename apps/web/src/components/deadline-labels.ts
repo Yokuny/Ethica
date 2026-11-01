@@ -2,7 +2,7 @@ import { DEADLINE_DUE_SOON_DAYS, type DeadlineStatus } from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { addDaysToDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 
-// Tons do status do prazo (AD-109), compartilhados por perícias e agenda.
+// Deadline status tones (AD-109), shared by cases and agenda.
 export const DEADLINE_STATUS_VARIANT: Record<DeadlineStatus, IndicatorVariant> = {
   pending: 'info',
   filed: 'success',
@@ -11,8 +11,8 @@ export const DEADLINE_STATUS_VARIANT: Record<DeadlineStatus, IndicatorVariant> =
 
 export type DeadlineAlert = 'deadline_overdue' | 'due_soon';
 
-// Só prazo pendente alerta: vencido (antes de hoje) ou vence em breve (até 15 dias).
-// A chave devolvida é a própria chave de tradução do selo.
+// Only a pending deadline alerts: overdue (before today) or due soon (up to 15 days).
+// The returned key is the badge translation key itself.
 export const deadlineAlert = (
   deadline: { dueDate: string; status?: DeadlineStatus },
   today: string,

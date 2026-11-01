@@ -10,7 +10,7 @@ import {
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CsvImportResult } from '../../@query/import.js';
 
-// Relatório do lote (IMP-02.2): quantas foram criadas, ignoradas e recusadas, e o motivo por linha.
+// Batch report (IMP-02.2): how many were created, skipped and rejected, and the reason per row.
 export function CsvImportReport({ result }: { result: CsvImportResult }) {
   const rows = [
     ...result.rejected.map((item) => ({

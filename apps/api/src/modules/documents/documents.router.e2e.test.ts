@@ -41,7 +41,7 @@ const day = (offset: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
-// Corpo binário (PDF/ZIP) como Buffer no supertest.
+// Binary body (PDF/ZIP) as a Buffer in supertest.
 const binary = (res: request.Response, callback: (error: Error | null, body: Buffer) => void) => {
   const chunks: Buffer[] = [];
   res.on('data', (chunk: Buffer) => chunks.push(chunk));
@@ -253,7 +253,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       'prazos.csv',
       'usuarios.csv',
     ]);
-    // UTF-8 com BOM (o TextDecoder do strFromU8 já remove o BOM do texto).
+    // UTF-8 with BOM (strFromU8's TextDecoder already strips the BOM from the text).
     expect([...(files['pericias.csv'] as Uint8Array).subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
     const cases = strFromU8(files['pericias.csv'] as Uint8Array);
     expect(cases.startsWith('id;numeroProcesso;')).toBe(true);
@@ -262,7 +262,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(users).toContain(admin.user.email);
     expect(users).not.toContain('hash-secreto');
 
-    // Quem exportou vai ao diário de bordo (AD-134), gravado ao fim da resposta.
+    // Whoever exported goes to the activity log (AD-134), recorded when the response ends.
     await expect
       .poll(async () => Activity.findOne({ Tenant: tenant._id, action: 'export' }).lean())
       .toMatchObject({ User: admin.user._id, module: 'office' });

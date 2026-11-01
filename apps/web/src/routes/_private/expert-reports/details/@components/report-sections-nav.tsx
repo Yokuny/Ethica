@@ -7,7 +7,7 @@ import type { ReportRecord } from '@/query/report.js';
 
 type ReportSectionsNavProps = { report: ReportRecord; selected: string; onSelect: (sectionId: string) => void };
 
-// Seções numeradas pela posição (AD-126); a que tem variável sem valor fica marcada (LAU-03.3).
+// Sections numbered by position (AD-126); the one with a variable without a value is flagged (LAU-03.3).
 export function ReportSectionsNav({ report, selected, onSelect }: ReportSectionsNavProps) {
   const numbers = numberSections(report.sections);
   const pending = new Set(report.issues.map((issue) => issue.sectionId));

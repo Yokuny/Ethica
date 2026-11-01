@@ -20,16 +20,16 @@ type Props = {
 
 type Row = { label: string; value: string };
 
-// Ganho/perda quando há percentual calculável; sem base de comparação (período
-// anterior zerado) cai para o delta absoluto.
+// Gain/loss when there is a computable percentage; without a comparison base (previous
+// period at zero) it falls back to the absolute delta.
 function resultRow({ delta }: ListStatsTrend['comparison'], change?: number | null): Row {
   if (delta === 0) return { label: t('difference'), value: decimal.format(0) };
   if (change == null) return { label: t('trend_delta'), value: signed(delta) };
   return { label: delta > 0 ? t('trend_gain') : t('trend_loss'), value: `${decimal.format(Math.abs(change))}%` };
 }
 
-// O evento no tooltip identifica a série; o número principal segue sendo a
-// fotografia atual retornada pelo endpoint de estatísticas.
+// The event in the tooltip identifies the series; the main number is still the
+// current snapshot returned by the stats endpoint.
 export function ListTrendStat({ label, value, trend, ratio, event, average = false }: Props) {
   const comparison = average ? t('compared_to_previous_30_day_average') : t('compared_to_previous_30_days');
   const change = trend?.changePercent;

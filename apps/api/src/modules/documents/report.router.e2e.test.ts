@@ -190,7 +190,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(created.status).toBe(201);
     const report = created.body.data;
     expect(report).toMatchObject({ type: 'report', status: 'draft', caseNumber: CASE.processNumber });
-    // Ordem do modelo, não a da escolha.
+    // Template order, not the order of the selection.
     expect(report.sections.map((section: Section) => section.title)).toEqual([
       'Identificação do processo',
       'Conclusão',
@@ -204,7 +204,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       report.sections[1].id,
     ]);
 
-    // Dado preenchido na perícia depois de criar o laudo resolve ao reabrir o rascunho.
+    // Data filled on the case after the report was created resolves when the draft is reopened.
     expect(report.sections[1].html).toContain('[PERIODO_IMPRESCRITO]');
     await admin
       .as(request(app).patch(`/expert-cases/${caseId}`))

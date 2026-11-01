@@ -29,5 +29,5 @@ export type PartyRecord = {
   updatedAt: Date;
 };
 
-// Parte já resolvida para gravar na perícia (cópia de tipo e nome, AD-117).
+// Party already resolved to be saved on the case (copy of type and name, AD-117).
 export type CasePartyWrite = { partyId: string; side: Side; type: PartyType; name: string; client?: boolean };

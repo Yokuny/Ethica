@@ -13,7 +13,7 @@ import { OfficeStorage } from './@components/office-storage.js';
 import { OfficeTextsForm } from './@components/office-texts-form.js';
 import { officeQuery } from './@query/office.js';
 
-// DOC-01 e DOC-04: identidade do escritório nos documentos e exportação de dados (só admin).
+// DOC-01 and DOC-04: office identity on documents and data export (admin only).
 export function OfficePage() {
   const query = useQuery(officeQuery);
   const office = query.data;

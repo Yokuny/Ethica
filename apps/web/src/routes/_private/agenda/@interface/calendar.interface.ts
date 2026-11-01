@@ -6,7 +6,7 @@ import { CALENDAR_VIEWS } from '../@consts/calendar.js';
 
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];
 
-// Qual dialog está aberto — nunca mais de um por vez.
+// Which dialog is open — never more than one at a time.
 export type PanelState =
   | { kind: 'create'; date?: string }
   | { kind: 'detail'; appointment: AppointmentRecord }
@@ -14,8 +14,8 @@ export type PanelState =
   | { kind: 'deadline'; deadline: DeadlineRecord }
   | null;
 
-// `view`/`date`/`tipo` são a única fonte de verdade do que é renderizado:
-// toda mudança passa por navigate() e refaz a consulta ao servidor.
+// `view`/`date`/`type` are the only source of truth for what is rendered:
+// every change goes through navigate() and redoes the server query.
 export const calendarSearchSchema = z.object({
   view: z.enum(CALENDAR_VIEWS).optional(),
   date: z
@@ -23,7 +23,7 @@ export const calendarSearchSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'date inválida (YYYY-MM-DD)')
     .optional(),
   type: z.enum(APPOINTMENT_TYPES).optional(),
-  // Atalho do detalhe da perícia: abre o "novo compromisso" já vinculado.
+  // Shortcut from the case detail: opens the "new appointment" already linked.
   caseId: z.string().optional(),
 });
 export type CalendarSearch = z.infer<typeof calendarSearchSchema>;

@@ -63,7 +63,7 @@ export const createFinanceRouter = (deps: FinanceRouterDeps): Router => {
     validParams(transactionIdParamSchema),
     transactionController.deleteTransaction,
   );
-  // Recebimentos parciais do honorário (AD-111).
+  // Partial fee receipts (AD-111).
   router.post(
     '/entries/:id/installments',
     ...guard,

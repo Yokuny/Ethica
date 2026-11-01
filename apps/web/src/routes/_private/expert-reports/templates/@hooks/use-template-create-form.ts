@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createTemplateMutation, type TemplateRecord } from '@/query/report.js';
 
-// Modelo novo em branco ou clonando outro do mesmo tipo (LAU-01.1). `base` pré-escolhe o clone.
+// New blank template or cloning another one of the same type (LAU-01.1). `base` preselects the clone.
 export function useTemplateCreateForm({
   base,
   onDone,

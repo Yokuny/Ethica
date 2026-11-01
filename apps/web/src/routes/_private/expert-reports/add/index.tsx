@@ -18,7 +18,7 @@ import { CasePicker } from './@components/case-picker.js';
 import { type Choices, SectionsPicker } from './@components/sections-picker.js';
 import { type ReportAddSearch, reportAddSearchSchema } from './@interface/report-add.interface.js';
 
-// LAU-02: perícia → modelo do tipo certo (laudo ou parecer, LAU-06) → seções e variantes.
+// LAU-02: case → template of the right type (report or opinion, LAU-06) → sections and variants.
 export function ReportAddPage() {
   const search = useSearch({ strict: false }) as ReportAddSearch;
   const navigate = useNavigate({ from: '/expert-reports/add/' });
@@ -32,7 +32,7 @@ export function ReportAddPage() {
   const create = useMutation(createReportMutation(queryClient));
   const [choices, setChoices] = useState<{ templateId: string; values: Choices } | null>(null);
 
-  // Ao trocar de modelo, todas as seções começam marcadas na variante "sim".
+  // When switching templates, every section starts checked on the "yes" variant.
   const current: Choices =
     choices?.templateId === templateId
       ? choices.values

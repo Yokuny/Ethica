@@ -60,7 +60,7 @@ const app = buildApp({
   },
 });
 
-// JPEG mínimo (SOI, APP0, SOF0 320×240, EOI).
+// Minimal JPEG (SOI, APP0, SOF0 320×240, EOI).
 const JPEG = Buffer.from([
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0xf0, 0x01, 0x40, 0x03, 0x01,
   0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
@@ -143,7 +143,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const operator = await seedSession(tenant._id, ['operator']);
-    // E-mail fica no cadastro da parte (AD-117); a perícia liga pelo id.
+    // The e-mail lives in the party record (AD-117); the case links it by id.
     const cadastrar = async (data: Record<string, string>) =>
       (await admin.as(request(app).post('/parties')).send(data)).body.data.id as string;
     const ana = await cadastrar({ type: 'party', name: 'Ana Reclamante', email: 'ana@x.com' });
@@ -194,7 +194,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
       .as(request(app).put(`/inspections/${id}`))
       .send({ version: 1, data: { ...DATA, notes: 'segunda' } });
     expect(segunda.body.data.version).toBe(2);
-    // Aparelho com a versão antiga: 409 com a versão do servidor, nada sobrescrito.
+    // Device with the old version: 409 with the server version, nothing overwritten.
     const velha = await operator
       .as(request(app).put(`/inspections/${id}`))
       .send({ version: 1, data: { ...DATA, notes: 'velha' } });
@@ -268,7 +268,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
     expect(geo.body.data.coordinates).toEqual({ lat: -23.55, lng: -46.63 });
     await operator.as(request(app).post(`/agenda/${id}/geocode`));
     expect(geocoded).toHaveLength(1);
-    // Endereço novo invalida o cache.
+    // A new address invalidates the cache.
     await operator.as(request(app).patch(`/agenda/${id}`)).send({ location: 'Rua inexistente, 1' });
     const withoutPoint = await operator.as(request(app).post(`/agenda/${id}/geocode`));
     expect(withoutPoint.body.data.coordinates).toBeUndefined();
@@ -335,7 +335,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
       .send({
         html: `<p>Presentes: [PRESENTES_VISTORIA]. Agentes: [AGENTES_PRESENTES]. Documentos: [DOCUMENTOS_SOLICITADOS].</p><img src="http://localhost:18080/inspections/${id}/media/${photoId}" alt="Prensa"><img src="https://evil.com/x.png">`,
       });
-    // Vistoria ainda agendada: variáveis de campo pendentes.
+    // Inspection still scheduled: field variables pending.
     expect(withField.body.data.issues[0].variables).toContain('[PRESENTES_VISTORIA]');
     await operator
       .as(request(app).patch(`/agenda/${id}`))

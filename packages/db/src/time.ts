@@ -1,12 +1,12 @@
 import { DISPLAY_TIMEZONE } from '@ethica/contracts';
 
-// Conversão entre instante (UTC, como é gravado) e hora de parede no fuso de
-// exibição (AD-036, AD-103). Módulo puro, sem Mongoose: usado pelos services ao
-// converter `date`+`time` de entrada e pelas séries diárias dos indicadores.
+// Conversion between instant (UTC, as it is stored) and wall-clock time in the display
+// time zone (AD-036, AD-103). Pure module, no Mongoose: used by the services when
+// converting the input `date`+`time` and by the daily indicator series.
 
-// Resolve o offset (em minutos, positivo a leste de UTC) em vigor num
-// instante, para um fuso nomeado — nunca uma string fixa como '-03:00', que
-// quebra se o horário de verão brasileiro voltar (AD-036).
+// Resolves the offset (in minutes, positive east of UTC) in force at an
+// instant, for a named time zone — never a fixed string like '-03:00', which
+// breaks if Brazilian daylight saving time comes back (AD-036).
 const getOffsetMinutes = (instant: Date, timeZone: string): number => {
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone,
@@ -22,12 +22,12 @@ const getOffsetMinutes = (instant: Date, timeZone: string): number => {
   return sign * (Number(match[2]) * 60 + Number(match[3]));
 };
 
-// Hora de parede -> instante UTC, sem offset cravado: duas passadas de
-// Intl.DateTimeFormat (verificado por execução no Design — ver
-// Research Provenance de design.md). A primeira passada estima o offset a
-// partir de uma leitura ingênua (a hora de parede interpretada como se já
-// fosse UTC); a segunda re-resolve o offset no instante candidato, que é o
-// que efetivamente vale para a data alvo.
+// Wall-clock time -> UTC instant, without a hard-coded offset: two passes of
+// Intl.DateTimeFormat (verified by running it in Design — see
+// Research Provenance in design.md). The first pass estimates the offset from
+// a naive read (the wall-clock time read as if it already
+// were UTC); the second re-resolves the offset at the candidate instant, which is
+// what actually applies to the target date.
 export const wallClockToUtc = (date: string, time: string, timeZone: string = DISPLAY_TIMEZONE): Date => {
   const naiveUtcMs = Date.parse(`${date}T${time}:00.000Z`);
   const firstPassOffset = getOffsetMinutes(new Date(naiveUtcMs), timeZone);

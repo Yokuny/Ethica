@@ -14,9 +14,9 @@ import {
   storeMedia,
 } from './store.js';
 
-// Envio do que ficou no aparelho (AD-128): status, depois formulários, depois mídias. Formulário
-// com 409 guarda a versão do servidor no rascunho e espera o perito escolher; mídia que falhou
-// fica para a próxima tentativa, nunca some.
+// Sending what stayed on the device (AD-128): status, then forms, then media. A form
+// with 409 keeps the server version in the draft and waits for the expert to choose; media that failed
+// stays for the next attempt, never disappears.
 export type StateSync = {
   online: boolean;
   syncing: boolean;
@@ -47,7 +47,7 @@ export const useStateSync = (): StateSync =>
     () => state,
   );
 
-// Conta o que ainda está só no aparelho, sem enviar.
+// Counts what is still only on the device, without sending.
 export const updateIssues = async () => {
   const [status, drafts, media] = await Promise.all([listStatus(), listDrafts(), listMedia()]);
   publish({
@@ -71,7 +71,7 @@ export const runSync = async (queryClient: QueryClient) => {
         version: draft.version,
         data: draft.data,
       });
-      // Edição feita durante o envio continua no aparelho, agora sobre a versão nova.
+      // An edit made during sending stays on the device, now over the new version.
       const current = await readDraft(draft.appointmentId);
       if (res.success && res.data) {
         if (current?.changedAt === draft.changedAt) await deleteDraft(draft.appointmentId);
@@ -101,13 +101,13 @@ const storeFailure = async (mediaId: string, failure: string) => {
   if (media) await storeMedia({ ...media, failure });
 };
 
-// Nova tentativa enquanto houver pendência: o evento `online` nem sempre chega (rede que volta
-// sem trocar de interface, API fora do ar na primeira tentativa).
+// New attempt while something is pending: the `online` event does not always arrive (network that comes back
+// without switching interface, API down on the first attempt).
 const NEW_ATTEMPT_MS = 15_000;
 
 let iniciado = false;
-// Uma vez por aba: envia ao abrir, quando a conexão volta, quando a tela volta a aparecer e,
-// com pendência, a cada intervalo.
+// Once per tab: sends on open, when the connection comes back, when the screen shows up again and,
+// with something pending, at every interval.
 export const startSync = (queryClient: QueryClient) => {
   if (iniciado) return;
   iniciado = true;

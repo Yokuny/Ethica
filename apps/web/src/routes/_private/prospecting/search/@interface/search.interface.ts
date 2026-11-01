@@ -2,7 +2,7 @@ import { ALL_DATAJUD_COURTS, DATAJUD_TECHNICAL_SUBJECTS, type DatajudSearch } fr
 import { z } from 'zod';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Formulário da busca: só o que a pessoa digita; tamanho e cursor ficam no hook.
+// Search form: only what the person types; size and cursor stay in the hook.
 export const searchFormSchema = z.object({
   court: z.enum(ALL_DATAJUD_COURTS),
   technicalSubjects: z.array(z.enum(DATAJUD_TECHNICAL_SUBJECTS)),

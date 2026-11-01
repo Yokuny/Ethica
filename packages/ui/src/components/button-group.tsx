@@ -9,11 +9,11 @@ const buttonGroupVariants = cva(
   "flex w-fit items-stretch rounded-none *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-none [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
   {
     variants: {
-      // Segmento do meio fica quadrado nos dois lados; primeiro/último
-      // segmento perdem só o lado que encosta no vizinho (:not(:last-child)/
-      // :not(:first-child), não *:data-slot incondicional) — assim, com
+      // The middle segment is square on both sides; the first/last
+      // segments only lose the side that touches the neighbor (:not(:last-child)/
+      // :not(:first-child), not an unconditional *:data-slot) — that way, with
       // Button agora lendo --radius (button.tsx), o tema arredonda
-      // as duas pontas do grupo em vez de deixar tudo quadrado.
+      // both ends of the group instead of leaving everything square.
       orientation: {
         horizontal:
           '[&>[data-slot]:not(:last-child)]:rounded-r-none [&>[data-slot]:not(:first-child)]:rounded-l-none [&>[data-slot]~[data-slot]]:border-l-0',
@@ -33,7 +33,7 @@ function ButtonGroup({
   ...props
 }: React.ComponentProps<'div'> & VariantProps<typeof buttonGroupVariants>) {
   return (
-    // biome-ignore lint/a11y/useSemanticElements: <fieldset> traz estilo/semântica de formulário indesejados aqui — mesmo div+role="group" do registry oficial shadcn.
+    // biome-ignore lint/a11y/useSemanticElements: <fieldset> brings unwanted form style/semantics here — same div+role="group" as the official shadcn registry.
     <div
       role="group"
       data-slot="button-group"

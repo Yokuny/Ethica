@@ -12,7 +12,7 @@ type ConflictDialogProps = {
   onClose: () => void;
 };
 
-// Outra pessoa (ou outro aparelho) salvou antes (AD-128): o perito escolhe qual versão fica.
+// Someone else (or another device) saved first (AD-128): the expert picks which version stays.
 export function ConflictDialog({ server, onKeepMine, onUseServer, onClose }: ConflictDialogProps) {
   const count = (data: InspectionRecord['data']) =>
     `${data.attendees.length} ${t('attendees').toLowerCase()} · ${data.jobs.length} ${t('job_roles').toLowerCase()} · ${data.agents.length} ${t('agents').toLowerCase()}`;

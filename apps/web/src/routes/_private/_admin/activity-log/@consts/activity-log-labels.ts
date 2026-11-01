@@ -1,6 +1,6 @@
 import type { ActivityLogAction, ActivityLogModule } from '@ethica/contracts';
 
-// Chaves de tradução do diário de bordo (AD-134): literais, para o dicionário conferir cada uma.
+// Activity log translation keys (AD-134): literals, so the dictionary checks each one.
 export const ACTIVITY_LOG_MODULE_KEY: Record<ActivityLogModule, string> = {
   expert_cases: 'expert_cases',
   parties: 'parties',
@@ -26,7 +26,7 @@ export const ACTIVITY_LOG_ACTION_KEY: Record<ActivityLogAction, string> = {
   signin: 'activity_signed_in',
 };
 
-// Sub-registro que vale nomear na ação (prazo, parcela…); o resto fica só no módulo.
+// Sub-record worth naming in the action (deadline, installment…); the rest stays only in the module.
 export const ACTIVITY_LOG_RESOURCE_KEY: Record<string, string> = {
   deadlines: 'deadline',
   movements: 'case_movement',

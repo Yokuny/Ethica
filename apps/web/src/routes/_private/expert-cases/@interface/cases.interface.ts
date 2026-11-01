@@ -12,6 +12,6 @@ export const casesSearchSchema = z.object({
 });
 export type CasesSearch = z.infer<typeof casesSearchSchema>;
 
-// Campos do formulário de `add` e `details`: os da edição + o prazo do laudo, que só existe
-// no cadastro (vira o prazo "Entrega do laudo", AD-109).
+// `add` and `details` form fields: the edit ones + the report deadline, which only exists
+// at registration (it becomes the "Entrega do laudo" deadline, AD-109).
 export type CaseFormValues = UpdateCase & Pick<CreateCase, 'reportDeadline'>;

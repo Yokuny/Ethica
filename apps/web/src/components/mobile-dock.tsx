@@ -10,9 +10,9 @@ const tileClassName = cn(
   'data-[status=active]:text-primary',
 );
 
-// Navegação mobile: destinos de uso diário, liberados a qualquer papel do
-// tenant, e "Menu", que abre a sidebar (drawer) com o resto. No desktop a
-// navegação é a sidebar do shell (_private/route.tsx); esta dock some em md:.
+// Mobile navigation: daily-use destinations, open to any tenant
+// role, and "Menu", which opens the sidebar (drawer) with the rest. On desktop the
+// navigation is the shell sidebar (_private/route.tsx); this dock hides at md:.
 export function MobileDock() {
   const { toggleSidebar } = useSidebar();
   const pathname = useLocation().pathname;
@@ -33,7 +33,7 @@ export function MobileDock() {
         <CalendarDays className="size-5" />
         {t('agenda')}
       </Link>
-      {/* Campo (AD-128): a tela do celular na vistoria; prospecção segue no Menu. */}
+      {/* Field (AD-128): the phone screen during the inspection; prospecting stays in the Menu. */}
       <Link to="/field" className={cn(tileClassName, pathname.startsWith('/field') && 'text-primary')}>
         <MapPinned className="size-5" />
         {t('field')}

@@ -2,8 +2,8 @@ import { DISPLAY_TIMEZONE } from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import type { DocumentIdentity } from './documents.schema.js';
 
-// Base comum dos PDFs (AD-119, AD-121). Todo texto que vem do banco passa por `esc`: o HTML
-// é montado por concatenação e o Chromium o renderiza sem JavaScript.
+// Common base of the PDFs (AD-119, AD-121). Every text that comes from the database goes through `esc`: the HTML
+// is built by concatenation and Chromium renders it without JavaScript.
 export const esc = (value: string | number | undefined | null): string =>
   String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -12,7 +12,7 @@ export const esc = (value: string | number | undefined | null): string =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
-// Textos do PDF em pt-BR no servidor, como o e-mail e o feed iCal (exceção da AD-113).
+// PDF texts in pt-BR on the server, like the e-mail and the iCal feed (AD-113 exception).
 const LABELS: Record<string, string> = {
   labor: 'Trabalhista',
   civil: 'Cível',
@@ -49,7 +49,7 @@ const LABELS: Record<string, string> = {
   movement: 'última movimentação',
   appointment: 'nomeação, sem movimentação',
   created: 'cadastro, sem movimentação',
-  // Campo (AD-130): agentes, documentos e qualidade dos presentes.
+  // Field (AD-130): agents, documents and attendee capacity.
   noise: 'Ruído',
   heat: 'Calor',
   cold: 'Frio',
@@ -87,13 +87,13 @@ export const section = (title: string, conteudo: string): string =>
 
 export const empty = (text: string): string => `<p class="vazio">${esc(text)}</p>`;
 
-// Tabela com cabeçalho; as células já chegam em HTML (escapadas por quem monta).
+// Table with a header; the cells already arrive as HTML (escaped by whoever builds them).
 export const table = (columns: string[], rows: string[][], caseClass = ''): string =>
   `<table class="${caseClass}"><thead><tr>${columns.map((column) => `<th>${esc(column)}</th>`).join('')}</tr></thead><tbody>${rows
     .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`)
     .join('')}</tbody></table>`;
 
-// Pares rótulo/valor; valor vazio some.
+// Label/value pairs; an empty value is dropped.
 export const fields = (pairs: Array<[string, string | undefined]>): string =>
   `<dl>${pairs
     .filter(([, amount]) => amount)
@@ -129,8 +129,8 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .gerado { margin-top: 8mm; font-size: 8.5pt; color: #57606a; }
 `;
 
-// Cabeçalho e rodapé do tenant (AD-121): cada linha do texto vira uma linha centralizada e os
-// marcadores são trocados. Linha que fica vazia (só `[LOGO]` sem logo) some.
+// Tenant header and footer (AD-121): each text line becomes a centered line and the
+// markers are replaced. A line left empty (only `[LOGO]` without a logo) is dropped.
 const template = (text: string, identity: DocumentIdentity, expertName: string): string => {
   const rows = text
     .split('\n')
@@ -146,7 +146,7 @@ const template = (text: string, identity: DocumentIdentity, expertName: string):
         .trim(),
     )
     .filter(Boolean);
-  // O template do Chromium não herda o CSS da página: tudo inline e com font-size explícito.
+  // The Chromium template does not inherit the page CSS: everything inline and with an explicit font-size.
   return `<div style="width:100%;padding:0 16mm;font-family:'Liberation Sans',Arial,sans-serif;font-size:8.5pt;color:#57606a;text-align:center;line-height:1.35;-webkit-print-color-adjust:exact;">${rows
     .map((row) => `<div>${row}</div>`)
     .join('')}</div>`;
@@ -155,7 +155,7 @@ const template = (text: string, identity: DocumentIdentity, expertName: string):
 export const DEFAULT_HEADER = '[LOGO]\n';
 export const DEFAULT_FOOTER = 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]';
 
-// Textos do cabeçalho e do rodapé do tenant, ou os padrões (AD-121); usados também pelo Word.
+// Tenant header and footer texts, or the defaults (AD-121); also used by Word.
 export const textsHeaderFooter = (identity: DocumentIdentity): { header: string; footer: string } => ({
   header: identity.header ?? `${DEFAULT_HEADER}${identity.name}`,
   footer: identity.footer ?? DEFAULT_FOOTER,

@@ -18,8 +18,8 @@ export const documentCaseParamSchema = z.object({ id: idSchema }).strict();
 
 export type DocumentsRouterDeps = { validToken: RequestHandler; pdf: PdfRenderer; storage?: FileStorage };
 
-// Quem gera o documento: o nome vai no [NOME_PERITO] e os dados profissionais na ficha.
-// `canSeeFinance` decide se a ficha mostra valores (AD-107, AD-121).
+// Whoever generates the document: the name goes into [NOME_PERITO] and the professional data into the sheet.
+// `canSeeFinance` decides whether the sheet shows amounts (AD-107, AD-121).
 export type DocumentContext = {
   tenantId: string;
   userId: string;

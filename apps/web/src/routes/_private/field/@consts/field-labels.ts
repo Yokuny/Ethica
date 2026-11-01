@@ -1,6 +1,6 @@
 import type { InspectionAgent, InspectionCapacity, MediaType, Side } from '@ethica/contracts';
 
-// Chave de tradução de cada valor do registro de vistoria (AD-113: valor em inglês, texto no web).
+// Translation key of each inspection record value (AD-113: value in English, text on the web).
 export const CAPACITY_KEY: Record<InspectionCapacity, string> = {
   plaintiff: 'attendee_plaintiff',
   defendant: 'attendee_defendant',

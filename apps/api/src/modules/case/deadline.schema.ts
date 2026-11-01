@@ -5,12 +5,12 @@ import { z } from 'zod';
 export type { CreateDeadline, UpdateDeadline };
 export { createDeadlineSchema, updateDeadlineSchema };
 
-// Prazo criado pelo `prazoLaudo` do cadastro (AD-109) e protocolado ao concluir o laudo (AD-126).
+// Deadline created from the registration `reportDeadline` (AD-109) and filed when the report is completed (AD-126).
 export const REPORT_DELIVERY_DEADLINE = 'Entrega do laudo';
 
 export const deadlineIdParamSchema = z.object({ deadlineId: idSchema }).strict();
 
-// Calendário da agenda: prazos pendentes que vencem em [from, to) (datas do fuso de exibição).
+// Agenda calendar: pending deadlines due in [from, to) (display time zone dates).
 export const listPendingDeadlinesQuerySchema = z
   .object({ from: calendarDateSchema.optional(), to: calendarDateSchema.optional() })
   .strict()
@@ -23,7 +23,7 @@ export type ListPendingDeadlinesQuery = z.infer<typeof listPendingDeadlinesQuery
 export type DeadlineRecord = {
   id: string;
   caseId: string;
-  // Enriquecido pelo service; ausente se a perícia não existe mais.
+  // Enriched by the service; missing if the case no longer exists.
   caseNumber?: string;
   title: string;
   dueDate: string;
@@ -34,10 +34,10 @@ export type DeadlineRecord = {
   updatedAt: Date;
 };
 
-// `protocoladoEm: null` apaga a data (prazo voltou a pendente ou foi perdido).
+// `filedDate: null` clears the date (the deadline went back to pending or was missed).
 export type DeadlineWrite = Omit<UpdateDeadline, 'filedDate'> & { filedDate?: string | null };
 
-// Prazo pendente de um dia do aviso, com o tenant (consulta do sistema, entre tenants).
+// Pending deadline of a reminder day, with the tenant (system query, across tenants).
 export type NoticeDeadline = DeadlineRecord & { tenantId: string };
 
 export type NextDeadline = { title: string; dueDate: string };

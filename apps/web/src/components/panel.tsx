@@ -5,8 +5,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
 import { type ReactNode, useId } from 'react';
 
-// Wrapper de bloco sem fundo nem borda: o agrupamento visual fica com quem está
-// dentro (Item, Table, form). `size` só regula o espaço entre os filhos.
+// Block wrapper without background or border: visual grouping belongs to what is
+// inside (Item, Table, form). `size` only sets the spacing between children.
 const panelVariants = cva('flex w-full min-w-0 flex-col', {
   variants: {
     size: {
@@ -22,7 +22,7 @@ const panelVariants = cva('flex w-full min-w-0 flex-col', {
 
 type PanelProps = Omit<useRender.ComponentProps<'section'>, 'title'> &
   VariantProps<typeof panelVariants> & {
-    // Cabeçalho opcional: título (com contagem, badge…), descrição e ações à direita.
+    // Optional header: title (with count, badge…), description and actions on the right.
     title?: ReactNode;
     description?: ReactNode;
     actions?: ReactNode;
@@ -31,7 +31,7 @@ type PanelProps = Omit<useRender.ComponentProps<'section'>, 'title'> &
 function Panel({ className, size = 'default', render, title, description, actions, children, ...props }: PanelProps) {
   const headingId = useId();
   const hasHeader = Boolean(title || description || actions);
-  // Com título, o bloco vira região nomeada por ele (a menos que o chamador já nomeie).
+  // With a title, the block becomes a region named by it (unless the caller already names it).
   const labelled = title && !props['aria-label'] && !props['aria-labelledby'] ? { 'aria-labelledby': headingId } : {};
   return useRender({
     defaultTagName: 'section',

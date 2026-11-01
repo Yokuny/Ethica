@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calendarDateSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
-// Diário de bordo (AD-134): módulos e ações registrados. Chaves em inglês, traduzidas no web (AD-113).
+// Activity log (AD-134): recorded modules and actions. English keys, translated on the web (AD-113).
 export const ACTIVITY_LOG_MODULES = [
   'expert_cases',
   'parties',

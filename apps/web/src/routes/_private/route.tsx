@@ -8,10 +8,10 @@ import { WorkspaceNavigation } from './@components/workspace-navigation.js';
 import { moduleFromRoute } from './@utils/home-access.js';
 
 // Tech Decisions (design.md): beforeLoad + ensureQueryData(GET /auth/session),
-// NUNCA Zustand — evita a segunda fonte de verdade que causaria o loop de
-// redirecionamento que FND-10/AC3 proíbe. sessionQuery tem retry:false, então
-// uma sessão inválida falha na primeira tentativa e redireciona uma única vez
-// por navegação — nunca re-tenta e nunca acumula redirects.
+// NEVER Zustand — avoids the second source of truth that would cause the
+// redirect loop FND-10/AC3 forbids. sessionQuery has retry:false, so
+// an invalid session fails on the first attempt and redirects only once
+// per navigation — never retries and never piles up redirects.
 export const beforeLoad = async ({
   context,
   location,
@@ -23,18 +23,18 @@ export const beforeLoad = async ({
   try {
     session = await context.queryClient.ensureQueryData(sessionQuery);
   } catch (error) {
-    // Tenant suspenso (403 tenant_suspended): a sessão é válida, então voltar
-    // ao /auth só repetiria o login; a tela própria explica e oferece sair.
+    // Suspended tenant (403 tenant_suspended): the session is valid, so going back
+    // to /auth would only repeat the sign-in; its own screen explains and offers to sign out.
     if (error instanceof Error && error.message === t('tenant_suspended')) throw redirect({ to: '/suspended' });
     throw redirect({ to: '/auth' });
   }
-  // Guarda única dos módulos pela matriz (AD-137): sem `ver`, volta ao início.
+  // Single module guard through the matrix (AD-137): without `view`, back home.
   const module = location ? moduleFromRoute(location.pathname) : undefined;
   if (module && !can(session, module)) throw redirect({ to: '/' });
 };
 
-// A sessão é garantida pelo beforeLoad. O shell compartilha navegação lateral
-// no desktop e mantém a dock para telas menores.
+// The session is guaranteed by beforeLoad. The shell shares the side navigation
+// on desktop and keeps the dock for smaller screens.
 export const Route = createFileRoute('/_private')({
   beforeLoad,
   component: () => (

@@ -107,7 +107,7 @@ export const removeSection = async (tenantId: string, id: string, sectionId: str
     return doc ? toRecord(doc) : null;
   });
 
-// Reordenar: grava a lista inteira na ordem nova, mantendo os ids das seções.
+// Reordering: saves the whole list in the new order, keeping the section ids.
 export const setSections = async (
   tenantId: string,
   id: string,

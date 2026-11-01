@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 
-// Período padrão: do primeiro dia do mês até hoje.
+// Default period: from the first day of the month to today.
 export function useFinanceReportForm() {
   const today = formatDisplayDate(new Date());
   const form = useForm<FinanceReportQuery>({

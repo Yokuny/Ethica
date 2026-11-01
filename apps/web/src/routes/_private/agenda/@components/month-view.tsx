@@ -14,11 +14,11 @@ import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
 import { CalendarMonthCell, CalendarMonthGrid } from './calendar-grid.js';
 
 export type MonthViewProps = {
-  // Qualquer data de parede dentro do mês exibido (YYYY-MM-DD).
+  // Any wall-clock date inside the displayed month (YYYY-MM-DD).
   month: string;
   items: AppointmentRecord[];
   onSelect: (item: AppointmentRecord) => void;
-  // Prazos pendentes: entram primeiro no dia do vencimento, sem contar no limite de compromissos.
+  // Pending deadlines: they come first on the due day, without counting against the appointments limit.
   deadlines?: DeadlineRecord[];
   onSelectDeadline?: (deadline: DeadlineRecord) => void;
   today?: string;
@@ -28,8 +28,8 @@ const WEEKS_IN_GRID = 6;
 const DAYS_IN_WEEK = 7;
 const MAX_VISIBLE_PER_DAY = 3;
 
-// Grade 6x7 (semana começando segunda, mesma convenção do projeto) — dias
-// fora do mês (preenchendo a primeira/última semana) ficam esmaecidos.
+// 6x7 grid (week starting Monday, same project convention) — days
+// outside the month (filling the first/last week) are faded.
 export function MonthView({
   month,
   items,
@@ -43,13 +43,13 @@ export function MonthView({
   const days = Array.from({ length: WEEKS_IN_GRID * DAYS_IN_WEEK }, (_, index) =>
     addDaysToDisplayDate(gridStart, index),
   );
-  // Rótulos tirados da própria primeira linha da grade: WEEKDAY_KEYS começa
-  // no domingo, a grade começa na segunda.
+  // Labels taken from the grid's own first row: WEEKDAY_KEYS starts
+  // on Sunday, the grid starts on Monday.
   const weekdayKeys = days.slice(0, DAYS_IN_WEEK).map((day) => WEEKDAY_KEYS[weekdayIndexOfDisplayDate(day)]);
 
-  // Cabeçalho e células no MESMO CalendarMonthGrid: as linhas tracejadas
-  // (moldura, entre colunas, sob o cabeçalho, entre semanas) vêm todas do
-  // primitivo, sem nenhuma borda aqui.
+  // Header and cells in the SAME CalendarMonthGrid: the dashed lines
+  // (frame, between columns, under the header, between weeks) all come from the
+  // primitive, with no border here.
   return (
     <CalendarMonthGrid data-testid="month-view">
       {weekdayKeys.map((key) => (

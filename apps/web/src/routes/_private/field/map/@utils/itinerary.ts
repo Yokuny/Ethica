@@ -1,10 +1,10 @@
-// Rota do dia (AD-131): funções puras, sem mapa nem rede.
+// Day itinerary (AD-131): pure functions, no map or network.
 export type Point = { lat: number; lng: number };
 
 const RADIUS_EARTH_KM = 6371;
 const rad = (degrees: number) => (degrees * Math.PI) / 180;
 
-// Distância em linha reta (Haversine), em km.
+// Straight-line distance (Haversine), in km.
 export const distanceKm = (a: Point, b: Point): number => {
   const dLat = rad(b.lat - a.lat);
   const dLng = rad(b.lng - a.lng);
@@ -12,7 +12,7 @@ export const distanceKm = (a: Point, b: Point): number => {
   return 2 * RADIUS_EARTH_KM * Math.asin(Math.sqrt(h));
 };
 
-// Vizinho mais próximo a partir da partida; quem não tem coordenada vai para o fim, na ordem dada.
+// Nearest neighbor from the origin; whoever has no coordinate goes to the end, in the given order.
 export const sortByProximity = <T extends { coordinates?: Point }>(origin: Point, items: T[]): T[] => {
   const remaining = items.filter((item) => item.coordinates);
   const order: T[] = [];
@@ -32,6 +32,6 @@ export const sortByProximity = <T extends { coordinates?: Point }>(origin: Point
   return [...order, ...items.filter((item) => !item.coordinates)];
 };
 
-// Parada marcada para antes da anterior na ordem da rota: conflito de horário.
+// A stop scheduled before the previous one in the route order: time conflict.
 export const conflictingStops = (starts: string[]): Set<number> =>
   new Set(starts.flatMap((start, index) => (index > 0 && start < (starts[index - 1] as string) ? [index] : [])));

@@ -24,9 +24,9 @@ import { env } from '../src/config/env.config.js';
 import { resolveVariables } from '../src/modules/documents/report.html.js';
 import { DEFAULT_TEMPLATES } from '../src/modules/documents/report.library.js';
 
-// Ferramenta de dev: cria (ou recria) o tenant de demonstração "Perícias Demo"
-// com equipe, perícias em várias etapas, agenda, lançamentos e oportunidades,
-// com datas relativas a hoje. Apaga só os dados desse tenant.
+// Dev tool: creates (or recreates) the "Perícias Demo" demo tenant
+// with a team, cases in several statuses, agenda, transactions and opportunities,
+// with dates relative to today. Deletes only this tenant's data.
 //
 //   pnpm --filter api run seed:demo
 const DOCUMENT = '99888777000166';
@@ -73,7 +73,7 @@ const CASES = [
     status: 'appointed',
     deadline: 30,
     proposed: 900_000,
-    // Assistente técnico contratado pela autora (AD-135): honorário contratado.
+    // Technical assistant hired by the plaintiff (AD-135): contracted fee.
     fixed: 600_000,
   },
   {
@@ -136,7 +136,7 @@ const run = async (): Promise<void> => {
     ]);
   }
 
-  // Identidade dos documentos (AD-121); o logo depende do storage e fica para a tela do escritório.
+  // Document identity (AD-121); the logo depends on storage and is left to the office screen.
   const tenant = await Tenant.create({
     name: 'Perícias Demo',
     document: DOCUMENT,
@@ -152,9 +152,9 @@ const run = async (): Promise<void> => {
       password,
       Tenant: tenant._id,
       role: [role],
-      // Matriz de permissões (AD-137): gestor e operador com o preset do perfil; admin tem tudo.
+      // Permission matrix (AD-137): manager and operator with the profile preset; admin has everything.
       ...(role === 'admin' ? {} : { permissions: PROFILE_PERMISSIONS[role] }),
-      // Dados profissionais dos documentos (DOC-01).
+      // Professional data for documents (DOC-01).
       ...(role === 'admin'
         ? {
             cpf: '52998224725',
@@ -165,7 +165,7 @@ const run = async (): Promise<void> => {
     })),
   );
 
-  // Partes e advogados reutilizáveis (AD-117): a mesma ré e os mesmos advogados em vários processos.
+  // Reusable parties and lawyers (AD-117): the same defendant and lawyers in several processes.
   const [maria, jose, aurora, industria, construtora, inss, joao, ana] = await Party.insertMany(
     [
       { type: 'party', name: 'Maria da Silva', document: '12345678909', phone: '(11) 98888-1000' },
@@ -200,13 +200,13 @@ const run = async (): Promise<void> => {
       district: p.court === 'TRT15' ? 'Campinas' : 'São Paulo',
       subject: p.subject,
       parties: [
-        // Na perícia de assistente técnico (índice 2), a autora é quem contratou (AD-135).
+        // In the technical assistant case (index 2), the plaintiff is the client (AD-135).
         ...party(PARTIES[index]?.[0], 'plaintiff').map((item) => (index === 2 ? { ...item, client: true } : item)),
         ...party(joao, 'plaintiff'),
         ...party(PARTIES[index]?.[1], 'defendant'),
         ...party(ana, 'defendant'),
       ],
-      // Dados auxiliares do laudo trabalhista (IMP-04).
+      // Labor report auxiliary data (IMP-04).
       ...(p.courtType === 'labor'
         ? {
             docketingDate: day(-120),
@@ -220,9 +220,9 @@ const run = async (): Promise<void> => {
         : {}),
       status: p.status,
       ...('phase' in p ? { phase: p.phase } : {}),
-      // A cível (índice 2) foi nomeada há 95 dias e nunca se moveu: aparece em perícias paradas.
+      // The civil one (index 2) was nominated 95 days ago and never moved: it shows up in stalled cases.
       nominationDate: index === 2 ? day(-95) : day(-40 + index * 3),
-      // Movimentações (AD-121): laudo entregue há 70 dias (parada) e intimação recente (ativa).
+      // Movements (AD-121): report delivered 70 days ago (stalled) and a recent summons (active).
       movements:
         p.status === 'report_delivered'
           ? [{ type: 'report_filed', data: day(-70) }]
@@ -238,8 +238,8 @@ const run = async (): Promise<void> => {
   );
   const [inspection, report, civil, federal, clarifications] = cases;
 
-  // Prazos (AD-109): a entrega do laudo de cada perícia, protocolada nas que já entregaram,
-  // e um prazo de esclarecimentos já protocolado para mostrar o histórico.
+  // Deadlines (AD-109): each case's report delivery, filed on those already delivered,
+  // and a clarifications deadline already filed to show the history.
   await Deadline.insertMany([
     ...CASES.flatMap((p, index) => {
       const legalCase = cases[index];
@@ -266,7 +266,7 @@ const run = async (): Promise<void> => {
   ]);
 
   const appointments: Partial<AppointmentDocument>[] = [
-    // Rota de campo de hoje (CAM-01): duas vistorias em endereços reais para o mapa.
+    // Today's field route (CAM-01): two inspections at real addresses for the map.
     {
       type: 'inspection',
       title: 'Vistoria na estamparia',
@@ -327,7 +327,7 @@ const run = async (): Promise<void> => {
     appointments.map((appointment) => ({ ...appointment, Tenant: tenant._id })),
   );
 
-  // Registro da vistoria já feita (AD-130): alimenta as variáveis de campo do laudo em rascunho.
+  // Record of the inspection already done (AD-130): feeds the field variables of the draft report.
   const done = criados.find((appointment) => appointment.status === 'done');
   await Inspection.create({
     Tenant: tenant._id,
@@ -369,7 +369,7 @@ const run = async (): Promise<void> => {
     media: [],
   });
 
-  // Seis meses de movimento para o fluxo de caixa.
+  // Six months of movement for the cash flow.
   const transactions: Partial<TransactionDocument>[] = [];
   for (let month = 5; month >= 0; month -= 1) {
     const offset = -month * 30;
@@ -428,7 +428,7 @@ const run = async (): Promise<void> => {
       description: `Honorários fixados — ${clarifications?.processNumber}`,
       amountCents: 480_000,
       dueDate: day(-20),
-      // Recebimento parcial (AD-111): alvará de R$ 1.500,00, saldo de R$ 3.300,00.
+      // Partial receipt (AD-111): court release of R$ 1,500.00, balance of R$ 3,300.00.
       status: 'partial',
       installments: [{ amountCents: 150_000, date: day(-18), account: 'Banco do Brasil' } as InstallmentDocument],
       Case: clarifications?._id,
@@ -452,8 +452,8 @@ const run = async (): Promise<void> => {
   );
   await Transaction.insertMany(transactions.map((transaction) => ({ ...transaction, Tenant: tenant._id })));
 
-  // Laudos (AD-126): um modelo do escritório clonado do padrão e um laudo em rascunho da perícia
-  // em elaboração, com as seções de periculosidade e uma variável pendente para mostrar o bloqueio.
+  // Reports (AD-126): an office template cloned from the default and a draft report of the case
+  // being drafted, with the hazardous conditions sections and a pending variable to show the lock.
   const isDefault = DEFAULT_TEMPLATES.report;
   await Template.create({
     Tenant: tenant._id,

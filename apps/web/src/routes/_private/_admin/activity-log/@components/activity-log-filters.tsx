@@ -45,7 +45,7 @@ function FilterSelect({
   );
 }
 
-// Filtros do diário (GES-01.2): período, pessoa, módulo e ação.
+// Activity log filters (GES-01.2): period, person, module and action.
 export function ActivityLogFilters({
   search,
   onChange,

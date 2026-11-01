@@ -17,7 +17,7 @@ import type {
 
 export class AppointmentNotFoundError extends KeyedError {}
 
-// Data/hora de parede + duração -> intervalo em UTC (AD-036, AD-103).
+// Wall-clock date/time + duration -> UTC range (AD-036, AD-103).
 const toInterval = (date: string, time: string, durationMinutes: number) => {
   const start = wallClockToUtc(date, time);
   return { start, end: new Date(start.getTime() + durationMinutes * 60_000) };
@@ -38,7 +38,7 @@ export const createAppointment = async (tenantId: string, data: CreateAppointmen
   return appointmentRepository.createAppointment(tenantId, { ...rest, ...toInterval(date, time, durationMinutes) });
 };
 
-// Remarcar exige data, hora e duração juntas: o intervalo é recalculado inteiro.
+// Rescheduling requires date, time and duration together: the whole range is recalculated.
 export const updateAppointment = async (
   tenantId: string,
   id: string,
@@ -47,7 +47,7 @@ export const updateAppointment = async (
   const { date, time, durationMinutes, reason, ...rest } = data;
   if (rest.caseId) await caseService.getCase(tenantId, rest.caseId);
   const interval = date && time && durationMinutes ? toInterval(date, time, durationMinutes) : {};
-  // Motivo só acompanha o cancelamento (AD-130); voltar a agendado ou concluir o apaga.
+  // The reason only goes with a cancellation (AD-130); going back to scheduled or completing clears it.
   const reasonWrite = rest.status === 'canceled' ? (reason ?? null) : rest.status ? null : reason;
   const updated = await appointmentRepository.updateAppointment(tenantId, id, {
     ...rest,
@@ -85,8 +85,8 @@ export const getAppointment = async (tenantId: string, id: string): Promise<Appo
   return enriched as AppointmentRecord;
 };
 
-// Mapa de campo (AD-131): geocodifica o endereço uma vez e guarda no compromisso. Endereço
-// não achado devolve o compromisso sem coordenadas; o provedor fora do ar é 503.
+// Field map (AD-131): geocodes the address once and stores it on the appointment. An address
+// not found returns the appointment without coordinates; the provider being down is 503.
 export const geocode = async (geocoder: Geocoder, tenantId: string, id: string): Promise<AppointmentRecord> => {
   const appointment = await getAppointment(tenantId, id);
   if (appointment.coordinates || !appointment.location) return appointment;
@@ -111,9 +111,9 @@ const TYPE_EVENT: Record<AppointmentRecord['type'], string> = {
 
 const day = (date: Date): string => dateInDisplayTz(date).split('-').reverse().join('/');
 
-// Aviso de agendamento (AD-131): e-mail a partes e advogados da perícia com e-mail cadastrado,
-// pelo modelo do escritório; o envio fica registrado no compromisso. Texto em pt-BR no
-// servidor, como o aviso de prazos (exceção da AD-113).
+// Schedule notice (AD-131): e-mail to the case parties and lawyers with a registered e-mail,
+// using the office template; the sending is recorded on the appointment. Text in pt-BR on the
+// server, like the deadline reminder (AD-113 exception).
 export const sendNotice = async (
   mail: MailProvider,
   ctx: { tenantId: string; userId: string },

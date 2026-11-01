@@ -12,7 +12,7 @@ import { CsvImportReport } from './@components/csv-import-report.js';
 import { useCsvImport } from './@hooks/use-csv-import.js';
 import { downloadCsvTemplate } from './@utils/csv-template.js';
 
-// Importação em lote por CSV (IMP-02): modelo, envio e relatório por linha.
+// Batch CSV import (IMP-02): template, upload and per-row report.
 export function CasesImportPage() {
   const { handleFile, result, fileError, isPending } = useCsvImport();
   const inputRef = useRef<HTMLInputElement>(null);

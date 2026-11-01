@@ -8,7 +8,7 @@ import {
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-// Parcela recebida de um honorário (AD-111): só receita tem parcelas.
+// Received installment of a fee (AD-111): only income has installments.
 export interface InstallmentDocument {
   _id: mongoose.Types.ObjectId;
   amountCents: number;
@@ -23,7 +23,7 @@ export interface TransactionDocument {
   category: TransactionCategory;
   description: string;
   amountCents: number;
-  // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-036, AD-103).
+  // Calendar dates `YYYY-MM-DD` in the display time zone (AD-036, AD-103).
   dueDate: string;
   status: TransactionStatus;
   settledDate?: string;
@@ -59,7 +59,7 @@ const transactionSchema = new Schema<TransactionDocument>(
 );
 
 transactionSchema.pre('validate', function () {
-  // Receita liquida pelas parcelas; só despesa guarda a data de liquidação.
+  // Income settles through the installments; only an expense keeps the settlement date.
   if (this.kind === 'expense' && this.status === 'settled' && !this.settledDate) {
     this.invalidate('settledDate', 'lançamento liquidado precisa da data de liquidação');
   }

@@ -35,7 +35,7 @@ const seedSession = async () => {
   return { tenant, as };
 };
 
-// PDF mínimo com uma linha de texto por item (Helvetica, WinAnsi), sem biblioteca.
+// Minimal PDF with one text line per item (Helvetica, WinAnsi), no library.
 const pdfDe = (rows: string[]): Buffer => {
   const esc = (s: string) => s.replace(/[\\()]/g, (c) => `\\${c}`);
   const content = ['BT', '/F1 11 Tf', '14 TL', '50 780 Td', ...rows.map((l) => `(${esc(l)}) Tj T*`), 'ET'].join('\n');
@@ -168,7 +168,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     const civil = await Case.findOne({ processNumber: '0000002-00.2026.8.26.0100' }).lean();
     expect(civil).toMatchObject({ courtType: 'civil', court: 'TJSP', role: 'technical_assistant' });
     expect(civil?.subject).toBe('Perícia contábil; apuração');
-    // A mesma ré nas duas linhas vira um só cadastro (AD-115).
+    // The same defendant on both rows becomes a single record (AD-115).
     expect(await Party.countDocuments({})).toBe(1);
     expect(await Deadline.countDocuments({ title: 'Entrega do laudo' })).toBe(1);
   });

@@ -6,7 +6,7 @@ import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { runSync, useStateSync } from '@/lib/offline/sync.js';
 
-// Faixa de conexão da tela de campo (AD-128): o que está só no aparelho e o envio.
+// Field screen connection strip (AD-128): what is only on the device and the sending.
 export function FieldConnection({ ofDevice }: { ofDevice?: boolean }) {
   const queryClient = useQueryClient();
   const sync = useStateSync();

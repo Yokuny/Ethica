@@ -19,7 +19,7 @@ export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
 
-  // Feed iCal (PRZ-03): sem sessão — o token secreto do link é a credencial.
+  // iCal feed (PRZ-03): no session — the secret link token is the credential.
   router.get('/feed/:token.ics', calendarFeedRateLimit, validParams(feedTokenParamSchema), feedController.calendarFeed);
   router.post(
     '/',
@@ -57,7 +57,7 @@ export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
     validParams(appointmentIdParamSchema),
     appointmentController.deleteAppointment(deps.storage),
   );
-  // Mapa de campo e aviso às partes (AD-131).
+  // Field map and notice to the parties (AD-131).
   router.post(
     '/:id/geocode',
     ...guard,

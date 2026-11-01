@@ -3,8 +3,8 @@ import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import { esc, headerFooter } from './document.layout.js';
 import type { ReportExportData } from './report.schema.js';
 
-// Laudo em PDF (LAU-03.2, AD-119): capa, sumário e seções numeradas. O HTML das seções já
-// chega saneado (AD-123) e com as variáveis resolvidas; títulos são texto e são escapados aqui.
+// Report as PDF (LAU-03.2, AD-119): cover, table of contents and numbered sections. The section HTML already
+// arrives sanitized (AD-123) with the variables resolved; titles are text and are escaped here.
 const CSS = `
 * { box-sizing: border-box; }
 body { font-family: 'Liberation Serif', 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; color: #111; margin: 0; }
@@ -42,7 +42,7 @@ const TYPE = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' }
 const coverRow = (label: string | undefined, amount: string | undefined): string =>
   label && amount ? `<div><dt>${esc(label)}:</dt><dd>${esc(amount)}</dd></div>` : '';
 
-// Foto da vistoria vira data URL (o Chromium roda sem rede, AD-119/AD-129); a que sumiu sai.
+// An inspection photo becomes a data URL (Chromium runs without network, AD-119/AD-129); one that is gone is dropped.
 const withPhotos = (html: string, photos: ReportExportData['photos']): string =>
   html.replace(/<img([^>]*)src="([^"]+)"([^>]*)>/g, (_tag, antes: string, src: string, depois: string) => {
     const photo = photos[src];

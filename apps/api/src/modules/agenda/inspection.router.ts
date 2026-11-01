@@ -19,8 +19,8 @@ import {
 const MIMES = Object.values(INSPECTION_MEDIA_LIMITS).flatMap((limit) => limit.mimes);
 const GREATER = Math.max(...Object.values(INSPECTION_MEDIA_LIMITS).map((limit) => limit.maxBytes));
 
-// Campo (CAM-01..07): registro de vistoria e mídias, permissão da agenda (AD-137).
-// Montado em `/inspections`; `/day` e `/expert-case` vêm antes de `/:compromissoId`.
+// Field (CAM-01..07): inspection record and media, agenda permission (AD-137).
+// Mounted on `/inspections`; `/day` and `/expert-case` come before `/:appointmentId`.
 export const createInspectionRouter = (deps: InspectionRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];

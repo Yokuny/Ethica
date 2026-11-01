@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
 import type { DeadlineRecord } from '@/query/deadline.js';
 
-// Cor por tipo de compromisso; cancelado esmaece e concluído fica esmaecido.
+// Color by appointment type; canceled fades and completed stays faded.
 const typeClasses: Record<AppointmentRecord['type'], string> = {
   inspection: 'border-violet-500/30 bg-violet-50 text-violet-900',
   hearing: 'border-sky-500/30 bg-sky-50 text-sky-900',
@@ -16,7 +16,7 @@ const typeClasses: Record<AppointmentRecord['type'], string> = {
 export type CalendarEventChipProps = {
   item: AppointmentRecord;
   onSelect: (item: AppointmentRecord) => void;
-  // 'timed': intervalo de horário completo (dia/semana). 'compact': uma linha (mês e "+N").
+  // 'timed': full time range (day/week). 'compact': one line (month and "+N").
   variant?: 'timed' | 'compact';
   className?: string;
   style?: CSSProperties;
@@ -54,7 +54,7 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
   );
 }
 
-// Prazo pendente (AD-109): evento de dia inteiro, sem horário; vencido fica em vermelho.
+// Pending deadline (AD-109): all-day event, without a time; overdue shows in red.
 export function CalendarDeadlineChip({
   deadline,
   today,

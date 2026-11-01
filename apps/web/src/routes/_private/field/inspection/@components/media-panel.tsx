@@ -14,7 +14,7 @@ import { deleteMedia, listMedia, type PendingMedia, storeMedia } from '@/lib/off
 import { runSync, updateIssues } from '@/lib/offline/sync.js';
 import { type DayInspection, inspectionKeys } from '@/query/inspection.js';
 
-// Arquivo ainda só no aparelho: mostrado pela URL local do blob.
+// File still only on the device: shown through the local blob URL.
 function BlobMedia({ media }: { media: PendingMedia }) {
   const [url, setUrl] = useState<string>();
   useEffect(() => {
@@ -24,15 +24,15 @@ function BlobMedia({ media }: { media: PendingMedia }) {
   }, [media.blob]);
   if (!url) return null;
   return media.type === 'audio' ? (
-    // biome-ignore lint/a11y/useMediaCaption: gravação da vistoria, sem legenda
+    // biome-ignore lint/a11y/useMediaCaption: inspection recording, without captions
     <audio controls src={url} className="w-full" />
   ) : (
     <img src={url} alt={media.caption ?? ''} className="h-auto w-full rounded-md" />
   );
 }
 
-// Fotos e áudios da vistoria (CAM-03, CAM-07): entram na fila do aparelho e sobem quando há
-// conexão (AD-128); as enviadas vêm da API.
+// Inspection photos and audio (CAM-03, CAM-07): they go into the device queue and go up when there is
+// a connection (AD-128); the sent ones come from the API.
 export function MediaPanel({ item }: { item: DayInspection }) {
   const queryClient = useQueryClient();
   const appointmentId = item.appointment.id;
@@ -170,7 +170,7 @@ export function MediaPanel({ item }: { item: DayInspection }) {
             return (
               <li key={media.id} className="grid gap-2">
                 {media.type === 'audio' ? (
-                  // biome-ignore lint/a11y/useMediaCaption: gravação da vistoria, sem legenda
+                  // biome-ignore lint/a11y/useMediaCaption: inspection recording, without captions
                   <audio controls src={src} className="w-full" />
                 ) : (
                   <img src={src} alt={media.caption ?? ''} className="h-auto w-full rounded-md" />

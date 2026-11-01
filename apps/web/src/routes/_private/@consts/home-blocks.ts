@@ -1,6 +1,6 @@
 import type { HomeBlock, PermissionModule } from '@ethica/contracts';
 
-// Módulo que cada bloco do início exige ver (AD-136, AD-137); `null` = qualquer pessoa.
+// Module each home block requires viewing (AD-136, AD-137); `null` = anyone.
 export const HOME_BLOCK_MODULE: Record<HomeBlock, PermissionModule | null> = {
   overview: 'expert_cases',
   upcoming: 'agenda',

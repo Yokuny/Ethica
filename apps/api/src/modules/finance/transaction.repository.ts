@@ -46,8 +46,8 @@ const toDocumentFields = ({ caseId, ...data }: UpdateTransaction) => {
   return fields;
 };
 
-// Status do honorário (AD-111) calculado no próprio update, a partir das parcelas:
-// nenhuma → previsto; menos que o valor → parcial; o valor todo → liquidado.
+// Fee status (AD-111) calculated in the update itself, from the installments:
+// none → expected; less than the amount → partial; the whole amount → settled.
 const RECEIVED = { $sum: '$installments.amountCents' };
 const INCOME_STATUS = {
   $cond: [{ $eq: [RECEIVED, 0] }, 'expected', { $cond: [{ $lt: [RECEIVED, '$amountCents'] }, 'partial', 'settled'] }],
@@ -65,7 +65,7 @@ export const findById = async (tenantId: string, id: string): Promise<Transactio
     return doc ? toRecord(doc) : null;
   });
 
-// O honorário fixado automático da perícia (AD-111: alterar o valor atualiza este, não cria outro).
+// The case's automatic fixed fee (AD-111: changing the amount updates this one, it does not create another).
 export const findFixedFee = async (tenantId: string, caseId: string): Promise<TransactionRecord | null> =>
   withDbTiming('finance.findFixedFee', async () => {
     const doc = await Transaction.findOne(
@@ -73,7 +73,7 @@ export const findFixedFee = async (tenantId: string, caseId: string): Promise<Tr
         Tenant: tenantId,
         Case: caseId,
         kind: 'income' as const,
-        // O honorário automático da perícia, fixado ou contratado (AD-135): um por perícia.
+        // The case's automatic fee, fixed or contracted (AD-135): one per case.
         category: { $in: ['fixed_fees', 'contracted_fees'] as TransactionCategory[] },
       }),
     )
@@ -99,8 +99,8 @@ export const updateTransaction = async (
     return doc ? toRecord(doc) : null;
   });
 
-// Edição de honorário: grava os campos e recalcula o status. Com valor novo, só atualiza se o
-// já recebido couber nele — `null` quando não existe ou quando o valor ficaria abaixo do recebido.
+// Fee edit: saves the fields and recalculates the status. With a new amount, it only updates if
+// what was already received fits in it — `null` when it does not exist or when the amount would be below what was received.
 export const updateIncome = async (
   tenantId: string,
   id: string,
@@ -124,8 +124,8 @@ export const updateIncome = async (
     return doc ? toRecord(doc) : null;
   });
 
-// Parcela entra só se couber no saldo — a condição está no próprio update, então duas
-// parcelas simultâneas não passam do valor. `null`: inexistente, despesa ou acima do saldo.
+// An installment only goes in if it fits in the balance — the condition is in the update itself, so two
+// simultaneous installments do not exceed the amount. `null`: missing, expense or above the balance.
 export const addInstallment = async (
   tenantId: string,
   id: string,
@@ -152,7 +152,7 @@ export const addInstallment = async (
     return doc ? toRecord(doc) : null;
   });
 
-// Estorno: tira a parcela e recalcula o status. `null` se o lançamento ou a parcela não existem.
+// Reversal: removes the installment and recalculates the status. `null` if the transaction or the installment does not exist.
 export const removeInstallment = async (
   tenantId: string,
   id: string,
@@ -225,10 +225,10 @@ const sum = async (pipeline: object[]): Promise<number> => {
   return row?.total ?? 0;
 };
 
-// Saldo a receber das receitas abertas (valor − parcelas).
+// Receivable balance of the open income (amount − installments).
 const BALANCE = { $subtract: ['$amountCents', RECEIVED] };
 
-// `monthStart`/`nextMonthStart` são `YYYY-MM-DD` do fuso de exibição, calculados pelo service.
+// `monthStart`/`nextMonthStart` are `YYYY-MM-DD` in the display time zone, calculated by the service.
 export const summary = async (
   tenantId: string,
   range: { today: string; monthStart: string; nextMonthStart: string },
@@ -240,7 +240,7 @@ export const summary = async (
     const [receivableCents, lateCents, receivedMonthCents, expensesMonthCents] = await Promise.all([
       sum([{ $match: open }, { $project: { amount: BALANCE } }]),
       sum([{ $match: { ...open, dueDate: { $lt: range.today } } }, { $project: { amount: BALANCE } }]),
-      // Recebido no mês = parcelas pela data em que caíram na conta (PRZ-02.5).
+      // Received in the month = installments by the date they hit the account (PRZ-02.5).
       sum([
         { $match: { Tenant, kind: 'income' } },
         { $unwind: '$installments' },
@@ -255,9 +255,9 @@ export const summary = async (
     return { receivableCents, lateCents, receivedMonthCents, expensesMonthCents };
   });
 
-// Uma linha por mês (`YYYY-MM`): recebido pela data de cada parcela; a receber pelo saldo das
-// receitas abertas no mês do vencimento; despesa paga pelo mês da liquidação e prevista pelo
-// do vencimento. Meses sem movimento entram zerados.
+// One row per month (`YYYY-MM`): received by each installment's date; receivable by the balance of the
+// open income in the due month; paid expense by the settlement month and expected by the
+// due month. Months without movement come in as zero.
 export const monthlyFlow = async (tenantId: string, months: string[]): Promise<MonthlyFlow[]> =>
   withDbTiming('finance.monthlyFlow', async () => {
     const Tenant = toObjectId(tenantId);
@@ -313,8 +313,8 @@ export const totalsByCategory = async (tenantId: string, kind: string): Promise<
     return rows.map((row) => ({ category: row._id, totalCents: row.total }));
   });
 
-// Exportação de dados (DOC-04), ficha da perícia (com `periciaId`) e relatório do período
-// (com `periodo`: o que teve parcela, liquidação ou vencimento entre `from` e `to`).
+// Data export (DOC-04), case sheet (with `caseId`) and period report
+// (with `period`: what had an installment, settlement or due date between `from` and `to`).
 export const listAll = async (
   tenantId: string,
   filter: { caseId?: string; period?: { from: string; to: string } } = {},

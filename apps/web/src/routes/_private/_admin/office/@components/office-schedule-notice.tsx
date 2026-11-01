@@ -39,7 +39,7 @@ function NoticeForm({ notice }: { notice: ScheduleNotice }) {
   );
 }
 
-// Modelo do e-mail de aviso de agendamento às partes (AD-131).
+// Template of the schedule notice e-mail to the parties (AD-131).
 export function OfficeScheduleNotice() {
   const query = useQuery(scheduleNoticeQuery);
   if (!query.data) return <DefaultLoading />;

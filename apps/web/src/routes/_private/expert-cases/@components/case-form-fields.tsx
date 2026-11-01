@@ -14,9 +14,9 @@ import type { CaseFormValues } from '../@interface/cases.interface.js';
 import { CasePartiesFields } from './case-parties-fields.js';
 import { LaborCaseFields } from './labor-case-fields.js';
 
-// Campos da perícia compartilhados por `add` e `details` (edição). Na edição
-// entram também a etapa e o honorário fixado pelo juízo; o prazo do laudo só no
-// cadastro (depois os prazos são editados no painel de prazos do detalhe).
+// Case fields shared by `add` and `details` (edit). Editing
+// also includes the status and the fee fixed by the court; the report deadline only at
+// registration (afterwards the deadlines are edited in the detail deadlines panel).
 export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
   const { getValues, setValue } = useFormContext<CaseFormValues>();
   const courtType = useWatch({ control, name: 'courtType' });
@@ -99,7 +99,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                   label={t('stage')}
                   placeholder={t('select')}
                   items={CASE_STATUS_ITEMS}
-                  // A fase que não cabe na etapa nova sai (AD-133); a API recusaria a combinação.
+                  // A phase that does not fit the new status is dropped (AD-133); the API would reject the combination.
                   onValueChange={(status) => {
                     const phase = getValues('phase');
                     if (phase && !phaseFitsInStatus(phase, status as CaseStatus)) setValue('phase', null);
@@ -150,7 +150,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                 <MoneyField
                   control={control}
                   name="fixedFeesCents"
-                  // Na perícia de assistente técnico é o honorário combinado com o contratante (AD-135).
+                  // In a technical assistant case it is the fee agreed with the client (AD-135).
                   label={role === 'technical_assistant' ? t('contracted_fees') : t('fixed_fees')}
                   placeholder={t('example_money')}
                 />

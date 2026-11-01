@@ -4,7 +4,7 @@ import { get } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { ActivityLogSearch } from '../@interface/activityLog.interface.js';
 
-// Espelha AtividadeRecord de apps/api/src/modules/identity/diario.schema.ts (AD-134).
+// Mirrors ActivityRecord of apps/api/src/modules/identity/activityLog.schema.ts (AD-134).
 export type Activity = {
   id: string;
   userId: string;

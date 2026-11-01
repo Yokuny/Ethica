@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 
-// Ilustração padrão do `PageIntro` dos hubs: o ícone do módulo sobre ladrilhos
-// em camadas. Troque por uma ilustração própria quando o módulo tiver uma.
+// Default illustration of the hubs' `PageIntro`: the module icon over layered
+// tiles. Replace it with a custom illustration when the module has one.
 export function HubIllustration({ icon: Icon }: { icon: LucideIcon }) {
   return (
     <div className="relative mx-auto grid size-48 place-items-center">

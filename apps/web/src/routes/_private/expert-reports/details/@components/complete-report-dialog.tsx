@@ -9,8 +9,8 @@ type CompleteReportDialogProps = {
   onClose: () => void;
 };
 
-// LAU-03.4: concluir bloqueia a edição; a entrega protocola o prazo "Entrega do laudo",
-// lança a movimentação e avança a etapa da perícia (AD-126).
+// LAU-03.4: completing locks editing; delivery files the "Entrega do laudo" deadline,
+// posts the movement and advances the case status (AD-126).
 export function CompleteReportDialog({ pending, onConfirm, onClose }: CompleteReportDialogProps) {
   const [recordDelivery, setRecordDelivery] = useState(true);
   return (

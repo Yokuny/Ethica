@@ -22,7 +22,7 @@ const context = (req: Request): DocumentContext => {
   };
 };
 
-// Laudo, modelo ou perícia inexistentes (ou de outro tenant) → 404.
+// Report, template or case missing (or from another tenant) → 404.
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(
     e instanceof ReportNotFoundError || e instanceof TemplateNotFoundError || e instanceof CaseNotFoundError

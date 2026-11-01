@@ -5,7 +5,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 const config = { count: { label: t('expert_cases'), color: 'var(--chart-1)' } } satisfies ChartConfig;
 
-// Perícias por etapa, na ordem do fluxo (etapa sem perícia aparece zerada).
+// Cases by status, in flow order (a status without cases shows as zero).
 export function CasesStatusChart({ groups }: { groups: { key: string; count: number }[] }) {
   const counts = new Map(groups.map((group) => [group.key, group.count]));
   const data = CASE_STATUS.map((status) => ({ status: t(status), count: counts.get(status) ?? 0 }));

@@ -1,11 +1,11 @@
 import { Session, Tenant, User } from '@ethica/db';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 
-// Adaptador real de AuthDeps sobre @ethica/db — a única fonte de req.tenantUser
-// (FND-05). Extraído de app.ts (T6, design.md Componente 1/6) pra ser
-// reusado tanto pelo pipeline HTTP (app.ts) quanto pelo handshake WS
-// (server.ts → createInboxSocketServer, T4), sem duplicar as 4 funções de
-// acesso a banco entre os dois pontos de entrada.
+// Real AuthDeps adapter over @ethica/db — the only source of req.tenantUser
+// (FND-05). Extracted from app.ts (T6, design.md Component 1/6) to be
+// reused both by the HTTP pipeline (app.ts) and by the WS handshake
+// (server.ts → createInboxSocketServer, T4), without duplicating the 4 database
+// access functions between the two entry points.
 export const buildAuthDeps = (): AuthDeps => ({
   findSessionByHash: async (tokenHash) => {
     const session = await Session.findOne({ tokenHash }).lean();

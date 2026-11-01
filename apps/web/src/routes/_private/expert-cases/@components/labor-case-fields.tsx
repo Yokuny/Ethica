@@ -9,8 +9,8 @@ import type { CaseFormValues } from '../@interface/cases.interface.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
-// Dados auxiliares do laudo trabalhista (IMP-04). O período imprescrito é sugerido pelas
-// datas do contrato (AD-115); no cadastro a API grava a sugestão se o período ficar vazio.
+// Labor report auxiliary data (IMP-04). The non-prescribed period is suggested by the
+// contract dates (AD-115); at registration the API saves the suggestion if the period is left empty.
 export function LaborCaseFields() {
   const { control, setValue } = useFormContext<CaseFormValues>();
   const [docketingDate, hireDate, terminationDate, start, end] = useWatch({

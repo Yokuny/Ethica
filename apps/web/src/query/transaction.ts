@@ -11,7 +11,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Espelha os tipos de apps/api/src/modules/financeiro/lancamento.schema.ts.
+// Mirrors the types of apps/api/src/modules/finance/transaction.schema.ts.
 export type TransactionRecord = {
   id: string;
   kind: TransactionKind;
@@ -21,13 +21,13 @@ export type TransactionRecord = {
   dueDate: string;
   status: TransactionStatus;
   settledDate?: string;
-  // Só receita (AD-111): parcelas recebidas, total recebido e saldo a receber.
+  // Income only (AD-111): received installments, total received and receivable balance.
   installments: InstallmentRecord[];
   receivedCents?: number;
   balanceCents?: number;
   caseId?: string;
   caseNumber?: string;
-  // Quem contratou o assistente técnico da perícia (AD-135).
+  // Whoever hired the case's technical assistant (AD-135).
   client?: string;
 };
 
@@ -99,7 +99,7 @@ export const categoriesQuery = (kind: TransactionKind) =>
     queryFn: () => fetchData<CategoryTotal[]>(`/finance/categories?kind=${kind}`),
   });
 
-// Toda escrita mexe nos totais: invalida listas, resumo, fluxo e categorias de uma vez.
+// Every write touches the totals: invalidates lists, summary, flow and categories at once.
 export const createTransactionMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<TransactionRecord, Error, CreateTransaction> => ({
@@ -132,7 +132,7 @@ export const deleteTransactionMutation = (
   onSuccess: () => queryClient.invalidateQueries({ queryKey: transactionKeys.all }),
 });
 
-// Recebimento parcial do honorário (AD-111): a API recusa parcela acima do saldo.
+// Partial fee receipt (AD-111): the API rejects an installment above the balance.
 export const addInstallmentMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<TransactionRecord, Error, { id: string; data: CreateInstallment }> => ({

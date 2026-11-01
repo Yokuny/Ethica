@@ -5,7 +5,7 @@ import type { TransactionsSearch } from '../@interface/transactions.interface.js
 
 const ALL = '__all__';
 
-// Filtros rápidos na própria barra da tabela: natureza e situação.
+// Quick filters on the table bar itself: kind and state.
 export function TransactionsFilters({
   search,
   onChange,

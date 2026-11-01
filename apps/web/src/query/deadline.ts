@@ -5,7 +5,7 @@ import { del, get, patch, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 import { caseKeys } from './case.js';
 
-// Espelha PrazoRecord de apps/api/src/modules/pericia/prazo.schema.ts. Datas `YYYY-MM-DD`.
+// Mirrors DeadlineRecord of apps/api/src/modules/case/deadline.schema.ts. Dates `YYYY-MM-DD`.
 export type DeadlineRecord = {
   id: string;
   caseId: string;
@@ -35,14 +35,14 @@ export const caseDeadlinesQuery = (caseId: string) =>
     queryFn: () => fetchData<DeadlineRecord[]>(`/expert-cases/${encodeURIComponent(caseId)}/deadlines`),
   });
 
-// Calendário da agenda: pendentes que vencem em [from, to).
+// Agenda calendar: pending ones due in [from, to).
 export const pendingDeadlinesQuery = (range: { from: string; to: string }) =>
   queryOptions({
     queryKey: deadlineKeys.pending(range),
     queryFn: () => fetchData<DeadlineRecord[]>(`/expert-cases/deadlines?from=${range.from}&to=${range.to}`),
   });
 
-// Prazo muda o "próximo prazo" da listagem e a faixa de indicadores das perícias.
+// A deadline changes the listing's "next deadline" and the cases indicator strip.
 const refreshDeadlines = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: deadlineKeys.all });
   queryClient.invalidateQueries({ queryKey: caseKeys.lists() });

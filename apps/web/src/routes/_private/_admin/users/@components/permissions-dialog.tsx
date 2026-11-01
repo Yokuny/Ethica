@@ -9,7 +9,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { type UserDirectoryEntry, updatePermissionsMutation } from '../@query/user-directory.js';
 import { PermissionsMatrix } from './permissions-matrix.js';
 
-// Ajuste da matriz de um membro pelo admin (AD-137); vale na próxima requisição dele.
+// Admin adjustment of a member's matrix (AD-137); applies on their next request.
 export function PermissionsDialog({ user, onClose }: { user: UserDirectoryEntry; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [permissions, setPermissions] = useState<Permissions>(user.permissions);

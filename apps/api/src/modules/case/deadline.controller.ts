@@ -8,7 +8,7 @@ import { DeadlineNotFoundError } from './deadline.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
-// Prazo ou perícia inexistentes (ou de outro tenant) -> 404.
+// Deadline or case missing (or from another tenant) -> 404.
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(
     e instanceof DeadlineNotFoundError || e instanceof CaseNotFoundError

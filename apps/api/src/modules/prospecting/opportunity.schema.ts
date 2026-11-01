@@ -25,8 +25,8 @@ export const listOpportunitiesQuerySchema = z
   .strict();
 export type ListOpportunitiesQuery = z.infer<typeof listOpportunitiesQuerySchema>;
 
-// Converter em perícia: o número, o tribunal e a vara vêm da oportunidade; o
-// perito informa só o que o Datajud não traz.
+// Convert into a case: the number, the court and the division come from the opportunity; the
+// expert only provides what Datajud does not bring.
 export const convertOpportunitySchema = createCaseSchema
   .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDeadline: true })
   .strict();
@@ -51,5 +51,5 @@ export type OpportunityRecord = {
   updatedAt: Date;
 };
 
-// Resultado da busca com a marca de quem já foi salvo como oportunidade.
+// Search result marked with whatever was already saved as an opportunity.
 export type DatajudResult = DatajudProcess & { opportunityId?: string };

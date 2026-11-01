@@ -54,7 +54,7 @@ describe('_private beforeLoad guard (FND-10/AC3)', () => {
     expect(redirectMock).toHaveBeenCalledTimes(2);
   });
 
-  // AD-137: guarda única dos módulos pela matriz — sem `ver`, volta ao início.
+  // AD-137: single module guard through the matrix — without `view`, back home.
   it('redirects to / when the session cannot view the module of the URL', async () => {
     const queryClient = new QueryClient();
     vi.spyOn(queryClient, 'ensureQueryData').mockResolvedValue({

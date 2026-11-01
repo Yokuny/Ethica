@@ -15,7 +15,7 @@ const normalize = (value: string) =>
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase();
 
-// Atalho global ⌘K / Ctrl+K: abre e fecha a busca de navegação.
+// Global ⌘K / Ctrl+K shortcut: opens and closes the navigation search.
 export function useCommandMenuShortcut(toggle: () => void) {
   useEffect(() => {
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
@@ -29,9 +29,9 @@ export function useCommandMenuShortcut(toggle: () => void) {
   }, [toggle]);
 }
 
-// "Ir para…": só navega entre as áreas que a sessão já pode abrir (as mesmas
-// da sidebar e da home). Não busca registro — não existe endpoint de busca
-// global, e uma caixa que prometesse isso mentiria.
+// "Go to…": only navigates among the areas the session can already open (the same
+// as the sidebar and home). It does not search records — there is no global search
+// endpoint, and a box promising that would be lying.
 export function CommandMenu({
   open,
   onOpenChange,
@@ -111,7 +111,7 @@ export function CommandMenu({
             results.map((item, index) => {
               const Icon = item.icon;
               return (
-                // biome-ignore lint/a11y/useKeyWithClickEvents: o teclado opera pelo combobox (setas + Enter); o clique é atalho de mouse.
+                // biome-ignore lint/a11y/useKeyWithClickEvents: the keyboard works through the combobox (arrows + Enter); the click is a mouse shortcut.
                 <div
                   key={item.to}
                   id={`${listId}-${index}`}

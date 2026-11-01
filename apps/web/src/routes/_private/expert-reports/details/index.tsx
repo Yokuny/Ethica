@@ -40,7 +40,7 @@ export function ReportDetailsPage() {
   const complete = useMutation(completeReportMutation(queryClient));
   const removal = useMutation(deleteReportMutation(queryClient));
   const { download, pending } = useFileDownload();
-  // Fotos das vistorias da perícia para o "Inserir foto" do editor (AD-129).
+  // Photos of the case inspections for the editor's "Inserir foto" (AD-129).
   const inspections = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
   const photos = (inspections.data ?? []).flatMap(({ appointment, inspection }) =>
     inspection.media
@@ -72,7 +72,7 @@ export function ReportDetailsPage() {
     );
   }
 
-  // Trocar de seção salva antes a que estava aberta, para não perder texto.
+  // Switching sections first saves the one that was open, so no text is lost.
   function selecionar(sectionId: string) {
     saveCurrent(() =>
       navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: sectionId }), replace: true }),

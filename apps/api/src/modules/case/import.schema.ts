@@ -2,15 +2,15 @@ import type { ApiMessageKey, CreateCase, CsvImportColumn } from '@ethica/contrac
 
 export type { CsvImportColumn };
 
-// Rascunho extraído do PDF (AD-114): só preenche o formulário, não grava nada.
+// Draft extracted from the PDF (AD-114): only fills the form, saves nothing.
 export type PdfDraft = Partial<CreateCase>;
 
 export type PdfExtraction = {
   draft: PdfDraft;
-  // Campos que o perito precisa preencher (não achados no texto).
+  // Fields the expert has to fill in (not found in the text).
   missing: (keyof CreateCase)[];
   warnings: ApiMessageKey[];
-  // Perícia já cadastrada com o mesmo número no tenant.
+  // Case already registered with the same number in the tenant.
   existingId?: string;
 };
 

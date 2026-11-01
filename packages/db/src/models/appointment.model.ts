@@ -15,7 +15,7 @@ export interface AppointmentDocument {
   Tenant: mongoose.Types.ObjectId;
   type: AppointmentType;
   title: string;
-  // Instantes em UTC (AD-036, AD-103); a tela converte para o fuso de exibição.
+  // Instants in UTC (AD-036, AD-103); the screen converts to the display time zone.
   start: Date;
   end: Date;
   location?: string;
@@ -23,11 +23,11 @@ export interface AppointmentDocument {
   status: AppointmentStatus;
   origin: AppointmentOrigin;
   notes?: string;
-  // Cancelado no campo: adiado ou parte ausente (AD-130).
+  // Canceled in the field: postponed or absent party (AD-130).
   reason?: AppointmentReason;
-  // Geocodificação do `local` (AD-131), válida enquanto `endereco` for igual ao `local`.
+  // Geocoding of `location` (AD-131), valid while `address` equals `location`.
   coordinates?: { lat: number; lng: number; address: string };
-  // Avisos de agendamento enviados às partes (AD-131).
+  // Schedule notices sent to the parties (AD-131).
   notices: Array<{ User: mongoose.Types.ObjectId; at: Date; recipients: string[] }>;
   createdAt: Date;
   updatedAt: Date;
@@ -64,7 +64,7 @@ appointmentSchema.pre('validate', function () {
   if (this.end && this.start && this.end <= this.start) this.invalidate('end', 'fim precisa ser depois do início');
 });
 
-// Consulta da agenda é sempre por intervalo [from, to) do tenant.
+// The agenda query is always by the tenant's [from, to) range.
 appointmentSchema.index({ Tenant: 1, start: 1 });
 appointmentSchema.index({ Tenant: 1, Case: 1, start: 1 });
 

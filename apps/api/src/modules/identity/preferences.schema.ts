@@ -4,14 +4,14 @@ import { z } from 'zod';
 
 export type PreferencesRouterDeps = { validToken: RequestHandler };
 
-// ENR-03: escolhas da própria pessoa — dispensar o guia de primeiros passos e (AD-110)
-// receber o aviso diário de prazos por e-mail. O progresso do checklist nunca é gravado aqui.
-// Strict: qualquer outra chave (inclusive Tenant, AD-010) é recusada; vazio também.
+// ENR-03: the person's own choices — dismissing the getting started guide and (AD-110)
+// getting the daily deadline reminder by e-mail. Checklist progress is never saved here.
+// Strict: any other key (including Tenant, AD-010) is rejected; empty too.
 export const updatePreferencesSchema = z
   .object({
     onboardingDismissed: z.boolean().optional(),
     deadlineReminderEmail: z.boolean().optional(),
-    // AD-136: blocos do início que a pessoa escondeu; `[]` restaura o padrão.
+    // AD-136: home blocks the person hid; `[]` restores the default.
     hiddenBlocks: z.array(z.enum(HOME_BLOCKS)).max(HOME_BLOCKS.length).optional(),
   })
   .strict()

@@ -14,8 +14,8 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { partiesQuery } from '@/query/party.js';
 import type { CaseFormValues } from '../@interface/cases.interface.js';
 
-// Nome com sugestões do cadastro de partes (AD-117): escolher uma sugestão liga a linha ao
-// cadastro (`parteId`); digitar outro nome deixa a API reaproveitar ou criar (AD-115).
+// Name with suggestions from the party registry (AD-117): picking a suggestion links the row to the
+// record (`partyId`); typing another name lets the API reuse or create one (AD-115).
 function PartyNameField({ index }: { index: number }) {
   const { control, setValue } = useFormContext<CaseFormValues>();
   const type = useWatch({ control, name: `parties.${index}.type` });
@@ -94,7 +94,7 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
             placeholder="000.000.000-00"
           />
         )}
-        {/* Quem contratou o assistente técnico (AD-135): marcar uma parte desmarca as outras. */}
+        {/* Whoever hired the technical assistant (AD-135): checking one party unchecks the others. */}
         {role === 'technical_assistant' && (
           <FormField
             control={control}
@@ -125,7 +125,7 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
   );
 }
 
-// Autor, réu e os advogados de cada polo, ligados ao cadastro de partes (IMP-03).
+// Plaintiff, defendant and the lawyers of each side, linked to the party registry (IMP-03).
 export function CasePartiesFields() {
   const { control } = useFormContext<CaseFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: 'parties' });

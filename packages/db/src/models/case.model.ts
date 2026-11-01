@@ -16,18 +16,18 @@ import {
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-// Parte ligada à perícia. `tipo` e `nome` são cópia do cadastro (AD-117): a busca da
-// listagem e o resumo do feed/aviso leem daqui; renomear a parte atualiza a cópia.
+// Party linked to the case. `type` and `name` are a copy of the registry (AD-117): the listing
+// search and the feed/reminder summary read from here; renaming the party updates the copy.
 export interface CasePartyDocument {
   Party: mongoose.Types.ObjectId;
   side: Side;
   type: PartyType;
   name: string;
-  // Quem contratou o assistente técnico (AD-135).
+  // Whoever hired the technical assistant (AD-135).
   client?: boolean;
 }
 
-// Movimentação do processo que conta para a perícia parada (AD-121). Data `YYYY-MM-DD`.
+// Process movement that counts for the stalled case (AD-121). Date `YYYY-MM-DD`.
 export interface CaseMovementDocument {
   _id: mongoose.Types.ObjectId;
   type: MovementType;
@@ -47,14 +47,14 @@ export interface CaseDocument {
   subject: string;
   parties: CasePartyDocument[];
   status: CaseStatus;
-  // Fase detalhada (AD-133), sempre coerente com a etapa (regra no service).
+  // Detailed phase (AD-133), always consistent with the status (rule in the service).
   phase?: CasePhase;
-  // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-036, AD-103), não instantes.
+  // Calendar dates `YYYY-MM-DD` in the display time zone (AD-036, AD-103), not instants.
   nominationDate?: string;
   proposedFeesCents?: number;
   fixedFeesCents?: number;
   notes?: string;
-  // Dados auxiliares do laudo trabalhista (IMP-04); datas `YYYY-MM-DD` (AD-103).
+  // Labor report auxiliary data (IMP-04); dates `YYYY-MM-DD` (AD-103).
   docketingDate?: string;
   hireDate?: string;
   terminationDate?: string;
@@ -63,7 +63,7 @@ export interface CaseDocument {
   nonPrescribedPeriodEnd?: string;
   location?: string;
   movements: CaseMovementDocument[];
-  // Perícia que nasceu de uma oportunidade de prospecção (Datajud).
+  // Case born from a prospecting opportunity (Datajud).
   Opportunity?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -122,12 +122,12 @@ const caseSchema = new Schema<CaseDocument>(
   { timestamps: true },
 );
 
-// Um processo aparece uma vez por tenant: o perito não pode cadastrar a mesma
-// nomeação duas vezes (o índice é quem garante, não o código).
+// A process shows up once per tenant: the expert cannot register the same
+// nomination twice (the index guarantees it, not the code).
 caseSchema.index({ Tenant: 1, processNumber: 1 }, { unique: true });
 caseSchema.index({ Tenant: 1, status: 1 });
 caseSchema.index({ Tenant: 1, createdAt: -1 });
-// Perícias de uma parte (IMP-03) e cópia do nome ao renomear.
+// Cases of a party (IMP-03) and name copy on rename.
 caseSchema.index({ Tenant: 1, 'parties.Party': 1 });
 
 export const Case = mongoose.model<CaseDocument>('Case', caseSchema);

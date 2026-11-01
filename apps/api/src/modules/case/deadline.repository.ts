@@ -21,7 +21,7 @@ export const createDeadline = async (tenantId: string, caseId: string, data: Cre
     return toRecord(doc);
   });
 
-// Só os campos informados entram no $set; `protocoladoEm: null` vira $unset.
+// Only the given fields go into $set; `filedDate: null` becomes $unset.
 export const updateDeadline = async (
   tenantId: string,
   id: string,
@@ -91,8 +91,8 @@ export const listPending = async (tenantId: string, range: { from?: string; to?:
     return docs.map(toRecord);
   });
 
-// Consulta do sistema (aviso diário): de propósito sem filtro de Tenant — cada
-// item volta com o seu, e o service separa por tenant antes de enviar.
+// System query (daily reminder): deliberately without a Tenant filter — each
+// item comes back with its own, and the service splits by tenant before sending.
 export const listPendingInDays = async (days: string[]): Promise<NoticeDeadline[]> =>
   withDbTiming('deadline.listPendingInDays', async () => {
     const docs = await Deadline.find({ status: 'pending', dueDate: { $in: days } })
@@ -101,7 +101,7 @@ export const listPendingInDays = async (days: string[]): Promise<NoticeDeadline[
     return docs.map((doc) => ({ ...toRecord(doc), tenantId: doc.Tenant.toString() }));
   });
 
-// Listagem de perícias: o prazo pendente mais próximo de cada uma, numa agregação só.
+// Case listing: the nearest pending deadline of each one, in a single aggregation.
 export const upcomingByCaseIds = async (tenantId: string, ids: string[]): Promise<Map<string, NextDeadline>> =>
   withDbTiming('deadline.upcomingByCaseIds', async () => {
     if (ids.length === 0) return new Map();
@@ -113,7 +113,7 @@ export const upcomingByCaseIds = async (tenantId: string, ids: string[]): Promis
     return new Map(rows.map((row) => [String(row._id), { title: row.title, dueDate: row.dueDate }]));
   });
 
-// Exportação de dados (DOC-04) e cronograma: todos os prazos do tenant, por vencimento.
+// Data export (DOC-04) and schedule: every deadline of the tenant, by due date.
 export const listAll = async (tenantId: string): Promise<DeadlineRecord[]> =>
   withDbTiming('deadline.listAll', async () => {
     const docs = await Deadline.find(tenantScoped({ Tenant: tenantId }))

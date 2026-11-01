@@ -9,9 +9,9 @@ import type { AcceptInvite, InvitePeek } from './invite.schema.js';
 const SESSION_TTL_MS = 4 * 24 * 60 * 60 * 1000;
 const BCRYPT_COST = 10;
 
-// Três mensagens DISTINTAS, nunca ecoando o e-mail (FND-03/AC3): expirado,
-// já utilizado (accepted) e inválido (inexistente/revogado) são causas
-// diferentes e merecem diagnóstico diferente para quem recebeu o link.
+// Three DISTINCT messages, never echoing the e-mail (FND-03/AC3): expired,
+// already used (accepted) and invalid (missing/revoked) are different
+// causes and deserve a different diagnosis for whoever got the link.
 export const peekInvite = async (token: string): Promise<InvitePeek> => {
   const invite = await inviteRepository.findInviteWithTenantByHash(hashToken(token));
 
@@ -41,8 +41,8 @@ export const acceptInvite = async (
     permissions: invite.permissions,
   });
 
-  // provisioned -> active no primeiro convite aceito (FND-19); no-op guardado
-  // se o tenant já estiver active (ex.: segundo admin convidado depois).
+  // provisioned -> active on the first accepted invite (FND-19); guarded no-op
+  // if the tenant is already active (e.g. a second admin invited later).
   await inviteRepository.activateTenant(invite.tenant);
 
   const sessionToken = jwt.sign({ user: user.id }, env.SESSION_JWT_SECRET, { expiresIn: '4d' });

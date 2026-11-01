@@ -5,7 +5,7 @@ import { z } from 'zod';
 import type { MailProvider } from '../../providers/mail/index.js';
 
 export type { CreateInvite, ProvisionTenant };
-// MOD-08: schemas de entrada e tipos do módulo num lugar só.
+// MOD-08: input schemas and module types in a single place.
 export { createInviteSchema, provisionTenantSchema };
 
 export const tenantIdParamSchema = z.object({ id: idSchema }).strict();

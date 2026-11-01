@@ -13,13 +13,13 @@ import { apiUrl } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { variableItems } from './report-labels.js';
 
-// Editor do laudo e dos modelos (AD-123): só o que a allowlist da API aceita — parágrafo,
-// título (níveis 3 e 4), negrito, itálico, sublinhado, listas e tabela simples. A API saneia
-// o HTML de novo ao gravar.
+// Report and template editor (AD-123): only what the API allowlist accepts — paragraph,
+// heading (levels 3 and 4), bold, italic, underline, lists and a simple table. The API sanitizes
+// the HTML again when saving.
 
 const VARIABLES: readonly string[] = REPORT_VARIABLES;
 
-// Marcador de variável ainda no texto fica destacado: é pendência que bloqueia concluir (AD-126).
+// A variable marker still in the text is highlighted: it is an issue that blocks completion (AD-126).
 const HighlightedVariables = Extension.create({
   name: 'highlightedVariables',
   addProseMirrorPlugins() {
@@ -48,8 +48,8 @@ const HighlightedVariables = Extension.create({
   },
 });
 
-// Foto da vistoria no laudo (AD-129): o HTML gravado tem o caminho da mídia; no editor ela
-// carrega da API. A API tira a origem ao salvar.
+// Inspection photo in the report (AD-129): the saved HTML has the media path; in the editor it
+// loads from the API. The API strips the origin when saving.
 const InspectionPhoto = Image.extend({
   addAttributes() {
     return {
@@ -211,11 +211,11 @@ type RichTextEditorProps = {
   readOnly?: boolean;
   label?: string;
   className?: string;
-  // Fotos das vistorias da perícia para inserir no texto (só no laudo).
+  // Photos of the case inspections to insert in the text (report only).
   photos?: PhotoEditor[];
 };
 
-// Não controlado depois de montar: quem troca de seção remonta pela `key`.
+// Uncontrolled after mounting: whoever switches sections remounts through `key`.
 export function RichTextEditor({ value, onChange, readOnly = false, label, className, photos }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: EXTENSIONS,

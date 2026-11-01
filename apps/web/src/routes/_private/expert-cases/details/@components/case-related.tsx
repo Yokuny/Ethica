@@ -16,7 +16,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { upcomingAppointmentsQuery } from '@/query/appointment.js';
 import { transactionsQuery } from '@/query/transaction.js';
 
-// Vínculos da perícia: próximos compromissos e (para quem vê o financeiro) lançamentos.
+// Case links: upcoming appointments and (for whoever sees finance) transactions.
 export function CaseRelated({ caseId, canSeeFinance }: { caseId: string; canSeeFinance: boolean }) {
   const appointments = useQuery(upcomingAppointmentsQuery({ limit: 10, caseId }));
   const transactions = useQuery({ ...transactionsQuery({ caseId, limit: 50 }), enabled: canSeeFinance });

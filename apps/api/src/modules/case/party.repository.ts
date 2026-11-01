@@ -31,7 +31,7 @@ export const findByIds = async (tenantId: string, ids: string[]): Promise<PartyR
     return docs.map(toRecord);
   });
 
-// Reaproveitamento (AD-115): o primeiro cadastro do tipo com o mesmo documento, OAB ou nome.
+// Reuse (AD-115): the first record of the type with the same document, OAB or name.
 export const findOneBy = async (
   tenantId: string,
   filter: Pick<PartyRecord, 'type'> & Partial<Pick<PartyRecord, 'document' | 'oab' | 'name'>>,
@@ -43,7 +43,7 @@ export const findOneBy = async (
     return doc ? toRecord(doc) : null;
   });
 
-// Só os campos informados entram no $set — um campo omitido nunca vira undefined.
+// Only the given fields go into $set — an omitted field never becomes undefined.
 export const updateParty = async (tenantId: string, id: string, data: UpdateParty): Promise<PartyRecord | null> =>
   withDbTiming('party.updateParty', async () => {
     const update = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined));
@@ -62,7 +62,7 @@ export const listParties = async (
     const filters = query.type ? { type: query.type } : {};
     const skip = (query.page - 1) * query.limit;
 
-    // Busca de texto no Atlas Search (AD-054), nunca regex.
+    // Text search on Atlas Search (AD-054), never regex.
     if (query.q) {
       const [result] = await withSearch(() =>
         Party.aggregate<{ items: PartyDocument[]; total: { n: number }[] }>([
@@ -87,7 +87,7 @@ export const listParties = async (
     return { items: docs.map(toRecord), total };
   });
 
-// Exportação de dados (DOC-04).
+// Data export (DOC-04).
 export const listAll = async (tenantId: string): Promise<PartyRecord[]> =>
   withDbTiming('party.listAll', async () => {
     const docs = await Party.find(tenantScoped({ Tenant: tenantId }))

@@ -23,7 +23,7 @@ export function useTransactionsPage() {
     update({ page: next.pageIndex + 1, limit: next.pageSize });
   }
 
-  // Ações rápidas da linha: liquidar (hoje) e cancelar.
+  // Quick row actions: settle (today) and cancel.
   function setStatus(transaction: TransactionRecord, status: 'settled' | 'canceled' | 'expected') {
     updateMutation.mutate(
       { id: transaction.id, data: { status } },

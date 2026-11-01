@@ -14,7 +14,7 @@ const deadline = (id: string, dueDate: string): DeadlineRecord => ({
   status: 'pending',
 });
 
-// PRZ-01.6: o calendário mostra os prazos pendentes no dia do vencimento.
+// PRZ-01.6: the calendar shows pending deadlines on the due day.
 describe('MonthView com prazos', () => {
   afterEach(cleanup);
 

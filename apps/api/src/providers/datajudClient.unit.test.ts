@@ -73,7 +73,7 @@ describe('createDatajudClient', () => {
       subjects: ['Insalubridade', 'Periculosidade'],
       lastMovement: 'Nomeado perito',
     });
-    // Página cheia: devolve o cursor para a próxima.
+    // Full page: returns the cursor for the next one.
     expect(result.cursor).toEqual([1]);
   });
 

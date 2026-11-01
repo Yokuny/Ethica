@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Hub do módulo: introdução + um cartão por destino.
+// Module hub: intro + one card per destination.
 export function FinanceIndexPage() {
   return (
     <Card asPage>

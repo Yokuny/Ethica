@@ -6,7 +6,7 @@ import { t } from '../lib/helpers/translate.helper.js';
 import { readDay, readRecord, saveDay } from '../lib/offline/store.js';
 import { type AppointmentRecord, appointmentKeys } from './appointment.js';
 
-// Espelha os records de apps/api/src/modules/agenda/vistoria.schema.ts.
+// Mirrors the records of apps/api/src/modules/agenda/inspection.schema.ts.
 export type MediaRecord = {
   id: string;
   type: MediaType;
@@ -31,11 +31,11 @@ export const inspectionKeys = {
   day: (date: string) => [...inspectionKeys.all, 'day', date] as const,
   detail: (appointmentId: string) => [...inspectionKeys.all, 'detail', appointmentId] as const,
   legalCase: (caseId: string) => [...inspectionKeys.all, 'legalCase', caseId] as const,
-  // Mídias ainda só no aparelho: dentro de `all`, a sincronização recarrega junto (AD-128).
+  // Media still only on the device: inside `all`, the sync reloads it too (AD-128).
   pending: (appointmentId: string) => [...inspectionKeys.all, 'pending', appointmentId] as const,
 };
 
-// Rota do dia (CAM-01): com conexão, guarda a cópia no aparelho; sem ela, usa a cópia (AD-128).
+// Day route (CAM-01): with a connection, keeps the copy on the device; without it, uses the copy (AD-128).
 export const inspectionDayQuery = (date: string) =>
   queryOptions({
     queryKey: inspectionKeys.day(date),
@@ -73,7 +73,7 @@ export const caseInspectionsQuery = (caseId: string) =>
     },
   });
 
-// Mapa (AD-131): coordenadas do endereço, geocodificadas uma vez pela API.
+// Map (AD-131): address coordinates, geocoded once by the API.
 export const geocodeMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<AppointmentRecord, Error, { id: string }> => ({

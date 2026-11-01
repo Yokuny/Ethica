@@ -9,7 +9,7 @@ export interface OpportunityDocument {
   caseClass?: string;
   subjects: string[];
   courtUnit?: string;
-  // Valores como vieram do Datajud (texto ISO), só para exibição.
+  // Values as they came from Datajud (ISO text), for display only.
   filingDate?: string;
   lastMovement?: string;
   lastMovementAt?: string;

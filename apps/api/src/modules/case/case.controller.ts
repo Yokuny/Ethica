@@ -6,7 +6,7 @@ import * as caseService from './case.service.js';
 import { CaseNotFoundError } from './case.service.js';
 import * as importService from './import.service.js';
 
-// O Tenant vem sempre de req.tenantUser (AD-010), nunca do corpo/query.
+// The Tenant always comes from req.tenantUser (AD-010), never from the body/query.
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
@@ -75,7 +75,7 @@ export const caseDistribution = async (req: Request, res: Response, next: NextFu
   }
 };
 
-// Bloco "Perícias paradas" do início (GES-05): o total e as mais antigas, mesma regra do PDF.
+// Home "Stalled cases" block (GES-05): the total and the oldest ones, same rule as the PDF.
 export const stalledSummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const stalled = await caseService.listStalled(tenantOf(req));
@@ -85,7 +85,7 @@ export const stalledSummary = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-// Importação (AD-114, AD-118): o arquivo chega como corpo pelo `fileBody` do router.
+// Import (AD-114, AD-118): the file arrives as the body through the router's `fileBody`.
 export const importPdf = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await importService.extractPdf(tenantOf(req), req.body) }));

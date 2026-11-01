@@ -21,11 +21,11 @@ import type {
   StalledData,
 } from './documents.schema.js';
 
-// Um documento = função pura (dados) → HTML do PDF; testada sem navegador.
+// A document = pure function (data) → PDF HTML; tested without a browser.
 
 type Case = SheetData['legalCase'];
 
-// Trabalhista nomeia reclamante/reclamada; cível e federal, autor/réu.
+// Labor cases name claimant/respondent; civil and federal, plaintiff/defendant.
 const sidesNames = (legalCase: Case) =>
   legalCase.courtType === 'labor'
     ? { plaintiff: 'Reclamante', defendant: 'Reclamada' }

@@ -2,9 +2,9 @@ import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import type { ReactNode } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Estado vazio sem moldura: ilustração, título, descrição e no máximo uma
-// ação. Cada tela passa `title`/`description`/`action` direto — sem `title` vira
-// "não encontrado"; sem `description`, o convite a mudar a filtragem.
+// Frameless empty state: illustration, title, description and at most one
+// action. Each screen passes `title`/`description`/`action` directly — without `title` it becomes
+// "not found"; without `description`, the invitation to change the filtering.
 type DefaultEmptyDataProps = {
   title?: string;
   description?: string;

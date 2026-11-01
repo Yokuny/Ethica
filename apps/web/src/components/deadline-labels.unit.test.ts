@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { deadlineAlert } from './deadline-labels.js';
 
-// PRZ-01.5: "vence em breve" = até 15 dias (usuário, 2026-10-31); vencido = antes de hoje.
+// PRZ-01.5: "due soon" = up to 15 days (user, 2026-10-31); overdue = before today.
 describe('deadlineAlert', () => {
   const today = '2026-11-10';
 

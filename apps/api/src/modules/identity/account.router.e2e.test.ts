@@ -218,7 +218,7 @@ describe('account routes (ACC-02..06)', () => {
     const avatar = saved.body.data.avatar as string;
     expect(avatar).toMatch(new RegExp(`^/auth/users/${user.id}/avatar\\?v=\\d+$`));
 
-    // A foto nunca vem nas listas; só o caminho.
+    // The photo never comes in lists; only the path.
     const users = await request(app).get('/auth/users').set('Cookie', cookie).set('User-Agent', DEVICE);
     expect(users.body.data).toContainEqual({ id: user.id, name: user.name, avatar });
     expect(users.body.data).toContainEqual({ id: teammate.id, name: 'Colega' });

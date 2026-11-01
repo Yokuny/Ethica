@@ -17,7 +17,7 @@ export function useAgendaPage() {
   const date = search.date ?? formatDisplayDate(new Date());
   const { from, to } = rangeForView(view, date);
   const query = useQuery(appointmentsQuery({ from, to, type: search.type }));
-  // Prazos pendentes do intervalo (AD-109); somem quando o filtro é um tipo de compromisso.
+  // Pending deadlines in the range (AD-109); they disappear when the filter is an appointment type.
   const deadlinesQuery = useQuery({ ...pendingDeadlinesQuery({ from, to }), enabled: !search.type });
   const deadlines = search.type ? [] : (deadlinesQuery.data ?? []);
 

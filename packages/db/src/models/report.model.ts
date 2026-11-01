@@ -9,8 +9,8 @@ import {
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-// Seção do laudo: cópia da seção do modelo na variante escolhida, com as variáveis já
-// resolvidas na abertura (AD-126). Alterar o modelo depois não muda o laudo.
+// Report section: copy of the template section in the chosen variant, with the variables already
+// resolved on opening (AD-126). Changing the template afterwards does not change the report.
 export interface ReportSectionDocument {
   _id: mongoose.Types.ObjectId;
   title: string;

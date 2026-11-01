@@ -4,7 +4,7 @@ import { RichTextEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { TemplateSectionRecord } from '@/query/report.js';
 
-// Leitura da seção do modelo padrão (ou para quem não edita modelos): os dois textos.
+// Read view of a default template section (or for whoever does not edit templates): both texts.
 export function TemplateSectionView({ section, onClose }: { section: TemplateSectionRecord; onClose: () => void }) {
   return (
     <FormDialog title={section.title} size="lg" onClose={onClose}>

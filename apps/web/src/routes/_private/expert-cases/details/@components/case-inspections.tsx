@@ -12,7 +12,7 @@ import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseInspectionsQuery } from '@/query/inspection.js';
 
-// Registros de vistoria da perícia (CAM-02.3) e a galeria das fotos (CAM-03.3).
+// Inspection records of the case (CAM-02.3) and the photo gallery (CAM-03.3).
 export function CaseInspections({ caseId }: { caseId: string }) {
   const query = useQuery(caseInspectionsQuery(caseId));
   const records = query.data ?? [];

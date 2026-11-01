@@ -8,8 +8,8 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { calendarFeedQuery, generateCalendarFeedMutation, revokeCalendarFeedMutation } from '../@query/account.js';
 
-// PRZ-03: link secreto para assinar a agenda e os prazos no Google, Outlook ou Apple.
-// O link só aparece logo depois de gerado; gerar de novo invalida o anterior.
+// PRZ-03: secret link to subscribe to the agenda and deadlines in Google, Outlook or Apple.
+// The link only shows right after it is generated; generating again invalidates the previous one.
 export function AccountCalendarFeed() {
   const queryClient = useQueryClient();
   const query = useQuery(calendarFeedQuery);

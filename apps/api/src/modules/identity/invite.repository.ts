@@ -2,8 +2,8 @@ import { Invite, Session, transitionTenantStatus, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { InviteWithTenant, Permissions, Role } from './invite.schema.js';
 
-// Forma populada mínima — evita importar `mongoose` neste app (só
-// packages/db pode, ver T25/AD-010).
+// Minimal populated shape — avoids importing `mongoose` in this app (only
+// packages/db may, see T25/AD-010).
 type PopulatedTenant = { _id: { toString: () => string }; name: string };
 
 export const findInviteWithTenantByHash = async (tokenHash: string): Promise<InviteWithTenant | null> =>
@@ -22,8 +22,8 @@ export const findInviteWithTenantByHash = async (tokenHash: string): Promise<Inv
     };
   });
 
-// Aceite concorrente (FND-15): a guarda é a própria query — só aceita quando
-// ainda está pending e não expirado. Quem perde a corrida recebe null.
+// Concurrent acceptance (FND-15): the guard is the query itself — it only accepts while
+// still pending and not expired. Whoever loses the race gets null.
 export const acceptInviteAtomic = async (tokenHash: string): Promise<InviteWithTenant | null> =>
   withDbTiming('invite.acceptInviteAtomic', async () => {
     const invite = await Invite.findOneAndUpdate(

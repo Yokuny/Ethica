@@ -16,8 +16,8 @@ import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Espelha PericiaRecord de apps/api/src/modules/pericia/pericia.schema.ts — a
-// verdade fica no back-end. Datas de calendário chegam `YYYY-MM-DD`; instantes, ISO.
+// Mirrors CaseRecord of apps/api/src/modules/case/case.schema.ts — the
+// truth lives in the back-end. Calendar dates arrive as `YYYY-MM-DD`; instants, ISO.
 export type CaseRecord = {
   id: string;
   processNumber: string;
@@ -27,10 +27,10 @@ export type CaseRecord = {
   division?: string;
   district?: string;
   subject: string;
-  // Cópia de tipo e nome do cadastro de partes (AD-117).
+  // Type and name copy from the party registry (AD-117).
   parties: { partyId: string; side: Side; type: PartyType; name: string; client?: boolean }[];
   status: CaseStatus;
-  // Fase detalhada e situação derivada no servidor (AD-133).
+  // Detailed phase and state derived on the server (AD-133).
   phase?: CasePhase;
   state: CaseState;
   nominationDate?: string;
@@ -44,7 +44,7 @@ export type CaseRecord = {
   nonPrescribedPeriodStart?: string;
   nonPrescribedPeriodEnd?: string;
   location?: string;
-  // Movimentações que contam para a perícia parada (AD-121), da mais recente para a mais antiga.
+  // Movements that count for the stalled case (AD-121), from newest to oldest.
   movements: { id: string; type: MovementType; data: string; notes?: string }[];
   opportunityId?: string;
   createdAt: string;
@@ -61,7 +61,7 @@ export type CasesQueryParams = {
   courtType?: CourtType;
 };
 
-// Listagem: cada perícia com o prazo pendente mais próximo (AD-109), ausente se não há.
+// Listing: each case with its nearest pending deadline (AD-109), missing if there is none.
 export type CaseListItem = CaseRecord & { nextDeadline?: { title: string; dueDate: string } };
 
 export type CasesListResult = { items: CaseListItem[]; total: number };
@@ -87,7 +87,7 @@ const toQueryString = (params: Record<string, string | number | undefined>): str
   return qs ? `?${qs}` : '';
 };
 
-// Listagem server-driven: página, busca e filtros vão na query, nunca slice em memória.
+// Server-driven listing: page, search and filters go in the query, never an in-memory slice.
 export const casesQuery = (params: CasesQueryParams = {}) =>
   queryOptions({
     queryKey: caseKeys.list(params),
@@ -177,7 +177,7 @@ export const removeMovementMutation = (
   onSuccess: (updated) => queryClient.setQueryData(caseKeys.detail(updated.id), updated),
 });
 
-// Bloco "Perícias paradas" do início (GES-05): mesma regra do PDF (AD-121), sem as suspensas.
+// Home "Stalled cases" block (GES-05): same rule as the PDF (AD-121), without the suspended ones.
 export type StalledCase = {
   id: string;
   processNumber: string;

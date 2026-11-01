@@ -3,7 +3,7 @@ import { withDbTiming } from '../../metrics/db.metric.js';
 import type { AccountView, FeedOwner, NoticeRecipient, UpdateProfile } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
 
-// Tenant e usuário vêm sempre da sessão (AD-010): todo filtro é a própria pessoa.
+// Tenant and user always come from the session (AD-010): every filter is the person themselves.
 const own = (tenantId: string, userId: string) => tenantScoped({ Tenant: tenantId, _id: userId });
 
 const ACCOUNT_FIELDS = 'name avatarUpdatedAt cpf professionalRegistration education';
@@ -33,7 +33,7 @@ export const findProfile = async (tenantId: string, userId: string): Promise<Acc
     toAccountView(await User.findOne(own(tenantId, userId)).select(ACCOUNT_FIELDS).lean()),
   );
 
-// DOC-01: campo profissional enviado vazio é apagado; ausente fica como está.
+// DOC-01: a professional field sent empty is cleared; a missing one stays as it is.
 export const updateProfile = async (
   tenantId: string,
   userId: string,
@@ -60,7 +60,7 @@ export const findPasswordHash = async (tenantId: string, userId: string): Promis
     return doc?.password ?? null;
   });
 
-// ACC-04: troca a senha e encerra as outras sessões; a atual (keepTokenHash) segue válida.
+// ACC-04: changes the password and ends the other sessions; the current one (keepTokenHash) stays valid.
 export const updatePassword = async (
   tenantId: string,
   userId: string,
@@ -87,7 +87,7 @@ export const setAvatar = async (tenantId: string, userId: string, image: string 
     ),
   );
 
-// PRZ-03: `null` revoga o link; um hash novo substitui (e assim revoga) o anterior.
+// PRZ-03: `null` revokes the link; a new hash replaces (and so revokes) the previous one.
 export const setCalendarFeedTokenHash = async (tenantId: string, userId: string, tokenHash: string | null) =>
   withDbTiming('account.setCalendarFeedTokenHash', async () => {
     await User.updateOne(
@@ -102,8 +102,8 @@ export const hasCalendarFeed = async (tenantId: string, userId: string): Promise
     return Boolean(doc?.calendarFeedTokenHash);
   });
 
-// Rota pública do feed: o token é a única credencial. Usuário inativo, sem papel ou de
-// tenant suspenso (AD-098) não tem dono — o feed responde 404.
+// Public feed route: the token is the only credential. An inactive user, one without a role or from a
+// suspended tenant (AD-098) has no owner — the feed answers 404.
 export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null> =>
   withDbTiming('account.findFeedOwner', async () => {
     const user = await User.findOne({ calendarFeedTokenHash: tokenHash, active: true, 'role.0': { $exists: true } })
@@ -115,7 +115,7 @@ export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null
     return { userId: user._id.toString(), tenantId: user.Tenant.toString() };
   });
 
-// AD-110: usuários ativos com papel e aviso ligado (ausente = ligado), de tenants não suspensos.
+// AD-110: active users with a role and the reminder on (missing = on), from non-suspended tenants.
 export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promise<NoticeRecipient[]> =>
   withDbTiming('account.listDeadlineReminderRecipients', async () => {
     if (tenantIds.length === 0) return [];

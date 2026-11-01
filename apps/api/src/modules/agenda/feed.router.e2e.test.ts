@@ -112,7 +112,7 @@ describe('feed iCal (PRZ-03)', () => {
     expect(feed.text).toContain('SUMMARY:Prazo: Entrega do laudo');
     expect(feed.text).not.toContain('Reunião cancelada');
 
-    // Gerar de novo troca o link: o anterior deixa de funcionar.
+    // Generating again swaps the link: the previous one stops working.
     const fresh = (await as(request(app).post('/me/calendar-feed'))).body.data.token;
     expect((await request(app).get(`/agenda/feed/${token}.ics`)).status).toBe(404);
     expect((await request(app).get(`/agenda/feed/${fresh}.ics`)).status).toBe(200);

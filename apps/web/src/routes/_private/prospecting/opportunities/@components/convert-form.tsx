@@ -16,7 +16,7 @@ import { type ConvertForm as ConvertValues, convertFormSchema } from '../@interf
 const courtTypeOfCourt = (court: string): ConvertValues['courtType'] =>
   court.startsWith('trt') ? 'labor' : court.startsWith('trf') ? 'federal' : 'civil';
 
-// Converter em perícia: número, tribunal e vara vêm da oportunidade.
+// Convert into a case: number, court and division come from the opportunity.
 export function ConvertForm({ opportunity, onClose }: { opportunity: OpportunityRecord; onClose: () => void }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();

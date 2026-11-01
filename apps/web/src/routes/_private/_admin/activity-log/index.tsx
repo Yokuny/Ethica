@@ -12,7 +12,7 @@ import { useActivityLogSearch } from './@hooks/use-activity-log-search.js';
 import { type ActivityLogSearch, activityLogSearchSchema } from './@interface/activityLog.interface.js';
 import { activityLogQuery } from './@query/activityLog.js';
 
-// Diário de bordo (GES-01, AD-134): quem fez o quê, só para o admin.
+// Activity log (GES-01, AD-134): who did what, admin only.
 export function ActivityLogPage() {
   const { search, update, handlePaginationChange, active } = useActivityLogSearch();
   const query = useQuery(activityLogQuery(search));

@@ -27,8 +27,8 @@ const byWords = (data: string): string => {
   return `${Number(d)} de ${MONTHS[Number(month) - 1]} de ${year}`;
 };
 
-// Denominação das partes pela justiça (LAU-06): trabalhista reclamante/reclamada; cível e
-// federal autor/réu. A lógica e os entregáveis são os mesmos.
+// Party naming by court type (LAU-06): labor claimant/respondent; civil and
+// federal plaintiff/defendant. The logic and the deliverables are the same.
 const NAME = {
   labor: { plaintiff: 'Reclamante', defendant: 'Reclamada' },
   civil: { plaintiff: 'Autor', defendant: 'Réu' },
@@ -46,15 +46,15 @@ export type VariablesData = {
   expert: AccountView;
   identity: DocumentIdentity;
   appointments: AppointmentRecord[];
-  // Última vistoria feita com registro (AD-130): os dados e o início. Sem ela, as variáveis de
-  // campo ficam pendentes e data/hora vêm da vistoria mais recente não cancelada.
+  // Last done inspection with a record (AD-130): the data and the start. Without it, the field
+  // variables stay pending and date/time come from the most recent non-canceled inspection.
   field?: { data: InspectionData; start: Date };
   today: string;
 };
 
 type Name = (typeof NAME)[keyof typeof NAME];
 
-// Lista de campo em texto corrido; vazia com vistoria registrada vira "nenhum" (não pendência).
+// Field list as running text; empty with a recorded inspection becomes "nenhum" (not an issue).
 const juntar = (items: string[]): string => (items.length ? items.join('; ') : 'none');
 const entre = (parties: Array<string | undefined>): string => parties.filter(Boolean).join(', ');
 
@@ -115,7 +115,7 @@ const fieldValues = (field: InspectionData, name: Name): ReportValues => {
   };
 };
 
-// Valor de cada marcador de LAUDO_VARIAVEIS; dado ausente fica sem chave e vira pendência.
+// Value of each REPORT_VARIABLES marker; missing data has no key and becomes an issue.
 export const reportValues = ({
   legalCase,
   expert,

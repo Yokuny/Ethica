@@ -30,7 +30,7 @@ const pdf = async (providers: Providers, name: string, document: PdfDocument): P
   conteudo: await providers.pdf.render(document),
 });
 
-// DOC-02: o resumo financeiro só entra para admin/manager (AD-107).
+// DOC-02: the finance summary only goes in for admin/manager (AD-107).
 export const generateSheet = async (providers: Providers, ctx: DocumentContext, caseId: string) => {
   const legalCase = await caseService.getCase(ctx.tenantId, caseId);
   const [baseData, deadlines, appointments, finance] = await Promise.all([
@@ -84,7 +84,7 @@ export const generateStalled = async (providers: Providers, ctx: DocumentContext
   return pdf(providers, 'pericias-paradas.pdf', stalledHtml({ ...baseData, stalled }));
 };
 
-// CSV da exportação (AD-122): mesmo formato da importação (`;`, UTF-8 com BOM, AD-115).
+// Export CSV (AD-122): same format as the import (`;`, UTF-8 with BOM, AD-115).
 type Cell = string | number | boolean | Date | undefined | null;
 const cell = (value: Cell): string => {
   const text = value instanceof Date ? value.toISOString() : String(value ?? '');
@@ -95,7 +95,7 @@ export const toCsv = <T>(columns: Array<[string, (item: T) => Cell]>, items: T[]
     .map((row) => row.map((amount) => cell(amount as Cell)).join(';'))
     .join('\r\n')}\r\n`;
 
-// DOC-04: um CSV por entidade do tenant num ZIP; registra quem exportou e quando.
+// DOC-04: one CSV per tenant entity in a ZIP; records who exported and when.
 export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> => {
   const { tenantId } = ctx;
   const [cases, parties, deadlines, appointments, transactions, users, opportunities] = await Promise.all([
@@ -192,7 +192,7 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
       ],
       transactions,
     ),
-    // Sem senha, sem hashes de sessão ou do feed (AD-122).
+    // No password, no session or feed hashes (AD-122).
     'usuarios.csv': toCsv(
       [
         ['id', (u) => u.id],

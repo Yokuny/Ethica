@@ -17,8 +17,8 @@ import { transactionsQuery } from '@/query/transaction.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
-// Honorários da perícia com o que já entrou (parcelas) e o saldo, no detalhe de um evento
-// da agenda. Só para quem vê o financeiro (AD-107): para os outros papéis não renderiza nada.
+// Case fees with what already came in (installments) and the balance, in the detail of an
+// agenda event. Only for whoever sees finance (AD-107): for the other roles it renders nothing.
 export function CaseReceipts({ caseId }: { caseId: string }) {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const allowed = can(session, 'finance');

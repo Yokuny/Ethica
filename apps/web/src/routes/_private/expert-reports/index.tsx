@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Hub do módulo: laudos e pareceres redigidos e os modelos do escritório.
+// Module hub: drafted reports and opinions and the office templates.
 export function ReportsIndexPage() {
   return (
     <Card asPage>

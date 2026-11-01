@@ -71,7 +71,7 @@ describe('diário de bordo (GES-01, AD-134)', () => {
       subject: 'Insalubridade',
     });
     expect(created.status).toBe(201);
-    // Leitura não entra no diário.
+    // Reads do not go into the log.
     await operator.as(request(app).get('/expert-cases'));
 
     await expect.poll(async () => (await admin.as(request(app).get('/tenant/activity-log'))).body.data?.total).toBe(1);

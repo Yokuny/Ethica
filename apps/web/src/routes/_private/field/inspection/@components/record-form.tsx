@@ -25,12 +25,12 @@ const ABAS = [
   ['notes', 'notes'],
 ] as const;
 
-// Registro em abas (CAM-02): tudo fica no aparelho a cada mudança e sobe sozinho (AD-128).
+// Record in tabs (CAM-02): everything stays on the device on every change and goes up by itself (AD-128).
 export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft }) {
   const queryClient = useQueryClient();
   const { form, conflict, keepMine, keepServer } = useRecord(item, draft);
 
-  // Assinatura entra na fila de mídias com id do aparelho; o registro guarda o id.
+  // The signature goes into the media queue with a device id; the record keeps the id.
   async function storeSignature(png: Blob): Promise<string> {
     const mediaId = crypto.randomUUID();
     await storeMedia({

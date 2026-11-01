@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-// Extraído do antigo componentes/ui/data-table.tsx: mantém o input responsivo
-// (estado local atualiza na hora) sem disparar `onChange` — e portanto a
-// navegação/refetch server-side (AD-028) — a cada tecla digitada.
+// Extracted from the old componentes/ui/data-table.tsx: keeps the input responsive
+// (local state updates immediately) without firing `onChange` — and therefore the
+// server-side navigation/refetch (AD-028) — on every keystroke.
 export function useDebouncedSearch(value: string, onChange: (value: string) => void) {
   const [search, setSearch] = useState(value);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);

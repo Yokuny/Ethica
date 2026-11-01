@@ -1,9 +1,9 @@
 import type * as React from 'react';
 import { cn } from '../lib/utils.js';
 
-// Mesma linguagem visual do Input (input.tsx) — bg-card/hover:border-ring/70/
-// ring-2 ring-ring/30 no foco/disabled:bg-muted, nunca um dark: manual (os
-// tokens semânticos já trocam de valor por tema, ver apps/web/CLAUDE.md).
+// Same visual language as Input (input.tsx) — bg-card/hover:border-ring/70/
+// ring-2 ring-ring/30 on focus/disabled:bg-muted, never a manual dark: (the
+// semantic tokens already change value per theme, see apps/web/CLAUDE.md).
 function Textarea({ className, ...props }: React.ComponentProps<'textarea'>) {
   return (
     <textarea

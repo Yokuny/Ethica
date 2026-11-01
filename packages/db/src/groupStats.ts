@@ -1,8 +1,8 @@
 import type { Model } from 'mongoose';
 import { toObjectId } from './textSearch.js';
 
-// Contagem por grupo de um tenant: `key` é uma expressão de agregação (ex.:
-// '$status'). Documento sem valor entra no grupo `fallback`.
+// Count per group of a tenant: `key` is an aggregation expression (e.g.
+// '$status'). A document without a value goes into the `fallback` group.
 export const groupStats = async <T>(
   model: Model<T>,
   tenantId: string,

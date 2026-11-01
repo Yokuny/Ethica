@@ -16,7 +16,7 @@ import { type FieldSearch, fieldSearchSchema } from '../@interface/field.interfa
 import { MapLeaflet } from './@components/map-leaflet.js';
 import { conflictingStops, type Point, sortByProximity } from './@utils/itinerary.js';
 
-// Rota pelas ruas no OSRM público (AD-131); sem rota, o mapa liga as paradas em linha reta.
+// Street route on the public OSRM (AD-131); without a route, the map joins the stops in a straight line.
 const itineraryOsrm = async (points: Point[]): Promise<Point[]> => {
   const path = points.map((p) => `${p.lng},${p.lat}`).join(';');
   const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${path}?overview=full&geometries=geojson`);
@@ -25,7 +25,7 @@ const itineraryOsrm = async (points: Point[]): Promise<Point[]> => {
   return body.routes?.[0]?.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) ?? points;
 };
 
-// Mapa do dia (CAM-08, CAM-09): ordem sugerida, conflito de horário, rota e aviso às partes.
+// Day map (CAM-08, CAM-09): suggested order, time conflict, route and notice to the parties.
 export function MapPage() {
   const search = useSearch({ strict: false }) as FieldSearch;
   const queryClient = useQueryClient();

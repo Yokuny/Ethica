@@ -1,13 +1,13 @@
 import { PARTY_TYPES, type PartyType } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
-// Parte (autor/réu) ou advogado, reutilizável entre perícias do tenant (AD-117).
+// Party (plaintiff/defendant) or lawyer, reusable across the tenant's cases (AD-117).
 export interface PartyDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
   type: PartyType;
   name: string;
-  // CPF/CNPJ só com dígitos (parte); OAB normalizada, ex.: SP123456 (advogado).
+  // CPF/CNPJ digits only (party); normalized OAB, e.g. SP123456 (lawyer).
   document?: string;
   oab?: string;
   email?: string;
@@ -29,7 +29,7 @@ const partySchema = new Schema<PartyDocument>(
   { timestamps: true },
 );
 
-// Reaproveitamento na importação e no cadastro da perícia (AD-115).
+// Reuse in the import and in the case registration (AD-115).
 partySchema.index({ Tenant: 1, type: 1, document: 1 });
 partySchema.index({ Tenant: 1, type: 1, oab: 1 });
 partySchema.index({ Tenant: 1, type: 1, name: 1 });

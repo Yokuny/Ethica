@@ -24,7 +24,7 @@ const send = (res: Response, file: GeneratedFile): void => {
     .end(file.conteudo);
 };
 
-// Um handler por documento: gera e devolve o arquivo; perícia de outro tenant é 404.
+// One handler per document: generates and returns the file; a case from another tenant is 404.
 const handler =
   (generate: (req: Request, ctx: DocumentContext) => Promise<GeneratedFile>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {

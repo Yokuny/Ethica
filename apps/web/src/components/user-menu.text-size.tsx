@@ -10,7 +10,7 @@ import { Type } from 'lucide-react';
 import { type TextSize, useTextSize } from '@/hooks/useTextSize.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Opções de tamanho do texto, reaproveitadas pelo menu do usuário e pelo menu público.
+// Text size options, reused by the user menu and the public menu.
 export function TextSizeOptions() {
   const { textSize, setTextSize } = useTextSize();
   return (
@@ -22,7 +22,7 @@ export function TextSizeOptions() {
   );
 }
 
-// Menu avulso das páginas públicas (sem sidebar).
+// Standalone menu of the public pages (no sidebar).
 export function TextSizeMenu() {
   return (
     <DropdownMenu>

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { Point } from '../@utils/itinerary.js';
 
-// Atribuição exigida pelo OpenStreetMap, com o link para os direitos.
+// Attribution required by OpenStreetMap, with the link to the copyright.
 const assignment = (): string => {
   const link = document.createElement('a');
   link.href = 'https://www.openstreetmap.org/copyright';
@@ -12,7 +12,7 @@ const assignment = (): string => {
   return `© ${link.outerHTML}`;
 };
 
-// Marcador numerado sem imagem (o ícone padrão do Leaflet quebra com o bundler).
+// Numbered marker without an image (the default Leaflet icon breaks with the bundler).
 const stopNumber = (number: number): HTMLElement => {
   const marker = document.createElement('span');
   marker.textContent = String(number);
@@ -35,8 +35,8 @@ type MapLeafletProps = {
   row: Point[];
 };
 
-// Mapa do dia (AD-131): tiles do OpenStreetMap, paradas numeradas e a rota. Leaflet é imperativo,
-// então o mapa vive num efeito ligado ao elemento; marcadores sem imagem (divIcon).
+// Day map (AD-131): OpenStreetMap tiles, numbered stops and the route. Leaflet is imperative,
+// so the map lives in an effect bound to the element; markers without an image (divIcon).
 export function MapLeaflet({ stops, origin, row }: MapLeafletProps) {
   const element = useRef<HTMLElement>(null);
   const map = useRef<L.Map | null>(null);

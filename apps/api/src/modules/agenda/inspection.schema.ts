@@ -36,7 +36,7 @@ export type MediaRecord = {
   createdAt: Date;
 };
 
-// Registro de vistoria (AD-130). Sem registro gravado, `versao` 0 e dados vazios.
+// Inspection record (AD-130). With no saved record, `version` 0 and empty data.
 export type InspectionRecord = {
   appointmentId: string;
   caseId?: string;
@@ -48,8 +48,8 @@ export type InspectionRecord = {
 
 export type InspectionMediaWrite = MediaRecord & { key: string };
 
-// Resumo da perícia no campo: número e partes por polo.
+// Case summary in the field: number and parties by side.
 export type FieldCase = { id: string; processNumber: string; plaintiff?: string; defendant?: string };
 
-// Um compromisso do dia com o que o celular precisa sem conexão (AD-128).
+// One appointment of the day with what the phone needs without a connection (AD-128).
 export type DayInspection = { appointment: AppointmentRecord; legalCase?: FieldCase; inspection: InspectionRecord };

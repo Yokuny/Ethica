@@ -10,7 +10,7 @@ import { FieldList } from './field-list.js';
 
 const SIDE_ITEMS = SIDES.map((value) => ({ value, label: t(INDICATED_SIDE_KEY[value]) }));
 
-// Paradigmas indicados por cada parte (CAM-02): viram [PARADIGMAS_AUTOR]/[PARADIGMAS_REU] no laudo.
+// Comparators named by each party (CAM-02): they become [PARADIGMAS_AUTOR]/[PARADIGMAS_REU] in the report.
 export function ComparatorsFields({ form }: { form: UseFormReturn<InspectionData> }) {
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'comparators' });
   return (

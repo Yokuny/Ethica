@@ -17,7 +17,7 @@ const mapsUrl = (location: string) =>
   `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
 const wazeUrl = (location: string) => `https://waze.com/ul?q=${encodeURIComponent(location)}&navigate=yes`;
 
-// Um compromisso do dia no celular (CAM-01): chegar, marcar o resultado e abrir o registro.
+// One appointment of the day on the phone (CAM-01): get there, mark the result and open the record.
 export function FieldCard({ item, onStatus }: FieldCardProps) {
   const { appointment, legalCase, inspection } = item;
   const status = appointment.reason ?? appointment.status;

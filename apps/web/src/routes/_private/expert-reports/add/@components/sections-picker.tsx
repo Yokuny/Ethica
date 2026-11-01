@@ -17,7 +17,7 @@ type SectionsPickerProps = {
   onChange: (choices: Choices) => void;
 };
 
-// "O que deve constar" (LAU-02.1): marcar as seções e escolher o texto "sim" ou "não".
+// "What should be included" (LAU-02.1): check the sections and pick the "yes" or "no" text.
 export function SectionsPicker({ sections, choices, onChange }: SectionsPickerProps) {
   const numbers = numberSections(sections);
   const checked = sections.filter((section) => choices[section.id]).length;
