@@ -421,7 +421,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: um banco local antigo precisa ser recriado com o seed; quem consulta o Mongo direto vê inglês. Chaves iguais de domínios diferentes (`canceled` no compromisso e no lançamento) compartilham o texto traduzido.
 - **Scope**: `packages/contracts/src/schemas/`, `packages/db/src/models/compromisso.model.ts`, `apps/api` (repositories, services, seed, testes), `apps/web` (labels, `translate.helper.ts`), `apps/api/src/providers/datajudClient.ts`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (nomes de rotas superseded by AD-138)
 
 ### AD-114
 - **Decision**: A extração de dados do PDF da ata/despacho é feita por **regras sobre a camada de texto** do PDF, no `apps/api`: `unpdf` extrai o texto e `extrairAta` (expressões regulares e rótulos do PJe) monta o rascunho. Sem modelo de IA (nem no servidor, nem colando prompt/JSON de IA externa) e sem OCR: PDF escaneado sem texto é recusado com `pdf_without_text`. O PDF não é gravado.
@@ -612,6 +612,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: escolha do usuário em 2026-11-01 (pergunta 4 e rodada de complemento): matriz junto, sem migração; por membro com preset do perfil; quatro ações.
 - **Trade-off**: troca a guarda de papel fixo de todas as rotas de domínio; o papel continua existindo só para dizer quem é admin e qual preset usar.
 - **Scope**: `packages/contracts/src/schemas/permissao.schema.ts`, `packages/db/src/models/{user,invite}.model.ts`, `apps/api/src/middlewares/`, todos os `*.router.ts` de domínio, `apps/api/src/modules/identity/`, `apps/web` (sessão, navegação, guardas, convite e usuários), `.agents/skills/ethica-permissions/SKILL.md`. Supersede a AD-108 (proposta) e, na parte de papéis de domínio, a AD-107.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-138
+- **Decision**: Todo nome que vira URL ou valor gravado é **inglês**, traduzido no web: as pastas de rota do `apps/web` (`/expert-cases`, `/parties`, `/agenda`, `/field`, `/expert-reports` e `/expert-reports/templates`, `/finance` com `/entries` e `/reports`, `/prospecting` com `/search` e `/opportunities`, `/reports`, `/activity-log`) e as rotas da API com seus sub-recursos (`/expert-cases` com `/deadlines`, `/movements`, `/stalled`; `/parties`; `/inspections` com `/day`, `/media`; `/finance` com `/summary`, `/flow`, `/categories`, `/entries`, `/installments`; `/documents` com `/sheet`; `/expert-reports` com `/templates`, `/sections`, `/move`, `/complete`; `/prospecting/opportunities` com `/convert`; `/agenda/:id/notice`; `/tenant/office/schedule-notice`; `/tenant/activity-log`; `/auth/users/:id/permissions`). Os módulos da matriz e do diário viram `expert_cases`, `parties`, `agenda`, `expert_reports`, `report_templates`, `finance`, `prospecting`, `reports`, `office`, `users`, `account`. Nomes de campo, collections e pastas de módulo da API seguem como estão (AD-113).
+- **Reason**: pedido do usuário em 2026-11-01: nenhum valor em português, nem no nome das pastas que geram rotas.
+- **Trade-off**: links e favoritos antigos deixam de funcionar (sistema em desenvolvimento, sem redirecionamento); a foto do laudo passa a exigir `src` em `/inspections/<id>/media/<id>`, e laudos com a URL antiga perdem a foto (seed refeito).
+- **Scope**: `apps/web/src/routes/`, todos os `*.router.ts`, `apps/api/src/middlewares/diario.middleware.ts`, `packages/contracts/src/schemas/{permissao,diario,laudo}.schema.ts`, `apps/web/public/{sw.js,manifest.webmanifest}`. Supersede, na AD-113, a parte que mantinha os nomes de rotas.
 - **Date**: 2026-11-01
 - **Status**: active
 

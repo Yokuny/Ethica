@@ -1,7 +1,7 @@
 # Camada de dados (`src/query/`, `@query/`) e formulários
 
 Referências: `apps/web/src/query/pericia.ts` (lista + detalhe + CRUD), `apps/web/src/query/lancamento.ts`
-(lista + agregados para gráficos), `apps/web/src/routes/_private/prospeccao/@query/oportunidade.ts` (`@query/` local).
+(lista + agregados para gráficos), `apps/web/src/routes/_private/prospecting/@query/oportunidade.ts` (`@query/` local).
 
 ## Um arquivo por entidade: `query/<entidade>.ts`
 

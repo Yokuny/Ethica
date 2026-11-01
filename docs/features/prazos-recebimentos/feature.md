@@ -34,7 +34,7 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 
 ### `apps/api`
 
-- `apps/api/src/modules/pericia/prazo.{controller,service,repository,schema}.ts` (rotas em `pericia.router.ts`) — CRUD de prazo sob `/pericias` (`/pericias/prazos`, `/pericias/:id/prazos`, `/pericias/prazos/:prazoId`).
+- `apps/api/src/modules/pericia/prazo.{controller,service,repository,schema}.ts` (rotas em `pericia.router.ts`) — CRUD de prazo sob `/expert-cases` (`/expert-cases/deadlines`, `/expert-cases/:id/deadlines`, `/expert-cases/deadlines/:prazoId`).
 - `apps/api/src/modules/pericia/pericia.service.ts` — cria "Entrega do laudo", apaga os prazos ao excluir a perícia, anexa `proximoPrazo` na listagem; `findResumosByIds` (número e partes) para os outros módulos.
 - `apps/api/src/modules/financeiro/lancamento.repository.ts` — parcelas e status do honorário no próprio update (pipeline), resumo e fluxo pelas parcelas.
 - `apps/api/src/modules/financeiro/lancamento.service.ts` — regras do honorário (sem excluir/cancelar, valor ≥ recebido) e `lancarHonorariosFixados` que atualiza o existente.
@@ -45,11 +45,11 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/pericias/details/@components/pericia-prazos.tsx` e `prazo-form.tsx` — painel de prazos do detalhe.
+- `apps/web/src/routes/_private/expert-cases/details/@components/pericia-prazos.tsx` e `prazo-form.tsx` — painel de prazos do detalhe.
 - `apps/web/src/components/prazo-dialog.tsx` e `prazo-labels.ts` — leitura/ações do prazo e selos, usados por perícias e agenda.
-- `apps/web/src/routes/_private/pericias/@utils/pericia-columns.tsx` — coluna "Próximo prazo".
+- `apps/web/src/routes/_private/expert-cases/@utils/pericia-columns.tsx` — coluna "Próximo prazo".
 - `apps/web/src/routes/_private/agenda/@components/{calendar-event,month-view,time-grid-view}.tsx` — prazos no calendário.
-- `apps/web/src/routes/_private/financeiro/lancamentos/@components/{recebimento-form,parcelas-list}.tsx` — registrar e estornar recebimentos.
+- `apps/web/src/routes/_private/finance/entries/@components/{recebimento-form,parcelas-list}.tsx` — registrar e estornar recebimentos.
 - `apps/web/src/routes/_private/account/@components/{account-aviso-prazo,account-calendar-feed}.tsx` — seções da conta.
 - `apps/web/src/components/pericia-recebimentos.tsx` — recebimentos da perícia nos diálogos da agenda; `canSeeFinance` em `apps/web/src/query/session.ts`.
 - `apps/web/src/query/prazo.ts` — dados de prazo.

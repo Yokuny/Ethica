@@ -19,10 +19,10 @@ branches: [feat/campo-vistorias]
 
 ## O que foi feito
 
-- **Rota do dia** (`/campo`, também na barra inferior do celular): compromissos do dia com processo, partes, local, atalhos para Google Maps e Waze e o resultado com um toque (feita, adiada, ausente).
-- **Registro da vistoria** (`/campo/vistoria`): presentes com qualidade, e-mail e assinatura na tela; paradigmas por parte; funções com a versão do reclamante e a da reclamada; agentes Sim/Não com EPI; documentos solicitados; observações internas; fotos com legenda (reduzidas e carimbadas com endereço, data e hora) e áudio.
+- **Rota do dia** (`/field`, também na barra inferior do celular): compromissos do dia com processo, partes, local, atalhos para Google Maps e Waze e o resultado com um toque (feita, adiada, ausente).
+- **Registro da vistoria** (`/field/inspection`): presentes com qualidade, e-mail e assinatura na tela; paradigmas por parte; funções com a versão do reclamante e a da reclamada; agentes Sim/Não com EPI; documentos solicitados; observações internas; fotos com legenda (reduzidas e carimbadas com endereço, data e hora) e áudio.
 - **Sem conexão**: o app abre e recarrega sem rede (PWA instalável), o que é feito fica no aparelho e sobe sozinho quando a conexão volta; se alguém salvou antes, o perito escolhe qual versão fica.
-- **Mapa do dia** (`/campo/mapa`): paradas no mapa do OpenStreetMap, ordem pela proximidade a partir da localização do aparelho, reordenação, conflito de horário, rota pelas ruas e aviso às partes.
+- **Mapa do dia** (`/field/map`): paradas no mapa do OpenStreetMap, ordem pela proximidade a partir da localização do aparelho, reordenação, conflito de horário, rota pelas ruas e aviso às partes.
 - **Aviso de agendamento** por e-mail às partes e advogados da perícia, pelo modelo do escritório (`/office`), registrado no compromisso; também no detalhe do compromisso da agenda.
 - **No laudo**: variáveis da última vistoria feita (presentes, paradigmas, funções por parte, agentes, documentos, hora) e "Inserir foto" com as fotos da perícia, que saem no PDF e no Word. O modelo padrão já usa essas variáveis em "Metodologia e vistoria" e "Atividades exercidas".
 - **Na perícia**: painel "Vistorias" com os registros e a galeria de fotos.
@@ -35,18 +35,18 @@ A vistoria era analógica e o que se colhia em campo era redigitado no laudo (`.
 
 ### `apps/api`
 
-- `apps/api/src/modules/agenda/vistoria.{router,controller,service,repository,schema}.ts` — `/vistorias` (dia, registro com versão e 409, mídias idempotentes pelo id do aparelho, galeria da perícia, última vistoria feita, foto do laudo). Dono do model `Vistoria`.
+- `apps/api/src/modules/agenda/vistoria.{router,controller,service,repository,schema}.ts` — `/inspections` (dia, registro com versão e 409, mídias idempotentes pelo id do aparelho, galeria da perícia, última vistoria feita, foto do laudo). Dono do model `Vistoria`.
 - `apps/api/src/modules/agenda/compromisso.*` — `motivo` do cancelamento, coordenadas em cache, `POST /agenda/:id/geocode`, `POST /agenda/:id/aviso`; excluir o compromisso leva o registro e as mídias (devolvendo a cota).
 - `apps/api/src/providers/geocoder.ts` (Nominatim, uma requisição por segundo; `GEOCODER_URL`, `GEOCODER_USER_AGENT`), injetado em `buildApp` com o `mail`.
-- `apps/api/src/modules/identity/office.*` — `reservarArquivo`/`devolverArquivo` (cota para outros módulos) e `/tenant/office/aviso-agendamento`.
+- `apps/api/src/modules/identity/office.*` — `reservarArquivo`/`devolverArquivo` (cota para outros módulos) e `/tenant/office/schedule-notice`.
 - `apps/api/src/modules/pericia/parte.service.ts` — `findByIds` (destinatários do aviso).
 - `apps/api/src/modules/documentos/` — `laudo.variaveis.ts` (variáveis de campo), `laudo.html.ts` (`img` só da vistoria), `laudo.templates.ts` (foto em data URL), `laudo.docx.ts` (`ImageRun`, `dimensoesDaImagem`), `laudo.biblioteca.ts`; o checklist usa as listas do contrato.
-- `apps/api/src/middlewares/fileBody.middleware.ts` aceita lista de tipos; `apps/api/src/app.ts` com `express.json` de 1 MB em `/vistorias`.
+- `apps/api/src/middlewares/fileBody.middleware.ts` aceita lista de tipos; `apps/api/src/app.ts` com `express.json` de 1 MB em `/inspections`.
 - `apps/api/scripts/seed-demo.ts` — duas vistorias hoje e o registro da vistoria feita da perícia em elaboração de laudo.
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/campo/` — rota do dia, `vistoria/` (abas, assinatura, mídias, conflito) e `mapa/` (Leaflet, `@utils/rota.ts`).
+- `apps/web/src/routes/_private/field/` — rota do dia, `vistoria/` (abas, assinatura, mídias, conflito) e `mapa/` (Leaflet, `@utils/rota.ts`).
 - `apps/web/src/lib/offline/` — `store.ts` (IndexedDB: rota, rascunhos, fila de mídias e status, sessão), `sync.ts` (envio e estado), `foto.ts` (redução e carimbo).
 - `apps/web/public/{sw.js,manifest.webmanifest,icons/}`, `apps/web/index.html` (viewport, theme-color, manifest), `apps/web/src/main.tsx` (registro do service worker só em produção), `apps/web/src/theme.css` (toque sem flash, inputs de 16 px em tela de toque).
 - `apps/web/src/query/vistoria.ts`; `apps/web/src/query/session.ts` usa a última sessão sem rede; sair apaga o que o aparelho guardou.
@@ -61,7 +61,7 @@ A vistoria era analógica e o que se colhia em campo era redigitado no laudo (`.
 ## Como testar
 
 ```
-pnpm vitest run apps/api/src/modules/agenda apps/api/src/modules/documentos packages/contracts apps/web/src/routes/_private/campo
+pnpm vitest run apps/api/src/modules/agenda apps/api/src/modules/documentos packages/contracts apps/web/src/routes/_private/field
 pnpm run check && (cd apps/web && pnpm run build)
 ```
 

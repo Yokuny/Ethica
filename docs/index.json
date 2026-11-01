@@ -23,7 +23,8 @@
         "AD-134",
         "AD-135",
         "AD-136",
-        "AD-137"
+        "AD-137",
+        "AD-138"
       ],
       "spec": [
         ".specs/features/gestao-escritorio"
@@ -549,7 +550,7 @@
       "id": "AD-113",
       "decisao": "Todo valor de domínio que o back-end grava e devolve é uma chave em inglês: status, tipos, categorias, naturezas, atuação, justiça, status d",
       "data": "2026-10-31",
-      "status": "active"
+      "status": "active (nomes de rotas superseded by AD-138)"
     },
     {
       "id": "AD-114",
@@ -692,6 +693,12 @@
     {
       "id": "AD-137",
       "decisao": "Aceita a AD-108 com a forma: matriz de permissões por membro (`User.permissoes` e `Invite.permissoes`: módulo → ações), com módulos `pericia",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-138",
+      "decisao": "Todo nome que vira URL ou valor gravado é inglês, traduzido no web: as pastas de rota do `apps/web` (`/expert-cases`, `/parties`, `/agenda`,",
       "data": "2026-11-01",
       "status": "active"
     }

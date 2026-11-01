@@ -43,6 +43,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-138** (2026-11-01, active) — Todo nome que vira URL ou valor gravado é inglês, traduzido no web: as pastas de rota do `apps/web` (`/expert-cases`, `/parties`, `/agenda`,
 - **AD-137** (2026-11-01, active) — Aceita a AD-108 com a forma: matriz de permissões por membro (`User.permissoes` e `Invite.permissoes`: módulo → ações), com módulos `pericia
 - **AD-136** (2026-11-01, active) — O início é configurável por usuário: a preferência `preferences.blocosOcultos` (lista de chaves de `HOME_BLOCOS` em `packages/contracts/src/
 - **AD-135** (2026-11-01, active) — Na perícia em que o escritório é assistente técnico (`papel: technical_assistant`), o contratante é uma das partes ou advogados já ligados à
@@ -52,7 +53,6 @@ _Nenhum._
 - **AD-131** (2026-10-31, active) — Mapa do dia (`/campo/mapa`) com Leaflet e tiles do OpenStreetMap (atribuição na tela). O endereço do compromisso é geocodificado pela API co
 - **AD-130** (2026-10-31, active) — O registro de vistoria é a collection `Vistoria` do módulo `agenda`, uma por compromisso (o `compromisso` continua sendo o evento da agenda)
 - **AD-129** (2026-10-31, active) — Mídias da vistoria ficam no storage S3 do tenant (AD-120) com chave `tenants/<tenantId>/vistorias/<compromissoId>/<midiaId>`, contadas na co
-- **AD-128** (2026-10-31, active) — A tela de campo (`/campo`) funciona sem conexão: o `apps/web` vira PWA instalável (manifest + service worker escrito à mão em `apps/web/publ
 
 ## `.specs/` sem registro em `docs/features/`
 

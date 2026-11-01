@@ -5,7 +5,7 @@ descricao: Matriz de permissões por membro, diário de bordo, fase e situação
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db, harness]
-decisoes: [AD-103, AD-113, AD-121, AD-126, AD-133, AD-134, AD-135, AD-136, AD-137]
+decisoes: [AD-103, AD-113, AD-121, AD-126, AD-133, AD-134, AD-135, AD-136, AD-137, AD-138]
 spec: [.specs/features/gestao-escritorio]
 branches: [feat/gestao-escritorio]
 ---
@@ -20,7 +20,7 @@ branches: [feat/gestao-escritorio]
 ## O que foi feito
 
 - **Matriz de permissões por membro**: cada membro tem módulo × ação (ver, inserir, editar, excluir). No convite o admin escolhe o perfil (Gestor ou Operador), a matriz vem com o preset dele e pode ser ajustada; em Usuários, "Permissões" ajusta depois. O admin tem tudo e é o único em usuários, escritório, diário e exportação. Menu, rotas, botões, blocos do início e valores financeiros seguem a matriz.
-- **Diário de bordo** (`/diario`, só admin): quem, quando, módulo, ação e registro (com link quando há detalhe) de toda escrita, exportação e entrada no sistema, com filtros de período, pessoa, módulo e ação; guarda de 1 ano. As últimas exportações do escritório vêm do diário.
+- **Diário de bordo** (`/activity-log`, só admin): quem, quando, módulo, ação e registro (com link quando há detalhe) de toda escrita, exportação e entrada no sistema, com filtros de período, pessoa, módulo e ação; guarda de 1 ano. As últimas exportações do escritório vêm do diário.
 - **Fase detalhada e situação da perícia**: além da etapa, uma fase opcional (ex.: "Respondendo impugnação") e a situação ativa, suspensa (desistência, destituição, acordo) ou encerrada, calculada no servidor; filtros por situação e fase na listagem. Concluir o laudo com a entrega põe a fase "aguardando manifestação das partes". Suspensa não conta como parada.
 - **Assistente técnico**: na perícia de assistente, uma das partes é marcada como contratante e o honorário vira "honorário contratado", lançado no financeiro como "Honorários contratados" com o contratante na listagem e no relatório financeiro.
 - **Início configurável**: "Personalizar" mostra ou esconde cada bloco permitido, por pessoa, com "Restaurar padrão"; bloco novo "Perícias paradas" com as mais antigas e o link para o relatório.
@@ -45,8 +45,8 @@ Onda 6 da gap analysis (`.specs/features/benchmark-jusperia/2026-10-31-jusperia-
 
 - `apps/web/src/query/session.ts` (`can`), `apps/web/src/routes/_private/route.tsx` (guarda central por módulo, `moduloDaRota` em `_private/@utils/home-access.ts`); `financeiro/route.tsx` removido.
 - `apps/web/src/routes/_private/_admin/users/` — `PermissoesMatrix`, diálogo de permissões e matriz no convite.
-- `apps/web/src/routes/_private/_admin/diario/` — tela do diário.
-- `apps/web/src/routes/_private/pericias/` — fase, situação, contratante e filtros; `apps/web/src/components/pericia-labels.ts`.
+- `apps/web/src/routes/_private/_admin/activity-log/` — tela do diário.
+- `apps/web/src/routes/_private/expert-cases/` — fase, situação, contratante e filtros; `apps/web/src/components/pericia-labels.ts`.
 - `apps/web/src/routes/_private/index.tsx` e `@components/home-personalizar.tsx`, `@components/pericias-paradas.tsx`, `@consts/home-blocos.ts`; `apps/web/src/query/preferences.ts` (antes em `account/@query`).
 
 ### `packages`
@@ -76,7 +76,8 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
-- 2026-11-01 — Implementado GES-01 a GES-06 (AD-133 a AD-137); validação em `.specs/features/gestao-escritorio/validation.md`. Divergências do design: a regra do contratante ficou só no service (refine no schema quebraria o `.pick()` da conversão de oportunidade); o bloco de paradas leva ao relatório em PDF em vez de um filtro da listagem; rótulos da matriz e do diário viraram mapas de chave literal (o teste do dicionário proíbe chave montada); `preferencesQuery` subiu para `apps/web/src/query/`; a coluna de honorários da listagem some sem `financeiro.view` (achado na UAT).
+- 2026-11-01 — Rotas do web e da API, pastas de rota e valores da matriz e do diário passam a inglês, traduzidos no web (AD-138).
+- 2026-11-01 — Implementado GES-01 a GES-06 (AD-133 a AD-137); validação em `.specs/features/gestao-escritorio/validation.md`. Divergências do design: a regra do contratante ficou só no service (refine no schema quebraria o `.pick()` da conversão de oportunidade); o bloco de paradas leva ao relatório em PDF em vez de um filtro da listagem; rótulos da matriz e do diário viraram mapas de chave literal (o teste do dicionário proíbe chave montada); `preferencesQuery` subiu para `apps/web/src/query/`; a coluna de honorários da listagem some sem `finance.view` (achado na UAT).
 - 2026-11-01 — Spec criada (`.specs/features/gestao-escritorio/spec.md`).
 
 ## Referências

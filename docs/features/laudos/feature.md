@@ -19,9 +19,9 @@ branches: [feat/laudos]
 
 ## O que foi feito
 
-- **Modelos de laudo** (`/laudos/modelos`): biblioteca padrão (laudo pericial trabalhista e parecer técnico), só leitura e duplicável; modelos do escritório com seções numeradas pelo nível, "apenas título", quebra de página e texto "sim" e "não" num editor rico com "Inserir variável". Só admin e gestor criam e editam.
-- **Iniciar laudo** (`/laudos/add` ou "Iniciar laudo" no detalhe da perícia): escolhe a perícia, o modelo do tipo certo e marca as seções com a variante de cada uma; o rascunho nasce com os dados do processo preenchidos.
-- **Redigir** (`/laudos/details`): uma seção por vez, com as variáveis sem valor destacadas e apontadas; remover seção renumera.
+- **Modelos de laudo** (`/expert-reports/templates`): biblioteca padrão (laudo pericial trabalhista e parecer técnico), só leitura e duplicável; modelos do escritório com seções numeradas pelo nível, "apenas título", quebra de página e texto "sim" e "não" num editor rico com "Inserir variável". Só admin e gestor criam e editam.
+- **Iniciar laudo** (`/expert-reports/add` ou "Iniciar laudo" no detalhe da perícia): escolhe a perícia, o modelo do tipo certo e marca as seções com a variante de cada uma; o rascunho nasce com os dados do processo preenchidos.
+- **Redigir** (`/expert-reports/details`): uma seção por vez, com as variáveis sem valor destacadas e apontadas; remover seção renumera.
 - **Exportar** PDF e Word com capa, sumário, seções, cabeçalho e rodapé do escritório; variável sem valor bloqueia exportar e concluir.
 - **Concluir**: o laudo fica só para leitura (também na API) e, com "Registrar a entrega", protocola o prazo "Entrega do laudo", lança a movimentação de entrega e avança a etapa da perícia.
 - **Parecer técnico** para a perícia em que o escritório é assistente técnico, com modelo próprio (medições com o perito, quesitos complementares e suplementares, impugnação); as partes saem como reclamante/reclamada ou autor/réu pela justiça.
@@ -35,7 +35,7 @@ O laudo era escrito fora do Ethica, redigitando número, partes e datas e repeti
 ### `apps/api`
 
 - `apps/api/src/modules/documentos/` passa a ser dono de `Laudo` e `ModeloLaudo` (tabela de ownership em `apps/api/CLAUDE.md`):
-  - `laudo.router.ts` (`/laudos/*`, montado em `apps/api/src/app.ts` com `express.json` de 1 MB só nesse prefixo), `laudo.controller.ts`, `laudo.schema.ts`.
+  - `laudo.router.ts` (`/expert-reports/*`, montado em `apps/api/src/app.ts` com `express.json` de 1 MB só nesse prefixo), `laudo.controller.ts`, `laudo.schema.ts`.
   - `modeloLaudo.service.ts` / `modeloLaudo.repository.ts` — modelos do escritório, padrão só leitura, clonar, seções e reordenação.
   - `laudo.service.ts` / `laudo.repository.ts` — criar, abrir (resolve de novo), editar e remover seção, concluir (o bloqueio de rascunho é o filtro `status: 'draft'` no repository), exportar.
   - `laudo.biblioteca.ts` — os dois modelos padrão; `laudo.html.ts` — saneamento, resolução e pendências; `laudo.variaveis.ts` — valor de cada variável; `laudo.templates.ts` — HTML do PDF; `laudo.docx.ts` — Word com `docx` + `htmlparser2`.
@@ -46,10 +46,10 @@ O laudo era escrito fora do Ethica, redigitando número, partes e datas e repeti
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/laudos/` — hub, `list/`, `add/` (seletor de perícia e árvore de seções), `details/` (navegação de seções, editor da seção, diálogo de conclusão) e `modelos/` (lista, criar/duplicar, `details/` com o formulário de seção).
+- `apps/web/src/routes/_private/expert-reports/` — hub, `list/`, `add/` (seletor de perícia e árvore de seções), `details/` (navegação de seções, editor da seção, diálogo de conclusão) e `modelos/` (lista, criar/duplicar, `details/` com o formulário de seção).
 - `apps/web/src/components/rich-text-editor.tsx` — Tiptap com a barra, "Inserir variável" e o destaque dos marcadores; `laudo-labels.ts` — rótulos das variáveis e do status.
 - `apps/web/src/query/laudo.ts`; `canManageReportTemplates` em `apps/web/src/query/session.ts`.
-- `apps/web/src/routes/_private/pericias/details/@components/pericia-laudos.tsx` — painel de laudos no detalhe da perícia; "Laudos" no grupo "Trabalho" da navegação.
+- `apps/web/src/routes/_private/expert-cases/details/@components/pericia-laudos.tsx` — painel de laudos no detalhe da perícia; "Laudos" no grupo "Trabalho" da navegação.
 
 ### `packages`
 
@@ -78,6 +78,6 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 - 2026-11-01 — Concluir com a entrega também põe a fase "aguardando manifestação das partes"; modelos seguem a permissão `modelos` da matriz (`docs/features/gestao-escritorio/feature.md`, AD-133, AD-137).
 - 2026-10-31 — Fotos da vistoria no laudo (`img` restrito às mídias do tenant, no PDF e no Word) e variáveis de campo da última vistoria feita, usadas no modelo padrão em "Metodologia e vistoria" e "Atividades exercidas" (`docs/features/campo-vistorias/feature.md`, AD-129, AD-130).
-- 2026-10-31 — Implementado LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (AD-123 a AD-127); validação em `.specs/features/laudos/validation.md`. Divergências do design: o rascunho passou a ser resolvido de novo a cada abertura (achado na UAT: a tela mostrava pendência que a exportação já resolvia); o limite de 1 MB do JSON ficou no prefixo `/laudos` em `app.ts`, porque o parser global corre antes da rota; `[DATA_VISTORIA]` lê `compromissoService.listDaPericia` em vez de uma função nova; o status do laudo tem rótulo próprio ("Concluído") em vez da chave `completed` da perícia.
+- 2026-10-31 — Implementado LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (AD-123 a AD-127); validação em `.specs/features/laudos/validation.md`. Divergências do design: o rascunho passou a ser resolvido de novo a cada abertura (achado na UAT: a tela mostrava pendência que a exportação já resolvia); o limite de 1 MB do JSON ficou no prefixo `/expert-reports` em `app.ts`, porque o parser global corre antes da rota; `[DATA_VISTORIA]` lê `compromissoService.listDaPericia` em vez de uma função nova; o status do laudo tem rótulo próprio ("Concluído") em vez da chave `completed` da perícia.
 - 2026-10-31 — Pendência atualizada: a base de documentos (`documentos-pdf`, AD-119 a AD-122) está pronta para o laudo reaproveitar.
 - 2026-10-31 — Spec criada (`.specs/features/laudos/spec.md`).
