@@ -2,10 +2,10 @@ import crypto from 'node:crypto';
 import { type ApiMessageKey, badRespObj, isApiMessageKey } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 
-// Base de todo erro que chega ao cliente: `message` é SEMPRE uma chave de
-// tradução do contrato (`@ethica/contracts`, response/messages.ts), nunca texto
-// pronto — quem traduz é o front-end. O texto técnico (campo inválido, id,
-// nome do operador) vai em `detail`, que só aparece no log estruturado.
+// Base of every error that reaches the client: `message` is ALWAYS a translation
+// key of the contract (`@ethica/contracts`, response/messages.ts), never ready-made
+// text — the front-end translates. The technical text (invalid field, id,
+// operator name) goes in `detail`, which only shows up in the structured log.
 export class KeyedError extends Error {
   declare message: ApiMessageKey;
   readonly detail?: string;
@@ -16,9 +16,9 @@ export class KeyedError extends Error {
   }
 }
 
-// Erro tipado com status HTTP — usado por toda a cadeia de middlewares
-// (validação, autenticação, autorização, rate limit) para sinalizar o código
-// de resposta correto sem acoplar cada um deles a este arquivo.
+// Typed error with an HTTP status — used by the whole middleware chain
+// (validation, authentication, authorization, rate limit) to signal the right
+// response code without coupling each of them to this file.
 export class CustomError extends KeyedError {
   status: number;
 
@@ -31,14 +31,14 @@ export class CustomError extends KeyedError {
 const hasStatus = (err: unknown): err is { status: number } =>
   typeof err === 'object' && err !== null && 'status' in err && typeof (err as { status: unknown }).status === 'number';
 
-// Handler de erro global do Express: nunca expõe stack nem texto cru no corpo
-// da resposta — só no log estruturado, com requestId para correlação. O corpo
-// sempre carrega uma chave do contrato: a do próprio erro quando ele já é uma
-// (CustomError/KeyedError), `invalid_data` para um 4xx de terceiros sem chave
-// (ex.: JSON malformado do express.json) e `internal_error` para qualquer 5xx.
+// Global Express error handler: never exposes the stack or raw text in the response
+// body — only in the structured log, with a requestId for correlation. The body
+// always carries a contract key: the error's own key when it already is one
+// (CustomError/KeyedError), `invalid_data` for a third-party 4xx without a key
+// (e.g. malformed JSON from express.json) and `internal_error` for any 5xx.
 const resolveMessageKey = (err: unknown, status: number): ApiMessageKey => {
-  // 503 com chave do contrato (ex.: `search_unavailable`, Atlas Search ausente)
-  // é uma indisponibilidade que o cliente deve ver como tal, não um bug.
+  // 503 with a contract key (e.g. `search_unavailable`, Atlas Search missing)
+  // is an unavailability the client should see as such, not a bug.
   if (status === 503 && err instanceof KeyedError) return err.message;
   if (status >= 500) return 'internal_error';
   if (err instanceof Error && isApiMessageKey(err.message)) return err.message;

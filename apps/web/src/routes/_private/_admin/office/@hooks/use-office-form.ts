@@ -11,14 +11,14 @@ export function useOfficeForm(office: OfficeView) {
   const mutation = useMutation(updateOfficeMutation(queryClient));
   const form = useForm<UpdateOffice>({
     resolver: zodResolver(updateOfficeSchema),
-    defaultValues: { cabecalho: office.cabecalho, rodape: office.rodape },
+    defaultValues: { header: office.header, footer: office.footer },
   });
 
   function onSubmit(data: UpdateOffice) {
     if (mutation.isPending) return;
     mutation.mutate(data, {
       onSuccess: (saved) => {
-        form.reset({ cabecalho: saved.cabecalho, rodape: saved.rodape });
+        form.reset({ header: saved.header, footer: saved.footer });
         toast.success(t('changes_saved'));
       },
       onError: (error) => toast.error(error.message),

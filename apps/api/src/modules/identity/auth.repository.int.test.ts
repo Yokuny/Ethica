@@ -4,8 +4,8 @@ import { connect, disconnect, User } from '@ethica/db';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import * as authRepository from './auth.repository.js';
 
-// Sem `mongoose` aqui (AD-010/boundary estrutural: só packages/db importa
-// mongoose) — mesmo padrão de customer.repository.int.test.ts.
+// No `mongoose` here (AD-010/structural boundary: only packages/db imports
+// mongoose) — same pattern as customer.repository.int.test.ts.
 const randomId = (): string => crypto.randomBytes(12).toString('hex');
 
 const baseUser = (tenant: string, overrides: Partial<Record<string, unknown>> = {}) => ({
@@ -17,9 +17,9 @@ const baseUser = (tenant: string, overrides: Partial<Record<string, unknown>> = 
   ...overrides,
 });
 
-// MOD-07 (T13): leitura em lote consumida por order.service.getOrder
-// (approvedByName/rejectedByName) — uma única consulta `$in`, referência
-// ausente vira item ausente (nunca `null`).
+// MOD-07 (T13): batch read consumed by order.service.getOrder
+// (approvedByName/rejectedByName) — a single `$in` query, reference
+// missing becomes a missing item (never `null`).
 describe('auth.repository.findUserNamesByIds', () => {
   beforeAll(async () => {
     await connect(process.env.MONGODB_URI as string);
@@ -76,9 +76,9 @@ describe('auth.repository.findUserNamesByIds', () => {
   });
 });
 
-// Diretório completo do tenant, usado pelo filtro de "responsável" da fila
-// de conversas (inbox) — diferente de findUserNamesByIds, não recebe ids:
-// devolve TODA User do tenant, pra popular um <Select> do zero.
+// Full tenant directory, used by the "assignee" filter of the conversation
+// queue (inbox) — unlike findUserNamesByIds, it takes no ids:
+// returns EVERY User of the tenant, to populate a <Select> from scratch.
 describe('auth.repository.listUsers', () => {
   beforeAll(async () => {
     await connect(process.env.MONGODB_URI as string);
@@ -118,7 +118,7 @@ describe('auth.repository.listUsers', () => {
 });
 
 // MOD-04/MOD-05 (T21): card.service.assertReferencesExist confirma a
-// existência de um User (assignee) só por aqui, nunca com `User.exists`
+// a User's existence (assignee) only through here, never with `User.exists`
 // direto.
 describe('auth.repository.userExists', () => {
   beforeAll(async () => {

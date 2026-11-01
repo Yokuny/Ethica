@@ -1,4 +1,4 @@
-import { LAUDO_VARIAVEIS } from '@ethica/contracts';
+import { REPORT_VARIABLES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import Image from '@tiptap/extension-image';
@@ -11,36 +11,36 @@ import { cn } from 'cn';
 import { Bold, Heading3, Italic, List, ListOrdered, type LucideIcon, Table, Underline } from 'lucide-react';
 import { apiUrl } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { variavelItems } from './laudo-labels.js';
+import { variableItems } from './report-labels.js';
 
-// Editor do laudo e dos modelos (AD-123): só o que a allowlist da API aceita — parágrafo,
-// título (níveis 3 e 4), negrito, itálico, sublinhado, listas e tabela simples. A API saneia
-// o HTML de novo ao gravar.
+// Report and template editor (AD-123): only what the API allowlist accepts — paragraph,
+// heading (levels 3 and 4), bold, italic, underline, lists and a simple table. The API sanitizes
+// the HTML again when saving.
 
-const VARIAVEIS: readonly string[] = LAUDO_VARIAVEIS;
+const VARIABLES: readonly string[] = REPORT_VARIABLES;
 
-// Marcador de variável ainda no texto fica destacado: é pendência que bloqueia concluir (AD-126).
-const VariaveisDestacadas = Extension.create({
-  name: 'variaveisDestacadas',
+// A variable marker still in the text is highlighted: it is an issue that blocks completion (AD-126).
+const HighlightedVariables = Extension.create({
+  name: 'highlightedVariables',
   addProseMirrorPlugins() {
     return [
       new Plugin({
         props: {
           decorations: (state) => {
-            const marcas: Decoration[] = [];
+            const marks: Decoration[] = [];
             state.doc.descendants((node, pos) => {
               if (!node.isText || !node.text) return;
               for (const match of node.text.matchAll(/\[[A-Z_]+\]/g)) {
-                if (!VARIAVEIS.includes(match[0])) continue;
+                if (!VARIABLES.includes(match[0])) continue;
                 const from = pos + (match.index ?? 0);
-                marcas.push(
+                marks.push(
                   Decoration.inline(from, from + match[0].length, {
                     class: 'rounded-sm bg-status-warning px-0.5 text-status-warning-foreground',
                   }),
                 );
               }
             });
-            return DecorationSet.create(state.doc, marcas);
+            return DecorationSet.create(state.doc, marks);
           },
         },
       }),
@@ -48,16 +48,16 @@ const VariaveisDestacadas = Extension.create({
   },
 });
 
-// Foto da vistoria no laudo (AD-129): o HTML gravado tem o caminho da mídia; no editor ela
-// carrega da API. A API tira a origem ao salvar.
-const FotoDaVistoria = Image.extend({
+// Inspection photo in the report (AD-129): the saved HTML has the media path; in the editor it
+// loads from the API. The API strips the origin when saving.
+const InspectionPhoto = Image.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
       src: {
         default: null,
-        parseHTML: (elemento: HTMLElement) => {
-          const src = elemento.getAttribute('src') ?? '';
+        parseHTML: (element: HTMLElement) => {
+          const src = element.getAttribute('src') ?? '';
           return src.startsWith('/') ? apiUrl(src) : src;
         },
       },
@@ -65,9 +65,9 @@ const FotoDaVistoria = Image.extend({
   },
 });
 
-export type FotoDoEditor = { src: string; legenda?: string };
+export type PhotoEditor = { src: string; caption?: string };
 
-const EXTENSOES = [
+const EXTENSIONS = [
   StarterKit.configure({
     heading: { levels: [3, 4] },
     blockquote: false,
@@ -78,94 +78,94 @@ const EXTENSOES = [
     link: false,
   }),
   TableKit.configure({ table: { resizable: false } }),
-  FotoDaVistoria.configure({ inline: false, allowBase64: false }),
-  VariaveisDestacadas,
+  InspectionPhoto.configure({ inline: false, allowBase64: false }),
+  HighlightedVariables,
 ];
 
-type Ferramenta = {
+type Tool = {
   icon: LucideIcon;
   label: string;
-  ativo: (editor: Editor) => boolean;
+  active: (editor: Editor) => boolean;
   run: (editor: Editor) => void;
 };
 
-const FERRAMENTAS: Ferramenta[] = [
-  { icon: Bold, label: 'bold', ativo: (e) => e.isActive('bold'), run: (e) => e.chain().focus().toggleBold().run() },
+const TOOLS: Tool[] = [
+  { icon: Bold, label: 'bold', active: (e) => e.isActive('bold'), run: (e) => e.chain().focus().toggleBold().run() },
   {
     icon: Italic,
     label: 'italic',
-    ativo: (e) => e.isActive('italic'),
+    active: (e) => e.isActive('italic'),
     run: (e) => e.chain().focus().toggleItalic().run(),
   },
   {
     icon: Underline,
     label: 'underline',
-    ativo: (e) => e.isActive('underline'),
+    active: (e) => e.isActive('underline'),
     run: (e) => e.chain().focus().toggleUnderline().run(),
   },
   {
     icon: Heading3,
     label: 'subtitle',
-    ativo: (e) => e.isActive('heading', { level: 3 }),
+    active: (e) => e.isActive('heading', { level: 3 }),
     run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run(),
   },
   {
     icon: List,
     label: 'bulleted_list',
-    ativo: (e) => e.isActive('bulletList'),
+    active: (e) => e.isActive('bulletList'),
     run: (e) => e.chain().focus().toggleBulletList().run(),
   },
   {
     icon: ListOrdered,
     label: 'numbered_list',
-    ativo: (e) => e.isActive('orderedList'),
+    active: (e) => e.isActive('orderedList'),
     run: (e) => e.chain().focus().toggleOrderedList().run(),
   },
   {
     icon: Table,
     label: 'insert_table',
-    ativo: (e) => e.isActive('table'),
+    active: (e) => e.isActive('table'),
     run: (e) => e.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
   },
 ];
 
-function Barra({ editor, fotos }: { editor: Editor; fotos?: FotoDoEditor[] }) {
-  const ativos = useEditorState({ editor, selector: ({ editor: e }) => FERRAMENTAS.map((f) => f.ativo(e)) });
+function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
+  const active = useEditorState({ editor, selector: ({ editor: e }) => TOOLS.map((f) => f.active(e)) });
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-input p-1">
-      {FERRAMENTAS.map((ferramenta, i) => (
+      {TOOLS.map((tool, i) => (
         <Button
-          key={ferramenta.label}
+          key={tool.label}
           type="button"
           size="icon-sm"
-          variant={ativos[i] ? 'secondary' : 'ghost'}
-          aria-label={t(ferramenta.label)}
-          aria-pressed={ativos[i]}
-          onClick={() => ferramenta.run(editor)}
+          variant={active[i] ? 'secondary' : 'ghost'}
+          aria-label={t(tool.label)}
+          aria-pressed={active[i]}
+          onClick={() => tool.run(editor)}
         >
-          <ferramenta.icon />
+          <tool.icon />
         </Button>
       ))}
-      {fotos && fotos.length > 0 && (
+      {photos && photos.length > 0 && (
         <Select
-          items={fotos.map((foto, indice) => ({
-            value: foto.src,
-            label: foto.legenda || `${t('photo')} ${indice + 1}`,
+          items={photos.map((photo, index) => ({
+            value: photo.src,
+            label: photo.caption || `${t('photo')} ${index + 1}`,
           }))}
           value={null}
           onValueChange={(src) => {
-            const foto = fotos.find((item) => item.src === src);
-            if (!foto) return;
+            const photo = photos.find((item) => item.src === src);
+            if (!photo) return;
             editor
               .chain()
               .focus()
               .insertContent([
-                { type: 'image', attrs: { src: apiUrl(foto.src), alt: foto.legenda ?? '' } },
-                ...(foto.legenda
+                { type: 'image', attrs: { src: apiUrl(photo.src), alt: photo.caption ?? '' } },
+                ...(photo.caption
                   ? [
                       {
                         type: 'paragraph',
-                        content: [{ type: 'text', marks: [{ type: 'italic' }], text: foto.legenda }],
+                        content: [{ type: 'text', marks: [{ type: 'italic' }], text: photo.caption }],
                       },
                     ]
                   : []),
@@ -177,24 +177,24 @@ function Barra({ editor, fotos }: { editor: Editor; fotos?: FotoDoEditor[] }) {
             <SelectValue placeholder={t('insert_photo')} />
           </SelectTrigger>
           <SelectContent>
-            {fotos.map((foto, indice) => (
-              <SelectItem key={foto.src} value={foto.src}>
-                {foto.legenda || `${t('photo')} ${indice + 1}`}
+            {photos.map((photo, index) => (
+              <SelectItem key={photo.src} value={photo.src}>
+                {photo.caption || `${t('photo')} ${index + 1}`}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       )}
       <Select
-        items={variavelItems}
+        items={variableItems}
         value={null}
         onValueChange={(value) => value && editor.chain().focus().insertContent(value).run()}
       >
-        <SelectTrigger size="sm" className={fotos?.length ? undefined : 'ml-auto'} aria-label={t('insert_variable')}>
+        <SelectTrigger size="sm" className={photos?.length ? undefined : 'ml-auto'} aria-label={t('insert_variable')}>
           <SelectValue placeholder={t('insert_variable')} />
         </SelectTrigger>
         <SelectContent>
-          {variavelItems.map((item) => (
+          {variableItems.map((item) => (
             <SelectItem key={item.value} value={item.value}>
               {item.label}
             </SelectItem>
@@ -211,14 +211,14 @@ type RichTextEditorProps = {
   readOnly?: boolean;
   label?: string;
   className?: string;
-  // Fotos das vistorias da perícia para inserir no texto (só no laudo).
-  fotos?: FotoDoEditor[];
+  // Photos of the case inspections to insert in the text (report only).
+  photos?: PhotoEditor[];
 };
 
-// Não controlado depois de montar: quem troca de seção remonta pela `key`.
-export function RichTextEditor({ value, onChange, readOnly = false, label, className, fotos }: RichTextEditorProps) {
+// Uncontrolled after mounting: whoever switches sections remounts through `key`.
+export function RichTextEditor({ value, onChange, readOnly = false, label, className, photos }: RichTextEditorProps) {
   const editor = useEditor({
-    extensions: EXTENSOES,
+    extensions: EXTENSIONS,
     content: value,
     editable: !readOnly,
     immediatelyRender: true,
@@ -228,7 +228,7 @@ export function RichTextEditor({ value, onChange, readOnly = false, label, class
         class: 'min-h-48 px-3 py-2 text-sm leading-relaxed outline-none',
       },
     },
-    onUpdate: ({ editor: atual }) => onChange?.(atual.isEmpty ? '' : atual.getHTML()),
+    onUpdate: ({ editor: current }) => onChange?.(current.isEmpty ? '' : current.getHTML()),
   });
 
   return (
@@ -241,7 +241,7 @@ export function RichTextEditor({ value, onChange, readOnly = false, label, class
         className,
       )}
     >
-      {editor && !readOnly && <Barra editor={editor} fotos={fotos} />}
+      {editor && !readOnly && <Barra editor={editor} photos={photos} />}
       <EditorContent editor={editor} />
     </div>
   );

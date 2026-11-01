@@ -9,22 +9,22 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { modelosQuery } from '@/query/laudo.js';
+import { templatesQuery } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { ModeloCreateForm } from './@components/modelo-create-form.js';
+import { TemplateCreateForm } from './@components/template-create-form.js';
 
-// LAU-01: biblioteca padrão (só leitura) e modelos do escritório.
-export function ModelosPage() {
+// LAU-01: default library (read-only) and office templates.
+export function TemplatesPage() {
   const navigate = useNavigate({ from: '/expert-reports/templates/' });
   const { data: session } = useSuspenseQuery(sessionQuery);
-  const query = useQuery(modelosQuery());
+  const query = useQuery(templatesQuery());
   const [creating, setCreating] = useState(false);
-  const podeEditar = can(session, 'report_templates', 'create');
+  const canEdit = can(session, 'report_templates', 'create');
 
   return (
     <Card asPage>
       <CardHeader title={t('report_templates')} description={t('report_templates_description')}>
-        {podeEditar && (
+        {canEdit && (
           <CardAction>
             <Button onClick={() => setCreating(true)}>{t('new_template')}</Button>
           </CardAction>
@@ -40,23 +40,23 @@ export function ModelosPage() {
           />
         ) : (
           <LinkList>
-            {(query.data ?? []).map((modelo) => (
+            {(query.data ?? []).map((template) => (
               <LinkListItem
-                key={modelo.id}
+                key={template.id}
                 icon={ListTree}
-                render={<Link to="/expert-reports/templates/details" search={{ id: modelo.id }} />}
-                title={modelo.nome}
-                badges={modelo.padrao && <Badge variant="info">{t('standard')}</Badge>}
-                description={[t(modelo.tipo), `${modelo.totalSecoes} ${t('sections').toLowerCase()}`].join(' · ')}
+                render={<Link to="/expert-reports/templates/details" search={{ id: template.id }} />}
+                title={template.name}
+                badges={template.isDefault && <Badge variant="info">{t('standard')}</Badge>}
+                description={[t(template.type), `${template.totalSections} ${t('sections').toLowerCase()}`].join(' · ')}
               />
             ))}
           </LinkList>
         )}
       </CardContent>
       {creating && (
-        <ModeloCreateForm
+        <TemplateCreateForm
           onClose={() => setCreating(false)}
-          onDone={(modelo) => navigate({ to: '/expert-reports/templates/details', search: { id: modelo.id } })}
+          onDone={(template) => navigate({ to: '/expert-reports/templates/details', search: { id: template.id } })}
         />
       )}
     </Card>
@@ -64,6 +64,6 @@ export function ModelosPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-reports/templates/')({
-  component: ModelosPage,
+  component: TemplatesPage,
   staticData: { title: t('report_templates') },
 });

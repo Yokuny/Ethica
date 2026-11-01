@@ -7,20 +7,20 @@ import {
   weekdayIndexOfDisplayDate,
 } from '@/lib/helpers/displayTime.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
-import type { CompromissoRecord } from '@/query/compromisso.js';
-import type { PrazoRecord } from '@/query/prazo.js';
+import type { AppointmentRecord } from '@/query/appointment.js';
+import type { DeadlineRecord } from '@/query/deadline.js';
 import { itemOverlapsDay } from '../@utils/calendar-grid.utils.js';
-import { CalendarEventChip, CalendarPrazoChip } from './calendar-event.js';
+import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
 import { CalendarMonthCell, CalendarMonthGrid } from './calendar-grid.js';
 
 export type MonthViewProps = {
-  // Qualquer data de parede dentro do mês exibido (YYYY-MM-DD).
+  // Any wall-clock date inside the displayed month (YYYY-MM-DD).
   month: string;
-  items: CompromissoRecord[];
-  onSelect: (item: CompromissoRecord) => void;
-  // Prazos pendentes: entram primeiro no dia do vencimento, sem contar no limite de compromissos.
-  prazos?: PrazoRecord[];
-  onSelectPrazo?: (prazo: PrazoRecord) => void;
+  items: AppointmentRecord[];
+  onSelect: (item: AppointmentRecord) => void;
+  // Pending deadlines: they come first on the due day, without counting against the appointments limit.
+  deadlines?: DeadlineRecord[];
+  onSelectDeadline?: (deadline: DeadlineRecord) => void;
   today?: string;
 };
 
@@ -28,14 +28,14 @@ const WEEKS_IN_GRID = 6;
 const DAYS_IN_WEEK = 7;
 const MAX_VISIBLE_PER_DAY = 3;
 
-// Grade 6x7 (semana começando segunda, mesma convenção do projeto) — dias
-// fora do mês (preenchendo a primeira/última semana) ficam esmaecidos.
+// 6x7 grid (week starting Monday, same project convention) — days
+// outside the month (filling the first/last week) are faded.
 export function MonthView({
   month,
   items,
   onSelect,
-  prazos = [],
-  onSelectPrazo = () => {},
+  deadlines = [],
+  onSelectDeadline = () => {},
   today = '',
 }: MonthViewProps) {
   const monthPrefix = startOfDisplayMonth(month).slice(0, 7);
@@ -43,13 +43,13 @@ export function MonthView({
   const days = Array.from({ length: WEEKS_IN_GRID * DAYS_IN_WEEK }, (_, index) =>
     addDaysToDisplayDate(gridStart, index),
   );
-  // Rótulos tirados da própria primeira linha da grade: WEEKDAY_KEYS começa
-  // no domingo, a grade começa na segunda.
+  // Labels taken from the grid's own first row: WEEKDAY_KEYS starts
+  // on Sunday, the grid starts on Monday.
   const weekdayKeys = days.slice(0, DAYS_IN_WEEK).map((day) => WEEKDAY_KEYS[weekdayIndexOfDisplayDate(day)]);
 
-  // Cabeçalho e células no MESMO CalendarMonthGrid: as linhas tracejadas
-  // (moldura, entre colunas, sob o cabeçalho, entre semanas) vêm todas do
-  // primitivo, sem nenhuma borda aqui.
+  // Header and cells in the SAME CalendarMonthGrid: the dashed lines
+  // (frame, between columns, under the header, between weeks) all come from the
+  // primitive, with no border here.
   return (
     <CalendarMonthGrid data-testid="month-view">
       {weekdayKeys.map((key) => (
@@ -60,17 +60,17 @@ export function MonthView({
       {days.map((day) => {
         const dayItems = items
           .filter((item) => itemOverlapsDay(item, day))
-          .sort((a, b) => a.inicio.localeCompare(b.inicio));
+          .sort((a, b) => a.start.localeCompare(b.start));
         const visible = dayItems.slice(0, MAX_VISIBLE_PER_DAY);
         const overflow = dayItems.slice(MAX_VISIBLE_PER_DAY);
 
         return (
           <CalendarMonthCell key={day} data-testid={`month-view-day-${day}`} outside={!day.startsWith(monthPrefix)}>
             <div className="text-right text-[10px]">{day.slice(-2)}</div>
-            {prazos
-              .filter((prazo) => prazo.vencimento === day)
-              .map((prazo) => (
-                <CalendarPrazoChip key={prazo.id} prazo={prazo} today={today} onSelect={onSelectPrazo} />
+            {deadlines
+              .filter((deadline) => deadline.dueDate === day)
+              .map((deadline) => (
+                <CalendarDeadlineChip key={deadline.id} deadline={deadline} today={today} onSelect={onSelectDeadline} />
               ))}
             {visible.map((item) => (
               <CalendarEventChip key={item.id} item={item} onSelect={onSelect} variant="compact" />

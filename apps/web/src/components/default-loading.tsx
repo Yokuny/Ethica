@@ -1,10 +1,10 @@
 import { Skeleton } from '@ethica/ui/components/skeleton';
 import { Spinner } from '@ethica/ui/components/spinner';
 
-// Porte de ../DentalEase/DentalEase/src/components/default-loading.tsx —
-// export nomeado (`export function`), não default, para manter os call
-// sites existentes (`import { DefaultLoading } from '...'`) compilando sem
-// alteração (Tasks T12: "mesma assinatura de chamada").
+// Port of ../DentalEase/DentalEase/src/components/default-loading.tsx —
+// named export (`export function`), not default, to keep the existing call
+// sites (`import { DefaultLoading } from '...'`) compiling without
+// change (Tasks T12: "same call signature").
 export function DefaultLoading() {
   return (
     <Skeleton className="flex h-48 w-full items-center justify-center">

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-// Panorama de uma listagem: total do tenant e contagem por grupo (status,
-// ciclo de vida, recorte de prazo). Alimenta a faixa de indicadores das telas
-// de lista; `key` é a chave do grupo, o rótulo é traduzido pela web.
+// Listing overview: tenant total and count per group (status,
+// lifecycle, deadline slice). Feeds the indicator strip of the list
+// screens; `key` is the group key, the label is translated by the web.
 const trendSchema = z.object({
   series: z.array(z.number().int().min(0)),
   direction: z.enum(['up', 'down', 'stable']),

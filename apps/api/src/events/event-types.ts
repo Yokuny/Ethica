@@ -1,23 +1,23 @@
-// AD-039: eventos de domínio in-process. Só efeitos colaterais cujo resultado a
-// resposta HTTP não usa viram evento — fire-and-forget.
-export interface PericiaHonorariosFixadosPayload {
+// AD-039: in-process domain events. Only side effects whose result the
+// HTTP response does not use become events — fire-and-forget.
+export interface CaseFixedFeesPayload {
   tenantId: string;
-  periciaId: string;
-  numeroProcesso: string;
-  valorCents: number;
-  // Fixado pelo juízo ou contratado pela parte que contratou o assistente técnico (AD-135).
-  categoria: 'fixed_fees' | 'contracted_fees';
+  caseId: string;
+  processNumber: string;
+  amountCents: number;
+  // Fixed by the court or contracted by the party that hired the technical assistant (AD-135).
+  category: 'fixed_fees' | 'contracted_fees';
 }
 
-// Perícia excluída: quem guarda dado ligado a ela (laudos, AD-126) apaga o seu.
-export interface PericiaDeletedPayload {
+// Case deleted: whoever keeps data linked to it (reports, AD-126) deletes its own.
+export interface CaseDeletedPayload {
   tenantId: string;
-  periciaId: string;
+  caseId: string;
 }
 
 export type DomainEventMap = {
-  'pericia:honorarios_fixados': PericiaHonorariosFixadosPayload;
-  'pericia:deleted': PericiaDeletedPayload;
+  'case:fixed_fees': CaseFixedFeesPayload;
+  'case:deleted': CaseDeletedPayload;
 };
 
 export type DomainEventName = keyof DomainEventMap;

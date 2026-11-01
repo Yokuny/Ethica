@@ -1,11 +1,11 @@
 const SIZE = 256;
-// Mesmo teto do updateAvatarSchema (@ethica/contracts).
+// Same ceiling as updateAvatarSchema (@ethica/contracts).
 const MAX_LENGTH = 100_000;
 const QUALITIES = [0.85, 0.7, 0.5];
 
-// ACC-02: recorta o centro da imagem em quadrado e reduz para 256×256. WebP
-// quando o navegador codifica WebP; senão (Safari antigo devolve PNG) JPEG.
-// Baixa a qualidade até caber no limite; `null` se nem assim couber.
+// ACC-02: crops the center of the image into a square and shrinks it to 256×256. WebP
+// when the browser encodes WebP; otherwise (old Safari returns PNG) JPEG.
+// Lowers the quality until it fits the limit; `null` if it still does not fit.
 export async function resizeAvatar(file: File): Promise<string | null> {
   const bitmap = await createImageBitmap(file);
   const side = Math.min(bitmap.width, bitmap.height);

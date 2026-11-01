@@ -5,10 +5,10 @@ import type { TenantLogo, UpdateOffice } from './office.schema.js';
 
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
-    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes avisoAgendamento').lean(),
+    Tenant.findById(tenantId).select('name header footer logo storageBytes scheduleNotice').lean(),
   );
 
-// Texto vazio apaga o cabeçalho/rodapé: os documentos voltam ao padrão.
+// Empty text clears the header/footer: the documents go back to the default.
 export const updateTexts = async (tenantId: string, data: UpdateOffice): Promise<void> =>
   withDbTiming('office.updateTexts', async () => {
     const entries = Object.entries(data);
@@ -20,8 +20,8 @@ export const updateTexts = async (tenantId: string, data: UpdateOffice): Promise
     );
   });
 
-// Troca o logo reservando a diferença de tamanho na cota (AD-120). A condição sobre o logo
-// atual impede que duas trocas simultâneas contem errado. `false`: a cota não comporta.
+// Swaps the logo reserving the size difference in the quota (AD-120). The condition on the current
+// logo prevents two simultaneous swaps from counting wrong. `false`: the quota does not fit it.
 export const replaceLogo = async (tenantId: string, logo: TenantLogo, current?: TenantLogo): Promise<boolean> =>
   withDbTiming('office.replaceLogo', async () => {
     const delta = logo.bytes - (current?.bytes ?? 0);
@@ -44,10 +44,10 @@ export const removeLogo = async (tenantId: string, current: TenantLogo): Promise
     );
   });
 
-// Arquivo novo de outro módulo (mídia da vistoria, AD-129) reserva o espaço na cota no mesmo
-// update que confere o limite. `false`: a cota não comporta.
-export const reservarBytes = async (tenantId: string, bytes: number): Promise<boolean> =>
-  withDbTiming('office.reservarBytes', async () => {
+// A new file from another module (inspection media, AD-129) reserves the quota space in the same
+// update that checks the limit. `false`: the quota does not fit it.
+export const reserveBytes = async (tenantId: string, bytes: number): Promise<boolean> =>
+  withDbTiming('office.reserveBytes', async () => {
     const result = await Tenant.updateOne(
       { _id: tenantId, storageBytes: { $lte: TENANT_STORAGE_QUOTA_BYTES - bytes } },
       { $inc: { storageBytes: bytes } },
@@ -55,12 +55,12 @@ export const reservarBytes = async (tenantId: string, bytes: number): Promise<bo
     return result.modifiedCount === 1;
   });
 
-export const devolverBytes = async (tenantId: string, bytes: number): Promise<void> =>
-  withDbTiming('office.devolverBytes', async () => {
+export const returnBytes = async (tenantId: string, bytes: number): Promise<void> =>
+  withDbTiming('office.returnBytes', async () => {
     await Tenant.updateOne({ _id: tenantId }, { $inc: { storageBytes: -bytes } });
   });
 
-export const setAvisoAgendamento = async (tenantId: string, aviso: { assunto: string; corpo: string }) =>
-  withDbTiming('office.setAvisoAgendamento', async () => {
-    await Tenant.updateOne({ _id: tenantId }, { $set: { avisoAgendamento: aviso } });
+export const setScheduleNotice = async (tenantId: string, notice: { subject: string; body: string }) =>
+  withDbTiming('office.setScheduleNotice', async () => {
+    await Tenant.updateOne({ _id: tenantId }, { $set: { scheduleNotice: notice } });
   });

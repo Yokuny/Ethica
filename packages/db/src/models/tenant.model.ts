@@ -7,15 +7,15 @@ export interface TenantDocument {
   name: string;
   document: string;
   status: TenantStatus;
-  // Identidade dos documentos (AD-121): texto com marcadores, trocados na geração do PDF.
-  cabecalho?: string;
-  rodape?: string;
-  // Arquivos no storage S3 (AD-120). `storageBytes` é o total usado, reservado no mesmo
-  // update que grava a referência do arquivo, para respeitar a cota do tenant.
+  // Document identity (AD-121): text with markers, replaced when the PDF is generated.
+  header?: string;
+  footer?: string;
+  // Files in S3 storage (AD-120). `storageBytes` is the total used, reserved in the same
+  // update that saves the file reference, to respect the tenant quota.
   logo?: { key: string; bytes: number; updatedAt: Date };
   storageBytes: number;
-  // Modelo do aviso de agendamento às partes (AD-131); sem ele vale o padrão do servidor.
-  avisoAgendamento?: { assunto: string; corpo: string };
+  // Template of the schedule notice to the parties (AD-131); without it the server default applies.
+  scheduleNotice?: { subject: string; body: string };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,8 +30,8 @@ const tenantSchema = new Schema<TenantDocument>(
       default: 'provisioned',
       required: true,
     },
-    cabecalho: { type: String, maxlength: 1000 },
-    rodape: { type: String, maxlength: 1000 },
+    header: { type: String, maxlength: 1000 },
+    footer: { type: String, maxlength: 1000 },
     logo: {
       type: new Schema(
         { key: { type: String, required: true }, bytes: { type: Number, required: true }, updatedAt: Date },
@@ -40,16 +40,16 @@ const tenantSchema = new Schema<TenantDocument>(
       required: false,
     },
     storageBytes: { type: Number, min: 0, default: 0, required: true },
-    avisoAgendamento: { type: new Schema({ assunto: String, corpo: String }, { _id: false }) },
+    scheduleNotice: { type: new Schema({ subject: String, body: String }, { _id: false }) },
   },
   { timestamps: true },
 );
 
 export const Tenant = mongoose.model<TenantDocument>('Tenant', tenantSchema);
 
-// A guarda de transição é a própria query: só atualiza se o status atual for
-// exatamente `from`. Chamador fora da máquina de estados (from não bate com o
-// status real) recebe null — nenhum `if` de regra de negócio aqui.
+// The transition guard is the query itself: it only updates if the current status is
+// exactly `from`. A caller outside the state machine (from does not match the
+// real status) gets null — no business rule `if` here.
 export const transitionTenantStatus = async (
   id: string,
   from: TenantStatus,

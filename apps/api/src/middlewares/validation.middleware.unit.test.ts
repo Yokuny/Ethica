@@ -71,8 +71,8 @@ describe('validParsedQuery', () => {
     })
     .strict();
 
-  // Express 5: req.query é um getter sem cache — cada leitura devolve um
-  // objeto novo, então uma mutação in-place não sobreviveria.
+  // Express 5: req.query is a getter without cache — each read returns a
+  // new object, so an in-place mutation would not survive.
   const buildExpress5Req = (rawQuery: Record<string, string>): Request =>
     Object.create({
       get query() {

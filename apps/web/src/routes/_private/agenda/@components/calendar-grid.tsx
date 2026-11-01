@@ -1,19 +1,19 @@
 import { cn } from 'cn';
 import type * as React from 'react';
 
-// Grades do calendário da agenda (visões de dia/semana e de mês). Mesma
-// linguagem tracejada de item.tsx: a moldura e TODAS as linhas internas vêm
-// daqui, a rota só compõe e passa layout (largura mínima, colunas, posição).
-// Cada linha interna é desenhada uma única vez por quem está depois dela
-// (célula da direita / de baixo) e as linhas de borda caem na própria
-// moldura — nunca uma célula com borda nos quatro lados, que dobraria a
-// linha entre duas vizinhas. Como em ItemGroup, os filhos diretos cujas
-// linhas vêm do pai não trazem utilitário de borda nenhum (nem `border-0`):
-// empataria em especificidade com os seletores `[&>*]` e a ordem no CSS
-// decidiria quem pinta.
+// Agenda calendar grids (day/week and month views). Same
+// dashed language as item.tsx: the frame and ALL inner lines come
+// from here, the route only composes and passes layout (min width, columns, position).
+// Each inner line is drawn only once by whoever comes after it
+// (right / bottom cell) and the edge lines fall on the frame
+// itself — never a cell bordered on all four sides, which would double the
+// line between two neighbors. As in ItemGroup, the direct children whose
+// lines come from the parent carry no border utility at all (not even `border-0`):
+// it would tie in specificity with the `[&>*]` selectors and the CSS order
+// would decide who paints.
 
-// Moldura da grade por hora. Rola na horizontal em tela estreita; `className`
-// vai pro conteúdo interno (tipicamente a largura mínima).
+// Hour grid frame. Scrolls horizontally on a narrow screen; `className`
+// goes to the inner content (typically the min width).
 function CalendarTimeGrid({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-xs">
@@ -22,7 +22,7 @@ function CalendarTimeGrid({ className, ...props }: React.ComponentProps<'div'>) 
   );
 }
 
-// Colunas de dia lado a lado, com linha vertical à esquerda de cada uma.
+// Day columns side by side, with a vertical line to the left of each.
 function CalendarTimeGridColumns({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -33,8 +33,8 @@ function CalendarTimeGridColumns({ className, ...props }: React.ComponentProps<'
   );
 }
 
-// Cabeçalho de uma coluna (dia da semana/data) — e o espaçador em cima da
-// coluna de horas, pra linha de baixo atravessar a grade inteira.
+// Header of a column (weekday/date) — and the spacer above the
+// hours column, so the bottom line crosses the whole grid.
 function CalendarTimeGridHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -45,8 +45,8 @@ function CalendarTimeGridHeader({ className, ...props }: React.ComponentProps<'d
   );
 }
 
-// Linha de uma hora dentro do corpo de uma coluna (posicionada pelo caller
-// via `style.top`). A hora 00 não leva linha: o cabeçalho já desenha essa.
+// Line of an hour inside a column body (positioned by the caller
+// through `style.top`). Hour 00 gets no line: the header already draws it.
 function CalendarTimeGridHourLine({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -58,9 +58,9 @@ function CalendarTimeGridHourLine({ className, ...props }: React.ComponentProps<
   );
 }
 
-// Grade de mês: 7 colunas, cabeçalho de dias da semana + células. Linha à
-// direita de toda célula que não fecha a linha (7n) e em cima de toda célula
-// da segunda linha em diante (n+8).
+// Month grid: 7 columns, weekday header + cells. A line on the
+// right of every cell that does not close the row (7n) and on top of every cell
+// from the second row on (n+8).
 function CalendarMonthGrid({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -75,8 +75,8 @@ function CalendarMonthGrid({ className, ...props }: React.ComponentProps<'div'>)
   );
 }
 
-// Célula de um dia na grade de mês; `outside` esmaece os dias do mês
-// anterior/seguinte que completam a primeira/última semana.
+// Cell of a day in the month grid; `outside` fades the days of the
+// previous/next month that complete the first/last week.
 function CalendarMonthCell({ className, outside, ...props }: React.ComponentProps<'div'> & { outside?: boolean }) {
   return (
     <div

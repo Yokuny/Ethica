@@ -6,17 +6,17 @@ import { cn } from '../lib/utils.js';
 
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
-    // Sozinha, a tabela traz a própria moldura (cartão com borda). Dentro do
-    // `DataTable` do app (`data-slot="data-table"`) quem emoldura é o painel:
-    // a tabela encosta nas bordas, como no data-grid de referência.
+    // Alone, the table brings its own frame (bordered card). Inside the
+    // app `DataTable` (`data-slot="data-table"`) the panel does the framing:
+    // the table touches the edges, as in the reference data-grid.
     <div
       data-slot="table-container"
       className="relative w-full overflow-x-auto rounded-lg border bg-card shadow-xs in-data-[slot=data-table]:rounded-none in-data-[slot=data-table]:border-0 in-data-[slot=data-table]:bg-transparent in-data-[slot=data-table]:shadow-none"
     >
       <table
         data-slot="table"
-        // `border-separate`: o fio fica na célula, não na linha, para não
-        // vazar além da tabela quando ela rola na horizontal.
+        // `border-separate`: the rule lives on the cell, not on the row, so it does not
+        // leak past the table when it scrolls horizontally.
         className={cn('w-full caption-bottom border-separate border-spacing-0 font-sans text-xs', className)}
         {...props}
       />
@@ -28,9 +28,9 @@ function TableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
   return (
     <thead
       data-slot="table-header"
-      // Cabeçalho discreto: rótulo cinza sem faixa, só o fio inferior, para o
-      // dado (e não o cabeçalho) ser a primeira leitura. `hover:bg-transparent`
-      // no <tr> anula o hover do TableRow — cabeçalho não é linha clicável.
+      // Discreet header: gray label without a band, only the bottom rule, so the
+      // data (and not the header) is the first read. `hover:bg-transparent`
+      // on the <tr> cancels the TableRow hover — the header is not a clickable row.
       className={cn(
         'text-text-secondary [&>tr>th]:border-b [&>tr>th]:border-border/70 [&_tr]:hover:bg-transparent',
         className,
@@ -69,7 +69,7 @@ function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
 
 type TableSort = { direction: 'asc' | 'desc' | false; onToggle?: React.MouseEventHandler<HTMLButtonElement> };
 
-// Coluna ordenável: passe `sort`; o `aria-sort` e o botão com a seta vêm daqui.
+// Sortable column: pass `sort`; `aria-sort` and the arrow button come from here.
 function TableHead({ className, sort, children, ...props }: React.ComponentProps<'th'> & { sort?: TableSort }) {
   const SortIcon = sort?.direction === 'asc' ? ArrowUp : sort?.direction === 'desc' ? ArrowDown : ChevronsUpDown;
   return (

@@ -6,13 +6,13 @@ import { FileUp } from 'lucide-react';
 import { useRef } from 'react';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { PericiaFormFields } from '../@components/pericia-form-fields.js';
+import { CaseFormFields } from '../@components/case-form-fields.js';
 import { PdfImportNotice } from './@components/pdf-import-notice.js';
+import { useCaseForm } from './@hooks/use-case-form.js';
 import { usePdfImport } from './@hooks/use-pdf-import.js';
-import { usePericiaForm } from './@hooks/use-pericia-form.js';
 
-export function PericiaAddPage() {
-  const { form, onSubmit, isPending, errorMessage } = usePericiaForm();
+export function CaseAddPage() {
+  const { form, onSubmit, isPending, errorMessage } = useCaseForm();
   const pdf = usePdfImport(form);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const formActions = (
@@ -55,7 +55,7 @@ export function PericiaAddPage() {
               </ItemDescription>
             )}
             {pdf.extraction && <PdfImportNotice extraction={pdf.extraction} />}
-            <PericiaFormFields control={form.control} />
+            <CaseFormFields control={form.control} />
             {errorMessage && (
               <ItemDescription role="alert" className="text-destructive line-clamp-none">
                 {errorMessage}
@@ -72,6 +72,6 @@ export function PericiaAddPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-cases/add/')({
-  component: PericiaAddPage,
+  component: CaseAddPage,
   staticData: { title: t('new_expert_case') },
 });

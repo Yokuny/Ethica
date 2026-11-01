@@ -10,8 +10,8 @@ import { type AccountView, updateProfileMutation } from '../@query/account.js';
 const toValues = (profile: AccountView): UpdateProfile => ({
   name: profile.name,
   cpf: profile.cpf ?? '',
-  registroProfissional: profile.registroProfissional ?? '',
-  formacao: profile.formacao ?? '',
+  professionalRegistration: profile.professionalRegistration ?? '',
+  education: profile.education ?? '',
 });
 
 export function useProfileForm(profile: AccountView) {

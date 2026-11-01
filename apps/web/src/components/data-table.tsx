@@ -19,19 +19,19 @@ import { AppLink } from '@/components/app-link.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 type DataTableProps = React.ComponentProps<'div'> & {
-  // Busca livre: campo sem moldura no topo da tabela, como na referência.
+  // Free search: frameless field at the top of the table, as in the reference.
   search?: { value: string; onChange: (value: string) => void };
-  // Filtros avançados: ficam num popover aberto por "Filtros"; `active` é a
-  // quantidade de filtros aplicados.
+  // Advanced filters: they live in a popover opened by "Filtros"; `active` is the
+  // number of applied filters.
   filters?: { content: React.ReactNode; active?: number };
-  // Controles extras na mesma linha (ex.: filtros rápidos da fila).
+  // Extra controls on the same line (e.g. the queue quick filters).
   toolbar?: React.ReactNode;
 };
 
 type TableFiltersProps = { content: React.ReactNode; active?: number };
 
-// Botão "Filtros" que abre os controles num popover. Usado pelo `DataTable` e
-// por telas sem tabela (kanban, relatórios) para manter o mesmo gesto.
+// "Filtros" button that opens the controls in a popover. Used by `DataTable` and
+// by screens without a table (kanban, reports) to keep the same gesture.
 function TableFilters({ content, active }: TableFiltersProps) {
   return (
     <Popover>
@@ -47,10 +47,10 @@ function TableFilters({ content, active }: TableFiltersProps) {
   );
 }
 
-// Painel padrão de listagem: uma linha de toolbar (Filtros + busca), fio, e a
-// tabela encostada nas bordas. Os `Table*` de `@ethica/ui` e o `TablePagination`
-// perdem a própria moldura aqui dentro (`in-data-[slot=data-table]`). Loading
-// e estado vazio ganham respiro; a tabela, não.
+// Default listing panel: one toolbar line (Filters + search), a rule, and the
+// table flush with the edges. The `Table*` of `@ethica/ui` and `TablePagination`
+// lose their own frame in here (`in-data-[slot=data-table]`). Loading
+// and empty state get breathing room; the table does not.
 function DataTable({ search, filters, toolbar, className, children, ...props }: DataTableProps) {
   const hasToolbar = Boolean(search || filters || toolbar);
   return (
@@ -82,11 +82,11 @@ function DataTable({ search, filters, toolbar, className, children, ...props }: 
   );
 }
 
-// ─── Conteúdo da célula ──────────────────────────────────────────────────────
-// A partir das linhas-modelo do usuário (`line.html`, `premium line.html`): a
-// coluna principal é identidade (avatar ou ícone + título + linha de apoio),
-// as demais são valor com uma linha de apoio em 12px, selo de status suave e o
-// menu ⋮ no fim. A tela compõe as colunas só com estas peças.
+// ─── Cell content ────────────────────────────────────────────────────────────
+// From the user's model rows (`line.html`, `premium line.html`): the
+// main column is identity (avatar or icon + title + supporting line),
+// the others are a value with a 12px supporting line, a soft status badge and the
+// ⋮ menu at the end. The screen composes the columns only with these pieces.
 
 function initials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -97,21 +97,21 @@ function initials(name: string) {
 type TableIdentityProps = {
   title: React.ReactNode;
   description?: React.ReactNode;
-  // Pessoa ou empresa: avatar com as iniciais deste nome.
+  // Person or company: avatar with the initials of this name.
   avatar?: string;
-  // Coisa (tarefa, processo, produto): ladrilho cinza com o ícone.
+  // Thing (task, process, product): gray tile with the icon.
   icon?: LucideIcon;
-  // Destino extra (ex.: o cliente do pedido): o título vira `<Link/>` e o clique
-  // nele não chega à linha, que abre o próprio registro.
+  // Extra destination (e.g. the order's customer): the title becomes a `<Link/>` and the click
+  // on it does not reach the row, which opens its own record.
   link?: LinkProps;
   size?: 'default' | 'sm';
 };
 
 function TableIdentity({ title, description, avatar, icon: Icon, link, size = 'default' }: TableIdentityProps) {
   return (
-    // Largura máxima (a célula libera a quebra, `table.tsx`): o texto longo corta em uma linha com
-    // reticências em vez de empurrar as outras colunas; o mínimo mantém o nome
-    // legível no celular (a tabela rola de lado).
+    // Max width (the cell allows wrapping, `table.tsx`): long text is cut to one line with
+    // an ellipsis instead of pushing the other columns; the minimum keeps the name
+    // readable on the phone (the table scrolls sideways).
     <div data-slot="table-identity" className="flex min-w-44 max-w-56 items-center gap-2.5 sm:max-w-72 lg:max-w-96">
       {avatar !== undefined && (
         <Avatar size={size}>
@@ -146,12 +146,12 @@ function TableIdentity({ title, description, avatar, icon: Icon, link, size = 'd
 type TableStackProps = {
   children: React.ReactNode;
   description?: React.ReactNode;
-  // `muted`: o valor é secundário (data, código); `error`: atraso, falha.
+  // `muted`: the value is secondary (date, code); `error`: delay, failure.
   tone?: 'default' | 'muted' | 'error';
   descriptionTone?: 'muted' | 'error';
 };
 
-// Valor + linha de apoio (data e hora, total e quantidade, etapa e tempo).
+// Value + supporting line (date and time, total and quantity, status and time).
 function TableStack({ children, description, tone = 'default', descriptionTone = 'muted' }: TableStackProps) {
   return (
     <div data-slot="table-stack">
@@ -171,7 +171,7 @@ function TableStack({ children, description, tone = 'default', descriptionTone =
   );
 }
 
-// Ícone + texto discreto (canal, telefone, forma de pagamento).
+// Icon + discreet text (channel, phone, payment method).
 function TableIconText({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
     <div data-slot="table-icon-text" className="flex min-w-0 items-center gap-2">
@@ -184,12 +184,12 @@ function TableIconText({ icon: Icon, children }: { icon: LucideIcon; children: R
 type TableStatusProps = {
   children: React.ReactNode;
   variant?: IndicatorVariant;
-  // Cor do status configurável pelo tenant (hex do `StatusOption`).
+  // Status color configurable by the tenant (`StatusOption` hex).
   color?: string;
 };
 
-// Selo suave com bolinha. Status de domínio usam `variant`; status do tenant,
-// `color` — o fundo vira a mesma cor a 12%.
+// Soft badge with a dot. Domain statuses use `variant`; tenant statuses,
+// `color` — the background becomes the same color at 12%.
 function TableStatus({ children, variant = 'neutral', color }: TableStatusProps) {
   const style = color
     ? ({
@@ -205,8 +205,8 @@ function TableStatus({ children, variant = 'neutral', color }: TableStatusProps)
 
 const stopRowClick = { onClick: (event: React.MouseEvent) => event.stopPropagation() };
 
-// Menu ⋮ da linha. Não propaga o clique para a linha (que abre o registro);
-// cada ação é um `TableRowAction` (com `render={<Link/>}` quando navega).
+// Row ⋮ menu. Does not propagate the click to the row (which opens the record);
+// each action is a `TableRowAction` (with `render={<Link/>}` when it navigates).
 function TableRowActions({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex justify-end">

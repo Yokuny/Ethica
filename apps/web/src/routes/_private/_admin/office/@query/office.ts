@@ -4,10 +4,10 @@ import { queryOptions } from '@tanstack/react-query';
 import { del, get, put, sendFile } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Espelha OfficeView de apps/api/src/modules/identity/office.schema.ts.
+// Mirrors OfficeView of apps/api/src/modules/identity/office.schema.ts.
 export type OfficeView = {
-  cabecalho: string;
-  rodape: string;
+  header: string;
+  footer: string;
   logo?: string;
   storageBytes: number;
   storageQuotaBytes: number;
@@ -38,7 +38,7 @@ export const updateOfficeMutation = (
   onSuccess: setOffice(queryClient),
 });
 
-// `png` já reduzido no navegador (AD-120); `null` remove o logo.
+// `png` already shrunk in the browser (AD-120); `null` removes the logo.
 export const setLogoMutation = (queryClient: QueryClient): UseMutationOptions<OfficeView, Error, Blob | null> => ({
   mutationFn: async (png) => {
     const res = png
@@ -50,26 +50,26 @@ export const setLogoMutation = (queryClient: QueryClient): UseMutationOptions<Of
   onSuccess: setOffice(queryClient),
 });
 
-// Modelo do aviso de agendamento às partes (AD-131); a API devolve o padrão quando não há.
-export type AvisoAgendamento = { assunto: string; corpo: string };
-export const avisoAgendamentoKeys = { detail: ['office', 'aviso-agendamento'] as const };
+// Template of the schedule notice to the parties (AD-131); the API returns the default when there is none.
+export type ScheduleNotice = { subject: string; body: string };
+export const scheduleNoticeKeys = { detail: ['office', 'schedule-notice'] as const };
 
-export const avisoAgendamentoQuery = queryOptions({
-  queryKey: avisoAgendamentoKeys.detail,
-  queryFn: async (): Promise<AvisoAgendamento> => {
-    const res = await get<AvisoAgendamento>('/tenant/office/schedule-notice');
+export const scheduleNoticeQuery = queryOptions({
+  queryKey: scheduleNoticeKeys.detail,
+  queryFn: async (): Promise<ScheduleNotice> => {
+    const res = await get<ScheduleNotice>('/tenant/office/schedule-notice');
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },
 });
 
-export const updateAvisoAgendamentoMutation = (
+export const updateScheduleNoticeMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<AvisoAgendamento, Error, AvisoAgendamento> => ({
+): UseMutationOptions<ScheduleNotice, Error, ScheduleNotice> => ({
   mutationFn: async (data) => {
-    const res = await put<AvisoAgendamento>('/tenant/office/schedule-notice', data);
+    const res = await put<ScheduleNotice>('/tenant/office/schedule-notice', data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
-  onSuccess: (data) => queryClient.setQueryData(avisoAgendamentoKeys.detail, data),
+  onSuccess: (data) => queryClient.setQueryData(scheduleNoticeKeys.detail, data),
 });

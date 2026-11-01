@@ -5,7 +5,7 @@ import { cn } from 'cn';
 import { ArrowUpRight, type LucideIcon } from 'lucide-react';
 import { type ComponentProps, Fragment, type ReactNode } from 'react';
 
-// Grade de destinos: um cartão por destino, duas colunas a partir de `sm`.
+// Destination grid: one card per destination, two columns from `sm` up.
 export function LinkCardList({ className, ...props }: ComponentProps<'div'>) {
   return <div className={cn('grid gap-4 sm:grid-cols-2', className)} {...props} />;
 }
@@ -13,12 +13,12 @@ export function LinkCardList({ className, ...props }: ComponentProps<'div'>) {
 type LinkCardProps = Omit<useRender.ComponentProps<'a'>, 'title'> & {
   icon: LucideIcon;
   title: ReactNode;
-  // Linha de apoio abaixo do título; valores falsos são ignorados e os demais
-  // ficam separados por "/".
+  // Supporting line below the title; falsy values are ignored and the rest
+  // are separated by "/".
   meta?: ReactNode[];
 };
 
-// O cartão inteiro é o link: `render={<Link to=… search=…/>}`, sem filhos.
+// The whole card is the link: `render={<Link to=… search=…/>}`, no children.
 export function LinkCard({ icon: Icon, title, meta = [], render, className, ...props }: LinkCardProps) {
   const details = meta.filter(Boolean);
   return useRender({

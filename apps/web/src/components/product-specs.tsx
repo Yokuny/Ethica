@@ -5,16 +5,16 @@ import { ChevronDown } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Bloco shadcnblocks/product-specs1 sem os dados de exemplo: grupos colapsáveis
-// com ícone, título, ação opcional e linhas rótulo/valor (ou corpo livre).
+// shadcnblocks/product-specs1 block without the sample data: collapsible groups
+// with icon, title, optional action and label/value rows (or a free body).
 
 export type ProductSpec = {
   label: ReactNode;
   value: ReactNode;
-  // Complemento sob o rótulo (selo, motivo).
+  // Complement under the label (badge, reason).
   description?: ReactNode;
-  // Primeira linha de um registro que ocupa várias linhas: abre uma faixa de
-  // separação para não misturar com o registro anterior.
+  // First row of a record that spans several rows: opens a separation
+  // band so it does not mix with the previous record.
   start?: boolean;
 };
 
@@ -24,14 +24,14 @@ export type ProductSpecGroup = {
   icon?: ReactNode;
   actions?: ReactNode;
   specs?: ProductSpec[];
-  // Corpo livre no lugar das linhas (formulário, tabela de itens, vazio, erro).
+  // Free body in place of the rows (form, item table, empty, error).
   children?: ReactNode;
-  // Abaixo das linhas (paginação).
+  // Below the rows (pagination).
   footer?: ReactNode;
 };
 
 export function ProductSpecs({ groups, className }: { groups: ProductSpecGroup[]; className?: string }) {
-  // Guarda os fechados: grupo que aparece depois já nasce aberto.
+  // Keeps the closed ones: a group that shows up later starts open.
   const [closedIds, setClosedIds] = useState<string[]>([]);
 
   const toggle = (id: string) =>
@@ -83,7 +83,7 @@ export function ProductSpecs({ groups, className }: { groups: ProductSpecGroup[]
                     <tbody>
                       {group.specs?.map((spec, index) => (
                         <tr
-                          // biome-ignore lint/suspicious/noArrayIndexKey: linhas sem id próprio
+                          // biome-ignore lint/suspicious/noArrayIndexKey: rows without their own id
                           key={index}
                           className={cn(
                             'border-b last:border-0',

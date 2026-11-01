@@ -1,5 +1,5 @@
-/* Geist (sans) e Geist Mono (atalhos e números tabulares), servidas
-   localmente. Arquivos e licenças OFL estão em public/fonts/. */
+/* Geist (sans) and Geist Mono (shortcuts and tabular numbers), served
+   locally. Files and OFL licenses are in public/fonts/. */
 @font-face {
   font-family: "Geist Variable";
   src: url("/fonts/geist/geist-latin-wght-normal.woff2") format("woff2");
@@ -16,17 +16,17 @@
   font-display: swap;
 }
 
-/* Tema claro único do CRM. O site de marketing tem tokens próprios em
-   apps/site/src/theme.css. A sidebar fica atrás da superfície de trabalho;
-   as cores de interface nascem aqui, sem variantes por página. */
+/* The CRM's single light theme. The marketing site has its own tokens in
+   apps/site/src/theme.css. The sidebar sits behind the work surface;
+   the interface colors are born here, without per-page variants. */
 
-/* Classes dark legadas ficam inativas mesmo quando o sistema prefere escuro. */
+/* Legacy dark classes stay inactive even when the system prefers dark. */
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --radius: 0.625rem;
 
-  /* Superfícies: o canvas fica dentro do fundo da sidebar. */
+  /* Surfaces: the canvas sits inside the sidebar background. */
   --background: #f7f7f7;
   --surface-secondary: #f2f2f2;
   --surface-raised: #ffffff;
@@ -38,11 +38,11 @@
   --selection: #e8e7ec;
   --disabled: #e8e7ec;
 
-  /* #9594a0 é o tom de referência, reservado a pistas não essenciais.
-     #66656f mantém o texto secundário pequeno legível sobre o canvas. */
+  /* #9594a0 is the reference tone, reserved for non-essential cues.
+     #66656f keeps small secondary text readable over the canvas. */
   --foreground: #4b4b54;
   --impact: #1d1c1f;
-  /* Azul escuro dessaturado, puxado ao preto: cor sólida dos links. */
+  /* Desaturated dark blue, pulled towards black: solid link color. */
   --link: #1c2638;
   --text-secondary: #66656f;
   --muted-foreground: var(--text-secondary);
@@ -53,7 +53,7 @@
   --accent-foreground: var(--impact);
   --disabled-foreground: var(--subtle-foreground);
 
-  /* Ação e estados de interação seguem o grafite, sem azul de marca. */
+  /* Action and interaction states follow graphite, without a brand blue. */
   --primary: #1d1c20;
   --primary-hover: #38373d;
   --primary-foreground: #ffffff;
@@ -62,7 +62,7 @@
   --input: #d8d7dd;
   --ring: #4b4b54;
 
-  /* Status operacionais em tons pastéis; texto pequeno mantém contraste. */
+  /* Operational statuses in pastel tones; small text keeps contrast. */
   --status-success: #dcefdc;
   --status-success-foreground: #245b38;
   --status-success-border: #bedfc4;
@@ -87,7 +87,7 @@
   --font-fallback-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --font-fallback-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Série discreta para visualizações futuras; dados reais decidem seu uso. */
+  /* Discreet series for future visualizations; real data decides its use. */
   --chart-1: #1d1c20;
   --chart-2: #4b4b54;
   --chart-3: #777680;
@@ -103,7 +103,7 @@
   --sidebar-border: #e5e4e8;
   --sidebar-ring: var(--ring);
 
-  /* Deslocamento curto e opacidade baixa; a elevação não vira halo. */
+  /* Short offset and low opacity; elevation does not become a halo. */
   --shadow-2xs: 0 1px 1px 0 rgb(29 28 32 / 0.03);
   --shadow-xs: 0 1px 2px 0 rgb(29 28 32 / 0.04);
   --shadow-sm: 0 1px 2px 0 rgb(29 28 32 / 0.04), 0 2px 5px -2px rgb(29 28 32 / 0.04);
@@ -211,12 +211,12 @@
     color-scheme: light;
     scrollbar-color: var(--border) transparent;
     scrollbar-width: thin;
-    /* Celular (AD-128, tela de campo): sem o flash cinza no toque e sem inflar a fonte. */
+    /* Phone (AD-128, field screen): without the gray tap flash and without inflating the font. */
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
   }
 
-  /* iOS dá zoom no campo com fonte menor que 16 px e não volta; em tela de toque, 16 px. */
+  /* iOS zooms into a field with a font smaller than 16 px and does not zoom back; on touch screens, 16 px. */
   @media (pointer: coarse) {
     input,
     textarea,
@@ -251,7 +251,7 @@
     @apply bg-selection text-impact;
   }
 
-  /* Algarismos alinhados em coluna (preço, hora, telefone). */
+  /* Digits aligned in columns (price, time, phone). */
   .font-mono {
     font-feature-settings:
       "tnum" 1,
@@ -259,7 +259,7 @@
   }
 }
 
-/* Link: texto azul escuro com sublinhado tracejado permanente. */
+/* Link: dark blue text with a permanent dashed underline. */
 @utility link {
   cursor: pointer;
   color: var(--color-link);
@@ -270,23 +270,23 @@
   transition-duration: 150ms;
 }
 
-/* Escala de texto padrão: um degrau acima do default do Tailwind. O app usa
-   text-xs como corpo; 13px continua densa. data-text-size="sm"/"lg" também
-   ajusta as captions descritivas e cabeçalhos de tabela. */
+/* Default text scale: one step above the Tailwind default. The app uses
+   text-xs as body; 13px stays dense. data-text-size="sm"/"lg" also
+   adjusts the descriptive captions and table headers. */
 :root {
   --text-xs: 0.8125rem;
   --text-sm: 0.875rem;
   --caption-size: 0.6875rem;
 }
 
-/* Tamanho do texto: sobrescreve só os tokens de fonte do Tailwind
-   (--text-xs/sm/base/lg — as utilities .text-xs/.text-sm/... leem
-   font-size:var(--text-xs) etc., conferido no CSS gerado). Fora de
-   `@layer`, então vence os tokens equivalentes que o Tailwind define dentro
-   de `@layer theme`, sem precisar de `!important`. `line-height` continua
-   como razão sem unidade (--text-*--line-height), então acompanha o
-   tamanho novo sozinho. `data-text-size="md"` nunca é escrito (é o
-   default, quem controla remove o atributo) — só "sm"/"lg" aparecem aqui. */
+/* Text size: overrides only the Tailwind font tokens
+   (--text-xs/sm/base/lg — the .text-xs/.text-sm/... utilities read
+   font-size:var(--text-xs) etc., checked in the generated CSS). Outside
+   `@layer`, so it beats the equivalent tokens Tailwind defines inside
+   `@layer theme`, without needing `!important`. `line-height` stays
+   a unitless ratio (--text-*--line-height), so it follows the
+   new size by itself. `data-text-size="md"` is never written (it is the
+   default, the controller removes the attribute) — only "sm"/"lg" show up here. */
 html[data-text-size="sm"] {
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;

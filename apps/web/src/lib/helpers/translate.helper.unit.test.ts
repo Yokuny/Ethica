@@ -4,12 +4,12 @@ import { API_MESSAGE_KEYS } from '@ethica/contracts';
 import { describe, expect, it } from 'vitest';
 import { t, translationKeys, WEEKDAY_KEYS } from './translate.helper.js';
 
-// Teste-guarda das regras de apps/web/CLAUDE.md ("Tradução (t()) e datas"):
-// varre todo apps/web/src (fora deste próprio arquivo) e trava (1) formato
-// de chave, (2) `t('literal')`/`titleKey: '...'` apontando pra chave
-// inexistente — `t()` devolve a própria chave quando ela falta (`?? key`),
-// então esse erro NUNCA aparece como exceção em runtime — e (3) chave
-// dinâmica montada por template (`t(\`prefixo.${x}\`)`), proibida pela regra 8.
+// Guard test of the apps/web/CLAUDE.md rules ("Tradução (t()) e datas"):
+// scans all of apps/web/src (except this file itself) and locks (1) key
+// format, (2) `t('literal')`/`titleKey: '...'` pointing to a
+// missing key — `t()` returns the key itself when it is missing (`?? key`),
+// so that error NEVER shows up as a runtime exception — and (3) a dynamic
+// key built by template (`t(\`prefix.${x}\`)`), forbidden by rule 8.
 
 const SRC_DIR = join(import.meta.dirname, '../../');
 const KEY_FORMAT = /^[a-z0-9]+(_[a-z0-9]+)*$/;
@@ -59,9 +59,9 @@ describe('translate.helper — regras de chave (apps/web/CLAUDE.md)', () => {
   });
 
   it("todo `t('literal')` (direto ou em ternário) e `titleKey: '...'` aponta pra uma chave existente", () => {
-    // Chamada direta: t('key') ou t("key").
+    // Direct call: t('key') or t("key").
     const directCallRe = /\bt\(\s*(['"])([\w. ]+?)\1\s*\)/g;
-    // Ternário: t(cond ? 'a' : 'b') — os dois ramos são chave (padrão usado
+    // Ternary: t(cond ? 'a' : 'b') — both branches are keys (pattern used
     // pra status booleano: active/inactive, human/bot, open/closed...).
     const ternaryCallRe = /\bt\([^()'"]*\?\s*(['"])([\w. ]+?)\1\s*:\s*(['"])([\w. ]+?)\3\s*\)/g;
     const titleKeyRe = /titleKey:\s*(['"])([\w.]+)\1/g;
@@ -85,6 +85,6 @@ describe('translate.helper — regras de chave (apps/web/CLAUDE.md)', () => {
   });
 
   it('t() devolve a própria chave quando ela não existe (comportamento documentado do fallback)', () => {
-    expect(t('esta_chave_nao_existe')).toBe('esta_chave_nao_existe');
+    expect(t('esta_key_not_exists')).toBe('esta_key_not_exists');
   });
 });

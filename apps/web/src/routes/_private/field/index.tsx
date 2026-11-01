@@ -10,27 +10,27 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { iniciarSync } from '@/lib/offline/sync.js';
-import { vistoriaDiaQuery } from '@/query/vistoria.js';
-import { CampoCard } from './@components/campo-card.js';
-import { CampoConexao } from './@components/campo-conexao.js';
-import { useStatusRapido } from './@hooks/use-status-rapido.js';
-import { type CampoSearch, campoSearchSchema } from './@interface/campo.interface.js';
+import { startSync } from '@/lib/offline/sync.js';
+import { inspectionDayQuery } from '@/query/inspection.js';
+import { FieldCard } from './@components/field-card.js';
+import { FieldConnection } from './@components/field-connection.js';
+import { useQuickStatus } from './@hooks/use-quick-status.js';
+import { type FieldSearch, fieldSearchSchema } from './@interface/field.interface.js';
 
-// Rota de campo do dia (CAM-01), pensada para o celular e para funcionar sem conexão (AD-128).
-export function CampoPage() {
-  const search = useSearch({ strict: false }) as CampoSearch;
+// Field route of the day (CAM-01), designed for the phone and to work without a connection (AD-128).
+export function FieldPage() {
+  const search = useSearch({ strict: false }) as FieldSearch;
   const navigate = useNavigate({ from: '/field/' });
   const queryClient = useQueryClient();
   const date = search.date ?? formatDisplayDate(new Date());
-  const query = useQuery({ ...vistoriaDiaQuery(date), networkMode: 'always' });
-  const { marcar } = useStatusRapido();
-  const itens = query.data?.itens ?? [];
+  const query = useQuery({ ...inspectionDayQuery(date), networkMode: 'always' });
+  const { mark } = useQuickStatus();
+  const items = query.data?.items ?? [];
 
-  // A sincronização escuta a volta da conexão: liga uma vez ao abrir o campo.
-  useEffect(() => iniciarSync(queryClient), [queryClient]);
+  // The sync listens for the connection coming back: it starts once when the field opens.
+  useEffect(() => startSync(queryClient), [queryClient]);
 
-  const irPara = (dias: number) => navigate({ search: { date: addDaysToDisplayDate(date, dias) }, replace: true });
+  const goTo = (days: number) => navigate({ search: { date: addDaysToDisplayDate(date, days) }, replace: true });
 
   return (
     <Card asPage>
@@ -44,17 +44,17 @@ export function CampoPage() {
       </CardHeader>
       <CardContent className="max-w-3xl gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" aria-label={t('previous_day')} onClick={() => irPara(-1)}>
+          <Button variant="outline" size="icon" aria-label={t('previous_day')} onClick={() => goTo(-1)}>
             <ChevronLeft />
           </Button>
           <Button variant="outline" onClick={() => navigate({ search: {}, replace: true })}>
             {formatDate(new Date(`${date}T12:00:00`))}
           </Button>
-          <Button variant="outline" size="icon" aria-label={t('next_day')} onClick={() => irPara(1)}>
+          <Button variant="outline" size="icon" aria-label={t('next_day')} onClick={() => goTo(1)}>
             <ChevronRight />
           </Button>
         </div>
-        <CampoConexao doAparelho={query.data?.doAparelho} />
+        <FieldConnection ofDevice={query.data?.ofDevice} />
         {query.isLoading ? (
           <DefaultLoading />
         ) : query.isError ? (
@@ -62,15 +62,15 @@ export function CampoPage() {
             title={t('load_error')}
             action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
           />
-        ) : !itens.length ? (
+        ) : !items.length ? (
           <DefaultEmptyData title={t('nothing_scheduled_this_day')} description={t('field_day_empty_description')} />
         ) : (
           <ItemGroup variant="list">
-            {itens.map((item) => (
-              <CampoCard
-                key={item.compromisso.id}
+            {items.map((item) => (
+              <FieldCard
+                key={item.appointment.id}
                 item={item}
-                onStatus={(status, motivo) => void marcar(item.compromisso.id, status, motivo)}
+                onStatus={(status, reason) => void mark(item.appointment.id, status, reason)}
               />
             ))}
           </ItemGroup>
@@ -81,7 +81,7 @@ export function CampoPage() {
 }
 
 export const Route = createFileRoute('/_private/field/')({
-  component: CampoPage,
+  component: FieldPage,
   staticData: { title: t('field') },
-  validateSearch: (search: Record<string, unknown>): CampoSearch => campoSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): FieldSearch => fieldSearchSchema.parse(search),
 });

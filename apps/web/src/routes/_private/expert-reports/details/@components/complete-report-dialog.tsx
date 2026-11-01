@@ -1,0 +1,34 @@
+import { useState } from 'react';
+import { Checkbox } from '@/components/checkbox.js';
+import { ConfirmDialog } from '@/components/confirm-dialog.js';
+import { t } from '@/lib/helpers/translate.helper.js';
+
+type CompleteReportDialogProps = {
+  pending: boolean;
+  onConfirm: (recordDelivery: boolean) => void;
+  onClose: () => void;
+};
+
+// LAU-03.4: completing locks editing; delivery files the "Entrega do laudo" deadline,
+// posts the movement and advances the case status (AD-126).
+export function CompleteReportDialog({ pending, onConfirm, onClose }: CompleteReportDialogProps) {
+  const [recordDelivery, setRecordDelivery] = useState(true);
+  return (
+    <ConfirmDialog
+      title={t('complete_report_question')}
+      description={t('complete_report_description')}
+      confirmLabel={t('complete')}
+      variant="default"
+      pending={pending}
+      onConfirm={() => onConfirm(recordDelivery)}
+      onClose={onClose}
+    >
+      <Checkbox
+        checked={recordDelivery}
+        onCheckedChange={(checked) => setRecordDelivery(Boolean(checked))}
+        label={t('register_delivery_on_expert_case')}
+        labelClassName="normal-case tracking-normal"
+      />
+    </ConfirmDialog>
+  );
+}

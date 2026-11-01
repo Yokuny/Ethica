@@ -6,7 +6,7 @@ import { parseEnv } from './env.config.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Lê o .env.example real para provar que ele cobre 100% das chaves que
+// Reads the real .env.example to prove it covers 100% of the keys that
 // este envSchema exige.
 const parseDotEnvExample = (): Record<string, string> => {
   const path = join(__dirname, '../../../../.env.example');

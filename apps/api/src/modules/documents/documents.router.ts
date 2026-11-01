@@ -1,0 +1,43 @@
+import { Router } from 'express';
+import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
+import * as documentsController from './documents.controller.js';
+import { type DocumentsRouterDeps, documentCaseParamSchema, financeReportQuerySchema } from './documents.schema.js';
+
+// The finance report also requires viewing finance (AD-137).
+
+// PDFs (AD-119) and data export (AD-122). Mounted on `/documents`.
+export const createDocumentsRouter = (deps: DocumentsRouterDeps): Router => {
+  const router = Router();
+  const guard = [deps.validToken, tenantAssignmentCheck];
+  const providers = { pdf: deps.pdf, storage: deps.storage };
+  const byId = validParams(documentCaseParamSchema);
+
+  router.get(
+    '/expert-cases/:id/sheet',
+    ...guard,
+    can('expert_cases', 'view'),
+    byId,
+    documentsController.sheet(providers),
+  );
+  router.get(
+    '/expert-cases/:id/checklist',
+    ...guard,
+    can('expert_cases', 'view'),
+    byId,
+    documentsController.checklist(providers),
+  );
+  router.get('/deadlines', ...guard, can('reports', 'view'), documentsController.schedule(providers));
+  router.get('/stalled', ...guard, can('reports', 'view'), documentsController.stalled(providers));
+  router.get(
+    '/finance',
+    ...guard,
+    can('reports', 'view'),
+    can('finance', 'view'),
+    validParsedQuery(financeReportQuerySchema),
+    documentsController.finance(providers),
+  );
+  router.get('/export', ...guard, isAdmin, documentsController.runExport);
+  return router;
+};

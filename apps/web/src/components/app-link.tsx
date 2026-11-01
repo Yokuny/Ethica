@@ -7,17 +7,17 @@ import type { ComponentProps, MouseEventHandler, ReactNode } from 'react';
 type AppLinkProps = LinkProps &
   Pick<ComponentProps<'a'>, 'aria-label' | 'title'> & {
     children?: ReactNode;
-    // `title`: texto de destaque (padrão); `description`: texto de apoio.
+    // `title`: highlight text (default); `description`: supporting text.
     as?: 'title' | 'description';
     className?: string;
-    // Link dentro de linha clicável: `(event) => event.stopPropagation()`.
+    // Link inside a clickable row: `(event) => event.stopPropagation()`.
     onClick?: MouseEventHandler<HTMLAnchorElement>;
   };
 
-// Link do sistema: <Link/> de verdade com a base tipográfica de ItemTitle ou
-// ItemDescription, azul escuro com sublinhado tracejado (classe `link`, theme.css)
-// e a seta que avisa que o clique leva a outra tela. Todo link para um registro
-// usa este componente — não monte a combinação à mão.
+// System link: a real <Link/> with the typographic base of ItemTitle or
+// ItemDescription, dark blue with a dashed underline (`link` class, theme.css)
+// and the arrow that signals the click goes to another screen. Every link to a record
+// uses this component — do not assemble the combination by hand.
 export function AppLink({ as = 'title', className, children, ...link }: AppLinkProps) {
   const Text = as === 'title' ? ItemTitle : ItemDescription;
   return (

@@ -8,10 +8,10 @@ const postMock = vi.fn();
 vi.mock('@/lib/api/client.api.js', () => ({ post: postMock }));
 
 const navigateMock = vi.fn();
-// useLocation/useMatches/useRouter: dependências da moldura pública — sem
-// <RouterProvider> nestes testes isolados de página, os hooks reais do
-// TanStack Router lançam. Mocks mínimos só para não quebrar o render; o
-// comportamento de breadcrumb/back-button do Card não é escopo destes testes.
+// useLocation/useMatches/useRouter: dependencies of the public frame — without
+// <RouterProvider> in these isolated page tests, the real
+// TanStack Router hooks throw. Minimal mocks only so the render does not break; the
+// Card breadcrumb/back-button behavior is not in the scope of these tests.
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>();
   return {
@@ -38,7 +38,7 @@ describe('AuthPage', () => {
     expect(screen.getAllByText('Entrar')).toHaveLength(2);
     expect(document.querySelector('a[href="/"]')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Conta' })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('button')).toHaveLength(2); // Tamanho do texto e envio; tema claro fixo.
+    expect(screen.getAllByRole('button')).toHaveLength(2); // Text size and submit; fixed light theme.
   });
 
   it('submits the form and redirects to the private area on a successful login (FND-10/AC2)', async () => {
@@ -47,13 +47,13 @@ describe('AuthPage', () => {
     render(<AuthPage />);
 
     await user.type(screen.getByLabelText('E-mail'), 'admin@empresa.com');
-    await user.type(screen.getByLabelText('Senha'), 'senhaCorreta123');
+    await user.type(screen.getByLabelText('Senha'), 'passwordCorreta123');
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
     await waitFor(() => {
       expect(postMock).toHaveBeenCalledWith('/auth/signin', {
         email: 'admin@empresa.com',
-        password: 'senhaCorreta123',
+        password: 'passwordCorreta123',
       });
     });
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
@@ -65,7 +65,7 @@ describe('AuthPage', () => {
     render(<AuthPage />);
 
     await user.type(screen.getByLabelText('E-mail'), 'admin@empresa.com');
-    await user.type(screen.getByLabelText('Senha'), 'senhaErrada');
+    await user.type(screen.getByLabelText('Senha'), 'passwordErrada');
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
     expect(await screen.findByText('E-mail ou senha inválidos.')).toBeInTheDocument();

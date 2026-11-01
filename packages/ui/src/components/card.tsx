@@ -51,10 +51,10 @@ function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
-// Empilhar com `gap-6` é o que praticamente toda página quer — era isso que
-// cada rota repetia como `className="flex flex-col gap-4"`. Vira o default;
-// quem precisa de outro layout (ex.: inbox, grid de 2 colunas) sobrescreve
-// via className, que aí é layout local e não identidade visual.
+// Stacking with `gap-6` is what practically every page wants — that was what
+// every route repeated as `className="flex flex-col gap-4"`. It becomes the default;
+// whoever needs another layout (e.g. inbox, 2-column grid) overrides
+// through className, which is then local layout and not visual identity.
 function CardContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div data-slot="card-content" className={cn('flex flex-col gap-6 px-(--card-spacing)', className)} {...props} />

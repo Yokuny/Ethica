@@ -1,11 +1,15 @@
-import type { HomeBloco } from '@ethica/contracts';
+import type { HomeBlock } from '@ethica/contracts';
 import { type QueryClient, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 import { get, patch } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Espelha UserPreferences de apps/api/src/modules/identity/preferences.schema.ts: aviso de
-// prazos (AD-110, na conta) e blocos ocultos do início (AD-136).
-export type UserPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean; blocosOcultos: HomeBloco[] };
+// Mirrors UserPreferences of apps/api/src/modules/identity/preferences.schema.ts: deadline
+// reminder (AD-110, in the account) and hidden home blocks (AD-136).
+export type UserPreferences = {
+  onboardingDismissed: boolean;
+  deadlineReminderEmail: boolean;
+  hiddenBlocks: HomeBlock[];
+};
 
 export const preferencesKeys = { all: ['preferences'] as const };
 

@@ -14,8 +14,8 @@ export function OfficeTextsForm({ office }: { office: OfficeView }) {
     <Form {...form}>
       <form noValidate onSubmit={onSubmit} className="flex flex-col items-start gap-4">
         <div className="grid w-full gap-4">
-          <TextareaField control={control} name="cabecalho" label={t('header')} placeholder={t('header_placeholder')} />
-          <TextareaField control={control} name="rodape" label={t('footer')} placeholder={t('footer_placeholder')} />
+          <TextareaField control={control} name="header" label={t('header')} placeholder={t('header_placeholder')} />
+          <TextareaField control={control} name="footer" label={t('footer')} placeholder={t('footer_placeholder')} />
           <ItemDescription className="line-clamp-none">
             {t('document_markers_hint')} {DOCUMENT_MARKERS.join(' · ')}
           </ItemDescription>

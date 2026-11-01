@@ -11,8 +11,8 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = 'label',
   buttonVariant = 'ghost',
-  // Mês e dias da semana no idioma do usuário — o locale vem do helper de
-  // datas, nunca importado de date-fns aqui.
+  // Month and weekdays in the user's language — the locale comes from the dates
+  // helper, never imported from date-fns here.
   locale = ptBR,
   formatters,
   components,

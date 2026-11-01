@@ -10,15 +10,15 @@ type TablePaginationProps = {
   onPaginationChange: (state: { pageIndex: number; pageSize: number }) => void;
 };
 
-// Contador + setas: era copiado verbatim nos seis `@components/*-table.tsx`
+// Counter + arrows: it used to be copied verbatim into the six `@components/*-table.tsx`
 // (customers, professionals, spaces, products, conversation, orders). Toda
-// tabela é server-driven (apps/web/CLAUDE.md), então só emite a nova página —
-// nunca fatia dados em memória.
+// the table is server-driven (apps/web/CLAUDE.md), so it only emits the new page —
+// never slices data in memory.
 function TablePagination({ pageIndex, pageSize, pageCount, onPaginationChange }: TablePaginationProps) {
   return (
     <div
       data-slot="table-pagination"
-      // Dentro do `DataTable` vira o rodapé do painel, abaixo de um fio.
+      // Inside `DataTable` it becomes the panel footer, below a rule.
       className="flex items-center justify-end gap-2 in-data-[slot=data-table]:border-t in-data-[slot=data-table]:px-4 in-data-[slot=data-table]:py-2"
     >
       <ItemDescription className="line-clamp-none">

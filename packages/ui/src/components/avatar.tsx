@@ -4,10 +4,10 @@ import { Avatar as AvatarPrimitive } from '@base-ui/react/avatar';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils.js';
 
-// Avatar redondo por padrão (a única forma `rounded-full` além da bolinha de
-// status); `shape="square"` é o retrato do cartão de destaque, com canto
-// `rounded-2xl`. Sem foto, o fallback mostra iniciais na tinta azul com a tinta
-// azul escura — sempre o par (apps/web/DESIGN.md, Secondary).
+// Round avatar by default (the only `rounded-full` shape besides the status
+// dot); `shape="square"` is the highlight card portrait, with a
+// `rounded-2xl` corner. Without a photo, the fallback shows initials in the blue ink with the ink
+// dark blue — always the pair (apps/web/DESIGN.md, Secondary).
 const avatarVariants = cva('relative inline-flex shrink-0 select-none overflow-hidden', {
   variants: {
     size: {

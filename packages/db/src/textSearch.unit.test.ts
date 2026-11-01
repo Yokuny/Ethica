@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  caseSearchStages,
   isSearchUnavailableError,
-  periciaSearchStages,
   SEARCH_INDEXES,
   searchDefinitionMatches,
   TextSearchUnavailableError,
@@ -14,7 +14,7 @@ const stageOf = (stages: unknown[]) =>
 
 describe('periciaSearchStages (montagem do $search)', () => {
   it('o filtro de tenant vai DENTRO do $search, como ObjectId, e é o primeiro estágio', () => {
-    const stages = periciaSearchStages(ID, { q: 'insalubridade' });
+    const stages = caseSearchStages(ID, { q: 'unhealthyConditions' });
     expect(Object.keys(stages[0] as object)).toEqual(['$search']);
     const filter = (stageOf(stages).compound.filter as { equals: { path: string; value: unknown } }[])[0];
     expect(filter?.equals.path).toBe('Tenant');
@@ -23,51 +23,51 @@ describe('periciaSearchStages (montagem do $search)', () => {
   });
 
   it('cada palavra é uma cláusula must (E), buscando em qualquer campo de texto (OU)', () => {
-    const must = stageOf(periciaSearchStages(ID, { q: 'ruído   metalúrgica' })).compound.must as {
+    const must = stageOf(caseSearchStages(ID, { q: 'ruído   metalúrgica' })).compound.must as {
       compound: { should: { autocomplete: { query: string; path: string } }[]; minimumShouldMatch: number };
     }[];
     expect(must).toHaveLength(2);
     expect(must[0]?.compound.should.map((c) => c.autocomplete.path)).toEqual([
-      'numeroProcesso',
-      'objeto',
-      'vara',
-      'comarca',
-      'partes.nome',
+      'processNumber',
+      'subject',
+      'division',
+      'district',
+      'parties.name',
     ]);
     expect(must[0]?.compound.minimumShouldMatch).toBe(1);
     expect(must[1]?.compound.should[0]?.autocomplete.query).toBe('metalúrgica');
   });
 
   it('palavra acima do máximo do índice é cortada para não sumir do resultado', () => {
-    const must = stageOf(periciaSearchStages(ID, { q: 'a'.repeat(40) })).compound.must as {
+    const must = stageOf(caseSearchStages(ID, { q: 'a'.repeat(40) })).compound.must as {
       compound: { should: { autocomplete: { query: string } }[] };
     }[];
     expect(must[0]?.compound.should[0]?.autocomplete.query).toHaveLength(15);
   });
 
   it('os índices declarados cobrem perícias e partes', () => {
-    expect(SEARCH_INDEXES.map((index) => index.collection)).toEqual(['pericias', 'partes']);
+    expect(SEARCH_INDEXES.map((index) => index.collection)).toEqual(['cases', 'parties']);
   });
 
   it('o $search nunca usa regex nem $text', () => {
-    const json = JSON.stringify(periciaSearchStages(ID, { q: 'x' }));
+    const json = JSON.stringify(caseSearchStages(ID, { q: 'x' }));
     expect(json).not.toMatch(/regex|\$text/);
   });
 });
 
 describe('searchDefinitionMatches (definição normalizada pelo Atlas)', () => {
-  const [pericia] = SEARCH_INDEXES;
-  const wanted = pericia.definition;
+  const [legalCase] = SEARCH_INDEXES;
+  const wanted = legalCase.definition;
   const ac = { type: 'autocomplete', minGrams: 1, maxGrams: 15, foldDiacritics: true, tokenization: 'nGram' };
-  // O que o Atlas devolve: chaves reordenadas e defaults acrescentados.
+  // What Atlas returns: reordered keys and added defaults.
   const normalized = {
     mappings: {
       fields: {
-        comarca: { ...ac },
-        vara: { ...ac },
-        partes: { fields: { nome: { ...ac } }, type: 'document', dynamic: false },
-        objeto: { ...ac },
-        numeroProcesso: { ...ac },
+        district: { ...ac },
+        division: { ...ac },
+        parties: { fields: { name: { ...ac } }, type: 'document', dynamic: false },
+        subject: { ...ac },
+        processNumber: { ...ac },
         Tenant: { type: 'objectId' },
       },
       dynamic: false,
@@ -80,11 +80,11 @@ describe('searchDefinitionMatches (definição normalizada pelo Atlas)', () => {
 
   it('detecta valor alterado, campo faltando e campo sobrando', () => {
     const changed = structuredClone(normalized);
-    changed.mappings.fields.objeto.minGrams = 2;
+    changed.mappings.fields.subject.minGrams = 2;
     expect(searchDefinitionMatches(changed, wanted)).toBe(false);
 
-    const { objeto: _objeto, ...withoutObjeto } = normalized.mappings.fields;
-    expect(searchDefinitionMatches({ mappings: { ...normalized.mappings, fields: withoutObjeto } }, wanted)).toBe(
+    const { subject: _subject, ...withoutSubject } = normalized.mappings.fields;
+    expect(searchDefinitionMatches({ mappings: { ...normalized.mappings, fields: withoutSubject } }, wanted)).toBe(
       false,
     );
 

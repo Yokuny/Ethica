@@ -17,17 +17,17 @@ export const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().optional(),
-  // API Pública do Datajud (CNJ): chave publicada pelo CNJ na documentação da
-  // API, enviada como `Authorization: APIKey <chave>`. Sem ela, a busca de
-  // prospecção responde `datajud_not_configured` e o resto do app funciona.
+  // Datajud Public API (CNJ): key published by CNJ in the API
+  // documentation, sent as `Authorization: APIKey <key>`. Without it, the prospecting
+  // search answers `datajud_not_configured` and the rest of the app works.
   DATAJUD_API_KEY: optionalSecret,
   DATAJUD_BASE_URL: z.string().default('https://api-publica.datajud.cnj.jus.br'),
-  // Geocodificação do mapa de campo (AD-131): Nominatim público por padrão.
+  // Field map geocoding (AD-131): public Nominatim by default.
   GEOCODER_URL: z.string().default('https://nominatim.openstreetmap.org'),
   GEOCODER_USER_AGENT: z.string().default('Ethica/1.0 (gestao de pericias)'),
-  // PDF (AD-119): Chromium do sistema (pacote `chromium` do Debian no Dockerfile.dev).
+  // PDF (AD-119): system Chromium (Debian `chromium` package in Dockerfile.dev).
   CHROMIUM_PATH: z.string().default('/usr/bin/chromium'),
-  // Arquivos do tenant (AD-120). Sem bucket, o envio do logo responde `storage_not_configured`.
+  // Tenant files (AD-120). Without a bucket, the logo upload answers `storage_not_configured`.
   S3_ENDPOINT: optionalSecret,
   S3_REGION: z.string().default('us-east-1'),
   S3_BUCKET: optionalSecret,
@@ -37,8 +37,8 @@ export const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-// safeParse (não parse): controla a mensagem de falha para NOMEAR a variável
-// ausente, em vez de expor o erro cru do Zod.
+// safeParse (not parse): controls the failure message to NAME the missing
+// variable instead of exposing the raw Zod error.
 export const parseEnv = (source: NodeJS.ProcessEnv): Env => {
   const result = envSchema.safeParse(source);
   if (!result.success) {
@@ -48,6 +48,6 @@ export const parseEnv = (source: NodeJS.ProcessEnv): Env => {
   return result.data;
 };
 
-// Validado no import do módulo — falha aqui derruba o boot antes de qualquer
-// tráfego ser aceito.
+// Validated when the module is imported — a failure here brings the boot down before any
+// traffic is accepted.
 export const env = parseEnv(process.env);

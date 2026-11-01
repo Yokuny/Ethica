@@ -1,19 +1,19 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { domainEventBus } from './event-bus.js';
-import type { PericiaHonorariosFixadosPayload } from './event-types.js';
+import type { CaseFixedFeesPayload } from './event-types.js';
 
-type Handler = (payload: PericiaHonorariosFixadosPayload) => Promise<void>;
+type Handler = (payload: CaseFixedFeesPayload) => Promise<void>;
 
 describe('domainEventBus', () => {
   const registered: Handler[] = [];
   const subscribe = (handler: Handler): Handler => {
     registered.push(handler);
-    domainEventBus.on('pericia:honorarios_fixados', handler);
+    domainEventBus.on('case:fixed_fees', handler);
     return handler;
   };
 
   afterEach(() => {
-    for (const handler of registered.splice(0)) domainEventBus.off('pericia:honorarios_fixados', handler);
+    for (const handler of registered.splice(0)) domainEventBus.off('case:fixed_fees', handler);
     vi.restoreAllMocks();
   });
 
@@ -21,13 +21,13 @@ describe('domainEventBus', () => {
     const handler = subscribe(vi.fn<Handler>().mockResolvedValue(undefined));
     const payload = {
       tenantId: 't1',
-      periciaId: 'p1',
-      numeroProcesso: '0000001-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      caseId: 'p1',
+      processNumber: '0000001-00.2026.5.02.0001',
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     };
 
-    domainEventBus.emit('pericia:honorarios_fixados', payload);
+    domainEventBus.emit('case:fixed_fees', payload);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(vi.mocked(handler).mock.calls[0][0]).toBe(payload);
@@ -39,51 +39,51 @@ describe('domainEventBus', () => {
     const healthy = subscribe(vi.fn<Handler>().mockResolvedValue(undefined));
 
     expect(() =>
-      domainEventBus.emit('pericia:honorarios_fixados', {
+      domainEventBus.emit('case:fixed_fees', {
         tenantId: 't1',
-        periciaId: 'p1',
-        numeroProcesso: '0000001-00.2026.5.02.0001',
-        valorCents: 100_000,
-        categoria: 'fixed_fees' as const,
+        caseId: 'p1',
+        processNumber: '0000001-00.2026.5.02.0001',
+        amountCents: 100_000,
+        category: 'fixed_fees' as const,
       }),
     ).not.toThrow();
 
     await vi.waitFor(() => expect(errorSpy).toHaveBeenCalledTimes(1));
     expect(JSON.parse(errorSpy.mock.calls[0][0] as string)).toEqual({
       event: 'domain_event.handler_failed',
-      name: 'pericia:honorarios_fixados',
+      name: 'case:fixed_fees',
       message: 'seed exploded',
     });
     expect(healthy).toHaveBeenCalledWith({
       tenantId: 't1',
-      periciaId: 'p1',
-      numeroProcesso: '0000001-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      caseId: 'p1',
+      processNumber: '0000001-00.2026.5.02.0001',
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     });
   });
 
   it('stops calling a handler after off(event, handler) with the same handler passed to on', () => {
     const handler = subscribe(vi.fn<Handler>().mockResolvedValue(undefined));
-    domainEventBus.emit('pericia:honorarios_fixados', {
+    domainEventBus.emit('case:fixed_fees', {
       tenantId: 't1',
-      periciaId: 'p1',
-      numeroProcesso: '0000001-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      caseId: 'p1',
+      processNumber: '0000001-00.2026.5.02.0001',
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     });
     expect(handler).toHaveBeenCalledTimes(1);
 
-    domainEventBus.off('pericia:honorarios_fixados', handler);
-    domainEventBus.emit('pericia:honorarios_fixados', {
+    domainEventBus.off('case:fixed_fees', handler);
+    domainEventBus.emit('case:fixed_fees', {
       tenantId: 't2',
-      periciaId: 'p2',
-      numeroProcesso: '0000002-00.2026.5.02.0001',
-      valorCents: 100_000,
-      categoria: 'fixed_fees' as const,
+      caseId: 'p2',
+      processNumber: '0000002-00.2026.5.02.0001',
+      amountCents: 100_000,
+      category: 'fixed_fees' as const,
     });
 
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(domainEventBus.listenerCount('pericia:honorarios_fixados')).toBe(0);
+    expect(domainEventBus.listenerCount('case:fixed_fees')).toBe(0);
   });
 });

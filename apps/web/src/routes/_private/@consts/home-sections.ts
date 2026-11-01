@@ -17,7 +17,7 @@ export const HOME_SECTIONS = [
   {
     to: '/expert-cases',
     titleKey: 'expert_cases',
-    descriptionKey: 'track_each_pericia_from_appointment_to_report',
+    descriptionKey: 'track_each_expert_case_from_appointment_to_report',
     icon: Gavel,
     access: 'expert_cases',
   },

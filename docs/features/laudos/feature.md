@@ -2,7 +2,7 @@
 feature: Laudo automatizado
 slug: laudos
 descricao: Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word
-data: 2026-10-31
+data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
 decisoes: [AD-103, AD-107, AD-113, AD-119, AD-121, AD-123, AD-124, AD-125, AD-126, AD-127]
@@ -12,7 +12,7 @@ branches: [feat/laudos]
 
 # Laudo automatizado
 
-**Status**: concluido · **Atualizado**: 2026-10-31 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), o código é a fonte da
 > verdade. Correlação com o git: `git log --oneline -i --grep='laudos'`.
@@ -34,27 +34,27 @@ O laudo era escrito fora do Ethica, redigitando número, partes e datas e repeti
 
 ### `apps/api`
 
-- `apps/api/src/modules/documentos/` passa a ser dono de `Laudo` e `ModeloLaudo` (tabela de ownership em `apps/api/CLAUDE.md`):
-  - `laudo.router.ts` (`/expert-reports/*`, montado em `apps/api/src/app.ts` com `express.json` de 1 MB só nesse prefixo), `laudo.controller.ts`, `laudo.schema.ts`.
-  - `modeloLaudo.service.ts` / `modeloLaudo.repository.ts` — modelos do escritório, padrão só leitura, clonar, seções e reordenação.
-  - `laudo.service.ts` / `laudo.repository.ts` — criar, abrir (resolve de novo), editar e remover seção, concluir (o bloqueio de rascunho é o filtro `status: 'draft'` no repository), exportar.
-  - `laudo.biblioteca.ts` — os dois modelos padrão; `laudo.html.ts` — saneamento, resolução e pendências; `laudo.variaveis.ts` — valor de cada variável; `laudo.templates.ts` — HTML do PDF; `laudo.docx.ts` — Word com `docx` + `htmlparser2`.
-  - `documento.layout.ts` ganhou `cabecalhoRodape` e `textosCabecalhoRodape`, usados pelos PDFs antigos, pelo laudo e pelo Word.
-- `apps/api/src/modules/pericia/prazo.service.ts` — `protocolarEntregaDoLaudo`; o título "Entrega do laudo" é `PRAZO_ENTREGA_LAUDO` em `prazo.schema.ts`.
-- `apps/api/src/modules/pericia/pericia.service.ts` emite `pericia:deleted`; `apps/api/src/events/subscribers/documentos.subscriber.ts` exclui os laudos.
+- `apps/api/src/modules/documents/` passa a ser dono de `Report` e `Template` (tabela de ownership em `apps/api/CLAUDE.md`):
+  - `report.router.ts` (`/expert-reports/*`, montado em `apps/api/src/app.ts` com `express.json` de 1 MB só nesse prefixo), `report.controller.ts`, `report.schema.ts`.
+  - `template.service.ts` / `template.repository.ts` — modelos do escritório, padrão só leitura, clonar, seções e reordenação.
+  - `report.service.ts` / `report.repository.ts` — criar, abrir (resolve de novo), editar e remover seção, concluir (o bloqueio de rascunho é o filtro `status: 'draft'` no repository), exportar.
+  - `report.library.ts` — os dois modelos padrão; `report.html.ts` — saneamento, resolução e pendências; `report.variables.ts` — valor de cada variável; `report.templates.ts` — HTML do PDF; `report.docx.ts` — Word com `docx` + `htmlparser2`.
+  - `document.layout.ts` ganhou `headerFooter` e `textsHeaderFooter`, usados pelos PDFs antigos, pelo laudo e pelo Word.
+- `apps/api/src/modules/case/deadline.service.ts` — `fileReportDelivery`; o título "Entrega do laudo" é `REPORT_DELIVERY_DEADLINE` em `deadline.schema.ts`.
+- `apps/api/src/modules/case/case.service.ts` emite `case:deleted`; `apps/api/src/events/subscribers/documents.subscriber.ts` exclui os laudos.
 - `apps/api/scripts/seed-demo.ts` — modelo do escritório e um laudo em rascunho.
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/expert-reports/` — hub, `list/`, `add/` (seletor de perícia e árvore de seções), `details/` (navegação de seções, editor da seção, diálogo de conclusão) e `modelos/` (lista, criar/duplicar, `details/` com o formulário de seção).
-- `apps/web/src/components/rich-text-editor.tsx` — Tiptap com a barra, "Inserir variável" e o destaque dos marcadores; `laudo-labels.ts` — rótulos das variáveis e do status.
-- `apps/web/src/query/laudo.ts`; `canManageReportTemplates` em `apps/web/src/query/session.ts`.
-- `apps/web/src/routes/_private/expert-cases/details/@components/pericia-laudos.tsx` — painel de laudos no detalhe da perícia; "Laudos" no grupo "Trabalho" da navegação.
+- `apps/web/src/routes/_private/expert-reports/` — hub, `list/`, `add/` (seletor de perícia e árvore de seções), `details/` (navegação de seções, editor da seção, diálogo de conclusão) e `templates/` (lista, criar/duplicar, `details/` com o formulário de seção).
+- `apps/web/src/components/rich-text-editor.tsx` — Tiptap com a barra, "Inserir variável" e o destaque dos marcadores; `report-labels.ts` — rótulos das variáveis e do status.
+- `apps/web/src/query/report.ts`; `canManageReportTemplates` em `apps/web/src/query/session.ts`.
+- `apps/web/src/routes/_private/expert-cases/details/@components/case-reports.tsx` — painel de laudos no detalhe da perícia; "Laudos" no grupo "Trabalho" da navegação.
 
 ### `packages`
 
-- `packages/contracts/src/schemas/laudo.schema.ts` — tipos, status, variantes, `LAUDO_VARIAVEIS`, `LAUDO_HTML_TAGS`, `numerarSecoes` e os schemas de entrada; chaves de erro em `packages/contracts/src/response/messages.ts`.
-- `packages/db/src/models/{laudo,modeloLaudo}.model.ts`. Sem migração: seed refeito.
+- `packages/contracts/src/schemas/report.schema.ts` — tipos, status, variantes, `REPORT_VARIABLES`, `REPORT_HTML_TAGS`, `numberSections` e os schemas de entrada; chaves de erro em `packages/contracts/src/response/messages.ts`.
+- `packages/db/src/models/{report,template}.model.ts`. Sem migração: seed refeito.
 
 ## Como testar
 
@@ -76,8 +76,9 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
-- 2026-11-01 — Concluir com a entrega também põe a fase "aguardando manifestação das partes"; modelos seguem a permissão `modelos` da matriz (`docs/features/gestao-escritorio/feature.md`, AD-133, AD-137).
+- 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
+- 2026-11-01 — Concluir com a entrega também põe a fase "aguardando manifestação das partes"; modelos seguem a permissão `templates` da matriz (`docs/features/gestao-escritorio/feature.md`, AD-133, AD-137).
 - 2026-10-31 — Fotos da vistoria no laudo (`img` restrito às mídias do tenant, no PDF e no Word) e variáveis de campo da última vistoria feita, usadas no modelo padrão em "Metodologia e vistoria" e "Atividades exercidas" (`docs/features/campo-vistorias/feature.md`, AD-129, AD-130).
-- 2026-10-31 — Implementado LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (AD-123 a AD-127); validação em `.specs/features/laudos/validation.md`. Divergências do design: o rascunho passou a ser resolvido de novo a cada abertura (achado na UAT: a tela mostrava pendência que a exportação já resolvia); o limite de 1 MB do JSON ficou no prefixo `/expert-reports` em `app.ts`, porque o parser global corre antes da rota; `[DATA_VISTORIA]` lê `compromissoService.listDaPericia` em vez de uma função nova; o status do laudo tem rótulo próprio ("Concluído") em vez da chave `completed` da perícia.
+- 2026-10-31 — Implementado LAU-01, LAU-02, LAU-03, LAU-05 e LAU-06 (AD-123 a AD-127); validação em `.specs/features/laudos/validation.md`. Divergências do design: o rascunho passou a ser resolvido de novo a cada abertura (achado na UAT: a tela mostrava pendência que a exportação já resolvia); o limite de 1 MB do JSON ficou no prefixo `/expert-reports` em `app.ts`, porque o parser global corre antes da rota; `[DATA_VISTORIA]` lê `appointmentService.listByCase` em vez de uma função nova; o status do laudo tem rótulo próprio ("Concluído") em vez da chave `completed` da perícia.
 - 2026-10-31 — Pendência atualizada: a base de documentos (`documentos-pdf`, AD-119 a AD-122) está pronta para o laudo reaproveitar.
 - 2026-10-31 — Spec criada (`.specs/features/laudos/spec.md`).

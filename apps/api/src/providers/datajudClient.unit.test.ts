@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildDatajudQuery, createDatajudClient, DatajudUnavailableError, formatNumeroCnj } from './datajudClient.js';
+import { buildDatajudQuery, createDatajudClient, DatajudUnavailableError, formatCnjNumber } from './datajudClient.js';
 
 const hit = (numero: string, sort: number) => ({
   _source: {
@@ -16,16 +16,16 @@ const hit = (numero: string, sort: number) => ({
   sort: [sort],
 });
 
-describe('formatNumeroCnj', () => {
+describe('formatCnjNumber', () => {
   it('aplica a máscara do CNJ aos 20 dígitos e devolve como veio quando não são 20', () => {
-    expect(formatNumeroCnj('00012345620265020001')).toBe('0001234-56.2026.5.02.0001');
-    expect(formatNumeroCnj('123')).toBe('123');
+    expect(formatCnjNumber('00012345620265020001')).toBe('0001234-56.2026.5.02.0001');
+    expect(formatCnjNumber('123')).toBe('123');
   });
 });
 
 describe('buildDatajudQuery', () => {
   it('sem termo nem órgão busca tudo, ordenado do mais recente', () => {
-    expect(buildDatajudQuery({ tribunal: 'trt2' })).toEqual({
+    expect(buildDatajudQuery({ court: 'trt2' })).toEqual({
       size: 20,
       query: { match_all: {} },
       sort: [{ '@timestamp': { order: 'desc' } }],
@@ -34,9 +34,9 @@ describe('buildDatajudQuery', () => {
 
   it('termo vira multi_match nos movimentos/assuntos/classe e o cursor vira search_after', () => {
     const body = buildDatajudQuery({
-      tribunal: 'trt2',
-      termo: 'perito',
-      orgaoJulgador: '1ª Vara',
+      court: 'trt2',
+      term: 'perito',
+      courtUnit: '1ª Vara',
       size: 5,
       cursor: [9],
     });
@@ -62,18 +62,18 @@ describe('createDatajudClient', () => {
       );
     const client = createDatajudClient({ baseUrl: 'https://datajud.test', apiKey: 'k', fetchImpl });
 
-    const result = await client.search({ tribunal: 'trt2', termo: 'perito', size: 1 });
+    const result = await client.search({ court: 'trt2', term: 'perito', size: 1 });
 
     const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
     expect(url).toBe('https://datajud.test/api_publica_trt2/_search');
     expect((init.headers as Record<string, string>).Authorization).toBe('APIKey k');
     expect(result.items[0]).toMatchObject({
-      numeroProcesso: '0001234-56.2026.5.02.0001',
-      tribunal: 'trt2',
-      assuntos: ['Insalubridade', 'Periculosidade'],
-      ultimoMovimento: 'Nomeado perito',
+      processNumber: '0001234-56.2026.5.02.0001',
+      court: 'trt2',
+      subjects: ['Insalubridade', 'Periculosidade'],
+      lastMovement: 'Nomeado perito',
     });
-    // Página cheia: devolve o cursor para a próxima.
+    // Full page: returns the cursor for the next one.
     expect(result.cursor).toEqual([1]);
   });
 
@@ -83,13 +83,13 @@ describe('createDatajudClient', () => {
       apiKey: 'k',
       fetchImpl: vi.fn().mockResolvedValue(new Response('{}', { status: 429 })),
     });
-    await expect(failing.search({ tribunal: 'trt2' })).rejects.toBeInstanceOf(DatajudUnavailableError);
+    await expect(failing.search({ court: 'trt2' })).rejects.toBeInstanceOf(DatajudUnavailableError);
 
     const offline = createDatajudClient({
       baseUrl: 'https://datajud.test',
       apiKey: 'k',
       fetchImpl: vi.fn().mockRejectedValue(new TypeError('fetch failed')),
     });
-    await expect(offline.search({ tribunal: 'trt2' })).rejects.toBeInstanceOf(DatajudUnavailableError);
+    await expect(offline.search({ court: 'trt2' })).rejects.toBeInstanceOf(DatajudUnavailableError);
   });
 });

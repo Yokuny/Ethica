@@ -1,12 +1,12 @@
 import { connect, disconnect, provisionSearchIndexes } from '@ethica/db';
 import { env } from '../src/config/env.config.js';
 
-// ENR-13.7 (AD-054): cria/atualiza os índices do Atlas Search (cliente e
-// produto). Índice de busca não é índice Mongoose: o `syncIndexes` não o cobre,
-// e a definição vive em packages/db/src/textSearch.ts (SEARCH_INDEXES).
-// Idempotente — rodar de novo não muda nada. A base é a do MONGODB_URI do
-// ambiente, que precisa ser MongoDB Atlas: o container local do compose em dev, o
-// cluster hospedado em produção (padrão único, AD-059).
+// ENR-13.7 (AD-054): creates/updates the Atlas Search indexes (customer and
+// product). A search index is not a Mongoose index: `syncIndexes` does not cover it,
+// and the definition lives in packages/db/src/textSearch.ts (SEARCH_INDEXES).
+// Idempotent — running again changes nothing. The database is the one from the environment's
+// MONGODB_URI, which has to be MongoDB Atlas: the local compose container in dev, the
+// hosted cluster in production (single pattern, AD-059).
 //
 //   pnpm --filter api run search:provision
 const run = async (): Promise<void> => {

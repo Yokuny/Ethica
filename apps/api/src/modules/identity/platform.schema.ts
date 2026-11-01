@@ -1,11 +1,11 @@
-import type { CreateInvite, Permissoes, ProvisionTenant, Role } from '@ethica/contracts';
+import type { CreateInvite, Permissions, ProvisionTenant, Role } from '@ethica/contracts';
 import { createInviteSchema, idSchema, provisionTenantSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { MailProvider } from '../../providers/mail/index.js';
 
 export type { CreateInvite, ProvisionTenant };
-// MOD-08: schemas de entrada e tipos do módulo num lugar só.
+// MOD-08: input schemas and module types in a single place.
 export { createInviteSchema, provisionTenantSchema };
 
 export const tenantIdParamSchema = z.object({ id: idSchema }).strict();
@@ -23,7 +23,7 @@ export type CreateInviteInput = {
   tenant: string;
   email: string;
   role: Role;
-  permissoes?: Permissoes;
+  permissions?: Permissions;
   tokenHash: string;
   expiresAt: Date;
   invitedBy: string;

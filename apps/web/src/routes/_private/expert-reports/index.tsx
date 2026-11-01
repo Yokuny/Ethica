@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Hub do módulo: laudos e pareceres redigidos e os modelos do escritório.
-export function LaudosIndexPage() {
+// Module hub: drafted reports and opinions and the office templates.
+export function ReportsIndexPage() {
   return (
     <Card asPage>
       <CardHeader title={t('reports_and_opinions')} />
@@ -44,6 +44,6 @@ export function LaudosIndexPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-reports/')({
-  component: LaudosIndexPage,
+  component: ReportsIndexPage,
   staticData: { title: t('reports_and_opinions') },
 });

@@ -6,23 +6,23 @@ import { cn } from 'cn';
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import { Children, type ComponentProps, createContext, type ReactNode, useContext, useId } from 'react';
 
-// Página de registro (AD-072, AD-090): o layout final dos modelos do
-// iotlog-frontend-v2 (FAS, OS preenchida, OS concluída), em blocos empilhados:
-//   1. RecordHeader — um ou mais pares rótulo em caixa alta + título grande
-//      (RecordHeadingGroup), e à direita um segundo par ou o status;
-//   2. RecordStats — faixa de destaques entre fios (em cima e embaixo), células
-//      separadas por divisória vertical, rótulo em caixa alta e valor a 24px;
-//   3. RecordTable — lista livre (checklist): título grande, linhas entre fios,
-//      ícone de situação opcional e células rótulo-sobre-valor.
-// A identidade toda mora aqui: a tela só escolhe os dados e não passa classe.
-// Seções rótulo/valor ficam no ProductSpecs (AD-091).
-// Todo texto é ItemTitle ou ItemDescription.
+// Record page (AD-072, AD-090): the final layout of the
+// iotlog-frontend-v2 models (FAS, filled work order, completed work order), in stacked blocks:
+//   1. RecordHeader — one or more uppercase label + large title pairs
+//      (RecordHeadingGroup), and on the right a second pair or the status;
+//   2. RecordStats — highlight strip between rules (top and bottom), cells
+//      split by a vertical divider, uppercase label and value at 24px;
+//   3. RecordTable — free list (checklist): large title, rows between rules,
+//      optional state icon and label-over-value cells.
+// The whole identity lives here: the screen only picks the data and passes no class.
+// Label/value sections stay in ProductSpecs (AD-091).
+// Every text is ItemTitle or ItemDescription.
 
-// Rótulo em caixa alta do cabeçalho e da faixa (o "ORDEM"/"ATIVO" do IOT).
+// Uppercase label of the header and the strip (the IOT "ORDEM"/"ATIVO").
 const captionClass =
   'line-clamp-none font-caption font-medium text-[length:var(--caption-size)] uppercase tracking-[0.06em]';
 
-// ─── 1. Cabeçalho ────────────────────────────────────────────────────────────
+// ─── 1. Header ───────────────────────────────────────────────────────────────
 
 export function RecordHeader({ className, ...props }: ComponentProps<'div'>) {
   return (
@@ -34,7 +34,7 @@ export function RecordHeader({ className, ...props }: ComponentProps<'div'>) {
   );
 }
 
-// Vários pares lado a lado à esquerda do cabeçalho (ex.: ordem + embarcação).
+// Several pairs side by side on the left of the header (e.g. order + vessel).
 export function RecordHeadingGroup({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
@@ -49,11 +49,11 @@ type RecordHeadingProps = {
   label: string;
   title: ReactNode;
   icon?: ReactNode;
-  // Selo em seguida do rótulo (ex.: "Atrasada" ao lado de "Tarefa").
+  // Badge right after the label (e.g. "Atrasada" next to "Tarefa").
   badge?: ReactNode;
-  // Linha secundária ao lado do título (ex.: cidade - estado no modelo de OS).
+  // Secondary line next to the title (e.g. city - state in the work order model).
   description?: ReactNode;
-  // `end`: o par da direita do cabeçalho.
+  // `end`: the header's right pair.
   align?: 'start' | 'end';
 };
 
@@ -72,7 +72,7 @@ export function RecordHeading({ label, title, icon, badge, description, align = 
         </div>
         <div className={cn('flex flex-wrap items-baseline gap-x-4 gap-y-1', align === 'end' && 'sm:justify-end')}>
           <ItemTitle
-            // biome-ignore lint/a11y/useHeadingContent: o título chega como children do ItemTitle
+            // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
             render={<h2 />}
             className="text-2xl text-impact"
           >
@@ -91,7 +91,7 @@ type RecordStatusProps = {
   pulse?: boolean;
 };
 
-// Estado do registro no lado direito do cabeçalho (modelo da OS preenchida).
+// Record state on the right side of the header (filled work order model).
 export function RecordStatus({ variant, label, pulse = true }: RecordStatusProps) {
   return (
     <div data-slot="record-status" className="flex shrink-0 items-center gap-2">
@@ -101,9 +101,9 @@ export function RecordStatus({ variant, label, pulse = true }: RecordStatusProps
   );
 }
 
-// ─── 2. Faixa de destaques ───────────────────────────────────────────────────
+// ─── 2. Highlight strip ──────────────────────────────────────────────────────
 
-// Por número de colunas (a partir de md).
+// By number of columns (from md up).
 const statsColumns: Record<1 | 2 | 3 | 4 | 5, string> = {
   1: 'md:grid-cols-1',
   2: 'md:grid-cols-2',
@@ -112,10 +112,10 @@ const statsColumns: Record<1 | 2 | 3 | 4 | 5, string> = {
   5: 'md:grid-cols-5',
 };
 
-// `ruled` (padrão): faixa do registro no modelo do IOT — fios em cima e
-// embaixo, divisória vertical entre células, rótulo em caixa alta, valor a 24px.
-// `band`: faixa de indicadores das listagens (superfície cinza, sparkline,
-// régua e tendência), sem divisórias.
+// `ruled` (default): record strip in the IOT model — rules on top and
+// bottom, vertical divider between cells, uppercase label, value at 24px.
+// `band`: listing indicator strip (gray surface, sparkline,
+// ruler and trend), without dividers.
 type RecordStatsVariant = 'ruled' | 'band';
 
 const StatsVariantContext = createContext<RecordStatsVariant>('ruled');
@@ -127,7 +127,7 @@ const statsVariantClass: Record<RecordStatsVariant, string> = {
 };
 
 type RecordStatsProps = ComponentProps<'div'> & {
-  // Colunas a partir de `md`; padrão = número de células (até 5).
+  // Columns from `md` up; default = number of cells (up to 5).
   columns?: 1 | 2 | 3 | 4 | 5;
   variant?: RecordStatsVariant;
 };
@@ -152,17 +152,17 @@ type RecordStatProps = Omit<useRender.ComponentProps<'div'>, 'children'> & {
   label: string;
   value: ReactNode;
   headerAction?: ReactNode;
-  // Complemento pequeno ao lado do valor (ex.: "94%").
+  // Small complement next to the value (e.g. "94%").
   hint?: ReactNode;
-  // Proporção (0 a 1) desenhada como régua de traços sob o valor.
+  // Ratio (0 to 1) drawn as a dash ruler under the value.
   ratio?: number;
-  // Série temporal compacta e direção calculada a partir de dados reais.
+  // Compact time series and direction calculated from real data.
   sparkline?: number[];
   trend?: 'up' | 'down' | 'stable';
   trendLabel?: string;
-  // Regra que define o número (indicador de relatório).
+  // Rule that defines the number (report indicator).
   description?: ReactNode;
-  // Bolinha de status antes do valor (cor do tenant ou variante semântica).
+  // Status dot before the value (tenant color or semantic variant).
   dot?: Pick<ComponentProps<typeof BadgeIndicator>, 'color' | 'variant'>;
 };
 
@@ -224,7 +224,7 @@ function Ruler({ ratio }: { ratio: number }) {
     <div aria-hidden className="relative flex h-4 items-end justify-between gap-[3px] pt-1">
       {Array.from({ length: RULER_TICKS }, (_, index) => (
         <span
-          // biome-ignore lint/suspicious/noArrayIndexKey: ticks são posições fixas
+          // biome-ignore lint/suspicious/noArrayIndexKey: ticks are fixed positions
           key={index}
           className={cn('h-2 w-px shrink-0', index < filled ? 'bg-impact' : 'bg-border')}
         />
@@ -237,8 +237,8 @@ function Ruler({ ratio }: { ratio: number }) {
   );
 }
 
-// Uma célula da faixa. Com `render={<Link …/>}` a célula inteira leva à lista que
-// o número conta e o valor ganha o estilo de link do sistema (classe `link`) com ArrowUpRight.
+// One strip cell. With `render={<Link …/>}` the whole cell leads to the list the
+// number counts and the value gets the system link style (`link` class) with ArrowUpRight.
 export function RecordStat({
   label,
   value,
@@ -268,8 +268,8 @@ export function RecordStat({
           isLink && 'rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/25',
           className,
         ),
-        // Blocos (div), não spans: o nome acessível da célula-link separa
-        // rótulo, valor e regra em vez de colar "Processos2".
+        // Blocks (div), not spans: the accessible name of the link cell separates
+        // label, value and rule instead of gluing "Processos2".
         children: (
           <>
             <div className="flex items-center justify-between gap-2">
@@ -307,16 +307,16 @@ export function RecordStat({
 
 type RecordTableProps = {
   title: string;
-  // Botões à direita do título.
+  // Buttons to the right of the title.
   actions?: ReactNode;
-  // Texto mostrado quando não há linhas.
+  // Text shown when there are no rows.
   empty?: string;
   children?: ReactNode;
 };
 
-// Lista de itens do registro no modelo do checklist da OS concluída: título a
-// 24px, linhas separadas por fio e, em cada linha, células rótulo sobre valor
-// alinhadas em colunas (por isso é <table>).
+// List of record items in the completed work order checklist model: title at
+// 24px, rows separated by a rule and, in each row, label-over-value cells
+// aligned in columns (that is why it is a <table>).
 export function RecordTable({ title, actions, empty, children }: RecordTableProps) {
   const headingId = useId();
   const hasRows = Children.toArray(children).length > 0;
@@ -325,7 +325,7 @@ export function RecordTable({ title, actions, empty, children }: RecordTableProp
       <div className="flex flex-wrap items-center justify-between gap-4">
         <ItemTitle
           id={headingId}
-          // biome-ignore lint/a11y/useHeadingContent: o título chega como children do ItemTitle
+          // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
           render={<h2 />}
           className="text-lg text-impact"
         >
@@ -347,7 +347,7 @@ export function RecordTable({ title, actions, empty, children }: RecordTableProp
 }
 
 type RecordTableRowProps = ComponentProps<'tr'> & {
-  // Ícone de situação à esquerda (RecordTableMedia); some no mobile.
+  // State icon on the left (RecordTableMedia); hidden on mobile.
   media?: ReactNode;
 };
 
@@ -376,14 +376,14 @@ const mediaVariantClass = {
   neutral: 'border-status-neutral-border bg-status-neutral text-status-neutral-foreground',
 } as const;
 
-// Círculo tingido com o ícone de situação da linha (feito / não feito).
+// Tinted circle with the row's state icon (done / not done).
 export function RecordTableMedia({
   variant = 'neutral',
   label,
   children,
 }: {
   variant?: keyof typeof mediaVariantClass;
-  // Nome acessível da situação (o ícone sozinho não diz nada ao leitor de tela).
+  // Accessible name of the state (the icon alone says nothing to the screen reader).
   label: string;
   children: ReactNode;
 }) {
@@ -403,7 +403,7 @@ type RecordTableCellProps = Omit<ComponentProps<'td'>, 'children'> & {
   value: ReactNode;
 };
 
-// Célula rótulo sobre valor. O valor pode ser texto, selo ou link.
+// Label-over-value cell. The value can be text, a badge or a link.
 export function RecordTableCell({ label, value, className, ...props }: RecordTableCellProps) {
   return (
     <td data-slot="record-table-cell" className={cn('min-w-32', className)} {...props}>

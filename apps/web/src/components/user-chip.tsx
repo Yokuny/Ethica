@@ -9,15 +9,15 @@ import { usersQuery } from '@/query/user.js';
 
 type UserAvatarProps = Omit<ComponentProps<typeof Avatar>, 'children'> & {
   name: string;
-  // Caminho versionado da foto (GET /auth/users/:id/avatar?v=…); sem ele, iniciais.
+  // Versioned photo path (GET /auth/users/:id/avatar?v=…); without it, initials.
   avatar?: string;
-  // Sem `avatar`, procura a foto da pessoa no diretório do tenant (`usersQuery`,
-  // já em cache para os filtros) — as listas só têm `assignee` + `assigneeName`.
+  // Without `avatar`, looks up the person's photo in the tenant directory (`usersQuery`,
+  // already cached for the filters) — the lists only have `assignee` + `assigneeName`.
   userId?: string;
 };
 
-// Foto da pessoa com as iniciais por baixo: o fallback aparece sem foto e
-// enquanto a imagem carrega ou se ela falhar.
+// Person's photo with the initials underneath: the fallback shows without a photo and
+// while the image loads or if it fails.
 export function UserAvatar({ name, avatar, userId, ...props }: UserAvatarProps) {
   const users = useQuery({ ...usersQuery, enabled: Boolean(userId) && !avatar });
   const src = avatar ?? users.data?.find((user) => user.id === userId)?.avatar;
@@ -29,8 +29,8 @@ export function UserAvatar({ name, avatar, userId, ...props }: UserAvatarProps) 
   );
 }
 
-// Responsável de um item (ACC-07), a partir do `@reui/c-avatar-25`: pílula com
-// borda, avatar e o nome no lugar da contagem.
+// Item assignee (ACC-07), from `@reui/c-avatar-25`: bordered pill with
+// the avatar and the name in place of the count.
 export function UserChip({ userId, name, className }: { userId: string; name: string; className?: string }) {
   return (
     <span

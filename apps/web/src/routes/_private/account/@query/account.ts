@@ -6,17 +6,17 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { sessionKeys } from '@/query/session.js';
 import { userKeys } from '@/query/user.js';
 
-// Espelha AccountView de apps/api/src/modules/identity/account.schema.ts.
+// Mirrors AccountView of apps/api/src/modules/identity/account.schema.ts.
 export type AccountView = {
   name: string;
   avatar?: string;
   cpf?: string;
-  registroProfissional?: string;
-  formacao?: string;
+  professionalRegistration?: string;
+  education?: string;
 };
 
-// Nome e foto aparecem no menu (sessão), nos responsáveis (usersQuery) e no
-// diretório (sob userKeys.all): tudo é recarregado depois de mudar.
+// Name and photo show up in the menu (session), in the assignees (usersQuery) and in the
+// directory (under userKeys.all): everything is reloaded after a change.
 const refreshAccount = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: sessionKeys.all });
   queryClient.invalidateQueries({ queryKey: ['account', 'profile'] });
@@ -41,7 +41,7 @@ export const changePasswordMutation = (): UseMutationOptions<void, Error, Change
   },
 });
 
-// `image` é a data URL já reduzida no navegador; `null` remove a foto.
+// `image` is the data URL already shrunk in the browser; `null` removes the photo.
 export const setAvatarMutation = (queryClient: QueryClient): UseMutationOptions<AccountView, Error, string | null> => ({
   mutationFn: async (image) => {
     const res = image ? await put<AccountView>('/me/avatar', { image }) : await del<AccountView>('/me/avatar');
@@ -56,7 +56,7 @@ export const accountKeys = {
   calendarFeed: ['account', 'calendar-feed'] as const,
 };
 
-// DOC-01: nome e dados profissionais (CPF, registro, formação) que vão nos documentos.
+// DOC-01: name and professional data (CPF, registration, education) that go on the documents.
 export const profileQuery = queryOptions({
   queryKey: accountKeys.profile,
   queryFn: async (): Promise<AccountView> => {
@@ -66,7 +66,7 @@ export const profileQuery = queryOptions({
   },
 });
 
-// PRZ-03: só se sabe se o link existe; o token aparece uma única vez, ao gerar.
+// PRZ-03: we only know whether the link exists; the token shows up only once, when generated.
 export const calendarFeedQuery = queryOptions({
   queryKey: accountKeys.calendarFeed,
   queryFn: async (): Promise<{ active: boolean }> => {
@@ -76,11 +76,11 @@ export const calendarFeedQuery = queryOptions({
   },
 });
 
-// O calendário externo busca o feed de fora do navegador: a URL precisa ser absoluta.
+// The external calendar fetches the feed from outside the browser: the URL has to be absolute.
 export const calendarFeedUrl = (token: string): string =>
   new URL(apiUrl(`/agenda/feed/${token}.ics`), window.location.origin).href;
 
-export const gerarCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<string, Error, void> => ({
+export const generateCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<string, Error, void> => ({
   mutationFn: async () => {
     const res = await post<{ token: string }>('/me/calendar-feed', {});
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
@@ -89,7 +89,7 @@ export const gerarCalendarFeedMutation = (queryClient: QueryClient): UseMutation
   onSuccess: () => queryClient.setQueryData(accountKeys.calendarFeed, { active: true }),
 });
 
-export const revogarCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, void> => ({
+export const revokeCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, void> => ({
   mutationFn: async () => {
     const res = await del('/me/calendar-feed');
     if (!res.success) throw new Error(res.message ?? t('action_error'));

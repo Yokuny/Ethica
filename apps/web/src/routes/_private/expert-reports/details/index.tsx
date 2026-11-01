@@ -9,62 +9,62 @@ import { AppLink } from '@/components/app-link.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LAUDO_STATUS_VARIANT, laudoStatusLabel } from '@/components/laudo-labels.js';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
 import { RecordHeader, RecordHeading, RecordStatus } from '@/components/record.js';
+import { REPORT_STATUS_VARIANT, reportStatusLabel } from '@/components/report-labels.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { caseInspectionsQuery } from '@/query/inspection.js';
 import {
-  concluirLaudoMutation,
-  deleteLaudoMutation,
-  laudoQuery,
-  removeLaudoSecaoMutation,
-  updateLaudoSecaoMutation,
-} from '@/query/laudo.js';
-import { vistoriasDaPericiaQuery } from '@/query/vistoria.js';
-import { ConcluirLaudoDialog } from './@components/concluir-laudo-dialog.js';
-import { LaudoSecaoEditor, type SecaoRascunho } from './@components/laudo-secao-editor.js';
-import { LaudoSecoesNav } from './@components/laudo-secoes-nav.js';
-import { type LaudoDetailsSearch, laudoDetailsSearchSchema } from './@interface/laudo-details.interface.js';
+  completeReportMutation,
+  deleteReportMutation,
+  removeReportSectionMutation,
+  reportQuery,
+  updateReportSectionMutation,
+} from '@/query/report.js';
+import { CompleteReportDialog } from './@components/complete-report-dialog.js';
+import { ReportSectionEditor, type SectionDraft } from './@components/report-section-editor.js';
+import { ReportSectionsNav } from './@components/report-sections-nav.js';
+import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
-type Dialogo = 'concluir' | 'excluir' | 'remover-secao' | null;
+type Dialog = 'complete' | 'removal' | 'remove-section' | null;
 
-export function LaudoDetailsPage() {
-  const search = useSearch({ strict: false }) as LaudoDetailsSearch;
+export function ReportDetailsPage() {
+  const search = useSearch({ strict: false }) as ReportDetailsSearch;
   const navigate = useNavigate({ from: '/expert-reports/details/' });
   const queryClient = useQueryClient();
-  const query = useQuery({ ...laudoQuery(search.id), retry: false });
-  const salvar = useMutation(updateLaudoSecaoMutation(queryClient));
-  const removerSecao = useMutation(removeLaudoSecaoMutation(queryClient));
-  const concluir = useMutation(concluirLaudoMutation(queryClient));
-  const excluir = useMutation(deleteLaudoMutation(queryClient));
+  const query = useQuery({ ...reportQuery(search.id), retry: false });
+  const save = useMutation(updateReportSectionMutation(queryClient));
+  const dropSection = useMutation(removeReportSectionMutation(queryClient));
+  const complete = useMutation(completeReportMutation(queryClient));
+  const removal = useMutation(deleteReportMutation(queryClient));
   const { download, pending } = useFileDownload();
-  // Fotos das vistorias da perícia para o "Inserir foto" do editor (AD-129).
-  const vistorias = useQuery({ ...vistoriasDaPericiaQuery(query.data?.periciaId ?? ''), enabled: Boolean(query.data) });
-  const fotos = (vistorias.data ?? []).flatMap(({ compromisso, vistoria }) =>
-    vistoria.midias
-      .filter((midia) => midia.tipo === 'photo')
-      .map((midia) => ({ src: `/inspections/${compromisso.id}/media/${midia.id}`, legenda: midia.legenda })),
+  // Photos of the case inspections for the editor's "Inserir foto" (AD-129).
+  const inspections = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
+  const photos = (inspections.data ?? []).flatMap(({ appointment, inspection }) =>
+    inspection.media
+      .filter((media) => media.type === 'photo')
+      .map((media) => ({ src: `/inspections/${appointment.id}/media/${media.id}`, caption: media.caption })),
   );
-  const [rascunho, setRascunho] = useState<(SecaoRascunho & { secaoId: string }) | null>(null);
-  const [dialogo, setDialogo] = useState<Dialogo>(null);
-  const laudo = query.data;
-  const secao = laudo?.secoes.find((item) => item.id === search.secao) ?? laudo?.secoes[0];
-  const atual =
-    secao && rascunho?.secaoId === secao.id
-      ? rascunho
-      : secao && { secaoId: secao.id, titulo: secao.titulo, html: secao.html };
-  const dirty = Boolean(secao && atual && (atual.titulo !== secao.titulo || atual.html !== secao.html));
+  const [draft, setDraft] = useState<(SectionDraft & { sectionId: string }) | null>(null);
+  const [dialog, setDialog] = useState<Dialog>(null);
+  const report = query.data;
+  const section = report?.sections.find((item) => item.id === search.section) ?? report?.sections[0];
+  const current =
+    section && draft?.sectionId === section.id
+      ? draft
+      : section && { sectionId: section.id, title: section.title, html: section.html };
+  const dirty = Boolean(section && current && (current.title !== section.title || current.html !== section.html));
   const onError = (error: Error) => toast.error(error.message);
 
-  function salvarAtual(depois?: () => void) {
-    if (!laudo || !secao || !atual || !dirty) return depois?.();
-    salvar.mutate(
-      { id: laudo.id, secaoId: secao.id, data: { titulo: atual.titulo, html: atual.html } },
+  function saveCurrent(depois?: () => void) {
+    if (!report || !section || !current || !dirty) return depois?.();
+    save.mutate(
+      { id: report.id, sectionId: section.id, data: { title: current.title, html: current.html } },
       {
         onSuccess: () => {
-          setRascunho(null);
+          setDraft(null);
           depois?.();
         },
         onError,
@@ -72,23 +72,25 @@ export function LaudoDetailsPage() {
     );
   }
 
-  // Trocar de seção salva antes a que estava aberta, para não perder texto.
-  function selecionar(secaoId: string) {
-    salvarAtual(() => navigate({ search: (prev: LaudoDetailsSearch) => ({ ...prev, secao: secaoId }), replace: true }));
+  // Switching sections first saves the one that was open, so no text is lost.
+  function selecionar(sectionId: string) {
+    saveCurrent(() =>
+      navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: sectionId }), replace: true }),
+    );
   }
 
-  function exportar(formato: 'pdf' | 'docx') {
-    if (!laudo) return;
-    salvarAtual(() => void download(`/expert-reports/${laudo.id}/${formato}`));
+  function runExport(format: 'pdf' | 'docx') {
+    if (!report) return;
+    saveCurrent(() => void download(`/expert-reports/${report.id}/${format}`));
   }
 
-  const rascunhoAberto = laudo?.status === 'draft';
-  const menu = laudo && (
+  const openDraft = report?.status === 'draft';
+  const menu = report && (
     <PageMenu>
-      <DropdownMenuItem disabled={Boolean(pending)} onClick={() => exportar('pdf')}>
+      <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('pdf')}>
         {t('export_pdf')}
       </DropdownMenuItem>
-      <DropdownMenuItem disabled={Boolean(pending)} onClick={() => exportar('docx')}>
+      <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('docx')}>
         {t('export_word')}
       </DropdownMenuItem>
     </PageMenu>
@@ -97,13 +99,13 @@ export function LaudoDetailsPage() {
   return (
     <Card asPage>
       <CardHeader title={t('details')}>
-        {laudo && (
+        {report && (
           <CardAction>
-            {rascunhoAberto && (
+            {openDraft && (
               <Button
-                disabled={laudo.pendencias.length > 0 || dirty}
-                title={laudo.pendencias.length ? t('fill_or_remove_variables') : undefined}
-                onClick={() => setDialogo('concluir')}
+                disabled={report.issues.length > 0 || dirty}
+                title={report.issues.length ? t('fill_or_remove_variables') : undefined}
+                onClick={() => setDialog('complete')}
               >
                 {t('complete')}
               </Button>
@@ -116,7 +118,7 @@ export function LaudoDetailsPage() {
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !laudo || !secao || !atual ? (
+      ) : !report || !section || !current ? (
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
@@ -125,53 +127,53 @@ export function LaudoDetailsPage() {
           <RecordHeader>
             <RecordHeading
               icon={<FileSignature />}
-              label={`${t(laudo.tipo)} · ${laudo.modeloNome}`}
-              title={laudo.periciaNumero ?? t('expert_case_removed')}
+              label={`${t(report.type)} · ${report.templateName}`}
+              title={report.caseNumber ?? t('expert_case_removed')}
               description={
-                <AppLink to="/expert-cases/details" search={{ id: laudo.periciaId }} as="description">
+                <AppLink to="/expert-cases/details" search={{ id: report.caseId }} as="description">
                   {t('open_expert_case')}
                 </AppLink>
               }
             />
             <RecordStatus
-              variant={LAUDO_STATUS_VARIANT[laudo.status]}
-              label={laudoStatusLabel(laudo.status)}
-              pulse={laudo.status === 'draft'}
+              variant={REPORT_STATUS_VARIANT[report.status]}
+              label={reportStatusLabel(report.status)}
+              pulse={report.status === 'draft'}
             />
           </RecordHeader>
           <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
-            <LaudoSecoesNav laudo={laudo} selecionada={secao.id} onSelect={selecionar} />
-            <LaudoSecaoEditor
-              laudo={laudo}
-              secao={secao}
-              rascunho={atual}
-              onChange={(next) => setRascunho({ ...next, secaoId: secao.id })}
+            <ReportSectionsNav report={report} selected={section.id} onSelect={selecionar} />
+            <ReportSectionEditor
+              report={report}
+              section={section}
+              draft={current}
+              onChange={(next) => setDraft({ ...next, sectionId: section.id })}
               dirty={dirty}
-              saving={salvar.isPending || removerSecao.isPending}
-              onSave={() => salvarAtual()}
-              onRemove={() => setDialogo('remover-secao')}
-              fotos={fotos}
+              saving={save.isPending || dropSection.isPending}
+              onSave={() => saveCurrent()}
+              onRemove={() => setDialog('remove-section')}
+              photos={photos}
             />
           </div>
         </CardContent>
       )}
-      {laudo && rascunhoAberto && (
+      {report && openDraft && (
         <CardFooter className="justify-between gap-2">
-          <Button variant="destructive" onClick={() => setDialogo('excluir')}>
+          <Button variant="destructive" onClick={() => setDialog('removal')}>
             {t('remove')}
           </Button>
         </CardFooter>
       )}
-      {laudo && dialogo === 'concluir' && (
-        <ConcluirLaudoDialog
-          pending={concluir.isPending}
-          onClose={() => setDialogo(null)}
-          onConfirm={(registrarEntrega) =>
-            concluir.mutate(
-              { id: laudo.id, data: { registrarEntrega } },
+      {report && dialog === 'complete' && (
+        <CompleteReportDialog
+          pending={complete.isPending}
+          onClose={() => setDialog(null)}
+          onConfirm={(recordDelivery) =>
+            complete.mutate(
+              { id: report.id, data: { recordDelivery } },
               {
                 onSuccess: () => {
-                  setDialogo(null);
+                  setDialog(null);
                   toast.success(t('report_completed_successfully'));
                 },
                 onError,
@@ -180,21 +182,21 @@ export function LaudoDetailsPage() {
           }
         />
       )}
-      {laudo && secao && dialogo === 'remover-secao' && (
+      {report && section && dialog === 'remove-section' && (
         <ConfirmDialog
           title={t('remove_section_question')}
-          description={secao.titulo}
+          description={section.title}
           confirmLabel={t('remove')}
-          pending={removerSecao.isPending}
-          onClose={() => setDialogo(null)}
+          pending={dropSection.isPending}
+          onClose={() => setDialog(null)}
           onConfirm={() =>
-            removerSecao.mutate(
-              { id: laudo.id, secaoId: secao.id },
+            dropSection.mutate(
+              { id: report.id, sectionId: section.id },
               {
                 onSuccess: () => {
-                  setDialogo(null);
-                  setRascunho(null);
-                  navigate({ search: (prev: LaudoDetailsSearch) => ({ ...prev, secao: undefined }), replace: true });
+                  setDialog(null);
+                  setDraft(null);
+                  navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: undefined }), replace: true });
                 },
                 onError,
               },
@@ -202,15 +204,15 @@ export function LaudoDetailsPage() {
           }
         />
       )}
-      {laudo && dialogo === 'excluir' && (
+      {report && dialog === 'removal' && (
         <ConfirmDialog
           title={t('remove_report_question')}
           description={t('action_cannot_be_undone')}
           confirmLabel={t('remove')}
-          pending={excluir.isPending}
-          onClose={() => setDialogo(null)}
+          pending={removal.isPending}
+          onClose={() => setDialog(null)}
           onConfirm={() =>
-            excluir.mutate({ id: laudo.id }, { onSuccess: () => navigate({ to: '/expert-reports/list' }), onError })
+            removal.mutate({ id: report.id }, { onSuccess: () => navigate({ to: '/expert-reports/list' }), onError })
           }
         />
       )}
@@ -219,7 +221,7 @@ export function LaudoDetailsPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-reports/details/')({
-  component: LaudoDetailsPage,
+  component: ReportDetailsPage,
   staticData: { title: t('details') },
-  validateSearch: (search: Record<string, unknown>): LaudoDetailsSearch => laudoDetailsSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): ReportDetailsSearch => reportDetailsSearchSchema.parse(search),
 });

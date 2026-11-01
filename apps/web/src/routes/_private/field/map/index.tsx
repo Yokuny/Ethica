@@ -11,99 +11,97 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { enviarAvisoMutation, geocodificarMutation, vistoriaDiaQuery } from '@/query/vistoria.js';
-import { type CampoSearch, campoSearchSchema } from '../@interface/campo.interface.js';
-import { MapaLeaflet } from './@components/mapa-leaflet.js';
-import { ordenarPorProximidade, type Ponto, paradasEmConflito } from './@utils/rota.js';
+import { geocodeMutation, inspectionDayQuery, sendNoticeMutation } from '@/query/inspection.js';
+import { type FieldSearch, fieldSearchSchema } from '../@interface/field.interface.js';
+import { MapLeaflet } from './@components/map-leaflet.js';
+import { conflictingStops, type Point, sortByProximity } from './@utils/itinerary.js';
 
-// Rota pelas ruas no OSRM público (AD-131); sem rota, o mapa liga as paradas em linha reta.
-const rotaOsrm = async (pontos: Ponto[]): Promise<Ponto[]> => {
-  const caminho = pontos.map((p) => `${p.lng},${p.lat}`).join(';');
-  const res = await fetch(
-    `https://router.project-osrm.org/route/v1/driving/${caminho}?overview=full&geometries=geojson`,
-  );
+// Street route on the public OSRM (AD-131); without a route, the map joins the stops in a straight line.
+const itineraryOsrm = async (points: Point[]): Promise<Point[]> => {
+  const path = points.map((p) => `${p.lng},${p.lat}`).join(';');
+  const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${path}?overview=full&geometries=geojson`);
   if (!res.ok) throw new Error('osrm');
-  const corpo = (await res.json()) as { routes?: Array<{ geometry: { coordinates: [number, number][] } }> };
-  return corpo.routes?.[0]?.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) ?? pontos;
+  const body = (await res.json()) as { routes?: Array<{ geometry: { coordinates: [number, number][] } }> };
+  return body.routes?.[0]?.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) ?? points;
 };
 
-// Mapa do dia (CAM-08, CAM-09): ordem sugerida, conflito de horário, rota e aviso às partes.
-export function MapaPage() {
-  const search = useSearch({ strict: false }) as CampoSearch;
+// Day map (CAM-08, CAM-09): suggested order, time conflict, route and notice to the parties.
+export function MapPage() {
+  const search = useSearch({ strict: false }) as FieldSearch;
   const queryClient = useQueryClient();
   const date = search.date ?? formatDisplayDate(new Date());
-  const query = useQuery({ ...vistoriaDiaQuery(date), networkMode: 'always' });
-  const geocode = useMutation(geocodificarMutation(queryClient));
-  const aviso = useMutation(enviarAvisoMutation(queryClient));
-  const [partida, setPartida] = useState<Ponto>();
-  const [ordem, setOrdem] = useState<string[]>([]);
-  const [localizando, setLocalizando] = useState(false);
+  const query = useQuery({ ...inspectionDayQuery(date), networkMode: 'always' });
+  const geocode = useMutation(geocodeMutation(queryClient));
+  const notice = useMutation(sendNoticeMutation(queryClient));
+  const [origin, setOrigin] = useState<Point>();
+  const [order, setOrder] = useState<string[]>([]);
+  const [locating, setLocating] = useState(false);
 
-  const itens = useMemo(
-    () => (query.data?.itens ?? []).filter((item) => item.compromisso.status !== 'canceled'),
+  const items = useMemo(
+    () => (query.data?.items ?? []).filter((item) => item.appointment.status !== 'canceled'),
     [query.data],
   );
-  const ordenados = useMemo(() => {
-    const posicao = new Map(ordem.map((id, indice) => [id, indice]));
-    return [...itens].sort((a, b) => (posicao.get(a.compromisso.id) ?? 999) - (posicao.get(b.compromisso.id) ?? 999));
-  }, [itens, ordem]);
-  const conflitos = paradasEmConflito(ordenados.map((item) => item.compromisso.inicio));
-  const semPonto = itens.filter((item) => item.compromisso.local && !item.compromisso.coordenadas);
-  const pontos = [
-    ...(partida ? [partida] : []),
-    ...ordenados.flatMap((item) => (item.compromisso.coordenadas ? [item.compromisso.coordenadas] : [])),
+  const sorted = useMemo(() => {
+    const position = new Map(order.map((id, index) => [id, index]));
+    return [...items].sort((a, b) => (position.get(a.appointment.id) ?? 999) - (position.get(b.appointment.id) ?? 999));
+  }, [items, order]);
+  const conflicts = conflictingStops(sorted.map((item) => item.appointment.start));
+  const withoutPoint = items.filter((item) => item.appointment.location && !item.appointment.coordinates);
+  const points = [
+    ...(origin ? [origin] : []),
+    ...sorted.flatMap((item) => (item.appointment.coordinates ? [item.appointment.coordinates] : [])),
   ];
-  const rota = useQuery({
-    queryKey: ['rota-osrm', pontos],
-    queryFn: () => rotaOsrm(pontos),
-    enabled: pontos.length > 1,
+  const itinerary = useQuery({
+    queryKey: ['itinerary-osrm', points],
+    queryFn: () => itineraryOsrm(points),
+    enabled: points.length > 1,
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
   });
 
-  async function localizarEnderecos() {
-    for (const item of semPonto) {
-      await geocode.mutateAsync({ id: item.compromisso.id }).catch((error: Error) => toast.error(error.message));
+  async function locateAddresses() {
+    for (const item of withoutPoint) {
+      await geocode.mutateAsync({ id: item.appointment.id }).catch((error: Error) => toast.error(error.message));
     }
   }
 
-  function usarMinhaLocalizacao() {
-    setLocalizando(true);
+  function applyMyLocation() {
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      (posicao) => {
-        const ponto = { lat: posicao.coords.latitude, lng: posicao.coords.longitude };
-        setPartida(ponto);
-        setOrdem(
-          ordenarPorProximidade(
-            ponto,
-            itens.map((item) => ({ id: item.compromisso.id, coordenadas: item.compromisso.coordenadas })),
+      (position) => {
+        const point = { lat: position.coords.latitude, lng: position.coords.longitude };
+        setOrigin(point);
+        setOrder(
+          sortByProximity(
+            point,
+            items.map((item) => ({ id: item.appointment.id, coordinates: item.appointment.coordinates })),
           ).map((item) => item.id),
         );
-        setLocalizando(false);
+        setLocating(false);
       },
       () => {
         toast.error(t('location_unavailable'));
-        setLocalizando(false);
+        setLocating(false);
       },
     );
   }
 
-  function mover(indice: number, passo: -1 | 1) {
-    const ids = ordenados.map((item) => item.compromisso.id);
-    const destino = indice + passo;
-    if (destino < 0 || destino >= ids.length) return;
-    [ids[indice], ids[destino]] = [ids[destino] as string, ids[indice] as string];
-    setOrdem(ids);
+  function move(index: number, passo: -1 | 1) {
+    const ids = sorted.map((item) => item.appointment.id);
+    const destination = index + passo;
+    if (destination < 0 || destination >= ids.length) return;
+    [ids[index], ids[destination]] = [ids[destination] as string, ids[index] as string];
+    setOrder(ids);
   }
 
-  const paradas = ordenados.flatMap((item, indice) =>
-    item.compromisso.coordenadas
+  const stops = sorted.flatMap((item, index) =>
+    item.appointment.coordinates
       ? [
           {
-            id: item.compromisso.id,
-            numero: indice + 1,
-            ponto: item.compromisso.coordenadas,
-            titulo: item.compromisso.titulo,
+            id: item.appointment.id,
+            number: index + 1,
+            point: item.appointment.coordinates,
+            title: item.appointment.title,
           },
         ]
       : [],
@@ -115,43 +113,43 @@ export function MapaPage() {
       <CardContent className="gap-4">
         {query.isLoading ? (
           <DefaultLoading />
-        ) : !itens.length ? (
+        ) : !items.length ? (
           <DefaultEmptyData title={t('nothing_scheduled_this_day')} />
         ) : (
           <>
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" disabled={localizando} onClick={usarMinhaLocalizacao}>
+              <Button variant="outline" disabled={locating} onClick={applyMyLocation}>
                 <LocateFixed />
                 {t('start_from_my_location')}
               </Button>
-              {semPonto.length > 0 && (
-                <Button variant="outline" disabled={geocode.isPending} onClick={() => void localizarEnderecos()}>
+              {withoutPoint.length > 0 && (
+                <Button variant="outline" disabled={geocode.isPending} onClick={() => void locateAddresses()}>
                   <MapPinned />
-                  {t('locate_addresses')} ({semPonto.length})
+                  {t('locate_addresses')} ({withoutPoint.length})
                 </Button>
               )}
             </div>
-            <MapaLeaflet paradas={paradas} partida={partida} linha={rota.data ?? pontos} />
-            {rota.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
+            <MapLeaflet stops={stops} origin={origin} row={itinerary.data ?? points} />
+            {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
             <ItemGroup variant="list">
-              {ordenados.map((item, indice) => {
-                const { compromisso } = item;
+              {sorted.map((item, index) => {
+                const { appointment } = item;
                 return (
-                  <Item key={compromisso.id} render={<li />} className="flex-wrap">
+                  <Item key={appointment.id} render={<li />} className="flex-wrap">
                     <ItemContent>
                       <div className="flex flex-wrap items-center gap-2">
                         <ItemTitle className="tabular-nums">
-                          {indice + 1}. {formatDisplayTime(compromisso.inicio)}
+                          {index + 1}. {formatDisplayTime(appointment.start)}
                         </ItemTitle>
-                        {conflitos.has(indice) && <Badge variant="error">{t('time_conflict')}</Badge>}
-                        {!compromisso.coordenadas && <Badge variant="warning">{t('address_not_located')}</Badge>}
-                        {(compromisso.avisos?.length ?? 0) > 0 && (
+                        {conflicts.has(index) && <Badge variant="error">{t('time_conflict')}</Badge>}
+                        {!appointment.coordinates && <Badge variant="warning">{t('address_not_located')}</Badge>}
+                        {(appointment.notices?.length ?? 0) > 0 && (
                           <Badge variant="success">{t('parties_notified')}</Badge>
                         )}
                       </div>
-                      <ItemTitle>{compromisso.titulo}</ItemTitle>
+                      <ItemTitle>{appointment.title}</ItemTitle>
                       <ItemDescription className="line-clamp-none">
-                        {[item.pericia?.numeroProcesso, compromisso.local].filter(Boolean).join(' · ')}
+                        {[item.legalCase?.processNumber, appointment.location].filter(Boolean).join(' · ')}
                       </ItemDescription>
                     </ItemContent>
                     <ItemActions className="flex-wrap">
@@ -159,8 +157,8 @@ export function MapaPage() {
                         variant="ghost"
                         size="icon"
                         aria-label={t('move_up')}
-                        disabled={indice === 0}
-                        onClick={() => mover(indice, -1)}
+                        disabled={index === 0}
+                        onClick={() => move(index, -1)}
                       >
                         <ArrowUp />
                       </Button>
@@ -168,18 +166,18 @@ export function MapaPage() {
                         variant="ghost"
                         size="icon"
                         aria-label={t('move_down')}
-                        disabled={indice === ordenados.length - 1}
-                        onClick={() => mover(indice, 1)}
+                        disabled={index === sorted.length - 1}
+                        onClick={() => move(index, 1)}
                       >
                         <ArrowDown />
                       </Button>
-                      {compromisso.periciaId && (
+                      {appointment.caseId && (
                         <Button
                           variant="outline"
-                          disabled={aviso.isPending}
+                          disabled={notice.isPending}
                           onClick={() =>
-                            aviso.mutate(
-                              { id: compromisso.id },
+                            notice.mutate(
+                              { id: appointment.id },
                               {
                                 onSuccess: () => toast.success(t('notice_sent')),
                                 onError: (error) => toast.error(error.message),
@@ -196,7 +194,7 @@ export function MapaPage() {
                 );
               })}
             </ItemGroup>
-            {pontos.length > 1 && (
+            {points.length > 1 && (
               <ItemDescription>
                 <RouteIcon className="mr-1 inline size-3.5" aria-hidden />
                 {t('route_by_osrm')}
@@ -210,7 +208,7 @@ export function MapaPage() {
 }
 
 export const Route = createFileRoute('/_private/field/map/')({
-  component: MapaPage,
+  component: MapPage,
   staticData: { title: t('day_map') },
-  validateSearch: (search: Record<string, unknown>): CampoSearch => campoSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): FieldSearch => fieldSearchSchema.parse(search),
 });

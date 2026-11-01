@@ -1,0 +1,86 @@
+import type { InspectionData } from '@ethica/contracts';
+import { Button } from '@ethica/ui/components/button';
+import { ItemTitle } from '@ethica/ui/components/item';
+import { type UseFormReturn, useFieldArray } from 'react-hook-form';
+import { NumberField, TextareaField, TextField } from '@/components/form-fields.js';
+import { t } from '@/lib/helpers/translate.helper.js';
+import { FieldList } from './field-list.js';
+
+// Job history with each party's version (CAM-02): [FUNCOES_AUTOR]/[FUNCOES_REU].
+export function JobsFields({ form }: { form: UseFormReturn<InspectionData> }) {
+  const { fields, append, remove } = useFieldArray({ control: form.control, name: 'jobs' });
+  return (
+    <FieldList
+      title={t('roles_and_activities')}
+      empty={t('no_roles_yet')}
+      actions={
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => append({ id: crypto.randomUUID(), title: '', plaintiff: {}, defendant: {} })}
+        >
+          {t('add_role')}
+        </Button>
+      }
+      items={fields.map((field, index) => ({
+        key: field.id,
+        onRemove: () => remove(index),
+        conteudo: (
+          <>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <TextField
+                control={form.control}
+                name={`jobs.${index}.title`}
+                label={t('job_role')}
+                placeholder={t('role_placeholder')}
+              />
+              <TextField
+                control={form.control}
+                name={`jobs.${index}.location`}
+                label={t('workplace')}
+                placeholder={t('workplace_placeholder')}
+              />
+              <NumberField
+                control={form.control}
+                name={`jobs.${index}.yearStart`}
+                label={t('start_year')}
+                placeholder="2019"
+              />
+              <NumberField
+                control={form.control}
+                name={`jobs.${index}.yearEnd`}
+                label={t('end_year')}
+                placeholder="2024"
+              />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {(['plaintiff', 'defendant'] as const).map((version) => (
+                <div key={version} className="grid gap-3">
+                  <ItemTitle>{t(version === 'plaintiff' ? 'plaintiff_version' : 'defendant_version')}</ItemTitle>
+                  <TextareaField
+                    control={form.control}
+                    name={`jobs.${index}.${version}.activities`}
+                    label={t('activities')}
+                    placeholder={t('activities_placeholder')}
+                  />
+                  <TextField
+                    control={form.control}
+                    name={`jobs.${index}.${version}.frequency`}
+                    label={t('frequency')}
+                    placeholder={t('frequency_placeholder')}
+                  />
+                  <TextField
+                    control={form.control}
+                    name={`jobs.${index}.${version}.timeExposure`}
+                    label={t('exposure_time')}
+                    placeholder={t('exposure_time_placeholder')}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
+        ),
+      }))}
+    />
+  );
+}

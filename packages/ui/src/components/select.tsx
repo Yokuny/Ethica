@@ -5,11 +5,11 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import type * as React from 'react';
 import { cn } from '../lib/utils.js';
 
-// Diferente do Radix, o Base UI não lê o texto do <SelectItem> escolhido pro
-// gatilho: sem `items`, o <SelectValue> mostra o valor cru (um id, um
-// sentinel como `__all__`). Por isso `items` é obrigatório aqui — a mesma
-// lista `{ value, label }` que gera os <SelectItem>, pra o texto do gatilho e
-// o da opção nunca divergirem.
+// Unlike Radix, Base UI does not read the text of the chosen <SelectItem> for the
+// trigger: without `items`, <SelectValue> shows the raw value (an id, a
+// sentinel like `__all__`). That is why `items` is required here — the same
+// `{ value, label }` list that generates the <SelectItem>, so the trigger text and
+// the option text never diverge.
 function Select<Value, Multiple extends boolean | undefined = false>(
   props: SelectPrimitive.Root.Props<Value, Multiple> & {
     items: NonNullable<SelectPrimitive.Root.Props<Value, Multiple>['items']>;
@@ -34,9 +34,9 @@ function SelectTrigger({
   children,
   ...props
 }: SelectPrimitive.Trigger.Props & {
-  // `default` é altura de campo (h-11, igual ao Input): o Select vive em formulário e filtro.
-  // `compact` é a altura de ação (h-8, igual ao Button/ToggleGroup default): Select solto numa
-  // barra de ferramentas, ao lado de botões. Espelho do `Button size="field"`.
+  // `default` is field height (h-11, same as Input): Select lives in forms and filters.
+  // `compact` is action height (h-8, same as the default Button/ToggleGroup): a loose Select in a
+  // toolbar, next to buttons. Mirror of `Button size="field"`.
   size?: 'sm' | 'compact' | 'default';
 }) {
   return (

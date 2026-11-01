@@ -7,8 +7,8 @@ type GrafanaDashboard = { panels: GrafanaPanel[] };
 
 const dashboardPath = fileURLToPath(new URL('../../../../ops/grafana/api-dashboard.json', import.meta.url));
 
-// OPS-06/07: valida a FORMA do dashboard-as-code (JSON válido, >=3 painéis,
-// só as duas séries já registradas) — nunca um import real de Grafana (sem
+// OPS-06/07: validates the SHAPE of the dashboard-as-code (valid JSON, >=3 panels,
+// only the two series already registered) — never a real Grafana import (no
 // infra nesta rodada, ver spec.md Assumptions).
 describe('ops/grafana/api-dashboard.json', () => {
   const raw = readFileSync(dashboardPath, 'utf-8');

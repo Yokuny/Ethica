@@ -6,16 +6,16 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { casesQuery } from '@/query/case.js';
 import { listStatsQuery } from '@/query/listStats.js';
-import { periciasQuery } from '@/query/pericia.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { PericiasFilters } from './@components/pericias-filters.js';
-import { PericiasOverview } from './@components/pericias-overview.js';
-import { PericiasTable } from './@components/pericias-table.js';
-import { usePericiasSearch } from './@hooks/use-pericias-search.js';
-import { type PericiasSearch, periciasSearchSchema } from './@interface/pericias.interface.js';
+import { CasesFilters } from './@components/cases-filters.js';
+import { CasesOverview } from './@components/cases-overview.js';
+import { CasesTable } from './@components/cases-table.js';
+import { useCasesSearch } from './@hooks/use-cases-search.js';
+import { type CasesSearch, casesSearchSchema } from './@interface/cases.interface.js';
 
-export function PericiasIndexPage() {
+export function CasesIndexPage() {
   const {
     search,
     searchInput,
@@ -26,16 +26,16 @@ export function PericiasIndexPage() {
     activeFilters,
     hasFilters,
     clearFilters,
-  } = usePericiasSearch();
+  } = useCasesSearch();
   const query = useQuery(
-    periciasQuery({
+    casesQuery({
       page: search.page,
       limit: search.limit,
       q: search.q || undefined,
       status: search.status,
-      situacao: search.situacao,
-      fase: search.fase,
-      justica: search.justica,
+      state: search.state,
+      phase: search.phase,
+      courtType: search.courtType,
     }),
   );
   const statsQuery = useQuery(listStatsQuery('/expert-cases/stats'));
@@ -59,11 +59,11 @@ export function PericiasIndexPage() {
           </CardAction>
         )}
       </CardHeader>
-      <PericiasOverview stats={statsQuery.data} />
+      <CasesOverview stats={statsQuery.data} />
       <CardContent>
         <DataTable
           search={{ value: searchInput, onChange: handleSearchInput }}
-          filters={{ content: <PericiasFilters search={search} onChange={update} />, active: activeFilters }}
+          filters={{ content: <CasesFilters search={search} onChange={update} />, active: activeFilters }}
         >
           {query.isLoading ? (
             <DefaultLoading />
@@ -82,7 +82,7 @@ export function PericiasIndexPage() {
               <DefaultEmptyData title={t('no_expert_cases_yet')} description={t('use_add_to_create_first')} />
             )
           ) : (
-            <PericiasTable
+            <CasesTable
               canSeeFinance={Boolean(session && can(session, 'finance'))}
               data={items}
               pageCount={pageCount}
@@ -99,7 +99,7 @@ export function PericiasIndexPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-cases/')({
-  component: PericiasIndexPage,
+  component: CasesIndexPage,
   staticData: { title: t('expert_cases') },
-  validateSearch: (search: Record<string, unknown>): PericiasSearch => periciasSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): CasesSearch => casesSearchSchema.parse(search),
 });

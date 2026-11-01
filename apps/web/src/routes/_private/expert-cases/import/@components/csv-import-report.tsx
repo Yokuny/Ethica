@@ -8,20 +8,20 @@ import {
   RecordTableRow,
 } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { CsvImportResult } from '../../@query/importacao.js';
+import type { CsvImportResult } from '../../@query/import.js';
 
-// Relatório do lote (IMP-02.2): quantas foram criadas, ignoradas e recusadas, e o motivo por linha.
+// Batch report (IMP-02.2): how many were created, skipped and rejected, and the reason per row.
 export function CsvImportReport({ result }: { result: CsvImportResult }) {
-  const linhas = [
+  const rows = [
     ...result.rejected.map((item) => ({
       line: item.line,
-      recusada: true,
-      motivo: item.column ? `${item.column}: ${t(item.reason)}` : t(item.reason),
+      declined: true,
+      reason: item.column ? `${item.column}: ${t(item.reason)}` : t(item.reason),
     })),
     ...result.skipped.map((item) => ({
       line: item.line,
-      recusada: false,
-      motivo: `${item.numeroProcesso}: ${t('expert_case_already_registered')}`,
+      declined: false,
+      reason: `${item.processNumber}: ${t('expert_case_already_registered')}`,
     })),
   ].sort((a, b) => a.line - b.line);
 
@@ -33,20 +33,20 @@ export function CsvImportReport({ result }: { result: CsvImportResult }) {
         <RecordStat label={t('rejected_plural')} value={String(result.rejected.length)} />
       </RecordStats>
       <RecordTable title={t('lines_not_imported')} empty={t('all_lines_imported')}>
-        {linhas.map((linha) => (
+        {rows.map((row) => (
           <RecordTableRow
-            key={linha.line}
+            key={row.line}
             media={
               <RecordTableMedia
-                variant={linha.recusada ? 'error' : 'warning'}
-                label={linha.recusada ? t('rejected') : t('skipped')}
+                variant={row.declined ? 'error' : 'warning'}
+                label={row.declined ? t('rejected') : t('skipped')}
               >
-                {linha.recusada ? <CircleAlert /> : <CircleMinus />}
+                {row.declined ? <CircleAlert /> : <CircleMinus />}
               </RecordTableMedia>
             }
           >
-            <RecordTableCell label={t('line')} value={String(linha.line)} className="w-24" />
-            <RecordTableCell label={t('reason')} value={linha.motivo} />
+            <RecordTableCell label={t('line')} value={String(row.line)} className="w-24" />
+            <RecordTableCell label={t('reason')} value={row.reason} />
           </RecordTableRow>
         ))}
       </RecordTable>

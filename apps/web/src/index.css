@@ -1,4 +1,4 @@
-/* Tokens do workspace claro, fontes e escala ficam em ./theme.css. */
+/* Light workspace tokens, fonts and scale live in ./theme.css. */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";

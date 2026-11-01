@@ -12,15 +12,15 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import ts from 'typescript';
 
-// Extraído de module-boundary.structural.test.ts (AD-038) para reuso por
-// qualquer app organizado em módulos (hoje: api) — a
-// varredura de import/AST não tem nada de específico de um app, só a
-// configuração (sufixos cross-módulo permitidos, tabela de ownership,
+// Extracted from module-boundary.structural.test.ts (AD-038) to be reused by
+// any app organized in modules (today: api) — the
+// import/AST scan has nothing app-specific, only the
+// configuration (allowed cross-module suffixes, ownership table,
 // pastas legadas, camada compartilhada) muda por chamador.
 
 export type ImportRef = { specifier: string; valueNames: string[] };
 
-// *.test.ts ficam de fora: e2e montam módulo de outro domínio no setup.
+// *.test.ts are left out: e2e tests mount a module of another domain in the setup.
 export const findSourceFiles = (dir: string): string[] => {
   const results: string[] = [];
   for (const entry of readdirSync(dir)) {
@@ -34,15 +34,15 @@ export const findSourceFiles = (dir: string): string[] => {
   return results;
 };
 
-// Módulo = primeira pasta abaixo da raiz. Arquivos na própria raiz (ex.:
-// schema.registry.ts) e caminhos fora dela não pertencem a módulo nenhum.
+// Module = first folder under the root. Files at the root itself (e.g.
+// schema.registry.ts) and paths outside it belong to no module.
 export const moduleOf = (root: string, path: string): string | null => {
   const parts = relative(root, path).split(sep);
   return parts.length > 1 && parts[0] !== '..' ? parts[0] : null;
 };
 
 // Nomes importados/re-exportados como VALOR: `import type { X }` e
-// `import { type X }` não contam (somem na compilação).
+// `import { type X }` do not count (they disappear on compilation).
 const valueNamesOf = (node: ts.ImportDeclaration | ts.ExportDeclaration): string[] => {
   if (ts.isImportDeclaration(node)) {
     const clause = node.importClause;
@@ -85,7 +85,7 @@ export const readImports = (file: string): ImportRef[] => {
   return refs;
 };
 
-// Arestas módulo→módulo por import relativo: { file, from, to, specifier }.
+// Module→module edges by relative import: { file, from, to, specifier }.
 export const crossModuleImports = (root: string) =>
   findSourceFiles(root).flatMap((file) => {
     const from = moduleOf(root, file);
@@ -95,14 +95,14 @@ export const crossModuleImports = (root: string) =>
       .filter(({ from: source, to }) => to !== null && to !== source);
   });
 
-// Import cross-módulo cujo especificador não termina num dos sufixos
+// Cross-module import whose specifier does not end in one of the suffixes
 // permitidos (ex.: `.service.js`/`.schema.js`).
 export const findCrossModuleImportViolations = (root: string, allowedSuffixes: readonly string[]): string[] =>
   crossModuleImports(root)
     .filter(({ specifier }) => !allowedSuffixes.some((suffix) => specifier.endsWith(suffix)))
     .map(({ file, specifier }) => `${relative(root, file)} -> ${specifier}`);
 
-// Cada ciclo como o caminho [a, b, …, a].
+// Each cycle as the path [a, b, …, a].
 export const findModuleCycles = (root: string): string[][] => {
   const graph = new Map<string, Set<string>>();
   for (const { from, to } of crossModuleImports(root)) {
@@ -129,12 +129,12 @@ export const findModuleCycles = (root: string): string[][] => {
   return cycles;
 };
 
-// Pasta/arquivo de camada legada que ainda existe na raiz do app.
+// Legacy layer folder/file that still exists at the app root.
 export const findLegacyLayerViolations = (root: string, legacyPaths: readonly string[]): string[] =>
   legacyPaths.filter((relPath) => existsSync(join(root, relPath)));
 
-// A camada compartilhada (ex.: config/middlewares/…) importando de
-// modules/, fora dos prefixos isentos (ex.: events/subscribers/**).
+// The shared layer (e.g. config/middlewares/…) importing from
+// modules/, outside the exempt prefixes (e.g. events/subscribers/**).
 export const findSharedLayerModuleImportViolations = (
   root: string,
   sharedDirs: readonly string[],
