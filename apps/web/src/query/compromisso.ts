@@ -1,4 +1,10 @@
-import type { CompromissoStatus, CompromissoTipo, CreateCompromisso, UpdateCompromisso } from '@ethica/contracts';
+import type {
+  CompromissoMotivo,
+  CompromissoStatus,
+  CompromissoTipo,
+  CreateCompromisso,
+  UpdateCompromisso,
+} from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
@@ -17,6 +23,10 @@ export type CompromissoRecord = {
   status: CompromissoStatus;
   origem: 'manual' | 'automatic';
   observacoes?: string;
+  // Campo (AD-130, AD-131): motivo do cancelamento, coordenadas do endereço e avisos enviados.
+  motivo?: CompromissoMotivo;
+  coordenadas?: { lat: number; lng: number };
+  avisos?: { userId: string; at: string; destinatarios: string[] }[];
 };
 
 // `from`/`to`: datas de calendário do fuso de exibição, intervalo [from, to).

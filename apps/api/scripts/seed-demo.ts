@@ -14,6 +14,7 @@ import {
   Session,
   Tenant,
   User,
+  Vistoria,
   wallClockToUtc,
 } from '@ethica/db';
 import bcrypt from 'bcrypt';
@@ -114,6 +115,7 @@ const run = async (): Promise<void> => {
       Parte.deleteMany({ Tenant: old._id }),
       Prazo.deleteMany({ Tenant: old._id }),
       Compromisso.deleteMany({ Tenant: old._id }),
+      Vistoria.deleteMany({ Tenant: old._id }),
       Lancamento.deleteMany({ Tenant: old._id }),
       Oportunidade.deleteMany({ Tenant: old._id }),
       Laudo.deleteMany({ Tenant: old._id }),
@@ -250,6 +252,23 @@ const run = async (): Promise<void> => {
   ]);
 
   const compromissos: Partial<CompromissoDocument>[] = [
+    // Rota de campo de hoje (CAM-01): duas vistorias em endereços reais para o mapa.
+    {
+      tipo: 'inspection',
+      titulo: 'Vistoria na estamparia',
+      inicio: at(0, '09:00'),
+      fim: at(0, '11:00'),
+      local: 'Avenida Paulista, 1578, São Paulo, SP',
+      Pericia: vistoria?._id,
+    },
+    {
+      tipo: 'inspection',
+      titulo: 'Vistoria no almoxarifado',
+      inicio: at(0, '14:00'),
+      fim: at(0, '15:30'),
+      local: 'Rua Vergueiro, 1000, São Paulo, SP',
+      Pericia: esclarecimentos?._id,
+    },
     {
       tipo: 'inspection',
       titulo: 'Vistoria na linha de prensas',
@@ -290,7 +309,47 @@ const run = async (): Promise<void> => {
       status: 'done',
     },
   ];
-  await Compromisso.insertMany(compromissos.map((compromisso) => ({ ...compromisso, Tenant: tenant._id })));
+  const criados = await Compromisso.insertMany(
+    compromissos.map((compromisso) => ({ ...compromisso, Tenant: tenant._id })),
+  );
+
+  // Registro da vistoria já feita (AD-130): alimenta as variáveis de campo do laudo em rascunho.
+  const feita = criados.find((compromisso) => compromisso.status === 'done');
+  await Vistoria.create({
+    Tenant: tenant._id,
+    Compromisso: feita?._id,
+    Pericia: laudo?._id,
+    versao: 1,
+    dados: {
+      presentes: [
+        { id: 'p1', nome: 'José Santos', qualidade: 'plaintiff' },
+        { id: 'p2', nome: 'João Pereira', qualidade: 'plaintiff_lawyer', email: 'joao@advocacia.com' },
+        { id: 'p3', nome: 'Carlos Lima (encarregado)', qualidade: 'defendant' },
+      ],
+      paradigmas: [{ id: 'g1', polo: 'plaintiff', nome: 'Pedro Alves', funcao: 'Frentista', trabalhouJunto: true }],
+      funcoes: [
+        {
+          id: 'f1',
+          titulo: 'Frentista',
+          anoInicio: 2017,
+          anoFim: 2026,
+          local: 'Pista de abastecimento',
+          autor: { atividades: 'Abastecia veículos e conferia bombas', frequencia: 'diária', tempoExposicao: '8h/dia' },
+          reu: { atividades: 'Abastecia veículos', frequencia: 'diária', tempoExposicao: '6h/dia' },
+        },
+      ],
+      agentes: [
+        { agente: 'hazardous', presente: 'yes', observacoes: 'área de risco das bombas' },
+        { agente: 'noise', presente: 'no' },
+      ],
+      documentos: [
+        { id: 'd1', documento: 'risk_program', solicitado: true },
+        { id: 'd2', documento: 'ppe_records', solicitado: true },
+      ],
+      observacoes: 'Encarregado confirmou a rotina na pista.',
+    },
+    midias: [],
+  });
 
   // Seis meses de movimento para o fluxo de caixa.
   const lancamentos: Partial<LancamentoDocument>[] = [];

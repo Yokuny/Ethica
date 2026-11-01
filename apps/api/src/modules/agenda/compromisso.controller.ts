@@ -1,10 +1,14 @@
 import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import type { FileStorage } from '../../providers/fileStorage.js';
+import type { Geocoder } from '../../providers/geocoder.js';
+import type { MailProvider } from '../../providers/mail/index.js';
 import { PericiaNotFoundError } from '../pericia/pericia.service.js';
 import type { ListCompromissosQuery, UpcomingCompromissosQuery } from './compromisso.schema.js';
 import * as compromissoService from './compromisso.service.js';
 import { CompromissoNotFoundError } from './compromisso.service.js';
+import * as vistoriaService from './vistoria.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
@@ -53,11 +57,38 @@ export const updateCompromisso = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const deleteCompromisso = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    await compromissoService.deleteCompromisso(tenantOf(req), req.params.id as string);
-    res.json(respObj({ message: 'removed_successfully' }));
-  } catch (e) {
-    notFoundAs404(e, next);
-  }
-};
+// Excluir leva o registro de vistoria e as mídias (AD-130).
+export const deleteCompromisso =
+  (storage: FileStorage | undefined) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await vistoriaService.excluirCompromisso(storage, tenantOf(req), req.params.id as string);
+      res.json(respObj({ message: 'removed_successfully' }));
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };
+
+export const geocodificar =
+  (geocoder: Geocoder) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      res.json(
+        respObj({ data: await compromissoService.geocodificar(geocoder, tenantOf(req), req.params.id as string) }),
+      );
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };
+
+export const enviarAviso =
+  (mail: MailProvider) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const ctx = { tenantId: tenantOf(req), userId: req.tenantUser.user };
+      const data = await compromissoService.enviarAviso(mail, ctx, req.params.id as string);
+      res.json(respObj({ data, message: 'notice_sent' }));
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };

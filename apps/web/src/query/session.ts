@@ -2,6 +2,7 @@ import type { Role } from '@ethica/contracts';
 import { queryOptions } from '@tanstack/react-query';
 import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
+import { lerSessao, salvarSessao } from '../lib/offline/store.js';
 
 // Espelha SessionView de apps/api/src/modules/identity/auth.service.ts — a
 // verdade fica no back-end; este tipo só descreve o que a tela consome.
@@ -35,10 +36,16 @@ export const sessionQuery = queryOptions({
   queryKey: sessionKeys.detail(),
   queryFn: async (): Promise<SessionView> => {
     const res = await get<SessionView>('/auth/session');
-    if (!res.success || !res.data) {
-      throw new Error(res.message ?? t('invalid_session'));
+    if (res.success && res.data) {
+      void salvarSessao(res.data);
+      return res.data;
     }
-    return res.data;
+    // Sem rede (AD-128): a última sessão vista mantém o app aberto; sessão inválida não passa.
+    if (res.message === t('connection_error')) {
+      const copia = await lerSessao<SessionView>();
+      if (copia) return copia;
+    }
+    throw new Error(res.message ?? t('invalid_session'));
   },
   staleTime: 60_000,
   retry: false,

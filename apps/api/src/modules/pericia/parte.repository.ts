@@ -24,6 +24,13 @@ export const findById = async (tenantId: string, id: string): Promise<ParteRecor
     return doc ? toRecord(doc) : null;
   });
 
+export const findByIds = async (tenantId: string, ids: string[]): Promise<ParteRecord[]> =>
+  withDbTiming('parte.findByIds', async () => {
+    if (ids.length === 0) return [];
+    const docs = await Parte.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } })).lean();
+    return docs.map(toRecord);
+  });
+
 // Reaproveitamento (AD-115): o primeiro cadastro do tipo com o mesmo documento, OAB ou nome.
 export const findOneBy = async (
   tenantId: string,

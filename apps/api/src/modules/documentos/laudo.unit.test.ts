@@ -3,7 +3,7 @@ import { strFromU8, unzipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
 import type { PericiaRecord } from '../pericia/pericia.schema.js';
 import { MODELOS_PADRAO } from './laudo.biblioteca.js';
-import { laudoDocx } from './laudo.docx.js';
+import { dimensoesDaImagem, laudoDocx } from './laudo.docx.js';
 import { resolverVariaveis, sanitizeLaudoHtml } from './laudo.html.js';
 import type { LaudoExportDados } from './laudo.schema.js';
 import { laudoHtml } from './laudo.templates.js';
@@ -37,6 +37,75 @@ describe('sanitizeLaudoHtml (AD-123)', () => {
         '<p style="color:red" class="x">a <strong>b</strong> <span>c</span><img src=x onerror=1></p><script>alert(1)</script><table><tbody><tr><td colspan="2" style="w">d</td></tr></tbody></table>',
       ),
     ).toBe('<p>a <strong>b</strong> c</p><table><tbody><tr><td colspan="2">d</td></tr></tbody></table>');
+  });
+});
+
+describe('saneamento da foto (AD-129)', () => {
+  it('mantém só a foto da vistoria, sem a origem, e remove outras imagens', () => {
+    expect(
+      sanitizeLaudoHtml(
+        `<img src="http://localhost:18080${FOTO}" alt="Prensa" onerror="x()"><img src="https://evil.com/a.png"><img src="/tenant/office/logo">`,
+      ),
+    ).toBe(`<img src="${FOTO}" alt="Prensa" />`);
+  });
+});
+
+describe('variáveis de campo (AD-130)', () => {
+  const base = {
+    pericia,
+    perito: { name: 'Eng. Paula' },
+    identity: { name: 'Escritório' },
+    compromissos: [{ tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:30:00Z') }] as never,
+    hoje: '2026-10-31',
+  };
+
+  it('monta presentes, paradigmas, funções por parte, agentes e documentos do registro', () => {
+    const valores = valoresDoLaudo({
+      ...base,
+      campo: {
+        inicio: new Date('2026-05-10T13:30:00Z'),
+        dados: {
+          presentes: [
+            { id: 'a', nome: 'Ana', qualidade: 'plaintiff' },
+            { id: 'b', nome: 'Dr. Réu', qualidade: 'defendant_lawyer' },
+          ],
+          paradigmas: [{ id: 'p', polo: 'plaintiff', nome: 'João', funcao: 'Soldador', trabalhouJunto: true }],
+          funcoes: [
+            {
+              id: 'f',
+              titulo: 'Soldador',
+              anoInicio: 2019,
+              anoFim: 2023,
+              autor: { atividades: 'Solda MIG', tempoExposicao: '8h/dia' },
+              reu: {},
+            },
+          ],
+          agentes: [
+            { agente: 'noise', presente: 'yes', epi: 'protetor auricular' },
+            { agente: 'cold', presente: 'no' },
+          ],
+          documentos: [
+            { id: 'd', documento: 'ltcat', solicitado: true },
+            { id: 'e', documento: 'ppp', solicitado: false },
+          ],
+        },
+      },
+    });
+    expect(valores).toMatchObject({
+      '[HORA_VISTORIA]': '10:30',
+      '[PRESENTES_VISTORIA]': 'Ana (Reclamante); Dr. Réu (advogado(a) do(a) reclamada)',
+      '[PARADIGMAS_AUTOR]': 'João (Soldador, trabalhou junto)',
+      '[PARADIGMAS_REU]': 'nenhum',
+      '[FUNCOES_AUTOR]': 'Soldador (2019 a 2023): Solda MIG, exposição: 8h/dia',
+      '[FUNCOES_REU]': 'Soldador (2019 a 2023): sem relato',
+      '[AGENTES_PRESENTES]': 'Ruído (EPI: protetor auricular)',
+      '[AGENTES_AUSENTES]': 'Frio',
+      '[DOCUMENTOS_SOLICITADOS]': 'LTCAT',
+    });
+  });
+
+  it('sem vistoria registrada as variáveis de campo ficam pendentes', () => {
+    expect(valoresDoLaudo(base)['[PRESENTES_VISTORIA]']).toBeUndefined();
   });
 });
 
@@ -115,6 +184,13 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
   });
 });
 
+// JPEG mínimo para o teste: SOI, APP0 e SOF0 com 320×240 (o docx só embute os bytes).
+const JPEG = Buffer.from([
+  0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0xf0, 0x01, 0x40, 0x03, 0x01,
+  0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
+]);
+const FOTO = '/vistorias/6560a0a0a0a0a0a0a0a0a0a0/midias/0f8fad5b-d9cb-469f-a165-70867728950e';
+
 const dados = (): LaudoExportDados => ({
   laudo: {
     id: 'l1',
@@ -152,7 +228,7 @@ const dados = (): LaudoExportDados => ({
         apenasTitulo: false,
         quebraPagina: false,
         variante: 'no',
-        html: '<ol><li><p>um</p></li></ol><table><tbody><tr><th>A</th></tr><tr><td>1</td></tr></tbody></table>',
+        html: `<ol><li><p>um</p></li></ol><table><tbody><tr><th>A</th></tr><tr><td>1</td></tr></tbody></table><img src="${FOTO}" alt="Prensa"><img src="/vistorias/6560a0a0a0a0a0a0a0a0a0a1/midias/0f8fad5b-d9cb-469f-a165-70867728950f" alt="sumiu">`,
       },
     ],
   },
@@ -160,6 +236,7 @@ const dados = (): LaudoExportDados => ({
   identity: { name: 'Escritório', rodape: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' },
   perito: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
   valores: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
+  fotos: { [FOTO]: { body: JPEG, mime: 'image/jpeg' } },
   geradoEm: new Date(),
 });
 
@@ -173,6 +250,9 @@ describe('exportação (LAU-03.2)', () => {
     expect(html).toContain('<section class="secao quebra">');
     expect(footerTemplate).toContain('pageNumber');
     expect(variaveisPendentes(html)).toEqual([]);
+    // Foto da vistoria em data URL; a que sumiu sai do documento (AD-129).
+    expect(html).toContain('<img src="data:image/jpeg;base64,');
+    expect(html).not.toContain('/midias/');
   });
 
   it('Word: documento válido com títulos numerados, sumário, lista e tabela', async () => {
@@ -183,6 +263,8 @@ describe('exportação (LAU-03.2)', () => {
     expect(documento).toContain('TOC \\h \\o');
     expect(documento).toContain('<w:tbl>');
     expect(documento).toContain('forte');
+    expect(Object.keys(arquivos).filter((nome) => /^word\/media\/.+\./.test(nome))).toHaveLength(1);
+    expect(dimensoesDaImagem(JPEG)).toEqual({ width: 320, height: 240 });
     const rodape = Object.entries(arquivos).find(([nome]) => nome.startsWith('word/footer'));
     expect(strFromU8(rodape?.[1] as Uint8Array)).toContain('PAGE');
   });

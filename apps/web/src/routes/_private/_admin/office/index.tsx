@@ -6,6 +6,7 @@ import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { OfficeAvisoAgendamento } from './@components/office-aviso-agendamento.js';
 import { OfficeExport } from './@components/office-export.js';
 import { OfficeLogo } from './@components/office-logo.js';
 import { OfficeStorage } from './@components/office-storage.js';
@@ -39,6 +40,11 @@ export function OfficePage() {
                 title: t('header_and_footer'),
                 description: t('header_and_footer_description'),
                 fields: [<OfficeTextsForm key="texts" office={office} />],
+              },
+              {
+                title: t('scheduling_notice'),
+                description: t('scheduling_notice_description'),
+                fields: [<OfficeAvisoAgendamento key="aviso" />],
               },
               {
                 title: t('storage'),

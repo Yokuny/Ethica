@@ -63,6 +63,13 @@ export const API_MESSAGE_KEYS = [
   'report_completed',
   'report_needs_section',
   'laudo_unresolved_variables',
+  // Campo e vistorias (AD-128 a AD-131)
+  'inspection_conflict',
+  'media_limit_reached',
+  'inspection_requires_case',
+  'no_recipients',
+  'geocoding_unavailable',
+  'notice_sent',
   // Financeiro (AD-111)
   'parcel_exceeds_balance',
   'fee_cannot_be_removed',

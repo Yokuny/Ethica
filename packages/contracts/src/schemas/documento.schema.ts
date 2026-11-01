@@ -27,3 +27,23 @@ export const financeiroReportQuerySchema = z
   .strict()
   .refine((value) => value.from <= value.to, { message: 'período inválido', path: ['to'] });
 export type FinanceiroReportQuery = z.infer<typeof financeiroReportQuerySchema>;
+
+// Aviso de agendamento às partes por e-mail (AD-131): marcadores trocados no envio.
+export const AVISO_AGENDAMENTO_MARKERS = [
+  '[TIPO_EVENTO]',
+  '[DATA]',
+  '[HORA]',
+  '[ENDERECO]',
+  '[NUMERO_PROCESSO]',
+  '[NOME_PERITO]',
+  '[VARA]',
+  '[COMARCA]',
+] as const;
+
+export const updateAvisoAgendamentoSchema = z
+  .object({
+    assunto: z.string().trim().min(1, 'assunto é obrigatório').max(200, 'assunto muito longo'),
+    corpo: z.string().trim().min(1, 'texto é obrigatório').max(4000, 'texto muito longo'),
+  })
+  .strict();
+export type UpdateAvisoAgendamento = z.infer<typeof updateAvisoAgendamentoSchema>;

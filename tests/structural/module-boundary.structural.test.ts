@@ -26,7 +26,7 @@ const MODULES_ROOT = join(API_SRC_ROOT, 'modules');
 const DB_OWNERSHIP: Record<string, readonly string[]> = {
   identity: ['Tenant', 'User', 'Session', 'Invite', 'transitionTenantStatus'],
   pericia: ['Pericia', 'Prazo', 'Parte'],
-  agenda: ['Compromisso'],
+  agenda: ['Compromisso', 'Vistoria'],
   financeiro: ['Lancamento'],
   prospeccao: ['Oportunidade'],
   documentos: ['Laudo', 'ModeloLaudo'],

@@ -16,6 +16,8 @@ export interface TenantDocument {
   storageBytes: number;
   // Exportações de dados (AD-122): quem e quando, só as últimas.
   dataExports: Array<{ User: mongoose.Types.ObjectId; at: Date }>;
+  // Modelo do aviso de agendamento às partes (AD-131); sem ele vale o padrão do servidor.
+  avisoAgendamento?: { assunto: string; corpo: string };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +42,7 @@ const tenantSchema = new Schema<TenantDocument>(
       required: false,
     },
     storageBytes: { type: Number, min: 0, default: 0, required: true },
+    avisoAgendamento: { type: new Schema({ assunto: String, corpo: String }, { _id: false }) },
     dataExports: {
       type: [new Schema({ User: { type: Schema.Types.ObjectId, ref: 'User' }, at: Date }, { _id: false })],
       default: [],

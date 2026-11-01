@@ -22,6 +22,9 @@ export const envSchema = z.object({
   // prospecção responde `datajud_not_configured` e o resto do app funciona.
   DATAJUD_API_KEY: optionalSecret,
   DATAJUD_BASE_URL: z.string().default('https://api-publica.datajud.cnj.jus.br'),
+  // Geocodificação do mapa de campo (AD-131): Nominatim público por padrão.
+  GEOCODER_URL: z.string().default('https://nominatim.openstreetmap.org'),
+  GEOCODER_USER_AGENT: z.string().default('Ethica/1.0 (gestao de pericias)'),
   // PDF (AD-119): Chromium do sistema (pacote `chromium` do Debian no Dockerfile.dev).
   CHROMIUM_PATH: z.string().default('/usr/bin/chromium'),
   // Arquivos do tenant (AD-120). Sem bucket, o envio do logo responde `storage_not_configured`.

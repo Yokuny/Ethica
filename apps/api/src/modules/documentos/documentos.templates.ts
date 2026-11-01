@@ -1,4 +1,9 @@
-import { PERICIA_PARADA_DIAS, PRAZO_VENCE_EM_BREVE_DIAS } from '@ethica/contracts';
+import {
+  PERICIA_PARADA_DIAS,
+  PRAZO_VENCE_EM_BREVE_DIAS,
+  VISTORIA_AGENTES,
+  VISTORIA_DOCUMENTOS,
+} from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import {
   campos,
@@ -168,24 +173,9 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
   );
 };
 
-const AGENTES = [
-  'Ruído',
-  'Calor',
-  'Frio',
-  'Umidade',
-  'Agentes químicos',
-  'Agentes biológicos',
-  'Periculosidade (inflamáveis, explosivos, eletricidade, radiação)',
-];
+const AGENTES = VISTORIA_AGENTES.map(rotulo);
 
-const DOCUMENTOS_SOLICITADOS = [
-  'PGR / PPRA',
-  'LTCAT',
-  'PCMSO',
-  'Fichas de entrega de EPI (com CA)',
-  'PPP',
-  'Descrição da função / ordem de serviço',
-];
+const DOCUMENTOS_SOLICITADOS = VISTORIA_DOCUMENTOS.map(rotulo);
 
 const CAIXA = '<span class="caixa"></span>';
 const linhasEmBranco = (quantidade: number, colunas: number) =>

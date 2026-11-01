@@ -21,6 +21,7 @@ const vistoria: CompromissoRecord = {
   status: 'scheduled',
   origem: 'manual',
   observacoes: 'Levar decibelímetro',
+  avisos: [],
   createdAt: now,
   updatedAt: now,
 };

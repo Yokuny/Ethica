@@ -19,4 +19,5 @@ export * from './schemas/prazo.schema.js';
 export * from './schemas/prospeccao.schema.js';
 export * from './schemas/provisionTenant.schema.js';
 export * from './schemas/signin.schema.js';
+export * from './schemas/vistoria.schema.js';
 export * from './types.js';

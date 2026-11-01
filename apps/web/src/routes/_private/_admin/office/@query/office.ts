@@ -1,7 +1,7 @@
 import type { UpdateOffice } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
-import { del, get, postFile, put } from '@/lib/api/client.api.js';
+import { del, get, put, sendFile } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 // Espelha OfficeView de apps/api/src/modules/identity/office.schema.ts.
@@ -42,10 +42,34 @@ export const updateOfficeMutation = (
 export const setLogoMutation = (queryClient: QueryClient): UseMutationOptions<OfficeView, Error, Blob | null> => ({
   mutationFn: async (png) => {
     const res = png
-      ? await postFile<OfficeView>('/tenant/office/logo', png, 'image/png')
+      ? await sendFile<OfficeView>('/tenant/office/logo', png, 'image/png')
       : await del<OfficeView>('/tenant/office/logo');
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
     return res.data;
   },
   onSuccess: setOffice(queryClient),
+});
+
+// Modelo do aviso de agendamento às partes (AD-131); a API devolve o padrão quando não há.
+export type AvisoAgendamento = { assunto: string; corpo: string };
+export const avisoAgendamentoKeys = { detail: ['office', 'aviso-agendamento'] as const };
+
+export const avisoAgendamentoQuery = queryOptions({
+  queryKey: avisoAgendamentoKeys.detail,
+  queryFn: async (): Promise<AvisoAgendamento> => {
+    const res = await get<AvisoAgendamento>('/tenant/office/aviso-agendamento');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+    return res.data;
+  },
+});
+
+export const updateAvisoAgendamentoMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<AvisoAgendamento, Error, AvisoAgendamento> => ({
+  mutationFn: async (data) => {
+    const res = await put<AvisoAgendamento>('/tenant/office/aviso-agendamento', data);
+    if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
+    return res.data;
+  },
+  onSuccess: (data) => queryClient.setQueryData(avisoAgendamentoKeys.detail, data),
 });

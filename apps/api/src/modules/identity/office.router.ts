@@ -5,7 +5,7 @@ import { fileBody } from '../../middlewares/fileBody.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody } from '../../middlewares/validation.middleware.js';
 import * as officeController from './office.controller.js';
-import { type OfficeRouterDeps, updateOfficeSchema } from './office.schema.js';
+import { type OfficeRouterDeps, updateAvisoAgendamentoSchema, updateOfficeSchema } from './office.schema.js';
 
 // Identidade do escritório nos documentos (DOC-01): configuração de admin. Montado em `/tenant/office`.
 export const createOfficeRouter = (deps: OfficeRouterDeps): Router => {
@@ -16,5 +16,13 @@ export const createOfficeRouter = (deps: OfficeRouterDeps): Router => {
   router.get('/logo', ...guard, officeController.getLogo(deps.storage));
   router.post('/logo', ...guard, fileBody('image/png', TENANT_LOGO_MAX_BYTES), officeController.setLogo(deps.storage));
   router.delete('/logo', ...guard, officeController.removeLogo(deps.storage));
+  // Modelo do aviso de agendamento às partes (AD-131).
+  router.get('/aviso-agendamento', ...guard, officeController.getAvisoAgendamento);
+  router.put(
+    '/aviso-agendamento',
+    ...guard,
+    validBody(updateAvisoAgendamentoSchema),
+    officeController.updateAvisoAgendamento,
+  );
   return router;
 };

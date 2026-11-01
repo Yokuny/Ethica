@@ -1,6 +1,6 @@
 import { useSidebar } from '@ethica/ui/components/sidebar';
 import { Link, useLocation } from '@tanstack/react-router';
-import { CalendarDays, Gavel, Home, Menu, Radar } from 'lucide-react';
+import { CalendarDays, Gavel, Home, MapPinned, Menu } from 'lucide-react';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { cn } from '@/lib/utils.js';
 
@@ -33,9 +33,10 @@ export function MobileDock() {
         <CalendarDays className="size-5" />
         {t('agenda')}
       </Link>
-      <Link to="/prospeccao" className={cn(tileClassName, pathname.startsWith('/prospeccao') && 'text-primary')}>
-        <Radar className="size-5" />
-        {t('prospecting')}
+      {/* Campo (AD-128): a tela do celular na vistoria; prospecção segue no Menu. */}
+      <Link to="/campo" className={cn(tileClassName, pathname.startsWith('/campo') && 'text-primary')}>
+        <MapPinned className="size-5" />
+        {t('field')}
       </Link>
       <button type="button" onClick={toggleSidebar} className={tileClassName}>
         <Menu className="size-5" />

@@ -211,6 +211,18 @@
     color-scheme: light;
     scrollbar-color: var(--border) transparent;
     scrollbar-width: thin;
+    /* Celular (AD-128, tela de campo): sem o flash cinza no toque e sem inflar a fonte. */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* iOS dá zoom no campo com fonte menor que 16 px e não volta; em tela de toque, 16 px. */
+  @media (pointer: coarse) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
   }
 
   body {

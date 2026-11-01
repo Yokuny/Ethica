@@ -46,6 +46,11 @@ describe('schemaRegistry', () => {
         'datajudSearchSchema',
         'createOportunidadeSchema',
         'updateOportunidadeSchema',
+        'updateAvisoAgendamentoSchema',
+        'midiaIdSchema',
+        'vistoriaDadosSchema',
+        'saveVistoriaSchema',
+        'updateMidiaSchema',
       ].sort(),
     );
   });

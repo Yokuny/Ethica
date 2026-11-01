@@ -141,5 +141,7 @@ export type LaudoExportDados = {
   identity: DocumentIdentity;
   perito: AccountView;
   valores: Partial<Record<LaudoVariavel, string>>;
+  // `src` da foto no HTML → bytes (AD-129); foto que sumiu fica fora e o `img` some.
+  fotos: Record<string, { body: Buffer; mime: string }>;
   geradoEm: Date;
 };

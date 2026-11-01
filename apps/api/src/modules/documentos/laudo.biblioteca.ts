@@ -207,7 +207,9 @@ const LAUDO_PERICIAL: Secao[] = [
     titulo: 'Metodologia e vistoria',
     nivel: 1,
     textoSim: p(
-      'A vistoria foi realizada em [DATA_VISTORIA], no local periciado ([LOCAL_PERICIA]), com a presença das partes e dos assistentes técnicos indicados. Foram feitas entrevistas, inspeção dos postos de trabalho, análise dos documentos dos autos (PGR, PCMSO, LTCAT, fichas de entrega de EPI) e, quando cabível, avaliações quantitativas com instrumentos calibrados.',
+      'A vistoria foi realizada em [DATA_VISTORIA], no local periciado ([LOCAL_PERICIA]), com início às [HORA_VISTORIA]. Foram feitas entrevistas, inspeção dos postos de trabalho, análise dos documentos dos autos (PGR, PCMSO, LTCAT, fichas de entrega de EPI) e, quando cabível, avaliações quantitativas com instrumentos calibrados.',
+      'Estiveram presentes: [PRESENTES_VISTORIA].',
+      'Foram solicitados às partes: [DOCUMENTOS_SOLICITADOS].',
     ),
     textoNao: p(
       'A vistoria não pôde ser realizada no local de trabalho (informar o motivo). A análise foi feita com base nos documentos dos autos e nas informações prestadas pelas partes.',
@@ -217,9 +219,14 @@ const LAUDO_PERICIAL: Secao[] = [
     titulo: 'Atividades exercidas',
     nivel: 1,
     textoSim: p(
-      'Segundo as informações colhidas na vistoria, confirmadas pelas partes, o trabalhador exercia a função de [FUNCAO_RECLAMANTE], com as seguintes atividades: (descrever).',
+      'Segundo as informações colhidas na vistoria, confirmadas pelas partes, o trabalhador exercia a função de [FUNCAO_RECLAMANTE], com as seguintes atividades: [FUNCOES_AUTOR].',
+      'Paradigmas indicados pelo(a) [DENOMINACAO_AUTOR]: [PARADIGMAS_AUTOR].',
     ),
-    textoNao: p('As partes divergiram quanto às atividades exercidas. Versão de cada parte: (descrever).'),
+    textoNao: p(
+      'As partes divergiram quanto às atividades exercidas.',
+      'Versão do(a) [DENOMINACAO_AUTOR]: [FUNCOES_AUTOR]. Paradigmas indicados: [PARADIGMAS_AUTOR].',
+      'Versão do(a) [DENOMINACAO_REU]: [FUNCOES_REU]. Paradigmas indicados: [PARADIGMAS_REU].',
+    ),
   },
   {
     titulo: 'Equipamentos de proteção individual',

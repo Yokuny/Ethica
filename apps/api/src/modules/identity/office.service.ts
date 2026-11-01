@@ -3,7 +3,13 @@ import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import * as authRepository from './auth.repository.js';
 import * as officeRepository from './office.repository.js';
-import type { DocumentIdentity, OfficeView, TenantLogo, UpdateOffice } from './office.schema.js';
+import type {
+  DocumentIdentity,
+  OfficeView,
+  TenantLogo,
+  UpdateAvisoAgendamento,
+  UpdateOffice,
+} from './office.schema.js';
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
@@ -95,3 +101,34 @@ export const getDocumentIdentity = async (
 
 export const registrarExportacao = (tenantId: string, userId: string) =>
   officeRepository.pushDataExport(tenantId, userId);
+
+// Cota de arquivos para outros módulos (mídias da vistoria, AD-129): reservar antes de gravar
+// a referência e devolver ao apagar o arquivo.
+export const reservarArquivo = async (tenantId: string, bytes: number): Promise<void> => {
+  if (!(await officeRepository.reservarBytes(tenantId, bytes))) throw new CustomError('storage_quota_exceeded', 422);
+};
+
+export const devolverArquivo = (tenantId: string, bytes: number) => officeRepository.devolverBytes(tenantId, bytes);
+
+// Modelo do aviso de agendamento às partes (AD-131); sem modelo gravado, vale o padrão.
+export const AVISO_AGENDAMENTO_PADRAO: UpdateAvisoAgendamento = {
+  assunto: 'Aviso de agendamento: [TIPO_EVENTO] - Processo [NUMERO_PROCESSO]',
+  corpo: [
+    'Prezados,',
+    '',
+    'Informo que a [TIPO_EVENTO] do processo [NUMERO_PROCESSO] ([VARA], [COMARCA]) está marcada para [DATA], às [HORA], no endereço [ENDERECO].',
+    '',
+    'Peço a presença das partes e dos assistentes técnicos, com os documentos pertinentes.',
+    '',
+    'Atenciosamente,',
+    '[NOME_PERITO]',
+  ].join('\n'),
+};
+
+export const getAvisoAgendamento = async (tenantId: string): Promise<UpdateAvisoAgendamento> =>
+  (await findOfficeOrThrow(tenantId)).avisoAgendamento ?? AVISO_AGENDAMENTO_PADRAO;
+
+export const updateAvisoAgendamento = async (tenantId: string, aviso: UpdateAvisoAgendamento) => {
+  await officeRepository.setAvisoAgendamento(tenantId, aviso);
+  return getAvisoAgendamento(tenantId);
+};

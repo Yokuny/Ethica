@@ -15,15 +15,25 @@ const toRecord = (doc: CompromissoDocument): CompromissoRecord => ({
   status: doc.status,
   origem: doc.origem,
   observacoes: doc.observacoes,
+  motivo: doc.motivo,
+  ...(doc.coordenadas && doc.coordenadas.endereco === doc.local
+    ? { coordenadas: { lat: doc.coordenadas.lat, lng: doc.coordenadas.lng } }
+    : {}),
+  avisos: (doc.avisos ?? []).map((aviso) => ({
+    userId: aviso.User.toString(),
+    at: aviso.at,
+    destinatarios: aviso.destinatarios,
+  })),
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });
 
-const toDocumentFields = ({ periciaId, ...data }: CompromissoWrite) => {
+const toDocumentFields = ({ periciaId, motivo, ...data }: CompromissoWrite) => {
   const fields: Record<string, unknown> = Object.fromEntries(
     Object.entries(data).filter(([, value]) => value !== undefined),
   );
   if (periciaId !== undefined) fields.Pericia = periciaId;
+  if (motivo) fields.motivo = motivo;
   return fields;
 };
 
@@ -47,7 +57,7 @@ export const updateCompromisso = async (
   withDbTiming('agenda.updateCompromisso', async () => {
     const doc = await Compromisso.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, _id: id }),
-      toDocumentFields(data),
+      { $set: toDocumentFields(data), ...(data.motivo === null ? { $unset: { motivo: 1 } } : {}) },
       {
         returnDocument: 'after',
       },
@@ -110,4 +120,33 @@ export const listAll = async (tenantId: string, filter: { periciaId?: string } =
       .sort({ inicio: 1 })
       .lean();
     return docs.map(toRecord);
+  });
+
+// Cache da geocodificação do endereço atual (AD-131).
+export const setCoordenadas = async (
+  tenantId: string,
+  id: string,
+  coordenadas: { lat: number; lng: number; endereco: string },
+): Promise<CompromissoRecord | null> =>
+  withDbTiming('agenda.setCoordenadas', async () => {
+    const doc = await Compromisso.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, _id: id }),
+      { $set: { coordenadas } },
+      { returnDocument: 'after' },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+export const addAviso = async (
+  tenantId: string,
+  id: string,
+  aviso: { userId: string; destinatarios: string[] },
+): Promise<CompromissoRecord | null> =>
+  withDbTiming('agenda.addAviso', async () => {
+    const doc = await Compromisso.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, _id: id }),
+      { $push: { avisos: { User: aviso.userId, at: new Date(), destinatarios: aviso.destinatarios } } },
+      { returnDocument: 'after' },
+    ).lean();
+    return doc ? toRecord(doc) : null;
   });

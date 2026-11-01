@@ -23,6 +23,7 @@ import { Route as PrivatePericiasIndexRouteImport } from './routes/_private/peri
 import { Route as PrivatePartesIndexRouteImport } from './routes/_private/partes/index';
 import { Route as PrivateLaudosIndexRouteImport } from './routes/_private/laudos/index';
 import { Route as PrivateFinanceiroIndexRouteImport } from './routes/_private/financeiro/index';
+import { Route as PrivateCampoIndexRouteImport } from './routes/_private/campo/index';
 import { Route as PrivateAgendaIndexRouteImport } from './routes/_private/agenda/index';
 import { Route as PrivateAccountIndexRouteImport } from './routes/_private/account/index';
 import { Route as PrivateProspeccaoOportunidadesIndexRouteImport } from './routes/_private/prospeccao/oportunidades/index';
@@ -37,6 +38,8 @@ import { Route as PrivateLaudosDetailsIndexRouteImport } from './routes/_private
 import { Route as PrivateLaudosAddIndexRouteImport } from './routes/_private/laudos/add/index';
 import { Route as PrivateFinanceiroRelatoriosIndexRouteImport } from './routes/_private/financeiro/relatorios/index';
 import { Route as PrivateFinanceiroLancamentosIndexRouteImport } from './routes/_private/financeiro/lancamentos/index';
+import { Route as PrivateCampoVistoriaIndexRouteImport } from './routes/_private/campo/vistoria/index';
+import { Route as PrivateCampoMapaIndexRouteImport } from './routes/_private/campo/mapa/index';
 import { Route as PrivateAdminUsersIndexRouteImport } from './routes/_private/_admin/users/index';
 import { Route as PrivateAdminOfficeIndexRouteImport } from './routes/_private/_admin/office/index';
 import { Route as PrivateLaudosModelosDetailsIndexRouteImport } from './routes/_private/laudos/modelos/details/index';
@@ -108,6 +111,11 @@ const PrivateFinanceiroIndexRoute = PrivateFinanceiroIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PrivateFinanceiroRouteRoute,
+} as any);
+const PrivateCampoIndexRoute = PrivateCampoIndexRouteImport.update({
+  id: '/campo/',
+  path: '/campo/',
+  getParentRoute: () => PrivateRouteRoute,
 } as any);
 const PrivateAgendaIndexRoute = PrivateAgendaIndexRouteImport.update({
   id: '/agenda/',
@@ -188,6 +196,17 @@ const PrivateFinanceiroLancamentosIndexRoute =
     path: '/lancamentos/',
     getParentRoute: () => PrivateFinanceiroRouteRoute,
   } as any);
+const PrivateCampoVistoriaIndexRoute =
+  PrivateCampoVistoriaIndexRouteImport.update({
+    id: '/campo/vistoria/',
+    path: '/campo/vistoria/',
+    getParentRoute: () => PrivateRouteRoute,
+  } as any);
+const PrivateCampoMapaIndexRoute = PrivateCampoMapaIndexRouteImport.update({
+  id: '/campo/mapa/',
+  path: '/campo/mapa/',
+  getParentRoute: () => PrivateRouteRoute,
+} as any);
 const PrivateAdminUsersIndexRoute = PrivateAdminUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -216,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof PrivateFinanceiroRouteRouteWithChildren;
   '/account/': typeof PrivateAccountIndexRoute;
   '/agenda/': typeof PrivateAgendaIndexRoute;
+  '/campo/': typeof PrivateCampoIndexRoute;
   '/financeiro/': typeof PrivateFinanceiroIndexRoute;
   '/laudos/': typeof PrivateLaudosIndexRoute;
   '/partes/': typeof PrivatePartesIndexRoute;
@@ -227,6 +247,8 @@ export interface FileRoutesByFullPath {
   '/suspended/': typeof PublicSuspendedIndexRoute;
   '/office/': typeof PrivateAdminOfficeIndexRoute;
   '/users/': typeof PrivateAdminUsersIndexRoute;
+  '/campo/mapa/': typeof PrivateCampoMapaIndexRoute;
+  '/campo/vistoria/': typeof PrivateCampoVistoriaIndexRoute;
   '/financeiro/lancamentos/': typeof PrivateFinanceiroLancamentosIndexRoute;
   '/financeiro/relatorios/': typeof PrivateFinanceiroRelatoriosIndexRoute;
   '/laudos/add/': typeof PrivateLaudosAddIndexRoute;
@@ -246,6 +268,7 @@ export interface FileRoutesByTo {
   '/': typeof PrivateIndexRoute;
   '/account': typeof PrivateAccountIndexRoute;
   '/agenda': typeof PrivateAgendaIndexRoute;
+  '/campo': typeof PrivateCampoIndexRoute;
   '/financeiro': typeof PrivateFinanceiroIndexRoute;
   '/laudos': typeof PrivateLaudosIndexRoute;
   '/partes': typeof PrivatePartesIndexRoute;
@@ -257,6 +280,8 @@ export interface FileRoutesByTo {
   '/suspended': typeof PublicSuspendedIndexRoute;
   '/office': typeof PrivateAdminOfficeIndexRoute;
   '/users': typeof PrivateAdminUsersIndexRoute;
+  '/campo/mapa': typeof PrivateCampoMapaIndexRoute;
+  '/campo/vistoria': typeof PrivateCampoVistoriaIndexRoute;
   '/financeiro/lancamentos': typeof PrivateFinanceiroLancamentosIndexRoute;
   '/financeiro/relatorios': typeof PrivateFinanceiroRelatoriosIndexRoute;
   '/laudos/add': typeof PrivateLaudosAddIndexRoute;
@@ -281,6 +306,7 @@ export interface FileRoutesById {
   '/_private/': typeof PrivateIndexRoute;
   '/_private/account/': typeof PrivateAccountIndexRoute;
   '/_private/agenda/': typeof PrivateAgendaIndexRoute;
+  '/_private/campo/': typeof PrivateCampoIndexRoute;
   '/_private/financeiro/': typeof PrivateFinanceiroIndexRoute;
   '/_private/laudos/': typeof PrivateLaudosIndexRoute;
   '/_private/partes/': typeof PrivatePartesIndexRoute;
@@ -292,6 +318,8 @@ export interface FileRoutesById {
   '/_public/suspended/': typeof PublicSuspendedIndexRoute;
   '/_private/_admin/office/': typeof PrivateAdminOfficeIndexRoute;
   '/_private/_admin/users/': typeof PrivateAdminUsersIndexRoute;
+  '/_private/campo/mapa/': typeof PrivateCampoMapaIndexRoute;
+  '/_private/campo/vistoria/': typeof PrivateCampoVistoriaIndexRoute;
   '/_private/financeiro/lancamentos/': typeof PrivateFinanceiroLancamentosIndexRoute;
   '/_private/financeiro/relatorios/': typeof PrivateFinanceiroRelatoriosIndexRoute;
   '/_private/laudos/add/': typeof PrivateLaudosAddIndexRoute;
@@ -314,6 +342,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/account/'
     | '/agenda/'
+    | '/campo/'
     | '/financeiro/'
     | '/laudos/'
     | '/partes/'
@@ -325,6 +354,8 @@ export interface FileRouteTypes {
     | '/suspended/'
     | '/office/'
     | '/users/'
+    | '/campo/mapa/'
+    | '/campo/vistoria/'
     | '/financeiro/lancamentos/'
     | '/financeiro/relatorios/'
     | '/laudos/add/'
@@ -344,6 +375,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/agenda'
+    | '/campo'
     | '/financeiro'
     | '/laudos'
     | '/partes'
@@ -355,6 +387,8 @@ export interface FileRouteTypes {
     | '/suspended'
     | '/office'
     | '/users'
+    | '/campo/mapa'
+    | '/campo/vistoria'
     | '/financeiro/lancamentos'
     | '/financeiro/relatorios'
     | '/laudos/add'
@@ -378,6 +412,7 @@ export interface FileRouteTypes {
     | '/_private/'
     | '/_private/account/'
     | '/_private/agenda/'
+    | '/_private/campo/'
     | '/_private/financeiro/'
     | '/_private/laudos/'
     | '/_private/partes/'
@@ -389,6 +424,8 @@ export interface FileRouteTypes {
     | '/_public/suspended/'
     | '/_private/_admin/office/'
     | '/_private/_admin/users/'
+    | '/_private/campo/mapa/'
+    | '/_private/campo/vistoria/'
     | '/_private/financeiro/lancamentos/'
     | '/_private/financeiro/relatorios/'
     | '/_private/laudos/add/'
@@ -510,6 +547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateFinanceiroIndexRouteImport;
       parentRoute: typeof PrivateFinanceiroRouteRoute;
     };
+    '/_private/campo/': {
+      id: '/_private/campo/';
+      path: '/campo';
+      fullPath: '/campo/';
+      preLoaderRoute: typeof PrivateCampoIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
     '/_private/agenda/': {
       id: '/_private/agenda/';
       path: '/agenda';
@@ -608,6 +652,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateFinanceiroLancamentosIndexRouteImport;
       parentRoute: typeof PrivateFinanceiroRouteRoute;
     };
+    '/_private/campo/vistoria/': {
+      id: '/_private/campo/vistoria/';
+      path: '/campo/vistoria';
+      fullPath: '/campo/vistoria/';
+      preLoaderRoute: typeof PrivateCampoVistoriaIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
+    '/_private/campo/mapa/': {
+      id: '/_private/campo/mapa/';
+      path: '/campo/mapa';
+      fullPath: '/campo/mapa/';
+      preLoaderRoute: typeof PrivateCampoMapaIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
     '/_private/_admin/users/': {
       id: '/_private/_admin/users/';
       path: '/users';
@@ -680,11 +738,14 @@ interface PrivateRouteRouteChildren {
   PrivateIndexRoute: typeof PrivateIndexRoute;
   PrivateAccountIndexRoute: typeof PrivateAccountIndexRoute;
   PrivateAgendaIndexRoute: typeof PrivateAgendaIndexRoute;
+  PrivateCampoIndexRoute: typeof PrivateCampoIndexRoute;
   PrivateLaudosIndexRoute: typeof PrivateLaudosIndexRoute;
   PrivatePartesIndexRoute: typeof PrivatePartesIndexRoute;
   PrivatePericiasIndexRoute: typeof PrivatePericiasIndexRoute;
   PrivateProspeccaoIndexRoute: typeof PrivateProspeccaoIndexRoute;
   PrivateRelatoriosIndexRoute: typeof PrivateRelatoriosIndexRoute;
+  PrivateCampoMapaIndexRoute: typeof PrivateCampoMapaIndexRoute;
+  PrivateCampoVistoriaIndexRoute: typeof PrivateCampoVistoriaIndexRoute;
   PrivateLaudosAddIndexRoute: typeof PrivateLaudosAddIndexRoute;
   PrivateLaudosDetailsIndexRoute: typeof PrivateLaudosDetailsIndexRoute;
   PrivateLaudosListIndexRoute: typeof PrivateLaudosListIndexRoute;
@@ -704,11 +765,14 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateIndexRoute: PrivateIndexRoute,
   PrivateAccountIndexRoute: PrivateAccountIndexRoute,
   PrivateAgendaIndexRoute: PrivateAgendaIndexRoute,
+  PrivateCampoIndexRoute: PrivateCampoIndexRoute,
   PrivateLaudosIndexRoute: PrivateLaudosIndexRoute,
   PrivatePartesIndexRoute: PrivatePartesIndexRoute,
   PrivatePericiasIndexRoute: PrivatePericiasIndexRoute,
   PrivateProspeccaoIndexRoute: PrivateProspeccaoIndexRoute,
   PrivateRelatoriosIndexRoute: PrivateRelatoriosIndexRoute,
+  PrivateCampoMapaIndexRoute: PrivateCampoMapaIndexRoute,
+  PrivateCampoVistoriaIndexRoute: PrivateCampoVistoriaIndexRoute,
   PrivateLaudosAddIndexRoute: PrivateLaudosAddIndexRoute,
   PrivateLaudosDetailsIndexRoute: PrivateLaudosDetailsIndexRoute,
   PrivateLaudosListIndexRoute: PrivateLaudosListIndexRoute,

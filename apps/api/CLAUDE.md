@@ -20,11 +20,12 @@ apps/api/src/
 ├── providers/datajudClient.ts      # API Pública do Datajud (AD-105), injetado em buildApp
 ├── providers/pdfRenderer.ts        # HTML → PDF com Chromium (AD-119), injetado em buildApp
 ├── providers/fileStorage.ts        # arquivos do tenant em bucket S3 (AD-120), injetado em buildApp
+├── providers/geocoder.ts           # endereço → coordenadas pelo Nominatim (AD-131), injetado em buildApp
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite)
     ├── pericia/                    # Pericia + Prazo (AD-109) + Parte (AD-117) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
-    ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal e aviso diário de prazos
+    ├── agenda/                     # Compromisso — vistoria, audiência, reunião; feed iCal, aviso diário de prazos, registro de vistoria e mídias (AD-130), aviso às partes e geocodificação (AD-131)
     ├── financeiro/                 # Lancamento — honorários (com parcelas, AD-111) e despesas; resumo, fluxo, categorias
     ├── prospeccao/                 # Oportunidade + busca no Datajud; converte em perícia
     └── documentos/                 # PDFs (AD-119), exportação ZIP (AD-122) e laudos (Laudo + ModeloLaudo, AD-126) — ninguém depende dele
@@ -54,7 +55,7 @@ Grafo atual: `agenda`, `financeiro` e `prospeccao` → `pericia`; `agenda` → `
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Invite transitionTenantStatus` (inclui identidade dos documentos e cota de arquivos, AD-120) |
 | `pericia` | `Pericia Prazo Parte` |
-| `agenda` | `Compromisso` |
+| `agenda` | `Compromisso Vistoria` (AD-130) |
 | `financeiro` | `Lancamento` |
 | `prospeccao` | `Oportunidade` |
 | `documentos` | `Laudo ModeloLaudo` (AD-126) |

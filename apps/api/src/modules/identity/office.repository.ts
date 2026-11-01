@@ -8,7 +8,7 @@ const EXPORTS_KEPT = 20;
 
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
-    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes dataExports').lean(),
+    Tenant.findById(tenantId).select('name cabecalho rodape logo storageBytes dataExports avisoAgendamento').lean(),
   );
 
 // Texto vazio apaga o cabeçalho/rodapé: os documentos voltam ao padrão.
@@ -53,4 +53,25 @@ export const pushDataExport = async (tenantId: string, userId: string): Promise<
       { _id: tenantId },
       { $push: { dataExports: { $each: [{ User: userId, at: new Date() }], $slice: -EXPORTS_KEPT } } },
     );
+  });
+
+// Arquivo novo de outro módulo (mídia da vistoria, AD-129) reserva o espaço na cota no mesmo
+// update que confere o limite. `false`: a cota não comporta.
+export const reservarBytes = async (tenantId: string, bytes: number): Promise<boolean> =>
+  withDbTiming('office.reservarBytes', async () => {
+    const result = await Tenant.updateOne(
+      { _id: tenantId, storageBytes: { $lte: TENANT_STORAGE_QUOTA_BYTES - bytes } },
+      { $inc: { storageBytes: bytes } },
+    );
+    return result.modifiedCount === 1;
+  });
+
+export const devolverBytes = async (tenantId: string, bytes: number): Promise<void> =>
+  withDbTiming('office.devolverBytes', async () => {
+    await Tenant.updateOne({ _id: tenantId }, { $inc: { storageBytes: -bytes } });
+  });
+
+export const setAvisoAgendamento = async (tenantId: string, aviso: { assunto: string; corpo: string }) =>
+  withDbTiming('office.setAvisoAgendamento', async () => {
+    await Tenant.updateOne({ _id: tenantId }, { $set: { avisoAgendamento: aviso } });
   });

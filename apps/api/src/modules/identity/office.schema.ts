@@ -1,10 +1,10 @@
-import type { UpdateOffice } from '@ethica/contracts';
-import { updateOfficeSchema } from '@ethica/contracts';
+import type { UpdateAvisoAgendamento, UpdateOffice } from '@ethica/contracts';
+import { updateAvisoAgendamentoSchema, updateOfficeSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import type { FileStorage } from '../../providers/fileStorage.js';
 
-export type { UpdateOffice };
-export { updateOfficeSchema };
+export type { UpdateAvisoAgendamento, UpdateOffice };
+export { updateAvisoAgendamentoSchema, updateOfficeSchema };
 
 export type OfficeRouterDeps = { validToken: RequestHandler; storage?: FileStorage };
 

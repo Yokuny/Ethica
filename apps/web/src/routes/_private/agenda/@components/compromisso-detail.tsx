@@ -1,5 +1,9 @@
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import { ClipboardList, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
 import { COMPROMISSO_TIPO_VARIANT } from '@/components/compromisso-labels.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
@@ -9,6 +13,7 @@ import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CompromissoRecord } from '@/query/compromisso.js';
+import { enviarAvisoMutation } from '@/query/vistoria.js';
 import { useCompromissoActions } from '../@hooks/use-compromisso-actions.js';
 
 type CompromissoDetailProps = { compromisso: CompromissoRecord; onEdit: () => void; onClose: () => void };
@@ -20,6 +25,9 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
     onClose,
   );
   const agendado = compromisso.status === 'scheduled';
+  const queryClient = useQueryClient();
+  const aviso = useMutation(enviarAvisoMutation(queryClient));
+  const ultimoAviso = compromisso.avisos?.at(-1);
 
   return (
     <FormDialog title={compromisso.titulo} onClose={onClose}>
@@ -49,11 +57,43 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
                   ),
               },
               { label: t('notes'), value: compromisso.observacoes || '-' },
+              {
+                label: t('parties_notified'),
+                value: ultimoAviso
+                  ? `${formatDateTime(ultimoAviso.at)} · ${ultimoAviso.destinatarios.join(', ')}`
+                  : '-',
+              },
             ],
           },
         ]}
       />
       {compromisso.periciaId && <PericiaRecebimentos periciaId={compromisso.periciaId} />}
+      {/* Campo (AD-130, AD-131): registro da vistoria no celular e aviso às partes por e-mail. */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={<Link to="/campo/vistoria" search={{ id: compromisso.id }} />}
+        >
+          <ClipboardList />
+          {t('inspection_record')}
+        </Button>
+        {compromisso.periciaId && (
+          <Button
+            variant="outline"
+            disabled={aviso.isPending}
+            onClick={() =>
+              aviso.mutate(
+                { id: compromisso.id },
+                { onSuccess: () => toast.success(t('notice_sent')), onError: (error) => toast.error(error.message) },
+              )
+            }
+          >
+            <Mail />
+            {t('notify_parties')}
+          </Button>
+        )}
+      </div>
       <div className="flex flex-wrap justify-between gap-2">
         <Button variant="destructive" disabled={isPending} onClick={askDelete}>
           {t('remove')}

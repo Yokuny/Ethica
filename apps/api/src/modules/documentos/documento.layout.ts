@@ -49,6 +49,21 @@ const ROTULOS: Record<string, string> = {
   movement: 'última movimentação',
   appointment: 'nomeação, sem movimentação',
   created: 'cadastro, sem movimentação',
+  // Campo (AD-130): agentes, documentos e qualidade dos presentes.
+  noise: 'Ruído',
+  heat: 'Calor',
+  cold: 'Frio',
+  humidity: 'Umidade',
+  chemicals: 'Agentes químicos',
+  biological_agents: 'Agentes biológicos',
+  hazardous: 'Periculosidade (inflamáveis, explosivos, eletricidade, radiação)',
+  risk_program: 'PGR / PPRA',
+  ltcat: 'LTCAT',
+  pcmso: 'PCMSO',
+  ppe_records: 'Fichas de entrega de EPI (com CA)',
+  ppp: 'PPP',
+  job_description: 'Descrição da função / ordem de serviço',
+  witness: 'Testemunha',
 };
 
 export const rotulo = (key: string | undefined): string => (key ? (ROTULOS[key] ?? key) : '');

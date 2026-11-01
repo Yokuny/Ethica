@@ -1,4 +1,15 @@
-import { Building2, CalendarDays, Contact, FileSignature, FileText, Gavel, Radar, Users, Wallet } from 'lucide-react';
+import {
+  Building2,
+  CalendarDays,
+  Contact,
+  FileSignature,
+  FileText,
+  Gavel,
+  MapPinned,
+  Radar,
+  Users,
+  Wallet,
+} from 'lucide-react';
 import type { HomeSection } from '../@interface/home.interface.js';
 
 export const HOME_SECTIONS = [
@@ -14,6 +25,13 @@ export const HOME_SECTIONS = [
     titleKey: 'reports_and_opinions',
     descriptionKey: 'reports_page_hub_description',
     icon: FileSignature,
+    access: 'everyone',
+  },
+  {
+    to: '/campo',
+    titleKey: 'field',
+    descriptionKey: 'field_page_description',
+    icon: MapPinned,
     access: 'everyone',
   },
   {

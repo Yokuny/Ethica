@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 export type HomeSection = {
   to:
     | '/pericias'
+    | '/campo'
     | '/laudos'
     | '/partes'
     | '/agenda'
