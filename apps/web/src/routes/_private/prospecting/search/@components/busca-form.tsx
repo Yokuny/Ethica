@@ -1,50 +1,50 @@
-import { DATAJUD_ASSUNTOS_TECNICOS, DATAJUD_TRIBUNAIS, type Justica } from '@ethica/contracts';
+import { type CourtType, DATAJUD_COURTS, DATAJUD_TECHNICAL_SUBJECTS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ethica/ui/components/form';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
+import { courtTypeLabel } from '@/components/case-labels.js';
 import { NumberField, SelectField, TextField } from '@/components/form-fields.js';
-import { justicaLabel } from '@/components/pericia-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { useBuscaDatajud } from '../@hooks/use-busca-datajud.js';
 
 // Rótulo com a justiça: "TRT2 · Trabalhista".
-const TRIBUNAL_ITEMS = Object.entries(DATAJUD_TRIBUNAIS).flatMap(([justica, tribunais]) =>
-  tribunais.map((tribunal) => ({
-    value: tribunal,
-    label: `${tribunal.toUpperCase()} · ${justicaLabel(justica as Justica)}`,
+const COURT_ITEMS = Object.entries(DATAJUD_COURTS).flatMap(([courtType, courts]) =>
+  courts.map((court) => ({
+    value: court,
+    label: `${court.toUpperCase()} · ${courtTypeLabel(courtType as CourtType)}`,
   })),
 );
 
 export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud> }) {
   const { form, onSubmit, isSearching } = state;
-  const tribunal = form.watch('tribunal');
+  const court = form.watch('court');
   return (
     <Form {...form}>
       <form noValidate onSubmit={onSubmit} className="grid items-end gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SelectField
           control={form.control}
-          name="tribunal"
-          label={t('tribunal')}
+          name="court"
+          label={t('court')}
           placeholder={t('select')}
-          items={TRIBUNAL_ITEMS}
+          items={COURT_ITEMS}
         />
         <TextField
           control={form.control}
-          name="numeroProcesso"
+          name="processNumber"
           label={t('process_number')}
           placeholder={t('example_process_number')}
         />
-        {tribunal.startsWith('trt') && (
+        {court.startsWith('trt') && (
           <FormField
             control={form.control}
-            name="assuntosTecnicos"
+            name="technicalSubjects"
             render={({ field }) => (
               <FormItem className="sm:col-span-2">
                 <FormLabel>{t('technical_subjects')}</FormLabel>
                 <Select<string, true>
                   multiple
-                  items={DATAJUD_ASSUNTOS_TECNICOS.map((value) => ({ value, label: t(value) }))}
+                  items={DATAJUD_TECHNICAL_SUBJECTS.map((value) => ({ value, label: t(value) }))}
                   value={field.value}
                   onValueChange={(value) => field.onChange(value ?? [])}
                 >
@@ -52,7 +52,7 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={t('technical_subjects_placeholder')}>
                         {(value: string[]) =>
-                          value.length === DATAJUD_ASSUNTOS_TECNICOS.length
+                          value.length === DATAJUD_TECHNICAL_SUBJECTS.length
                             ? `${value.length} ${t('selected_count')}`
                             : value.map((assunto) => t(assunto)).join(', ')
                         }
@@ -60,7 +60,7 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {DATAJUD_ASSUNTOS_TECNICOS.map((assunto) => (
+                    {DATAJUD_TECHNICAL_SUBJECTS.map((assunto) => (
                       <SelectItem key={assunto} value={assunto}>
                         {t(assunto)}
                       </SelectItem>

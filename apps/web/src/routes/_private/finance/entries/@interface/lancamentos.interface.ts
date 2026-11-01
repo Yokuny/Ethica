@@ -6,8 +6,8 @@ export const lancamentosSearchSchema = z.object({
   page: z.number().int().min(1).optional().default(1),
   limit: z.number().int().min(1).optional().default(20),
   natureza: z.enum(LANCAMENTO_NATUREZAS).optional(),
-  situacao: z.enum(['expected', 'partial', 'settled', 'canceled', 'overdue']).optional(),
-  periciaId: z.string().optional(),
+  state: z.enum(['expected', 'partial', 'settled', 'canceled', 'overdue']).optional(),
+  caseId: z.string().optional(),
 });
 export type LancamentosSearch = z.infer<typeof lancamentosSearchSchema>;
 

@@ -4,7 +4,7 @@ import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { Geocoder } from '../../providers/geocoder.js';
 import type { MailProvider } from '../../providers/mail/index.js';
-import { PericiaNotFoundError } from '../pericia/pericia.service.js';
+import { CaseNotFoundError } from '../case/case.service.js';
 import type { ListCompromissosQuery, UpcomingCompromissosQuery } from './compromisso.schema.js';
 import * as compromissoService from './compromisso.service.js';
 import { CompromissoNotFoundError } from './compromisso.service.js';
@@ -15,7 +15,7 @@ const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 // Compromisso ou perícia vinculada inexistentes (ou de outro tenant) -> 404.
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(
-    e instanceof CompromissoNotFoundError || e instanceof PericiaNotFoundError
+    e instanceof CompromissoNotFoundError || e instanceof CaseNotFoundError
       ? new CustomError(e.message, 404, e.detail)
       : e,
   );

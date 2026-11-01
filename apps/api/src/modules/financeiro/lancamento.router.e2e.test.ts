@@ -1,16 +1,6 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import {
-  connect,
-  dateInDisplayTz,
-  disconnect,
-  hashToken,
-  Lancamento,
-  Pericia,
-  Session,
-  Tenant,
-  User,
-} from '@ethica/db';
+import { Case, connect, dateInDisplayTz, disconnect, hashToken, Lancamento, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -46,7 +36,7 @@ const seedSession = async (role: Role[] = ['admin']) => {
   return <T extends request.Test>(req: T): T => req.set('Cookie', `refreshToken=${raw}`).set('User-Agent', DEVICE);
 };
 
-const HONORARIO = {
+const FEE = {
   natureza: 'income',
   categoria: 'fixed_fees',
   descricao: 'Honorários fixados',
@@ -61,7 +51,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
   afterEach(async () => {
     await Promise.all([
       Lancamento.deleteMany({}),
-      Pericia.deleteMany({}),
+      Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
       Tenant.deleteMany({}),
@@ -73,7 +63,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
   it('R$ 4.800: parcela de 1.500 deixa parcial com saldo 3.300; estorno volta a previsto; quitação liquida', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/finance/entries')).send(HONORARIO)).body.data;
+    const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
 
     const parcial = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       valorCents: 150_000,
@@ -103,7 +93,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
   it('parcela maior que o saldo é recusada com 422 parcel_exceeds_balance e nada muda', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/finance/entries')).send(HONORARIO)).body.data;
+    const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 400_000, data: today });
 
     const excede = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
@@ -117,7 +107,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
   it('honorário não é excluído nem tem status à mão; valor não fica abaixo do recebido; despesa continua excluível', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/finance/entries')).send(HONORARIO)).body.data;
+    const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 200_000, data: today });
 
     const excluir = await as(request(app).delete(`/finance/entries/${id}`));
@@ -149,8 +139,8 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
   it('resumo e fluxo contam o recebido pela data de cada parcela e o saldo como a receber (PRZ-02.5)', async () => {
     const as = await seedSession();
-    const { id } = (await as(request(app).post('/finance/entries')).send({ ...HONORARIO, vencimento: '2020-01-10' }))
-      .body.data;
+    const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, vencimento: '2020-01-10' })).body
+      .data;
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({ valorCents: 150_000, data: today });
     // Parcela de outro mês: entra no recebido do mês dela, não no deste (nem no fluxo de 1 mês).
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({
@@ -159,32 +149,32 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     });
 
     const resumo = (await as(request(app).get('/finance/summary'))).body.data;
-    expect(resumo).toMatchObject({ aReceberCents: 280_000, atrasadoCents: 280_000, recebidoMesCents: 150_000 });
+    expect(resumo).toMatchObject({ aReceberCents: 280_000, lateCents: 280_000, recebidoMesCents: 150_000 });
 
     const fluxo = (await as(request(app).get('/finance/flow?meses=1'))).body.data;
     expect(fluxo).toEqual([{ mes: today.slice(0, 7), recebidoCents: 150_000, aReceberCents: 0, despesasCents: 0 }]);
 
-    const atrasados = (await as(request(app).get('/finance/entries?situacao=overdue'))).body.data;
+    const atrasados = (await as(request(app).get('/finance/entries?state=overdue'))).body.data;
     expect(atrasados.items.map((item: { id: string }) => item.id)).toEqual([id]);
   });
 
   it('alterar o honorário fixado da perícia atualiza o lançamento existente em vez de criar outro', async () => {
     const as = await seedSession();
-    const pericia = (
+    const legalCase = (
       await as(request(app).post('/expert-cases')).send({
-        numeroProcesso: '0001234-56.2026.5.02.0001',
-        justica: 'labor',
-        papel: 'court_expert',
-        tribunal: 'TRT2',
-        objeto: 'Insalubridade',
+        processNumber: '0001234-56.2026.5.02.0001',
+        courtType: 'labor',
+        role: 'court_expert',
+        court: 'TRT2',
+        subject: 'Insalubridade',
       })
     ).body.data;
 
-    await as(request(app).patch(`/expert-cases/${pericia.id}`)).send({ honorariosFixadosCents: 300_000 });
-    await expect.poll(() => Lancamento.countDocuments({ Pericia: pericia.id })).toBe(1);
+    await as(request(app).patch(`/expert-cases/${legalCase.id}`)).send({ fixedFeesCents: 300_000 });
+    await expect.poll(() => Lancamento.countDocuments({ Case: legalCase.id })).toBe(1);
 
-    await as(request(app).patch(`/expert-cases/${pericia.id}`)).send({ honorariosFixadosCents: 350_000 });
-    await expect.poll(async () => (await Lancamento.findOne({ Pericia: pericia.id }).lean())?.valorCents).toBe(350_000);
-    expect(await Lancamento.countDocuments({ Pericia: pericia.id })).toBe(1);
+    await as(request(app).patch(`/expert-cases/${legalCase.id}`)).send({ fixedFeesCents: 350_000 });
+    await expect.poll(async () => (await Lancamento.findOne({ Case: legalCase.id }).lean())?.valorCents).toBe(350_000);
+    expect(await Lancamento.countDocuments({ Case: legalCase.id })).toBe(1);
   });
 });

@@ -1,9 +1,16 @@
 import type { ZodType } from 'zod';
 import { acceptInviteSchema } from './schemas/acceptInvite.schema.js';
 import { changePasswordSchema, updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
+import {
+  createCaseSchema,
+  createMovementSchema,
+  processNumberSchema,
+  updateCaseSchema,
+} from './schemas/case.schema.js';
 import { createCompromissoSchema, updateCompromissoSchema } from './schemas/compromisso.schema.js';
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
+import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
 import { listDiarioQuerySchema } from './schemas/diario.schema.js';
 import {
   financeiroReportQuerySchema,
@@ -24,20 +31,13 @@ import {
 } from './schemas/laudo.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
 import {
-  createParteSchema,
+  casePartyInputSchema,
+  createPartySchema,
   documentoSchema,
   oabSchema,
-  periciaParteInputSchema,
-  updateParteSchema,
-} from './schemas/parte.schema.js';
-import {
-  createMovimentacaoSchema,
-  createPericiaSchema,
-  numeroProcessoSchema,
-  updatePericiaSchema,
-} from './schemas/pericia.schema.js';
+  updatePartySchema,
+} from './schemas/party.schema.js';
 import { permissoesSchema, updatePermissoesSchema } from './schemas/permissao.schema.js';
-import { createPrazoSchema, updatePrazoSchema } from './schemas/prazo.schema.js';
 import {
   createOportunidadeSchema,
   datajudSearchSchema,
@@ -78,17 +78,17 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'listStatsSchema', schema: listStatsSchema },
   { name: 'calendarDateSchema', schema: calendarDateSchema },
   { name: 'wallTimeSchema', schema: wallTimeSchema },
-  { name: 'numeroProcessoSchema', schema: numeroProcessoSchema },
-  { name: 'createPericiaSchema', schema: createPericiaSchema },
-  { name: 'updatePericiaSchema', schema: updatePericiaSchema },
-  { name: 'createMovimentacaoSchema', schema: createMovimentacaoSchema },
+  { name: 'processNumberSchema', schema: processNumberSchema },
+  { name: 'createCaseSchema', schema: createCaseSchema },
+  { name: 'updateCaseSchema', schema: updateCaseSchema },
+  { name: 'createMovementSchema', schema: createMovementSchema },
   { name: 'updateOfficeSchema', schema: updateOfficeSchema },
   { name: 'financeiroReportQuerySchema', schema: financeiroReportQuerySchema },
   { name: 'documentoSchema', schema: documentoSchema },
   { name: 'oabSchema', schema: oabSchema },
-  { name: 'createParteSchema', schema: createParteSchema },
-  { name: 'updateParteSchema', schema: updateParteSchema },
-  { name: 'periciaParteInputSchema', schema: periciaParteInputSchema },
+  { name: 'createPartySchema', schema: createPartySchema },
+  { name: 'updatePartySchema', schema: updatePartySchema },
+  { name: 'casePartyInputSchema', schema: casePartyInputSchema },
   { name: 'createModeloLaudoSchema', schema: createModeloLaudoSchema },
   { name: 'updateModeloLaudoSchema', schema: updateModeloLaudoSchema },
   { name: 'modeloSecaoSchema', schema: modeloSecaoSchema },
@@ -96,8 +96,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createLaudoSchema', schema: createLaudoSchema },
   { name: 'updateLaudoSecaoSchema', schema: updateLaudoSecaoSchema },
   { name: 'concluirLaudoSchema', schema: concluirLaudoSchema },
-  { name: 'createPrazoSchema', schema: createPrazoSchema },
-  { name: 'updatePrazoSchema', schema: updatePrazoSchema },
+  { name: 'createDeadlineSchema', schema: createDeadlineSchema },
+  { name: 'updateDeadlineSchema', schema: updateDeadlineSchema },
   { name: 'createCompromissoSchema', schema: createCompromissoSchema },
   { name: 'updateCompromissoSchema', schema: updateCompromissoSchema },
   { name: 'createLancamentoSchema', schema: createLancamentoSchema },

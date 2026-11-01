@@ -1,5 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
-import { NATUREZA_ITEMS, SITUACAO_ITEMS } from '@/components/lancamento-labels.js';
+import { NATUREZA_ITEMS, STATE_ITEMS } from '@/components/lancamento-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { LancamentosSearch } from '../@interface/lancamentos.interface.js';
 
@@ -30,12 +30,12 @@ export function LancamentosFilters({
       </ToggleGroup>
       <ToggleGroup
         aria-label={t('status')}
-        value={search.situacao ?? ALL}
+        value={search.state ?? ALL}
         onValueChange={(value) =>
-          onChange({ situacao: value === ALL ? undefined : (value as LancamentosSearch['situacao']), page: 1 })
+          onChange({ state: value === ALL ? undefined : (value as LancamentosSearch['state']), page: 1 })
         }
       >
-        {[{ value: ALL, label: t('all') }, ...SITUACAO_ITEMS].map((item) => (
+        {[{ value: ALL, label: t('all') }, ...STATE_ITEMS].map((item) => (
           <ToggleGroupItem key={item.value} value={item.value}>
             {item.label}
           </ToggleGroupItem>

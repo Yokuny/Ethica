@@ -4,15 +4,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
+import { casesQuery } from '@/query/case.js';
 import { createLancamentoMutation, type LancamentoRecord, updateLancamentoMutation } from '@/query/lancamento.js';
-import { periciasQuery } from '@/query/pericia.js';
 
-const PERICIAS_LIMIT = 100;
+const CASES_LIMIT = 100;
 
 // Mesmo formulário para lançar e editar: com `lancamento` edita, sem ele cria.
 export function useLancamentoForm({ lancamento, onDone }: { lancamento?: LancamentoRecord; onDone: () => void }) {
   const queryClient = useQueryClient();
-  const pericias = useQuery(periciasQuery({ limit: PERICIAS_LIMIT }));
+  const cases = useQuery(casesQuery({ limit: CASES_LIMIT }));
   const form = useForm<CreateLancamento>({
     resolver: zodResolver(createLancamentoSchema),
     defaultValues: lancamento
@@ -22,7 +22,7 @@ export function useLancamentoForm({ lancamento, onDone }: { lancamento?: Lancame
           descricao: lancamento.descricao,
           valorCents: lancamento.valorCents,
           vencimento: lancamento.vencimento,
-          periciaId: lancamento.periciaId,
+          caseId: lancamento.caseId,
         }
       : {
           natureza: 'income',
@@ -51,9 +51,9 @@ export function useLancamentoForm({ lancamento, onDone }: { lancamento?: Lancame
     form.setValue('categoria', LANCAMENTO_CATEGORIAS[value as CreateLancamento['natureza']][0]);
   }
 
-  const periciaItems = (pericias.data?.items ?? []).map((pericia) => ({
-    value: pericia.id,
-    label: `${pericia.numeroProcesso} · ${pericia.objeto}`,
+  const caseItems = (cases.data?.items ?? []).map((legalCase) => ({
+    value: legalCase.id,
+    label: `${legalCase.processNumber} · ${legalCase.subject}`,
   }));
 
   return {
@@ -63,6 +63,6 @@ export function useLancamentoForm({ lancamento, onDone }: { lancamento?: Lancame
     handleNaturezaChange,
     isPending,
     errorMessage,
-    periciaItems,
+    caseItems,
   };
 }

@@ -30,8 +30,8 @@ export function HomeOverview({ stats, resumo }: { stats?: ListStats; resumo?: Fi
         <RecordStat
           label={t('receivable')}
           value={formatMoney(resumo.aReceberCents)}
-          hint={resumo.atrasadoCents ? `${formatMoney(resumo.atrasadoCents)} ${t('overdue')}` : undefined}
-          render={<Link to="/finance/entries" search={{ situacao: 'expected' }} />}
+          hint={resumo.lateCents ? `${formatMoney(resumo.lateCents)} ${t('overdue')}` : undefined}
+          render={<Link to="/finance/entries" search={{ state: 'expected' }} />}
         />
       )}
     </RecordStats>

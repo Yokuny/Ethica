@@ -1,4 +1,4 @@
-import type { MidiaTipo, Polo, VistoriaAgente, VistoriaQualidade } from '@ethica/contracts';
+import type { MidiaTipo, Side, VistoriaAgente, VistoriaQualidade } from '@ethica/contracts';
 
 // Chave de tradução de cada valor do registro de vistoria (AD-113: valor em inglês, texto no web).
 export const QUALIDADE_KEY: Record<VistoriaQualidade, string> = {
@@ -11,7 +11,7 @@ export const QUALIDADE_KEY: Record<VistoriaQualidade, string> = {
   other: 'other',
 };
 
-export const POLO_INDICADO_KEY: Record<Polo, string> = {
+export const INDICATED_SIDE_KEY: Record<Side, string> = {
   plaintiff: 'indicated_by_plaintiff',
   defendant: 'indicated_by_defendant',
 };

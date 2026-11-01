@@ -24,7 +24,7 @@ export interface LaudoSecaoDocument {
 export interface LaudoDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
-  Pericia: mongoose.Types.ObjectId;
+  Case: mongoose.Types.ObjectId;
   tipo: LaudoTipo;
   status: LaudoStatus;
   titulo: string;
@@ -49,7 +49,7 @@ const secaoSchema = new Schema<LaudoSecaoDocument>({
 const laudoSchema = new Schema<LaudoDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
-    Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia', required: true },
+    Case: { type: Schema.Types.ObjectId, ref: 'Case', required: true },
     tipo: { type: String, enum: LAUDO_TIPOS, required: true },
     status: { type: String, enum: LAUDO_STATUS, default: 'draft', required: true },
     titulo: { type: String, required: true, trim: true },
@@ -62,7 +62,7 @@ const laudoSchema = new Schema<LaudoDocument>(
   { timestamps: true },
 );
 
-laudoSchema.index({ Tenant: 1, Pericia: 1 });
+laudoSchema.index({ Tenant: 1, Case: 1 });
 laudoSchema.index({ Tenant: 1, status: 1, updatedAt: -1 });
 
 export const Laudo = mongoose.model<LaudoDocument>('Laudo', laudoSchema);

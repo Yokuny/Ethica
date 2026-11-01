@@ -5,8 +5,8 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { sessionQuery } from '@/query/session.js';
-import { AccountAvisoPrazo } from './@components/account-aviso-prazo.js';
 import { AccountCalendarFeed } from './@components/account-calendar-feed.js';
+import { AccountDeadlineReminder } from './@components/account-deadline-reminder.js';
 import { AccountPasswordForm } from './@components/account-password-form.js';
 import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
@@ -48,7 +48,7 @@ export function AccountPage() {
             {
               title: t('deadline_alerts'),
               description: t('deadline_alerts_description'),
-              fields: [<AccountAvisoPrazo key="aviso" />],
+              fields: [<AccountDeadlineReminder key="aviso" />],
             },
             {
               title: t('calendar_sync'),

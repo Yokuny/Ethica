@@ -5,16 +5,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
+import { COURT_TYPE_ITEMS, ROLE_ITEMS } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { DateField, SelectField, TextField } from '@/components/form-fields.js';
-import { JUSTICA_ITEMS, PAPEL_ITEMS } from '@/components/pericia-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { converterOportunidadeMutation, type OportunidadeRecord } from '../../@query/oportunidade.js';
 import { type ConverterForm as ConverterValues, converterFormSchema } from '../@interface/oportunidades.interface.js';
 
-const justicaDoTribunal = (tribunal: string): ConverterValues['justica'] =>
-  tribunal.startsWith('trt') ? 'labor' : tribunal.startsWith('trf') ? 'federal' : 'civil';
+const courtTypeOfCourt = (court: string): ConverterValues['courtType'] =>
+  court.startsWith('trt') ? 'labor' : court.startsWith('trf') ? 'federal' : 'civil';
 
 // Converter em perícia: número, tribunal e vara vêm da oportunidade.
 export function ConverterForm({ oportunidade, onClose }: { oportunidade: OportunidadeRecord; onClose: () => void }) {
@@ -24,21 +24,21 @@ export function ConverterForm({ oportunidade, onClose }: { oportunidade: Oportun
   const form = useForm<ConverterValues>({
     resolver: zodResolver(converterFormSchema),
     defaultValues: {
-      justica: justicaDoTribunal(oportunidade.tribunal),
-      papel: 'court_expert',
-      objeto: oportunidade.assuntos[0] ?? '',
+      courtType: courtTypeOfCourt(oportunidade.court),
+      role: 'court_expert',
+      subject: oportunidade.assuntos[0] ?? '',
     },
   });
 
   const onSubmit = form.handleSubmit((data) =>
     mutation.mutate(
       { id: oportunidade.id, data },
-      { onSuccess: ({ periciaId }) => navigate({ to: '/expert-cases/details', search: { id: periciaId } }) },
+      { onSuccess: ({ caseId }) => navigate({ to: '/expert-cases/details', search: { id: caseId } }) },
     ),
   );
 
   return (
-    <FormDialog title={t('convert_into_expert_case')} description={oportunidade.numeroProcesso} onClose={onClose}>
+    <FormDialog title={t('convert_into_expert_case')} description={oportunidade.processNumber} onClose={onClose}>
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-6">
           <DefaultFormLayout
@@ -50,36 +50,36 @@ export function ConverterForm({ oportunidade, onClose }: { oportunidade: Oportun
                   <div key="tipo" className="grid gap-4 sm:grid-cols-2">
                     <SelectField
                       control={form.control}
-                      name="justica"
+                      name="courtType"
                       label={t('court_type')}
                       placeholder={t('select')}
-                      items={JUSTICA_ITEMS}
+                      items={COURT_TYPE_ITEMS}
                     />
                     <SelectField
                       control={form.control}
-                      name="papel"
+                      name="role"
                       label={t('role_in_case')}
                       placeholder={t('select')}
-                      items={PAPEL_ITEMS}
+                      items={ROLE_ITEMS}
                     />
                   </div>,
                   <TextField
-                    key="objeto"
+                    key="subject"
                     control={form.control}
-                    name="objeto"
+                    name="subject"
                     label={t('object')}
                     placeholder={t('example_object')}
                   />,
                   <div key="datas" className="grid gap-4 sm:grid-cols-2">
                     <DateField
                       control={form.control}
-                      name="dataNomeacao"
+                      name="nominationDate"
                       label={t('appointment_date')}
                       placeholder={t('choose_day')}
                     />
                     <DateField
                       control={form.control}
-                      name="prazoLaudo"
+                      name="reportDeadline"
                       label={t('report_deadline')}
                       placeholder={t('choose_day')}
                     />

@@ -2,7 +2,7 @@ import type { DatajudSearch } from '@ethica/contracts';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { DatajudClient } from '../../providers/datajudClient.js';
 import { DatajudUnavailableError } from '../../providers/datajudClient.js';
-import * as periciaService from '../pericia/pericia.service.js';
+import * as caseService from '../case/case.service.js';
 import * as oportunidadeRepository from './oportunidade.repository.js';
 import type {
   ConverterOportunidade,
@@ -29,12 +29,12 @@ export const searchDatajud = async (
     const result = await client.search(query);
     const saved = await oportunidadeRepository.findIdsByNumeros(
       tenantId,
-      result.items.map((item) => item.numeroProcesso),
+      result.items.map((item) => item.processNumber),
     );
     return {
       ...result,
       items: result.items.map((item) => {
-        const oportunidadeId = saved.get(item.numeroProcesso);
+        const oportunidadeId = saved.get(item.processNumber);
         return oportunidadeId ? { ...item, oportunidadeId } : item;
       }),
     };
@@ -87,19 +87,19 @@ export const converterOportunidade = async (
   tenantId: string,
   id: string,
   data: ConverterOportunidade,
-): Promise<{ periciaId: string }> => {
+): Promise<{ caseId: string }> => {
   const oportunidade = await getOportunidade(tenantId, id);
   if (oportunidade.status === 'converted') throw new CustomError('opportunity_already_converted', 409);
-  const pericia = await periciaService.createPericia({
+  const legalCase = await caseService.createCase({
     ...data,
     tenant: tenantId,
-    numeroProcesso: oportunidade.numeroProcesso,
-    tribunal: oportunidade.tribunal.toUpperCase(),
-    vara: oportunidade.orgaoJulgador,
+    processNumber: oportunidade.processNumber,
+    court: oportunidade.court.toUpperCase(),
+    division: oportunidade.orgaoJulgador,
     oportunidadeId: oportunidade.id,
   });
-  await oportunidadeRepository.updateOportunidade(tenantId, id, { status: 'converted', periciaId: pericia.id });
-  return { periciaId: pericia.id };
+  await oportunidadeRepository.updateOportunidade(tenantId, id, { status: 'converted', caseId: legalCase.id });
+  return { caseId: legalCase.id };
 };
 
 export const listForExport = (tenantId: string) => oportunidadeRepository.listAll(tenantId);

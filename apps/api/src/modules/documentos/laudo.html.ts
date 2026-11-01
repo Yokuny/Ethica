@@ -1,5 +1,5 @@
 import type { LaudoVariavel } from '@ethica/contracts';
-import { LAUDO_HTML_TAGS, LAUDO_IMG_SRC, LAUDO_VARIAVEIS, variaveisPendentes } from '@ethica/contracts';
+import { LAUDO_HTML_TAGS, LAUDO_IMG_SRC, LAUDO_VARIAVEIS, pendingVariables } from '@ethica/contracts';
 import sanitizeHtml from 'sanitize-html';
 import { esc } from './documento.layout.js';
 
@@ -26,7 +26,7 @@ export type ValoresDoLaudo = Partial<Record<LaudoVariavel, string>>;
 
 // Troca só os marcadores que têm valor; o que fica é pendência (AD-126). No HTML o valor é
 // escapado; no título (texto simples) vai cru e é escapado na hora de desenhar.
-export const resolverVariaveis = (texto: string, valores: ValoresDoLaudo, formato: 'html' | 'texto'): string =>
+export const resolveVariables = (texto: string, valores: ValoresDoLaudo, formato: 'html' | 'texto'): string =>
   LAUDO_VARIAVEIS.reduce((resultado, variavel) => {
     const valor = valores[variavel]?.trim();
     if (!valor) return resultado;
@@ -36,5 +36,5 @@ export const resolverVariaveis = (texto: string, valores: ValoresDoLaudo, format
 // Marcadores ainda sem valor, por seção (título e texto): bloqueiam exportar e concluir (AD-126).
 export const pendenciasDe = (secoes: ReadonlyArray<{ id: string; titulo: string; html: string }>) =>
   secoes
-    .map((secao) => ({ secaoId: secao.id, variaveis: variaveisPendentes(`${secao.titulo} ${secao.html}`) }))
+    .map((secao) => ({ secaoId: secao.id, variaveis: pendingVariables(`${secao.titulo} ${secao.html}`) }))
     .filter((pendencia) => pendencia.variaveis.length > 0);

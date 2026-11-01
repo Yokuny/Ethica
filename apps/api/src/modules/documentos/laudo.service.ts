@@ -1,18 +1,18 @@
-import { laudoTipoDoPapel } from '@ethica/contracts';
+import { reportRoleType } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as compromissoService from '../agenda/compromisso.service.js';
 import * as vistoriaService from '../agenda/vistoria.service.js';
+import type { CaseRecord } from '../case/case.schema.js';
+import * as caseService from '../case/case.service.js';
+import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as officeService from '../identity/office.service.js';
-import type { PericiaRecord } from '../pericia/pericia.schema.js';
-import * as periciaService from '../pericia/pericia.service.js';
-import * as prazoService from '../pericia/prazo.service.js';
-import type { ArquivoGerado, DocumentoContexto } from './documentos.schema.js';
+import type { DocumentoContexto, GeneratedFile } from './documentos.schema.js';
 import { laudoDocx } from './laudo.docx.js';
-import { pendenciasDe, resolverVariaveis, sanitizeLaudoHtml, type ValoresDoLaudo } from './laudo.html.js';
+import { pendenciasDe, resolveVariables, sanitizeLaudoHtml, type ValoresDoLaudo } from './laudo.html.js';
 import * as laudoRepository from './laudo.repository.js';
 import type {
   ConcluirLaudo,
@@ -33,13 +33,13 @@ type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
 // Etapas anteriores à entrega: concluir com a entrega avança para `report_delivered` (AD-126)
 // com a fase "aguardando manifestação das partes" (AD-133).
-const ANTES_DA_ENTREGA = new Set(['appointed', 'accepted', 'inspection', 'drafting_report']);
+const BEFORE_DELIVERY = new Set(['appointed', 'accepted', 'inspection', 'drafting_report']);
 
-const comNumero = async <T extends { periciaId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
-  const resumos = await periciaService.findResumosByIds(tenantId, [...new Set(items.map((item) => item.periciaId))]);
+const comNumero = async <T extends { caseId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
+  const resumos = await caseService.findResumosByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
   return items.map((item) => {
-    const numero = resumos.get(item.periciaId)?.numeroProcesso;
-    return numero ? { ...item, periciaNumero: numero } : item;
+    const numero = resumos.get(item.caseId)?.processNumber;
+    return numero ? { ...item, caseNumber: numero } : item;
   });
 };
 
@@ -55,36 +55,36 @@ const editavel = async (tenantId: string, id: string): Promise<LaudoRecord> => {
 };
 
 // Dados da perícia, de quem gera e do escritório no momento (AD-126).
-const dadosAtuais = async (providers: Pick<Providers, 'storage'>, ctx: DocumentoContexto, pericia: PericiaRecord) => {
-  const [identity, perito, compromissos, campo] = await Promise.all([
+const dadosAtuais = async (providers: Pick<Providers, 'storage'>, ctx: DocumentoContexto, legalCase: CaseRecord) => {
+  const [identity, expert, compromissos, campo] = await Promise.all([
     officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
-    compromissoService.listDaPericia(ctx.tenantId, pericia.id),
-    vistoriaService.ultimaFeitaDaPericia(ctx.tenantId, pericia.id),
+    compromissoService.listByCase(ctx.tenantId, legalCase.id),
+    vistoriaService.lastDoneByCase(ctx.tenantId, legalCase.id),
   ]);
   const valores = valoresDoLaudo({
-    pericia,
-    perito,
+    legalCase,
+    expert,
     identity,
     compromissos,
     campo: campo && { dados: campo.vistoria.dados, inicio: campo.compromisso.inicio },
     hoje: dateInDisplayTz(ctx.now),
   });
-  return { identity, perito, valores };
+  return { identity, expert, valores };
 };
 
-const resolverSecoes = (secoes: LaudoSecaoRecord[], valores: ValoresDoLaudo): LaudoSecaoRecord[] =>
+const resolveSections = (secoes: LaudoSecaoRecord[], valores: ValoresDoLaudo): LaudoSecaoRecord[] =>
   secoes.map((secao) => ({
     ...secao,
-    titulo: resolverVariaveis(secao.titulo, valores, 'texto'),
-    html: resolverVariaveis(secao.html, valores, 'html'),
+    titulo: resolveVariables(secao.titulo, valores, 'texto'),
+    html: resolveVariables(secao.html, valores, 'html'),
   }));
 
 // Nenhum documento sai nem é concluído com marcador sem valor (AD-126).
 const semPendencias = (secoes: LaudoSecaoRecord[]): void => {
-  const pendentes = pendenciasDe(secoes);
-  if (pendentes.length) {
-    throw new CustomError('laudo_unresolved_variables', 422, pendentes.map((pendencia) => pendencia.secaoId).join(','));
+  const pending = pendenciasDe(secoes);
+  if (pending.length) {
+    throw new CustomError('laudo_unresolved_variables', 422, pending.map((pendencia) => pendencia.secaoId).join(','));
   }
 };
 
@@ -107,9 +107,9 @@ const getLaudo = async (tenantId: string, id: string): Promise<LaudoRecord> => {
 export const abrirLaudo = async (ctx: DocumentoContexto, id: string): Promise<LaudoRecord> => {
   const laudo = await getLaudo(ctx.tenantId, id);
   if (laudo.status === 'completed') return laudo;
-  const pericia = await periciaService.getPericia(ctx.tenantId, laudo.periciaId);
-  const { valores } = await dadosAtuais({}, ctx, pericia);
-  const secoes = resolverSecoes(laudo.secoes, valores);
+  const legalCase = await caseService.getCase(ctx.tenantId, laudo.caseId);
+  const { valores } = await dadosAtuais({}, ctx, legalCase);
+  const secoes = resolveSections(laudo.secoes, valores);
   return { ...laudo, secoes, pendencias: pendenciasDe(secoes) };
 };
 
@@ -120,17 +120,17 @@ export const createLaudo = async (
   ctx: DocumentoContexto,
   data: CreateLaudo,
 ): Promise<LaudoRecord> => {
-  const pericia = await periciaService.getPericia(ctx.tenantId, data.periciaId);
-  const tipo = laudoTipoDoPapel(pericia.papel);
+  const legalCase = await caseService.getCase(ctx.tenantId, data.caseId);
+  const tipo = reportRoleType(legalCase.role);
   const modelo = await modeloLaudoService.getModelo(ctx.tenantId, data.modeloId);
   if (modelo.tipo !== tipo) throw new CustomError('report_template_type_mismatch', 422);
   const variantes = new Map(data.secoes.map((escolha) => [escolha.id, escolha.variante]));
   const escolhidas = modelo.secoes.filter((secao) => variantes.has(secao.id));
   if (escolhidas.length !== variantes.size) throw new CustomError('invalid_data', 422, 'seção fora do modelo');
-  const { valores } = await dadosAtuais(providers, ctx, pericia);
+  const { valores } = await dadosAtuais(providers, ctx, legalCase);
   const laudo = await laudoRepository.create({
     tenantId: ctx.tenantId,
-    periciaId: pericia.id,
+    caseId: legalCase.id,
     userId: ctx.userId,
     tipo,
     titulo: tipo === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial',
@@ -138,18 +138,18 @@ export const createLaudo = async (
     secoes: escolhidas.map((secao) => {
       const variante = variantes.get(secao.id) ?? 'yes';
       return {
-        titulo: resolverVariaveis(secao.titulo, valores, 'texto'),
+        titulo: resolveVariables(secao.titulo, valores, 'texto'),
         nivel: secao.nivel,
         apenasTitulo: secao.apenasTitulo,
         quebraPagina: secao.quebraPagina,
         variante,
         html: secao.apenasTitulo
           ? ''
-          : resolverVariaveis(variante === 'yes' ? secao.textoSim : secao.textoNao, valores, 'html'),
+          : resolveVariables(variante === 'yes' ? secao.textoSim : secao.textoNao, valores, 'html'),
       };
     }),
   });
-  return { ...laudo, periciaNumero: pericia.numeroProcesso };
+  return { ...laudo, caseNumber: legalCase.processNumber };
 };
 
 export const updateSecao = async (
@@ -183,25 +183,25 @@ export const concluirLaudo = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentoContexto,
   id: string,
-  { registrarEntrega }: ConcluirLaudo,
+  { recordDelivery }: ConcluirLaudo,
 ): Promise<LaudoRecord> => {
   const laudo = await editavel(ctx.tenantId, id);
-  const pericia = await periciaService.getPericia(ctx.tenantId, laudo.periciaId);
-  const { valores } = await dadosAtuais(providers, ctx, pericia);
-  const secoes = resolverSecoes(laudo.secoes, valores);
+  const legalCase = await caseService.getCase(ctx.tenantId, laudo.caseId);
+  const { valores } = await dadosAtuais(providers, ctx, legalCase);
+  const secoes = resolveSections(laudo.secoes, valores);
   semPendencias(secoes);
   encontrado(await laudoRepository.concluir(ctx.tenantId, id, ctx.userId, ctx.now, secoes));
-  if (registrarEntrega) {
-    await prazoService.protocolarEntregaDoLaudo(ctx.tenantId, pericia.id, ctx.now);
-    await periciaService.addMovimentacao(ctx.tenantId, pericia.id, {
+  if (recordDelivery) {
+    await deadlineService.fileReportDelivery(ctx.tenantId, legalCase.id, ctx.now);
+    await caseService.addMovement(ctx.tenantId, legalCase.id, {
       tipo: 'report_filed',
       data: dateInDisplayTz(ctx.now),
       observacoes: `${laudo.titulo} concluído no Ethica.`,
     });
-    if (ANTES_DA_ENTREGA.has(pericia.status)) {
-      await periciaService.updatePericia(ctx.tenantId, pericia.id, {
+    if (BEFORE_DELIVERY.has(legalCase.status)) {
+      await caseService.updateCase(ctx.tenantId, legalCase.id, {
         status: 'report_delivered',
-        fase: 'awaiting_objections',
+        phase: 'awaiting_objections',
       });
     }
   }
@@ -214,15 +214,14 @@ export const deleteLaudo = async (tenantId: string, id: string): Promise<void> =
   if (deletedCount === 0) throw new LaudoNotFoundError('not_found');
 };
 
-export const deleteByPericia = (tenantId: string, periciaId: string) =>
-  laudoRepository.deleteByPericia(tenantId, periciaId);
+export const deleteByCase = (tenantId: string, caseId: string) => laudoRepository.deleteByCase(tenantId, caseId);
 
 // Exportar (LAU-03.2): mesmas variáveis resolvidas de novo, sem gravar; pendente → 422.
 const paraExportar = async (providers: Providers, ctx: DocumentoContexto, id: string) => {
   const laudo = await getLaudo(ctx.tenantId, id);
-  const pericia = await periciaService.getPericia(ctx.tenantId, laudo.periciaId);
-  const { identity, perito, valores } = await dadosAtuais(providers, ctx, pericia);
-  const secoes = resolverSecoes(laudo.secoes, valores);
+  const legalCase = await caseService.getCase(ctx.tenantId, laudo.caseId);
+  const { identity, expert, valores } = await dadosAtuais(providers, ctx, legalCase);
+  const secoes = resolveSections(laudo.secoes, valores);
   semPendencias(secoes);
   // Fotos da vistoria no texto (AD-129): bytes lidos aqui, só do próprio tenant.
   const srcs = [
@@ -234,25 +233,25 @@ const paraExportar = async (providers: Providers, ctx: DocumentoContexto, id: st
     srcs.map(async (src) => [src, await vistoriaService.lerFotoDoLaudo(providers.storage, ctx.tenantId, src)] as const),
   );
   const fotos = Object.fromEntries(lidas.flatMap(([src, foto]) => (foto ? [[src, foto]] : [])));
-  return { laudo: { ...laudo, secoes }, pericia, identity, perito, valores, fotos, geradoEm: ctx.now };
+  return { laudo: { ...laudo, secoes }, legalCase, identity, expert, valores, fotos, geradoEm: ctx.now };
 };
 
-const nomeArquivo = (laudo: LaudoRecord, pericia: PericiaRecord, extensao: string): string =>
-  `${laudo.tipo === 'technical_opinion' ? 'parecer-tecnico' : 'laudo'}-${pericia.numeroProcesso}.${extensao}`;
+const fileName = (laudo: LaudoRecord, legalCase: CaseRecord, extensao: string): string =>
+  `${laudo.tipo === 'technical_opinion' ? 'technical-opinion' : 'laudo'}-${legalCase.processNumber}.${extensao}`;
 
-export const gerarPdf = async (providers: Providers, ctx: DocumentoContexto, id: string): Promise<ArquivoGerado> => {
+export const gerarPdf = async (providers: Providers, ctx: DocumentoContexto, id: string): Promise<GeneratedFile> => {
   const dados = await paraExportar(providers, ctx, id);
   return {
-    nome: nomeArquivo(dados.laudo, dados.pericia, 'pdf'),
+    nome: fileName(dados.laudo, dados.legalCase, 'pdf'),
     tipo: 'application/pdf',
     conteudo: await providers.pdf.render(laudoHtml(dados)),
   };
 };
 
-export const gerarDocx = async (providers: Providers, ctx: DocumentoContexto, id: string): Promise<ArquivoGerado> => {
+export const gerarDocx = async (providers: Providers, ctx: DocumentoContexto, id: string): Promise<GeneratedFile> => {
   const dados = await paraExportar(providers, ctx, id);
   return {
-    nome: nomeArquivo(dados.laudo, dados.pericia, 'docx'),
+    nome: fileName(dados.laudo, dados.legalCase, 'docx'),
     tipo: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     conteudo: await laudoDocx(dados),
   };

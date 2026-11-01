@@ -38,7 +38,7 @@ export function useOportunidadesPage() {
     setStatus: (oportunidade: OportunidadeRecord, status: 'new' | 'under_review' | 'discarded') =>
       update.mutate({ id: oportunidade.id, data: { status } }, { onError }),
     remove: (oportunidade: OportunidadeRecord) => remove.mutate({ id: oportunidade.id }, { onError }),
-    openPericia: (oportunidade: OportunidadeRecord) =>
-      oportunidade.periciaId && navigate({ to: '/expert-cases/details', search: { id: oportunidade.periciaId } }),
+    openCase: (oportunidade: OportunidadeRecord) =>
+      oportunidade.caseId && navigate({ to: '/expert-cases/details', search: { id: oportunidade.caseId } }),
   };
 }

@@ -1,24 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import type { FichaDados } from './documentos.schema.js';
-import { checklistHtml, cronogramaHtml, fichaHtml, paradasHtml } from './documentos.templates.js';
+import { checklistHtml, cronogramaHtml, fichaHtml, stalledHtml } from './documentos.templates.js';
 
 const base = {
   identity: { name: 'Escritório Ribeiro' },
-  perito: { name: 'Ana Perita', registroProfissional: 'CREA-SP 123', formacao: 'Engenharia de Segurança' },
+  expert: { name: 'Ana Perita', registroProfissional: 'CREA-SP 123', formacao: 'Engenharia de Segurança' },
   geradoEm: new Date('2026-10-31T15:00:00Z'),
 };
 
-const pericia: FichaDados['pericia'] = {
+const legalCase: FichaDados['legalCase'] = {
   id: 'p1',
-  numeroProcesso: '0001234-56.2026.5.02.0001',
-  justica: 'labor',
-  papel: 'court_expert',
-  tribunal: 'TRT2',
-  objeto: 'Insalubridade <script>',
-  partes: [],
-  movimentacoes: [],
+  processNumber: '0001234-56.2026.5.02.0001',
+  courtType: 'labor',
+  role: 'court_expert',
+  court: 'TRT2',
+  subject: 'Insalubridade <script>',
+  parties: [],
+  movements: [],
   status: 'inspection',
-  situacao: 'active',
+  state: 'active',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -32,8 +32,8 @@ describe('documentos (DOC-02, DOC-03)', () => {
         cabecalho: '[LOGO]\nPerito <b>[NOME_PERITO]</b>',
         rodape: 'Pág. [PAGINA_ATUAL]/[TOTAL_PAGINAS]',
       },
-      pericia,
-      prazos: [],
+      legalCase,
+      deadlines: [],
       compromissos: [],
     });
     expect(doc.headerTemplate).not.toContain('<img');
@@ -46,7 +46,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
     const doc = cronogramaHtml({
       ...base,
       identity: { name: 'Escritório Ribeiro', logoDataUrl: 'data:image/png;base64,AAAA' },
-      prazos: [],
+      deadlines: [],
       hoje: '2026-10-31',
     });
     expect(doc.headerTemplate).toContain('<img src="data:image/png;base64,AAAA"');
@@ -55,7 +55,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('ficha sem partes, prazos e compromissos identifica as seções vazias e escapa o conteúdo', () => {
-    const { html } = fichaHtml({ ...base, pericia, prazos: [], compromissos: [] });
+    const { html } = fichaHtml({ ...base, legalCase, deadlines: [], compromissos: [] });
     expect(html).toContain('Nenhuma parte cadastrada.');
     expect(html).toContain('Nenhum prazo cadastrado.');
     expect(html).toContain('Nenhum compromisso cadastrado.');
@@ -64,15 +64,15 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('ficha só mostra o resumo financeiro quando recebe os valores (admin/manager)', () => {
-    const semValores = fichaHtml({ ...base, pericia, prazos: [], compromissos: [] }).html;
+    const semValores = fichaHtml({ ...base, legalCase, deadlines: [], compromissos: [] }).html;
     expect(semValores).not.toContain('Resumo financeiro');
     expect(semValores).not.toContain('R$');
     const comValores = fichaHtml({
       ...base,
-      pericia,
-      prazos: [],
+      legalCase,
+      deadlines: [],
       compromissos: [],
-      financeiro: { honorariosCents: 300000, recebidoCents: 100000, saldoCents: 200000, despesasCents: 5000 },
+      financeiro: { feesCents: 300000, recebidoCents: 100000, saldoCents: 200000, despesasCents: 5000 },
     }).html;
     expect(comValores).toContain('Resumo financeiro');
     expect(comValores).toMatch(/R\$\s2\.000,00/);
@@ -81,9 +81,9 @@ describe('documentos (DOC-02, DOC-03)', () => {
   it('checklist traz participantes, agentes, divergências com os polos trabalhistas e documentos', () => {
     const { html } = checklistHtml({
       ...base,
-      pericia: {
-        ...pericia,
-        partes: [{ parteId: 'a', polo: 'plaintiff', tipo: 'party', nome: 'João Silva' }],
+      legalCase: {
+        ...legalCase,
+        parties: [{ partyId: 'a', side: 'plaintiff', tipo: 'party', nome: 'João Silva' }],
       },
     });
     for (const trecho of [
@@ -102,10 +102,10 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('cronograma marca "vence em breve" até 15 dias e vencido no passado', () => {
-    const prazo = (vencimento: string) => ({
+    const deadline = (vencimento: string) => ({
       id: vencimento,
-      periciaId: 'p1',
-      periciaNumero: pericia.numeroProcesso,
+      caseId: 'p1',
+      caseNumber: legalCase.processNumber,
       titulo: 'Entrega do laudo',
       vencimento,
       status: 'pending' as const,
@@ -114,7 +114,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
     });
     const { html } = cronogramaHtml({
       ...base,
-      prazos: [prazo('2026-10-30'), prazo('2026-11-10'), prazo('2026-12-31')],
+      deadlines: [deadline('2026-10-30'), deadline('2026-11-10'), deadline('2026-12-31')],
       hoje: '2026-10-31',
     });
     expect(html).toContain('Vencido há 1 dia');
@@ -123,18 +123,18 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('perícias paradas mostram a referência e os dias parados', () => {
-    const { html } = paradasHtml({
+    const { html } = stalledHtml({
       ...base,
-      paradas: [
+      stalled: [
         {
           id: 'p1',
-          numeroProcesso: pericia.numeroProcesso,
+          processNumber: legalCase.processNumber,
           status: 'inspection',
-          tribunal: 'TRT2',
-          objeto: 'x',
+          court: 'TRT2',
+          subject: 'x',
           referencia: '2026-08-01',
           origem: 'appointment',
-          diasParada: 91,
+          stalledDays: 91,
         },
       ],
     });

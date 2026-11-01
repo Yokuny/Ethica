@@ -2,7 +2,7 @@ import { ItemDescription } from '@ethica/ui/components/item';
 import { AppLink } from '@/components/app-link.js';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { PdfExtraction } from '../../@query/importacao.js';
+import type { PdfExtraction } from '../../@query/import.js';
 import { CAMPO_LABEL } from '../@consts/campo-label.js';
 
 // O que o PDF não trouxe e os avisos da extração, acima do formulário já preenchido.

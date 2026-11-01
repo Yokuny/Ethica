@@ -10,7 +10,7 @@ type LaudoSecoesNavProps = { laudo: LaudoRecord; selecionada: string; onSelect: 
 // Seções numeradas pela posição (AD-126); a que tem variável sem valor fica marcada (LAU-03.3).
 export function LaudoSecoesNav({ laudo, selecionada, onSelect }: LaudoSecoesNavProps) {
   const numeros = numerarSecoes(laudo.secoes);
-  const pendentes = new Set(laudo.pendencias.map((pendencia) => pendencia.secaoId));
+  const pending = new Set(laudo.pendencias.map((pendencia) => pendencia.secaoId));
 
   return (
     <nav aria-label={t('sections')} className="flex flex-col gap-0.5">
@@ -29,7 +29,7 @@ export function LaudoSecoesNav({ laudo, selecionada, onSelect }: LaudoSecoesNavP
         >
           <ItemDescription className="w-8 shrink-0 tabular-nums">{numeros[i]}</ItemDescription>
           <ItemTitle className="min-w-0 flex-1 font-normal">{secao.titulo}</ItemTitle>
-          {pendentes.has(secao.id) && (
+          {pending.has(secao.id) && (
             <TriangleAlert aria-label={t('missing_values')} className="size-4 shrink-0 text-status-warning-indicator" />
           )}
         </button>

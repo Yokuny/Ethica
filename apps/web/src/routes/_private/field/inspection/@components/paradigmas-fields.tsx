@@ -1,14 +1,14 @@
-import { POLOS, type VistoriaDados } from '@ethica/contracts';
+import { SIDES, type VistoriaDados } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { FormField } from '@ethica/ui/components/form';
 import { type UseFormReturn, useFieldArray } from 'react-hook-form';
 import { Checkbox } from '@/components/checkbox.js';
 import { SelectField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { POLO_INDICADO_KEY } from '../../@consts/campo-labels.js';
+import { INDICATED_SIDE_KEY } from '../../@consts/campo-labels.js';
 import { ListaCampos } from './lista-campos.js';
 
-const POLO_ITEMS = POLOS.map((value) => ({ value, label: t(POLO_INDICADO_KEY[value]) }));
+const SIDE_ITEMS = SIDES.map((value) => ({ value, label: t(INDICATED_SIDE_KEY[value]) }));
 
 // Paradigmas indicados por cada parte (CAM-02): viram [PARADIGMAS_AUTOR]/[PARADIGMAS_REU] no laudo.
 export function ParadigmasFields({ form }: { form: UseFormReturn<VistoriaDados> }) {
@@ -21,7 +21,7 @@ export function ParadigmasFields({ form }: { form: UseFormReturn<VistoriaDados> 
         <Button
           type="button"
           variant="outline"
-          onClick={() => append({ id: crypto.randomUUID(), polo: 'plaintiff', nome: '' })}
+          onClick={() => append({ id: crypto.randomUUID(), side: 'plaintiff', nome: '' })}
         >
           {t('add_paradigm')}
         </Button>
@@ -34,10 +34,10 @@ export function ParadigmasFields({ form }: { form: UseFormReturn<VistoriaDados> 
             <div className="grid gap-3 sm:grid-cols-2">
               <SelectField
                 control={form.control}
-                name={`paradigmas.${index}.polo`}
+                name={`paradigmas.${index}.side`}
                 label={t('indicated_by')}
                 placeholder={t('choose')}
-                items={POLO_ITEMS}
+                items={SIDE_ITEMS}
               />
               <TextField
                 control={form.control}

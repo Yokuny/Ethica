@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import { Time12h } from '@/components/time12h.js';
 import { cn } from '@/lib/utils.js';
 import type { CompromissoRecord } from '@/query/compromisso.js';
-import type { PrazoRecord } from '@/query/prazo.js';
+import type { DeadlineRecord } from '@/query/deadline.js';
 
 // Cor por tipo de compromisso; cancelado esmaece e concluído fica esmaecido.
 const tipoClasses: Record<CompromissoRecord['tipo'], string> = {
@@ -55,29 +55,29 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
 }
 
 // Prazo pendente (AD-109): evento de dia inteiro, sem horário; vencido fica em vermelho.
-export function CalendarPrazoChip({
-  prazo,
+export function CalendarDeadlineChip({
+  deadline,
   today,
   onSelect,
 }: {
-  prazo: PrazoRecord;
+  deadline: DeadlineRecord;
   today: string;
-  onSelect: (prazo: PrazoRecord) => void;
+  onSelect: (deadline: DeadlineRecord) => void;
 }) {
   return (
     <button
       type="button"
-      data-testid={`calendar-prazo-${prazo.id}`}
-      onClick={() => onSelect(prazo)}
+      data-testid={`calendar-deadline-${deadline.id}`}
+      onClick={() => onSelect(deadline)}
       className={cn(
         'w-full truncate rounded-sm border px-1.5 py-0.5 text-left text-xs',
         'border-amber-500/40 bg-amber-50 text-amber-900',
-        prazo.vencimento < today && 'border-destructive bg-destructive/10 text-destructive',
+        deadline.vencimento < today && 'border-destructive bg-destructive/10 text-destructive',
       )}
     >
       <ItemDescription className="text-inherit line-clamp-none">
-        {prazo.titulo}
-        {prazo.periciaNumero ? ` · ${prazo.periciaNumero}` : ''}
+        {deadline.titulo}
+        {deadline.caseNumber ? ` · ${deadline.caseNumber}` : ''}
       </ItemDescription>
     </button>
   );

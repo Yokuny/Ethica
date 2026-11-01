@@ -1,10 +1,10 @@
 import type {
+  CaseRole,
+  CourtType,
   CreateOportunidade,
+  DatajudCourt,
   DatajudSearch,
-  DatajudTribunal,
-  Justica,
   OportunidadeStatus,
-  PapelPericia,
   UpdateOportunidade,
 } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
@@ -16,14 +16,14 @@ import { t } from '@/lib/helpers/translate.helper.js';
 // apps/api/src/providers/datajudClient.ts. Local à prospecção: busca e
 // oportunidades são as duas únicas rotas que usam.
 export type DatajudResultado = {
-  numeroProcesso: string;
-  tribunal: DatajudTribunal;
+  processNumber: string;
+  court: DatajudCourt;
   classe?: string;
   assuntos: string[];
   orgaoJulgador?: string;
-  dataAjuizamento?: string;
-  ultimoMovimento?: string;
-  ultimoMovimentoEm?: string;
+  filingDate?: string;
+  lastMovement?: string;
+  lastMovementAt?: string;
   oportunidadeId?: string;
 };
 
@@ -33,18 +33,18 @@ export type OportunidadeRecord = Omit<DatajudResultado, 'oportunidadeId'> & {
   id: string;
   status: OportunidadeStatus;
   observacoes?: string;
-  periciaId?: string;
+  caseId?: string;
   createdAt: string;
 };
 
 export type OportunidadesListResult = { items: OportunidadeRecord[]; total: number };
 export type OportunidadesQueryParams = { page: number; limit: number; status?: OportunidadeStatus };
 export type ConverterOportunidade = {
-  justica: Justica;
-  papel: PapelPericia;
-  objeto: string;
-  dataNomeacao?: string;
-  prazoLaudo?: string;
+  courtType: CourtType;
+  role: CaseRole;
+  subject: string;
+  nominationDate?: string;
+  reportDeadline?: string;
 };
 
 export const oportunidadeKeys = {
@@ -113,14 +113,14 @@ export const deleteOportunidadeMutation = (
 
 export const converterOportunidadeMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<{ periciaId: string }, Error, { id: string; data: ConverterOportunidade }> => ({
+): UseMutationOptions<{ caseId: string }, Error, { id: string; data: ConverterOportunidade }> => ({
   mutationFn: async ({ id, data }) => {
-    const res = await post<{ periciaId: string }>(`/prospecting/opportunities/${encodeURIComponent(id)}/convert`, data);
+    const res = await post<{ caseId: string }>(`/prospecting/opportunities/${encodeURIComponent(id)}/convert`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
     return res.data;
   },
   onSuccess: () => {
     invalidateAll(queryClient);
-    queryClient.invalidateQueries({ queryKey: ['pericia'] });
+    queryClient.invalidateQueries({ queryKey: ['legalCase'] });
   },
 });

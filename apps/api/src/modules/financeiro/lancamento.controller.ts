@@ -1,7 +1,7 @@
 import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import { PericiaNotFoundError } from '../pericia/pericia.service.js';
+import { CaseNotFoundError } from '../case/case.service.js';
 import type { FluxoQuery, ListLancamentosQuery } from './lancamento.schema.js';
 import * as lancamentoService from './lancamento.service.js';
 import { LancamentoNotFoundError } from './lancamento.service.js';
@@ -10,7 +10,7 @@ const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(
-    e instanceof LancamentoNotFoundError || e instanceof PericiaNotFoundError
+    e instanceof LancamentoNotFoundError || e instanceof CaseNotFoundError
       ? new CustomError(e.message, 404, e.detail)
       : e,
   );

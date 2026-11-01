@@ -3,14 +3,14 @@ import type { Role } from '@ethica/contracts';
 import { VISTORIA_DADOS_VAZIOS } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
 import {
+  Case,
   Compromisso,
   connect,
+  Deadline,
   disconnect,
   hashToken,
   Laudo,
-  Parte,
-  Pericia,
-  Prazo,
+  Party,
   Session,
   Tenant,
   User,
@@ -96,13 +96,13 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[]) => {
   return { user, as };
 };
 
-const PERICIA = {
-  numeroProcesso: '0008888-22.2026.5.02.0003',
-  justica: 'labor',
-  papel: 'court_expert',
-  tribunal: 'TRT2',
-  vara: '3ª Vara do Trabalho de São Paulo',
-  objeto: 'Insalubridade',
+const CASE = {
+  processNumber: '0008888-22.2026.5.02.0003',
+  courtType: 'labor',
+  role: 'court_expert',
+  court: 'TRT2',
+  division: '3ª Vara do Trabalho de São Paulo',
+  subject: 'Insalubridade',
 };
 
 const DADOS = {
@@ -127,9 +127,9 @@ describe('campo e vistorias (CAM-01..09)', () => {
       Vistoria.deleteMany({}),
       Laudo.deleteMany({}),
       Compromisso.deleteMany({}),
-      Prazo.deleteMany({}),
-      Parte.deleteMany({}),
-      Pericia.deleteMany({}),
+      Deadline.deleteMany({}),
+      Party.deleteMany({}),
+      Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
       Tenant.deleteMany({}),
@@ -149,12 +149,12 @@ describe('campo e vistorias (CAM-01..09)', () => {
     const ana = await cadastrar({ tipo: 'party', nome: 'Ana Reclamante', email: 'ana@x.com' });
     const metal = await cadastrar({ tipo: 'party', nome: 'Metal Ltda' });
     const dra = await cadastrar({ tipo: 'lawyer', nome: 'Dra. Ré', oab: 'SP123456', email: 'dra@x.com' });
-    const pericia = await admin.as(request(app).post('/expert-cases')).send({
-      ...PERICIA,
-      partes: [
-        { parteId: ana, polo: 'plaintiff', tipo: 'party', nome: 'Ana Reclamante' },
-        { parteId: metal, polo: 'defendant', tipo: 'party', nome: 'Metal Ltda' },
-        { parteId: dra, polo: 'defendant', tipo: 'lawyer', nome: 'Dra. Ré' },
+    const legalCase = await admin.as(request(app).post('/expert-cases')).send({
+      ...CASE,
+      parties: [
+        { partyId: ana, side: 'plaintiff', tipo: 'party', nome: 'Ana Reclamante' },
+        { partyId: metal, side: 'defendant', tipo: 'party', nome: 'Metal Ltda' },
+        { partyId: dra, side: 'defendant', tipo: 'lawyer', nome: 'Dra. Ré' },
       ],
     });
     const compromisso = await operador.as(request(app).post('/agenda')).send({
@@ -164,13 +164,13 @@ describe('campo e vistorias (CAM-01..09)', () => {
       time: '09:30',
       duracaoMinutos: 120,
       local: 'Av. Industrial, 1500, São Paulo',
-      periciaId: pericia.body.data.id,
+      caseId: legalCase.body.data.id,
     });
     return {
       tenant,
       admin,
       operador,
-      periciaId: pericia.body.data.id as string,
+      caseId: legalCase.body.data.id as string,
       id: compromisso.body.data.id as string,
     };
   };
@@ -182,7 +182,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
     expect(dia.body.data).toEqual([
       expect.objectContaining({
         compromisso: expect.objectContaining({ id, titulo: 'Vistoria na fábrica' }),
-        pericia: expect.objectContaining({ numeroProcesso: PERICIA.numeroProcesso, autor: 'Ana Reclamante' }),
+        legalCase: expect.objectContaining({ processNumber: CASE.processNumber, plaintiff: 'Ana Reclamante' }),
         vistoria: expect.objectContaining({ versao: 0 }),
       }),
     ]);
@@ -233,11 +233,11 @@ describe('campo e vistorias (CAM-01..09)', () => {
 
     const bytes = await operador.as(request(app).get(`/inspections/${id}/media/${fotoId}`));
     expect(bytes.headers['content-type']).toBe('image/jpeg');
-    const tipoErrado = await operador
+    const wrongType = await operador
       .as(request(app).put(`/inspections/${id}/media/${midia()}?tipo=photo`))
       .set('Content-Type', 'image/png')
       .send(JPEG);
-    expect(tipoErrado.status).toBe(415);
+    expect(wrongType.status).toBe(415);
 
     await Tenant.updateOne({ _id: tenant._id }, { storageBytes: 1024 * 1024 * 1024 });
     const semCota = await operador
@@ -276,21 +276,21 @@ describe('campo e vistorias (CAM-01..09)', () => {
     const aviso = await operador.as(request(app).post(`/agenda/${id}/notice`));
     expect(aviso.status).toBe(200);
     expect(enviados.map((email) => email.to).sort()).toEqual(['ana@x.com', 'dra@x.com']);
-    expect(enviados[0]?.subject).toContain(PERICIA.numeroProcesso);
+    expect(enviados[0]?.subject).toContain(CASE.processNumber);
     expect(enviados[0]?.body).toContain('10/11/2026');
     expect(enviados[0]?.body).toContain('09:30');
     expect(aviso.body.data.avisos).toEqual([
       expect.objectContaining({ destinatarios: expect.arrayContaining(['ana@x.com', 'dra@x.com']) }),
     ]);
 
-    const semPericia = await operador.as(request(app).post('/agenda')).send({
+    const withoutCase = await operador.as(request(app).post('/agenda')).send({
       tipo: 'meeting',
       titulo: 'Reunião',
       date: '2026-11-10',
       time: '14:00',
       duracaoMinutos: 30,
     });
-    const recusado = await operador.as(request(app).post(`/agenda/${semPericia.body.data.id}/notice`));
+    const recusado = await operador.as(request(app).post(`/agenda/${withoutCase.body.data.id}/notice`));
     expect(recusado.body.message).toBe('inspection_requires_case');
   });
 
@@ -305,13 +305,13 @@ describe('campo e vistorias (CAM-01..09)', () => {
       .expect(200);
     await operador.as(request(app).post(`/agenda/${id}/notice`)).expect(200);
     expect(enviados[0]).toMatchObject({
-      subject: `Vistoria ${PERICIA.numeroProcesso}`,
+      subject: `Vistoria ${CASE.processNumber}`,
       body: expect.stringMatching(/^Dia 10\/11\/2026 às 09:30 em Av\. Industrial, 1500, São Paulo\. Perito \d+$/),
     });
   });
 
   it('laudo: variáveis da última vistoria feita e foto da vistoria no PDF e no Word', async () => {
-    const { operador, id, periciaId } = await preparar();
+    const { operador, id, caseId } = await preparar();
     await operador
       .as(request(app).put(`/inspections/${id}`))
       .send({ versao: 0, dados: DADOS })
@@ -325,7 +325,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
     const { body: modelo } = await operador.as(request(app).get('/expert-reports/templates/standard-report'));
     const encerramento = modelo.data.secoes.find((secao: { titulo: string }) => secao.titulo === 'Encerramento');
     const laudo = await operador.as(request(app).post('/expert-reports')).send({
-      periciaId,
+      caseId,
       modeloId: 'standard-report',
       secoes: [{ id: encerramento.id, variante: 'no' }],
     });

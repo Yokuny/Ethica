@@ -29,9 +29,9 @@ export function BuscaResults({ items, onSave, saving }: BuscaResultsProps) {
       </TableHeader>
       <TableBody>
         {items.map((item) => (
-          <TableRow key={item.numeroProcesso}>
+          <TableRow key={item.processNumber}>
             <TableCell>
-              <TableIdentity icon={FileSearch} title={item.numeroProcesso} description={item.orgaoJulgador} />
+              <TableIdentity icon={FileSearch} title={item.processNumber} description={item.orgaoJulgador} />
             </TableCell>
             <TableCell>
               <TableStack description={item.assuntos.slice(0, 2).join(' · ') || undefined}>
@@ -39,7 +39,7 @@ export function BuscaResults({ items, onSave, saving }: BuscaResultsProps) {
               </TableStack>
             </TableCell>
             <TableCell>
-              <TableStack description={maybeDate(item.ultimoMovimentoEm)}>{item.ultimoMovimento ?? '—'}</TableStack>
+              <TableStack description={maybeDate(item.lastMovementAt)}>{item.lastMovement ?? '—'}</TableStack>
             </TableCell>
             <TableCell className="text-right">
               {item.oportunidadeId ? (

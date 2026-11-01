@@ -11,17 +11,17 @@ import type {
 
 const toRecord = (doc: OportunidadeDocument): OportunidadeRecord => ({
   id: doc._id.toString(),
-  numeroProcesso: doc.numeroProcesso,
-  tribunal: doc.tribunal,
+  processNumber: doc.processNumber,
+  court: doc.court,
   classe: doc.classe,
   assuntos: doc.assuntos ?? [],
   orgaoJulgador: doc.orgaoJulgador,
-  dataAjuizamento: doc.dataAjuizamento,
-  ultimoMovimento: doc.ultimoMovimento,
-  ultimoMovimentoEm: doc.ultimoMovimentoEm,
+  filingDate: doc.filingDate,
+  lastMovement: doc.lastMovement,
+  lastMovementAt: doc.lastMovementAt,
   status: doc.status,
   observacoes: doc.observacoes,
-  periciaId: doc.Pericia?.toString(),
+  caseId: doc.Case?.toString(),
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });
@@ -42,13 +42,13 @@ export const findById = async (tenantId: string, id: string): Promise<Oportunida
 export const updateOportunidade = async (
   tenantId: string,
   id: string,
-  data: Omit<UpdateOportunidade, 'status'> & { status?: OportunidadeStatus; periciaId?: string },
+  data: Omit<UpdateOportunidade, 'status'> & { status?: OportunidadeStatus; caseId?: string },
 ): Promise<OportunidadeRecord | null> =>
   withDbTiming('prospeccao.updateOportunidade', async () => {
-    const { periciaId, ...fields } = data;
+    const { caseId, ...fields } = data;
     const update = {
       ...Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined)),
-      ...(periciaId ? { Pericia: periciaId } : {}),
+      ...(caseId ? { Case: caseId } : {}),
     };
     const doc = await Oportunidade.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, _id: id, status: { $ne: 'converted' as const } }),
@@ -84,10 +84,10 @@ export const listOportunidades = async (
 export const findIdsByNumeros = async (tenantId: string, numeros: string[]): Promise<Map<string, string>> =>
   withDbTiming('prospeccao.findIdsByNumeros', async () => {
     if (numeros.length === 0) return new Map();
-    const docs = await Oportunidade.find(tenantScoped({ Tenant: tenantId, numeroProcesso: { $in: numeros } }))
-      .select('numeroProcesso')
+    const docs = await Oportunidade.find(tenantScoped({ Tenant: tenantId, processNumber: { $in: numeros } }))
+      .select('processNumber')
       .lean();
-    return new Map(docs.map((doc) => [doc.numeroProcesso, doc._id.toString()]));
+    return new Map(docs.map((doc) => [doc.processNumber, doc._id.toString()]));
   });
 
 export const stats = async (tenantId: string): Promise<ListStats> =>

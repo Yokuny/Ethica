@@ -3,12 +3,12 @@ import { useMutation } from '@tanstack/react-query';
 import { type ChangeEvent, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { PericiaFormValues } from '../../@interface/pericias.interface.js';
-import { importPdfMutation, type PdfExtraction } from '../../@query/importacao.js';
+import type { CaseFormValues } from '../../@interface/cases.interface.js';
+import { importPdfMutation, type PdfExtraction } from '../../@query/import.js';
 import { DEFAULT_VALUES } from '../@consts/default-values.js';
 
 // IMP-01: o PDF preenche o formulário; o perito confere e salva (AD-115).
-export function usePdfImport(form: UseFormReturn<PericiaFormValues>) {
+export function usePdfImport(form: UseFormReturn<CaseFormValues>) {
   const mutation = useMutation(importPdfMutation());
   const [extraction, setExtraction] = useState<PdfExtraction | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);

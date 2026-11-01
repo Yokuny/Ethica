@@ -1,13 +1,13 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import {
+  Case,
   Compromisso,
   connect,
+  Deadline,
   disconnect,
   hashToken,
   newObjectId,
-  Pericia,
-  Prazo,
   Session,
   Tenant,
   User,
@@ -18,13 +18,13 @@ import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../app.js';
 import { env } from '../../config/env.config.js';
-import { listDestinatariosAvisoPrazo } from '../identity/account.service.js';
+import { listDeadlineReminderRecipients } from '../identity/account.service.js';
 
 const DEVICE = 'test-agent';
 const app = buildApp();
 
 let counter = 0;
-const seed = async (role: Role[] = ['operator'], preferences?: { avisoPrazoEmail: boolean }) => {
+const seed = async (role: Role[] = ['operator'], preferences?: { deadlineReminderEmail: boolean }) => {
   counter += 1;
   const tenant = await Tenant.create({
     name: `Escritório ${counter}`,
@@ -56,7 +56,7 @@ describe('feed iCal (PRZ-03)', () => {
   });
   afterEach(async () => {
     await Promise.all(
-      [Compromisso, Prazo, Pericia, Session, User, Tenant].map((model) => (model as typeof User).deleteMany({})),
+      [Compromisso, Deadline, Case, Session, User, Tenant].map((model) => (model as typeof User).deleteMany({})),
     );
   });
   afterAll(async () => {
@@ -65,16 +65,16 @@ describe('feed iCal (PRZ-03)', () => {
 
   it('gera o link (token mostrado uma vez), serve text/calendar com compromisso e prazo, e revogar invalida', async () => {
     const { tenant, as } = await seed();
-    const pericia = await Pericia.create({
+    const legalCase = await Case.create({
       Tenant: tenant._id,
-      numeroProcesso: '0001234-56.2026.5.02.0001',
-      justica: 'labor',
-      papel: 'court_expert',
-      tribunal: 'TRT2',
-      objeto: 'Insalubridade',
-      partes: [
-        { Parte: newObjectId(), polo: 'plaintiff', tipo: 'party', nome: 'Maria' },
-        { Parte: newObjectId(), polo: 'defendant', tipo: 'party', nome: 'Indústria' },
+      processNumber: '0001234-56.2026.5.02.0001',
+      courtType: 'labor',
+      role: 'court_expert',
+      court: 'TRT2',
+      subject: 'Insalubridade',
+      parties: [
+        { Party: newObjectId(), side: 'plaintiff', tipo: 'party', nome: 'Maria' },
+        { Party: newObjectId(), side: 'defendant', tipo: 'party', nome: 'Indústria' },
       ],
     });
     const amanha = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
@@ -85,7 +85,7 @@ describe('feed iCal (PRZ-03)', () => {
       inicio: wallClockToUtc(amanha, '09:00'),
       fim: wallClockToUtc(amanha, '10:00'),
       local: 'Rua A, 10',
-      Pericia: pericia._id,
+      Case: legalCase._id,
     });
     await Compromisso.create({
       Tenant: tenant._id,
@@ -95,12 +95,12 @@ describe('feed iCal (PRZ-03)', () => {
       fim: wallClockToUtc(amanha, '12:00'),
       status: 'canceled',
     });
-    await Prazo.create({ Tenant: tenant._id, Pericia: pericia._id, titulo: 'Entrega do laudo', vencimento: amanha });
+    await Deadline.create({ Tenant: tenant._id, Case: legalCase._id, titulo: 'Entrega do laudo', vencimento: amanha });
 
     expect((await as(request(app).get('/me/calendar-feed'))).body.data).toEqual({ active: false });
-    const gerado = await as(request(app).post('/me/calendar-feed'));
-    expect(gerado.status).toBe(201);
-    const { token } = gerado.body.data;
+    const generated = await as(request(app).post('/me/calendar-feed'));
+    expect(generated.status).toBe(201);
+    const { token } = generated.body.data;
     expect(token).toMatch(/^[a-f0-9]{64}$/);
     expect((await as(request(app).get('/me/calendar-feed'))).body.data).toEqual({ active: true });
 
@@ -155,13 +155,17 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
 
     expect((await ana.as(request(app).get('/me/preferences'))).body.data).toEqual({
       onboardingDismissed: false,
-      avisoPrazoEmail: true,
+      deadlineReminderEmail: true,
       blocosOcultos: [],
     });
-    const desligado = await bia.as(request(app).patch('/me/preferences')).send({ avisoPrazoEmail: false });
-    expect(desligado.body.data).toEqual({ onboardingDismissed: false, avisoPrazoEmail: false, blocosOcultos: [] });
+    const desligado = await bia.as(request(app).patch('/me/preferences')).send({ deadlineReminderEmail: false });
+    expect(desligado.body.data).toEqual({
+      onboardingDismissed: false,
+      deadlineReminderEmail: false,
+      blocosOcultos: [],
+    });
 
-    const destinatarios = await listDestinatariosAvisoPrazo([ana.tenant.id, bia.tenant.id, suspenso.tenant.id]);
+    const destinatarios = await listDeadlineReminderRecipients([ana.tenant.id, bia.tenant.id, suspenso.tenant.id]);
     expect(destinatarios.map((pessoa) => pessoa.email)).toEqual([ana.user.email]);
   });
 });

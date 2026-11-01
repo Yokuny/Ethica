@@ -30,8 +30,8 @@ export const listLancamentosQuerySchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     natureza: z.enum(LANCAMENTO_NATUREZAS).optional(),
-    situacao: z.enum([...LANCAMENTO_STATUS, 'overdue']).optional(),
-    periciaId: idSchema.optional(),
+    state: z.enum([...LANCAMENTO_STATUS, 'overdue']).optional(),
+    caseId: idSchema.optional(),
     from: calendarDateSchema.optional(),
     to: calendarDateSchema.optional(),
   })
@@ -58,10 +58,10 @@ export type LancamentoRecord = {
   parcelas: ParcelaRecord[];
   recebidoCents?: number;
   saldoCents?: number;
-  periciaId?: string;
-  periciaNumero?: string;
+  caseId?: string;
+  caseNumber?: string;
   // Quem contratou o assistente técnico da perícia (AD-135).
-  contratante?: string;
+  client?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -71,7 +71,7 @@ export type ParcelaRecord = { id: string; valorCents: number; data: string; cont
 // Visão de raio-X: o que está a receber, o que entrou e saiu no mês e o que atrasou.
 export type FinanceiroResumo = {
   aReceberCents: number;
-  atrasadoCents: number;
+  lateCents: number;
   recebidoMesCents: number;
   despesasMesCents: number;
 };
@@ -90,7 +90,7 @@ export type FinanceiroRelatorioLinha = {
   descricao: string;
   categoria: LancamentoCategoria;
   valorCents: number;
-  periciaNumero?: string;
+  caseNumber?: string;
   conta?: string;
 };
 
@@ -110,8 +110,8 @@ export type FinanceiroRelatorio = {
 };
 
 // Resumo financeiro na ficha da perícia (DOC-02), só para admin/manager (AD-107).
-export type PericiaFinanceiroResumo = {
-  honorariosCents: number;
+export type CaseFinanceSummary = {
+  feesCents: number;
   recebidoCents: number;
   saldoCents: number;
   despesasCents: number;

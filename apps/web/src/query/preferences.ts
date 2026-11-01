@@ -5,7 +5,11 @@ import { t } from '../lib/helpers/translate.helper.js';
 
 // Espelha UserPreferences de apps/api/src/modules/identity/preferences.schema.ts: aviso de
 // prazos (AD-110, na conta) e blocos ocultos do início (AD-136).
-export type UserPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean; blocosOcultos: HomeBloco[] };
+export type UserPreferences = {
+  onboardingDismissed: boolean;
+  deadlineReminderEmail: boolean;
+  blocosOcultos: HomeBloco[];
+};
 
 export const preferencesKeys = { all: ['preferences'] as const };
 

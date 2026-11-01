@@ -2,10 +2,10 @@ import { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { Geocoder } from '../../providers/geocoder.js';
 import type { MailProvider } from '../../providers/mail/index.js';
+import * as caseService from '../case/case.service.js';
+import * as partyService from '../case/party.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as officeService from '../identity/office.service.js';
-import * as parteService from '../pericia/parte.service.js';
-import * as periciaService from '../pericia/pericia.service.js';
 import * as compromissoRepository from './compromisso.repository.js';
 import type {
   CompromissoRecord,
@@ -23,18 +23,18 @@ const toInterval = (date: string, time: string, duracaoMinutos: number) => {
   return { inicio, fim: new Date(inicio.getTime() + duracaoMinutos * 60_000) };
 };
 
-const withPericiaNumero = async (tenantId: string, items: CompromissoRecord[]): Promise<CompromissoRecord[]> => {
-  const ids = [...new Set(items.flatMap((item) => (item.periciaId ? [item.periciaId] : [])))];
-  const resumos = await periciaService.findResumosByIds(tenantId, ids);
+const withCaseNumber = async (tenantId: string, items: CompromissoRecord[]): Promise<CompromissoRecord[]> => {
+  const ids = [...new Set(items.flatMap((item) => (item.caseId ? [item.caseId] : [])))];
+  const resumos = await caseService.findResumosByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = item.periciaId ? resumos.get(item.periciaId)?.numeroProcesso : undefined;
-    return numero ? { ...item, periciaNumero: numero } : item;
+    const numero = item.caseId ? resumos.get(item.caseId)?.processNumber : undefined;
+    return numero ? { ...item, caseNumber: numero } : item;
   });
 };
 
 export const createCompromisso = async (tenantId: string, data: CreateCompromisso): Promise<CompromissoRecord> => {
   const { date, time, duracaoMinutos, ...rest } = data;
-  if (rest.periciaId) await periciaService.getPericia(tenantId, rest.periciaId);
+  if (rest.caseId) await caseService.getCase(tenantId, rest.caseId);
   return compromissoRepository.createCompromisso(tenantId, { ...rest, ...toInterval(date, time, duracaoMinutos) });
 };
 
@@ -45,7 +45,7 @@ export const updateCompromisso = async (
   data: UpdateCompromisso,
 ): Promise<CompromissoRecord> => {
   const { date, time, duracaoMinutos, motivo, ...rest } = data;
-  if (rest.periciaId) await periciaService.getPericia(tenantId, rest.periciaId);
+  if (rest.caseId) await caseService.getCase(tenantId, rest.caseId);
   const interval = date && time && duracaoMinutos ? toInterval(date, time, duracaoMinutos) : {};
   // Motivo só acompanha o cancelamento (AD-130); voltar a agendado ou concluir o apaga.
   const motivoWrite = rest.status === 'canceled' ? (motivo ?? null) : rest.status ? null : motivo;
@@ -55,7 +55,7 @@ export const updateCompromisso = async (
     motivo: motivoWrite,
   });
   if (!updated) throw new CompromissoNotFoundError('not_found');
-  const [enriched] = await withPericiaNumero(tenantId, [updated]);
+  const [enriched] = await withCaseNumber(tenantId, [updated]);
   return enriched as CompromissoRecord;
 };
 
@@ -65,23 +65,23 @@ export const deleteCompromisso = async (tenantId: string, id: string): Promise<v
 };
 
 export const listCompromissos = async (tenantId: string, query: ListCompromissosQuery) =>
-  withPericiaNumero(
+  withCaseNumber(
     tenantId,
     await compromissoRepository.listInRange(tenantId, {
       from: wallClockToUtc(query.from, '00:00'),
       to: wallClockToUtc(query.to, '00:00'),
       tipo: query.tipo,
-      periciaId: query.periciaId,
+      caseId: query.caseId,
     }),
   );
 
 export const listUpcoming = async (tenantId: string, query: UpcomingCompromissosQuery, now: Date = new Date()) =>
-  withPericiaNumero(tenantId, await compromissoRepository.listUpcoming(tenantId, { now, ...query }));
+  withCaseNumber(tenantId, await compromissoRepository.listUpcoming(tenantId, { now, ...query }));
 
 export const getCompromisso = async (tenantId: string, id: string): Promise<CompromissoRecord> => {
   const compromisso = await compromissoRepository.findById(tenantId, id);
   if (!compromisso) throw new CompromissoNotFoundError('not_found');
-  const [enriched] = await withPericiaNumero(tenantId, [compromisso]);
+  const [enriched] = await withCaseNumber(tenantId, [compromisso]);
   return enriched as CompromissoRecord;
 };
 
@@ -102,7 +102,7 @@ export const geocodificar = async (geocoder: Geocoder, tenantId: string, id: str
   return getCompromisso(tenantId, id);
 };
 
-const TIPO_EVENTO: Record<CompromissoRecord['tipo'], string> = {
+const TYPE_EVENT: Record<CompromissoRecord['tipo'], string> = {
   inspection: 'vistoria',
   hearing: 'audiência',
   meeting: 'reunião',
@@ -120,27 +120,27 @@ export const enviarAviso = async (
   id: string,
 ): Promise<CompromissoRecord> => {
   const compromisso = await getCompromisso(ctx.tenantId, id);
-  if (!compromisso.periciaId) throw new CustomError('inspection_requires_case', 422);
-  const pericia = await periciaService.getPericia(ctx.tenantId, compromisso.periciaId);
-  const partes = await parteService.findByIds(
+  if (!compromisso.caseId) throw new CustomError('inspection_requires_case', 422);
+  const legalCase = await caseService.getCase(ctx.tenantId, compromisso.caseId);
+  const parties = await partyService.findByIds(
     ctx.tenantId,
-    pericia.partes.map((parte) => parte.parteId),
+    legalCase.parties.map((party) => party.partyId),
   );
-  const emails = [...new Set(partes.flatMap((parte) => (parte.email ? [parte.email] : [])))];
+  const emails = [...new Set(parties.flatMap((party) => (party.email ? [party.email] : [])))];
   if (!emails.length) throw new CustomError('no_recipients', 422);
-  const [modelo, perito] = await Promise.all([
+  const [modelo, expert] = await Promise.all([
     officeService.getAvisoAgendamento(ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
   ]);
   const valores: Record<string, string> = {
-    '[TIPO_EVENTO]': TIPO_EVENTO[compromisso.tipo],
+    '[TIPO_EVENTO]': TYPE_EVENT[compromisso.tipo],
     '[DATA]': dia(compromisso.inicio),
     '[HORA]': timeInDisplayTz(compromisso.inicio),
     '[ENDERECO]': compromisso.local ?? '',
-    '[NUMERO_PROCESSO]': pericia.numeroProcesso,
-    '[NOME_PERITO]': perito.name,
-    '[VARA]': pericia.vara ?? '',
-    '[COMARCA]': pericia.comarca ?? '',
+    '[NUMERO_PROCESSO]': legalCase.processNumber,
+    '[NOME_PERITO]': expert.name,
+    '[VARA]': legalCase.division ?? '',
+    '[COMARCA]': legalCase.district ?? '',
   };
   const preencher = (texto: string) =>
     Object.entries(valores).reduce((resultado, [marcador, valor]) => resultado.replaceAll(marcador, valor), texto);
@@ -155,6 +155,5 @@ export const enviarAviso = async (
   return getCompromisso(ctx.tenantId, id);
 };
 
-export const listDaPericia = (tenantId: string, periciaId: string) =>
-  compromissoRepository.listAll(tenantId, { periciaId });
+export const listByCase = (tenantId: string, caseId: string) => compromissoRepository.listAll(tenantId, { caseId });
 export const listForExport = (tenantId: string) => compromissoRepository.listAll(tenantId);

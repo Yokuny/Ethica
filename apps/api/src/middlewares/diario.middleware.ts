@@ -39,7 +39,7 @@ const IGNORADAS = [
   '/platform/',
   '/prospecting/datajud/search',
 ];
-const ROTULOS = ['numeroProcesso', 'titulo', 'nome', 'descricao', 'email'] as const;
+const ROTULOS = ['processNumber', 'titulo', 'nome', 'descricao', 'email'] as const;
 
 const moduloDe = (literais: string[]): DiarioModulo | undefined => {
   const [primeiro, segundo] = literais;

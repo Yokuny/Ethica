@@ -11,7 +11,7 @@ export const TENANT_LOGO_MAX_SIDE = 600;
 export const TENANT_STORAGE_QUOTA_BYTES = 1024 * 1024 * 1024;
 
 // Perícia aberta sem movimentação há mais que isso está parada (AD-121).
-export const PERICIA_PARADA_DIAS = 60;
+export const STALLED_CASE_DAYS = 60;
 
 export const updateOfficeSchema = z
   .object({

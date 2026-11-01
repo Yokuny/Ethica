@@ -10,7 +10,7 @@ export type PreferencesRouterDeps = { validToken: RequestHandler };
 export const updatePreferencesSchema = z
   .object({
     onboardingDismissed: z.boolean().optional(),
-    avisoPrazoEmail: z.boolean().optional(),
+    deadlineReminderEmail: z.boolean().optional(),
     // AD-136: blocos do início que a pessoa escondeu; `[]` restaura o padrão.
     blocosOcultos: z.array(z.enum(HOME_BLOCOS)).max(HOME_BLOCOS.length).optional(),
   })
@@ -18,4 +18,8 @@ export const updatePreferencesSchema = z
   .refine((data) => Object.keys(data).length > 0, { message: 'nenhuma preferência informada' });
 
 export type UpdatePreferences = z.infer<typeof updatePreferencesSchema>;
-export type UserPreferences = { onboardingDismissed: boolean; avisoPrazoEmail: boolean; blocosOcultos: HomeBloco[] };
+export type UserPreferences = {
+  onboardingDismissed: boolean;
+  deadlineReminderEmail: boolean;
+  blocosOcultos: HomeBloco[];
+};

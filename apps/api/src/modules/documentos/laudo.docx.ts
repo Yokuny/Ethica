@@ -171,7 +171,7 @@ function blocos(nos: No[], formato: Formato = {}, fotos: Fotos = {}): Bloco[] {
   });
 }
 
-const linhasDoTemplate = (texto: string, logo: Buffer | undefined, nomePerito: string): Paragraph[] =>
+const linhasDoTemplate = (texto: string, logo: Buffer | undefined, expertName: string): Paragraph[] =>
   texto
     .split('\n')
     .map((linha) => linha.trim())
@@ -183,8 +183,8 @@ const linhasDoTemplate = (texto: string, logo: Buffer | undefined, nomePerito: s
           children: linha
             .split(/(\[LOGO\]|\[NOME_PERITO\]|\[PAGINA_ATUAL\]|\[TOTAL_PAGINAS\])/)
             .filter(Boolean)
-            .map((parte) => {
-              if (parte === '[LOGO]') {
+            .map((party) => {
+              if (party === '[LOGO]') {
                 if (!logo) return new TextRun('');
                 const { width, height } = dimensoesDaImagem(logo) ?? { width: 1, height: 1 };
                 const escala = Math.min(45 / height, 227 / width, 1);
@@ -194,13 +194,13 @@ const linhasDoTemplate = (texto: string, logo: Buffer | undefined, nomePerito: s
                   transformation: { width: Math.round(width * escala), height: Math.round(height * escala) },
                 });
               }
-              if (parte === '[NOME_PERITO]') return new TextRun({ text: nomePerito, size: 17, color: '57606A' });
-              if (parte === '[PAGINA_ATUAL]')
+              if (party === '[NOME_PERITO]') return new TextRun({ text: expertName, size: 17, color: '57606A' });
+              if (party === '[PAGINA_ATUAL]')
                 return new TextRun({ children: [PageNumber.CURRENT], size: 17, color: '57606A' });
-              if (parte === '[TOTAL_PAGINAS]') {
+              if (party === '[TOTAL_PAGINAS]') {
                 return new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 17, color: '57606A' });
               }
-              return new TextRun({ text: parte, size: 17, color: '57606A' });
+              return new TextRun({ text: party, size: 17, color: '57606A' });
             }),
         }),
     );
@@ -209,9 +209,9 @@ const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' }
 
 export const laudoDocx = async ({
   laudo,
-  pericia,
+  legalCase,
   identity,
-  perito,
+  expert,
   valores,
   fotos,
 }: LaudoExportDados): Promise<Buffer> => {
@@ -235,13 +235,13 @@ export const laudoDocx = async ({
       spacing: { before: 1800, after: 900 },
       children: [new TextRun({ text: TIPO[laudo.tipo], bold: true, size: 40 })],
     }),
-    ...linhaCapa('Processo nº', pericia.numeroProcesso),
-    ...linhaCapa('Juízo', [pericia.vara, pericia.comarca].filter(Boolean).join(' — ') || undefined),
-    ...linhaCapa('Tribunal', pericia.tribunal),
+    ...linhaCapa('Processo nº', legalCase.processNumber),
+    ...linhaCapa('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
+    ...linhaCapa('Tribunal', legalCase.court),
     ...linhaCapa(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
     ...linhaCapa(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
-    ...linhaCapa('Objeto', pericia.objeto),
-    ...[perito.name, perito.formacao, perito.registroProfissional, valores['[DATA_EXTENSO]']]
+    ...linhaCapa('Objeto', legalCase.subject),
+    ...[expert.name, expert.formacao, expert.registroProfissional, valores['[DATA_EXTENSO]']]
       .filter((linha): linha is string => Boolean(linha))
       .map(
         (linha, i) =>
@@ -310,8 +310,8 @@ export const laudoDocx = async ({
         properties: {
           page: { margin: { top: 1900, bottom: 1250, left: 1700, right: 1130, header: 600, footer: 500 } },
         },
-        headers: { default: new Header({ children: linhasDoTemplate(cabecalho, logo, perito.name) }) },
-        footers: { default: new Footer({ children: linhasDoTemplate(rodape, logo, perito.name) }) },
+        headers: { default: new Header({ children: linhasDoTemplate(cabecalho, logo, expert.name) }) },
+        footers: { default: new Footer({ children: linhasDoTemplate(rodape, logo, expert.name) }) },
         children: [
           ...capa,
           new Paragraph({ children: [new PageBreak()] }),

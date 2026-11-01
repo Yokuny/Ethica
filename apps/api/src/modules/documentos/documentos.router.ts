@@ -5,7 +5,7 @@ import { validParams, validParsedQuery } from '../../middlewares/validation.midd
 import * as documentosController from './documentos.controller.js';
 import {
   type DocumentosRouterDeps,
-  documentoPericiaParamSchema,
+  documentCaseParamSchema,
   financeiroReportQuerySchema,
 } from './documentos.schema.js';
 
@@ -16,7 +16,7 @@ export const createDocumentosRouter = (deps: DocumentosRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck];
   const providers = { pdf: deps.pdf, storage: deps.storage };
-  const byId = validParams(documentoPericiaParamSchema);
+  const byId = validParams(documentCaseParamSchema);
 
   router.get(
     '/expert-cases/:id/sheet',
@@ -33,7 +33,7 @@ export const createDocumentosRouter = (deps: DocumentosRouterDeps): Router => {
     documentosController.checklist(providers),
   );
   router.get('/deadlines', ...guard, can('reports', 'view'), documentosController.cronograma(providers));
-  router.get('/stalled', ...guard, can('reports', 'view'), documentosController.paradas(providers));
+  router.get('/stalled', ...guard, can('reports', 'view'), documentosController.stalled(providers));
   router.get(
     '/finance',
     ...guard,

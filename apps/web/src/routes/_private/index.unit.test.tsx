@@ -31,7 +31,11 @@ const renderHome = (role: Role[]) => {
     role,
     permissoes: permissoesEfetivas(role),
   });
-  queryClient.setQueryData(['preferences'], { onboardingDismissed: false, avisoPrazoEmail: true, blocosOcultos: [] });
+  queryClient.setQueryData(['preferences'], {
+    onboardingDismissed: false,
+    deadlineReminderEmail: true,
+    blocosOcultos: [],
+  });
   queryClient.setQueryData(['list-stats', '/expert-cases/stats'], {
     total: 12,
     groups: [
@@ -42,7 +46,7 @@ const renderHome = (role: Role[]) => {
   });
   queryClient.setQueryData(['lancamento', 'resumo'], {
     aReceberCents: 1_250_000,
-    atrasadoCents: 0,
+    lateCents: 0,
     recebidoMesCents: 0,
     despesasMesCents: 0,
   });

@@ -10,18 +10,18 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { Panel } from '@/components/panel.js';
 import { UpcomingCompromissos } from '@/components/upcoming-compromissos.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { caseDistributionQuery, stalledCasesQuery } from '@/query/case.js';
 import { upcomingCompromissosQuery } from '@/query/compromisso.js';
 import { financeiroResumoQuery, fluxoMensalQuery } from '@/query/lancamento.js';
 import { listStatsQuery } from '@/query/listStats.js';
-import { periciaDistributionQuery, periciasParadasQuery } from '@/query/pericia.js';
 import { preferencesQuery } from '@/query/preferences.js';
 import { can } from '@/query/session.js';
+import { CasesCourtTypeChart } from './@components/cases-court-type-chart.js';
+import { CasesStatusChart } from './@components/cases-status-chart.js';
 import { HomeOverview } from './@components/home-overview.js';
 import { HomePersonalizar } from './@components/home-personalizar.js';
 import { HomeSections } from './@components/home-sections.js';
-import { PericiasJusticaChart } from './@components/pericias-justica-chart.js';
-import { PericiasParadasList } from './@components/pericias-paradas.js';
-import { PericiasStatusChart } from './@components/pericias-status-chart.js';
+import { StalledCasesList } from './@components/stalled-cases.js';
 import { HOME_BLOCO_MODULO } from './@consts/home-blocos.js';
 import { useHomePage } from './@hooks/use-home-page.js';
 
@@ -43,10 +43,10 @@ export function PrivateIndexPage() {
 
   const stats = useQuery({ ...listStatsQuery('/expert-cases/stats'), enabled: mostra('overview') });
   const distribution = useQuery({
-    ...periciaDistributionQuery,
+    ...caseDistributionQuery,
     enabled: mostra('by_stage') || mostra('by_court'),
   });
-  const paradas = useQuery({ ...periciasParadasQuery, enabled: mostra('stalled') });
+  const stalled = useQuery({ ...stalledCasesQuery, enabled: mostra('stalled') });
   const upcoming = useQuery({ ...upcomingCompromissosQuery({ limit: 5 }), enabled: mostra('upcoming') });
   const resumo = useQuery({ ...financeiroResumoQuery, enabled: canSeeFinance && mostra('overview') });
   const fluxo = useQuery({ ...fluxoMensalQuery(FLUXO_MESES), enabled: mostra('cash_flow') });
@@ -82,12 +82,12 @@ export function PrivateIndexPage() {
         )}
         {mostra('stalled') && (
           <Panel size="sm" title={t('stalled_expert_cases')}>
-            {paradas.isLoading ? (
+            {stalled.isLoading ? (
               <DefaultLoading />
-            ) : !paradas.data?.total ? (
+            ) : !stalled.data?.total ? (
               <DefaultEmptyData title={t('no_stalled_expert_cases')} />
             ) : (
-              <PericiasParadasList paradas={paradas.data} />
+              <StalledCasesList stalled={stalled.data} />
             )}
           </Panel>
         )}
@@ -103,7 +103,7 @@ export function PrivateIndexPage() {
                 {distribution.isLoading ? (
                   <DefaultLoading />
                 ) : (
-                  <PericiasStatusChart groups={distribution.data?.status ?? []} />
+                  <CasesStatusChart groups={distribution.data?.status ?? []} />
                 )}
               </Panel>
             )}
@@ -111,10 +111,10 @@ export function PrivateIndexPage() {
               <Panel size="sm" title={t('expert_cases_by_court')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
-                ) : !distribution.data?.justica.length ? (
+                ) : !distribution.data?.courtType.length ? (
                   <DefaultEmptyData title={t('no_expert_cases_yet')} />
                 ) : (
-                  <PericiasJusticaChart groups={distribution.data.justica} />
+                  <CasesCourtTypeChart groups={distribution.data.courtType} />
                 )}
               </Panel>
             )}

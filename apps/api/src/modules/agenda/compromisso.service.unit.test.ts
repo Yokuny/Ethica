@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import * as periciaService from '../pericia/pericia.service.js';
+import * as caseService from '../case/case.service.js';
 import * as compromissoRepository from './compromisso.repository.js';
 import { createCompromisso, listCompromissos } from './compromisso.service.js';
 
 vi.mock('./compromisso.repository.js', () => ({ createCompromisso: vi.fn(), listInRange: vi.fn() }));
-vi.mock('../pericia/pericia.service.js', () => ({ getPericia: vi.fn(), findResumosByIds: vi.fn() }));
+vi.mock('../case/case.service.js', () => ({ getCase: vi.fn(), findResumosByIds: vi.fn() }));
 
 describe('compromisso.service', () => {
   it('createCompromisso converte data/hora de parede + duração no intervalo UTC', async () => {
@@ -26,16 +26,16 @@ describe('compromisso.service', () => {
 
   it('listCompromissos enriquece com o número do processo numa consulta só', async () => {
     vi.mocked(compromissoRepository.listInRange).mockResolvedValue([
-      { id: 'c1', periciaId: 'p1' },
-      { id: 'c2', periciaId: 'p1' },
-      { id: 'c3', periciaId: 'p-apagada' },
+      { id: 'c1', caseId: 'p1' },
+      { id: 'c2', caseId: 'p1' },
+      { id: 'c3', caseId: 'p-apagada' },
     ] as never);
-    vi.mocked(periciaService.findResumosByIds).mockResolvedValue(new Map([['p1', { numeroProcesso: '0001' }]]));
+    vi.mocked(caseService.findResumosByIds).mockResolvedValue(new Map([['p1', { processNumber: '0001' }]]));
 
     const items = await listCompromissos('t1', { from: '2026-11-01', to: '2026-12-01' });
 
-    expect(periciaService.findResumosByIds).toHaveBeenCalledWith('t1', ['p1', 'p-apagada']);
-    expect(items.map((item) => item.periciaNumero)).toEqual(['0001', '0001', undefined]);
-    expect(items[2]).not.toHaveProperty('periciaNumero');
+    expect(caseService.findResumosByIds).toHaveBeenCalledWith('t1', ['p1', 'p-apagada']);
+    expect(items.map((item) => item.caseNumber)).toEqual(['0001', '0001', undefined]);
+    expect(items[2]).not.toHaveProperty('caseNumber');
   });
 });

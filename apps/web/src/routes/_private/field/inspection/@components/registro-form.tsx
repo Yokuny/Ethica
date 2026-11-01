@@ -28,7 +28,7 @@ const ABAS = [
 // Registro em abas (CAM-02): tudo fica no aparelho a cada mudança e sobe sozinho (AD-128).
 export function RegistroForm({ item, rascunho }: { item: VistoriaDoDia; rascunho?: Rascunho }) {
   const queryClient = useQueryClient();
-  const { form, conflito, manterMinha, usarDoServidor } = useRegistro(item, rascunho);
+  const { form, conflito, keepMine, keepServer } = useRegistro(item, rascunho);
 
   // Assinatura entra na fila de mídias com id do aparelho; o registro guarda o id.
   async function guardarAssinatura(png: Blob): Promise<string> {
@@ -60,7 +60,7 @@ export function RegistroForm({ item, rascunho }: { item: VistoriaDoDia; rascunho
             </TabsList>
           </div>
           <TabsContent value="presentes" className="pt-4">
-            <PresentesFields form={form} pericia={item.pericia} onAssinatura={guardarAssinatura} />
+            <PresentesFields form={form} legalCase={item.legalCase} onAssinatura={guardarAssinatura} />
           </TabsContent>
           <TabsContent value="paradigmas" className="pt-4">
             <ParadigmasFields form={form} />
@@ -90,10 +90,10 @@ export function RegistroForm({ item, rascunho }: { item: VistoriaDoDia; rascunho
       </form>
       {conflito && (
         <ConflitoDialog
-          servidor={conflito}
-          onManterMinha={() => void manterMinha()}
-          onUsarServidor={() => void usarDoServidor()}
-          onClose={() => void manterMinha()}
+          server={conflito}
+          onManterMinha={() => void keepMine()}
+          onUseServer={() => void keepServer()}
+          onClose={() => void keepMine()}
         />
       )}
     </Form>

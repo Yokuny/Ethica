@@ -25,7 +25,7 @@ const lancamentoFields = z.object({
   descricao: z.string().trim().min(1, 'descrição é obrigatória').max(200, 'descrição inválida'),
   valorCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
   vencimento: calendarDateSchema,
-  periciaId: idSchema.optional(),
+  caseId: idSchema.optional(),
 });
 
 const categoriaDaNatureza = (data: { natureza?: LancamentoNatureza; categoria?: LancamentoCategoria }) =>

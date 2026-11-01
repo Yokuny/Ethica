@@ -28,9 +28,9 @@ import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
+import type { CaseRecord } from '../case/case.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
-import type { PericiaRecord } from '../pericia/pericia.schema.js';
 
 export type {
   ConcluirLaudo,
@@ -70,7 +70,7 @@ export const listLaudosQuerySchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     status: z.enum(LAUDO_STATUS).optional(),
-    periciaId: idSchema.optional(),
+    caseId: idSchema.optional(),
   })
   .strict();
 export type ListLaudosQuery = z.infer<typeof listLaudosQuerySchema>;
@@ -108,9 +108,9 @@ export type LaudoPendencia = { secaoId: string; variaveis: LaudoVariavel[] };
 
 export type LaudoRecord = {
   id: string;
-  periciaId: string;
+  caseId: string;
   // Enriquecido pelo service; ausente se a perícia não existe mais.
-  periciaNumero?: string;
+  caseNumber?: string;
   tipo: LaudoTipo;
   status: LaudoStatus;
   titulo: string;
@@ -126,7 +126,7 @@ export type LaudoListItem = Omit<LaudoRecord, 'secoes' | 'pendencias'> & { total
 
 export type LaudoCreateInput = {
   tenantId: string;
-  periciaId: string;
+  caseId: string;
   userId: string;
   tipo: LaudoTipo;
   titulo: string;
@@ -137,9 +137,9 @@ export type LaudoCreateInput = {
 // O que o PDF e o Word recebem: seções com as variáveis já resolvidas de novo (AD-126).
 export type LaudoExportDados = {
   laudo: LaudoRecord;
-  pericia: PericiaRecord;
+  legalCase: CaseRecord;
   identity: DocumentIdentity;
-  perito: AccountView;
+  expert: AccountView;
   valores: Partial<Record<LaudoVariavel, string>>;
   // `src` da foto no HTML → bytes (AD-129); foto que sumiu fica fora e o `img` some.
   fotos: Record<string, { body: Buffer; mime: string }>;

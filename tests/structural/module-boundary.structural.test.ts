@@ -25,7 +25,7 @@ const MODULES_ROOT = join(API_SRC_ROOT, 'modules');
 // ficam fora da tabela e podem ser importados por qualquer módulo.
 const DB_OWNERSHIP: Record<string, readonly string[]> = {
   identity: ['Tenant', 'User', 'Session', 'Invite', 'Atividade', 'transitionTenantStatus'],
-  pericia: ['Pericia', 'Prazo', 'Parte'],
+  case: ['Case', 'Deadline', 'Party'],
   agenda: ['Compromisso', 'Vistoria'],
   financeiro: ['Lancamento'],
   prospeccao: ['Oportunidade'],
@@ -103,16 +103,16 @@ describe('api module boundaries (AD-038)', () => {
     it('(b) flags a value import of an @ethica/db name owned by another module, but not type-only imports nor the owner', () => {
       withFixture(
         {
-          'a/x.repository.ts': "import { Pericia } from '@ethica/db';\nexport const x = Pericia;\n",
+          'a/x.repository.ts': "import { Case } from '@ethica/db';\nexport const x = Case;\n",
           'a/types.repository.ts': [
-            "import type { PericiaDocument } from '@ethica/db';",
-            "import { type Pericia, tenantScoped } from '@ethica/db';",
-            'export type T = PericiaDocument | typeof Pericia | typeof tenantScoped;',
+            "import type { CaseDocument } from '@ethica/db';",
+            "import { type Case, tenantScoped } from '@ethica/db';",
+            'export type T = CaseDocument | typeof Case | typeof tenantScoped;',
           ].join('\n'),
-          'pericia/pericia.repository.ts': "import { Pericia } from '@ethica/db';\nexport const c = Pericia;\n",
+          'case/case.repository.ts': "import { Case } from '@ethica/db';\nexport const c = Case;\n",
         },
         (root) => {
-          expect(findDbOwnershipViolations(root)).toEqual(['a/x.repository.ts: Pericia (dono: pericia)']);
+          expect(findDbOwnershipViolations(root)).toEqual(['a/x.repository.ts: Case (dono: case)']);
         },
       );
     });

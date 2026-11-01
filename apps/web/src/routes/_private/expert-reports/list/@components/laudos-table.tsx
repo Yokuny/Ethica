@@ -42,7 +42,7 @@ export function LaudosTable({
               <TableCell>
                 <TableIdentity
                   icon={FileSignature}
-                  title={row.periciaNumero ?? t('expert_case_removed')}
+                  title={row.caseNumber ?? t('expert_case_removed')}
                   description={t(row.tipo)}
                 />
               </TableCell>

@@ -131,7 +131,7 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 
 // Cabeçalho e rodapé do tenant (AD-121): cada linha do texto vira uma linha centralizada e os
 // marcadores são trocados. Linha que fica vazia (só `[LOGO]` sem logo) some.
-const template = (texto: string, identity: DocumentIdentity, nomePerito: string): string => {
+const template = (texto: string, identity: DocumentIdentity, expertName: string): string => {
   const linhas = texto
     .split('\n')
     .map((linha) =>
@@ -140,7 +140,7 @@ const template = (texto: string, identity: DocumentIdentity, nomePerito: string)
           '[LOGO]',
           identity.logoDataUrl ? `<img src="${identity.logoDataUrl}" style="max-height:12mm;max-width:60mm;">` : '',
         )
-        .replaceAll('[NOME_PERITO]', esc(nomePerito))
+        .replaceAll('[NOME_PERITO]', esc(expertName))
         .replaceAll('[PAGINA_ATUAL]', '<span class="pageNumber"></span>')
         .replaceAll('[TOTAL_PAGINAS]', '<span class="totalPages"></span>')
         .trim(),
@@ -163,12 +163,12 @@ export const textosCabecalhoRodape = (identity: DocumentIdentity): { cabecalho: 
 
 export const cabecalhoRodape = (
   identity: DocumentIdentity,
-  nomePerito: string,
+  expertName: string,
 ): Pick<PdfDocument, 'headerTemplate' | 'footerTemplate'> => {
   const { cabecalho, rodape } = textosCabecalhoRodape(identity);
   return {
-    headerTemplate: template(cabecalho, identity, nomePerito),
-    footerTemplate: template(rodape, identity, nomePerito),
+    headerTemplate: template(cabecalho, identity, expertName),
+    footerTemplate: template(rodape, identity, expertName),
   };
 };
 
@@ -177,11 +177,11 @@ export const montarDocumento = (input: {
   subtitulo?: string;
   corpo: string;
   identity: DocumentIdentity;
-  nomePerito: string;
+  expertName: string;
   geradoEm: Date;
 }): PdfDocument => ({
   html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(input.titulo)}</title><style>${CSS}</style></head><body><h1>${esc(input.titulo)}</h1>${
     input.subtitulo ? `<p class="subtitulo">${esc(input.subtitulo)}</p>` : ''
-  }${input.corpo}<p class="gerado">Gerado por ${esc(input.nomePerito)} em ${esc(dataHora(input.geradoEm))}.</p></body></html>`,
-  ...cabecalhoRodape(input.identity, input.nomePerito),
+  }${input.corpo}<p class="gerado">Gerado por ${esc(input.expertName)} em ${esc(dataHora(input.geradoEm))}.</p></body></html>`,
+  ...cabecalhoRodape(input.identity, input.expertName),
 });

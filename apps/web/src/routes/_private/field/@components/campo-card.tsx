@@ -18,7 +18,7 @@ const wazeUrl = (local: string) => `https://waze.com/ul?q=${encodeURIComponent(l
 
 // Um compromisso do dia no celular (CAM-01): chegar, marcar o resultado e abrir o registro.
 export function CampoCard({ item, onStatus }: CampoCardProps) {
-  const { compromisso, pericia, vistoria } = item;
+  const { compromisso, legalCase, vistoria } = item;
   const status = compromisso.motivo ?? compromisso.status;
   const registrado = vistoria.versao > 0 || vistoria.midias.length > 0;
 
@@ -33,9 +33,9 @@ export function CampoCard({ item, onStatus }: CampoCardProps) {
             {registrado && <Badge variant="success">{t('record_started')}</Badge>}
           </div>
           <ItemTitle>{compromisso.titulo}</ItemTitle>
-          {pericia && (
+          {legalCase && (
             <ItemDescription className="line-clamp-none">
-              {[pericia.numeroProcesso, [pericia.autor, pericia.reu].filter(Boolean).join(' × ')]
+              {[legalCase.processNumber, [legalCase.plaintiff, legalCase.defendant].filter(Boolean).join(' × ')]
                 .filter(Boolean)
                 .join(' · ')}
             </ItemDescription>

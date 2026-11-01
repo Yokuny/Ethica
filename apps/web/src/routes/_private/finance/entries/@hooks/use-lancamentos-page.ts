@@ -31,7 +31,7 @@ export function useLancamentosPage() {
     );
   }
 
-  const activeFilters = [search.natureza, search.situacao, search.periciaId].filter(Boolean).length;
+  const activeFilters = [search.natureza, search.state, search.caseId].filter(Boolean).length;
 
   return {
     search,
@@ -41,6 +41,6 @@ export function useLancamentosPage() {
     handlePaginationChange,
     setStatus,
     activeFilters,
-    clearFilters: () => update({ natureza: undefined, situacao: undefined, periciaId: undefined, page: 1 }),
+    clearFilters: () => update({ natureza: undefined, state: undefined, caseId: undefined, page: 1 }),
   };
 }

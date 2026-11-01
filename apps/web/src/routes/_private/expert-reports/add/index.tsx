@@ -1,4 +1,4 @@
-import { LAUDO_MODELOS_PADRAO, laudoTipoDoPapel } from '@ethica/contracts';
+import { LAUDO_MODELOS_PADRAO, reportRoleType } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -12,9 +12,9 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/page-car
 import { Panel } from '@/components/panel.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { caseQuery } from '@/query/case.js';
 import { createLaudoMutation, modeloQuery, modelosQuery } from '@/query/laudo.js';
-import { periciaQuery } from '@/query/pericia.js';
-import { PericiaPicker } from './@components/pericia-picker.js';
+import { CasePicker } from './@components/case-picker.js';
 import { type Escolhas, SecoesPicker } from './@components/secoes-picker.js';
 import { type LaudoAddSearch, laudoAddSearchSchema } from './@interface/laudo-add.interface.js';
 
@@ -23,9 +23,9 @@ export function LaudoAddPage() {
   const search = useSearch({ strict: false }) as LaudoAddSearch;
   const navigate = useNavigate({ from: '/expert-reports/add/' });
   const queryClient = useQueryClient();
-  const periciaId = search.periciaId ?? '';
-  const pericia = useQuery({ ...periciaQuery(periciaId), enabled: Boolean(periciaId), retry: false });
-  const tipo = pericia.data ? laudoTipoDoPapel(pericia.data.papel) : undefined;
+  const caseId = search.caseId ?? '';
+  const legalCase = useQuery({ ...caseQuery(caseId), enabled: Boolean(caseId), retry: false });
+  const tipo = legalCase.data ? reportRoleType(legalCase.data.role) : undefined;
   const modelos = useQuery({ ...modelosQuery(tipo), enabled: Boolean(tipo) });
   const modeloId = search.modeloId ?? (tipo ? LAUDO_MODELOS_PADRAO[tipo] : '');
   const modelo = useQuery({ ...modeloQuery(modeloId), enabled: Boolean(modeloId) });
@@ -38,10 +38,10 @@ export function LaudoAddPage() {
       ? escolhas.valores
       : Object.fromEntries((modelo.data?.secoes ?? []).map((secao) => [secao.id, 'yes']));
   const escolhidas = Object.entries(atuais).filter((entry): entry is [string, 'yes' | 'no'] => Boolean(entry[1]));
-  const partes = (polo: 'plaintiff' | 'defendant') =>
-    pericia.data?.partes
-      .filter((parte) => parte.polo === polo && parte.tipo === 'party')
-      .map((parte) => parte.nome)
+  const parties = (side: 'plaintiff' | 'defendant') =>
+    legalCase.data?.parties
+      .filter((party) => party.side === side && party.tipo === 'party')
+      .map((party) => party.nome)
       .join(', ');
 
   function updateSearch(patch: Partial<LaudoAddSearch>) {
@@ -49,10 +49,10 @@ export function LaudoAddPage() {
   }
 
   function handleCreate() {
-    if (!pericia.data || !escolhidas.length) return;
+    if (!legalCase.data || !escolhidas.length) return;
     create.mutate(
       {
-        periciaId: pericia.data.id,
+        caseId: legalCase.data.id,
         modeloId,
         secoes: escolhidas.map(([id, variante]) => ({ id, variante })),
       },
@@ -66,15 +66,15 @@ export function LaudoAddPage() {
   return (
     <Card asPage>
       <CardHeader title={t('start_report')} />
-      {!periciaId ? (
+      {!caseId ? (
         <CardContent className="max-w-4xl">
-          <PericiaPicker onPick={(id) => updateSearch({ periciaId: id, modeloId: undefined })} />
+          <CasePicker onPick={(id) => updateSearch({ caseId: id, modeloId: undefined })} />
         </CardContent>
-      ) : pericia.isLoading ? (
+      ) : legalCase.isLoading ? (
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !pericia.data || !tipo ? (
+      ) : !legalCase.data || !tipo ? (
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
@@ -85,11 +85,11 @@ export function LaudoAddPage() {
               <RecordHeading
                 icon={<Gavel />}
                 label={t(tipo)}
-                title={pericia.data.numeroProcesso}
+                title={legalCase.data.processNumber}
                 description={[
-                  pericia.data.vara ?? pericia.data.tribunal,
-                  partes('plaintiff') && `${partes('plaintiff')} × ${partes('defendant') || '—'}`,
-                  pericia.data.objeto,
+                  legalCase.data.division ?? legalCase.data.court,
+                  parties('plaintiff') && `${parties('plaintiff')} × ${parties('defendant') || '—'}`,
+                  legalCase.data.subject,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
@@ -124,7 +124,7 @@ export function LaudoAddPage() {
             ) : null}
           </CardContent>
           <CardFooter className="justify-end gap-2">
-            <Button variant="outline" onClick={() => updateSearch({ periciaId: undefined, modeloId: undefined })}>
+            <Button variant="outline" onClick={() => updateSearch({ caseId: undefined, modeloId: undefined })}>
               {t('change_expert_case')}
             </Button>
             <Button disabled={!escolhidas.length || create.isPending} onClick={handleCreate}>

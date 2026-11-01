@@ -10,12 +10,12 @@ import { Panel } from '@/components/panel.js';
 import { apiUrl, del, patch } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { prepararFoto } from '@/lib/offline/foto.js';
-import { apagarMidia, guardarMidia, listarMidias, type MidiaPendente } from '@/lib/offline/store.js';
+import { apagarMidia, guardarMidia, listarMidias, type PendingMedia } from '@/lib/offline/store.js';
 import { atualizarPendencias, sincronizar } from '@/lib/offline/sync.js';
 import { type VistoriaDoDia, vistoriaKeys } from '@/query/vistoria.js';
 
 // Arquivo ainda só no aparelho: mostrado pela URL local do blob.
-function BlobMidia({ midia }: { midia: MidiaPendente }) {
+function BlobMidia({ midia }: { midia: PendingMedia }) {
   const [url, setUrl] = useState<string>();
   useEffect(() => {
     const local = URL.createObjectURL(midia.blob);
@@ -36,8 +36,8 @@ function BlobMidia({ midia }: { midia: MidiaPendente }) {
 export function MidiasPanel({ item }: { item: VistoriaDoDia }) {
   const queryClient = useQueryClient();
   const compromissoId = item.compromisso.id;
-  const pendentes = useQuery({
-    queryKey: vistoriaKeys.pendentes(compromissoId),
+  const pending = useQuery({
+    queryKey: vistoriaKeys.pending(compromissoId),
     networkMode: 'always',
     queryFn: async () => (await listarMidias()).filter((midia) => midia.compromissoId === compromissoId),
   });
@@ -46,16 +46,16 @@ export function MidiasPanel({ item }: { item: VistoriaDoDia }) {
   const enviadas = item.vistoria.midias.filter((midia) => midia.tipo !== 'signature');
   const fotos = enviadas.filter((midia) => midia.tipo === 'photo').length;
 
-  async function enfileirar(midia: Omit<MidiaPendente, 'compromissoId' | 'midiaId' | 'criadoEm'>) {
+  async function enfileirar(midia: Omit<PendingMedia, 'compromissoId' | 'midiaId' | 'criadoEm'>) {
     await guardarMidia({ ...midia, compromissoId, midiaId: crypto.randomUUID(), criadoEm: new Date().toISOString() });
     await atualizarPendencias();
-    await queryClient.invalidateQueries({ queryKey: vistoriaKeys.pendentes(compromissoId) });
+    await queryClient.invalidateQueries({ queryKey: vistoriaKeys.pending(compromissoId) });
     void sincronizar(queryClient);
   }
 
   async function adicionarFotos(arquivos: FileList | null) {
     for (const arquivo of [...(arquivos ?? [])]) {
-      if (fotos + (pendentes.data?.length ?? 0) >= VISTORIA_MIDIA_LIMITES.photo.maxPorVistoria) {
+      if (fotos + (pending.data?.length ?? 0) >= VISTORIA_MIDIA_LIMITES.photo.maxPorVistoria) {
         toast.error(t('media_limit_reached'));
         break;
       }
@@ -72,13 +72,13 @@ export function MidiasPanel({ item }: { item: VistoriaDoDia }) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
-      const partes: Blob[] = [];
-      recorder.ondataavailable = (event) => partes.push(event.data);
+      const parties: Blob[] = [];
+      recorder.ondataavailable = (event) => parties.push(event.data);
       recorder.onstop = () => {
         for (const track of stream.getTracks()) track.stop();
         setGravador(null);
         const mime = (recorder.mimeType.split(';')[0] || 'audio/webm') as string;
-        void enfileirar({ tipo: 'audio', mime, blob: new Blob(partes, { type: mime }) });
+        void enfileirar({ tipo: 'audio', mime, blob: new Blob(parties, { type: mime }) });
       };
       recorder.start();
       setGravador(recorder);
@@ -98,9 +98,9 @@ export function MidiasPanel({ item }: { item: VistoriaDoDia }) {
     if (!res.success) toast.error(res.message);
   }
 
-  async function legendaPendente(midia: MidiaPendente, legenda: string) {
+  async function pendingCaption(midia: PendingMedia, legenda: string) {
     await guardarMidia({ ...midia, legenda });
-    await queryClient.invalidateQueries({ queryKey: vistoriaKeys.pendentes(compromissoId) });
+    await queryClient.invalidateQueries({ queryKey: vistoriaKeys.pending(compromissoId) });
   }
 
   return (
@@ -132,11 +132,11 @@ export function MidiasPanel({ item }: { item: VistoriaDoDia }) {
         </>
       }
     >
-      {!enviadas.length && !pendentes.data?.length ? (
+      {!enviadas.length && !pending.data?.length ? (
         <ItemTitle className="font-normal text-muted-foreground">{t('no_media_yet')}</ItemTitle>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
-          {pendentes.data?.map((midia) => (
+          {pending.data?.map((midia) => (
             <li key={midia.midiaId} className="grid gap-2">
               <BlobMidia midia={midia} />
               <ItemDescription className="line-clamp-none">
@@ -147,7 +147,7 @@ export function MidiasPanel({ item }: { item: VistoriaDoDia }) {
                   aria-label={t('caption')}
                   placeholder={t('caption_placeholder')}
                   defaultValue={midia.legenda ?? ''}
-                  onBlur={(event) => void legendaPendente(midia, event.target.value)}
+                  onBlur={(event) => void pendingCaption(midia, event.target.value)}
                 />
                 <Button
                   type="button"
@@ -157,7 +157,7 @@ export function MidiasPanel({ item }: { item: VistoriaDoDia }) {
                   onClick={async () => {
                     await apagarMidia(midia.midiaId);
                     await atualizarPendencias();
-                    await pendentes.refetch();
+                    await pending.refetch();
                   }}
                 >
                   <Trash2 />

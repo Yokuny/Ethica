@@ -67,7 +67,7 @@ export function MapaPage() {
     }
   }
 
-  function usarMinhaLocalizacao() {
+  function applyMyLocation() {
     setLocalizando(true);
     navigator.geolocation.getCurrentPosition(
       (posicao) => {
@@ -96,7 +96,7 @@ export function MapaPage() {
     setOrdem(ids);
   }
 
-  const paradas = ordenados.flatMap((item, indice) =>
+  const stops = ordenados.flatMap((item, indice) =>
     item.compromisso.coordenadas
       ? [
           {
@@ -120,7 +120,7 @@ export function MapaPage() {
         ) : (
           <>
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" disabled={localizando} onClick={usarMinhaLocalizacao}>
+              <Button variant="outline" disabled={localizando} onClick={applyMyLocation}>
                 <LocateFixed />
                 {t('start_from_my_location')}
               </Button>
@@ -131,7 +131,7 @@ export function MapaPage() {
                 </Button>
               )}
             </div>
-            <MapaLeaflet paradas={paradas} partida={partida} linha={rota.data ?? pontos} />
+            <MapaLeaflet stops={stops} partida={partida} linha={rota.data ?? pontos} />
             {rota.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
             <ItemGroup variant="list">
               {ordenados.map((item, indice) => {
@@ -151,7 +151,7 @@ export function MapaPage() {
                       </div>
                       <ItemTitle>{compromisso.titulo}</ItemTitle>
                       <ItemDescription className="line-clamp-none">
-                        {[item.pericia?.numeroProcesso, compromisso.local].filter(Boolean).join(' · ')}
+                        {[item.legalCase?.processNumber, compromisso.local].filter(Boolean).join(' · ')}
                       </ItemDescription>
                     </ItemContent>
                     <ItemActions className="flex-wrap">
@@ -173,7 +173,7 @@ export function MapaPage() {
                       >
                         <ArrowDown />
                       </Button>
-                      {compromisso.periciaId && (
+                      {compromisso.caseId && (
                         <Button
                           variant="outline"
                           disabled={aviso.isPending}

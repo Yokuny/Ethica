@@ -5,8 +5,12 @@ export { dailyTrend } from './dailyTrend.js';
 export { groupStats } from './groupStats.js';
 export type { AtividadeDocument } from './models/atividade.model.js';
 export { Atividade } from './models/atividade.model.js';
+export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './models/case.model.js';
+export { Case } from './models/case.model.js';
 export type { CompromissoDocument, CompromissoOrigem } from './models/compromisso.model.js';
 export { Compromisso } from './models/compromisso.model.js';
+export type { DeadlineDocument } from './models/deadline.model.js';
+export { Deadline } from './models/deadline.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
 export type { LancamentoDocument, ParcelaDocument } from './models/lancamento.model.js';
@@ -17,12 +21,8 @@ export type { ModeloLaudoDocument, ModeloLaudoSecaoDocument } from './models/mod
 export { ModeloLaudo } from './models/modeloLaudo.model.js';
 export type { OportunidadeDocument } from './models/oportunidade.model.js';
 export { Oportunidade } from './models/oportunidade.model.js';
-export type { ParteDocument } from './models/parte.model.js';
-export { Parte } from './models/parte.model.js';
-export type { PericiaDocument, PericiaMovimentacaoDocument, PericiaParteDocument } from './models/pericia.model.js';
-export { Pericia } from './models/pericia.model.js';
-export type { PrazoDocument } from './models/prazo.model.js';
-export { Prazo } from './models/prazo.model.js';
+export type { PartyDocument } from './models/party.model.js';
+export { Party } from './models/party.model.js';
 export type { SessionDocument } from './models/session.model.js';
 export { Session } from './models/session.model.js';
 export type { TenantDocument, TenantStatus } from './models/tenant.model.js';
@@ -33,12 +33,12 @@ export type { VistoriaDocument, VistoriaMidiaDocument } from './models/vistoria.
 export { Vistoria } from './models/vistoria.model.js';
 export { tenantScoped } from './tenantScoped.js';
 export { resolveTestDatabaseUri, TEST_DATABASE_ENV, wipeTestDatabase } from './testDatabase.js';
-export type { ParteSearchSpec, PericiaSearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
+export type { CaseSearchSpec, PartySearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
 export {
+  caseSearchStages,
   isSearchUnavailableError,
   newObjectId,
-  parteSearchStages,
-  periciaSearchStages,
+  partySearchStages,
   provisionSearchIndexes,
   SEARCH_INDEXES,
   searchDefinitionMatches,
@@ -48,15 +48,15 @@ export {
 } from './textSearch.js';
 export { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from './time.js';
 
+import { Case } from './models/case.model.js';
 import { Compromisso } from './models/compromisso.model.js';
+import { Deadline } from './models/deadline.model.js';
 import { Invite } from './models/invite.model.js';
 import { Lancamento } from './models/lancamento.model.js';
 import { Laudo } from './models/laudo.model.js';
 import { ModeloLaudo } from './models/modeloLaudo.model.js';
 import { Oportunidade } from './models/oportunidade.model.js';
-import { Parte } from './models/parte.model.js';
-import { Pericia } from './models/pericia.model.js';
-import { Prazo } from './models/prazo.model.js';
+import { Party } from './models/party.model.js';
 import { Session } from './models/session.model.js';
 import { Tenant } from './models/tenant.model.js';
 import { User } from './models/user.model.js';
@@ -68,9 +68,9 @@ export const syncIndexes = async (): Promise<void> => {
     User.createIndexes(),
     Invite.createIndexes(),
     Session.createIndexes(),
-    Pericia.createIndexes(),
-    Parte.createIndexes(),
-    Prazo.createIndexes(),
+    Case.createIndexes(),
+    Party.createIndexes(),
+    Deadline.createIndexes(),
     Compromisso.createIndexes(),
     Lancamento.createIndexes(),
     Oportunidade.createIndexes(),

@@ -15,7 +15,7 @@ export type Rascunho = {
   // Versão do servidor quando o envio deu 409: o perito escolhe qual fica.
   conflito?: VistoriaRecord;
 };
-export type MidiaPendente = {
+export type PendingMedia = {
   compromissoId: string;
   midiaId: string;
   tipo: MidiaTipo;
@@ -25,7 +25,7 @@ export type MidiaPendente = {
   criadoEm: string;
   falha?: string;
 };
-export type StatusPendente = { compromissoId: string; status: CompromissoStatus; motivo?: CompromissoMotivo };
+export type StatusPending = { compromissoId: string; status: CompromissoStatus; motivo?: CompromissoMotivo };
 
 const comPrefixo = async <T>(prefixo: string): Promise<T[]> => {
   const todas = (await keys()).filter((key): key is string => typeof key === 'string' && key.startsWith(prefixo));
@@ -47,13 +47,13 @@ export const salvarRascunho = (rascunho: Rascunho) => set(`rascunho:${rascunho.c
 export const apagarRascunho = (compromissoId: string) => del(`rascunho:${compromissoId}`);
 export const listarRascunhos = () => comPrefixo<Rascunho>('rascunho:');
 
-export const guardarMidia = (midia: MidiaPendente) => set(`midia:${midia.midiaId}`, midia);
+export const guardarMidia = (midia: PendingMedia) => set(`midia:${midia.midiaId}`, midia);
 export const apagarMidia = (midiaId: string) => del(`midia:${midiaId}`);
-export const listarMidias = () => comPrefixo<MidiaPendente>('midia:');
+export const listarMidias = () => comPrefixo<PendingMedia>('midia:');
 
-export const guardarStatus = (status: StatusPendente) => set(`status:${status.compromissoId}`, status);
+export const guardarStatus = (status: StatusPending) => set(`status:${status.compromissoId}`, status);
 export const apagarStatus = (compromissoId: string) => del(`status:${compromissoId}`);
-export const listarStatus = () => comPrefixo<StatusPendente>('status:');
+export const listarStatus = () => comPrefixo<StatusPending>('status:');
 
 // Sessão (AD-128): a última vista com conexão, para o app abrir sem rede. Só nome, papel e
 // escritório; a credencial continua no cookie httpOnly. Sem IndexedDB (testes), não guarda.

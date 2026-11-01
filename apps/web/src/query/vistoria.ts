@@ -17,22 +17,22 @@ export type MidiaRecord = {
 };
 export type VistoriaRecord = {
   compromissoId: string;
-  periciaId?: string;
+  caseId?: string;
   versao: number;
   dados: VistoriaDados;
   midias: MidiaRecord[];
   updatedAt?: string;
 };
-export type PericiaDoCampo = { id: string; numeroProcesso: string; autor?: string; reu?: string };
-export type VistoriaDoDia = { compromisso: CompromissoRecord; pericia?: PericiaDoCampo; vistoria: VistoriaRecord };
+export type FieldCase = { id: string; processNumber: string; plaintiff?: string; defendant?: string };
+export type VistoriaDoDia = { compromisso: CompromissoRecord; legalCase?: FieldCase; vistoria: VistoriaRecord };
 
 export const vistoriaKeys = {
   all: ['vistoria'] as const,
   dia: (date: string) => [...vistoriaKeys.all, 'dia', date] as const,
   detail: (compromissoId: string) => [...vistoriaKeys.all, 'detail', compromissoId] as const,
-  pericia: (periciaId: string) => [...vistoriaKeys.all, 'pericia', periciaId] as const,
+  legalCase: (caseId: string) => [...vistoriaKeys.all, 'legalCase', caseId] as const,
   // Mídias ainda só no aparelho: dentro de `all`, a sincronização recarrega junto (AD-128).
-  pendentes: (compromissoId: string) => [...vistoriaKeys.all, 'pendentes', compromissoId] as const,
+  pending: (compromissoId: string) => [...vistoriaKeys.all, 'pending', compromissoId] as const,
 };
 
 // Rota do dia (CAM-01): com conexão, guarda a cópia no aparelho; sem ela, usa a cópia (AD-128).
@@ -63,11 +63,11 @@ export const vistoriaQuery = (compromissoId: string) =>
     },
   });
 
-export const vistoriasDaPericiaQuery = (periciaId: string) =>
+export const caseInspectionsQuery = (caseId: string) =>
   queryOptions({
-    queryKey: vistoriaKeys.pericia(periciaId),
+    queryKey: vistoriaKeys.legalCase(caseId),
     queryFn: async (): Promise<VistoriaDoDia[]> => {
-      const res = await get<VistoriaDoDia[]>(`/inspections/expert-case/${periciaId}`);
+      const res = await get<VistoriaDoDia[]>(`/inspections/expert-case/${caseId}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },

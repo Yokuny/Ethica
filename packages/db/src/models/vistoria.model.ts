@@ -18,7 +18,7 @@ export interface VistoriaDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
   Compromisso: mongoose.Types.ObjectId;
-  Pericia?: mongoose.Types.ObjectId;
+  Case?: mongoose.Types.ObjectId;
   versao: number;
   dados: VistoriaDados;
   midias: VistoriaMidiaDocument[];
@@ -43,7 +43,7 @@ const vistoriaSchema = new Schema<VistoriaDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     Compromisso: { type: Schema.Types.ObjectId, ref: 'Compromisso', required: true },
-    Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia' },
+    Case: { type: Schema.Types.ObjectId, ref: 'Case' },
     versao: { type: Number, required: true, default: 0 },
     dados: { type: Schema.Types.Mixed, required: true },
     midias: { type: [midiaSchema], default: [] },
@@ -52,6 +52,6 @@ const vistoriaSchema = new Schema<VistoriaDocument>(
 );
 
 vistoriaSchema.index({ Tenant: 1, Compromisso: 1 }, { unique: true });
-vistoriaSchema.index({ Tenant: 1, Pericia: 1 });
+vistoriaSchema.index({ Tenant: 1, Case: 1 });
 
 export const Vistoria = mongoose.model<VistoriaDocument>('Vistoria', vistoriaSchema);

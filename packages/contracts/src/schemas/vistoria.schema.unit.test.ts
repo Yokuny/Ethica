@@ -6,14 +6,14 @@ describe('vistoriaDadosSchema (AD-130)', () => {
   it('aceita o formulário completo e recusa chave desconhecida', () => {
     const dados = {
       presentes: [{ id: 'p1', nome: 'Maria', qualidade: 'plaintiff', email: 'maria@x.com' }],
-      paradigmas: [{ id: 'g1', polo: 'defendant', nome: 'João', funcao: 'Soldador', trabalhouJunto: true }],
+      paradigmas: [{ id: 'g1', side: 'defendant', nome: 'João', funcao: 'Soldador', trabalhouJunto: true }],
       funcoes: [
         {
           id: 'f1',
           titulo: 'Soldador',
           anoInicio: 2019,
-          autor: { atividades: 'Solda MIG', tempoExposicao: '8h/dia' },
-          reu: { atividades: 'Solda eventual' },
+          plaintiff: { atividades: 'Solda MIG', timeExposure: '8h/dia' },
+          defendant: { atividades: 'Solda eventual' },
         },
       ],
       agentes: [{ agente: 'noise', presente: 'yes', epi: 'Protetor auricular' }],

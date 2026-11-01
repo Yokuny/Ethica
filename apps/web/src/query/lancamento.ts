@@ -25,29 +25,29 @@ export type LancamentoRecord = {
   parcelas: ParcelaRecord[];
   recebidoCents?: number;
   saldoCents?: number;
-  periciaId?: string;
-  periciaNumero?: string;
+  caseId?: string;
+  caseNumber?: string;
   // Quem contratou o assistente técnico da perícia (AD-135).
-  contratante?: string;
+  client?: string;
 };
 
 export type ParcelaRecord = { id: string; valorCents: number; data: string; conta?: string };
 
-export type LancamentoSituacao = LancamentoStatus | 'overdue';
+export type TransactionState = LancamentoStatus | 'overdue';
 
 export type LancamentosQueryParams = {
   page?: number;
   limit?: number;
   natureza?: LancamentoNatureza;
-  situacao?: LancamentoSituacao;
-  periciaId?: string;
+  state?: TransactionState;
+  caseId?: string;
 };
 
 export type LancamentosListResult = { items: LancamentoRecord[]; total: number };
 
 export type FinanceiroResumo = {
   aReceberCents: number;
-  atrasadoCents: number;
+  lateCents: number;
   recebidoMesCents: number;
   despesasMesCents: number;
 };

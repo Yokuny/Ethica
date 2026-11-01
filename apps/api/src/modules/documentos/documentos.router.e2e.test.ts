@@ -3,14 +3,14 @@ import type { Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
 import {
   Atividade,
+  Case,
   connect,
+  Deadline,
   dateInDisplayTz,
   disconnect,
   hashToken,
   Lancamento,
-  Parte,
-  Pericia,
-  Prazo,
+  Party,
   Session,
   Tenant,
   User,
@@ -79,12 +79,12 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[]) => {
   return { user, as };
 };
 
-const PERICIA = {
-  numeroProcesso: '0001234-56.2026.5.02.0001',
-  justica: 'labor',
-  papel: 'court_expert',
-  tribunal: 'TRT2',
-  objeto: 'Insalubridade',
+const CASE = {
+  processNumber: '0001234-56.2026.5.02.0001',
+  courtType: 'labor',
+  role: 'court_expert',
+  court: 'TRT2',
+  subject: 'Insalubridade',
 };
 
 describe('documentos e movimentações (DOC-02..04)', () => {
@@ -96,9 +96,9 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     await Promise.all([
       Lancamento.deleteMany({}),
       Atividade.deleteMany({}),
-      Prazo.deleteMany({}),
-      Parte.deleteMany({}),
-      Pericia.deleteMany({}),
+      Deadline.deleteMany({}),
+      Party.deleteMany({}),
+      Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
       Tenant.deleteMany({}),
@@ -112,7 +112,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const tenant = await seedTenant();
     const operador = await seedSession(tenant._id, ['operator']);
     const admin = await seedSession(tenant._id, ['admin']);
-    const created = await admin.as(request(app).post('/expert-cases')).send({ ...PERICIA, prazoLaudo: day(10) });
+    const created = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(10) });
     const id = created.body.data.id;
 
     const deOperador = await operador
@@ -121,7 +121,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       .parse(binary);
     expect(deOperador.status).toBe(200);
     expect(deOperador.headers['content-type']).toBe('application/pdf');
-    expect(deOperador.headers['content-disposition']).toContain(`ficha-${PERICIA.numeroProcesso}.pdf`);
+    expect(deOperador.headers['content-disposition']).toContain(`ficha-${CASE.processNumber}.pdf`);
     expect((deOperador.body as Buffer).toString()).toContain('%PDF');
     expect(rendered?.html).toContain('Entrega do laudo');
     expect(rendered?.html).not.toContain('Resumo financeiro');
@@ -148,7 +148,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const tenant = await seedTenant();
     const operador = await seedSession(tenant._id, ['operator']);
     const manager = await seedSession(tenant._id, ['manager']);
-    const honorario = await manager.as(request(app).post('/finance/entries')).send({
+    const fee = await manager.as(request(app).post('/finance/entries')).send({
       natureza: 'income',
       categoria: 'fixed_fees',
       descricao: 'Honorários do processo',
@@ -156,7 +156,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       vencimento: day(5),
     });
     await manager
-      .as(request(app).post(`/finance/entries/${honorario.body.data.id}/installments`))
+      .as(request(app).post(`/finance/entries/${fee.body.data.id}/installments`))
       .send({ valorCents: 100000, data: day(0), conta: 'Banco X' });
     const despesa = await manager.as(request(app).post('/finance/entries')).send({
       natureza: 'expense',
@@ -182,18 +182,18 @@ describe('documentos e movimentações (DOC-02..04)', () => {
   it('movimentações entram e saem da perícia; parada = aberta sem movimentação há mais de 60 dias', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['operator']);
-    const parada = await as(request(app).post('/expert-cases')).send({ ...PERICIA, dataNomeacao: day(-90) });
+    const stalled = await as(request(app).post('/expert-cases')).send({ ...CASE, nominationDate: day(-90) });
     const ativa = await as(request(app).post('/expert-cases')).send({
-      ...PERICIA,
-      numeroProcesso: '0001234-56.2026.5.02.0002',
-      dataNomeacao: day(-90),
+      ...CASE,
+      processNumber: '0001234-56.2026.5.02.0002',
+      nominationDate: day(-90),
     });
     await as(request(app).post('/expert-cases')).send({
-      ...PERICIA,
-      numeroProcesso: '0001234-56.2026.5.02.0003',
-      dataNomeacao: day(-200),
+      ...CASE,
+      processNumber: '0001234-56.2026.5.02.0003',
+      nominationDate: day(-200),
     });
-    await Pericia.updateOne({ numeroProcesso: '0001234-56.2026.5.02.0003' }, { status: 'completed' });
+    await Case.updateOne({ processNumber: '0001234-56.2026.5.02.0003' }, { status: 'completed' });
 
     const mov = await as(request(app).post(`/expert-cases/${ativa.body.data.id}/movements`)).send({
       tipo: 'clarification_summons',
@@ -201,7 +201,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       observacoes: 'Quesitos da reclamada',
     });
     expect(mov.status).toBe(201);
-    expect(mov.body.data.movimentacoes).toEqual([
+    expect(mov.body.data.movements).toEqual([
       expect.objectContaining({ tipo: 'clarification_summons', data: day(-5) }),
     ]);
     expect(
@@ -210,33 +210,33 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     ).toBe(400);
 
     await as(request(app).get('/documents/stalled')).buffer().parse(binary);
-    expect(rendered?.html).toContain(parada.body.data.numeroProcesso);
+    expect(rendered?.html).toContain(stalled.body.data.processNumber);
     expect(rendered?.html).toContain('>90<');
     expect(rendered?.html).not.toContain('0001234-56.2026.5.02.0002');
     expect(rendered?.html).not.toContain('0001234-56.2026.5.02.0003');
 
-    const movId = mov.body.data.movimentacoes[0].id;
+    const movId = mov.body.data.movements[0].id;
     const removed = await as(request(app).delete(`/expert-cases/${ativa.body.data.id}/movements/${movId}`));
     expect(removed.status).toBe(200);
-    expect(removed.body.data.movimentacoes).toEqual([]);
+    expect(removed.body.data.movements).toEqual([]);
     expect((await as(request(app).delete(`/expert-cases/${ativa.body.data.id}/movements/${movId}`))).status).toBe(404);
   });
 
   it('cronograma lista os prazos pendentes com "faltam N dias"', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['operator']);
-    await as(request(app).post('/expert-cases')).send({ ...PERICIA, prazoLaudo: day(3) });
+    await as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(3) });
     const res = await as(request(app).get('/documents/deadlines')).buffer().parse(binary);
     expect(res.status).toBe(200);
     expect(rendered?.html).toContain('Faltam 3 dias · vence em breve');
-    expect(rendered?.html).toContain(PERICIA.numeroProcesso);
+    expect(rendered?.html).toContain(CASE.processNumber);
   });
 
   it('exportação: só admin; ZIP com um CSV por entidade, usuários sem senha, e registra quem e quando', async () => {
     const tenant = await seedTenant();
     const operador = await seedSession(tenant._id, ['operator']);
     const admin = await seedSession(tenant._id, ['admin']);
-    await admin.as(request(app).post('/expert-cases')).send({ ...PERICIA, objeto: 'Ruído; calor "extremo"' });
+    await admin.as(request(app).post('/expert-cases')).send({ ...CASE, subject: 'Ruído; calor "extremo"' });
 
     expect((await operador.as(request(app).get('/documents/export'))).status).toBe(403);
     const res = await admin.as(request(app).get('/documents/export')).buffer().parse(binary);
@@ -255,9 +255,9 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     ]);
     // UTF-8 com BOM (o TextDecoder do strFromU8 já remove o BOM do texto).
     expect([...(files['pericias.csv'] as Uint8Array).subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
-    const pericias = strFromU8(files['pericias.csv'] as Uint8Array);
-    expect(pericias.startsWith('id;numeroProcesso;')).toBe(true);
-    expect(pericias).toContain('"Ruído; calor ""extremo"""');
+    const cases = strFromU8(files['pericias.csv'] as Uint8Array);
+    expect(cases.startsWith('id;numeroProcesso;')).toBe(true);
+    expect(cases).toContain('"Ruído; calor ""extremo"""');
     const usuarios = strFromU8(files['usuarios.csv'] as Uint8Array);
     expect(usuarios).toContain(admin.user.email);
     expect(usuarios).not.toContain('hash-secreto');

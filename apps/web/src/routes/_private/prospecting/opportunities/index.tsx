@@ -17,7 +17,7 @@ import { OPORTUNIDADE_STATUS_ITEMS } from './@utils/oportunidade-status.js';
 const ALL = 'all';
 
 export function OportunidadesPage() {
-  const { search, updateSearch, handlePaginationChange, converting, setConverting, setStatus, remove, openPericia } =
+  const { search, updateSearch, handlePaginationChange, converting, setConverting, setStatus, remove, openCase } =
     useOportunidadesPage();
   const query = useQuery(oportunidadesQuery({ page: search.page, limit: search.limit, status: search.status }));
   const items = query.data?.items ?? [];
@@ -71,7 +71,7 @@ export function OportunidadesPage() {
               onConvert={setConverting}
               onStatus={setStatus}
               onRemove={remove}
-              onOpenPericia={openPericia}
+              onOpenCase={openCase}
             />
           )}
         </DataTable>

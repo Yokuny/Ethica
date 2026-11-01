@@ -1,21 +1,21 @@
-import type { DatajudAssuntoTecnico, DatajudSearch, DatajudTribunal } from '@ethica/contracts';
+import type { DatajudCourt, DatajudSearch, DatajudTechnicalSubject } from '@ethica/contracts';
 
 // API Pública do Datajud (CNJ): um índice Elasticsearch por tribunal em
 // `${baseUrl}/api_publica_<tribunal>/_search`, autenticado por
 // `Authorization: APIKey <chave>`. Só leitura; nenhum dado do tenant sai daqui.
-export type DatajudProcesso = {
-  numeroProcesso: string;
-  tribunal: DatajudTribunal;
+export type DatajudProcess = {
+  processNumber: string;
+  court: DatajudCourt;
   classe?: string;
   assuntos: string[];
   orgaoJulgador?: string;
-  dataAjuizamento?: string;
-  ultimoMovimento?: string;
-  ultimoMovimentoEm?: string;
+  filingDate?: string;
+  lastMovement?: string;
+  lastMovementAt?: string;
   atualizadoEm?: string;
 };
 
-export type DatajudSearchResult = { items: DatajudProcesso[]; cursor?: (string | number)[] };
+export type DatajudSearchResult = { items: DatajudProcess[]; cursor?: (string | number)[] };
 
 export type DatajudClient = { search: (query: DatajudSearch) => Promise<DatajudSearchResult> };
 
@@ -43,14 +43,14 @@ const DEFAULT_SIZE = 20;
 const DEFAULT_TIMEOUT_MS = 30_000;
 
 // O Datajud guarda o número só com dígitos; a tela e o cadastro usam a máscara do CNJ.
-export const formatNumeroCnj = (digits: string): string => {
+export const formatCnjNumber = (digits: string): string => {
   const d = digits.replace(/\D/g, '');
   if (d.length !== 20) return digits;
   return `${d.slice(0, 7)}-${d.slice(7, 9)}.${d.slice(9, 13)}.${d.slice(13, 14)}.${d.slice(14, 16)}.${d.slice(16)}`;
 };
 
 // Nome do assunto processual como o Datajud o indexa (a API do Ethica fala as chaves em inglês, AD-113).
-const ASSUNTO_NO_DATAJUD: Record<DatajudAssuntoTecnico, string> = {
+const ASSUNTO_NO_DATAJUD: Record<DatajudTechnicalSubject, string> = {
   unhealthy_conditions: 'Insalubridade',
   hazardous_conditions: 'Periculosidade',
   work_accident: 'Acidente de trabalho',
@@ -61,10 +61,10 @@ export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown>
   if (query.termo) {
     must.push({ multi_match: { query: query.termo, fields: ['movimentos.nome', 'assuntos.nome', 'classe.nome'] } });
   }
-  if (query.assuntosTecnicos?.length) {
+  if (query.technicalSubjects?.length) {
     must.push({
       bool: {
-        should: query.assuntosTecnicos.map((assunto) => ({
+        should: query.technicalSubjects.map((assunto) => ({
           match: { 'assuntos.nome': { query: ASSUNTO_NO_DATAJUD[assunto], operator: 'and' } },
         })),
         minimum_should_match: 1,
@@ -72,7 +72,7 @@ export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown>
     });
   }
   if (query.orgaoJulgador) must.push({ match: { 'orgaoJulgador.nome': query.orgaoJulgador } });
-  if (query.numeroProcesso) must.push({ match: { numeroProcesso: query.numeroProcesso.replace(/\D/g, '') } });
+  if (query.processNumber) must.push({ match: { numeroProcesso: query.processNumber.replace(/\D/g, '') } });
   if (query.classeCodigo) must.push({ match: { 'classe.codigo': query.classeCodigo } });
   if (query.orgaoJulgadorCodigo) must.push({ match: { 'orgaoJulgador.codigo': query.orgaoJulgadorCodigo } });
   return {
@@ -83,19 +83,19 @@ export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown>
   };
 };
 
-export const toProcesso = (tribunal: DatajudTribunal, source: DatajudSource): DatajudProcesso => {
+export const toProcess = (court: DatajudCourt, source: DatajudSource): DatajudProcess => {
   const ultimo = [...(source.movimentos ?? [])]
     .filter((movimento) => movimento.dataHora)
     .sort((a, b) => (b.dataHora as string).localeCompare(a.dataHora as string))[0];
   return {
-    numeroProcesso: formatNumeroCnj(source.numeroProcesso ?? ''),
-    tribunal,
+    processNumber: formatCnjNumber(source.numeroProcesso ?? ''),
+    court,
     classe: source.classe?.nome,
     assuntos: (source.assuntos ?? []).flat().flatMap((assunto) => (assunto.nome ? [assunto.nome] : [])),
     orgaoJulgador: source.orgaoJulgador?.nome,
-    dataAjuizamento: source.dataAjuizamento,
-    ultimoMovimento: ultimo?.nome,
-    ultimoMovimentoEm: ultimo?.dataHora,
+    filingDate: source.dataAjuizamento,
+    lastMovement: ultimo?.nome,
+    lastMovementAt: ultimo?.dataHora,
     atualizadoEm: source.dataHoraUltimaAtualizacao,
   };
 };
@@ -111,7 +111,7 @@ export const createDatajudClient = (options: {
     search: async (query) => {
       let response: Response;
       try {
-        response = await fetchImpl(`${options.baseUrl}/api_publica_${query.tribunal}/_search`, {
+        response = await fetchImpl(`${options.baseUrl}/api_publica_${query.court}/_search`, {
           method: 'POST',
           headers: { Authorization: `APIKey ${options.apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify(buildDatajudQuery(query)),
@@ -125,7 +125,7 @@ export const createDatajudClient = (options: {
       const hits = body.hits?.hits ?? [];
       const last = hits.at(-1);
       return {
-        items: hits.flatMap((hit) => (hit._source?.numeroProcesso ? [toProcesso(query.tribunal, hit._source)] : [])),
+        items: hits.flatMap((hit) => (hit._source?.numeroProcesso ? [toProcess(query.court, hit._source)] : [])),
         cursor: hits.length === (query.size ?? DEFAULT_SIZE) ? last?.sort : undefined,
       };
     },

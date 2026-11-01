@@ -22,7 +22,7 @@ import {
   removeLaudoSecaoMutation,
   updateLaudoSecaoMutation,
 } from '@/query/laudo.js';
-import { vistoriasDaPericiaQuery } from '@/query/vistoria.js';
+import { caseInspectionsQuery } from '@/query/vistoria.js';
 import { ConcluirLaudoDialog } from './@components/concluir-laudo-dialog.js';
 import { LaudoSecaoEditor, type SecaoRascunho } from './@components/laudo-secao-editor.js';
 import { LaudoSecoesNav } from './@components/laudo-secoes-nav.js';
@@ -41,7 +41,7 @@ export function LaudoDetailsPage() {
   const excluir = useMutation(deleteLaudoMutation(queryClient));
   const { download, pending } = useFileDownload();
   // Fotos das vistorias da perícia para o "Inserir foto" do editor (AD-129).
-  const vistorias = useQuery({ ...vistoriasDaPericiaQuery(query.data?.periciaId ?? ''), enabled: Boolean(query.data) });
+  const vistorias = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
   const fotos = (vistorias.data ?? []).flatMap(({ compromisso, vistoria }) =>
     vistoria.midias
       .filter((midia) => midia.tipo === 'photo')
@@ -82,7 +82,7 @@ export function LaudoDetailsPage() {
     salvarAtual(() => void download(`/expert-reports/${laudo.id}/${formato}`));
   }
 
-  const rascunhoAberto = laudo?.status === 'draft';
+  const openDraft = laudo?.status === 'draft';
   const menu = laudo && (
     <PageMenu>
       <DropdownMenuItem disabled={Boolean(pending)} onClick={() => exportar('pdf')}>
@@ -99,7 +99,7 @@ export function LaudoDetailsPage() {
       <CardHeader title={t('details')}>
         {laudo && (
           <CardAction>
-            {rascunhoAberto && (
+            {openDraft && (
               <Button
                 disabled={laudo.pendencias.length > 0 || dirty}
                 title={laudo.pendencias.length ? t('fill_or_remove_variables') : undefined}
@@ -126,9 +126,9 @@ export function LaudoDetailsPage() {
             <RecordHeading
               icon={<FileSignature />}
               label={`${t(laudo.tipo)} · ${laudo.modeloNome}`}
-              title={laudo.periciaNumero ?? t('expert_case_removed')}
+              title={laudo.caseNumber ?? t('expert_case_removed')}
               description={
-                <AppLink to="/expert-cases/details" search={{ id: laudo.periciaId }} as="description">
+                <AppLink to="/expert-cases/details" search={{ id: laudo.caseId }} as="description">
                   {t('open_expert_case')}
                 </AppLink>
               }
@@ -155,7 +155,7 @@ export function LaudoDetailsPage() {
           </div>
         </CardContent>
       )}
-      {laudo && rascunhoAberto && (
+      {laudo && openDraft && (
         <CardFooter className="justify-between gap-2">
           <Button variant="destructive" onClick={() => setDialogo('excluir')}>
             {t('remove')}
@@ -166,9 +166,9 @@ export function LaudoDetailsPage() {
         <ConcluirLaudoDialog
           pending={concluir.isPending}
           onClose={() => setDialogo(null)}
-          onConfirm={(registrarEntrega) =>
+          onConfirm={(recordDelivery) =>
             concluir.mutate(
-              { id: laudo.id, data: { registrarEntrega } },
+              { id: laudo.id, data: { recordDelivery } },
               {
                 onSuccess: () => {
                   setDialogo(null);

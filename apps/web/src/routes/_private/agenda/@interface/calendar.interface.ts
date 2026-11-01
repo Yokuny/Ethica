@@ -1,7 +1,7 @@
 import { COMPROMISSO_TIPOS } from '@ethica/contracts';
 import { z } from 'zod';
 import type { CompromissoRecord } from '@/query/compromisso.js';
-import type { PrazoRecord } from '@/query/prazo.js';
+import type { DeadlineRecord } from '@/query/deadline.js';
 import { CALENDAR_VIEWS } from '../@consts/calendar.js';
 
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];
@@ -11,7 +11,7 @@ export type PanelState =
   | { kind: 'create'; date?: string }
   | { kind: 'detail'; compromisso: CompromissoRecord }
   | { kind: 'edit'; compromisso: CompromissoRecord }
-  | { kind: 'prazo'; prazo: PrazoRecord }
+  | { kind: 'deadline'; deadline: DeadlineRecord }
   | null;
 
 // `view`/`date`/`tipo` são a única fonte de verdade do que é renderizado:
@@ -24,6 +24,6 @@ export const calendarSearchSchema = z.object({
     .optional(),
   tipo: z.enum(COMPROMISSO_TIPOS).optional(),
   // Atalho do detalhe da perícia: abre o "novo compromisso" já vinculado.
-  periciaId: z.string().optional(),
+  caseId: z.string().optional(),
 });
 export type CalendarSearch = z.infer<typeof calendarSearchSchema>;

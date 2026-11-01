@@ -1,34 +1,34 @@
-import { LAUDO_VARIAVEIS, variaveisPendentes } from '@ethica/contracts';
+import { LAUDO_VARIAVEIS, pendingVariables } from '@ethica/contracts';
 import { strFromU8, unzipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
-import type { PericiaRecord } from '../pericia/pericia.schema.js';
+import type { CaseRecord } from '../case/case.schema.js';
 import { MODELOS_PADRAO } from './laudo.biblioteca.js';
 import { dimensoesDaImagem, laudoDocx } from './laudo.docx.js';
-import { resolverVariaveis, sanitizeLaudoHtml } from './laudo.html.js';
+import { resolveVariables, sanitizeLaudoHtml } from './laudo.html.js';
 import type { LaudoExportDados } from './laudo.schema.js';
 import { laudoHtml } from './laudo.templates.js';
 import { valoresDoLaudo } from './laudo.variaveis.js';
 
-const pericia = {
+const legalCase = {
   id: 'p1',
-  numeroProcesso: '0007777-11.2026.5.15.0001',
-  justica: 'labor',
-  papel: 'court_expert',
-  tribunal: 'TRT15',
-  vara: '1ª Vara',
-  objeto: 'Insalubridade',
-  partes: [
-    { parteId: 'a', polo: 'plaintiff', tipo: 'party', nome: 'Ana <Silva>' },
-    { parteId: 'b', polo: 'defendant', tipo: 'party', nome: 'Metalúrgica Ltda' },
-    { parteId: 'c', polo: 'defendant', tipo: 'lawyer', nome: 'Dr. Réu' },
+  processNumber: '0007777-11.2026.5.15.0001',
+  courtType: 'labor',
+  role: 'court_expert',
+  court: 'TRT15',
+  division: '1ª Vara',
+  subject: 'Insalubridade',
+  parties: [
+    { partyId: 'a', side: 'plaintiff', tipo: 'party', nome: 'Ana <Silva>' },
+    { partyId: 'b', side: 'defendant', tipo: 'party', nome: 'Metalúrgica Ltda' },
+    { partyId: 'c', side: 'defendant', tipo: 'lawyer', nome: 'Dr. Réu' },
   ],
   status: 'drafting_report',
-  movimentacoes: [],
-  periodoImprescritoInicio: '2021-03-01',
-  periodoImprescritoFim: '2024-02-10',
+  movements: [],
+  nonPrescribedPeriodStart: '2021-03-01',
+  nonPrescribedPeriodEnd: '2024-02-10',
   createdAt: new Date(),
   updatedAt: new Date(),
-} as unknown as PericiaRecord;
+} as unknown as CaseRecord;
 
 describe('sanitizeLaudoHtml (AD-123)', () => {
   it('mantém só a allowlist, sem atributos além de colspan/rowspan', () => {
@@ -52,8 +52,8 @@ describe('saneamento da foto (AD-129)', () => {
 
 describe('variáveis de campo (AD-130)', () => {
   const base = {
-    pericia,
-    perito: { name: 'Eng. Paula' },
+    legalCase,
+    expert: { name: 'Eng. Paula' },
     identity: { name: 'Escritório' },
     compromissos: [{ tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:30:00Z') }] as never,
     hoje: '2026-10-31',
@@ -69,15 +69,15 @@ describe('variáveis de campo (AD-130)', () => {
             { id: 'a', nome: 'Ana', qualidade: 'plaintiff' },
             { id: 'b', nome: 'Dr. Réu', qualidade: 'defendant_lawyer' },
           ],
-          paradigmas: [{ id: 'p', polo: 'plaintiff', nome: 'João', funcao: 'Soldador', trabalhouJunto: true }],
+          paradigmas: [{ id: 'p', side: 'plaintiff', nome: 'João', funcao: 'Soldador', trabalhouJunto: true }],
           funcoes: [
             {
               id: 'f',
               titulo: 'Soldador',
               anoInicio: 2019,
               anoFim: 2023,
-              autor: { atividades: 'Solda MIG', tempoExposicao: '8h/dia' },
-              reu: {},
+              plaintiff: { atividades: 'Solda MIG', timeExposure: '8h/dia' },
+              defendant: {},
             },
           ],
           agentes: [
@@ -111,8 +111,8 @@ describe('variáveis de campo (AD-130)', () => {
 
 describe('variáveis (AD-126)', () => {
   const valores = valoresDoLaudo({
-    pericia,
-    perito: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
+    legalCase,
+    expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
     identity: { name: 'Escritório' },
     compromissos: [
       { tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:00:00Z') },
@@ -134,8 +134,8 @@ describe('variáveis (AD-126)', () => {
     expect(valores['[VARA]']).toBe('1ª Vara');
     expect(valores['[ADVOGADOS_AUTOR]']).toBe('');
     const civil = valoresDoLaudo({
-      pericia: { ...pericia, justica: 'civil' },
-      perito: { name: 'X' },
+      legalCase: { ...legalCase, courtType: 'civil' },
+      expert: { name: 'X' },
       identity: { name: 'E' },
       compromissos: [],
       hoje: '2026-01-05',
@@ -145,10 +145,10 @@ describe('variáveis (AD-126)', () => {
   });
 
   it('troca só o que tem valor e escapa no HTML', () => {
-    expect(resolverVariaveis('<p>[NOME_AUTOR] / [ADVOGADOS_AUTOR] / [COMARCA]</p>', valores, 'html')).toBe(
+    expect(resolveVariables('<p>[NOME_AUTOR] / [ADVOGADOS_AUTOR] / [COMARCA]</p>', valores, 'html')).toBe(
       '<p>Ana &lt;Silva&gt; / [ADVOGADOS_AUTOR] / [COMARCA]</p>',
     );
-    expect(resolverVariaveis('Quesitos do(a) [DENOMINACAO_AUTOR]', valores, 'texto')).toBe('Quesitos do(a) Reclamante');
+    expect(resolveVariables('Quesitos do(a) [DENOMINACAO_AUTOR]', valores, 'texto')).toBe('Quesitos do(a) Reclamante');
   });
 });
 
@@ -194,7 +194,7 @@ const FOTO = '/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a16
 const dados = (): LaudoExportDados => ({
   laudo: {
     id: 'l1',
-    periciaId: 'p1',
+    caseId: 'p1',
     tipo: 'report',
     status: 'draft',
     titulo: 'Laudo pericial',
@@ -232,9 +232,9 @@ const dados = (): LaudoExportDados => ({
       },
     ],
   },
-  pericia,
+  legalCase,
   identity: { name: 'Escritório', rodape: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' },
-  perito: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
+  expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
   valores: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
   fotos: { [FOTO]: { body: JPEG, mime: 'image/jpeg' } },
   geradoEm: new Date(),
@@ -249,7 +249,7 @@ describe('exportação (LAU-03.2)', () => {
     expect(html).toContain('1. Objetivo &lt;x&gt;');
     expect(html).toContain('<section class="secao quebra">');
     expect(footerTemplate).toContain('pageNumber');
-    expect(variaveisPendentes(html)).toEqual([]);
+    expect(pendingVariables(html)).toEqual([]);
     // Foto da vistoria em data URL; a que sumiu sai do documento (AD-129).
     expect(html).toContain('<img src="data:image/jpeg;base64,');
     expect(html).not.toContain('/media/');

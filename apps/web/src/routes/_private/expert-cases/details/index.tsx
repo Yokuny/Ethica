@@ -10,38 +10,38 @@ import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/compone
 import { PageMenu } from '@/components/page-menu.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { periciaQuery } from '@/query/pericia.js';
+import { caseQuery } from '@/query/case.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { PericiaDetailsView } from './@components/pericia-details-view.js';
-import { PericiaEditForm } from './@components/pericia-edit-form.js';
-import { PericiaLaudos } from './@components/pericia-laudos.js';
-import { PericiaMovimentacoes } from './@components/pericia-movimentacoes.js';
-import { PericiaPrazos } from './@components/pericia-prazos.js';
-import { PericiaRelated } from './@components/pericia-related.js';
-import { PericiaVistorias } from './@components/pericia-vistorias.js';
-import { usePericiaActions } from './@hooks/use-pericia-actions.js';
-import { type PericiaDetailsSearch, periciaDetailsSearchSchema } from './@interface/pericia-details.interface.js';
+import { CaseDeadlines } from './@components/case-deadlines.js';
+import { CaseDetailsView } from './@components/case-details-view.js';
+import { CaseEditForm } from './@components/case-edit-form.js';
+import { CaseInspections } from './@components/case-inspections.js';
+import { CaseMovements } from './@components/case-movements.js';
+import { CaseRelated } from './@components/case-related.js';
+import { CaseReports } from './@components/case-reports.js';
+import { useCaseActions } from './@hooks/use-case-actions.js';
+import { type CaseDetailsSearch, caseDetailsSearchSchema } from './@interface/case-details.interface.js';
 
-export function PericiaDetailsPage() {
-  const search = useSearch({ strict: false }) as PericiaDetailsSearch;
+export function CaseDetailsPage() {
+  const search = useSearch({ strict: false }) as CaseDetailsSearch;
   const { data: session } = useSuspenseQuery(sessionQuery);
-  const query = useQuery({ ...periciaQuery(search.id), retry: false });
-  const pericia = query.data;
-  const { handleDelete, isDeleting, isConfirmingDelete, askDelete, cancelDelete } = usePericiaActions(pericia);
+  const query = useQuery({ ...caseQuery(search.id), retry: false });
+  const legalCase = query.data;
+  const { handleDelete, isDeleting, isConfirmingDelete, askDelete, cancelDelete } = useCaseActions(legalCase);
   const [isEditing, setIsEditing] = useState(false);
   const { download, pending } = useFileDownload();
   // DOC-02: ficha e checklist em PDF; a ficha só traz valores para admin/manager (a API decide).
-  const documentsMenu = pericia && (
+  const documentsMenu = legalCase && (
     <PageMenu>
       <DropdownMenuItem
         disabled={Boolean(pending)}
-        onClick={() => download(`/documents/expert-cases/${pericia.id}/sheet`)}
+        onClick={() => download(`/documents/expert-cases/${legalCase.id}/sheet`)}
       >
         {t('expert_case_sheet_pdf')}
       </DropdownMenuItem>
       <DropdownMenuItem
         disabled={Boolean(pending)}
-        onClick={() => download(`/documents/expert-cases/${pericia.id}/checklist`)}
+        onClick={() => download(`/documents/expert-cases/${legalCase.id}/checklist`)}
       >
         {t('field_checklist_pdf')}
       </DropdownMenuItem>
@@ -62,7 +62,7 @@ export function PericiaDetailsPage() {
     <Card asPage>
       {!isEditing && (
         <CardHeader title={t('details')}>
-          {pericia && (
+          {legalCase && (
             <CardAction>
               {editAction}
               {documentsMenu}
@@ -74,24 +74,24 @@ export function PericiaDetailsPage() {
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !pericia ? (
+      ) : !legalCase ? (
         // id inexistente ou de outro tenant: a API responde 404 (a consulta é escopada ao tenant).
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
       ) : isEditing ? (
-        <PericiaEditForm pericia={pericia} onSaved={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
+        <CaseEditForm legalCase={legalCase} onSaved={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
       ) : (
         <CardContent className="gap-10">
-          <PericiaDetailsView pericia={pericia} canSeeFinance={can(session, 'finance')} />
-          <PericiaPrazos periciaId={pericia.id} />
-          <PericiaVistorias periciaId={pericia.id} />
-          <PericiaLaudos pericia={pericia} />
-          <PericiaMovimentacoes pericia={pericia} />
-          <PericiaRelated periciaId={pericia.id} canSeeFinance={can(session, 'finance')} />
+          <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} />
+          <CaseDeadlines caseId={legalCase.id} />
+          <CaseInspections caseId={legalCase.id} />
+          <CaseReports legalCase={legalCase} />
+          <CaseMovements legalCase={legalCase} />
+          <CaseRelated caseId={legalCase.id} canSeeFinance={can(session, 'finance')} />
         </CardContent>
       )}
-      {pericia && !isEditing && (
+      {legalCase && !isEditing && (
         <CardFooter className="justify-between gap-2">
           <CardAction>{deleteAction}</CardAction>
           <CardAction>{editAction}</CardAction>
@@ -112,7 +112,7 @@ export function PericiaDetailsPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-cases/details/')({
-  component: PericiaDetailsPage,
+  component: CaseDetailsPage,
   staticData: { title: t('details') },
-  validateSearch: (search: Record<string, unknown>): PericiaDetailsSearch => periciaDetailsSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): CaseDetailsSearch => caseDetailsSearchSchema.parse(search),
 });

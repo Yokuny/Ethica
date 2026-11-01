@@ -15,7 +15,7 @@ export interface UserDocument {
   // ENR-03: preferências da própria pessoa. Guardam só escolhas de interface
   // (ex.: dispensar o guia de primeiros passos) — nunca fatos de progresso.
   // AD-110: `avisoPrazoEmail` ausente = ligado.
-  preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean; blocosOcultos?: string[] };
+  preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; blocosOcultos?: string[] };
   // Feed iCal (PRZ-03): só o hash do token secreto, como sessão e convite. Ausente = sem link.
   calendarFeedTokenHash?: string;
   // ACC-02: foto 256×256 já reduzida no navegador, como data URL. `select: false`:
@@ -50,7 +50,7 @@ const userSchema = new Schema<UserDocument>(
       type: new Schema(
         {
           onboardingDismissed: { type: Boolean, default: false },
-          avisoPrazoEmail: { type: Boolean },
+          deadlineReminderEmail: { type: Boolean },
           blocosOcultos: { type: [String], default: undefined },
         },
         { _id: false },

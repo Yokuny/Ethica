@@ -1,9 +1,4 @@
-import {
-  PERICIA_PARADA_DIAS,
-  PRAZO_VENCE_EM_BREVE_DIAS,
-  VISTORIA_AGENTES,
-  VISTORIA_DOCUMENTOS,
-} from '@ethica/contracts';
+import { DEADLINE_DUE_SOON_DAYS, STALLED_CASE_DAYS, VISTORIA_AGENTES, VISTORIA_DOCUMENTOS } from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import {
   campos,
@@ -23,23 +18,23 @@ import type {
   DocumentoBase,
   FichaDados,
   FinanceiroDados,
-  ParadasDados,
+  StalledData,
 } from './documentos.schema.js';
 
 // Um documento = função pura (dados) → HTML do PDF; testada sem navegador.
 
-type Pericia = FichaDados['pericia'];
+type Case = FichaDados['legalCase'];
 
 // Trabalhista nomeia reclamante/reclamada; cível e federal, autor/réu.
-const nomesDosPolos = (pericia: Pericia) =>
-  pericia.justica === 'labor'
+const sidesNames = (legalCase: Case) =>
+  legalCase.courtType === 'labor'
     ? { plaintiff: 'Reclamante', defendant: 'Reclamada' }
     : { plaintiff: 'Autor', defendant: 'Réu' };
 
-const nomesDoPolo = (pericia: Pericia, polo: 'plaintiff' | 'defendant') =>
-  pericia.partes
-    .filter((parte) => parte.polo === polo && parte.tipo === 'party')
-    .map((parte) => parte.nome)
+const sideNames = (legalCase: Case, side: 'plaintiff' | 'defendant') =>
+  legalCase.parties
+    .filter((party) => party.side === side && party.tipo === 'party')
+    .map((party) => party.nome)
     .join(', ');
 
 const documento = (base: DocumentoBase, titulo: string, subtitulo: string | undefined, corpo: string): PdfDocument =>
@@ -48,68 +43,70 @@ const documento = (base: DocumentoBase, titulo: string, subtitulo: string | unde
     subtitulo,
     corpo,
     identity: base.identity,
-    nomePerito: base.perito.name,
+    expertName: base.expert.name,
     geradoEm: base.geradoEm,
   });
 
-const dadosDoProcesso = (pericia: Pericia) =>
+const processData = (legalCase: Case) =>
   campos([
-    ['Número do processo', pericia.numeroProcesso],
-    ['Justiça', rotulo(pericia.justica)],
-    ['Tribunal', pericia.tribunal],
-    ['Vara', pericia.vara],
-    ['Comarca', pericia.comarca],
-    ['Atuação', rotulo(pericia.papel)],
-    ['Etapa', rotulo(pericia.status)],
-    ['Nomeação', dia(pericia.dataNomeacao)],
-    ['Objeto', pericia.objeto],
+    ['Número do processo', legalCase.processNumber],
+    ['Justiça', rotulo(legalCase.courtType)],
+    ['Tribunal', legalCase.court],
+    ['Vara', legalCase.division],
+    ['Comarca', legalCase.district],
+    ['Atuação', rotulo(legalCase.role)],
+    ['Etapa', rotulo(legalCase.status)],
+    ['Nomeação', dia(legalCase.nominationDate)],
+    ['Objeto', legalCase.subject],
   ]);
 
-const dadosTrabalhistas = (pericia: Pericia) =>
+const laborData = (legalCase: Case) =>
   campos([
-    ['Autuação', dia(pericia.dataAutuacao)],
-    ['Admissão', dia(pericia.dataAdmissao)],
-    ['Demissão', dia(pericia.dataDemissao)],
+    ['Autuação', dia(legalCase.docketingDate)],
+    ['Admissão', dia(legalCase.hireDate)],
+    ['Demissão', dia(legalCase.terminationDate)],
     [
       'Período imprescrito',
-      pericia.periodoImprescritoInicio
-        ? `${dia(pericia.periodoImprescritoInicio)} a ${dia(pericia.periodoImprescritoFim)}`
+      legalCase.nonPrescribedPeriodStart
+        ? `${dia(legalCase.nonPrescribedPeriodStart)} a ${dia(legalCase.nonPrescribedPeriodEnd)}`
         : undefined,
     ],
-    ['Função do reclamante', pericia.funcaoReclamante],
-    ['Local da perícia', pericia.localPericia],
+    ['Função do reclamante', legalCase.claimantJob],
+    ['Local da perícia', legalCase.location],
   ]);
 
-const temDadosTrabalhistas = (pericia: Pericia) =>
+const hasLaborData = (legalCase: Case) =>
   Boolean(
-    pericia.dataAutuacao ||
-      pericia.dataAdmissao ||
-      pericia.dataDemissao ||
-      pericia.periodoImprescritoInicio ||
-      pericia.funcaoReclamante ||
-      pericia.localPericia,
+    legalCase.docketingDate ||
+      legalCase.hireDate ||
+      legalCase.terminationDate ||
+      legalCase.nonPrescribedPeriodStart ||
+      legalCase.claimantJob ||
+      legalCase.location,
   );
 
 export const fichaHtml = (dados: FichaDados): PdfDocument => {
-  const { pericia, prazos, compromissos, financeiro, perito } = dados;
-  const polos = nomesDosPolos(pericia);
-  const partes = pericia.partes.length
+  const { legalCase, deadlines, compromissos, financeiro, expert } = dados;
+  const sides = sidesNames(legalCase);
+  const parties = legalCase.parties.length
     ? tabela(
         ['Polo', 'Tipo', 'Nome'],
-        pericia.partes.map((parte) => [
-          esc(polos[parte.polo]),
-          parte.tipo === 'lawyer' ? 'Advogado' : 'Parte',
-          esc(parte.nome),
+        legalCase.parties.map((party) => [
+          esc(sides[party.side]),
+          party.tipo === 'lawyer' ? 'Advogado' : 'Parte',
+          esc(party.nome),
         ]),
       )
     : vazio('Nenhuma parte cadastrada.');
-  const listaPrazos = prazos.length
+  const listDeadlines = deadlines.length
     ? tabela(
         ['Prazo', 'Vencimento', 'Status'],
-        prazos.map((prazo) => [
-          esc(prazo.titulo),
-          esc(dia(prazo.vencimento)),
-          esc(prazo.protocoladoEm ? `${rotulo(prazo.status)} em ${dia(prazo.protocoladoEm)}` : rotulo(prazo.status)),
+        deadlines.map((deadline) => [
+          esc(deadline.titulo),
+          esc(dia(deadline.vencimento)),
+          esc(
+            deadline.filedDate ? `${rotulo(deadline.status)} em ${dia(deadline.filedDate)}` : rotulo(deadline.status),
+          ),
         ]),
       )
     : vazio('Nenhum prazo cadastrado.');
@@ -125,13 +122,13 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
         ]),
       )
     : vazio('Nenhum compromisso cadastrado.');
-  const movimentacoes = pericia.movimentacoes.length
+  const movements = legalCase.movements.length
     ? tabela(
         ['Data', 'Movimentação', 'Observações'],
-        pericia.movimentacoes.map((movimentacao) => [
-          esc(dia(movimentacao.data)),
-          esc(rotulo(movimentacao.tipo)),
-          esc(movimentacao.observacoes),
+        legalCase.movements.map((movement) => [
+          esc(dia(movement.data)),
+          esc(rotulo(movement.tipo)),
+          esc(movement.observacoes),
         ]),
       )
     : vazio('Nenhuma movimentação lançada.');
@@ -139,9 +136,9 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
     ? secao(
         'Resumo financeiro',
         campos([
-          ['Honorários propostos', dinheiro(pericia.honorariosPropostosCents)],
-          ['Honorários fixados', dinheiro(pericia.honorariosFixadosCents)],
-          ['Honorários lançados', dinheiro(financeiro.honorariosCents)],
+          ['Honorários propostos', dinheiro(legalCase.proposedFeesCents)],
+          ['Honorários fixados', dinheiro(legalCase.fixedFeesCents)],
+          ['Honorários lançados', dinheiro(financeiro.feesCents)],
           ['Recebido', dinheiro(financeiro.recebidoCents)],
           ['Saldo a receber', dinheiro(financeiro.saldoCents)],
           ['Despesas', dinheiro(financeiro.despesasCents)],
@@ -152,21 +149,21 @@ export const fichaHtml = (dados: FichaDados): PdfDocument => {
   return documento(
     dados,
     'Ficha da perícia',
-    pericia.numeroProcesso,
+    legalCase.processNumber,
     [
-      secao('Dados do processo', dadosDoProcesso(pericia)),
-      temDadosTrabalhistas(pericia) ? secao('Dados do laudo trabalhista', dadosTrabalhistas(pericia)) : '',
-      secao('Partes e advogados', partes),
-      secao('Prazos', listaPrazos),
+      secao('Dados do processo', processData(legalCase)),
+      hasLaborData(legalCase) ? secao('Dados do laudo trabalhista', laborData(legalCase)) : '',
+      secao('Partes e advogados', parties),
+      secao('Prazos', listDeadlines),
       secao('Compromissos', listaCompromissos),
-      secao('Movimentações', movimentacoes),
+      secao('Movimentações', movements),
       resumoFinanceiro,
       secao(
         'Perito responsável',
         campos([
-          ['Nome', perito.name],
-          ['Registro profissional', perito.registroProfissional],
-          ['Formação', perito.formacao],
+          ['Nome', expert.name],
+          ['Registro profissional', expert.registroProfissional],
+          ['Formação', expert.formacao],
         ]),
       ),
     ].join(''),
@@ -178,37 +175,37 @@ const AGENTES = VISTORIA_AGENTES.map(rotulo);
 const DOCUMENTOS_SOLICITADOS = VISTORIA_DOCUMENTOS.map(rotulo);
 
 const CAIXA = '<span class="caixa"></span>';
-const linhasEmBranco = (quantidade: number, colunas: number) =>
+const rowsBlank = (quantidade: number, colunas: number) =>
   Array.from({ length: quantidade }, () => Array.from({ length: colunas }, () => ''));
 
 export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
-  const { pericia, perito } = dados;
-  const polos = nomesDosPolos(pericia);
+  const { legalCase, expert } = dados;
+  const sides = sidesNames(legalCase);
   const participantes = [
-    ...pericia.partes.map((parte) => [
-      esc(parte.nome),
-      esc(parte.tipo === 'lawyer' ? `Advogado (${polos[parte.polo].toLowerCase()})` : polos[parte.polo]),
+    ...legalCase.parties.map((party) => [
+      esc(party.nome),
+      esc(party.tipo === 'lawyer' ? `Advogado (${sides[party.side].toLowerCase()})` : sides[party.side]),
       '',
     ]),
-    [esc(perito.name), 'Perito', ''],
-    ...linhasEmBranco(4, 3),
+    [esc(expert.name), 'Perito', ''],
+    ...rowsBlank(4, 3),
   ];
 
   return documento(
     dados,
     'Checklist de campo',
-    pericia.numeroProcesso,
+    legalCase.processNumber,
     [
       secao(
         'Processo',
         campos([
-          ['Número do processo', pericia.numeroProcesso],
-          ['Tribunal / vara', [pericia.tribunal, pericia.vara].filter(Boolean).join(' · ')],
-          [polos.plaintiff, nomesDoPolo(pericia, 'plaintiff') || '—'],
-          [polos.defendant, nomesDoPolo(pericia, 'defendant') || '—'],
-          ['Objeto', pericia.objeto],
-          ['Função do reclamante', pericia.funcaoReclamante],
-          ['Local da perícia', pericia.localPericia],
+          ['Número do processo', legalCase.processNumber],
+          ['Tribunal / vara', [legalCase.court, legalCase.division].filter(Boolean).join(' · ')],
+          [sides.plaintiff, sideNames(legalCase, 'plaintiff') || '—'],
+          [sides.defendant, sideNames(legalCase, 'defendant') || '—'],
+          ['Objeto', legalCase.subject],
+          ['Função do reclamante', legalCase.claimantJob],
+          ['Local da perícia', legalCase.location],
           ['Data e hora da vistoria', '____/____/________   ____:____'],
         ]),
       ),
@@ -223,7 +220,7 @@ export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
       ),
       secao(
         'Matriz de divergências',
-        tabela(['Item', polos.plaintiff, polos.defendant, 'Constatação'], linhasEmBranco(6, 4), 'linhas'),
+        tabela(['Item', sides.plaintiff, sides.defendant, 'Constatação'], rowsBlank(6, 4), 'linhas'),
       ),
       secao(
         'Documentos solicitados',
@@ -231,7 +228,7 @@ export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
           ['', 'Documento', 'Observações'],
           [
             ...DOCUMENTOS_SOLICITADOS.map((item) => [CAIXA, esc(item), '']),
-            ...linhasEmBranco(2, 3).map((l) => [CAIXA, ...l.slice(1)]),
+            ...rowsBlank(2, 3).map((l) => [CAIXA, ...l.slice(1)]),
           ],
           'linhas',
         ),
@@ -249,28 +246,28 @@ const faltam = (dias: number) => {
   if (dias < 0) return `<span class="vencido">Vencido há ${-dias} ${-dias === 1 ? 'dia' : 'dias'}</span>`;
   if (dias === 0) return '<span class="alerta">Vence hoje</span>';
   const texto = `Faltam ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
-  return dias <= PRAZO_VENCE_EM_BREVE_DIAS ? `<span class="alerta">${texto} · vence em breve</span>` : texto;
+  return dias <= DEADLINE_DUE_SOON_DAYS ? `<span class="alerta">${texto} · vence em breve</span>` : texto;
 };
 
 export const cronogramaHtml = (dados: CronogramaDados): PdfDocument =>
   documento(
     dados,
     'Cronograma de prazos',
-    `Prazos pendentes por vencimento · "vence em breve" até ${PRAZO_VENCE_EM_BREVE_DIAS} dias`,
-    dados.prazos.length
+    `Prazos pendentes por vencimento · "vence em breve" até ${DEADLINE_DUE_SOON_DAYS} dias`,
+    dados.deadlines.length
       ? tabela(
           ['Vencimento', 'Situação', 'Processo', 'Prazo'],
-          dados.prazos.map((prazo) => [
-            esc(dia(prazo.vencimento)),
-            faltam(diasAte(dados.hoje, prazo.vencimento)),
-            esc(prazo.periciaNumero),
-            esc(prazo.titulo),
+          dados.deadlines.map((deadline) => [
+            esc(dia(deadline.vencimento)),
+            faltam(diasAte(dados.hoje, deadline.vencimento)),
+            esc(deadline.caseNumber),
+            esc(deadline.titulo),
           ]),
         )
       : vazio('Nenhum prazo pendente.'),
   );
 
-const linhasFinanceiras = (titulo: string, linhas: FinanceiroDados['relatorio']['recebidos'], rotuloData: string) =>
+const financeRows = (titulo: string, linhas: FinanceiroDados['relatorio']['recebidos'], rotuloData: string) =>
   secao(
     titulo,
     linhas.length
@@ -280,7 +277,7 @@ const linhasFinanceiras = (titulo: string, linhas: FinanceiroDados['relatorio'][
             esc(dia(linha.data)),
             esc(linha.conta ? `${linha.descricao} (${linha.conta})` : linha.descricao),
             esc(rotulo(linha.categoria)),
-            esc(linha.periciaNumero),
+            esc(linha.caseNumber),
             `<span class="num">${esc(dinheiro(linha.valorCents))}</span>`,
           ]),
         )
@@ -308,28 +305,28 @@ export const financeiroHtml = (dados: FinanceiroDados): PdfDocument => {
           total('Saldo previsto', totais.saldoPrevistoCents),
         ].join('')}</dl>`,
       ),
-      linhasFinanceiras('Recebido', relatorio.recebidos, 'Data'),
-      linhasFinanceiras('Pago', relatorio.pagos, 'Data'),
-      linhasFinanceiras('A receber', relatorio.aReceber, 'Vencimento'),
-      linhasFinanceiras('A pagar', relatorio.aPagar, 'Vencimento'),
+      financeRows('Recebido', relatorio.recebidos, 'Data'),
+      financeRows('Pago', relatorio.pagos, 'Data'),
+      financeRows('A receber', relatorio.aReceber, 'Vencimento'),
+      financeRows('A pagar', relatorio.aPagar, 'Vencimento'),
     ].join(''),
   );
 };
 
-export const paradasHtml = (dados: ParadasDados): PdfDocument =>
+export const stalledHtml = (dados: StalledData): PdfDocument =>
   documento(
     dados,
     'Perícias paradas',
-    `Abertas sem movimentação (entrega do laudo, honorários, intimação para esclarecimentos ou laudo complementar) há mais de ${PERICIA_PARADA_DIAS} dias`,
-    dados.paradas.length
+    `Abertas sem movimentação (entrega do laudo, honorários, intimação para esclarecimentos ou laudo complementar) há mais de ${STALLED_CASE_DAYS} dias`,
+    dados.stalled.length
       ? tabela(
           ['Processo', 'Etapa', 'Tribunal / vara', 'Desde', 'Dias parada'],
-          dados.paradas.map((parada) => [
-            esc(parada.numeroProcesso),
-            esc(rotulo(parada.status)),
-            esc([parada.tribunal, parada.vara].filter(Boolean).join(' · ')),
-            esc(`${dia(parada.referencia)} (${rotulo(parada.origem)})`),
-            `<span class="num">${parada.diasParada}</span>`,
+          dados.stalled.map((stalled) => [
+            esc(stalled.processNumber),
+            esc(rotulo(stalled.status)),
+            esc([stalled.court, stalled.division].filter(Boolean).join(' · ')),
+            esc(`${dia(stalled.referencia)} (${rotulo(stalled.origem)})`),
+            `<span class="num">${stalled.stalledDays}</span>`,
           ]),
         )
       : vazio('Nenhuma perícia parada.'),

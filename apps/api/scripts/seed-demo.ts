@@ -2,17 +2,17 @@ import { PERFIL_PERMISSOES } from '@ethica/contracts';
 import type { CompromissoDocument, LancamentoDocument, ParcelaDocument } from '@ethica/db';
 import {
   Atividade,
+  Case,
   Compromisso,
   connect,
+  Deadline,
   dateInDisplayTz,
   disconnect,
   Lancamento,
   Laudo,
   ModeloLaudo,
   Oportunidade,
-  Parte,
-  Pericia,
-  Prazo,
+  Party,
   Session,
   Tenant,
   User,
@@ -22,7 +22,7 @@ import {
 import bcrypt from 'bcrypt';
 import { env } from '../src/config/env.config.js';
 import { MODELOS_PADRAO } from '../src/modules/documentos/laudo.biblioteca.js';
-import { resolverVariaveis } from '../src/modules/documentos/laudo.html.js';
+import { resolveVariables } from '../src/modules/documentos/laudo.html.js';
 
 // Ferramenta de dev: cria (ou recria) o tenant de demonstração "Perícias Demo"
 // com equipe, perícias em várias etapas, agenda, lançamentos e oportunidades,
@@ -40,76 +40,76 @@ const day = (offset: number): string => {
 };
 const at = (offset: number, time: string) => wallClockToUtc(day(offset), time);
 
-const PERICIAS = [
+const CASES = [
   {
     numero: '0001234-56.2026.5.02.0001',
-    justica: 'labor',
-    tribunal: 'TRT2',
-    vara: '1ª Vara do Trabalho de São Paulo',
-    objeto: 'Insalubridade por ruído',
+    courtType: 'labor',
+    court: 'TRT2',
+    division: '1ª Vara do Trabalho de São Paulo',
+    subject: 'Insalubridade por ruído',
     status: 'inspection',
-    fase: 'awaiting_inspection',
-    prazo: 12,
-    propostos: 450_000,
+    phase: 'awaiting_inspection',
+    deadline: 12,
+    proposed: 450_000,
   },
   {
     numero: '0002345-67.2026.5.02.0011',
-    justica: 'labor',
-    tribunal: 'TRT2',
-    vara: '11ª Vara do Trabalho de São Paulo',
-    objeto: 'Periculosidade — inflamáveis',
+    courtType: 'labor',
+    court: 'TRT2',
+    division: '11ª Vara do Trabalho de São Paulo',
+    subject: 'Periculosidade — inflamáveis',
     status: 'drafting_report',
-    fase: 'reviewing_report',
-    prazo: 3,
-    propostos: 380_000,
-    fixados: 350_000,
+    phase: 'reviewing_report',
+    deadline: 3,
+    proposed: 380_000,
+    fixed: 350_000,
   },
   {
     numero: '0003456-78.2025.8.26.0100',
-    justica: 'civil',
-    tribunal: 'TJSP',
-    vara: '5ª Vara Cível do Foro Central',
-    objeto: 'Vícios construtivos em edifício',
+    courtType: 'civil',
+    court: 'TJSP',
+    division: '5ª Vara Cível do Foro Central',
+    subject: 'Vícios construtivos em edifício',
     status: 'appointed',
-    prazo: 30,
-    propostos: 900_000,
+    deadline: 30,
+    proposed: 900_000,
     // Assistente técnico contratado pela autora (AD-135): honorário contratado.
-    fixados: 600_000,
+    fixed: 600_000,
   },
   {
     numero: '0004567-89.2025.4.03.6100',
-    justica: 'federal',
-    tribunal: 'TRF3',
-    vara: '2ª Vara Federal Previdenciária',
-    objeto: 'Aposentadoria especial — agentes químicos',
+    courtType: 'federal',
+    court: 'TRF3',
+    division: '2ª Vara Federal Previdenciária',
+    subject: 'Aposentadoria especial — agentes químicos',
     status: 'report_delivered',
-    fase: 'awaiting_objections',
-    prazo: -5,
-    propostos: 320_000,
-    fixados: 300_000,
+    phase: 'awaiting_objections',
+    deadline: -5,
+    proposed: 320_000,
+    fixed: 300_000,
   },
   {
     numero: '0005678-90.2025.5.15.0032',
-    justica: 'labor',
-    tribunal: 'TRT15',
-    vara: 'Vara do Trabalho de Campinas',
-    objeto: 'Doença ocupacional — LER/DORT',
+    courtType: 'labor',
+    court: 'TRT15',
+    division: 'Vara do Trabalho de Campinas',
+    subject: 'Doença ocupacional — LER/DORT',
     status: 'clarifications',
-    fase: 'answering_objection',
-    prazo: -2,
-    propostos: 400_000,
-    fixados: 400_000,
+    phase: 'answering_objection',
+    deadline: -2,
+    proposed: 400_000,
+    fixed: 400_000,
   },
   {
     numero: '0006789-01.2024.8.26.0224',
-    justica: 'civil',
-    tribunal: 'TJSP',
-    vara: '3ª Vara Cível de Guarulhos',
-    objeto: 'Avaliação de imóvel',
+    courtType: 'civil',
+    court: 'TJSP',
+    division: '3ª Vara Cível de Guarulhos',
+    subject: 'Avaliação de imóvel',
     status: 'completed',
-    fase: 'fees_received',
-    propostos: 250_000,
-    fixados: 250_000,
+    phase: 'fees_received',
+    proposed: 250_000,
+    fixed: 250_000,
   },
 ] as const;
 
@@ -121,9 +121,9 @@ const run = async (): Promise<void> => {
     const users = await User.find({ Tenant: old._id }).select('_id').lean();
     await Promise.all([
       Atividade.deleteMany({ Tenant: old._id }),
-      Pericia.deleteMany({ Tenant: old._id }),
-      Parte.deleteMany({ Tenant: old._id }),
-      Prazo.deleteMany({ Tenant: old._id }),
+      Case.deleteMany({ Tenant: old._id }),
+      Party.deleteMany({ Tenant: old._id }),
+      Deadline.deleteMany({ Tenant: old._id }),
       Compromisso.deleteMany({ Tenant: old._id }),
       Vistoria.deleteMany({ Tenant: old._id }),
       Lancamento.deleteMany({ Tenant: old._id }),
@@ -166,7 +166,7 @@ const run = async (): Promise<void> => {
   );
 
   // Partes e advogados reutilizáveis (AD-117): a mesma ré e os mesmos advogados em vários processos.
-  const [maria, jose, aurora, industria, construtora, inss, joao, ana] = await Parte.insertMany(
+  const [maria, jose, aurora, industria, construtora, inss, joao, ana] = await Party.insertMany(
     [
       { tipo: 'party', nome: 'Maria da Silva', documento: '12345678909', telefone: '(11) 98888-1000' },
       { tipo: 'party', nome: 'José Santos', documento: '98765432100' },
@@ -176,11 +176,11 @@ const run = async (): Promise<void> => {
       { tipo: 'party', nome: 'Instituto Nacional do Seguro Social' },
       { tipo: 'lawyer', nome: 'João Pereira', oab: 'SP123456', email: 'joao@advocacia.com' },
       { tipo: 'lawyer', nome: 'Ana Souza', oab: 'SP654321' },
-    ].map((parte) => ({ ...parte, Tenant: tenant._id })),
+    ].map((party) => ({ ...party, Tenant: tenant._id })),
   );
-  const parte = (doc: typeof maria, polo: 'plaintiff' | 'defendant') =>
-    doc ? [{ Parte: doc._id, polo, tipo: doc.tipo, nome: doc.nome }] : [];
-  const PARTES = [
+  const party = (doc: typeof maria, side: 'plaintiff' | 'defendant') =>
+    doc ? [{ Party: doc._id, side, tipo: doc.tipo, nome: doc.nome }] : [];
+  const PARTIES = [
     [maria, industria],
     [jose, industria],
     [aurora, construtora],
@@ -189,41 +189,41 @@ const run = async (): Promise<void> => {
     [aurora, construtora],
   ];
 
-  const pericias = await Pericia.insertMany(
-    PERICIAS.map((p, index) => ({
+  const cases = await Case.insertMany(
+    CASES.map((p, index) => ({
       Tenant: tenant._id,
-      numeroProcesso: p.numero,
-      justica: p.justica,
-      papel: index === 2 ? 'technical_assistant' : 'court_expert',
-      tribunal: p.tribunal,
-      vara: p.vara,
-      comarca: p.tribunal === 'TRT15' ? 'Campinas' : 'São Paulo',
-      objeto: p.objeto,
-      partes: [
+      processNumber: p.numero,
+      courtType: p.courtType,
+      role: index === 2 ? 'technical_assistant' : 'court_expert',
+      court: p.court,
+      division: p.division,
+      district: p.court === 'TRT15' ? 'Campinas' : 'São Paulo',
+      subject: p.subject,
+      parties: [
         // Na perícia de assistente técnico (índice 2), a autora é quem contratou (AD-135).
-        ...parte(PARTES[index]?.[0], 'plaintiff').map((item) => (index === 2 ? { ...item, contratante: true } : item)),
-        ...parte(joao, 'plaintiff'),
-        ...parte(PARTES[index]?.[1], 'defendant'),
-        ...parte(ana, 'defendant'),
+        ...party(PARTIES[index]?.[0], 'plaintiff').map((item) => (index === 2 ? { ...item, client: true } : item)),
+        ...party(joao, 'plaintiff'),
+        ...party(PARTIES[index]?.[1], 'defendant'),
+        ...party(ana, 'defendant'),
       ],
       // Dados auxiliares do laudo trabalhista (IMP-04).
-      ...(p.justica === 'labor'
+      ...(p.courtType === 'labor'
         ? {
-            dataAutuacao: day(-120),
-            dataAdmissao: '2017-03-01',
-            dataDemissao: day(-150),
-            funcaoReclamante: 'Operador(a) de máquinas',
-            periodoImprescritoInicio: day(-120 - 5 * 365),
-            periodoImprescritoFim: day(-150),
-            localPericia: 'Av. Industrial, 1500 — São Paulo/SP',
+            docketingDate: day(-120),
+            hireDate: '2017-03-01',
+            terminationDate: day(-150),
+            claimantJob: 'Operador(a) de máquinas',
+            nonPrescribedPeriodStart: day(-120 - 5 * 365),
+            nonPrescribedPeriodEnd: day(-150),
+            location: 'Av. Industrial, 1500 — São Paulo/SP',
           }
         : {}),
       status: p.status,
-      ...('fase' in p ? { fase: p.fase } : {}),
+      ...('phase' in p ? { phase: p.phase } : {}),
       // A cível (índice 2) foi nomeada há 95 dias e nunca se moveu: aparece em perícias paradas.
-      dataNomeacao: index === 2 ? day(-95) : day(-40 + index * 3),
+      nominationDate: index === 2 ? day(-95) : day(-40 + index * 3),
       // Movimentações (AD-121): laudo entregue há 70 dias (parada) e intimação recente (ativa).
-      movimentacoes:
+      movements:
         p.status === 'report_delivered'
           ? [{ tipo: 'report_filed', data: day(-70) }]
           : p.status === 'clarifications'
@@ -232,33 +232,33 @@ const run = async (): Promise<void> => {
                 { tipo: 'clarification_summons', data: day(-8), observacoes: 'Quesitos complementares da reclamada' },
               ]
             : [],
-      honorariosPropostosCents: p.propostos,
-      honorariosFixadosCents: 'fixados' in p ? p.fixados : undefined,
+      proposedFeesCents: p.proposed,
+      fixedFeesCents: 'fixed' in p ? p.fixed : undefined,
     })),
   );
-  const [vistoria, laudo, civel, federal, esclarecimentos] = pericias;
+  const [vistoria, laudo, civel, federal, clarifications] = cases;
 
   // Prazos (AD-109): a entrega do laudo de cada perícia, protocolada nas que já entregaram,
   // e um prazo de esclarecimentos já protocolado para mostrar o histórico.
-  await Prazo.insertMany([
-    ...PERICIAS.flatMap((p, index) => {
-      const pericia = pericias[index];
-      if (!('prazo' in p) || !pericia) return [];
+  await Deadline.insertMany([
+    ...CASES.flatMap((p, index) => {
+      const legalCase = cases[index];
+      if (!('deadline' in p) || !legalCase) return [];
       const entregue = ['report_delivered', 'completed'].includes(p.status);
       return [
         {
           Tenant: tenant._id,
-          Pericia: pericia._id,
+          Case: legalCase._id,
           titulo: 'Entrega do laudo',
-          vencimento: day(p.prazo),
+          vencimento: day(p.deadline),
           status: entregue ? ('filed' as const) : ('pending' as const),
-          protocoladoEm: entregue ? day(p.prazo - 1) : undefined,
+          filedDate: entregue ? day(p.deadline - 1) : undefined,
         },
       ];
     }),
     {
       Tenant: tenant._id,
-      Pericia: esclarecimentos?._id,
+      Case: clarifications?._id,
       titulo: 'Resposta à impugnação',
       vencimento: day(10),
       status: 'pending' as const,
@@ -273,7 +273,7 @@ const run = async (): Promise<void> => {
       inicio: at(0, '09:00'),
       fim: at(0, '11:00'),
       local: 'Avenida Paulista, 1578, São Paulo, SP',
-      Pericia: vistoria?._id,
+      Case: vistoria?._id,
     },
     {
       tipo: 'inspection',
@@ -281,7 +281,7 @@ const run = async (): Promise<void> => {
       inicio: at(0, '14:00'),
       fim: at(0, '15:30'),
       local: 'Rua Vergueiro, 1000, São Paulo, SP',
-      Pericia: esclarecimentos?._id,
+      Case: clarifications?._id,
     },
     {
       tipo: 'inspection',
@@ -289,7 +289,7 @@ const run = async (): Promise<void> => {
       inicio: at(1, '09:00'),
       fim: at(1, '11:00'),
       local: 'Av. Industrial, 1500 — São Paulo',
-      Pericia: vistoria?._id,
+      Case: vistoria?._id,
     },
     {
       tipo: 'hearing',
@@ -297,14 +297,14 @@ const run = async (): Promise<void> => {
       inicio: at(4, '14:00'),
       fim: at(4, '15:00'),
       local: 'Fórum Trabalhista de Campinas',
-      Pericia: esclarecimentos?._id,
+      Case: clarifications?._id,
     },
     {
       tipo: 'meeting',
       titulo: 'Reunião com assistente técnico',
       inicio: at(6, '10:00'),
       fim: at(6, '11:00'),
-      Pericia: civel?._id,
+      Case: civel?._id,
     },
     {
       tipo: 'inspection',
@@ -312,14 +312,14 @@ const run = async (): Promise<void> => {
       inicio: at(9, '08:30'),
       fim: at(9, '12:00'),
       local: 'Rua das Flores, 100',
-      Pericia: civel?._id,
+      Case: civel?._id,
     },
     {
       tipo: 'inspection',
       titulo: 'Vistoria no posto de combustível',
       inicio: at(-6, '09:00'),
       fim: at(-6, '10:30'),
-      Pericia: laudo?._id,
+      Case: laudo?._id,
       status: 'done',
     },
   ];
@@ -332,7 +332,7 @@ const run = async (): Promise<void> => {
   await Vistoria.create({
     Tenant: tenant._id,
     Compromisso: feita?._id,
-    Pericia: laudo?._id,
+    Case: laudo?._id,
     versao: 1,
     dados: {
       presentes: [
@@ -340,7 +340,7 @@ const run = async (): Promise<void> => {
         { id: 'p2', nome: 'João Pereira', qualidade: 'plaintiff_lawyer', email: 'joao@advocacia.com' },
         { id: 'p3', nome: 'Carlos Lima (encarregado)', qualidade: 'defendant' },
       ],
-      paradigmas: [{ id: 'g1', polo: 'plaintiff', nome: 'Pedro Alves', funcao: 'Frentista', trabalhouJunto: true }],
+      paradigmas: [{ id: 'g1', side: 'plaintiff', nome: 'Pedro Alves', funcao: 'Frentista', trabalhouJunto: true }],
       funcoes: [
         {
           id: 'f1',
@@ -348,8 +348,12 @@ const run = async (): Promise<void> => {
           anoInicio: 2017,
           anoFim: 2026,
           local: 'Pista de abastecimento',
-          autor: { atividades: 'Abastecia veículos e conferia bombas', frequencia: 'diária', tempoExposicao: '8h/dia' },
-          reu: { atividades: 'Abastecia veículos', frequencia: 'diária', tempoExposicao: '6h/dia' },
+          plaintiff: {
+            atividades: 'Abastecia veículos e conferia bombas',
+            frequencia: 'diária',
+            timeExposure: '8h/dia',
+          },
+          defendant: { atividades: 'Abastecia veículos', frequencia: 'diária', timeExposure: '6h/dia' },
         },
       ],
       agentes: [
@@ -394,40 +398,40 @@ const run = async (): Promise<void> => {
     {
       natureza: 'income',
       categoria: 'fixed_fees',
-      descricao: `Honorários fixados — ${laudo?.numeroProcesso}`,
+      descricao: `Honorários fixados — ${laudo?.processNumber}`,
       valorCents: 350_000,
       vencimento: day(20),
       status: 'expected',
-      Pericia: laudo?._id,
+      Case: laudo?._id,
     },
     {
       natureza: 'income',
       categoria: 'contracted_fees',
-      descricao: `Honorários contratados — ${civel?.numeroProcesso}`,
+      descricao: `Honorários contratados — ${civel?.processNumber}`,
       valorCents: 600_000,
       vencimento: day(25),
       status: 'expected',
-      Pericia: civel?._id,
+      Case: civel?._id,
     },
     {
       natureza: 'income',
       categoria: 'fixed_fees',
-      descricao: `Honorários fixados — ${federal?.numeroProcesso}`,
+      descricao: `Honorários fixados — ${federal?.processNumber}`,
       valorCents: 300_000,
       vencimento: day(-12),
       status: 'expected',
-      Pericia: federal?._id,
+      Case: federal?._id,
     },
     {
       natureza: 'income',
       categoria: 'fixed_fees',
-      descricao: `Honorários fixados — ${esclarecimentos?.numeroProcesso}`,
+      descricao: `Honorários fixados — ${clarifications?.processNumber}`,
       valorCents: 480_000,
       vencimento: day(-20),
       // Recebimento parcial (AD-111): alvará de R$ 1.500,00, saldo de R$ 3.300,00.
       status: 'partial',
       parcelas: [{ valorCents: 150_000, data: day(-18), conta: 'Banco do Brasil' } as ParcelaDocument],
-      Pericia: esclarecimentos?._id,
+      Case: clarifications?._id,
     },
     {
       natureza: 'expense',
@@ -460,10 +464,10 @@ const run = async (): Promise<void> => {
       .map(({ id: _id, ...secao }) => secao),
   });
   const valores = {
-    '[NUMERO_PROCESSO]': PERICIAS[1].numero,
-    '[TRIBUNAL]': PERICIAS[1].tribunal,
-    '[VARA]': PERICIAS[1].vara,
-    '[OBJETO]': PERICIAS[1].objeto,
+    '[NUMERO_PROCESSO]': CASES[1].numero,
+    '[TRIBUNAL]': CASES[1].court,
+    '[VARA]': CASES[1].division,
+    '[OBJETO]': CASES[1].subject,
     '[NOME_AUTOR]': 'José Santos',
     '[NOME_REU]': 'Indústria Exemplo Ltda.',
     '[DENOMINACAO_AUTOR]': 'Reclamante',
@@ -488,7 +492,7 @@ const run = async (): Promise<void> => {
   };
   await Laudo.create({
     Tenant: tenant._id,
-    Pericia: laudo?._id,
+    Case: laudo?._id,
     tipo: 'report',
     status: 'draft',
     titulo: 'Laudo pericial',
@@ -499,12 +503,12 @@ const run = async (): Promise<void> => {
       .map((secao) => {
         const variante = ESCOLHA[secao.titulo] ?? 'yes';
         return {
-          titulo: resolverVariaveis(secao.titulo, valores, 'texto'),
+          titulo: resolveVariables(secao.titulo, valores, 'texto'),
           nivel: secao.nivel,
           apenasTitulo: secao.apenasTitulo,
           quebraPagina: secao.quebraPagina,
           variante,
-          html: resolverVariaveis(variante === 'yes' ? secao.textoSim : secao.textoNao, valores, 'html'),
+          html: resolveVariables(variante === 'yes' ? secao.textoSim : secao.textoNao, valores, 'html'),
         };
       }),
   });
@@ -512,22 +516,22 @@ const run = async (): Promise<void> => {
   await Oportunidade.create([
     {
       Tenant: tenant._id,
-      numeroProcesso: '0007890-12.2026.5.02.0045',
-      tribunal: 'trt2',
+      processNumber: '0007890-12.2026.5.02.0045',
+      court: 'trt2',
       classe: 'Ação Trabalhista - Rito Ordinário',
       assuntos: ['Adicional de Insalubridade'],
       orgaoJulgador: '45ª Vara do Trabalho de São Paulo',
-      ultimoMovimento: 'Determinada a realização de perícia',
+      lastMovement: 'Determinada a realização de perícia',
       status: 'new',
     },
     {
       Tenant: tenant._id,
-      numeroProcesso: '0008901-23.2026.5.15.0001',
-      tribunal: 'trt15',
+      processNumber: '0008901-23.2026.5.15.0001',
+      court: 'trt15',
       classe: 'Ação Trabalhista - Rito Sumaríssimo',
       assuntos: ['Doença Ocupacional'],
       orgaoJulgador: '1ª Vara do Trabalho de Campinas',
-      ultimoMovimento: 'Nomeado perito',
+      lastMovement: 'Nomeado perito',
       status: 'under_review',
     },
   ]);

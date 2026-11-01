@@ -17,7 +17,7 @@ export { saveVistoriaSchema, updateMidiaSchema };
 
 export const vistoriaParamSchema = z.object({ compromissoId: idSchema }).strict();
 export const vistoriaMidiaParamSchema = z.object({ compromissoId: idSchema, midiaId: midiaIdSchema }).strict();
-export const vistoriaPericiaParamSchema = z.object({ periciaId: idSchema }).strict();
+export const inspectionCaseParamSchema = z.object({ caseId: idSchema }).strict();
 export const vistoriaDiaQuerySchema = z.object({ date: calendarDateSchema }).strict();
 export type VistoriaDiaQuery = z.infer<typeof vistoriaDiaQuerySchema>;
 export const midiaUploadQuerySchema = z
@@ -39,7 +39,7 @@ export type MidiaRecord = {
 // Registro de vistoria (AD-130). Sem registro gravado, `versao` 0 e dados vazios.
 export type VistoriaRecord = {
   compromissoId: string;
-  periciaId?: string;
+  caseId?: string;
   versao: number;
   dados: VistoriaDados;
   midias: MidiaRecord[];
@@ -49,7 +49,7 @@ export type VistoriaRecord = {
 export type VistoriaMidiaWrite = MidiaRecord & { key: string };
 
 // Resumo da perícia no campo: número e partes por polo.
-export type PericiaDoCampo = { id: string; numeroProcesso: string; autor?: string; reu?: string };
+export type FieldCase = { id: string; processNumber: string; plaintiff?: string; defendant?: string };
 
 // Um compromisso do dia com o que o celular precisa sem conexão (AD-128).
-export type VistoriaDoDia = { compromisso: CompromissoRecord; pericia?: PericiaDoCampo; vistoria: VistoriaRecord };
+export type VistoriaDoDia = { compromisso: CompromissoRecord; legalCase?: FieldCase; vistoria: VistoriaRecord };

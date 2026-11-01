@@ -35,7 +35,7 @@ export function useRegistro(item: VistoriaDoDia, rascunhoInicial?: Rascunho) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const ignorar = useRef(false);
 
-  const versaoDoServidor = () =>
+  const serverVersion = () =>
     queryClient.getQueryData<VistoriaDoDia>(vistoriaKeys.detail(compromissoId))?.vistoria.versao ??
     item.vistoria.versao;
 
@@ -52,7 +52,7 @@ export function useRegistro(item: VistoriaDoDia, rascunhoInicial?: Rascunho) {
         const existente = await lerRascunho(compromissoId);
         await salvarRascunho({
           compromissoId,
-          versao: existente?.versao ?? versaoDoServidor(),
+          versao: existente?.versao ?? serverVersion(),
           dados: limpar(valores) as VistoriaDados,
           alteradoEm: new Date().toISOString(),
           ...(existente?.conflito ? { conflito: existente.conflito } : {}),
@@ -69,7 +69,7 @@ export function useRegistro(item: VistoriaDoDia, rascunhoInicial?: Rascunho) {
   });
 
   // Conflito: manter a versão do aparelho (grava sobre a do servidor) ou usar a do servidor.
-  async function manterMinha() {
+  async function keepMine() {
     const rascunho = await lerRascunho(compromissoId);
     if (!rascunho || !conflito) return;
     await salvarRascunho({ ...rascunho, versao: conflito.versao, conflito: undefined });
@@ -77,7 +77,7 @@ export function useRegistro(item: VistoriaDoDia, rascunhoInicial?: Rascunho) {
     await enviar();
   }
 
-  async function usarDoServidor() {
+  async function keepServer() {
     if (!conflito) return;
     await apagarRascunho(compromissoId);
     ignorar.current = true;
@@ -88,5 +88,5 @@ export function useRegistro(item: VistoriaDoDia, rascunhoInicial?: Rascunho) {
     await queryClient.invalidateQueries({ queryKey: vistoriaKeys.detail(compromissoId) });
   }
 
-  return { form, conflito, enviar, manterMinha, usarDoServidor };
+  return { form, conflito, enviar, keepMine, keepServer };
 }

@@ -4,11 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
+import { casesQuery } from '@/query/case.js';
 import { type CompromissoRecord, createCompromissoMutation, updateCompromissoMutation } from '@/query/compromisso.js';
-import { periciasQuery } from '@/query/pericia.js';
 import { DEFAULT_DURATION_MINUTES } from '../@consts/calendar.js';
 
-const PERICIAS_LIMIT = 100;
+const CASES_LIMIT = 100;
 
 const toValues = (compromisso: CompromissoRecord): CreateCompromisso => ({
   tipo: compromisso.tipo,
@@ -17,7 +17,7 @@ const toValues = (compromisso: CompromissoRecord): CreateCompromisso => ({
   time: formatDisplayTime(compromisso.inicio),
   duracaoMinutos: Math.round((Date.parse(compromisso.fim) - Date.parse(compromisso.inicio)) / 60_000),
   local: compromisso.local,
-  periciaId: compromisso.periciaId,
+  caseId: compromisso.caseId,
   observacoes: compromisso.observacoes,
 });
 
@@ -25,16 +25,16 @@ const toValues = (compromisso: CompromissoRecord): CreateCompromisso => ({
 export function useCompromissoForm({
   compromisso,
   date,
-  periciaId,
+  caseId,
   onDone,
 }: {
   compromisso?: CompromissoRecord;
   date?: string;
-  periciaId?: string;
+  caseId?: string;
   onDone: () => void;
 }) {
   const queryClient = useQueryClient();
-  const pericias = useQuery(periciasQuery({ limit: PERICIAS_LIMIT }));
+  const cases = useQuery(casesQuery({ limit: CASES_LIMIT }));
   const form = useForm<CreateCompromisso>({
     resolver: zodResolver(createCompromissoSchema),
     defaultValues: compromisso
@@ -45,7 +45,7 @@ export function useCompromissoForm({
           date: date ?? formatDisplayDate(new Date()),
           time: '09:00',
           duracaoMinutos: DEFAULT_DURATION_MINUTES,
-          periciaId,
+          caseId,
         },
   });
   const createMutation = useMutation(createCompromissoMutation(queryClient));
@@ -61,10 +61,10 @@ export function useCompromissoForm({
     else createMutation.mutate(data, options);
   }
 
-  const periciaItems = (pericias.data?.items ?? []).map((pericia) => ({
-    value: pericia.id,
-    label: `${pericia.numeroProcesso} · ${pericia.objeto}`,
+  const caseItems = (cases.data?.items ?? []).map((legalCase) => ({
+    value: legalCase.id,
+    label: `${legalCase.processNumber} · ${legalCase.subject}`,
   }));
 
-  return { form, onSubmit: form.handleSubmit(onSubmit), isPending, errorMessage, periciaItems };
+  return { form, onSubmit: form.handleSubmit(onSubmit), isPending, errorMessage, caseItems };
 }

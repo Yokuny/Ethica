@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { type JUSTICAS, numeroProcessoSchema } from './pericia.schema.js';
+import { type COURTTYPES, processNumberSchema } from './case.schema.js';
 
 // Alias do índice da API Pública do Datajud (`api_publica_<alias>`), por justiça.
 // Lista dos tribunais atendidos hoje; acrescente aqui para liberar outro tribunal.
-export const DATAJUD_TRIBUNAIS = {
+export const DATAJUD_COURTS = {
   labor: [
     'trt1',
     'trt2',
@@ -60,28 +60,28 @@ export const DATAJUD_TRIBUNAIS = {
     'tjsp',
     'tjto',
   ],
-} as const satisfies Record<(typeof JUSTICAS)[number], readonly string[]>;
-export const ALL_DATAJUD_TRIBUNAIS = [
-  ...DATAJUD_TRIBUNAIS.labor,
-  ...DATAJUD_TRIBUNAIS.federal,
-  ...DATAJUD_TRIBUNAIS.civil,
+} as const satisfies Record<(typeof COURTTYPES)[number], readonly string[]>;
+export const ALL_DATAJUD_COURTS = [
+  ...DATAJUD_COURTS.labor,
+  ...DATAJUD_COURTS.federal,
+  ...DATAJUD_COURTS.civil,
 ] as const;
-export type DatajudTribunal = (typeof ALL_DATAJUD_TRIBUNAIS)[number];
+export type DatajudCourt = (typeof ALL_DATAJUD_COURTS)[number];
 
 // Chaves em inglês (AD-113); o nome do assunto no Datajud fica no client (`providers/datajudClient.ts`).
-export const DATAJUD_ASSUNTOS_TECNICOS = ['unhealthy_conditions', 'hazardous_conditions', 'work_accident'] as const;
-export type DatajudAssuntoTecnico = (typeof DATAJUD_ASSUNTOS_TECNICOS)[number];
+export const DATAJUD_TECHNICAL_SUBJECTS = ['unhealthy_conditions', 'hazardous_conditions', 'work_accident'] as const;
+export type DatajudTechnicalSubject = (typeof DATAJUD_TECHNICAL_SUBJECTS)[number];
 
 // Busca de possíveis nomeações: texto livre nos movimentos/assuntos/classe e
 // recorte por órgão julgador. `cursor` é o `sort` do último resultado
 // (paginação `search_after` do Elasticsearch do Datajud).
 export const datajudSearchSchema = z
   .object({
-    tribunal: z.enum(ALL_DATAJUD_TRIBUNAIS),
-    assuntosTecnicos: z.array(z.enum(DATAJUD_ASSUNTOS_TECNICOS)).max(DATAJUD_ASSUNTOS_TECNICOS.length).optional(),
+    court: z.enum(ALL_DATAJUD_COURTS),
+    technicalSubjects: z.array(z.enum(DATAJUD_TECHNICAL_SUBJECTS)).max(DATAJUD_TECHNICAL_SUBJECTS.length).optional(),
     termo: z.string().trim().max(120, 'termo inválido').optional(),
     orgaoJulgador: z.string().trim().max(120, 'órgão julgador inválido').optional(),
-    numeroProcesso: z
+    processNumber: z
       .string()
       .trim()
       .regex(/^[\d.\-\s]*$/, 'número de processo inválido')
@@ -106,14 +106,14 @@ export type OportunidadeStatus = (typeof OPORTUNIDADE_STATUS)[number];
 // Processo do Datajud guardado para análise. Os campos vêm do resultado da busca.
 export const createOportunidadeSchema = z
   .object({
-    numeroProcesso: numeroProcessoSchema,
-    tribunal: z.enum(ALL_DATAJUD_TRIBUNAIS),
+    processNumber: processNumberSchema,
+    court: z.enum(ALL_DATAJUD_COURTS),
     classe: z.string().trim().max(200).optional(),
     assuntos: z.array(z.string().trim().max(200)).max(20).optional(),
     orgaoJulgador: z.string().trim().max(200).optional(),
-    dataAjuizamento: z.string().max(40).optional(),
-    ultimoMovimento: z.string().trim().max(300).optional(),
-    ultimoMovimentoEm: z.string().max(40).optional(),
+    filingDate: z.string().max(40).optional(),
+    lastMovement: z.string().trim().max(300).optional(),
+    lastMovementAt: z.string().max(40).optional(),
   })
   .strict();
 export type CreateOportunidade = z.infer<typeof createOportunidadeSchema>;

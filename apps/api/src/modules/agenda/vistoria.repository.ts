@@ -9,7 +9,7 @@ const midiaToRecord = ({ key: _key, ...midia }: VistoriaMidiaWrite): MidiaRecord
 
 const toRecord = (doc: VistoriaDocument): VistoriaRecord => ({
   compromissoId: doc.Compromisso.toString(),
-  periciaId: doc.Pericia?.toString(),
+  caseId: doc.Case?.toString(),
   versao: doc.versao,
   dados: doc.dados,
   midias: doc.midias.map(midiaToRecord),
@@ -32,9 +32,9 @@ export const findByCompromissos = async (tenantId: string, ids: string[]): Promi
     return new Map(docs.map((doc) => [doc.Compromisso.toString(), toRecord(doc)]));
   });
 
-export const listByPericia = async (tenantId: string, periciaId: string): Promise<VistoriaRecord[]> =>
-  withDbTiming('vistoria.listByPericia', async () => {
-    const docs = await Vistoria.find(tenantScoped({ Tenant: tenantId, Pericia: periciaId }))
+export const listByCase = async (tenantId: string, caseId: string): Promise<VistoriaRecord[]> =>
+  withDbTiming('vistoria.listByCase', async () => {
+    const docs = await Vistoria.find(tenantScoped({ Tenant: tenantId, Case: caseId }))
       .sort({ updatedAt: -1 })
       .lean();
     return docs.map(toRecord);
@@ -48,7 +48,7 @@ const isDuplicateKeyError = (e: unknown): boolean =>
 export const salvar = async (
   tenantId: string,
   compromissoId: string,
-  periciaId: string | undefined,
+  caseId: string | undefined,
   versao: number,
   dados: VistoriaDados,
 ): Promise<VistoriaRecord | null> =>
@@ -57,7 +57,7 @@ export const salvar = async (
       const doc = await Vistoria.findOneAndUpdate(
         { ...doCompromisso(tenantId, compromissoId), versao },
         {
-          $set: { dados, ...(periciaId ? { Pericia: periciaId } : {}) },
+          $set: { dados, ...(caseId ? { Case: caseId } : {}) },
           $inc: { versao: 1 },
           $setOnInsert: { midias: [] },
         },
@@ -74,7 +74,7 @@ export const salvar = async (
 export const addMidia = async (
   tenantId: string,
   compromissoId: string,
-  periciaId: string | undefined,
+  caseId: string | undefined,
   midia: VistoriaMidiaWrite,
 ): Promise<boolean> =>
   withDbTiming('vistoria.addMidia', async () => {
@@ -84,7 +84,7 @@ export const addMidia = async (
         $setOnInsert: {
           versao: 0,
           dados: VISTORIA_DADOS_VAZIOS,
-          ...(periciaId ? { Pericia: toObjectId(periciaId) } : {}),
+          ...(caseId ? { Case: toObjectId(caseId) } : {}),
         },
       },
       { upsert: true },

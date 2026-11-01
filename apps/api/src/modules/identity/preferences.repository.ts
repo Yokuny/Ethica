@@ -4,10 +4,12 @@ import { withDbTiming } from '../../metrics/db.metric.js';
 import type { UpdatePreferences, UserPreferences } from './preferences.schema.js';
 
 const toPreferences = (
-  doc: { preferences?: { onboardingDismissed?: boolean; avisoPrazoEmail?: boolean; blocosOcultos?: string[] } } | null,
+  doc: {
+    preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; blocosOcultos?: string[] };
+  } | null,
 ): UserPreferences => ({
   onboardingDismissed: doc?.preferences?.onboardingDismissed === true,
-  avisoPrazoEmail: doc?.preferences?.avisoPrazoEmail !== false,
+  deadlineReminderEmail: doc?.preferences?.deadlineReminderEmail !== false,
   // Chave que deixou de existir é ignorada (AD-136).
   blocosOcultos: (doc?.preferences?.blocosOcultos ?? []).filter((bloco): bloco is HomeBloco =>
     (HOME_BLOCOS as readonly string[]).includes(bloco),

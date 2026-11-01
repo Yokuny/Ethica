@@ -20,7 +20,7 @@ import {
 export type EstadoSync = {
   online: boolean;
   sincronizando: boolean;
-  pendentes: number;
+  pending: number;
   conflitos: number;
   falhas: number;
 };
@@ -28,7 +28,7 @@ export type EstadoSync = {
 let estado: EstadoSync = {
   online: typeof navigator === 'undefined' ? true : navigator.onLine,
   sincronizando: false,
-  pendentes: 0,
+  pending: 0,
   conflitos: 0,
   falhas: 0,
 };
@@ -51,7 +51,7 @@ export const useEstadoSync = (): EstadoSync =>
 export const atualizarPendencias = async () => {
   const [status, rascunhos, midias] = await Promise.all([listarStatus(), listarRascunhos(), listarMidias()]);
   publicar({
-    pendentes: status.length + rascunhos.length + midias.length,
+    pending: status.length + rascunhos.length + midias.length,
     conflitos: rascunhos.filter((rascunho) => rascunho.conflito).length,
     falhas: midias.filter((midia) => midia.falha).length,
   });
@@ -103,7 +103,7 @@ const guardarFalha = async (midiaId: string, falha: string) => {
 
 // Nova tentativa enquanto houver pendência: o evento `online` nem sempre chega (rede que volta
 // sem trocar de interface, API fora do ar na primeira tentativa).
-const NOVA_TENTATIVA_MS = 15_000;
+const NEW_ATTEMPT_MS = 15_000;
 
 let iniciado = false;
 // Uma vez por aba: envia ao abrir, quando a conexão volta, quando a tela volta a aparecer e,
@@ -119,7 +119,7 @@ export const iniciarSync = (queryClient: QueryClient) => {
   window.addEventListener('offline', () => publicar({ online: false }));
   document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && tentar());
   setInterval(() => {
-    if (estado.pendentes > 0 || !estado.online) tentar();
-  }, NOVA_TENTATIVA_MS);
+    if (estado.pending > 0 || !estado.online) tentar();
+  }, NEW_ATTEMPT_MS);
   void atualizarPendencias().then(() => sincronizar(queryClient));
 };

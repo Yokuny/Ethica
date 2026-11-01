@@ -6,14 +6,14 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { VistoriaRecord } from '@/query/vistoria.js';
 
 type ConflitoDialogProps = {
-  servidor: VistoriaRecord;
+  server: VistoriaRecord;
   onManterMinha: () => void;
-  onUsarServidor: () => void;
+  onUseServer: () => void;
   onClose: () => void;
 };
 
 // Outra pessoa (ou outro aparelho) salvou antes (AD-128): o perito escolhe qual versão fica.
-export function ConflitoDialog({ servidor, onManterMinha, onUsarServidor, onClose }: ConflitoDialogProps) {
+export function ConflitoDialog({ server, onManterMinha, onUseServer, onClose }: ConflitoDialogProps) {
   const contagem = (dados: VistoriaRecord['dados']) =>
     `${dados.presentes.length} ${t('attendees').toLowerCase()} · ${dados.funcoes.length} ${t('job_roles').toLowerCase()} · ${dados.agentes.length} ${t('agents').toLowerCase()}`;
   return (
@@ -23,11 +23,10 @@ export function ConflitoDialog({ servidor, onManterMinha, onUsarServidor, onClos
       onClose={onClose}
     >
       <ItemDescription className="line-clamp-none">
-        {t('server_version')}: {servidor.updatedAt ? formatDateTime(servidor.updatedAt) : '—'} ·{' '}
-        {contagem(servidor.dados)}
+        {t('server_version')}: {server.updatedAt ? formatDateTime(server.updatedAt) : '—'} · {contagem(server.dados)}
       </ItemDescription>
       <div className="flex flex-wrap justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onUsarServidor}>
+        <Button type="button" variant="outline" onClick={onUseServer}>
           {t('use_server_version')}
         </Button>
         <Button type="button" onClick={onManterMinha}>

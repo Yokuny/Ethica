@@ -1,15 +1,15 @@
 import { LAUDO_IMG_SRC, VISTORIA_DADOS_VAZIOS, VISTORIA_MIDIA_LIMITES } from '@ethica/contracts';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
+import * as caseService from '../case/case.service.js';
 import * as officeService from '../identity/office.service.js';
-import * as periciaService from '../pericia/pericia.service.js';
 import type { CompromissoRecord } from './compromisso.schema.js';
 import * as compromissoService from './compromisso.service.js';
 import * as vistoriaRepository from './vistoria.repository.js';
 import type {
+  FieldCase,
   MidiaRecord,
   MidiaUploadQuery,
-  PericiaDoCampo,
   SaveVistoria,
   VistoriaDoDia,
   VistoriaRecord,
@@ -24,7 +24,7 @@ export class VistoriaConflictError extends KeyedError {
 
 const vazia = (compromisso: CompromissoRecord): VistoriaRecord => ({
   compromissoId: compromisso.id,
-  periciaId: compromisso.periciaId,
+  caseId: compromisso.caseId,
   versao: 0,
   dados: VISTORIA_DADOS_VAZIOS,
   midias: [],
@@ -41,26 +41,26 @@ const proximoDia = (date: string): string => {
   return next.toISOString().slice(0, 10);
 };
 
-const periciasDoCampo = async (tenantId: string, ids: string[]): Promise<Map<string, PericiaDoCampo>> => {
-  const resumos = await periciaService.findResumosByIds(tenantId, ids);
+const fieldCases = async (tenantId: string, ids: string[]): Promise<Map<string, FieldCase>> => {
+  const resumos = await caseService.findResumosByIds(tenantId, ids);
   return new Map([...resumos].map(([id, resumo]) => [id, { id, ...resumo }]));
 };
 
 // CAM-01: tudo do dia (por horário) com o registro de cada compromisso, para o celular guardar.
 export const listDia = async (tenantId: string, date: string): Promise<VistoriaDoDia[]> => {
   const compromissos = await compromissoService.listCompromissos(tenantId, { from: date, to: proximoDia(date) });
-  const [vistorias, pericias] = await Promise.all([
+  const [vistorias, cases] = await Promise.all([
     vistoriaRepository.findByCompromissos(
       tenantId,
       compromissos.map((compromisso) => compromisso.id),
     ),
-    periciasDoCampo(tenantId, [...new Set(compromissos.flatMap((c) => (c.periciaId ? [c.periciaId] : [])))]),
+    fieldCases(tenantId, [...new Set(compromissos.flatMap((c) => (c.caseId ? [c.caseId] : [])))]),
   ]);
   return compromissos.map((compromisso) => {
-    const pericia = compromisso.periciaId ? pericias.get(compromisso.periciaId) : undefined;
+    const legalCase = compromisso.caseId ? cases.get(compromisso.caseId) : undefined;
     return {
       compromisso,
-      ...(pericia ? { pericia } : {}),
+      ...(legalCase ? { legalCase } : {}),
       vistoria: vistorias.get(compromisso.id) ?? vazia(compromisso),
     };
   });
@@ -68,12 +68,12 @@ export const listDia = async (tenantId: string, date: string): Promise<VistoriaD
 
 export const getVistoria = async (tenantId: string, compromissoId: string): Promise<VistoriaDoDia> => {
   const compromisso = await compromissoService.getCompromisso(tenantId, compromissoId);
-  const [vistoria, pericias] = await Promise.all([
+  const [vistoria, cases] = await Promise.all([
     vistoriaRepository.findByCompromisso(tenantId, compromissoId),
-    periciasDoCampo(tenantId, compromisso.periciaId ? [compromisso.periciaId] : []),
+    fieldCases(tenantId, compromisso.caseId ? [compromisso.caseId] : []),
   ]);
-  const pericia = compromisso.periciaId ? pericias.get(compromisso.periciaId) : undefined;
-  return { compromisso, ...(pericia ? { pericia } : {}), vistoria: vistoria ?? vazia(compromisso) };
+  const legalCase = compromisso.caseId ? cases.get(compromisso.caseId) : undefined;
+  return { compromisso, ...(legalCase ? { legalCase } : {}), vistoria: vistoria ?? vazia(compromisso) };
 };
 
 // CAM-02 e CAM-05: grava o formulário inteiro só sobre a versão que o aparelho conhecia.
@@ -83,7 +83,7 @@ export const salvarVistoria = async (
   { versao, dados }: SaveVistoria,
 ): Promise<VistoriaRecord> => {
   const compromisso = await compromissoService.getCompromisso(tenantId, compromissoId);
-  const salvo = await vistoriaRepository.salvar(tenantId, compromissoId, compromisso.periciaId, versao, dados);
+  const salvo = await vistoriaRepository.salvar(tenantId, compromissoId, compromisso.caseId, versao, dados);
   if (salvo) return salvo;
   throw new VistoriaConflictError(
     (await vistoriaRepository.findByCompromisso(tenantId, compromissoId)) ?? vazia(compromisso),
@@ -123,7 +123,7 @@ export const uploadMidia = async (
   await officeService.reservarArquivo(tenantId, midia.bytes);
   try {
     await files.put(midia.key, arquivo.body, midia.mime);
-    if (!(await vistoriaRepository.addMidia(tenantId, compromissoId, compromisso.periciaId, midia))) {
+    if (!(await vistoriaRepository.addMidia(tenantId, compromissoId, compromisso.caseId, midia))) {
       // Outro envio do mesmo id ganhou a corrida: o arquivo é o mesmo, só a reserva sobra.
       await officeService.devolverArquivo(tenantId, midia.bytes);
     }
@@ -180,8 +180,8 @@ export const removeMidia = async (
 };
 
 // Registros da perícia (galeria e painel), cada um com o compromisso.
-export const listDaPericia = async (tenantId: string, periciaId: string): Promise<VistoriaDoDia[]> => {
-  const compromissos = (await compromissoService.listDaPericia(tenantId, periciaId)).reverse();
+export const listByCase = async (tenantId: string, caseId: string): Promise<VistoriaDoDia[]> => {
+  const compromissos = (await compromissoService.listByCase(tenantId, caseId)).reverse();
   const vistorias = await vistoriaRepository.findByCompromissos(
     tenantId,
     compromissos.map((compromisso) => compromisso.id),
@@ -193,8 +193,8 @@ export const listDaPericia = async (tenantId: string, periciaId: string): Promis
 };
 
 // Laudo (AD-130): a vistoria feita mais recente da perícia que tem registro.
-export const ultimaFeitaDaPericia = async (tenantId: string, periciaId: string) =>
-  (await listDaPericia(tenantId, periciaId)).find(({ compromisso }) => compromisso.status === 'done');
+export const lastDoneByCase = async (tenantId: string, caseId: string) =>
+  (await listByCase(tenantId, caseId)).find(({ compromisso }) => compromisso.status === 'done');
 
 // Excluir o compromisso leva o registro e as mídias, devolvendo a cota (AD-130).
 export const excluirCompromisso = async (storage: FileStorage | undefined, tenantId: string, id: string) => {

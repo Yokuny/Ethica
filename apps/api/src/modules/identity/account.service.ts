@@ -55,5 +55,5 @@ export const calendarFeedStatus = async (tenantId: string, userId: string) => ({
 
 export const findFeedOwner = (token: string) => accountRepository.findFeedOwner(hashToken(token));
 
-export const listDestinatariosAvisoPrazo = (tenantIds: string[]) =>
-  accountRepository.listDestinatariosAvisoPrazo(tenantIds);
+export const listDeadlineReminderRecipients = (tenantIds: string[]) =>
+  accountRepository.listDeadlineReminderRecipients(tenantIds);

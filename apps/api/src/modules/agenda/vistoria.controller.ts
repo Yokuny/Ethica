@@ -29,9 +29,7 @@ const json =
 export const listDia = json((req) =>
   vistoriaService.listDia(tenantOf(req), (req.query as unknown as VistoriaDiaQuery).date),
 );
-export const listDaPericia = json((req) =>
-  vistoriaService.listDaPericia(tenantOf(req), req.params.periciaId as string),
-);
+export const listByCase = json((req) => vistoriaService.listByCase(tenantOf(req), req.params.caseId as string));
 export const getVistoria = json((req) => vistoriaService.getVistoria(tenantOf(req), compromissoId(req)));
 export const salvarVistoria = json((req) =>
   vistoriaService.salvarVistoria(tenantOf(req), compromissoId(req), req.body),

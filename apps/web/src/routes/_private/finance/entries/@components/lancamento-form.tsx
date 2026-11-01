@@ -11,7 +11,7 @@ import { useLancamentoForm } from '../@hooks/use-lancamento-form.js';
 import { ParcelasList } from './parcelas-list.js';
 
 export function LancamentoForm({ lancamento, onClose }: { lancamento?: LancamentoRecord; onClose: () => void }) {
-  const { form, natureza, onSubmit, handleNaturezaChange, isPending, errorMessage, periciaItems } = useLancamentoForm({
+  const { form, natureza, onSubmit, handleNaturezaChange, isPending, errorMessage, caseItems } = useLancamentoForm({
     lancamento,
     onDone: onClose,
   });
@@ -68,12 +68,12 @@ export function LancamentoForm({ lancamento, onClose }: { lancamento?: Lancament
                     />
                   </div>,
                   <SelectField
-                    key="pericia"
+                    key="legalCase"
                     control={control}
-                    name="periciaId"
+                    name="caseId"
                     label={t('expert_case')}
                     placeholder={t('no_linked_expert_case')}
-                    items={periciaItems}
+                    items={caseItems}
                   />,
                 ],
               },

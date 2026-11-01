@@ -37,7 +37,7 @@ export function LaudoSecaoEditor({
 }: LaudoSecaoEditorProps) {
   const readOnly = laudo.status === 'completed';
   const numero = numerarSecoes(laudo.secoes)[laudo.secoes.findIndex((item) => item.id === secao.id)];
-  const pendentes = laudo.pendencias.find((pendencia) => pendencia.secaoId === secao.id)?.variaveis ?? [];
+  const pending = laudo.pendencias.find((pendencia) => pendencia.secaoId === secao.id)?.variaveis ?? [];
 
   return (
     <Panel
@@ -56,10 +56,10 @@ export function LaudoSecaoEditor({
         )
       }
     >
-      {pendentes.length > 0 && (
+      {pending.length > 0 && (
         <div role="alert" className="flex flex-wrap items-center gap-1.5">
           <ItemDescription className="line-clamp-none">{t('fill_or_remove_variables')}</ItemDescription>
-          {pendentes.map((variavel) => (
+          {pending.map((variavel) => (
             <Badge key={variavel} variant="warning" title={variavelLabel(variavel)}>
               {variavel}
             </Badge>

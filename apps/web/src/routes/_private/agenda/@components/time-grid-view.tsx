@@ -4,9 +4,9 @@ import { weekdayIndexOfDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
 import type { CompromissoRecord } from '@/query/compromisso.js';
-import type { PrazoRecord } from '@/query/prazo.js';
+import type { DeadlineRecord } from '@/query/deadline.js';
 import { computePositionedItems, HOUR_HEIGHT_PX, HOURS_IN_DAY } from '../@utils/calendar-grid.utils.js';
-import { CalendarEventChip, CalendarPrazoChip } from './calendar-event.js';
+import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
 import {
   CalendarTimeGrid,
   CalendarTimeGridColumns,
@@ -21,8 +21,8 @@ export type TimeGridViewProps = {
   items: CompromissoRecord[];
   onSelect: (item: CompromissoRecord) => void;
   // Prazos pendentes: faixa "dia inteiro" sob o cabeçalho (prazo é um dia, não um horário).
-  prazos?: PrazoRecord[];
-  onSelectPrazo?: (prazo: PrazoRecord) => void;
+  deadlines?: DeadlineRecord[];
+  onSelectDeadline?: (deadline: DeadlineRecord) => void;
   today?: string;
 };
 
@@ -51,11 +51,11 @@ export function TimeGridView({
   days,
   items,
   onSelect,
-  prazos = [],
-  onSelectPrazo = () => {},
+  deadlines = [],
+  onSelectDeadline = () => {},
   today = '',
 }: TimeGridViewProps) {
-  const hasPrazos = prazos.some((prazo) => days.includes(prazo.vencimento));
+  const hasDeadlines = deadlines.some((deadline) => days.includes(deadline.vencimento));
   return (
     <CalendarTimeGrid className="min-w-160 flex-col" data-testid="time-grid-view">
       {/* Cabeçalho fixo (fora do ScrollArea): régua de horas vazia + data de
@@ -73,7 +73,7 @@ export function TimeGridView({
           ))}
         </CalendarTimeGridColumns>
       </div>
-      {hasPrazos && (
+      {hasDeadlines && (
         <div className="flex" data-testid="time-grid-all-day">
           <ItemDescription className="line-clamp-none w-10 shrink-0 pr-1 text-right text-[10px]">
             {t('all_day')}
@@ -81,10 +81,15 @@ export function TimeGridView({
           <CalendarTimeGridColumns style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
             {days.map((day) => (
               <div key={day} className="grid content-start gap-1 p-1">
-                {prazos
-                  .filter((prazo) => prazo.vencimento === day)
-                  .map((prazo) => (
-                    <CalendarPrazoChip key={prazo.id} prazo={prazo} today={today} onSelect={onSelectPrazo} />
+                {deadlines
+                  .filter((deadline) => deadline.vencimento === day)
+                  .map((deadline) => (
+                    <CalendarDeadlineChip
+                      key={deadline.id}
+                      deadline={deadline}
+                      today={today}
+                      onSelect={onSelectDeadline}
+                    />
                   ))}
               </div>
             ))}

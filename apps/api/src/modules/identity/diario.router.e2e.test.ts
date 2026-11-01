@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
-import { Atividade, connect, disconnect, hashToken, Pericia, Session, Tenant, User } from '@ethica/db';
+import { Atividade, Case, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -48,7 +48,7 @@ describe('diário de bordo (GES-01, AD-134)', () => {
   afterEach(async () => {
     await Promise.all([
       Atividade.deleteMany({}),
-      Pericia.deleteMany({}),
+      Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
       Tenant.deleteMany({}),
@@ -64,11 +64,11 @@ describe('diário de bordo (GES-01, AD-134)', () => {
     const operador = await seedSession(tenant._id, ['operator']);
 
     const criada = await operador.as(request(app).post('/expert-cases')).send({
-      numeroProcesso: '0001234-56.2026.5.02.0001',
-      justica: 'labor',
-      papel: 'court_expert',
-      tribunal: 'TRT2',
-      objeto: 'Insalubridade',
+      processNumber: '0001234-56.2026.5.02.0001',
+      courtType: 'labor',
+      role: 'court_expert',
+      court: 'TRT2',
+      subject: 'Insalubridade',
     });
     expect(criada.status).toBe(201);
     // Leitura não entra no diário.

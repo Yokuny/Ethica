@@ -37,11 +37,11 @@ export function useBuscaDatajud() {
 
   function onSubmit(data: BuscaForm) {
     const next = {
-      tribunal: data.tribunal,
-      assuntosTecnicos: data.tribunal.startsWith('trt') ? data.assuntosTecnicos : undefined,
+      court: data.court,
+      technicalSubjects: data.court.startsWith('trt') ? data.technicalSubjects : undefined,
       termo: data.termo || undefined,
       orgaoJulgador: data.orgaoJulgador || undefined,
-      numeroProcesso: data.numeroProcesso || undefined,
+      processNumber: data.processNumber || undefined,
       classeCodigo: data.classeCodigo,
       orgaoJulgadorCodigo: data.orgaoJulgadorCodigo,
     };
@@ -55,21 +55,19 @@ export function useBuscaDatajud() {
 
   function saveItem(item: DatajudResultado) {
     const data = {
-      numeroProcesso: item.numeroProcesso,
-      tribunal: item.tribunal,
+      processNumber: item.processNumber,
+      court: item.court,
       classe: item.classe,
       assuntos: item.assuntos,
       orgaoJulgador: item.orgaoJulgador,
-      dataAjuizamento: item.dataAjuizamento,
-      ultimoMovimento: item.ultimoMovimento,
-      ultimoMovimentoEm: item.ultimoMovimentoEm,
+      filingDate: item.filingDate,
+      lastMovement: item.lastMovement,
+      lastMovementAt: item.lastMovementAt,
     };
     save.mutate(data, {
       onSuccess: (created) => {
         setItems((prev) =>
-          prev.map((row) =>
-            row.numeroProcesso === item.numeroProcesso ? { ...row, oportunidadeId: created.id } : row,
-          ),
+          prev.map((row) => (row.processNumber === item.processNumber ? { ...row, oportunidadeId: created.id } : row)),
         );
         toast.success(t('opportunity_saved'));
       },

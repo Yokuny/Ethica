@@ -25,7 +25,7 @@ export const createCompromissoSchema = z
       .min(15)
       .max(24 * 60),
     local: z.string().trim().max(200, 'local inválido').optional(),
-    periciaId: idSchema.optional(),
+    caseId: idSchema.optional(),
     observacoes: z.string().trim().max(1000, 'observações inválidas').optional(),
   })
   .strict();

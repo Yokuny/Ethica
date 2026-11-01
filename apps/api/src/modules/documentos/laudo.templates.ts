@@ -49,18 +49,18 @@ const comFotos = (html: string, fotos: LaudoExportDados['fotos']): string =>
     return foto ? `<img${antes}src="data:${foto.mime};base64,${foto.body.toString('base64')}"${depois}>` : '';
   });
 
-export const laudoHtml = ({ laudo, pericia, identity, perito, valores, fotos }: LaudoExportDados): PdfDocument => {
+export const laudoHtml = ({ laudo, legalCase, identity, expert, valores, fotos }: LaudoExportDados): PdfDocument => {
   const numeros = numerarSecoes(laudo.secoes);
   const capa = `<section class="capa"><div><p class="tipo">${TIPO[laudo.tipo]}</p><dl>${[
-    linhaCapa('Processo nº', pericia.numeroProcesso),
-    linhaCapa('Juízo', [pericia.vara, pericia.comarca].filter(Boolean).join(' — ') || undefined),
-    linhaCapa('Tribunal', pericia.tribunal),
+    linhaCapa('Processo nº', legalCase.processNumber),
+    linhaCapa('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
+    linhaCapa('Tribunal', legalCase.court),
     linhaCapa(valores['[DENOMINACAO_AUTOR]'], valores['[NOME_AUTOR]']),
     linhaCapa(valores['[DENOMINACAO_REU]'], valores['[NOME_REU]']),
-    linhaCapa('Objeto', pericia.objeto),
-  ].join('')}</dl></div><div class="assinatura"><p><strong>${esc(perito.name)}</strong></p>${[
-    perito.formacao,
-    perito.registroProfissional,
+    linhaCapa('Objeto', legalCase.subject),
+  ].join('')}</dl></div><div class="assinatura"><p><strong>${esc(expert.name)}</strong></p>${[
+    expert.formacao,
+    expert.registroProfissional,
   ]
     .filter(Boolean)
     .map((linha) => `<p>${esc(linha)}</p>`)
@@ -76,7 +76,7 @@ export const laudoHtml = ({ laudo, pericia, identity, perito, valores, fotos }: 
     })
     .join('');
   return {
-    html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(TIPO[laudo.tipo])} ${esc(pericia.numeroProcesso)}</title><style>${CSS}</style></head><body>${capa}${sumario}${secoes}</body></html>`,
-    ...cabecalhoRodape(identity, perito.name),
+    html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(TIPO[laudo.tipo])} ${esc(legalCase.processNumber)}</title><style>${CSS}</style></head><body>${capa}${sumario}${secoes}</body></html>`,
+    ...cabecalhoRodape(identity, expert.name),
   };
 };

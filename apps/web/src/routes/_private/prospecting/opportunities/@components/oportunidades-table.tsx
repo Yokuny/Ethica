@@ -17,7 +17,7 @@ type OportunidadesTableProps = {
   onConvert: (row: OportunidadeRecord) => void;
   onStatus: (row: OportunidadeRecord, status: 'new' | 'under_review' | 'discarded') => void;
   onRemove: (row: OportunidadeRecord) => void;
-  onOpenPericia: (row: OportunidadeRecord) => void;
+  onOpenCase: (row: OportunidadeRecord) => void;
 };
 
 export function OportunidadesTable({
@@ -29,7 +29,7 @@ export function OportunidadesTable({
   onConvert,
   onStatus,
   onRemove,
-  onOpenPericia,
+  onOpenCase,
 }: OportunidadesTableProps) {
   return (
     <>
@@ -49,14 +49,14 @@ export function OportunidadesTable({
             return (
               <TableRow
                 key={row.id}
-                onClick={() => (convertida ? onOpenPericia(row) : onConvert(row))}
+                onClick={() => (convertida ? onOpenCase(row) : onConvert(row))}
                 className="cursor-pointer"
               >
                 <TableCell>
                   <TableIdentity
                     icon={Bookmark}
-                    title={row.numeroProcesso}
-                    description={[row.tribunal.toUpperCase(), row.orgaoJulgador].filter(Boolean).join(' · ')}
+                    title={row.processNumber}
+                    description={[row.court.toUpperCase(), row.orgaoJulgador].filter(Boolean).join(' · ')}
                   />
                 </TableCell>
                 <TableCell>
@@ -73,7 +73,7 @@ export function OportunidadesTable({
                 <TableCell>
                   <TableRowActions label={t('actions')}>
                     {convertida ? (
-                      <TableRowAction onClick={() => onOpenPericia(row)}>{t('open_expert_case')}</TableRowAction>
+                      <TableRowAction onClick={() => onOpenCase(row)}>{t('open_expert_case')}</TableRowAction>
                     ) : (
                       <>
                         <TableRowAction onClick={() => onConvert(row)}>{t('convert_into_expert_case')}</TableRowAction>

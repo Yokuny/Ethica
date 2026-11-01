@@ -6,6 +6,7 @@ import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as vistoriaController from './vistoria.controller.js';
 import {
+  inspectionCaseParamSchema,
   midiaUploadQuerySchema,
   saveVistoriaSchema,
   updateMidiaSchema,
@@ -13,7 +14,6 @@ import {
   vistoriaDiaQuerySchema,
   vistoriaMidiaParamSchema,
   vistoriaParamSchema,
-  vistoriaPericiaParamSchema,
 } from './vistoria.schema.js';
 
 const MIMES = Object.values(VISTORIA_MIDIA_LIMITES).flatMap((limite) => limite.mimes);
@@ -34,11 +34,11 @@ export const createVistoriaRouter = (deps: VistoriaRouterDeps): Router => {
     vistoriaController.listDia,
   );
   router.get(
-    '/expert-case/:periciaId',
+    '/expert-case/:caseId',
     ...guard,
     can('agenda', 'view'),
-    validParams(vistoriaPericiaParamSchema),
-    vistoriaController.listDaPericia,
+    validParams(inspectionCaseParamSchema),
+    vistoriaController.listByCase,
   );
   router.get(
     '/:compromissoId',

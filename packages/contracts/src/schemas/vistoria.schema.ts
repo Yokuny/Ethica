@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { POLOS } from './parte.schema.js';
+import { SIDES } from './party.schema.js';
 
 // Registro da vistoria (AD-130): um só tipo para o formulário de campo e para as variáveis do
 // laudo, para que o que é gravado seja exatamente o que o laudo lê.
@@ -51,7 +51,7 @@ const ano = z.number().int().min(1900).max(2100);
 const lista = <T extends z.ZodType>(item: T) => z.array(item).max(30, 'itens demais');
 
 const versaoFuncaoSchema = z
-  .object({ atividades: longo.optional(), frequencia: curto.optional(), tempoExposicao: curto.optional() })
+  .object({ atividades: longo.optional(), frequencia: curto.optional(), timeExposure: curto.optional() })
   .strict();
 
 export const vistoriaDadosSchema = z
@@ -71,7 +71,7 @@ export const vistoriaDadosSchema = z
       z
         .object({
           id: itemId,
-          polo: z.enum(POLOS),
+          side: z.enum(SIDES),
           nome: curto.min(1, 'nome é obrigatório'),
           funcao: curto.optional(),
           periodo: curto.optional(),
@@ -87,8 +87,8 @@ export const vistoriaDadosSchema = z
           anoInicio: ano.optional(),
           anoFim: ano.optional(),
           local: curto.optional(),
-          autor: versaoFuncaoSchema,
-          reu: versaoFuncaoSchema,
+          plaintiff: versaoFuncaoSchema,
+          defendant: versaoFuncaoSchema,
         })
         .strict(),
     ),

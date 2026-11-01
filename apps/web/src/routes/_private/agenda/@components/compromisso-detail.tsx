@@ -5,10 +5,10 @@ import { Link } from '@tanstack/react-router';
 import { ClipboardList, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
+import { CaseReceipts } from '@/components/case-receipts.js';
 import { COMPROMISSO_TIPO_VARIANT } from '@/components/compromisso-labels.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { FormDialog } from '@/components/form-dialog.js';
-import { PericiaRecebimentos } from '@/components/pericia-recebimentos.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -48,9 +48,9 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
               {
                 label: t('expert_case'),
                 value:
-                  compromisso.periciaId && compromisso.periciaNumero ? (
-                    <AppLink to="/expert-cases/details" search={{ id: compromisso.periciaId }}>
-                      {compromisso.periciaNumero}
+                  compromisso.caseId && compromisso.caseNumber ? (
+                    <AppLink to="/expert-cases/details" search={{ id: compromisso.caseId }}>
+                      {compromisso.caseNumber}
                     </AppLink>
                   ) : (
                     '-'
@@ -67,7 +67,7 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
           },
         ]}
       />
-      {compromisso.periciaId && <PericiaRecebimentos periciaId={compromisso.periciaId} />}
+      {compromisso.caseId && <CaseReceipts caseId={compromisso.caseId} />}
       {/* Campo (AD-130, AD-131): registro da vistoria no celular e aviso às partes por e-mail. */}
       <div className="flex flex-wrap gap-2">
         <Button
@@ -78,7 +78,7 @@ export function CompromissoDetail({ compromisso, onEdit, onClose }: CompromissoD
           <ClipboardList />
           {t('inspection_record')}
         </Button>
-        {compromisso.periciaId && (
+        {compromisso.caseId && (
           <Button
             variant="outline"
             disabled={aviso.isPending}

@@ -56,9 +56,9 @@ export function VistoriaPage() {
                 <Badge variant={COMPROMISSO_TIPO_VARIANT[item.compromisso.tipo]}>{t(item.compromisso.tipo)}</Badge>
               }
               description={
-                item.pericia ? (
-                  <AppLink to="/expert-cases/details" search={{ id: item.pericia.id }} as="description">
-                    {item.pericia.numeroProcesso}
+                item.legalCase ? (
+                  <AppLink to="/expert-cases/details" search={{ id: item.legalCase.id }} as="description">
+                    {item.legalCase.processNumber}
                   </AppLink>
                 ) : (
                   item.compromisso.local

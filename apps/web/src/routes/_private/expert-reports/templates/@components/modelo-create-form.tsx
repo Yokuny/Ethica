@@ -9,7 +9,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { type ModeloLaudoRecord, modelosQuery } from '@/query/laudo.js';
 import { useModeloCreateForm } from '../@hooks/use-modelo-create-form.js';
 
-const EM_BRANCO = 'blank';
+const BLANK = 'blank';
 
 type ModeloCreateFormProps = {
   base?: Pick<ModeloLaudoRecord, 'id' | 'nome' | 'tipo'>;
@@ -22,7 +22,7 @@ export function ModeloCreateForm({ base, onDone, onClose }: ModeloCreateFormProp
   const tipo = form.watch('tipo');
   const modelos = useQuery(modelosQuery(tipo));
   const bases = [
-    { value: EM_BRANCO, label: t('blank_template') },
+    { value: BLANK, label: t('blank_template') },
     ...(modelos.data ?? []).map((modelo) => ({ value: modelo.id, label: modelo.nome })),
   ];
 
@@ -50,7 +50,7 @@ export function ModeloCreateForm({ base, onDone, onClose }: ModeloCreateFormProp
             label={t('start_from')}
             placeholder={t('blank_template')}
             items={bases}
-            onValueChange={(value) => value === EM_BRANCO && form.setValue('baseId', undefined)}
+            onValueChange={(value) => value === BLANK && form.setValue('baseId', undefined)}
           />
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">

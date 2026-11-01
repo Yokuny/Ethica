@@ -1,8 +1,8 @@
 import { pode, respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import { PericiaNotFoundError } from '../pericia/pericia.service.js';
-import type { ArquivoGerado, DocumentoContexto } from './documentos.schema.js';
+import { CaseNotFoundError } from '../case/case.service.js';
+import type { DocumentoContexto, GeneratedFile } from './documentos.schema.js';
 import type { LaudoRouterDeps, ListLaudosQuery, ListModelosQuery } from './laudo.schema.js';
 import * as laudoService from './laudo.service.js';
 import { LaudoNotFoundError } from './laudo.service.js';
@@ -25,7 +25,7 @@ const contexto = (req: Request): DocumentoContexto => {
 // Laudo, modelo ou perícia inexistentes (ou de outro tenant) → 404.
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(
-    e instanceof LaudoNotFoundError || e instanceof ModeloLaudoNotFoundError || e instanceof PericiaNotFoundError
+    e instanceof LaudoNotFoundError || e instanceof ModeloLaudoNotFoundError || e instanceof CaseNotFoundError
       ? new CustomError(e.message, 404, e.detail)
       : e,
   );
@@ -54,15 +54,15 @@ const removido =
   };
 
 const arquivo =
-  (gerar: (req: Request) => Promise<ArquivoGerado>) =>
+  (gerar: (req: Request) => Promise<GeneratedFile>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const gerado = await gerar(req);
+      const generated = await gerar(req);
       res
-        .set('Content-Type', gerado.tipo)
-        .set('Content-Disposition', `attachment; filename="${gerado.nome}"`)
+        .set('Content-Type', generated.tipo)
+        .set('Content-Disposition', `attachment; filename="${generated.nome}"`)
         .set('Cache-Control', 'no-store')
-        .end(gerado.conteudo);
+        .end(generated.conteudo);
     } catch (e) {
       notFoundAs404(e, next);
     }

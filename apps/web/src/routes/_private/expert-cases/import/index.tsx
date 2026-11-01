@@ -13,7 +13,7 @@ import { useCsvImport } from './@hooks/use-csv-import.js';
 import { downloadCsvTemplate } from './@utils/csv-template.js';
 
 // Importação em lote por CSV (IMP-02): modelo, envio e relatório por linha.
-export function PericiasImportPage() {
+export function CasesImportPage() {
   const { handleFile, result, fileError, isPending } = useCsvImport();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -59,6 +59,6 @@ export function PericiasImportPage() {
 }
 
 export const Route = createFileRoute('/_private/expert-cases/import/')({
-  component: PericiasImportPage,
+  component: CasesImportPage,
   staticData: { title: t('import') },
 });

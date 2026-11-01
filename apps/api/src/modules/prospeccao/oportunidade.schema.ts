@@ -1,7 +1,7 @@
-import type { CreateOportunidade, DatajudTribunal, OportunidadeStatus, UpdateOportunidade } from '@ethica/contracts';
+import type { CreateOportunidade, DatajudCourt, OportunidadeStatus, UpdateOportunidade } from '@ethica/contracts';
 import {
+  createCaseSchema,
   createOportunidadeSchema,
-  createPericiaSchema,
   datajudSearchSchema,
   idSchema,
   OPORTUNIDADE_STATUS,
@@ -9,7 +9,7 @@ import {
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { DatajudClient, DatajudProcesso } from '../../providers/datajudClient.js';
+import type { DatajudClient, DatajudProcess } from '../../providers/datajudClient.js';
 
 export type { CreateOportunidade, UpdateOportunidade };
 export { createOportunidadeSchema, datajudSearchSchema, updateOportunidadeSchema };
@@ -27,8 +27,8 @@ export type ListOportunidadesQuery = z.infer<typeof listOportunidadesQuerySchema
 
 // Converter em perícia: o número, o tribunal e a vara vêm da oportunidade; o
 // perito informa só o que o Datajud não traz.
-export const converterOportunidadeSchema = createPericiaSchema
-  .pick({ justica: true, papel: true, objeto: true, dataNomeacao: true, prazoLaudo: true })
+export const converterOportunidadeSchema = createCaseSchema
+  .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDeadline: true })
   .strict();
 export type ConverterOportunidade = z.infer<typeof converterOportunidadeSchema>;
 
@@ -36,20 +36,20 @@ export type ProspeccaoRouterDeps = { validToken: RequestHandler; datajud?: Dataj
 
 export type OportunidadeRecord = {
   id: string;
-  numeroProcesso: string;
-  tribunal: DatajudTribunal;
+  processNumber: string;
+  court: DatajudCourt;
   classe?: string;
   assuntos: string[];
   orgaoJulgador?: string;
-  dataAjuizamento?: string;
-  ultimoMovimento?: string;
-  ultimoMovimentoEm?: string;
+  filingDate?: string;
+  lastMovement?: string;
+  lastMovementAt?: string;
   status: OportunidadeStatus;
   observacoes?: string;
-  periciaId?: string;
+  caseId?: string;
   createdAt: Date;
   updatedAt: Date;
 };
 
 // Resultado da busca com a marca de quem já foi salvo como oportunidade.
-export type DatajudResultado = DatajudProcesso & { oportunidadeId?: string };
+export type DatajudResultado = DatajudProcess & { oportunidadeId?: string };

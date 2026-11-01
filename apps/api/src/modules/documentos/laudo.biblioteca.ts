@@ -184,14 +184,14 @@ const NR16: Secao[] = [
   ),
 ];
 
-const quesitos = (de: string): Secao => ({
+const questions = (de: string): Secao => ({
   titulo: `Quesitos ${de}`,
   nivel: 2,
   textoSim: p('Quesito 1: (transcrever o quesito).', 'Resposta: (responder).'),
   textoNao: p(`Não foram apresentados quesitos ${de}.`),
 });
 
-const LAUDO_PERICIAL: Secao[] = [
+const EXPERT_REPORT: Secao[] = [
   IDENTIFICACAO,
   {
     titulo: 'Objetivo',
@@ -241,9 +241,9 @@ const LAUDO_PERICIAL: Secao[] = [
   ...NR15,
   ...NR16,
   grupo('Quesitos', true),
-  quesitos('pelo(a) [DENOMINACAO_AUTOR]'),
-  quesitos('pelo(a) [DENOMINACAO_REU]'),
-  quesitos('pelo Juízo'),
+  questions('pelo(a) [DENOMINACAO_AUTOR]'),
+  questions('pelo(a) [DENOMINACAO_REU]'),
+  questions('pelo Juízo'),
   {
     titulo: 'Conclusão',
     nivel: 1,
@@ -268,7 +268,7 @@ const LAUDO_PERICIAL: Secao[] = [
   ENCERRAMENTO,
 ];
 
-const PARECER_TECNICO: Secao[] = [
+const TECHNICAL_OPINION: Secao[] = [
   IDENTIFICACAO,
   {
     titulo: 'Objetivo',
@@ -346,13 +346,13 @@ export const MODELOS_PADRAO: Record<LaudoTipo, ModeloLaudoRecord> = {
     nome: 'Laudo pericial trabalhista',
     tipo: 'report',
     padrao: true,
-    secoes: comIds('laudo', LAUDO_PERICIAL),
+    secoes: comIds('laudo', EXPERT_REPORT),
   },
   technical_opinion: {
     id: LAUDO_MODELOS_PADRAO.technical_opinion,
     nome: 'Parecer técnico',
     tipo: 'technical_opinion',
     padrao: true,
-    secoes: comIds('parecer', PARECER_TECNICO),
+    secoes: comIds('parecer', TECHNICAL_OPINION),
   },
 };

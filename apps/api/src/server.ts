@@ -3,21 +3,21 @@ import { pathToFileURL } from 'node:url';
 import { connect, syncIndexes } from '@ethica/db';
 import { buildApp, buildMailProvider } from './app.js';
 import { env } from './config/env.config.js';
-import { enviarAvisosDePrazo, proximaExecucao } from './modules/agenda/avisoPrazo.service.js';
+import { proximaExecucao, sendDeadlineNotices } from './modules/agenda/deadlineReminder.service.js';
 
 // Aviso diário de prazos às 07:00 de São Paulo (AD-110). Timer em memória, encadeado: cada
 // execução agenda a próxima. Uma réplica da API por ambiente (design.md, Risks).
-const agendarAvisosDePrazo = (): void => {
+const scheduleDeadlineNotices = (): void => {
   const deps = { mail: buildMailProvider(), appUrl: env.CORS_ORIGIN };
   const agendar = () => {
     const delay = proximaExecucao(new Date()).getTime() - Date.now();
     setTimeout(async () => {
       try {
-        const { enviados } = await enviarAvisosDePrazo(deps);
-        console.log(JSON.stringify({ event: 'prazo_aviso.sent', enviados }));
+        const { enviados } = await sendDeadlineNotices(deps);
+        console.log(JSON.stringify({ event: 'deadline_notice.sent', enviados }));
       } catch (e) {
         console.error(
-          JSON.stringify({ event: 'prazo_aviso.failed', message: e instanceof Error ? e.message : String(e) }),
+          JSON.stringify({ event: 'deadline_notice.failed', message: e instanceof Error ? e.message : String(e) }),
         );
       }
       agendar();
@@ -42,7 +42,7 @@ export const start = async (opts: StartOptions = {}): Promise<StartHandle | unde
     const httpServer = buildApp().listen(port, () => {
       console.log(JSON.stringify({ event: 'server.listening', port }));
     });
-    agendarAvisosDePrazo();
+    scheduleDeadlineNotices();
     return { httpServer };
   } catch (e) {
     console.error(JSON.stringify({ event: 'server.boot_failed', message: e instanceof Error ? e.message : String(e) }));

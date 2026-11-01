@@ -25,7 +25,7 @@ const toRecord = (doc: LaudoDocument): LaudoRecord => {
   const secoes = doc.secoes.map(secaoToRecord);
   return {
     id: doc._id.toString(),
-    periciaId: doc.Pericia.toString(),
+    caseId: doc.Case.toString(),
     tipo: doc.tipo,
     status: doc.status,
     titulo: doc.titulo,
@@ -40,8 +40,8 @@ const toRecord = (doc: LaudoDocument): LaudoRecord => {
 
 export const create = async (input: LaudoCreateInput): Promise<LaudoRecord> =>
   withDbTiming('laudo.create', async () => {
-    const { tenantId, periciaId, userId, ...rest } = input;
-    return toRecord(await Laudo.create({ ...rest, Tenant: tenantId, Pericia: periciaId, CriadoPor: userId }));
+    const { tenantId, caseId, userId, ...rest } = input;
+    return toRecord(await Laudo.create({ ...rest, Tenant: tenantId, Case: caseId, CriadoPor: userId }));
   });
 
 export const findById = async (tenantId: string, id: string): Promise<LaudoRecord | null> =>
@@ -58,7 +58,7 @@ export const list = async (
     const match = {
       Tenant: toObjectId(tenantId),
       ...(query.status ? { status: query.status } : {}),
-      ...(query.periciaId ? { Pericia: toObjectId(query.periciaId) } : {}),
+      ...(query.caseId ? { Case: toObjectId(query.caseId) } : {}),
     };
     const [result] = await Laudo.aggregate<{
       items: Array<LaudoDocument & { totalSecoes: number }>;
@@ -81,7 +81,7 @@ export const list = async (
     return {
       items: (result?.items ?? []).map((doc) => ({
         id: String(doc._id),
-        periciaId: String(doc.Pericia),
+        caseId: String(doc.Case),
         tipo: doc.tipo,
         status: doc.status,
         titulo: doc.titulo,
@@ -159,7 +159,7 @@ export const removeRascunho = async (tenantId: string, id: string): Promise<{ de
     return { deletedCount: result.deletedCount ?? 0 };
   });
 
-export const deleteByPericia = async (tenantId: string, periciaId: string): Promise<void> =>
-  withDbTiming('laudo.deleteByPericia', async () => {
-    await Laudo.deleteMany(tenantScoped({ Tenant: tenantId, Pericia: periciaId }));
+export const deleteByCase = async (tenantId: string, caseId: string): Promise<void> =>
+  withDbTiming('laudo.deleteByCase', async () => {
+    await Laudo.deleteMany(tenantScoped({ Tenant: tenantId, Case: caseId }));
   });

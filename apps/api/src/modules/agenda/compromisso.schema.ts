@@ -33,7 +33,7 @@ export const listCompromissosQuerySchema = z
     from: calendarDateSchema,
     to: calendarDateSchema,
     tipo: z.enum(COMPROMISSO_TIPOS).optional(),
-    periciaId: idSchema.optional(),
+    caseId: idSchema.optional(),
   })
   .strict()
   .refine((query) => query.from < query.to, { message: 'from precisa ser antes de to', path: ['to'] })
@@ -46,7 +46,7 @@ export type ListCompromissosQuery = z.infer<typeof listCompromissosQuerySchema>;
 export const upcomingCompromissosQuerySchema = z
   .object({
     limit: z.coerce.number().int().min(1).max(20).default(5),
-    periciaId: idSchema.optional(),
+    caseId: idSchema.optional(),
   })
   .strict();
 export type UpcomingCompromissosQuery = z.infer<typeof upcomingCompromissosQuerySchema>;
@@ -65,9 +65,9 @@ export type CompromissoRecord = {
   inicio: Date;
   fim: Date;
   local?: string;
-  periciaId?: string;
+  caseId?: string;
   // Enriquecido pelo service com o número do processo; ausente se a perícia não existe mais.
-  periciaNumero?: string;
+  caseNumber?: string;
   status: CompromissoStatus;
   origem: CompromissoOrigem;
   observacoes?: string;
@@ -87,7 +87,7 @@ export type CompromissoWrite = {
   inicio?: Date;
   fim?: Date;
   local?: string;
-  periciaId?: string;
+  caseId?: string;
   status?: CompromissoStatus;
   origem?: CompromissoOrigem;
   observacoes?: string;

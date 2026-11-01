@@ -17,7 +17,7 @@ export function FuncoesFields({ form }: { form: UseFormReturn<VistoriaDados> }) 
         <Button
           type="button"
           variant="outline"
-          onClick={() => append({ id: crypto.randomUUID(), titulo: '', autor: {}, reu: {} })}
+          onClick={() => append({ id: crypto.randomUUID(), titulo: '', plaintiff: {}, defendant: {} })}
         >
           {t('add_role')}
         </Button>
@@ -54,9 +54,9 @@ export function FuncoesFields({ form }: { form: UseFormReturn<VistoriaDados> }) 
               />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              {(['autor', 'reu'] as const).map((versao) => (
+              {(['plaintiff', 'defendant'] as const).map((versao) => (
                 <div key={versao} className="grid gap-3">
-                  <ItemTitle>{t(versao === 'autor' ? 'plaintiff_version' : 'defendant_version')}</ItemTitle>
+                  <ItemTitle>{t(versao === 'plaintiff' ? 'plaintiff_version' : 'defendant_version')}</ItemTitle>
                   <TextareaField
                     control={form.control}
                     name={`funcoes.${index}.${versao}.atividades`}
@@ -71,7 +71,7 @@ export function FuncoesFields({ form }: { form: UseFormReturn<VistoriaDados> }) 
                   />
                   <TextField
                     control={form.control}
-                    name={`funcoes.${index}.${versao}.tempoExposicao`}
+                    name={`funcoes.${index}.${versao}.timeExposure`}
                     label={t('exposure_time')}
                     placeholder={t('exposure_time_placeholder')}
                   />

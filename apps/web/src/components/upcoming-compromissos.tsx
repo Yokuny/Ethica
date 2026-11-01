@@ -19,7 +19,7 @@ export function UpcomingCompromissos({ items }: { items: CompromissoRecord[] }) 
           render={<Link to="/agenda" search={{ date: formatDisplayDate(item.inicio), view: 'day' }} />}
           title={item.titulo}
           badges={<Badge variant={COMPROMISSO_TIPO_VARIANT[item.tipo]}>{t(item.tipo)}</Badge>}
-          description={[formatDateTime(item.inicio), item.periciaNumero, item.local].filter(Boolean).join(' · ')}
+          description={[formatDateTime(item.inicio), item.caseNumber, item.local].filter(Boolean).join(' · ')}
         />
       ))}
     </LinkList>

@@ -18,8 +18,8 @@ export type CompromissoRecord = {
   inicio: string;
   fim: string;
   local?: string;
-  periciaId?: string;
-  periciaNumero?: string;
+  caseId?: string;
+  caseNumber?: string;
   status: CompromissoStatus;
   origem: 'manual' | 'automatic';
   observacoes?: string;
@@ -30,13 +30,13 @@ export type CompromissoRecord = {
 };
 
 // `from`/`to`: datas de calendário do fuso de exibição, intervalo [from, to).
-export type CompromissosQueryParams = { from: string; to: string; tipo?: CompromissoTipo; periciaId?: string };
+export type CompromissosQueryParams = { from: string; to: string; tipo?: CompromissoTipo; caseId?: string };
 
 export const compromissoKeys = {
   all: ['compromisso'] as const,
   lists: () => [...compromissoKeys.all, 'list'] as const,
   list: (params: CompromissosQueryParams) => [...compromissoKeys.lists(), params] as const,
-  upcoming: (params: { limit: number; periciaId?: string }) => [...compromissoKeys.all, 'upcoming', params] as const,
+  upcoming: (params: { limit: number; caseId?: string }) => [...compromissoKeys.all, 'upcoming', params] as const,
 };
 
 export const compromissosQuery = (params: CompromissosQueryParams) =>
@@ -45,19 +45,19 @@ export const compromissosQuery = (params: CompromissosQueryParams) =>
     queryFn: async (): Promise<CompromissoRecord[]> => {
       const search = new URLSearchParams({ from: params.from, to: params.to });
       if (params.tipo) search.set('tipo', params.tipo);
-      if (params.periciaId) search.set('periciaId', params.periciaId);
+      if (params.caseId) search.set('caseId', params.caseId);
       const res = await get<CompromissoRecord[]>(`/agenda?${search.toString()}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;
     },
   });
 
-export const upcomingCompromissosQuery = (params: { limit: number; periciaId?: string }) =>
+export const upcomingCompromissosQuery = (params: { limit: number; caseId?: string }) =>
   queryOptions({
     queryKey: compromissoKeys.upcoming(params),
     queryFn: async (): Promise<CompromissoRecord[]> => {
       const search = new URLSearchParams({ limit: String(params.limit) });
-      if (params.periciaId) search.set('periciaId', params.periciaId);
+      if (params.caseId) search.set('caseId', params.caseId);
       const res = await get<CompromissoRecord[]>(`/agenda/upcoming?${search.toString()}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
       return res.data;

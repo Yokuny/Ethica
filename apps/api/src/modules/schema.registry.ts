@@ -6,13 +6,16 @@ import {
 } from './agenda/compromisso.schema.js';
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import {
+  inspectionCaseParamSchema,
   midiaUploadQuerySchema,
   vistoriaDiaQuerySchema,
   vistoriaMidiaParamSchema,
   vistoriaParamSchema,
-  vistoriaPericiaParamSchema,
 } from './agenda/vistoria.schema.js';
-import { documentoPericiaParamSchema } from './documentos/documentos.schema.js';
+import { caseIdParamSchema, listCasesQuerySchema, movementIdParamSchema } from './case/case.schema.js';
+import { deadlineIdParamSchema, listPendingDeadlinesQuerySchema } from './case/deadline.schema.js';
+import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
+import { documentCaseParamSchema } from './documentos/documentos.schema.js';
 import {
   laudoIdParamSchema,
   laudoSecaoParamSchema,
@@ -31,9 +34,6 @@ import {
 import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } from './identity/auth.schema.js';
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
-import { listPartesQuerySchema, parteIdParamSchema } from './pericia/parte.schema.js';
-import { listPericiasQuerySchema, movimentacaoIdParamSchema, periciaIdParamSchema } from './pericia/pericia.schema.js';
-import { listPrazosPendentesQuerySchema, prazoIdParamSchema } from './pericia/prazo.schema.js';
 import {
   converterOportunidadeSchema,
   listOportunidadesQuerySchema,
@@ -50,13 +50,13 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'userDirectoryQuerySchema', schema: userDirectoryQuerySchema },
   { name: 'userIdParamSchema', schema: userIdParamSchema },
   { name: 'updatePreferencesSchema', schema: updatePreferencesSchema },
-  { name: 'periciaIdParamSchema', schema: periciaIdParamSchema },
-  { name: 'listPericiasQuerySchema', schema: listPericiasQuerySchema },
-  { name: 'movimentacaoIdParamSchema', schema: movimentacaoIdParamSchema },
-  { name: 'documentoPericiaParamSchema', schema: documentoPericiaParamSchema },
+  { name: 'caseIdParamSchema', schema: caseIdParamSchema },
+  { name: 'listCasesQuerySchema', schema: listCasesQuerySchema },
+  { name: 'movementIdParamSchema', schema: movementIdParamSchema },
+  { name: 'documentCaseParamSchema', schema: documentCaseParamSchema },
   { name: 'vistoriaParamSchema', schema: vistoriaParamSchema },
   { name: 'vistoriaMidiaParamSchema', schema: vistoriaMidiaParamSchema },
-  { name: 'vistoriaPericiaParamSchema', schema: vistoriaPericiaParamSchema },
+  { name: 'inspectionCaseParamSchema', schema: inspectionCaseParamSchema },
   { name: 'vistoriaDiaQuerySchema', schema: vistoriaDiaQuerySchema },
   { name: 'midiaUploadQuerySchema', schema: midiaUploadQuerySchema },
   { name: 'modeloIdParamSchema', schema: modeloIdParamSchema },
@@ -65,10 +65,10 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'laudoSecaoParamSchema', schema: laudoSecaoParamSchema },
   { name: 'listModelosQuerySchema', schema: listModelosQuerySchema },
   { name: 'listLaudosQuerySchema', schema: listLaudosQuerySchema },
-  { name: 'parteIdParamSchema', schema: parteIdParamSchema },
-  { name: 'listPartesQuerySchema', schema: listPartesQuerySchema },
-  { name: 'prazoIdParamSchema', schema: prazoIdParamSchema },
-  { name: 'listPrazosPendentesQuerySchema', schema: listPrazosPendentesQuerySchema },
+  { name: 'partyIdParamSchema', schema: partyIdParamSchema },
+  { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
+  { name: 'deadlineIdParamSchema', schema: deadlineIdParamSchema },
+  { name: 'listPendingDeadlinesQuerySchema', schema: listPendingDeadlinesQuerySchema },
   { name: 'compromissoIdParamSchema', schema: compromissoIdParamSchema },
   { name: 'listCompromissosQuerySchema', schema: listCompromissosQuerySchema },
   { name: 'upcomingCompromissosQuerySchema', schema: upcomingCompromissosQuerySchema },

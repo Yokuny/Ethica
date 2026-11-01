@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { type UseFormReturn, useFieldArray } from 'react-hook-form';
 import { SelectField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { PericiaDoCampo } from '@/query/vistoria.js';
+import type { FieldCase } from '@/query/vistoria.js';
 import { QUALIDADE_KEY } from '../../@consts/campo-labels.js';
 import { AssinaturaDialog } from './assinatura-dialog.js';
 import { ListaCampos } from './lista-campos.js';
@@ -14,19 +14,19 @@ const QUALIDADES = VISTORIA_QUALIDADES.map((value) => ({ value, label: t(QUALIDA
 
 type PresentesFieldsProps = {
   form: UseFormReturn<VistoriaDados>;
-  pericia?: PericiaDoCampo;
+  legalCase?: FieldCase;
   onAssinatura: (blob: Blob) => Promise<string>;
 };
 
 // Quem estava na vistoria (CAM-02, CAM-06): nome, qualidade, e-mail e assinatura na tela.
-export function PresentesFields({ form, pericia, onAssinatura }: PresentesFieldsProps) {
+export function PresentesFields({ form, legalCase, onAssinatura }: PresentesFieldsProps) {
   const { fields, append, remove, update } = useFieldArray({ control: form.control, name: 'presentes' });
   const [assinando, setAssinando] = useState<number | null>(null);
 
-  function adicionarPartes() {
+  function addParties() {
     const nomes = (texto: string | undefined) => (texto ? texto.split(', ') : []);
-    for (const nome of nomes(pericia?.autor)) append({ id: crypto.randomUUID(), nome, qualidade: 'plaintiff' });
-    for (const nome of nomes(pericia?.reu)) append({ id: crypto.randomUUID(), nome, qualidade: 'defendant' });
+    for (const nome of nomes(legalCase?.plaintiff)) append({ id: crypto.randomUUID(), nome, qualidade: 'plaintiff' });
+    for (const nome of nomes(legalCase?.defendant)) append({ id: crypto.randomUUID(), nome, qualidade: 'defendant' });
   }
 
   return (
@@ -36,8 +36,8 @@ export function PresentesFields({ form, pericia, onAssinatura }: PresentesFields
         vazio={t('no_attendees_yet')}
         acoes={
           <>
-            {pericia && (
-              <Button type="button" variant="outline" onClick={adicionarPartes}>
+            {legalCase && (
+              <Button type="button" variant="outline" onClick={addParties}>
                 {t('add_case_parties')}
               </Button>
             )}

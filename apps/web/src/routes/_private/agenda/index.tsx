@@ -1,10 +1,10 @@
 import { Button } from '@ethica/ui/components/button';
 import { createFileRoute } from '@tanstack/react-router';
+import { CaseReceipts } from '@/components/case-receipts.js';
+import { DeadlineDialog } from '@/components/deadline-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
-import { PericiaRecebimentos } from '@/components/pericia-recebimentos.js';
-import { PrazoDialog } from '@/components/prazo-dialog.js';
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { CalendarToolbar } from './@components/calendar-toolbar.js';
@@ -23,16 +23,16 @@ export function AgendaIndexPage() {
     search,
     closePanel,
     query,
-    prazos,
+    deadlines,
     view,
     date,
     from,
     handleSelectItem,
-    handleSelectPrazo,
+    handleSelectDeadline,
     clearFilters,
   } = state;
   const items = query.data ?? [];
-  const prazoProps = { prazos, onSelectPrazo: handleSelectPrazo, today: formatDisplayDate(new Date()) };
+  const deadlineProps = { deadlines, onSelectDeadline: handleSelectDeadline, today: formatDisplayDate(new Date()) };
 
   return (
     <Card asPage>
@@ -52,19 +52,17 @@ export function AgendaIndexPage() {
             action={<Button onClick={clearFilters}>{t('clear_filters')}</Button>}
           />
         ) : view === 'month' ? (
-          <MonthView month={date} items={items} onSelect={handleSelectItem} {...prazoProps} />
+          <MonthView month={date} items={items} onSelect={handleSelectItem} {...deadlineProps} />
         ) : (
           <TimeGridView
             days={view === 'day' ? [date] : Array.from({ length: 7 }, (_, index) => addDaysToDisplayDate(from, index))}
             items={items}
             onSelect={handleSelectItem}
-            {...prazoProps}
+            {...deadlineProps}
           />
         )}
       </CardContent>
-      {panel?.kind === 'create' && (
-        <CompromissoForm date={panel.date} periciaId={search.periciaId} onClose={closePanel} />
-      )}
+      {panel?.kind === 'create' && <CompromissoForm date={panel.date} caseId={search.caseId} onClose={closePanel} />}
       {panel?.kind === 'edit' && <CompromissoForm compromisso={panel.compromisso} onClose={closePanel} />}
       {panel?.kind === 'detail' && (
         <CompromissoDetail
@@ -73,10 +71,10 @@ export function AgendaIndexPage() {
           onClose={closePanel}
         />
       )}
-      {panel?.kind === 'prazo' && (
-        <PrazoDialog prazo={panel.prazo} onClose={closePanel}>
-          <PericiaRecebimentos periciaId={panel.prazo.periciaId} />
-        </PrazoDialog>
+      {panel?.kind === 'deadline' && (
+        <DeadlineDialog deadline={panel.deadline} onClose={closePanel}>
+          <CaseReceipts caseId={panel.deadline.caseId} />
+        </DeadlineDialog>
       )}
     </Card>
   );

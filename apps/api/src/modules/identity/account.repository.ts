@@ -116,8 +116,8 @@ export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null
   });
 
 // AD-110: usuários ativos com papel e aviso ligado (ausente = ligado), de tenants não suspensos.
-export const listDestinatariosAvisoPrazo = async (tenantIds: string[]): Promise<DestinatarioAviso[]> =>
-  withDbTiming('account.listDestinatariosAvisoPrazo', async () => {
+export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promise<DestinatarioAviso[]> =>
+  withDbTiming('account.listDeadlineReminderRecipients', async () => {
     if (tenantIds.length === 0) return [];
     const ativos = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, status: { $ne: 'suspended' } })
       .select('_id')
@@ -126,7 +126,7 @@ export const listDestinatariosAvisoPrazo = async (tenantIds: string[]): Promise<
       Tenant: { $in: ativos.map((tenant) => tenant._id) },
       active: true,
       'role.0': { $exists: true },
-      'preferences.avisoPrazoEmail': { $ne: false },
+      'preferences.deadlineReminderEmail': { $ne: false },
     })
       .select('Tenant name email')
       .lean();

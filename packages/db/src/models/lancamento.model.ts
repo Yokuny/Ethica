@@ -28,7 +28,7 @@ export interface LancamentoDocument {
   status: LancamentoStatus;
   liquidadoEm?: string;
   parcelas: ParcelaDocument[];
-  Pericia?: mongoose.Types.ObjectId;
+  Case?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -53,7 +53,7 @@ const lancamentoSchema = new Schema<LancamentoDocument>(
       ],
       default: [],
     },
-    Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia' },
+    Case: { type: Schema.Types.ObjectId, ref: 'Case' },
   },
   { timestamps: true },
 );
@@ -66,7 +66,7 @@ lancamentoSchema.pre('validate', function () {
 });
 
 lancamentoSchema.index({ Tenant: 1, vencimento: 1 });
-lancamentoSchema.index({ Tenant: 1, Pericia: 1 });
+lancamentoSchema.index({ Tenant: 1, Case: 1 });
 lancamentoSchema.index({ Tenant: 1, natureza: 1, status: 1 });
 
 export const Lancamento = mongoose.model<LancamentoDocument>('Lancamento', lancamentoSchema);

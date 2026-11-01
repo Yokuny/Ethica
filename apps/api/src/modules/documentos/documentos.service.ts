@@ -3,64 +3,67 @@ import { strToU8, zipSync } from 'fflate';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfDocument, PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as compromissoService from '../agenda/compromisso.service.js';
+import * as caseService from '../case/case.service.js';
+import * as deadlineService from '../case/deadline.service.js';
+import * as partyService from '../case/party.service.js';
 import * as lancamentoService from '../financeiro/lancamento.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
-import * as parteService from '../pericia/parte.service.js';
-import * as periciaService from '../pericia/pericia.service.js';
-import * as prazoService from '../pericia/prazo.service.js';
 import * as oportunidadeService from '../prospeccao/oportunidade.service.js';
-import type { ArquivoGerado, DocumentoBase, DocumentoContexto, FinanceiroReportQuery } from './documentos.schema.js';
-import { checklistHtml, cronogramaHtml, fichaHtml, financeiroHtml, paradasHtml } from './documentos.templates.js';
+import type { DocumentoBase, DocumentoContexto, FinanceiroReportQuery, GeneratedFile } from './documentos.schema.js';
+import { checklistHtml, cronogramaHtml, fichaHtml, financeiroHtml, stalledHtml } from './documentos.templates.js';
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
 const base = async (providers: Providers, ctx: DocumentoContexto): Promise<DocumentoBase> => {
-  const [identity, perito] = await Promise.all([
+  const [identity, expert] = await Promise.all([
     officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
   ]);
-  return { identity, perito, geradoEm: ctx.now };
+  return { identity, expert, geradoEm: ctx.now };
 };
 
-const pdf = async (providers: Providers, nome: string, documento: PdfDocument): Promise<ArquivoGerado> => ({
+const pdf = async (providers: Providers, nome: string, documento: PdfDocument): Promise<GeneratedFile> => ({
   nome,
   tipo: 'application/pdf',
   conteudo: await providers.pdf.render(documento),
 });
 
 // DOC-02: o resumo financeiro só entra para admin/manager (AD-107).
-export const gerarFicha = async (providers: Providers, ctx: DocumentoContexto, periciaId: string) => {
-  const pericia = await periciaService.getPericia(ctx.tenantId, periciaId);
-  const [dadosBase, prazos, compromissos, financeiro] = await Promise.all([
+export const gerarFicha = async (providers: Providers, ctx: DocumentoContexto, caseId: string) => {
+  const legalCase = await caseService.getCase(ctx.tenantId, caseId);
+  const [dadosBase, deadlines, compromissos, financeiro] = await Promise.all([
     base(providers, ctx),
-    prazoService.listPrazosDaPericia(ctx.tenantId, periciaId),
-    compromissoService.listDaPericia(ctx.tenantId, periciaId),
-    ctx.canSeeFinance ? lancamentoService.resumoDaPericia(ctx.tenantId, periciaId) : undefined,
+    deadlineService.listCaseDeadlines(ctx.tenantId, caseId),
+    compromissoService.listByCase(ctx.tenantId, caseId),
+    ctx.canSeeFinance ? lancamentoService.caseSummary(ctx.tenantId, caseId) : undefined,
   ]);
   return pdf(
     providers,
-    `ficha-${pericia.numeroProcesso}.pdf`,
-    fichaHtml({ ...dadosBase, pericia, prazos, compromissos, financeiro }),
+    `ficha-${legalCase.processNumber}.pdf`,
+    fichaHtml({ ...dadosBase, legalCase, deadlines, compromissos, financeiro }),
   );
 };
 
-export const gerarChecklist = async (providers: Providers, ctx: DocumentoContexto, periciaId: string) => {
-  const pericia = await periciaService.getPericia(ctx.tenantId, periciaId);
+export const gerarChecklist = async (providers: Providers, ctx: DocumentoContexto, caseId: string) => {
+  const legalCase = await caseService.getCase(ctx.tenantId, caseId);
   return pdf(
     providers,
-    `checklist-${pericia.numeroProcesso}.pdf`,
-    checklistHtml({ ...(await base(providers, ctx)), pericia }),
+    `checklist-${legalCase.processNumber}.pdf`,
+    checklistHtml({ ...(await base(providers, ctx)), legalCase }),
   );
 };
 
 export const gerarCronograma = async (providers: Providers, ctx: DocumentoContexto) => {
-  const [dadosBase, prazos] = await Promise.all([base(providers, ctx), prazoService.listPrazosPendentes(ctx.tenantId)]);
+  const [dadosBase, deadlines] = await Promise.all([
+    base(providers, ctx),
+    deadlineService.listPendingDeadlines(ctx.tenantId),
+  ]);
   return pdf(
     providers,
     'cronograma-de-prazos.pdf',
-    cronogramaHtml({ ...dadosBase, prazos, hoje: dateInDisplayTz(ctx.now) }),
+    cronogramaHtml({ ...dadosBase, deadlines, hoje: dateInDisplayTz(ctx.now) }),
   );
 };
 
@@ -76,12 +79,12 @@ export const gerarFinanceiro = async (providers: Providers, ctx: DocumentoContex
   );
 };
 
-export const gerarParadas = async (providers: Providers, ctx: DocumentoContexto) => {
-  const [dadosBase, paradas] = await Promise.all([
+export const generateStalled = async (providers: Providers, ctx: DocumentoContexto) => {
+  const [dadosBase, stalled] = await Promise.all([
     base(providers, ctx),
-    periciaService.listParadas(ctx.tenantId, ctx.now),
+    caseService.listStalled(ctx.tenantId, ctx.now),
   ]);
-  return pdf(providers, 'pericias-paradas.pdf', paradasHtml({ ...dadosBase, paradas }));
+  return pdf(providers, 'pericias-paradas.pdf', stalledHtml({ ...dadosBase, stalled }));
 };
 
 // CSV da exportação (AD-122): mesmo formato da importação (`;`, UTF-8 com BOM, AD-115).
@@ -96,12 +99,12 @@ export const toCsv = <T>(colunas: Array<[string, (item: T) => Celula]>, itens: T
     .join('\r\n')}\r\n`;
 
 // DOC-04: um CSV por entidade do tenant num ZIP; registra quem exportou e quando.
-export const exportarDados = async (ctx: DocumentoContexto): Promise<ArquivoGerado> => {
+export const exportarDados = async (ctx: DocumentoContexto): Promise<GeneratedFile> => {
   const { tenantId } = ctx;
-  const [pericias, partes, prazos, compromissos, lancamentos, usuarios, oportunidades] = await Promise.all([
-    periciaService.listForExport(tenantId),
-    parteService.listForExport(tenantId),
-    prazoService.listForExport(tenantId),
+  const [cases, parties, deadlines, compromissos, lancamentos, usuarios, oportunidades] = await Promise.all([
+    caseService.listForExport(tenantId),
+    partyService.listForExport(tenantId),
+    deadlineService.listForExport(tenantId),
     compromissoService.listForExport(tenantId),
     lancamentoService.listForExport(tenantId),
     authService.listUserDirectory(tenantId),
@@ -111,30 +114,30 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<ArquivoGera
     'pericias.csv': toCsv(
       [
         ['id', (p) => p.id],
-        ['numeroProcesso', (p) => p.numeroProcesso],
-        ['justica', (p) => p.justica],
-        ['papel', (p) => p.papel],
-        ['tribunal', (p) => p.tribunal],
-        ['vara', (p) => p.vara],
-        ['comarca', (p) => p.comarca],
-        ['objeto', (p) => p.objeto],
+        ['numeroProcesso', (p) => p.processNumber],
+        ['justica', (p) => p.courtType],
+        ['papel', (p) => p.role],
+        ['tribunal', (p) => p.court],
+        ['vara', (p) => p.division],
+        ['comarca', (p) => p.district],
+        ['objeto', (p) => p.subject],
         ['status', (p) => p.status],
-        ['partes', (p) => p.partes.map((parte) => `${parte.polo}:${parte.tipo}:${parte.nome}`).join(' | ')],
-        ['dataNomeacao', (p) => p.dataNomeacao],
-        ['honorariosPropostosCents', (p) => p.honorariosPropostosCents],
-        ['honorariosFixadosCents', (p) => p.honorariosFixadosCents],
-        ['dataAutuacao', (p) => p.dataAutuacao],
-        ['dataAdmissao', (p) => p.dataAdmissao],
-        ['dataDemissao', (p) => p.dataDemissao],
-        ['funcaoReclamante', (p) => p.funcaoReclamante],
-        ['periodoImprescritoInicio', (p) => p.periodoImprescritoInicio],
-        ['periodoImprescritoFim', (p) => p.periodoImprescritoFim],
-        ['localPericia', (p) => p.localPericia],
-        ['movimentacoes', (p) => p.movimentacoes.map((m) => `${m.data}:${m.tipo}`).join(' | ')],
+        ['partes', (p) => p.parties.map((party) => `${party.side}:${party.tipo}:${party.nome}`).join(' | ')],
+        ['dataNomeacao', (p) => p.nominationDate],
+        ['honorariosPropostosCents', (p) => p.proposedFeesCents],
+        ['honorariosFixadosCents', (p) => p.fixedFeesCents],
+        ['dataAutuacao', (p) => p.docketingDate],
+        ['dataAdmissao', (p) => p.hireDate],
+        ['dataDemissao', (p) => p.terminationDate],
+        ['funcaoReclamante', (p) => p.claimantJob],
+        ['periodoImprescritoInicio', (p) => p.nonPrescribedPeriodStart],
+        ['periodoImprescritoFim', (p) => p.nonPrescribedPeriodEnd],
+        ['localPericia', (p) => p.location],
+        ['movimentacoes', (p) => p.movements.map((m) => `${m.data}:${m.tipo}`).join(' | ')],
         ['observacoes', (p) => p.observacoes],
         ['createdAt', (p) => p.createdAt],
       ],
-      pericias,
+      cases,
     ),
     'partes.csv': toCsv(
       [
@@ -147,24 +150,24 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<ArquivoGera
         ['telefone', (p) => p.telefone],
         ['createdAt', (p) => p.createdAt],
       ],
-      partes,
+      parties,
     ),
     'prazos.csv': toCsv(
       [
         ['id', (p) => p.id],
-        ['periciaId', (p) => p.periciaId],
+        ['periciaId', (p) => p.caseId],
         ['titulo', (p) => p.titulo],
         ['vencimento', (p) => p.vencimento],
         ['status', (p) => p.status],
-        ['protocoladoEm', (p) => p.protocoladoEm],
+        ['protocoladoEm', (p) => p.filedDate],
         ['observacoes', (p) => p.observacoes],
       ],
-      prazos,
+      deadlines,
     ),
     'compromissos.csv': toCsv(
       [
         ['id', (c) => c.id],
-        ['periciaId', (c) => c.periciaId],
+        ['periciaId', (c) => c.caseId],
         ['tipo', (c) => c.tipo],
         ['titulo', (c) => c.titulo],
         ['inicio', (c) => c.inicio],
@@ -179,7 +182,7 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<ArquivoGera
     'lancamentos.csv': toCsv(
       [
         ['id', (l) => l.id],
-        ['periciaId', (l) => l.periciaId],
+        ['periciaId', (l) => l.caseId],
         ['natureza', (l) => l.natureza],
         ['categoria', (l) => l.categoria],
         ['descricao', (l) => l.descricao],
@@ -207,13 +210,13 @@ export const exportarDados = async (ctx: DocumentoContexto): Promise<ArquivoGera
     'oportunidades.csv': toCsv(
       [
         ['id', (o) => o.id],
-        ['numeroProcesso', (o) => o.numeroProcesso],
-        ['tribunal', (o) => o.tribunal],
+        ['numeroProcesso', (o) => o.processNumber],
+        ['tribunal', (o) => o.court],
         ['classe', (o) => o.classe],
         ['assuntos', (o) => o.assuntos.join(' | ')],
         ['orgaoJulgador', (o) => o.orgaoJulgador],
         ['status', (o) => o.status],
-        ['periciaId', (o) => o.periciaId],
+        ['periciaId', (o) => o.caseId],
         ['observacoes', (o) => o.observacoes],
         ['createdAt', (o) => o.createdAt],
       ],

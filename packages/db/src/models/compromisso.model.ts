@@ -19,7 +19,7 @@ export interface CompromissoDocument {
   inicio: Date;
   fim: Date;
   local?: string;
-  Pericia?: mongoose.Types.ObjectId;
+  Case?: mongoose.Types.ObjectId;
   status: CompromissoStatus;
   origem: CompromissoOrigem;
   observacoes?: string;
@@ -41,7 +41,7 @@ const compromissoSchema = new Schema<CompromissoDocument>(
     inicio: { type: Date, required: true },
     fim: { type: Date, required: true },
     local: { type: String, trim: true },
-    Pericia: { type: Schema.Types.ObjectId, ref: 'Pericia' },
+    Case: { type: Schema.Types.ObjectId, ref: 'Case' },
     status: { type: String, enum: COMPROMISSO_STATUS, default: 'scheduled', required: true },
     origem: { type: String, enum: ['manual', 'automatic'], default: 'manual', required: true },
     observacoes: { type: String },
@@ -66,6 +66,6 @@ compromissoSchema.pre('validate', function () {
 
 // Consulta da agenda é sempre por intervalo [from, to) do tenant.
 compromissoSchema.index({ Tenant: 1, inicio: 1 });
-compromissoSchema.index({ Tenant: 1, Pericia: 1, inicio: 1 });
+compromissoSchema.index({ Tenant: 1, Case: 1, inicio: 1 });
 
 export const Compromisso = mongoose.model<CompromissoDocument>('Compromisso', compromissoSchema);

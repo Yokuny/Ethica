@@ -3,7 +3,7 @@ import { domainEventBus } from '../event-bus.js';
 
 // Honorários fixados pelo juízo: viram receita a receber no financeiro.
 export const registerFinanceiroSubscriber = (): void => {
-  domainEventBus.on('pericia:honorarios_fixados', async (payload) => {
-    await lancamentoService.lancarHonorariosFixados(payload);
+  domainEventBus.on('case:fixed_fees', async (payload) => {
+    await lancamentoService.postFixedFees(payload);
   });
 };

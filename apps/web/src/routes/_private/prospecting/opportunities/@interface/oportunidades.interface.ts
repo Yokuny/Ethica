@@ -1,4 +1,4 @@
-import { createPericiaSchema, OPORTUNIDADE_STATUS } from '@ethica/contracts';
+import { createCaseSchema, OPORTUNIDADE_STATUS } from '@ethica/contracts';
 import { z } from 'zod';
 
 export const oportunidadesSearchSchema = z.object({
@@ -9,7 +9,7 @@ export const oportunidadesSearchSchema = z.object({
 export type OportunidadesSearch = z.infer<typeof oportunidadesSearchSchema>;
 
 // Mesmo recorte do `converterOportunidadeSchema` da API.
-export const converterFormSchema = createPericiaSchema
-  .pick({ justica: true, papel: true, objeto: true, dataNomeacao: true, prazoLaudo: true })
+export const converterFormSchema = createCaseSchema
+  .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDeadline: true })
   .strict();
 export type ConverterForm = z.infer<typeof converterFormSchema>;

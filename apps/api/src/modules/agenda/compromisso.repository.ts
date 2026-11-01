@@ -11,7 +11,7 @@ const toRecord = (doc: CompromissoDocument): CompromissoRecord => ({
   inicio: doc.inicio,
   fim: doc.fim,
   local: doc.local,
-  periciaId: doc.Pericia?.toString(),
+  caseId: doc.Case?.toString(),
   status: doc.status,
   origem: doc.origem,
   observacoes: doc.observacoes,
@@ -28,11 +28,11 @@ const toRecord = (doc: CompromissoDocument): CompromissoRecord => ({
   updatedAt: doc.updatedAt,
 });
 
-const toDocumentFields = ({ periciaId, motivo, ...data }: CompromissoWrite) => {
+const toDocumentFields = ({ caseId, motivo, ...data }: CompromissoWrite) => {
   const fields: Record<string, unknown> = Object.fromEntries(
     Object.entries(data).filter(([, value]) => value !== undefined),
   );
-  if (periciaId !== undefined) fields.Pericia = periciaId;
+  if (caseId !== undefined) fields.Case = caseId;
   if (motivo) fields.motivo = motivo;
   return fields;
 };
@@ -74,7 +74,7 @@ export const deleteCompromisso = async (tenantId: string, id: string): Promise<{
 // Tudo que toca o intervalo: começa antes do fim e termina depois do início.
 export const listInRange = async (
   tenantId: string,
-  range: { from: Date; to: Date; tipo?: CompromissoTipo; periciaId?: string },
+  range: { from: Date; to: Date; tipo?: CompromissoTipo; caseId?: string },
 ): Promise<CompromissoRecord[]> =>
   withDbTiming('agenda.listInRange', async () => {
     const docs = await Compromisso.find(
@@ -83,7 +83,7 @@ export const listInRange = async (
         inicio: { $lt: range.to },
         fim: { $gt: range.from },
         ...(range.tipo ? { tipo: range.tipo } : {}),
-        ...(range.periciaId ? { Pericia: range.periciaId } : {}),
+        ...(range.caseId ? { Case: range.caseId } : {}),
       }),
     )
       .sort({ inicio: 1 })
@@ -94,7 +94,7 @@ export const listInRange = async (
 
 export const listUpcoming = async (
   tenantId: string,
-  options: { now: Date; limit: number; periciaId?: string },
+  options: { now: Date; limit: number; caseId?: string },
 ): Promise<CompromissoRecord[]> =>
   withDbTiming('agenda.listUpcoming', async () => {
     const docs = await Compromisso.find(
@@ -102,7 +102,7 @@ export const listUpcoming = async (
         Tenant: tenantId,
         status: 'scheduled' as const,
         fim: { $gte: options.now },
-        ...(options.periciaId ? { Pericia: options.periciaId } : {}),
+        ...(options.caseId ? { Case: options.caseId } : {}),
       }),
     )
       .sort({ inicio: 1 })
@@ -112,10 +112,10 @@ export const listUpcoming = async (
   });
 
 // Ficha da perícia (com `periciaId`) e exportação de dados (DOC-02, DOC-04), por início.
-export const listAll = async (tenantId: string, filter: { periciaId?: string } = {}): Promise<CompromissoRecord[]> =>
+export const listAll = async (tenantId: string, filter: { caseId?: string } = {}): Promise<CompromissoRecord[]> =>
   withDbTiming('compromisso.listAll', async () => {
     const docs = await Compromisso.find(
-      tenantScoped({ Tenant: tenantId, ...(filter.periciaId ? { Pericia: filter.periciaId } : {}) }),
+      tenantScoped({ Tenant: tenantId, ...(filter.caseId ? { Case: filter.caseId } : {}) }),
     )
       .sort({ inicio: 1 })
       .lean();

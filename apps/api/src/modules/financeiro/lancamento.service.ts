@@ -1,22 +1,22 @@
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
-import * as periciaService from '../pericia/pericia.service.js';
+import * as caseService from '../case/case.service.js';
 import * as lancamentoRepository from './lancamento.repository.js';
 import type {
+  CaseFinanceSummary,
   CreateLancamento,
   CreateParcela,
   FinanceiroRelatorio,
   FinanceiroRelatorioLinha,
   LancamentoRecord,
   ListLancamentosQuery,
-  PericiaFinanceiroResumo,
   UpdateLancamento,
 } from './lancamento.schema.js';
 
 export class LancamentoNotFoundError extends KeyedError {}
 
 // Prazo padrão para receber honorários fixados quando o juízo não define data.
-const DIAS_PARA_RECEBER_HONORARIOS = 30;
+const DAYS_TO_RECEIVE_FEES = 30;
 
 const shiftMonth = (month: string, offset: number): string => {
   const [year, m] = month.split('-').map(Number) as [number, number];
@@ -30,16 +30,16 @@ const addDays = (day: string, days: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
-const withPericiaNumero = async (tenantId: string, items: LancamentoRecord[]): Promise<LancamentoRecord[]> => {
-  const ids = [...new Set(items.flatMap((item) => (item.periciaId ? [item.periciaId] : [])))];
-  const resumos = await periciaService.findResumosByIds(tenantId, ids);
+const withCaseNumber = async (tenantId: string, items: LancamentoRecord[]): Promise<LancamentoRecord[]> => {
+  const ids = [...new Set(items.flatMap((item) => (item.caseId ? [item.caseId] : [])))];
+  const resumos = await caseService.findResumosByIds(tenantId, ids);
   return items.map((item) => {
-    const resumo = item.periciaId ? resumos.get(item.periciaId) : undefined;
+    const resumo = item.caseId ? resumos.get(item.caseId) : undefined;
     if (!resumo) return item;
     return {
       ...item,
-      periciaNumero: resumo.numeroProcesso,
-      ...(resumo.contratante ? { contratante: resumo.contratante } : {}),
+      caseNumber: resumo.processNumber,
+      ...(resumo.client ? { client: resumo.client } : {}),
     };
   });
 };
@@ -51,7 +51,7 @@ const withLiquidacao = (data: UpdateLancamento, today: string): UpdateLancamento
 };
 
 export const createLancamento = async (tenantId: string, data: CreateLancamento): Promise<LancamentoRecord> => {
-  if (data.periciaId) await periciaService.getPericia(tenantId, data.periciaId);
+  if (data.caseId) await caseService.getCase(tenantId, data.caseId);
   return lancamentoRepository.createLancamento(tenantId, data);
 };
 
@@ -72,7 +72,7 @@ export const updateLancamento = async (
 ): Promise<LancamentoRecord> => {
   const current = await findOrThrow(tenantId, id);
   if (data.natureza && data.natureza !== current.natureza) throw new CustomError('invalid_data', 422);
-  if (data.periciaId) await periciaService.getPericia(tenantId, data.periciaId);
+  if (data.caseId) await caseService.getCase(tenantId, data.caseId);
 
   if (current.natureza === 'income') {
     if (data.status || data.liquidadoEm) throw new CustomError('fee_status_comes_from_parcels', 422);
@@ -111,7 +111,7 @@ export const estornarParcela = async (tenantId: string, id: string, parcelaId: s
 
 export const listLancamentos = async (tenantId: string, query: ListLancamentosQuery, now: Date = new Date()) => {
   const result = await lancamentoRepository.listLancamentos(tenantId, query, dateInDisplayTz(now));
-  return { ...result, items: await withPericiaNumero(tenantId, result.items) };
+  return { ...result, items: await withCaseNumber(tenantId, result.items) };
 };
 
 export const resumo = (tenantId: string, now: Date = new Date()) => {
@@ -144,16 +144,16 @@ export const relatorioPeriodo = async (
   periodo: { from: string; to: string },
 ): Promise<FinanceiroRelatorio> => {
   const noPeriodo = (day?: string): day is string => Boolean(day && day >= periodo.from && day <= periodo.to);
-  const itens = await withPericiaNumero(
+  const itens = await withCaseNumber(
     tenantId,
     (await lancamentoRepository.listAll(tenantId, { periodo })).filter((item) => item.status !== 'canceled'),
   );
   const linha = (item: LancamentoRecord, data: string, valorCents: number, conta?: string) => ({
     data,
-    descricao: item.contratante ? `${item.descricao} · contratante: ${item.contratante}` : item.descricao,
+    descricao: item.client ? `${item.descricao} · contratante: ${item.client}` : item.descricao,
     categoria: item.categoria,
     valorCents,
-    ...(item.periciaNumero ? { periciaNumero: item.periciaNumero } : {}),
+    ...(item.caseNumber ? { caseNumber: item.caseNumber } : {}),
     ...(conta ? { conta } : {}),
   });
   const receitas = itens.filter((item) => item.natureza === 'income');
@@ -193,17 +193,15 @@ export const relatorioPeriodo = async (
   };
 };
 
-export const resumoDaPericia = async (tenantId: string, periciaId: string): Promise<PericiaFinanceiroResumo> => {
-  const itens = (await lancamentoRepository.listAll(tenantId, { periciaId })).filter(
-    (item) => item.status !== 'canceled',
-  );
+export const caseSummary = async (tenantId: string, caseId: string): Promise<CaseFinanceSummary> => {
+  const itens = (await lancamentoRepository.listAll(tenantId, { caseId })).filter((item) => item.status !== 'canceled');
   const receitas = itens.filter((item) => item.natureza === 'income');
-  const honorariosCents = receitas.reduce((total, item) => total + item.valorCents, 0);
+  const feesCents = receitas.reduce((total, item) => total + item.valorCents, 0);
   const recebidoCents = receitas.reduce((total, item) => total + (item.recebidoCents ?? 0), 0);
   return {
-    honorariosCents,
+    feesCents,
     recebidoCents,
-    saldoCents: honorariosCents - recebidoCents,
+    saldoCents: feesCents - recebidoCents,
     despesasCents: itens
       .filter((item) => item.natureza === 'expense')
       .reduce((total, item) => total + item.valorCents, 0),
@@ -215,17 +213,17 @@ export const listForExport = (tenantId: string) => lancamentoRepository.listAll(
 // Subscriber de `pericia:honorarios_fixados`: o honorário vira receita a receber. Se a perícia
 // já tem o honorário fixado lançado, só o valor muda (AD-111) — recusado se ficar abaixo do
 // recebido, o que o bus apenas registra no log.
-export const lancarHonorariosFixados = async (
+export const postFixedFees = async (
   input: {
     tenantId: string;
-    periciaId: string;
-    numeroProcesso: string;
+    caseId: string;
+    processNumber: string;
     valorCents: number;
     categoria: 'fixed_fees' | 'contracted_fees';
   },
   now: Date = new Date(),
 ): Promise<void> => {
-  const existente = await lancamentoRepository.findHonorarioFixado(input.tenantId, input.periciaId);
+  const existente = await lancamentoRepository.findFixedFee(input.tenantId, input.caseId);
   if (existente) {
     const updated = await lancamentoRepository.updateReceita(input.tenantId, existente.id, {
       valorCents: input.valorCents,
@@ -236,9 +234,9 @@ export const lancarHonorariosFixados = async (
   await lancamentoRepository.createLancamento(input.tenantId, {
     natureza: 'income',
     categoria: input.categoria,
-    descricao: `${input.categoria === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.numeroProcesso}`,
+    descricao: `${input.categoria === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.processNumber}`,
     valorCents: input.valorCents,
-    vencimento: addDays(dateInDisplayTz(now), DIAS_PARA_RECEBER_HONORARIOS),
-    periciaId: input.periciaId,
+    vencimento: addDays(dateInDisplayTz(now), DAYS_TO_RECEIVE_FEES),
+    caseId: input.caseId,
   });
 };

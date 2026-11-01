@@ -5,16 +5,16 @@ import { z } from 'zod';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import type { CompromissoRecord } from '../agenda/compromisso.schema.js';
-import type { FinanceiroRelatorio, PericiaFinanceiroResumo } from '../financeiro/lancamento.schema.js';
+import type { CaseRecord, StalledCase } from '../case/case.schema.js';
+import type { DeadlineRecord } from '../case/deadline.schema.js';
+import type { CaseFinanceSummary, FinanceiroRelatorio } from '../financeiro/lancamento.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
-import type { PericiaParada, PericiaRecord } from '../pericia/pericia.schema.js';
-import type { PrazoRecord } from '../pericia/prazo.schema.js';
 
 export type { DocumentIdentity, FinanceiroReportQuery };
 export { financeiroReportQuerySchema };
 
-export const documentoPericiaParamSchema = z.object({ id: idSchema }).strict();
+export const documentCaseParamSchema = z.object({ id: idSchema }).strict();
 
 export type DocumentosRouterDeps = { validToken: RequestHandler; pdf: PdfRenderer; storage?: FileStorage };
 
@@ -27,21 +27,21 @@ export type DocumentoContexto = {
   now: Date;
 };
 
-export type DocumentoBase = { identity: DocumentIdentity; perito: AccountView; geradoEm: Date };
+export type DocumentoBase = { identity: DocumentIdentity; expert: AccountView; geradoEm: Date };
 
 export type FichaDados = DocumentoBase & {
-  pericia: PericiaRecord;
-  prazos: PrazoRecord[];
+  legalCase: CaseRecord;
+  deadlines: DeadlineRecord[];
   compromissos: CompromissoRecord[];
-  financeiro?: PericiaFinanceiroResumo;
+  financeiro?: CaseFinanceSummary;
 };
 
-export type ChecklistDados = DocumentoBase & { pericia: PericiaRecord };
+export type ChecklistDados = DocumentoBase & { legalCase: CaseRecord };
 
-export type CronogramaDados = DocumentoBase & { prazos: PrazoRecord[]; hoje: string };
+export type CronogramaDados = DocumentoBase & { deadlines: DeadlineRecord[]; hoje: string };
 
 export type FinanceiroDados = DocumentoBase & { periodo: FinanceiroReportQuery; relatorio: FinanceiroRelatorio };
 
-export type ParadasDados = DocumentoBase & { paradas: PericiaParada[] };
+export type StalledData = DocumentoBase & { stalled: StalledCase[] };
 
-export type ArquivoGerado = { nome: string; tipo: string; conteudo: Buffer };
+export type GeneratedFile = { nome: string; tipo: string; conteudo: Buffer };

@@ -8,7 +8,7 @@ import {
   RecordTableRow,
 } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { CsvImportResult } from '../../@query/importacao.js';
+import type { CsvImportResult } from '../../@query/import.js';
 
 // Relatório do lote (IMP-02.2): quantas foram criadas, ignoradas e recusadas, e o motivo por linha.
 export function CsvImportReport({ result }: { result: CsvImportResult }) {
@@ -21,7 +21,7 @@ export function CsvImportReport({ result }: { result: CsvImportResult }) {
     ...result.skipped.map((item) => ({
       line: item.line,
       recusada: false,
-      motivo: `${item.numeroProcesso}: ${t('expert_case_already_registered')}`,
+      motivo: `${item.processNumber}: ${t('expert_case_already_registered')}`,
     })),
   ].sort((a, b) => a.line - b.line);
 

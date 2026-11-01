@@ -12,15 +12,15 @@ import { useCompromissoForm } from '../@hooks/use-compromisso-form.js';
 type CompromissoFormProps = {
   compromisso?: CompromissoRecord;
   date?: string;
-  periciaId?: string;
+  caseId?: string;
   onClose: () => void;
 };
 
-export function CompromissoForm({ compromisso, date, periciaId, onClose }: CompromissoFormProps) {
-  const { form, onSubmit, isPending, errorMessage, periciaItems } = useCompromissoForm({
+export function CompromissoForm({ compromisso, date, caseId, onClose }: CompromissoFormProps) {
+  const { form, onSubmit, isPending, errorMessage, caseItems } = useCompromissoForm({
     compromisso,
     date,
-    periciaId,
+    caseId,
     onDone: onClose,
   });
   const { control } = form;
@@ -63,12 +63,12 @@ export function CompromissoForm({ compromisso, date, periciaId, onClose }: Compr
                     />
                   </div>,
                   <SelectField
-                    key="pericia"
+                    key="legalCase"
                     control={control}
-                    name="periciaId"
+                    name="caseId"
                     label={t('expert_case')}
                     placeholder={t('no_linked_expert_case')}
-                    items={periciaItems}
+                    items={caseItems}
                   />,
                   <TextField
                     key="local"

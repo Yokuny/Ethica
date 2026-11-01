@@ -1,7 +1,7 @@
+import type { CaseSummary } from '../case/case.schema.js';
+import * as caseService from '../case/case.service.js';
+import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
-import type { PericiaResumo } from '../pericia/pericia.schema.js';
-import * as periciaService from '../pericia/pericia.service.js';
-import * as prazoService from '../pericia/prazo.service.js';
 import * as compromissoRepository from './compromisso.repository.js';
 import type { CompromissoRecord } from './compromisso.schema.js';
 import type { FeedEntrada } from './feed.schema.js';
@@ -54,13 +54,16 @@ const nextDay = (day: string): string => {
   return date.toISOString().slice(0, 10);
 };
 
-const descricao = (tipo: string, titulo: string, resumo?: PericiaResumo, observacoes?: string): string => {
-  const partes = resumo && (resumo.autor || resumo.reu) ? [resumo.autor, resumo.reu].filter(Boolean).join(' × ') : '';
+const descricao = (tipo: string, titulo: string, resumo?: CaseSummary, observacoes?: string): string => {
+  const parties =
+    resumo && (resumo.plaintiff || resumo.defendant)
+      ? [resumo.plaintiff, resumo.defendant].filter(Boolean).join(' × ')
+      : '';
   return [
     `Tipo: ${tipo}`,
     `Título: ${titulo}`,
-    resumo ? `Processo: ${resumo.numeroProcesso}` : '',
-    partes ? `Partes: ${partes}` : '',
+    resumo ? `Processo: ${resumo.processNumber}` : '',
+    parties ? `Partes: ${parties}` : '',
     observacoes ? `Observações: ${observacoes}` : '',
   ]
     .filter(Boolean)
@@ -69,11 +72,11 @@ const descricao = (tipo: string, titulo: string, resumo?: PericiaResumo, observa
 
 // Monta o calendário (função pura, testada à parte). Cada evento leva data, descrição
 // (tipo, título, processo, partes, observações) e local — definido pelo usuário em 2026-10-31.
-export const montarIcs = ({ compromissos, prazos, resumos, now }: FeedEntrada): string => {
+export const montarIcs = ({ compromissos, deadlines, resumos, now }: FeedEntrada): string => {
   const stamp = utcStamp(now);
   const events = [
     ...compromissos.map((item) => {
-      const resumo = item.periciaId ? resumos.get(item.periciaId) : undefined;
+      const resumo = item.caseId ? resumos.get(item.caseId) : undefined;
       return [
         'BEGIN:VEVENT',
         `UID:compromisso-${item.id}@ethica`,
@@ -88,14 +91,14 @@ export const montarIcs = ({ compromissos, prazos, resumos, now }: FeedEntrada): 
       ];
     }),
     // Prazo é um dia (AD-103): evento de dia inteiro, DTEND exclusivo no dia seguinte, sem local.
-    ...prazos.map((prazo) => [
+    ...deadlines.map((deadline) => [
       'BEGIN:VEVENT',
-      `UID:prazo-${prazo.id}@ethica`,
+      `UID:prazo-${deadline.id}@ethica`,
       `DTSTAMP:${stamp}`,
-      `DTSTART;VALUE=DATE:${dateValue(prazo.vencimento)}`,
-      `DTEND;VALUE=DATE:${dateValue(nextDay(prazo.vencimento))}`,
-      `SUMMARY:${escapeText(`Prazo: ${prazo.titulo}`)}`,
-      `DESCRIPTION:${escapeText(descricao('Prazo', prazo.titulo, resumos.get(prazo.periciaId), prazo.observacoes))}`,
+      `DTSTART;VALUE=DATE:${dateValue(deadline.vencimento)}`,
+      `DTEND;VALUE=DATE:${dateValue(nextDay(deadline.vencimento))}`,
+      `SUMMARY:${escapeText(`Prazo: ${deadline.titulo}`)}`,
+      `DESCRIPTION:${escapeText(descricao('Prazo', deadline.titulo, resumos.get(deadline.caseId), deadline.observacoes))}`,
       'TRANSP:TRANSPARENT',
       'END:VEVENT',
     ]),
@@ -119,20 +122,17 @@ export const gerarFeed = async (token: string, now: Date = new Date()): Promise<
   const owner = await accountService.findFeedOwner(token);
   if (!owner) return null;
   const { tenantId } = owner;
-  const [compromissos, prazos] = await Promise.all([
+  const [compromissos, deadlines] = await Promise.all([
     compromissoRepository.listInRange(tenantId, {
       from: new Date(now.getTime() - DIAS_PASSADOS * 86_400_000),
       to: new Date(now.getTime() + DIAS_FUTUROS * 86_400_000),
     }),
-    prazoService.listPrazosPendentes(tenantId),
+    deadlineService.listPendingDeadlines(tenantId),
   ]);
   const ativos = compromissos.filter((item) => item.status !== 'canceled');
   const ids = [
-    ...new Set([
-      ...ativos.flatMap((item) => (item.periciaId ? [item.periciaId] : [])),
-      ...prazos.map((p) => p.periciaId),
-    ]),
+    ...new Set([...ativos.flatMap((item) => (item.caseId ? [item.caseId] : [])), ...deadlines.map((p) => p.caseId)]),
   ];
-  const resumos = await periciaService.findResumosByIds(tenantId, ids);
-  return montarIcs({ compromissos: ativos, prazos, resumos, now });
+  const resumos = await caseService.findResumosByIds(tenantId, ids);
+  return montarIcs({ compromissos: ativos, deadlines, resumos, now });
 };

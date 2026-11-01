@@ -1,13 +1,13 @@
 import { z } from 'zod';
+import type { CaseRole } from './case.schema.js';
 import { idSchema } from './id.schema.js';
-import type { PapelPericia } from './pericia.schema.js';
 
 // Laudo pericial (perito do juízo) ou parecer técnico (assistente técnico, LAU-06).
 export const LAUDO_TIPOS = ['report', 'technical_opinion'] as const;
 export type LaudoTipo = (typeof LAUDO_TIPOS)[number];
 
-export const laudoTipoDoPapel = (papel: PapelPericia): LaudoTipo =>
-  papel === 'technical_assistant' ? 'technical_opinion' : 'report';
+export const reportRoleType = (role: CaseRole): LaudoTipo =>
+  role === 'technical_assistant' ? 'technical_opinion' : 'report';
 
 // Rascunho editável → concluído, só leitura no servidor (AD-126).
 export const LAUDO_STATUS = ['draft', 'completed'] as const;
@@ -64,7 +64,7 @@ export const LAUDO_VARIAVEIS = [
 export type LaudoVariavel = (typeof LAUDO_VARIAVEIS)[number];
 
 // Marcadores da lista ainda presentes no texto (sem valor na resolução).
-export const variaveisPendentes = (html: string): LaudoVariavel[] =>
+export const pendingVariables = (html: string): LaudoVariavel[] =>
   LAUDO_VARIAVEIS.filter((variavel) => html.includes(variavel));
 
 // Única allowlist do HTML do laudo (AD-123): o editor só produz isto, a API saneia para isto
@@ -146,7 +146,7 @@ export type MoverSecao = z.infer<typeof moverSecaoSchema>;
 
 export const createLaudoSchema = z
   .object({
-    periciaId: idSchema,
+    caseId: idSchema,
     modeloId: modeloIdSchema,
     secoes: z
       .array(z.object({ id: z.string().min(1).max(40), variante: z.enum(LAUDO_VARIANTES) }).strict())
@@ -163,5 +163,5 @@ export type UpdateLaudoSecao = z.infer<typeof updateLaudoSecaoSchema>;
 
 // Registrar a entrega: protocola o prazo "Entrega do laudo", lança a movimentação `report_filed`
 // e avança a etapa para `report_delivered` (AD-126).
-export const concluirLaudoSchema = z.object({ registrarEntrega: z.boolean() }).strict();
+export const concluirLaudoSchema = z.object({ recordDelivery: z.boolean() }).strict();
 export type ConcluirLaudo = z.infer<typeof concluirLaudoSchema>;

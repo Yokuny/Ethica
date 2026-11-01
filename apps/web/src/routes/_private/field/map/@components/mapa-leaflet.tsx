@@ -13,7 +13,7 @@ const atribuicao = (): string => {
 };
 
 // Marcador numerado sem imagem (o ícone padrão do Leaflet quebra com o bundler).
-const numeroDaParada = (numero: number): HTMLElement => {
+const stopNumber = (numero: number): HTMLElement => {
   const marcador = document.createElement('span');
   marcador.textContent = String(numero);
   Object.assign(marcador.style, {
@@ -30,14 +30,14 @@ const numeroDaParada = (numero: number): HTMLElement => {
 };
 
 type MapaLeafletProps = {
-  paradas: Array<{ id: string; numero: number; ponto: Ponto; titulo: string }>;
+  stops: Array<{ id: string; numero: number; ponto: Ponto; titulo: string }>;
   partida?: Ponto;
   linha: Ponto[];
 };
 
 // Mapa do dia (AD-131): tiles do OpenStreetMap, paradas numeradas e a rota. Leaflet é imperativo,
 // então o mapa vive num efeito ligado ao elemento; marcadores sem imagem (divIcon).
-export function MapaLeaflet({ paradas, partida, linha }: MapaLeafletProps) {
+export function MapaLeaflet({ stops, partida, linha }: MapaLeafletProps) {
   const elemento = useRef<HTMLElement>(null);
   const mapa = useRef<L.Map | null>(null);
   const camada = useRef<L.LayerGroup | null>(null);
@@ -66,17 +66,17 @@ export function MapaLeaflet({ paradas, partida, linha }: MapaLeafletProps) {
         .addTo(grupo);
       pontos.push([partida.lat, partida.lng]);
     }
-    for (const parada of paradas) {
-      L.marker([parada.ponto.lat, parada.ponto.lng], {
+    for (const stop of stops) {
+      L.marker([stop.ponto.lat, stop.ponto.lng], {
         icon: L.divIcon({
           className: '',
-          html: numeroDaParada(parada.numero),
+          html: stopNumber(stop.numero),
           iconSize: [28, 28],
           iconAnchor: [14, 14],
         }),
-        title: parada.titulo,
+        title: stop.titulo,
       }).addTo(grupo);
-      pontos.push([parada.ponto.lat, parada.ponto.lng]);
+      pontos.push([stop.ponto.lat, stop.ponto.lng]);
     }
     if (linha.length > 1)
       L.polyline(
@@ -84,7 +84,7 @@ export function MapaLeaflet({ paradas, partida, linha }: MapaLeafletProps) {
         { color: '#2563eb', weight: 4 },
       ).addTo(grupo);
     if (pontos.length) mapa.current.fitBounds(L.latLngBounds(pontos), { padding: [32, 32], maxZoom: 15 });
-  }, [paradas, partida, linha]);
+  }, [stops, partida, linha]);
 
   return <section ref={elemento} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('day_map')} />;
 }

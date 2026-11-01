@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { TableIdentity, TableRowAction, TableRowActions, TableStack, TableStatus } from '@/components/data-table.js';
-import { SITUACAO_VARIANT, situacaoDoLancamento } from '@/components/lancamento-labels.js';
+import { STATE_VARIANT, transactionState } from '@/components/lancamento-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -26,12 +26,10 @@ export const lancamentoColumns = ({ onStatus, onReceber }: Actions): ColumnDef<L
         <TableIdentity
           icon={row.original.natureza === 'income' ? ArrowDownLeft : ArrowUpRight}
           title={row.original.descricao}
-          description={[t(row.original.categoria), row.original.periciaNumero, row.original.contratante]
+          description={[t(row.original.categoria), row.original.caseNumber, row.original.client]
             .filter(Boolean)
             .join(' · ')}
-          link={
-            row.original.periciaId ? { to: '/expert-cases/details', search: { id: row.original.periciaId } } : undefined
-          }
+          link={row.original.caseId ? { to: '/expert-cases/details', search: { id: row.original.caseId } } : undefined}
         />
       ),
     },
@@ -64,11 +62,11 @@ export const lancamentoColumns = ({ onStatus, onReceber }: Actions): ColumnDef<L
       ),
     },
     {
-      id: 'situacao',
+      id: 'state',
       header: t('status'),
       cell: ({ row }) => {
-        const situacao = situacaoDoLancamento(row.original, today);
-        return <TableStatus variant={SITUACAO_VARIANT[situacao]}>{t(situacao)}</TableStatus>;
+        const state = transactionState(row.original, today);
+        return <TableStatus variant={STATE_VARIANT[state]}>{t(state)}</TableStatus>;
       },
     },
     {

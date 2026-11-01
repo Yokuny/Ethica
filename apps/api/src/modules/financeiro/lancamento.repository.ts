@@ -32,17 +32,17 @@ const toRecord = (doc: LancamentoDocument): LancamentoRecord => {
     liquidadoEm: doc.liquidadoEm,
     parcelas,
     ...(doc.natureza === 'income' ? { recebidoCents, saldoCents: doc.valorCents - recebidoCents } : {}),
-    periciaId: doc.Pericia?.toString(),
+    caseId: doc.Case?.toString(),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
 };
 
-const toDocumentFields = ({ periciaId, ...data }: UpdateLancamento) => {
+const toDocumentFields = ({ caseId, ...data }: UpdateLancamento) => {
   const fields: Record<string, unknown> = Object.fromEntries(
     Object.entries(data).filter(([, value]) => value !== undefined),
   );
-  if (periciaId !== undefined) fields.Pericia = periciaId;
+  if (caseId !== undefined) fields.Case = caseId;
   return fields;
 };
 
@@ -66,12 +66,12 @@ export const findById = async (tenantId: string, id: string): Promise<Lancamento
   });
 
 // O honorário fixado automático da perícia (AD-111: alterar o valor atualiza este, não cria outro).
-export const findHonorarioFixado = async (tenantId: string, periciaId: string): Promise<LancamentoRecord | null> =>
-  withDbTiming('financeiro.findHonorarioFixado', async () => {
+export const findFixedFee = async (tenantId: string, caseId: string): Promise<LancamentoRecord | null> =>
+  withDbTiming('financeiro.findFixedFee', async () => {
     const doc = await Lancamento.findOne(
       tenantScoped({
         Tenant: tenantId,
-        Pericia: periciaId,
+        Case: caseId,
         natureza: 'income' as const,
         // O honorário automático da perícia, fixado ou contratado (AD-135): um por perícia.
         categoria: { $in: ['fixed_fees', 'contracted_fees'] as LancamentoCategoria[] },
@@ -106,7 +106,7 @@ export const updateReceita = async (
     const fields = Object.fromEntries(
       Object.entries(toDocumentFields(data)).map(([key, value]) => [
         key,
-        key === 'Pericia' ? toObjectId(value as string) : { $literal: value },
+        key === 'Case' ? toObjectId(value as string) : { $literal: value },
       ]),
     );
     const doc = await Lancamento.findOneAndUpdate(
@@ -175,10 +175,10 @@ export const deleteLancamento = async (tenantId: string, id: string): Promise<{ 
 
 const ABERTOS: LancamentoStatus[] = ['expected', 'partial'];
 
-const situacaoFilter = (situacao: ListLancamentosQuery['situacao'], today: string) => {
-  if (!situacao) return {};
-  if (situacao === 'overdue') return { status: { $in: ABERTOS }, vencimento: { $lt: today } };
-  return { status: situacao };
+const stateFilter = (state: ListLancamentosQuery['state'], today: string) => {
+  if (!state) return {};
+  if (state === 'overdue') return { status: { $in: ABERTOS }, vencimento: { $lt: today } };
+  return { status: state };
 };
 
 export const listLancamentos = async (
@@ -194,9 +194,9 @@ export const listLancamentos = async (
     const filter = tenantScoped({
       Tenant: tenantId,
       ...(query.natureza ? { natureza: query.natureza } : {}),
-      ...(query.periciaId ? { Pericia: query.periciaId } : {}),
+      ...(query.caseId ? { Case: query.caseId } : {}),
       ...(Object.keys(vencimento).length ? { vencimento } : {}),
-      ...situacaoFilter(query.situacao, today),
+      ...stateFilter(query.state, today),
     });
     const [docs, total] = await Promise.all([
       Lancamento.find(filter)
@@ -229,7 +229,7 @@ export const resumo = async (
     const Tenant = toObjectId(tenantId);
     const mes = { $gte: range.monthStart, $lt: range.nextMonthStart };
     const abertas = { Tenant, natureza: 'income', status: { $in: ABERTOS } };
-    const [aReceberCents, atrasadoCents, recebidoMesCents, despesasMesCents] = await Promise.all([
+    const [aReceberCents, lateCents, recebidoMesCents, despesasMesCents] = await Promise.all([
       sum([{ $match: abertas }, { $project: { valor: SALDO } }]),
       sum([{ $match: { ...abertas, vencimento: { $lt: range.today } } }, { $project: { valor: SALDO } }]),
       // Recebido no mês = parcelas pela data em que caíram na conta (PRZ-02.5).
@@ -244,7 +244,7 @@ export const resumo = async (
         { $project: { valor: '$valorCents' } },
       ]),
     ]);
-    return { aReceberCents, atrasadoCents, recebidoMesCents, despesasMesCents };
+    return { aReceberCents, lateCents, recebidoMesCents, despesasMesCents };
   });
 
 // Uma linha por mês (`YYYY-MM`): recebido pela data de cada parcela; a receber pelo saldo das
@@ -309,14 +309,14 @@ export const totaisPorCategoria = async (tenantId: string, natureza: string): Pr
 // (com `periodo`: o que teve parcela, liquidação ou vencimento entre `from` e `to`).
 export const listAll = async (
   tenantId: string,
-  filter: { periciaId?: string; periodo?: { from: string; to: string } } = {},
+  filter: { caseId?: string; periodo?: { from: string; to: string } } = {},
 ): Promise<LancamentoRecord[]> =>
   withDbTiming('financeiro.listAll', async () => {
     const entre = filter.periodo ? { $gte: filter.periodo.from, $lte: filter.periodo.to } : undefined;
     const docs = await Lancamento.find(
       tenantScoped({
         Tenant: tenantId,
-        ...(filter.periciaId ? { Pericia: filter.periciaId } : {}),
+        ...(filter.caseId ? { Case: filter.caseId } : {}),
         ...(entre ? { $or: [{ 'parcelas.data': entre }, { liquidadoEm: entre }, { vencimento: entre }] } : {}),
       }),
     )
