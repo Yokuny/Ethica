@@ -5,8 +5,8 @@ import type { CreateParty, ListPartiesQuery, PartyRecord, UpdateParty } from './
 
 const toRecord = (doc: PartyDocument): PartyRecord => ({
   id: doc._id.toString(),
-  tipo: doc.tipo,
-  nome: doc.nome,
+  type: doc.type,
+  name: doc.name,
   document: doc.document,
   oab: doc.oab,
   email: doc.email,
@@ -34,7 +34,7 @@ export const findByIds = async (tenantId: string, ids: string[]): Promise<PartyR
 // Reaproveitamento (AD-115): o primeiro cadastro do tipo com o mesmo documento, OAB ou nome.
 export const findOneBy = async (
   tenantId: string,
-  filter: Pick<PartyRecord, 'tipo'> & Partial<Pick<PartyRecord, 'document' | 'oab' | 'nome'>>,
+  filter: Pick<PartyRecord, 'type'> & Partial<Pick<PartyRecord, 'document' | 'oab' | 'name'>>,
 ): Promise<PartyRecord | null> =>
   withDbTiming('party.findOneBy', async () => {
     const doc = await Party.findOne(tenantScoped({ Tenant: tenantId, ...filter }))
@@ -59,7 +59,7 @@ export const listParties = async (
   query: ListPartiesQuery,
 ): Promise<{ items: PartyRecord[]; total: number }> =>
   withDbTiming('party.listParties', async () => {
-    const filters = query.tipo ? { tipo: query.tipo } : {};
+    const filters = query.type ? { type: query.type } : {};
     const skip = (query.page - 1) * query.limit;
 
     // Busca de texto no Atlas Search (AD-054), nunca regex.
@@ -70,7 +70,7 @@ export const listParties = async (
           { $match: { Tenant: toObjectId(tenantId), ...filters } },
           {
             $facet: {
-              items: [{ $sort: { nome: 1, _id: 1 } }, { $skip: skip }, { $limit: query.limit }],
+              items: [{ $sort: { name: 1, _id: 1 } }, { $skip: skip }, { $limit: query.limit }],
               total: [{ $count: 'n' }],
             },
           },
@@ -81,7 +81,7 @@ export const listParties = async (
 
     const filter = tenantScoped({ Tenant: tenantId, ...filters });
     const [docs, total] = await Promise.all([
-      Party.find(filter).sort({ nome: 1, _id: 1 }).skip(skip).limit(query.limit).lean(),
+      Party.find(filter).sort({ name: 1, _id: 1 }).skip(skip).limit(query.limit).lean(),
       Party.countDocuments(filter),
     ]);
     return { items: docs.map(toRecord), total };
@@ -91,7 +91,7 @@ export const listParties = async (
 export const listAll = async (tenantId: string): Promise<PartyRecord[]> =>
   withDbTiming('party.listAll', async () => {
     const docs = await Party.find(tenantScoped({ Tenant: tenantId }))
-      .sort({ nome: 1 })
+      .sort({ name: 1 })
       .lean();
     return docs.map(toRecord);
   });

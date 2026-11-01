@@ -16,8 +16,8 @@ const withCaseNumber = async <T extends DeadlineRecord>(tenantId: string, items:
   const ids = [...new Set(items.map((item) => item.caseId))];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = summaries.get(item.caseId)?.processNumber;
-    return numero ? { ...item, caseNumber: numero } : item;
+    const number = summaries.get(item.caseId)?.processNumber;
+    return number ? { ...item, caseNumber: number } : item;
   });
 };
 

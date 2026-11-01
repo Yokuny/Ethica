@@ -26,7 +26,7 @@ describe('Invite model', () => {
   });
 
   it('hashToken is deterministic for the same input', () => {
-    expect(hashToken('mesmo-token')).toBe(hashToken('mesmo-token'));
+    expect(hashToken('same-token')).toBe(hashToken('same-token'));
   });
 
   it('does not declare a TTL index on expiresAt (expiration is logical, by design)', async () => {

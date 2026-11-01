@@ -27,20 +27,20 @@ const HighlightedVariables = Extension.create({
       new Plugin({
         props: {
           decorations: (state) => {
-            const marcas: Decoration[] = [];
+            const marks: Decoration[] = [];
             state.doc.descendants((node, pos) => {
               if (!node.isText || !node.text) return;
               for (const match of node.text.matchAll(/\[[A-Z_]+\]/g)) {
                 if (!VARIABLES.includes(match[0])) continue;
                 const from = pos + (match.index ?? 0);
-                marcas.push(
+                marks.push(
                   Decoration.inline(from, from + match[0].length, {
                     class: 'rounded-sm bg-status-warning px-0.5 text-status-warning-foreground',
                   }),
                 );
               }
             });
-            return DecorationSet.create(state.doc, marcas);
+            return DecorationSet.create(state.doc, marks);
           },
         },
       }),
@@ -67,7 +67,7 @@ const InspectionPhoto = Image.extend({
 
 export type PhotoEditor = { src: string; caption?: string };
 
-const EXTENSOES = [
+const EXTENSIONS = [
   StarterKit.configure({
     heading: { levels: [3, 4] },
     blockquote: false,
@@ -82,14 +82,14 @@ const EXTENSOES = [
   HighlightedVariables,
 ];
 
-type Ferramenta = {
+type Tool = {
   icon: LucideIcon;
   label: string;
   active: (editor: Editor) => boolean;
   run: (editor: Editor) => void;
 };
 
-const FERRAMENTAS: Ferramenta[] = [
+const TOOLS: Tool[] = [
   { icon: Bold, label: 'bold', active: (e) => e.isActive('bold'), run: (e) => e.chain().focus().toggleBold().run() },
   {
     icon: Italic,
@@ -130,27 +130,27 @@ const FERRAMENTAS: Ferramenta[] = [
 ];
 
 function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
-  const active = useEditorState({ editor, selector: ({ editor: e }) => FERRAMENTAS.map((f) => f.active(e)) });
+  const active = useEditorState({ editor, selector: ({ editor: e }) => TOOLS.map((f) => f.active(e)) });
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-input p-1">
-      {FERRAMENTAS.map((ferramenta, i) => (
+      {TOOLS.map((tool, i) => (
         <Button
-          key={ferramenta.label}
+          key={tool.label}
           type="button"
           size="icon-sm"
           variant={active[i] ? 'secondary' : 'ghost'}
-          aria-label={t(ferramenta.label)}
+          aria-label={t(tool.label)}
           aria-pressed={active[i]}
-          onClick={() => ferramenta.run(editor)}
+          onClick={() => tool.run(editor)}
         >
-          <ferramenta.icon />
+          <tool.icon />
         </Button>
       ))}
       {photos && photos.length > 0 && (
         <Select
-          items={photos.map((photo, indice) => ({
+          items={photos.map((photo, index) => ({
             value: photo.src,
-            label: photo.caption || `${t('photo')} ${indice + 1}`,
+            label: photo.caption || `${t('photo')} ${index + 1}`,
           }))}
           value={null}
           onValueChange={(src) => {
@@ -177,9 +177,9 @@ function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
             <SelectValue placeholder={t('insert_photo')} />
           </SelectTrigger>
           <SelectContent>
-            {photos.map((photo, indice) => (
+            {photos.map((photo, index) => (
               <SelectItem key={photo.src} value={photo.src}>
-                {photo.caption || `${t('photo')} ${indice + 1}`}
+                {photo.caption || `${t('photo')} ${index + 1}`}
               </SelectItem>
             ))}
           </SelectContent>
@@ -218,7 +218,7 @@ type RichTextEditorProps = {
 // Não controlado depois de montar: quem troca de seção remonta pela `key`.
 export function RichTextEditor({ value, onChange, readOnly = false, label, className, photos }: RichTextEditorProps) {
   const editor = useEditor({
-    extensions: EXTENSOES,
+    extensions: EXTENSIONS,
     content: value,
     editable: !readOnly,
     immediatelyRender: true,
@@ -228,7 +228,7 @@ export function RichTextEditor({ value, onChange, readOnly = false, label, class
         class: 'min-h-48 px-3 py-2 text-sm leading-relaxed outline-none',
       },
     },
-    onUpdate: ({ editor: atual }) => onChange?.(atual.isEmpty ? '' : atual.getHTML()),
+    onUpdate: ({ editor: current }) => onChange?.(current.isEmpty ? '' : current.getHTML()),
   });
 
   return (

@@ -7,13 +7,13 @@ import type { PartyRecord } from '@/query/party.js';
 
 export const partyColumns: ColumnDef<PartyRecord, unknown>[] = [
   {
-    id: 'nome',
+    id: 'name',
     header: t('name'),
     cell: ({ row }) => (
       <TableIdentity
-        icon={row.original.tipo === 'lawyer' ? Briefcase : User}
-        title={row.original.nome}
-        description={t(row.original.tipo)}
+        icon={row.original.type === 'lawyer' ? Briefcase : User}
+        title={row.original.name}
+        description={t(row.original.type)}
       />
     ),
   },

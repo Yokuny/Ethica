@@ -24,16 +24,16 @@ export function AttendeesFields({ form, legalCase, onSignature }: AttendeesField
   const [signing, setSigning] = useState<number | null>(null);
 
   function addParties() {
-    const nomes = (texto: string | undefined) => (texto ? texto.split(', ') : []);
-    for (const nome of nomes(legalCase?.plaintiff)) append({ id: crypto.randomUUID(), nome, capacity: 'plaintiff' });
-    for (const nome of nomes(legalCase?.defendant)) append({ id: crypto.randomUUID(), nome, capacity: 'defendant' });
+    const names = (text: string | undefined) => (text ? text.split(', ') : []);
+    for (const name of names(legalCase?.plaintiff)) append({ id: crypto.randomUUID(), name, capacity: 'plaintiff' });
+    for (const name of names(legalCase?.defendant)) append({ id: crypto.randomUUID(), name, capacity: 'defendant' });
   }
 
   return (
     <>
       <FieldList
-        titulo={t('attendees')}
-        vazio={t('no_attendees_yet')}
+        title={t('attendees')}
+        empty={t('no_attendees_yet')}
         actions={
           <>
             {legalCase && (
@@ -44,13 +44,13 @@ export function AttendeesFields({ form, legalCase, onSignature }: AttendeesField
             <Button
               type="button"
               variant="outline"
-              onClick={() => append({ id: crypto.randomUUID(), nome: '', capacity: 'witness' })}
+              onClick={() => append({ id: crypto.randomUUID(), name: '', capacity: 'witness' })}
             >
               {t('add_attendee')}
             </Button>
           </>
         }
-        itens={fields.map((field, index) => ({
+        items={fields.map((field, index) => ({
           key: field.id,
           onRemove: () => remove(index),
           conteudo: (
@@ -58,7 +58,7 @@ export function AttendeesFields({ form, legalCase, onSignature }: AttendeesField
               <div className="grid gap-3 sm:grid-cols-2">
                 <TextField
                   control={form.control}
-                  name={`attendees.${index}.nome`}
+                  name={`attendees.${index}.name`}
                   label={t('name')}
                   placeholder={t('full_name')}
                 />
@@ -91,7 +91,7 @@ export function AttendeesFields({ form, legalCase, onSignature }: AttendeesField
       />
       {signing !== null && (
         <SignatureDialog
-          nome={form.getValues(`attendees.${signing}.nome`)}
+          name={form.getValues(`attendees.${signing}.name`)}
           onClose={() => setSigning(null)}
           onConfirm={async (blob) => {
             const signatureId = await onSignature(blob);

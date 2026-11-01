@@ -46,8 +46,8 @@ export const removeLogo = async (tenantId: string, current: TenantLogo): Promise
 
 // Arquivo novo de outro módulo (mídia da vistoria, AD-129) reserva o espaço na cota no mesmo
 // update que confere o limite. `false`: a cota não comporta.
-export const reservarBytes = async (tenantId: string, bytes: number): Promise<boolean> =>
-  withDbTiming('office.reservarBytes', async () => {
+export const reserveBytes = async (tenantId: string, bytes: number): Promise<boolean> =>
+  withDbTiming('office.reserveBytes', async () => {
     const result = await Tenant.updateOne(
       { _id: tenantId, storageBytes: { $lte: TENANT_STORAGE_QUOTA_BYTES - bytes } },
       { $inc: { storageBytes: bytes } },
@@ -55,8 +55,8 @@ export const reservarBytes = async (tenantId: string, bytes: number): Promise<bo
     return result.modifiedCount === 1;
   });
 
-export const devolverBytes = async (tenantId: string, bytes: number): Promise<void> =>
-  withDbTiming('office.devolverBytes', async () => {
+export const returnBytes = async (tenantId: string, bytes: number): Promise<void> =>
+  withDbTiming('office.returnBytes', async () => {
     await Tenant.updateOne({ _id: tenantId }, { $inc: { storageBytes: -bytes } });
   });
 

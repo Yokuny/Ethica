@@ -47,7 +47,7 @@ export function ConvertForm({ opportunity, onClose }: { opportunity: Opportunity
               {
                 title: t('expert_case'),
                 fields: [
-                  <div key="tipo" className="grid gap-4 sm:grid-cols-2">
+                  <div key="type" className="grid gap-4 sm:grid-cols-2">
                     <SelectField
                       control={form.control}
                       name="courtType"
@@ -70,7 +70,7 @@ export function ConvertForm({ opportunity, onClose }: { opportunity: Opportunity
                     label={t('object')}
                     placeholder={t('example_object')}
                   />,
-                  <div key="datas" className="grid gap-4 sm:grid-cols-2">
+                  <div key="dates" className="grid gap-4 sm:grid-cols-2">
                     <DateField
                       control={form.control}
                       name="nominationDate"

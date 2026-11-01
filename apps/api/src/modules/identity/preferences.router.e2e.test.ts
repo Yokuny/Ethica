@@ -212,13 +212,13 @@ describe('preferences routes (ENR-03)', () => {
       .patch('/me/preferences')
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
-      .send({ hiddenBlocks: ['nao_existe'] });
+      .send({ hiddenBlocks: ['not_exists'] });
     expect(invalido.status).toBe(400);
-    const padrao = await request(app)
+    const isDefault = await request(app)
       .patch('/me/preferences')
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
       .send({ hiddenBlocks: [] });
-    expect(padrao.body.data.hiddenBlocks).toEqual([]);
+    expect(isDefault.body.data.hiddenBlocks).toEqual([]);
   });
 });

@@ -43,7 +43,7 @@ export function ReportsTable({
                 <TableIdentity
                   icon={FileSignature}
                   title={row.caseNumber ?? t('expert_case_removed')}
-                  description={t(row.tipo)}
+                  description={t(row.type)}
                 />
               </TableCell>
               <TableCell>

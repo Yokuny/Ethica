@@ -12,15 +12,15 @@ export const listPartiesQuerySchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     q: z.string().trim().max(120).optional(),
-    tipo: z.enum(PARTY_TYPES).optional(),
+    type: z.enum(PARTY_TYPES).optional(),
   })
   .strict();
 export type ListPartiesQuery = z.infer<typeof listPartiesQuerySchema>;
 
 export type PartyRecord = {
   id: string;
-  tipo: PartyType;
-  nome: string;
+  type: PartyType;
+  name: string;
   document?: string;
   oab?: string;
   email?: string;
@@ -30,4 +30,4 @@ export type PartyRecord = {
 };
 
 // Parte já resolvida para gravar na perícia (cópia de tipo e nome, AD-117).
-export type CasePartyWrite = { partyId: string; side: Side; tipo: PartyType; nome: string; client?: boolean };
+export type CasePartyWrite = { partyId: string; side: Side; type: PartyType; name: string; client?: boolean };

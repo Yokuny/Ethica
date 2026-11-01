@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { descreverRequisicao } from './activityLog.middleware.js';
+import { describeRequest } from './activityLog.middleware.js';
 
 const ID = '6650f1a2b3c4d5e6f7a8b9c0';
 
@@ -34,7 +34,7 @@ describe('descreverRequisicao — diário de bordo (AD-134)', () => {
     ['PATCH', `/auth/users/${ID}/permissions`, { module: 'users', action: 'update', resource: 'permissions' }],
     ['PATCH', '/me/profile', { module: 'account', action: 'update', resource: 'profile' }],
   ])('%s %s', (method, path, esperado) => {
-    expect(descreverRequisicao(method, path)).toMatchObject(esperado);
+    expect(describeRequest(method, path)).toMatchObject(esperado);
   });
 
   it.each([
@@ -46,6 +46,6 @@ describe('descreverRequisicao — diário de bordo (AD-134)', () => {
     ['POST', '/auth/signin'],
     ['POST', '/invites/abc/accept'],
   ])('não registra %s %s', (method, path) => {
-    expect(descreverRequisicao(method, path)).toBeUndefined();
+    expect(describeRequest(method, path)).toBeUndefined();
   });
 });

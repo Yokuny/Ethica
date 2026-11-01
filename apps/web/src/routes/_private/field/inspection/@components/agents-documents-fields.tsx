@@ -9,35 +9,35 @@ import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { AGENT_KEY, DOCUMENT_KEY } from '../../@consts/field-labels.js';
 
-const NENHUM = 'none';
-const PADRAO: readonly string[] = INSPECTION_DOCUMENTS;
+const NONE = 'none';
+const DEFAULT: readonly string[] = INSPECTION_DOCUMENTS;
 
 type Props = { form: UseFormReturn<InspectionData> };
 
 // Mapeamento de agentes (CAM-02): Sim/Não com EPI e observação; só os marcados vão para o registro.
 export function AgentsFields({ form }: Props) {
   const agents = form.watch('agents');
-  const definir = (lista: InspectionData['agents']) => form.setValue('agents', lista, { shouldDirty: true });
+  const set = (list: InspectionData['agents']) => form.setValue('agents', list, { shouldDirty: true });
 
   return (
     <Panel title={t('agents_mapping')} description={t('agents_mapping_description')}>
       <ul className="flex flex-col divide-y divide-border">
         {INSPECTION_AGENTS.map((agent) => {
-          const atual = agents.find((item) => item.agent === agent);
-          const alterar = (partial: Partial<InspectionData['agents'][number]>) =>
-            definir(agents.map((item) => (item.agent === agent ? { ...item, ...partial } : item)));
+          const current = agents.find((item) => item.agent === agent);
+          const change = (partial: Partial<InspectionData['agents'][number]>) =>
+            set(agents.map((item) => (item.agent === agent ? { ...item, ...partial } : item)));
           return (
             <li key={agent} className="grid gap-2 py-3">
               <div className="flex flex-wrap items-center gap-3">
                 <ItemTitle className="flex-1">{t(AGENT_KEY[agent])}</ItemTitle>
                 <ToggleGroup
-                  value={atual?.present ?? NENHUM}
+                  value={current?.present ?? NONE}
                   onValueChange={(value) =>
-                    value === NENHUM
-                      ? definir(agents.filter((item) => item.agent !== agent))
-                      : atual
-                        ? alterar({ present: value as 'yes' | 'no' })
-                        : definir([...agents, { agent, present: value as 'yes' | 'no' }])
+                    value === NONE
+                      ? set(agents.filter((item) => item.agent !== agent))
+                      : current
+                        ? change({ present: value as 'yes' | 'no' })
+                        : set([...agents, { agent, present: value as 'yes' | 'no' }])
                   }
                 >
                   <ToggleGroupItem value="yes" tone="warning">
@@ -46,22 +46,22 @@ export function AgentsFields({ form }: Props) {
                   <ToggleGroupItem value="no" tone="success">
                     {t('no')}
                   </ToggleGroupItem>
-                  <ToggleGroupItem value={NENHUM}>{t('not_evaluated')}</ToggleGroupItem>
+                  <ToggleGroupItem value={NONE}>{t('not_evaluated')}</ToggleGroupItem>
                 </ToggleGroup>
               </div>
-              {atual && (
+              {current && (
                 <div className="grid gap-2 sm:grid-cols-2">
                   <Input
                     aria-label={t('ppe')}
                     placeholder={t('ppe_placeholder')}
-                    value={atual.ppe ?? ''}
-                    onChange={(event) => alterar({ ppe: event.target.value })}
+                    value={current.ppe ?? ''}
+                    onChange={(event) => change({ ppe: event.target.value })}
                   />
                   <Input
                     aria-label={t('notes')}
                     placeholder={t('notes_placeholder')}
-                    value={atual.observacoes ?? ''}
-                    onChange={(event) => alterar({ observacoes: event.target.value })}
+                    value={current.notes ?? ''}
+                    onChange={(event) => change({ notes: event.target.value })}
                   />
                 </div>
               )}
@@ -76,8 +76,8 @@ export function AgentsFields({ form }: Props) {
 // Documentos pedidos às partes (CAM-02): os padrões do checklist e os que o perito escrever.
 export function DocumentsFields({ form }: Props) {
   const documents = form.watch('documents');
-  const definir = (lista: InspectionData['documents']) => form.setValue('documents', lista, { shouldDirty: true });
-  const free = documents.filter((document) => !PADRAO.includes(document.document));
+  const set = (list: InspectionData['documents']) => form.setValue('documents', list, { shouldDirty: true });
+  const free = documents.filter((document) => !DEFAULT.includes(document.document));
 
   return (
     <Panel
@@ -86,26 +86,26 @@ export function DocumentsFields({ form }: Props) {
         <Button
           type="button"
           variant="outline"
-          onClick={() => definir([...documents, { id: crypto.randomUUID(), document: '', requested: true }])}
+          onClick={() => set([...documents, { id: crypto.randomUUID(), document: '', requested: true }])}
         >
           {t('add_document')}
         </Button>
       }
     >
       <div className="grid gap-2">
-        {INSPECTION_DOCUMENTS.map((chave) => {
-          const checked = documents.some((document) => document.document === chave);
+        {INSPECTION_DOCUMENTS.map((key) => {
+          const checked = documents.some((document) => document.document === key);
           return (
             <Checkbox
-              key={chave}
+              key={key}
               checked={checked}
               labelClassName="normal-case tracking-normal"
-              label={t(DOCUMENT_KEY[chave] ?? chave)}
+              label={t(DOCUMENT_KEY[key] ?? key)}
               onCheckedChange={(checked) =>
-                definir(
+                set(
                   checked
-                    ? [...documents, { id: chave, document: chave, requested: true }]
-                    : documents.filter((document) => document.document !== chave),
+                    ? [...documents, { id: key, document: key, requested: true }]
+                    : documents.filter((document) => document.document !== key),
                 )
               }
             />
@@ -118,7 +118,7 @@ export function DocumentsFields({ form }: Props) {
               placeholder={t('document_placeholder')}
               value={document.document}
               onChange={(event) =>
-                definir(
+                set(
                   documents.map((item) => (item.id === document.id ? { ...item, document: event.target.value } : item)),
                 )
               }
@@ -126,7 +126,7 @@ export function DocumentsFields({ form }: Props) {
             <Button
               type="button"
               variant="ghost"
-              onClick={() => definir(documents.filter((item) => item.id !== document.id))}
+              onClick={() => set(documents.filter((item) => item.id !== document.id))}
             >
               {t('remove')}
             </Button>

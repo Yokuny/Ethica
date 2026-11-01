@@ -27,7 +27,7 @@ export function TransactionForm({ transaction, onClose }: { transaction?: Transa
               {
                 title: t('entry'),
                 fields: [
-                  <div key="tipo" className="grid gap-4 sm:grid-cols-2">
+                  <div key="type" className="grid gap-4 sm:grid-cols-2">
                     <SelectField
                       control={control}
                       name="kind"
@@ -47,9 +47,9 @@ export function TransactionForm({ transaction, onClose }: { transaction?: Transa
                     />
                   </div>,
                   <TextField
-                    key="descricao"
+                    key="description"
                     control={control}
-                    name="descricao"
+                    name="description"
                     label={t('description')}
                     placeholder={t('example_entry_description')}
                   />,

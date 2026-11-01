@@ -53,69 +53,69 @@ export const INSPECTION_MEDIA_LIMITS: Record<
 // Mídia tem id gerado no aparelho (AD-128): reenviar a mesma não duplica.
 export const mediaIdSchema = z.uuid('id de mídia inválido');
 
-const curto = z.string().trim().max(200, 'texto muito longo');
-const longo = z.string().trim().max(2000, 'texto muito longo');
+const short = z.string().trim().max(200, 'texto muito longo');
+const long = z.string().trim().max(2000, 'texto muito longo');
 const itemId = z.string().min(1).max(40);
 const year = z.number().int().min(1900).max(2100);
-const lista = <T extends z.ZodType>(item: T) => z.array(item).max(30, 'itens demais');
+const list = <T extends z.ZodType>(item: T) => z.array(item).max(30, 'itens demais');
 
 const versionJobSchema = z
-  .object({ activities: longo.optional(), frequency: curto.optional(), timeExposure: curto.optional() })
+  .object({ activities: long.optional(), frequency: short.optional(), timeExposure: short.optional() })
   .strict();
 
 export const inspectionDataSchema = z
   .object({
-    attendees: lista(
+    attendees: list(
       z
         .object({
           id: itemId,
-          nome: curto.min(1, 'nome é obrigatório'),
+          name: short.min(1, 'nome é obrigatório'),
           capacity: z.enum(INSPECTION_CAPACITIES),
           email: z.email('e-mail inválido').optional(),
           signatureId: mediaIdSchema.optional(),
         })
         .strict(),
     ),
-    comparators: lista(
+    comparators: list(
       z
         .object({
           id: itemId,
           side: z.enum(SIDES),
-          nome: curto.min(1, 'nome é obrigatório'),
-          job: curto.optional(),
-          period: curto.optional(),
+          name: short.min(1, 'nome é obrigatório'),
+          job: short.optional(),
+          period: short.optional(),
           workedTogether: z.boolean().optional(),
         })
         .strict(),
     ),
-    jobs: lista(
+    jobs: list(
       z
         .object({
           id: itemId,
-          titulo: curto.min(1, 'função é obrigatória'),
+          title: short.min(1, 'função é obrigatória'),
           yearStart: year.optional(),
           yearEnd: year.optional(),
-          local: curto.optional(),
+          location: short.optional(),
           plaintiff: versionJobSchema,
           defendant: versionJobSchema,
         })
         .strict(),
     ),
-    agents: lista(
+    agents: list(
       z
         .object({
           agent: z.enum(INSPECTION_AGENTS),
           present: z.enum(['yes', 'no']),
-          ppe: curto.optional(),
-          observacoes: curto.optional(),
+          ppe: short.optional(),
+          notes: short.optional(),
         })
         .strict(),
     ),
-    documents: lista(
-      z.object({ id: itemId, document: curto.min(1), requested: z.boolean(), observacoes: curto.optional() }).strict(),
+    documents: list(
+      z.object({ id: itemId, document: short.min(1), requested: z.boolean(), notes: short.optional() }).strict(),
     ),
     // Internas: nunca vão ao laudo.
-    observacoes: z.string().trim().max(10_000, 'observações muito longas').optional(),
+    notes: z.string().trim().max(10_000, 'observações muito longas').optional(),
   })
   .strict();
 export type InspectionData = z.infer<typeof inspectionDataSchema>;
@@ -129,8 +129,8 @@ export const INSPECTION_EMPTY_DATA: InspectionData = {
 };
 
 // Salvar o formulário inteiro com a versão que o aparelho conhecia (AD-128).
-export const saveInspectionSchema = z.object({ versao: z.number().int().min(0), dados: inspectionDataSchema }).strict();
+export const saveInspectionSchema = z.object({ version: z.number().int().min(0), data: inspectionDataSchema }).strict();
 export type SaveInspection = z.infer<typeof saveInspectionSchema>;
 
-export const updateMediaSchema = z.object({ caption: curto }).strict();
+export const updateMediaSchema = z.object({ caption: short }).strict();
 export type UpdateMedia = z.infer<typeof updateMediaSchema>;

@@ -6,7 +6,7 @@ import type { TemplateRecord, TemplateSection, TemplateSectionRecord, TemplateSu
 
 const sectionToRecord = (section: TemplateSectionDocument): TemplateSectionRecord => ({
   id: section._id.toString(),
-  titulo: section.titulo,
+  title: section.title,
   level: section.level,
   titleOnly: section.titleOnly,
   pageBreak: section.pageBreak,
@@ -16,27 +16,27 @@ const sectionToRecord = (section: TemplateSectionDocument): TemplateSectionRecor
 
 const toRecord = (doc: TemplateDocument): TemplateRecord => ({
   id: doc._id.toString(),
-  nome: doc.nome,
-  tipo: doc.tipo,
-  padrao: false,
+  name: doc.name,
+  type: doc.type,
+  isDefault: false,
   sections: doc.sections.map(sectionToRecord),
   updatedAt: doc.updatedAt,
 });
 
-export const list = async (tenantId: string, tipo?: ReportType): Promise<TemplateSummary[]> =>
+export const list = async (tenantId: string, type?: ReportType): Promise<TemplateSummary[]> =>
   withDbTiming('template.list', async () => {
     const rows = await Template.aggregate<{
       _id: unknown;
-      nome: string;
-      tipo: ReportType;
+      name: string;
+      type: ReportType;
       totalSections: number;
       updatedAt: Date;
     }>([
-      { $match: { Tenant: toObjectId(tenantId), ...(tipo ? { tipo } : {}) } },
-      { $sort: { nome: 1, _id: 1 } },
-      { $project: { nome: 1, tipo: 1, updatedAt: 1, totalSections: { $size: '$sections' } } },
+      { $match: { Tenant: toObjectId(tenantId), ...(type ? { type } : {}) } },
+      { $sort: { name: 1, _id: 1 } },
+      { $project: { name: 1, type: 1, updatedAt: 1, totalSections: { $size: '$sections' } } },
     ]);
-    return rows.map(({ _id, ...row }) => ({ ...row, id: String(_id), padrao: false }));
+    return rows.map(({ _id, ...row }) => ({ ...row, id: String(_id), isDefault: false }));
   });
 
 export const findById = async (tenantId: string, id: string): Promise<TemplateRecord | null> =>
@@ -47,15 +47,15 @@ export const findById = async (tenantId: string, id: string): Promise<TemplateRe
 
 export const create = async (
   tenantId: string,
-  data: { nome: string; tipo: ReportType; sections: TemplateSection[] },
+  data: { name: string; type: ReportType; sections: TemplateSection[] },
 ): Promise<TemplateRecord> =>
   withDbTiming('template.create', async () => toRecord(await Template.create({ ...data, Tenant: tenantId })));
 
-export const updateNome = async (tenantId: string, id: string, nome: string): Promise<TemplateRecord | null> =>
-  withDbTiming('template.updateNome', async () => {
+export const updateName = async (tenantId: string, id: string, name: string): Promise<TemplateRecord | null> =>
+  withDbTiming('template.updateName', async () => {
     const doc = await Template.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, _id: id }),
-      { $set: { nome } },
+      { $set: { name } },
       { returnDocument: 'after', runValidators: true },
     ).lean();
     return doc ? toRecord(doc) : null;

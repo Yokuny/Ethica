@@ -35,17 +35,17 @@ export function AppointmentForm({ appointment, date, caseId, onClose }: Appointm
               {
                 title: t('commitment'),
                 fields: [
-                  <div key="tipo" className="grid gap-4 sm:grid-cols-2">
+                  <div key="type" className="grid gap-4 sm:grid-cols-2">
                     <SelectField
                       control={control}
-                      name="tipo"
+                      name="type"
                       label={t('type')}
                       placeholder={t('select')}
                       items={APPOINTMENT_TYPE_ITEMS}
                     />
                     <TextField
                       control={control}
-                      name="titulo"
+                      name="title"
                       label={t('title')}
                       placeholder={t('example_commitment_title')}
                     />
@@ -73,14 +73,14 @@ export function AppointmentForm({ appointment, date, caseId, onClose }: Appointm
                   <TextField
                     key="local"
                     control={control}
-                    name="local"
+                    name="location"
                     label={t('location')}
                     placeholder={t('example_location')}
                   />,
                   <TextareaField
                     key="obs"
                     control={control}
-                    name="observacoes"
+                    name="notes"
                     label={t('notes')}
                     placeholder={t('notes_placeholder')}
                   />,

@@ -19,16 +19,16 @@ export class AppointmentNotFoundError extends KeyedError {}
 
 // Data/hora de parede + duração -> intervalo em UTC (AD-036, AD-103).
 const toInterval = (date: string, time: string, durationMinutes: number) => {
-  const inicio = wallClockToUtc(date, time);
-  return { inicio, fim: new Date(inicio.getTime() + durationMinutes * 60_000) };
+  const start = wallClockToUtc(date, time);
+  return { start, end: new Date(start.getTime() + durationMinutes * 60_000) };
 };
 
 const withCaseNumber = async (tenantId: string, items: AppointmentRecord[]): Promise<AppointmentRecord[]> => {
   const ids = [...new Set(items.flatMap((item) => (item.caseId ? [item.caseId] : [])))];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
-    const numero = item.caseId ? summaries.get(item.caseId)?.processNumber : undefined;
-    return numero ? { ...item, caseNumber: numero } : item;
+    const number = item.caseId ? summaries.get(item.caseId)?.processNumber : undefined;
+    return number ? { ...item, caseNumber: number } : item;
   });
 };
 
@@ -70,7 +70,7 @@ export const listAppointments = async (tenantId: string, query: ListAppointments
     await appointmentRepository.listInRange(tenantId, {
       from: wallClockToUtc(query.from, '00:00'),
       to: wallClockToUtc(query.to, '00:00'),
-      tipo: query.tipo,
+      type: query.type,
       caseId: query.caseId,
     }),
   );
@@ -89,8 +89,8 @@ export const getAppointment = async (tenantId: string, id: string): Promise<Appo
 // não achado devolve o compromisso sem coordenadas; o provedor fora do ar é 503.
 export const geocode = async (geocoder: Geocoder, tenantId: string, id: string): Promise<AppointmentRecord> => {
   const appointment = await getAppointment(tenantId, id);
-  if (appointment.coordinates || !appointment.local) return appointment;
-  const address = appointment.local;
+  if (appointment.coordinates || !appointment.location) return appointment;
+  const address = appointment.location;
   let coordinates: Awaited<ReturnType<Geocoder['geocode']>>;
   try {
     coordinates = await geocoder.geocode(address);
@@ -102,7 +102,7 @@ export const geocode = async (geocoder: Geocoder, tenantId: string, id: string):
   return getAppointment(tenantId, id);
 };
 
-const TYPE_EVENT: Record<AppointmentRecord['tipo'], string> = {
+const TYPE_EVENT: Record<AppointmentRecord['type'], string> = {
   inspection: 'inspection',
   hearing: 'audiência',
   meeting: 'reunião',
@@ -133,25 +133,25 @@ export const sendNotice = async (
     accountService.getProfile(ctx.tenantId, ctx.userId),
   ]);
   const values: Record<string, string> = {
-    '[TIPO_EVENTO]': TYPE_EVENT[appointment.tipo],
-    '[DATA]': day(appointment.inicio),
-    '[HORA]': timeInDisplayTz(appointment.inicio),
-    '[ENDERECO]': appointment.local ?? '',
+    '[TIPO_EVENTO]': TYPE_EVENT[appointment.type],
+    '[DATA]': day(appointment.start),
+    '[HORA]': timeInDisplayTz(appointment.start),
+    '[ENDERECO]': appointment.location ?? '',
     '[NUMERO_PROCESSO]': legalCase.processNumber,
     '[NOME_PERITO]': expert.name,
     '[VARA]': legalCase.division ?? '',
     '[COMARCA]': legalCase.district ?? '',
   };
-  const preencher = (texto: string) =>
-    Object.entries(values).reduce((result, [marker, amount]) => result.replaceAll(marker, amount), texto);
-  const subject = preencher(template.subject);
-  const body = preencher(template.body);
-  const enviados: string[] = [];
+  const fill = (text: string) =>
+    Object.entries(values).reduce((result, [marker, amount]) => result.replaceAll(marker, amount), text);
+  const subject = fill(template.subject);
+  const body = fill(template.body);
+  const sent: string[] = [];
   for (const email of emails) {
-    if ((await mail.send(email, subject, body)).sent) enviados.push(email);
+    if ((await mail.send(email, subject, body)).sent) sent.push(email);
   }
-  if (!enviados.length) throw new CustomError('invite_email_failed', 502);
-  await appointmentRepository.addNotice(ctx.tenantId, id, { userId: ctx.userId, recipients: enviados });
+  if (!sent.length) throw new CustomError('invite_email_failed', 502);
+  await appointmentRepository.addNotice(ctx.tenantId, id, { userId: ctx.userId, recipients: sent });
   return getAppointment(ctx.tenantId, id);
 };
 

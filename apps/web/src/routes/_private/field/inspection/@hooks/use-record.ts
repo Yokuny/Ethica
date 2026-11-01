@@ -8,19 +8,19 @@ import { runSync, updateIssues } from '@/lib/offline/sync.js';
 import { type DayInspection, type InspectionRecord, inspectionKeys } from '@/query/inspection.js';
 
 // Campo opcional vazio no formulário vira ausente, como o contrato espera.
-const limpar = <T>(amount: T): T => {
-  if (Array.isArray(amount)) return amount.map(limpar) as T;
+const clear = <T>(amount: T): T => {
+  if (Array.isArray(amount)) return amount.map(clear) as T;
   if (amount && typeof amount === 'object') {
     return Object.fromEntries(
       Object.entries(amount)
         .filter(([, item]) => item !== '' && item !== undefined && !(typeof item === 'number' && Number.isNaN(item)))
-        .map(([chave, item]) => [chave, limpar(item)]),
+        .map(([key, item]) => [key, clear(item)]),
     ) as T;
   }
   return amount;
 };
 
-const ENVIO_APOS_MS = 1500;
+const SEND_AFTER_MS = 1500;
 
 // Registro da vistoria (CAM-02, CAM-05): cada mudança fica no aparelho na hora e é enviada
 // pouco depois, se houver conexão; a versão de base vem do rascunho ou do servidor (AD-128).
@@ -29,17 +29,17 @@ export function useRecord(item: DayInspection, initialDraft?: Draft) {
   const appointmentId = item.appointment.id;
   const form = useForm<InspectionData>({
     resolver: zodResolver(inspectionDataSchema),
-    defaultValues: initialDraft?.dados ?? item.inspection.dados,
+    defaultValues: initialDraft?.data ?? item.inspection.data,
   });
   const [conflict, setConflict] = useState<InspectionRecord | undefined>(initialDraft?.conflict);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const ignorar = useRef(false);
+  const ignore = useRef(false);
 
   const serverVersion = () =>
-    queryClient.getQueryData<DayInspection>(inspectionKeys.detail(appointmentId))?.inspection.versao ??
-    item.inspection.versao;
+    queryClient.getQueryData<DayInspection>(inspectionKeys.detail(appointmentId))?.inspection.version ??
+    item.inspection.version;
 
-  async function enviar() {
+  async function send() {
     if (!(await form.trigger())) return;
     await runSync(queryClient);
     setConflict((await readDraft(appointmentId))?.conflict);
@@ -47,20 +47,20 @@ export function useRecord(item: DayInspection, initialDraft?: Draft) {
 
   useEffect(() => {
     const signature = form.watch((values) => {
-      if (ignorar.current) return;
+      if (ignore.current) return;
       void (async () => {
-        const existente = await readDraft(appointmentId);
+        const existing = await readDraft(appointmentId);
         await saveDraft({
           appointmentId,
-          versao: existente?.versao ?? serverVersion(),
-          dados: limpar(values) as InspectionData,
-          alteradoEm: new Date().toISOString(),
-          ...(existente?.conflict ? { conflict: existente.conflict } : {}),
+          version: existing?.version ?? serverVersion(),
+          data: clear(values) as InspectionData,
+          changedAt: new Date().toISOString(),
+          ...(existing?.conflict ? { conflict: existing.conflict } : {}),
         });
         await updateIssues();
       })();
       clearTimeout(timer.current);
-      timer.current = setTimeout(() => void enviar(), ENVIO_APOS_MS);
+      timer.current = setTimeout(() => void send(), SEND_AFTER_MS);
     });
     return () => {
       signature.unsubscribe();
@@ -72,21 +72,21 @@ export function useRecord(item: DayInspection, initialDraft?: Draft) {
   async function keepMine() {
     const draft = await readDraft(appointmentId);
     if (!draft || !conflict) return;
-    await saveDraft({ ...draft, versao: conflict.versao, conflict: undefined });
+    await saveDraft({ ...draft, version: conflict.version, conflict: undefined });
     setConflict(undefined);
-    await enviar();
+    await send();
   }
 
   async function keepServer() {
     if (!conflict) return;
     await deleteDraft(appointmentId);
-    ignorar.current = true;
-    form.reset(conflict.dados);
-    ignorar.current = false;
+    ignore.current = true;
+    form.reset(conflict.data);
+    ignore.current = false;
     setConflict(undefined);
     await updateIssues();
     await queryClient.invalidateQueries({ queryKey: inspectionKeys.detail(appointmentId) });
   }
 
-  return { form, conflict, enviar, keepMine, keepServer };
+  return { form, conflict, send, keepMine, keepServer };
 }

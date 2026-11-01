@@ -15,8 +15,8 @@ export type AppointmentReason = (typeof APPOINTMENT_REASONS)[number];
 // Data e hora chegam em hora de parede; o service converte para o instante UTC.
 export const createAppointmentSchema = z
   .object({
-    tipo: z.enum(APPOINTMENT_TYPES),
-    titulo: z.string().trim().min(1, 'título é obrigatório').max(160, 'título inválido'),
+    type: z.enum(APPOINTMENT_TYPES),
+    title: z.string().trim().min(1, 'título é obrigatório').max(160, 'título inválido'),
     date: calendarDateSchema,
     time: wallTimeSchema,
     durationMinutes: z
@@ -24,9 +24,9 @@ export const createAppointmentSchema = z
       .int()
       .min(15)
       .max(24 * 60),
-    local: z.string().trim().max(200, 'local inválido').optional(),
+    location: z.string().trim().max(200, 'local inválido').optional(),
     caseId: idSchema.optional(),
-    observacoes: z.string().trim().max(1000, 'observações inválidas').optional(),
+    notes: z.string().trim().max(1000, 'observações inválidas').optional(),
   })
   .strict();
 export type CreateAppointment = z.infer<typeof createAppointmentSchema>;

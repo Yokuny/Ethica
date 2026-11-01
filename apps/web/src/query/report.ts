@@ -20,9 +20,9 @@ import { deadlineKeys } from './deadline.js';
 export type TemplateSectionRecord = TemplateSection & { id: string };
 export type TemplateRecord = {
   id: string;
-  nome: string;
-  tipo: ReportType;
-  padrao: boolean;
+  name: string;
+  type: ReportType;
+  isDefault: boolean;
   sections: TemplateSectionRecord[];
   updatedAt?: string;
 };
@@ -30,7 +30,7 @@ export type TemplateSummary = Omit<TemplateRecord, 'sections'> & { totalSections
 
 export type ReportSectionRecord = {
   id: string;
-  titulo: string;
+  title: string;
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
@@ -41,9 +41,9 @@ export type ReportRecord = {
   id: string;
   caseId: string;
   caseNumber?: string;
-  tipo: ReportType;
+  type: ReportType;
   status: ReportStatus;
-  titulo: string;
+  title: string;
   templateName: string;
   sections: ReportSectionRecord[];
   issues: { sectionId: string; variables: ReportVariable[] }[];
@@ -59,7 +59,7 @@ export const reportKeys = {
   lists: () => [...reportKeys.all, 'list'] as const,
   list: (params: ReportsQueryParams) => [...reportKeys.lists(), params] as const,
   detail: (id: string) => [...reportKeys.all, 'detail', id] as const,
-  templates: (tipo?: ReportType) => [...reportKeys.all, 'templates', tipo ?? 'all'] as const,
+  templates: (type?: ReportType) => [...reportKeys.all, 'templates', type ?? 'all'] as const,
   template: (id: string) => [...reportKeys.all, 'template', id] as const,
 };
 
@@ -88,10 +88,10 @@ export const reportQuery = (id: string) =>
     queryFn: async () => unwrap(await get<ReportRecord>(`/expert-reports/${encodeURIComponent(id)}`), 'load_error'),
   });
 
-export const templatesQuery = (tipo?: ReportType) =>
+export const templatesQuery = (type?: ReportType) =>
   queryOptions({
-    queryKey: reportKeys.templates(tipo),
-    queryFn: async () => unwrap(await get<TemplateSummary[]>(`/expert-reports/templates${qs({ tipo })}`), 'load_error'),
+    queryKey: reportKeys.templates(type),
+    queryFn: async () => unwrap(await get<TemplateSummary[]>(`/expert-reports/templates${qs({ type })}`), 'load_error'),
   });
 
 export const templateQuery = (id: string) =>
@@ -166,9 +166,9 @@ export const createTemplateMutation = (
 
 export const renameTemplateMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<TemplateRecord, Error, { id: string; nome: string }> => ({
-  mutationFn: async ({ id, nome }) =>
-    unwrap(await patch<TemplateRecord>(`/expert-reports/templates/${id}`, { nome }), 'save_error'),
+): UseMutationOptions<TemplateRecord, Error, { id: string; name: string }> => ({
+  mutationFn: async ({ id, name }) =>
+    unwrap(await patch<TemplateRecord>(`/expert-reports/templates/${id}`, { name }), 'save_error'),
   onSuccess: (template) => updatedTemplate(queryClient, template),
 });
 
@@ -203,10 +203,10 @@ export const removeTemplateSectionMutation = (
 
 export const moveTemplateSectionMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<TemplateRecord, Error, { id: string; sectionId: string; direcao: 'up' | 'down' }> => ({
-  mutationFn: async ({ id, sectionId, direcao }) =>
+): UseMutationOptions<TemplateRecord, Error, { id: string; sectionId: string; direction: 'up' | 'down' }> => ({
+  mutationFn: async ({ id, sectionId, direction }) =>
     unwrap(
-      await post<TemplateRecord>(`/expert-reports/templates/${id}/sections/${sectionId}/move`, { direcao }),
+      await post<TemplateRecord>(`/expert-reports/templates/${id}/sections/${sectionId}/move`, { direction }),
       'save_error',
     ),
   onSuccess: (template) => updatedTemplate(queryClient, template),

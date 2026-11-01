@@ -18,23 +18,23 @@ import type { CaseFormValues } from '../@interface/cases.interface.js';
 // cadastro (`parteId`); digitar outro nome deixa a API reaproveitar ou criar (AD-115).
 function PartyNameField({ index }: { index: number }) {
   const { control, setValue } = useFormContext<CaseFormValues>();
-  const tipo = useWatch({ control, name: `parties.${index}.tipo` });
+  const type = useWatch({ control, name: `parties.${index}.type` });
   const [q, setQ] = useState('');
   const [, debounce] = useDebouncedSearch('', setQ);
-  const sugestoes = useQuery({ ...partiesQuery({ q, tipo, limit: 8 }), enabled: q.trim().length >= 2 });
-  const listId = `parties-${index}-sugestoes`;
+  const suggestions = useQuery({ ...partiesQuery({ q, type, limit: 8 }), enabled: q.trim().length >= 2 });
+  const listId = `parties-${index}-suggestions`;
 
-  function handleChange(nome: string, onChange: (value: string) => void) {
-    onChange(nome);
-    debounce(nome);
-    const escolhida = sugestoes.data?.items.find((party) => party.nome === nome);
+  function handleChange(name: string, onChange: (value: string) => void) {
+    onChange(name);
+    debounce(name);
+    const escolhida = suggestions.data?.items.find((party) => party.name === name);
     setValue(`parties.${index}.partyId`, escolhida?.id);
   }
 
   return (
     <FormField
       control={control}
-      name={`parties.${index}.nome`}
+      name={`parties.${index}.name`}
       render={({ field }) => (
         <FormItem>
           <FormLabel>{t('name')}</FormLabel>
@@ -49,8 +49,8 @@ function PartyNameField({ index }: { index: number }) {
             />
           </FormControl>
           <datalist id={listId}>
-            {sugestoes.data?.items.map((party) => (
-              <option key={party.id} value={party.nome}>
+            {suggestions.data?.items.map((party) => (
+              <option key={party.id} value={party.name}>
                 {partyIdentification(party)}
               </option>
             ))}
@@ -64,7 +64,7 @@ function PartyNameField({ index }: { index: number }) {
 
 function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) {
   const { control, getValues, setValue } = useFormContext<CaseFormValues>();
-  const tipo = useWatch({ control, name: `parties.${index}.tipo` });
+  const type = useWatch({ control, name: `parties.${index}.type` });
   const role = useWatch({ control, name: 'role' });
   return (
     <div className="flex items-start gap-2">
@@ -78,13 +78,13 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
         />
         <SelectField
           control={control}
-          name={`parties.${index}.tipo`}
+          name={`parties.${index}.type`}
           label={t('type')}
           placeholder={t('select')}
           items={PARTY_TYPE_ITEMS}
         />
         <PartyNameField index={index} />
-        {tipo === 'lawyer' ? (
+        {type === 'lawyer' ? (
           <TextField control={control} name={`parties.${index}.oab`} label="OAB" placeholder={t('example_oab')} />
         ) : (
           <TextField
@@ -106,8 +106,8 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
                   checked={field.value === true}
                   onCheckedChange={(checked) => {
                     if (checked) {
-                      (getValues('parties') ?? []).forEach((_, outro) => {
-                        if (outro !== index) setValue(`parties.${outro}.client`, undefined);
+                      (getValues('parties') ?? []).forEach((_, other) => {
+                        if (other !== index) setValue(`parties.${other}.client`, undefined);
                       });
                     }
                     field.onChange(checked === true ? true : undefined);
@@ -136,7 +136,7 @@ export function CasePartiesFields() {
         <PartyRow key={field.id} index={index} onRemove={() => remove(index)} />
       ))}
       <div>
-        <Button type="button" variant="outline" onClick={() => append({ side: 'plaintiff', tipo: 'party', nome: '' })}>
+        <Button type="button" variant="outline" onClick={() => append({ side: 'plaintiff', type: 'party', name: '' })}>
           <Plus />
           {t('add_party')}
         </Button>

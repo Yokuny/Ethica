@@ -20,12 +20,12 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
   const today = formatDisplayDate(new Date());
   return [
     {
-      id: 'descricao',
+      id: 'description',
       header: t('entry'),
       cell: ({ row }) => (
         <TableIdentity
           icon={row.original.kind === 'income' ? ArrowDownLeft : ArrowUpRight}
-          title={row.original.descricao}
+          title={row.original.description}
           description={[t(row.original.category), row.original.caseNumber, row.original.client]
             .filter(Boolean)
             .join(' · ')}

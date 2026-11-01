@@ -32,12 +32,12 @@ const displayMinutesOfDay = (instant: string): number => {
 // passa de 24h — senão o item vaza da coluna. `null` quando o item não toca
 // o dia (inclusive quando termina exatamente às 00:00 dele).
 const daySegment = (item: AppointmentRecord, day: string): { startMinutes: number; endMinutes: number } | null => {
-  const startDay = formatDisplayDate(item.inicio);
-  const endDay = formatDisplayDate(item.fim);
+  const startDay = formatDisplayDate(item.start);
+  const endDay = formatDisplayDate(item.end);
   if (startDay > day || endDay < day) return null;
 
-  const startMinutes = startDay === day ? displayMinutesOfDay(item.inicio) : 0;
-  const endMinutes = endDay === day ? displayMinutesOfDay(item.fim) : MINUTES_IN_DAY;
+  const startMinutes = startDay === day ? displayMinutesOfDay(item.start) : 0;
+  const endMinutes = endDay === day ? displayMinutesOfDay(item.end) : MINUTES_IN_DAY;
   if (startDay !== day && endMinutes === 0) return null;
 
   return { startMinutes, endMinutes: Math.max(endMinutes, startMinutes) };

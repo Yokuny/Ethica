@@ -7,7 +7,7 @@ import type { TemplateSectionRecord } from '@/query/report.js';
 // Leitura da seção do modelo padrão (ou para quem não edita modelos): os dois textos.
 export function TemplateSectionView({ section, onClose }: { section: TemplateSectionRecord; onClose: () => void }) {
   return (
-    <FormDialog title={section.titulo} size="lg" onClose={onClose}>
+    <FormDialog title={section.title} size="lg" onClose={onClose}>
       {section.titleOnly ? (
         <ItemTitle>{t('title_only')}</ItemTitle>
       ) : (

@@ -39,17 +39,17 @@ export const updatePermissionsSchema = z.object({ permissions: permissionsSchema
 export type UpdatePermissions = z.infer<typeof updatePermissionsSchema>;
 
 const TUDO: PermissionAction[] = ['view', 'create', 'update', 'delete'];
-const SEM_EXCLUIR: PermissionAction[] = ['view', 'create', 'update'];
+const WITHOUT_DELETE: PermissionAction[] = ['view', 'create', 'update'];
 
 export const ALL_PERMISSIONS: Permissions = Object.fromEntries(PERMISSION_MODULES.map((module) => [module, TUDO]));
 
 // Presets dos perfis, iguais aos papéis fixos da AD-107: gestor com tudo menos excluir
 // perícia; operador sem financeiro, sem excluir perícia e só lendo os modelos de laudo.
 export const PROFILE_PERMISSIONS: Record<Exclude<Role, 'admin'>, Permissions> = {
-  manager: { ...ALL_PERMISSIONS, expert_cases: SEM_EXCLUIR },
+  manager: { ...ALL_PERMISSIONS, expert_cases: WITHOUT_DELETE },
   operator: {
-    expert_cases: SEM_EXCLUIR,
-    parties: SEM_EXCLUIR,
+    expert_cases: WITHOUT_DELETE,
+    parties: WITHOUT_DELETE,
     agenda: TUDO,
     expert_reports: TUDO,
     report_templates: ['view'],
@@ -67,5 +67,5 @@ export const effectivePermissions = (role: Role[], permissions?: Permissions): P
   return {};
 };
 
-export const pode = (permissions: Permissions, module: PermissionModule, action: PermissionAction): boolean =>
+export const hasPermission = (permissions: Permissions, module: PermissionModule, action: PermissionAction): boolean =>
   permissions[module]?.includes(action) === true;

@@ -76,9 +76,9 @@ const autocomplete = {
 
 // Campos que a caixa de busca da listagem de perícias cobre. `partes.nome` é a cópia do
 // nome do cadastro de partes guardada na perícia (AD-117).
-const CASE_SEARCH_PATHS = ['processNumber', 'subject', 'division', 'district', 'parties.nome'] as const;
+const CASE_SEARCH_PATHS = ['processNumber', 'subject', 'division', 'district', 'parties.name'] as const;
 export const PARTY_SEARCH_INDEX = 'party_text';
-const PARTY_SEARCH_PATHS = ['nome', 'document', 'oab'] as const;
+const PARTY_SEARCH_PATHS = ['name', 'document', 'oab'] as const;
 
 export const SEARCH_INDEXES = [
   {
@@ -93,7 +93,7 @@ export const SEARCH_INDEXES = [
           subject: autocomplete,
           division: autocomplete,
           district: autocomplete,
-          parties: { type: 'document', fields: { nome: autocomplete } },
+          parties: { type: 'document', fields: { name: autocomplete } },
         },
       },
     },

@@ -39,7 +39,7 @@ const seedSession = async (role: Role[] = ['admin']) => {
 const FEE = {
   kind: 'income',
   category: 'fixed_fees',
-  descricao: 'Honorários fixados',
+  description: 'Honorários fixados',
   amountCents: 480_000,
   dueDate: '2026-12-01',
 };
@@ -67,13 +67,13 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
     const partial = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       amountCents: 150_000,
-      data: today,
+      date: today,
       account: 'Banco do Brasil',
     });
     expect(partial.status).toBe(201);
     expect(partial.body.data).toMatchObject({ status: 'partial', receivedCents: 150_000, balanceCents: 330_000 });
     const [installment] = partial.body.data.installments;
-    expect(installment).toMatchObject({ amountCents: 150_000, data: today, account: 'Banco do Brasil' });
+    expect(installment).toMatchObject({ amountCents: 150_000, date: today, account: 'Banco do Brasil' });
 
     const estorno = await as(request(app).delete(`/finance/entries/${id}/installments/${installment.id}`));
     expect(estorno.body.data).toMatchObject({
@@ -83,10 +83,10 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       installments: [],
     });
 
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 300_000, data: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 300_000, date: today });
     const quitado = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       amountCents: 180_000,
-      data: today,
+      date: today,
     });
     expect(quitado.body.data).toMatchObject({ status: 'settled', balanceCents: 0 });
   });
@@ -94,11 +94,11 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
   it('parcela maior que o saldo é recusada com 422 parcel_exceeds_balance e nada muda', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 400_000, data: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 400_000, date: today });
 
     const excede = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       amountCents: 80_001,
-      data: today,
+      date: today,
     });
     expect(excede.status).toBe(422);
     expect(excede.body.message).toBe('parcel_exceeds_balance');
@@ -108,11 +108,11 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
   it('honorário não é excluído nem tem status à mão; valor não fica abaixo do recebido; despesa continua excluível', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 200_000, data: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 200_000, date: today });
 
-    const excluir = await as(request(app).delete(`/finance/entries/${id}`));
-    expect(excluir.status).toBe(409);
-    expect(excluir.body.message).toBe('fee_cannot_be_removed');
+    const removal = await as(request(app).delete(`/finance/entries/${id}`));
+    expect(removal.status).toBe(409);
+    expect(removal.body.message).toBe('fee_cannot_be_removed');
 
     const cancelar = await as(request(app).patch(`/finance/entries/${id}`)).send({ status: 'canceled' });
     expect(cancelar.status).toBe(422);
@@ -129,7 +129,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       await as(request(app).post('/finance/entries')).send({
         kind: 'expense',
         category: 'supplies',
-        descricao: 'Calibração',
+        description: 'Calibração',
         amountCents: 10_000,
         dueDate: today,
       })
@@ -140,11 +140,11 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
   it('resumo e fluxo contam o recebido pela data de cada parcela e o saldo como a receber (PRZ-02.5)', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, dueDate: '2020-01-10' })).body.data;
-    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 150_000, data: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 150_000, date: today });
     // Parcela de outro mês: entra no recebido do mês dela, não no deste (nem no fluxo de 1 mês).
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       amountCents: 50_000,
-      data: '2020-02-01',
+      date: '2020-02-01',
     });
 
     const summary = (await as(request(app).get('/finance/summary'))).body.data;

@@ -12,7 +12,7 @@ import { RecordHeader, RecordHeading } from '@/components/record.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { readDraft } from '@/lib/offline/store.js';
-import { iniciarSync } from '@/lib/offline/sync.js';
+import { startSync } from '@/lib/offline/sync.js';
 import { inspectionQuery } from '@/query/inspection.js';
 import { FieldConnection } from '../@components/field-connection.js';
 import { RecordForm } from './@components/record-form.js';
@@ -32,7 +32,7 @@ export function InspectionPage() {
   });
   const item = query.data;
 
-  useEffect(() => iniciarSync(queryClient), [queryClient]);
+  useEffect(() => startSync(queryClient), [queryClient]);
 
   return (
     <Card asPage>
@@ -50,10 +50,10 @@ export function InspectionPage() {
           <RecordHeader>
             <RecordHeading
               icon={<ClipboardList />}
-              label={formatDateTime(item.appointment.inicio)}
-              title={item.appointment.titulo}
+              label={formatDateTime(item.appointment.start)}
+              title={item.appointment.title}
               badge={
-                <Badge variant={APPOINTMENT_TYPE_VARIANT[item.appointment.tipo]}>{t(item.appointment.tipo)}</Badge>
+                <Badge variant={APPOINTMENT_TYPE_VARIANT[item.appointment.type]}>{t(item.appointment.type)}</Badge>
               }
               description={
                 item.legalCase ? (
@@ -61,7 +61,7 @@ export function InspectionPage() {
                     {item.legalCase.processNumber}
                   </AppLink>
                 ) : (
-                  item.appointment.local
+                  item.appointment.location
                 )
               }
             />

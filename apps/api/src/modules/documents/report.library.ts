@@ -5,13 +5,13 @@ import type { TemplateRecord, TemplateSectionRecord } from './report.schema.js';
 // "sim" e "não", para o perito revisar e completar. Trecho entre parênteses é o que ele
 // preenche. Vale para todo tenant, só leitura; o escritório clona para adaptar (AD-126).
 
-const p = (...paragraphs: string[]): string => paragraphs.map((texto) => `<p>${texto}</p>`).join('');
+const p = (...paragraphs: string[]): string => paragraphs.map((text) => `<p>${text}</p>`).join('');
 
 type Section = Omit<TemplateSectionRecord, 'id' | 'titleOnly' | 'pageBreak'> &
   Partial<Pick<TemplateSectionRecord, 'titleOnly' | 'pageBreak'>>;
 
-const grupo = (titulo: string, pageBreak = false): Section => ({
-  titulo,
+const group = (title: string, pageBreak = false): Section => ({
+  title,
   level: 1,
   titleOnly: true,
   pageBreak,
@@ -19,8 +19,8 @@ const grupo = (titulo: string, pageBreak = false): Section => ({
   noText: '',
 });
 
-const IDENTIFICACAO: Section = {
-  titulo: 'Identificação do processo',
+const IDENTIFICATION: Section = {
+  title: 'Identificação do processo',
   level: 1,
   yesText: p(
     'Processo nº [NUMERO_PROCESSO], em trâmite na [VARA] ([TRIBUNAL]).',
@@ -36,7 +36,7 @@ const IDENTIFICACAO: Section = {
 };
 
 const ENCERRAMENTO: Section = {
-  titulo: 'Encerramento',
+  title: 'Encerramento',
   level: 1,
   yesText: p(
     'Nada mais havendo a esclarecer, encerra-se o presente documento, colocando-se o signatário à disposição do Juízo para os esclarecimentos que se fizerem necessários.',
@@ -47,94 +47,94 @@ const ENCERRAMENTO: Section = {
 };
 
 // NR-15: um anexo por agente. Grau do adicional conforme o item 15.2 da NR-15.
-const anexo = (numero: string, agent: string, sim: string, nao: string): Section => ({
-  titulo: `Anexo ${numero} — ${agent}`,
+const attachment = (number: string, agent: string, sim: string, nao: string): Section => ({
+  title: `Anexo ${number} — ${agent}`,
   level: 2,
   yesText: p(sim),
   noText: p(nao),
 });
 
 const NR15: Section[] = [
-  grupo('Insalubridade — NR-15', true),
-  anexo(
+  group('Insalubridade — NR-15', true),
+  attachment(
     '1',
     'Ruído contínuo ou intermitente',
     'A avaliação por dosimetria (equipamento, data e jornada avaliada) indicou nível de exposição acima do limite de tolerância do Quadro do Anexo 1 da NR-15 (85 dB(A) para 8 horas diárias), sem neutralização por protetor auricular eficaz. Caracteriza insalubridade em grau médio.',
     'A avaliação por dosimetria (equipamento, data e jornada avaliada) indicou nível de exposição abaixo do limite de tolerância do Quadro do Anexo 1 da NR-15, ou a exposição foi neutralizada por protetor auricular eficaz. Não caracteriza insalubridade pelo Anexo 1.',
   ),
-  anexo(
+  attachment(
     '2',
     'Ruído de impacto',
     'Os níveis de pico medidos superaram o limite de tolerância do Anexo 2 da NR-15 (130 dB linear ou 120 dB(C) em resposta rápida). Caracteriza insalubridade em grau médio.',
     'Não há exposição a ruído de impacto acima do limite de tolerância do Anexo 2 da NR-15.',
   ),
-  anexo(
+  attachment(
     '3',
     'Calor',
     'A avaliação do IBUTG (equipamento, local e taxa metabólica da atividade) indicou exposição acima do limite de tolerância do Anexo 3 da NR-15. Caracteriza insalubridade em grau médio.',
     'A avaliação do IBUTG indicou exposição dentro do limite de tolerância do Anexo 3 da NR-15, ou não há fonte de calor relevante no posto de trabalho.',
   ),
-  anexo(
+  attachment(
     '4',
     'Iluminação',
     'O Anexo 4 da NR-15 foi revogado pela Portaria MTPS nº 3.751/1990; as condições de iluminação são registradas apenas como informação (NR-17).',
     'O Anexo 4 da NR-15 foi revogado pela Portaria MTPS nº 3.751/1990; iluminação não enseja adicional de insalubridade.',
   ),
-  anexo(
+  attachment(
     '5',
     'Radiações ionizantes',
     'Há exposição a radiações ionizantes acima dos limites fixados pela Comissão Nacional de Energia Nuclear (CNEN), conforme o Anexo 5 da NR-15. Caracteriza insalubridade em grau máximo.',
     'Não há exposição a fontes de radiação ionizante no posto de trabalho.',
   ),
-  anexo(
+  attachment(
     '6',
     'Trabalho sob condições hiperbáricas',
     'As atividades eram realizadas sob ar comprimido ou em mergulho, nas condições do Anexo 6 da NR-15. Caracteriza insalubridade em grau máximo.',
     'Não há trabalho sob condições hiperbáricas.',
   ),
-  anexo(
+  attachment(
     '7',
     'Radiações não ionizantes',
     'Há exposição sem proteção adequada a radiações não ionizantes (micro-ondas, ultravioleta ou laser), avaliada qualitativamente conforme o Anexo 7 da NR-15. Caracteriza insalubridade em grau médio.',
     'Não há exposição a radiações não ionizantes, ou a proteção fornecida foi adequada.',
   ),
-  anexo(
+  attachment(
     '8',
     'Vibrações',
     'A avaliação (equipamento e método) indicou aceleração resultante de exposição normalizada acima do limite do Anexo 8 da NR-15 (mãos e braços: 5 m/s²; corpo inteiro: 1,1 m/s² ou VDVR de 21 m/s¹,⁷⁵). Caracteriza insalubridade em grau médio.',
     'A exposição a vibrações ficou abaixo dos limites do Anexo 8 da NR-15, ou não há fonte de vibração relevante.',
   ),
-  anexo(
+  attachment(
     '9',
     'Frio',
     'As atividades eram exercidas no interior de câmaras frigoríficas ou locais com condições similares, sem proteção adequada, conforme o Anexo 9 da NR-15. Caracteriza insalubridade em grau médio.',
     'Não há exposição ao frio nas condições do Anexo 9 da NR-15, ou a proteção fornecida foi adequada.',
   ),
-  anexo(
+  attachment(
     '10',
     'Umidade',
     'As atividades eram exercidas em locais alagados ou encharcados, com umidade excessiva capaz de produzir danos à saúde, conforme o Anexo 10 da NR-15. Caracteriza insalubridade em grau médio.',
     'Não há exposição a umidade excessiva nas condições do Anexo 10 da NR-15.',
   ),
-  anexo(
+  attachment(
     '11',
     'Agentes químicos com limite de tolerância',
     'A avaliação quantitativa (agente, método de coleta e laboratório) indicou concentração acima do limite de tolerância do Quadro 1 do Anexo 11 da NR-15. Caracteriza insalubridade no grau indicado para o agente (mínimo, médio ou máximo).',
     'A avaliação quantitativa indicou concentração abaixo do limite de tolerância do Quadro 1 do Anexo 11 da NR-15, ou não há exposição a esses agentes.',
   ),
-  anexo(
+  attachment(
     '12',
     'Poeiras minerais',
     'Há exposição a poeiras minerais (asbesto, manganês ou sílica livre cristalizada) acima dos limites do Anexo 12 da NR-15. Caracteriza insalubridade em grau máximo.',
     'Não há exposição a poeiras minerais acima dos limites do Anexo 12 da NR-15.',
   ),
-  anexo(
+  attachment(
     '13',
     'Agentes químicos (avaliação qualitativa)',
     'As atividades envolviam contato com agentes relacionados no Anexo 13 da NR-15 (identificar a atividade e o agente, por exemplo hidrocarbonetos e outros compostos de carbono), sem proteção eficaz. Caracteriza insalubridade no grau indicado para a atividade. Para benzeno, observar o Anexo 13-A.',
     'As atividades não envolviam contato com os agentes relacionados no Anexo 13 da NR-15, ou a proteção fornecida foi eficaz.',
   ),
-  anexo(
+  attachment(
     '14',
     'Agentes biológicos',
     'As atividades envolviam contato permanente com agentes biológicos nas situações do Anexo 14 da NR-15 (identificar: pacientes em isolamento, lixo urbano, estabelecimentos de saúde etc.). Caracteriza insalubridade em grau (médio ou máximo, conforme a situação).',
@@ -143,15 +143,15 @@ const NR15: Section[] = [
 ];
 
 // NR-16: adicional de 30% sobre o salário-base (art. 193 da CLT).
-const hazardousConditions = (titulo: string, sim: string, nao: string): Section => ({
-  titulo,
+const hazardousConditions = (title: string, sim: string, nao: string): Section => ({
+  title,
   level: 2,
   yesText: p(`${sim} Caracteriza periculosidade, com adicional de 30% (art. 193 da CLT).`),
   noText: p(nao),
 });
 
 const NR16: Section[] = [
-  grupo('Periculosidade — NR-16', true),
+  group('Periculosidade — NR-16', true),
   hazardousConditions(
     'Anexo 1 — Explosivos',
     'As atividades eram exercidas com explosivos ou em área de risco, nas condições do Anexo 1 da NR-16.',
@@ -185,16 +185,16 @@ const NR16: Section[] = [
 ];
 
 const questions = (de: string): Section => ({
-  titulo: `Quesitos ${de}`,
+  title: `Quesitos ${de}`,
   level: 2,
   yesText: p('Quesito 1: (transcrever o quesito).', 'Resposta: (responder).'),
   noText: p(`Não foram apresentados quesitos ${de}.`),
 });
 
 const EXPERT_REPORT: Section[] = [
-  IDENTIFICACAO,
+  IDENTIFICATION,
   {
-    titulo: 'Objetivo',
+    title: 'Objetivo',
     level: 1,
     yesText: p(
       'O presente laudo tem por objetivo verificar se as atividades exercidas por [NOME_AUTOR], na função de [FUNCAO_RECLAMANTE], no período de [PERIODO_IMPRESCRITO], foram executadas em condições insalubres ou perigosas, nos termos dos arts. 189 a 197 da CLT e das Normas Regulamentadoras NR-15 e NR-16.',
@@ -204,7 +204,7 @@ const EXPERT_REPORT: Section[] = [
     ),
   },
   {
-    titulo: 'Metodologia e vistoria',
+    title: 'Metodologia e vistoria',
     level: 1,
     yesText: p(
       'A vistoria foi realizada em [DATA_VISTORIA], no local periciado ([LOCAL_PERICIA]), com início às [HORA_VISTORIA]. Foram feitas entrevistas, inspeção dos postos de trabalho, análise dos documentos dos autos (PGR, PCMSO, LTCAT, fichas de entrega de EPI) e, quando cabível, avaliações quantitativas com instrumentos calibrados.',
@@ -216,7 +216,7 @@ const EXPERT_REPORT: Section[] = [
     ),
   },
   {
-    titulo: 'Atividades exercidas',
+    title: 'Atividades exercidas',
     level: 1,
     yesText: p(
       'Segundo as informações colhidas na vistoria, confirmadas pelas partes, o trabalhador exercia a função de [FUNCAO_RECLAMANTE], com as seguintes atividades: [FUNCOES_AUTOR].',
@@ -229,7 +229,7 @@ const EXPERT_REPORT: Section[] = [
     ),
   },
   {
-    titulo: 'Equipamentos de proteção individual',
+    title: 'Equipamentos de proteção individual',
     level: 1,
     yesText: p(
       'Houve fornecimento de EPI com Certificado de Aprovação válido, comprovado por fichas assinadas, com treinamento e fiscalização do uso (NR-6), suficientes para neutralizar o agente (Súmula 80 do TST).',
@@ -240,12 +240,12 @@ const EXPERT_REPORT: Section[] = [
   },
   ...NR15,
   ...NR16,
-  grupo('Quesitos', true),
+  group('Quesitos', true),
   questions('pelo(a) [DENOMINACAO_AUTOR]'),
   questions('pelo(a) [DENOMINACAO_REU]'),
   questions('pelo Juízo'),
   {
-    titulo: 'Conclusão',
+    title: 'Conclusão',
     level: 1,
     pageBreak: true,
     yesText: p(
@@ -256,7 +256,7 @@ const EXPERT_REPORT: Section[] = [
     ),
   },
   {
-    titulo: 'Honorários periciais',
+    title: 'Honorários periciais',
     level: 1,
     yesText: p(
       'Requer o arbitramento dos honorários periciais em R$ (valor), considerando a complexidade da matéria e o tempo dedicado à vistoria, às avaliações e à elaboração deste laudo.',
@@ -269,9 +269,9 @@ const EXPERT_REPORT: Section[] = [
 ];
 
 const TECHNICAL_OPINION: Section[] = [
-  IDENTIFICACAO,
+  IDENTIFICATION,
   {
-    titulo: 'Objetivo',
+    title: 'Objetivo',
     level: 1,
     yesText: p(
       'O presente parecer técnico, elaborado pelo assistente técnico indicado pela parte (indicar), tem por objetivo analisar o laudo pericial e apresentar as conclusões técnicas sobre a matéria.',
@@ -281,7 +281,7 @@ const TECHNICAL_OPINION: Section[] = [
     ),
   },
   {
-    titulo: 'Acompanhamento da vistoria',
+    title: 'Acompanhamento da vistoria',
     level: 1,
     yesText: p(
       'O assistente técnico acompanhou a vistoria realizada pelo perito do Juízo em [DATA_VISTORIA], no local periciado ([LOCAL_PERICIA]).',
@@ -289,13 +289,13 @@ const TECHNICAL_OPINION: Section[] = [
     noText: p('O assistente técnico não acompanhou a vistoria (informar o motivo).'),
   },
   {
-    titulo: 'Medições de agentes quantitativos',
+    title: 'Medições de agentes quantitativos',
     level: 1,
     yesText: `${p('As medições abaixo foram realizadas em conjunto com o perito do Juízo, nos mesmos pontos e condições:')}<table><tbody><tr><th>Agente</th><th>Instrumento</th><th>Resultado do perito</th><th>Resultado do assistente</th><th>Limite de tolerância</th></tr><tr><td>(agente)</td><td>(instrumento)</td><td>(valor)</td><td>(valor)</td><td>(limite)</td></tr></tbody></table>`,
     noText: p('Não foram realizadas medições de agentes quantitativos em conjunto com o perito do Juízo.'),
   },
   {
-    titulo: 'Análise do laudo pericial',
+    title: 'Análise do laudo pericial',
     level: 1,
     yesText: p(
       'O assistente técnico concorda com a metodologia e as conclusões do laudo pericial, pelos seguintes fundamentos: (descrever).',
@@ -305,25 +305,25 @@ const TECHNICAL_OPINION: Section[] = [
     ),
   },
   {
-    titulo: 'Impugnação do laudo pericial',
+    title: 'Impugnação do laudo pericial',
     level: 1,
     yesText: p('Impugna-se o laudo pericial pelos seguintes fundamentos técnicos: (descrever).'),
     noText: p('Não há impugnação ao laudo pericial.'),
   },
   {
-    titulo: 'Quesitos complementares',
+    title: 'Quesitos complementares',
     level: 1,
     yesText: p('Quesito complementar 1: (transcrever).', 'Justificativa técnica: (descrever).'),
     noText: p('Não há quesitos complementares.'),
   },
   {
-    titulo: 'Quesitos suplementares',
+    title: 'Quesitos suplementares',
     level: 1,
     yesText: p('Quesito suplementar 1: (transcrever).', 'Justificativa técnica: (descrever).'),
     noText: p('Não há quesitos suplementares.'),
   },
   {
-    titulo: 'Conclusão',
+    title: 'Conclusão',
     level: 1,
     pageBreak: true,
     yesText: p('Pelo exposto, o assistente técnico conclui que (descrever a conclusão técnica).'),
@@ -333,26 +333,26 @@ const TECHNICAL_OPINION: Section[] = [
 ];
 
 const comIds = (prefix: string, sections: Section[]): TemplateSectionRecord[] =>
-  sections.map((section, indice) => ({
+  sections.map((section, index) => ({
     titleOnly: false,
     pageBreak: false,
     ...section,
-    id: `${prefix}-${String(indice + 1).padStart(2, '0')}`,
+    id: `${prefix}-${String(index + 1).padStart(2, '0')}`,
   }));
 
 export const DEFAULT_TEMPLATES: Record<ReportType, TemplateRecord> = {
   report: {
     id: REPORT_DEFAULT_TEMPLATES.report,
-    nome: 'Laudo pericial trabalhista',
-    tipo: 'report',
-    padrao: true,
+    name: 'Laudo pericial trabalhista',
+    type: 'report',
+    isDefault: true,
     sections: comIds('laudo', EXPERT_REPORT),
   },
   technical_opinion: {
     id: REPORT_DEFAULT_TEMPLATES.technical_opinion,
-    nome: 'Parecer técnico',
-    tipo: 'technical_opinion',
-    padrao: true,
+    name: 'Parecer técnico',
+    type: 'technical_opinion',
+    isDefault: true,
     sections: comIds('parecer', TECHNICAL_OPINION),
   },
 };

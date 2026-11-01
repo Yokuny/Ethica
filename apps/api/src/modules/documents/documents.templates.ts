@@ -5,18 +5,18 @@ import {
   dateTime,
   day,
   dinheiro,
+  empty,
   esc,
   fields,
   label,
   section,
   table,
-  vazio,
 } from './document.layout.js';
 import type {
-  ChecklistDados,
-  CronogramaDados,
+  ChecklistData,
   DocumentBase,
   FinanceData,
+  ScheduleData,
   SheetData,
   StalledData,
 } from './documents.schema.js';
@@ -33,18 +33,18 @@ const sidesNames = (legalCase: Case) =>
 
 const sideNames = (legalCase: Case, side: 'plaintiff' | 'defendant') =>
   legalCase.parties
-    .filter((party) => party.side === side && party.tipo === 'party')
-    .map((party) => party.nome)
+    .filter((party) => party.side === side && party.type === 'party')
+    .map((party) => party.name)
     .join(', ');
 
-const document = (base: DocumentBase, titulo: string, subtitulo: string | undefined, body: string): PdfDocument =>
+const document = (base: DocumentBase, title: string, subtitle: string | undefined, body: string): PdfDocument =>
   buildDocument({
-    titulo,
-    subtitulo,
+    title,
+    subtitle,
     body,
     identity: base.identity,
     expertName: base.expert.name,
-    geradoEm: base.geradoEm,
+    generatedAt: base.generatedAt,
   });
 
 const processData = (legalCase: Case) =>
@@ -85,51 +85,51 @@ const hasLaborData = (legalCase: Case) =>
       legalCase.location,
   );
 
-export const sheetHtml = (dados: SheetData): PdfDocument => {
-  const { legalCase, deadlines, appointments, finance, expert } = dados;
+export const sheetHtml = (data: SheetData): PdfDocument => {
+  const { legalCase, deadlines, appointments, finance, expert } = data;
   const sides = sidesNames(legalCase);
   const parties = legalCase.parties.length
     ? table(
         ['Polo', 'Tipo', 'Nome'],
         legalCase.parties.map((party) => [
           esc(sides[party.side]),
-          party.tipo === 'lawyer' ? 'Advogado' : 'Parte',
-          esc(party.nome),
+          party.type === 'lawyer' ? 'Advogado' : 'Parte',
+          esc(party.name),
         ]),
       )
-    : vazio('Nenhuma parte cadastrada.');
+    : empty('Nenhuma parte cadastrada.');
   const listDeadlines = deadlines.length
     ? table(
         ['Prazo', 'Vencimento', 'Status'],
         deadlines.map((deadline) => [
-          esc(deadline.titulo),
+          esc(deadline.title),
           esc(day(deadline.dueDate)),
           esc(deadline.filedDate ? `${label(deadline.status)} em ${day(deadline.filedDate)}` : label(deadline.status)),
         ]),
       )
-    : vazio('Nenhum prazo cadastrado.');
+    : empty('Nenhum prazo cadastrado.');
   const appointmentList = appointments.length
     ? table(
         ['Quando', 'Tipo', 'Compromisso', 'Local', 'Status'],
         appointments.map((appointment) => [
-          esc(dateTime(appointment.inicio)),
-          esc(label(appointment.tipo)),
-          esc(appointment.titulo),
-          esc(appointment.local),
+          esc(dateTime(appointment.start)),
+          esc(label(appointment.type)),
+          esc(appointment.title),
+          esc(appointment.location),
           esc(label(appointment.status)),
         ]),
       )
-    : vazio('Nenhum compromisso cadastrado.');
+    : empty('Nenhum compromisso cadastrado.');
   const movements = legalCase.movements.length
     ? table(
         ['Data', 'Movimentação', 'Observações'],
         legalCase.movements.map((movement) => [
-          esc(day(movement.data)),
-          esc(label(movement.tipo)),
-          esc(movement.observacoes),
+          esc(day(movement.date)),
+          esc(label(movement.type)),
+          esc(movement.notes),
         ]),
       )
-    : vazio('Nenhuma movimentação lançada.');
+    : empty('Nenhuma movimentação lançada.');
   const financeSummary = finance
     ? section(
         'Resumo financeiro',
@@ -145,7 +145,7 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
     : '';
 
   return document(
-    dados,
+    data,
     'Ficha da perícia',
     legalCase.processNumber,
     [
@@ -176,13 +176,13 @@ const CAIXA = '<span class="caixa"></span>';
 const rowsBlank = (quantidade: number, columns: number) =>
   Array.from({ length: quantidade }, () => Array.from({ length: columns }, () => ''));
 
-export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
-  const { legalCase, expert } = dados;
+export const checklistHtml = (data: ChecklistData): PdfDocument => {
+  const { legalCase, expert } = data;
   const sides = sidesNames(legalCase);
   const participants = [
     ...legalCase.parties.map((party) => [
-      esc(party.nome),
-      esc(party.tipo === 'lawyer' ? `Advogado (${sides[party.side].toLowerCase()})` : sides[party.side]),
+      esc(party.name),
+      esc(party.type === 'lawyer' ? `Advogado (${sides[party.side].toLowerCase()})` : sides[party.side]),
       '',
     ]),
     [esc(expert.name), 'Perito', ''],
@@ -190,7 +190,7 @@ export const checklistHtml = (dados: ChecklistDados): PdfDocument => {
   ];
 
   return document(
-    dados,
+    data,
     'Checklist de campo',
     legalCase.processNumber,
     [
@@ -240,55 +240,55 @@ const DAY_MS = 86_400_000;
 const daysUntil = (de: string, ate: string) =>
   Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / DAY_MS);
 
-const faltam = (days: number) => {
+const missing = (days: number) => {
   if (days < 0) return `<span class="vencido">Vencido há ${-days} ${-days === 1 ? 'dia' : 'dias'}</span>`;
   if (days === 0) return '<span class="alerta">Vence hoje</span>';
-  const texto = `Faltam ${days} ${days === 1 ? 'dia' : 'dias'}`;
-  return days <= DEADLINE_DUE_SOON_DAYS ? `<span class="alerta">${texto} · vence em breve</span>` : texto;
+  const text = `Faltam ${days} ${days === 1 ? 'dia' : 'dias'}`;
+  return days <= DEADLINE_DUE_SOON_DAYS ? `<span class="alerta">${text} · vence em breve</span>` : text;
 };
 
-export const cronogramaHtml = (dados: CronogramaDados): PdfDocument =>
+export const scheduleHtml = (data: ScheduleData): PdfDocument =>
   document(
-    dados,
+    data,
     'Cronograma de prazos',
     `Prazos pendentes por vencimento · "vence em breve" até ${DEADLINE_DUE_SOON_DAYS} dias`,
-    dados.deadlines.length
+    data.deadlines.length
       ? table(
           ['Vencimento', 'Situação', 'Processo', 'Prazo'],
-          dados.deadlines.map((deadline) => [
+          data.deadlines.map((deadline) => [
             esc(day(deadline.dueDate)),
-            faltam(daysUntil(dados.today, deadline.dueDate)),
+            missing(daysUntil(data.today, deadline.dueDate)),
             esc(deadline.caseNumber),
-            esc(deadline.titulo),
+            esc(deadline.title),
           ]),
         )
-      : vazio('Nenhum prazo pendente.'),
+      : empty('Nenhum prazo pendente.'),
   );
 
-const financeRows = (titulo: string, rows: FinanceData['report']['received'], labelData: string) =>
+const financeRows = (title: string, rows: FinanceData['report']['received'], labelData: string) =>
   section(
-    titulo,
+    title,
     rows.length
       ? table(
           [labelData, 'Descrição', 'Categoria', 'Processo', 'Valor'],
           rows.map((row) => [
-            esc(day(row.data)),
-            esc(row.account ? `${row.descricao} (${row.account})` : row.descricao),
+            esc(day(row.date)),
+            esc(row.account ? `${row.description} (${row.account})` : row.description),
             esc(label(row.category)),
             esc(row.caseNumber),
             `<span class="num">${esc(dinheiro(row.amountCents))}</span>`,
           ]),
         )
-      : vazio('Nada no período.'),
+      : empty('Nada no período.'),
   );
 
-export const financeHtml = (dados: FinanceData): PdfDocument => {
-  const { report, period } = dados;
+export const financeHtml = (data: FinanceData): PdfDocument => {
+  const { report, period } = data;
   const { totals } = report;
   const total = (labelTotal: string, cents: number) =>
     `<div><dt>${esc(labelTotal)}</dt><dd>${esc(dinheiro(cents))}</dd></div>`;
   return document(
-    dados,
+    data,
     'Relatório financeiro',
     `Período de ${day(period.from)} a ${day(period.to)}`,
     [
@@ -311,21 +311,21 @@ export const financeHtml = (dados: FinanceData): PdfDocument => {
   );
 };
 
-export const stalledHtml = (dados: StalledData): PdfDocument =>
+export const stalledHtml = (data: StalledData): PdfDocument =>
   document(
-    dados,
+    data,
     'Perícias paradas',
     `Abertas sem movimentação (entrega do laudo, honorários, intimação para esclarecimentos ou laudo complementar) há mais de ${STALLED_CASE_DAYS} dias`,
-    dados.stalled.length
+    data.stalled.length
       ? table(
           ['Processo', 'Etapa', 'Tribunal / vara', 'Desde', 'Dias parada'],
-          dados.stalled.map((stalled) => [
+          data.stalled.map((stalled) => [
             esc(stalled.processNumber),
             esc(label(stalled.status)),
             esc([stalled.court, stalled.division].filter(Boolean).join(' · ')),
-            esc(`${day(stalled.referencia)} (${label(stalled.origin)})`),
+            esc(`${day(stalled.reference)} (${label(stalled.origin)})`),
             `<span class="num">${stalled.stalledDays}</span>`,
           ]),
         )
-      : vazio('Nenhuma perícia parada.'),
+      : empty('Nenhuma perícia parada.'),
   );

@@ -35,9 +35,9 @@ const isDuplicateKeyError = (e: unknown): boolean =>
 // Sem período imprescrito informado, grava o sugerido pelas datas do contrato (AD-115).
 const withSuggestedPeriod = <T extends CreateCaseInput>(input: T): T => {
   if (input.nonPrescribedPeriodStart || input.nonPrescribedPeriodEnd) return input;
-  const sugerido = suggestNonPrescribedPeriod(input);
-  return sugerido
-    ? { ...input, nonPrescribedPeriodStart: sugerido.inicio, nonPrescribedPeriodEnd: sugerido.fim }
+  const suggested = suggestNonPrescribedPeriod(input);
+  return suggested
+    ? { ...input, nonPrescribedPeriodStart: suggested.start, nonPrescribedPeriodEnd: suggested.end }
     : input;
 };
 
@@ -69,9 +69,9 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
     });
     if (reportDeadline) {
       await deadlineRepository.createDeadline(input.tenant, legalCase.id, {
-        titulo: REPORT_DELIVERY_DEADLINE,
+        title: REPORT_DELIVERY_DEADLINE,
         dueDate: reportDeadline,
-        observacoes: 'Gerado a partir do prazo do laudo informado no cadastro.',
+        notes: 'Gerado a partir do prazo do laudo informado no cadastro.',
       });
     }
     return legalCase;
@@ -131,14 +131,14 @@ export const listCases = async (
 ): Promise<{ items: CaseListItem[]; total: number }> => {
   try {
     const result = await caseRepository.listCases(tenantId, query);
-    const proximos = await deadlineRepository.upcomingByCaseIds(
+    const upcoming = await deadlineRepository.upcomingByCaseIds(
       tenantId,
       result.items.map((item) => item.id),
     );
     return {
       ...result,
       items: result.items.map((item) => {
-        const nextDeadline = proximos.get(item.id);
+        const nextDeadline = upcoming.get(item.id);
         return nextDeadline ? { ...item, nextDeadline } : item;
       }),
     };
@@ -168,9 +168,9 @@ const daysBetween = (de: string, ate: string): number =>
 // DOC-03: abertas sem movimentação há mais de PERICIA_PARADA_DIAS dias (AD-121).
 export const listStalled = async (tenantId: string, now: Date = new Date()): Promise<StalledCase[]> => {
   const today = dateInDisplayTz(now);
-  const limite = new Date(Date.parse(`${today}T12:00:00Z`) - STALLED_CASE_DAYS * DAY_MS).toISOString().slice(0, 10);
-  const stalled = await caseRepository.listStalled(tenantId, limite);
-  return stalled.map((stalled) => ({ ...stalled, stalledDays: daysBetween(stalled.referencia, today) }));
+  const limit = new Date(Date.parse(`${today}T12:00:00Z`) - STALLED_CASE_DAYS * DAY_MS).toISOString().slice(0, 10);
+  const stalled = await caseRepository.listStalled(tenantId, limit);
+  return stalled.map((stalled) => ({ ...stalled, stalledDays: daysBetween(stalled.reference, today) }));
 };
 
 export const listForExport = (tenantId: string) => caseRepository.listAll(tenantId);

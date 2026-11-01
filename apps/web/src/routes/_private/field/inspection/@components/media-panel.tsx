@@ -23,7 +23,7 @@ function BlobMedia({ media }: { media: PendingMedia }) {
     return () => URL.revokeObjectURL(local);
   }, [media.blob]);
   if (!url) return null;
-  return media.tipo === 'audio' ? (
+  return media.type === 'audio' ? (
     // biome-ignore lint/a11y/useMediaCaption: gravação da vistoria, sem legenda
     <audio controls src={url} className="w-full" />
   ) : (
@@ -43,11 +43,11 @@ export function MediaPanel({ item }: { item: DayInspection }) {
   });
   const camera = useRef<HTMLInputElement>(null);
   const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
-  const enviadas = item.inspection.media.filter((media) => media.tipo !== 'signature');
-  const photos = enviadas.filter((media) => media.tipo === 'photo').length;
+  const sent = item.inspection.media.filter((media) => media.type !== 'signature');
+  const photos = sent.filter((media) => media.type === 'photo').length;
 
-  async function enfileirar(media: Omit<PendingMedia, 'appointmentId' | 'mediaId' | 'criadoEm'>) {
-    await storeMedia({ ...media, appointmentId, mediaId: crypto.randomUUID(), criadoEm: new Date().toISOString() });
+  async function enqueue(media: Omit<PendingMedia, 'appointmentId' | 'mediaId' | 'createdAt'>) {
+    await storeMedia({ ...media, appointmentId, mediaId: crypto.randomUUID(), createdAt: new Date().toISOString() });
     await updateIssues();
     await queryClient.invalidateQueries({ queryKey: inspectionKeys.pending(appointmentId) });
     void runSync(queryClient);
@@ -59,12 +59,12 @@ export function MediaPanel({ item }: { item: DayInspection }) {
         toast.error(t('media_limit_reached'));
         break;
       }
-      const blob = await preparePhoto(file, item.appointment.local);
-      await enfileirar({ tipo: 'photo', mime: 'image/jpeg', blob });
+      const blob = await preparePhoto(file, item.appointment.location);
+      await enqueue({ type: 'photo', mime: 'image/jpeg', blob });
     }
   }
 
-  async function gravar() {
+  async function save() {
     if (recorder) {
       recorder.stop();
       return;
@@ -78,7 +78,7 @@ export function MediaPanel({ item }: { item: DayInspection }) {
         for (const track of stream.getTracks()) track.stop();
         setRecorder(null);
         const mime = (recorder.mimeType.split(';')[0] || 'audio/webm') as string;
-        void enfileirar({ tipo: 'audio', mime, blob: new Blob(parties, { type: mime }) });
+        void enqueue({ type: 'audio', mime, blob: new Blob(parties, { type: mime }) });
       };
       recorder.start();
       setRecorder(recorder);
@@ -87,7 +87,7 @@ export function MediaPanel({ item }: { item: DayInspection }) {
     }
   }
 
-  async function removerEnviada(mediaId: string) {
+  async function removeSent(mediaId: string) {
     const res = await del(`/inspections/${appointmentId}/media/${mediaId}`);
     if (!res.success) toast.error(res.message);
     await queryClient.invalidateQueries({ queryKey: inspectionKeys.detail(appointmentId) });
@@ -125,14 +125,14 @@ export function MediaPanel({ item }: { item: DayInspection }) {
             <Camera />
             {t('add_photo')}
           </Button>
-          <Button type="button" variant={recorder ? 'destructive' : 'outline'} onClick={() => void gravar()}>
+          <Button type="button" variant={recorder ? 'destructive' : 'outline'} onClick={() => void save()}>
             {recorder ? <Square /> : <Mic />}
             {t(recorder ? 'stop_recording' : 'record_audio')}
           </Button>
         </>
       }
     >
-      {!enviadas.length && !pending.data?.length ? (
+      {!sent.length && !pending.data?.length ? (
         <ItemTitle className="font-normal text-muted-foreground">{t('no_media_yet')}</ItemTitle>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
@@ -140,7 +140,7 @@ export function MediaPanel({ item }: { item: DayInspection }) {
             <li key={media.mediaId} className="grid gap-2">
               <BlobMedia media={media} />
               <ItemDescription className="line-clamp-none">
-                {media.falha ? `${t('upload_failed')}: ${media.falha}` : t('waiting_to_send')}
+                {media.failure ? `${t('upload_failed')}: ${media.failure}` : t('waiting_to_send')}
               </ItemDescription>
               <div className="flex gap-2">
                 <Input
@@ -165,11 +165,11 @@ export function MediaPanel({ item }: { item: DayInspection }) {
               </div>
             </li>
           ))}
-          {enviadas.map((media) => {
+          {sent.map((media) => {
             const src = apiUrl(`/inspections/${appointmentId}/media/${media.id}`);
             return (
               <li key={media.id} className="grid gap-2">
-                {media.tipo === 'audio' ? (
+                {media.type === 'audio' ? (
                   // biome-ignore lint/a11y/useMediaCaption: gravação da vistoria, sem legenda
                   <audio controls src={src} className="w-full" />
                 ) : (
@@ -187,7 +187,7 @@ export function MediaPanel({ item }: { item: DayInspection }) {
                     variant="ghost"
                     size="icon"
                     aria-label={t('remove')}
-                    onClick={() => void removerEnviada(media.id)}
+                    onClick={() => void removeSent(media.id)}
                   >
                     <Trash2 />
                   </Button>

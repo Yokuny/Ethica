@@ -22,7 +22,7 @@ const ABAS = [
   ['agents', 'agents'],
   ['documents', 'documents'],
   ['media', 'media'],
-  ['observacoes', 'notes'],
+  ['notes', 'notes'],
 ] as const;
 
 // Registro em abas (CAM-02): tudo fica no aparelho a cada mudança e sobe sozinho (AD-128).
@@ -36,10 +36,10 @@ export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft
     await storeMedia({
       appointmentId: item.appointment.id,
       mediaId,
-      tipo: 'signature',
+      type: 'signature',
       mime: 'image/png',
       blob: png,
-      criadoEm: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     });
     await updateIssues();
     void runSync(queryClient);
@@ -52,9 +52,9 @@ export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft
         <Tabs defaultValue="attendees">
           <div className="-mx-1 overflow-x-auto px-1">
             <TabsList variant="line">
-              {ABAS.map(([amount, chave]) => (
+              {ABAS.map(([amount, key]) => (
                 <TabsTrigger key={amount} value={amount}>
-                  {t(chave)}
+                  {t(key)}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -77,10 +77,10 @@ export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft
           <TabsContent value="media" className="pt-4">
             <MediaPanel item={item} />
           </TabsContent>
-          <TabsContent value="observacoes" className="grid gap-2 pt-4">
+          <TabsContent value="notes" className="grid gap-2 pt-4">
             <TextareaField
               control={form.control}
-              name="observacoes"
+              name="notes"
               label={t('internal_notes')}
               placeholder={t('internal_notes_placeholder')}
             />
@@ -91,7 +91,7 @@ export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft
       {conflict && (
         <ConflictDialog
           server={conflict}
-          onManterMinha={() => void keepMine()}
+          onKeepMine={() => void keepMine()}
           onUseServer={() => void keepServer()}
           onClose={() => void keepMine()}
         />

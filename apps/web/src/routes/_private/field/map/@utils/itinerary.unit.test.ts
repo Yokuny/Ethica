@@ -12,8 +12,8 @@ describe('rota do dia (AD-131)', () => {
   });
 
   it('ordena pelo vizinho mais próximo e deixa sem coordenada no fim', () => {
-    const itens = [{ id: 'campinas', coordinates: CAMPINAS }, { id: 'sem' }, { id: 'paulista', coordinates: PAULISTA }];
-    expect(sortByProximity(SE, itens).map((item) => item.id)).toEqual(['paulista', 'campinas', 'sem']);
+    const items = [{ id: 'campinas', coordinates: CAMPINAS }, { id: 'sem' }, { id: 'paulista', coordinates: PAULISTA }];
+    expect(sortByProximity(SE, items).map((item) => item.id)).toEqual(['paulista', 'campinas', 'sem']);
   });
 
   it('aponta a parada marcada antes da anterior', () => {

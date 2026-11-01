@@ -35,7 +35,7 @@ describe('buildDatajudQuery', () => {
   it('termo vira multi_match nos movimentos/assuntos/classe e o cursor vira search_after', () => {
     const body = buildDatajudQuery({
       court: 'trt2',
-      termo: 'perito',
+      term: 'perito',
       courtUnit: '1ª Vara',
       size: 5,
       cursor: [9],
@@ -62,7 +62,7 @@ describe('createDatajudClient', () => {
       );
     const client = createDatajudClient({ baseUrl: 'https://datajud.test', apiKey: 'k', fetchImpl });
 
-    const result = await client.search({ court: 'trt2', termo: 'perito', size: 1 });
+    const result = await client.search({ court: 'trt2', term: 'perito', size: 1 });
 
     const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
     expect(url).toBe('https://datajud.test/api_publica_trt2/_search');

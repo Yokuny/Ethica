@@ -7,7 +7,7 @@ import { DateField, SelectField, TextareaField } from '@/components/form-fields.
 import { t } from '@/lib/helpers/translate.helper.js';
 import { useMovementForm } from '../@hooks/use-movement-form.js';
 
-const TIPOS = MOVEMENT_TYPES.map((tipo) => ({ value: tipo, label: t(tipo) }));
+const TYPES = MOVEMENT_TYPES.map((type) => ({ value: type, label: t(type) }));
 
 export function MovementForm({ caseId, onClose }: { caseId: string; onClose: () => void }) {
   const { form, onSubmit, isPending, errorMessage } = useMovementForm({ caseId, onDone: onClose });
@@ -17,9 +17,9 @@ export function MovementForm({ caseId, onClose }: { caseId: string; onClose: () 
     <FormDialog title={t('new_movement')} description={t('movement_description')} size="sm" onClose={onClose}>
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
-          <SelectField control={control} name="tipo" label={t('type')} placeholder={t('choose_type')} items={TIPOS} />
-          <DateField control={control} name="data" label={t('date')} placeholder={t('choose_day')} />
-          <TextareaField control={control} name="observacoes" label={t('notes')} placeholder={t('notes_placeholder')} />
+          <SelectField control={control} name="type" label={t('type')} placeholder={t('choose_type')} items={TYPES} />
+          <DateField control={control} name="date" label={t('date')} placeholder={t('choose_day')} />
+          <TextareaField control={control} name="notes" label={t('notes')} placeholder={t('notes_placeholder')} />
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">
               {errorMessage}

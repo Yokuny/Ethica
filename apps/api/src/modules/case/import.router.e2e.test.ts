@@ -90,12 +90,12 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
 
   it('PDF devolve o rascunho sem gravar; número já cadastrado traz existingId (IMP-01.1, IMP-01.3)', async () => {
     const { as } = await seedSession();
-    const enviar = () =>
+    const send = () =>
       as(request(app).post('/expert-cases/import/pdf')).set('Content-Type', 'application/pdf').send(pdfDe(MINUTES));
 
-    const primeira = await enviar();
-    expect(primeira.status).toBe(200);
-    expect(primeira.body.data.draft).toMatchObject({
+    const first = await send();
+    expect(first.status).toBe(200);
+    expect(first.body.data.draft).toMatchObject({
       processNumber: '0001234-56.2026.5.02.0001',
       court: 'TRT2',
       division: '1ª Vara do Trabalho',
@@ -104,14 +104,14 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       nominationDate: '2026-10-15',
       reportDeadline: '2026-11-30',
     });
-    expect(primeira.body.data).not.toHaveProperty('existingId');
+    expect(first.body.data).not.toHaveProperty('existingId');
     expect(await Case.countDocuments({})).toBe(0);
 
-    const salva = await as(request(app).post('/expert-cases')).send(primeira.body.data.draft);
+    const salva = await as(request(app).post('/expert-cases')).send(first.body.data.draft);
     expect(salva.status).toBe(201);
     expect(salva.body.data.parties).toHaveLength(2);
 
-    const segunda = await enviar();
+    const segunda = await send();
     expect(segunda.body.data.existingId).toBe(salva.body.data.id);
     expect(segunda.body.data.warnings).toContain('expert_case_already_registered');
   });
@@ -120,9 +120,9 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     const { as } = await seedSession();
     const post = () => as(request(app).post('/expert-cases/import/pdf'));
 
-    const tipo = await post().set('Content-Type', 'image/png').send(Buffer.from('x'));
-    expect(tipo.status).toBe(415);
-    expect(tipo.body.message).toBe('unsupported_file_type');
+    const type = await post().set('Content-Type', 'image/png').send(Buffer.from('x'));
+    expect(type.status).toBe(415);
+    expect(type.body.message).toBe('unsupported_file_type');
 
     const falso = await post().set('Content-Type', 'application/pdf').send(Buffer.from('não é pdf'));
     expect(falso.status).toBe(415);
@@ -133,9 +133,9 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     expect(grande.status).toBe(413);
     expect(grande.body.message).toBe('file_too_large');
 
-    const semTexto = await post().set('Content-Type', 'application/pdf').send(pdfDe([]));
-    expect(semTexto.status).toBe(422);
-    expect(semTexto.body.message).toBe('pdf_without_text');
+    const withoutText = await post().set('Content-Type', 'application/pdf').send(pdfDe([]));
+    expect(withoutText.status).toBe(422);
+    expect(withoutText.body.message).toBe('pdf_without_text');
   });
 
   it('CSV com 3 válidas, 1 já cadastrada e 1 inválida ⇒ 3 criadas, 1 ignorada, 1 recusada (IMP-02.2–3)', async () => {
@@ -165,12 +165,12 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       skipped: [{ line: 5, processNumber: '0000004-00.2026.5.02.0001' }],
       rejected: [{ line: 6, column: 'numero_processo', reason: 'invalid_process_number' }],
     });
-    const civel = await Case.findOne({ processNumber: '0000002-00.2026.8.26.0100' }).lean();
-    expect(civel).toMatchObject({ courtType: 'civil', court: 'TJSP', role: 'technical_assistant' });
-    expect(civel?.subject).toBe('Perícia contábil; apuração');
+    const civil = await Case.findOne({ processNumber: '0000002-00.2026.8.26.0100' }).lean();
+    expect(civil).toMatchObject({ courtType: 'civil', court: 'TJSP', role: 'technical_assistant' });
+    expect(civil?.subject).toBe('Perícia contábil; apuração');
     // A mesma ré nas duas linhas vira um só cadastro (AD-115).
     expect(await Party.countDocuments({})).toBe(1);
-    expect(await Deadline.countDocuments({ titulo: 'Entrega do laudo' })).toBe(1);
+    expect(await Deadline.countDocuments({ title: 'Entrega do laudo' })).toBe(1);
   });
 
   it('CSV vazio ou sem coluna obrigatória é recusado inteiro', async () => {
@@ -178,9 +178,9 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     const post = (body: string) =>
       as(request(app).post('/expert-cases/import/csv')).set('Content-Type', 'text/csv').send(body);
 
-    const vazio = await post(`${HEADER}\n`);
-    expect(vazio.status).toBe(400);
-    expect(vazio.body.message).toBe('csv_empty');
+    const empty = await post(`${HEADER}\n`);
+    expect(empty.status).toBe(400);
+    expect(empty.body.message).toBe('csv_empty');
 
     const withoutSubject = await post('numero_processo;papel\n0000001-00.2026.5.02.0001;perito\n');
     expect(withoutSubject.status).toBe(400);

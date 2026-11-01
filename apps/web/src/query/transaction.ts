@@ -16,7 +16,7 @@ export type TransactionRecord = {
   id: string;
   kind: TransactionKind;
   category: TransactionCategory;
-  descricao: string;
+  description: string;
   amountCents: number;
   dueDate: string;
   status: TransactionStatus;

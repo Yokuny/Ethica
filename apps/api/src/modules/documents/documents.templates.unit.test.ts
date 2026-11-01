@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { SheetData } from './documents.schema.js';
-import { checklistHtml, cronogramaHtml, sheetHtml, stalledHtml } from './documents.templates.js';
+import { checklistHtml, scheduleHtml, sheetHtml, stalledHtml } from './documents.templates.js';
 
 const base = {
   identity: { name: 'Escritório Ribeiro' },
   expert: { name: 'Ana Perita', professionalRegistration: 'CREA-SP 123', education: 'Engenharia de Segurança' },
-  geradoEm: new Date('2026-10-31T15:00:00Z'),
+  generatedAt: new Date('2026-10-31T15:00:00Z'),
 };
 
 const legalCase: SheetData['legalCase'] = {
@@ -43,7 +43,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
   });
 
   it('logo presente vira imagem; sem texto configurado o cabeçalho é o logo e o nome do escritório', () => {
-    const doc = cronogramaHtml({
+    const doc = scheduleHtml({
       ...base,
       identity: { name: 'Escritório Ribeiro', logoDataUrl: 'data:image/png;base64,AAAA' },
       deadlines: [],
@@ -83,7 +83,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
       ...base,
       legalCase: {
         ...legalCase,
-        parties: [{ partyId: 'a', side: 'plaintiff', tipo: 'party', nome: 'João Silva' }],
+        parties: [{ partyId: 'a', side: 'plaintiff', type: 'party', name: 'João Silva' }],
       },
     });
     for (const excerpt of [
@@ -106,13 +106,13 @@ describe('documentos (DOC-02, DOC-03)', () => {
       id: dueDate,
       caseId: 'p1',
       caseNumber: legalCase.processNumber,
-      titulo: 'Entrega do laudo',
+      title: 'Entrega do laudo',
       dueDate,
       status: 'pending' as const,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    const { html } = cronogramaHtml({
+    const { html } = scheduleHtml({
       ...base,
       deadlines: [deadline('2026-10-30'), deadline('2026-11-10'), deadline('2026-12-31')],
       today: '2026-10-31',
@@ -132,7 +132,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
           status: 'inspection',
           court: 'TRT2',
           subject: 'x',
-          referencia: '2026-08-01',
+          reference: '2026-08-01',
           origin: 'appointment',
           stalledDays: 91,
         },

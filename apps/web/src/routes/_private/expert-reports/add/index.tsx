@@ -15,7 +15,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
 import { createReportMutation, templateQuery, templatesQuery } from '@/query/report.js';
 import { CasePicker } from './@components/case-picker.js';
-import { type Escolhas, SectionsPicker } from './@components/sections-picker.js';
+import { type Choices, SectionsPicker } from './@components/sections-picker.js';
 import { type ReportAddSearch, reportAddSearchSchema } from './@interface/report-add.interface.js';
 
 // LAU-02: perícia → modelo do tipo certo (laudo ou parecer, LAU-06) → seções e variantes.
@@ -25,23 +25,23 @@ export function ReportAddPage() {
   const queryClient = useQueryClient();
   const caseId = search.caseId ?? '';
   const legalCase = useQuery({ ...caseQuery(caseId), enabled: Boolean(caseId), retry: false });
-  const tipo = legalCase.data ? reportRoleType(legalCase.data.role) : undefined;
-  const templates = useQuery({ ...templatesQuery(tipo), enabled: Boolean(tipo) });
-  const templateId = search.templateId ?? (tipo ? REPORT_DEFAULT_TEMPLATES[tipo] : '');
+  const type = legalCase.data ? reportRoleType(legalCase.data.role) : undefined;
+  const templates = useQuery({ ...templatesQuery(type), enabled: Boolean(type) });
+  const templateId = search.templateId ?? (type ? REPORT_DEFAULT_TEMPLATES[type] : '');
   const template = useQuery({ ...templateQuery(templateId), enabled: Boolean(templateId) });
   const create = useMutation(createReportMutation(queryClient));
-  const [escolhas, setEscolhas] = useState<{ templateId: string; values: Escolhas } | null>(null);
+  const [choices, setChoices] = useState<{ templateId: string; values: Choices } | null>(null);
 
   // Ao trocar de modelo, todas as seções começam marcadas na variante "sim".
-  const atuais: Escolhas =
-    escolhas?.templateId === templateId
-      ? escolhas.values
+  const current: Choices =
+    choices?.templateId === templateId
+      ? choices.values
       : Object.fromEntries((template.data?.sections ?? []).map((section) => [section.id, 'yes']));
-  const escolhidas = Object.entries(atuais).filter((entry): entry is [string, 'yes' | 'no'] => Boolean(entry[1]));
+  const chosen = Object.entries(current).filter((entry): entry is [string, 'yes' | 'no'] => Boolean(entry[1]));
   const parties = (side: 'plaintiff' | 'defendant') =>
     legalCase.data?.parties
-      .filter((party) => party.side === side && party.tipo === 'party')
-      .map((party) => party.nome)
+      .filter((party) => party.side === side && party.type === 'party')
+      .map((party) => party.name)
       .join(', ');
 
   function updateSearch(patch: Partial<ReportAddSearch>) {
@@ -49,12 +49,12 @@ export function ReportAddPage() {
   }
 
   function handleCreate() {
-    if (!legalCase.data || !escolhidas.length) return;
+    if (!legalCase.data || !chosen.length) return;
     create.mutate(
       {
         caseId: legalCase.data.id,
         templateId,
-        sections: escolhidas.map(([id, variant]) => ({ id, variant })),
+        sections: chosen.map(([id, variant]) => ({ id, variant })),
       },
       {
         onSuccess: (report) => navigate({ to: '/expert-reports/details', search: { id: report.id } }),
@@ -74,7 +74,7 @@ export function ReportAddPage() {
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !legalCase.data || !tipo ? (
+      ) : !legalCase.data || !type ? (
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
@@ -84,7 +84,7 @@ export function ReportAddPage() {
             <RecordHeader>
               <RecordHeading
                 icon={<Gavel />}
-                label={t(tipo)}
+                label={t(type)}
                 title={legalCase.data.processNumber}
                 description={[
                   legalCase.data.division ?? legalCase.data.court,
@@ -97,7 +97,7 @@ export function ReportAddPage() {
             </RecordHeader>
             <Panel title={t('template')} description={t('choose_template_description')}>
               <Select
-                items={(templates.data ?? []).map((item) => ({ value: item.id, label: item.nome }))}
+                items={(templates.data ?? []).map((item) => ({ value: item.id, label: item.name }))}
                 value={templateId}
                 onValueChange={(value) => value && updateSearch({ templateId: value })}
               >
@@ -107,7 +107,7 @@ export function ReportAddPage() {
                 <SelectContent>
                   {(templates.data ?? []).map((item) => (
                     <SelectItem key={item.id} value={item.id}>
-                      {item.nome}
+                      {item.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -118,8 +118,8 @@ export function ReportAddPage() {
             ) : template.data ? (
               <SectionsPicker
                 sections={template.data.sections}
-                escolhas={atuais}
-                onChange={(values) => setEscolhas({ templateId, values })}
+                choices={current}
+                onChange={(values) => setChoices({ templateId, values })}
               />
             ) : null}
           </CardContent>
@@ -127,7 +127,7 @@ export function ReportAddPage() {
             <Button variant="outline" onClick={() => updateSearch({ caseId: undefined, templateId: undefined })}>
               {t('change_expert_case')}
             </Button>
-            <Button disabled={!escolhidas.length || create.isPending} onClick={handleCreate}>
+            <Button disabled={!chosen.length || create.isPending} onClick={handleCreate}>
               {t('create_draft')}
             </Button>
           </CardFooter>

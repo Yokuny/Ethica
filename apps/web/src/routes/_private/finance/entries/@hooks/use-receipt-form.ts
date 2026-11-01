@@ -13,7 +13,7 @@ export function useReceiptForm({ transaction, onDone }: { transaction: Transacti
     resolver: zodResolver(createInstallmentSchema),
     defaultValues: {
       amountCents: transaction.balanceCents ?? transaction.amountCents,
-      data: formatDisplayDate(new Date()),
+      date: formatDisplayDate(new Date()),
       account: '',
     },
   });

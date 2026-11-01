@@ -21,7 +21,7 @@ export const inspectionCaseParamSchema = z.object({ caseId: idSchema }).strict()
 export const inspectionDayQuerySchema = z.object({ date: calendarDateSchema }).strict();
 export type InspectionDayQuery = z.infer<typeof inspectionDayQuerySchema>;
 export const mediaUploadQuerySchema = z
-  .object({ tipo: z.enum(MEDIA_TYPES), caption: z.string().trim().max(200).optional() })
+  .object({ type: z.enum(MEDIA_TYPES), caption: z.string().trim().max(200).optional() })
   .strict();
 export type MediaUploadQuery = z.infer<typeof mediaUploadQuerySchema>;
 
@@ -29,7 +29,7 @@ export type InspectionRouterDeps = { validToken: RequestHandler; storage?: FileS
 
 export type MediaRecord = {
   id: string;
-  tipo: MediaType;
+  type: MediaType;
   bytes: number;
   mime: string;
   caption?: string;
@@ -40,8 +40,8 @@ export type MediaRecord = {
 export type InspectionRecord = {
   appointmentId: string;
   caseId?: string;
-  versao: number;
-  dados: InspectionData;
+  version: number;
+  data: InspectionData;
   media: MediaRecord[];
   updatedAt?: Date;
 };

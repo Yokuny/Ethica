@@ -49,7 +49,7 @@ export type TransactionRecord = {
   id: string;
   kind: TransactionKind;
   category: TransactionCategory;
-  descricao: string;
+  description: string;
   amountCents: number;
   dueDate: string;
   status: TransactionStatus;
@@ -66,7 +66,7 @@ export type TransactionRecord = {
   updatedAt: Date;
 };
 
-export type InstallmentRecord = { id: string; amountCents: number; data: string; account?: string };
+export type InstallmentRecord = { id: string; amountCents: number; date: string; account?: string };
 
 // Visão de raio-X: o que está a receber, o que entrou e saiu no mês e o que atrasou.
 export type FinanceSummary = {
@@ -86,8 +86,8 @@ export type MonthlyFlow = {
 // Relatório financeiro de um período (DOC-03): o realizado (parcelas recebidas e despesas
 // pagas no período) e o previsto (saldo de honorários e despesas a pagar que vencem nele).
 export type FinanceReportRow = {
-  data: string;
-  descricao: string;
+  date: string;
+  description: string;
   category: TransactionCategory;
   amountCents: number;
   caseNumber?: string;

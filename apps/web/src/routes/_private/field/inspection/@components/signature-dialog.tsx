@@ -4,16 +4,16 @@ import { useRef, useState } from 'react';
 import { FormDialog } from '@/components/form-dialog.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-type SignatureDialogProps = { nome: string; onConfirm: (png: Blob) => Promise<void>; onClose: () => void };
+type SignatureDialogProps = { name: string; onConfirm: (png: Blob) => Promise<void>; onClose: () => void };
 
 // Assinatura desenhada na tela (CAM-06, AD-129): vira PNG e vai para a fila de mídias.
-export function SignatureDialog({ nome, onConfirm, onClose }: SignatureDialogProps) {
+export function SignatureDialog({ name, onConfirm, onClose }: SignatureDialogProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
-  const [vazia, setVazia] = useState(true);
-  const [salvando, setSalvando] = useState(false);
+  const [empty, setEmpty] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const ponto = (event: React.PointerEvent<HTMLCanvasElement>) => {
+  const point = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const area = event.currentTarget.getBoundingClientRect();
     return {
       x: ((event.clientX - area.left) * event.currentTarget.width) / area.width,
@@ -21,12 +21,12 @@ export function SignatureDialog({ nome, onConfirm, onClose }: SignatureDialogPro
     };
   };
 
-  function comecar(event: React.PointerEvent<HTMLCanvasElement>) {
+  function start(event: React.PointerEvent<HTMLCanvasElement>) {
     const ctx = event.currentTarget.getContext('2d');
     if (!ctx) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     drawing.current = true;
-    const { x, y } = ponto(event);
+    const { x, y } = point(event);
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#111111';
@@ -34,50 +34,50 @@ export function SignatureDialog({ nome, onConfirm, onClose }: SignatureDialogPro
     ctx.moveTo(x, y);
   }
 
-  function mover(event: React.PointerEvent<HTMLCanvasElement>) {
+  function move(event: React.PointerEvent<HTMLCanvasElement>) {
     if (!drawing.current) return;
     const ctx = event.currentTarget.getContext('2d');
-    const { x, y } = ponto(event);
+    const { x, y } = point(event);
     ctx?.lineTo(x, y);
     ctx?.stroke();
-    setVazia(false);
+    setEmpty(false);
   }
 
-  function limpar() {
-    const alvo = canvas.current;
-    alvo?.getContext('2d')?.clearRect(0, 0, alvo.width, alvo.height);
-    setVazia(true);
+  function clear() {
+    const target = canvas.current;
+    target?.getContext('2d')?.clearRect(0, 0, target.width, target.height);
+    setEmpty(true);
   }
 
-  function confirmar() {
+  function confirm() {
     canvas.current?.toBlob(async (blob) => {
       if (!blob) return;
-      setSalvando(true);
+      setSaving(true);
       await onConfirm(blob);
-      setSalvando(false);
+      setSaving(false);
     }, 'image/png');
   }
 
   return (
-    <FormDialog title={t('collect_signature')} description={nome} onClose={onClose}>
+    <FormDialog title={t('collect_signature')} description={name} onClose={onClose}>
       <canvas
         ref={canvas}
         width={600}
         height={240}
         aria-label={t('signature_area')}
         className="h-48 w-full touch-none rounded-md border border-input bg-card"
-        onPointerDown={comecar}
-        onPointerMove={mover}
+        onPointerDown={start}
+        onPointerMove={move}
         onPointerUp={() => {
           drawing.current = false;
         }}
       />
       <ItemDescription>{t('sign_with_finger')}</ItemDescription>
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={limpar} disabled={vazia || salvando}>
+        <Button type="button" variant="outline" onClick={clear} disabled={empty || saving}>
           {t('clear')}
         </Button>
-        <Button type="button" onClick={confirmar} disabled={vazia || salvando}>
+        <Button type="button" onClick={confirm} disabled={empty || saving}>
           {t('save_signature')}
         </Button>
       </div>

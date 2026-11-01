@@ -125,11 +125,11 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
       ...CASE,
       role: 'technical_assistant',
       parties: [
-        { side: 'plaintiff', tipo: 'party', nome: 'Maria Reclamante', client: true },
-        { side: 'defendant', tipo: 'party', nome: 'Empresa Ré' },
+        { side: 'plaintiff', type: 'party', name: 'Maria Reclamante', client: true },
+        { side: 'defendant', type: 'party', name: 'Empresa Ré' },
       ],
     });
-    expect(body.data.parties[0]).toMatchObject({ nome: 'Maria Reclamante', client: true });
+    expect(body.data.parties[0]).toMatchObject({ name: 'Maria Reclamante', client: true });
 
     await as(request(app).patch(`/expert-cases/${body.data.id}`)).send({ fixedFeesCents: 300_000 });
     await expect
@@ -139,7 +139,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     const expert = await as(request(app).post('/expert-cases')).send({
       ...CASE,
       processNumber: '0001234-56.2026.5.02.0002',
-      parties: [{ side: 'plaintiff', tipo: 'party', nome: 'Outra', client: true }],
+      parties: [{ side: 'plaintiff', type: 'party', name: 'Outra', client: true }],
     });
     expect(expert.status).toBe(422);
   });

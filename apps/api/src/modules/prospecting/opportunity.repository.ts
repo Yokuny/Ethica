@@ -20,7 +20,7 @@ const toRecord = (doc: OpportunityDocument): OpportunityRecord => ({
   lastMovement: doc.lastMovement,
   lastMovementAt: doc.lastMovementAt,
   status: doc.status,
-  observacoes: doc.observacoes,
+  notes: doc.notes,
   caseId: doc.Case?.toString(),
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
@@ -81,10 +81,10 @@ export const listOpportunities = async (
     return { items: docs.map(toRecord), total };
   });
 
-export const findIdsByNumeros = async (tenantId: string, numeros: string[]): Promise<Map<string, string>> =>
-  withDbTiming('prospecting.findIdsByNumeros', async () => {
-    if (numeros.length === 0) return new Map();
-    const docs = await Opportunity.find(tenantScoped({ Tenant: tenantId, processNumber: { $in: numeros } }))
+export const findIdsByNumbers = async (tenantId: string, numbers: string[]): Promise<Map<string, string>> =>
+  withDbTiming('prospecting.findIdsByNumbers', async () => {
+    if (numbers.length === 0) return new Map();
+    const docs = await Opportunity.find(tenantScoped({ Tenant: tenantId, processNumber: { $in: numbers } }))
       .select('processNumber')
       .lean();
     return new Map(docs.map((doc) => [doc.processNumber, doc._id.toString()]));

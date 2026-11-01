@@ -97,19 +97,19 @@ export const REPORT_LEVEL_MAX = 3;
 // Número de cada seção ("1", "1.1", "2") pela posição e pelo nível; nunca gravado (AD-126).
 // Um nível que salta (1 → 3) conta como o seguinte do anterior.
 export const numberSections = (sections: ReadonlyArray<{ level: number }>): string[] => {
-  const contadores: number[] = [];
+  const counters: number[] = [];
   return sections.map(({ level }) => {
-    const alvo = Math.min(Math.max(level, 1), contadores.length + 1);
-    contadores.length = alvo;
-    contadores[alvo - 1] = (contadores[alvo - 1] ?? 0) + 1;
-    return contadores.join('.');
+    const target = Math.min(Math.max(level, 1), counters.length + 1);
+    counters.length = target;
+    counters[target - 1] = (counters[target - 1] ?? 0) + 1;
+    return counters.join('.');
   });
 };
 
 const REPORT_HTML_MAX = 200_000;
 export const REPORT_SECTIONS_MAX = 200;
 
-const tituloSchema = z.string().trim().min(1, 'título é obrigatório').max(200, 'título muito longo');
+const titleSchema = z.string().trim().min(1, 'título é obrigatório').max(200, 'título muito longo');
 const htmlSchema = z.string().max(REPORT_HTML_MAX, 'texto muito longo');
 const templateIdSchema = z.union([
   idSchema,
@@ -118,20 +118,20 @@ const templateIdSchema = z.union([
 
 export const createTemplateSchema = z
   .object({
-    nome: z.string().trim().min(1, 'nome é obrigatório').max(120, 'nome muito longo'),
-    tipo: z.enum(REPORT_TYPES),
+    name: z.string().trim().min(1, 'nome é obrigatório').max(120, 'nome muito longo'),
+    type: z.enum(REPORT_TYPES),
     // Sem base, o modelo nasce em branco; com base, clona as seções (padrão ou do escritório).
     baseId: templateIdSchema.optional(),
   })
   .strict();
 export type CreateTemplate = z.infer<typeof createTemplateSchema>;
 
-export const updateTemplateSchema = createTemplateSchema.pick({ nome: true }).strict();
+export const updateTemplateSchema = createTemplateSchema.pick({ name: true }).strict();
 export type UpdateTemplate = z.infer<typeof updateTemplateSchema>;
 
 export const templateSectionSchema = z
   .object({
-    titulo: tituloSchema,
+    title: titleSchema,
     level: z.number().int().min(1).max(REPORT_LEVEL_MAX),
     titleOnly: z.boolean(),
     pageBreak: z.boolean(),
@@ -141,7 +141,7 @@ export const templateSectionSchema = z
   .strict();
 export type TemplateSection = z.infer<typeof templateSectionSchema>;
 
-export const moveSectionSchema = z.object({ direcao: z.enum(['up', 'down']) }).strict();
+export const moveSectionSchema = z.object({ direction: z.enum(['up', 'down']) }).strict();
 export type MoveSection = z.infer<typeof moveSectionSchema>;
 
 export const createReportSchema = z
@@ -157,7 +157,7 @@ export const createReportSchema = z
 export type CreateReport = z.infer<typeof createReportSchema>;
 
 export const updateReportSectionSchema = z
-  .object({ titulo: tituloSchema.optional(), html: htmlSchema.optional() })
+  .object({ title: titleSchema.optional(), html: htmlSchema.optional() })
   .strict();
 export type UpdateReportSection = z.infer<typeof updateReportSectionSchema>;
 

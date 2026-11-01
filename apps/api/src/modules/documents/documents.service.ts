@@ -12,7 +12,7 @@ import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
 import * as opportunityService from '../prospecting/opportunity.service.js';
 import type { DocumentBase, DocumentContext, FinanceReportQuery, GeneratedFile } from './documents.schema.js';
-import { checklistHtml, cronogramaHtml, financeHtml, sheetHtml, stalledHtml } from './documents.templates.js';
+import { checklistHtml, financeHtml, scheduleHtml, sheetHtml, stalledHtml } from './documents.templates.js';
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
@@ -21,12 +21,12 @@ const base = async (providers: Providers, ctx: DocumentContext): Promise<Documen
     officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
   ]);
-  return { identity, expert, geradoEm: ctx.now };
+  return { identity, expert, generatedAt: ctx.now };
 };
 
-const pdf = async (providers: Providers, nome: string, document: PdfDocument): Promise<GeneratedFile> => ({
-  nome,
-  tipo: 'application/pdf',
+const pdf = async (providers: Providers, name: string, document: PdfDocument): Promise<GeneratedFile> => ({
+  name,
+  type: 'application/pdf',
   conteudo: await providers.pdf.render(document),
 });
 
@@ -63,7 +63,7 @@ export const generateSchedule = async (providers: Providers, ctx: DocumentContex
   return pdf(
     providers,
     'cronograma-de-prazos.pdf',
-    cronogramaHtml({ ...baseData, deadlines, today: dateInDisplayTz(ctx.now) }),
+    scheduleHtml({ ...baseData, deadlines, today: dateInDisplayTz(ctx.now) }),
   );
 };
 
@@ -87,11 +87,11 @@ export const generateStalled = async (providers: Providers, ctx: DocumentContext
 // CSV da exportação (AD-122): mesmo formato da importação (`;`, UTF-8 com BOM, AD-115).
 type Cell = string | number | boolean | Date | undefined | null;
 const cell = (value: Cell): string => {
-  const texto = value instanceof Date ? value.toISOString() : String(value ?? '');
-  return /[;"\n\r]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
+  const text = value instanceof Date ? value.toISOString() : String(value ?? '');
+  return /[;"\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
-export const toCsv = <T>(columns: Array<[string, (item: T) => Cell]>, itens: T[]): string =>
-  `﻿${[columns.map(([nome]) => nome), ...itens.map((item) => columns.map(([, amount]) => amount(item)))]
+export const toCsv = <T>(columns: Array<[string, (item: T) => Cell]>, items: T[]): string =>
+  `﻿${[columns.map(([name]) => name), ...items.map((item) => columns.map(([, amount]) => amount(item)))]
     .map((row) => row.map((amount) => cell(amount as Cell)).join(';'))
     .join('\r\n')}\r\n`;
 
@@ -119,7 +119,7 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['comarca', (p) => p.district],
         ['objeto', (p) => p.subject],
         ['status', (p) => p.status],
-        ['partes', (p) => p.parties.map((party) => `${party.side}:${party.tipo}:${party.nome}`).join(' | ')],
+        ['partes', (p) => p.parties.map((party) => `${party.side}:${party.type}:${party.name}`).join(' | ')],
         ['dataNomeacao', (p) => p.nominationDate],
         ['honorariosPropostosCents', (p) => p.proposedFeesCents],
         ['honorariosFixadosCents', (p) => p.fixedFeesCents],
@@ -130,8 +130,8 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['periodoImprescritoInicio', (p) => p.nonPrescribedPeriodStart],
         ['periodoImprescritoFim', (p) => p.nonPrescribedPeriodEnd],
         ['localPericia', (p) => p.location],
-        ['movimentacoes', (p) => p.movements.map((m) => `${m.data}:${m.tipo}`).join(' | ')],
-        ['observacoes', (p) => p.observacoes],
+        ['movimentacoes', (p) => p.movements.map((m) => `${m.date}:${m.type}`).join(' | ')],
+        ['notes', (p) => p.notes],
         ['createdAt', (p) => p.createdAt],
       ],
       cases,
@@ -139,8 +139,8 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
     'partes.csv': toCsv(
       [
         ['id', (p) => p.id],
-        ['tipo', (p) => p.tipo],
-        ['nome', (p) => p.nome],
+        ['type', (p) => p.type],
+        ['name', (p) => p.name],
         ['documento', (p) => p.document],
         ['oab', (p) => p.oab],
         ['email', (p) => p.email],
@@ -153,11 +153,11 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
       [
         ['id', (p) => p.id],
         ['periciaId', (p) => p.caseId],
-        ['titulo', (p) => p.titulo],
+        ['title', (p) => p.title],
         ['vencimento', (p) => p.dueDate],
         ['status', (p) => p.status],
         ['protocoladoEm', (p) => p.filedDate],
-        ['observacoes', (p) => p.observacoes],
+        ['notes', (p) => p.notes],
       ],
       deadlines,
     ),
@@ -165,14 +165,14 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
       [
         ['id', (c) => c.id],
         ['periciaId', (c) => c.caseId],
-        ['tipo', (c) => c.tipo],
-        ['titulo', (c) => c.titulo],
-        ['inicio', (c) => c.inicio],
-        ['fim', (c) => c.fim],
-        ['local', (c) => c.local],
+        ['type', (c) => c.type],
+        ['title', (c) => c.title],
+        ['start', (c) => c.start],
+        ['end', (c) => c.end],
+        ['local', (c) => c.location],
         ['status', (c) => c.status],
         ['origem', (c) => c.origin],
-        ['observacoes', (c) => c.observacoes],
+        ['notes', (c) => c.notes],
       ],
       appointments,
     ),
@@ -182,13 +182,13 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['periciaId', (l) => l.caseId],
         ['natureza', (l) => l.kind],
         ['categoria', (l) => l.category],
-        ['descricao', (l) => l.descricao],
+        ['description', (l) => l.description],
         ['valorCents', (l) => l.amountCents],
         ['vencimento', (l) => l.dueDate],
         ['status', (l) => l.status],
         ['liquidadoEm', (l) => l.settledDate],
         ['recebidoCents', (l) => l.receivedCents],
-        ['parcelas', (l) => l.installments.map((p) => `${p.data}:${p.amountCents}`).join(' | ')],
+        ['parcelas', (l) => l.installments.map((p) => `${p.date}:${p.amountCents}`).join(' | ')],
       ],
       transactions,
     ),
@@ -214,16 +214,16 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['courtUnit', (o) => o.courtUnit],
         ['status', (o) => o.status],
         ['periciaId', (o) => o.caseId],
-        ['observacoes', (o) => o.observacoes],
+        ['notes', (o) => o.notes],
         ['createdAt', (o) => o.createdAt],
       ],
       opportunities,
     ),
   };
-  const zip = zipSync(Object.fromEntries(Object.entries(files).map(([nome, csv]) => [nome, strToU8(csv)])));
+  const zip = zipSync(Object.fromEntries(Object.entries(files).map(([name, csv]) => [name, strToU8(csv)])));
   return {
-    nome: `ethica-dados-${dateInDisplayTz(ctx.now)}.zip`,
-    tipo: 'application/zip',
+    name: `ethica-data-${dateInDisplayTz(ctx.now)}.zip`,
+    type: 'application/zip',
     conteudo: Buffer.from(zip),
   };
 };

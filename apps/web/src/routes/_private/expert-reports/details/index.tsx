@@ -28,40 +28,40 @@ import { ReportSectionEditor, type SectionDraft } from './@components/report-sec
 import { ReportSectionsNav } from './@components/report-sections-nav.js';
 import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
-type Dialogo = 'complete' | 'excluir' | 'remove-section' | null;
+type Dialog = 'complete' | 'removal' | 'remove-section' | null;
 
 export function ReportDetailsPage() {
   const search = useSearch({ strict: false }) as ReportDetailsSearch;
   const navigate = useNavigate({ from: '/expert-reports/details/' });
   const queryClient = useQueryClient();
   const query = useQuery({ ...reportQuery(search.id), retry: false });
-  const salvar = useMutation(updateReportSectionMutation(queryClient));
+  const save = useMutation(updateReportSectionMutation(queryClient));
   const dropSection = useMutation(removeReportSectionMutation(queryClient));
   const complete = useMutation(completeReportMutation(queryClient));
-  const excluir = useMutation(deleteReportMutation(queryClient));
+  const removal = useMutation(deleteReportMutation(queryClient));
   const { download, pending } = useFileDownload();
   // Fotos das vistorias da perícia para o "Inserir foto" do editor (AD-129).
   const inspections = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
   const photos = (inspections.data ?? []).flatMap(({ appointment, inspection }) =>
     inspection.media
-      .filter((media) => media.tipo === 'photo')
+      .filter((media) => media.type === 'photo')
       .map((media) => ({ src: `/inspections/${appointment.id}/media/${media.id}`, caption: media.caption })),
   );
   const [draft, setDraft] = useState<(SectionDraft & { sectionId: string }) | null>(null);
-  const [dialogo, setDialogo] = useState<Dialogo>(null);
+  const [dialog, setDialog] = useState<Dialog>(null);
   const report = query.data;
   const section = report?.sections.find((item) => item.id === search.section) ?? report?.sections[0];
-  const atual =
+  const current =
     section && draft?.sectionId === section.id
       ? draft
-      : section && { sectionId: section.id, titulo: section.titulo, html: section.html };
-  const dirty = Boolean(section && atual && (atual.titulo !== section.titulo || atual.html !== section.html));
+      : section && { sectionId: section.id, title: section.title, html: section.html };
+  const dirty = Boolean(section && current && (current.title !== section.title || current.html !== section.html));
   const onError = (error: Error) => toast.error(error.message);
 
-  function salvarAtual(depois?: () => void) {
-    if (!report || !section || !atual || !dirty) return depois?.();
-    salvar.mutate(
-      { id: report.id, sectionId: section.id, data: { titulo: atual.titulo, html: atual.html } },
+  function saveCurrent(depois?: () => void) {
+    if (!report || !section || !current || !dirty) return depois?.();
+    save.mutate(
+      { id: report.id, sectionId: section.id, data: { title: current.title, html: current.html } },
       {
         onSuccess: () => {
           setDraft(null);
@@ -74,14 +74,14 @@ export function ReportDetailsPage() {
 
   // Trocar de seção salva antes a que estava aberta, para não perder texto.
   function selecionar(sectionId: string) {
-    salvarAtual(() =>
+    saveCurrent(() =>
       navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: sectionId }), replace: true }),
     );
   }
 
-  function runExport(formato: 'pdf' | 'docx') {
+  function runExport(format: 'pdf' | 'docx') {
     if (!report) return;
-    salvarAtual(() => void download(`/expert-reports/${report.id}/${formato}`));
+    saveCurrent(() => void download(`/expert-reports/${report.id}/${format}`));
   }
 
   const openDraft = report?.status === 'draft';
@@ -105,7 +105,7 @@ export function ReportDetailsPage() {
               <Button
                 disabled={report.issues.length > 0 || dirty}
                 title={report.issues.length ? t('fill_or_remove_variables') : undefined}
-                onClick={() => setDialogo('complete')}
+                onClick={() => setDialog('complete')}
               >
                 {t('complete')}
               </Button>
@@ -118,7 +118,7 @@ export function ReportDetailsPage() {
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !report || !section || !atual ? (
+      ) : !report || !section || !current ? (
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
@@ -127,7 +127,7 @@ export function ReportDetailsPage() {
           <RecordHeader>
             <RecordHeading
               icon={<FileSignature />}
-              label={`${t(report.tipo)} · ${report.templateName}`}
+              label={`${t(report.type)} · ${report.templateName}`}
               title={report.caseNumber ?? t('expert_case_removed')}
               description={
                 <AppLink to="/expert-cases/details" search={{ id: report.caseId }} as="description">
@@ -142,16 +142,16 @@ export function ReportDetailsPage() {
             />
           </RecordHeader>
           <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
-            <ReportSectionsNav report={report} selecionada={section.id} onSelect={selecionar} />
+            <ReportSectionsNav report={report} selected={section.id} onSelect={selecionar} />
             <ReportSectionEditor
               report={report}
               section={section}
-              draft={atual}
+              draft={current}
               onChange={(next) => setDraft({ ...next, sectionId: section.id })}
               dirty={dirty}
-              saving={salvar.isPending || dropSection.isPending}
-              onSave={() => salvarAtual()}
-              onRemove={() => setDialogo('remove-section')}
+              saving={save.isPending || dropSection.isPending}
+              onSave={() => saveCurrent()}
+              onRemove={() => setDialog('remove-section')}
               photos={photos}
             />
           </div>
@@ -159,21 +159,21 @@ export function ReportDetailsPage() {
       )}
       {report && openDraft && (
         <CardFooter className="justify-between gap-2">
-          <Button variant="destructive" onClick={() => setDialogo('excluir')}>
+          <Button variant="destructive" onClick={() => setDialog('removal')}>
             {t('remove')}
           </Button>
         </CardFooter>
       )}
-      {report && dialogo === 'complete' && (
+      {report && dialog === 'complete' && (
         <CompleteReportDialog
           pending={complete.isPending}
-          onClose={() => setDialogo(null)}
+          onClose={() => setDialog(null)}
           onConfirm={(recordDelivery) =>
             complete.mutate(
               { id: report.id, data: { recordDelivery } },
               {
                 onSuccess: () => {
-                  setDialogo(null);
+                  setDialog(null);
                   toast.success(t('report_completed_successfully'));
                 },
                 onError,
@@ -182,19 +182,19 @@ export function ReportDetailsPage() {
           }
         />
       )}
-      {report && section && dialogo === 'remove-section' && (
+      {report && section && dialog === 'remove-section' && (
         <ConfirmDialog
           title={t('remove_section_question')}
-          description={section.titulo}
+          description={section.title}
           confirmLabel={t('remove')}
           pending={dropSection.isPending}
-          onClose={() => setDialogo(null)}
+          onClose={() => setDialog(null)}
           onConfirm={() =>
             dropSection.mutate(
               { id: report.id, sectionId: section.id },
               {
                 onSuccess: () => {
-                  setDialogo(null);
+                  setDialog(null);
                   setDraft(null);
                   navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: undefined }), replace: true });
                 },
@@ -204,15 +204,15 @@ export function ReportDetailsPage() {
           }
         />
       )}
-      {report && dialogo === 'excluir' && (
+      {report && dialog === 'removal' && (
         <ConfirmDialog
           title={t('remove_report_question')}
           description={t('action_cannot_be_undone')}
           confirmLabel={t('remove')}
-          pending={excluir.isPending}
-          onClose={() => setDialogo(null)}
+          pending={removal.isPending}
+          onClose={() => setDialog(null)}
           onConfirm={() =>
-            excluir.mutate({ id: report.id }, { onSuccess: () => navigate({ to: '/expert-reports/list' }), onError })
+            removal.mutate({ id: report.id }, { onSuccess: () => navigate({ to: '/expert-reports/list' }), onError })
           }
         />
       )}

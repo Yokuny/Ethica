@@ -61,7 +61,7 @@ describe('transaction.service', () => {
     expect(transactionRepository.createTransaction).toHaveBeenCalledWith('t1', {
       kind: 'income',
       category: 'fixed_fees',
-      descricao: 'Honorários fixados — 0001',
+      description: 'Honorários fixados — 0001',
       amountCents: 500_000,
       dueDate: '2026-11-28',
       caseId: 'p1',
@@ -77,7 +77,7 @@ describe('transaction.service', () => {
 
     expect(transactionRepository.createTransaction).toHaveBeenLastCalledWith(
       't1',
-      expect.objectContaining({ category: 'contracted_fees', descricao: 'Honorários contratados — 0001' }),
+      expect.objectContaining({ category: 'contracted_fees', description: 'Honorários contratados — 0001' }),
     );
   });
 

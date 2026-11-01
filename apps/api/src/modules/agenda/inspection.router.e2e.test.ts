@@ -35,7 +35,7 @@ const storage: FileStorage = {
     objects.delete(key);
   },
 };
-const enviados: Array<{ to: string; subject: string; body: string }> = [];
+const sent: Array<{ to: string; subject: string; body: string }> = [];
 const geocoded: string[] = [];
 let rendered: PdfDocument | undefined;
 const app = buildApp({
@@ -48,7 +48,7 @@ const app = buildApp({
   },
   mail: {
     send: async (to, subject, body) => {
-      enviados.push({ to, subject, body });
+      sent.push({ to, subject, body });
       return { sent: true };
     },
   },
@@ -105,9 +105,9 @@ const CASE = {
   subject: 'Insalubridade',
 };
 
-const DADOS = {
+const DATA = {
   ...INSPECTION_EMPTY_DATA,
-  attendees: [{ id: 'a', nome: 'Ana Reclamante', capacity: 'plaintiff', email: 'ana@x.com' }],
+  attendees: [{ id: 'a', name: 'Ana Reclamante', capacity: 'plaintiff', email: 'ana@x.com' }],
   agents: [{ agent: 'noise', present: 'yes', ppe: 'protetor auricular' }],
   documents: [{ id: 'd', document: 'ltcat', requested: true }],
 };
@@ -120,7 +120,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
   });
   afterEach(async () => {
     objects.clear();
-    enviados.length = 0;
+    sent.length = 0;
     geocoded.length = 0;
     rendered = undefined;
     await Promise.all([
@@ -139,31 +139,31 @@ describe('campo e vistorias (CAM-01..09)', () => {
     await disconnect();
   });
 
-  const preparar = async () => {
+  const prepare = async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const operator = await seedSession(tenant._id, ['operator']);
     // E-mail fica no cadastro da parte (AD-117); a perícia liga pelo id.
-    const cadastrar = async (dados: Record<string, string>) =>
-      (await admin.as(request(app).post('/parties')).send(dados)).body.data.id as string;
-    const ana = await cadastrar({ tipo: 'party', nome: 'Ana Reclamante', email: 'ana@x.com' });
-    const metal = await cadastrar({ tipo: 'party', nome: 'Metal Ltda' });
-    const dra = await cadastrar({ tipo: 'lawyer', nome: 'Dra. Ré', oab: 'SP123456', email: 'dra@x.com' });
+    const cadastrar = async (data: Record<string, string>) =>
+      (await admin.as(request(app).post('/parties')).send(data)).body.data.id as string;
+    const ana = await cadastrar({ type: 'party', name: 'Ana Reclamante', email: 'ana@x.com' });
+    const metal = await cadastrar({ type: 'party', name: 'Metal Ltda' });
+    const dra = await cadastrar({ type: 'lawyer', name: 'Dra. Ré', oab: 'SP123456', email: 'dra@x.com' });
     const legalCase = await admin.as(request(app).post('/expert-cases')).send({
       ...CASE,
       parties: [
-        { partyId: ana, side: 'plaintiff', tipo: 'party', nome: 'Ana Reclamante' },
-        { partyId: metal, side: 'defendant', tipo: 'party', nome: 'Metal Ltda' },
-        { partyId: dra, side: 'defendant', tipo: 'lawyer', nome: 'Dra. Ré' },
+        { partyId: ana, side: 'plaintiff', type: 'party', name: 'Ana Reclamante' },
+        { partyId: metal, side: 'defendant', type: 'party', name: 'Metal Ltda' },
+        { partyId: dra, side: 'defendant', type: 'lawyer', name: 'Dra. Ré' },
       ],
     });
     const appointment = await operator.as(request(app).post('/agenda')).send({
-      tipo: 'inspection',
-      titulo: 'Vistoria na fábrica',
+      type: 'inspection',
+      title: 'Vistoria na fábrica',
       date: '2026-11-10',
       time: '09:30',
       durationMinutes: 120,
-      local: 'Av. Industrial, 1500, São Paulo',
+      location: 'Av. Industrial, 1500, São Paulo',
       caseId: legalCase.body.data.id,
     });
     return {
@@ -176,34 +176,34 @@ describe('campo e vistorias (CAM-01..09)', () => {
   };
 
   it('rota do dia, registro com versão (409 no conflito) e status rápido com motivo', async () => {
-    const { operator, id } = await preparar();
+    const { operator, id } = await prepare();
     const day = await operator.as(request(app).get('/inspections/day?date=2026-11-10'));
     expect(day.status).toBe(200);
     expect(day.body.data).toEqual([
       expect.objectContaining({
-        appointment: expect.objectContaining({ id, titulo: 'Vistoria na fábrica' }),
+        appointment: expect.objectContaining({ id, title: 'Vistoria na fábrica' }),
         legalCase: expect.objectContaining({ processNumber: CASE.processNumber, plaintiff: 'Ana Reclamante' }),
-        inspection: expect.objectContaining({ versao: 0 }),
+        inspection: expect.objectContaining({ version: 0 }),
       }),
     ]);
 
-    const primeira = await operator.as(request(app).put(`/inspections/${id}`)).send({ versao: 0, dados: DADOS });
-    expect(primeira.status).toBe(200);
-    expect(primeira.body.data.versao).toBe(1);
+    const first = await operator.as(request(app).put(`/inspections/${id}`)).send({ version: 0, data: DATA });
+    expect(first.status).toBe(200);
+    expect(first.body.data.version).toBe(1);
     const segunda = await operator
       .as(request(app).put(`/inspections/${id}`))
-      .send({ versao: 1, dados: { ...DADOS, observacoes: 'segunda' } });
-    expect(segunda.body.data.versao).toBe(2);
+      .send({ version: 1, data: { ...DATA, notes: 'segunda' } });
+    expect(segunda.body.data.version).toBe(2);
     // Aparelho com a versão antiga: 409 com a versão do servidor, nada sobrescrito.
     const velha = await operator
       .as(request(app).put(`/inspections/${id}`))
-      .send({ versao: 1, dados: { ...DADOS, observacoes: 'velha' } });
+      .send({ version: 1, data: { ...DATA, notes: 'velha' } });
     expect(velha.status).toBe(409);
     expect(velha.body).toMatchObject({ success: false, message: 'inspection_conflict' });
-    expect(velha.body.data).toMatchObject({ versao: 2, dados: { observacoes: 'segunda' } });
+    expect(velha.body.data).toMatchObject({ version: 2, data: { notes: 'segunda' } });
     const invalida = await operator
       .as(request(app).put(`/inspections/${id}`))
-      .send({ versao: 2, dados: { ...DADOS, witnesses: [] } });
+      .send({ version: 2, data: { ...DATA, witnesses: [] } });
     expect(invalida.status).toBe(400);
 
     const absent = await operator
@@ -216,16 +216,16 @@ describe('campo e vistorias (CAM-01..09)', () => {
   });
 
   it('mídia: idempotente pelo id, limite de tipo, cota reservada e devolvida, exclusão do compromisso leva tudo', async () => {
-    const { tenant, operator, id } = await preparar();
+    const { tenant, operator, id } = await prepare();
     const photoId = media();
     const envio = () =>
       operator
-        .as(request(app).put(`/inspections/${id}/media/${photoId}?tipo=photo&caption=Prensa`))
+        .as(request(app).put(`/inspections/${id}/media/${photoId}?type=photo&caption=Prensa`))
         .set('Content-Type', 'image/jpeg')
         .send(JPEG);
     const photo = await envio();
     expect(photo.status).toBe(200);
-    expect(photo.body.data).toMatchObject({ id: photoId, tipo: 'photo', bytes: JPEG.length, caption: 'Prensa' });
+    expect(photo.body.data).toMatchObject({ id: photoId, type: 'photo', bytes: JPEG.length, caption: 'Prensa' });
     expect((await envio()).status).toBe(200);
     const record = await operator.as(request(app).get(`/inspections/${id}`));
     expect(record.body.data.inspection.media).toHaveLength(1);
@@ -234,14 +234,14 @@ describe('campo e vistorias (CAM-01..09)', () => {
     const bytes = await operator.as(request(app).get(`/inspections/${id}/media/${photoId}`));
     expect(bytes.headers['content-type']).toBe('image/jpeg');
     const wrongType = await operator
-      .as(request(app).put(`/inspections/${id}/media/${media()}?tipo=photo`))
+      .as(request(app).put(`/inspections/${id}/media/${media()}?type=photo`))
       .set('Content-Type', 'image/png')
       .send(JPEG);
     expect(wrongType.status).toBe(415);
 
     await Tenant.updateOne({ _id: tenant._id }, { storageBytes: 1024 * 1024 * 1024 });
     const semCota = await operator
-      .as(request(app).put(`/inspections/${id}/media/${media()}?tipo=photo`))
+      .as(request(app).put(`/inspections/${id}/media/${media()}?type=photo`))
       .set('Content-Type', 'image/jpeg')
       .send(JPEG);
     expect(semCota.body.message).toBe('storage_quota_exceeded');
@@ -263,69 +263,67 @@ describe('campo e vistorias (CAM-01..09)', () => {
   });
 
   it('geocodificação com cache e aviso por e-mail só a quem tem e-mail, com registro', async () => {
-    const { operator, id } = await preparar();
+    const { operator, id } = await prepare();
     const geo = await operator.as(request(app).post(`/agenda/${id}/geocode`));
     expect(geo.body.data.coordinates).toEqual({ lat: -23.55, lng: -46.63 });
     await operator.as(request(app).post(`/agenda/${id}/geocode`));
     expect(geocoded).toHaveLength(1);
     // Endereço novo invalida o cache.
-    await operator.as(request(app).patch(`/agenda/${id}`)).send({ local: 'Rua inexistente, 1' });
-    const semPonto = await operator.as(request(app).post(`/agenda/${id}/geocode`));
-    expect(semPonto.body.data.coordinates).toBeUndefined();
+    await operator.as(request(app).patch(`/agenda/${id}`)).send({ location: 'Rua inexistente, 1' });
+    const withoutPoint = await operator.as(request(app).post(`/agenda/${id}/geocode`));
+    expect(withoutPoint.body.data.coordinates).toBeUndefined();
 
     const notice = await operator.as(request(app).post(`/agenda/${id}/notice`));
     expect(notice.status).toBe(200);
-    expect(enviados.map((email) => email.to).sort()).toEqual(['ana@x.com', 'dra@x.com']);
-    expect(enviados[0]?.subject).toContain(CASE.processNumber);
-    expect(enviados[0]?.body).toContain('10/11/2026');
-    expect(enviados[0]?.body).toContain('09:30');
+    expect(sent.map((email) => email.to).sort()).toEqual(['ana@x.com', 'dra@x.com']);
+    expect(sent[0]?.subject).toContain(CASE.processNumber);
+    expect(sent[0]?.body).toContain('10/11/2026');
+    expect(sent[0]?.body).toContain('09:30');
     expect(notice.body.data.notices).toEqual([
       expect.objectContaining({ recipients: expect.arrayContaining(['ana@x.com', 'dra@x.com']) }),
     ]);
 
     const withoutCase = await operator.as(request(app).post('/agenda')).send({
-      tipo: 'meeting',
-      titulo: 'Reunião',
+      type: 'meeting',
+      title: 'Reunião',
       date: '2026-11-10',
       time: '14:00',
       durationMinutes: 30,
     });
-    const recusado = await operator.as(request(app).post(`/agenda/${withoutCase.body.data.id}/notice`));
-    expect(recusado.body.message).toBe('inspection_requires_case');
+    const declined = await operator.as(request(app).post(`/agenda/${withoutCase.body.data.id}/notice`));
+    expect(declined.body.message).toBe('inspection_requires_case');
   });
 
   it('modelo do aviso: só admin edita; o envio usa o modelo do escritório', async () => {
-    const { admin, operator, id } = await preparar();
+    const { admin, operator, id } = await prepare();
     expect((await operator.as(request(app).get('/tenant/office/schedule-notice'))).status).toBe(403);
-    const padrao = await admin.as(request(app).get('/tenant/office/schedule-notice'));
-    expect(padrao.body.data.body).toContain('[ENDERECO]');
+    const isDefault = await admin.as(request(app).get('/tenant/office/schedule-notice'));
+    expect(isDefault.body.data.body).toContain('[ENDERECO]');
     await admin
       .as(request(app).put('/tenant/office/schedule-notice'))
       .send({ subject: 'Vistoria [NUMERO_PROCESSO]', body: 'Dia [DATA] às [HORA] em [ENDERECO]. [NOME_PERITO]' })
       .expect(200);
     await operator.as(request(app).post(`/agenda/${id}/notice`)).expect(200);
-    expect(enviados[0]).toMatchObject({
+    expect(sent[0]).toMatchObject({
       subject: `Vistoria ${CASE.processNumber}`,
       body: expect.stringMatching(/^Dia 10\/11\/2026 às 09:30 em Av\. Industrial, 1500, São Paulo\. Perito \d+$/),
     });
   });
 
   it('laudo: variáveis da última vistoria feita e foto da vistoria no PDF e no Word', async () => {
-    const { operator, id, caseId } = await preparar();
+    const { operator, id, caseId } = await prepare();
     await operator
       .as(request(app).put(`/inspections/${id}`))
-      .send({ versao: 0, dados: DADOS })
+      .send({ version: 0, data: DATA })
       .expect(200);
     const photoId = media();
     await operator
-      .as(request(app).put(`/inspections/${id}/media/${photoId}?tipo=photo&caption=Prensa`))
+      .as(request(app).put(`/inspections/${id}/media/${photoId}?type=photo&caption=Prensa`))
       .set('Content-Type', 'image/jpeg')
       .send(JPEG)
       .expect(200);
     const { body: template } = await operator.as(request(app).get('/expert-reports/templates/standard-report'));
-    const encerramento = template.data.sections.find(
-      (section: { titulo: string }) => section.titulo === 'Encerramento',
-    );
+    const encerramento = template.data.sections.find((section: { title: string }) => section.title === 'Encerramento');
     const report = await operator.as(request(app).post('/expert-reports')).send({
       caseId,
       templateId: 'standard-report',

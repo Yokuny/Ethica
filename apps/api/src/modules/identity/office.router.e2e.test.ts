@@ -28,7 +28,7 @@ const pdf = {
   },
 };
 const app = buildApp({ pdf, storage });
-const appSemStorage = buildApp({ pdf, storage: null });
+const appWithoutStorage = buildApp({ pdf, storage: null });
 
 // PNG 1×1 transparente.
 const PNG = Buffer.from(
@@ -141,7 +141,7 @@ describe('identidade do escritório (DOC-01)', () => {
     expect(objects.size).toBe(0);
 
     const off = await admin
-      .as(request(appSemStorage).post('/tenant/office/logo'))
+      .as(request(appWithoutStorage).post('/tenant/office/logo'))
       .set('Content-Type', 'image/png')
       .send(PNG);
     expect(off.status).toBe(503);

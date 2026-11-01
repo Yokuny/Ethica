@@ -140,8 +140,8 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(checklist.status).toBe(200);
     expect(rendered?.html).toContain('Mapeamento de agentes');
 
-    const outro = await seedSession((await seedTenant())._id, ['admin']);
-    expect((await outro.as(request(app).get(`/documents/expert-cases/${id}/sheet`))).status).toBe(404);
+    const other = await seedSession((await seedTenant())._id, ['admin']);
+    expect((await other.as(request(app).get(`/documents/expert-cases/${id}/sheet`))).status).toBe(404);
   });
 
   it('relatório financeiro: operador 403; admin recebe o período com recebido, pago e previsto', async () => {
@@ -151,17 +151,17 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const fee = await manager.as(request(app).post('/finance/entries')).send({
       kind: 'income',
       category: 'fixed_fees',
-      descricao: 'Honorários do processo',
+      description: 'Honorários do processo',
       amountCents: 300000,
       dueDate: day(5),
     });
     await manager
       .as(request(app).post(`/finance/entries/${fee.body.data.id}/installments`))
-      .send({ amountCents: 100000, data: day(0), account: 'Banco X' });
+      .send({ amountCents: 100000, date: day(0), account: 'Banco X' });
     const expense = await manager.as(request(app).post('/finance/entries')).send({
       kind: 'expense',
       category: 'travel',
-      descricao: 'Combustível',
+      description: 'Combustível',
       amountCents: 15000,
       dueDate: day(0),
     });
@@ -196,16 +196,16 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     await Case.updateOne({ processNumber: '0001234-56.2026.5.02.0003' }, { status: 'completed' });
 
     const mov = await as(request(app).post(`/expert-cases/${active.body.data.id}/movements`)).send({
-      tipo: 'clarification_summons',
-      data: day(-5),
-      observacoes: 'Quesitos da reclamada',
+      type: 'clarification_summons',
+      date: day(-5),
+      notes: 'Quesitos da reclamada',
     });
     expect(mov.status).toBe(201);
     expect(mov.body.data.movements).toEqual([
-      expect.objectContaining({ tipo: 'clarification_summons', data: day(-5) }),
+      expect.objectContaining({ type: 'clarification_summons', date: day(-5) }),
     ]);
     expect(
-      (await as(request(app).post(`/expert-cases/${active.body.data.id}/movements`)).send({ tipo: 'x', data: day(0) }))
+      (await as(request(app).post(`/expert-cases/${active.body.data.id}/movements`)).send({ type: 'x', date: day(0) }))
         .status,
     ).toBe(400);
 

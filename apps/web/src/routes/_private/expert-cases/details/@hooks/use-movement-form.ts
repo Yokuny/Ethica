@@ -10,7 +10,7 @@ export function useMovementForm({ caseId, onDone }: { caseId: string; onDone: ()
   const queryClient = useQueryClient();
   const form = useForm<CreateMovement>({
     resolver: zodResolver(createMovementSchema),
-    defaultValues: { data: '', observacoes: '' },
+    defaultValues: { date: '', notes: '' },
   });
   const mutation = useMutation(addMovementMutation(queryClient));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

@@ -76,7 +76,7 @@ export const buildApp = (
   app.use(express.json());
   app.use(responseTime);
   // Diário de bordo (AD-134): grava toda escrita bem-sucedida do tenant ao fim da resposta.
-  app.use(createActivityLogMiddleware(activityLogService.registrar));
+  app.use(createActivityLogMiddleware(activityLogService.record));
 
   const { validToken } = createAuthMiddleware(buildAuthDeps());
   const mailProvider = options.mail ?? buildMailProvider();

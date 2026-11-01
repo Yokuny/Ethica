@@ -9,18 +9,18 @@ vi.mock('../case/case.service.js', () => ({ getCase: vi.fn(), findSummariesByIds
 describe('appointment.service', () => {
   it('createCompromisso converte data/hora de parede + duração no intervalo UTC', async () => {
     await createAppointment('t1', {
-      tipo: 'inspection',
-      titulo: 'Vistoria na fábrica',
+      type: 'inspection',
+      title: 'Vistoria na fábrica',
       date: '2026-11-10',
       time: '09:00',
       durationMinutes: 90,
     });
 
     expect(appointmentRepository.createAppointment).toHaveBeenCalledWith('t1', {
-      tipo: 'inspection',
-      titulo: 'Vistoria na fábrica',
-      inicio: new Date('2026-11-10T12:00:00.000Z'),
-      fim: new Date('2026-11-10T13:30:00.000Z'),
+      type: 'inspection',
+      title: 'Vistoria na fábrica',
+      start: new Date('2026-11-10T12:00:00.000Z'),
+      end: new Date('2026-11-10T13:30:00.000Z'),
     });
   });
 

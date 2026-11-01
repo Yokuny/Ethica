@@ -13,16 +13,16 @@ import { t } from '../lib/helpers/translate.helper.js';
 // Espelha CompromissoRecord de apps/api/src/modules/agenda/compromisso.schema.ts.
 export type AppointmentRecord = {
   id: string;
-  tipo: AppointmentType;
-  titulo: string;
-  inicio: string;
-  fim: string;
-  local?: string;
+  type: AppointmentType;
+  title: string;
+  start: string;
+  end: string;
+  location?: string;
   caseId?: string;
   caseNumber?: string;
   status: AppointmentStatus;
   origin: 'manual' | 'automatic';
-  observacoes?: string;
+  notes?: string;
   // Campo (AD-130, AD-131): motivo do cancelamento, coordenadas do endereço e avisos enviados.
   reason?: AppointmentReason;
   coordinates?: { lat: number; lng: number };
@@ -30,7 +30,7 @@ export type AppointmentRecord = {
 };
 
 // `from`/`to`: datas de calendário do fuso de exibição, intervalo [from, to).
-export type AppointmentsQueryParams = { from: string; to: string; tipo?: AppointmentType; caseId?: string };
+export type AppointmentsQueryParams = { from: string; to: string; type?: AppointmentType; caseId?: string };
 
 export const appointmentKeys = {
   all: ['appointment'] as const,
@@ -44,7 +44,7 @@ export const appointmentsQuery = (params: AppointmentsQueryParams) =>
     queryKey: appointmentKeys.list(params),
     queryFn: async (): Promise<AppointmentRecord[]> => {
       const search = new URLSearchParams({ from: params.from, to: params.to });
-      if (params.tipo) search.set('tipo', params.tipo);
+      if (params.type) search.set('type', params.type);
       if (params.caseId) search.set('caseId', params.caseId);
       const res = await get<AppointmentRecord[]>(`/agenda?${search.toString()}`);
       if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));

@@ -12,9 +12,9 @@ import type { useAgendaPage } from '../@hooks/use-agenda-page.js';
 const monthTitle = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 export function CalendarToolbar({ state }: { state: ReturnType<typeof useAgendaPage> }) {
-  const { view, date, search, setPanel, handleViewChange, handlePrevious, handleNext, handleToday, handleTipoChange } =
+  const { view, date, search, setPanel, handleViewChange, handlePrevious, handleNext, handleToday, handleTypeChange } =
     state;
-  const tipoItems = [{ value: ALL_FILTER_VALUE, label: t('all_types') }, ...APPOINTMENT_TYPE_ITEMS];
+  const typeItems = [{ value: ALL_FILTER_VALUE, label: t('all_types') }, ...APPOINTMENT_TYPE_ITEMS];
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -55,12 +55,12 @@ export function CalendarToolbar({ state }: { state: ReturnType<typeof useAgendaP
         </Button>
       </ButtonGroup>
       <ItemTitle className="first-letter:uppercase">{monthTitle.format(new Date(`${date}T12:00:00Z`))}</ItemTitle>
-      <Select items={tipoItems} value={search.tipo ?? ALL_FILTER_VALUE} onValueChange={handleTipoChange}>
+      <Select items={typeItems} value={search.type ?? ALL_FILTER_VALUE} onValueChange={handleTypeChange}>
         <SelectTrigger size="compact">
           <SelectValue placeholder={t('type')} />
         </SelectTrigger>
         <SelectContent>
-          {tipoItems.map((item) => (
+          {typeItems.map((item) => (
             <SelectItem key={item.value} value={item.value}>
               {item.label}
             </SelectItem>

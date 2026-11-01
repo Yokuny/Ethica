@@ -25,11 +25,11 @@ export type DeadlineRecord = {
   caseId: string;
   // Enriquecido pelo service; ausente se a perícia não existe mais.
   caseNumber?: string;
-  titulo: string;
+  title: string;
   dueDate: string;
   status: DeadlineStatus;
   filedDate?: string;
-  observacoes?: string;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -40,4 +40,4 @@ export type DeadlineWrite = Omit<UpdateDeadline, 'filedDate'> & { filedDate?: st
 // Prazo pendente de um dia do aviso, com o tenant (consulta do sistema, entre tenants).
 export type NoticeDeadline = DeadlineRecord & { tenantId: string };
 
-export type NextDeadline = { titulo: string; dueDate: string };
+export type NextDeadline = { title: string; dueDate: string };

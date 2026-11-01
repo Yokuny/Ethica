@@ -14,7 +14,7 @@ export interface OpportunityDocument {
   lastMovement?: string;
   lastMovementAt?: string;
   status: OpportunityStatus;
-  observacoes?: string;
+  notes?: string;
   Case?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -32,7 +32,7 @@ const opportunitySchema = new Schema<OpportunityDocument>(
     lastMovement: { type: String },
     lastMovementAt: { type: String },
     status: { type: String, enum: OPPORTUNITY_STATUS, default: 'new', required: true },
-    observacoes: { type: String },
+    notes: { type: String },
     Case: { type: Schema.Types.ObjectId, ref: 'Case' },
   },
   { timestamps: true },

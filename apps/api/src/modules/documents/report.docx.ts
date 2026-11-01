@@ -27,39 +27,39 @@ import type { ReportExportData } from './report.schema.js';
 
 type No = ReturnType<typeof parseDocument>['children'][number];
 type Photos = ReportExportData['photos'];
-type Formato = { bold?: boolean; italics?: boolean; underline?: boolean };
+type Format = { bold?: boolean; italics?: boolean; underline?: boolean };
 type Block = Paragraph | Table;
 
 const NUMBERED_LIST = 'report-numbered-list';
 const HEADINGS = [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3] as const;
 
-const filhos = (no: No): No[] => ('children' in no ? (no.children as No[]) : []);
+const children = (no: No): No[] => ('children' in no ? (no.children as No[]) : []);
 const tag = (no: No): string | undefined => (no.type === 'tag' ? no.name : undefined);
 
-const runs = (nos: No[], formato: Formato = {}): TextRun[] =>
+const runs = (nos: No[], format: Format = {}): TextRun[] =>
   nos.flatMap((no): TextRun[] => {
     if (no.type === 'text') {
-      return no.data ? [new TextRun({ text: no.data, ...formato, underline: formato.underline ? {} : undefined })] : [];
+      return no.data ? [new TextRun({ text: no.data, ...format, underline: format.underline ? {} : undefined })] : [];
     }
     switch (tag(no)) {
       case 'br':
         return [new TextRun({ break: 1 })];
       case 'strong':
-        return runs(filhos(no), { ...formato, bold: true });
+        return runs(children(no), { ...format, bold: true });
       case 'em':
-        return runs(filhos(no), { ...formato, italics: true });
+        return runs(children(no), { ...format, italics: true });
       case 'u':
-        return runs(filhos(no), { ...formato, underline: true });
+        return runs(children(no), { ...format, underline: true });
       case 'ul':
       case 'ol':
         return [];
       default:
-        return runs(filhos(no), formato);
+        return runs(children(no), format);
     }
   });
 
 const tableRows = (no: No): No[] =>
-  filhos(no).flatMap((filho) => (tag(filho) === 'tr' ? [filho] : tag(filho) ? tableRows(filho) : []));
+  children(no).flatMap((child) => (tag(child) === 'tr' ? [child] : tag(child) ? tableRows(child) : []));
 
 const table = (no: No, photos: Photos): Table =>
   new Table({
@@ -67,16 +67,16 @@ const table = (no: No, photos: Photos): Table =>
     rows: tableRows(no).map(
       (tr) =>
         new TableRow({
-          children: filhos(tr)
+          children: children(tr)
             .filter((cell) => tag(cell) === 'td' || tag(cell) === 'th')
             .map((cell) => {
-              const conteudo = blocks(filhos(cell), { bold: tag(cell) === 'th' }, photos).filter(
+              const conteudo = blocks(children(cell), { bold: tag(cell) === 'th' }, photos).filter(
                 (block): block is Paragraph => block instanceof Paragraph,
               );
               const span = cell.type === 'tag' ? Number(cell.attribs.colspan) || 1 : 1;
               return new TableCell({
                 columnSpan: span,
-                children: conteudo.length ? conteudo : [new Paragraph({ children: runs(filhos(cell)) })],
+                children: conteudo.length ? conteudo : [new Paragraph({ children: runs(children(cell)) })],
               });
             }),
         }),
@@ -85,21 +85,21 @@ const table = (no: No, photos: Photos): Table =>
 
 let instanceList = 0;
 
-const lista = (no: No, level: number): Paragraph[] => {
+const list = (no: No, level: number): Paragraph[] => {
   const numbered = tag(no) === 'ol';
   const instance = ++instanceList;
-  return filhos(no)
+  return children(no)
     .filter((li) => tag(li) === 'li')
     .flatMap((li) => [
       new Paragraph({
-        children: runs(filhos(li)),
+        children: runs(children(li)),
         ...(numbered
           ? { numbering: { reference: NUMBERED_LIST, level: Math.min(level, 2), instance } }
           : { bullet: { level: Math.min(level, 2) } }),
       }),
-      ...filhos(li)
+      ...children(li)
         .filter((sub) => tag(sub) === 'ul' || tag(sub) === 'ol')
-        .flatMap((sub) => lista(sub, level + 1)),
+        .flatMap((sub) => list(sub, level + 1)),
     ]);
 };
 
@@ -123,9 +123,9 @@ export const imageDimensions = (image: Buffer): { width: number; height: number 
 const photo = (no: No, photos: Photos): Paragraph[] => {
   const src = no.type === 'tag' ? no.attribs.src : undefined;
   const file = src ? photos[src] : undefined;
-  const tamanho = file ? imageDimensions(file.body) : null;
-  if (!file || !tamanho) return [];
-  const escala = Math.min(567 / tamanho.width, 454 / tamanho.height, 1);
+  const size = file ? imageDimensions(file.body) : null;
+  if (!file || !size) return [];
+  const scale = Math.min(567 / size.width, 454 / size.height, 1);
   return [
     new Paragraph({
       alignment: AlignmentType.CENTER,
@@ -134,14 +134,14 @@ const photo = (no: No, photos: Photos): Paragraph[] => {
         new ImageRun({
           type: file.mime === 'image/png' ? 'png' : 'jpg',
           data: file.body,
-          transformation: { width: Math.round(tamanho.width * escala), height: Math.round(tamanho.height * escala) },
+          transformation: { width: Math.round(size.width * scale), height: Math.round(size.height * scale) },
         }),
       ],
     }),
   ];
 };
 
-function blocks(nos: No[], formato: Formato = {}, photos: Photos = {}): Block[] {
+function blocks(nos: No[], format: Format = {}, photos: Photos = {}): Block[] {
   return nos.flatMap((no): Block[] => {
     switch (tag(no)) {
       case 'p':
@@ -149,30 +149,30 @@ function blocks(nos: No[], formato: Formato = {}, photos: Photos = {}): Block[] 
           new Paragraph({
             alignment: AlignmentType.JUSTIFIED,
             spacing: { after: 120 },
-            children: runs(filhos(no), formato),
+            children: runs(children(no), format),
           }),
         ];
       // Título dentro do texto: negrito, fora do sumário (que lista só as seções).
       case 'h3':
       case 'h4':
-        return [new Paragraph({ spacing: { before: 120 }, children: runs(filhos(no), { ...formato, bold: true }) })];
+        return [new Paragraph({ spacing: { before: 120 }, children: runs(children(no), { ...format, bold: true }) })];
       case 'ul':
       case 'ol':
-        return lista(no, 0);
+        return list(no, 0);
       case 'table':
         return [table(no, photos)];
       case 'img':
         return photo(no, photos);
       default: {
-        const texto = runs([no], formato);
-        return texto.length ? [new Paragraph({ children: texto })] : [];
+        const text = runs([no], format);
+        return text.length ? [new Paragraph({ children: text })] : [];
       }
     }
   });
 }
 
-const templateRows = (texto: string, logo: Buffer | undefined, expertName: string): Paragraph[] =>
-  texto
+const templateRows = (text: string, logo: Buffer | undefined, expertName: string): Paragraph[] =>
+  text
     .split('\n')
     .map((row) => row.trim())
     .filter((row) => row && (row !== '[LOGO]' || logo))
@@ -187,11 +187,11 @@ const templateRows = (texto: string, logo: Buffer | undefined, expertName: strin
               if (party === '[LOGO]') {
                 if (!logo) return new TextRun('');
                 const { width, height } = imageDimensions(logo) ?? { width: 1, height: 1 };
-                const escala = Math.min(45 / height, 227 / width, 1);
+                const scale = Math.min(45 / height, 227 / width, 1);
                 return new ImageRun({
                   type: 'png',
                   data: logo,
-                  transformation: { width: Math.round(width * escala), height: Math.round(height * escala) },
+                  transformation: { width: Math.round(width * scale), height: Math.round(height * scale) },
                 });
               }
               if (party === '[NOME_PERITO]') return new TextRun({ text: expertName, size: 17, color: '57606A' });
@@ -205,7 +205,7 @@ const templateRows = (texto: string, logo: Buffer | undefined, expertName: strin
         }),
     );
 
-const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
+const TYPE = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 
 export const reportDocx = async ({
   report,
@@ -215,7 +215,7 @@ export const reportDocx = async ({
   values,
   photos,
 }: ReportExportData): Promise<Buffer> => {
-  const numeros = numberSections(report.sections);
+  const numbers = numberSections(report.sections);
   const logo = identity.logoDataUrl
     ? Buffer.from(identity.logoDataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
     : undefined;
@@ -233,7 +233,7 @@ export const reportDocx = async ({
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 1800, after: 900 },
-      children: [new TextRun({ text: TIPO[report.tipo], bold: true, size: 40 })],
+      children: [new TextRun({ text: TYPE[report.type], bold: true, size: 40 })],
     }),
     ...coverRow('Processo nº', legalCase.processNumber),
     ...coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
@@ -256,7 +256,7 @@ export const reportDocx = async ({
     new Paragraph({
       heading: HEADINGS[Math.min(section.level, 3) - 1],
       pageBreakBefore: section.pageBreak,
-      children: [new TextRun(`${numeros[i]}. ${section.titulo}`)],
+      children: [new TextRun(`${numbers[i]}. ${section.title}`)],
     }),
     ...(section.titleOnly ? [] : blocks(parseDocument(section.html).children as No[], {}, photos)),
   ]);

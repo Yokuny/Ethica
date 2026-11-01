@@ -25,7 +25,7 @@ export type TransactionStatus = (typeof TRANSACTION_STATUS)[number];
 const transactionFields = z.object({
   kind: z.enum(TRANSACTION_KINDS),
   category: z.enum(ALL_TRANSACTION_CATEGORIES),
-  descricao: z.string().trim().min(1, 'descrição é obrigatória').max(200, 'descrição inválida'),
+  description: z.string().trim().min(1, 'descrição é obrigatória').max(200, 'descrição inválida'),
   amountCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
   dueDate: calendarDateSchema,
   caseId: idSchema.optional(),
@@ -50,7 +50,7 @@ export type UpdateTransaction = z.infer<typeof updateTransactionSchema>;
 export const createInstallmentSchema = z
   .object({
     amountCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
-    data: calendarDateSchema,
+    date: calendarDateSchema,
     account: z.string().trim().max(120, 'conta inválida').optional(),
   })
   .strict();

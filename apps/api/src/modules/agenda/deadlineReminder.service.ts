@@ -22,28 +22,28 @@ const escapeHtml = (value: string): string =>
 const formatDay = (day: string): string => `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
 
 // Próximo 07:00 de São Paulo depois de `now` (instante UTC, offset resolvido na data alvo).
-export const proximaExecucao = (now: Date): Date => {
+export const nextExecution = (now: Date): Date => {
   const today = dateInDisplayTz(now);
   const at = wallClockToUtc(today, NOTICE_HOUR);
   return at > now ? at : wallClockToUtc(addDays(today, 1), NOTICE_HOUR);
 };
 
 const buildEmail = (
-  sections: { titulo: string; deadlines: NoticeDeadline[] }[],
+  sections: { title: string; deadlines: NoticeDeadline[] }[],
   summaries: Map<string, CaseSummary>,
   appUrl: string,
 ): string =>
   sections
     .filter((section) => section.deadlines.length > 0)
     .map((section) => {
-      const itens = section.deadlines
+      const items = section.deadlines
         .map((deadline) => {
-          const numero = summaries.get(deadline.caseId)?.processNumber ?? '';
+          const number = summaries.get(deadline.caseId)?.processNumber ?? '';
           const link = `${appUrl}/expert-cases/details?id=${encodeURIComponent(deadline.caseId)}`;
-          return `<li><a href="${escapeHtml(link)}">${escapeHtml(deadline.titulo)}</a> — ${escapeHtml(numero)} (${formatDay(deadline.dueDate)})</li>`;
+          return `<li><a href="${escapeHtml(link)}">${escapeHtml(deadline.title)}</a> — ${escapeHtml(number)} (${formatDay(deadline.dueDate)})</li>`;
         })
         .join('');
-      return `<h3>${escapeHtml(section.titulo)}</h3><ul>${itens}</ul>`;
+      return `<h3>${escapeHtml(section.title)}</h3><ul>${items}</ul>`;
     })
     .join('');
 
@@ -53,29 +53,29 @@ const buildEmail = (
 export const sendDeadlineNotices = async (
   deps: { mail: MailProvider; appUrl: string },
   now: Date = new Date(),
-): Promise<{ enviados: number }> => {
+): Promise<{ sent: number }> => {
   const today = dateInDisplayTz(now);
   const soon = addDays(today, DEADLINE_DUE_SOON_DAYS);
   const ontem = addDays(today, -1);
   const deadlines = await deadlineService.listDeadlinesToNotice([soon, today, ontem]);
-  if (deadlines.length === 0) return { enviados: 0 };
+  if (deadlines.length === 0) return { sent: 0 };
 
   const porTenant = new Map<string, NoticeDeadline[]>();
   for (const deadline of deadlines)
     porTenant.set(deadline.tenantId, [...(porTenant.get(deadline.tenantId) ?? []), deadline]);
   const recipients = await accountService.listDeadlineReminderRecipients([...porTenant.keys()]);
 
-  let enviados = 0;
+  let sentCount = 0;
   for (const [tenantId, doTenant] of porTenant) {
     const pessoas = recipients.filter((person) => person.tenantId === tenantId);
     if (pessoas.length === 0) continue;
     const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(doTenant.map((p) => p.caseId))]);
     const html = buildEmail(
       [
-        { titulo: 'Venceram ontem', deadlines: doTenant.filter((p) => p.dueDate === ontem) },
-        { titulo: 'Vencem hoje', deadlines: doTenant.filter((p) => p.dueDate === today) },
+        { title: 'Venceram ontem', deadlines: doTenant.filter((p) => p.dueDate === ontem) },
+        { title: 'Vencem hoje', deadlines: doTenant.filter((p) => p.dueDate === today) },
         {
-          titulo: `Vencem em ${DEADLINE_DUE_SOON_DAYS} dias`,
+          title: `Vencem em ${DEADLINE_DUE_SOON_DAYS} dias`,
           deadlines: doTenant.filter((p) => p.dueDate === soon),
         },
       ],
@@ -84,8 +84,8 @@ export const sendDeadlineNotices = async (
     );
     for (const person of pessoas) {
       const { sent } = await deps.mail.send(person.email, `Prazos das perícias — ${formatDay(today)}`, html);
-      if (sent) enviados += 1;
+      if (sent) sentCount += 1;
     }
   }
-  return { enviados };
+  return { sent: sentCount };
 };

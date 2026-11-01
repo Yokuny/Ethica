@@ -68,7 +68,7 @@ describe('case.service', () => {
     expect(deadlineRepository.createDeadline).toHaveBeenCalledWith(
       't1',
       'p1',
-      expect.objectContaining({ titulo: 'Entrega do laudo', dueDate: '2026-12-01' }),
+      expect.objectContaining({ title: 'Entrega do laudo', dueDate: '2026-12-01' }),
     );
   });
 
@@ -121,14 +121,14 @@ describe('case.service', () => {
       total: 2,
     });
     vi.mocked(deadlineRepository.upcomingByCaseIds).mockResolvedValue(
-      new Map([['p2', { titulo: 'Esclarecimentos', dueDate: '2026-11-10' }]]),
+      new Map([['p2', { title: 'Esclarecimentos', dueDate: '2026-11-10' }]]),
     );
 
     const result = await listCases('t1', { page: 1, limit: 20 });
 
     expect(deadlineRepository.upcomingByCaseIds).toHaveBeenCalledWith('t1', ['p1', 'p2']);
     expect(result.items[0]).not.toHaveProperty('nextDeadline');
-    expect(result.items[1]?.nextDeadline).toEqual({ titulo: 'Esclarecimentos', dueDate: '2026-11-10' });
+    expect(result.items[1]?.nextDeadline).toEqual({ title: 'Esclarecimentos', dueDate: '2026-11-10' });
   });
 
   it('createPericia traduz número duplicado no tenant em 409 pericia_already_registered', async () => {
@@ -211,7 +211,7 @@ describe('contratante na perícia (AD-135)', () => {
   it('recusa contratante em perícia de perito do juízo', async () => {
     vi.mocked(caseRepository.findById).mockResolvedValue(legalCase);
     await expect(
-      updateCase('t1', 'p1', { parties: [{ side: 'plaintiff', tipo: 'party', nome: 'Fulano', client: true }] }),
+      updateCase('t1', 'p1', { parties: [{ side: 'plaintiff', type: 'party', name: 'Fulano', client: true }] }),
     ).rejects.toMatchObject({ status: 422 });
   });
 });

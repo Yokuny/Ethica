@@ -21,14 +21,14 @@ import type { CsvImportColumn, CsvImportResult, PdfDraft, PdfExtraction } from '
 // --- Órgão pelo número CNJ (AD-118) ------------------------------------------
 // NNNNNNN-DD.AAAA.J.TR.OOOO: J é o segmento da justiça, TR o tribunal.
 // Código TR da justiça estadual, em ordem: 01 = AC … 27 = TO.
-const UF_POR_TR = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SE SP TO'.split(' ');
+const STATE_BY_COURT = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SE SP TO'.split(' ');
 
-export const courtUnitFromNumber = (numero: string): { courtType: CourtType; court: string } | undefined => {
-  const [, j, tr] = numero.match(/^\d{7}-\d{2}\.\d{4}\.(\d)\.(\d{2})\.\d{4}$/) ?? [];
+export const courtUnitFromNumber = (number: string): { courtType: CourtType; court: string } | undefined => {
+  const [, j, tr] = number.match(/^\d{7}-\d{2}\.\d{4}\.(\d)\.(\d{2})\.\d{4}$/) ?? [];
   const code = Number(tr);
   if (j === '5' && code >= 1 && code <= 24) return { courtType: 'labor', court: `TRT${code}` };
   if (j === '4' && code >= 1 && code <= 6) return { courtType: 'federal', court: `TRF${code}` };
-  const uf = UF_POR_TR[code - 1];
+  const uf = STATE_BY_COURT[code - 1];
   if (j === '8' && uf) return { courtType: 'civil', court: `TJ${uf}` };
   return undefined;
 };
@@ -75,7 +75,7 @@ const OBJETOS: [RegExp, string][] = [
   [/engenharia/i, 'engenharia'],
 ];
 
-const limparNome = (raw: string): string =>
+const clearName = (raw: string): string =>
   raw
     .replace(CPF_CNPJ, '')
     .replace(OAB, '')
@@ -91,23 +91,23 @@ const extractParties = (rows: string[]): CasePartyInput[] => {
     if (label) {
       side = label[1];
       const resto = row.replace(label[0], '');
-      const nome = limparNome(resto);
+      const name = clearName(resto);
       const document = documentSchema.safeParse(resto.match(CPF_CNPJ)?.[1] ?? '');
-      if (nome) parties.push({ side, tipo: 'party', nome, document: document.success ? document.data : undefined });
+      if (name) parties.push({ side, type: 'party', name, document: document.success ? document.data : undefined });
       continue;
     }
     if (side && LABEL_LAWYER.test(row)) {
       const resto = row.replace(LABEL_LAWYER, '');
-      const nome = limparNome(resto);
+      const name = clearName(resto);
       const oab = oabSchema.safeParse(resto.match(OAB)?.[1] ?? '');
-      if (nome) parties.push({ side, tipo: 'lawyer', nome, oab: oab.success ? oab.data : undefined });
+      if (name) parties.push({ side, type: 'lawyer', name, oab: oab.success ? oab.data : undefined });
     }
   }
   return parties;
 };
 
-const extractDivision = (rows: string[], texto: string): Pick<PdfDraft, 'division' | 'district'> => {
-  const labeledDistrict = texto.match(/\b(?:Comarca|Foro)\s+(?:de|da|do)\s+([A-ZÀ-Ú][^\n,–-]*)/)?.[1]?.trim();
+const extractDivision = (rows: string[], text: string): Pick<PdfDraft, 'division' | 'district'> => {
+  const labeledDistrict = text.match(/\b(?:Comarca|Foro)\s+(?:de|da|do)\s+([A-ZÀ-Ú][^\n,–-]*)/)?.[1]?.trim();
   const row = rows.find((l) => /\bVara\b/i.test(l) && l.length <= 120);
   if (!row) return { district: labeledDistrict };
   // "1ª Vara do Trabalho de São Paulo" → vara "1ª Vara do Trabalho", comarca "São Paulo".
@@ -117,24 +117,24 @@ const extractDivision = (rows: string[], texto: string): Pick<PdfDraft, 'divisio
     : { division: row.replace(/\s+da\s+Comarca\s+de\s+.*$/i, '').trim(), district: labeledDistrict };
 };
 
-const extractSubject = (texto: string): string | undefined => {
-  const rotulado = texto.match(/\b(?:Objeto|Assunto)s?(?:\s+da\s+per[íi]cia)?\s*:\s*([^\n]+)/i)?.[1]?.trim();
+const extractSubject = (text: string): string | undefined => {
+  const rotulado = text.match(/\b(?:Objeto|Assunto)s?(?:\s+da\s+per[íi]cia)?\s*:\s*([^\n]+)/i)?.[1]?.trim();
   if (rotulado) return rotulado.slice(0, 500);
-  const tipos = OBJETOS.filter(([regex]) => regex.test(texto)).map(([, nome]) => nome);
-  return tipos.length ? `Perícia de ${tipos.join(' e ')}` : undefined;
+  const types = OBJETOS.filter(([regex]) => regex.test(text)).map(([, name]) => name);
+  return types.length ? `Perícia de ${types.join(' e ')}` : undefined;
 };
 
-const extractNomination = (texto: string): string | undefined => {
-  const frase = texto.match(/[^.\n]*\b(nomei|nomead|nomea[çc][ãa]o|design)[^.\n]*/i)?.[0] ?? '';
+const extractNomination = (text: string): string | undefined => {
+  const frase = text.match(/[^.\n]*\b(nomei|nomead|nomea[çc][ãa]o|design)[^.\n]*/i)?.[0] ?? '';
   const numerica = frase.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0];
   if (numerica) return parseData(numerica);
-  const words = texto.match(/(\d{1,2})º?\s+de\s+([a-zç]+)\s+de\s+(\d{4})/i);
+  const words = text.match(/(\d{1,2})º?\s+de\s+([a-zç]+)\s+de\s+(\d{4})/i);
   const month = words ? MONTHS.indexOf((words[2] ?? '').toLowerCase()) + 1 : 0;
   return words && month ? parseData(`${words[1]}/${month}/${words[3]}`) : undefined;
 };
 
-const extractDeadline = (texto: string, nomination?: string): { reportDeadline?: string; calculado: boolean } => {
-  const frase = texto.match(/[^.]*\blaudo\b[^.]*/gi)?.find((f) => /prazo|at[ée]/i.test(f)) ?? '';
+const extractDeadline = (text: string, nomination?: string): { reportDeadline?: string; calculado: boolean } => {
+  const frase = text.match(/[^.]*\blaudo\b[^.]*/gi)?.find((f) => /prazo|at[ée]/i.test(f)) ?? '';
   const data = frase.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0];
   if (data) return { reportDeadline: parseData(data), calculado: false };
   const days = Number(frase.match(/prazo\s+de\s+(\d{1,3})/i)?.[1]);
@@ -142,20 +142,20 @@ const extractDeadline = (texto: string, nomination?: string): { reportDeadline?:
 };
 
 // Função pura: texto da ata/despacho → rascunho do cadastro + o que faltou + avisos.
-export const extractMinutes = (texto: string): Omit<PdfExtraction, 'existingId'> => {
-  const rows = texto
+export const extractMinutes = (text: string): Omit<PdfExtraction, 'existingId'> => {
+  const rows = text
     .split(/\r?\n/)
     .map((row) => row.trim())
     .filter(Boolean);
   const warnings: ApiMessageKey[] = [];
-  const numeros = [...new Set(texto.match(CNJ) ?? [])];
-  if (numeros.length > 1) warnings.push('multiple_process_numbers');
-  const processNumber = numeros[0] ?? texto.match(/\d{7}-?\d{2}\.?\d{4}\.?\d\.?\d{2}\.?\d{4}/)?.[0];
+  const numbers = [...new Set(text.match(CNJ) ?? [])];
+  if (numbers.length > 1) warnings.push('multiple_process_numbers');
+  const processNumber = numbers[0] ?? text.match(/\d{7}-?\d{2}\.?\d{4}\.?\d\.?\d{2}\.?\d{4}/)?.[0];
   if (processNumber && !processNumberSchema.safeParse(processNumber).success) {
     warnings.push('invalid_process_number');
   }
-  const nominationDate = extractNomination(texto);
-  const { reportDeadline, calculado } = extractDeadline(texto, nominationDate);
+  const nominationDate = extractNomination(text);
+  const { reportDeadline, calculado } = extractDeadline(text, nominationDate);
   if (calculado) warnings.push('deadline_calculated');
   const parties = extractParties(rows);
 
@@ -163,8 +163,8 @@ export const extractMinutes = (texto: string): Omit<PdfExtraction, 'existingId'>
     role: 'court_expert',
     processNumber,
     ...(processNumber ? courtUnitFromNumber(processNumber) : {}),
-    ...extractDivision(rows, texto),
-    subject: extractSubject(texto),
+    ...extractDivision(rows, text),
+    subject: extractSubject(text),
     ...(parties.length ? { parties } : {}),
     nominationDate,
     reportDeadline,
@@ -187,29 +187,29 @@ export const extractPdf = async (tenantId: string, file: Buffer): Promise<PdfExt
   if (!Buffer.isBuffer(file) || file.subarray(0, 5).toString('latin1') !== '%PDF-') {
     throw new CustomError('unsupported_file_type', 415);
   }
-  let texto: string;
+  let text: string;
   try {
-    texto = (await extractText(new Uint8Array(file), { mergePages: true })).text;
+    text = (await extractText(new Uint8Array(file), { mergePages: true })).text;
   } catch (error) {
     throw new CustomError('unsupported_file_type', 415, error instanceof Error ? error.message : undefined);
   }
-  if (!texto.trim()) throw new CustomError('pdf_without_text', 422);
+  if (!text.trim()) throw new CustomError('pdf_without_text', 422);
 
-  const extraction = extractMinutes(texto);
-  const numero = extraction.draft.processNumber;
-  const existingId = numero ? await caseRepository.findIdByNumero(tenantId, numero) : undefined;
+  const extraction = extractMinutes(text);
+  const number = extraction.draft.processNumber;
+  const existingId = number ? await caseRepository.findIdByNumber(tenantId, number) : undefined;
   if (!existingId) return extraction;
   return { ...extraction, existingId, warnings: [...extraction.warnings, 'expert_case_already_registered'] };
 };
 
 // --- CSV (AD-115) ---------------------------------------------------------------
 // `;` como separador, aspas duplas para campo com `;`/quebra de linha, BOM ignorado.
-export const parseCsv = (texto: string): string[][] => {
+export const parseCsv = (text: string): string[][] => {
   const records: string[][] = [];
   let field = '';
   let record: string[] = [];
   let aspas = false;
-  const font = texto.replace(/^﻿/, '');
+  const font = text.replace(/^﻿/, '');
   for (let i = 0; i < font.length; i++) {
     const c = font[i];
     if (aspas) {
@@ -238,8 +238,8 @@ type DeclinedRow = { column?: CsvImportColumn; reason: ApiMessageKey };
 
 const parseCentavos = (raw: string): number | undefined => {
   const limpo = raw.replace(/R\$|\s/g, '');
-  const numero = Number(limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo);
-  return Number.isFinite(numero) && numero >= 0 ? Math.round(numero * 100) : undefined;
+  const number = Number(limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo);
+  return Number.isFinite(number) && number >= 0 ? Math.round(number * 100) : undefined;
 };
 
 const ROLES: Record<string, CreateCase['role']> = {
@@ -250,7 +250,7 @@ const ROLES: Record<string, CreateCase['role']> = {
   'assistente tecnico': 'technical_assistant',
 };
 
-const DATAS: [CsvImportColumn, keyof CreateCase][] = [
+const DATES: [CsvImportColumn, keyof CreateCase][] = [
   ['data_nomeacao', 'nominationDate'],
   ['prazo_laudo', 'reportDeadline'],
   ['data_autuacao', 'docketingDate'],
@@ -258,19 +258,19 @@ const DATAS: [CsvImportColumn, keyof CreateCase][] = [
   ['data_demissao', 'terminationDate'],
 ];
 
-const TEXTOS: [CsvImportColumn, keyof CreateCase][] = [
+const TEXTS: [CsvImportColumn, keyof CreateCase][] = [
   ['vara', 'division'],
   ['comarca', 'district'],
   ['objeto', 'subject'],
   ['funcao_reclamante', 'claimantJob'],
   ['local_pericia', 'location'],
-  ['observacoes', 'observacoes'],
+  ['observacoes', 'notes'],
 ];
 
 const FIELD_COLUMN: Partial<Record<string, CsvImportColumn>> = Object.fromEntries([
   ['processNumber', 'numero_processo'],
   ['proposedFeesCents', 'honorarios_propostos'],
-  ...[...DATAS, ...TEXTOS].map(([column, field]) => [field, column]),
+  ...[...DATES, ...TEXTS].map(([column, field]) => [field, column]),
 ]);
 
 // Uma linha do CSV → cadastro validado pelo mesmo schema do formulário, ou o motivo da recusa.
@@ -288,8 +288,8 @@ export const rowToCase = (get: (column: CsvImportColumn) => string): { data: Cre
   if (!role) return { column: 'papel', reason: 'invalid_field' };
 
   const data: Record<string, unknown> = { processNumber, ...body, role };
-  for (const [column, field] of TEXTOS) if (get(column)) data[field] = get(column);
-  for (const [column, field] of DATAS) {
+  for (const [column, field] of TEXTS) if (get(column)) data[field] = get(column);
+  for (const [column, field] of DATES) {
     if (!get(column)) continue;
     const day = parseData(get(column));
     if (!day) return { column: column, reason: 'invalid_date' };
@@ -311,9 +311,9 @@ export const rowToCase = (get: (column: CsvImportColumn) => string): { data: Cre
     if (!document.success) return { column: `${prefix}_documento`, reason: 'invalid_field' };
     const oab = oabSchema.safeParse(get(`${prefix}_advogado_oab`));
     if (!oab.success) return { column: `${prefix}_advogado_oab`, reason: 'invalid_field' };
-    if (get(prefix)) parties.push({ side, tipo: 'party', nome: get(prefix), document: document.data });
+    if (get(prefix)) parties.push({ side, type: 'party', name: get(prefix), document: document.data });
     if (get(`${prefix}_advogado`)) {
-      parties.push({ side, tipo: 'lawyer', nome: get(`${prefix}_advogado`), oab: oab.data });
+      parties.push({ side, type: 'lawyer', name: get(`${prefix}_advogado`), oab: oab.data });
     }
   }
   if (parties.length) data.parties = parties;
@@ -328,24 +328,24 @@ export const rowToCase = (get: (column: CsvImportColumn) => string): { data: Cre
 
 // Importa as linhas válidas uma a uma pelo mesmo caminho do formulário e devolve o relatório
 // por linha (a linha 1 é o cabeçalho). Número já cadastrado é ignorado sem parar o lote.
-export const importCsv = async (tenantId: string, texto: string): Promise<CsvImportResult> => {
-  const [header, ...records] = parseCsv(typeof texto === 'string' ? texto : '');
+export const importCsv = async (tenantId: string, text: string): Promise<CsvImportResult> => {
+  const [header, ...records] = parseCsv(typeof text === 'string' ? text : '');
   const rows = records
     .map((fields, index) => ({ fields, line: index + 2 }))
     .filter(({ fields }) => fields.some((field) => field.trim()));
   if (!header || !rows.length) throw new CustomError('csv_empty', 400);
   if (rows.length > CSV_IMPORT_MAX_ROWS) throw new CustomError('csv_too_many_rows', 400);
-  const columns = header.map((nome) => nome.trim().toLowerCase());
+  const columns = header.map((name) => name.trim().toLowerCase());
   const faltando = CSV_IMPORT_REQUIRED_COLUMNS.filter((column) => !columns.includes(column));
   if (faltando.length) throw new CustomError('csv_invalid_header', 400, faltando.join(', '));
-  const posicao = new Map(
+  const position = new Map(
     CSV_IMPORT_COLUMNS.map((column) => [column, columns.indexOf(column)] as const).filter(([, i]) => i >= 0),
   );
 
   const result: CsvImportResult = { created: 0, skipped: [], rejected: [] };
   for (const { fields, line } of rows) {
     const get = (column: CsvImportColumn) => {
-      const i = posicao.get(column);
+      const i = position.get(column);
       return i === undefined ? '' : (fields[i] ?? '').trim();
     };
     const row = rowToCase(get);

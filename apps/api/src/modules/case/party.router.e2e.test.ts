@@ -65,40 +65,40 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
 
   it('cadastrar a perícia cria as partes novas e reaproveita por documento, OAB e nome exato (IMP-01.4, AD-115)', async () => {
     const { as } = await seedSession();
-    const primeira = await as(request(app).post('/expert-cases')).send(
+    const first = await as(request(app).post('/expert-cases')).send(
       legalCase('0001234-56.2026.5.02.0001', {
         parties: [
-          { side: 'plaintiff', tipo: 'party', nome: 'Maria  da Silva', document: '123.456.789-09' },
-          { side: 'plaintiff', tipo: 'lawyer', nome: 'João Pereira', oab: 'OAB/SP 123456' },
-          { side: 'defendant', tipo: 'party', nome: 'Indústria Exemplo Ltda.' },
+          { side: 'plaintiff', type: 'party', name: 'Maria  da Silva', document: '123.456.789-09' },
+          { side: 'plaintiff', type: 'lawyer', name: 'João Pereira', oab: 'OAB/SP 123456' },
+          { side: 'defendant', type: 'party', name: 'Indústria Exemplo Ltda.' },
         ],
       }),
     );
-    expect(primeira.status).toBe(201);
-    expect(primeira.body.data.parties).toEqual([
-      { partyId: expect.any(String), side: 'plaintiff', tipo: 'party', nome: 'Maria da Silva' },
-      { partyId: expect.any(String), side: 'plaintiff', tipo: 'lawyer', nome: 'João Pereira' },
-      { partyId: expect.any(String), side: 'defendant', tipo: 'party', nome: 'Indústria Exemplo Ltda.' },
+    expect(first.status).toBe(201);
+    expect(first.body.data.parties).toEqual([
+      { partyId: expect.any(String), side: 'plaintiff', type: 'party', name: 'Maria da Silva' },
+      { partyId: expect.any(String), side: 'plaintiff', type: 'lawyer', name: 'João Pereira' },
+      { partyId: expect.any(String), side: 'defendant', type: 'party', name: 'Indústria Exemplo Ltda.' },
     ]);
 
     const segunda = await as(request(app).post('/expert-cases')).send(
       legalCase('0009999-11.2026.5.02.0002', {
         parties: [
-          { side: 'plaintiff', tipo: 'party', nome: 'MARIA S.', document: '12345678909' },
-          { side: 'plaintiff', tipo: 'lawyer', nome: 'Dr. João', oab: 'SP123456' },
-          { side: 'defendant', tipo: 'party', nome: 'Indústria Exemplo Ltda.' },
-          { side: 'defendant', tipo: 'party', nome: 'Outra Ré S.A.' },
+          { side: 'plaintiff', type: 'party', name: 'MARIA S.', document: '12345678909' },
+          { side: 'plaintiff', type: 'lawyer', name: 'Dr. João', oab: 'SP123456' },
+          { side: 'defendant', type: 'party', name: 'Indústria Exemplo Ltda.' },
+          { side: 'defendant', type: 'party', name: 'Outra Ré S.A.' },
         ],
       }),
     );
     expect(segunda.status).toBe(201);
     const ids = (body: { data: { parties: { partyId: string }[] } }) => body.data.parties.map((p) => p.partyId);
-    expect(ids(segunda.body).slice(0, 3)).toEqual(ids(primeira.body));
+    expect(ids(segunda.body).slice(0, 3)).toEqual(ids(first.body));
     // A cópia guarda o nome do cadastro reaproveitado, não o digitado.
-    expect(segunda.body.data.parties[0].nome).toBe('Maria da Silva');
+    expect(segunda.body.data.parties[0].name).toBe('Maria da Silva');
     expect(await Party.countDocuments({})).toBe(4);
 
-    const ofParty = await as(request(app).get(`/parties/${ids(primeira.body)[2]}/expert-cases`));
+    const ofParty = await as(request(app).get(`/parties/${ids(first.body)[2]}/expert-cases`));
     expect(ofParty.body.data.map((p: { processNumber: string }) => p.processNumber).sort()).toEqual([
       '0001234-56.2026.5.02.0001',
       '0009999-11.2026.5.02.0002',
@@ -107,45 +107,45 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
 
   it('parteId usa o cadastro escolhido; id inexistente é 400 party_not_found; PATCH substitui a lista', async () => {
     const { as } = await seedSession();
-    const party = await as(request(app).post('/parties')).send({ tipo: 'party', nome: 'Ré Escolhida', email: '' });
+    const party = await as(request(app).post('/parties')).send({ type: 'party', name: 'Ré Escolhida', email: '' });
     expect(party.status).toBe(201);
     expect(party.body.data).not.toHaveProperty('email');
 
-    const criada = await as(request(app).post('/expert-cases')).send(
+    const created = await as(request(app).post('/expert-cases')).send(
       legalCase('0001234-56.2026.5.02.0001', {
-        parties: [{ partyId: party.body.data.id, side: 'defendant', tipo: 'party', nome: 'qualquer' }],
+        parties: [{ partyId: party.body.data.id, side: 'defendant', type: 'party', name: 'qualquer' }],
       }),
     );
-    expect(criada.body.data.parties[0]).toMatchObject({ partyId: party.body.data.id, nome: 'Ré Escolhida' });
+    expect(created.body.data.parties[0]).toMatchObject({ partyId: party.body.data.id, name: 'Ré Escolhida' });
 
-    const inexistente = await as(request(app).patch(`/expert-cases/${criada.body.data.id}`)).send({
-      parties: [{ partyId: '0123456789abcdef01234567', side: 'defendant', tipo: 'party', nome: 'x' }],
+    const missing = await as(request(app).patch(`/expert-cases/${created.body.data.id}`)).send({
+      parties: [{ partyId: '0123456789abcdef01234567', side: 'defendant', type: 'party', name: 'x' }],
     });
-    expect(inexistente.status).toBe(400);
-    expect(inexistente.body.message).toBe('party_not_found');
+    expect(missing.status).toBe(400);
+    expect(missing.body.message).toBe('party_not_found');
 
-    const vazia = await as(request(app).patch(`/expert-cases/${criada.body.data.id}`)).send({ parties: [] });
-    expect(vazia.body.data.parties).toEqual([]);
+    const empty = await as(request(app).patch(`/expert-cases/${created.body.data.id}`)).send({ parties: [] });
+    expect(empty.body.data.parties).toEqual([]);
   });
 
   it('renomear a parte atualiza a cópia do nome nas perícias; outro tenant não vê a parte', async () => {
     const { as } = await seedSession();
-    const criada = await as(request(app).post('/expert-cases')).send(
-      legalCase('0001234-56.2026.5.02.0001', { parties: [{ side: 'plaintiff', tipo: 'party', nome: 'Maria' }] }),
+    const created = await as(request(app).post('/expert-cases')).send(
+      legalCase('0001234-56.2026.5.02.0001', { parties: [{ side: 'plaintiff', type: 'party', name: 'Maria' }] }),
     );
-    const partyId = criada.body.data.parties[0].partyId;
+    const partyId = created.body.data.parties[0].partyId;
 
     const editada = await as(request(app).patch(`/parties/${partyId}`)).send({
-      nome: 'Maria da Silva',
+      name: 'Maria da Silva',
       phone: '(11) 99999-0000',
     });
-    expect(editada.body.data).toMatchObject({ nome: 'Maria da Silva', phone: '(11) 99999-0000' });
-    const lida = await as(request(app).get(`/expert-cases/${criada.body.data.id}`));
-    expect(lida.body.data.parties[0].nome).toBe('Maria da Silva');
+    expect(editada.body.data).toMatchObject({ name: 'Maria da Silva', phone: '(11) 99999-0000' });
+    const lida = await as(request(app).get(`/expert-cases/${created.body.data.id}`));
+    expect(lida.body.data.parties[0].name).toBe('Maria da Silva');
 
-    const outro = await seedSession();
-    expect((await outro.as(request(app).get(`/parties/${partyId}`))).status).toBe(404);
-    expect((await outro.as(request(app).get('/parties'))).body.data.total).toBe(0);
+    const other = await seedSession();
+    expect((await other.as(request(app).get(`/parties/${partyId}`))).status).toBe(404);
+    expect((await other.as(request(app).get('/parties'))).body.data.total).toBe(0);
   });
 
   it('lista por tipo e busca por nome; a busca de perícias acha pelo nome da parte', async () => {
@@ -153,13 +153,13 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
     await as(request(app).post('/expert-cases')).send(
       legalCase('0001234-56.2026.5.02.0001', {
         parties: [
-          { side: 'defendant', tipo: 'party', nome: 'Metalúrgica Horizonte' },
-          { side: 'defendant', tipo: 'lawyer', nome: 'Ana Souza', oab: 'SP654321' },
+          { side: 'defendant', type: 'party', name: 'Metalúrgica Horizonte' },
+          { side: 'defendant', type: 'lawyer', name: 'Ana Souza', oab: 'SP654321' },
         ],
       }),
     );
-    const lawyers = await as(request(app).get('/parties').query({ tipo: 'lawyer' }));
-    expect(lawyers.body.data.items.map((p: { nome: string }) => p.nome)).toEqual(['Ana Souza']);
+    const lawyers = await as(request(app).get('/parties').query({ type: 'lawyer' }));
+    expect(lawyers.body.data.items.map((p: { name: string }) => p.name)).toEqual(['Ana Souza']);
 
     await expect
       .poll(async () => (await as(request(app).get('/parties').query({ q: 'metalurg' }))).body.data.total, {
@@ -175,7 +175,7 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
 
   it('grava os dados trabalhistas e o período imprescrito sugerido quando vem vazio (IMP-04)', async () => {
     const { as } = await seedSession();
-    const criada = await as(request(app).post('/expert-cases')).send(
+    const created = await as(request(app).post('/expert-cases')).send(
       legalCase('0001234-56.2026.5.02.0001', {
         docketingDate: '2026-03-10',
         hireDate: '2018-02-01',
@@ -184,7 +184,7 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
         location: 'Rua das Indústrias, 100',
       }),
     );
-    expect(criada.body.data).toMatchObject({
+    expect(created.body.data).toMatchObject({
       claimantJob: 'Operadora de máquinas',
       location: 'Rua das Indústrias, 100',
       nonPrescribedPeriodStart: '2021-03-10',

@@ -63,7 +63,7 @@ export type CaseRecord = {
   nominationDate?: string;
   proposedFeesCents?: number;
   fixedFeesCents?: number;
-  observacoes?: string;
+  notes?: string;
   docketingDate?: string;
   hireDate?: string;
   terminationDate?: string;
@@ -78,7 +78,7 @@ export type CaseRecord = {
 };
 
 // Movimentação do processo (AD-121), da mais recente para a mais antiga.
-export type MovementRecord = { id: string; tipo: MovementType; data: string; observacoes?: string };
+export type MovementRecord = { id: string; type: MovementType; date: string; notes?: string };
 
 // Perícia parada (DOC-03): `referencia` é a última movimentação ou, sem nenhuma, a nomeação
 // ou o dia do cadastro; `origem` diz qual delas.
@@ -89,7 +89,7 @@ export type StalledCase = {
   court: string;
   division?: string;
   subject: string;
-  referencia: string;
+  reference: string;
   origin: 'movement' | 'appointment' | 'created';
   stalledDays: number;
 };

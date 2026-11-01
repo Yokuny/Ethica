@@ -16,8 +16,8 @@ import {
   updateMediaSchema,
 } from './inspection.schema.js';
 
-const MIMES = Object.values(INSPECTION_MEDIA_LIMITS).flatMap((limite) => limite.mimes);
-const MAIOR = Math.max(...Object.values(INSPECTION_MEDIA_LIMITS).map((limite) => limite.maxBytes));
+const MIMES = Object.values(INSPECTION_MEDIA_LIMITS).flatMap((limit) => limit.mimes);
+const GREATER = Math.max(...Object.values(INSPECTION_MEDIA_LIMITS).map((limit) => limit.maxBytes));
 
 // Campo (CAM-01..07): registro de vistoria e mídias, permissão da agenda (AD-137).
 // Montado em `/inspections`; `/day` e `/expert-case` vêm antes de `/:compromissoId`.
@@ -61,7 +61,7 @@ export const createInspectionRouter = (deps: InspectionRouterDeps): Router => {
     can('agenda', 'update'),
     media,
     validParsedQuery(mediaUploadQuerySchema),
-    fileBody(MIMES, MAIOR),
+    fileBody(MIMES, GREATER),
     inspectionController.uploadMedia(deps.storage),
   );
   router.get(

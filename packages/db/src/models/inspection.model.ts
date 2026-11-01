@@ -4,7 +4,7 @@ import mongoose, { Schema } from 'mongoose';
 // Mídia da vistoria no storage do tenant (AD-129). `id` vem do aparelho (UUID, AD-128).
 export interface InspectionMediaDocument {
   id: string;
-  tipo: MediaType;
+  type: MediaType;
   key: string;
   bytes: number;
   mime: string;
@@ -19,8 +19,8 @@ export interface InspectionDocument {
   Tenant: mongoose.Types.ObjectId;
   Appointment: mongoose.Types.ObjectId;
   Case?: mongoose.Types.ObjectId;
-  versao: number;
-  dados: InspectionData;
+  version: number;
+  data: InspectionData;
   media: InspectionMediaDocument[];
   createdAt: Date;
   updatedAt: Date;
@@ -29,7 +29,7 @@ export interface InspectionDocument {
 const mediaSchema = new Schema<InspectionMediaDocument>(
   {
     id: { type: String, required: true },
-    tipo: { type: String, enum: MEDIA_TYPES, required: true },
+    type: { type: String, enum: MEDIA_TYPES, required: true },
     key: { type: String, required: true },
     bytes: { type: Number, required: true, min: 0 },
     mime: { type: String, required: true },
@@ -44,8 +44,8 @@ const inspectionSchema = new Schema<InspectionDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     Appointment: { type: Schema.Types.ObjectId, ref: 'Appointment', required: true },
     Case: { type: Schema.Types.ObjectId, ref: 'Case' },
-    versao: { type: Number, required: true, default: 0 },
-    dados: { type: Schema.Types.Mixed, required: true },
+    version: { type: Number, required: true, default: 0 },
+    data: { type: Schema.Types.Mixed, required: true },
     media: { type: [mediaSchema], default: [] },
   },
   { timestamps: true, minimize: false },

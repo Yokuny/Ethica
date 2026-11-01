@@ -49,12 +49,12 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     cell: ({ row }) => {
       const deadline = row.original.nextDeadline;
       if (!deadline) return <TableStack tone="muted">—</TableStack>;
-      const alerta = deadlineAlert(deadline, formatDisplayDate(new Date()));
+      const alert = deadlineAlert(deadline, formatDisplayDate(new Date()));
       return (
         <TableStack
-          tone={alerta === 'deadline_overdue' ? 'error' : 'default'}
-          description={alerta ? `${t(alerta)} · ${deadline.titulo}` : deadline.titulo}
-          descriptionTone={alerta === 'deadline_overdue' ? 'error' : 'muted'}
+          tone={alert === 'deadline_overdue' ? 'error' : 'default'}
+          description={alert ? `${t(alert)} · ${deadline.title}` : deadline.title}
+          descriptionTone={alert === 'deadline_overdue' ? 'error' : 'muted'}
         >
           {formatDate(toDate(deadline.dueDate))}
         </TableStack>

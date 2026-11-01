@@ -17,16 +17,16 @@ import type {
 
 // Outra gravação chegou antes (AD-128): o controller devolve 409 com a versão do servidor.
 export class InspectionConflictError extends KeyedError {
-  constructor(readonly atual: InspectionRecord) {
+  constructor(readonly current: InspectionRecord) {
     super('inspection_conflict');
   }
 }
 
-const vazia = (appointment: AppointmentRecord): InspectionRecord => ({
+const empty = (appointment: AppointmentRecord): InspectionRecord => ({
   appointmentId: appointment.id,
   caseId: appointment.caseId,
-  versao: 0,
-  dados: INSPECTION_EMPTY_DATA,
+  version: 0,
+  data: INSPECTION_EMPTY_DATA,
   media: [],
 });
 
@@ -61,7 +61,7 @@ export const listDay = async (tenantId: string, date: string): Promise<DayInspec
     return {
       appointment,
       ...(legalCase ? { legalCase } : {}),
-      inspection: inspections.get(appointment.id) ?? vazia(appointment),
+      inspection: inspections.get(appointment.id) ?? empty(appointment),
     };
   });
 };
@@ -73,20 +73,20 @@ export const getInspection = async (tenantId: string, appointmentId: string): Pr
     fieldCases(tenantId, appointment.caseId ? [appointment.caseId] : []),
   ]);
   const legalCase = appointment.caseId ? cases.get(appointment.caseId) : undefined;
-  return { appointment, ...(legalCase ? { legalCase } : {}), inspection: inspection ?? vazia(appointment) };
+  return { appointment, ...(legalCase ? { legalCase } : {}), inspection: inspection ?? empty(appointment) };
 };
 
 // CAM-02 e CAM-05: grava o formulário inteiro só sobre a versão que o aparelho conhecia.
 export const saveInspection = async (
   tenantId: string,
   appointmentId: string,
-  { versao, dados }: SaveInspection,
+  { version, data }: SaveInspection,
 ): Promise<InspectionRecord> => {
   const appointment = await appointmentService.getAppointment(tenantId, appointmentId);
-  const salvo = await inspectionRepository.salvar(tenantId, appointmentId, appointment.caseId, versao, dados);
-  if (salvo) return salvo;
+  const saved = await inspectionRepository.save(tenantId, appointmentId, appointment.caseId, version, data);
+  if (saved) return saved;
   throw new InspectionConflictError(
-    (await inspectionRepository.findByAppointment(tenantId, appointmentId)) ?? vazia(appointment),
+    (await inspectionRepository.findByAppointment(tenantId, appointmentId)) ?? empty(appointment),
   );
 };
 
@@ -97,23 +97,23 @@ export const uploadMedia = async (
   tenantId: string,
   appointmentId: string,
   mediaId: string,
-  { tipo, caption }: MediaUploadQuery,
+  { type, caption }: MediaUploadQuery,
   file: { body: Buffer; mime: string },
 ): Promise<MediaRecord> => {
   const files = requireStorage(storage);
-  const limite = INSPECTION_MEDIA_LIMITS[tipo];
-  if (!limite.mimes.includes(file.mime)) throw new CustomError('unsupported_file_type', 415, file.mime);
-  if (file.body.length > limite.maxBytes) throw new CustomError('file_too_large', 413);
+  const limit = INSPECTION_MEDIA_LIMITS[type];
+  if (!limit.mimes.includes(file.mime)) throw new CustomError('unsupported_file_type', 415, file.mime);
+  if (file.body.length > limit.maxBytes) throw new CustomError('file_too_large', 413);
   const appointment = await appointmentService.getAppointment(tenantId, appointmentId);
-  const atual = await inspectionRepository.findByAppointment(tenantId, appointmentId);
-  const existente = atual?.media.find((media) => media.id === mediaId);
-  if (existente) return existente;
-  if ((atual?.media.filter((media) => media.tipo === tipo).length ?? 0) >= limite.maxByInspection) {
+  const current = await inspectionRepository.findByAppointment(tenantId, appointmentId);
+  const existing = current?.media.find((media) => media.id === mediaId);
+  if (existing) return existing;
+  if ((current?.media.filter((media) => media.type === type).length ?? 0) >= limit.maxByInspection) {
     throw new CustomError('media_limit_reached', 422);
   }
   const media = {
     id: mediaId,
-    tipo,
+    type,
     key: `tenants/${tenantId}/inspections/${appointmentId}/${mediaId}`,
     bytes: file.body.length,
     mime: file.mime,

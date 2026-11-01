@@ -153,31 +153,31 @@ const soma = (rows: FinanceReportRow[]) => rows.reduce((total, row) => total + r
 // DOC-03: datas inclusivas. Cancelado não entra; honorário conta pelas parcelas (AD-111).
 export const reportPeriod = async (tenantId: string, period: { from: string; to: string }): Promise<FinanceReport> => {
   const inPeriod = (day?: string): day is string => Boolean(day && day >= period.from && day <= period.to);
-  const itens = await withCaseNumber(
+  const items = await withCaseNumber(
     tenantId,
     (await transactionRepository.listAll(tenantId, { period })).filter((item) => item.status !== 'canceled'),
   );
-  const row = (item: TransactionRecord, data: string, amountCents: number, account?: string) => ({
-    data,
-    descricao: item.client ? `${item.descricao} · contratante: ${item.client}` : item.descricao,
+  const row = (item: TransactionRecord, date: string, amountCents: number, account?: string) => ({
+    date,
+    description: item.client ? `${item.description} · contratante: ${item.client}` : item.description,
     category: item.category,
     amountCents,
     ...(item.caseNumber ? { caseNumber: item.caseNumber } : {}),
     ...(account ? { account } : {}),
   });
-  const income = itens.filter((item) => item.kind === 'income');
-  const expenses = itens.filter((item) => item.kind === 'expense');
+  const income = items.filter((item) => item.kind === 'income');
+  const expenses = items.filter((item) => item.kind === 'expense');
   const received = income
     .flatMap((item) =>
       item.installments
-        .filter((installment) => inPeriod(installment.data))
-        .map((p) => row(item, p.data, p.amountCents, p.account)),
+        .filter((installment) => inPeriod(installment.date))
+        .map((p) => row(item, p.date, p.amountCents, p.account)),
     )
-    .sort((a, b) => a.data.localeCompare(b.data));
+    .sort((a, b) => a.date.localeCompare(b.date));
   const paid = expenses
     .filter((item) => item.status === 'settled' && inPeriod(item.settledDate))
     .map((item) => row(item, item.settledDate as string, item.amountCents))
-    .sort((a, b) => a.data.localeCompare(b.data));
+    .sort((a, b) => a.date.localeCompare(b.date));
   const receivable = income
     .filter((item) => (item.balanceCents ?? 0) > 0 && inPeriod(item.dueDate))
     .map((item) => row(item, item.dueDate, item.balanceCents as number));
@@ -205,17 +205,17 @@ export const reportPeriod = async (tenantId: string, period: { from: string; to:
 };
 
 export const caseSummary = async (tenantId: string, caseId: string): Promise<CaseFinanceSummary> => {
-  const itens = (await transactionRepository.listAll(tenantId, { caseId })).filter(
+  const items = (await transactionRepository.listAll(tenantId, { caseId })).filter(
     (item) => item.status !== 'canceled',
   );
-  const income = itens.filter((item) => item.kind === 'income');
+  const income = items.filter((item) => item.kind === 'income');
   const feesCents = income.reduce((total, item) => total + item.amountCents, 0);
   const receivedCents = income.reduce((total, item) => total + (item.receivedCents ?? 0), 0);
   return {
     feesCents,
     receivedCents,
     balanceCents: feesCents - receivedCents,
-    expensesCents: itens.filter((item) => item.kind === 'expense').reduce((total, item) => total + item.amountCents, 0),
+    expensesCents: items.filter((item) => item.kind === 'expense').reduce((total, item) => total + item.amountCents, 0),
   };
 };
 
@@ -234,9 +234,9 @@ export const postFixedFees = async (
   },
   now: Date = new Date(),
 ): Promise<void> => {
-  const existente = await transactionRepository.findFixedFee(input.tenantId, input.caseId);
-  if (existente) {
-    const updated = await transactionRepository.updateIncome(input.tenantId, existente.id, {
+  const existing = await transactionRepository.findFixedFee(input.tenantId, input.caseId);
+  if (existing) {
+    const updated = await transactionRepository.updateIncome(input.tenantId, existing.id, {
       amountCents: input.amountCents,
     });
     if (!updated) throw new CustomError('amount_below_received', 422);
@@ -245,7 +245,7 @@ export const postFixedFees = async (
   await transactionRepository.createTransaction(input.tenantId, {
     kind: 'income',
     category: input.category,
-    descricao: `${input.category === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.processNumber}`,
+    description: `${input.category === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.processNumber}`,
     amountCents: input.amountCents,
     dueDate: addDays(dateInDisplayTz(now), DAYS_TO_RECEIVE_FEES),
     caseId: input.caseId,

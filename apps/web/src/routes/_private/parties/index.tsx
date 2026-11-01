@@ -22,7 +22,7 @@ const ALL = 'all';
 export function PartiesIndexPage() {
   const { search, update, searchInput, handleSearchInput, handlePaginationChange, openParty } = usePartiesSearch();
   const query = useQuery(
-    partiesQuery({ page: search.page, limit: search.limit, q: search.q || undefined, tipo: search.tipo }),
+    partiesQuery({ page: search.page, limit: search.limit, q: search.q || undefined, type: search.type }),
   );
   const [creating, setCreating] = useState(false);
   const session = useQuery(sessionQuery).data;
@@ -39,9 +39,9 @@ export function PartiesIndexPage() {
         )}
       </CardHeader>
       <Tabs
-        value={search.tipo ?? ALL}
+        value={search.type ?? ALL}
         onValueChange={(value) =>
-          update({ tipo: value === ALL ? undefined : (value as PartiesSearch['tipo']), page: 1 })
+          update({ type: value === ALL ? undefined : (value as PartiesSearch['type']), page: 1 })
         }
         className="px-(--card-spacing)"
       >

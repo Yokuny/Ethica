@@ -29,7 +29,7 @@ export const signin = async (data: SignIn, deviceInfo: string): Promise<string> 
   });
   // Entrada no sistema vai ao diário de bordo (AD-134); quem não tem tenant (plataforma) não.
   if (user.tenant)
-    void activityLogService.registrar({ tenantId: user.tenant, userId: user.id, module: 'account', action: 'signin' });
+    void activityLogService.record({ tenantId: user.tenant, userId: user.id, module: 'account', action: 'signin' });
 
   return sessionToken;
 };

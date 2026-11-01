@@ -46,7 +46,7 @@ export function AgendaIndexPage() {
             title={t('load_error')}
             action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
           />
-        ) : !items.length && search.tipo ? (
+        ) : !items.length && search.type ? (
           <DefaultEmptyData
             title={t('nothing_scheduled_in_period')}
             action={<Button onClick={clearFilters}>{t('clear_filters')}</Button>}

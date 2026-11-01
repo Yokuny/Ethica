@@ -72,12 +72,7 @@ export function SearchForm({ state }: { state: ReturnType<typeof useSearchDataju
             )}
           />
         )}
-        <TextField
-          control={form.control}
-          name="termo"
-          label={t('search_term')}
-          placeholder={t('example_search_term')}
-        />
+        <TextField control={form.control} name="term" label={t('search_term')} placeholder={t('example_search_term')} />
         <TextField
           control={form.control}
           name="courtUnit"

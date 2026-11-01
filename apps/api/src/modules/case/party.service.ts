@@ -13,10 +13,10 @@ import type {
 
 export class PartyNotFoundError extends KeyedError {}
 
-const normalizarNome = (nome: string): string => nome.trim().replace(/\s+/g, ' ');
+const normalizeName = (name: string): string => name.trim().replace(/\s+/g, ' ');
 
 export const createParty = (tenantId: string, data: CreateParty): Promise<PartyRecord> =>
-  partyRepository.createParty(tenantId, { ...data, nome: normalizarNome(data.nome) });
+  partyRepository.createParty(tenantId, { ...data, name: normalizeName(data.name) });
 
 export const getParty = async (tenantId: string, id: string): Promise<PartyRecord> => {
   const party = await partyRepository.findById(tenantId, id);
@@ -27,10 +27,10 @@ export const getParty = async (tenantId: string, id: string): Promise<PartyRecor
 // Renomear atualiza a cópia do nome guardada nas perícias (AD-117).
 export const updateParty = async (tenantId: string, id: string, data: UpdateParty): Promise<PartyRecord> => {
   const before = await getParty(tenantId, id);
-  const nome = data.nome ? normalizarNome(data.nome) : undefined;
-  const updated = await partyRepository.updateParty(tenantId, id, { ...data, nome });
+  const name = data.name ? normalizeName(data.name) : undefined;
+  const updated = await partyRepository.updateParty(tenantId, id, { ...data, name });
   if (!updated) throw new PartyNotFoundError('not_found');
-  if (nome && nome !== before.nome) await caseRepository.renameParty(tenantId, id, nome);
+  if (name && name !== before.name) await caseRepository.renameParty(tenantId, id, name);
   return updated;
 };
 
@@ -56,14 +56,14 @@ const resolveParty = async (tenantId: string, input: CasePartyInput): Promise<Pa
     if (!party) throw new CustomError('party_not_found', 400, input.partyId);
     return party;
   }
-  const nome = normalizarNome(input.nome);
-  const document = input.tipo === 'party' ? input.document : undefined;
-  const oab = input.tipo === 'lawyer' ? input.oab : undefined;
+  const name = normalizeName(input.name);
+  const document = input.type === 'party' ? input.document : undefined;
+  const oab = input.type === 'lawyer' ? input.oab : undefined;
   const existing = await partyRepository.findOneBy(
     tenantId,
-    document ? { tipo: input.tipo, document } : oab ? { tipo: input.tipo, oab } : { tipo: input.tipo, nome },
+    document ? { type: input.type, document } : oab ? { type: input.type, oab } : { type: input.type, name },
   );
-  return existing ?? partyRepository.createParty(tenantId, { tipo: input.tipo, nome, document, oab });
+  return existing ?? partyRepository.createParty(tenantId, { type: input.type, name, document, oab });
 };
 
 // Em sequência: a mesma parte repetida na lista (ou no lote) resolve para um só cadastro.
@@ -75,8 +75,8 @@ export const resolveParties = async (tenantId: string, inputs: CasePartyInput[])
     result.push({
       partyId: party.id,
       side: input.side,
-      tipo: party.tipo,
-      nome: party.nome,
+      type: party.type,
+      name: party.name,
       ...(input.client ? { client: true } : {}),
     });
   }

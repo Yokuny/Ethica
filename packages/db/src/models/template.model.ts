@@ -5,7 +5,7 @@ import mongoose, { Schema } from 'mongoose';
 // nunca gravado (AD-126). Os textos são HTML saneado na API (AD-123).
 export interface TemplateSectionDocument {
   _id: mongoose.Types.ObjectId;
-  titulo: string;
+  title: string;
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
@@ -16,15 +16,15 @@ export interface TemplateSectionDocument {
 export interface TemplateDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
-  nome: string;
-  tipo: ReportType;
+  name: string;
+  type: ReportType;
   sections: TemplateSectionDocument[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 const sectionSchema = new Schema<TemplateSectionDocument>({
-  titulo: { type: String, required: true, trim: true },
+  title: { type: String, required: true, trim: true },
   level: { type: Number, required: true, min: 1, max: REPORT_LEVEL_MAX },
   titleOnly: { type: Boolean, default: false },
   pageBreak: { type: Boolean, default: false },
@@ -35,13 +35,13 @@ const sectionSchema = new Schema<TemplateSectionDocument>({
 const templateSchema = new Schema<TemplateDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
-    nome: { type: String, required: true, trim: true },
-    tipo: { type: String, enum: REPORT_TYPES, required: true },
+    name: { type: String, required: true, trim: true },
+    type: { type: String, enum: REPORT_TYPES, required: true },
     sections: { type: [sectionSchema], default: [] },
   },
   { timestamps: true, collection: 'templates' },
 );
 
-templateSchema.index({ Tenant: 1, tipo: 1, nome: 1 });
+templateSchema.index({ Tenant: 1, type: 1, name: 1 });
 
 export const Template = mongoose.model<TemplateDocument>('Template', templateSchema);

@@ -17,7 +17,7 @@ const toRecord = (doc: TransactionDocument): TransactionRecord => {
   const installments = (doc.installments ?? []).map((installment) => ({
     id: installment._id.toString(),
     amountCents: installment.amountCents,
-    data: installment.data,
+    date: installment.date,
     account: installment.account,
   }));
   const receivedCents = installments.reduce((total, installment) => total + installment.amountCents, 0);
@@ -25,7 +25,7 @@ const toRecord = (doc: TransactionDocument): TransactionRecord => {
     id: doc._id.toString(),
     kind: doc.kind,
     category: doc.category,
-    descricao: doc.descricao,
+    description: doc.description,
     amountCents: doc.amountCents,
     dueDate: doc.dueDate,
     status: doc.status,
@@ -132,10 +132,10 @@ export const addInstallment = async (
   installment: CreateInstallment,
 ): Promise<TransactionRecord | null> =>
   withDbTiming('finance.addInstallment', async () => {
-    const nova = {
+    const fresh = {
       _id: newObjectId(),
       amountCents: installment.amountCents,
-      data: installment.data,
+      date: installment.date,
       ...(installment.account ? { account: installment.account } : {}),
     };
     const doc = await Transaction.findOneAndUpdate(
@@ -144,7 +144,7 @@ export const addInstallment = async (
         $expr: { $lte: [{ $add: [RECEIVED, installment.amountCents] }, '$amountCents'] },
       },
       [
-        { $set: { installments: { $concatArrays: [{ $ifNull: ['$installments', []] }, [{ $literal: nova }]] } } },
+        { $set: { installments: { $concatArrays: [{ $ifNull: ['$installments', []] }, [{ $literal: fresh }]] } } },
         { $set: { status: INCOME_STATUS } },
       ],
       { returnDocument: 'after', updatePipeline: true },
@@ -181,11 +181,11 @@ export const deleteTransaction = async (tenantId: string, id: string): Promise<{
     return { deletedCount: result.deletedCount ?? 0 };
   });
 
-const ABERTOS: TransactionStatus[] = ['expected', 'partial'];
+const OPEN: TransactionStatus[] = ['expected', 'partial'];
 
 const stateFilter = (state: ListTransactionsQuery['state'], today: string) => {
   if (!state) return {};
-  if (state === 'overdue') return { status: { $in: ABERTOS }, dueDate: { $lt: today } };
+  if (state === 'overdue') return { status: { $in: OPEN }, dueDate: { $lt: today } };
   return { status: state };
 };
 
@@ -236,15 +236,15 @@ export const summary = async (
   withDbTiming('finance.summary', async () => {
     const Tenant = toObjectId(tenantId);
     const month = { $gte: range.monthStart, $lt: range.nextMonthStart };
-    const abertas = { Tenant, kind: 'income', status: { $in: ABERTOS } };
+    const open = { Tenant, kind: 'income', status: { $in: OPEN } };
     const [receivableCents, lateCents, receivedMonthCents, expensesMonthCents] = await Promise.all([
-      sum([{ $match: abertas }, { $project: { amount: BALANCE } }]),
-      sum([{ $match: { ...abertas, dueDate: { $lt: range.today } } }, { $project: { amount: BALANCE } }]),
+      sum([{ $match: open }, { $project: { amount: BALANCE } }]),
+      sum([{ $match: { ...open, dueDate: { $lt: range.today } } }, { $project: { amount: BALANCE } }]),
       // Recebido no mês = parcelas pela data em que caíram na conta (PRZ-02.5).
       sum([
         { $match: { Tenant, kind: 'income' } },
         { $unwind: '$installments' },
-        { $match: { 'installments.data': month } },
+        { $match: { 'installments.date': month } },
         { $project: { amount: '$installments.amountCents' } },
       ]),
       sum([
@@ -262,21 +262,21 @@ export const monthlyFlow = async (tenantId: string, months: string[]): Promise<M
   withDbTiming('finance.monthlyFlow', async () => {
     const Tenant = toObjectId(tenantId);
     const first = `${months[0]}-01`;
-    const byMonth = (serie: string, data: unknown, amount: unknown) => [
-      { $project: { serie: { $literal: serie }, data, amount } },
+    const byMonth = (series: string, data: unknown, amount: unknown) => [
+      { $project: { series: { $literal: series }, data, amount } },
       { $match: { data: { $gte: first } } },
     ];
-    const rows = await Transaction.aggregate<{ _id: { month: string; serie: string }; total: number }>([
+    const rows = await Transaction.aggregate<{ _id: { month: string; series: string }; total: number }>([
       { $match: { Tenant, status: { $ne: 'canceled' } } },
       {
         $facet: {
           received: [
             { $match: { kind: 'income' } },
             { $unwind: '$installments' },
-            ...byMonth('received', '$installments.data', '$installments.amountCents'),
+            ...byMonth('received', '$installments.date', '$installments.amountCents'),
           ],
           receivable: [
-            { $match: { kind: 'income', status: { $in: ABERTOS } } },
+            { $match: { kind: 'income', status: { $in: OPEN } } },
             ...byMonth('receivable', '$dueDate', BALANCE),
           ],
           expenses: [
@@ -292,9 +292,9 @@ export const monthlyFlow = async (tenantId: string, months: string[]): Promise<M
       { $project: { rows: { $concatArrays: ['$received', '$receivable', '$expenses'] } } },
       { $unwind: '$rows' },
       { $replaceRoot: { newRoot: '$rows' } },
-      { $group: { _id: { month: { $substrBytes: ['$data', 0, 7] }, serie: '$serie' }, total: { $sum: '$amount' } } },
+      { $group: { _id: { month: { $substrBytes: ['$data', 0, 7] }, series: '$series' }, total: { $sum: '$amount' } } },
     ]);
-    const totals = new Map(rows.map((row) => [`${row._id.month}:${row._id.serie}`, row.total]));
+    const totals = new Map(rows.map((row) => [`${row._id.month}:${row._id.series}`, row.total]));
     return months.map((month) => ({
       month,
       receivedCents: totals.get(`${month}:received`) ?? 0,
@@ -325,7 +325,7 @@ export const listAll = async (
       tenantScoped({
         Tenant: tenantId,
         ...(filter.caseId ? { Case: filter.caseId } : {}),
-        ...(entre ? { $or: [{ 'installments.data': entre }, { settledDate: entre }, { dueDate: entre }] } : {}),
+        ...(entre ? { $or: [{ 'installments.date': entre }, { settledDate: entre }, { dueDate: entre }] } : {}),
       }),
     )
       .sort({ dueDate: 1 })

@@ -10,13 +10,13 @@ export function useTemplateCreateForm({
   base,
   onDone,
 }: {
-  base?: Pick<TemplateRecord, 'id' | 'nome' | 'tipo'>;
+  base?: Pick<TemplateRecord, 'id' | 'name' | 'type'>;
   onDone: (template: TemplateRecord) => void;
 }) {
   const queryClient = useQueryClient();
   const form = useForm<CreateTemplate>({
     resolver: zodResolver(createTemplateSchema),
-    defaultValues: { nome: base ? `${base.nome} (cópia)` : '', tipo: base?.tipo ?? 'report', baseId: base?.id },
+    defaultValues: { name: base ? `${base.name} (cópia)` : '', type: base?.type ?? 'report', baseId: base?.id },
   });
   const mutation = useMutation(createTemplateMutation(queryClient));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

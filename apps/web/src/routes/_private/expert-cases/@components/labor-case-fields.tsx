@@ -13,21 +13,21 @@ const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 // datas do contrato (AD-115); no cadastro a API grava a sugestão se o período ficar vazio.
 export function LaborCaseFields() {
   const { control, setValue } = useFormContext<CaseFormValues>();
-  const [docketingDate, hireDate, terminationDate, inicio, fim] = useWatch({
+  const [docketingDate, hireDate, terminationDate, start, end] = useWatch({
     control,
     name: ['docketingDate', 'hireDate', 'terminationDate', 'nonPrescribedPeriodStart', 'nonPrescribedPeriodEnd'],
   });
-  const sugerido = suggestNonPrescribedPeriod({
+  const suggested = suggestNonPrescribedPeriod({
     docketingDate: docketingDate || undefined,
     hireDate: hireDate || undefined,
     terminationDate: terminationDate || undefined,
   });
-  const podeSugerir = sugerido && (sugerido.inicio !== inicio || sugerido.fim !== fim);
+  const canSuggest = suggested && (suggested.start !== start || suggested.end !== end);
 
   function aplicarSugestao() {
-    if (!sugerido) return;
-    setValue('nonPrescribedPeriodStart', sugerido.inicio, { shouldDirty: true });
-    setValue('nonPrescribedPeriodEnd', sugerido.fim, { shouldDirty: true });
+    if (!suggested) return;
+    setValue('nonPrescribedPeriodStart', suggested.start, { shouldDirty: true });
+    setValue('nonPrescribedPeriodEnd', suggested.end, { shouldDirty: true });
   }
 
   return (
@@ -61,10 +61,10 @@ export function LaborCaseFields() {
           placeholder={t('choose_day')}
         />
       </div>
-      {podeSugerir && (
+      {canSuggest && (
         <div className="flex flex-wrap items-center gap-3">
           <ItemDescription className="line-clamp-none">
-            {`${t('suggested_period')}: ${day(sugerido.inicio)} – ${day(sugerido.fim)}`}
+            {`${t('suggested_period')}: ${day(suggested.start)} – ${day(suggested.end)}`}
           </ItemDescription>
           <Button type="button" variant="outline" onClick={aplicarSugestao}>
             {t('use_suggested_period')}

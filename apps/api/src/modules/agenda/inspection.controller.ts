@@ -19,7 +19,7 @@ const json =
     } catch (e) {
       // Conflito do offline (AD-128): 409 com a versão do servidor para o aparelho comparar.
       if (e instanceof InspectionConflictError) {
-        res.status(409).json({ ...respObj({ data: e.atual, message: e.message }), success: false });
+        res.status(409).json({ ...respObj({ data: e.current, message: e.message }), success: false });
         return;
       }
       next(e instanceof AppointmentNotFoundError ? new CustomError(e.message, 404, e.detail) : e);

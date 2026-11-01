@@ -8,8 +8,8 @@ import { type CaseRecord, caseKeys } from './case.js';
 // Espelha ParteRecord de apps/api/src/modules/pericia/parte.schema.ts (AD-117).
 export type PartyRecord = {
   id: string;
-  tipo: PartyType;
-  nome: string;
+  type: PartyType;
+  name: string;
   document?: string;
   oab?: string;
   email?: string;
@@ -18,7 +18,7 @@ export type PartyRecord = {
   updatedAt: string;
 };
 
-export type PartiesQueryParams = { page?: number; limit?: number; q?: string; tipo?: PartyType };
+export type PartiesQueryParams = { page?: number; limit?: number; q?: string; type?: PartyType };
 export type PartiesListResult = { items: PartyRecord[]; total: number };
 
 export const partyKeys = {

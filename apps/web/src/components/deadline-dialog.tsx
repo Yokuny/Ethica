@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DatePicker } from '@/components/date-picker.js';
-import { ALERTA_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
+import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -36,7 +36,7 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
   const [filedDate, setFiledDate] = useState(today);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const isPending = updateMutation.isPending || deleteMutation.isPending;
-  const alerta = deadlineAlert(deadline, today);
+  const alert = deadlineAlert(deadline, today);
   const onError = (error: Error) => toast.error(error.message);
 
   function setStatus(data: Parameters<typeof updateMutation.mutate>[0]['data']) {
@@ -48,10 +48,10 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
   }
 
   return (
-    <FormDialog title={deadline.titulo} onClose={onClose}>
+    <FormDialog title={deadline.title} onClose={onClose}>
       <div className="flex flex-wrap gap-2">
         <Badge variant={DEADLINE_STATUS_VARIANT[deadline.status]}>{t(deadline.status)}</Badge>
-        {alerta && <Badge variant={ALERTA_VARIANT[alerta]}>{t(alerta)}</Badge>}
+        {alert && <Badge variant={ALERT_VARIANT[alert]}>{t(alert)}</Badge>}
       </div>
       <ProductSpecs
         groups={[
@@ -71,7 +71,7 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
                   '-'
                 ),
               },
-              { label: t('notes'), value: deadline.observacoes || '-' },
+              { label: t('notes'), value: deadline.notes || '-' },
             ],
           },
         ]}

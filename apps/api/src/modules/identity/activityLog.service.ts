@@ -5,12 +5,12 @@ import type { ListActivityLogQuery, NewActivity } from './activityLog.schema.js'
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // Nunca derruba a ação de quem gerou a entrada (GES-01.4): a falha só vai ao log.
-export const registrar = async (activity: NewActivity): Promise<void> => {
+export const record = async (activity: NewActivity): Promise<void> => {
   try {
-    await activityLogRepository.registrar(activity);
+    await activityLogRepository.record(activity);
   } catch (e) {
     console.error(
-      JSON.stringify({ event: 'activityLog.registrar_failed', message: e instanceof Error ? e.message : String(e) }),
+      JSON.stringify({ event: 'activityLog.record_failed', message: e instanceof Error ? e.message : String(e) }),
     );
   }
 };

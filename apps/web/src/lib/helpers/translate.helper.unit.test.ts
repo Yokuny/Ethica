@@ -85,6 +85,6 @@ describe('translate.helper — regras de chave (apps/web/CLAUDE.md)', () => {
   });
 
   it('t() devolve a própria chave quando ela não existe (comportamento documentado do fallback)', () => {
-    expect(t('esta_chave_nao_existe')).toBe('esta_chave_nao_existe');
+    expect(t('esta_key_not_exists')).toBe('esta_key_not_exists');
   });
 });

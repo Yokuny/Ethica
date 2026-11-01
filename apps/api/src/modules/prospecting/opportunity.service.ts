@@ -27,7 +27,7 @@ export const searchDatajud = async (
   if (!client) throw new CustomError('datajud_not_configured', 503);
   try {
     const result = await client.search(query);
-    const saved = await opportunityRepository.findIdsByNumeros(
+    const saved = await opportunityRepository.findIdsByNumbers(
       tenantId,
       result.items.map((item) => item.processNumber),
     );

@@ -52,8 +52,8 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
               key={movement.id}
               icon={History}
               render={<button type="button" className="w-full text-left" onClick={() => setRemoving(movement)} />}
-              title={t(movement.tipo)}
-              description={[day(movement.data), movement.observacoes].filter(Boolean).join(' · ')}
+              title={t(movement.type)}
+              description={[day(movement.data), movement.notes].filter(Boolean).join(' · ')}
             />
           ))}
         </LinkList>
@@ -62,7 +62,7 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
       {removing && (
         <ConfirmDialog
           title={t('remove_movement_question')}
-          description={`${t(removing.tipo)} · ${day(removing.data)}`}
+          description={`${t(removing.type)} · ${day(removing.data)}`}
           confirmLabel={t('remove')}
           pending={removeMutation.isPending}
           onConfirm={handleRemove}

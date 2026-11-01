@@ -30,7 +30,7 @@ export function TemplateSectionForm({ templateId, section, onClose }: TemplateSe
           <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_10rem]">
             <TextField
               control={control}
-              name="titulo"
+              name="title"
               label={t('section_title')}
               placeholder={t('section_title_placeholder')}
             />

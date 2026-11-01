@@ -247,7 +247,7 @@ describe('auth routes', () => {
       const otherTenant = await Tenant.create({ name: 'Outra Empresa', document: '55555555000200', status: 'active' });
       await User.create({
         name: 'De Outro Tenant',
-        email: `outro-${randomId()}@empresa.com`,
+        email: `other-${randomId()}@empresa.com`,
         password: 'hash',
         Tenant: otherTenant._id,
         role: ['operator'],
@@ -329,7 +329,7 @@ describe('auth routes', () => {
       const otherTenant = await Tenant.create({ name: 'Outra Empresa', document: '55555555000200', status: 'active' });
       await User.create({
         name: 'De Outro Tenant',
-        email: `outro-${randomId()}@empresa.com`,
+        email: `other-${randomId()}@empresa.com`,
         password: 'hash',
         Tenant: otherTenant._id,
         role: ['admin'],

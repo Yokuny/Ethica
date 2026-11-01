@@ -7,23 +7,23 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 // Bloco repetível do registro: um item por linha, com remover e adicionar.
 export function FieldList({
-  titulo,
-  vazio,
+  title,
+  empty,
   actions,
-  itens,
+  items,
 }: {
-  titulo: string;
-  vazio: string;
+  title: string;
+  empty: string;
   actions: ReactNode;
-  itens: Array<{ key: string; conteudo: ReactNode; onRemove: () => void }>;
+  items: Array<{ key: string; conteudo: ReactNode; onRemove: () => void }>;
 }) {
   return (
-    <Panel title={titulo} actions={actions}>
-      {!itens.length ? (
-        <ItemTitle className="font-normal text-muted-foreground">{vazio}</ItemTitle>
+    <Panel title={title} actions={actions}>
+      {!items.length ? (
+        <ItemTitle className="font-normal text-muted-foreground">{empty}</ItemTitle>
       ) : (
         <ul className="flex flex-col divide-y divide-border">
-          {itens.map((item) => (
+          {items.map((item) => (
             <li key={item.key} className="flex items-start gap-2 py-3">
               <div className="grid min-w-0 flex-1 gap-3">{item.conteudo}</div>
               <Button type="button" variant="ghost" size="icon" aria-label={t('remove')} onClick={item.onRemove}>

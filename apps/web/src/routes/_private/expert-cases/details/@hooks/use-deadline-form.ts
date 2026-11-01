@@ -19,9 +19,9 @@ export function useDeadlineForm({
   const form = useForm<CreateDeadline>({
     resolver: zodResolver(createDeadlineSchema),
     defaultValues: {
-      titulo: deadline?.titulo ?? '',
+      title: deadline?.title ?? '',
       dueDate: deadline?.dueDate ?? '',
-      observacoes: deadline?.observacoes ?? '',
+      notes: deadline?.notes ?? '',
     },
   });
   const createMutation = useMutation(createDeadlineMutation(queryClient));

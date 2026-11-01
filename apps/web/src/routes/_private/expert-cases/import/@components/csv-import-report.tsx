@@ -15,12 +15,12 @@ export function CsvImportReport({ result }: { result: CsvImportResult }) {
   const rows = [
     ...result.rejected.map((item) => ({
       line: item.line,
-      recusada: true,
+      declined: true,
       reason: item.column ? `${item.column}: ${t(item.reason)}` : t(item.reason),
     })),
     ...result.skipped.map((item) => ({
       line: item.line,
-      recusada: false,
+      declined: false,
       reason: `${item.processNumber}: ${t('expert_case_already_registered')}`,
     })),
   ].sort((a, b) => a.line - b.line);
@@ -38,10 +38,10 @@ export function CsvImportReport({ result }: { result: CsvImportResult }) {
             key={row.line}
             media={
               <RecordTableMedia
-                variant={row.recusada ? 'error' : 'warning'}
-                label={row.recusada ? t('rejected') : t('skipped')}
+                variant={row.declined ? 'error' : 'warning'}
+                label={row.declined ? t('rejected') : t('skipped')}
               >
-                {row.recusada ? <CircleAlert /> : <CircleMinus />}
+                {row.declined ? <CircleAlert /> : <CircleMinus />}
               </RecordTableMedia>
             }
           >

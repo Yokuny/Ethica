@@ -20,7 +20,7 @@ export function PartyForm({ party, onClose, onSaved }: PartyFormProps) {
     },
   });
   const { control } = form;
-  const tipo = useWatch({ control, name: 'tipo' });
+  const type = useWatch({ control, name: 'type' });
 
   return (
     <FormDialog title={t(party ? 'edit_party' : 'new_party')} size="sm" onClose={onClose}>
@@ -28,14 +28,14 @@ export function PartyForm({ party, onClose, onSaved }: PartyFormProps) {
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <SelectField
             control={control}
-            name="tipo"
+            name="type"
             label={t('type')}
             placeholder={t('select')}
             items={PARTY_TYPE_ITEMS}
             disabled={Boolean(party)}
           />
-          <TextField control={control} name="nome" label={t('name')} placeholder={t('example_name')} />
-          {tipo === 'lawyer' ? (
+          <TextField control={control} name="name" label={t('name')} placeholder={t('example_name')} />
+          {type === 'lawyer' ? (
             <TextField control={control} name="oab" label="OAB" placeholder={t('example_oab')} />
           ) : (
             <TextField control={control} name="document" label={t('cpf_cnpj')} placeholder="000.000.000-00" />

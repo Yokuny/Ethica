@@ -10,7 +10,7 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { iniciarSync } from '@/lib/offline/sync.js';
+import { startSync } from '@/lib/offline/sync.js';
 import { inspectionDayQuery } from '@/query/inspection.js';
 import { FieldCard } from './@components/field-card.js';
 import { FieldConnection } from './@components/field-connection.js';
@@ -24,13 +24,13 @@ export function FieldPage() {
   const queryClient = useQueryClient();
   const date = search.date ?? formatDisplayDate(new Date());
   const query = useQuery({ ...inspectionDayQuery(date), networkMode: 'always' });
-  const { marcar } = useQuickStatus();
-  const itens = query.data?.itens ?? [];
+  const { mark } = useQuickStatus();
+  const items = query.data?.items ?? [];
 
   // A sincronização escuta a volta da conexão: liga uma vez ao abrir o campo.
-  useEffect(() => iniciarSync(queryClient), [queryClient]);
+  useEffect(() => startSync(queryClient), [queryClient]);
 
-  const irPara = (days: number) => navigate({ search: { date: addDaysToDisplayDate(date, days) }, replace: true });
+  const goTo = (days: number) => navigate({ search: { date: addDaysToDisplayDate(date, days) }, replace: true });
 
   return (
     <Card asPage>
@@ -44,13 +44,13 @@ export function FieldPage() {
       </CardHeader>
       <CardContent className="max-w-3xl gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" aria-label={t('previous_day')} onClick={() => irPara(-1)}>
+          <Button variant="outline" size="icon" aria-label={t('previous_day')} onClick={() => goTo(-1)}>
             <ChevronLeft />
           </Button>
           <Button variant="outline" onClick={() => navigate({ search: {}, replace: true })}>
             {formatDate(new Date(`${date}T12:00:00`))}
           </Button>
-          <Button variant="outline" size="icon" aria-label={t('next_day')} onClick={() => irPara(1)}>
+          <Button variant="outline" size="icon" aria-label={t('next_day')} onClick={() => goTo(1)}>
             <ChevronRight />
           </Button>
         </div>
@@ -62,15 +62,15 @@ export function FieldPage() {
             title={t('load_error')}
             action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
           />
-        ) : !itens.length ? (
+        ) : !items.length ? (
           <DefaultEmptyData title={t('nothing_scheduled_this_day')} description={t('field_day_empty_description')} />
         ) : (
           <ItemGroup variant="list">
-            {itens.map((item) => (
+            {items.map((item) => (
               <FieldCard
                 key={item.appointment.id}
                 item={item}
-                onStatus={(status, reason) => void marcar(item.appointment.id, status, reason)}
+                onStatus={(status, reason) => void mark(item.appointment.id, status, reason)}
               />
             ))}
           </ItemGroup>

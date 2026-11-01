@@ -19,16 +19,16 @@ export function togglePermission(
   action: PermissionAction,
   checked: boolean,
 ): Permissions {
-  const atuais = new Set(permissions[module] ?? []);
+  const current = new Set(permissions[module] ?? []);
   if (checked) {
-    atuais.add(action);
-    atuais.add('view');
+    current.add(action);
+    current.add('view');
   } else if (action === 'view') {
-    atuais.clear();
+    current.clear();
   } else {
-    atuais.delete(action);
+    current.delete(action);
   }
-  return { ...permissions, [module]: PERMISSION_ACTIONS.filter((item) => atuais.has(item)) };
+  return { ...permissions, [module]: PERMISSION_ACTIONS.filter((item) => current.has(item)) };
 }
 
 export function PermissionsMatrix({

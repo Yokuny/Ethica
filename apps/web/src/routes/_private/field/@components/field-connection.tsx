@@ -4,12 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CloudOff, RefreshCw } from 'lucide-react';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { runSync, useEstadoSync } from '@/lib/offline/sync.js';
+import { runSync, useStateSync } from '@/lib/offline/sync.js';
 
 // Faixa de conexão da tela de campo (AD-128): o que está só no aparelho e o envio.
 export function FieldConnection({ ofDevice }: { ofDevice?: boolean }) {
   const queryClient = useQueryClient();
-  const sync = useEstadoSync();
+  const sync = useStateSync();
   if (sync.online && !sync.pending && !ofDevice) return null;
 
   return (
@@ -22,7 +22,7 @@ export function FieldConnection({ ofDevice }: { ofDevice?: boolean }) {
             ofDevice && t('showing_copy_saved_on_device'),
             sync.pending > 0 && `${sync.pending} ${t('items_waiting_to_send')}`,
             sync.conflicts > 0 && `${sync.conflicts} ${t('conflicts_to_review')}`,
-            sync.falhas > 0 && `${sync.falhas} ${t('uploads_failed')}`,
+            sync.failures > 0 && `${sync.failures} ${t('uploads_failed')}`,
           ]
             .filter(Boolean)
             .join(' · ')}

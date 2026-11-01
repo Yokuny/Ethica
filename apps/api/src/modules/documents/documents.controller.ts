@@ -1,4 +1,4 @@
-import { pode } from '@ethica/contracts';
+import { hasPermission } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
@@ -7,19 +7,19 @@ import * as documentsService from './documents.service.js';
 
 type Providers = Pick<DocumentsRouterDeps, 'pdf' | 'storage'>;
 
-const contexto = (req: Request): DocumentContext => {
+const context = (req: Request): DocumentContext => {
   return {
     tenantId: req.tenantUser.tenant as string,
     userId: req.tenantUser.user,
-    canSeeFinance: pode(req.tenantUser.permissions, 'finance', 'view'),
+    canSeeFinance: hasPermission(req.tenantUser.permissions, 'finance', 'view'),
     now: new Date(),
   };
 };
 
-const enviar = (res: Response, file: GeneratedFile): void => {
+const send = (res: Response, file: GeneratedFile): void => {
   res
-    .set('Content-Type', file.tipo)
-    .set('Content-Disposition', `attachment; filename="${file.nome}"`)
+    .set('Content-Type', file.type)
+    .set('Content-Disposition', `attachment; filename="${file.name}"`)
     .set('Cache-Control', 'no-store')
     .end(file.conteudo);
 };
@@ -29,7 +29,7 @@ const handler =
   (generate: (req: Request, ctx: DocumentContext) => Promise<GeneratedFile>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      enviar(res, await generate(req, contexto(req)));
+      send(res, await generate(req, context(req)));
     } catch (e) {
       next(e instanceof CaseNotFoundError ? new CustomError(e.message, 404, e.detail) : e);
     }
@@ -41,7 +41,7 @@ export const sheet = (providers: Providers) =>
 export const checklist = (providers: Providers) =>
   handler((req, ctx) => documentsService.generateChecklist(providers, ctx, req.params.id as string));
 
-export const cronograma = (providers: Providers) =>
+export const schedule = (providers: Providers) =>
   handler((_req, ctx) => documentsService.generateSchedule(providers, ctx));
 
 export const finance = (providers: Providers) =>

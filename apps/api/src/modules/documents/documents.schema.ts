@@ -27,7 +27,7 @@ export type DocumentContext = {
   now: Date;
 };
 
-export type DocumentBase = { identity: DocumentIdentity; expert: AccountView; geradoEm: Date };
+export type DocumentBase = { identity: DocumentIdentity; expert: AccountView; generatedAt: Date };
 
 export type SheetData = DocumentBase & {
   legalCase: CaseRecord;
@@ -36,12 +36,12 @@ export type SheetData = DocumentBase & {
   finance?: CaseFinanceSummary;
 };
 
-export type ChecklistDados = DocumentBase & { legalCase: CaseRecord };
+export type ChecklistData = DocumentBase & { legalCase: CaseRecord };
 
-export type CronogramaDados = DocumentBase & { deadlines: DeadlineRecord[]; today: string };
+export type ScheduleData = DocumentBase & { deadlines: DeadlineRecord[]; today: string };
 
 export type FinanceData = DocumentBase & { period: FinanceReportQuery; report: FinanceReport };
 
 export type StalledData = DocumentBase & { stalled: StalledCase[] };
 
-export type GeneratedFile = { nome: string; tipo: string; conteudo: Buffer };
+export type GeneratedFile = { name: string; type: string; conteudo: Buffer };

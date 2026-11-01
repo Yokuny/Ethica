@@ -33,8 +33,8 @@ type PanelState =
   | { kind: 'section'; section?: TemplateSectionRecord }
   | { kind: 'ver'; section: TemplateSectionRecord }
   | { kind: 'remove-section'; section: TemplateSectionRecord }
-  | { kind: 'duplicar' }
-  | { kind: 'excluir' }
+  | { kind: 'duplicate' }
+  | { kind: 'removal' }
   | null;
 
 // LAU-01.2: seções numeradas pela posição e pelo nível; o padrão é só leitura e se duplica.
@@ -44,13 +44,13 @@ export function TemplateDetailsPage() {
   const queryClient = useQueryClient();
   const { data: session } = useSuspenseQuery(sessionQuery);
   const query = useQuery({ ...templateQuery(search.id), retry: false });
-  const mover = useMutation(moveTemplateSectionMutation(queryClient));
+  const move = useMutation(moveTemplateSectionMutation(queryClient));
   const dropSection = useMutation(removeTemplateSectionMutation(queryClient));
-  const excluir = useMutation(deleteTemplateMutation(queryClient));
+  const removal = useMutation(deleteTemplateMutation(queryClient));
   const [panel, setPanel] = useState<PanelState>(null);
   const template = query.data;
-  const podeEditar = Boolean(template && !template.padrao && can(session, 'report_templates', 'update'));
-  const numeros = numberSections(template?.sections ?? []);
+  const canEdit = Boolean(template && !template.isDefault && can(session, 'report_templates', 'update'));
+  const numbers = numberSections(template?.sections ?? []);
   const onError = (error: Error) => toast.error(error.message);
 
   return (
@@ -58,9 +58,9 @@ export function TemplateDetailsPage() {
       <CardHeader title={t('details')}>
         {template && can(session, 'report_templates', 'update') && (
           <CardAction>
-            {podeEditar && <Button onClick={() => setPanel({ kind: 'section' })}>{t('new_section')}</Button>}
+            {canEdit && <Button onClick={() => setPanel({ kind: 'section' })}>{t('new_section')}</Button>}
             <PageMenu>
-              <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicar' })}>
+              <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicate' })}>
                 {t('duplicate_template')}
               </DropdownMenuItem>
             </PageMenu>
@@ -80,10 +80,10 @@ export function TemplateDetailsPage() {
           <RecordHeader>
             <RecordHeading
               icon={<ListTree />}
-              label={t(template.tipo)}
-              title={template.nome}
-              badge={template.padrao && <Badge variant="info">{t('standard')}</Badge>}
-              description={template.padrao ? t('standard_template_review_notice') : undefined}
+              label={t(template.type)}
+              title={template.name}
+              badge={template.isDefault && <Badge variant="info">{t('standard')}</Badge>}
+              description={template.isDefault ? t('standard_template_review_notice') : undefined}
             />
           </RecordHeader>
           <Panel title={t('sections')} description={`${template.sections.length} ${t('sections').toLowerCase()}`}>
@@ -95,7 +95,7 @@ export function TemplateDetailsPage() {
                   <LinkListItem
                     key={section.id}
                     render={
-                      podeEditar ? undefined : (
+                      canEdit ? undefined : (
                         <button
                           type="button"
                           className="w-full text-left"
@@ -104,20 +104,20 @@ export function TemplateDetailsPage() {
                       )
                     }
                     className={section.level > 1 ? (section.level > 2 ? 'pl-14' : 'pl-9') : undefined}
-                    title={`${numeros[i]}. ${section.titulo}`}
+                    title={`${numbers[i]}. ${section.title}`}
                     description={[section.titleOnly && t('title_only'), section.pageBreak && t('page_break_before')]
                       .filter(Boolean)
                       .join(' · ')}
                   >
-                    {podeEditar && (
+                    {canEdit && (
                       <div className="flex shrink-0 gap-1">
                         <Button
                           size="icon-sm"
                           variant="ghost"
                           aria-label={t('move_up')}
-                          disabled={i === 0 || mover.isPending}
+                          disabled={i === 0 || move.isPending}
                           onClick={() =>
-                            mover.mutate({ id: template.id, sectionId: section.id, direcao: 'up' }, { onError })
+                            move.mutate({ id: template.id, sectionId: section.id, direction: 'up' }, { onError })
                           }
                         >
                           <ArrowUp />
@@ -126,9 +126,9 @@ export function TemplateDetailsPage() {
                           size="icon-sm"
                           variant="ghost"
                           aria-label={t('move_down')}
-                          disabled={i === template.sections.length - 1 || mover.isPending}
+                          disabled={i === template.sections.length - 1 || move.isPending}
                           onClick={() =>
-                            mover.mutate({ id: template.id, sectionId: section.id, direcao: 'down' }, { onError })
+                            move.mutate({ id: template.id, sectionId: section.id, direction: 'down' }, { onError })
                           }
                         >
                           <ArrowDown />
@@ -158,9 +158,9 @@ export function TemplateDetailsPage() {
           </Panel>
         </CardContent>
       )}
-      {template && podeEditar && (
+      {template && canEdit && (
         <CardFooter className="justify-between gap-2">
-          <Button variant="destructive" onClick={() => setPanel({ kind: 'excluir' })}>
+          <Button variant="destructive" onClick={() => setPanel({ kind: 'removal' })}>
             {t('remove')}
           </Button>
         </CardFooter>
@@ -169,20 +169,20 @@ export function TemplateDetailsPage() {
         <TemplateSectionForm templateId={template.id} section={panel.section} onClose={() => setPanel(null)} />
       )}
       {panel?.kind === 'ver' && <TemplateSectionView section={panel.section} onClose={() => setPanel(null)} />}
-      {template && panel?.kind === 'duplicar' && (
+      {template && panel?.kind === 'duplicate' && (
         <TemplateCreateForm
           base={template}
           onClose={() => setPanel(null)}
-          onDone={(novo) => {
+          onDone={(fresh) => {
             setPanel(null);
-            navigate({ search: { id: novo.id } });
+            navigate({ search: { id: fresh.id } });
           }}
         />
       )}
       {template && panel?.kind === 'remove-section' && (
         <ConfirmDialog
           title={t('remove_section_question')}
-          description={panel.section.titulo}
+          description={panel.section.title}
           confirmLabel={t('remove')}
           pending={dropSection.isPending}
           onClose={() => setPanel(null)}
@@ -194,15 +194,15 @@ export function TemplateDetailsPage() {
           }
         />
       )}
-      {template && panel?.kind === 'excluir' && (
+      {template && panel?.kind === 'removal' && (
         <ConfirmDialog
           title={t('remove_template_question')}
           description={t('remove_template_description')}
           confirmLabel={t('remove')}
-          pending={excluir.isPending}
+          pending={removal.isPending}
           onClose={() => setPanel(null)}
           onConfirm={() =>
-            excluir.mutate(
+            removal.mutate(
               { id: template.id },
               { onSuccess: () => navigate({ to: '/expert-reports/templates' }), onError },
             )

@@ -2,13 +2,13 @@
 // Navegação: rede primeiro, cópia do index.html sem rede. Arquivos com hash do build e fontes:
 // cache primeiro. Mídia da vistoria (imutável, id novo a cada arquivo): cache primeiro. O resto
 // (a API) passa direto; os dados offline do campo ficam no IndexedDB, não aqui.
-const VERSAO = 'ethica-v1';
+const VERSION = 'ethica-v1';
 const ESSENCIAIS = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
-      .open(VERSAO)
+      .open(VERSION)
       .then((cache) => cache.addAll(ESSENCIAIS))
       .then(() => self.skipWaiting()),
   );
@@ -18,18 +18,18 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((nomes) => Promise.all(nomes.filter((nome) => nome !== VERSAO).map((nome) => caches.delete(nome))))
+      .then((names) => Promise.all(names.filter((name) => name !== VERSION).map((name) => caches.delete(name))))
       .then(() => self.clients.claim()),
   );
 });
 
-const cachePrimeiro = async (request) => {
-  const cache = await caches.open(VERSAO);
+const cacheFirst = async (request) => {
+  const cache = await caches.open(VERSION);
   const guardado = await cache.match(request);
   if (guardado) return guardado;
-  const resposta = await fetch(request);
-  if (resposta.ok || resposta.type === 'opaque') cache.put(request, resposta.clone());
-  return resposta;
+  const response = await fetch(request);
+  if (response.ok || response.type === 'opaque') cache.put(request, response.clone());
+  return response;
 };
 
 self.addEventListener('fetch', (event) => {
@@ -40,10 +40,10 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
-        .then((resposta) => {
-          const copia = resposta.clone();
-          caches.open(VERSAO).then((cache) => cache.put('/index.html', copia));
-          return resposta;
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(VERSION).then((cache) => cache.put('/index.html', copy));
+          return response;
         })
         .catch(() => caches.match('/index.html')),
     );
@@ -54,6 +54,6 @@ self.addEventListener('fetch', (event) => {
     (doApp && /^\/(assets|fonts|icons)\//.test(url.pathname)) ||
     /\/inspections\/[0-9a-f]{24}\/media\//.test(url.pathname)
   ) {
-    event.respondWith(cachePrimeiro(request));
+    event.respondWith(cacheFirst(request));
   }
 });

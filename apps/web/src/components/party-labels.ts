@@ -14,5 +14,5 @@ export const formatDocument = (document?: string): string | undefined => {
 };
 
 // Documento que identifica o cadastro na tela: CPF/CNPJ da parte ou OAB do advogado.
-export const partyIdentification = (party: { tipo: PartyType; document?: string; oab?: string }) =>
-  party.tipo === 'lawyer' ? (party.oab ? `OAB ${party.oab}` : undefined) : formatDocument(party.document);
+export const partyIdentification = (party: { type: PartyType; document?: string; oab?: string }) =>
+  party.type === 'lawyer' ? (party.oab ? `OAB ${party.oab}` : undefined) : formatDocument(party.document);

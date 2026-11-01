@@ -30,9 +30,9 @@ export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentD
   const lastNotice = appointment.notices?.at(-1);
 
   return (
-    <FormDialog title={appointment.titulo} onClose={onClose}>
+    <FormDialog title={appointment.title} onClose={onClose}>
       <div className="flex flex-wrap gap-2">
-        <Badge variant={APPOINTMENT_TYPE_VARIANT[appointment.tipo]}>{t(appointment.tipo)}</Badge>
+        <Badge variant={APPOINTMENT_TYPE_VARIANT[appointment.type]}>{t(appointment.type)}</Badge>
         <Badge variant="secondary">{t(appointment.status)}</Badge>
         {appointment.origin === 'automatic' && <Badge variant="outline">{t('created_automatically')}</Badge>}
       </div>
@@ -42,9 +42,9 @@ export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentD
             id: 'quando',
             name: t('commitment'),
             specs: [
-              { label: t('starts_at'), value: formatDateTime(appointment.inicio) },
-              { label: t('ends_at'), value: formatDateTime(appointment.fim) },
-              { label: t('location'), value: appointment.local || '-' },
+              { label: t('starts_at'), value: formatDateTime(appointment.start) },
+              { label: t('ends_at'), value: formatDateTime(appointment.end) },
+              { label: t('location'), value: appointment.location || '-' },
               {
                 label: t('expert_case'),
                 value:
@@ -56,7 +56,7 @@ export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentD
                     '-'
                   ),
               },
-              { label: t('notes'), value: appointment.observacoes || '-' },
+              { label: t('notes'), value: appointment.notes || '-' },
               {
                 label: t('parties_notified'),
                 value: lastNotice ? `${formatDateTime(lastNotice.at)} · ${lastNotice.recipients.join(', ')}` : '-',

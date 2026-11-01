@@ -50,7 +50,7 @@ export function CaseRelated({ caseId, canSeeFinance }: { caseId: string; canSeeF
                     render={<Link to="/finance/entries" search={{ caseId }} />}
                     title={`${item.kind === 'expense' ? '−' : ''}${formatMoney(item.amountCents)}`}
                     badges={<Badge variant={STATE_VARIANT[state]}>{t(state)}</Badge>}
-                    description={`${item.descricao} · ${formatDate(new Date(`${item.dueDate}T12:00:00`))}`}
+                    description={`${item.description} · ${formatDate(new Date(`${item.dueDate}T12:00:00`))}`}
                   />
                 );
               })}

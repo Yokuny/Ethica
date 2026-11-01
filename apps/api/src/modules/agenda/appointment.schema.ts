@@ -32,7 +32,7 @@ export const listAppointmentsQuerySchema = z
   .object({
     from: calendarDateSchema,
     to: calendarDateSchema,
-    tipo: z.enum(APPOINTMENT_TYPES).optional(),
+    type: z.enum(APPOINTMENT_TYPES).optional(),
     caseId: idSchema.optional(),
   })
   .strict()
@@ -60,17 +60,17 @@ export type AgendaRouterDeps = {
 
 export type AppointmentRecord = {
   id: string;
-  tipo: AppointmentType;
-  titulo: string;
-  inicio: Date;
-  fim: Date;
-  local?: string;
+  type: AppointmentType;
+  title: string;
+  start: Date;
+  end: Date;
+  location?: string;
   caseId?: string;
   // Enriquecido pelo service com o número do processo; ausente se a perícia não existe mais.
   caseNumber?: string;
   status: AppointmentStatus;
   origin: AppointmentOrigin;
-  observacoes?: string;
+  notes?: string;
   reason?: AppointmentReason;
   // Só quando a geocodificação é do endereço atual (AD-131).
   coordinates?: { lat: number; lng: number };
@@ -82,15 +82,15 @@ export type AppointmentRecord = {
 export type ScheduleNoticeRecord = { userId: string; at: Date; recipients: string[] };
 
 export type AppointmentWrite = {
-  tipo?: AppointmentType;
-  titulo?: string;
-  inicio?: Date;
-  fim?: Date;
-  local?: string;
+  type?: AppointmentType;
+  title?: string;
+  start?: Date;
+  end?: Date;
+  location?: string;
   caseId?: string;
   status?: AppointmentStatus;
   origin?: AppointmentOrigin;
-  observacoes?: string;
+  notes?: string;
   // `null` apaga: o compromisso deixou de estar cancelado.
   reason?: AppointmentReason | null;
 };

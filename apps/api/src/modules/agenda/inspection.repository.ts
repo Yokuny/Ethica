@@ -10,8 +10,8 @@ const mediaToRecord = ({ key: _key, ...media }: InspectionMediaWrite): MediaReco
 const toRecord = (doc: InspectionDocument): InspectionRecord => ({
   appointmentId: doc.Appointment.toString(),
   caseId: doc.Case?.toString(),
-  versao: doc.versao,
-  dados: doc.dados,
+  version: doc.version,
+  data: doc.data,
   media: doc.media.map(mediaToRecord),
   updatedAt: doc.updatedAt,
 });
@@ -45,23 +45,23 @@ const isDuplicateKeyError = (e: unknown): boolean =>
 
 // Grava o formulário só se a versão do servidor for a que o aparelho conhecia (AD-128).
 // `versao` 0 cria o registro; `null`: outra gravação chegou antes (conflito).
-export const salvar = async (
+export const save = async (
   tenantId: string,
   appointmentId: string,
   caseId: string | undefined,
-  versao: number,
-  dados: InspectionData,
+  version: number,
+  data: InspectionData,
 ): Promise<InspectionRecord | null> =>
-  withDbTiming('inspection.salvar', async () => {
+  withDbTiming('inspection.save', async () => {
     try {
       const doc = await Inspection.findOneAndUpdate(
-        { ...ofAppointment(tenantId, appointmentId), versao },
+        { ...ofAppointment(tenantId, appointmentId), version },
         {
-          $set: { dados, ...(caseId ? { Case: caseId } : {}) },
-          $inc: { versao: 1 },
+          $set: { data, ...(caseId ? { Case: caseId } : {}) },
+          $inc: { version: 1 },
           $setOnInsert: { media: [] },
         },
-        { upsert: versao === 0, returnDocument: 'after', runValidators: true },
+        { upsert: version === 0, returnDocument: 'after', runValidators: true },
       ).lean();
       return doc ? toRecord(doc) : null;
     } catch (error) {
@@ -82,8 +82,8 @@ export const addMedia = async (
       ofAppointment(tenantId, appointmentId),
       {
         $setOnInsert: {
-          versao: 0,
-          dados: INSPECTION_EMPTY_DATA,
+          version: 0,
+          data: INSPECTION_EMPTY_DATA,
           ...(caseId ? { Case: toObjectId(caseId) } : {}),
         },
       },

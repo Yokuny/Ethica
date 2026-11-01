@@ -19,7 +19,7 @@ export function useTransactionForm({ transaction, onDone }: { transaction?: Tran
       ? {
           kind: transaction.kind,
           category: transaction.category,
-          descricao: transaction.descricao,
+          description: transaction.description,
           amountCents: transaction.amountCents,
           dueDate: transaction.dueDate,
           caseId: transaction.caseId,
@@ -27,7 +27,7 @@ export function useTransactionForm({ transaction, onDone }: { transaction?: Tran
       : {
           kind: 'income',
           category: 'advance_fees',
-          descricao: '',
+          description: '',
           amountCents: 0,
           dueDate: formatDisplayDate(new Date()),
         },

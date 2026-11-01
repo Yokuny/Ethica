@@ -21,8 +21,8 @@ import mongoose, { Schema } from 'mongoose';
 export interface CasePartyDocument {
   Party: mongoose.Types.ObjectId;
   side: Side;
-  tipo: PartyType;
-  nome: string;
+  type: PartyType;
+  name: string;
   // Quem contratou o assistente técnico (AD-135).
   client?: boolean;
 }
@@ -30,9 +30,9 @@ export interface CasePartyDocument {
 // Movimentação do processo que conta para a perícia parada (AD-121). Data `YYYY-MM-DD`.
 export interface CaseMovementDocument {
   _id: mongoose.Types.ObjectId;
-  tipo: MovementType;
-  data: string;
-  observacoes?: string;
+  type: MovementType;
+  date: string;
+  notes?: string;
 }
 
 export interface CaseDocument {
@@ -53,7 +53,7 @@ export interface CaseDocument {
   nominationDate?: string;
   proposedFeesCents?: number;
   fixedFeesCents?: number;
-  observacoes?: string;
+  notes?: string;
   // Dados auxiliares do laudo trabalhista (IMP-04); datas `YYYY-MM-DD` (AD-103).
   docketingDate?: string;
   hireDate?: string;
@@ -85,8 +85,8 @@ const caseSchema = new Schema<CaseDocument>(
           {
             Party: { type: Schema.Types.ObjectId, ref: 'Party', required: true },
             side: { type: String, enum: SIDES, required: true },
-            tipo: { type: String, enum: PARTY_TYPES, required: true },
-            nome: { type: String, required: true, trim: true },
+            type: { type: String, enum: PARTY_TYPES, required: true },
+            name: { type: String, required: true, trim: true },
             client: { type: Boolean },
           },
           { _id: false },
@@ -99,7 +99,7 @@ const caseSchema = new Schema<CaseDocument>(
     nominationDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     proposedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     fixedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
-    observacoes: { type: String },
+    notes: { type: String },
     docketingDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     hireDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     terminationDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
@@ -110,9 +110,9 @@ const caseSchema = new Schema<CaseDocument>(
     movements: {
       type: [
         new Schema<CaseMovementDocument>({
-          tipo: { type: String, enum: MOVEMENT_TYPES, required: true },
-          data: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
-          observacoes: { type: String, trim: true },
+          type: { type: String, enum: MOVEMENT_TYPES, required: true },
+          date: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+          notes: { type: String, trim: true },
         }),
       ],
       default: [],

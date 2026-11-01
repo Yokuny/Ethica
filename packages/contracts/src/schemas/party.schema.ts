@@ -10,13 +10,13 @@ export const SIDES = ['plaintiff', 'defendant'] as const;
 export type Side = (typeof SIDES)[number];
 
 // "OAB/SP 123.456", "123456/SP" e "sp123456" viram "SP123456".
-export const normalizarOab = (raw: string): string => {
+export const normalizeOab = (raw: string): string => {
   const value = raw
     .toUpperCase()
     .replace(/OAB/g, '')
     .replace(/[^A-Z0-9]/g, '');
-  const invertida = value.match(/^(\d+)([A-Z]{2})$/);
-  return invertida ? `${invertida[2]}${invertida[1]}` : value;
+  const reversed = value.match(/^(\d+)([A-Z]{2})$/);
+  return reversed ? `${reversed[2]}${reversed[1]}` : value;
 };
 
 // Campo vazio do formulário vira ausente, nunca string vazia gravada.
@@ -31,14 +31,14 @@ export const documentSchema = z
 export const oabSchema = z
   .string()
   .max(30, 'OAB inválida')
-  .transform(normalizarOab)
+  .transform(normalizeOab)
   .refine((value) => value === '' || /^[A-Z]{2}\d{1,7}[A-Z]?$/.test(value), 'OAB inválida (ex.: SP123456)')
   .transform(emptyAsUndefined);
 
-const nomeSchema = z.string().trim().min(1, 'nome é obrigatório').max(200, 'nome inválido');
+const nameSchema = z.string().trim().min(1, 'nome é obrigatório').max(200, 'nome inválido');
 
 const partyFields = z.object({
-  nome: nomeSchema,
+  name: nameSchema,
   document: documentSchema.optional(),
   oab: oabSchema.optional(),
   email: z
@@ -50,7 +50,7 @@ const partyFields = z.object({
   phone: z.string().trim().max(30, 'telefone inválido').transform(emptyAsUndefined).optional(),
 });
 
-export const createPartySchema = partyFields.extend({ tipo: z.enum(PARTY_TYPES) }).strict();
+export const createPartySchema = partyFields.extend({ type: z.enum(PARTY_TYPES) }).strict();
 export type CreateParty = z.infer<typeof createPartySchema>;
 
 // O tipo não muda depois do cadastro: as perícias guardam uma cópia dele.
@@ -63,8 +63,8 @@ export const casePartyInputSchema = z
   .object({
     partyId: idSchema.optional(),
     side: z.enum(SIDES),
-    tipo: z.enum(PARTY_TYPES),
-    nome: nomeSchema,
+    type: z.enum(PARTY_TYPES),
+    name: nameSchema,
     document: documentSchema.optional(),
     oab: oabSchema.optional(),
     // Quem contratou o assistente técnico (AD-135); no máximo um, só nessa perícia.

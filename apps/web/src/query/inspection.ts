@@ -9,7 +9,7 @@ import { type AppointmentRecord, appointmentKeys } from './appointment.js';
 // Espelha os records de apps/api/src/modules/agenda/vistoria.schema.ts.
 export type MediaRecord = {
   id: string;
-  tipo: MediaType;
+  type: MediaType;
   bytes: number;
   mime: string;
   caption?: string;
@@ -18,8 +18,8 @@ export type MediaRecord = {
 export type InspectionRecord = {
   appointmentId: string;
   caseId?: string;
-  versao: number;
-  dados: InspectionData;
+  version: number;
+  data: InspectionData;
   media: MediaRecord[];
   updatedAt?: string;
 };
@@ -39,14 +39,14 @@ export const inspectionKeys = {
 export const inspectionDayQuery = (date: string) =>
   queryOptions({
     queryKey: inspectionKeys.day(date),
-    queryFn: async (): Promise<{ itens: DayInspection[]; ofDevice: boolean }> => {
+    queryFn: async (): Promise<{ items: DayInspection[]; ofDevice: boolean }> => {
       const res = await get<DayInspection[]>(`/inspections/day?date=${date}`);
       if (res.success && res.data) {
         await saveDay(date, res.data);
-        return { itens: res.data, ofDevice: false };
+        return { items: res.data, ofDevice: false };
       }
       const guardado = await readDay(date);
-      if (guardado) return { itens: guardado, ofDevice: true };
+      if (guardado) return { items: guardado, ofDevice: true };
       throw new Error(res.message ?? t('load_error'));
     },
   });

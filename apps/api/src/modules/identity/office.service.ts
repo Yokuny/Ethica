@@ -91,10 +91,10 @@ export const getDocumentIdentity = async (
 // Cota de arquivos para outros módulos (mídias da vistoria, AD-129): reservar antes de gravar
 // a referência e devolver ao apagar o arquivo.
 export const reserveFile = async (tenantId: string, bytes: number): Promise<void> => {
-  if (!(await officeRepository.reservarBytes(tenantId, bytes))) throw new CustomError('storage_quota_exceeded', 422);
+  if (!(await officeRepository.reserveBytes(tenantId, bytes))) throw new CustomError('storage_quota_exceeded', 422);
 };
 
-export const returnFile = (tenantId: string, bytes: number) => officeRepository.devolverBytes(tenantId, bytes);
+export const returnFile = (tenantId: string, bytes: number) => officeRepository.returnBytes(tenantId, bytes);
 
 // Modelo do aviso de agendamento às partes (AD-131); sem modelo gravado, vale o padrão.
 export const DEFAULT_SCHEDULE_NOTICE: UpdateScheduleNotice = {

@@ -5,8 +5,8 @@ import mongoose, { Schema } from 'mongoose';
 export interface PartyDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
-  tipo: PartyType;
-  nome: string;
+  type: PartyType;
+  name: string;
   // CPF/CNPJ só com dígitos (parte); OAB normalizada, ex.: SP123456 (advogado).
   document?: string;
   oab?: string;
@@ -19,8 +19,8 @@ export interface PartyDocument {
 const partySchema = new Schema<PartyDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
-    tipo: { type: String, enum: PARTY_TYPES, required: true },
-    nome: { type: String, required: true, trim: true },
+    type: { type: String, enum: PARTY_TYPES, required: true },
+    name: { type: String, required: true, trim: true },
     document: { type: String, match: /^(\d{11}|\d{14})$/ },
     oab: { type: String, trim: true },
     email: { type: String, trim: true },
@@ -30,8 +30,8 @@ const partySchema = new Schema<PartyDocument>(
 );
 
 // Reaproveitamento na importação e no cadastro da perícia (AD-115).
-partySchema.index({ Tenant: 1, tipo: 1, document: 1 });
-partySchema.index({ Tenant: 1, tipo: 1, oab: 1 });
-partySchema.index({ Tenant: 1, tipo: 1, nome: 1 });
+partySchema.index({ Tenant: 1, type: 1, document: 1 });
+partySchema.index({ Tenant: 1, type: 1, oab: 1 });
+partySchema.index({ Tenant: 1, type: 1, name: 1 });
 
 export const Party = mongoose.model<PartyDocument>('Party', partySchema);

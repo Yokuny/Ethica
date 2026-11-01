@@ -79,7 +79,7 @@ export const datajudSearchSchema = z
   .object({
     court: z.enum(ALL_DATAJUD_COURTS),
     technicalSubjects: z.array(z.enum(DATAJUD_TECHNICAL_SUBJECTS)).max(DATAJUD_TECHNICAL_SUBJECTS.length).optional(),
-    termo: z.string().trim().max(120, 'termo inválido').optional(),
+    term: z.string().trim().max(120, 'termo inválido').optional(),
     courtUnit: z.string().trim().max(120, 'órgão julgador inválido').optional(),
     processNumber: z
       .string()
@@ -122,7 +122,7 @@ export type CreateOpportunity = z.infer<typeof createOpportunitySchema>;
 export const updateOpportunitySchema = z
   .object({
     status: z.enum(['new', 'under_review', 'discarded']).optional(),
-    observacoes: z.string().trim().max(2000).optional(),
+    notes: z.string().trim().max(2000).optional(),
   })
   .strict();
 export type UpdateOpportunity = z.infer<typeof updateOpportunitySchema>;

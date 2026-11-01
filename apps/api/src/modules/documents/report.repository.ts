@@ -13,7 +13,7 @@ import type {
 
 const sectionToRecord = (section: ReportSectionDocument): ReportSectionRecord => ({
   id: section._id.toString(),
-  titulo: section.titulo,
+  title: section.title,
   level: section.level,
   titleOnly: section.titleOnly,
   pageBreak: section.pageBreak,
@@ -26,9 +26,9 @@ const toRecord = (doc: ReportDocument): ReportRecord => {
   return {
     id: doc._id.toString(),
     caseId: doc.Case.toString(),
-    tipo: doc.tipo,
+    type: doc.type,
     status: doc.status,
-    titulo: doc.titulo,
+    title: doc.title,
     templateName: doc.templateName,
     sections,
     issues: issuesOf(sections),
@@ -82,9 +82,9 @@ export const list = async (
       items: (result?.items ?? []).map((doc) => ({
         id: String(doc._id),
         caseId: String(doc.Case),
-        tipo: doc.tipo,
+        type: doc.type,
         status: doc.status,
-        titulo: doc.titulo,
+        title: doc.title,
         templateName: doc.templateName,
         totalSections: doc.totalSections,
         completedAt: doc.completedAt,

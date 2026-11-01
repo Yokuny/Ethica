@@ -76,7 +76,7 @@ describe('prazos da perícia (PRZ-01)', () => {
     const deadlines = await as(request(app).get(`/expert-cases/${created.body.data.id}/deadlines`));
     expect(deadlines.status).toBe(200);
     expect(deadlines.body.data).toEqual([
-      expect.objectContaining({ titulo: 'Entrega do laudo', dueDate: day(20), status: 'pending' }),
+      expect.objectContaining({ title: 'Entrega do laudo', dueDate: day(20), status: 'pending' }),
     ]);
   });
 
@@ -84,13 +84,13 @@ describe('prazos da perícia (PRZ-01)', () => {
     const { as } = await seedSession();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
 
-    const criado = await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
-      titulo: 'Esclarecimentos',
+    const created = await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
+      title: 'Esclarecimentos',
       dueDate: day(-3),
     });
-    expect(criado.status).toBe(201);
-    expect(criado.body.data).toMatchObject({ status: 'pending', dueDate: day(-3), caseId: legalCase.id });
-    const id = criado.body.data.id;
+    expect(created.status).toBe(201);
+    expect(created.body.data).toMatchObject({ status: 'pending', dueDate: day(-3), caseId: legalCase.id });
+    const id = created.body.data.id;
 
     const filed = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({
       status: 'filed',
@@ -112,16 +112,16 @@ describe('prazos da perícia (PRZ-01)', () => {
   it('listagem mostra o próximo prazo pendente e a faixa conta vencidos e os que vencem em até 15 dias (AC 5)', async () => {
     const { as } = await seedSession();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
-    for (const [titulo, dueDate] of [
+    for (const [title, dueDate] of [
       ['Vencido', day(-1)],
       ['Em breve', day(15)],
       ['Longe', day(16)],
     ] as const) {
-      await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({ titulo, dueDate });
+      await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({ title, dueDate });
     }
 
-    const lista = await as(request(app).get('/expert-cases'));
-    expect(lista.body.data.items[0].nextDeadline).toEqual({ titulo: 'Vencido', dueDate: day(-1) });
+    const list = await as(request(app).get('/expert-cases'));
+    expect(list.body.data.items[0].nextDeadline).toEqual({ title: 'Vencido', dueDate: day(-1) });
 
     const stats = await as(request(app).get('/expert-cases/stats'));
     const groups = Object.fromEntries(
@@ -134,34 +134,34 @@ describe('prazos da perícia (PRZ-01)', () => {
     const { as } = await seedSession();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
     await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
-      titulo: 'Dentro',
+      title: 'Dentro',
       dueDate: day(2),
     });
     await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
-      titulo: 'Fora',
+      title: 'Fora',
       dueDate: day(40),
     });
 
     const res = await as(request(app).get(`/expert-cases/deadlines?from=${day(0)}&to=${day(7)}`));
     expect(res.status).toBe(200);
-    expect(res.body.data).toEqual([expect.objectContaining({ titulo: 'Dentro', caseNumber: CASE.processNumber })]);
+    expect(res.body.data).toEqual([expect.objectContaining({ title: 'Dentro', caseNumber: CASE.processNumber })]);
   });
 
   it('excluir a perícia exclui os prazos; prazo de outro tenant é 404', async () => {
     const admin = await seedSession(['admin']);
-    const outro = await seedSession();
+    const other = await seedSession();
     const legalCase = (await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(5) }))
       .body.data;
     const [deadline] = (await admin.as(request(app).get(`/expert-cases/${legalCase.id}/deadlines`))).body.data;
 
     expect(
-      (await outro.as(request(app).patch(`/expert-cases/deadlines/${deadline.id}`)).send({ status: 'missed' })).status,
+      (await other.as(request(app).patch(`/expert-cases/deadlines/${deadline.id}`)).send({ status: 'missed' })).status,
     ).toBe(404);
     expect(
       (
-        await outro
+        await other
           .as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`))
-          .send({ titulo: 'X', dueDate: day(1) })
+          .send({ title: 'X', dueDate: day(1) })
       ).status,
     ).toBe(404);
 

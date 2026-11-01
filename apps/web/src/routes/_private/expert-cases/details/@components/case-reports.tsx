@@ -17,19 +17,19 @@ import { reportsQuery } from '@/query/report.js';
 // Laudos (ou pareceres, LAU-06) da perícia, com atalho para iniciar um novo.
 export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
   const query = useQuery(reportsQuery({ caseId: legalCase.id, limit: 20 }));
-  const tipo = reportRoleType(legalCase.role);
+  const type = reportRoleType(legalCase.role);
 
   return (
     <Panel
       size="sm"
-      title={t(tipo === 'technical_opinion' ? 'technical_opinions' : 'expert_reports')}
+      title={t(type === 'technical_opinion' ? 'technical_opinions' : 'expert_reports')}
       actions={
         <Button
           variant="outline"
           nativeButton={false}
           render={
             <Link to="/expert-reports/add" search={{ caseId: legalCase.id }}>
-              {t(tipo === 'technical_opinion' ? 'start_technical_opinion' : 'start_report')}
+              {t(type === 'technical_opinion' ? 'start_technical_opinion' : 'start_report')}
             </Link>
           }
         />

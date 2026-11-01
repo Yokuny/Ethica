@@ -82,10 +82,10 @@ export const dateTime = (value: Date): string =>
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 export const dinheiro = (cents: number | undefined): string => (cents === undefined ? '' : brl.format(cents / 100));
 
-export const section = (titulo: string, conteudo: string): string =>
-  `<section><h2>${esc(titulo)}</h2>${conteudo}</section>`;
+export const section = (title: string, conteudo: string): string =>
+  `<section><h2>${esc(title)}</h2>${conteudo}</section>`;
 
-export const vazio = (texto: string): string => `<p class="vazio">${esc(texto)}</p>`;
+export const empty = (text: string): string => `<p class="vazio">${esc(text)}</p>`;
 
 // Tabela com cabeçalho; as células já chegam em HTML (escapadas por quem monta).
 export const table = (columns: string[], rows: string[][], caseClass = ''): string =>
@@ -94,8 +94,8 @@ export const table = (columns: string[], rows: string[][], caseClass = ''): stri
     .join('')}</tbody></table>`;
 
 // Pares rótulo/valor; valor vazio some.
-export const fields = (pares: Array<[string, string | undefined]>): string =>
-  `<dl>${pares
+export const fields = (pairs: Array<[string, string | undefined]>): string =>
+  `<dl>${pairs
     .filter(([, amount]) => amount)
     .map(([fieldLabel, amount]) => `<div><dt>${esc(fieldLabel)}</dt><dd>${esc(amount)}</dd></div>`)
     .join('')}</dl>`;
@@ -131,8 +131,8 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 
 // Cabeçalho e rodapé do tenant (AD-121): cada linha do texto vira uma linha centralizada e os
 // marcadores são trocados. Linha que fica vazia (só `[LOGO]` sem logo) some.
-const template = (texto: string, identity: DocumentIdentity, expertName: string): string => {
-  const rows = texto
+const template = (text: string, identity: DocumentIdentity, expertName: string): string => {
+  const rows = text
     .split('\n')
     .map((row) =>
       esc(row.trim())
@@ -173,15 +173,15 @@ export const headerFooter = (
 };
 
 export const buildDocument = (input: {
-  titulo: string;
-  subtitulo?: string;
+  title: string;
+  subtitle?: string;
   body: string;
   identity: DocumentIdentity;
   expertName: string;
-  geradoEm: Date;
+  generatedAt: Date;
 }): PdfDocument => ({
-  html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(input.titulo)}</title><style>${CSS}</style></head><body><h1>${esc(input.titulo)}</h1>${
-    input.subtitulo ? `<p class="subtitulo">${esc(input.subtitulo)}</p>` : ''
-  }${input.body}<p class="gerado">Gerado por ${esc(input.expertName)} em ${esc(dateTime(input.geradoEm))}.</p></body></html>`,
+  html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(input.title)}</title><style>${CSS}</style></head><body><h1>${esc(input.title)}</h1>${
+    input.subtitle ? `<p class="subtitulo">${esc(input.subtitle)}</p>` : ''
+  }${input.body}<p class="gerado">Gerado por ${esc(input.expertName)} em ${esc(dateTime(input.generatedAt))}.</p></body></html>`,
   ...headerFooter(input.identity, input.expertName),
 });

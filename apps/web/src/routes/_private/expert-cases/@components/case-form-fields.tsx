@@ -77,7 +77,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
               label={t('object')}
               placeholder={t('example_object')}
             />,
-            <div key="datas" className="grid gap-4 sm:grid-cols-2">
+            <div key="dates" className="grid gap-4 sm:grid-cols-2">
               <DateField
                 control={control}
                 name="nominationDate"
@@ -159,7 +159,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
             <TextareaField
               key="obs"
               control={control}
-              name="observacoes"
+              name="notes"
               label={t('notes')}
               placeholder={t('notes_placeholder')}
             />,

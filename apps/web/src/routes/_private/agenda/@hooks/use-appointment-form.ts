@@ -11,14 +11,14 @@ import { DEFAULT_DURATION_MINUTES } from '../@consts/calendar.js';
 const CASES_LIMIT = 100;
 
 const toValues = (appointment: AppointmentRecord): CreateAppointment => ({
-  tipo: appointment.tipo,
-  titulo: appointment.titulo,
-  date: formatDisplayDate(appointment.inicio),
-  time: formatDisplayTime(appointment.inicio),
-  durationMinutes: Math.round((Date.parse(appointment.fim) - Date.parse(appointment.inicio)) / 60_000),
-  local: appointment.local,
+  type: appointment.type,
+  title: appointment.title,
+  date: formatDisplayDate(appointment.start),
+  time: formatDisplayTime(appointment.start),
+  durationMinutes: Math.round((Date.parse(appointment.end) - Date.parse(appointment.start)) / 60_000),
+  location: appointment.location,
   caseId: appointment.caseId,
-  observacoes: appointment.observacoes,
+  notes: appointment.notes,
 });
 
 // Mesmo formulário para criar e remarcar: com `compromisso` edita, sem ele cria.
@@ -40,8 +40,8 @@ export function useAppointmentForm({
     defaultValues: appointment
       ? toValues(appointment)
       : {
-          tipo: 'inspection',
-          titulo: '',
+          type: 'inspection',
+          title: '',
           date: date ?? formatDisplayDate(new Date()),
           time: '09:00',
           durationMinutes: DEFAULT_DURATION_MINUTES,

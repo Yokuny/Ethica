@@ -32,7 +32,7 @@ describe('periciaSearchStages (montagem do $search)', () => {
       'subject',
       'division',
       'district',
-      'parties.nome',
+      'parties.name',
     ]);
     expect(must[0]?.compound.minimumShouldMatch).toBe(1);
     expect(must[1]?.compound.should[0]?.autocomplete.query).toBe('metalúrgica');
@@ -65,7 +65,7 @@ describe('searchDefinitionMatches (definição normalizada pelo Atlas)', () => {
       fields: {
         district: { ...ac },
         division: { ...ac },
-        parties: { fields: { nome: { ...ac } }, type: 'document', dynamic: false },
+        parties: { fields: { name: { ...ac } }, type: 'document', dynamic: false },
         subject: { ...ac },
         processNumber: { ...ac },
         Tenant: { type: 'objectId' },

@@ -9,7 +9,7 @@ const deadline = (id: string, dueDate: string): DeadlineRecord => ({
   id,
   caseId: 'p1',
   caseNumber: '0001234-56.2026.5.02.0001',
-  titulo: `Prazo ${id}`,
+  title: `Prazo ${id}`,
   dueDate,
   status: 'pending',
 });

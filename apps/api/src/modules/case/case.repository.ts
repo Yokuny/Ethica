@@ -37,8 +37,8 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   parties: (doc.parties ?? []).map((party) => ({
     partyId: party.Party.toString(),
     side: party.side,
-    tipo: party.tipo,
-    nome: party.nome,
+    type: party.type,
+    name: party.name,
     ...(party.client ? { client: true } : {}),
   })),
   status: doc.status,
@@ -47,7 +47,7 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   nominationDate: doc.nominationDate,
   proposedFeesCents: doc.proposedFeesCents,
   fixedFeesCents: doc.fixedFeesCents,
-  observacoes: doc.observacoes,
+  notes: doc.notes,
   docketingDate: doc.docketingDate,
   hireDate: doc.hireDate,
   terminationDate: doc.terminationDate,
@@ -56,12 +56,12 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   nonPrescribedPeriodEnd: doc.nonPrescribedPeriodEnd,
   location: doc.location,
   movements: [...(doc.movements ?? [])]
-    .sort((a, b) => b.data.localeCompare(a.data))
+    .sort((a, b) => b.date.localeCompare(a.date))
     .map((movement) => ({
       id: movement._id.toString(),
-      tipo: movement.tipo,
-      data: movement.data,
-      observacoes: movement.observacoes,
+      type: movement.type,
+      date: movement.date,
+      notes: movement.notes,
     })),
   opportunityId: doc.Opportunity?.toString(),
   createdAt: doc.createdAt,
@@ -79,7 +79,7 @@ const stateFilter = {
 };
 
 // Etapas em que a perícia ainda tem trabalho do perito pela frente.
-const ABERTAS = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
+const OPEN = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
 
 export const createCase = async ({ tenant, opportunityId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
   withDbTiming('case.createCase', async () => {
@@ -101,8 +101,8 @@ export const findById = async (tenantId: string, id: string): Promise<CaseRecord
   });
 
 // Aviso de duplicado do PDF (IMP-01.3): o id da perícia com o mesmo número no tenant.
-export const findIdByNumero = async (tenantId: string, processNumber: string): Promise<string | undefined> =>
-  withDbTiming('case.findIdByNumero', async () => {
+export const findIdByNumber = async (tenantId: string, processNumber: string): Promise<string | undefined> =>
+  withDbTiming('case.findIdByNumber', async () => {
     const doc = await Case.findOne(tenantScoped({ Tenant: tenantId, processNumber }))
       .select('_id')
       .lean();
@@ -154,7 +154,7 @@ export const removeMovement = async (tenantId: string, id: string, movementId: s
 
 // Perícia parada (AD-121): não encerrada e com a referência (última movimentação, senão a
 // nomeação, senão o dia do cadastro) antes de `limite`. Da mais antiga para a mais recente.
-export const listStalled = async (tenantId: string, limite: string): Promise<Array<Omit<StalledCase, 'stalledDays'>>> =>
+export const listStalled = async (tenantId: string, limit: string): Promise<Array<Omit<StalledCase, 'stalledDays'>>> =>
   withDbTiming('case.listStalled', async () => {
     const docs = await Case.aggregate<{
       _id: { toString(): string };
@@ -163,9 +163,9 @@ export const listStalled = async (tenantId: string, limite: string): Promise<Arr
       court: string;
       division?: string;
       subject: string;
-      ultima: string | null;
+      last: string | null;
       nominationDate?: string;
-      referencia: string;
+      reference: string;
     }>([
       // Suspensa (AD-133) não está parada: espera um fato fora do controle do perito.
       {
@@ -175,20 +175,20 @@ export const listStalled = async (tenantId: string, limite: string): Promise<Arr
           phase: { $nin: CASE_PHASES_SUSPENSION },
         },
       },
-      { $addFields: { ultima: { $max: '$movements.data' } } },
+      { $addFields: { last: { $max: '$movements.date' } } },
       {
         $addFields: {
-          referencia: {
+          reference: {
             $ifNull: [
-              '$ultima',
+              '$last',
               '$nominationDate',
               { $dateToString: { date: '$createdAt', format: '%Y-%m-%d', timezone: DISPLAY_TIMEZONE } },
             ],
           },
         },
       },
-      { $match: { referencia: { $lt: limite } } },
-      { $sort: { referencia: 1, processNumber: 1 } },
+      { $match: { reference: { $lt: limit } } },
+      { $sort: { reference: 1, processNumber: 1 } },
       {
         $project: {
           processNumber: 1,
@@ -196,9 +196,9 @@ export const listStalled = async (tenantId: string, limite: string): Promise<Arr
           court: 1,
           division: 1,
           subject: 1,
-          ultima: 1,
+          last: 1,
           nominationDate: 1,
-          referencia: 1,
+          reference: 1,
         },
       },
     ]);
@@ -209,8 +209,8 @@ export const listStalled = async (tenantId: string, limite: string): Promise<Arr
       court: doc.court,
       division: doc.division,
       subject: doc.subject,
-      referencia: doc.referencia,
-      origin: doc.ultima ? 'movement' : doc.nominationDate ? 'appointment' : 'created',
+      reference: doc.reference,
+      origin: doc.last ? 'movement' : doc.nominationDate ? 'appointment' : 'created',
     }));
   });
 
@@ -274,30 +274,30 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
     const docs = await Case.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } }))
       .select('processNumber parties')
       .lean();
-    const nomes = (parties: CaseDocument['parties'], side: string) =>
+    const names = (parties: CaseDocument['parties'], side: string) =>
       (parties ?? [])
-        .filter((party) => party.side === side && party.tipo === 'party')
-        .map((party) => party.nome)
+        .filter((party) => party.side === side && party.type === 'party')
+        .map((party) => party.name)
         .join(', ') || undefined;
     return new Map(
       docs.map((doc) => [
         doc._id.toString(),
         {
           processNumber: doc.processNumber,
-          plaintiff: nomes(doc.parties, 'plaintiff'),
-          defendant: nomes(doc.parties, 'defendant'),
-          client: doc.parties?.find((party) => party.client)?.nome,
+          plaintiff: names(doc.parties, 'plaintiff'),
+          defendant: names(doc.parties, 'defendant'),
+          client: doc.parties?.find((party) => party.client)?.name,
         },
       ]),
     );
   });
 
 // Renomear a parte atualiza a cópia do nome em todas as perícias em que ela aparece (AD-117).
-export const renameParty = async (tenantId: string, partyId: string, nome: string): Promise<void> =>
+export const renameParty = async (tenantId: string, partyId: string, name: string): Promise<void> =>
   withDbTiming('case.renameParty', async () => {
     await Case.updateMany(
       tenantScoped({ Tenant: tenantId, 'parties.Party': toObjectId(partyId) }),
-      { $set: { 'parties.$[p].nome': nome } },
+      { $set: { 'parties.$[p].name': name } },
       { arrayFilters: [{ 'p.Party': toObjectId(partyId) }] },
     );
   });
@@ -326,9 +326,9 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
     const count = (extra: object) => Case.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
     const deadlines = (dueDate: object) =>
       Deadline.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pending' as const, dueDate }));
-    const [total, abertas, vencidas, proximas, entregues, trend] = await Promise.all([
+    const [total, open, vencidas, proximas, entregues, trend] = await Promise.all([
       count({}),
-      count({ status: { $in: ABERTAS } }),
+      count({ status: { $in: OPEN } }),
       deadlines({ $lt: today }),
       deadlines({ $gte: today, $lte: addDays(today, dueSoonDays) }),
       count({ status: { $in: ['report_delivered', 'completed'] } }),
@@ -338,7 +338,7 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
       total,
       trend,
       groups: [
-        { key: 'open', count: abertas },
+        { key: 'open', count: open },
         { key: 'overdue_deadlines', count: vencidas },
         { key: 'deadlines_due_soon', count: proximas },
         { key: 'reports_delivered', count: entregues },

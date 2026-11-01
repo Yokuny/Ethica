@@ -28,7 +28,7 @@ export const createDocumentsRouter = (deps: DocumentsRouterDeps): Router => {
     byId,
     documentsController.checklist(providers),
   );
-  router.get('/deadlines', ...guard, can('reports', 'view'), documentsController.cronograma(providers));
+  router.get('/deadlines', ...guard, can('reports', 'view'), documentsController.schedule(providers));
   router.get('/stalled', ...guard, can('reports', 'view'), documentsController.stalled(providers));
   router.get(
     '/finance',

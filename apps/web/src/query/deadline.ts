@@ -10,11 +10,11 @@ export type DeadlineRecord = {
   id: string;
   caseId: string;
   caseNumber?: string;
-  titulo: string;
+  title: string;
   dueDate: string;
   status: DeadlineStatus;
   filedDate?: string;
-  observacoes?: string;
+  notes?: string;
 };
 
 export const deadlineKeys = {

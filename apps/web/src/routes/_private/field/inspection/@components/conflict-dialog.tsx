@@ -7,15 +7,15 @@ import type { InspectionRecord } from '@/query/inspection.js';
 
 type ConflictDialogProps = {
   server: InspectionRecord;
-  onManterMinha: () => void;
+  onKeepMine: () => void;
   onUseServer: () => void;
   onClose: () => void;
 };
 
 // Outra pessoa (ou outro aparelho) salvou antes (AD-128): o perito escolhe qual versão fica.
-export function ConflictDialog({ server, onManterMinha, onUseServer, onClose }: ConflictDialogProps) {
-  const contagem = (dados: InspectionRecord['dados']) =>
-    `${dados.attendees.length} ${t('attendees').toLowerCase()} · ${dados.jobs.length} ${t('job_roles').toLowerCase()} · ${dados.agents.length} ${t('agents').toLowerCase()}`;
+export function ConflictDialog({ server, onKeepMine, onUseServer, onClose }: ConflictDialogProps) {
+  const count = (data: InspectionRecord['data']) =>
+    `${data.attendees.length} ${t('attendees').toLowerCase()} · ${data.jobs.length} ${t('job_roles').toLowerCase()} · ${data.agents.length} ${t('agents').toLowerCase()}`;
   return (
     <FormDialog
       title={t('inspection_conflict_title')}
@@ -23,13 +23,13 @@ export function ConflictDialog({ server, onManterMinha, onUseServer, onClose }: 
       onClose={onClose}
     >
       <ItemDescription className="line-clamp-none">
-        {t('server_version')}: {server.updatedAt ? formatDateTime(server.updatedAt) : '—'} · {contagem(server.dados)}
+        {t('server_version')}: {server.updatedAt ? formatDateTime(server.updatedAt) : '—'} · {count(server.data)}
       </ItemDescription>
       <div className="flex flex-wrap justify-end gap-2">
         <Button type="button" variant="outline" onClick={onUseServer}>
           {t('use_server_version')}
         </Button>
-        <Button type="button" onClick={onManterMinha}>
+        <Button type="button" onClick={onKeepMine}>
           {t('keep_my_version')}
         </Button>
       </div>

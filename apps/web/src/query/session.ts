@@ -1,4 +1,10 @@
-import { type PermissionAction, type PermissionModule, type Permissions, pode, type Role } from '@ethica/contracts';
+import {
+  hasPermission,
+  type PermissionAction,
+  type PermissionModule,
+  type Permissions,
+  type Role,
+} from '@ethica/contracts';
 import { queryOptions } from '@tanstack/react-query';
 import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
@@ -19,7 +25,7 @@ export type SessionView = {
 export const isAdminSession = (session: SessionView): boolean => session.role.includes('admin');
 // Mesma matriz que a API checa com `can()` (AD-137): o web só esconde o que ela recusaria.
 export const can = (session: SessionView, module: PermissionModule, action: PermissionAction = 'view'): boolean =>
-  pode(session.permissions ?? {}, module, action);
+  hasPermission(session.permissions ?? {}, module, action);
 
 export const sessionKeys = {
   all: ['session'] as const,
@@ -41,8 +47,8 @@ export const sessionQuery = queryOptions({
     }
     // Sem rede (AD-128): a última sessão vista mantém o app aberto; sessão inválida não passa.
     if (res.message === t('connection_error')) {
-      const copia = await readSession<SessionView>();
-      if (copia) return copia;
+      const copy = await readSession<SessionView>();
+      if (copy) return copy;
     }
     throw new Error(res.message ?? t('invalid_session'));
   },

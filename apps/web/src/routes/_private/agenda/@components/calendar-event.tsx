@@ -6,7 +6,7 @@ import type { AppointmentRecord } from '@/query/appointment.js';
 import type { DeadlineRecord } from '@/query/deadline.js';
 
 // Cor por tipo de compromisso; cancelado esmaece e concluído fica esmaecido.
-const tipoClasses: Record<AppointmentRecord['tipo'], string> = {
+const typeClasses: Record<AppointmentRecord['type'], string> = {
   inspection: 'border-violet-500/30 bg-violet-50 text-violet-900',
   hearing: 'border-sky-500/30 bg-sky-50 text-sky-900',
   meeting: 'border-cyan-500/30 bg-cyan-50 text-cyan-900',
@@ -32,7 +32,7 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
       className={cn(
         'rounded-sm border text-left text-xs',
         variant === 'compact' ? 'w-full truncate px-1.5 py-0.5' : 'overflow-hidden p-1.5',
-        tipoClasses[item.tipo],
+        typeClasses[item.type],
         item.status === 'canceled' && 'border-muted-foreground/30 bg-muted text-muted-foreground line-through',
         item.status === 'done' && 'opacity-60',
         className,
@@ -41,13 +41,13 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
       {variant === 'timed' ? (
         <>
           <ItemTitle>
-            <Time12h value={item.inicio} /> · <Time12h value={item.fim} />
+            <Time12h value={item.start} /> · <Time12h value={item.end} />
           </ItemTitle>
-          <ItemDescription className="text-inherit line-clamp-1">{item.titulo}</ItemDescription>
+          <ItemDescription className="text-inherit line-clamp-1">{item.title}</ItemDescription>
         </>
       ) : (
         <ItemDescription className="text-inherit line-clamp-none">
-          <Time12h value={item.inicio} /> {item.titulo}
+          <Time12h value={item.start} /> {item.title}
         </ItemDescription>
       )}
     </button>
@@ -76,7 +76,7 @@ export function CalendarDeadlineChip({
       )}
     >
       <ItemDescription className="text-inherit line-clamp-none">
-        {deadline.titulo}
+        {deadline.title}
         {deadline.caseNumber ? ` · ${deadline.caseNumber}` : ''}
       </ItemDescription>
     </button>

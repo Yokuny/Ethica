@@ -6,7 +6,7 @@ import * as opportunityRepository from './opportunity.repository.js';
 import { convertOpportunity, searchDatajud } from './opportunity.service.js';
 
 vi.mock('./opportunity.repository.js', () => ({
-  findIdsByNumeros: vi.fn(),
+  findIdsByNumbers: vi.fn(),
   findById: vi.fn(),
   updateOpportunity: vi.fn(),
 }));
@@ -23,7 +23,7 @@ describe('opportunity.service', () => {
   });
 
   it('marca os resultados que já são oportunidade e traduz falha do Datajud em 503', async () => {
-    vi.mocked(opportunityRepository.findIdsByNumeros).mockResolvedValue(new Map([[process.processNumber, 'o1']]));
+    vi.mocked(opportunityRepository.findIdsByNumbers).mockResolvedValue(new Map([[process.processNumber, 'o1']]));
     const client = { search: vi.fn().mockResolvedValue({ items: [process] }) };
 
     const result = await searchDatajud(client, 't1', { court: 'trt2' });

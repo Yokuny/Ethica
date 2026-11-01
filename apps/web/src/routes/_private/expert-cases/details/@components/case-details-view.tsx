@@ -9,14 +9,14 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseRecord } from '@/query/case.js';
 
 const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`)) : '-');
-const period = (inicio?: string, fim?: string) => (inicio || fim ? `${day(inicio)} – ${day(fim)}` : '-');
+const period = (start?: string, end?: string) => (start || end ? `${day(start)} – ${day(end)}` : '-');
 const money = (value?: number) => (value ? formatMoney(value) : '-');
 
 // Página de registro: cabeçalho com processo e etapa, faixa com prazos e
 // honorários, e os grupos de leitura (juízo, partes, observações).
 export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseRecord; canSeeFinance: boolean }) {
   const variant = CASE_STATUS_VARIANT[legalCase.status];
-  const client = legalCase.parties.find((party) => party.client)?.nome;
+  const client = legalCase.parties.find((party) => party.client)?.name;
   return (
     <div className="grid gap-6">
       <RecordHeader>
@@ -63,12 +63,12 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             icon: <Users />,
             specs: legalCase.parties.length
               ? legalCase.parties.map((party) => ({
-                  label: [t(party.side), t(party.tipo), party.client ? t('contracting_party') : '']
+                  label: [t(party.side), t(party.type), party.client ? t('contracting_party') : '']
                     .filter(Boolean)
                     .join(' · '),
                   value: (
                     <AppLink to="/parties/details" search={{ id: party.partyId }}>
-                      {party.nome}
+                      {party.name}
                     </AppLink>
                   ),
                 }))
@@ -95,10 +95,10 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
               ]
             : []),
           {
-            id: 'observacoes',
+            id: 'notes',
             name: t('notes'),
             icon: <FileText />,
-            specs: [{ label: t('notes'), value: legalCase.observacoes || '-' }],
+            specs: [{ label: t('notes'), value: legalCase.notes || '-' }],
           },
         ]}
       />

@@ -18,9 +18,9 @@ const legalCase = {
   division: '1ª Vara',
   subject: 'Insalubridade',
   parties: [
-    { partyId: 'a', side: 'plaintiff', tipo: 'party', nome: 'Ana <Silva>' },
-    { partyId: 'b', side: 'defendant', tipo: 'party', nome: 'Metalúrgica Ltda' },
-    { partyId: 'c', side: 'defendant', tipo: 'lawyer', nome: 'Dr. Réu' },
+    { partyId: 'a', side: 'plaintiff', type: 'party', name: 'Ana <Silva>' },
+    { partyId: 'b', side: 'defendant', type: 'party', name: 'Metalúrgica Ltda' },
+    { partyId: 'c', side: 'defendant', type: 'lawyer', name: 'Dr. Réu' },
   ],
   status: 'drafting_report',
   movements: [],
@@ -55,7 +55,7 @@ describe('variáveis de campo (AD-130)', () => {
     legalCase,
     expert: { name: 'Eng. Paula' },
     identity: { name: 'Escritório' },
-    appointments: [{ tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:30:00Z') }] as never,
+    appointments: [{ type: 'inspection', status: 'done', start: new Date('2026-05-10T13:30:00Z') }] as never,
     today: '2026-10-31',
   };
 
@@ -63,17 +63,17 @@ describe('variáveis de campo (AD-130)', () => {
     const values = reportValues({
       ...base,
       field: {
-        inicio: new Date('2026-05-10T13:30:00Z'),
-        dados: {
+        start: new Date('2026-05-10T13:30:00Z'),
+        data: {
           attendees: [
-            { id: 'a', nome: 'Ana', capacity: 'plaintiff' },
-            { id: 'b', nome: 'Dr. Réu', capacity: 'defendant_lawyer' },
+            { id: 'a', name: 'Ana', capacity: 'plaintiff' },
+            { id: 'b', name: 'Dr. Réu', capacity: 'defendant_lawyer' },
           ],
-          comparators: [{ id: 'p', side: 'plaintiff', nome: 'João', job: 'Soldador', workedTogether: true }],
+          comparators: [{ id: 'p', side: 'plaintiff', name: 'João', job: 'Soldador', workedTogether: true }],
           jobs: [
             {
               id: 'f',
-              titulo: 'Soldador',
+              title: 'Soldador',
               yearStart: 2019,
               yearEnd: 2023,
               plaintiff: { activities: 'Solda MIG', timeExposure: '8h/dia' },
@@ -95,7 +95,7 @@ describe('variáveis de campo (AD-130)', () => {
       '[HORA_VISTORIA]': '10:30',
       '[PRESENTES_VISTORIA]': 'Ana (Reclamante); Dr. Réu (advogado(a) do(a) reclamada)',
       '[PARADIGMAS_AUTOR]': 'João (Soldador, trabalhou junto)',
-      '[PARADIGMAS_REU]': 'nenhum',
+      '[PARADIGMAS_REU]': 'none',
       '[FUNCOES_AUTOR]': 'Soldador (2019 a 2023): Solda MIG, exposição: 8h/dia',
       '[FUNCOES_REU]': 'Soldador (2019 a 2023): sem relato',
       '[AGENTES_PRESENTES]': 'Ruído (EPI: protetor auricular)',
@@ -115,8 +115,8 @@ describe('variáveis (AD-126)', () => {
     expert: { name: 'Eng. Paula', professionalRegistration: 'CREA 1' },
     identity: { name: 'Escritório' },
     appointments: [
-      { tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:00:00Z') },
-      { tipo: 'inspection', status: 'canceled', inicio: new Date('2026-06-10T13:00:00Z') },
+      { type: 'inspection', status: 'done', start: new Date('2026-05-10T13:00:00Z') },
+      { type: 'inspection', status: 'canceled', start: new Date('2026-06-10T13:00:00Z') },
     ] as never,
     today: '2026-10-31',
   });
@@ -148,7 +148,7 @@ describe('variáveis (AD-126)', () => {
     expect(resolveVariables('<p>[NOME_AUTOR] / [ADVOGADOS_AUTOR] / [COMARCA]</p>', values, 'html')).toBe(
       '<p>Ana &lt;Silva&gt; / [ADVOGADOS_AUTOR] / [COMARCA]</p>',
     );
-    expect(resolveVariables('Quesitos do(a) [DENOMINACAO_AUTOR]', values, 'texto')).toBe('Quesitos do(a) Reclamante');
+    expect(resolveVariables('Quesitos do(a) [DENOMINACAO_AUTOR]', values, 'text')).toBe('Quesitos do(a) Reclamante');
   });
 });
 
@@ -157,23 +157,23 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
     for (const template of Object.values(DEFAULT_TEMPLATES)) {
       for (const section of template.sections) {
         if (!section.titleOnly) {
-          expect(section.yesText, section.titulo).not.toBe('');
-          expect(section.noText, section.titulo).not.toBe('');
+          expect(section.yesText, section.title).not.toBe('');
+          expect(section.noText, section.title).not.toBe('');
         }
         expect(sanitizeReportHtml(section.yesText)).toBe(section.yesText);
-        const markers = `${section.titulo}${section.yesText}${section.noText}`.match(/\[[A-Z_]+\]/g) ?? [];
+        const markers = `${section.title}${section.yesText}${section.noText}`.match(/\[[A-Z_]+\]/g) ?? [];
         expect(markers.filter((m) => !(REPORT_VARIABLES as readonly string[]).includes(m))).toEqual([]);
       }
     }
   });
 
   it('cobre NR-15 anexos 1 a 14, NR-16, quesitos e o parecer técnico', () => {
-    const titulos = DEFAULT_TEMPLATES.report.sections.map((section) => section.titulo);
-    for (let anexo = 1; anexo <= 14; anexo += 1) {
-      expect(titulos.some((titulo) => titulo.startsWith(`Anexo ${anexo} — `))).toBe(true);
+    const titulos = DEFAULT_TEMPLATES.report.sections.map((section) => section.title);
+    for (let attachment = 1; attachment <= 14; attachment += 1) {
+      expect(titulos.some((title) => title.startsWith(`Anexo ${attachment} — `))).toBe(true);
     }
     expect(titulos).toEqual(expect.arrayContaining(['Periculosidade — NR-16', 'Conclusão', 'Honorários periciais']));
-    expect(DEFAULT_TEMPLATES.technical_opinion.sections.map((section) => section.titulo)).toEqual(
+    expect(DEFAULT_TEMPLATES.technical_opinion.sections.map((section) => section.title)).toEqual(
       expect.arrayContaining([
         'Medições de agentes quantitativos',
         'Quesitos complementares',
@@ -191,13 +191,13 @@ const JPEG = Buffer.from([
 ]);
 const PHOTO = '/inspections/6560a0a0a0a0a0a0a0a0a0a0/media/0f8fad5b-d9cb-469f-a165-70867728950e';
 
-const dados = (): ReportExportData => ({
+const data = (): ReportExportData => ({
   report: {
     id: 'l1',
     caseId: 'p1',
-    tipo: 'report',
+    type: 'report',
     status: 'draft',
-    titulo: 'Laudo pericial',
+    title: 'Laudo pericial',
     templateName: 'Padrão',
     issues: [],
     createdAt: new Date(),
@@ -205,7 +205,7 @@ const dados = (): ReportExportData => ({
     sections: [
       {
         id: 's1',
-        titulo: 'Objetivo <x>',
+        title: 'Objetivo <x>',
         level: 1,
         titleOnly: false,
         pageBreak: false,
@@ -214,7 +214,7 @@ const dados = (): ReportExportData => ({
       },
       {
         id: 's2',
-        titulo: 'Insalubridade',
+        title: 'Insalubridade',
         level: 1,
         titleOnly: true,
         pageBreak: true,
@@ -223,7 +223,7 @@ const dados = (): ReportExportData => ({
       },
       {
         id: 's3',
-        titulo: 'Anexo 1',
+        title: 'Anexo 1',
         level: 2,
         titleOnly: false,
         pageBreak: false,
@@ -237,12 +237,12 @@ const dados = (): ReportExportData => ({
   expert: { name: 'Eng. Paula', professionalRegistration: 'CREA 1' },
   values: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
   photos: { [PHOTO]: { body: JPEG, mime: 'image/jpeg' } },
-  geradoEm: new Date(),
+  generatedAt: new Date(),
 });
 
 describe('exportação (LAU-03.2)', () => {
   it('PDF: capa, sumário numerado, seções e quebra de página', () => {
-    const { html, footerTemplate } = reportHtml(dados());
+    const { html, footerTemplate } = reportHtml(data());
     expect(html).toContain('LAUDO PERICIAL');
     expect(html).toContain('<dt>Reclamante:</dt><dd>Ana</dd>');
     expect(html).toContain('<li class="n2">2.1. Anexo 1</li>');
@@ -256,16 +256,16 @@ describe('exportação (LAU-03.2)', () => {
   });
 
   it('Word: documento válido com títulos numerados, sumário, lista e tabela', async () => {
-    const files = unzipSync(new Uint8Array(await reportDocx(dados())));
+    const files = unzipSync(new Uint8Array(await reportDocx(data())));
     const document = strFromU8(files['word/document.xml'] as Uint8Array);
     expect(document).toContain('1. Objetivo &lt;x&gt;');
     expect(document).toContain('2.1. Anexo 1');
     expect(document).toContain('TOC \\h \\o');
     expect(document).toContain('<w:tbl>');
     expect(document).toContain('forte');
-    expect(Object.keys(files).filter((nome) => /^word\/media\/.+\./.test(nome))).toHaveLength(1);
+    expect(Object.keys(files).filter((name) => /^word\/media\/.+\./.test(name))).toHaveLength(1);
     expect(imageDimensions(JPEG)).toEqual({ width: 320, height: 240 });
-    const footer = Object.entries(files).find(([nome]) => nome.startsWith('word/footer'));
+    const footer = Object.entries(files).find(([name]) => name.startsWith('word/footer'));
     expect(strFromU8(footer?.[1] as Uint8Array)).toContain('PAGE');
   });
 });

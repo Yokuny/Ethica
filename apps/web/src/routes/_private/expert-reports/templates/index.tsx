@@ -19,12 +19,12 @@ export function TemplatesPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const query = useQuery(templatesQuery());
   const [creating, setCreating] = useState(false);
-  const podeEditar = can(session, 'report_templates', 'create');
+  const canEdit = can(session, 'report_templates', 'create');
 
   return (
     <Card asPage>
       <CardHeader title={t('report_templates')} description={t('report_templates_description')}>
-        {podeEditar && (
+        {canEdit && (
           <CardAction>
             <Button onClick={() => setCreating(true)}>{t('new_template')}</Button>
           </CardAction>
@@ -45,9 +45,9 @@ export function TemplatesPage() {
                 key={template.id}
                 icon={ListTree}
                 render={<Link to="/expert-reports/templates/details" search={{ id: template.id }} />}
-                title={template.nome}
-                badges={template.padrao && <Badge variant="info">{t('standard')}</Badge>}
-                description={[t(template.tipo), `${template.totalSections} ${t('sections').toLowerCase()}`].join(' · ')}
+                title={template.name}
+                badges={template.isDefault && <Badge variant="info">{t('standard')}</Badge>}
+                description={[t(template.type), `${template.totalSections} ${t('sections').toLowerCase()}`].join(' · ')}
               />
             ))}
           </LinkList>

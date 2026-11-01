@@ -38,18 +38,18 @@ export function PrivateIndexPage() {
     return !module || can(session, module);
   });
   const hidden = preferences.data?.hiddenBlocks ?? [];
-  const mostra = (block: HomeBlock) => allowed.includes(block) && !hidden.includes(block);
+  const show = (block: HomeBlock) => allowed.includes(block) && !hidden.includes(block);
   const canCreate = can(session, 'expert_cases', 'create');
 
-  const stats = useQuery({ ...listStatsQuery('/expert-cases/stats'), enabled: mostra('overview') });
+  const stats = useQuery({ ...listStatsQuery('/expert-cases/stats'), enabled: show('overview') });
   const distribution = useQuery({
     ...caseDistributionQuery,
-    enabled: mostra('by_stage') || mostra('by_court'),
+    enabled: show('by_stage') || show('by_court'),
   });
-  const stalled = useQuery({ ...stalledCasesQuery, enabled: mostra('stalled') });
-  const upcoming = useQuery({ ...upcomingAppointmentsQuery({ limit: 5 }), enabled: mostra('upcoming') });
-  const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance && mostra('overview') });
-  const flow = useQuery({ ...monthlyFlowQuery(FLOW_MONTHS), enabled: mostra('cash_flow') });
+  const stalled = useQuery({ ...stalledCasesQuery, enabled: show('stalled') });
+  const upcoming = useQuery({ ...upcomingAppointmentsQuery({ limit: 5 }), enabled: show('upcoming') });
+  const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance && show('overview') });
+  const flow = useQuery({ ...monthlyFlowQuery(FLOW_MONTHS), enabled: show('cash_flow') });
 
   return (
     <Card asPage>
@@ -67,9 +67,9 @@ export function PrivateIndexPage() {
           )}
         </CardAction>
       </CardHeader>
-      {mostra('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
+      {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
       <CardContent className="gap-10 pb-16">
-        {mostra('upcoming') && (
+        {show('upcoming') && (
           <Panel size="sm" title={t('upcoming_commitments')}>
             {upcoming.isLoading ? (
               <DefaultLoading />
@@ -80,7 +80,7 @@ export function PrivateIndexPage() {
             )}
           </Panel>
         )}
-        {mostra('stalled') && (
+        {show('stalled') && (
           <Panel size="sm" title={t('stalled_expert_cases')}>
             {stalled.isLoading ? (
               <DefaultLoading />
@@ -91,14 +91,14 @@ export function PrivateIndexPage() {
             )}
           </Panel>
         )}
-        {mostra('cash_flow') && (
+        {show('cash_flow') && (
           <Panel size="sm" title={t('cash_flow')} description={t('last_6_months')}>
             {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
           </Panel>
         )}
-        {(mostra('by_stage') || mostra('by_court')) && (
+        {(show('by_stage') || show('by_court')) && (
           <div className="grid gap-10 lg:grid-cols-2">
-            {mostra('by_stage') && (
+            {show('by_stage') && (
               <Panel size="sm" title={t('expert_cases_by_stage')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
@@ -107,7 +107,7 @@ export function PrivateIndexPage() {
                 )}
               </Panel>
             )}
-            {mostra('by_court') && (
+            {show('by_court') && (
               <Panel size="sm" title={t('expert_cases_by_court')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
@@ -120,7 +120,7 @@ export function PrivateIndexPage() {
             )}
           </div>
         )}
-        {mostra('sections') && <HomeSections sections={sections} />}
+        {show('sections') && <HomeSections sections={sections} />}
       </CardContent>
       {customizing && <HomeCustomize blocks={allowed} hidden={hidden} onClose={() => setCustomizing(false)} />}
     </Card>

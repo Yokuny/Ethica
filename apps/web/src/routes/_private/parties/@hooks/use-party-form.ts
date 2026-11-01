@@ -11,8 +11,8 @@ export function usePartyForm({ party, onDone }: { party?: PartyRecord; onDone: (
   const form = useForm<CreateParty>({
     resolver: zodResolver(createPartySchema) as unknown as Resolver<CreateParty>,
     defaultValues: {
-      tipo: party?.tipo ?? 'party',
-      nome: party?.nome ?? '',
+      type: party?.type ?? 'party',
+      name: party?.name ?? '',
       document: party?.document ?? '',
       oab: party?.oab ?? '',
       email: party?.email ?? '',
@@ -24,12 +24,12 @@ export function usePartyForm({ party, onDone }: { party?: PartyRecord; onDone: (
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  function onSubmit({ tipo, ...data }: CreateParty) {
+  function onSubmit({ type, ...data }: CreateParty) {
     if (isPending) return;
     setErrorMessage(null);
     const options = { onSuccess: onDone, onError: (error: Error) => setErrorMessage(error.message) };
     if (party) updateMutation.mutate({ id: party.id, data }, options);
-    else createMutation.mutate({ tipo, ...data }, options);
+    else createMutation.mutate({ type, ...data }, options);
   }
 
   return { form, onSubmit: form.handleSubmit(onSubmit), isPending, errorMessage };

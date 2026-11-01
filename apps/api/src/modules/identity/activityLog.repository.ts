@@ -14,8 +14,8 @@ const toRecord = (doc: ActivityDocument): ActivityRecord => ({
   createdAt: doc.createdAt,
 });
 
-export const registrar = async ({ tenantId, userId, ...data }: NewActivity): Promise<void> =>
-  withDbTiming('activityLog.registrar', async () => {
+export const record = async ({ tenantId, userId, ...data }: NewActivity): Promise<void> =>
+  withDbTiming('activityLog.record', async () => {
     const user = await User.findOne(tenantScoped({ Tenant: tenantId, _id: userId }))
       .select('name')
       .lean();

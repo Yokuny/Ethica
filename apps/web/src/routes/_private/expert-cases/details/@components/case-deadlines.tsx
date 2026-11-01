@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CalendarClock } from 'lucide-react';
 import { useState } from 'react';
 import { DeadlineDialog } from '@/components/deadline-dialog.js';
-import { ALERTA_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
+import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
@@ -47,7 +47,7 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
       ) : (
         <LinkList>
           {query.data.map((deadline) => {
-            const alerta = deadlineAlert(deadline, today);
+            const alert = deadlineAlert(deadline, today);
             return (
               <LinkListItem
                 key={deadline.id}
@@ -59,11 +59,11 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
                     onClick={() => setPanel({ kind: 'detail', deadline })}
                   />
                 }
-                title={deadline.titulo}
+                title={deadline.title}
                 badges={
                   <>
                     <Badge variant={DEADLINE_STATUS_VARIANT[deadline.status]}>{t(deadline.status)}</Badge>
-                    {alerta && <Badge variant={ALERTA_VARIANT[alerta]}>{t(alerta)}</Badge>}
+                    {alert && <Badge variant={ALERT_VARIANT[alert]}>{t(alert)}</Badge>}
                   </>
                 }
                 description={[

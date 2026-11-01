@@ -8,7 +8,7 @@ export type Geocoder = { geocode: (address: string) => Promise<Coordinates | nul
 const INTERVALO_MS = 1100;
 
 export const createNominatimGeocoder = (config: { baseUrl: string; userAgent: string }): Geocoder => {
-  let fila: Promise<unknown> = Promise.resolve();
+  let queue: Promise<unknown> = Promise.resolve();
 
   const lookup = async (address: string): Promise<Coordinates | null> => {
     const url = new URL('/search', config.baseUrl);
@@ -18,15 +18,15 @@ export const createNominatimGeocoder = (config: { baseUrl: string; userAgent: st
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) throw new Error(`nominatim ${res.status}`);
-    const [primeiro] = (await res.json()) as Array<{ lat: string; lon: string }>;
-    return primeiro ? { lat: Number(primeiro.lat), lng: Number(primeiro.lon) } : null;
+    const [first] = (await res.json()) as Array<{ lat: string; lon: string }>;
+    return first ? { lat: Number(first.lat), lng: Number(first.lon) } : null;
   };
 
   return {
     // Uma consulta por vez, com intervalo, mesmo com vários pedidos simultâneos.
     geocode: (address) => {
-      const result = fila.then(() => lookup(address));
-      fila = result.catch(() => undefined).then(() => new Promise((ok) => setTimeout(ok, INTERVALO_MS)));
+      const result = queue.then(() => lookup(address));
+      queue = result.catch(() => undefined).then(() => new Promise((ok) => setTimeout(ok, INTERVALO_MS)));
       return result;
     },
   };

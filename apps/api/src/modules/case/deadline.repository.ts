@@ -6,11 +6,11 @@ import type { CreateDeadline, DeadlineRecord, DeadlineWrite, NextDeadline, Notic
 const toRecord = (doc: DeadlineDocument): DeadlineRecord => ({
   id: doc._id.toString(),
   caseId: doc.Case.toString(),
-  titulo: doc.titulo,
+  title: doc.title,
   dueDate: doc.dueDate,
   status: doc.status,
   filedDate: doc.filedDate,
-  observacoes: doc.observacoes,
+  notes: doc.notes,
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });
@@ -44,12 +44,12 @@ export const updateDeadline = async (
 export const filePending = async (
   tenantId: string,
   caseId: string,
-  titulo: string,
+  title: string,
   filedDate: string,
 ): Promise<DeadlineRecord | null> =>
   withDbTiming('deadline.filePending', async () => {
     const doc = await Deadline.findOneAndUpdate(
-      tenantScoped({ Tenant: tenantId, Case: caseId, titulo, status: 'pending' as const }),
+      tenantScoped({ Tenant: tenantId, Case: caseId, title, status: 'pending' as const }),
       { $set: { status: 'filed', filedDate } },
       { sort: { dueDate: 1, _id: 1 }, returnDocument: 'after', runValidators: true },
     ).lean();
@@ -105,12 +105,12 @@ export const listPendingInDays = async (days: string[]): Promise<NoticeDeadline[
 export const upcomingByCaseIds = async (tenantId: string, ids: string[]): Promise<Map<string, NextDeadline>> =>
   withDbTiming('deadline.upcomingByCaseIds', async () => {
     if (ids.length === 0) return new Map();
-    const rows = await Deadline.aggregate<{ _id: unknown; titulo: string; dueDate: string }>([
+    const rows = await Deadline.aggregate<{ _id: unknown; title: string; dueDate: string }>([
       { $match: { Tenant: toObjectId(tenantId), status: 'pending', Case: { $in: ids.map(toObjectId) } } },
       { $sort: { dueDate: 1, _id: 1 } },
-      { $group: { _id: '$Case', titulo: { $first: '$titulo' }, dueDate: { $first: '$dueDate' } } },
+      { $group: { _id: '$Case', title: { $first: '$title' }, dueDate: { $first: '$dueDate' } } },
     ]);
-    return new Map(rows.map((row) => [String(row._id), { titulo: row.titulo, dueDate: row.dueDate }]));
+    return new Map(rows.map((row) => [String(row._id), { title: row.title, dueDate: row.dueDate }]));
   });
 
 // Exportação de dados (DOC-04) e cronograma: todos os prazos do tenant, por vencimento.

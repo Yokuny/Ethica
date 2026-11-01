@@ -19,7 +19,7 @@ export function useTemplateSectionForm({
   const form = useForm<TemplateSection>({
     resolver: zodResolver(templateSectionSchema),
     defaultValues: {
-      titulo: section?.titulo ?? '',
+      title: section?.title ?? '',
       level: section?.level ?? 1,
       titleOnly: section?.titleOnly ?? false,
       pageBreak: section?.pageBreak ?? false,

@@ -32,7 +32,7 @@ export type DatajudSearchResult = { items: DatajudResult[]; cursor?: (string | n
 export type OpportunityRecord = Omit<DatajudResult, 'opportunityId'> & {
   id: string;
   status: OpportunityStatus;
-  observacoes?: string;
+  notes?: string;
   caseId?: string;
   createdAt: string;
 };

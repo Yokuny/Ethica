@@ -9,18 +9,18 @@ import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { TemplateSectionRecord } from '@/query/report.js';
 
-export type Escolhas = Record<string, ReportVariant | undefined>;
+export type Choices = Record<string, ReportVariant | undefined>;
 
 type SectionsPickerProps = {
   sections: TemplateSectionRecord[];
-  escolhas: Escolhas;
-  onChange: (escolhas: Escolhas) => void;
+  choices: Choices;
+  onChange: (choices: Choices) => void;
 };
 
 // "O que deve constar" (LAU-02.1): marcar as seções e escolher o texto "sim" ou "não".
-export function SectionsPicker({ sections, escolhas, onChange }: SectionsPickerProps) {
-  const numeros = numberSections(sections);
-  const checked = sections.filter((section) => escolhas[section.id]).length;
+export function SectionsPicker({ sections, choices, onChange }: SectionsPickerProps) {
+  const numbers = numberSections(sections);
+  const checked = sections.filter((section) => choices[section.id]).length;
 
   return (
     <Panel
@@ -31,7 +31,7 @@ export function SectionsPicker({ sections, escolhas, onChange }: SectionsPickerP
           <Button
             variant="outline"
             onClick={() =>
-              onChange(Object.fromEntries(sections.map((section) => [section.id, escolhas[section.id] ?? 'yes'])))
+              onChange(Object.fromEntries(sections.map((section) => [section.id, choices[section.id] ?? 'yes'])))
             }
           >
             {t('select_all')}
@@ -44,7 +44,7 @@ export function SectionsPicker({ sections, escolhas, onChange }: SectionsPickerP
     >
       <ul className="flex flex-col divide-y divide-border">
         {sections.map((section, i) => {
-          const variant = escolhas[section.id];
+          const variant = choices[section.id];
           return (
             <li
               key={section.id}
@@ -56,13 +56,13 @@ export function SectionsPicker({ sections, escolhas, onChange }: SectionsPickerP
             >
               <Checkbox
                 checked={Boolean(variant)}
-                onCheckedChange={(checked) => onChange({ ...escolhas, [section.id]: checked ? 'yes' : undefined })}
-                aria-label={section.titulo}
+                onCheckedChange={(checked) => onChange({ ...choices, [section.id]: checked ? 'yes' : undefined })}
+                aria-label={section.title}
                 labelClassName="normal-case tracking-normal"
                 label={
                   <span className="flex flex-col">
                     <ItemTitle>
-                      {numeros[i]}. {section.titulo}
+                      {numbers[i]}. {section.title}
                     </ItemTitle>
                     {section.titleOnly && <ItemDescription>{t('title_only')}</ItemDescription>}
                   </span>
@@ -71,7 +71,7 @@ export function SectionsPicker({ sections, escolhas, onChange }: SectionsPickerP
               {variant && !section.titleOnly && (
                 <ToggleGroup
                   value={variant}
-                  onValueChange={(value) => onChange({ ...escolhas, [section.id]: value as ReportVariant })}
+                  onValueChange={(value) => onChange({ ...choices, [section.id]: value as ReportVariant })}
                   className="ml-auto"
                 >
                   <ToggleGroupItem value="yes" tone="success">

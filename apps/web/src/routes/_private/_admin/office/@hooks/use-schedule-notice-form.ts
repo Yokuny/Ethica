@@ -16,8 +16,8 @@ export function useScheduleNoticeForm(notice: ScheduleNotice) {
 
   function onSubmit(data: UpdateScheduleNotice) {
     mutation.mutate(data, {
-      onSuccess: (salvo) => {
-        form.reset(salvo);
+      onSuccess: (saved) => {
+        form.reset(saved);
         toast.success(t('saved_successfully'));
       },
       onError: (error) => toast.error(error.message),

@@ -63,14 +63,14 @@ describe('diário de bordo (GES-01, AD-134)', () => {
     const admin = await seedSession(tenant._id, ['admin']);
     const operator = await seedSession(tenant._id, ['operator']);
 
-    const criada = await operator.as(request(app).post('/expert-cases')).send({
+    const created = await operator.as(request(app).post('/expert-cases')).send({
       processNumber: '0001234-56.2026.5.02.0001',
       courtType: 'labor',
       role: 'court_expert',
       court: 'TRT2',
       subject: 'Insalubridade',
     });
-    expect(criada.status).toBe(201);
+    expect(created.status).toBe(201);
     // Leitura não entra no diário.
     await operator.as(request(app).get('/expert-cases'));
 
@@ -80,12 +80,12 @@ describe('diário de bordo (GES-01, AD-134)', () => {
       userName: operator.user.name,
       module: 'expert_cases',
       action: 'create',
-      recordId: criada.body.data.id,
+      recordId: created.body.data.id,
       label: '0001234-56.2026.5.02.0001',
     });
 
-    const vazio = await admin.as(request(app).get('/tenant/activity-log?action=delete'));
-    expect(vazio.body.data.total).toBe(0);
+    const empty = await admin.as(request(app).get('/tenant/activity-log?action=delete'));
+    expect(empty.body.data.total).toBe(0);
 
     const negado = await operator.as(request(app).get('/tenant/activity-log'));
     expect(negado.status).toBe(403);
@@ -93,16 +93,16 @@ describe('diário de bordo (GES-01, AD-134)', () => {
 
   it('não grava ação recusada nem mistura escritórios', async () => {
     const tenant = await seedTenant();
-    const outro = await seedTenant();
+    const other = await seedTenant();
     const operator = await seedSession(tenant._id, ['operator']);
-    const adminOutro = await seedSession(outro._id, ['admin']);
+    const adminOther = await seedSession(other._id, ['admin']);
 
-    const recusada = await operator.as(request(app).delete('/expert-cases/6650f1a2b3c4d5e6f7a8b9c0'));
-    expect(recusada.status).toBe(403);
+    const declined = await operator.as(request(app).delete('/expert-cases/6650f1a2b3c4d5e6f7a8b9c0'));
+    expect(declined.status).toBe(403);
     await operator.as(request(app).patch('/me/profile')).send({ name: 'Nome Novo' });
 
     await expect.poll(async () => Activity.countDocuments({ Tenant: tenant._id })).toBe(1);
-    const res = await adminOutro.as(request(app).get('/tenant/activity-log'));
+    const res = await adminOther.as(request(app).get('/tenant/activity-log'));
     expect(res.body.data.total).toBe(0);
   });
 });

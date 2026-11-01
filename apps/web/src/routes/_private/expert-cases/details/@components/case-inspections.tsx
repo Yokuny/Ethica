@@ -18,7 +18,7 @@ export function CaseInspections({ caseId }: { caseId: string }) {
   const records = query.data ?? [];
   const photos = records.flatMap(({ appointment, inspection }) =>
     inspection.media
-      .filter((media) => media.tipo === 'photo')
+      .filter((media) => media.type === 'photo')
       .map((media) => ({ appointmentId: appointment.id, media })),
   );
 
@@ -36,12 +36,12 @@ export function CaseInspections({ caseId }: { caseId: string }) {
                 key={appointment.id}
                 icon={ClipboardList}
                 render={<Link to="/field/inspection" search={{ id: appointment.id }} />}
-                title={appointment.titulo}
+                title={appointment.title}
                 badges={<Badge variant="secondary">{t(appointment.status)}</Badge>}
                 description={[
-                  formatDateTime(appointment.inicio),
-                  `${inspection.dados.attendees.length} ${t('attendees').toLowerCase()}`,
-                  `${inspection.media.filter((media) => media.tipo === 'photo').length} ${t('photos').toLowerCase()}`,
+                  formatDateTime(appointment.start),
+                  `${inspection.data.attendees.length} ${t('attendees').toLowerCase()}`,
+                  `${inspection.media.filter((media) => media.type === 'photo').length} ${t('photos').toLowerCase()}`,
                 ].join(' · ')}
               />
             ))}

@@ -26,7 +26,7 @@ describe('Record (AD-072)', () => {
         </RecordHeader>
         <RecordStats>
           <RecordStat label="SKU" value="AUR-031" />
-          <RecordStat label="Estoque" value={4} description="unidades" />
+          <RecordStat label="Estoque" value={4} description="units" />
         </RecordStats>
       </>,
     );
@@ -35,7 +35,7 @@ describe('Record (AD-072)', () => {
     expect(screen.getByText('Produto')).toBeVisible();
     expect(screen.getByText('Ativo')).toBeVisible();
     expect(screen.getByText('AUR-031')).toBeVisible();
-    expect(screen.getByText('unidades')).toBeVisible();
+    expect(screen.getByText('units')).toBeVisible();
   });
 
   it('rules the record strip by default and keeps the gray band for list indicators', () => {

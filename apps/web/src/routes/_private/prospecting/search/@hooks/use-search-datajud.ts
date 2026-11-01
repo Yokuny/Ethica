@@ -39,7 +39,7 @@ export function useSearchDatajud() {
     const next = {
       court: data.court,
       technicalSubjects: data.court.startsWith('trt') ? data.technicalSubjects : undefined,
-      termo: data.termo || undefined,
+      term: data.term || undefined,
       courtUnit: data.courtUnit || undefined,
       processNumber: data.processNumber || undefined,
       caseClassCode: data.caseClassCode,

@@ -12,18 +12,18 @@ import { useTemplateCreateForm } from '../@hooks/use-template-create-form.js';
 const BLANK = 'blank';
 
 type TemplateCreateFormProps = {
-  base?: Pick<TemplateRecord, 'id' | 'nome' | 'tipo'>;
+  base?: Pick<TemplateRecord, 'id' | 'name' | 'type'>;
   onDone: (template: TemplateRecord) => void;
   onClose: () => void;
 };
 
 export function TemplateCreateForm({ base, onDone, onClose }: TemplateCreateFormProps) {
   const { form, onSubmit, isPending, errorMessage } = useTemplateCreateForm({ base, onDone });
-  const tipo = form.watch('tipo');
-  const templates = useQuery(templatesQuery(tipo));
+  const type = form.watch('type');
+  const templates = useQuery(templatesQuery(type));
   const bases = [
     { value: BLANK, label: t('blank_template') },
-    ...(templates.data ?? []).map((template) => ({ value: template.id, label: template.nome })),
+    ...(templates.data ?? []).map((template) => ({ value: template.id, label: template.name })),
   ];
 
   return (
@@ -32,13 +32,13 @@ export function TemplateCreateForm({ base, onDone, onClose }: TemplateCreateForm
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <TextField
             control={form.control}
-            name="nome"
+            name="name"
             label={t('name')}
             placeholder={t('template_name_placeholder')}
           />
           <SelectField
             control={form.control}
-            name="tipo"
+            name="type"
             label={t('document_type')}
             placeholder={t('choose_type')}
             items={REPORT_TYPES.map((value) => ({ value, label: t(value) }))}

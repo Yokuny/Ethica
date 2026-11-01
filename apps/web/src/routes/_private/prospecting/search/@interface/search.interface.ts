@@ -6,7 +6,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 export const searchFormSchema = z.object({
   court: z.enum(ALL_DATAJUD_COURTS),
   technicalSubjects: z.array(z.enum(DATAJUD_TECHNICAL_SUBJECTS)),
-  termo: z.string().trim().max(120).optional(),
+  term: z.string().trim().max(120).optional(),
   courtUnit: z.string().trim().max(120).optional(),
   processNumber: z
     .string()
@@ -21,13 +21,13 @@ export const searchFormSchema = z.object({
 export type SearchForm = z.infer<typeof searchFormSchema>;
 export type SearchQuery = Pick<
   DatajudSearch,
-  'court' | 'technicalSubjects' | 'termo' | 'courtUnit' | 'processNumber' | 'caseClassCode' | 'courtUnitCode'
+  'court' | 'technicalSubjects' | 'term' | 'courtUnit' | 'processNumber' | 'caseClassCode' | 'courtUnitCode'
 >;
 
 export const DEFAULT_SEARCH: SearchForm = {
   court: 'trt2',
   technicalSubjects: [...DATAJUD_TECHNICAL_SUBJECTS],
-  termo: '',
+  term: '',
   courtUnit: '',
   processNumber: '',
 };

@@ -12,7 +12,7 @@ import mongoose, { Schema } from 'mongoose';
 export interface InstallmentDocument {
   _id: mongoose.Types.ObjectId;
   amountCents: number;
-  data: string;
+  date: string;
   account?: string;
 }
 
@@ -21,7 +21,7 @@ export interface TransactionDocument {
   Tenant: mongoose.Types.ObjectId;
   kind: TransactionKind;
   category: TransactionCategory;
-  descricao: string;
+  description: string;
   amountCents: number;
   // Datas de calendário `YYYY-MM-DD` no fuso de exibição (AD-036, AD-103).
   dueDate: string;
@@ -38,7 +38,7 @@ const transactionSchema = new Schema<TransactionDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     kind: { type: String, enum: TRANSACTION_KINDS, required: true },
     category: { type: String, enum: ALL_TRANSACTION_CATEGORIES, required: true },
-    descricao: { type: String, required: true, trim: true },
+    description: { type: String, required: true, trim: true },
     amountCents: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
     dueDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
     status: { type: String, enum: TRANSACTION_STATUS, default: 'expected', required: true },
@@ -47,7 +47,7 @@ const transactionSchema = new Schema<TransactionDocument>(
       type: [
         new Schema<InstallmentDocument>({
           amountCents: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
-          data: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
+          date: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
           account: { type: String, trim: true },
         }),
       ],

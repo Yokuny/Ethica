@@ -85,7 +85,7 @@ const caseFields = z.object({
   parties: z.array(casePartyInputSchema).max(30, 'partes demais').optional(),
   nominationDate: calendarDateSchema.optional(),
   proposedFeesCents: centsSchema.optional(),
-  observacoes: z.string().trim().max(2000, 'observações inválidas').optional(),
+  notes: z.string().trim().max(2000, 'observações inválidas').optional(),
   // Dados auxiliares do laudo trabalhista (IMP-04).
   docketingDate: calendarDateSchema.optional(),
   hireDate: calendarDateSchema.optional(),
@@ -133,24 +133,24 @@ export type MovementType = (typeof MOVEMENT_TYPES)[number];
 
 export const createMovementSchema = z
   .object({
-    tipo: z.enum(MOVEMENT_TYPES),
-    data: calendarDateSchema,
-    observacoes: z.string().trim().max(500, 'observações inválidas').optional(),
+    type: z.enum(MOVEMENT_TYPES),
+    date: calendarDateSchema,
+    notes: z.string().trim().max(500, 'observações inválidas').optional(),
   })
   .strict();
 export type CreateMovement = z.infer<typeof createMovementSchema>;
 
 // Período imprescrito sugerido (AD-115): do mais recente entre (autuação − 5 anos) e a
 // admissão até a demissão; sem demissão, até a autuação. Sem autuação, sem sugestão.
-export const suggestNonPrescribedPeriod = (datas: {
+export const suggestNonPrescribedPeriod = (dates: {
   docketingDate?: string;
   hireDate?: string;
   terminationDate?: string;
-}): { inicio: string; fim: string } | undefined => {
-  const { docketingDate, hireDate, terminationDate } = datas;
+}): { start: string; end: string } | undefined => {
+  const { docketingDate, hireDate, terminationDate } = dates;
   if (!docketingDate) return undefined;
   const [year, month, day] = docketingDate.split('-');
   const fiveYearsBefore = `${Number(year) - 5}-${month}-${month === '02' && day === '29' ? '28' : day}`;
-  const inicio = hireDate && hireDate > fiveYearsBefore ? hireDate : fiveYearsBefore;
-  return { inicio, fim: terminationDate ?? docketingDate };
+  const start = hireDate && hireDate > fiveYearsBefore ? hireDate : fiveYearsBefore;
+  return { start, end: terminationDate ?? docketingDate };
 };

@@ -13,26 +13,27 @@ type FieldCardProps = {
   onStatus: (status: 'done' | 'canceled', reason?: 'postponed' | 'absent') => void;
 };
 
-const mapsUrl = (local: string) => `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(local)}`;
-const wazeUrl = (local: string) => `https://waze.com/ul?q=${encodeURIComponent(local)}&navigate=yes`;
+const mapsUrl = (location: string) =>
+  `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
+const wazeUrl = (location: string) => `https://waze.com/ul?q=${encodeURIComponent(location)}&navigate=yes`;
 
 // Um compromisso do dia no celular (CAM-01): chegar, marcar o resultado e abrir o registro.
 export function FieldCard({ item, onStatus }: FieldCardProps) {
   const { appointment, legalCase, inspection } = item;
   const status = appointment.reason ?? appointment.status;
-  const registrado = inspection.versao > 0 || inspection.media.length > 0;
+  const recorded = inspection.version > 0 || inspection.media.length > 0;
 
   return (
     <Item render={<li />} className="gap-3">
       <div className="flex basis-full items-start gap-3">
         <ItemContent>
           <div className="flex flex-wrap items-center gap-2">
-            <ItemTitle className="tabular-nums">{formatDisplayTime(appointment.inicio)}</ItemTitle>
-            <Badge variant={APPOINTMENT_TYPE_VARIANT[appointment.tipo]}>{t(appointment.tipo)}</Badge>
+            <ItemTitle className="tabular-nums">{formatDisplayTime(appointment.start)}</ItemTitle>
+            <Badge variant={APPOINTMENT_TYPE_VARIANT[appointment.type]}>{t(appointment.type)}</Badge>
             <Badge variant="secondary">{t(status)}</Badge>
-            {registrado && <Badge variant="success">{t('record_started')}</Badge>}
+            {recorded && <Badge variant="success">{t('record_started')}</Badge>}
           </div>
-          <ItemTitle>{appointment.titulo}</ItemTitle>
+          <ItemTitle>{appointment.title}</ItemTitle>
           {legalCase && (
             <ItemDescription className="line-clamp-none">
               {[legalCase.processNumber, [legalCase.plaintiff, legalCase.defendant].filter(Boolean).join(' × ')]
@@ -40,23 +41,23 @@ export function FieldCard({ item, onStatus }: FieldCardProps) {
                 .join(' · ')}
             </ItemDescription>
           )}
-          {appointment.local && (
+          {appointment.location && (
             <ItemDescription className="line-clamp-none">
               <MapPin className="mr-1 inline size-3.5" aria-hidden />
-              {appointment.local}
+              {appointment.location}
             </ItemDescription>
           )}
         </ItemContent>
       </div>
       <ItemFooter className="flex-wrap gap-2">
         <ItemActions className="flex-wrap">
-          {appointment.local && (
+          {appointment.location && (
             <>
               <Button
                 variant="outline"
                 nativeButton={false}
                 render={
-                  <a href={mapsUrl(appointment.local)} target="_blank" rel="noreferrer">
+                  <a href={mapsUrl(appointment.location)} target="_blank" rel="noreferrer">
                     Google Maps
                   </a>
                 }
@@ -65,7 +66,7 @@ export function FieldCard({ item, onStatus }: FieldCardProps) {
                 variant="outline"
                 nativeButton={false}
                 render={
-                  <a href={wazeUrl(appointment.local)} target="_blank" rel="noreferrer">
+                  <a href={wazeUrl(appointment.location)} target="_blank" rel="noreferrer">
                     Waze
                   </a>
                 }

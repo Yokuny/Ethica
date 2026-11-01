@@ -23,7 +23,7 @@ export const deadlineAlert = (
   return undefined;
 };
 
-export const ALERTA_VARIANT: Record<DeadlineAlert, IndicatorVariant> = {
+export const ALERT_VARIANT: Record<DeadlineAlert, IndicatorVariant> = {
   deadline_overdue: 'error',
   due_soon: 'warning',
 };

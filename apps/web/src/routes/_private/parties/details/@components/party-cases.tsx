@@ -22,7 +22,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
       ) : (
         <LinkList>
           {query.data.map((legalCase) => {
-            const vinculo = legalCase.parties.find((party) => party.partyId === partyId);
+            const link = legalCase.parties.find((party) => party.partyId === partyId);
             return (
               <LinkListItem
                 key={legalCase.id}
@@ -30,7 +30,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
                 render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}
                 title={legalCase.processNumber}
                 badges={<Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>{t(legalCase.status)}</Badge>}
-                description={[vinculo && t(vinculo.side), legalCase.subject].filter(Boolean).join(' · ')}
+                description={[link && t(link.side), legalCase.subject].filter(Boolean).join(' · ')}
               />
             );
           })}

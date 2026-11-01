@@ -37,7 +37,7 @@ tr { break-inside: avoid; }
 img { display: block; max-width: 100%; max-height: 120mm; margin: 3mm auto 1mm; break-inside: avoid; }
 `;
 
-const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
+const TYPE = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 
 const coverRow = (label: string | undefined, amount: string | undefined): string =>
   label && amount ? `<div><dt>${esc(label)}:</dt><dd>${esc(amount)}</dd></div>` : '';
@@ -50,8 +50,8 @@ const withPhotos = (html: string, photos: ReportExportData['photos']): string =>
   });
 
 export const reportHtml = ({ report, legalCase, identity, expert, values, photos }: ReportExportData): PdfDocument => {
-  const numeros = numberSections(report.sections);
-  const cover = `<section class="capa"><div><p class="tipo">${TIPO[report.tipo]}</p><dl>${[
+  const numbers = numberSections(report.sections);
+  const cover = `<section class="capa"><div><p class="tipo">${TYPE[report.type]}</p><dl>${[
     coverRow('Processo nº', legalCase.processNumber),
     coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
     coverRow('Tribunal', legalCase.court),
@@ -66,17 +66,17 @@ export const reportHtml = ({ report, legalCase, identity, expert, values, photos
     .map((row) => `<p>${esc(row)}</p>`)
     .join('')}<p>${esc(values['[DATA_EXTENSO]'])}</p></div></section>`;
   const summary = `<section class="sumario"><p class="titulo-sumario"><strong>SUMÁRIO</strong></p><ol>${report.sections
-    .map((section, i) => `<li class="n${section.level}">${numeros[i]}. ${esc(section.titulo)}</li>`)
+    .map((section, i) => `<li class="n${section.level}">${numbers[i]}. ${esc(section.title)}</li>`)
     .join('')}</ol></section>`;
   const sections = report.sections
     .map((section, i) => {
       const level = Math.min(section.level, 3);
       const tag = `h${level + 1}`;
-      return `<section class="secao${section.pageBreak ? ' quebra' : ''}"><${tag} class="titulo-secao n${level}">${numeros[i]}. ${esc(section.titulo)}</${tag}>${section.titleOnly ? '' : withPhotos(section.html, photos)}</section>`;
+      return `<section class="secao${section.pageBreak ? ' quebra' : ''}"><${tag} class="titulo-secao n${level}">${numbers[i]}. ${esc(section.title)}</${tag}>${section.titleOnly ? '' : withPhotos(section.html, photos)}</section>`;
     })
     .join('');
   return {
-    html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(TIPO[report.tipo])} ${esc(legalCase.processNumber)}</title><style>${CSS}</style></head><body>${cover}${summary}${sections}</body></html>`,
+    html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(TYPE[report.type])} ${esc(legalCase.processNumber)}</title><style>${CSS}</style></head><body>${cover}${summary}${sections}</body></html>`,
     ...headerFooter(identity, expert.name),
   };
 };

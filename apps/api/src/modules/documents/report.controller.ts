@@ -1,4 +1,4 @@
-import { pode, respObj } from '@ethica/contracts';
+import { hasPermission, respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
@@ -13,11 +13,11 @@ type Providers = Pick<ReportRouterDeps, 'pdf' | 'storage'>;
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
-const contexto = (req: Request): DocumentContext => {
+const context = (req: Request): DocumentContext => {
   return {
     tenantId: tenantOf(req),
     userId: req.tenantUser.user,
-    canSeeFinance: pode(req.tenantUser.permissions, 'finance', 'view'),
+    canSeeFinance: hasPermission(req.tenantUser.permissions, 'finance', 'view'),
     now: new Date(),
   };
 };
@@ -42,7 +42,7 @@ const json =
     }
   };
 
-const removido =
+const removed =
   (run: (req: Request) => Promise<void>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -59,8 +59,8 @@ const file =
     try {
       const generated = await generate(req);
       res
-        .set('Content-Type', generated.tipo)
-        .set('Content-Disposition', `attachment; filename="${generated.nome}"`)
+        .set('Content-Type', generated.type)
+        .set('Content-Disposition', `attachment; filename="${generated.name}"`)
         .set('Cache-Control', 'no-store')
         .end(generated.conteudo);
     } catch (e) {
@@ -73,12 +73,12 @@ const sectionId = (req: Request): string => req.params.sectionId as string;
 
 // Modelos (LAU-01, LAU-05)
 export const listTemplates = json((req) =>
-  templateService.listTemplates(tenantOf(req), (req.query as unknown as ListTemplatesQuery).tipo),
+  templateService.listTemplates(tenantOf(req), (req.query as unknown as ListTemplatesQuery).type),
 );
 export const getTemplate = json((req) => templateService.getTemplate(tenantOf(req), id(req)));
 export const createTemplate = json((req) => templateService.createTemplate(tenantOf(req), req.body), 201);
-export const renameTemplate = json((req) => templateService.renameTemplate(tenantOf(req), id(req), req.body.nome));
-export const deleteTemplate = removido((req) => templateService.deleteTemplate(tenantOf(req), id(req)));
+export const renameTemplate = json((req) => templateService.renameTemplate(tenantOf(req), id(req), req.body.name));
+export const deleteTemplate = removed((req) => templateService.deleteTemplate(tenantOf(req), id(req)));
 export const addTemplateSection = json((req) => templateService.addSection(tenantOf(req), id(req), req.body), 201);
 export const updateTemplateSection = json((req) =>
   templateService.updateSection(tenantOf(req), id(req), sectionId(req), req.body),
@@ -94,17 +94,17 @@ export const moveTemplateSection = json((req) =>
 export const listReports = json((req) =>
   reportService.listReports(tenantOf(req), req.query as unknown as ListReportsQuery),
 );
-export const getReport = json((req) => reportService.openReport(contexto(req), id(req)));
+export const getReport = json((req) => reportService.openReport(context(req), id(req)));
 export const createReport = (providers: Providers) =>
-  json((req) => reportService.createReport(providers, contexto(req), req.body), 201);
+  json((req) => reportService.createReport(providers, context(req), req.body), 201);
 export const updateReportSection = json((req) =>
-  reportService.updateSection(contexto(req), id(req), sectionId(req), req.body),
+  reportService.updateSection(context(req), id(req), sectionId(req), req.body),
 );
-export const removeReportSection = json((req) => reportService.removeSection(contexto(req), id(req), sectionId(req)));
+export const removeReportSection = json((req) => reportService.removeSection(context(req), id(req), sectionId(req)));
 export const completeReport = (providers: Providers) =>
-  json((req) => reportService.completeReport(providers, contexto(req), id(req), req.body));
-export const deleteReport = removido((req) => reportService.deleteReport(tenantOf(req), id(req)));
+  json((req) => reportService.completeReport(providers, context(req), id(req), req.body));
+export const deleteReport = removed((req) => reportService.deleteReport(tenantOf(req), id(req)));
 export const reportPdf = (providers: Providers) =>
-  file((req) => reportService.generatePdf(providers, contexto(req), id(req)));
+  file((req) => reportService.generatePdf(providers, context(req), id(req)));
 export const reportDocx = (providers: Providers) =>
-  file((req) => reportService.generateDocx(providers, contexto(req), id(req)));
+  file((req) => reportService.generateDocx(providers, context(req), id(req)));

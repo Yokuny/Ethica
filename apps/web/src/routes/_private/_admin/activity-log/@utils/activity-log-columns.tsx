@@ -11,7 +11,7 @@ import {
 import type { Activity } from '../@query/activityLog.js';
 
 // Módulos com tela de detalhe: o registro vira link enquanto existir.
-const DETALHE = {
+const DETAIL = {
   expert_cases: '/expert-cases/details',
   parties: '/parties/details',
   expert_reports: '/expert-reports/details',
@@ -19,12 +19,12 @@ const DETALHE = {
 } as const;
 
 function FieldRecord({ activity }: { activity: Activity }) {
-  const texto = activity.label ?? (activity.recordId ? t('record') : '—');
-  const destino = activity.module in DETALHE ? DETALHE[activity.module as keyof typeof DETALHE] : undefined;
-  if (!destino || !activity.recordId) return <TableStack>{texto}</TableStack>;
+  const text = activity.label ?? (activity.recordId ? t('record') : '—');
+  const destination = activity.module in DETAIL ? DETAIL[activity.module as keyof typeof DETAIL] : undefined;
+  if (!destination || !activity.recordId) return <TableStack>{text}</TableStack>;
   return (
-    <AppLink to={destino} search={{ id: activity.recordId }}>
-      {texto}
+    <AppLink to={destination} search={{ id: activity.recordId }}>
+      {text}
     </AppLink>
   );
 }

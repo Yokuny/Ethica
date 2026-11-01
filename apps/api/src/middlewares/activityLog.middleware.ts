@@ -31,7 +31,7 @@ const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
   move: 'update',
 };
 // Efeito técnico ou leitura com POST: não é ação de quem usa o sistema.
-const IGNORADAS = [
+const IGNORED = [
   '/me/preferences',
   '/auth/signin',
   '/auth/signout',
@@ -39,13 +39,13 @@ const IGNORADAS = [
   '/platform/',
   '/prospecting/datajud/search',
 ];
-const LABELS = ['processNumber', 'titulo', 'nome', 'descricao', 'email'] as const;
+const LABELS = ['processNumber', 'title', 'name', 'description', 'email'] as const;
 
 const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
-  const [primeiro, segundo] = literals;
-  if (primeiro === 'expert-reports') return segundo === 'templates' ? 'report_templates' : 'expert_reports';
-  if (primeiro === 'tenant') return segundo === 'invites' ? 'users' : 'office';
-  if (primeiro === 'auth') return 'users';
+  const [first, second] = literals;
+  if (first === 'expert-reports') return second === 'templates' ? 'report_templates' : 'expert_reports';
+  if (first === 'tenant') return second === 'invites' ? 'users' : 'office';
+  if (first === 'auth') return 'users';
   const map: Record<string, ActivityLogModule> = {
     'expert-cases': 'expert_cases',
     parties: 'parties',
@@ -56,19 +56,19 @@ const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
     documents: 'office',
     me: 'account',
   };
-  return primeiro ? map[primeiro] : undefined;
+  return first ? map[first] : undefined;
 };
 
 // Módulo, recurso e ação a partir do método e do caminho; `undefined` = não registra.
-export const descreverRequisicao = (
+export const describeRequest = (
   method: string,
   path: string,
 ): { module: ActivityLogModule; resource?: string; action: ActivityLogAction; recordId?: string } | undefined => {
   const dataExport = method === 'GET' && path === '/documents/export';
   if (!ESCRITA.has(method) && !dataExport) return undefined;
-  if (IGNORADAS.some((prefix) => path.startsWith(prefix)) || path.endsWith('/geocode')) return undefined;
-  const segmentos = path.split('/').filter(Boolean);
-  const literals = segmentos.filter((segmento) => !OBJECT_ID.test(segmento));
+  if (IGNORED.some((prefix) => path.startsWith(prefix)) || path.endsWith('/geocode')) return undefined;
+  const segments = path.split('/').filter(Boolean);
+  const literals = segments.filter((segment) => !OBJECT_ID.test(segment));
   const module = moduleOf(literals);
   if (!module) return undefined;
   const last = literals.at(-1) ?? '';
@@ -76,20 +76,20 @@ export const descreverRequisicao = (
   if (!action) return undefined;
   const internal = literals.slice(module === 'report_templates' || literals[0] === 'tenant' ? 2 : 1);
   const resource = internal.filter((literal) => !(literal in ACTION_BY_SUFFIX) && literal !== 'import').at(-1);
-  return { module, action, resource, recordId: segmentos.find((segmento) => OBJECT_ID.test(segmento)) };
+  return { module, action, resource, recordId: segments.find((segment) => OBJECT_ID.test(segment)) };
 };
 
 const labelOf = (data: unknown): string | undefined => {
   if (!data || typeof data !== 'object') return undefined;
   const record = data as Record<string, unknown>;
-  const chave = LABELS.find((nome) => typeof record[nome] === 'string' && record[nome]);
-  return chave ? (record[chave] as string) : undefined;
+  const key = LABELS.find((name) => typeof record[name] === 'string' && record[name]);
+  return key ? (record[key] as string) : undefined;
 };
 
-export const createActivityLogMiddleware = (registrar: (activity: Activity) => Promise<void>): RequestHandler => {
+export const createActivityLogMiddleware = (record: (activity: Activity) => Promise<void>): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const descricao = descreverRequisicao(req.method, req.path);
-    if (!descricao) {
+    const description = describeRequest(req.method, req.path);
+    if (!description) {
       next();
       return;
     }
@@ -103,12 +103,12 @@ export const createActivityLogMiddleware = (registrar: (activity: Activity) => P
       const tenantUser = req.tenantUser;
       if (!tenantUser?.tenant || res.statusCode >= 400) return;
       const data = (responseBody as { data?: { id?: unknown } } | undefined)?.data;
-      const idDaResposta = typeof data?.id === 'string' ? data.id : undefined;
-      void registrar({
+      const responseId = typeof data?.id === 'string' ? data.id : undefined;
+      void record({
         tenantId: tenantUser.tenant,
         userId: tenantUser.user,
-        ...descricao,
-        recordId: descricao.recordId ?? idDaResposta,
+        ...description,
+        recordId: description.recordId ?? responseId,
         label: labelOf(data),
       });
     });

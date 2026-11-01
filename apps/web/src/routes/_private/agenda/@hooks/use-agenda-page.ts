@@ -16,10 +16,10 @@ export function useAgendaPage() {
   const view = search.view ?? DEFAULT_VIEW;
   const date = search.date ?? formatDisplayDate(new Date());
   const { from, to } = rangeForView(view, date);
-  const query = useQuery(appointmentsQuery({ from, to, tipo: search.tipo }));
+  const query = useQuery(appointmentsQuery({ from, to, type: search.type }));
   // Prazos pendentes do intervalo (AD-109); somem quando o filtro é um tipo de compromisso.
-  const deadlinesQuery = useQuery({ ...pendingDeadlinesQuery({ from, to }), enabled: !search.tipo });
-  const deadlines = search.tipo ? [] : (deadlinesQuery.data ?? []);
+  const deadlinesQuery = useQuery({ ...pendingDeadlinesQuery({ from, to }), enabled: !search.type });
+  const deadlines = search.type ? [] : (deadlinesQuery.data ?? []);
 
   const updateSearch = (patch: (prev: CalendarSearch) => CalendarSearch) => {
     navigate({ to: '/agenda', search: patch, replace: true });
@@ -38,10 +38,10 @@ export function useAgendaPage() {
     handlePrevious: () => updateSearch((prev) => ({ ...prev, date: shiftDate(view, date, -1) })),
     handleNext: () => updateSearch((prev) => ({ ...prev, date: shiftDate(view, date, 1) })),
     handleToday: () => updateSearch((prev) => ({ ...prev, date: formatDisplayDate(new Date()) })),
-    handleTipoChange: (value: string | null) =>
+    handleTypeChange: (value: string | null) =>
       updateSearch((prev) => ({
         ...prev,
-        tipo: !value || value === ALL_FILTER_VALUE ? undefined : (value as CalendarSearch['tipo']),
+        type: !value || value === ALL_FILTER_VALUE ? undefined : (value as CalendarSearch['type']),
       })),
     handleSelectItem: (appointment: AppointmentRecord) => setPanel({ kind: 'detail', appointment }),
     handleSelectDeadline: (deadline: DeadlineRecord) => setPanel({ kind: 'deadline', deadline }),
@@ -49,6 +49,6 @@ export function useAgendaPage() {
       setPanel(null);
       if (search.caseId) updateSearch((prev) => ({ ...prev, caseId: undefined }));
     },
-    clearFilters: () => updateSearch((prev) => ({ ...prev, tipo: undefined })),
+    clearFilters: () => updateSearch((prev) => ({ ...prev, type: undefined })),
   };
 }

@@ -44,9 +44,9 @@ export function PartyDetailsPage() {
         <CardContent className="gap-10">
           <RecordHeader>
             <RecordHeading
-              icon={party.tipo === 'lawyer' ? <Briefcase /> : <User />}
-              label={t(party.tipo)}
-              title={party.nome}
+              icon={party.type === 'lawyer' ? <Briefcase /> : <User />}
+              label={t(party.type)}
+              title={party.name}
               description={partyIdentification(party)}
             />
           </RecordHeader>
@@ -58,7 +58,7 @@ export function PartyDetailsPage() {
                 icon: <Contact />,
                 specs: [
                   {
-                    label: party.tipo === 'lawyer' ? 'OAB' : t('cpf_cnpj'),
+                    label: party.type === 'lawyer' ? 'OAB' : t('cpf_cnpj'),
                     value: partyIdentification(party) ?? '-',
                   },
                   { label: t('email'), value: party.email || '-' },

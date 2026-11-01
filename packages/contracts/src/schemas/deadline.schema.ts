@@ -10,9 +10,9 @@ export type DeadlineStatus = (typeof DEADLINE_STATUS)[number];
 export const DEADLINE_DUE_SOON_DAYS = 15;
 
 const deadlineFields = z.object({
-  titulo: z.string().trim().min(1, 'título é obrigatório').max(160, 'título inválido'),
+  title: z.string().trim().min(1, 'título é obrigatório').max(160, 'título inválido'),
   dueDate: calendarDateSchema,
-  observacoes: z.string().trim().max(1000, 'observações inválidas').optional(),
+  notes: z.string().trim().max(1000, 'observações inválidas').optional(),
 });
 
 export const createDeadlineSchema = deadlineFields.strict();

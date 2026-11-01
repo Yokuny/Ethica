@@ -73,29 +73,29 @@ describe('feed iCal (PRZ-03)', () => {
       court: 'TRT2',
       subject: 'Insalubridade',
       parties: [
-        { Party: newObjectId(), side: 'plaintiff', tipo: 'party', nome: 'Maria' },
-        { Party: newObjectId(), side: 'defendant', tipo: 'party', nome: 'Indústria' },
+        { Party: newObjectId(), side: 'plaintiff', type: 'party', name: 'Maria' },
+        { Party: newObjectId(), side: 'defendant', type: 'party', name: 'Indústria' },
       ],
     });
     const amanha = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
     await Appointment.create({
       Tenant: tenant._id,
-      tipo: 'inspection',
-      titulo: 'Vistoria',
-      inicio: wallClockToUtc(amanha, '09:00'),
-      fim: wallClockToUtc(amanha, '10:00'),
-      local: 'Rua A, 10',
+      type: 'inspection',
+      title: 'Vistoria',
+      start: wallClockToUtc(amanha, '09:00'),
+      end: wallClockToUtc(amanha, '10:00'),
+      location: 'Rua A, 10',
       Case: legalCase._id,
     });
     await Appointment.create({
       Tenant: tenant._id,
-      tipo: 'meeting',
-      titulo: 'Reunião cancelada',
-      inicio: wallClockToUtc(amanha, '11:00'),
-      fim: wallClockToUtc(amanha, '12:00'),
+      type: 'meeting',
+      title: 'Reunião cancelada',
+      start: wallClockToUtc(amanha, '11:00'),
+      end: wallClockToUtc(amanha, '12:00'),
       status: 'canceled',
     });
-    await Deadline.create({ Tenant: tenant._id, Case: legalCase._id, titulo: 'Entrega do laudo', dueDate: amanha });
+    await Deadline.create({ Tenant: tenant._id, Case: legalCase._id, title: 'Entrega do laudo', dueDate: amanha });
 
     expect((await as(request(app).get('/me/calendar-feed'))).body.data).toEqual({ active: false });
     const generated = await as(request(app).post('/me/calendar-feed'));
@@ -113,12 +113,12 @@ describe('feed iCal (PRZ-03)', () => {
     expect(feed.text).not.toContain('Reunião cancelada');
 
     // Gerar de novo troca o link: o anterior deixa de funcionar.
-    const novo = (await as(request(app).post('/me/calendar-feed'))).body.data.token;
+    const fresh = (await as(request(app).post('/me/calendar-feed'))).body.data.token;
     expect((await request(app).get(`/agenda/feed/${token}.ics`)).status).toBe(404);
-    expect((await request(app).get(`/agenda/feed/${novo}.ics`)).status).toBe(200);
+    expect((await request(app).get(`/agenda/feed/${fresh}.ics`)).status).toBe(200);
 
     await as(request(app).delete('/me/calendar-feed'));
-    expect((await request(app).get(`/agenda/feed/${novo}.ics`)).status).toBe(404);
+    expect((await request(app).get(`/agenda/feed/${fresh}.ics`)).status).toBe(404);
   });
 
   it('tenant suspenso ou usuário inativo não serve o feed; token malformado é 400', async () => {
@@ -132,7 +132,7 @@ describe('feed iCal (PRZ-03)', () => {
     await User.updateOne({ _id: user._id }, { active: false });
     expect((await request(app).get(`/agenda/feed/${token}.ics`)).status).toBe(404);
 
-    expect((await request(app).get('/agenda/feed/nao-e-token.ics')).status).toBe(400);
+    expect((await request(app).get('/agenda/feed/not-and-token.ics')).status).toBe(400);
   });
 });
 

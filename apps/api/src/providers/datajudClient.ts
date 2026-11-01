@@ -58,8 +58,8 @@ const SUBJECT_IN_DATAJUD: Record<DatajudTechnicalSubject, string> = {
 
 export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown> => {
   const must: Record<string, unknown>[] = [];
-  if (query.termo) {
-    must.push({ multi_match: { query: query.termo, fields: ['movimentos.nome', 'assuntos.nome', 'classe.nome'] } });
+  if (query.term) {
+    must.push({ multi_match: { query: query.term, fields: ['movimentos.nome', 'assuntos.nome', 'classe.nome'] } });
   }
   if (query.technicalSubjects?.length) {
     must.push({

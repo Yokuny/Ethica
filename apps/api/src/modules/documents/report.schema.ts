@@ -62,7 +62,7 @@ export const templateSectionParamSchema = z.object({ id: templateIdSchema, secti
 export const reportIdParamSchema = z.object({ id: idSchema }).strict();
 export const reportSectionParamSchema = z.object({ id: idSchema, sectionId: idSchema }).strict();
 
-export const listTemplatesQuerySchema = z.object({ tipo: z.enum(REPORT_TYPES).optional() }).strict();
+export const listTemplatesQuerySchema = z.object({ type: z.enum(REPORT_TYPES).optional() }).strict();
 export type ListTemplatesQuery = z.infer<typeof listTemplatesQuerySchema>;
 
 export const listReportsQuerySchema = z
@@ -81,10 +81,10 @@ export type TemplateSectionRecord = TemplateSection & { id: string };
 
 export type TemplateRecord = {
   id: string;
-  nome: string;
-  tipo: ReportType;
+  name: string;
+  type: ReportType;
   // Modelo da biblioteca padrão: só leitura, clonável (AD-126).
-  padrao: boolean;
+  isDefault: boolean;
   sections: TemplateSectionRecord[];
   updatedAt?: Date;
 };
@@ -93,7 +93,7 @@ export type TemplateSummary = Omit<TemplateRecord, 'sections'> & { totalSections
 
 export type ReportSectionRecord = {
   id: string;
-  titulo: string;
+  title: string;
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
@@ -111,9 +111,9 @@ export type ReportRecord = {
   caseId: string;
   // Enriquecido pelo service; ausente se a perícia não existe mais.
   caseNumber?: string;
-  tipo: ReportType;
+  type: ReportType;
   status: ReportStatus;
-  titulo: string;
+  title: string;
   templateName: string;
   sections: ReportSectionRecord[];
   issues: ReportIssue[];
@@ -128,8 +128,8 @@ export type ReportCreateInput = {
   tenantId: string;
   caseId: string;
   userId: string;
-  tipo: ReportType;
-  titulo: string;
+  type: ReportType;
+  title: string;
   templateName: string;
   sections: ReportSectionWrite[];
 };
@@ -143,5 +143,5 @@ export type ReportExportData = {
   values: Partial<Record<ReportVariable, string>>;
   // `src` da foto no HTML → bytes (AD-129); foto que sumiu fica fora e o `img` some.
   photos: Record<string, { body: Buffer; mime: string }>;
-  geradoEm: Date;
+  generatedAt: Date;
 };

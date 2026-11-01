@@ -80,10 +80,10 @@ const CASE = {
   subject: 'Insalubridade',
 };
 
-type Section = { id: string; titulo: string };
-const sectionByTitle = (sections: Section[], titulo: string): Section => {
-  const section = sections.find((item) => item.titulo === titulo);
-  if (!section) throw new Error(`seção ${titulo} não existe`);
+type Section = { id: string; title: string };
+const sectionByTitle = (sections: Section[], title: string): Section => {
+  const section = sections.find((item) => item.title === title);
+  if (!section) throw new Error(`seção ${title} não existe`);
   return section;
 };
 
@@ -113,55 +113,55 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const operator = await seedSession(tenant._id, ['operator']);
     const manager = await seedSession(tenant._id, ['manager']);
 
-    const lista = await operator.as(request(app).get('/expert-reports/templates?tipo=report'));
-    expect(lista.status).toBe(200);
-    expect(lista.body.data).toEqual([expect.objectContaining({ id: 'standard-report', padrao: true })]);
-    const padrao = await operator.as(request(app).get('/expert-reports/templates/standard-report'));
-    expect(padrao.body.data.sections.length).toBeGreaterThan(30);
+    const list = await operator.as(request(app).get('/expert-reports/templates?type=report'));
+    expect(list.status).toBe(200);
+    expect(list.body.data).toEqual([expect.objectContaining({ id: 'standard-report', isDefault: true })]);
+    const isDefault = await operator.as(request(app).get('/expert-reports/templates/standard-report'));
+    expect(isDefault.body.data.sections.length).toBeGreaterThan(30);
 
     const negado = await operator
       .as(request(app).post('/expert-reports/templates'))
-      .send({ nome: 'Meu', tipo: 'report' });
+      .send({ name: 'Meu', type: 'report' });
     expect(negado.status).toBe(403);
-    const renomearPadrao = await manager
+    const renameDefault = await manager
       .as(request(app).patch('/expert-reports/templates/standard-report'))
-      .send({ nome: 'X' });
-    expect(renomearPadrao.status).toBe(403);
-    expect(renomearPadrao.body.message).toBe('standard_template_read_only');
+      .send({ name: 'X' });
+    expect(renameDefault.status).toBe(403);
+    expect(renameDefault.body.message).toBe('standard_template_read_only');
 
     const clone = await manager
       .as(request(app).post('/expert-reports/templates'))
-      .send({ nome: 'Insalubridade do escritório', tipo: 'report', baseId: 'standard-report' });
+      .send({ name: 'Insalubridade do escritório', type: 'report', baseId: 'standard-report' });
     expect(clone.status).toBe(201);
-    expect(clone.body.data.sections).toHaveLength(padrao.body.data.sections.length);
+    expect(clone.body.data.sections).toHaveLength(isDefault.body.data.sections.length);
     const wrongType = await manager
       .as(request(app).post('/expert-reports/templates'))
-      .send({ nome: 'Errado', tipo: 'technical_opinion', baseId: 'standard-report' });
+      .send({ name: 'Errado', type: 'technical_opinion', baseId: 'standard-report' });
     expect(wrongType.status).toBe(422);
 
     const templateId = clone.body.data.id;
-    const nova = await manager.as(request(app).post(`/expert-reports/templates/${templateId}/sections`)).send({
-      titulo: 'Anexo fotográfico',
+    const fresh = await manager.as(request(app).post(`/expert-reports/templates/${templateId}/sections`)).send({
+      title: 'Anexo fotográfico',
       level: 1,
       titleOnly: false,
       pageBreak: true,
       yesText: '<p onclick="x()">Fotos <script>alert(1)</script><a href="http://x">aqui</a></p>',
       noText: '<p>Sem fotos</p>',
     });
-    expect(nova.status).toBe(201);
-    const adicionada = nova.body.data.sections.at(-1);
-    expect(adicionada.yesText).toBe('<p>Fotos aqui</p>');
+    expect(fresh.status).toBe(201);
+    const added = fresh.body.data.sections.at(-1);
+    expect(added.yesText).toBe('<p>Fotos aqui</p>');
 
     const movida = await manager
-      .as(request(app).post(`/expert-reports/templates/${templateId}/sections/${adicionada.id}/move`))
-      .send({ direcao: 'up' });
-    expect(movida.body.data.sections.at(-2).id).toBe(adicionada.id);
+      .as(request(app).post(`/expert-reports/templates/${templateId}/sections/${added.id}/move`))
+      .send({ direction: 'up' });
+    expect(movida.body.data.sections.at(-2).id).toBe(added.id);
     const removida = await manager.as(
-      request(app).delete(`/expert-reports/templates/${templateId}/sections/${adicionada.id}`),
+      request(app).delete(`/expert-reports/templates/${templateId}/sections/${added.id}`),
     );
-    expect(removida.body.data.sections).toHaveLength(padrao.body.data.sections.length);
+    expect(removida.body.data.sections).toHaveLength(isDefault.body.data.sections.length);
 
-    const ofOffice = await operator.as(request(app).get('/expert-reports/templates?tipo=report'));
+    const ofOffice = await operator.as(request(app).get('/expert-reports/templates?type=report'));
     expect(ofOffice.body.data).toHaveLength(2);
   });
 
@@ -174,24 +174,24 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       .send({ ...CASE, reportDeadline: '2026-12-01' });
     const caseId = legalCase.body.data.id;
     const { body: template } = await operator.as(request(app).get('/expert-reports/templates/standard-report'));
-    const identificacao = sectionByTitle(template.data.sections, 'Identificação do processo');
+    const identification = sectionByTitle(template.data.sections, 'Identificação do processo');
     const conclusao = sectionByTitle(template.data.sections, 'Conclusão');
     const encerramento = sectionByTitle(template.data.sections, 'Encerramento');
 
-    const criado = await operator.as(request(app).post('/expert-reports')).send({
+    const created = await operator.as(request(app).post('/expert-reports')).send({
       caseId,
       templateId: 'standard-report',
       sections: [
         { id: encerramento.id, variant: 'no' },
-        { id: identificacao.id, variant: 'yes' },
+        { id: identification.id, variant: 'yes' },
         { id: conclusao.id, variant: 'no' },
       ],
     });
-    expect(criado.status).toBe(201);
-    const report = criado.body.data;
-    expect(report).toMatchObject({ tipo: 'report', status: 'draft', caseNumber: CASE.processNumber });
+    expect(created.status).toBe(201);
+    const report = created.body.data;
+    expect(report).toMatchObject({ type: 'report', status: 'draft', caseNumber: CASE.processNumber });
     // Ordem do modelo, não a da escolha.
-    expect(report.sections.map((section: Section) => section.titulo)).toEqual([
+    expect(report.sections.map((section: Section) => section.title)).toEqual([
       'Identificação do processo',
       'Conclusão',
       'Encerramento',
@@ -262,7 +262,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(deadline).toMatchObject({ status: 'filed', filedDate: today });
     const depois = await operator.as(request(app).get(`/expert-cases/${caseId}`));
     expect(depois.body.data.status).toBe('report_delivered');
-    expect(depois.body.data.movements).toEqual([expect.objectContaining({ tipo: 'report_filed', data: today })]);
+    expect(depois.body.data.movements).toEqual([expect.objectContaining({ type: 'report_filed', date: today })]);
 
     const editCompleted = await operator
       .as(request(app).patch(`/expert-reports/${report.id}/sections/${report.sections[0].id}`))
@@ -281,7 +281,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const caseId = legalCase.body.data.id;
     const { body: template } = await admin.as(request(app).get('/expert-reports/templates/standard-technical_opinion'));
     const objection = sectionByTitle(template.data.sections, 'Impugnação do laudo pericial');
-    const identificacao = sectionByTitle(template.data.sections, 'Identificação do processo');
+    const identification = sectionByTitle(template.data.sections, 'Identificação do processo');
 
     const wrong = await admin
       .as(request(app).post('/expert-reports'))
@@ -293,17 +293,17 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       caseId,
       templateId: 'standard-technical_opinion',
       sections: [
-        { id: identificacao.id, variant: 'yes' },
+        { id: identification.id, variant: 'yes' },
         { id: objection.id, variant: 'no' },
       ],
     });
     expect(opinion.status).toBe(201);
-    expect(opinion.body.data.tipo).toBe('technical_opinion');
+    expect(opinion.body.data.type).toBe('technical_opinion');
     expect(opinion.body.data.sections[0].html).toContain('Autor');
     expect(opinion.body.data.sections[1].html).toBe('<p>Não há impugnação ao laudo pericial.</p>');
 
-    const outro = await seedSession((await seedTenant())._id, ['admin']);
-    expect((await outro.as(request(app).get(`/expert-reports/${opinion.body.data.id}`))).status).toBe(404);
+    const other = await seedSession((await seedTenant())._id, ['admin']);
+    expect((await other.as(request(app).get(`/expert-reports/${opinion.body.data.id}`))).status).toBe(404);
 
     await admin.as(request(app).delete(`/expert-cases/${caseId}`)).expect(200);
     await expect.poll(() => Report.countDocuments({ Case: caseId })).toBe(0);

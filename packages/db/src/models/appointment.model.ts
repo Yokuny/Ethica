@@ -13,16 +13,16 @@ export type AppointmentOrigin = 'manual' | 'automatic';
 export interface AppointmentDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
-  tipo: AppointmentType;
-  titulo: string;
+  type: AppointmentType;
+  title: string;
   // Instantes em UTC (AD-036, AD-103); a tela converte para o fuso de exibição.
-  inicio: Date;
-  fim: Date;
-  local?: string;
+  start: Date;
+  end: Date;
+  location?: string;
   Case?: mongoose.Types.ObjectId;
   status: AppointmentStatus;
   origin: AppointmentOrigin;
-  observacoes?: string;
+  notes?: string;
   // Cancelado no campo: adiado ou parte ausente (AD-130).
   reason?: AppointmentReason;
   // Geocodificação do `local` (AD-131), válida enquanto `endereco` for igual ao `local`.
@@ -36,15 +36,15 @@ export interface AppointmentDocument {
 const appointmentSchema = new Schema<AppointmentDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
-    tipo: { type: String, enum: APPOINTMENT_TYPES, required: true },
-    titulo: { type: String, required: true, trim: true },
-    inicio: { type: Date, required: true },
-    fim: { type: Date, required: true },
-    local: { type: String, trim: true },
+    type: { type: String, enum: APPOINTMENT_TYPES, required: true },
+    title: { type: String, required: true, trim: true },
+    start: { type: Date, required: true },
+    end: { type: Date, required: true },
+    location: { type: String, trim: true },
     Case: { type: Schema.Types.ObjectId, ref: 'Case' },
     status: { type: String, enum: APPOINTMENT_STATUS, default: 'scheduled', required: true },
     origin: { type: String, enum: ['manual', 'automatic'], default: 'manual', required: true },
-    observacoes: { type: String },
+    notes: { type: String },
     reason: { type: String, enum: APPOINTMENT_REASONS },
     coordinates: { type: new Schema({ lat: Number, lng: Number, address: String }, { _id: false }) },
     notices: {
@@ -61,11 +61,11 @@ const appointmentSchema = new Schema<AppointmentDocument>(
 );
 
 appointmentSchema.pre('validate', function () {
-  if (this.fim && this.inicio && this.fim <= this.inicio) this.invalidate('fim', 'fim precisa ser depois do início');
+  if (this.end && this.start && this.end <= this.start) this.invalidate('end', 'fim precisa ser depois do início');
 });
 
 // Consulta da agenda é sempre por intervalo [from, to) do tenant.
-appointmentSchema.index({ Tenant: 1, inicio: 1 });
-appointmentSchema.index({ Tenant: 1, Case: 1, inicio: 1 });
+appointmentSchema.index({ Tenant: 1, start: 1 });
+appointmentSchema.index({ Tenant: 1, Case: 1, start: 1 });
 
 export const Appointment = mongoose.model<AppointmentDocument>('Appointment', appointmentSchema);

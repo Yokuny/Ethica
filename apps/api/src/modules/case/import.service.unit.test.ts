@@ -31,10 +31,10 @@ describe('extrairAta (AD-114)', () => {
       reportDeadline: '2026-11-14',
     });
     expect(draft.parties).toEqual([
-      { side: 'plaintiff', tipo: 'party', nome: 'MARIA DA SILVA', document: '12345678909' },
-      { side: 'plaintiff', tipo: 'lawyer', nome: 'JOÃO PEREIRA', oab: 'SP123456' },
-      { side: 'defendant', tipo: 'party', nome: 'INDÚSTRIA EXEMPLO LTDA', document: '12345678000195' },
-      { side: 'defendant', tipo: 'lawyer', nome: 'ANA SOUZA', oab: 'SP654321' },
+      { side: 'plaintiff', type: 'party', name: 'MARIA DA SILVA', document: '12345678909' },
+      { side: 'plaintiff', type: 'lawyer', name: 'JOÃO PEREIRA', oab: 'SP123456' },
+      { side: 'defendant', type: 'party', name: 'INDÚSTRIA EXEMPLO LTDA', document: '12345678000195' },
+      { side: 'defendant', type: 'lawyer', name: 'ANA SOUZA', oab: 'SP654321' },
     ]);
     expect(missing).toEqual([]);
     expect(warnings).toEqual(['deadline_calculated']);
@@ -110,9 +110,9 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
         nominationDate: '2026-10-15',
         proposedFeesCents: 350_050,
         parties: [
-          { side: 'plaintiff', tipo: 'party', nome: 'Maria' },
-          { side: 'plaintiff', tipo: 'lawyer', nome: 'João', oab: 'SP123456' },
-          { side: 'defendant', tipo: 'party', nome: 'Indústria', document: '12345678000195' },
+          { side: 'plaintiff', type: 'party', name: 'Maria' },
+          { side: 'plaintiff', type: 'lawyer', name: 'João', oab: 'SP123456' },
+          { side: 'defendant', type: 'party', name: 'Indústria', document: '12345678000195' },
         ],
       }),
     });

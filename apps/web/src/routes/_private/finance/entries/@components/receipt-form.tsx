@@ -15,14 +15,14 @@ export function ReceiptForm({ transaction, onClose }: { transaction: Transaction
   return (
     <FormDialog
       title={t('register_receipt')}
-      description={`${transaction.descricao} · ${t('balance_due')} ${formatMoney(transaction.balanceCents ?? 0)}`}
+      description={`${transaction.description} · ${t('balance_due')} ${formatMoney(transaction.balanceCents ?? 0)}`}
       size="sm"
       onClose={onClose}
     >
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <MoneyField control={control} name="amountCents" label={t('amount')} placeholder={t('example_money')} />
-          <DateField control={control} name="data" label={t('received_on')} placeholder={t('choose_day')} />
+          <DateField control={control} name="date" label={t('received_on')} placeholder={t('choose_day')} />
           <TextField
             control={control}
             name="account"

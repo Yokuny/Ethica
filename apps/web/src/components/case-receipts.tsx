@@ -44,7 +44,7 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
                 render={<Link to="/finance/entries" search={{ caseId }} />}
                 title={formatMoney(fee.amountCents)}
                 badges={<Badge variant={STATE_VARIANT[state]}>{t(state)}</Badge>}
-                description={`${fee.descricao} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}
+                description={`${fee.description} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}
               >
                 {fee.installments.map((installment) => (
                   <ItemDescription key={installment.id} className="line-clamp-none">

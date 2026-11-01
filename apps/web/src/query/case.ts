@@ -28,7 +28,7 @@ export type CaseRecord = {
   district?: string;
   subject: string;
   // Cópia de tipo e nome do cadastro de partes (AD-117).
-  parties: { partyId: string; side: Side; tipo: PartyType; nome: string; client?: boolean }[];
+  parties: { partyId: string; side: Side; type: PartyType; name: string; client?: boolean }[];
   status: CaseStatus;
   // Fase detalhada e situação derivada no servidor (AD-133).
   phase?: CasePhase;
@@ -36,7 +36,7 @@ export type CaseRecord = {
   nominationDate?: string;
   proposedFeesCents?: number;
   fixedFeesCents?: number;
-  observacoes?: string;
+  notes?: string;
   docketingDate?: string;
   hireDate?: string;
   terminationDate?: string;
@@ -45,7 +45,7 @@ export type CaseRecord = {
   nonPrescribedPeriodEnd?: string;
   location?: string;
   // Movimentações que contam para a perícia parada (AD-121), da mais recente para a mais antiga.
-  movements: { id: string; tipo: MovementType; data: string; observacoes?: string }[];
+  movements: { id: string; type: MovementType; data: string; notes?: string }[];
   opportunityId?: string;
   createdAt: string;
   updatedAt: string;
@@ -62,7 +62,7 @@ export type CasesQueryParams = {
 };
 
 // Listagem: cada perícia com o prazo pendente mais próximo (AD-109), ausente se não há.
-export type CaseListItem = CaseRecord & { nextDeadline?: { titulo: string; dueDate: string } };
+export type CaseListItem = CaseRecord & { nextDeadline?: { title: string; dueDate: string } };
 
 export type CasesListResult = { items: CaseListItem[]; total: number };
 
@@ -183,7 +183,7 @@ export type StalledCase = {
   processNumber: string;
   status: CaseStatus;
   subject: string;
-  referencia: string;
+  reference: string;
   stalledDays: number;
 };
 export type StalledCases = { total: number; items: StalledCase[] };

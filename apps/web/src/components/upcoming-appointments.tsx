@@ -16,10 +16,10 @@ export function UpcomingAppointments({ items }: { items: AppointmentRecord[] }) 
         <LinkListItem
           key={item.id}
           icon={CalendarClock}
-          render={<Link to="/agenda" search={{ date: formatDisplayDate(item.inicio), view: 'day' }} />}
-          title={item.titulo}
-          badges={<Badge variant={APPOINTMENT_TYPE_VARIANT[item.tipo]}>{t(item.tipo)}</Badge>}
-          description={[formatDateTime(item.inicio), item.caseNumber, item.local].filter(Boolean).join(' · ')}
+          render={<Link to="/agenda" search={{ date: formatDisplayDate(item.start), view: 'day' }} />}
+          title={item.title}
+          badges={<Badge variant={APPOINTMENT_TYPE_VARIANT[item.type]}>{t(item.type)}</Badge>}
+          description={[formatDateTime(item.start), item.caseNumber, item.location].filter(Boolean).join(' · ')}
         />
       ))}
     </LinkList>

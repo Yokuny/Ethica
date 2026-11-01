@@ -60,7 +60,7 @@ export function MonthView({
       {days.map((day) => {
         const dayItems = items
           .filter((item) => itemOverlapsDay(item, day))
-          .sort((a, b) => a.inicio.localeCompare(b.inicio));
+          .sort((a, b) => a.start.localeCompare(b.start));
         const visible = dayItems.slice(0, MAX_VISIBLE_PER_DAY);
         const overflow = dayItems.slice(MAX_VISIBLE_PER_DAY);
 

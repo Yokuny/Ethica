@@ -22,7 +22,7 @@ export const calendarSearchSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'date inválida (YYYY-MM-DD)')
     .optional(),
-  tipo: z.enum(APPOINTMENT_TYPES).optional(),
+  type: z.enum(APPOINTMENT_TYPES).optional(),
   // Atalho do detalhe da perícia: abre o "novo compromisso" já vinculado.
   caseId: z.string().optional(),
 });

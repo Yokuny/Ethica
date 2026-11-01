@@ -9,7 +9,7 @@ import { type PhotoEditor, RichTextEditor } from '@/components/rich-text-editor.
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { ReportRecord, ReportSectionRecord } from '@/query/report.js';
 
-export type SectionDraft = { titulo: string; html: string };
+export type SectionDraft = { title: string; html: string };
 
 type ReportSectionEditorProps = {
   report: ReportRecord;
@@ -36,12 +36,12 @@ export function ReportSectionEditor({
   photos,
 }: ReportSectionEditorProps) {
   const readOnly = report.status === 'completed';
-  const numero = numberSections(report.sections)[report.sections.findIndex((item) => item.id === section.id)];
+  const number = numberSections(report.sections)[report.sections.findIndex((item) => item.id === section.id)];
   const pending = report.issues.find((issue) => issue.sectionId === section.id)?.variables ?? [];
 
   return (
     <Panel
-      title={`${numero}. ${section.titulo}`}
+      title={`${number}. ${section.title}`}
       description={section.titleOnly ? t('title_only') : t(section.variant === 'yes' ? 'yes_text' : 'no_text')}
       actions={
         !readOnly && (
@@ -67,11 +67,11 @@ export function ReportSectionEditor({
         </div>
       )}
       <Input
-        value={draft.titulo}
+        value={draft.title}
         readOnly={readOnly}
         aria-label={t('section_title')}
         placeholder={t('section_title')}
-        onChange={(event) => onChange({ ...draft, titulo: event.target.value })}
+        onChange={(event) => onChange({ ...draft, title: event.target.value })}
       />
       {!section.titleOnly && (
         <RichTextEditor

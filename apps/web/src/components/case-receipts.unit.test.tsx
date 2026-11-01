@@ -29,7 +29,7 @@ const renderReceipts = (role: Role[]) => {
         id: 'l1',
         kind: 'income',
         category: 'fixed_fees',
-        descricao: 'Honorários fixados',
+        description: 'Honorários fixados',
         amountCents: 480_000,
         dueDate: '2999-01-01',
         status: 'partial',

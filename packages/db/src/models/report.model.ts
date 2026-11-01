@@ -13,7 +13,7 @@ import mongoose, { Schema } from 'mongoose';
 // resolvidas na abertura (AD-126). Alterar o modelo depois não muda o laudo.
 export interface ReportSectionDocument {
   _id: mongoose.Types.ObjectId;
-  titulo: string;
+  title: string;
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
@@ -25,9 +25,9 @@ export interface ReportDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
   Case: mongoose.Types.ObjectId;
-  tipo: ReportType;
+  type: ReportType;
   status: ReportStatus;
-  titulo: string;
+  title: string;
   templateName: string;
   sections: ReportSectionDocument[];
   CreatedBy: mongoose.Types.ObjectId;
@@ -38,7 +38,7 @@ export interface ReportDocument {
 }
 
 const sectionSchema = new Schema<ReportSectionDocument>({
-  titulo: { type: String, required: true, trim: true },
+  title: { type: String, required: true, trim: true },
   level: { type: Number, required: true, min: 1, max: REPORT_LEVEL_MAX },
   titleOnly: { type: Boolean, default: false },
   pageBreak: { type: Boolean, default: false },
@@ -50,9 +50,9 @@ const reportSchema = new Schema<ReportDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     Case: { type: Schema.Types.ObjectId, ref: 'Case', required: true },
-    tipo: { type: String, enum: REPORT_TYPES, required: true },
+    type: { type: String, enum: REPORT_TYPES, required: true },
     status: { type: String, enum: REPORT_STATUS, default: 'draft', required: true },
-    titulo: { type: String, required: true, trim: true },
+    title: { type: String, required: true, trim: true },
     templateName: { type: String, required: true, trim: true },
     sections: { type: [sectionSchema], default: [] },
     CreatedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },

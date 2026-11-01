@@ -60,9 +60,9 @@ describe('invite routes (public)', () => {
   describe('GET /invites/:token', () => {
     it('returns tenantName and email for a pending, non-expired token, without requiring authentication (FND-03/AC1)', async () => {
       const tenant = await seedTenant('Empresa Peek');
-      await seedInvite({ tenant: tenant.id, token: 'token-valido', email: 'peek@empresa.com' });
+      await seedInvite({ tenant: tenant.id, token: 'token-valid', email: 'peek@empresa.com' });
 
-      const res = await request(buildTestApp()).get('/invites/token-valido');
+      const res = await request(buildTestApp()).get('/invites/token-valid');
 
       expect(res.status).toBe(200);
       expect(res.body.data).toEqual({ tenantName: 'Empresa Peek', email: 'peek@empresa.com' });
@@ -105,7 +105,7 @@ describe('invite routes (public)', () => {
       const app = buildTestApp();
       const expired = await request(app).get('/invites/exp-a');
       const accepted = await request(app).get('/invites/acc-a');
-      const missing = await request(app).get('/invites/nao-existe');
+      const missing = await request(app).get('/invites/not-exists');
 
       const messages = [expired.body.message, accepted.body.message, missing.body.message];
       expect(new Set(messages).size).toBe(3);

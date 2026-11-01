@@ -4,13 +4,13 @@ import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as appointmentRepository from './appointment.repository.js';
 import type { AppointmentRecord } from './appointment.schema.js';
-import type { FeedEntrada } from './feed.schema.js';
+import type { FeedEntry } from './feed.schema.js';
 
 // Janela do feed: o calendário externo guarda o passado recente e o ano à frente.
 const PAST_DAYS = 60;
 const FUTURE_DAYS = 365;
 
-const TIPO_LABEL: Record<AppointmentRecord['tipo'], string> = {
+const TYPE_LABEL: Record<AppointmentRecord['type'], string> = {
   inspection: 'Vistoria',
   hearing: 'Audiência',
   meeting: 'Reunião',
@@ -54,17 +54,17 @@ const nextDay = (day: string): string => {
   return date.toISOString().slice(0, 10);
 };
 
-const descricao = (tipo: string, titulo: string, summary?: CaseSummary, observacoes?: string): string => {
+const description = (type: string, title: string, summary?: CaseSummary, notes?: string): string => {
   const parties =
     summary && (summary.plaintiff || summary.defendant)
       ? [summary.plaintiff, summary.defendant].filter(Boolean).join(' × ')
       : '';
   return [
-    `Tipo: ${tipo}`,
-    `Título: ${titulo}`,
+    `Tipo: ${type}`,
+    `Título: ${title}`,
     summary ? `Processo: ${summary.processNumber}` : '',
     parties ? `Partes: ${parties}` : '',
-    observacoes ? `Observações: ${observacoes}` : '',
+    notes ? `Observações: ${notes}` : '',
   ]
     .filter(Boolean)
     .join('\n');
@@ -72,7 +72,7 @@ const descricao = (tipo: string, titulo: string, summary?: CaseSummary, observac
 
 // Monta o calendário (função pura, testada à parte). Cada evento leva data, descrição
 // (tipo, título, processo, partes, observações) e local — definido pelo usuário em 2026-10-31.
-export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntrada): string => {
+export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntry): string => {
   const stamp = utcStamp(now);
   const events = [
     ...appointments.map((item) => {
@@ -81,11 +81,11 @@ export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntrad
         'BEGIN:VEVENT',
         `UID:compromisso-${item.id}@ethica`,
         `DTSTAMP:${stamp}`,
-        `DTSTART:${utcStamp(item.inicio)}`,
-        `DTEND:${utcStamp(item.fim)}`,
-        `SUMMARY:${escapeText(item.titulo)}`,
-        `DESCRIPTION:${escapeText(descricao(TIPO_LABEL[item.tipo], item.titulo, summary, item.observacoes))}`,
-        ...(item.local ? [`LOCATION:${escapeText(item.local)}`] : []),
+        `DTSTART:${utcStamp(item.start)}`,
+        `DTEND:${utcStamp(item.end)}`,
+        `SUMMARY:${escapeText(item.title)}`,
+        `DESCRIPTION:${escapeText(description(TYPE_LABEL[item.type], item.title, summary, item.notes))}`,
+        ...(item.location ? [`LOCATION:${escapeText(item.location)}`] : []),
         `STATUS:${item.status === 'done' ? 'CONFIRMED' : 'TENTATIVE'}`,
         'END:VEVENT',
       ];
@@ -97,8 +97,8 @@ export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntrad
       `DTSTAMP:${stamp}`,
       `DTSTART;VALUE=DATE:${dateValue(deadline.dueDate)}`,
       `DTEND;VALUE=DATE:${dateValue(nextDay(deadline.dueDate))}`,
-      `SUMMARY:${escapeText(`Prazo: ${deadline.titulo}`)}`,
-      `DESCRIPTION:${escapeText(descricao('Prazo', deadline.titulo, summaries.get(deadline.caseId), deadline.observacoes))}`,
+      `SUMMARY:${escapeText(`Prazo: ${deadline.title}`)}`,
+      `DESCRIPTION:${escapeText(description('Prazo', deadline.title, summaries.get(deadline.caseId), deadline.notes))}`,
       'TRANSP:TRANSPARENT',
       'END:VEVENT',
     ]),

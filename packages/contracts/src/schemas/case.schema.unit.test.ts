@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { caseState, phaseFitsInStatus, phaseStatus, suggestNonPrescribedPeriod, validClient } from './case.schema.js';
-import { documentSchema, normalizarOab, oabSchema } from './party.schema.js';
+import { documentSchema, normalizeOab, oabSchema } from './party.schema.js';
 
 describe('sugerirPeriodoImprescrito (AD-115)', () => {
   it('início é o mais recente entre autuação − 5 anos e admissão; fim é a demissão', () => {
@@ -10,20 +10,20 @@ describe('sugerirPeriodoImprescrito (AD-115)', () => {
         hireDate: '2018-02-01',
         terminationDate: '2025-12-20',
       }),
-    ).toEqual({ inicio: '2021-03-10', fim: '2025-12-20' });
+    ).toEqual({ start: '2021-03-10', end: '2025-12-20' });
     expect(
       suggestNonPrescribedPeriod({
         docketingDate: '2026-03-10',
         hireDate: '2023-05-02',
         terminationDate: '2025-12-20',
       }),
-    ).toEqual({ inicio: '2023-05-02', fim: '2025-12-20' });
+    ).toEqual({ start: '2023-05-02', end: '2025-12-20' });
   });
 
   it('sem demissão vai até a autuação; sem autuação não sugere; 29/02 vira 28/02', () => {
     expect(suggestNonPrescribedPeriod({ docketingDate: '2024-02-29' })).toEqual({
-      inicio: '2019-02-28',
-      fim: '2024-02-29',
+      start: '2019-02-28',
+      end: '2024-02-29',
     });
     expect(suggestNonPrescribedPeriod({ hireDate: '2020-01-01' })).toBeUndefined();
   });
@@ -31,8 +31,8 @@ describe('sugerirPeriodoImprescrito (AD-115)', () => {
 
 describe('documento e OAB da parte', () => {
   it('normaliza a OAB em UF + número', () => {
-    expect(normalizarOab('OAB/SP 123.456')).toBe('SP123456');
-    expect(normalizarOab('123456/sp')).toBe('SP123456');
+    expect(normalizeOab('OAB/SP 123.456')).toBe('SP123456');
+    expect(normalizeOab('123456/sp')).toBe('SP123456');
     expect(oabSchema.parse('')).toBeUndefined();
     expect(oabSchema.safeParse('123').success).toBe(false);
   });

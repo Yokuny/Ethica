@@ -22,7 +22,7 @@ export function HomeCustomize({
 }) {
   const queryClient = useQueryClient();
   const mutation = useMutation(updatePreferencesMutation(queryClient));
-  const salvar = (hiddenBlocks: HomeBlock[]) =>
+  const save = (hiddenBlocks: HomeBlock[]) =>
     mutation.mutate({ hiddenBlocks }, { onError: (error: Error) => toast.error(error.message) });
 
   return (
@@ -34,9 +34,7 @@ export function HomeCustomize({
             label={t(HOME_BLOCK_KEY[block])}
             checked={!hidden.includes(block)}
             disabled={mutation.isPending}
-            onCheckedChange={(checked) =>
-              salvar(checked ? hidden.filter((item) => item !== block) : [...hidden, block])
-            }
+            onCheckedChange={(checked) => save(checked ? hidden.filter((item) => item !== block) : [...hidden, block])}
           />
         ))}
       </div>
@@ -46,7 +44,7 @@ export function HomeCustomize({
           type="button"
           variant="outline"
           disabled={mutation.isPending || !hidden.length}
-          onClick={() => salvar([])}
+          onClick={() => save([])}
         >
           {t('restore_default')}
         </Button>

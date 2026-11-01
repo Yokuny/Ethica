@@ -6,17 +6,17 @@ import type { AppointmentRecord, AppointmentWrite } from './appointment.schema.j
 
 const toRecord = (doc: AppointmentDocument): AppointmentRecord => ({
   id: doc._id.toString(),
-  tipo: doc.tipo,
-  titulo: doc.titulo,
-  inicio: doc.inicio,
-  fim: doc.fim,
-  local: doc.local,
+  type: doc.type,
+  title: doc.title,
+  start: doc.start,
+  end: doc.end,
+  location: doc.location,
   caseId: doc.Case?.toString(),
   status: doc.status,
   origin: doc.origin,
-  observacoes: doc.observacoes,
+  notes: doc.notes,
   reason: doc.reason,
-  ...(doc.coordinates && doc.coordinates.address === doc.local
+  ...(doc.coordinates && doc.coordinates.address === doc.location
     ? { coordinates: { lat: doc.coordinates.lat, lng: doc.coordinates.lng } }
     : {}),
   notices: (doc.notices ?? []).map((notice) => ({
@@ -74,19 +74,19 @@ export const deleteAppointment = async (tenantId: string, id: string): Promise<{
 // Tudo que toca o intervalo: começa antes do fim e termina depois do início.
 export const listInRange = async (
   tenantId: string,
-  range: { from: Date; to: Date; tipo?: AppointmentType; caseId?: string },
+  range: { from: Date; to: Date; type?: AppointmentType; caseId?: string },
 ): Promise<AppointmentRecord[]> =>
   withDbTiming('agenda.listInRange', async () => {
     const docs = await Appointment.find(
       tenantScoped({
         Tenant: tenantId,
-        inicio: { $lt: range.to },
-        fim: { $gt: range.from },
-        ...(range.tipo ? { tipo: range.tipo } : {}),
+        start: { $lt: range.to },
+        end: { $gt: range.from },
+        ...(range.type ? { type: range.type } : {}),
         ...(range.caseId ? { Case: range.caseId } : {}),
       }),
     )
-      .sort({ inicio: 1 })
+      .sort({ start: 1 })
       .limit(500)
       .lean();
     return docs.map(toRecord);
@@ -101,11 +101,11 @@ export const listUpcoming = async (
       tenantScoped({
         Tenant: tenantId,
         status: 'scheduled' as const,
-        fim: { $gte: options.now },
+        end: { $gte: options.now },
         ...(options.caseId ? { Case: options.caseId } : {}),
       }),
     )
-      .sort({ inicio: 1 })
+      .sort({ start: 1 })
       .limit(options.limit)
       .lean();
     return docs.map(toRecord);
@@ -117,7 +117,7 @@ export const listAll = async (tenantId: string, filter: { caseId?: string } = {}
     const docs = await Appointment.find(
       tenantScoped({ Tenant: tenantId, ...(filter.caseId ? { Case: filter.caseId } : {}) }),
     )
-      .sort({ inicio: 1 })
+      .sort({ start: 1 })
       .lean();
     return docs.map(toRecord);
   });

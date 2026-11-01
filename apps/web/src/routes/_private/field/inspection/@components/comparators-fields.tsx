@@ -15,18 +15,18 @@ export function ComparatorsFields({ form }: { form: UseFormReturn<InspectionData
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'comparators' });
   return (
     <FieldList
-      titulo={t('paradigms')}
-      vazio={t('no_paradigms_yet')}
+      title={t('paradigms')}
+      empty={t('no_paradigms_yet')}
       actions={
         <Button
           type="button"
           variant="outline"
-          onClick={() => append({ id: crypto.randomUUID(), side: 'plaintiff', nome: '' })}
+          onClick={() => append({ id: crypto.randomUUID(), side: 'plaintiff', name: '' })}
         >
           {t('add_paradigm')}
         </Button>
       }
-      itens={fields.map((field, index) => ({
+      items={fields.map((field, index) => ({
         key: field.id,
         onRemove: () => remove(index),
         conteudo: (
@@ -41,7 +41,7 @@ export function ComparatorsFields({ form }: { form: UseFormReturn<InspectionData
               />
               <TextField
                 control={form.control}
-                name={`comparators.${index}.nome`}
+                name={`comparators.${index}.name`}
                 label={t('name')}
                 placeholder={t('full_name')}
               />

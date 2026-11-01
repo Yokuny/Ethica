@@ -45,7 +45,7 @@ export type OpportunityRecord = {
   lastMovement?: string;
   lastMovementAt?: string;
   status: OpportunityStatus;
-  observacoes?: string;
+  notes?: string;
   caseId?: string;
   createdAt: Date;
   updatedAt: Date;
