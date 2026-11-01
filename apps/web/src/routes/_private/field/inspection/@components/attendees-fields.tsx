@@ -34,7 +34,7 @@ export function AttendeesFields({ form, legalCase, onSignature }: AttendeesField
       <FieldList
         titulo={t('attendees')}
         vazio={t('no_attendees_yet')}
-        acoes={
+        actions={
           <>
             {legalCase && (
               <Button type="button" variant="outline" onClick={addParties}>

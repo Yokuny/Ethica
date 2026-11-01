@@ -43,7 +43,7 @@ export const SCHEDULE_NOTICE_MARKERS = [
 export const updateScheduleNoticeSchema = z
   .object({
     subject: z.string().trim().min(1, 'assunto é obrigatório').max(200, 'assunto muito longo'),
-    corpo: z.string().trim().min(1, 'texto é obrigatório').max(4000, 'texto muito longo'),
+    body: z.string().trim().min(1, 'texto é obrigatório').max(4000, 'texto muito longo'),
   })
   .strict();
 export type UpdateScheduleNotice = z.infer<typeof updateScheduleNoticeSchema>;

@@ -42,7 +42,7 @@ export function PartyForm({ party, onClose, onSaved }: PartyFormProps) {
           )}
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField control={control} name="email" label={t('email')} placeholder={t('example_email')} />
-            <TextField control={control} name="telefone" label={t('phone')} placeholder="(11) 90000-0000" />
+            <TextField control={control} name="phone" label={t('phone')} placeholder="(11) 90000-0000" />
           </div>
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">

@@ -145,10 +145,10 @@ export const sendNotice = async (
   const preencher = (texto: string) =>
     Object.entries(values).reduce((result, [marker, amount]) => result.replaceAll(marker, amount), texto);
   const subject = preencher(template.subject);
-  const corpo = preencher(template.corpo);
+  const body = preencher(template.body);
   const enviados: string[] = [];
   for (const email of emails) {
-    if ((await mail.send(email, subject, corpo)).sent) enviados.push(email);
+    if ((await mail.send(email, subject, body)).sent) enviados.push(email);
   }
   if (!enviados.length) throw new CustomError('invite_email_failed', 502);
   await appointmentRepository.addNotice(ctx.tenantId, id, { userId: ctx.userId, recipients: enviados });

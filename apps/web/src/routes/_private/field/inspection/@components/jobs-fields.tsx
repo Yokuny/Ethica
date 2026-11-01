@@ -13,7 +13,7 @@ export function JobsFields({ form }: { form: UseFormReturn<InspectionData> }) {
     <FieldList
       titulo={t('roles_and_activities')}
       vazio={t('no_roles_yet')}
-      acoes={
+      actions={
         <Button
           type="button"
           variant="outline"
@@ -59,7 +59,7 @@ export function JobsFields({ form }: { form: UseFormReturn<InspectionData> }) {
                   <ItemTitle>{t(versao === 'plaintiff' ? 'plaintiff_version' : 'defendant_version')}</ItemTitle>
                   <TextareaField
                     control={form.control}
-                    name={`jobs.${index}.${versao}.atividades`}
+                    name={`jobs.${index}.${versao}.activities`}
                     label={t('activities')}
                     placeholder={t('activities_placeholder')}
                   />

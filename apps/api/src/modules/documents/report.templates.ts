@@ -39,8 +39,8 @@ img { display: block; max-width: 100%; max-height: 120mm; margin: 3mm auto 1mm; 
 
 const TIPO = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 
-const coverRow = (rotulo: string | undefined, amount: string | undefined): string =>
-  rotulo && amount ? `<div><dt>${esc(rotulo)}:</dt><dd>${esc(amount)}</dd></div>` : '';
+const coverRow = (label: string | undefined, amount: string | undefined): string =>
+  label && amount ? `<div><dt>${esc(label)}:</dt><dd>${esc(amount)}</dd></div>` : '';
 
 // Foto da vistoria vira data URL (o Chromium roda sem rede, AD-119/AD-129); a que sumiu sai.
 const withPhotos = (html: string, photos: ReportExportData['photos']): string =>
@@ -59,8 +59,8 @@ export const reportHtml = ({ report, legalCase, identity, expert, values, photos
     coverRow(values['[DENOMINACAO_REU]'], values['[NOME_REU]']),
     coverRow('Objeto', legalCase.subject),
   ].join('')}</dl></div><div class="assinatura"><p><strong>${esc(expert.name)}</strong></p>${[
-    expert.formacao,
-    expert.registroProfissional,
+    expert.education,
+    expert.professionalRegistration,
   ]
     .filter(Boolean)
     .map((row) => `<p>${esc(row)}</p>`)

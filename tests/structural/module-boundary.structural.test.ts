@@ -24,7 +24,7 @@ const MODULES_ROOT = join(API_SRC_ROOT, 'modules');
 // importa. Helpers sem dono (tenantScoped, hashToken, crypto, datas, tipos)
 // ficam fora da tabela e podem ser importados por qualquer módulo.
 const DB_OWNERSHIP: Record<string, readonly string[]> = {
-  identity: ['Tenant', 'User', 'Session', 'Invite', 'Atividade', 'transitionTenantStatus'],
+  identity: ['Tenant', 'User', 'Session', 'Invite', 'Activity', 'transitionTenantStatus'],
   case: ['Case', 'Deadline', 'Party'],
   agenda: ['Appointment', 'Inspection'],
   finance: ['Transaction'],

@@ -6,11 +6,11 @@ describe('createNodemailerMailProvider', () => {
     const transport = { sendMail: vi.fn().mockRejectedValue(new Error('SMTP indisponível')) };
     const provider = createNodemailerMailProvider(transport, 'noreply@crm.com');
 
-    await expect(provider.send('convidado@example.com', 'Convite', 'corpo')).resolves.toEqual({ sent: false });
+    await expect(provider.send('convidado@example.com', 'Convite', 'body')).resolves.toEqual({ sent: false });
     expect(transport.sendMail).toHaveBeenCalledWith({
       to: 'convidado@example.com',
       subject: 'Convite',
-      html: 'corpo',
+      html: 'body',
       from: 'noreply@crm.com',
     });
   });
@@ -19,6 +19,6 @@ describe('createNodemailerMailProvider', () => {
     const transport = { sendMail: vi.fn().mockResolvedValue(undefined) };
     const provider = createNodemailerMailProvider(transport, 'noreply@crm.com');
 
-    await expect(provider.send('convidado@example.com', 'Convite', 'corpo')).resolves.toEqual({ sent: true });
+    await expect(provider.send('convidado@example.com', 'Convite', 'body')).resolves.toEqual({ sent: true });
   });
 });

@@ -9,16 +9,16 @@ import { t } from '@/lib/helpers/translate.helper.js';
 export function FieldList({
   titulo,
   vazio,
-  acoes,
+  actions,
   itens,
 }: {
   titulo: string;
   vazio: string;
-  acoes: ReactNode;
+  actions: ReactNode;
   itens: Array<{ key: string; conteudo: ReactNode; onRemove: () => void }>;
 }) {
   return (
-    <Panel title={titulo} actions={acoes}>
+    <Panel title={titulo} actions={actions}>
       {!itens.length ? (
         <ItemTitle className="font-normal text-muted-foreground">{vazio}</ItemTitle>
       ) : (

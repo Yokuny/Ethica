@@ -1,4 +1,4 @@
-import { HOME_BLOCOS, type HomeBloco } from '@ethica/contracts';
+import { HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
@@ -18,11 +18,11 @@ import { can } from '@/query/session.js';
 import { financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CasesCourtTypeChart } from './@components/cases-court-type-chart.js';
 import { CasesStatusChart } from './@components/cases-status-chart.js';
+import { HomeCustomize } from './@components/home-customize.js';
 import { HomeOverview } from './@components/home-overview.js';
-import { HomePersonalizar } from './@components/home-personalizar.js';
 import { HomeSections } from './@components/home-sections.js';
 import { StalledCasesList } from './@components/stalled-cases.js';
-import { HOME_BLOCO_MODULO } from './@consts/home-blocos.js';
+import { HOME_BLOCK_MODULE } from './@consts/home-blocks.js';
 import { useHomePage } from './@hooks/use-home-page.js';
 
 const FLOW_MONTHS = 6;
@@ -32,13 +32,13 @@ const FLOW_MONTHS = 6;
 export function PrivateIndexPage() {
   const { session, canSeeFinance, sections } = useHomePage();
   const preferences = useQuery(preferencesQuery);
-  const [personalizando, setPersonalizando] = useState(false);
-  const permitidos = HOME_BLOCOS.filter((bloco) => {
-    const modulo = HOME_BLOCO_MODULO[bloco];
-    return !modulo || can(session, modulo);
+  const [customizing, setCustomizing] = useState(false);
+  const allowed = HOME_BLOCKS.filter((block) => {
+    const module = HOME_BLOCK_MODULE[block];
+    return !module || can(session, module);
   });
-  const ocultos = preferences.data?.blocosOcultos ?? [];
-  const mostra = (bloco: HomeBloco) => permitidos.includes(bloco) && !ocultos.includes(bloco);
+  const hidden = preferences.data?.hiddenBlocks ?? [];
+  const mostra = (block: HomeBlock) => allowed.includes(block) && !hidden.includes(block);
   const canCreate = can(session, 'expert_cases', 'create');
 
   const stats = useQuery({ ...listStatsQuery('/expert-cases/stats'), enabled: mostra('overview') });
@@ -55,7 +55,7 @@ export function PrivateIndexPage() {
     <Card asPage>
       <CardHeader title={t('home')}>
         <CardAction>
-          <Button variant="outline" onClick={() => setPersonalizando(true)}>
+          <Button variant="outline" onClick={() => setCustomizing(true)}>
             {t('customize')}
           </Button>
           {canCreate && (
@@ -122,9 +122,7 @@ export function PrivateIndexPage() {
         )}
         {mostra('sections') && <HomeSections sections={sections} />}
       </CardContent>
-      {personalizando && (
-        <HomePersonalizar blocos={permitidos} ocultos={ocultos} onClose={() => setPersonalizando(false)} />
-      )}
+      {customizing && <HomeCustomize blocks={allowed} hidden={hidden} onClose={() => setCustomizing(false)} />}
     </Card>
   );
 }

@@ -1,4 +1,4 @@
-import type { PermissaoModulo } from '@ethica/contracts';
+import type { PermissionModule } from '@ethica/contracts';
 import { can, isAdminSession, type SessionView } from '@/query/session.js';
 import type { HomeSection } from '../@interface/home.interface.js';
 
@@ -9,7 +9,7 @@ export function canAccessHomeSection(section: HomeSection, session: SessionView)
 }
 
 // Primeiro segmento da URL → módulo da matriz; `undefined` = tela sem módulo (início, conta, admin).
-const MODULO_POR_SEGMENTO: Record<string, PermissaoModulo> = {
+const MODULE_BY_SEGMENT: Record<string, PermissionModule> = {
   'expert-cases': 'expert_cases',
   parties: 'parties',
   agenda: 'agenda',
@@ -20,8 +20,8 @@ const MODULO_POR_SEGMENTO: Record<string, PermissaoModulo> = {
   reports: 'reports',
 };
 
-export function moduleFromRoute(pathname: string): PermissaoModulo | undefined {
+export function moduleFromRoute(pathname: string): PermissionModule | undefined {
   const [primeiro, segundo] = pathname.split('/').filter(Boolean);
   if (primeiro === 'expert-reports' && segundo === 'templates') return 'report_templates';
-  return primeiro ? MODULO_POR_SEGMENTO[primeiro] : undefined;
+  return primeiro ? MODULE_BY_SEGMENT[primeiro] : undefined;
 }

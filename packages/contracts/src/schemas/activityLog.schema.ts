@@ -3,7 +3,7 @@ import { calendarDateSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
 // Diário de bordo (AD-134): módulos e ações registrados. Chaves em inglês, traduzidas no web (AD-113).
-export const DIARIO_MODULOS = [
+export const ACTIVITY_LOG_MODULES = [
   'expert_cases',
   'parties',
   'agenda',
@@ -15,9 +15,9 @@ export const DIARIO_MODULOS = [
   'users',
   'account',
 ] as const;
-export type DiarioModulo = (typeof DIARIO_MODULOS)[number];
+export type ActivityLogModule = (typeof ACTIVITY_LOG_MODULES)[number];
 
-export const DIARIO_ACOES = [
+export const ACTIVITY_LOG_ACTIONS = [
   'create',
   'update',
   'delete',
@@ -28,17 +28,17 @@ export const DIARIO_ACOES = [
   'notify',
   'signin',
 ] as const;
-export type DiarioAcao = (typeof DIARIO_ACOES)[number];
+export type ActivityLogAction = (typeof ACTIVITY_LOG_ACTIONS)[number];
 
-export const listDiarioQuerySchema = z
+export const listActivityLogQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     from: calendarDateSchema.optional(),
     to: calendarDateSchema.optional(),
     userId: idSchema.optional(),
-    modulo: z.enum(DIARIO_MODULOS).optional(),
-    acao: z.enum(DIARIO_ACOES).optional(),
+    module: z.enum(ACTIVITY_LOG_MODULES).optional(),
+    action: z.enum(ACTIVITY_LOG_ACTIONS).optional(),
   })
   .strict();
-export type ListDiarioQuery = z.infer<typeof listDiarioQuerySchema>;
+export type ListActivityLogQuery = z.infer<typeof listActivityLogQuerySchema>;

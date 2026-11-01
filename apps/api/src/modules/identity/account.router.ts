@@ -25,6 +25,6 @@ export const createAccountRouter = (deps: AccountRouterDeps): Router => {
   // PRZ-03: link secreto do feed iCal da própria pessoa (gerar substitui o anterior).
   router.get('/calendar-feed', ...own, accountController.calendarFeedStatus);
   router.post('/calendar-feed', ...own, accountController.generateCalendarFeed);
-  router.delete('/calendar-feed', ...own, accountController.revogarCalendarFeed);
+  router.delete('/calendar-feed', ...own, accountController.revokeCalendarFeed);
   return router;
 };

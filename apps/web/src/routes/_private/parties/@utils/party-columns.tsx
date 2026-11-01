@@ -26,8 +26,8 @@ export const partyColumns: ColumnDef<PartyRecord, unknown>[] = [
     id: 'contato',
     header: t('contact'),
     cell: ({ row }) => (
-      <TableStack description={row.original.email ? row.original.telefone : undefined}>
-        {row.original.email ?? row.original.telefone ?? '—'}
+      <TableStack description={row.original.email ? row.original.phone : undefined}>
+        {row.original.email ?? row.original.phone ?? '—'}
       </TableStack>
     ),
   },

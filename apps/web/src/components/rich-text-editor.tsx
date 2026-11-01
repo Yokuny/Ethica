@@ -85,52 +85,52 @@ const EXTENSOES = [
 type Ferramenta = {
   icon: LucideIcon;
   label: string;
-  ativo: (editor: Editor) => boolean;
+  active: (editor: Editor) => boolean;
   run: (editor: Editor) => void;
 };
 
 const FERRAMENTAS: Ferramenta[] = [
-  { icon: Bold, label: 'bold', ativo: (e) => e.isActive('bold'), run: (e) => e.chain().focus().toggleBold().run() },
+  { icon: Bold, label: 'bold', active: (e) => e.isActive('bold'), run: (e) => e.chain().focus().toggleBold().run() },
   {
     icon: Italic,
     label: 'italic',
-    ativo: (e) => e.isActive('italic'),
+    active: (e) => e.isActive('italic'),
     run: (e) => e.chain().focus().toggleItalic().run(),
   },
   {
     icon: Underline,
     label: 'underline',
-    ativo: (e) => e.isActive('underline'),
+    active: (e) => e.isActive('underline'),
     run: (e) => e.chain().focus().toggleUnderline().run(),
   },
   {
     icon: Heading3,
     label: 'subtitle',
-    ativo: (e) => e.isActive('heading', { level: 3 }),
+    active: (e) => e.isActive('heading', { level: 3 }),
     run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run(),
   },
   {
     icon: List,
     label: 'bulleted_list',
-    ativo: (e) => e.isActive('bulletList'),
+    active: (e) => e.isActive('bulletList'),
     run: (e) => e.chain().focus().toggleBulletList().run(),
   },
   {
     icon: ListOrdered,
     label: 'numbered_list',
-    ativo: (e) => e.isActive('orderedList'),
+    active: (e) => e.isActive('orderedList'),
     run: (e) => e.chain().focus().toggleOrderedList().run(),
   },
   {
     icon: Table,
     label: 'insert_table',
-    ativo: (e) => e.isActive('table'),
+    active: (e) => e.isActive('table'),
     run: (e) => e.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
   },
 ];
 
 function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
-  const ativos = useEditorState({ editor, selector: ({ editor: e }) => FERRAMENTAS.map((f) => f.ativo(e)) });
+  const active = useEditorState({ editor, selector: ({ editor: e }) => FERRAMENTAS.map((f) => f.active(e)) });
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-input p-1">
       {FERRAMENTAS.map((ferramenta, i) => (
@@ -138,9 +138,9 @@ function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
           key={ferramenta.label}
           type="button"
           size="icon-sm"
-          variant={ativos[i] ? 'secondary' : 'ghost'}
+          variant={active[i] ? 'secondary' : 'ghost'}
           aria-label={t(ferramenta.label)}
-          aria-pressed={ativos[i]}
+          aria-pressed={active[i]}
           onClick={() => ferramenta.run(editor)}
         >
           <ferramenta.icon />

@@ -1,4 +1,4 @@
-import type { PermissaoModulo } from '@ethica/contracts';
+import type { PermissionModule } from '@ethica/contracts';
 import type { LucideIcon } from 'lucide-react';
 export type HomeSection = {
   to:
@@ -17,5 +17,5 @@ export type HomeSection = {
   descriptionKey: string;
   icon: LucideIcon;
   // Módulo da matriz que precisa de `ver` (AD-137), ou `admin`.
-  access: PermissaoModulo | 'admin';
+  access: PermissionModule | 'admin';
 };

@@ -1,12 +1,12 @@
-import { DIARIO_ACOES, DIARIO_MODULOS } from '@ethica/contracts';
+import { ACTIVITY_LOG_ACTIONS, ACTIVITY_LOG_MODULES } from '@ethica/contracts';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
 import { DatePicker } from '@/components/date-picker.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { usersQuery } from '@/query/user.js';
-import { DIARIO_ACAO_KEY, DIARIO_MODULO_KEY } from '../@consts/diario-labels.js';
-import type { DiarioSearch } from '../@interface/diario.interface.js';
+import { ACTIVITY_LOG_ACTION_KEY, ACTIVITY_LOG_MODULE_KEY } from '../@consts/activity-log-labels.js';
+import type { ActivityLogSearch } from '../@interface/activityLog.interface.js';
 
 const ALL = '__all__';
 
@@ -46,12 +46,12 @@ function FilterSelect({
 }
 
 // Filtros do diário (GES-01.2): período, pessoa, módulo e ação.
-export function DiarioFilters({
+export function ActivityLogFilters({
   search,
   onChange,
 }: {
-  search: DiarioSearch;
-  onChange: (patch: Partial<DiarioSearch>) => void;
+  search: ActivityLogSearch;
+  onChange: (patch: Partial<ActivityLogSearch>) => void;
 }) {
   const users = useQuery(usersQuery);
   return (
@@ -71,15 +71,15 @@ export function DiarioFilters({
       />
       <FilterSelect
         label={t('module')}
-        items={DIARIO_MODULOS.map((value) => ({ value, label: t(DIARIO_MODULO_KEY[value]) }))}
-        value={search.modulo}
-        onChange={(modulo) => onChange({ modulo: modulo as DiarioSearch['modulo'], page: 1 })}
+        items={ACTIVITY_LOG_MODULES.map((value) => ({ value, label: t(ACTIVITY_LOG_MODULE_KEY[value]) }))}
+        value={search.module}
+        onChange={(module) => onChange({ module: module as ActivityLogSearch['module'], page: 1 })}
       />
       <FilterSelect
         label={t('action')}
-        items={DIARIO_ACOES.map((value) => ({ value, label: t(DIARIO_ACAO_KEY[value]) }))}
-        value={search.acao}
-        onChange={(acao) => onChange({ acao: acao as DiarioSearch['acao'], page: 1 })}
+        items={ACTIVITY_LOG_ACTIONS.map((value) => ({ value, label: t(ACTIVITY_LOG_ACTION_KEY[value]) }))}
+        value={search.action}
+        onChange={(action) => onChange({ action: action as ActivityLogSearch['action'], page: 1 })}
       />
     </>
   );

@@ -67,7 +67,7 @@ export const sendDeadlineNotices = async (
 
   let enviados = 0;
   for (const [tenantId, doTenant] of porTenant) {
-    const pessoas = recipients.filter((pessoa) => pessoa.tenantId === tenantId);
+    const pessoas = recipients.filter((person) => person.tenantId === tenantId);
     if (pessoas.length === 0) continue;
     const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(doTenant.map((p) => p.caseId))]);
     const html = buildEmail(
@@ -82,8 +82,8 @@ export const sendDeadlineNotices = async (
       summaries,
       deps.appUrl,
     );
-    for (const pessoa of pessoas) {
-      const { sent } = await deps.mail.send(pessoa.email, `Prazos das perícias — ${formatDay(today)}`, html);
+    for (const person of pessoas) {
+      const { sent } = await deps.mail.send(person.email, `Prazos das perícias — ${formatDay(today)}`, html);
       if (sent) enviados += 1;
     }
   }

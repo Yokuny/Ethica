@@ -7,7 +7,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { type Draft, storeMedia } from '@/lib/offline/store.js';
 import { runSync, updateIssues } from '@/lib/offline/sync.js';
 import type { DayInspection } from '@/query/inspection.js';
-import { useRegistro } from '../@hooks/use-registro.js';
+import { useRecord } from '../@hooks/use-record.js';
 import { AgentsFields, DocumentsFields } from './agents-documents-fields.js';
 import { AttendeesFields } from './attendees-fields.js';
 import { ComparatorsFields } from './comparators-fields.js';
@@ -26,9 +26,9 @@ const ABAS = [
 ] as const;
 
 // Registro em abas (CAM-02): tudo fica no aparelho a cada mudança e sobe sozinho (AD-128).
-export function RegistroForm({ item, draft }: { item: DayInspection; draft?: Draft }) {
+export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft }) {
   const queryClient = useQueryClient();
-  const { form, conflict, keepMine, keepServer } = useRegistro(item, draft);
+  const { form, conflict, keepMine, keepServer } = useRecord(item, draft);
 
   // Assinatura entra na fila de mídias com id do aparelho; o registro guarda o id.
   async function storeSignature(png: Blob): Promise<string> {

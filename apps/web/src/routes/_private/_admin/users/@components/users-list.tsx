@@ -7,7 +7,7 @@ import { apiUrl } from '@/lib/api/client.api.js';
 import { initials } from '@/lib/helpers/initials.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { UserDirectoryEntry } from '../@query/user-directory.js';
-import { PermissoesDialog } from './permissoes-dialog.js';
+import { PermissionsDialog } from './permissions-dialog.js';
 
 // REG-08: o time no layout Team 1 do Tailark Dusk. Uma grade só, gestores
 // primeiro; cada pessoa tem o papel como título acima do bloco quadrado (foto da
@@ -96,7 +96,7 @@ function UserCard({ user, featured }: { user: UserDirectoryEntry; featured: bool
           </Button>
         )}
       </div>
-      {ajustando && <PermissoesDialog user={user} onClose={() => setAjustando(false)} />}
+      {ajustando && <PermissionsDialog user={user} onClose={() => setAjustando(false)} />}
     </div>
   );
 }

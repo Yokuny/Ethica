@@ -46,7 +46,7 @@ export const generateCalendarFeed = async (tenantId: string, userId: string): Pr
   return { token };
 };
 
-export const revogarCalendarFeed = (tenantId: string, userId: string) =>
+export const revokeCalendarFeed = (tenantId: string, userId: string) =>
   accountRepository.setCalendarFeedTokenHash(tenantId, userId, null);
 
 export const calendarFeedStatus = async (tenantId: string, userId: string) => ({

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { permissoesEfetivas, type Role } from '@ethica/contracts';
+import { effectivePermissions, type Role } from '@ethica/contracts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -20,7 +20,7 @@ const renderReceipts = (role: Role[]) => {
   queryClient.setQueryData(sessionQuery.queryKey, {
     user: { id: 'u1', name: 'Ana', email: 'a@x.com' },
     role,
-    permissoes: permissoesEfetivas(role),
+    permissions: effectivePermissions(role),
   });
   queryClient.setQueryData(transactionsQuery({ caseId: 'p1', kind: 'income', limit: 20 }).queryKey, {
     total: 1,

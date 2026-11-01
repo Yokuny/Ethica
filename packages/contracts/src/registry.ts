@@ -1,6 +1,7 @@
 import type { ZodType } from 'zod';
 import { acceptInviteSchema } from './schemas/acceptInvite.schema.js';
 import { changePasswordSchema, updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
+import { listActivityLogQuerySchema } from './schemas/activityLog.schema.js';
 import { createAppointmentSchema, updateAppointmentSchema } from './schemas/appointment.schema.js';
 import {
   createCaseSchema,
@@ -11,7 +12,6 @@ import {
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
 import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
-import { listDiarioQuerySchema } from './schemas/diario.schema.js';
 import { financeReportQuerySchema, updateOfficeSchema, updateScheduleNoticeSchema } from './schemas/document.schema.js';
 import { idSchema } from './schemas/id.schema.js';
 import {
@@ -29,7 +29,7 @@ import {
   oabSchema,
   updatePartySchema,
 } from './schemas/party.schema.js';
-import { permissoesSchema, updatePermissoesSchema } from './schemas/permissao.schema.js';
+import { permissionsSchema, updatePermissionsSchema } from './schemas/permission.schema.js';
 import { createOpportunitySchema, datajudSearchSchema, updateOpportunitySchema } from './schemas/prospecting.schema.js';
 import { provisionTenantSchema } from './schemas/provisionTenant.schema.js';
 import {
@@ -107,7 +107,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'inspectionDataSchema', schema: inspectionDataSchema },
   { name: 'saveInspectionSchema', schema: saveInspectionSchema },
   { name: 'updateMediaSchema', schema: updateMediaSchema },
-  { name: 'permissoesSchema', schema: permissoesSchema },
-  { name: 'updatePermissoesSchema', schema: updatePermissoesSchema },
-  { name: 'listDiarioQuerySchema', schema: listDiarioQuerySchema },
+  { name: 'permissionsSchema', schema: permissionsSchema },
+  { name: 'updatePermissionsSchema', schema: updatePermissionsSchema },
+  { name: 'listActivityLogQuerySchema', schema: listActivityLogQuerySchema },
 ];

@@ -1,4 +1,4 @@
-import type { CreateInvite, Permissoes, ProvisionTenant, Role } from '@ethica/contracts';
+import type { CreateInvite, Permissions, ProvisionTenant, Role } from '@ethica/contracts';
 import { createInviteSchema, idSchema, provisionTenantSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
@@ -23,7 +23,7 @@ export type CreateInviteInput = {
   tenant: string;
   email: string;
   role: Role;
-  permissoes?: Permissoes;
+  permissions?: Permissions;
   tokenHash: string;
   expiresAt: Date;
   invitedBy: string;

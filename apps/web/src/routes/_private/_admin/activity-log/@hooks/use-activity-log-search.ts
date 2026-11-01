@@ -1,13 +1,13 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import type { PaginationState, Updater } from '@tanstack/react-table';
-import type { DiarioSearch } from '../@interface/diario.interface.js';
+import type { ActivityLogSearch } from '../@interface/activityLog.interface.js';
 
-export function useDiarioSearch() {
-  const search = useSearch({ strict: false }) as DiarioSearch;
+export function useActivityLogSearch() {
+  const search = useSearch({ strict: false }) as ActivityLogSearch;
   const navigate = useNavigate({ from: '/activity-log/' });
 
-  function update(patch: Partial<DiarioSearch>) {
-    navigate({ search: (prev: DiarioSearch) => ({ ...prev, ...patch }), replace: true });
+  function update(patch: Partial<ActivityLogSearch>) {
+    navigate({ search: (prev: ActivityLogSearch) => ({ ...prev, ...patch }), replace: true });
   }
 
   function handlePaginationChange(updater: Updater<PaginationState>) {
@@ -16,6 +16,6 @@ export function useDiarioSearch() {
     update({ page: next.pageIndex + 1, limit: next.pageSize });
   }
 
-  const active = [search.from, search.to, search.userId, search.modulo, search.acao].filter(Boolean).length;
+  const active = [search.from, search.to, search.userId, search.module, search.action].filter(Boolean).length;
   return { search, update, handlePaginationChange, active };
 }

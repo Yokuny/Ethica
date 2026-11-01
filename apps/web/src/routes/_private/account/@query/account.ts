@@ -11,8 +11,8 @@ export type AccountView = {
   name: string;
   avatar?: string;
   cpf?: string;
-  registroProfissional?: string;
-  formacao?: string;
+  professionalRegistration?: string;
+  education?: string;
 };
 
 // Nome e foto aparecem no menu (sessão), nos responsáveis (usersQuery) e no
@@ -89,7 +89,7 @@ export const generateCalendarFeedMutation = (queryClient: QueryClient): UseMutat
   onSuccess: () => queryClient.setQueryData(accountKeys.calendarFeed, { active: true }),
 });
 
-export const revogarCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, void> => ({
+export const revokeCalendarFeedMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, void> => ({
   mutationFn: async () => {
     const res = await del('/me/calendar-feed');
     if (!res.success) throw new Error(res.message ?? t('action_error'));

@@ -7,7 +7,7 @@ import {
   dinheiro,
   esc,
   fields,
-  rotulo,
+  label,
   section,
   table,
   vazio,
@@ -37,11 +37,11 @@ const sideNames = (legalCase: Case, side: 'plaintiff' | 'defendant') =>
     .map((party) => party.nome)
     .join(', ');
 
-const document = (base: DocumentBase, titulo: string, subtitulo: string | undefined, corpo: string): PdfDocument =>
+const document = (base: DocumentBase, titulo: string, subtitulo: string | undefined, body: string): PdfDocument =>
   buildDocument({
     titulo,
     subtitulo,
-    corpo,
+    body,
     identity: base.identity,
     expertName: base.expert.name,
     geradoEm: base.geradoEm,
@@ -50,12 +50,12 @@ const document = (base: DocumentBase, titulo: string, subtitulo: string | undefi
 const processData = (legalCase: Case) =>
   fields([
     ['Número do processo', legalCase.processNumber],
-    ['Justiça', rotulo(legalCase.courtType)],
+    ['Justiça', label(legalCase.courtType)],
     ['Tribunal', legalCase.court],
     ['Vara', legalCase.division],
     ['Comarca', legalCase.district],
-    ['Atuação', rotulo(legalCase.role)],
-    ['Etapa', rotulo(legalCase.status)],
+    ['Atuação', label(legalCase.role)],
+    ['Etapa', label(legalCase.status)],
     ['Nomeação', day(legalCase.nominationDate)],
     ['Objeto', legalCase.subject],
   ]);
@@ -104,9 +104,7 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
         deadlines.map((deadline) => [
           esc(deadline.titulo),
           esc(day(deadline.dueDate)),
-          esc(
-            deadline.filedDate ? `${rotulo(deadline.status)} em ${day(deadline.filedDate)}` : rotulo(deadline.status),
-          ),
+          esc(deadline.filedDate ? `${label(deadline.status)} em ${day(deadline.filedDate)}` : label(deadline.status)),
         ]),
       )
     : vazio('Nenhum prazo cadastrado.');
@@ -115,10 +113,10 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
         ['Quando', 'Tipo', 'Compromisso', 'Local', 'Status'],
         appointments.map((appointment) => [
           esc(dateTime(appointment.inicio)),
-          esc(rotulo(appointment.tipo)),
+          esc(label(appointment.tipo)),
           esc(appointment.titulo),
           esc(appointment.local),
-          esc(rotulo(appointment.status)),
+          esc(label(appointment.status)),
         ]),
       )
     : vazio('Nenhum compromisso cadastrado.');
@@ -127,7 +125,7 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
         ['Data', 'Movimentação', 'Observações'],
         legalCase.movements.map((movement) => [
           esc(day(movement.data)),
-          esc(rotulo(movement.tipo)),
+          esc(label(movement.tipo)),
           esc(movement.observacoes),
         ]),
       )
@@ -162,17 +160,17 @@ export const sheetHtml = (dados: SheetData): PdfDocument => {
         'Perito responsável',
         fields([
           ['Nome', expert.name],
-          ['Registro profissional', expert.registroProfissional],
-          ['Formação', expert.formacao],
+          ['Registro profissional', expert.professionalRegistration],
+          ['Formação', expert.education],
         ]),
       ),
     ].join(''),
   );
 };
 
-const AGENTS = INSPECTION_AGENTS.map(rotulo);
+const AGENTS = INSPECTION_AGENTS.map(label);
 
-const REQUESTED_DOCUMENTS = INSPECTION_DOCUMENTS.map(rotulo);
+const REQUESTED_DOCUMENTS = INSPECTION_DOCUMENTS.map(label);
 
 const CAIXA = '<span class="caixa"></span>';
 const rowsBlank = (quantidade: number, columns: number) =>
@@ -267,16 +265,16 @@ export const cronogramaHtml = (dados: CronogramaDados): PdfDocument =>
       : vazio('Nenhum prazo pendente.'),
   );
 
-const financeRows = (titulo: string, rows: FinanceData['report']['received'], rotuloData: string) =>
+const financeRows = (titulo: string, rows: FinanceData['report']['received'], labelData: string) =>
   section(
     titulo,
     rows.length
       ? table(
-          [rotuloData, 'Descrição', 'Categoria', 'Processo', 'Valor'],
+          [labelData, 'Descrição', 'Categoria', 'Processo', 'Valor'],
           rows.map((row) => [
             esc(day(row.data)),
             esc(row.account ? `${row.descricao} (${row.account})` : row.descricao),
-            esc(rotulo(row.category)),
+            esc(label(row.category)),
             esc(row.caseNumber),
             `<span class="num">${esc(dinheiro(row.amountCents))}</span>`,
           ]),
@@ -287,8 +285,8 @@ const financeRows = (titulo: string, rows: FinanceData['report']['received'], ro
 export const financeHtml = (dados: FinanceData): PdfDocument => {
   const { report, period } = dados;
   const { totals } = report;
-  const total = (rotuloTotal: string, cents: number) =>
-    `<div><dt>${esc(rotuloTotal)}</dt><dd>${esc(dinheiro(cents))}</dd></div>`;
+  const total = (labelTotal: string, cents: number) =>
+    `<div><dt>${esc(labelTotal)}</dt><dd>${esc(dinheiro(cents))}</dd></div>`;
   return document(
     dados,
     'Relatório financeiro',
@@ -323,9 +321,9 @@ export const stalledHtml = (dados: StalledData): PdfDocument =>
           ['Processo', 'Etapa', 'Tribunal / vara', 'Desde', 'Dias parada'],
           dados.stalled.map((stalled) => [
             esc(stalled.processNumber),
-            esc(rotulo(stalled.status)),
+            esc(label(stalled.status)),
             esc([stalled.court, stalled.division].filter(Boolean).join(' · ')),
-            esc(`${day(stalled.referencia)} (${rotulo(stalled.origin)})`),
+            esc(`${day(stalled.referencia)} (${label(stalled.origin)})`),
             `<span class="num">${stalled.stalledDays}</span>`,
           ]),
         )

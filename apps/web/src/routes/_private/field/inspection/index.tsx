@@ -15,7 +15,7 @@ import { readDraft } from '@/lib/offline/store.js';
 import { iniciarSync } from '@/lib/offline/sync.js';
 import { inspectionQuery } from '@/query/inspection.js';
 import { FieldConnection } from '../@components/field-connection.js';
-import { RegistroForm } from './@components/registro-form.js';
+import { RecordForm } from './@components/record-form.js';
 import { type InspectionSearch, inspectionSearchSchema } from './@interface/inspection.interface.js';
 
 // Registro da vistoria no celular (CAM-02 a CAM-07), funcionando sem conexão (AD-128).
@@ -67,7 +67,7 @@ export function InspectionPage() {
             />
           </RecordHeader>
           <FieldConnection />
-          <RegistroForm key={item.appointment.id} item={item} draft={draft.data ?? undefined} />
+          <RecordForm key={item.appointment.id} item={item} draft={draft.data ?? undefined} />
         </CardContent>
       )}
     </Card>

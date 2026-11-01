@@ -11,7 +11,7 @@ export interface PartyDocument {
   document?: string;
   oab?: string;
   email?: string;
-  telefone?: string;
+  phone?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,7 +24,7 @@ const partySchema = new Schema<PartyDocument>(
     document: { type: String, match: /^(\d{11}|\d{14})$/ },
     oab: { type: String, trim: true },
     email: { type: String, trim: true },
-    telefone: { type: String, trim: true },
+    phone: { type: String, trim: true },
   },
   { timestamps: true },
 );

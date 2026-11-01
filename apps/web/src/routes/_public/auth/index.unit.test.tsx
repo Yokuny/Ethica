@@ -47,13 +47,13 @@ describe('AuthPage', () => {
     render(<AuthPage />);
 
     await user.type(screen.getByLabelText('E-mail'), 'admin@empresa.com');
-    await user.type(screen.getByLabelText('Senha'), 'senhaCorreta123');
+    await user.type(screen.getByLabelText('Senha'), 'passwordCorreta123');
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
     await waitFor(() => {
       expect(postMock).toHaveBeenCalledWith('/auth/signin', {
         email: 'admin@empresa.com',
-        password: 'senhaCorreta123',
+        password: 'passwordCorreta123',
       });
     });
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
@@ -65,7 +65,7 @@ describe('AuthPage', () => {
     render(<AuthPage />);
 
     await user.type(screen.getByLabelText('E-mail'), 'admin@empresa.com');
-    await user.type(screen.getByLabelText('Senha'), 'senhaErrada');
+    await user.type(screen.getByLabelText('Senha'), 'passwordErrada');
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
     expect(await screen.findByText('E-mail ou senha inválidos.')).toBeInTheDocument();

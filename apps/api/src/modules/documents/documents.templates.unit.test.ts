@@ -4,7 +4,7 @@ import { checklistHtml, cronogramaHtml, sheetHtml, stalledHtml } from './documen
 
 const base = {
   identity: { name: 'Escritório Ribeiro' },
-  expert: { name: 'Ana Perita', registroProfissional: 'CREA-SP 123', formacao: 'Engenharia de Segurança' },
+  expert: { name: 'Ana Perita', professionalRegistration: 'CREA-SP 123', education: 'Engenharia de Segurança' },
   geradoEm: new Date('2026-10-31T15:00:00Z'),
 };
 

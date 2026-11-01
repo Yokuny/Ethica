@@ -137,9 +137,9 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
 
     const editada = await as(request(app).patch(`/parties/${partyId}`)).send({
       nome: 'Maria da Silva',
-      telefone: '(11) 99999-0000',
+      phone: '(11) 99999-0000',
     });
-    expect(editada.body.data).toMatchObject({ nome: 'Maria da Silva', telefone: '(11) 99999-0000' });
+    expect(editada.body.data).toMatchObject({ nome: 'Maria da Silva', phone: '(11) 99999-0000' });
     const lida = await as(request(app).get(`/expert-cases/${criada.body.data.id}`));
     expect(lida.body.data.parties[0].nome).toBe('Maria da Silva');
 

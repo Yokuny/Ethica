@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { PERFIL_PERMISSOES } from '@ethica/contracts';
+import { PROFILE_PERMISSIONS } from '@ethica/contracts';
 import { connect, disconnect, Session, Tenant, User } from '@ethica/db';
 import cookieParser from 'cookie-parser';
 import type { Request } from 'express';
@@ -73,7 +73,7 @@ describe('createAuthMiddleware', () => {
             id: user._id.toString(),
             tenant: user.Tenant?.toString(),
             role: user.role,
-            permissoes: user.permissoes,
+            permissions: user.permissions,
             isPlatformAdmin: user.isPlatformAdmin,
             active: user.active,
           }
@@ -146,7 +146,7 @@ describe('createAuthMiddleware', () => {
       user: user.id,
       role: ['operator'],
       isPlatformAdmin: false,
-      permissoes: PERFIL_PERMISSOES.operator,
+      permissions: PROFILE_PERMISSIONS.operator,
     });
   });
 
@@ -346,7 +346,7 @@ describe('createAuthMiddleware', () => {
         user: user.id,
         role: ['manager'],
         isPlatformAdmin: false,
-        permissoes: PERFIL_PERMISSOES.manager,
+        permissions: PROFILE_PERMISSIONS.manager,
       });
     });
   });

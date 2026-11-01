@@ -1,18 +1,18 @@
-import { HOME_BLOCOS, type HomeBloco } from '@ethica/contracts';
+import { HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
 import { tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { UpdatePreferences, UserPreferences } from './preferences.schema.js';
 
 const toPreferences = (
   doc: {
-    preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; blocosOcultos?: string[] };
+    preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; hiddenBlocks?: string[] };
   } | null,
 ): UserPreferences => ({
   onboardingDismissed: doc?.preferences?.onboardingDismissed === true,
   deadlineReminderEmail: doc?.preferences?.deadlineReminderEmail !== false,
   // Chave que deixou de existir é ignorada (AD-136).
-  blocosOcultos: (doc?.preferences?.blocosOcultos ?? []).filter((bloco): bloco is HomeBloco =>
-    (HOME_BLOCOS as readonly string[]).includes(bloco),
+  hiddenBlocks: (doc?.preferences?.hiddenBlocks ?? []).filter((block): block is HomeBlock =>
+    (HOME_BLOCKS as readonly string[]).includes(block),
   ),
 });
 

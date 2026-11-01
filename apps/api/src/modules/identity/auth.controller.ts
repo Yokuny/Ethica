@@ -54,9 +54,9 @@ export const listUserDirectory = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const updatePermissoes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updatePermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await authService.updatePermissoes(req.tenantUser.tenant as string, req.params.id as string, req.body);
+    await authService.updatePermissions(req.tenantUser.tenant as string, req.params.id as string, req.body);
     res.json(respObj({}));
   } catch (e) {
     next(e);

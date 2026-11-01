@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { calendarFeedQuery, generateCalendarFeedMutation, revogarCalendarFeedMutation } from '../@query/account.js';
+import { calendarFeedQuery, generateCalendarFeedMutation, revokeCalendarFeedMutation } from '../@query/account.js';
 
 // PRZ-03: link secreto para assinar a agenda e os prazos no Google, Outlook ou Apple.
 // O link só aparece logo depois de gerado; gerar de novo invalida o anterior.
@@ -14,9 +14,9 @@ export function AccountCalendarFeed() {
   const queryClient = useQueryClient();
   const query = useQuery(calendarFeedQuery);
   const generate = useMutation(generateCalendarFeedMutation(queryClient));
-  const revogar = useMutation(revogarCalendarFeedMutation(queryClient));
+  const revoke = useMutation(revokeCalendarFeedMutation(queryClient));
   const [url, setUrl] = useState<string | null>(null);
-  const isPending = generate.isPending || revogar.isPending;
+  const isPending = generate.isPending || revoke.isPending;
   const onError = (error: Error) => toast.error(error.message);
 
   if (query.isLoading || !query.data) return <DefaultLoading />;
@@ -55,7 +55,7 @@ export function AccountCalendarFeed() {
           <Button
             variant="destructive"
             disabled={isPending}
-            onClick={() => revogar.mutate(undefined, { onSuccess: () => setUrl(null), onError })}
+            onClick={() => revoke.mutate(undefined, { onSuccess: () => setUrl(null), onError })}
           >
             {t('revoke_link')}
           </Button>

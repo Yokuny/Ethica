@@ -4,7 +4,7 @@ import type { AppointmentRecord } from '../agenda/appointment.schema.js';
 import type { CaseRecord } from '../case/case.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
-import { day, rotulo } from './document.layout.js';
+import { day, label } from './document.layout.js';
 import type { ReportValues } from './report.html.js';
 
 const MONTHS = [
@@ -63,7 +63,7 @@ const capacity = (amount: InspectionData['attendees'][number]['capacity'], denom
   if (amount === 'defendant') return denominacao.defendant;
   if (amount === 'plaintiff_lawyer') return `advogado(a) do(a) ${denominacao.plaintiff.toLowerCase()}`;
   if (amount === 'defendant_lawyer') return `advogado(a) do(a) ${denominacao.defendant.toLowerCase()}`;
-  return rotulo(amount).toLowerCase();
+  return label(amount).toLowerCase();
 };
 
 const fieldValues = (field: InspectionData, denominacao: Denominacao): ReportValues => {
@@ -81,9 +81,9 @@ const fieldValues = (field: InspectionData, denominacao: Denominacao): ReportVal
       field.jobs.map((job) => {
         const period = [job.yearStart, job.yearEnd].filter(Boolean).join(' a ');
         const header = entre([period || undefined, job.local]);
-        const { atividades, frequency, timeExposure } = job[versao];
+        const { activities, frequency, timeExposure } = job[versao];
         const statement = entre([
-          atividades,
+          activities,
           frequency && `frequência: ${frequency}`,
           timeExposure && `exposição: ${timeExposure}`,
         ]);
@@ -96,7 +96,7 @@ const fieldValues = (field: InspectionData, denominacao: Denominacao): ReportVal
         .filter((agent) => agent.present === present)
         .map((agent) => {
           const detalhes = entre([agent.ppe && `EPI: ${agent.ppe}`, agent.observacoes]);
-          return detalhes ? `${rotulo(agent.agent)} (${detalhes})` : rotulo(agent.agent);
+          return detalhes ? `${label(agent.agent)} (${detalhes})` : label(agent.agent);
         }),
     );
   return {
@@ -110,7 +110,7 @@ const fieldValues = (field: InspectionData, denominacao: Denominacao): ReportVal
     '[AGENTES_PRESENTES]': agents('yes'),
     '[AGENTES_AUSENTES]': agents('no'),
     '[DOCUMENTOS_SOLICITADOS]': juntar(
-      field.documents.filter((document) => document.requested).map((document) => rotulo(document.document)),
+      field.documents.filter((document) => document.requested).map((document) => label(document.document)),
     ),
   };
 };
@@ -136,7 +136,7 @@ export const reportValues = ({
     '[TRIBUNAL]': legalCase.court,
     '[VARA]': legalCase.division,
     '[COMARCA]': legalCase.district,
-    '[JUSTICA]': rotulo(legalCase.courtType),
+    '[JUSTICA]': label(legalCase.courtType),
     '[OBJETO]': legalCase.subject,
     '[NOME_AUTOR]': nomes(legalCase, 'plaintiff', 'party'),
     '[NOME_REU]': nomes(legalCase, 'defendant', 'party'),
@@ -154,8 +154,8 @@ export const reportValues = ({
     '[PERIODO_IMPRESCRITO]': inicio && fim ? `${day(inicio)} a ${day(fim)}` : undefined,
     '[DATA_EXTENSO]': byWords(today),
     '[PERITO_NOME]': expert.name,
-    '[PERITO_REGISTRO]': expert.registroProfissional,
-    '[PERITO_FORMACAO]': expert.formacao,
+    '[PERITO_REGISTRO]': expert.professionalRegistration,
+    '[PERITO_FORMACAO]': expert.education,
     '[ESCRITORIO_NOME]': identity.name,
     ...(field ? fieldValues(field.dados, denominacao) : {}),
   };

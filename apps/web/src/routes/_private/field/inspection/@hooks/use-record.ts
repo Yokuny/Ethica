@@ -24,7 +24,7 @@ const ENVIO_APOS_MS = 1500;
 
 // Registro da vistoria (CAM-02, CAM-05): cada mudança fica no aparelho na hora e é enviada
 // pouco depois, se houver conexão; a versão de base vem do rascunho ou do servidor (AD-128).
-export function useRegistro(item: DayInspection, initialDraft?: Draft) {
+export function useRecord(item: DayInspection, initialDraft?: Draft) {
   const queryClient = useQueryClient();
   const appointmentId = item.appointment.id;
   const form = useForm<InspectionData>({

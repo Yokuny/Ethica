@@ -15,8 +15,8 @@ import { caseInspectionsQuery } from '@/query/inspection.js';
 // Registros de vistoria da perícia (CAM-02.3) e a galeria das fotos (CAM-03.3).
 export function CaseInspections({ caseId }: { caseId: string }) {
   const query = useQuery(caseInspectionsQuery(caseId));
-  const registros = query.data ?? [];
-  const photos = registros.flatMap(({ appointment, inspection }) =>
+  const records = query.data ?? [];
+  const photos = records.flatMap(({ appointment, inspection }) =>
     inspection.media
       .filter((media) => media.tipo === 'photo')
       .map((media) => ({ appointmentId: appointment.id, media })),
@@ -26,12 +26,12 @@ export function CaseInspections({ caseId }: { caseId: string }) {
     <Panel size="sm" title={t('inspections')} description={t('inspections_panel_description')}>
       {query.isLoading ? (
         <DefaultLoading />
-      ) : !registros.length ? (
+      ) : !records.length ? (
         <DefaultEmptyData title={t('no_inspection_records_yet')} />
       ) : (
         <>
           <LinkList>
-            {registros.map(({ appointment, inspection }) => (
+            {records.map(({ appointment, inspection }) => (
               <LinkListItem
                 key={appointment.id}
                 icon={ClipboardList}

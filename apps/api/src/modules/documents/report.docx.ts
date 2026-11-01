@@ -28,7 +28,7 @@ import type { ReportExportData } from './report.schema.js';
 type No = ReturnType<typeof parseDocument>['children'][number];
 type Photos = ReportExportData['photos'];
 type Formato = { bold?: boolean; italics?: boolean; underline?: boolean };
-type Bloco = Paragraph | Table;
+type Block = Paragraph | Table;
 
 const NUMBERED_LIST = 'report-numbered-list';
 const HEADINGS = [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3] as const;
@@ -70,8 +70,8 @@ const table = (no: No, photos: Photos): Table =>
           children: filhos(tr)
             .filter((cell) => tag(cell) === 'td' || tag(cell) === 'th')
             .map((cell) => {
-              const conteudo = blocos(filhos(cell), { bold: tag(cell) === 'th' }, photos).filter(
-                (bloco): bloco is Paragraph => bloco instanceof Paragraph,
+              const conteudo = blocks(filhos(cell), { bold: tag(cell) === 'th' }, photos).filter(
+                (block): block is Paragraph => block instanceof Paragraph,
               );
               const span = cell.type === 'tag' ? Number(cell.attribs.colspan) || 1 : 1;
               return new TableCell({
@@ -141,8 +141,8 @@ const photo = (no: No, photos: Photos): Paragraph[] => {
   ];
 };
 
-function blocos(nos: No[], formato: Formato = {}, photos: Photos = {}): Bloco[] {
-  return nos.flatMap((no): Bloco[] => {
+function blocks(nos: No[], formato: Formato = {}, photos: Photos = {}): Block[] {
+  return nos.flatMap((no): Block[] => {
     switch (tag(no)) {
       case 'p':
         return [
@@ -220,12 +220,12 @@ export const reportDocx = async ({
     ? Buffer.from(identity.logoDataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
     : undefined;
   const { header, footer } = textsHeaderFooter(identity);
-  const coverRow = (rotulo: string | undefined, amount: string | undefined): Paragraph[] =>
-    rotulo && amount
+  const coverRow = (label: string | undefined, amount: string | undefined): Paragraph[] =>
+    label && amount
       ? [
           new Paragraph({
             spacing: { after: 120 },
-            children: [new TextRun({ text: `${rotulo}: `, bold: true }), new TextRun(amount)],
+            children: [new TextRun({ text: `${label}: `, bold: true }), new TextRun(amount)],
           }),
         ]
       : [];
@@ -241,7 +241,7 @@ export const reportDocx = async ({
     ...coverRow(values['[DENOMINACAO_AUTOR]'], values['[NOME_AUTOR]']),
     ...coverRow(values['[DENOMINACAO_REU]'], values['[NOME_REU]']),
     ...coverRow('Objeto', legalCase.subject),
-    ...[expert.name, expert.formacao, expert.registroProfissional, values['[DATA_EXTENSO]']]
+    ...[expert.name, expert.education, expert.professionalRegistration, values['[DATA_EXTENSO]']]
       .filter((row): row is string => Boolean(row))
       .map(
         (row, i) =>
@@ -258,7 +258,7 @@ export const reportDocx = async ({
       pageBreakBefore: section.pageBreak,
       children: [new TextRun(`${numeros[i]}. ${section.titulo}`)],
     }),
-    ...(section.titleOnly ? [] : blocos(parseDocument(section.html).children as No[], {}, photos)),
+    ...(section.titleOnly ? [] : blocks(parseDocument(section.html).children as No[], {}, photos)),
   ]);
   const doc = new Document({
     features: { updateFields: true },

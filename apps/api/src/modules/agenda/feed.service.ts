@@ -129,10 +129,10 @@ export const generateFeed = async (token: string, now: Date = new Date()): Promi
     }),
     deadlineService.listPendingDeadlines(tenantId),
   ]);
-  const ativos = appointments.filter((item) => item.status !== 'canceled');
+  const active = appointments.filter((item) => item.status !== 'canceled');
   const ids = [
-    ...new Set([...ativos.flatMap((item) => (item.caseId ? [item.caseId] : [])), ...deadlines.map((p) => p.caseId)]),
+    ...new Set([...active.flatMap((item) => (item.caseId ? [item.caseId] : [])), ...deadlines.map((p) => p.caseId)]),
   ];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
-  return buildIcs({ appointments: ativos, deadlines, summaries, now });
+  return buildIcs({ appointments: active, deadlines, summaries, now });
 };

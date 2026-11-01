@@ -3,7 +3,7 @@ import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { get, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
-import { lerRegistro, readDay, saveDay } from '../lib/offline/store.js';
+import { readDay, readRecord, saveDay } from '../lib/offline/store.js';
 import { type AppointmentRecord, appointmentKeys } from './appointment.js';
 
 // Espelha os records de apps/api/src/modules/agenda/vistoria.schema.ts.
@@ -57,7 +57,7 @@ export const inspectionQuery = (appointmentId: string) =>
     queryFn: async (): Promise<DayInspection> => {
       const res = await get<DayInspection>(`/inspections/${appointmentId}`);
       if (res.success && res.data) return res.data;
-      const guardado = await lerRegistro(appointmentId);
+      const guardado = await readRecord(appointmentId);
       if (guardado) return guardado;
       throw new Error(res.message ?? t('load_error'));
     },

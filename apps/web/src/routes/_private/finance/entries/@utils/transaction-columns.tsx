@@ -70,7 +70,7 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
       },
     },
     {
-      id: 'acoes',
+      id: 'actions',
       header: '',
       cell: ({ row }) =>
         row.original.kind === 'income' ? (

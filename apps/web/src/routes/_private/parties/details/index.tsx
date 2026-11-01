@@ -62,7 +62,7 @@ export function PartyDetailsPage() {
                     value: partyIdentification(party) ?? '-',
                   },
                   { label: t('email'), value: party.email || '-' },
-                  { label: t('phone'), value: party.telefone || '-' },
+                  { label: t('phone'), value: party.phone || '-' },
                 ],
               },
             ]}

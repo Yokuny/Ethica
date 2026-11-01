@@ -6,7 +6,7 @@ import { avatarPath } from './auth.repository.js';
 // Tenant e usuário vêm sempre da sessão (AD-010): todo filtro é a própria pessoa.
 const own = (tenantId: string, userId: string) => tenantScoped({ Tenant: tenantId, _id: userId });
 
-const ACCOUNT_FIELDS = 'name avatarUpdatedAt cpf registroProfissional formacao';
+const ACCOUNT_FIELDS = 'name avatarUpdatedAt cpf professionalRegistration education';
 
 const toAccountView = (
   doc: {
@@ -14,8 +14,8 @@ const toAccountView = (
     name: string;
     avatarUpdatedAt?: Date;
     cpf?: string;
-    registroProfissional?: string;
-    formacao?: string;
+    professionalRegistration?: string;
+    education?: string;
   } | null,
 ): AccountView | null =>
   doc
@@ -23,8 +23,8 @@ const toAccountView = (
         name: doc.name,
         ...(doc.avatarUpdatedAt ? { avatar: avatarPath(doc._id.toString(), doc.avatarUpdatedAt) } : {}),
         ...(doc.cpf ? { cpf: doc.cpf } : {}),
-        ...(doc.registroProfissional ? { registroProfissional: doc.registroProfissional } : {}),
-        ...(doc.formacao ? { formacao: doc.formacao } : {}),
+        ...(doc.professionalRegistration ? { professionalRegistration: doc.professionalRegistration } : {}),
+        ...(doc.education ? { education: doc.education } : {}),
       }
     : null;
 
@@ -37,10 +37,10 @@ export const findProfile = async (tenantId: string, userId: string): Promise<Acc
 export const updateProfile = async (
   tenantId: string,
   userId: string,
-  { name, ...profissional }: UpdateProfile,
+  { name, ...professional }: UpdateProfile,
 ): Promise<AccountView | null> =>
   withDbTiming('account.updateProfile', async () => {
-    const entries = Object.entries(profissional).filter(([, value]) => value !== undefined);
+    const entries = Object.entries(professional).filter(([, value]) => value !== undefined);
     const $unset = Object.fromEntries(entries.filter(([, value]) => value === '').map(([key]) => [key, 1]));
     const $set = { name, ...Object.fromEntries(entries.filter(([, value]) => value !== '')) };
     return toAccountView(
@@ -119,11 +119,11 @@ export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null
 export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promise<NoticeRecipient[]> =>
   withDbTiming('account.listDeadlineReminderRecipients', async () => {
     if (tenantIds.length === 0) return [];
-    const ativos = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, status: { $ne: 'suspended' } })
+    const active = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, status: { $ne: 'suspended' } })
       .select('_id')
       .lean();
     const users = await User.find({
-      Tenant: { $in: ativos.map((tenant) => tenant._id) },
+      Tenant: { $in: active.map((tenant) => tenant._id) },
       active: true,
       'role.0': { $exists: true },
       'preferences.deadlineReminderEmail': { $ne: false },

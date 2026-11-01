@@ -13,7 +13,7 @@ export type PartyRecord = {
   document?: string;
   oab?: string;
   email?: string;
-  telefone?: string;
+  phone?: string;
   createdAt: string;
   updatedAt: string;
 };

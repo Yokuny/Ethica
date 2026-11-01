@@ -1,8 +1,8 @@
-import { type PermissaoAcao, type PermissaoModulo, type Permissoes, pode, type Role } from '@ethica/contracts';
+import { type PermissionAction, type PermissionModule, type Permissions, pode, type Role } from '@ethica/contracts';
 import { queryOptions } from '@tanstack/react-query';
 import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
-import { lerSessao, salvarSessao } from '../lib/offline/store.js';
+import { readSession, saveSession } from '../lib/offline/store.js';
 
 // Espelha SessionView de apps/api/src/modules/identity/auth.service.ts — a
 // verdade fica no back-end; este tipo só descreve o que a tela consome.
@@ -11,15 +11,15 @@ export type SessionView = {
   user: { id: string; name: string; email: string; avatar?: string };
   role: Role[];
   // Matriz efetiva (AD-137); a sessão guardada no aparelho antes dela pode vir sem.
-  permissoes?: Permissoes;
+  permissions?: Permissions;
 };
 
 // Mesma regra de `isAdmin` do back-end (authorization.middleware.ts): o
 // papel `admin` na lista de papéis do usuário no tenant.
 export const isAdminSession = (session: SessionView): boolean => session.role.includes('admin');
 // Mesma matriz que a API checa com `can()` (AD-137): o web só esconde o que ela recusaria.
-export const can = (session: SessionView, modulo: PermissaoModulo, acao: PermissaoAcao = 'view'): boolean =>
-  pode(session.permissoes ?? {}, modulo, acao);
+export const can = (session: SessionView, module: PermissionModule, action: PermissionAction = 'view'): boolean =>
+  pode(session.permissions ?? {}, module, action);
 
 export const sessionKeys = {
   all: ['session'] as const,
@@ -36,12 +36,12 @@ export const sessionQuery = queryOptions({
   queryFn: async (): Promise<SessionView> => {
     const res = await get<SessionView>('/auth/session');
     if (res.success && res.data) {
-      void salvarSessao(res.data);
+      void saveSession(res.data);
       return res.data;
     }
     // Sem rede (AD-128): a última sessão vista mantém o app aberto; sessão inválida não passa.
     if (res.message === t('connection_error')) {
-      const copia = await lerSessao<SessionView>();
+      const copia = await readSession<SessionView>();
       if (copia) return copia;
     }
     throw new Error(res.message ?? t('invalid_session'));

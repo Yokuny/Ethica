@@ -13,7 +13,7 @@ export const esc = (value: string | number | undefined | null): string =>
     .replace(/'/g, '&#39;');
 
 // Textos do PDF em pt-BR no servidor, como o e-mail e o feed iCal (exceção da AD-113).
-const ROTULOS: Record<string, string> = {
+const LABELS: Record<string, string> = {
   labor: 'Trabalhista',
   civil: 'Cível',
   federal: 'Federal',
@@ -66,7 +66,7 @@ const ROTULOS: Record<string, string> = {
   witness: 'Testemunha',
 };
 
-export const rotulo = (key: string | undefined): string => (key ? (ROTULOS[key] ?? key) : '');
+export const label = (key: string | undefined): string => (key ? (LABELS[key] ?? key) : '');
 
 export const day = (value: string | undefined): string => {
   if (!value) return '';
@@ -175,13 +175,13 @@ export const headerFooter = (
 export const buildDocument = (input: {
   titulo: string;
   subtitulo?: string;
-  corpo: string;
+  body: string;
   identity: DocumentIdentity;
   expertName: string;
   geradoEm: Date;
 }): PdfDocument => ({
   html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(input.titulo)}</title><style>${CSS}</style></head><body><h1>${esc(input.titulo)}</h1>${
     input.subtitulo ? `<p class="subtitulo">${esc(input.subtitulo)}</p>` : ''
-  }${input.corpo}<p class="gerado">Gerado por ${esc(input.expertName)} em ${esc(dateTime(input.geradoEm))}.</p></body></html>`,
+  }${input.body}<p class="gerado">Gerado por ${esc(input.expertName)} em ${esc(dateTime(input.geradoEm))}.</p></body></html>`,
   ...headerFooter(input.identity, input.expertName),
 });

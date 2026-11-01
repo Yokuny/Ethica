@@ -1,4 +1,4 @@
-import type { Permissoes } from '@ethica/contracts';
+import type { Permissions } from '@ethica/contracts';
 import { type QueryClient, queryOptions } from '@tanstack/react-query';
 import { get, patch } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -12,7 +12,7 @@ export type UserDirectoryEntry = {
   email: string;
   role: Array<'admin' | 'manager' | 'operator'>;
   // Matriz efetiva (AD-137): admin com tudo.
-  permissoes: Permissoes;
+  permissions: Permissions;
   active: boolean;
   createdAt: string;
   // Caminho versionado da foto (ACC-09), ausente sem foto.
@@ -28,9 +28,9 @@ export const userDirectoryQuery = queryOptions({
   },
 });
 
-export const updatePermissoesMutation = (queryClient: QueryClient) => ({
-  mutationFn: async ({ userId, permissoes }: { userId: string; permissoes: Permissoes }) => {
-    const res = await patch(`/auth/users/${userId}/permissions`, { permissoes });
+export const updatePermissionsMutation = (queryClient: QueryClient) => ({
+  mutationFn: async ({ userId, permissions }: { userId: string; permissions: Permissions }) => {
+    const res = await patch(`/auth/users/${userId}/permissions`, { permissions });
     if (!res.success) throw new Error(res.message ?? t('action_error'));
   },
   onSettled: () => queryClient.invalidateQueries({ queryKey: userDirectoryQuery.queryKey }),

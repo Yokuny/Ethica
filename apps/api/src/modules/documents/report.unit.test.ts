@@ -76,7 +76,7 @@ describe('variáveis de campo (AD-130)', () => {
               titulo: 'Soldador',
               yearStart: 2019,
               yearEnd: 2023,
-              plaintiff: { atividades: 'Solda MIG', timeExposure: '8h/dia' },
+              plaintiff: { activities: 'Solda MIG', timeExposure: '8h/dia' },
               defendant: {},
             },
           ],
@@ -112,7 +112,7 @@ describe('variáveis de campo (AD-130)', () => {
 describe('variáveis (AD-126)', () => {
   const values = reportValues({
     legalCase,
-    expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
+    expert: { name: 'Eng. Paula', professionalRegistration: 'CREA 1' },
     identity: { name: 'Escritório' },
     appointments: [
       { tipo: 'inspection', status: 'done', inicio: new Date('2026-05-10T13:00:00Z') },
@@ -234,7 +234,7 @@ const dados = (): ReportExportData => ({
   },
   legalCase,
   identity: { name: 'Escritório', footer: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' },
-  expert: { name: 'Eng. Paula', registroProfissional: 'CREA 1' },
+  expert: { name: 'Eng. Paula', professionalRegistration: 'CREA 1' },
   values: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
   photos: { [PHOTO]: { body: JPEG, mime: 'image/jpeg' } },
   geradoEm: new Date(),

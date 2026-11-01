@@ -87,10 +87,10 @@ const extractParties = (rows: string[]): CasePartyInput[] => {
   const parties: CasePartyInput[] = [];
   let side: Side | undefined;
   for (const row of rows) {
-    const rotulo = LABEL_SIDE.find(([regex]) => regex.test(row));
-    if (rotulo) {
-      side = rotulo[1];
-      const resto = row.replace(rotulo[0], '');
+    const label = LABEL_SIDE.find(([regex]) => regex.test(row));
+    if (label) {
+      side = label[1];
+      const resto = row.replace(label[0], '');
       const nome = limparNome(resto);
       const document = documentSchema.safeParse(resto.match(CPF_CNPJ)?.[1] ?? '');
       if (nome) parties.push({ side, tipo: 'party', nome, document: document.success ? document.data : undefined });
@@ -205,9 +205,9 @@ export const extractPdf = async (tenantId: string, file: Buffer): Promise<PdfExt
 // --- CSV (AD-115) ---------------------------------------------------------------
 // `;` como separador, aspas duplas para campo com `;`/quebra de linha, BOM ignorado.
 export const parseCsv = (texto: string): string[][] => {
-  const registros: string[][] = [];
+  const records: string[][] = [];
   let field = '';
-  let registro: string[] = [];
+  let record: string[] = [];
   let aspas = false;
   const font = texto.replace(/^﻿/, '');
   for (let i = 0; i < font.length; i++) {
@@ -220,18 +220,18 @@ export const parseCsv = (texto: string): string[][] => {
       else field += c;
     } else if (c === '"') aspas = true;
     else if (c === ';') {
-      registro.push(field);
+      record.push(field);
       field = '';
     } else if (c === '\n' || c === '\r') {
       if (c === '\r' && font[i + 1] === '\n') i++;
-      registro.push(field);
-      registros.push(registro);
-      registro = [];
+      record.push(field);
+      records.push(record);
+      record = [];
       field = '';
     } else field += c;
   }
-  if (field || registro.length) registros.push([...registro, field]);
-  return registros;
+  if (field || record.length) records.push([...record, field]);
+  return records;
 };
 
 type DeclinedRow = { column?: CsvImportColumn; reason: ApiMessageKey };
@@ -306,14 +306,14 @@ export const rowToCase = (get: (column: CsvImportColumn) => string): { data: Cre
     ['plaintiff', 'autor'],
     ['defendant', 'reu'],
   ];
-  for (const [side, prefixo] of sides) {
-    const document = documentSchema.safeParse(get(`${prefixo}_documento`));
-    if (!document.success) return { column: `${prefixo}_documento`, reason: 'invalid_field' };
-    const oab = oabSchema.safeParse(get(`${prefixo}_advogado_oab`));
-    if (!oab.success) return { column: `${prefixo}_advogado_oab`, reason: 'invalid_field' };
-    if (get(prefixo)) parties.push({ side, tipo: 'party', nome: get(prefixo), document: document.data });
-    if (get(`${prefixo}_advogado`)) {
-      parties.push({ side, tipo: 'lawyer', nome: get(`${prefixo}_advogado`), oab: oab.data });
+  for (const [side, prefix] of sides) {
+    const document = documentSchema.safeParse(get(`${prefix}_documento`));
+    if (!document.success) return { column: `${prefix}_documento`, reason: 'invalid_field' };
+    const oab = oabSchema.safeParse(get(`${prefix}_advogado_oab`));
+    if (!oab.success) return { column: `${prefix}_advogado_oab`, reason: 'invalid_field' };
+    if (get(prefix)) parties.push({ side, tipo: 'party', nome: get(prefix), document: document.data });
+    if (get(`${prefix}_advogado`)) {
+      parties.push({ side, tipo: 'lawyer', nome: get(`${prefix}_advogado`), oab: oab.data });
     }
   }
   if (parties.length) data.parties = parties;
@@ -329,8 +329,8 @@ export const rowToCase = (get: (column: CsvImportColumn) => string): { data: Cre
 // Importa as linhas válidas uma a uma pelo mesmo caminho do formulário e devolve o relatório
 // por linha (a linha 1 é o cabeçalho). Número já cadastrado é ignorado sem parar o lote.
 export const importCsv = async (tenantId: string, texto: string): Promise<CsvImportResult> => {
-  const [header, ...registros] = parseCsv(typeof texto === 'string' ? texto : '');
-  const rows = registros
+  const [header, ...records] = parseCsv(typeof texto === 'string' ? texto : '');
+  const rows = records
     .map((fields, index) => ({ fields, line: index + 2 }))
     .filter(({ fields }) => fields.some((field) => field.trim()));
   if (!header || !rows.length) throw new CustomError('csv_empty', 400);

@@ -2,11 +2,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { OnChangeFn, PaginationState } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { TablePagination } from '@/components/table-pagination.js';
-import type { Atividade } from '../@query/diario.js';
-import { diarioColumns } from '../@utils/diario-columns.js';
+import type { Activity } from '../@query/activityLog.js';
+import { activityLogColumns } from '../@utils/activity-log-columns.js';
 
-type DiarioTableProps = {
-  data: Atividade[];
+type ActivityLogTableProps = {
+  data: Activity[];
   pageCount: number;
   pageIndex: number;
   pageSize: number;
@@ -14,10 +14,10 @@ type DiarioTableProps = {
 };
 
 // Tabela server-driven (paginação/filtros vêm da URL); a linha é só leitura.
-export function DiarioTable({ data, pageCount, pageIndex, pageSize, onPaginationChange }: DiarioTableProps) {
+export function ActivityLogTable({ data, pageCount, pageIndex, pageSize, onPaginationChange }: ActivityLogTableProps) {
   const table = useReactTable({
     data,
-    columns: diarioColumns,
+    columns: activityLogColumns,
     pageCount,
     state: { pagination: { pageIndex, pageSize } },
     onPaginationChange,

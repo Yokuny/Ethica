@@ -23,8 +23,8 @@ const itineraryOsrm = async (pontos: Ponto[]): Promise<Ponto[]> => {
     `https://router.project-osrm.org/route/v1/driving/${caminho}?overview=full&geometries=geojson`,
   );
   if (!res.ok) throw new Error('osrm');
-  const corpo = (await res.json()) as { routes?: Array<{ geometry: { coordinates: [number, number][] } }> };
-  return corpo.routes?.[0]?.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) ?? pontos;
+  const body = (await res.json()) as { routes?: Array<{ geometry: { coordinates: [number, number][] } }> };
+  return body.routes?.[0]?.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) ?? pontos;
 };
 
 // Mapa do dia (CAM-08, CAM-09): ordem sugerida, conflito de horário, rota e aviso às partes.

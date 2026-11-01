@@ -14,8 +14,8 @@ export const updateProfileSchema = z
       .transform((value) => value.replace(/\D/g, ''))
       .refine((value) => value === '' || /^\d{11}$/.test(value), 'CPF inválido')
       .optional(),
-    registroProfissional: z.string().trim().max(60, 'registro inválido').optional(),
-    formacao: z.string().trim().max(120, 'formação inválida').optional(),
+    professionalRegistration: z.string().trim().max(60, 'registro inválido').optional(),
+    education: z.string().trim().max(120, 'formação inválida').optional(),
   })
   .strict();
 
@@ -39,7 +39,7 @@ export const updateAvatarSchema = z
   .strict();
 
 // Blocos do início (AD-136). A preferência guarda os ocultos: bloco novo aparece por padrão.
-export const HOME_BLOCOS = [
+export const HOME_BLOCKS = [
   'overview',
   'upcoming',
   'cash_flow',
@@ -48,7 +48,7 @@ export const HOME_BLOCOS = [
   'by_court',
   'sections',
 ] as const;
-export type HomeBloco = (typeof HOME_BLOCOS)[number];
+export type HomeBlock = (typeof HOME_BLOCKS)[number];
 
 export type UpdateProfile = z.infer<typeof updateProfileSchema>;
 export type ChangePassword = z.infer<typeof changePasswordSchema>;

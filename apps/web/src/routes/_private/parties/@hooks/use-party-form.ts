@@ -16,7 +16,7 @@ export function usePartyForm({ party, onDone }: { party?: PartyRecord; onDone: (
       document: party?.document ?? '',
       oab: party?.oab ?? '',
       email: party?.email ?? '',
-      telefone: party?.telefone ?? '',
+      phone: party?.phone ?? '',
     },
   });
   const createMutation = useMutation(createPartyMutation(queryClient));

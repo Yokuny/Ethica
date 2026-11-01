@@ -29,7 +29,7 @@ const buildAuthDeps = (): AuthDeps => ({
           id: user._id.toString(),
           tenant: user.Tenant?.toString(),
           role: user.role,
-          permissoes: user.permissoes,
+          permissions: user.permissions,
           isPlatformAdmin: user.isPlatformAdmin,
           active: user.active,
         }
@@ -81,7 +81,7 @@ describe('account routes (ACC-02..06)', () => {
     const user = await User.create({
       name: `Pessoa ${counter}`,
       email: `account-${counter}@empresa.com`,
-      password: await bcrypt.hash('senha-antiga', 4),
+      password: await bcrypt.hash('password-antiga', 4),
       Tenant: tenant._id,
       role,
     });
@@ -127,23 +127,27 @@ describe('account routes (ACC-02..06)', () => {
     const saved = await request(app).patch('/me/profile').set('Cookie', cookie).set('User-Agent', DEVICE).send({
       name: 'Ana Souza',
       cpf: '123.456.789-09',
-      registroProfissional: 'CREA-SP 123',
-      formacao: 'Eng. Segurança',
+      professionalRegistration: 'CREA-SP 123',
+      education: 'Eng. Segurança',
     });
     expect(saved.status).toBe(200);
     expect(saved.body.data).toEqual({
       name: 'Ana Souza',
       cpf: '12345678909',
-      registroProfissional: 'CREA-SP 123',
-      formacao: 'Eng. Segurança',
+      professionalRegistration: 'CREA-SP 123',
+      education: 'Eng. Segurança',
     });
 
     const cleared = await request(app)
       .patch('/me/profile')
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
-      .send({ name: 'Ana Souza', formacao: '' });
-    expect(cleared.body.data).toEqual({ name: 'Ana Souza', cpf: '12345678909', registroProfissional: 'CREA-SP 123' });
+      .send({ name: 'Ana Souza', education: '' });
+    expect(cleared.body.data).toEqual({
+      name: 'Ana Souza',
+      cpf: '12345678909',
+      professionalRegistration: 'CREA-SP 123',
+    });
 
     const read = await request(app).get('/me/profile').set('Cookie', cookie).set('User-Agent', DEVICE);
     expect(read.body.data).toEqual(cleared.body.data);
@@ -166,7 +170,7 @@ describe('account routes (ACC-02..06)', () => {
       .put('/me/password')
       .set('Cookie', current)
       .set('User-Agent', DEVICE)
-      .send({ currentPassword: 'errada', newPassword: 'senha-nova-123' });
+      .send({ currentPassword: 'errada', newPassword: 'new-password-123' });
     expect(wrong.status).toBe(400);
     expect(wrong.body.message).toBe('wrong_current_password');
 
@@ -174,18 +178,18 @@ describe('account routes (ACC-02..06)', () => {
       .put('/me/password')
       .set('Cookie', current)
       .set('User-Agent', DEVICE)
-      .send({ currentPassword: 'senha-antiga', newPassword: 'curta' });
+      .send({ currentPassword: 'password-antiga', newPassword: 'curta' });
     expect(short.status).toBe(400);
 
     const ok = await request(app)
       .put('/me/password')
       .set('Cookie', current)
       .set('User-Agent', DEVICE)
-      .send({ currentPassword: 'senha-antiga', newPassword: 'senha-nova-123' });
+      .send({ currentPassword: 'password-antiga', newPassword: 'new-password-123' });
     expect(ok.status).toBe(200);
 
     const stored = await User.findById(user.id).lean();
-    expect(await bcrypt.compare('senha-nova-123', stored?.password as string)).toBe(true);
+    expect(await bcrypt.compare('new-password-123', stored?.password as string)).toBe(true);
     expect((await request(app).get('/auth/session').set('Cookie', current).set('User-Agent', DEVICE)).status).toBe(200);
     expect((await request(app).get('/auth/session').set('Cookie', elsewhere).set('User-Agent', DEVICE)).status).toBe(
       401,

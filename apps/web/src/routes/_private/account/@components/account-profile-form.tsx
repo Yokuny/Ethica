@@ -18,14 +18,14 @@ export function AccountProfileForm({ profile }: { profile: AccountView }) {
           <TextField control={control} name="cpf" label={t('cpf')} placeholder={t('cpf_placeholder')} />
           <TextField
             control={control}
-            name="registroProfissional"
+            name="professionalRegistration"
             label={t('professional_registration')}
             placeholder={t('professional_registration_placeholder')}
           />
           <div className="sm:col-span-2">
             <TextField
               control={control}
-              name="formacao"
+              name="education"
               label={t('education')}
               placeholder={t('education_placeholder')}
             />

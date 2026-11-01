@@ -1,9 +1,9 @@
-import type { Permissoes, Role } from '@ethica/contracts';
+import type { Permissions, Role } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
 import { can, checkRole, isAdmin, isManager, isOperator, platformAdminOnly } from './authorization.middleware.js';
 
-const buildReq = (tenantUser: { role?: Role[]; isPlatformAdmin?: boolean; permissoes?: Permissoes }): Request =>
+const buildReq = (tenantUser: { role?: Role[]; isPlatformAdmin?: boolean; permissions?: Permissions }): Request =>
   ({ tenantUser }) as unknown as Request;
 
 const asStatusError = (next: ReturnType<typeof vi.fn>): { status: number } =>
@@ -32,13 +32,13 @@ describe('checkRole — matriz papel×rota (FND-08)', () => {
 
 describe('can — matriz de permissões (AD-137)', () => {
   it.each([
-    [{ expert_cases: ['view'] } as Permissoes, true],
-    [{ expert_cases: ['view', 'update'] } as Permissoes, true],
-    [{ agenda: ['view', 'update'] } as Permissoes, false],
-    [{} as Permissoes, false],
-  ])('permissoes=%j em pericias.view -> permitted=%s', (permissoes, permitted) => {
+    [{ expert_cases: ['view'] } as Permissions, true],
+    [{ expert_cases: ['view', 'update'] } as Permissions, true],
+    [{ agenda: ['view', 'update'] } as Permissions, false],
+    [{} as Permissions, false],
+  ])('permissoes=%j em pericias.view -> permitted=%s', (permissions, permitted) => {
     const next = vi.fn();
-    can('expert_cases', 'view')(buildReq({ permissoes }), {} as Response, next as unknown as NextFunction);
+    can('expert_cases', 'view')(buildReq({ permissions }), {} as Response, next as unknown as NextFunction);
     if (permitted) expect(next).toHaveBeenCalledWith();
     else expect(asStatusError(next).status).toBe(403);
   });
@@ -46,7 +46,7 @@ describe('can — matriz de permissões (AD-137)', () => {
   it('exige todas as ações pedidas', () => {
     const next = vi.fn();
     can('finance', 'view', 'update')(
-      buildReq({ permissoes: { finance: ['view'] } }),
+      buildReq({ permissions: { finance: ['view'] } }),
       {} as Response,
       next as unknown as NextFunction,
     );

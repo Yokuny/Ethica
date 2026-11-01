@@ -1,4 +1,4 @@
-import { HOME_BLOCOS, type HomeBloco } from '@ethica/contracts';
+import { HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -12,7 +12,7 @@ export const updatePreferencesSchema = z
     onboardingDismissed: z.boolean().optional(),
     deadlineReminderEmail: z.boolean().optional(),
     // AD-136: blocos do início que a pessoa escondeu; `[]` restaura o padrão.
-    blocosOcultos: z.array(z.enum(HOME_BLOCOS)).max(HOME_BLOCOS.length).optional(),
+    hiddenBlocks: z.array(z.enum(HOME_BLOCKS)).max(HOME_BLOCKS.length).optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, { message: 'nenhuma preferência informada' });
@@ -21,5 +21,5 @@ export type UpdatePreferences = z.infer<typeof updatePreferencesSchema>;
 export type UserPreferences = {
   onboardingDismissed: boolean;
   deadlineReminderEmail: boolean;
-  blocosOcultos: HomeBloco[];
+  hiddenBlocks: HomeBlock[];
 };

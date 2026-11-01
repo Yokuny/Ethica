@@ -1,4 +1,4 @@
-import type { Permissoes } from '@ethica/contracts';
+import type { Permissions } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,15 +6,15 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { FormDialog } from '@/components/form-dialog.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { type UserDirectoryEntry, updatePermissoesMutation } from '../@query/user-directory.js';
-import { PermissoesMatrix } from './permissoes-matrix.js';
+import { type UserDirectoryEntry, updatePermissionsMutation } from '../@query/user-directory.js';
+import { PermissionsMatrix } from './permissions-matrix.js';
 
 // Ajuste da matriz de um membro pelo admin (AD-137); vale na próxima requisição dele.
-export function PermissoesDialog({ user, onClose }: { user: UserDirectoryEntry; onClose: () => void }) {
+export function PermissionsDialog({ user, onClose }: { user: UserDirectoryEntry; onClose: () => void }) {
   const queryClient = useQueryClient();
-  const [permissoes, setPermissoes] = useState<Permissoes>(user.permissoes);
+  const [permissions, setPermissions] = useState<Permissions>(user.permissions);
   const mutation = useMutation({
-    ...updatePermissoesMutation(queryClient),
+    ...updatePermissionsMutation(queryClient),
     onSuccess: () => {
       toast.success(t('saved_successfully'));
       onClose();
@@ -22,7 +22,7 @@ export function PermissoesDialog({ user, onClose }: { user: UserDirectoryEntry; 
   });
   return (
     <FormDialog size="lg" title={t('permissions')} description={user.name} onClose={onClose}>
-      <PermissoesMatrix value={permissoes} onChange={setPermissoes} disabled={mutation.isPending} />
+      <PermissionsMatrix value={permissions} onChange={setPermissions} disabled={mutation.isPending} />
       {mutation.error && (
         <ItemDescription role="alert" className="text-destructive line-clamp-none">
           {mutation.error.message}
@@ -35,7 +35,7 @@ export function PermissoesDialog({ user, onClose }: { user: UserDirectoryEntry; 
         <Button
           type="button"
           disabled={mutation.isPending}
-          onClick={() => mutation.mutate({ userId: user.id, permissoes })}
+          onClick={() => mutation.mutate({ userId: user.id, permissions })}
         >
           {t('save')}
         </Button>

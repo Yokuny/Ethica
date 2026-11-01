@@ -29,7 +29,7 @@ import { TemplateSectionForm } from './@components/template-section-form.js';
 import { TemplateSectionView } from './@components/template-section-view.js';
 import { type TemplateDetailsSearch, templateDetailsSearchSchema } from './@interface/template-details.interface.js';
 
-type Painel =
+type PanelState =
   | { kind: 'section'; section?: TemplateSectionRecord }
   | { kind: 'ver'; section: TemplateSectionRecord }
   | { kind: 'remove-section'; section: TemplateSectionRecord }
@@ -47,7 +47,7 @@ export function TemplateDetailsPage() {
   const mover = useMutation(moveTemplateSectionMutation(queryClient));
   const dropSection = useMutation(removeTemplateSectionMutation(queryClient));
   const excluir = useMutation(deleteTemplateMutation(queryClient));
-  const [painel, setPainel] = useState<Painel>(null);
+  const [panel, setPanel] = useState<PanelState>(null);
   const template = query.data;
   const podeEditar = Boolean(template && !template.padrao && can(session, 'report_templates', 'update'));
   const numeros = numberSections(template?.sections ?? []);
@@ -58,9 +58,9 @@ export function TemplateDetailsPage() {
       <CardHeader title={t('details')}>
         {template && can(session, 'report_templates', 'update') && (
           <CardAction>
-            {podeEditar && <Button onClick={() => setPainel({ kind: 'section' })}>{t('new_section')}</Button>}
+            {podeEditar && <Button onClick={() => setPanel({ kind: 'section' })}>{t('new_section')}</Button>}
             <PageMenu>
-              <DropdownMenuItem onClick={() => setPainel({ kind: 'duplicar' })}>
+              <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicar' })}>
                 {t('duplicate_template')}
               </DropdownMenuItem>
             </PageMenu>
@@ -99,7 +99,7 @@ export function TemplateDetailsPage() {
                         <button
                           type="button"
                           className="w-full text-left"
-                          onClick={() => setPainel({ kind: 'ver', section })}
+                          onClick={() => setPanel({ kind: 'ver', section })}
                         />
                       )
                     }
@@ -137,7 +137,7 @@ export function TemplateDetailsPage() {
                           size="icon-sm"
                           variant="ghost"
                           aria-label={t('edit')}
-                          onClick={() => setPainel({ kind: 'section', section })}
+                          onClick={() => setPanel({ kind: 'section', section })}
                         >
                           <Pencil />
                         </Button>
@@ -145,7 +145,7 @@ export function TemplateDetailsPage() {
                           size="icon-sm"
                           variant="ghost"
                           aria-label={t('remove')}
-                          onClick={() => setPainel({ kind: 'remove-section', section })}
+                          onClick={() => setPanel({ kind: 'remove-section', section })}
                         >
                           <Trash2 />
                         </Button>
@@ -160,47 +160,47 @@ export function TemplateDetailsPage() {
       )}
       {template && podeEditar && (
         <CardFooter className="justify-between gap-2">
-          <Button variant="destructive" onClick={() => setPainel({ kind: 'excluir' })}>
+          <Button variant="destructive" onClick={() => setPanel({ kind: 'excluir' })}>
             {t('remove')}
           </Button>
         </CardFooter>
       )}
-      {template && painel?.kind === 'section' && (
-        <TemplateSectionForm templateId={template.id} section={painel.section} onClose={() => setPainel(null)} />
+      {template && panel?.kind === 'section' && (
+        <TemplateSectionForm templateId={template.id} section={panel.section} onClose={() => setPanel(null)} />
       )}
-      {painel?.kind === 'ver' && <TemplateSectionView section={painel.section} onClose={() => setPainel(null)} />}
-      {template && painel?.kind === 'duplicar' && (
+      {panel?.kind === 'ver' && <TemplateSectionView section={panel.section} onClose={() => setPanel(null)} />}
+      {template && panel?.kind === 'duplicar' && (
         <TemplateCreateForm
           base={template}
-          onClose={() => setPainel(null)}
+          onClose={() => setPanel(null)}
           onDone={(novo) => {
-            setPainel(null);
+            setPanel(null);
             navigate({ search: { id: novo.id } });
           }}
         />
       )}
-      {template && painel?.kind === 'remove-section' && (
+      {template && panel?.kind === 'remove-section' && (
         <ConfirmDialog
           title={t('remove_section_question')}
-          description={painel.section.titulo}
+          description={panel.section.titulo}
           confirmLabel={t('remove')}
           pending={dropSection.isPending}
-          onClose={() => setPainel(null)}
+          onClose={() => setPanel(null)}
           onConfirm={() =>
             dropSection.mutate(
-              { id: template.id, sectionId: painel.section.id },
-              { onSuccess: () => setPainel(null), onError },
+              { id: template.id, sectionId: panel.section.id },
+              { onSuccess: () => setPanel(null), onError },
             )
           }
         />
       )}
-      {template && painel?.kind === 'excluir' && (
+      {template && panel?.kind === 'excluir' && (
         <ConfirmDialog
           title={t('remove_template_question')}
           description={t('remove_template_description')}
           confirmLabel={t('remove')}
           pending={excluir.isPending}
-          onClose={() => setPainel(null)}
+          onClose={() => setPanel(null)}
           onConfirm={() =>
             excluir.mutate(
               { id: template.id },

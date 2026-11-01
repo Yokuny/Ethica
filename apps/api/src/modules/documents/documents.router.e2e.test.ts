@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
 import {
-  Atividade,
+  Activity,
   Case,
   connect,
   Deadline,
@@ -66,7 +66,7 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[]) => {
     password: 'hash-secreto',
     Tenant: tenantId,
     role,
-    registroProfissional: 'CREA-SP 555',
+    professionalRegistration: 'CREA-SP 555',
   });
   const raw = jwt.sign({ user: user.id, jti: crypto.randomUUID() }, env.SESSION_JWT_SECRET);
   await Session.create({
@@ -95,7 +95,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     rendered = undefined;
     await Promise.all([
       Transaction.deleteMany({}),
-      Atividade.deleteMany({}),
+      Activity.deleteMany({}),
       Deadline.deleteMany({}),
       Party.deleteMany({}),
       Case.deleteMany({}),
@@ -110,19 +110,19 @@ describe('documentos e movimentações (DOC-02..04)', () => {
 
   it('ficha: PDF para qualquer papel, resumo financeiro só para admin/manager; outro tenant é 404', async () => {
     const tenant = await seedTenant();
-    const operador = await seedSession(tenant._id, ['operator']);
+    const operator = await seedSession(tenant._id, ['operator']);
     const admin = await seedSession(tenant._id, ['admin']);
     const created = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(10) });
     const id = created.body.data.id;
 
-    const deOperador = await operador
+    const ofOperator = await operator
       .as(request(app).get(`/documents/expert-cases/${id}/sheet`))
       .buffer()
       .parse(binary);
-    expect(deOperador.status).toBe(200);
-    expect(deOperador.headers['content-type']).toBe('application/pdf');
-    expect(deOperador.headers['content-disposition']).toContain(`ficha-${CASE.processNumber}.pdf`);
-    expect((deOperador.body as Buffer).toString()).toContain('%PDF');
+    expect(ofOperator.status).toBe(200);
+    expect(ofOperator.headers['content-type']).toBe('application/pdf');
+    expect(ofOperator.headers['content-disposition']).toContain(`ficha-${CASE.processNumber}.pdf`);
+    expect((ofOperator.body as Buffer).toString()).toContain('%PDF');
     expect(rendered?.html).toContain('Entrega do laudo');
     expect(rendered?.html).not.toContain('Resumo financeiro');
     expect(rendered?.html).toContain('CREA-SP 555');
@@ -133,7 +133,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       .parse(binary);
     expect(rendered?.html).toContain('Resumo financeiro');
 
-    const checklist = await operador
+    const checklist = await operator
       .as(request(app).get(`/documents/expert-cases/${id}/checklist`))
       .buffer()
       .parse(binary);
@@ -146,7 +146,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
 
   it('relatório financeiro: operador 403; admin recebe o período com recebido, pago e previsto', async () => {
     const tenant = await seedTenant();
-    const operador = await seedSession(tenant._id, ['operator']);
+    const operator = await seedSession(tenant._id, ['operator']);
     const manager = await seedSession(tenant._id, ['manager']);
     const fee = await manager.as(request(app).post('/finance/entries')).send({
       kind: 'income',
@@ -168,7 +168,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     await manager.as(request(app).patch(`/finance/entries/${expense.body.data.id}`)).send({ status: 'settled' });
 
     const query = `/documents/finance?from=${day(-1)}&to=${day(10)}`;
-    expect((await operador.as(request(app).get(query))).status).toBe(403);
+    expect((await operator.as(request(app).get(query))).status).toBe(403);
     expect((await manager.as(request(app).get(`/documents/finance?from=${day(1)}&to=${day(0)}`))).status).toBe(400);
 
     const res = await manager.as(request(app).get(query)).buffer().parse(binary);
@@ -183,7 +183,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['operator']);
     const stalled = await as(request(app).post('/expert-cases')).send({ ...CASE, nominationDate: day(-90) });
-    const ativa = await as(request(app).post('/expert-cases')).send({
+    const active = await as(request(app).post('/expert-cases')).send({
       ...CASE,
       processNumber: '0001234-56.2026.5.02.0002',
       nominationDate: day(-90),
@@ -195,7 +195,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     });
     await Case.updateOne({ processNumber: '0001234-56.2026.5.02.0003' }, { status: 'completed' });
 
-    const mov = await as(request(app).post(`/expert-cases/${ativa.body.data.id}/movements`)).send({
+    const mov = await as(request(app).post(`/expert-cases/${active.body.data.id}/movements`)).send({
       tipo: 'clarification_summons',
       data: day(-5),
       observacoes: 'Quesitos da reclamada',
@@ -205,7 +205,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
       expect.objectContaining({ tipo: 'clarification_summons', data: day(-5) }),
     ]);
     expect(
-      (await as(request(app).post(`/expert-cases/${ativa.body.data.id}/movements`)).send({ tipo: 'x', data: day(0) }))
+      (await as(request(app).post(`/expert-cases/${active.body.data.id}/movements`)).send({ tipo: 'x', data: day(0) }))
         .status,
     ).toBe(400);
 
@@ -216,10 +216,10 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(rendered?.html).not.toContain('0001234-56.2026.5.02.0003');
 
     const movId = mov.body.data.movements[0].id;
-    const removed = await as(request(app).delete(`/expert-cases/${ativa.body.data.id}/movements/${movId}`));
+    const removed = await as(request(app).delete(`/expert-cases/${active.body.data.id}/movements/${movId}`));
     expect(removed.status).toBe(200);
     expect(removed.body.data.movements).toEqual([]);
-    expect((await as(request(app).delete(`/expert-cases/${ativa.body.data.id}/movements/${movId}`))).status).toBe(404);
+    expect((await as(request(app).delete(`/expert-cases/${active.body.data.id}/movements/${movId}`))).status).toBe(404);
   });
 
   it('cronograma lista os prazos pendentes com "faltam N dias"', async () => {
@@ -234,11 +234,11 @@ describe('documentos e movimentações (DOC-02..04)', () => {
 
   it('exportação: só admin; ZIP com um CSV por entidade, usuários sem senha, e registra quem e quando', async () => {
     const tenant = await seedTenant();
-    const operador = await seedSession(tenant._id, ['operator']);
+    const operator = await seedSession(tenant._id, ['operator']);
     const admin = await seedSession(tenant._id, ['admin']);
     await admin.as(request(app).post('/expert-cases')).send({ ...CASE, subject: 'Ruído; calor "extremo"' });
 
-    expect((await operador.as(request(app).get('/documents/export'))).status).toBe(403);
+    expect((await operator.as(request(app).get('/documents/export'))).status).toBe(403);
     const res = await admin.as(request(app).get('/documents/export')).buffer().parse(binary);
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toBe('application/zip');
@@ -258,13 +258,13 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const cases = strFromU8(files['pericias.csv'] as Uint8Array);
     expect(cases.startsWith('id;numeroProcesso;')).toBe(true);
     expect(cases).toContain('"Ruído; calor ""extremo"""');
-    const usuarios = strFromU8(files['usuarios.csv'] as Uint8Array);
-    expect(usuarios).toContain(admin.user.email);
-    expect(usuarios).not.toContain('hash-secreto');
+    const users = strFromU8(files['usuarios.csv'] as Uint8Array);
+    expect(users).toContain(admin.user.email);
+    expect(users).not.toContain('hash-secreto');
 
     // Quem exportou vai ao diário de bordo (AD-134), gravado ao fim da resposta.
     await expect
-      .poll(async () => Atividade.findOne({ Tenant: tenant._id, acao: 'export' }).lean())
-      .toMatchObject({ User: admin.user._id, modulo: 'office' });
+      .poll(async () => Activity.findOne({ Tenant: tenant._id, action: 'export' }).lean())
+      .toMatchObject({ User: admin.user._id, module: 'office' });
   });
 });

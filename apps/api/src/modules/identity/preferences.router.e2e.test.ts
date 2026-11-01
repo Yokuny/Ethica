@@ -27,7 +27,7 @@ const buildAuthDeps = (): AuthDeps => ({
           id: user._id.toString(),
           tenant: user.Tenant?.toString(),
           role: user.role,
-          permissoes: user.permissoes,
+          permissions: user.permissions,
           isPlatformAdmin: user.isPlatformAdmin,
           active: user.active,
         }
@@ -74,7 +74,7 @@ describe('preferences routes (ENR-03)', () => {
     counter += 1;
     const user = await User.create({
       name: `Pessoa ${counter}`,
-      email: `pessoa-${counter}@empresa.com`,
+      email: `person-${counter}@empresa.com`,
       password: 'hash',
       Tenant: tenant._id,
       role,
@@ -100,7 +100,7 @@ describe('preferences routes (ENR-03)', () => {
     const res = await request(buildTestApp()).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE);
 
     expect(res.status).toBe(200);
-    expect(res.body.data).toEqual({ onboardingDismissed: false, deadlineReminderEmail: true, blocosOcultos: [] });
+    expect(res.body.data).toEqual({ onboardingDismissed: false, deadlineReminderEmail: true, hiddenBlocks: [] });
   });
 
   it('PATCH persists the choice, can be undone, and is read back by GET', async () => {
@@ -114,13 +114,13 @@ describe('preferences routes (ENR-03)', () => {
       .set('User-Agent', DEVICE)
       .send({ onboardingDismissed: true });
     expect(dismissed.status).toBe(200);
-    expect(dismissed.body.data).toEqual({ onboardingDismissed: true, deadlineReminderEmail: true, blocosOcultos: [] });
+    expect(dismissed.body.data).toEqual({ onboardingDismissed: true, deadlineReminderEmail: true, hiddenBlocks: [] });
     expect(
       (await request(app).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE)).body.data,
     ).toEqual({
       onboardingDismissed: true,
       deadlineReminderEmail: true,
-      blocosOcultos: [],
+      hiddenBlocks: [],
     });
 
     const reopened = await request(app)
@@ -128,7 +128,7 @@ describe('preferences routes (ENR-03)', () => {
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
       .send({ onboardingDismissed: false });
-    expect(reopened.body.data).toEqual({ onboardingDismissed: false, deadlineReminderEmail: true, blocosOcultos: [] });
+    expect(reopened.body.data).toEqual({ onboardingDismissed: false, deadlineReminderEmail: true, hiddenBlocks: [] });
   });
 
   it('the preference never carries progress: unknown keys (steps, Tenant) are rejected and nothing is saved', async () => {
@@ -168,7 +168,7 @@ describe('preferences routes (ENR-03)', () => {
       .get('/me/preferences')
       .set('Cookie', await cookieFor(b.user.id))
       .set('User-Agent', DEVICE);
-    expect(resB.body.data).toEqual({ onboardingDismissed: false, deadlineReminderEmail: true, blocosOcultos: [] });
+    expect(resB.body.data).toEqual({ onboardingDismissed: false, deadlineReminderEmail: true, hiddenBlocks: [] });
     expect((await User.findById(b.user.id).lean())?.preferences?.onboardingDismissed ?? false).toBe(false);
   });
 
@@ -202,23 +202,23 @@ describe('preferences routes (ENR-03)', () => {
     const { user } = await seedUser('66666666000199');
     const cookie = await cookieFor(user.id);
     const app = buildTestApp();
-    const oculto = await request(app)
+    const hidden = await request(app)
       .patch('/me/preferences')
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
-      .send({ blocosOcultos: ['cash_flow', 'by_court'] });
-    expect(oculto.body.data.blocosOcultos).toEqual(['cash_flow', 'by_court']);
+      .send({ hiddenBlocks: ['cash_flow', 'by_court'] });
+    expect(hidden.body.data.hiddenBlocks).toEqual(['cash_flow', 'by_court']);
     const invalido = await request(app)
       .patch('/me/preferences')
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
-      .send({ blocosOcultos: ['nao_existe'] });
+      .send({ hiddenBlocks: ['nao_existe'] });
     expect(invalido.status).toBe(400);
     const padrao = await request(app)
       .patch('/me/preferences')
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
-      .send({ blocosOcultos: [] });
-    expect(padrao.body.data.blocosOcultos).toEqual([]);
+      .send({ hiddenBlocks: [] });
+    expect(padrao.body.data.hiddenBlocks).toEqual([]);
   });
 });

@@ -60,7 +60,7 @@ describe('_private beforeLoad guard (FND-10/AC3)', () => {
     vi.spyOn(queryClient, 'ensureQueryData').mockResolvedValue({
       user: { id: '1', name: 'A', email: 'a@b.com' },
       role: ['operator'],
-      permissoes: { expert_cases: ['view'] },
+      permissions: { expert_cases: ['view'] },
     } as never);
 
     await expect(

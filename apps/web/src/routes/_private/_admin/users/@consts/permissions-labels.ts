@@ -1,7 +1,7 @@
-import type { PermissaoAcao, PermissaoModulo } from '@ethica/contracts';
+import type { PermissionAction, PermissionModule } from '@ethica/contracts';
 
 // Chaves de tradução da matriz (AD-137): literais, para o dicionário conferir cada uma.
-export const PERMISSAO_MODULO_KEY: Record<PermissaoModulo, string> = {
+export const PERMISSION_MODULE_KEY: Record<PermissionModule, string> = {
   expert_cases: 'expert_cases',
   parties: 'parties',
   agenda: 'agenda',
@@ -12,7 +12,7 @@ export const PERMISSAO_MODULO_KEY: Record<PermissaoModulo, string> = {
   reports: 'reports',
 };
 
-export const PERMISSAO_ACAO_KEY: Record<PermissaoAcao, string> = {
+export const PERMISSION_ACTION_KEY: Record<PermissionAction, string> = {
   view: 'permission_view',
   create: 'permission_create',
   update: 'permission_update',

@@ -23,7 +23,7 @@ function NoticeForm({ notice }: { notice: ScheduleNotice }) {
           />
           <TextareaField
             control={form.control}
-            name="corpo"
+            name="body"
             label={t('message')}
             placeholder={t('notice_body_placeholder')}
           />

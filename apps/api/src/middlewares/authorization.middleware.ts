@@ -1,4 +1,4 @@
-import { type PermissaoAcao, type PermissaoModulo, pode, type Role } from '@ethica/contracts';
+import { type PermissionAction, type PermissionModule, pode, type Role } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from './errorHandler.middleware.js';
 
@@ -20,10 +20,10 @@ export const checkRole = (allowedRoles: Role[]) => {
 
 // Matriz de permissões (AD-137): todas as ações pedidas no módulo. Como checkRole, só lê
 // req.tenantUser e decide antes de qualquer dado.
-export const can = (modulo: PermissaoModulo, ...acoes: PermissaoAcao[]) => {
+export const can = (module: PermissionModule, ...actions: PermissionAction[]) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
-    const permissoes = req.tenantUser?.permissoes ?? {};
-    if (!acoes.every((acao) => pode(permissoes, modulo, acao))) {
+    const permissions = req.tenantUser?.permissions ?? {};
+    if (!actions.every((action) => pode(permissions, module, action))) {
       next(new CustomError('no_permission', 403));
       return;
     }

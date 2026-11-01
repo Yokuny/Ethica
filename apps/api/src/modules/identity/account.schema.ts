@@ -13,8 +13,8 @@ export type AccountView = {
   name: string;
   avatar?: string;
   cpf?: string;
-  registroProfissional?: string;
-  formacao?: string;
+  professionalRegistration?: string;
+  education?: string;
 };
 
 // PRZ-03: dono do link do feed iCal — usuário ativo, com papel, de tenant não suspenso.

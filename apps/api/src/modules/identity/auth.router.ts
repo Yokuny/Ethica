@@ -8,7 +8,7 @@ import type { AuthRouterDeps } from './auth.schema.js';
 import {
   listUsersQuerySchema,
   signinSchema,
-  updatePermissoesSchema,
+  updatePermissionsSchema,
   userDirectoryQuerySchema,
   userIdParamSchema,
 } from './auth.schema.js';
@@ -53,8 +53,8 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     tenantAssignmentCheck,
     isAdmin,
     validParams(userIdParamSchema),
-    validBody(updatePermissoesSchema),
-    authController.updatePermissoes,
+    validBody(updatePermissionsSchema),
+    authController.updatePermissions,
   );
   // ACC-06: a foto aparece onde o responsável aparece, então segue o mesmo papel de /users.
   router.get(

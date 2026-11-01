@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { PERFIL_PERMISSOES } from '@ethica/contracts';
+import { PROFILE_PERMISSIONS } from '@ethica/contracts';
 import { hashToken } from '@ethica/db';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { MailProvider } from '../../providers/mail/index.js';
@@ -69,7 +69,7 @@ const issueInvite = async (
       email: data.email,
       role: data.role,
       // AD-137: admin tem tudo; o membro recebe a matriz conferida ou o preset do perfil.
-      permissoes: data.role === 'admin' ? undefined : (data.permissoes ?? PERFIL_PERMISSOES[data.role]),
+      permissions: data.role === 'admin' ? undefined : (data.permissions ?? PROFILE_PERMISSIONS[data.role]),
       tokenHash,
       expiresAt,
       invitedBy,

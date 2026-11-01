@@ -6,16 +6,16 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { DiarioFilters } from './@components/diario-filters.js';
-import { DiarioTable } from './@components/diario-table.js';
-import { useDiarioSearch } from './@hooks/use-diario-search.js';
-import { type DiarioSearch, diarioSearchSchema } from './@interface/diario.interface.js';
-import { diarioQuery } from './@query/diario.js';
+import { ActivityLogFilters } from './@components/activity-log-filters.js';
+import { ActivityLogTable } from './@components/activity-log-table.js';
+import { useActivityLogSearch } from './@hooks/use-activity-log-search.js';
+import { type ActivityLogSearch, activityLogSearchSchema } from './@interface/activityLog.interface.js';
+import { activityLogQuery } from './@query/activityLog.js';
 
 // Diário de bordo (GES-01, AD-134): quem fez o quê, só para o admin.
-export function DiarioPage() {
-  const { search, update, handlePaginationChange, active } = useDiarioSearch();
-  const query = useQuery(diarioQuery(search));
+export function ActivityLogPage() {
+  const { search, update, handlePaginationChange, active } = useActivityLogSearch();
+  const query = useQuery(activityLogQuery(search));
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -23,7 +23,7 @@ export function DiarioPage() {
     <Card asPage>
       <CardHeader title={t('activity_log')} description={t('activity_log_page_description')} />
       <CardContent>
-        <DataTable filters={{ content: <DiarioFilters search={search} onChange={update} />, active }}>
+        <DataTable filters={{ content: <ActivityLogFilters search={search} onChange={update} />, active }}>
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (
@@ -37,7 +37,7 @@ export function DiarioPage() {
               description={active ? undefined : t('activity_appears_here')}
             />
           ) : (
-            <DiarioTable
+            <ActivityLogTable
               data={items}
               pageCount={pageCount}
               pageIndex={search.page - 1}
@@ -52,7 +52,7 @@ export function DiarioPage() {
 }
 
 export const Route = createFileRoute('/_private/_admin/activity-log/')({
-  component: DiarioPage,
+  component: ActivityLogPage,
   staticData: { title: t('activity_log') },
-  validateSearch: (search: Record<string, unknown>): DiarioSearch => diarioSearchSchema.parse(search),
+  validateSearch: (search: Record<string, unknown>): ActivityLogSearch => activityLogSearchSchema.parse(search),
 });

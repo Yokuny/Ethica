@@ -79,9 +79,9 @@ export const generateCalendarFeed = async (req: Request, res: Response, next: Ne
   }
 };
 
-export const revogarCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const revokeCalendarFeed = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await accountService.revogarCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
+    await accountService.revokeCalendarFeed(req.tenantUser.tenant as string, req.tenantUser.user);
     res.json(respObj({ message: 'removed_successfully' }));
   } catch (e) {
     next(e);

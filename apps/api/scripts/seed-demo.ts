@@ -1,8 +1,8 @@
-import { PERFIL_PERMISSOES } from '@ethica/contracts';
+import { PROFILE_PERMISSIONS } from '@ethica/contracts';
 import type { AppointmentDocument, InstallmentDocument, TransactionDocument } from '@ethica/db';
 import {
+  Activity,
   Appointment,
-  Atividade,
   Case,
   connect,
   Deadline,
@@ -120,7 +120,7 @@ const run = async (): Promise<void> => {
   if (old) {
     const users = await User.find({ Tenant: old._id }).select('_id').lean();
     await Promise.all([
-      Atividade.deleteMany({ Tenant: old._id }),
+      Activity.deleteMany({ Tenant: old._id }),
       Case.deleteMany({ Tenant: old._id }),
       Party.deleteMany({ Tenant: old._id }),
       Deadline.deleteMany({ Tenant: old._id }),
@@ -153,13 +153,13 @@ const run = async (): Promise<void> => {
       Tenant: tenant._id,
       role: [role],
       // Matriz de permissões (AD-137): gestor e operador com o preset do perfil; admin tem tudo.
-      ...(role === 'admin' ? {} : { permissoes: PERFIL_PERMISSOES[role] }),
+      ...(role === 'admin' ? {} : { permissions: PROFILE_PERMISSIONS[role] }),
       // Dados profissionais dos documentos (DOC-01).
       ...(role === 'admin'
         ? {
             cpf: '52998224725',
-            registroProfissional: 'CREA-SP 5061234567',
-            formacao: 'Engenharia de Segurança do Trabalho',
+            professionalRegistration: 'CREA-SP 5061234567',
+            education: 'Engenharia de Segurança do Trabalho',
           }
         : {}),
     })),
@@ -168,7 +168,7 @@ const run = async (): Promise<void> => {
   // Partes e advogados reutilizáveis (AD-117): a mesma ré e os mesmos advogados em vários processos.
   const [maria, jose, aurora, industria, construtora, inss, joao, ana] = await Party.insertMany(
     [
-      { tipo: 'party', nome: 'Maria da Silva', document: '12345678909', telefone: '(11) 98888-1000' },
+      { tipo: 'party', nome: 'Maria da Silva', document: '12345678909', phone: '(11) 98888-1000' },
       { tipo: 'party', nome: 'José Santos', document: '98765432100' },
       { tipo: 'party', nome: 'Condomínio Edifício Aurora', document: '11222333000181' },
       { tipo: 'party', nome: 'Indústria Exemplo Ltda.', document: '12345678000195', email: 'juridico@exemplo.com' },
@@ -349,11 +349,11 @@ const run = async (): Promise<void> => {
           yearEnd: 2026,
           local: 'Pista de abastecimento',
           plaintiff: {
-            atividades: 'Abastecia veículos e conferia bombas',
+            activities: 'Abastecia veículos e conferia bombas',
             frequency: 'diária',
             timeExposure: '8h/dia',
           },
-          defendant: { atividades: 'Abastecia veículos', frequency: 'diária', timeExposure: '6h/dia' },
+          defendant: { activities: 'Abastecia veículos', frequency: 'diária', timeExposure: '6h/dia' },
         },
       ],
       agents: [

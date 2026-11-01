@@ -60,7 +60,7 @@ const year = z.number().int().min(1900).max(2100);
 const lista = <T extends z.ZodType>(item: T) => z.array(item).max(30, 'itens demais');
 
 const versionJobSchema = z
-  .object({ atividades: longo.optional(), frequency: curto.optional(), timeExposure: curto.optional() })
+  .object({ activities: longo.optional(), frequency: curto.optional(), timeExposure: curto.optional() })
   .strict();
 
 export const inspectionDataSchema = z

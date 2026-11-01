@@ -1,4 +1,4 @@
-import type { Permissoes } from './schemas/permissao.schema.js';
+import type { Permissions } from './schemas/permission.schema.js';
 
 export type Role = 'admin' | 'manager' | 'operator';
 
@@ -8,5 +8,5 @@ export type TenantUser = {
   role: Role[];
   isPlatformAdmin: boolean;
   // Matriz efetiva (AD-137), resolvida do banco a cada requisição.
-  permissoes: Permissoes;
+  permissions: Permissions;
 };

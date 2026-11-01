@@ -51,7 +51,7 @@ export const setLogoMutation = (queryClient: QueryClient): UseMutationOptions<Of
 });
 
 // Modelo do aviso de agendamento às partes (AD-131); a API devolve o padrão quando não há.
-export type ScheduleNotice = { subject: string; corpo: string };
+export type ScheduleNotice = { subject: string; body: string };
 export const scheduleNoticeKeys = { detail: ['office', 'schedule-notice'] as const };
 
 export const scheduleNoticeQuery = queryOptions({

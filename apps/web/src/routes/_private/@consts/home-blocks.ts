@@ -1,7 +1,7 @@
-import type { HomeBloco, PermissaoModulo } from '@ethica/contracts';
+import type { HomeBlock, PermissionModule } from '@ethica/contracts';
 
 // Módulo que cada bloco do início exige ver (AD-136, AD-137); `null` = qualquer pessoa.
-export const HOME_BLOCO_MODULO: Record<HomeBloco, PermissaoModulo | null> = {
+export const HOME_BLOCK_MODULE: Record<HomeBlock, PermissionModule | null> = {
   overview: 'expert_cases',
   upcoming: 'agenda',
   cash_flow: 'finance',
@@ -11,7 +11,7 @@ export const HOME_BLOCO_MODULO: Record<HomeBloco, PermissaoModulo | null> = {
   sections: null,
 };
 
-export const HOME_BLOCO_KEY: Record<HomeBloco, string> = {
+export const HOME_BLOCK_KEY: Record<HomeBlock, string> = {
   overview: 'home_block_overview',
   upcoming: 'upcoming_commitments',
   cash_flow: 'cash_flow',

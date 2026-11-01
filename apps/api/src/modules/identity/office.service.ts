@@ -1,7 +1,7 @@
 import { TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
-import * as diarioService from './diario.service.js';
+import * as activityLogService from './activityLog.service.js';
 import * as officeRepository from './office.repository.js';
 import type { DocumentIdentity, OfficeView, TenantLogo, UpdateOffice, UpdateScheduleNotice } from './office.schema.js';
 
@@ -22,7 +22,7 @@ const requireStorage = (storage: FileStorage | undefined): FileStorage => {
 export const getOffice = async (tenantId: string): Promise<OfficeView> => {
   const tenant = await findOfficeOrThrow(tenantId);
   // As últimas exportações vêm do diário de bordo (AD-134).
-  const exports = await diarioService.latestExports(tenantId, EXPORTS_SHOWN);
+  const exports = await activityLogService.latestExports(tenantId, EXPORTS_SHOWN);
   return {
     header: tenant.header ?? '',
     footer: tenant.footer ?? '',
@@ -99,7 +99,7 @@ export const returnFile = (tenantId: string, bytes: number) => officeRepository.
 // Modelo do aviso de agendamento às partes (AD-131); sem modelo gravado, vale o padrão.
 export const DEFAULT_SCHEDULE_NOTICE: UpdateScheduleNotice = {
   subject: 'Aviso de agendamento: [TIPO_EVENTO] - Processo [NUMERO_PROCESSO]',
-  corpo: [
+  body: [
     'Prezados,',
     '',
     'Informo que a [TIPO_EVENTO] do processo [NUMERO_PROCESSO] ([VARA], [COMARCA]) está marcada para [DATA], às [HORA], no endereço [ENDERECO].',

@@ -17,7 +17,7 @@ export function ComparatorsFields({ form }: { form: UseFormReturn<InspectionData
     <FieldList
       titulo={t('paradigms')}
       vazio={t('no_paradigms_yet')}
-      acoes={
+      actions={
         <Button
           type="button"
           variant="outline"

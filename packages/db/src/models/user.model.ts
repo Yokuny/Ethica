@@ -1,4 +1,4 @@
-import { PERMISSAO_MODULOS, type Permissoes } from '@ethica/contracts';
+import { PERMISSION_MODULES, type Permissions } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 export interface UserDocument {
@@ -11,11 +11,11 @@ export interface UserDocument {
   isPlatformAdmin: boolean;
   active: boolean;
   // Matriz de permissões do membro (AD-137). Ausente = preset do papel; admin ignora.
-  permissoes?: Permissoes;
+  permissions?: Permissions;
   // ENR-03: preferências da própria pessoa. Guardam só escolhas de interface
   // (ex.: dispensar o guia de primeiros passos) — nunca fatos de progresso.
   // AD-110: `avisoPrazoEmail` ausente = ligado.
-  preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; blocosOcultos?: string[] };
+  preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; hiddenBlocks?: string[] };
   // Feed iCal (PRZ-03): só o hash do token secreto, como sessão e convite. Ausente = sem link.
   calendarFeedTokenHash?: string;
   // ACC-02: foto 256×256 já reduzida no navegador, como data URL. `select: false`:
@@ -24,15 +24,15 @@ export interface UserDocument {
   avatarUpdatedAt?: Date;
   // DOC-01: dados profissionais que vão nos documentos técnicos.
   cpf?: string;
-  registroProfissional?: string;
-  formacao?: string;
+  professionalRegistration?: string;
+  education?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 // Um array de ações por módulo; a validação de forma é do contrato (permissoesSchema).
-export const permissoesSchemaDb = new Schema<Permissoes>(
-  Object.fromEntries(PERMISSAO_MODULOS.map((modulo) => [modulo, { type: [String], default: undefined }])),
+export const permissionsSchemaDb = new Schema<Permissions>(
+  Object.fromEntries(PERMISSION_MODULES.map((module) => [module, { type: [String], default: undefined }])),
   { _id: false },
 );
 
@@ -45,13 +45,13 @@ const userSchema = new Schema<UserDocument>(
     role: { type: [String], enum: ['admin', 'manager', 'operator'], default: [] },
     isPlatformAdmin: { type: Boolean, default: false, required: true },
     active: { type: Boolean, default: true, required: true },
-    permissoes: { type: permissoesSchemaDb, required: false },
+    permissions: { type: permissionsSchemaDb, required: false },
     preferences: {
       type: new Schema(
         {
           onboardingDismissed: { type: Boolean, default: false },
           deadlineReminderEmail: { type: Boolean },
-          blocosOcultos: { type: [String], default: undefined },
+          hiddenBlocks: { type: [String], default: undefined },
         },
         { _id: false },
       ),
@@ -61,8 +61,8 @@ const userSchema = new Schema<UserDocument>(
     avatarUpdatedAt: { type: Date, required: false },
     calendarFeedTokenHash: { type: String, required: false },
     cpf: { type: String, match: /^\d{11}$/ },
-    registroProfissional: { type: String, trim: true },
-    formacao: { type: String, trim: true },
+    professionalRegistration: { type: String, trim: true },
+    education: { type: String, trim: true },
   },
   { timestamps: true },
 );

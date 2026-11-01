@@ -29,8 +29,8 @@ export const beforeLoad = async ({
     throw redirect({ to: '/auth' });
   }
   // Guarda única dos módulos pela matriz (AD-137): sem `ver`, volta ao início.
-  const modulo = location ? moduleFromRoute(location.pathname) : undefined;
-  if (modulo && !can(session, modulo)) throw redirect({ to: '/' });
+  const module = location ? moduleFromRoute(location.pathname) : undefined;
+  if (module && !can(session, module)) throw redirect({ to: '/' });
 };
 
 // A sessão é garantida pelo beforeLoad. O shell compartilha navegação lateral

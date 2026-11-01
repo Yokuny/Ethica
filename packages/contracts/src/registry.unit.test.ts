@@ -51,9 +51,9 @@ describe('schemaRegistry', () => {
         'inspectionDataSchema',
         'saveInspectionSchema',
         'updateMediaSchema',
-        'permissoesSchema',
-        'updatePermissoesSchema',
-        'listDiarioQuerySchema',
+        'permissionsSchema',
+        'updatePermissionsSchema',
+        'listActivityLogQuerySchema',
       ].sort(),
     );
   });

@@ -332,12 +332,12 @@ const TECHNICAL_OPINION: Section[] = [
   ENCERRAMENTO,
 ];
 
-const comIds = (prefixo: string, sections: Section[]): TemplateSectionRecord[] =>
+const comIds = (prefix: string, sections: Section[]): TemplateSectionRecord[] =>
   sections.map((section, indice) => ({
     titleOnly: false,
     pageBreak: false,
     ...section,
-    id: `${prefixo}-${String(indice + 1).padStart(2, '0')}`,
+    id: `${prefix}-${String(indice + 1).padStart(2, '0')}`,
   }));
 
 export const DEFAULT_TEMPLATES: Record<ReportType, TemplateRecord> = {

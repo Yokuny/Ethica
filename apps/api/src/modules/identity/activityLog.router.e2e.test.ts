@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
-import { Atividade, Case, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
+import { Activity, Case, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -25,7 +25,7 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[]) => {
   counter += 1;
   const user = await User.create({
     name: `Pessoa ${counter}`,
-    email: `diario-${counter}@x.com`,
+    email: `activity-log-${counter}@x.com`,
     password: 'hash',
     Tenant: tenantId,
     role,
@@ -47,7 +47,7 @@ describe('diário de bordo (GES-01, AD-134)', () => {
   });
   afterEach(async () => {
     await Promise.all([
-      Atividade.deleteMany({}),
+      Activity.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
@@ -61,9 +61,9 @@ describe('diário de bordo (GES-01, AD-134)', () => {
   it('grava a escrita do operador e só o admin consulta, com filtros', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
-    const operador = await seedSession(tenant._id, ['operator']);
+    const operator = await seedSession(tenant._id, ['operator']);
 
-    const criada = await operador.as(request(app).post('/expert-cases')).send({
+    const criada = await operator.as(request(app).post('/expert-cases')).send({
       processNumber: '0001234-56.2026.5.02.0001',
       courtType: 'labor',
       role: 'court_expert',
@@ -72,36 +72,36 @@ describe('diário de bordo (GES-01, AD-134)', () => {
     });
     expect(criada.status).toBe(201);
     // Leitura não entra no diário.
-    await operador.as(request(app).get('/expert-cases'));
+    await operator.as(request(app).get('/expert-cases'));
 
     await expect.poll(async () => (await admin.as(request(app).get('/tenant/activity-log'))).body.data?.total).toBe(1);
-    const res = await admin.as(request(app).get(`/tenant/activity-log?modulo=expert_cases&userId=${operador.user.id}`));
+    const res = await admin.as(request(app).get(`/tenant/activity-log?module=expert_cases&userId=${operator.user.id}`));
     expect(res.body.data.items[0]).toMatchObject({
-      userName: operador.user.name,
-      modulo: 'expert_cases',
-      acao: 'create',
-      registroId: criada.body.data.id,
-      rotulo: '0001234-56.2026.5.02.0001',
+      userName: operator.user.name,
+      module: 'expert_cases',
+      action: 'create',
+      recordId: criada.body.data.id,
+      label: '0001234-56.2026.5.02.0001',
     });
 
-    const vazio = await admin.as(request(app).get('/tenant/activity-log?acao=delete'));
+    const vazio = await admin.as(request(app).get('/tenant/activity-log?action=delete'));
     expect(vazio.body.data.total).toBe(0);
 
-    const negado = await operador.as(request(app).get('/tenant/activity-log'));
+    const negado = await operator.as(request(app).get('/tenant/activity-log'));
     expect(negado.status).toBe(403);
   });
 
   it('não grava ação recusada nem mistura escritórios', async () => {
     const tenant = await seedTenant();
     const outro = await seedTenant();
-    const operador = await seedSession(tenant._id, ['operator']);
+    const operator = await seedSession(tenant._id, ['operator']);
     const adminOutro = await seedSession(outro._id, ['admin']);
 
-    const recusada = await operador.as(request(app).delete('/expert-cases/6650f1a2b3c4d5e6f7a8b9c0'));
+    const recusada = await operator.as(request(app).delete('/expert-cases/6650f1a2b3c4d5e6f7a8b9c0'));
     expect(recusada.status).toBe(403);
-    await operador.as(request(app).patch('/me/profile')).send({ name: 'Nome Novo' });
+    await operator.as(request(app).patch('/me/profile')).send({ name: 'Nome Novo' });
 
-    await expect.poll(async () => Atividade.countDocuments({ Tenant: tenant._id })).toBe(1);
+    await expect.poll(async () => Activity.countDocuments({ Tenant: tenant._id })).toBe(1);
     const res = await adminOutro.as(request(app).get('/tenant/activity-log'));
     expect(res.body.data.total).toBe(0);
   });

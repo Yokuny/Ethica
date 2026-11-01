@@ -1,29 +1,29 @@
-import type { DiarioAcao, DiarioModulo } from '@ethica/contracts';
+import type { ActivityLogAction, ActivityLogModule } from '@ethica/contracts';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
 // Diário de bordo (AD-134): um middleware único grava toda escrita bem-sucedida do tenant.
 // A gravação é injetada pelo `app.ts` (a camada compartilhada não importa módulos) e nunca
 // segura nem derruba a resposta.
-export type Atividade = {
+export type Activity = {
   tenantId: string;
   userId: string;
-  modulo: DiarioModulo;
-  recurso?: string;
-  acao: DiarioAcao;
-  registroId?: string;
-  rotulo?: string;
+  module: ActivityLogModule;
+  resource?: string;
+  action: ActivityLogAction;
+  recordId?: string;
+  label?: string;
 };
 
 const OBJECT_ID = /^[0-9a-f]{24}$/;
 const ESCRITA = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
-const ACAO_POR_METODO: Record<string, DiarioAcao> = {
+const ACTION_BY_METHOD: Record<string, ActivityLogAction> = {
   POST: 'create',
   PUT: 'update',
   PATCH: 'update',
   DELETE: 'delete',
 };
 // Sufixo de caminho que nomeia a ação melhor que o método.
-const ACAO_POR_SUFIXO: Record<string, DiarioAcao> = {
+const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
   complete: 'complete',
   convert: 'convert',
   notice: 'notify',
@@ -39,14 +39,14 @@ const IGNORADAS = [
   '/platform/',
   '/prospecting/datajud/search',
 ];
-const ROTULOS = ['processNumber', 'titulo', 'nome', 'descricao', 'email'] as const;
+const LABELS = ['processNumber', 'titulo', 'nome', 'descricao', 'email'] as const;
 
-const moduloDe = (literals: string[]): DiarioModulo | undefined => {
+const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
   const [primeiro, segundo] = literals;
   if (primeiro === 'expert-reports') return segundo === 'templates' ? 'report_templates' : 'expert_reports';
   if (primeiro === 'tenant') return segundo === 'invites' ? 'users' : 'office';
   if (primeiro === 'auth') return 'users';
-  const map: Record<string, DiarioModulo> = {
+  const map: Record<string, ActivityLogModule> = {
     'expert-cases': 'expert_cases',
     parties: 'parties',
     agenda: 'agenda',
@@ -63,53 +63,53 @@ const moduloDe = (literals: string[]): DiarioModulo | undefined => {
 export const descreverRequisicao = (
   method: string,
   path: string,
-): { modulo: DiarioModulo; recurso?: string; acao: DiarioAcao; registroId?: string } | undefined => {
+): { module: ActivityLogModule; resource?: string; action: ActivityLogAction; recordId?: string } | undefined => {
   const dataExport = method === 'GET' && path === '/documents/export';
   if (!ESCRITA.has(method) && !dataExport) return undefined;
-  if (IGNORADAS.some((prefixo) => path.startsWith(prefixo)) || path.endsWith('/geocode')) return undefined;
+  if (IGNORADAS.some((prefix) => path.startsWith(prefix)) || path.endsWith('/geocode')) return undefined;
   const segmentos = path.split('/').filter(Boolean);
   const literals = segmentos.filter((segmento) => !OBJECT_ID.test(segmento));
-  const modulo = moduloDe(literals);
-  if (!modulo) return undefined;
+  const module = moduleOf(literals);
+  if (!module) return undefined;
   const last = literals.at(-1) ?? '';
-  const acao = literals.includes('import') ? 'import' : (ACAO_POR_SUFIXO[last] ?? ACAO_POR_METODO[method]);
-  if (!acao) return undefined;
-  const internal = literals.slice(modulo === 'report_templates' || literals[0] === 'tenant' ? 2 : 1);
-  const recurso = internal.filter((literal) => !(literal in ACAO_POR_SUFIXO) && literal !== 'import').at(-1);
-  return { modulo, acao, recurso, registroId: segmentos.find((segmento) => OBJECT_ID.test(segmento)) };
+  const action = literals.includes('import') ? 'import' : (ACTION_BY_SUFFIX[last] ?? ACTION_BY_METHOD[method]);
+  if (!action) return undefined;
+  const internal = literals.slice(module === 'report_templates' || literals[0] === 'tenant' ? 2 : 1);
+  const resource = internal.filter((literal) => !(literal in ACTION_BY_SUFFIX) && literal !== 'import').at(-1);
+  return { module, action, resource, recordId: segmentos.find((segmento) => OBJECT_ID.test(segmento)) };
 };
 
-const rotuloDe = (data: unknown): string | undefined => {
+const labelOf = (data: unknown): string | undefined => {
   if (!data || typeof data !== 'object') return undefined;
   const record = data as Record<string, unknown>;
-  const chave = ROTULOS.find((nome) => typeof record[nome] === 'string' && record[nome]);
+  const chave = LABELS.find((nome) => typeof record[nome] === 'string' && record[nome]);
   return chave ? (record[chave] as string) : undefined;
 };
 
-export const createDiarioMiddleware = (registrar: (atividade: Atividade) => Promise<void>): RequestHandler => {
+export const createActivityLogMiddleware = (registrar: (activity: Activity) => Promise<void>): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const descricao = descreverRequisicao(req.method, req.path);
     if (!descricao) {
       next();
       return;
     }
-    let corpo: unknown;
+    let responseBody: unknown;
     const json = res.json.bind(res);
     res.json = (body: unknown) => {
-      corpo = body;
+      responseBody = body;
       return json(body);
     };
     res.on('finish', () => {
       const tenantUser = req.tenantUser;
       if (!tenantUser?.tenant || res.statusCode >= 400) return;
-      const data = (corpo as { data?: { id?: unknown } } | undefined)?.data;
+      const data = (responseBody as { data?: { id?: unknown } } | undefined)?.data;
       const idDaResposta = typeof data?.id === 'string' ? data.id : undefined;
       void registrar({
         tenantId: tenantUser.tenant,
         userId: tenantUser.user,
         ...descricao,
-        registroId: descricao.registroId ?? idDaResposta,
-        rotulo: rotuloDe(data),
+        recordId: descricao.recordId ?? idDaResposta,
+        label: labelOf(data),
       });
     });
     next();

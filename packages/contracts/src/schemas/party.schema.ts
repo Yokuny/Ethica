@@ -47,7 +47,7 @@ const partyFields = z.object({
     .refine((value) => value === '' || z.email().safeParse(value).success, 'e-mail inválido')
     .transform(emptyAsUndefined)
     .optional(),
-  telefone: z.string().trim().max(30, 'telefone inválido').transform(emptyAsUndefined).optional(),
+  phone: z.string().trim().max(30, 'telefone inválido').transform(emptyAsUndefined).optional(),
 });
 
 export const createPartySchema = partyFields.extend({ tipo: z.enum(PARTY_TYPES) }).strict();

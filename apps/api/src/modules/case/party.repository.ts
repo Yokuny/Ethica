@@ -10,7 +10,7 @@ const toRecord = (doc: PartyDocument): PartyRecord => ({
   document: doc.document,
   oab: doc.oab,
   email: doc.email,
-  telefone: doc.telefone,
+  phone: doc.phone,
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });

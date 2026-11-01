@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { Permissoes, Role } from '@ethica/contracts';
+import type { Permissions, Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
 import { Case, connect, Deadline, disconnect, hashToken, Party, Session, Tenant, Transaction, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
@@ -21,7 +21,7 @@ const seedTenant = async () => {
   });
 };
 
-const seedSession = async (tenantId: TenantDocument['_id'], role: Role[], permissoes?: Permissoes) => {
+const seedSession = async (tenantId: TenantDocument['_id'], role: Role[], permissions?: Permissions) => {
   counter += 1;
   const user = await User.create({
     name: `Pessoa ${counter}`,
@@ -29,7 +29,7 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[], permis
     password: 'hash',
     Tenant: tenantId,
     role,
-    permissoes,
+    permissions,
   });
   const raw = jwt.sign({ user: user.id, jti: crypto.randomUUID() }, env.SESSION_JWT_SECRET);
   await Session.create({
@@ -82,9 +82,9 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     expect((await secretaria.as(request(app).get('/finance/summary'))).status).toBe(200);
     expect((await secretaria.as(request(app).get('/agenda'))).status).toBe(403);
 
-    const operador = await seedSession(tenant._id, ['operator']);
-    expect((await operador.as(request(app).get('/finance/summary'))).status).toBe(403);
-    expect((await operador.as(request(app).post('/expert-cases')).send(CASE)).status).toBe(201);
+    const operator = await seedSession(tenant._id, ['operator']);
+    expect((await operator.as(request(app).get('/finance/summary'))).status).toBe(403);
+    expect((await operator.as(request(app).post('/expert-cases')).send(CASE)).status).toBe(201);
   });
 
   it('fase ajusta a etapa, suspensão muda a situação e a listagem filtra (AD-133)', async () => {

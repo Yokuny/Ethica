@@ -27,8 +27,8 @@ export type PendingMedia = {
 };
 export type StatusPending = { appointmentId: string; status: AppointmentStatus; reason?: AppointmentReason };
 
-const comPrefixo = async <T>(prefixo: string): Promise<T[]> => {
-  const todas = (await keys()).filter((key): key is string => typeof key === 'string' && key.startsWith(prefixo));
+const withPrefix = async <T>(prefix: string): Promise<T[]> => {
+  const todas = (await keys()).filter((key): key is string => typeof key === 'string' && key.startsWith(prefix));
   return (await Promise.all(todas.map((key) => get<T>(key)))).filter((item): item is Awaited<T> =>
     Boolean(item),
   ) as T[];
@@ -36,37 +36,37 @@ const comPrefixo = async <T>(prefixo: string): Promise<T[]> => {
 
 export const saveDay = async (date: string, itens: DayInspection[]) => {
   await set(`day:${date}`, itens);
-  await Promise.all(itens.map((item) => set(`registro:${item.appointment.id}`, item)));
+  await Promise.all(itens.map((item) => set(`record:${item.appointment.id}`, item)));
 };
 export const readDay = (date: string) => get<DayInspection[]>(`day:${date}`);
-export const lerRegistro = (appointmentId: string) => get<DayInspection>(`registro:${appointmentId}`);
-export const salvarRegistro = async (item: DayInspection) => set(`registro:${item.appointment.id}`, item);
+export const readRecord = (appointmentId: string) => get<DayInspection>(`record:${appointmentId}`);
+export const saveRecord = async (item: DayInspection) => set(`record:${item.appointment.id}`, item);
 
 export const readDraft = (appointmentId: string) => get<Draft>(`draft:${appointmentId}`);
 export const saveDraft = (draft: Draft) => set(`draft:${draft.appointmentId}`, draft);
 export const deleteDraft = (appointmentId: string) => del(`draft:${appointmentId}`);
-export const listDrafts = () => comPrefixo<Draft>('draft:');
+export const listDrafts = () => withPrefix<Draft>('draft:');
 
 export const storeMedia = (media: PendingMedia) => set(`media:${media.mediaId}`, media);
 export const deleteMedia = (mediaId: string) => del(`media:${mediaId}`);
-export const listMedia = () => comPrefixo<PendingMedia>('media:');
+export const listMedia = () => withPrefix<PendingMedia>('media:');
 
 export const guardarStatus = (status: StatusPending) => set(`status:${status.appointmentId}`, status);
 export const apagarStatus = (appointmentId: string) => del(`status:${appointmentId}`);
-export const listarStatus = () => comPrefixo<StatusPending>('status:');
+export const listarStatus = () => withPrefix<StatusPending>('status:');
 
 // Sessão (AD-128): a última vista com conexão, para o app abrir sem rede. Só nome, papel e
 // escritório; a credencial continua no cookie httpOnly. Sem IndexedDB (testes), não guarda.
-export const salvarSessao = async (sessao: unknown): Promise<void> => {
+export const saveSession = async (session: unknown): Promise<void> => {
   try {
-    await set('sessao', sessao);
+    await set('session', session);
   } catch {
     // Sem IndexedDB: o app só não abre sem conexão.
   }
 };
-export const lerSessao = async <T>(): Promise<T | undefined> => {
+export const readSession = async <T>(): Promise<T | undefined> => {
   try {
-    return await get<T>('sessao');
+    return await get<T>('session');
   } catch {
     return undefined;
   }

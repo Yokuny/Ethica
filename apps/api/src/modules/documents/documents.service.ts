@@ -98,7 +98,7 @@ export const toCsv = <T>(columns: Array<[string, (item: T) => Cell]>, itens: T[]
 // DOC-04: um CSV por entidade do tenant num ZIP; registra quem exportou e quando.
 export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> => {
   const { tenantId } = ctx;
-  const [cases, parties, deadlines, appointments, transactions, usuarios, opportunities] = await Promise.all([
+  const [cases, parties, deadlines, appointments, transactions, users, opportunities] = await Promise.all([
     caseService.listForExport(tenantId),
     partyService.listForExport(tenantId),
     deadlineService.listForExport(tenantId),
@@ -144,7 +144,7 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['documento', (p) => p.document],
         ['oab', (p) => p.oab],
         ['email', (p) => p.email],
-        ['telefone', (p) => p.telefone],
+        ['phone', (p) => p.phone],
         ['createdAt', (p) => p.createdAt],
       ],
       parties,
@@ -202,7 +202,7 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['active', (u) => u.active],
         ['createdAt', (u) => u.createdAt],
       ],
-      usuarios,
+      users,
     ),
     'oportunidades.csv': toCsv(
       [

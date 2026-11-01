@@ -30,7 +30,7 @@ export const createInvite = async (data: CreateInviteInput): Promise<{ id: strin
       Tenant: data.tenant,
       email: data.email,
       role: data.role,
-      permissoes: data.permissoes,
+      permissions: data.permissions,
       tokenHash: data.tokenHash,
       expiresAt: data.expiresAt,
       invitedBy: data.invitedBy,

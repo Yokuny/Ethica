@@ -1,7 +1,7 @@
-import type { DiarioAcao, DiarioModulo } from '@ethica/contracts';
+import type { ActivityLogAction, ActivityLogModule } from '@ethica/contracts';
 
 // Chaves de tradução do diário de bordo (AD-134): literais, para o dicionário conferir cada uma.
-export const DIARIO_MODULO_KEY: Record<DiarioModulo, string> = {
+export const ACTIVITY_LOG_MODULE_KEY: Record<ActivityLogModule, string> = {
   expert_cases: 'expert_cases',
   parties: 'parties',
   agenda: 'agenda',
@@ -14,7 +14,7 @@ export const DIARIO_MODULO_KEY: Record<DiarioModulo, string> = {
   account: 'my_account',
 };
 
-export const DIARIO_ACAO_KEY: Record<DiarioAcao, string> = {
+export const ACTIVITY_LOG_ACTION_KEY: Record<ActivityLogAction, string> = {
   create: 'activity_created',
   update: 'activity_updated',
   delete: 'activity_deleted',
@@ -27,7 +27,7 @@ export const DIARIO_ACAO_KEY: Record<DiarioAcao, string> = {
 };
 
 // Sub-registro que vale nomear na ação (prazo, parcela…); o resto fica só no módulo.
-export const DIARIO_RECURSO_KEY: Record<string, string> = {
+export const ACTIVITY_LOG_RESOURCE_KEY: Record<string, string> = {
   deadlines: 'deadline',
   movements: 'case_movement',
   installments: 'installment',

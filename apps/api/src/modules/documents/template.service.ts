@@ -10,7 +10,7 @@ export class TemplateNotFoundError extends KeyedError {}
 const PADROES = Object.values(DEFAULT_TEMPLATES);
 
 // Modelo padrão é só leitura (AD-126): o escritório clona para adaptar.
-const doEscritorio = (id: string): void => {
+const ofOffice = (id: string): void => {
   if (isDefaultTemplate(id)) throw new CustomError('standard_template_read_only', 403);
 };
 
@@ -48,18 +48,18 @@ export const createTemplate = async (tenantId: string, data: CreateTemplate): Pr
 };
 
 export const renameTemplate = async (tenantId: string, id: string, nome: string): Promise<TemplateRecord> => {
-  doEscritorio(id);
+  ofOffice(id);
   return encontrado(await templateRepository.updateNome(tenantId, id, nome));
 };
 
 export const deleteTemplate = async (tenantId: string, id: string): Promise<void> => {
-  doEscritorio(id);
+  ofOffice(id);
   const { deletedCount } = await templateRepository.remove(tenantId, id);
   if (deletedCount === 0) throw new TemplateNotFoundError('not_found');
 };
 
 export const addSection = async (tenantId: string, id: string, section: TemplateSection): Promise<TemplateRecord> => {
-  doEscritorio(id);
+  ofOffice(id);
   return encontrado(await templateRepository.addSection(tenantId, id, saneada(section)));
 };
 
@@ -69,12 +69,12 @@ export const updateSection = async (
   sectionId: string,
   section: TemplateSection,
 ): Promise<TemplateRecord> => {
-  doEscritorio(id);
+  ofOffice(id);
   return encontrado(await templateRepository.updateSection(tenantId, id, sectionId, saneada(section)));
 };
 
 export const removeSection = async (tenantId: string, id: string, sectionId: string): Promise<TemplateRecord> => {
-  doEscritorio(id);
+  ofOffice(id);
   return encontrado(await templateRepository.removeSection(tenantId, id, sectionId));
 };
 
@@ -85,7 +85,7 @@ export const moveSection = async (
   sectionId: string,
   { direcao }: MoveSection,
 ): Promise<TemplateRecord> => {
-  doEscritorio(id);
+  ofOffice(id);
   const template = encontrado(await templateRepository.findById(tenantId, id));
   const de = template.sections.findIndex((section) => section.id === sectionId);
   if (de < 0) throw new TemplateNotFoundError('not_found');
