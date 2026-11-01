@@ -13,7 +13,7 @@ import type { PhotoEditor } from './rich-text-editor.js';
 
 const PER_GRID = 6;
 
-const escape = (text: string): string =>
+const escapeHtml = (text: string): string =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 // 2 columns × 3 rows with the grid title on top and the caption under each photo (LMO-05); past 6
@@ -26,12 +26,12 @@ export const photoGridHtml = (title: string, photos: PhotoEditor[]): string => {
     for (let i = 0; i < chunk.length; i += 2) {
       const cells = [chunk[i], chunk[i + 1]].map((photo) =>
         photo
-          ? `<td><img src="${apiUrl(photo.src)}" alt="${escape(photo.caption ?? '')}"><p>${escape(photo.caption ?? '')}</p></td>`
+          ? `<td><img src="${apiUrl(photo.src)}" alt="${escapeHtml(photo.caption ?? '')}"><p>${escapeHtml(photo.caption ?? '')}</p></td>`
           : '<td><p></p></td>',
       );
       rows.push(`<tr>${cells.join('')}</tr>`);
     }
-    grids.push(`<table><tbody><tr><th colspan="2">${escape(title)}</th></tr>${rows.join('')}</tbody></table>`);
+    grids.push(`<table><tbody><tr><th colspan="2">${escapeHtml(title)}</th></tr>${rows.join('')}</tbody></table>`);
   }
   return grids.join('');
 };
