@@ -7,6 +7,7 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
+import { sideLabel } from '@/components/party-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { partyProcessesQuery } from '@/query/party.js';
 
@@ -30,7 +31,9 @@ export function PartyCases({ partyId }: { partyId: string }) {
                 render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}
                 title={legalCase.processNumber}
                 badges={<Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>{t(legalCase.status)}</Badge>}
-                description={[link && t(link.side), legalCase.subject].filter(Boolean).join(' · ')}
+                description={[link && sideLabel(link.side, legalCase.courtType), legalCase.subject]
+                  .filter(Boolean)
+                  .join(' · ')}
               />
             );
           })}

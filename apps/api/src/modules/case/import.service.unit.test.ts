@@ -40,6 +40,11 @@ describe('extrairAta (AD-114)', () => {
     expect(warnings).toEqual(['deadline_calculated']);
   });
 
+  it('cabeçalho repetido em cada página do processo completo não repete as partes', () => {
+    const { draft } = extractMinutes(`${MINUTES}\n${MINUTES}\n${MINUTES}`);
+    expect(draft.parties).toHaveLength(4);
+  });
+
   it('campo não achado fica vazio e entra em "missing"; vários números geram aviso (IMP-01.2)', () => {
     const { draft, missing, warnings } = extractMinutes(
       'Processos 0001234-56.2026.5.02.0001 e 0009999-11.2025.5.02.0002 em pauta.',

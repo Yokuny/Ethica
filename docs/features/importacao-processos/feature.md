@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/pericia packages/contracts packages/db/src/
 
 ## Histórico
 
+- 2026-11-01 — Ajustes da perita: o PDF aceita o processo completo (até 50 MB, `PDF_IMPORT_MAX_BYTES`) e a tela mostra o limite; o cabeçalho do PJe repetido em cada página não repete mais as partes (antes, 20 páginas viravam 80 partes, passavam do máximo de 30 e o Salvar falhava sem mensagem; o erro da lista de partes agora aparece na tela); polos aparecem como Reclamante/Reclamada na perícia trabalhista e Autor/Réu na cível e federal (`sideLabel` em `apps/web/src/components/party-labels.ts`).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-10-31 — Implementado IMP-01 a IMP-04 (AD-114 a AD-118); validação em `.specs/features/importacao-processos/validation.md`. Divergências do design: a chave da data de autuação no web é `lawsuit_filing_date` (`filing_date` já era "Data do protocolo"), e a linha de parte no formulário ficou em duas colunas depois da UAT.
 - 2026-10-31 — Spec criada (`.specs/features/importacao-processos/spec.md`).

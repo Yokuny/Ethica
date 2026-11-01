@@ -85,6 +85,12 @@ const clearName = (raw: string): string =>
 
 const extractParties = (rows: string[]): CasePartyInput[] => {
   const parties: CasePartyInput[] = [];
+  // The full process repeats the PJe header on every page: each party enters once.
+  const add = (party: CasePartyInput) => {
+    const same = (other: CasePartyInput) =>
+      other.side === party.side && other.type === party.type && other.name.toLowerCase() === party.name.toLowerCase();
+    if (!parties.some(same)) parties.push(party);
+  };
   let side: Side | undefined;
   for (const row of rows) {
     const label = LABEL_SIDE.find(([regex]) => regex.test(row));
@@ -93,14 +99,14 @@ const extractParties = (rows: string[]): CasePartyInput[] => {
       const resto = row.replace(label[0], '');
       const name = clearName(resto);
       const document = documentSchema.safeParse(resto.match(CPF_CNPJ)?.[1] ?? '');
-      if (name) parties.push({ side, type: 'party', name, document: document.success ? document.data : undefined });
+      if (name) add({ side, type: 'party', name, document: document.success ? document.data : undefined });
       continue;
     }
     if (side && LABEL_LAWYER.test(row)) {
       const resto = row.replace(LABEL_LAWYER, '');
       const name = clearName(resto);
       const oab = oabSchema.safeParse(resto.match(OAB)?.[1] ?? '');
-      if (name) parties.push({ side, type: 'lawyer', name, oab: oab.success ? oab.data : undefined });
+      if (name) add({ side, type: 'lawyer', name, oab: oab.success ? oab.data : undefined });
     }
   }
   return parties;

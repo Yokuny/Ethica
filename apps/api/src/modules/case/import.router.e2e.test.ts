@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Case, connect, Deadline, disconnect, hashToken, Party, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
@@ -129,7 +130,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
 
     const grande = await post()
       .set('Content-Type', 'application/pdf')
-      .send(Buffer.alloc(10 * 1024 * 1024 + 1));
+      .send(Buffer.alloc(PDF_IMPORT_MAX_BYTES + 1));
     expect(grande.status).toBe(413);
     expect(grande.body.message).toBe('file_too_large');
 

@@ -8,6 +8,7 @@ import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/compone
 import { t } from '@/lib/helpers/translate.helper.js';
 import { CaseFormFields } from '../@components/case-form-fields.js';
 import { PdfImportNotice } from './@components/pdf-import-notice.js';
+import { PDF_MAX_SIZE_TEXT } from './@consts/pdf-max-size.js';
 import { useCaseForm } from './@hooks/use-case-form.js';
 import { usePdfImport } from './@hooks/use-pdf-import.js';
 
@@ -49,6 +50,9 @@ export function CaseAddPage() {
               aria-label={t('fill_from_pdf')}
               onChange={pdf.handleFile}
             />
+            <ItemDescription className="line-clamp-none">
+              {t('pdf_with_text')} · {PDF_MAX_SIZE_TEXT}
+            </ItemDescription>
             {pdf.fileError && (
               <ItemDescription role="alert" className="text-destructive line-clamp-none">
                 {pdf.fileError}

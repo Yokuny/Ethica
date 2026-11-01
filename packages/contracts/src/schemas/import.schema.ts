@@ -56,4 +56,5 @@ export const CSV_IMPORT_EXAMPLE: Record<CsvImportColumn, string> = {
 
 export const CSV_IMPORT_MAX_BYTES = 2 * 1024 * 1024;
 export const CSV_IMPORT_MAX_ROWS = 1000;
-export const PDF_IMPORT_MAX_BYTES = 10 * 1024 * 1024;
+// Large enough for the full process downloaded from the PJe, not only the minutes.
+export const PDF_IMPORT_MAX_BYTES = 50 * 1024 * 1024;

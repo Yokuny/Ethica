@@ -1,6 +1,7 @@
 import { BriefcaseBusiness, FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
 import { CASE_STATE_VARIANT, CASE_STATUS_VARIANT, courtTypeLabel, phaseLabel } from '@/components/case-labels.js';
+import { sideLabel } from '@/components/party-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -63,7 +64,11 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             icon: <Users />,
             specs: legalCase.parties.length
               ? legalCase.parties.map((party) => ({
-                  label: [t(party.side), t(party.type), party.client ? t('contracting_party') : '']
+                  label: [
+                    sideLabel(party.side, legalCase.courtType),
+                    t(party.type),
+                    party.client ? t('contracting_party') : '',
+                  ]
                     .filter(Boolean)
                     .join(' · '),
                   value: (

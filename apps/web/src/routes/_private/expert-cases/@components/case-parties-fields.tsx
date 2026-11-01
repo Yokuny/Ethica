@@ -5,10 +5,10 @@ import { ItemDescription } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { useFieldArray, useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { Checkbox } from '@/components/checkbox.js';
 import { SelectField, TextField } from '@/components/form-fields.js';
-import { PARTY_TYPE_ITEMS, partyIdentification, SIDE_ITEMS } from '@/components/party-labels.js';
+import { PARTY_TYPE_ITEMS, partyIdentification, sideItems } from '@/components/party-labels.js';
 import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { partiesQuery } from '@/query/party.js';
@@ -66,6 +66,7 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
   const { control, getValues, setValue } = useFormContext<CaseFormValues>();
   const type = useWatch({ control, name: `parties.${index}.type` });
   const role = useWatch({ control, name: 'role' });
+  const courtType = useWatch({ control, name: 'courtType' });
   return (
     <div className="flex items-start gap-2">
       <div className="grid flex-1 gap-4 sm:grid-cols-2">
@@ -74,7 +75,7 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
           name={`parties.${index}.side`}
           label={t('side')}
           placeholder={t('select')}
-          items={SIDE_ITEMS}
+          items={sideItems(courtType)}
         />
         <SelectField
           control={control}
@@ -129,12 +130,20 @@ function PartyRow({ index, onRemove }: { index: number; onRemove: () => void }) 
 export function CasePartiesFields() {
   const { control } = useFormContext<CaseFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: 'parties' });
+  // Error of the list itself (e.g. too many parties): without it, saving would fail with nothing on screen.
+  const { errors } = useFormState({ control, name: 'parties' });
+  const listError = errors.parties?.root?.message ?? errors.parties?.message;
   return (
     <div className="grid gap-8">
       {fields.length === 0 && <ItemDescription>{t('no_parties_yet')}</ItemDescription>}
       {fields.map((field, index) => (
         <PartyRow key={field.id} index={index} onRemove={() => remove(index)} />
       ))}
+      {listError && (
+        <ItemDescription role="alert" className="text-destructive line-clamp-none">
+          {listError}
+        </ItemDescription>
+      )}
       <div>
         <Button type="button" variant="outline" onClick={() => append({ side: 'plaintiff', type: 'party', name: '' })}>
           <Plus />

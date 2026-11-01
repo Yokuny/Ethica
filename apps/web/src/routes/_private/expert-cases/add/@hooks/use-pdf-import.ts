@@ -6,6 +6,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseFormValues } from '../../@interface/cases.interface.js';
 import { importPdfMutation, type PdfExtraction } from '../../@query/import.js';
 import { DEFAULT_VALUES } from '../@consts/default-values.js';
+import { PDF_MAX_SIZE_TEXT } from '../@consts/pdf-max-size.js';
 
 // IMP-01: the PDF fills the form; the expert checks and saves (AD-115).
 export function usePdfImport(form: UseFormReturn<CaseFormValues>) {
@@ -19,7 +20,7 @@ export function usePdfImport(form: UseFormReturn<CaseFormValues>) {
     if (!file || mutation.isPending) return;
     setFileError(null);
     if (file.type && file.type !== 'application/pdf') return setFileError(t('unsupported_file_type'));
-    if (file.size > PDF_IMPORT_MAX_BYTES) return setFileError(t('file_too_large'));
+    if (file.size > PDF_IMPORT_MAX_BYTES) return setFileError(`${t('file_too_large')} ${PDF_MAX_SIZE_TEXT}.`);
     mutation.mutate(file, {
       onSuccess: (result) => {
         form.reset({ ...DEFAULT_VALUES, ...result.draft });
