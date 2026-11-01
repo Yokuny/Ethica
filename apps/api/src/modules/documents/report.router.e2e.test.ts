@@ -20,10 +20,26 @@ import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../app.js';
 import { env } from '../../config/env.config.js';
+import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 
 const DEVICE = 'test-agent';
 let rendered: PdfDocument | undefined;
+const objects = new Map<string, Buffer>();
+const storage: FileStorage = {
+  put: async (key, body) => {
+    objects.set(key, body);
+  },
+  get: async (key) => objects.get(key) ?? null,
+  remove: async (key) => {
+    objects.delete(key);
+  },
+};
+// Minimal JPEG (SOI, APP0, SOF0 320×240, EOI).
+const JPEG = Buffer.from([
+  0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0xf0, 0x01, 0x40, 0x03, 0x01,
+  0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
+]);
 const app = buildApp({
   pdf: {
     render: async (document) => {
@@ -31,7 +47,7 @@ const app = buildApp({
       return Buffer.from('%PDF-1.7 fake');
     },
   },
-  storage: null,
+  storage,
 });
 
 const binary = (res: request.Response, callback: (error: Error | null, body: Buffer) => void) => {
@@ -330,6 +346,45 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       sections: [{ id: 'parecer-01', variant: 'yes' }],
     });
     expect(wrongType.status).toBe(422);
+  });
+
+  it('fotos enviadas no laudo: guarda, serve, não duplica no reenvio e sai com o laudo (LMO-05)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const legalCase = await admin.as(request(app).post('/expert-cases')).send(CASE);
+    const { body: template } = await admin.as(request(app).get('/expert-reports/templates/standard-report'));
+    const created = await admin.as(request(app).post('/expert-reports')).send({
+      caseId: legalCase.body.data.id,
+      templateId: 'standard-report',
+      sections: [{ id: sectionByTitle(template.data.sections, 'Objetivo').id, variant: 'yes' }],
+    });
+    const id = created.body.data.id;
+    const mediaId = crypto.randomUUID();
+    const upload = () =>
+      admin
+        .as(request(app).put(`/expert-reports/${id}/media/${mediaId}`))
+        .set('Content-Type', 'image/jpeg')
+        .send(JPEG);
+
+    const sent = await upload();
+    expect(sent.status).toBe(200);
+    expect(sent.body.data.src).toBe(`/expert-reports/${id}/media/${mediaId}`);
+    await upload().expect(200);
+    expect((await Report.findById(id).lean())?.media).toHaveLength(1);
+    const read = await admin.as(request(app).get(sent.body.data.src)).buffer(true).parse(binary);
+    expect(read.status).toBe(200);
+    expect(Buffer.compare(read.body as Buffer, JPEG)).toBe(0);
+
+    const png = await admin
+      .as(request(app).put(`/expert-reports/${id}/media/${crypto.randomUUID()}`))
+      .set('Content-Type', 'image/png')
+      .send(JPEG);
+    expect(png.status).toBe(415);
+
+    const key = `tenants/${tenant._id}/reports/${id}/${mediaId}`;
+    expect(objects.has(key)).toBe(true);
+    await admin.as(request(app).delete(`/expert-reports/${id}`)).expect(200);
+    expect(objects.has(key)).toBe(false);
   });
 
   it('parecer técnico para assistente técnico; tipo errado 422; excluir a perícia leva os laudos; outro tenant 404', async () => {

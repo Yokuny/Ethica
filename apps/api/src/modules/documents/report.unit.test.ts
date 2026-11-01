@@ -48,6 +48,13 @@ describe('saneamento da foto (AD-129)', () => {
       ),
     ).toBe(`<img src="${PHOTO}" alt="Prensa" />`);
   });
+
+  it('aceita a foto enviada no próprio laudo (LMO-05)', () => {
+    const src = '/expert-reports/6560a0a0a0a0a0a0a0a0a0a1/media/0f8fad5b-d9cb-469f-a165-70867728950f';
+    expect(sanitizeReportHtml(`<img src="https://api.example.com${src}" alt="Forno">`)).toBe(
+      `<img src="${src}" alt="Forno" />`,
+    );
+  });
 });
 
 describe('variáveis de campo (AD-130)', () => {
@@ -278,5 +285,19 @@ describe('exportação (LAU-03.2)', () => {
     expect(imageDimensions(JPEG)).toEqual({ width: 320, height: 240 });
     const footer = Object.entries(files).find(([name]) => name.startsWith('word/footer'));
     expect(strFromU8(footer?.[1] as Uint8Array)).toContain('PAGE');
+  });
+
+  it('Word: foto no quadro de fotos sai com meia largura (LMO-05)', async () => {
+    const base = data();
+    const grid = `<table><tbody><tr><th colspan="2">Registro fotográfico</th></tr><tr><td><img src="${PHOTO}" alt="Prensa"><p>Prensa</p></td><td></td></tr></tbody></table>`;
+    const sections = base.report.sections.map((section) => ({ ...section, html: section.id === 's3' ? grid : '' }));
+    const document = strFromU8(
+      unzipSync(new Uint8Array(await reportDocx({ ...base, report: { ...base.report, sections } })))[
+        'word/document.xml'
+      ] as Uint8Array,
+    );
+    // 320×240 px reduced to fit 283×227 px in the cell: 283 px = 2695575 EMU.
+    expect(document).toContain('cx="2695575"');
+    expect(document).toContain('w:gridSpan w:val="2"');
   });
 });

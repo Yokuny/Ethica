@@ -19,7 +19,7 @@ export type { OpportunityDocument } from './models/opportunity.model.js';
 export { Opportunity } from './models/opportunity.model.js';
 export type { PartyDocument } from './models/party.model.js';
 export { Party } from './models/party.model.js';
-export type { ReportDocument, ReportSectionDocument } from './models/report.model.js';
+export type { ReportDocument, ReportMediaDocument, ReportSectionDocument } from './models/report.model.js';
 export { Report } from './models/report.model.js';
 export type { SessionDocument } from './models/session.model.js';
 export { Session } from './models/session.model.js';

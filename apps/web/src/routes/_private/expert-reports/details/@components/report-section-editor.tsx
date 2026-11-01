@@ -21,6 +21,7 @@ type ReportSectionEditorProps = {
   onSave: () => void;
   onRemove: () => void;
   photos?: PhotoEditor[];
+  uploadPhoto?: (photo: Blob) => Promise<string>;
 };
 
 // One section at a time (LAU-03.1): saving saves only it; the rest of the report does not change.
@@ -34,6 +35,7 @@ export function ReportSectionEditor({
   onSave,
   onRemove,
   photos,
+  uploadPhoto,
 }: ReportSectionEditorProps) {
   const readOnly = report.status === 'completed';
   const number = numberSections(report.sections)[report.sections.findIndex((item) => item.id === section.id)];
@@ -80,6 +82,7 @@ export function ReportSectionEditor({
           readOnly={readOnly}
           label={t('section_text')}
           photos={photos}
+          uploadPhoto={uploadPhoto}
           onChange={(html) => onChange({ ...draft, html })}
         />
       )}

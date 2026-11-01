@@ -35,6 +35,9 @@ th { background: #eee; }
 td p, th p { margin: 0; text-align: left; }
 tr { break-inside: avoid; }
 img { display: block; max-width: 100%; max-height: 120mm; margin: 3mm auto 1mm; break-inside: avoid; }
+table:has(img) { table-layout: fixed; }
+td img { max-height: 60mm; margin: 1mm auto; }
+td:has(img) p { text-align: center; }
 `;
 
 const TYPE = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;

@@ -105,7 +105,25 @@ export const chooseReportSections = (providers: Providers) =>
 export const removeReportSection = json((req) => reportService.removeSection(context(req), id(req), sectionId(req)));
 export const completeReport = (providers: Providers) =>
   json((req) => reportService.completeReport(providers, context(req), id(req), req.body));
-export const deleteReport = removed((req) => reportService.deleteReport(tenantOf(req), id(req)));
+export const deleteReport = (providers: Providers) =>
+  removed((req) => reportService.deleteReport(providers, tenantOf(req), id(req)));
+export const uploadReportMedia = (providers: Providers) =>
+  json((req) =>
+    reportService.uploadMedia(providers, tenantOf(req), id(req), req.params.mediaId as string, {
+      body: req.body as Buffer,
+      mime: (req.get('content-type') ?? '').split(';')[0] as string,
+    }),
+  );
+export const getReportMedia =
+  (providers: Providers) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const media = await reportService.getMedia(providers, tenantOf(req), id(req), req.params.mediaId as string);
+      res.set('Content-Type', media.mime).set('Cache-Control', 'private, max-age=31536000, immutable').end(media.body);
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };
 export const reportPdf = (providers: Providers) =>
   file((req) =>
     reportService.generatePdf(providers, context(req), id(req), {

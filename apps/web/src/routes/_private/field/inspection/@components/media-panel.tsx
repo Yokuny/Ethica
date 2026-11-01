@@ -59,7 +59,7 @@ export function MediaPanel({ item }: { item: DayInspection }) {
         toast.error(t('media_limit_reached'));
         break;
       }
-      const blob = await preparePhoto(file, item.appointment.location);
+      const blob = await preparePhoto(file, { address: item.appointment.location });
       await enqueue({ type: 'photo', mime: 'image/jpeg', blob });
     }
   }

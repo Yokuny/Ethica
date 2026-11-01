@@ -22,6 +22,7 @@ import {
   removeReportSectionMutation,
   reportQuery,
   updateReportSectionMutation,
+  uploadReportPhotoMutation,
 } from '@/query/report.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
 import { ReportPreviewDialog } from './@components/report-preview-dialog.js';
@@ -41,6 +42,7 @@ export function ReportDetailsPage() {
   const dropSection = useMutation(removeReportSectionMutation(queryClient));
   const complete = useMutation(completeReportMutation(queryClient));
   const removal = useMutation(deleteReportMutation(queryClient));
+  const uploadPhoto = useMutation(uploadReportPhotoMutation());
   const { download, pending } = useFileDownload();
   // Photos of the case inspections for the editor's "Inserir foto" (AD-129).
   const inspections = useQuery({ ...caseInspectionsQuery(query.data?.caseId ?? ''), enabled: Boolean(query.data) });
@@ -163,6 +165,7 @@ export function ReportDetailsPage() {
               onSave={() => saveCurrent()}
               onRemove={() => setDialog('remove-section')}
               photos={photos}
+              uploadPhoto={(photo) => uploadPhoto.mutateAsync({ id: report.id, photo })}
             />
           </div>
         </CardContent>

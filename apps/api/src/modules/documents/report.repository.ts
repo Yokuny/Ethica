@@ -6,6 +6,7 @@ import type {
   ListReportsQuery,
   ReportCreateInput,
   ReportListItem,
+  ReportMediaWrite,
   ReportRecord,
   ReportSectionRecord,
   ReportSectionsReplace,
@@ -176,6 +177,29 @@ export const complete = async (
       { returnDocument: 'after', runValidators: true },
     ).lean();
     return doc ? toRecord(doc) : null;
+  });
+
+// Only in the draft and only once per id: a resend of the same photo does not add it twice.
+export const addMedia = async (tenantId: string, id: string, media: ReportMediaWrite): Promise<boolean> =>
+  withDbTiming('report.addMedia', async () => {
+    const result = await Report.updateOne(draft(tenantId, id, { 'media.id': { $ne: media.id } }), {
+      $push: { media },
+    });
+    return result.modifiedCount === 1;
+  });
+
+export const findMedia = async (tenantId: string, id: string, mediaId: string): Promise<ReportMediaWrite | null> =>
+  withDbTiming('report.findMedia', async () => {
+    const doc = await Report.findOne(tenantScoped({ Tenant: tenantId, _id: id, 'media.id': mediaId }), {
+      media: { $elemMatch: { id: mediaId } },
+    }).lean();
+    return doc?.media[0] ?? null;
+  });
+
+export const listMedia = async (tenantId: string, id: string): Promise<ReportMediaWrite[]> =>
+  withDbTiming('report.listMedia', async () => {
+    const doc = await Report.findOne(tenantScoped({ Tenant: tenantId, _id: id }), { media: 1 }).lean();
+    return doc?.media ?? [];
   });
 
 export const removeDraft = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>

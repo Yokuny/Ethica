@@ -1,5 +1,7 @@
+import { REPORT_MEDIA_LIMIT } from '@ethica/contracts';
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
+import { fileBody } from '../../middlewares/fileBody.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as reportController from './report.controller.js';
@@ -13,6 +15,7 @@ import {
   moveSectionSchema,
   type ReportRouterDeps,
   reportIdParamSchema,
+  reportMediaParamSchema,
   reportPdfQuerySchema,
   reportSectionParamSchema,
   templateIdParamSchema,
@@ -111,7 +114,23 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     reportController.createReport(providers),
   );
   router.get('/:id', ...guard, can('expert_reports', 'view'), report, reportController.getReport);
-  router.delete('/:id', ...guard, can('expert_reports', 'delete'), report, reportController.deleteReport);
+  router.delete('/:id', ...guard, can('expert_reports', 'delete'), report, reportController.deleteReport(providers));
+  // Photos sent in the report (LMO-05); the id comes from the browser so a resend does not duplicate.
+  router.put(
+    '/:id/media/:mediaId',
+    ...guard,
+    can('expert_reports', 'update'),
+    validParams(reportMediaParamSchema),
+    fileBody(REPORT_MEDIA_LIMIT.mimes, REPORT_MEDIA_LIMIT.maxBytes),
+    reportController.uploadReportMedia(providers),
+  );
+  router.get(
+    '/:id/media/:mediaId',
+    ...guard,
+    can('expert_reports', 'view'),
+    validParams(reportMediaParamSchema),
+    reportController.getReportMedia(providers),
+  );
   router.put(
     '/:id/sections',
     ...guard,

@@ -89,8 +89,12 @@ export const REPORT_HTML_TAGS = [
   'img',
 ] as const;
 
-// The only image accepted in the report (AD-129): an inspection photo of the same tenant, served by the API.
-export const REPORT_IMG_SRC = /^\/inspections\/[0-9a-f]{24}\/media\/[0-9a-f-]{36}$/i;
+// The only images accepted in the report (AD-129): an inspection photo or a photo sent in the report
+// itself (LMO-05), of the same tenant, served by the API.
+export const REPORT_IMG_SRC = /^\/(inspections|expert-reports)\/[0-9a-f]{24}\/media\/[0-9a-f-]{36}$/i;
+
+// Photo sent in the report (LMO-05): JPEG shrunk in the browser, like the inspection one.
+export const REPORT_MEDIA_LIMIT = { maxBytes: 2 * 1024 * 1024, maxByReport: 60, mimes: ['image/jpeg'] };
 
 export const REPORT_LEVEL_MAX = 3;
 

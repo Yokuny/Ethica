@@ -1,4 +1,4 @@
-import { reportRoleType } from '@ethica/contracts';
+import { REPORT_MEDIA_LIMIT, reportRoleType } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -258,10 +258,75 @@ export const completeReport = async (
   return getReport(ctx.tenantId, id);
 };
 
-export const deleteReport = async (tenantId: string, id: string): Promise<void> => {
+// The photos sent in the report leave with it and give the quota back (AD-120).
+export const deleteReport = async (
+  providers: Pick<Providers, 'storage'>,
+  tenantId: string,
+  id: string,
+): Promise<void> => {
   await editable(tenantId, id);
+  const media = await reportRepository.listMedia(tenantId, id);
   const { deletedCount } = await reportRepository.removeDraft(tenantId, id);
   if (deletedCount === 0) throw new ReportNotFoundError('not_found');
+  for (const item of media) {
+    await providers.storage?.remove(item.key).catch(() => undefined);
+    await officeService.returnFile(tenantId, item.bytes);
+  }
+};
+
+// LMO-05: photo sent in the draft, with the quota reserved first (AD-120). The same id again is
+// accepted without saving twice (resend after a network failure).
+export const uploadMedia = async (
+  providers: Pick<Providers, 'storage'>,
+  tenantId: string,
+  id: string,
+  mediaId: string,
+  file: { body: Buffer; mime: string },
+): Promise<{ src: string }> => {
+  if (!providers.storage) throw new CustomError('storage_not_configured', 503);
+  if (!REPORT_MEDIA_LIMIT.mimes.includes(file.mime)) throw new CustomError('unsupported_file_type', 415, file.mime);
+  if (file.body.length > REPORT_MEDIA_LIMIT.maxBytes) throw new CustomError('file_too_large', 413);
+  const src = `/expert-reports/${id}/media/${mediaId}`;
+  await editable(tenantId, id);
+  const current = await reportRepository.listMedia(tenantId, id);
+  if (current.some((media) => media.id === mediaId)) return { src };
+  if (current.length >= REPORT_MEDIA_LIMIT.maxByReport) throw new CustomError('media_limit_reached', 422);
+  const media = {
+    id: mediaId,
+    key: `tenants/${tenantId}/reports/${id}/${mediaId}`,
+    bytes: file.body.length,
+    mime: file.mime,
+    createdAt: new Date(),
+  };
+  await officeService.reserveFile(tenantId, media.bytes);
+  try {
+    await providers.storage.put(media.key, file.body, media.mime);
+    if (!(await reportRepository.addMedia(tenantId, id, media))) await officeService.returnFile(tenantId, media.bytes);
+  } catch (error) {
+    await officeService.returnFile(tenantId, media.bytes);
+    throw error;
+  }
+  return { src };
+};
+
+export const getMedia = async (
+  providers: Pick<Providers, 'storage'>,
+  tenantId: string,
+  id: string,
+  mediaId: string,
+): Promise<{ body: Buffer; mime: string }> => {
+  const media = await reportRepository.findMedia(tenantId, id, mediaId);
+  const body = media && providers.storage ? await providers.storage.get(media.key) : null;
+  if (!media || !body) throw new ReportNotFoundError('not_found');
+  return { body, mime: media.mime };
+};
+
+// Photo in the text → bytes: sent in the report (LMO-05) or from the inspection (AD-129); `null` if it is gone.
+const readPhoto = (providers: Pick<Providers, 'storage'>, tenantId: string, src: string) => {
+  const [, origin, id, , mediaId] = src.split('/');
+  return origin === 'expert-reports'
+    ? getMedia(providers, tenantId, id as string, mediaId as string).catch(() => null)
+    : inspectionService.readReportPhoto(providers.storage, tenantId, src);
 };
 
 export const deleteByCase = (tenantId: string, caseId: string) => reportRepository.deleteByCase(tenantId, caseId);
@@ -281,9 +346,7 @@ const toExport = async (providers: Providers, ctx: DocumentContext, id: string, 
     ),
   ];
   const lidas = await Promise.all(
-    srcs.map(
-      async (src) => [src, await inspectionService.readReportPhoto(providers.storage, ctx.tenantId, src)] as const,
-    ),
+    srcs.map(async (src) => [src, await readPhoto(providers, ctx.tenantId, src)] as const),
   );
   const photos = Object.fromEntries(lidas.flatMap(([src, photo]) => (photo ? [[src, photo]] : [])));
   return { report: { ...report, sections }, legalCase, identity, expert, values, photos, generatedAt: ctx.now };

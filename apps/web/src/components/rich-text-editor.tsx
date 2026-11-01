@@ -8,9 +8,11 @@ import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { type Editor, EditorContent, Extension, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { cn } from 'cn';
-import { Bold, Heading3, Italic, List, ListOrdered, type LucideIcon, Table, Underline } from 'lucide-react';
+import { Bold, Heading3, Italic, LayoutGrid, List, ListOrdered, type LucideIcon, Table, Underline } from 'lucide-react';
+import { useState } from 'react';
 import { apiUrl } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { PhotoGridDialog } from './photo-grid-dialog.js';
 import { variableItems } from './report-labels.js';
 
 // Report and template editor (AD-123): only what the API allowlist accepts — paragraph,
@@ -129,8 +131,17 @@ const TOOLS: Tool[] = [
   },
 ];
 
-function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
+function Barra({
+  editor,
+  photos,
+  uploadPhoto,
+}: {
+  editor: Editor;
+  photos?: PhotoEditor[];
+  uploadPhoto?: (photo: Blob) => Promise<string>;
+}) {
   const active = useEditorState({ editor, selector: ({ editor: e }) => TOOLS.map((f) => f.active(e)) });
+  const [gridOpen, setGridOpen] = useState(false);
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-input p-1">
       {TOOLS.map((tool, i) => (
@@ -146,6 +157,23 @@ function Barra({ editor, photos }: { editor: Editor; photos?: PhotoEditor[] }) {
           <tool.icon />
         </Button>
       ))}
+      {uploadPhoto && (
+        <Button type="button" size="sm" variant="ghost" onClick={() => setGridOpen(true)}>
+          <LayoutGrid />
+          {t('photo_grid')}
+        </Button>
+      )}
+      {gridOpen && uploadPhoto && (
+        <PhotoGridDialog
+          photos={photos ?? []}
+          upload={uploadPhoto}
+          onClose={() => setGridOpen(false)}
+          onInsert={(html) => {
+            editor.chain().focus().insertContent(html).run();
+            setGridOpen(false);
+          }}
+        />
+      )}
       {photos && photos.length > 0 && (
         <Select
           items={photos.map((photo, index) => ({
@@ -213,10 +241,20 @@ type RichTextEditorProps = {
   className?: string;
   // Photos of the case inspections to insert in the text (report only).
   photos?: PhotoEditor[];
+  // Sends a photo to the report and returns its `src`: enables the photo grid (LMO-05).
+  uploadPhoto?: (photo: Blob) => Promise<string>;
 };
 
 // Uncontrolled after mounting: whoever switches sections remounts through `key`.
-export function RichTextEditor({ value, onChange, readOnly = false, label, className, photos }: RichTextEditorProps) {
+export function RichTextEditor({
+  value,
+  onChange,
+  readOnly = false,
+  label,
+  className,
+  photos,
+  uploadPhoto,
+}: RichTextEditorProps) {
   const editor = useEditor({
     extensions: EXTENSIONS,
     content: value,
@@ -241,7 +279,7 @@ export function RichTextEditor({ value, onChange, readOnly = false, label, class
         className,
       )}
     >
-      {editor && !readOnly && <Barra editor={editor} photos={photos} />}
+      {editor && !readOnly && <Barra editor={editor} photos={photos} uploadPhoto={uploadPhoto} />}
       <EditorContent editor={editor} />
     </div>
   );

@@ -12,7 +12,7 @@ import type {
 } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
-import { del, get, patch, post, put } from '../lib/api/client.api.js';
+import { del, get, patch, post, put, sendFile } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 import { caseKeys } from './case.js';
 import { deadlineKeys } from './deadline.js';
@@ -132,6 +132,15 @@ export const chooseReportSectionsMutation = (
   mutationFn: async ({ id, data }) =>
     unwrap(await put<ReportRecord>(`/expert-reports/${id}/sections`, data), 'save_error'),
   onSuccess: (report) => updatedReport(queryClient, report),
+});
+
+// Photo sent in the report (LMO-05): the id is generated here, so a resend does not duplicate.
+export const uploadReportPhotoMutation = (): UseMutationOptions<string, Error, { id: string; photo: Blob }> => ({
+  mutationFn: async ({ id, photo }) =>
+    unwrap(
+      await sendFile<{ src: string }>(`/expert-reports/${id}/media/${crypto.randomUUID()}`, photo, 'image/jpeg', 'PUT'),
+      'save_error',
+    ).src,
 });
 
 export const removeReportSectionMutation = (

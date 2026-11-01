@@ -13,6 +13,7 @@ import {
   Paragraph,
   Table,
   TableCell,
+  TableLayoutType,
   TableOfContents,
   TableRow,
   TextRun,
@@ -61,16 +62,20 @@ const runs = (nos: No[], format: Format = {}): TextRun[] =>
 const tableRows = (no: No): No[] =>
   children(no).flatMap((child) => (tag(child) === 'tr' ? [child] : tag(child) ? tableRows(child) : []));
 
+const hasPhoto = (no: No): boolean => tag(no) === 'img' || children(no).some(hasPhoto);
+
+// Photo grid (LMO-05): two columns of the same width, even with an empty cell. A4 text width = 9638 twips.
 const table = (no: No, photos: Photos): Table =>
   new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
+    ...(hasPhoto(no) ? { layout: TableLayoutType.FIXED, columnWidths: [4819, 4819] } : {}),
     rows: tableRows(no).map(
       (tr) =>
         new TableRow({
           children: children(tr)
             .filter((cell) => tag(cell) === 'td' || tag(cell) === 'th')
             .map((cell) => {
-              const conteudo = blocks(children(cell), { bold: tag(cell) === 'th' }, photos).filter(
+              const conteudo = blocks(children(cell), { bold: tag(cell) === 'th' }, photos, true).filter(
                 (block): block is Paragraph => block instanceof Paragraph,
               );
               const span = cell.type === 'tag' ? Number(cell.attribs.colspan) || 1 : 1;
@@ -119,13 +124,14 @@ export const imageDimensions = (image: Buffer): { width: number; height: number 
   return null;
 };
 
-// Inspection photo (AD-129): at most 15 cm wide and 12 cm tall, centered.
-const photo = (no: No, photos: Photos): Paragraph[] => {
+// Report photo (AD-129): at most 15 cm wide and 12 cm tall, centered; inside a table cell (photo
+// grid, LMO-05), half of that.
+const photo = (no: No, photos: Photos, inCell: boolean): Paragraph[] => {
   const src = no.type === 'tag' ? no.attribs.src : undefined;
   const file = src ? photos[src] : undefined;
   const size = file ? imageDimensions(file.body) : null;
   if (!file || !size) return [];
-  const scale = Math.min(567 / size.width, 454 / size.height, 1);
+  const scale = Math.min((inCell ? 283 : 567) / size.width, (inCell ? 227 : 454) / size.height, 1);
   return [
     new Paragraph({
       alignment: AlignmentType.CENTER,
@@ -141,7 +147,7 @@ const photo = (no: No, photos: Photos): Paragraph[] => {
   ];
 };
 
-function blocks(nos: No[], format: Format = {}, photos: Photos = {}): Block[] {
+function blocks(nos: No[], format: Format = {}, photos: Photos = {}, inCell = false): Block[] {
   return nos.flatMap((no): Block[] => {
     switch (tag(no)) {
       case 'p':
@@ -162,7 +168,7 @@ function blocks(nos: No[], format: Format = {}, photos: Photos = {}): Block[] {
       case 'table':
         return [table(no, photos)];
       case 'img':
-        return photo(no, photos);
+        return photo(no, photos, inCell);
       default: {
         const text = runs([no], format);
         return text.length ? [new Paragraph({ children: text })] : [];

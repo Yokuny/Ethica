@@ -18,6 +18,7 @@ import {
   createReportSchema,
   createTemplateSchema,
   idSchema,
+  mediaIdSchema,
   moveSectionSchema,
   REPORT_DEFAULT_TEMPLATES,
   REPORT_STATUS,
@@ -65,6 +66,7 @@ export const templateIdParamSchema = z.object({ id: templateIdSchema }).strict()
 export const templateSectionParamSchema = z.object({ id: templateIdSchema, sectionId: idSchema }).strict();
 export const reportIdParamSchema = z.object({ id: idSchema }).strict();
 export const reportSectionParamSchema = z.object({ id: idSchema, sectionId: idSchema }).strict();
+export const reportMediaParamSchema = z.object({ id: idSchema, mediaId: mediaIdSchema }).strict();
 
 // Preview (LMO-04): the PDF also leaves with pending markers, which stay visible in the text.
 export const reportPdfQuerySchema = z.object({ preview: z.enum(['true']).optional() }).strict();
@@ -111,6 +113,9 @@ export type ReportSectionRecord = {
 };
 
 export type ReportSectionWrite = Omit<ReportSectionRecord, 'id'>;
+
+// Photo sent in the report (LMO-05): the storage key stays on the server.
+export type ReportMediaWrite = { id: string; key: string; bytes: number; mime: string; createdAt: Date };
 
 // Markers without a value by section (AD-126): they block export and completion.
 export type ReportIssue = { sectionId: string; variables: ReportVariable[] };
