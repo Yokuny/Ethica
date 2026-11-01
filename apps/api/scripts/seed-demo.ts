@@ -225,11 +225,11 @@ const run = async (): Promise<void> => {
       // Movements (AD-121): report delivered 70 days ago (stalled) and a recent summons (active).
       movements:
         p.status === 'report_delivered'
-          ? [{ type: 'report_filed', data: day(-70) }]
+          ? [{ type: 'report_filed', date: day(-70) }]
           : p.status === 'clarifications'
             ? [
-                { type: 'report_filed', data: day(-30) },
-                { type: 'clarification_summons', data: day(-8), notes: 'Quesitos complementares da reclamada' },
+                { type: 'report_filed', date: day(-30) },
+                { type: 'clarification_summons', date: day(-8), notes: 'Quesitos complementares da reclamada' },
               ]
             : [],
       proposedFeesCents: p.proposed,

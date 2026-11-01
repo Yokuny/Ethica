@@ -75,8 +75,10 @@ function CardHeader({
   const isPublic = React.useContext(PublicPage);
   const pathnames = location.pathname.split('/').filter(Boolean);
 
+  // Route folders are kebab-case (AD-138); dictionary keys are snake_case.
   const titleOf = (pathname: string, segment: string) =>
-    routeTitle(matches.find((m) => m.pathname === pathname || m.pathname === `${pathname}/`)?.staticData) ?? t(segment);
+    routeTitle(matches.find((m) => m.pathname === pathname || m.pathname === `${pathname}/`)?.staticData) ??
+    t(segment.replaceAll('-', '_'));
   const resolvedTitle =
     title ??
     routeTitle([...matches].reverse().find((m) => routeTitle(m.staticData))?.staticData) ??
