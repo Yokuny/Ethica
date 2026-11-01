@@ -66,12 +66,13 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 ## Pendências
 
 - [ ] Protocolar o prazo "Entrega do laudo" ou receber parcela não lança movimentação sozinho (AD-121).
-- [ ] Imagem de produção da API (hoje só existe `Dockerfile.dev`) precisa do Chromium e das variáveis `S3_*`.
+- [ ] Imagem de produção da API (hoje só existe `Dockerfile.dev`) precisa do Chromium e das variáveis `S3_*` — spec em `producao-api` (AD-146).
 - [ ] Gerar PDF é síncrono na requisição; com volume, avaliar fila ou limite de páginas simultâneas.
 - [ ] Número do processo quebra no meio em colunas estreitas das tabelas do PDF.
 
 ## Histórico
 
+- 2026-11-01 — Imagem de produção especificada em `producao-api` (AD-146).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — `Tenant.dataExports` saiu: quem exportou vai ao diário de bordo; perícia suspensa não conta como parada; valores dos PDFs seguem a matriz (`docs/features/gestao-escritorio/feature.md`, AD-133, AD-134, AD-137).
 - 2026-10-31 — O checklist de campo usa as listas de agentes e documentos do contrato (`INSPECTION_AGENTS`, `INSPECTION_DOCUMENTS`), as mesmas do registro de vistoria (`campo-vistorias`, AD-130); a cota de arquivos agora também é usada pelas mídias da vistoria.

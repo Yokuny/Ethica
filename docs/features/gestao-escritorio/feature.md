@@ -72,10 +72,11 @@ pnpm run check && (cd apps/web && pnpm run build)
 - [ ] Entradas do diário de ajuste de permissões e de exclusões ficam sem rótulo legível (só o id).
 - [ ] A exportação ZIP (AD-122) não inclui o diário de bordo.
 - [ ] Ordem dos blocos do início não é configurável.
-- [ ] Trocar papel e desativar membro continuam sem rota (só no banco).
+- [ ] Trocar papel e desativar membro continuam sem rota (só no banco) — spec em `gestao-membros` (AD-148).
 
 ## Histórico
 
+- 2026-11-01 — CRUD de membros só do admin especificado em `gestao-membros` (AD-148).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Rotas do web e da API, pastas de rota e valores da matriz e do diário passam a inglês, traduzidos no web (AD-138).
 - 2026-11-01 — Implementado GES-01 a GES-06 (AD-133 a AD-137); validação em `.specs/features/gestao-escritorio/validation.md`. Divergências do design: a regra do contratante ficou só no service (refine no schema quebraria o `.pick()` da conversão de oportunidade); o bloco de paradas leva ao relatório em PDF em vez de um filtro da listagem; rótulos da matriz e do diário viraram mapas de chave literal (o teste do dicionário proíbe chave montada); `preferencesQuery` subiu para `apps/web/src/query/`; a coluna de honorários da listagem some sem `finance.view` (achado na UAT).

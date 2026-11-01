@@ -76,11 +76,12 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 - [x] UAT visual das telas com os três logins do `ACC.md` (perícias, detalhe, agenda, financeiro, conta; operador sem financeiro).
 - [ ] Assinatura real do feed num Google Agenda e envio por SMTP real.
-- [ ] Aviso diário roda num timer em memória: com mais de uma réplica da API, mandaria e-mail duplicado; API fora do ar às 07:00 perde o dia. Precisará de trava por dia no banco quando escalar.
+- [ ] Aviso diário roda num timer em memória: com mais de uma réplica da API, mandaria e-mail duplicado; API fora do ar às 07:00 perde o dia — spec em `avisos-notificacoes` (AD-147).
 - [ ] Juízo reduzir o honorário fixado abaixo do já recebido só aparece no log (`domain_event.handler_failed`).
 
 ## Histórico
 
+- 2026-11-01 — Varredura agendada no lugar do timer, aviso financeiro e push especificados em `avisos-notificacoes` (AD-147).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Honorário do assistente técnico lançado como `contracted_fees`, o mesmo automático por perícia (`docs/features/gestao-escritorio/feature.md`, AD-135).
 - 2026-10-31 — Valores de domínio em inglês no back-end e chaves de tradução em inglês (AD-113); recebimentos da perícia no detalhe do evento da agenda; UAT visual feita.

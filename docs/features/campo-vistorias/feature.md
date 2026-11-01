@@ -71,14 +71,15 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Pendências
 
-- [ ] Transcrição do áudio (IA, AD-124).
-- [ ] Ponto de partida do mapa por endereço digitado (hoje é a localização do aparelho).
-- [ ] Nominatim e OSRM públicos têm limite e nenhuma garantia; com volume, trocar por serviço próprio ou pago (AD-131).
+- [ ] Transcrição do áudio (IA, AD-124) — adiada (AD-145).
+- [ ] Ponto de partida do mapa por endereço digitado (hoje é a localização do aparelho) — spec em `rotas-vistoria` (AD-150).
+- [ ] Nominatim e OSRM públicos têm limite e nenhuma garantia; com volume, trocar por serviço próprio ou pago (AD-131) — rota própria em `rotas-vistoria` (AD-150).
 - [ ] Assinatura apagada deixa o `signatureId` do presente sem arquivo (ignorado na leitura).
-- [ ] Imagem de produção da API ainda inexistente (já era pendência de `documentos-pdf`).
+- [ ] Imagem de produção da API ainda inexistente — spec em `producao-api` (AD-146).
 
 ## Histórico
 
+- 2026-11-01 — Ponto de partida e rota própria especificados em `rotas-vistoria` (AD-150); chaves do storage por perícia em `producao-api` (AD-146).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-10-31 — Implementado CAM-01 a CAM-09, menos a transcrição (AD-128 a AD-132). Divergências do design: o ponto de partida do mapa é só a localização do aparelho; "Campo" substituiu "Prospecção" na barra inferior do celular (prospecção segue no Menu); a sessão passou a ser guardada no aparelho para o app abrir sem rede, e sair apaga os dados locais; `postFile` virou `sendFile`; o modelo padrão do laudo passou a usar as variáveis de campo; a sincronização tenta de novo a cada 15 s com pendência e quando a tela volta a aparecer (na UAT o evento `online` não chegou depois de recarregar sem rede); data e hora da vistoria no laudo vêm da vistoria feita com registro, quando há.
 - 2026-10-31 — Spec criada (`.specs/features/campo-vistorias/spec.md`).

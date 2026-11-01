@@ -68,14 +68,15 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Pendências
 
-- [ ] Redação com IA (LAU-04): provedor, limite por tenant e LGPD numa spec própria (AD-124).
+- [ ] Redação com IA (LAU-04): provedor, limite por tenant e LGPD numa spec própria (AD-124) — adiada (AD-145).
 - [ ] Texto-base da biblioteca NR-15/NR-16 precisa de revisão técnica e jurídica; atualizar é deploy (AD-127).
 - [ ] Sumário do PDF sem número de página (o Word tem, AD-125).
-- [ ] Laudo concluído por engano não reabre; só sai excluindo a perícia (AD-126).
+- [ ] Laudo concluído por engano não reabre; só sai excluindo a perícia (AD-126) — spec em `laudo-vistoria` (AD-149).
 - [ ] Escolher uma subseção sem a seção-mãe a pendura na seção anterior na numeração (ex.: Anexo 1 sem "Insalubridade" vira 2.1 de "Objetivo").
 
 ## Histórico
 
+- 2026-11-01 — Reabrir e excluir laudo concluído e fotos/anotações da vistoria no laudo especificados em `laudo-vistoria` (AD-149).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Concluir com a entrega também põe a fase "aguardando manifestação das partes"; modelos seguem a permissão `templates` da matriz (`docs/features/gestao-escritorio/feature.md`, AD-133, AD-137).
 - 2026-10-31 — Fotos da vistoria no laudo (`img` restrito às mídias do tenant, no PDF e no Word) e variáveis de campo da última vistoria feita, usadas no modelo padrão em "Metodologia e vistoria" e "Atividades exercidas" (`docs/features/campo-vistorias/feature.md`, AD-129, AD-130).

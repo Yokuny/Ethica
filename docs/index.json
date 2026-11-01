@@ -2,6 +2,51 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "avisos-notificacoes",
+      "feature": "Avisos de vencimento e notificações push",
+      "descricao": "Varredura agendada dos avisos sem perda nem duplicidade, aviso de vencimento financeiro e notificação push no aparelho",
+      "data": "2026-11-01",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-110",
+        "AD-147"
+      ],
+      "spec": [
+        ".specs/features/avisos-notificacoes"
+      ],
+      "planos": [],
+      "doc": "features/avisos-notificacoes/feature.md"
+    },
+    {
+      "slug": "benchmark-jusperia",
+      "feature": "Benchmark da Jusperia",
+      "descricao": "Engenharia reversa funcional do app da Jusperia (concorrente) e gap analysis contra o Ethica, com priorização em ondas",
+      "data": "2026-11-01",
+      "status": "concluido",
+      "areas": [
+        "docs"
+      ],
+      "decisoes": [
+        "AD-105",
+        "AD-106",
+        "AD-107",
+        "AD-108"
+      ],
+      "spec": [
+        ".specs/features/benchmark-jusperia"
+      ],
+      "planos": [
+        ".specs/features/benchmark-jusperia/plans/2026-10-31-benchmark-jusperia.md"
+      ],
+      "doc": "features/benchmark-jusperia/feature.md"
+    },
+    {
       "slug": "campo-vistorias",
       "feature": "Campo e vistorias",
       "descricao": "Rota de campo no celular com registro de vistoria, fotos, áudio e assinatura offline, mapa do dia, aviso às partes e campo no laudo",
@@ -160,6 +205,28 @@
       "doc": "features/gestao-escritorio/feature.md"
     },
     {
+      "slug": "gestao-membros",
+      "feature": "Gestão de membros pelo admin",
+      "descricao": "Admin edita nome e perfil, desativa e reativa membros e gerencia convites pendentes, sem mexer no banco",
+      "data": "2026-11-01",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts"
+      ],
+      "decisoes": [
+        "AD-134",
+        "AD-137",
+        "AD-148"
+      ],
+      "spec": [
+        ".specs/features/gestao-membros"
+      ],
+      "planos": [],
+      "doc": "features/gestao-membros/feature.md"
+    },
+    {
       "slug": "importacao-processos",
       "feature": "Importação de processos",
       "descricao": "Cadastro de perícia a partir do PDF da ata, importação em lote por CSV, partes e advogados reutilizáveis e dados trabalhistas",
@@ -186,6 +253,29 @@
       ],
       "planos": [],
       "doc": "features/importacao-processos/feature.md"
+    },
+    {
+      "slug": "laudo-vistoria",
+      "feature": "Vistoria no laudo e revisão do laudo",
+      "descricao": "Relatório fotográfico e anotações da vistoria no laudo, reabrir laudo concluído e excluir com confirmação explícita",
+      "data": "2026-11-01",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts"
+      ],
+      "decisoes": [
+        "AD-126",
+        "AD-129",
+        "AD-130",
+        "AD-149"
+      ],
+      "spec": [
+        ".specs/features/laudo-vistoria"
+      ],
+      "planos": [],
+      "doc": "features/laudo-vistoria/feature.md"
     },
     {
       "slug": "laudos",
@@ -246,27 +336,47 @@
       "doc": "features/prazos-recebimentos/feature.md"
     },
     {
-      "slug": "benchmark-jusperia",
-      "feature": "Benchmark da Jusperia",
-      "descricao": "Engenharia reversa funcional do app da Jusperia (concorrente) e gap analysis contra o Ethica, com priorização em ondas",
-      "data": "2026-10-31",
-      "status": "concluido",
+      "slug": "producao-api",
+      "feature": "Imagem de produção da API e arquivos por perícia",
+      "descricao": "Dockerfile de produção com Chromium e storage S3 em pastas por escritório e perícia, trocável para o bucket real só por configuração",
+      "data": "2026-11-01",
+      "status": "planejado",
       "areas": [
-        "docs"
+        "apps/api",
+        "infra"
       ],
       "decisoes": [
-        "AD-105",
-        "AD-106",
-        "AD-107",
-        "AD-108"
+        "AD-119",
+        "AD-120",
+        "AD-129",
+        "AD-146"
       ],
       "spec": [
-        ".specs/features/benchmark-jusperia"
+        ".specs/features/producao-api"
       ],
-      "planos": [
-        ".specs/features/benchmark-jusperia/plans/2026-10-31-benchmark-jusperia.md"
+      "planos": [],
+      "doc": "features/producao-api/feature.md"
+    },
+    {
+      "slug": "rotas-vistoria",
+      "feature": "Rotas de vistoria com ponto de partida",
+      "descricao": "Mapa do dia saindo de um endereço escolhido (localização, escritório ou digitado) com a rota calculada por serviço de rota próprio",
+      "data": "2026-11-01",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/db"
       ],
-      "doc": "features/benchmark-jusperia/feature.md"
+      "decisoes": [
+        "AD-131",
+        "AD-150"
+      ],
+      "spec": [
+        ".specs/features/rotas-vistoria"
+      ],
+      "planos": [],
+      "doc": "features/rotas-vistoria/feature.md"
     }
   ],
   "planos_nao_arquivados": [],
@@ -560,7 +670,7 @@
       "id": "AD-110",
       "decisao": "O aviso de prazo por e-mail é uma preferência por usuário: todo usuário com papel no tenant (qualquer papel) liga ou desliga o próprio aviso",
       "data": "2026-10-31",
-      "status": "active"
+      "status": "active (disparo por timer às 07:00 superseded by AD-147)"
     },
     {
       "id": "AD-111",
@@ -656,7 +766,7 @@
       "id": "AD-126",
       "decisao": "Defaults da spec de `laudos` confirmados pelo usuário, com o modelo de dados: (1) `ModeloLaudo` e `Laudo` são collections do módulo `documen",
       "data": "2026-10-31",
-      "status": "active"
+      "status": "active (laudo concluído só leitura e não excluível superseded by AD-149)"
     },
     {
       "id": "AD-127",
@@ -674,7 +784,7 @@
       "id": "AD-129",
       "decisao": "Mídias da vistoria ficam no storage S3 do tenant (AD-120) com chave `tenants/<tenantId>/vistorias/<compromissoId>/<midiaId>`, contadas na co",
       "data": "2026-10-31",
-      "status": "active"
+      "status": "active (forma da chave no storage superseded by AD-146)"
     },
     {
       "id": "AD-130",
@@ -686,7 +796,7 @@
       "id": "AD-131",
       "decisao": "Mapa do dia (`/campo/mapa`) com Leaflet e tiles do OpenStreetMap (atribuição na tela). O endereço do compromisso é geocodificado pela API co",
       "data": "2026-10-31",
-      "status": "active"
+      "status": "active (OSRM público pelo navegador e partida no localStorage superseded by AD-150)"
     },
     {
       "id": "AD-132",
@@ -751,6 +861,54 @@
     {
       "id": "AD-142",
       "decisao": "A padronização sai num PR único (`refactor/english-naming`), com um commit por fatia de domínio, cada uma atravessando db, contrato, API e w",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-143",
+      "decisao": "A partir de 2026-11-01 o Ethica é desenvolvido pela própria perita (engenheira, usuária final do produto, sem formação em programação) com u",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-144",
+      "decisao": "O escritório (tenant) é cadastrado só com CNPJ; perito pessoa física (CPF) não é suportado. `provisionTenantSchema` continua exigindo 14 díg",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-145",
+      "decisao": "Não serão escritos testes e2e de router para `case`, `agenda`, `finance` e `prospecting` além dos que já existem; a cobertura atual (unit de",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-146",
+      "decisao": "As chaves do storage S3 (AD-120) passam a ser por escritório e por perícia: `tenants/<tenantId>/office/…` para o que é do escritório (logo)",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-147",
+      "decisao": "Os avisos (prazos hoje; financeiro e push em `avisos-notificacoes`) passam a sair de uma varredura agendada (cron no processo da API, a cada",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-148",
+      "decisao": "Membros do escritório têm CRUD só do admin: convidar (já existe), editar nome e perfil, desativar e reativar, e cancelar ou reenviar convite",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-149",
+      "decisao": "Laudo concluído pode ser reaberto (\"Editar laudo\") por quem tem `expert_reports` `update`: volta a rascunho sem desfazer prazo protocolado,",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-150",
+      "decisao": "O mapa do dia ganha ponto de partida escolhido (localização, endereço do escritório ou endereço digitado, lembrado por pessoa no servidor) e",
       "data": "2026-11-01",
       "status": "active"
     }
