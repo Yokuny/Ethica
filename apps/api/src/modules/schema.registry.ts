@@ -35,10 +35,10 @@ import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } fro
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import {
-  converterOportunidadeSchema,
-  listOportunidadesQuerySchema,
-  oportunidadeIdParamSchema,
-} from './prospeccao/oportunidade.schema.js';
+  convertOpportunitySchema,
+  listOpportunitiesQuerySchema,
+  opportunityIdParamSchema,
+} from './prospecting/opportunity.schema.js';
 
 // Schemas Zod locais dos módulos (params/query dos routers, em
 // `<entidade>.schema.ts`). Mesmo shape do schemaRegistry de @ethica/contracts,
@@ -78,7 +78,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'installmentIdParamSchema', schema: installmentIdParamSchema },
   { name: 'flowQuerySchema', schema: flowQuerySchema },
   { name: 'categoriesQuerySchema', schema: categoriesQuerySchema },
-  { name: 'oportunidadeIdParamSchema', schema: oportunidadeIdParamSchema },
-  { name: 'listOportunidadesQuerySchema', schema: listOportunidadesQuerySchema },
-  { name: 'converterOportunidadeSchema', schema: converterOportunidadeSchema },
+  { name: 'opportunityIdParamSchema', schema: opportunityIdParamSchema },
+  { name: 'listOpportunitiesQuerySchema', schema: listOpportunitiesQuerySchema },
+  { name: 'convertOpportunitySchema', schema: convertOpportunitySchema },
 ];

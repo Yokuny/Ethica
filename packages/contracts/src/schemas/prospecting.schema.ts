@@ -80,7 +80,7 @@ export const datajudSearchSchema = z
     court: z.enum(ALL_DATAJUD_COURTS),
     technicalSubjects: z.array(z.enum(DATAJUD_TECHNICAL_SUBJECTS)).max(DATAJUD_TECHNICAL_SUBJECTS.length).optional(),
     termo: z.string().trim().max(120, 'termo inválido').optional(),
-    orgaoJulgador: z.string().trim().max(120, 'órgão julgador inválido').optional(),
+    courtUnit: z.string().trim().max(120, 'órgão julgador inválido').optional(),
     processNumber: z
       .string()
       .trim()
@@ -89,8 +89,8 @@ export const datajudSearchSchema = z
       .refine((value) => value === '' || value.length === 20, 'informe os 20 dígitos do processo')
       .transform((value) => value || undefined)
       .optional(),
-    classeCodigo: z.number().int().positive().optional(),
-    orgaoJulgadorCodigo: z.number().int().positive().optional(),
+    caseClassCode: z.number().int().positive().optional(),
+    courtUnitCode: z.number().int().positive().optional(),
     size: z.number().int().min(1).max(50).optional(),
     cursor: z
       .array(z.union([z.string(), z.number()]))
@@ -100,29 +100,29 @@ export const datajudSearchSchema = z
   .strict();
 export type DatajudSearch = z.infer<typeof datajudSearchSchema>;
 
-export const OPORTUNIDADE_STATUS = ['new', 'under_review', 'discarded', 'converted'] as const;
-export type OportunidadeStatus = (typeof OPORTUNIDADE_STATUS)[number];
+export const OPPORTUNITY_STATUS = ['new', 'under_review', 'discarded', 'converted'] as const;
+export type OpportunityStatus = (typeof OPPORTUNITY_STATUS)[number];
 
 // Processo do Datajud guardado para análise. Os campos vêm do resultado da busca.
-export const createOportunidadeSchema = z
+export const createOpportunitySchema = z
   .object({
     processNumber: processNumberSchema,
     court: z.enum(ALL_DATAJUD_COURTS),
-    classe: z.string().trim().max(200).optional(),
-    assuntos: z.array(z.string().trim().max(200)).max(20).optional(),
-    orgaoJulgador: z.string().trim().max(200).optional(),
+    caseClass: z.string().trim().max(200).optional(),
+    subjects: z.array(z.string().trim().max(200)).max(20).optional(),
+    courtUnit: z.string().trim().max(200).optional(),
     filingDate: z.string().max(40).optional(),
     lastMovement: z.string().trim().max(300).optional(),
     lastMovementAt: z.string().max(40).optional(),
   })
   .strict();
-export type CreateOportunidade = z.infer<typeof createOportunidadeSchema>;
+export type CreateOpportunity = z.infer<typeof createOpportunitySchema>;
 
 // `convertida` só é alcançada por POST /prospeccao/oportunidades/:id/converter.
-export const updateOportunidadeSchema = z
+export const updateOpportunitySchema = z
   .object({
     status: z.enum(['new', 'under_review', 'discarded']).optional(),
     observacoes: z.string().trim().max(2000).optional(),
   })
   .strict();
-export type UpdateOportunidade = z.infer<typeof updateOportunidadeSchema>;
+export type UpdateOpportunity = z.infer<typeof updateOpportunitySchema>;

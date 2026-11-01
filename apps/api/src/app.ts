@@ -27,7 +27,7 @@ import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
 import { createPreferencesRouter } from './modules/identity/preferences.router.js';
 import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
-import { createProspeccaoRouter } from './modules/prospeccao/oportunidade.router.js';
+import { createProspectingRouter } from './modules/prospecting/opportunity.router.js';
 import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
 import { createS3FileStorage, type FileStorage } from './providers/fileStorage.js';
 import { createNominatimGeocoder, type Geocoder } from './providers/geocoder.js';
@@ -134,7 +134,7 @@ export const buildApp = (
   app.use('/finance', createFinanceRouter({ validToken }));
   app.use('/documents', createDocumentsRouter({ validToken, pdf, storage }));
   app.use('/expert-reports', createReportRouter({ validToken, pdf, storage }));
-  app.use('/prospecting', createProspeccaoRouter({ validToken, datajud }));
+  app.use('/prospecting', createProspectingRouter({ validToken, datajud }));
 
   app.use(errorHandler);
 

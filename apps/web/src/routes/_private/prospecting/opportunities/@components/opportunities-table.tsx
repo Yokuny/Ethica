@@ -5,22 +5,22 @@ import { TableIdentity, TableRowAction, TableRowActions, TableStack, TableStatus
 import { TablePagination } from '@/components/table-pagination.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { OportunidadeRecord } from '../../@query/oportunidade.js';
-import { OPORTUNIDADE_STATUS_VARIANT } from '../@utils/oportunidade-status.js';
+import type { OpportunityRecord } from '../../@query/opportunity.js';
+import { OPPORTUNITY_STATUS_VARIANT } from '../@utils/opportunity-status.js';
 
-type OportunidadesTableProps = {
-  data: OportunidadeRecord[];
+type OpportunitiesTableProps = {
+  data: OpportunityRecord[];
   pageCount: number;
   pageIndex: number;
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
-  onConvert: (row: OportunidadeRecord) => void;
-  onStatus: (row: OportunidadeRecord, status: 'new' | 'under_review' | 'discarded') => void;
-  onRemove: (row: OportunidadeRecord) => void;
-  onOpenCase: (row: OportunidadeRecord) => void;
+  onConvert: (row: OpportunityRecord) => void;
+  onStatus: (row: OpportunityRecord, status: 'new' | 'under_review' | 'discarded') => void;
+  onRemove: (row: OpportunityRecord) => void;
+  onOpenCase: (row: OpportunityRecord) => void;
 };
 
-export function OportunidadesTable({
+export function OpportunitiesTable({
   data,
   pageCount,
   pageIndex,
@@ -30,7 +30,7 @@ export function OportunidadesTable({
   onStatus,
   onRemove,
   onOpenCase,
-}: OportunidadesTableProps) {
+}: OpportunitiesTableProps) {
   return (
     <>
       <Table>
@@ -56,16 +56,16 @@ export function OportunidadesTable({
                   <TableIdentity
                     icon={Bookmark}
                     title={row.processNumber}
-                    description={[row.court.toUpperCase(), row.orgaoJulgador].filter(Boolean).join(' · ')}
+                    description={[row.court.toUpperCase(), row.courtUnit].filter(Boolean).join(' · ')}
                   />
                 </TableCell>
                 <TableCell>
-                  <TableStack description={row.assuntos.slice(0, 2).join(' · ') || undefined}>
-                    {row.classe ?? '—'}
+                  <TableStack description={row.subjects.slice(0, 2).join(' · ') || undefined}>
+                    {row.caseClass ?? '—'}
                   </TableStack>
                 </TableCell>
                 <TableCell>
-                  <TableStatus variant={OPORTUNIDADE_STATUS_VARIANT[row.status]}>{t(row.status)}</TableStatus>
+                  <TableStatus variant={OPPORTUNITY_STATUS_VARIANT[row.status]}>{t(row.status)}</TableStatus>
                 </TableCell>
                 <TableCell>
                   <TableStack tone="muted">{formatDate(row.createdAt)}</TableStack>

@@ -88,8 +88,8 @@ export const section = (titulo: string, conteudo: string): string =>
 export const vazio = (texto: string): string => `<p class="vazio">${esc(texto)}</p>`;
 
 // Tabela com cabeçalho; as células já chegam em HTML (escapadas por quem monta).
-export const table = (columns: string[], rows: string[][], classe = ''): string =>
-  `<table class="${classe}"><thead><tr>${columns.map((column) => `<th>${esc(column)}</th>`).join('')}</tr></thead><tbody>${rows
+export const table = (columns: string[], rows: string[][], caseClass = ''): string =>
+  `<table class="${caseClass}"><thead><tr>${columns.map((column) => `<th>${esc(column)}</th>`).join('')}</tr></thead><tbody>${rows
     .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`)
     .join('')}</tbody></table>`;
 

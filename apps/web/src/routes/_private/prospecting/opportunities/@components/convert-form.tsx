@@ -10,35 +10,35 @@ import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { DateField, SelectField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { converterOportunidadeMutation, type OportunidadeRecord } from '../../@query/oportunidade.js';
-import { type ConverterForm as ConverterValues, converterFormSchema } from '../@interface/oportunidades.interface.js';
+import { convertOpportunityMutation, type OpportunityRecord } from '../../@query/opportunity.js';
+import { type ConvertForm as ConvertValues, convertFormSchema } from '../@interface/opportunities.interface.js';
 
-const courtTypeOfCourt = (court: string): ConverterValues['courtType'] =>
+const courtTypeOfCourt = (court: string): ConvertValues['courtType'] =>
   court.startsWith('trt') ? 'labor' : court.startsWith('trf') ? 'federal' : 'civil';
 
 // Converter em perícia: número, tribunal e vara vêm da oportunidade.
-export function ConverterForm({ oportunidade, onClose }: { oportunidade: OportunidadeRecord; onClose: () => void }) {
+export function ConvertForm({ opportunity, onClose }: { opportunity: OpportunityRecord; onClose: () => void }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const mutation = useMutation(converterOportunidadeMutation(queryClient));
-  const form = useForm<ConverterValues>({
-    resolver: zodResolver(converterFormSchema),
+  const mutation = useMutation(convertOpportunityMutation(queryClient));
+  const form = useForm<ConvertValues>({
+    resolver: zodResolver(convertFormSchema),
     defaultValues: {
-      courtType: courtTypeOfCourt(oportunidade.court),
+      courtType: courtTypeOfCourt(opportunity.court),
       role: 'court_expert',
-      subject: oportunidade.assuntos[0] ?? '',
+      subject: opportunity.subjects[0] ?? '',
     },
   });
 
   const onSubmit = form.handleSubmit((data) =>
     mutation.mutate(
-      { id: oportunidade.id, data },
+      { id: opportunity.id, data },
       { onSuccess: ({ caseId }) => navigate({ to: '/expert-cases/details', search: { id: caseId } }) },
     ),
   );
 
   return (
-    <FormDialog title={t('convert_into_expert_case')} description={oportunidade.processNumber} onClose={onClose}>
+    <FormDialog title={t('convert_into_expert_case')} description={opportunity.processNumber} onClose={onClose}>
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-6">
           <DefaultFormLayout

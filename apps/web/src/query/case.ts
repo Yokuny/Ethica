@@ -46,7 +46,7 @@ export type CaseRecord = {
   location?: string;
   // Movimentações que contam para a perícia parada (AD-121), da mais recente para a mais antiga.
   movements: { id: string; tipo: MovementType; data: string; observacoes?: string }[];
-  oportunidadeId?: string;
+  opportunityId?: string;
   createdAt: string;
   updatedAt: string;
 };

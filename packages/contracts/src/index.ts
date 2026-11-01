@@ -17,7 +17,7 @@ export * from './schemas/inviteToken.schema.js';
 export * from './schemas/listStats.schema.js';
 export * from './schemas/party.schema.js';
 export * from './schemas/permissao.schema.js';
-export * from './schemas/prospeccao.schema.js';
+export * from './schemas/prospecting.schema.js';
 export * from './schemas/provisionTenant.schema.js';
 export * from './schemas/report.schema.js';
 export * from './schemas/signin.schema.js';

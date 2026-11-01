@@ -4,26 +4,26 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { createOportunidadeMutation, type DatajudResultado, searchDatajudMutation } from '../../@query/oportunidade.js';
+import { createOpportunityMutation, type DatajudResult, searchDatajudMutation } from '../../@query/opportunity.js';
 import {
-  type BuscaForm,
-  type BuscaQuery,
-  buscaFormSchema,
-  DEFAULT_BUSCA,
+  DEFAULT_SEARCH,
   PAGE_SIZE,
-} from '../@interface/busca.interface.js';
+  type SearchForm,
+  type SearchQuery,
+  searchFormSchema,
+} from '../@interface/search.interface.js';
 
 // Busca paginada por cursor (`search_after`): "Carregar mais" acrescenta à lista.
-export function useBuscaDatajud() {
+export function useSearchDatajud() {
   const queryClient = useQueryClient();
-  const form = useForm<BuscaForm>({ resolver: zodResolver(buscaFormSchema), defaultValues: DEFAULT_BUSCA });
+  const form = useForm<SearchForm>({ resolver: zodResolver(searchFormSchema), defaultValues: DEFAULT_SEARCH });
   const search = useMutation(searchDatajudMutation());
-  const save = useMutation(createOportunidadeMutation(queryClient));
-  const [query, setQuery] = useState<BuscaQuery | null>(null);
-  const [items, setItems] = useState<DatajudResultado[]>([]);
+  const save = useMutation(createOpportunityMutation(queryClient));
+  const [query, setQuery] = useState<SearchQuery | null>(null);
+  const [items, setItems] = useState<DatajudResult[]>([]);
   const [cursor, setCursor] = useState<(string | number)[] | undefined>();
 
-  function run(next: BuscaQuery, after?: (string | number)[]) {
+  function run(next: SearchQuery, after?: (string | number)[]) {
     search.mutate(
       { ...next, size: PAGE_SIZE, cursor: after },
       {
@@ -35,15 +35,15 @@ export function useBuscaDatajud() {
     );
   }
 
-  function onSubmit(data: BuscaForm) {
+  function onSubmit(data: SearchForm) {
     const next = {
       court: data.court,
       technicalSubjects: data.court.startsWith('trt') ? data.technicalSubjects : undefined,
       termo: data.termo || undefined,
-      orgaoJulgador: data.orgaoJulgador || undefined,
+      courtUnit: data.courtUnit || undefined,
       processNumber: data.processNumber || undefined,
-      classeCodigo: data.classeCodigo,
-      orgaoJulgadorCodigo: data.orgaoJulgadorCodigo,
+      caseClassCode: data.caseClassCode,
+      courtUnitCode: data.courtUnitCode,
     };
     setQuery(next);
     run(next);
@@ -53,13 +53,13 @@ export function useBuscaDatajud() {
     if (query && cursor) run(query, cursor);
   }
 
-  function saveItem(item: DatajudResultado) {
+  function saveItem(item: DatajudResult) {
     const data = {
       processNumber: item.processNumber,
       court: item.court,
-      classe: item.classe,
-      assuntos: item.assuntos,
-      orgaoJulgador: item.orgaoJulgador,
+      caseClass: item.caseClass,
+      subjects: item.subjects,
+      courtUnit: item.courtUnit,
       filingDate: item.filingDate,
       lastMovement: item.lastMovement,
       lastMovementAt: item.lastMovementAt,
@@ -67,7 +67,7 @@ export function useBuscaDatajud() {
     save.mutate(data, {
       onSuccess: (created) => {
         setItems((prev) =>
-          prev.map((row) => (row.processNumber === item.processNumber ? { ...row, oportunidadeId: created.id } : row)),
+          prev.map((row) => (row.processNumber === item.processNumber ? { ...row, opportunityId: created.id } : row)),
         );
         toast.success(t('opportunity_saved'));
       },

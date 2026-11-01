@@ -71,8 +71,8 @@ export const descreverRequisicao = (
   const literals = segmentos.filter((segmento) => !OBJECT_ID.test(segmento));
   const modulo = moduloDe(literals);
   if (!modulo) return undefined;
-  const ultimo = literals.at(-1) ?? '';
-  const acao = literals.includes('import') ? 'import' : (ACAO_POR_SUFIXO[ultimo] ?? ACAO_POR_METODO[method]);
+  const last = literals.at(-1) ?? '';
+  const acao = literals.includes('import') ? 'import' : (ACAO_POR_SUFIXO[last] ?? ACAO_POR_METODO[method]);
   if (!acao) return undefined;
   const internal = literals.slice(modulo === 'report_templates' || literals[0] === 'tenant' ? 2 : 1);
   const recurso = internal.filter((literal) => !(literal in ACAO_POR_SUFIXO) && literal !== 'import').at(-1);

@@ -13,7 +13,7 @@ export function useCaseEditForm({ legalCase, onSaved }: Pick<CaseEditFormProps, 
     id: _id,
     createdAt: _c,
     updatedAt: _u,
-    oportunidadeId: _o,
+    opportunityId: _o,
     state: _s,
     movements: _m,
     ...defaultValues

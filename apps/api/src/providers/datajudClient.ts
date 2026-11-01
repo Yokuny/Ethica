@@ -6,9 +6,9 @@ import type { DatajudCourt, DatajudSearch, DatajudTechnicalSubject } from '@ethi
 export type DatajudProcess = {
   processNumber: string;
   court: DatajudCourt;
-  classe?: string;
-  assuntos: string[];
-  orgaoJulgador?: string;
+  caseClass?: string;
+  subjects: string[];
+  courtUnit?: string;
   filingDate?: string;
   lastMovement?: string;
   lastMovementAt?: string;
@@ -50,7 +50,7 @@ export const formatCnjNumber = (digits: string): string => {
 };
 
 // Nome do assunto processual como o Datajud o indexa (a API do Ethica fala as chaves em inglês, AD-113).
-const ASSUNTO_NO_DATAJUD: Record<DatajudTechnicalSubject, string> = {
+const SUBJECT_IN_DATAJUD: Record<DatajudTechnicalSubject, string> = {
   unhealthy_conditions: 'Insalubridade',
   hazardous_conditions: 'Periculosidade',
   work_accident: 'Acidente de trabalho',
@@ -65,16 +65,16 @@ export const buildDatajudQuery = (query: DatajudSearch): Record<string, unknown>
     must.push({
       bool: {
         should: query.technicalSubjects.map((assunto) => ({
-          match: { 'assuntos.nome': { query: ASSUNTO_NO_DATAJUD[assunto], operator: 'and' } },
+          match: { 'assuntos.nome': { query: SUBJECT_IN_DATAJUD[assunto], operator: 'and' } },
         })),
         minimum_should_match: 1,
       },
     });
   }
-  if (query.orgaoJulgador) must.push({ match: { 'orgaoJulgador.nome': query.orgaoJulgador } });
+  if (query.courtUnit) must.push({ match: { 'orgaoJulgador.nome': query.courtUnit } });
   if (query.processNumber) must.push({ match: { numeroProcesso: query.processNumber.replace(/\D/g, '') } });
-  if (query.classeCodigo) must.push({ match: { 'classe.codigo': query.classeCodigo } });
-  if (query.orgaoJulgadorCodigo) must.push({ match: { 'orgaoJulgador.codigo': query.orgaoJulgadorCodigo } });
+  if (query.caseClassCode) must.push({ match: { 'classe.codigo': query.caseClassCode } });
+  if (query.courtUnitCode) must.push({ match: { 'orgaoJulgador.codigo': query.courtUnitCode } });
   return {
     size: query.size ?? DEFAULT_SIZE,
     query: must.length ? { bool: { must } } : { match_all: {} },
@@ -90,9 +90,9 @@ export const toProcess = (court: DatajudCourt, source: DatajudSource): DatajudPr
   return {
     processNumber: formatCnjNumber(source.numeroProcesso ?? ''),
     court,
-    classe: source.classe?.nome,
-    assuntos: (source.assuntos ?? []).flat().flatMap((assunto) => (assunto.nome ? [assunto.nome] : [])),
-    orgaoJulgador: source.orgaoJulgador?.nome,
+    caseClass: source.classe?.nome,
+    subjects: (source.assuntos ?? []).flat().flatMap((assunto) => (assunto.nome ? [assunto.nome] : [])),
+    courtUnit: source.orgaoJulgador?.nome,
     filingDate: source.dataAjuizamento,
     lastMovement: ultimo?.nome,
     lastMovementAt: ultimo?.dataHora,

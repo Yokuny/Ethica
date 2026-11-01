@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { courtTypeLabel } from '@/components/case-labels.js';
 import { NumberField, SelectField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { useBuscaDatajud } from '../@hooks/use-busca-datajud.js';
+import type { useSearchDatajud } from '../@hooks/use-search-datajud.js';
 
 // Rótulo com a justiça: "TRT2 · Trabalhista".
 const COURT_ITEMS = Object.entries(DATAJUD_COURTS).flatMap(([courtType, courts]) =>
@@ -16,7 +16,7 @@ const COURT_ITEMS = Object.entries(DATAJUD_COURTS).flatMap(([courtType, courts])
   })),
 );
 
-export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud> }) {
+export function SearchForm({ state }: { state: ReturnType<typeof useSearchDatajud> }) {
   const { form, onSubmit, isSearching } = state;
   const court = form.watch('court');
   return (
@@ -54,15 +54,15 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
                         {(value: string[]) =>
                           value.length === DATAJUD_TECHNICAL_SUBJECTS.length
                             ? `${value.length} ${t('selected_count')}`
-                            : value.map((assunto) => t(assunto)).join(', ')
+                            : value.map((subject) => t(subject)).join(', ')
                         }
                       </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {DATAJUD_TECHNICAL_SUBJECTS.map((assunto) => (
-                      <SelectItem key={assunto} value={assunto}>
-                        {t(assunto)}
+                    {DATAJUD_TECHNICAL_SUBJECTS.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {t(subject)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -80,13 +80,13 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
         />
         <TextField
           control={form.control}
-          name="orgaoJulgador"
+          name="courtUnit"
           label={t('judging_body')}
           placeholder={t('example_court_division')}
         />
         <NumberField
           control={form.control}
-          name="classeCodigo"
+          name="caseClassCode"
           label={t('class_code')}
           placeholder={t('example_class_code')}
           min={1}
@@ -94,7 +94,7 @@ export function BuscaForm({ state }: { state: ReturnType<typeof useBuscaDatajud>
         />
         <NumberField
           control={form.control}
-          name="orgaoJulgadorCodigo"
+          name="courtUnitCode"
           label={t('judging_body_code')}
           placeholder={t('example_judging_body_code')}
           min={1}

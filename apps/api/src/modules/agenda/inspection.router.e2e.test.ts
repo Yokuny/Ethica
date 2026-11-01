@@ -301,7 +301,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
     expect(padrao.body.data.corpo).toContain('[ENDERECO]');
     await admin
       .as(request(app).put('/tenant/office/schedule-notice'))
-      .send({ assunto: 'Vistoria [NUMERO_PROCESSO]', corpo: 'Dia [DATA] às [HORA] em [ENDERECO]. [NOME_PERITO]' })
+      .send({ subject: 'Vistoria [NUMERO_PROCESSO]', corpo: 'Dia [DATA] às [HORA] em [ENDERECO]. [NOME_PERITO]' })
       .expect(200);
     await operador.as(request(app).post(`/agenda/${id}/notice`)).expect(200);
     expect(enviados[0]).toMatchObject({

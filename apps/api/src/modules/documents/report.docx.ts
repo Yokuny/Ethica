@@ -83,11 +83,11 @@ const table = (no: No, photos: Photos): Table =>
     ),
   });
 
-let instanciaLista = 0;
+let instanceList = 0;
 
 const lista = (no: No, level: number): Paragraph[] => {
   const numbered = tag(no) === 'ol';
-  const instance = ++instanciaLista;
+  const instance = ++instanceList;
   return filhos(no)
     .filter((li) => tag(li) === 'li')
     .flatMap((li) => [

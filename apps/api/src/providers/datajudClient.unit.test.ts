@@ -36,7 +36,7 @@ describe('buildDatajudQuery', () => {
     const body = buildDatajudQuery({
       court: 'trt2',
       termo: 'perito',
-      orgaoJulgador: '1ª Vara',
+      courtUnit: '1ª Vara',
       size: 5,
       cursor: [9],
     });
@@ -70,7 +70,7 @@ describe('createDatajudClient', () => {
     expect(result.items[0]).toMatchObject({
       processNumber: '0001234-56.2026.5.02.0001',
       court: 'trt2',
-      assuntos: ['Insalubridade', 'Periculosidade'],
+      subjects: ['Insalubridade', 'Periculosidade'],
       lastMovement: 'Nomeado perito',
     });
     // Página cheia: devolve o cursor para a próxima.

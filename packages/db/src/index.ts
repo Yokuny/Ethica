@@ -15,8 +15,8 @@ export type { InspectionDocument, InspectionMediaDocument } from './models/inspe
 export { Inspection } from './models/inspection.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
-export type { OportunidadeDocument } from './models/oportunidade.model.js';
-export { Oportunidade } from './models/oportunidade.model.js';
+export type { OpportunityDocument } from './models/opportunity.model.js';
+export { Opportunity } from './models/opportunity.model.js';
 export type { PartyDocument } from './models/party.model.js';
 export { Party } from './models/party.model.js';
 export type { ReportDocument, ReportSectionDocument } from './models/report.model.js';
@@ -53,7 +53,7 @@ import { Case } from './models/case.model.js';
 import { Deadline } from './models/deadline.model.js';
 import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
-import { Oportunidade } from './models/oportunidade.model.js';
+import { Opportunity } from './models/opportunity.model.js';
 import { Party } from './models/party.model.js';
 import { Report } from './models/report.model.js';
 import { Session } from './models/session.model.js';
@@ -73,7 +73,7 @@ export const syncIndexes = async (): Promise<void> => {
     Deadline.createIndexes(),
     Appointment.createIndexes(),
     Transaction.createIndexes(),
-    Oportunidade.createIndexes(),
+    Opportunity.createIndexes(),
     Report.createIndexes(),
     Template.createIndexes(),
     Inspection.createIndexes(),

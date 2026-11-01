@@ -28,7 +28,7 @@ const DB_OWNERSHIP: Record<string, readonly string[]> = {
   case: ['Case', 'Deadline', 'Party'],
   agenda: ['Appointment', 'Inspection'],
   finance: ['Transaction'],
-  prospeccao: ['Oportunidade'],
+  prospecting: ['Opportunity'],
   documents: ['Report', 'Template'],
 };
 const DB_OWNER_BY_NAME = new Map(

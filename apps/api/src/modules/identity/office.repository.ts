@@ -60,7 +60,7 @@ export const devolverBytes = async (tenantId: string, bytes: number): Promise<vo
     await Tenant.updateOne({ _id: tenantId }, { $inc: { storageBytes: -bytes } });
   });
 
-export const setScheduleNotice = async (tenantId: string, notice: { assunto: string; corpo: string }) =>
+export const setScheduleNotice = async (tenantId: string, notice: { subject: string; corpo: string }) =>
   withDbTiming('office.setScheduleNotice', async () => {
     await Tenant.updateOne({ _id: tenantId }, { $set: { scheduleNotice: notice } });
   });

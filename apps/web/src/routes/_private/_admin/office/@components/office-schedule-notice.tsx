@@ -17,7 +17,7 @@ function NoticeForm({ notice }: { notice: ScheduleNotice }) {
         <div className="grid w-full gap-4">
           <TextField
             control={form.control}
-            name="assunto"
+            name="subject"
             label={t('subject')}
             placeholder={t('notice_subject_placeholder')}
           />

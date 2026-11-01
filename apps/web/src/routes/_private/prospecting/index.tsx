@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-export function ProspeccaoIndexPage() {
+export function ProspectingIndexPage() {
   return (
     <Card asPage>
       <CardHeader title={t('prospecting')} />
@@ -43,6 +43,6 @@ export function ProspeccaoIndexPage() {
 }
 
 export const Route = createFileRoute('/_private/prospecting/')({
-  component: ProspeccaoIndexPage,
+  component: ProspectingIndexPage,
   staticData: { title: t('prospecting') },
 });

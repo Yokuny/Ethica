@@ -23,12 +23,12 @@ import type { CsvImportColumn, CsvImportResult, PdfDraft, PdfExtraction } from '
 // Código TR da justiça estadual, em ordem: 01 = AC … 27 = TO.
 const UF_POR_TR = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SE SP TO'.split(' ');
 
-export const orgaoDoNumero = (numero: string): { courtType: CourtType; court: string } | undefined => {
+export const courtUnitFromNumber = (numero: string): { courtType: CourtType; court: string } | undefined => {
   const [, j, tr] = numero.match(/^\d{7}-\d{2}\.\d{4}\.(\d)\.(\d{2})\.\d{4}$/) ?? [];
-  const codigo = Number(tr);
-  if (j === '5' && codigo >= 1 && codigo <= 24) return { courtType: 'labor', court: `TRT${codigo}` };
-  if (j === '4' && codigo >= 1 && codigo <= 6) return { courtType: 'federal', court: `TRF${codigo}` };
-  const uf = UF_POR_TR[codigo - 1];
+  const code = Number(tr);
+  if (j === '5' && code >= 1 && code <= 24) return { courtType: 'labor', court: `TRT${code}` };
+  if (j === '4' && code >= 1 && code <= 6) return { courtType: 'federal', court: `TRF${code}` };
+  const uf = UF_POR_TR[code - 1];
   if (j === '8' && uf) return { courtType: 'civil', court: `TJ${uf}` };
   return undefined;
 };
@@ -162,7 +162,7 @@ export const extractMinutes = (texto: string): Omit<PdfExtraction, 'existingId'>
   const draft: PdfDraft = {
     role: 'court_expert',
     processNumber,
-    ...(processNumber ? orgaoDoNumero(processNumber) : {}),
+    ...(processNumber ? courtUnitFromNumber(processNumber) : {}),
     ...extractDivision(rows, texto),
     subject: extractSubject(texto),
     ...(parties.length ? { parties } : {}),
@@ -282,12 +282,12 @@ export const rowToCase = (get: (column: CsvImportColumn) => string): { data: Cre
   if (!processNumberSchema.safeParse(processNumber).success) {
     return { column: 'numero_processo', reason: 'invalid_process_number' };
   }
-  const orgao = orgaoDoNumero(processNumber);
-  if (!orgao) return { column: 'numero_processo', reason: 'unsupported_court' };
+  const body = courtUnitFromNumber(processNumber);
+  if (!body) return { column: 'numero_processo', reason: 'unsupported_court' };
   const role = ROLES[get('papel').toLowerCase()];
   if (!role) return { column: 'papel', reason: 'invalid_field' };
 
-  const data: Record<string, unknown> = { processNumber, ...orgao, role };
+  const data: Record<string, unknown> = { processNumber, ...body, role };
   for (const [column, field] of TEXTOS) if (get(column)) data[field] = get(column);
   for (const [column, field] of DATAS) {
     if (!get(column)) continue;

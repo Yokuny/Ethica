@@ -1,6 +1,6 @@
 import type { CsvImportColumn } from '@ethica/contracts';
 import { describe, expect, it } from 'vitest';
-import { extractMinutes, orgaoDoNumero, parseCsv, parseData, rowToCase } from './import.service.js';
+import { courtUnitFromNumber, extractMinutes, parseCsv, parseData, rowToCase } from './import.service.js';
 
 const MINUTES = `PODER JUDICIÁRIO
 JUSTIÇA DO TRABALHO
@@ -62,10 +62,10 @@ describe('extrairAta (AD-114)', () => {
 
 describe('orgaoDoNumero e parseData', () => {
   it('segmento e tribunal do número CNJ (AD-118)', () => {
-    expect(orgaoDoNumero('0001234-56.2026.5.15.0001')).toEqual({ courtType: 'labor', court: 'TRT15' });
-    expect(orgaoDoNumero('0001234-56.2026.4.03.6100')).toEqual({ courtType: 'federal', court: 'TRF3' });
-    expect(orgaoDoNumero('0001234-56.2026.8.26.0100')).toEqual({ courtType: 'civil', court: 'TJSP' });
-    expect(orgaoDoNumero('0001234-56.2026.6.26.0100')).toBeUndefined();
+    expect(courtUnitFromNumber('0001234-56.2026.5.15.0001')).toEqual({ courtType: 'labor', court: 'TRT15' });
+    expect(courtUnitFromNumber('0001234-56.2026.4.03.6100')).toEqual({ courtType: 'federal', court: 'TRF3' });
+    expect(courtUnitFromNumber('0001234-56.2026.8.26.0100')).toEqual({ courtType: 'civil', court: 'TJSP' });
+    expect(courtUnitFromNumber('0001234-56.2026.6.26.0100')).toBeUndefined();
   });
 
   it('aceita DD/MM/AAAA e AAAA-MM-DD; recusa data impossível', () => {

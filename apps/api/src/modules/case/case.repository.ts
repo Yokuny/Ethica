@@ -63,7 +63,7 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
       data: movement.data,
       observacoes: movement.observacoes,
     })),
-  oportunidadeId: doc.Oportunidade?.toString(),
+  opportunityId: doc.Opportunity?.toString(),
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });
@@ -81,13 +81,13 @@ const stateFilter = {
 // Etapas em que a perícia ainda tem trabalho do perito pela frente.
 const ABERTAS = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
 
-export const createCase = async ({ tenant, oportunidadeId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
+export const createCase = async ({ tenant, opportunityId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
   withDbTiming('case.createCase', async () => {
     const doc = await Case.create({
       ...data,
       parties: toPartiesDocs(parties),
       Tenant: tenant,
-      Oportunidade: oportunidadeId,
+      Opportunity: opportunityId,
     });
     return toRecord(doc);
   });

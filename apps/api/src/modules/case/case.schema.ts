@@ -72,7 +72,7 @@ export type CaseRecord = {
   nonPrescribedPeriodEnd?: string;
   location?: string;
   movements: MovementRecord[];
-  oportunidadeId?: string;
+  opportunityId?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -94,7 +94,7 @@ export type StalledCase = {
   stalledDays: number;
 };
 
-export type CreateCaseInput = CreateCase & { tenant: string; oportunidadeId?: string };
+export type CreateCaseInput = CreateCase & { tenant: string; opportunityId?: string };
 
 // O que o repository grava: partes já resolvidas no cadastro (AD-117), sem o prazo do laudo.
 export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties'> & { parties: CasePartyWrite[] };

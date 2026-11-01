@@ -98,7 +98,7 @@ export const returnFile = (tenantId: string, bytes: number) => officeRepository.
 
 // Modelo do aviso de agendamento às partes (AD-131); sem modelo gravado, vale o padrão.
 export const DEFAULT_SCHEDULE_NOTICE: UpdateScheduleNotice = {
-  assunto: 'Aviso de agendamento: [TIPO_EVENTO] - Processo [NUMERO_PROCESSO]',
+  subject: 'Aviso de agendamento: [TIPO_EVENTO] - Processo [NUMERO_PROCESSO]',
   corpo: [
     'Prezados,',
     '',

@@ -27,10 +27,10 @@ export type ReportValues = Partial<Record<ReportVariable, string>>;
 // Troca só os marcadores que têm valor; o que fica é pendência (AD-126). No HTML o valor é
 // escapado; no título (texto simples) vai cru e é escapado na hora de desenhar.
 export const resolveVariables = (texto: string, values: ReportValues, formato: 'html' | 'texto'): string =>
-  REPORT_VARIABLES.reduce((resultado, variable) => {
+  REPORT_VARIABLES.reduce((result, variable) => {
     const amount = values[variable]?.trim();
-    if (!amount) return resultado;
-    return resultado.replaceAll(variable, formato === 'html' ? esc(amount) : amount);
+    if (!amount) return result;
+    return result.replaceAll(variable, formato === 'html' ? esc(amount) : amount);
   }, texto);
 
 // Marcadores ainda sem valor, por seção (título e texto): bloqueiam exportar e concluir (AD-126).

@@ -64,7 +64,7 @@ export interface CaseDocument {
   location?: string;
   movements: CaseMovementDocument[];
   // Perícia que nasceu de uma oportunidade de prospecção (Datajud).
-  Oportunidade?: mongoose.Types.ObjectId;
+  Opportunity?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -117,7 +117,7 @@ const caseSchema = new Schema<CaseDocument>(
       ],
       default: [],
     },
-    Oportunidade: { type: Schema.Types.ObjectId, ref: 'Oportunidade' },
+    Opportunity: { type: Schema.Types.ObjectId, ref: 'Opportunity' },
   },
   { timestamps: true },
 );

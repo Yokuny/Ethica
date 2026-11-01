@@ -15,7 +15,7 @@ export interface TenantDocument {
   logo?: { key: string; bytes: number; updatedAt: Date };
   storageBytes: number;
   // Modelo do aviso de agendamento às partes (AD-131); sem ele vale o padrão do servidor.
-  scheduleNotice?: { assunto: string; corpo: string };
+  scheduleNotice?: { subject: string; corpo: string };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,7 +40,7 @@ const tenantSchema = new Schema<TenantDocument>(
       required: false,
     },
     storageBytes: { type: Number, min: 0, default: 0, required: true },
-    scheduleNotice: { type: new Schema({ assunto: String, corpo: String }, { _id: false }) },
+    scheduleNotice: { type: new Schema({ subject: String, corpo: String }, { _id: false }) },
   },
   { timestamps: true },
 );
