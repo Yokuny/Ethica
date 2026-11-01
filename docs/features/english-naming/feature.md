@@ -67,6 +67,7 @@ docker compose exec api /app/node_modules/.bin/tsx scripts/seed-demo.ts
 
 ## Histórico
 
+- 2026-11-01 — Padrão documentado em `AGENTS.md` (seção "Idioma do código e tradução"): nomes em inglês pelo glossário, texto do usuário em pt-BR, chave de tradução consultada antes de criar e genérica, erro da API como chave traduzida no `client.api.ts`. Glossário completado (laudo, modelo, registro de vistoria, diário) e regra 8 de `i18n-dates.md` atualizada para o segmento em snake_case.
 - 2026-11-01 — Implementado em oito fatias (AD-139 a AD-142); validação em `.specs/features/english-naming/validation.md`. Ajustes durante a execução: `data` → `date` (movimentações, parcelas) e `local` → `location` feitos à mão; `presente` do agente da vistoria virou `present`, não `attendee`; `pode` virou `hasPermission` (colidia com o `can` do middleware e do web); a chave `track_each_expert_case_from_appointment_to_report` do início já estava desencontrada e foi corrigida no UAT; o breadcrumb das telas de detalhe mostrava a pasta crua (`expert-cases`) desde a AD-138 e agora traduz o segmento em snake_case (`apps/web/src/components/page-card.tsx`).
 - 2026-11-01 — Spec criada (`.specs/features/english-naming/spec.md`).
 

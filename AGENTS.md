@@ -93,6 +93,16 @@ Pergunte uma vez só: **"A tarefa está concluída — posso atualizar a documen
 3. `git push -u origin <branch>` e abra o PR contra a `main` (`gh pr create --base main`).
 4. Devolva o link do PR. **Não faça merge.**
 
+## Idioma do código e tradução
+
+Código em inglês, texto do usuário em pt-BR. Vale para back-end, front-end, contrato e banco.
+
+- **Todo nome definido no código é inglês** (AD-139): campo, model, collection, pasta, arquivo, rota, parâmetro de URL, evento, schema, tipo, função, variável, chave de query e comentário. Valor de domínio gravado e devolvido pela API também (AD-113).
+- **Um termo por conceito**, igual em todas as camadas, pelo glossário de `docs/glossary.md` (AD-140): perícia `Case`, prazo `Deadline`, parte `Party`, compromisso `Appointment`, vistoria `Inspection`, lançamento `Transaction`, laudo `Report`… Termo novo entra no glossário antes de ir para o código.
+- **Fica em pt-BR só o que o usuário lê**: texto de tela (sempre por `t()`), e-mail, iCal, PDF e Word montados no servidor, marcadores do laudo (`[NOME_PERITO]`) e colunas dos CSVs. Dado de API externa (Datajud) é lido como vem e traduzido no client do provedor.
+- **Chave de tradução: consulte antes de criar.** Busque no dicionário (`apps/web/src/lib/helpers/translate.helper.ts`) pelo texto e pelo conceito e reaproveite. Chave nova é **genérica e ampla**, nomeia o texto e não a tela (`create_error`, `details`, `not_found`), para servir a vários lugares; evite chave que só serve a um contexto. Regras completas: `.agents/skills/ethica-web-standards/references/i18n-dates.md`.
+- **Erro da API é chave de tradução**: `message` de toda resposta é uma chave de `API_MESSAGE_KEYS` (`packages/contracts/src/response/messages.ts`), nunca texto pronto; o detalhe técnico vai só no log. O front traduz uma vez, no `apps/web/src/lib/api/client.api.ts`, e a tela mostra `error.message` já em pt-BR. Chave nova de erro = entrada em `API_MESSAGE_KEYS` + no dicionário (o teste `translate.helper.unit.test.ts` trava a falta).
+
 ## Regras gerais
 
 - Caminhos em docs sempre a partir da raiz do repo (`apps/web/src/...`), nunca relativos ao arquivo.
