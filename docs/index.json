@@ -80,6 +80,29 @@
       "doc": "features/campo-vistorias/feature.md"
     },
     {
+      "slug": "contatos-varas",
+      "feature": "Contatos das varas",
+      "descricao": "Agenda de contatos das varas do trabalho e cíveis do escritório, filtrável por estado e cidade, com importação por planilha",
+      "data": "2026-11-01",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-118",
+        "AD-137",
+        "AD-151"
+      ],
+      "spec": [
+        ".specs/features/contatos-varas"
+      ],
+      "planos": [],
+      "doc": "features/contatos-varas/feature.md"
+    },
+    {
       "slug": "documentos-pdf",
       "feature": "Base de documentos",
       "descricao": "Identidade do escritório, dados profissionais, PDFs (ficha, checklist, prazos, financeiro, paradas) e exportação ZIP",
@@ -253,6 +276,31 @@
       ],
       "planos": [],
       "doc": "features/importacao-processos/feature.md"
+    },
+    {
+      "slug": "laudo-montagem",
+      "feature": "Montagem do laudo",
+      "descricao": "Seções e modelo editáveis no rascunho, modelo trabalhista completo, pré-preenchimento pelo processo, pré-visualização e fotos 2x3 nos anexos",
+      "data": "2026-11-01",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts"
+      ],
+      "decisoes": [
+        "AD-114",
+        "AD-123",
+        "AD-126",
+        "AD-127",
+        "AD-129",
+        "AD-152"
+      ],
+      "spec": [
+        ".specs/features/laudo-montagem"
+      ],
+      "planos": [],
+      "doc": "features/laudo-montagem/feature.md"
     },
     {
       "slug": "laudo-vistoria",
@@ -909,6 +957,18 @@
     {
       "id": "AD-150",
       "decisao": "O mapa do dia ganha ponto de partida escolhido (localização, endereço do escritório ou endereço digitado, lembrado por pessoa no servidor) e",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-151",
+      "decisao": "A agenda de contatos das varas (do trabalho e cíveis) é um cadastro do escritório, que começa vazio e cresce pela tela ou por planilha; o Et",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-152",
+      "decisao": "O pré-preenchimento do laudo pelo PDF do processo completo (quesitos, dados trabalhistas, pedidos da inicial) é feito por regras sobre o tex",
       "data": "2026-11-01",
       "status": "active"
     }

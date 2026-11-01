@@ -719,6 +719,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-01
 - **Status**: active
 
+### AD-151
+- **Decision**: A agenda de contatos das varas (do trabalho e cíveis) é um **cadastro do escritório**, que começa vazio e cresce pela tela ou por planilha; o Ethica não mantém uma base nacional pronta. Detalhe em `.specs/features/contatos-varas/spec.md`.
+- **Reason**: escolha da perita em 2026-11-01; não há fonte oficial única com os contatos de todas as varas, e uma base raspada dos sites dos tribunais ficaria incompleta e desatualizada.
+- **Trade-off**: a agenda é útil aos poucos; uma base inicial pode ser carregada por planilha quando houver.
+- **Scope**: `apps/api/src/modules/case/`, `apps/web`, `packages/contracts`, `packages/db`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+### AD-152
+- **Decision**: O pré-preenchimento do laudo pelo PDF do processo completo (quesitos, dados trabalhistas, pedidos da inicial) é feito por **regras sobre o texto**, como a ata (AD-114), sem IA; o que não for achado é listado e nada já escrito é apagado. Enviar modelo próprio em Word fica fora por ora. Detalhe em `.specs/features/laudo-montagem/spec.md`.
+- **Reason**: pedido da perita em 2026-11-01; IA segue adiada por custo e LGPD (AD-124).
+- **Trade-off**: a leitura varia por tribunal e pela forma de redigir os quesitos; a perita confere tudo.
+- **Scope**: `apps/api/src/modules/documents/`, `apps/api/src/modules/case/import.service.ts`, `apps/web/src/routes/_private/expert-reports/`.
+- **Date**: 2026-11-01
+- **Status**: active
+
 ## Handoff
 
 - **Fluxo**: a partir de 2026-11-01 a perita desenvolve com um agente direto na `main` (AD-143). Próximas frentes com spec pronta e perguntas em aberto a confirmar com ela: `laudo-vistoria`, `avisos-notificacoes`, `rotas-vistoria`, `gestao-membros`, `producao-api` (AD-146 a AD-150). IA e Datajud ficam para depois (AD-145).
