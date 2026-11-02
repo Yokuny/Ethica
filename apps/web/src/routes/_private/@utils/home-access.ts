@@ -12,6 +12,7 @@ export function canAccessHomeSection(section: HomeSection, session: SessionView)
 const MODULE_BY_SEGMENT: Record<string, PermissionModule> = {
   'expert-cases': 'expert_cases',
   parties: 'parties',
+  'court-divisions': 'court_divisions',
   agenda: 'agenda',
   field: 'agenda',
   'expert-reports': 'expert_reports',

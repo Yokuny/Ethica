@@ -6,6 +6,7 @@ import {
   FileText,
   Gavel,
   History,
+  Landmark,
   MapPinned,
   Radar,
   Users,
@@ -41,6 +42,13 @@ export const HOME_SECTIONS = [
     descriptionKey: 'parties_page_description',
     icon: Contact,
     access: 'parties',
+  },
+  {
+    to: '/court-divisions',
+    titleKey: 'court_divisions',
+    descriptionKey: 'court_divisions_page_description',
+    icon: Landmark,
+    access: 'court_divisions',
   },
   {
     to: '/agenda',

@@ -6,6 +6,7 @@ export type HomeSection = {
     | '/field'
     | '/expert-reports'
     | '/parties'
+    | '/court-divisions'
     | '/agenda'
     | '/finance'
     | '/prospecting'

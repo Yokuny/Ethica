@@ -1,16 +1,16 @@
-import { CSV_IMPORT_MAX_ROWS } from '@ethica/contracts';
+import { CSV_IMPORT_COLUMNS, CSV_IMPORT_EXAMPLE, CSV_IMPORT_MAX_ROWS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { createFileRoute } from '@tanstack/react-router';
 import { Download, FileUp } from 'lucide-react';
 import { useRef } from 'react';
+import { CsvImportReport } from '@/components/csv-import-report.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
+import { downloadCsvTemplate } from '@/lib/helpers/csvTemplate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { CsvImportReport } from './@components/csv-import-report.js';
 import { useCsvImport } from './@hooks/use-csv-import.js';
-import { downloadCsvTemplate } from './@utils/csv-template.js';
 
 // Batch CSV import (IMP-02): template, upload and per-row report.
 export function CasesImportPage() {
@@ -21,7 +21,12 @@ export function CasesImportPage() {
     <Card asPage>
       <CardHeader title={t('import')} description={t('import_expert_cases_description')}>
         <CardAction>
-          <Button variant="outline" onClick={downloadCsvTemplate}>
+          <Button
+            variant="outline"
+            onClick={() =>
+              downloadCsvTemplate(CSV_IMPORT_COLUMNS, CSV_IMPORT_EXAMPLE, 'modelo-importacao-pericias.csv')
+            }
+          >
             <Download />
             {t('download_template')}
           </Button>
@@ -52,7 +57,19 @@ export function CasesImportPage() {
             {fileError}
           </ItemDescription>
         )}
-        {isPending ? <DefaultLoading /> : result && <CsvImportReport result={result} />}
+        {isPending ? (
+          <DefaultLoading />
+        ) : (
+          result && (
+            <CsvImportReport
+              result={{
+                ...result,
+                skipped: result.skipped.map((item) => ({ line: item.line, label: item.processNumber })),
+              }}
+              skippedReason={t('expert_case_already_registered')}
+            />
+          )
+        )}
       </CardContent>
     </Card>
   );

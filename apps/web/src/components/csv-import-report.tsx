@@ -8,10 +8,16 @@ import {
   RecordTableRow,
 } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { CsvImportResult } from '../../@query/import.js';
 
-// Batch report (IMP-02.2): how many were created, skipped and rejected, and the reason per row.
-export function CsvImportReport({ result }: { result: CsvImportResult }) {
+// Spreadsheet import result (AD-118): skipped rows were already registered; `label` names the record.
+export type CsvImportReportData = {
+  created: number;
+  skipped: { line: number; label: string }[];
+  rejected: { line: number; column?: string; reason: string }[];
+};
+
+// Batch report (IMP-02.2, VAR-02): how many were created, skipped and rejected, and the reason per row.
+export function CsvImportReport({ result, skippedReason }: { result: CsvImportReportData; skippedReason: string }) {
   const rows = [
     ...result.rejected.map((item) => ({
       line: item.line,
@@ -21,7 +27,7 @@ export function CsvImportReport({ result }: { result: CsvImportResult }) {
     ...result.skipped.map((item) => ({
       line: item.line,
       declined: false,
-      reason: `${item.processNumber}: ${t('expert_case_already_registered')}`,
+      reason: `${item.label}: ${skippedReason}`,
     })),
   ].sort((a, b) => a.line - b.line);
 
