@@ -188,7 +188,8 @@
         "AD-104",
         "AD-105",
         "AD-106",
-        "AD-107"
+        "AD-107",
+        "AD-154"
       ],
       "spec": [
         ".specs/features/fundacao-ethica"
@@ -980,6 +981,12 @@
       "id": "AD-153",
       "decisao": "Produção inicial: API na Railway pela imagem `Dockerfile` da raiz (Node 24 + Chromium, roda `tsx src/server.ts` sem etapa de compilação, uma",
       "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-154",
+      "decisao": "O fluxo da AD-143 deixa de validar na tela local e de terminar a entrega com o endereço `http://localhost:15173` ou a pergunta de subir o si",
+      "data": "2026-11-02",
       "status": "active"
     }
   ]

@@ -56,6 +56,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-154** (2026-11-02, active) — O fluxo da AD-143 deixa de validar na tela local e de terminar a entrega com o endereço `http://localhost:15173` ou a pergunta de subir o si
 - **AD-153** (2026-11-01, active) — Produção inicial: API na Railway pela imagem `Dockerfile` da raiz (Node 24 + Chromium, roda `tsx src/server.ts` sem etapa de compilação, uma
 - **AD-152** (2026-11-01, active) — O pré-preenchimento do laudo pelo PDF do processo completo (quesitos, dados trabalhistas, pedidos da inicial) é feito por regras sobre o tex
 - **AD-151** (2026-11-01, active) — A agenda de contatos das varas (do trabalho e cíveis) é um cadastro do escritório, que começa vazio e cresce pela tela ou por planilha; o Et
@@ -65,7 +66,6 @@ _Nenhum._
 - **AD-147** (2026-11-01, active) — Os avisos (prazos hoje; financeiro e push em `avisos-notificacoes`) passam a sair de uma varredura agendada (cron no processo da API, a cada
 - **AD-146** (2026-11-01, active) — As chaves do storage S3 (AD-120) passam a ser por escritório e por perícia: `tenants/<tenantId>/office/…` para o que é do escritório (logo)
 - **AD-145** (2026-11-01, active) — Não serão escritos testes e2e de router para `case`, `agenda`, `finance` e `prospecting` além dos que já existem; a cobertura atual (unit de
-- **AD-144** (2026-11-01, active) — O escritório (tenant) é cadastrado só com CNPJ; perito pessoa física (CPF) não é suportado. `provisionTenantSchema` continua exigindo 14 díg
 
 ## `.specs/` sem registro em `docs/features/`
 

@@ -743,6 +743,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-01
 - **Status**: active
 
+### AD-154
+- **Decision**: O fluxo da AD-143 deixa de validar na tela local e de terminar a entrega com o endereço `http://localhost:15173` ou a pergunta de subir o sistema. Ao concluir: gate técnico, conferência de padrão, registro e push na `main`, sem apresentar o resultado. Publicação na nuvem não é descrita no harness.
+- **Reason**: pedido do usuário em 2026-11-02: o sistema já está na nuvem, tudo que entra na `main` é publicado, e a perita testa na produção pedindo ajustes ao agente.
+- **Trade-off**: o comportamento na tela é conferido pela perita depois da publicação, não pelo agente antes do push; o gate técnico e o CI seguem como rede de segurança.
+- **Scope**: `AGENTS.md` (seções "Com quem você trabalha" e protocolo, passo 3), `CLAUDE.md`, `RUN_BOOK.md`, `docs/architecture.md`. Supersede, na AD-143, a validação com a perita antes do envio e o endereço local no fim de toda entrega.
+- **Date**: 2026-11-02
+- **Status**: active
+
 ## Handoff
 
 - **Fluxo**: a partir de 2026-11-01 a perita desenvolve com um agente direto na `main` (AD-143). Próximas frentes com spec pronta e perguntas em aberto a confirmar com ela: `laudo-vistoria`, `avisos-notificacoes`, `rotas-vistoria`, `gestao-membros`, `producao-api` (AD-146 a AD-150). IA e Datajud ficam para depois (AD-145).

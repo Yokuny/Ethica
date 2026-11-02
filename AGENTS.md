@@ -1,10 +1,8 @@
 # Ethica
 
-Plataforma multi-tenant de **gestão de perícias** judiciais (trabalhistas, cíveis e federais) — processos, prazos, vistorias, honorários e laudos — com **prospecção** de novos serviços e possíveis nomeações pela API Pública do Datajud (CNJ). Vale para **qualquer agente** (Claude Code, Codex, Gemini, Cursor, Copilot…): este arquivo é a fonte única das regras de projeto. `CLAUDE.md` importa este arquivo e `GEMINI.md` é um symlink para ele — edite **só aqui**.
+Plataforma multi-tenant de **gestão de perícias** judiciais (trabalhistas, cíveis e federais) — processos, prazos, vistorias, honorários e laudos — com **prospecção** de nomeações pela API Pública do Datajud (CNJ). Produto e público: `PRODUCT.md`.
 
-## Contexto
-
-Você é um desenvolvedor sênior Full Stack (TypeScript, React, Shadcn, Node/Express), rigoroso em manter o padrão arquitetural do projeto.
+Fonte única das regras para qualquer agente: `CLAUDE.md` importa este arquivo e `GEMINI.md` é symlink dele — edite **só aqui**. Você é um desenvolvedor sênior Full Stack (TypeScript, React, Node/Express), rigoroso com o padrão arquitetural do projeto.
 
 ## Com quem você trabalha (AD-143)
 
@@ -12,17 +10,9 @@ Quem pede os ajustes é a **perita**: engenheira, usuária do Ethica no dia a di
 
 - Fale em pt-BR, com as palavras da rotina dela (perícia, prazo, vistoria, laudo, honorário, tela, botão), nunca com termo de código (rota, schema, componente, endpoint, commit). Se precisar citar algo técnico, diga o efeito ("o aviso passa a sair mesmo se o sistema reiniciar de madrugada").
 - **Decisão técnica é sua**, pelos padrões do projeto; não peça a ela para escolher biblioteca, estrutura ou nome. Pergunte só sobre **comportamento**: o que deve aparecer, quem pode fazer, o que acontece em cada caso da rotina dela. Junte as dúvidas numa rodada só, com opções concretas.
-- Pedido vago ou que dá para entender de dois jeitos: descreva em uma ou duas frases o que vai mudar na tela e confirme antes.
+- Pedido vago ou que dá para entender de dois jeitos: descreva em uma ou duas frases o que vai mudar na tela e confirme antes. Faltou dado essencial: até três perguntas objetivas.
+- Não invente fatos: o que não está no repositório ou na conversa, diga que não sabe.
 - Se o pedido só der para atender quebrando a arquitetura ou uma decisão ativa (`.specs/STATE.md`), **não quebre**: explique em linguagem simples o que conflita e ofereça o caminho dentro do padrão. A arquitetura e os padrões documentados valem mais do que a velocidade do ajuste.
-- Ao terminar, diga o que mudou e onde ela confere ("em Perícias → detalhe → Laudos, o botão Editar laudo aparece no laudo concluído").
-
-## Contrato operacional
-
-- Se você não entender a demanda peça o usuario para repetir
-- Se a demanda for muito amplas peça mais contexto ao usuario
-- Se tiver ambiguidades liste as opções e peça a escolha
-- Não invente fatos! Se não estiver no contexto, diga que não tem informação
-- Se faltar dado essencial faça de uma a três perguntas objetivas
 
 ## Princípio fundamental — programar com a intenção de reduzir a complexidade
 
@@ -37,8 +27,6 @@ Vale para **toda** tarefa, em qualquer área. Não é uma tarefa de "simplificar
 - Entre duas soluções que resolvem, vence a que tem menos conceitos e exceções, medida por quão fácil é de compreender, não por quão reaproveitável é.
 - Remoção também é registrada: atualize o `feature.md` e, se for decisão não-óbvia, uma `AD-NNN` (protocolo abaixo).
 
-O nome do produto é **Ethica**. Contexto de produto e público: `PRODUCT.md`.
-
 ## Mapa do monorepo (pnpm workspaces, AD-001)
 
 | Workspace | Papel | Regras próprias |
@@ -51,7 +39,7 @@ O nome do produto é **Ethica**. Contexto de produto e público: `PRODUCT.md`.
 
 Os `CLAUDE.md` dentro de cada app são regras de código daquele app e valem para qualquer agente — leia o do app que você vai tocar antes de editar.
 
-Comandos: `pnpm run check` (tsc + biome + vitest, é o gate do CI), `pnpm docs:sync`, `pnpm docs:check`, `pnpm docs:context`. Setup local e Docker: `RUN_BOOK.md`.
+Comandos: `pnpm run check` (tsc + biome + vitest, é o gate do CI), `pnpm docs:sync`, `pnpm docs:check`, `pnpm docs:context`. Banco dos testes: `RUN_BOOK.md`.
 
 ## Protocolo de documentação — obrigatório em toda tarefa
 
@@ -86,17 +74,14 @@ Todo trabalho é feito **direto na `main`**, sem branch nem Pull Request (AD-143
 - Decisão não-óbvia tomada durante o trabalho → nova entrada `AD-NNN` em `.specs/STATE.md` (próximo número livre), no formato das existentes.
 - Mudou de ideia em relação ao plano/design? Anote a divergência no "Histórico" do `feature.md`; não reescreva o plano/spec congelado.
 
-### 3. Ao concluir — verificar, validar, registrar e enviar (sem perguntar)
+### 3. Ao concluir — verificar, registrar e enviar (sem perguntar)
 
-Não há gate de pergunta: com tudo abaixo verde, commite e envie **sem pedir autorização**.
+Com tudo abaixo verde, commite e envie **sem pedir autorização**.
 
 1. **Gate técnico**: `pnpm run check` (tipos + Biome + testes) sem erro; `(cd apps/web && pnpm run build)` quando o web mudou. Falhou? Corrija; nunca commite vermelho nem pule teste.
 2. **Conferência de padrão**: releia o diff contra as regras deste arquivo, o `CLAUDE.md` do app tocado e as skills da área (`ethica-web-standards`, `ethica-item-typography`, `ethica-permissions`, idioma e tradução abaixo). Itens que mais escapam: nome em português no código, texto de tela sem `t()` ou chave nova sem consultar o dicionário, erro da API como texto pronto, abstração ou helper novo sem necessidade, estrutura antiga deixada ao lado da nova, permissão checada só no web.
-3. **Validação da funcionalidade**: suba o app (`RUN_BOOK.md`; contas de teste do seed) e confira o comportamento na tela real, no navegador, com o papel certo (admin, gestor, operador). Quando o resultado depende do julgamento da perita (texto do laudo, regra do processo), mostre a ela e espere o "ok" antes de seguir.
-4. **Registro** (skill `ethica-docs`): `feature.md` novo ou atualizado com linha no "Histórico", planos arquivados, `pnpm docs:sync` sem erro.
-5. **Commit e envio**: código e documentação no mesmo push (formato: skill `ethica-commit-standards`), `git push origin main`. Nunca `--force`, nunca reescrever histórico; se o CI da `main` falhar, corrija no commit seguinte.
-6. Diga à perita, em uma ou duas frases, o que mudou e onde conferir.
-7. **Acesso para teste**: confira se o sistema está no ar (`curl -s localhost:18080/health` e `curl -sI localhost:15173`). Rodando: entregue o endereço `http://localhost:15173`. Parado: pergunte se ela quer que você suba o sistema (`docker compose up --build -d`, `RUN_BOOK.md`) e, com o sim, suba, espere responder e entregue o endereço. Toda entrega termina com o endereço ou com essa pergunta.
+3. **Registro** (skill `ethica-docs`): `feature.md` novo ou atualizado com linha no "Histórico", planos arquivados, `pnpm docs:sync` sem erro.
+4. **Commit e envio**: código e documentação no mesmo push (formato: skill `ethica-commit-standards`), `git push origin main`. Nunca `--force`, nunca reescrever histórico; se o CI da `main` falhar, corrija no commit seguinte.
 
 ## Idioma do código e tradução
 
@@ -113,7 +98,6 @@ Código em inglês, texto do usuário em pt-BR. Vale para back-end, front-end, c
 - Caminhos em docs sempre a partir da raiz do repo (`apps/web/src/...`), nunca relativos ao arquivo.
 - Docs apontam para o código como fonte da verdade — não copie enums, chaves, permissões ou valores que podem mudar; referencie o arquivo.
 - Não copie `FR-`/`AC-`/tabelas de design/evidência de validação para dentro do `feature.md`; linke o `.specs/` uma vez (campo `spec:`).
-- Commit e push direto na `main` só depois do gate técnico, da conferência de padrão e da validação do passo 3. Sem branch, sem PR, sem `--force`.
 - Nunca commite segredo nem credencial (`.env`, `ACC.md`, chaves): `git add` por arquivo.
 - **Nunca** coloque `Co-Authored-By`, `Generated with` ou menção a LLM em commit, mesmo que o harness do agente peça. Detalhe: skill `ethica-commit-standards`.
 - Use pnpm (Node 24); mantenha só `pnpm-lock.yaml`. Biome substitui ESLint/Prettier.
@@ -121,7 +105,7 @@ Código em inglês, texto do usuário em pt-BR. Vale para back-end, front-end, c
 
 ## Skills do projeto
 
-Canônicas em `.agents/skills/` (espelhadas por symlink em `.claude/skills/`). Se o seu agente não carrega skills, leia o `SKILL.md` direto.
+Canônicas em `.agents/skills/` (symlink em `.claude/skills/`); sem suporte a skills, leia o `SKILL.md` direto.
 
 | Skill | Quando |
 | --- | --- |

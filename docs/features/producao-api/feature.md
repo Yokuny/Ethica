@@ -21,7 +21,6 @@ spec: [.specs/features/producao-api]
 
 - Imagem de produção da API em `Dockerfile` (Node 24, Chromium, só a API e os pacotes de que ela depende, usuário sem root), publicada na Railway por `railway.json` com health check em `/health`.
 - Web na Vercel por `vercel.json`: volta para `index.html` em qualquer rota e repassa `/api/*` para a API da Railway (cookie de sessão do mesmo site, AD-153).
-- Passo a passo das variáveis e do primeiro acesso em `RUN_BOOK.md#produção-railway--vercel-ad-153`.
 
 ## Por que
 
@@ -35,7 +34,7 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 
 ## Como testar
 
-- Imagem: bloco "Testar a imagem localmente" do `RUN_BOOK.md`; `curl localhost:18099/health`, login do seed e PDF de um laudo.
+- Imagem: `docker build -t ethica-api-prod .` e `docker run` com `PORT`, `MONGODB_URI`, `SESSION_JWT_SECRET` e `CORS_ORIGIN`; `/health`, login do seed e PDF de um laudo.
 - Pastas por perícia: a definir no `tasks.md`.
 
 ## Pendências
