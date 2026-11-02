@@ -111,7 +111,8 @@ Banco: cluster do **MongoDB Atlas** (o M0 gratuito serve), porque a busca usa At
 
 | Variável | Valor |
 | --- | --- |
-| `NODE_ENV` | `production` (já vem da imagem) |
+| `NODE_ENV` | `production` (a Railway sugere as variáveis do `.env.example` com valores de dev: não aceite as sugestões; `VITE_API_URL` é só da Vercel) |
+| `PORT` | `18080`, a mesma porta informada ao gerar o domínio (*Networking*); a imagem escuta nela |
 | `MONGODB_URI` | `mongodb+srv://<usuário>:<senha>@<cluster>.mongodb.net/ethica?retryWrites=true&w=majority` do Atlas; o `/ethica` é o nome do banco (sem ele o Atlas grava no banco `test`) |
 | `SESSION_JWT_SECRET` | segredo longo e aleatório (`openssl rand -hex 32`) |
 | `CORS_ORIGIN` | endereço da Vercel (`https://<projeto>.vercel.app`), usado também nos links dos e-mails |
