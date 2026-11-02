@@ -14,6 +14,7 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Movimentação | `Case.movements` | Fato do processo com data (entrega do laudo, notificação de honorários, intimação para esclarecimentos ou laudo complementar) que reinicia a contagem de perícia parada (AD-121). |
 | Perícia parada | `GET /documents/stalled` | Perícia não encerrada sem movimentação há mais de 60 dias (AD-121). |
 | Importação | `POST /expert-cases/import/{pdf,csv}` | PDF da ata/despacho preenche o cadastro para revisão; CSV cria as perícias em lote com relatório por linha (AD-114, AD-118). |
+| Vara (contato) | `CourtDivision` (`case`); na perícia, `division` | Vara do trabalho, cível ou federal na agenda de contatos do escritório (telefones, e-mail, balcão virtual), por UF e cidade (AD-151). |
 | Nomeação | `nominationDate` | Dia em que o juízo nomeou o perito. |
 | Prazo do laudo | `reportDeadline` (só no cadastro) | Dia limite de entrega; vira o prazo "Entrega do laudo" da perícia (AD-109). |
 | Prazo | `Deadline` (`case`) | Prazo processual da perícia (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo) ou perdido. **Vence em breve** = até 15 dias. |

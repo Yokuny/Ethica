@@ -84,7 +84,7 @@
       "feature": "Contatos das varas",
       "descricao": "Agenda de contatos das varas do trabalho e cíveis do escritório, filtrável por estado e cidade, com importação por planilha",
       "data": "2026-11-01",
-      "status": "planejado",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -92,7 +92,9 @@
         "packages/db"
       ],
       "decisoes": [
+        "AD-054",
         "AD-118",
+        "AD-134",
         "AD-137",
         "AD-151"
       ],

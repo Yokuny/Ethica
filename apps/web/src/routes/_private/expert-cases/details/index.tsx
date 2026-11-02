@@ -12,6 +12,7 @@ import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
 import { can, sessionQuery } from '@/query/session.js';
+import { CaseCourtDivision } from './@components/case-court-division.js';
 import { CaseDeadlines } from './@components/case-deadlines.js';
 import { CaseDetailsView } from './@components/case-details-view.js';
 import { CaseEditForm } from './@components/case-edit-form.js';
@@ -84,6 +85,7 @@ export function CaseDetailsPage() {
       ) : (
         <CardContent className="gap-10">
           <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} />
+          {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
           <CaseDeadlines caseId={legalCase.id} />
           <CaseInspections caseId={legalCase.id} />
           <CaseReports legalCase={legalCase} />
