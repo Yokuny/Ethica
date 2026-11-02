@@ -106,7 +106,7 @@ Banco: cluster do **MongoDB Atlas** (o M0 gratuito serve), porque a busca usa At
 ### Railway (API)
 
 1. *New Project → Deploy from GitHub repo* → este repositório. Em *Settings → Source*, branch **`main`** (o branch padrão do GitHub não é a `main`), *Root Directory* vazio. Em *Settings → Build*, o builder é **Dockerfile** (vem do `railway.json`) e *Settings → Deploy → Custom Start Command* fica **vazio**: o comando e a porta (`PORT` da Railway) já estão no `Dockerfile`, e só essa imagem tem o Chromium dos PDFs.
-2. *Settings → Networking → Generate Domain*. O endereço precisa bater com o `destination` de `/api` em `vercel.json` (hoje `ethica-api-production.up.railway.app`); se sair outro, troque lá.
+2. *Settings → Networking → Generate Domain*. O endereço precisa bater com o `destination` de `/api` em `vercel.json` (hoje `ethica-api.up.railway.app`); se sair outro, troque lá.
 3. *Variables*:
 
 | Variável | Valor |
