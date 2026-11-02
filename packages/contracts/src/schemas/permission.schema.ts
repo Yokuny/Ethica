@@ -6,6 +6,7 @@ import type { Role } from '../types.js';
 export const PERMISSION_MODULES = [
   'expert_cases',
   'parties',
+  'court_divisions',
   'agenda',
   'expert_reports',
   'report_templates',
@@ -50,6 +51,7 @@ export const PROFILE_PERMISSIONS: Record<Exclude<Role, 'admin'>, Permissions> = 
   operator: {
     expert_cases: WITHOUT_DELETE,
     parties: WITHOUT_DELETE,
+    court_divisions: ['view'],
     agenda: TUDO,
     expert_reports: TUDO,
     report_templates: ['view'],

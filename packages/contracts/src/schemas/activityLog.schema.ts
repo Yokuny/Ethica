@@ -6,6 +6,7 @@ import { idSchema } from './id.schema.js';
 export const ACTIVITY_LOG_MODULES = [
   'expert_cases',
   'parties',
+  'court_divisions',
   'agenda',
   'expert_reports',
   'report_templates',

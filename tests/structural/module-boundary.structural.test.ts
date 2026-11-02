@@ -25,7 +25,7 @@ const MODULES_ROOT = join(API_SRC_ROOT, 'modules');
 // stay out of the table and can be imported by any module.
 const DB_OWNERSHIP: Record<string, readonly string[]> = {
   identity: ['Tenant', 'User', 'Session', 'Invite', 'Activity', 'transitionTenantStatus'],
-  case: ['Case', 'Deadline', 'Party'],
+  case: ['Case', 'Deadline', 'Party', 'CourtDivision', 'COURT_DIVISION_COLLATION'],
   agenda: ['Appointment', 'Inspection'],
   finance: ['Transaction'],
   prospecting: ['Opportunity'],

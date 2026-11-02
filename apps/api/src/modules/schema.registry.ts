@@ -13,6 +13,11 @@ import {
   mediaUploadQuerySchema,
 } from './agenda/inspection.schema.js';
 import { caseIdParamSchema, listCasesQuerySchema, movementIdParamSchema } from './case/case.schema.js';
+import {
+  courtDivisionCitiesQuerySchema,
+  courtDivisionIdParamSchema,
+  listCourtDivisionsQuerySchema,
+} from './case/court-division.schema.js';
 import { deadlineIdParamSchema, listPendingDeadlinesQuerySchema } from './case/deadline.schema.js';
 import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
 import { documentCaseParamSchema } from './documents/documents.schema.js';
@@ -70,6 +75,9 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listTemplatesQuerySchema', schema: listTemplatesQuerySchema },
   { name: 'listReportsQuerySchema', schema: listReportsQuerySchema },
   { name: 'partyIdParamSchema', schema: partyIdParamSchema },
+  { name: 'courtDivisionIdParamSchema', schema: courtDivisionIdParamSchema },
+  { name: 'listCourtDivisionsQuerySchema', schema: listCourtDivisionsQuerySchema },
+  { name: 'courtDivisionCitiesQuerySchema', schema: courtDivisionCitiesQuerySchema },
   { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
   { name: 'deadlineIdParamSchema', schema: deadlineIdParamSchema },
   { name: 'listPendingDeadlinesQuerySchema', schema: listPendingDeadlinesQuerySchema },

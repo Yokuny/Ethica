@@ -6,6 +6,7 @@ export * from './schemas/account.schema.js';
 export * from './schemas/activityLog.schema.js';
 export * from './schemas/appointment.schema.js';
 export * from './schemas/case.schema.js';
+export * from './schemas/court-division.schema.js';
 export * from './schemas/createInvite.schema.js';
 export * from './schemas/date.schema.js';
 export * from './schemas/deadline.schema.js';

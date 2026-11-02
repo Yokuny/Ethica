@@ -12,6 +12,8 @@ describe('schemaRegistry', () => {
         'updateProfileSchema',
         'changePasswordSchema',
         'chooseReportSectionsSchema',
+        'createCourtDivisionSchema',
+        'updateCourtDivisionSchema',
         'updateAvatarSchema',
         'signinSchema',
         'idSchema',

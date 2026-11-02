@@ -9,6 +9,7 @@ import {
   processNumberSchema,
   updateCaseSchema,
 } from './schemas/case.schema.js';
+import { createCourtDivisionSchema, updateCourtDivisionSchema } from './schemas/court-division.schema.js';
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
 import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
@@ -91,6 +92,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'templateSectionSchema', schema: templateSectionSchema },
   { name: 'moveSectionSchema', schema: moveSectionSchema },
   { name: 'createReportSchema', schema: createReportSchema },
+  { name: 'createCourtDivisionSchema', schema: createCourtDivisionSchema },
+  { name: 'updateCourtDivisionSchema', schema: updateCourtDivisionSchema },
   { name: 'chooseReportSectionsSchema', schema: chooseReportSectionsSchema },
   { name: 'updateReportSectionSchema', schema: updateReportSectionSchema },
   { name: 'completeReportSchema', schema: completeReportSchema },

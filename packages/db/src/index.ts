@@ -9,6 +9,8 @@ export type { AppointmentDocument, AppointmentOrigin } from './models/appointmen
 export { Appointment } from './models/appointment.model.js';
 export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './models/case.model.js';
 export { Case } from './models/case.model.js';
+export type { CourtDivisionDocument } from './models/court-division.model.js';
+export { COURT_DIVISION_COLLATION, CourtDivision } from './models/court-division.model.js';
 export type { DeadlineDocument } from './models/deadline.model.js';
 export { Deadline } from './models/deadline.model.js';
 export type { InspectionDocument, InspectionMediaDocument } from './models/inspection.model.js';
@@ -50,6 +52,7 @@ export { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from './time.js';
 
 import { Appointment } from './models/appointment.model.js';
 import { Case } from './models/case.model.js';
+import { CourtDivision } from './models/court-division.model.js';
 import { Deadline } from './models/deadline.model.js';
 import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
@@ -70,6 +73,7 @@ export const syncIndexes = async (): Promise<void> => {
     Session.createIndexes(),
     Case.createIndexes(),
     Party.createIndexes(),
+    CourtDivision.createIndexes(),
     Deadline.createIndexes(),
     Appointment.createIndexes(),
     Transaction.createIndexes(),

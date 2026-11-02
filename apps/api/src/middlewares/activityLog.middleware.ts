@@ -49,6 +49,7 @@ const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
   const map: Record<string, ActivityLogModule> = {
     'expert-cases': 'expert_cases',
     parties: 'parties',
+    'court-divisions': 'court_divisions',
     agenda: 'agenda',
     inspections: 'agenda',
     finance: 'finance',

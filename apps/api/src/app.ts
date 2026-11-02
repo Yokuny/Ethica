@@ -13,6 +13,7 @@ import { responseTime } from './middlewares/responseTime.middleware.js';
 import { createAgendaRouter } from './modules/agenda/appointment.router.js';
 import { createInspectionRouter } from './modules/agenda/inspection.router.js';
 import { createCaseRouter } from './modules/case/case.router.js';
+import { createCourtDivisionRouter } from './modules/case/court-division.router.js';
 import { createPartyRouter } from './modules/case/party.router.js';
 import { createDocumentsRouter } from './modules/documents/documents.router.js';
 import { createReportRouter } from './modules/documents/report.router.js';
@@ -129,6 +130,7 @@ export const buildApp = (
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/expert-cases', createCaseRouter({ validToken }));
   app.use('/parties', createPartyRouter({ validToken }));
+  app.use('/court-divisions', createCourtDivisionRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));
   app.use('/inspections', createInspectionRouter({ validToken, storage }));
   app.use('/finance', createFinanceRouter({ validToken }));

@@ -24,7 +24,7 @@ apps/api/src/
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)
-    ├── case/                       # Case (perícia) + Deadline (AD-109) + Party (AD-117) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
+    ├── case/                       # Case (perícia) + Deadline (AD-109) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
     ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, aviso diário de prazos, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
     ├── finance/                    # Transaction — honorários (com installments, AD-111) e despesas; resumo, fluxo, categorias
     ├── prospecting/                # Opportunity + busca no Datajud; converte em perícia
@@ -56,7 +56,7 @@ Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `ident
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Invite Activity transitionTenantStatus` (inclui identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
-| `case` | `Case Deadline Party` |
+| `case` | `Case Deadline Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) |
 | `agenda` | `Appointment Inspection` (AD-130) |
 | `finance` | `Transaction` |
 | `prospecting` | `Opportunity` |

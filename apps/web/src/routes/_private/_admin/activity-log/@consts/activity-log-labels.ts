@@ -4,6 +4,7 @@ import type { ActivityLogAction, ActivityLogModule } from '@ethica/contracts';
 export const ACTIVITY_LOG_MODULE_KEY: Record<ActivityLogModule, string> = {
   expert_cases: 'expert_cases',
   parties: 'parties',
+  court_divisions: 'court_divisions',
   agenda: 'agenda',
   expert_reports: 'reports_and_opinions',
   report_templates: 'report_templates',
