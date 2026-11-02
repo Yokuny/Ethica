@@ -389,9 +389,9 @@
     {
       "slug": "producao-api",
       "feature": "Imagem de produção da API e arquivos por perícia",
-      "descricao": "Dockerfile de produção com Chromium e storage S3 em pastas por escritório e perícia, trocável para o bucket real só por configuração",
+      "descricao": "API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia",
       "data": "2026-11-01",
-      "status": "planejado",
+      "status": "parcial",
       "areas": [
         "apps/api",
         "infra"
@@ -400,7 +400,8 @@
         "AD-119",
         "AD-120",
         "AD-129",
-        "AD-146"
+        "AD-146",
+        "AD-153"
       ],
       "spec": [
         ".specs/features/producao-api"
@@ -972,6 +973,12 @@
     {
       "id": "AD-152",
       "decisao": "O pré-preenchimento do laudo pelo PDF do processo completo (quesitos, dados trabalhistas, pedidos da inicial) é feito por regras sobre o tex",
+      "data": "2026-11-01",
+      "status": "active"
+    },
+    {
+      "id": "AD-153",
+      "decisao": "Produção inicial: API na Railway pela imagem `Dockerfile` da raiz (Node 24 + Chromium, roda `tsx src/server.ts` sem etapa de compilação, uma",
       "data": "2026-11-01",
       "status": "active"
     }

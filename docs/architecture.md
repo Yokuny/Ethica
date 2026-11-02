@@ -29,6 +29,11 @@ apps/web (React 19 + Vite 7)  ──HTTP + cookie de sessão──▶  apps/api 
 - Gráficos pelo `chart` do `packages/ui` (recharts 3, AD-104).
 - Guardas: `_private/route.tsx` (sessão), `_private/_admin/route.tsx` (admin), `finance/route.tsx` (admin/manager, AD-107).
 
+## Produção (AD-153)
+
+- API na Railway pela imagem `Dockerfile` (tsx sobre o código-fonte, Chromium dos PDFs), web estático na Vercel; deploy a cada push na `main`. Passo a passo em `RUN_BOOK.md#produção-railway--vercel-ad-153`.
+- O web chama a API em `/api` no próprio domínio da Vercel, que repassa para a Railway (`apps/web/vercel.json`): cookie de sessão sempre do mesmo site.
+
 ## Testes e gate
 
 Vitest por projects `unit`/`integration`/`e2e`/`structural` (AD-017); `pnpm run check` é o gate do CI (AD-031) junto de `pnpm docs:check`.

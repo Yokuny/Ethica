@@ -12,7 +12,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - [`fundacao-ethica`](features/fundacao-ethica/feature.md) — **parcial** — Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
 - [`gestao-membros`](features/gestao-membros/feature.md) — **planejado** — Admin edita nome e perfil, desativa e reativa membros e gerencia convites pendentes, sem mexer no banco
 - [`laudo-vistoria`](features/laudo-vistoria/feature.md) — **planejado** — Relatório fotográfico e anotações da vistoria no laudo, reabrir laudo concluído e excluir com confirmação explícita
-- [`producao-api`](features/producao-api/feature.md) — **planejado** — Dockerfile de produção com Chromium e storage S3 em pastas por escritório e perícia, trocável para o bucket real só por configuração
+- [`producao-api`](features/producao-api/feature.md) — **parcial** — API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia
 - [`rotas-vistoria`](features/rotas-vistoria/feature.md) — **planejado** — Mapa do dia saindo de um endereço escolhido (localização, escritório ou digitado) com a rota calculada por serviço de rota próprio
 
 ## Planos não arquivados (`.specs/plans/`)
@@ -37,7 +37,7 @@ _Nenhum._
 | [Vistoria no laudo e revisão do laudo](features/laudo-vistoria/feature.md) | Relatório fotográfico e anotações da vistoria no laudo, reabrir laudo concluído e excluir com confirmação explícita | planejado | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` | [spec](../.specs/features/laudo-vistoria) | — |
 | [Laudo automatizado](features/laudos/feature.md) | Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/laudos) | — |
 | [Prazos e recebimentos](features/prazos-recebimentos/feature.md) | Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-recebimentos) | — |
-| [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | Dockerfile de produção com Chromium e storage S3 em pastas por escritório e perícia, trocável para o bucket real só por configuração | planejado | 2026-11-01 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | — |
+| [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia | parcial | 2026-11-01 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | — |
 | [Rotas de vistoria com ponto de partida](features/rotas-vistoria/feature.md) | Mapa do dia saindo de um endereço escolhido (localização, escritório ou digitado) com a rota calculada por serviço de rota próprio | planejado | 2026-11-01 | `apps/api` `apps/web` `packages/db` | [spec](../.specs/features/rotas-vistoria) | — |
 
 ## Por área
@@ -56,6 +56,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-153** (2026-11-01, active) — Produção inicial: API na Railway pela imagem `Dockerfile` da raiz (Node 24 + Chromium, roda `tsx src/server.ts` sem etapa de compilação, uma
 - **AD-152** (2026-11-01, active) — O pré-preenchimento do laudo pelo PDF do processo completo (quesitos, dados trabalhistas, pedidos da inicial) é feito por regras sobre o tex
 - **AD-151** (2026-11-01, active) — A agenda de contatos das varas (do trabalho e cíveis) é um cadastro do escritório, que começa vazio e cresce pela tela ou por planilha; o Et
 - **AD-150** (2026-11-01, active) — O mapa do dia ganha ponto de partida escolhido (localização, endereço do escritório ou endereço digitado, lembrado por pessoa no servidor) e
@@ -65,7 +66,6 @@ _Nenhum._
 - **AD-146** (2026-11-01, active) — As chaves do storage S3 (AD-120) passam a ser por escritório e por perícia: `tenants/<tenantId>/office/…` para o que é do escritório (logo)
 - **AD-145** (2026-11-01, active) — Não serão escritos testes e2e de router para `case`, `agenda`, `finance` e `prospecting` além dos que já existem; a cobertura atual (unit de
 - **AD-144** (2026-11-01, active) — O escritório (tenant) é cadastrado só com CNPJ; perito pessoa física (CPF) não é suportado. `provisionTenantSchema` continua exigindo 14 díg
-- **AD-143** (2026-11-01, active) — A partir de 2026-11-01 o Ethica é desenvolvido pela própria perita (engenheira, usuária final do produto, sem formação em programação) com u
 
 ## `.specs/` sem registro em `docs/features/`
 

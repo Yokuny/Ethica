@@ -735,6 +735,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-01
 - **Status**: active
 
+### AD-153
+- **Decision**: Produção inicial: API na **Railway** pela imagem `Dockerfile` da raiz (Node 24 + Chromium, roda `tsx src/server.ts` sem etapa de compilação, uma réplica) e web estático na **Vercel** (`apps/web`), os dois com deploy a cada push na `main`. O web chama a API por `/api` no próprio domínio da Vercel, que repassa para a Railway (`apps/web/vercel.json`), em vez de chamar o domínio da Railway direto. Banco no MongoDB Atlas hospedado (AD-059). Passo a passo em `RUN_BOOK.md`.
+- **Reason**: pedido em 2026-11-01 ("por enquanto pode ser na Railway, deploy pelos commits na main, front na Vercel sem domínio"). Sem domínio próprio, `vercel.app` e `railway.app` são sites diferentes e o Safari/iPhone bloqueia o cookie de sessão entre eles; pelo repasse o cookie é do mesmo site. Os pacotes do monorepo exportam `.ts`, e compilar exigiria mudar as exportações de todos.
+- **Trade-off**: cada chamada passa pela Vercel antes da Railway (um salto a mais); o domínio da Railway fica escrito no `vercel.json` e precisa ser trocado se mudar; `tsx` compila na subida (alguns segundos a mais no boot). Com domínio próprio, basta apontar `api.` e `app.` do mesmo domínio.
+- **Scope**: `Dockerfile`, `.dockerignore`, `railway.json`, `apps/web/vercel.json`, `RUN_BOOK.md`. Na spec de `producao-api`, substitui o "`Dockerfile` multi-stage com `tsc`" por `tsx` e decide a hospedagem que estava fora de escopo.
+- **Date**: 2026-11-01
+- **Status**: active
+
 ## Handoff
 
 - **Fluxo**: a partir de 2026-11-01 a perita desenvolve com um agente direto na `main` (AD-143). Próximas frentes com spec pronta e perguntas em aberto a confirmar com ela: `laudo-vistoria`, `avisos-notificacoes`, `rotas-vistoria`, `gestao-membros`, `producao-api` (AD-146 a AD-150). IA e Datajud ficam para depois (AD-145).

@@ -1,6 +1,6 @@
 # RUN_BOOK — subir o Ethica localmente (Docker Compose + MongoDB Atlas Local)
 
-Sobe mongo (Atlas Local), `api` e `web` em containers, com hot-reload do código-fonte via bind mount. Uso local/dev — não é imagem de produção. O banco é **sempre o motor MongoDB Atlas** (com Atlas Search): em dev e nos testes é o container `mongodb/mongodb-atlas-local:8` do compose; em produção, um cluster hospedado (AD-059).
+Sobe mongo (Atlas Local), `api` e `web` em containers, com hot-reload do código-fonte via bind mount. Uso local/dev; produção na seção [Produção](#produção-railway--vercel-ad-153). O banco é **sempre o motor MongoDB Atlas** (com Atlas Search): em dev e nos testes é o container `mongodb/mongodb-atlas-local:8` do compose; em produção, um cluster hospedado (AD-059).
 
 ## Pré-requisitos
 
@@ -96,6 +96,49 @@ pnpm docs:check                # gateway de documentação em dia
 
 - O nome do banco de testes contém `test`; a suíte recusa a URI do app e recusa apagar banco sem `test` no nome.
 - `integration` e `e2e` rodam em sequência no mesmo banco: não rode duas suítes ao mesmo tempo.
+
+## Produção (Railway + Vercel, AD-153)
+
+Deploy automático a cada push na `main`: a API roda na **Railway** pela imagem `Dockerfile` (config em `railway.json`), o web é estático na **Vercel** (config em `apps/web/vercel.json`). O navegador só fala com a Vercel: ela repassa `/api/*` para a API, então o cookie de sessão é do mesmo site (funciona no Safari/iPhone, que bloqueia cookie de outro domínio).
+
+Banco: cluster do **MongoDB Atlas** (o M0 gratuito serve), porque a busca usa Atlas Search (AD-059); o Mongo da Railway não tem. Em *Network Access* libere `0.0.0.0/0` (a Railway não tem IP fixo no plano comum).
+
+### Railway (API)
+
+1. *New Project → Deploy from GitHub repo* → este repositório. Em *Settings → Source*, branch **`main`** (o branch padrão do GitHub não é a `main`).
+2. *Settings → Networking → Generate Domain*. O endereço precisa bater com o `destination` de `/api` em `apps/web/vercel.json` (hoje `ethica-api-production.up.railway.app`); se sair outro, troque lá.
+3. *Variables*:
+
+| Variável | Valor |
+| --- | --- |
+| `NODE_ENV` | `production` (já vem da imagem) |
+| `PORT` e `API_PORT` | `8080` (os dois iguais: a Railway encaminha para `PORT`, a API escuta em `API_PORT`) |
+| `MONGODB_URI` | `mongodb+srv://.../ethica?retryWrites=true&w=majority` do Atlas |
+| `SESSION_JWT_SECRET` | segredo longo e aleatório (`openssl rand -hex 32`) |
+| `CORS_ORIGIN` | endereço da Vercel (`https://<projeto>.vercel.app`), usado também nos links dos e-mails |
+| `DATAJUD_API_KEY`, `S3_*`, `MAIL_PROVIDER`/`SMTP_*`, `GEOCODER_*` | opcionais, mesmo significado do `.env.example`; sem eles o recurso fica desligado |
+
+4. Uma vez por banco novo, pelo terminal do serviço (`railway ssh`) ou local com o `MONGODB_URI` do Atlas:
+   ```bash
+   /app/node_modules/.bin/tsx scripts/provision-search-indexes.ts   # índices do Atlas Search
+   /app/node_modules/.bin/tsx scripts/seed-platform-admin.ts        # admin de plataforma; troque a senha
+   ```
+   Depois siga "Primeiro acesso" trocando `http://localhost:18080` pelo domínio da Railway.
+
+### Vercel (web)
+
+1. *Add New → Project* → este repositório. *Root Directory*: `apps/web` (o framework Vite é detectado pelo `vercel.json`).
+2. *Settings → Git → Production Branch*: **`main`**.
+3. *Environment Variables*: `VITE_API_URL=/api` e `ENABLE_EXPERIMENTAL_COREPACK=1` (usa o pnpm 11 do `packageManager`). *Settings → General → Node.js Version*: 24.x.
+
+Testar a imagem localmente, contra o mongo e o s3 do compose:
+
+```bash
+docker build -t ethica-api-prod .
+docker run --rm --network ethica_default -p 18099:8080 -e API_PORT=8080 \
+  -e MONGODB_URI='mongodb://mongo:27017/ethica?directConnection=true' \
+  -e SESSION_JWT_SECRET=teste -e CORS_ORIGIN=http://localhost:15173 ethica-api-prod
+```
 
 ## Comandos úteis
 

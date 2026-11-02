@@ -7,3 +7,6 @@ coverage
 **/coverage
 .env
 *.local
+ACC.md
+.specs
+docs
