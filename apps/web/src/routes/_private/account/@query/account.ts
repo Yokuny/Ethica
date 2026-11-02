@@ -1,4 +1,4 @@
-import type { ChangePassword, UpdateProfile } from '@ethica/contracts';
+import type { UpdateProfile } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { apiUrl, del, get, patch, post, put } from '@/lib/api/client.api.js';
@@ -32,13 +32,6 @@ export const updateProfileMutation = (
     return res.data;
   },
   onSuccess: () => refreshAccount(queryClient),
-});
-
-export const changePasswordMutation = (): UseMutationOptions<void, Error, ChangePassword> => ({
-  mutationFn: async (data) => {
-    const res = await put('/me/password', data);
-    if (!res.success) throw new Error(res.message ?? t('action_error'));
-  },
 });
 
 // `image` is the data URL already shrunk in the browser; `null` removes the photo.

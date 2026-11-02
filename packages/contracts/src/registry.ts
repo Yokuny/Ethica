@@ -1,6 +1,7 @@
 import type { ZodType } from 'zod';
 import { acceptInviteSchema } from './schemas/acceptInvite.schema.js';
-import { changePasswordSchema, updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
+import { accessKeyRequestSchema, accessKeyVerifySchema, signupSchema } from './schemas/access.schema.js';
+import { updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
 import { listActivityLogQuerySchema } from './schemas/activityLog.schema.js';
 import { createAppointmentSchema, updateAppointmentSchema } from './schemas/appointment.schema.js';
 import {
@@ -43,7 +44,6 @@ import {
   updateReportSectionSchema,
   updateTemplateSchema,
 } from './schemas/report.schema.js';
-import { signinSchema } from './schemas/signin.schema.js';
 import {
   createInstallmentSchema,
   createTransactionSchema,
@@ -68,9 +68,10 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createInviteSchema', schema: createInviteSchema },
   { name: 'acceptInviteSchema', schema: acceptInviteSchema },
   { name: 'updateProfileSchema', schema: updateProfileSchema },
-  { name: 'changePasswordSchema', schema: changePasswordSchema },
   { name: 'updateAvatarSchema', schema: updateAvatarSchema },
-  { name: 'signinSchema', schema: signinSchema },
+  { name: 'accessKeyRequestSchema', schema: accessKeyRequestSchema },
+  { name: 'accessKeyVerifySchema', schema: accessKeyVerifySchema },
+  { name: 'signupSchema', schema: signupSchema },
   { name: 'idSchema', schema: idSchema },
   { name: 'inviteTokenParamSchema', schema: inviteTokenParamSchema },
   { name: 'listStatsSchema', schema: listStatsSchema },

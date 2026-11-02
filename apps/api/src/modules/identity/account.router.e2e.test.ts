@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import { connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
-import bcrypt from 'bcrypt';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
@@ -11,6 +10,7 @@ import { env } from '../../config/env.config.js';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
+import { createLogMailProvider } from '../../providers/mail/index.js';
 import { createAccountRouter } from './account.router.js';
 import { createAuthRouter } from './auth.router.js';
 
@@ -46,7 +46,7 @@ const buildTestApp = () => {
   app.use(cookieParser());
   app.use(express.json());
   const { validToken } = createAuthMiddleware(buildAuthDeps());
-  app.use('/auth', createAuthRouter({ validToken }));
+  app.use('/auth', createAuthRouter({ validToken, mailProvider: createLogMailProvider(), accessUrl: '/auth' }));
   app.use('/me', createAccountRouter({ validToken }));
   app.use(errorHandler);
   return app;
@@ -81,7 +81,6 @@ describe('account routes (ACC-02..06)', () => {
     const user = await User.create({
       name: `Pessoa ${counter}`,
       email: `account-${counter}@empresa.com`,
-      password: await bcrypt.hash('password-antiga', 4),
       Tenant: tenant._id,
       role,
     });
@@ -160,48 +159,11 @@ describe('account routes (ACC-02..06)', () => {
     expect(badCpf.status).toBe(400);
   });
 
-  it('PUT /me/password checks the current password and ends the other sessions only', async () => {
-    const { user } = await seedUser('77777777000103');
-    const app = buildTestApp();
-    const current = await cookieFor(user.id);
-    const elsewhere = await cookieFor(user.id);
-
-    const wrong = await request(app)
-      .put('/me/password')
-      .set('Cookie', current)
-      .set('User-Agent', DEVICE)
-      .send({ currentPassword: 'errada', newPassword: 'new-password-123' });
-    expect(wrong.status).toBe(400);
-    expect(wrong.body.message).toBe('wrong_current_password');
-
-    const short = await request(app)
-      .put('/me/password')
-      .set('Cookie', current)
-      .set('User-Agent', DEVICE)
-      .send({ currentPassword: 'password-antiga', newPassword: 'curta' });
-    expect(short.status).toBe(400);
-
-    const ok = await request(app)
-      .put('/me/password')
-      .set('Cookie', current)
-      .set('User-Agent', DEVICE)
-      .send({ currentPassword: 'password-antiga', newPassword: 'new-password-123' });
-    expect(ok.status).toBe(200);
-
-    const stored = await User.findById(user.id).lean();
-    expect(await bcrypt.compare('new-password-123', stored?.password as string)).toBe(true);
-    expect((await request(app).get('/auth/session').set('Cookie', current).set('User-Agent', DEVICE)).status).toBe(200);
-    expect((await request(app).get('/auth/session').set('Cookie', elsewhere).set('User-Agent', DEVICE)).status).toBe(
-      401,
-    );
-  });
-
   it('PUT/DELETE /me/avatar stores the photo, exposes a versioned path and serves the bytes to the same tenant only', async () => {
     const { user } = await seedUser('77777777000104');
     const teammate = await User.create({
       name: 'Colega',
       email: 'colega@empresa.com',
-      password: 'hash',
       Tenant: user.Tenant,
       role: ['operator'],
     });

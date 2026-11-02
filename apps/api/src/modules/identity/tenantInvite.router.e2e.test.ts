@@ -81,7 +81,6 @@ describe('EQP — convites do admin do tenant', () => {
     const user = await User.create({
       name: `Pessoa ${counter}`,
       email: `person-${counter}@empresa.com`,
-      password: 'hash',
       Tenant: tenant._id,
       role,
     });
@@ -239,7 +238,7 @@ describe('EQP — convites do admin do tenant', () => {
     const accepted = await request(app)
       .post(`/invites/${token}/accept`)
       .set('User-Agent', DEVICE)
-      .send({ name: 'Operador convidado', password: 'password123!' });
+      .send({ name: 'Operador convidado' });
     expect(accepted.status).toBe(201);
     const member = await User.findOne({ email: 'accepted-operator@example.com' }).lean();
     expect(member?.role).toEqual(['operator']);

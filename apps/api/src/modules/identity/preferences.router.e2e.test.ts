@@ -75,7 +75,6 @@ describe('preferences routes (ENR-03)', () => {
     const user = await User.create({
       name: `Pessoa ${counter}`,
       email: `person-${counter}@empresa.com`,
-      password: 'hash',
       Tenant: tenant._id,
       role,
     });

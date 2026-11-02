@@ -21,7 +21,6 @@ export const API_MESSAGE_KEYS = [
   'created_successfully',
   'removed_successfully',
   // Authentication and access
-  'invalid_credentials',
   'invalid_session',
   'invalid_access',
   'no_permission',
@@ -30,7 +29,10 @@ export const API_MESSAGE_KEYS = [
   'admin_has_all_permissions',
   'signed_in_successfully',
   'signed_out_successfully',
-  'wrong_current_password',
+  'access_key_sent',
+  'invalid_access_key',
+  'document_already_registered',
+  'email_send_failed',
   // Convites e links
   'invalid_link',
   'expired_link',

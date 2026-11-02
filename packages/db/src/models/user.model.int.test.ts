@@ -12,18 +12,17 @@ describe('User model', () => {
     await User.create({
       name: 'Ana',
       email: 'Ana@Example.com',
-      password: 'hash',
       Tenant: tenant,
       role: ['admin'],
     });
 
     await expect(
-      User.create({ name: 'Ana 2', email: 'ana@example.com', password: 'hash2', Tenant: tenant, role: ['admin'] }),
+      User.create({ name: 'Ana 2', email: 'ana@example.com', Tenant: tenant, role: ['admin'] }),
     ).rejects.toThrow();
   });
 
   it('fails schema validation when Tenant is absent and isPlatformAdmin is not true', async () => {
-    const user = new User({ name: 'Sem Tenant', email: 'sem-tenant@example.com', password: 'hash', role: ['admin'] });
+    const user = new User({ name: 'Sem Tenant', email: 'sem-tenant@example.com', role: ['admin'] });
 
     await expect(user.validate()).rejects.toThrow();
   });
@@ -32,7 +31,6 @@ describe('User model', () => {
     const user = new User({
       name: 'Admin da Plataforma',
       email: 'platform-admin@example.com',
-      password: 'hash',
       isPlatformAdmin: true,
       role: [],
     });

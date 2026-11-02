@@ -751,8 +751,25 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-02
 - **Status**: active
 
+### AD-155
+- **Decision**: O Ethica deixa de ter senha. Entrar e se cadastrar é pela **chave de acesso enviada ao e-mail** (`AccessKey` em `packages/db`, dono `identity`): botão com link de uso único e código de 6 dígitos no mesmo e-mail, válidos por 15 minutos, uma chave viva por e-mail e 5 tentativas de código. `POST /auth/access-key` responde igual com ou sem conta; `POST /auth/access-key/verify` abre a sessão ou, para e-mail sem conta, devolve um bilhete de 30 minutos para `POST /auth/signup`, que cria o escritório **ativo** com a pessoa como admin (**cadastro aberto**). O convite pede só o nome. A sessão passa a 30 dias. Saem `User.password`, `POST /auth/signin`, `PUT /me/password`, o bcrypt e as senhas dos scripts de carga. Detalhe em `.specs/features/acesso-email/spec.md`.
+- **Reason**: pedido da perita em 2026-11-02 ("transferirmos a segurança de login ao provedor de email do usuario"); ela escolheu link e código, cadastro aberto e 30 dias.
+- **Trade-off**: quem perde o acesso ao e-mail perde o acesso ao Ethica; entrar depende de o e-mail chegar (SMTP, AD-156). Qualquer pessoa pode criar um escritório; o CNPJ continua único e obrigatório (AD-144). "Passkey" biométrica (WebAuthn) fica fora.
+- **Scope**: `packages/db/src/models/{access-key,user}.model.ts`, `packages/contracts/src/schemas/{access,acceptInvite,account}.schema.ts`, `apps/api/src/modules/identity/{auth,invite,account}.*`, `apps/api/src/config/cookie.config.ts`, `apps/api/scripts/`, `apps/web/src/routes/_public/{auth,invite}/`, `apps/web/src/routes/_private/account/`.
+- **Date**: 2026-11-02
+- **Status**: active
+
+### AD-156
+- **Decision**: Em produção (`NODE_ENV=production`) a API recusa subir sem `MAIL_PROVIDER=nodemailer`, `SMTP_HOST` e `SMTP_FROM` (`apps/api/src/config/env.config.ts`).
+- **Reason**: com o acesso só por e-mail (AD-155), uma API sem SMTP real ficaria no ar sem ninguém conseguir entrar; falhar na subida mantém a versão anterior rodando na Railway (o deploy novo não passa no healthcheck).
+- **Trade-off**: o deploy que traz a AD-155 só entra no ar depois que o SMTP for configurado na Railway. Na spec de `producao-api`, o SMTP deixa de ser opcional.
+- **Scope**: `apps/api/src/config/env.config.ts`.
+- **Date**: 2026-11-02
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `acesso-email` — concluída: acesso e cadastro só pela chave enviada ao e-mail (AD-155). Produção precisa do SMTP configurado na Railway para o deploy entrar no ar (AD-156).
 - **Fluxo**: a partir de 2026-11-01 a perita desenvolve com um agente direto na `main` (AD-143). Próximas frentes com spec pronta e perguntas em aberto a confirmar com ela: `laudo-vistoria`, `avisos-notificacoes`, `rotas-vistoria`, `gestao-membros`, `producao-api` (AD-146 a AD-150). IA e Datajud ficam para depois (AD-145).
 - **Feature**: `english-naming` — concluída: todo nome de código em inglês pelo glossário da AD-140 (AD-139 a AD-142, `validation.md` PASS, UAT no navegador). Banco local antigo precisa ser recriado (AD-141).
 - **Feature**: `gestao-escritorio` — concluída com GES-01 a GES-06 (AD-133 a AD-137, `validation.md` PASS, UAT no navegador). Pendências no `feature.md`.

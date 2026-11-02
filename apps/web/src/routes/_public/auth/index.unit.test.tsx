@@ -18,6 +18,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     ...actual,
     useNavigate: () => navigateMock,
     useLocation: () => ({ pathname: '/auth' }),
+    useSearch: () => ({}),
     useMatches: () => [],
     useRouter: () => ({ history: { back: vi.fn() } }),
   };
@@ -35,40 +36,72 @@ describe('AuthPage', () => {
   it('renders the public page frame without a private home link, account menu, or back action', () => {
     render(<AuthPage />);
 
-    expect(screen.getAllByText('Entrar')).toHaveLength(2);
+    expect(screen.getByText('Entrar')).toBeInTheDocument();
     expect(document.querySelector('a[href="/"]')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Conta' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(2); // Text size and submit; fixed light theme.
   });
 
-  it('submits the form and redirects to the private area on a successful login (FND-10/AC2)', async () => {
-    postMock.mockResolvedValue({ success: true, message: 'Login realizado com sucesso.' });
+  it('sends the key to the e-mail, then signs in with the 6-digit code (ACE-01/03)', async () => {
+    postMock.mockResolvedValueOnce({ success: true, message: 'Enviamos a chave de acesso para o seu e-mail.' });
+    postMock.mockResolvedValueOnce({ success: true, data: { signedIn: true } });
     const user = userEvent.setup();
     render(<AuthPage />);
 
-    await user.type(screen.getByLabelText('E-mail'), 'admin@empresa.com');
-    await user.type(screen.getByLabelText('Senha'), 'passwordCorreta123');
+    await user.type(screen.getByLabelText('E-mail'), 'Admin@Empresa.com');
+    await user.click(screen.getByRole('button', { name: 'Enviar chave de acesso' }));
+    await waitFor(() => expect(postMock).toHaveBeenCalledWith('/auth/access-key', { email: 'admin@empresa.com' }));
+
+    await user.type(await screen.findByLabelText('Código de acesso'), '123456');
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
-    await waitFor(() => {
-      expect(postMock).toHaveBeenCalledWith('/auth/signin', {
-        email: 'admin@empresa.com',
-        password: 'passwordCorreta123',
-      });
-    });
+    await waitFor(() =>
+      expect(postMock).toHaveBeenCalledWith('/auth/access-key/verify', { email: 'admin@empresa.com', code: '123456' }),
+    );
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
   });
 
-  it("renders the backend's ApiResponse message on login failure, never a raw error (FND-10/AC4)", async () => {
-    postMock.mockResolvedValue({ success: false, message: 'E-mail ou senha inválidos.' });
+  it('asks for the office when the confirmed e-mail has no account, then creates it (ACE-04)', async () => {
+    postMock.mockResolvedValueOnce({ success: true });
+    postMock.mockResolvedValueOnce({ success: true, data: { signupToken: 'ticket' } });
+    postMock.mockResolvedValueOnce({ success: true });
+    const user = userEvent.setup();
+    render(<AuthPage />);
+
+    await user.type(screen.getByLabelText('E-mail'), 'nova@perita.com');
+    await user.click(screen.getByRole('button', { name: 'Enviar chave de acesso' }));
+    await user.type(await screen.findByLabelText('Código de acesso'), '654321');
+    await user.click(screen.getByRole('button', { name: 'Entrar' }));
+
+    await user.type(await screen.findByLabelText('Seu nome'), 'Nova Perita');
+    await user.type(screen.getByLabelText('Nome do escritório'), 'Perícias Nova');
+    await user.type(screen.getByLabelText('CNPJ'), '11.222.333/0001-81');
+    await user.click(screen.getByRole('button', { name: 'Criar escritório' }));
+
+    await waitFor(() =>
+      expect(postMock).toHaveBeenCalledWith('/auth/signup', {
+        signupToken: 'ticket',
+        name: 'Nova Perita',
+        officeName: 'Perícias Nova',
+        document: '11222333000181',
+      }),
+    );
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
+  });
+
+  it("shows the backend's message on a wrong code and stays on the code step", async () => {
+    postMock.mockResolvedValueOnce({ success: true });
+    postMock.mockResolvedValueOnce({ success: false, message: 'Chave de acesso inválida ou vencida. Peça uma nova.' });
     const user = userEvent.setup();
     render(<AuthPage />);
 
     await user.type(screen.getByLabelText('E-mail'), 'admin@empresa.com');
-    await user.type(screen.getByLabelText('Senha'), 'passwordErrada');
+    await user.click(screen.getByRole('button', { name: 'Enviar chave de acesso' }));
+    await user.type(await screen.findByLabelText('Código de acesso'), '000000');
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
-    expect(await screen.findByText('E-mail ou senha inválidos.')).toBeInTheDocument();
+    expect(await screen.findByText('Chave de acesso inválida ou vencida. Peça uma nova.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Código de acesso')).toBeInTheDocument();
     expect(navigateMock).not.toHaveBeenCalled();
   });
 });

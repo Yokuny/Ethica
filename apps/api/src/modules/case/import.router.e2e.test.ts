@@ -21,7 +21,6 @@ const seedSession = async () => {
   const user = await User.create({
     name: `Perito ${counter}`,
     email: `import-${counter}@x.com`,
-    password: 'hash',
     Tenant: tenant._id,
     role: ['operator'],
   });

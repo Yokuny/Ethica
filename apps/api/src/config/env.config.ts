@@ -37,14 +37,26 @@ export const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+// AD-156: access is by e-mail key only (AD-155) — in production, without real SMTP nobody gets in.
+const productionMailIssues = (env: Env): string[] =>
+  env.NODE_ENV === 'production'
+    ? [
+        ...(env.MAIL_PROVIDER === 'nodemailer' ? [] : ['MAIL_PROVIDER']),
+        ...(env.SMTP_HOST ? [] : ['SMTP_HOST']),
+        ...(env.SMTP_FROM ? [] : ['SMTP_FROM']),
+      ]
+    : [];
+
 // safeParse (not parse): controls the failure message to NAME the missing
 // variable instead of exposing the raw Zod error.
 // PORT (injected by Railway, AD-153) wins over API_PORT, whatever start command runs the API.
 export const parseEnv = (source: NodeJS.ProcessEnv): Env => {
   const result = envSchema.safeParse({ ...source, API_PORT: source.PORT ?? source.API_PORT });
-  if (!result.success) {
-    const missing = result.error.issues.map((issue) => issue.path.join('.')).join(', ');
-    throw new Error(`Variável(is) de ambiente ausente(s) ou inválida(s): ${missing}`);
+  const missing = result.success
+    ? productionMailIssues(result.data)
+    : result.error.issues.map((issue) => issue.path.join('.'));
+  if (!result.success || missing.length > 0) {
+    throw new Error(`Variável(is) de ambiente ausente(s) ou inválida(s): ${missing.join(', ')}`);
   }
   return result.data;
 };

@@ -5,7 +5,6 @@ export interface UserDocument {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
-  password: string;
   Tenant?: mongoose.Types.ObjectId;
   role: Array<'admin' | 'manager' | 'operator'>;
   isPlatformAdmin: boolean;
@@ -40,7 +39,6 @@ const userSchema = new Schema<UserDocument>(
   {
     name: { type: String, minlength: 3, maxlength: 80, required: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true },
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: false },
     role: { type: [String], enum: ['admin', 'manager', 'operator'], default: [] },
     isPlatformAdmin: { type: Boolean, default: false, required: true },

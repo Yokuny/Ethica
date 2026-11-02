@@ -11,7 +11,6 @@ const randomId = (): string => crypto.randomBytes(12).toString('hex');
 const baseUser = (tenant: string, overrides: Partial<Record<string, unknown>> = {}) => ({
   name: 'Fulano de Tal',
   email: `user-${randomId()}@empresa.com`,
-  password: 'hash',
   Tenant: tenant,
   role: ['operator'] as Role[],
   ...overrides,

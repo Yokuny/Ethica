@@ -1,8 +1,6 @@
 import { respObj } from '@ethica/contracts';
-import { hashToken } from '@ethica/db';
 import type { NextFunction, Request, Response } from 'express';
-import { extractToken } from '../../middlewares/authentication.middleware.js';
-import type { ChangePassword, UpdateAvatar, UpdateProfile } from './account.schema.js';
+import type { UpdateAvatar, UpdateProfile } from './account.schema.js';
 import * as accountService from './account.service.js';
 
 export const getProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -22,21 +20,6 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
       req.body as UpdateProfile,
     );
     res.json(respObj({ data }));
-  } catch (e) {
-    next(e);
-  }
-};
-
-export const changePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    // validToken already ensured the token exists and belongs to this session.
-    await accountService.changePassword(
-      req.tenantUser.tenant as string,
-      req.tenantUser.user,
-      req.body as ChangePassword,
-      hashToken(extractToken(req) as string),
-    );
-    res.json(respObj({}));
   } catch (e) {
     next(e);
   }

@@ -19,14 +19,6 @@ export const updateProfileSchema = z
   })
   .strict();
 
-// ACC-04: the new password follows the invite acceptance minimum; the confirmation belongs only to the form.
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'senha atual é obrigatória'),
-    newPassword: z.string().min(8, 'senha deve ter no mínimo 8 caracteres'),
-  })
-  .strict();
-
 // ACC-02: the browser already crops and shrinks the photo (256×256 WebP). The ceiling of 100 thousand
 // characters keeps the body within the express.json default limit (100 kB).
 export const updateAvatarSchema = z
@@ -51,5 +43,4 @@ export const HOME_BLOCKS = [
 export type HomeBlock = (typeof HOME_BLOCKS)[number];
 
 export type UpdateProfile = z.infer<typeof updateProfileSchema>;
-export type ChangePassword = z.infer<typeof changePasswordSchema>;
 export type UpdateAvatar = z.infer<typeof updateAvatarSchema>;

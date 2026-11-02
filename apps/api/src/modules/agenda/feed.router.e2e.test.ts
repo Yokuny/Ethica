@@ -34,7 +34,6 @@ const seed = async (role: Role[] = ['operator'], preferences?: { deadlineReminde
   const user = await User.create({
     name: `Perito ${counter}`,
     email: `feed-${counter}@x.com`,
-    password: 'hash',
     Tenant: tenant._id,
     role,
     preferences,

@@ -41,4 +41,12 @@ describe('parseEnv', () => {
     delete fromExample.API_PORT;
     expect(parseEnv({ ...fromExample, PORT: '8080' }).API_PORT).toBe('8080');
   });
+
+  it('refuses production without real SMTP, since access is by e-mail key (AD-156)', () => {
+    const production = { ...parseDotEnvExample(), NODE_ENV: 'production' };
+    expect(() => parseEnv(production)).toThrowError(/MAIL_PROVIDER, SMTP_HOST, SMTP_FROM/);
+    expect(() =>
+      parseEnv({ ...production, MAIL_PROVIDER: 'nodemailer', SMTP_HOST: 'smtp.example.com', SMTP_FROM: 'a@b.com' }),
+    ).not.toThrow();
+  });
 });

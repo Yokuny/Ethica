@@ -98,6 +98,5 @@ describe('InvitePage', () => {
     expect(await screen.findByText(/Empresa X/)).toBeInTheDocument();
     expect(screen.getByText('convidado@empresa.com')).toBeInTheDocument();
     expect(screen.getByLabelText('Nome')).toBeInTheDocument();
-    expect(screen.getByLabelText('Senha')).toBeInTheDocument();
   });
 });

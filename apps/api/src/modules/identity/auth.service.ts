@@ -1,25 +1,25 @@
+import crypto from 'node:crypto';
 import { hashToken } from '@ethica/db';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.config.js';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import type { MailProvider } from '../../providers/mail/index.js';
 import * as activityLogService from './activityLog.service.js';
 import * as authRepository from './auth.repository.js';
-import type { SessionView, SignIn, TenantUser, UpdatePermissions } from './auth.schema.js';
+import type { AccessKeyVerify, SessionView, Signup, TenantUser, UpdatePermissions } from './auth.schema.js';
 
-const SESSION_TTL_MS = 4 * 24 * 60 * 60 * 1000;
+// AD-155: no password — the person's mailbox proves who they are.
+const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const ACCESS_KEY_TTL_MS = 15 * 60 * 1000;
+const MAX_CODE_ATTEMPTS = 5;
 
-// Everything that writes a session is AWAITED before returning the token for the
-// controller to build the cookie — fixes the reference's `saveRefreshToken(...)` without await
-// (Risk 5): without it, the cookie could reach the client before
-// the session existed in the database, and the first /auth/session got a 401.
-export const signin = async (data: SignIn, deviceInfo: string): Promise<string> => {
-  const user = await authRepository.findUserByEmail(data.email);
-  if (!user?.active || !(await bcrypt.compare(data.password, user.password))) {
-    throw new CustomError('invalid_credentials', 401);
-  }
+// The code is hashed with the e-mail: the same 6 digits never produce the same hash for two people.
+const hashCode = (email: string, code: string) => hashToken(`${email}:${code}`);
 
-  const sessionToken = jwt.sign({ user: user.id }, env.SESSION_JWT_SECRET, { expiresIn: '4d' });
+// The single place that opens a session (sign-in, sign-up and invite acceptance). AWAITED
+// before the controller builds the cookie (Risk 5): the first /auth/session never gets a 401.
+export const startSession = async (user: { id: string; tenant?: string }, deviceInfo: string): Promise<string> => {
+  const sessionToken = jwt.sign({ user: user.id }, env.SESSION_JWT_SECRET, { expiresIn: '30d' });
   await authRepository.createSession({
     user: user.id,
     tenant: user.tenant,
@@ -27,11 +27,96 @@ export const signin = async (data: SignIn, deviceInfo: string): Promise<string> 
     deviceInfo,
     expiresAt: new Date(Date.now() + SESSION_TTL_MS),
   });
+  return sessionToken;
+};
+
+// ACE-01/02: always the same answer, registered or not (does not reveal who has an account).
+// A deactivated account gets nothing; an unknown e-mail gets the key to create its office (ACE-04).
+export const requestAccessKey = async (email: string, mailProvider: MailProvider, accessUrl: string): Promise<void> => {
+  const user = await authRepository.findUserByEmail(email);
+  if (user && !user.active) return;
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const code = crypto.randomInt(0, 1_000_000).toString().padStart(6, '0');
+  await authRepository.replaceAccessKey({
+    email,
+    tokenHash: hashToken(token),
+    codeHash: hashCode(email, code),
+    expiresAt: new Date(Date.now() + ACCESS_KEY_TTL_MS),
+  });
+
+  const link = `${accessUrl}?token=${token}`;
+  const { sent } = await mailProvider.send(
+    email,
+    `Sua chave de acesso ao Ethica: ${code}`,
+    `<p>Use o botão abaixo para entrar no Ethica:</p>
+<p><a href="${link}">Entrar no Ethica</a></p>
+<p>Ou digite este código na tela de acesso: <strong>${code}</strong></p>
+<p>A chave vale por 15 minutos e só pode ser usada uma vez. Se não foi você quem pediu, ignore este e-mail.</p>`,
+  );
+  if (!sent) throw new CustomError('email_send_failed', 502);
+};
+
+// ACE-02/03: consumes the key (link or code). With an account it opens the session; without
+// one it returns a short ticket (30 min) for the office creation step (ACE-04).
+export const verifyAccessKey = async (
+  data: AccessKeyVerify,
+  deviceInfo: string,
+): Promise<{ sessionToken: string } | { signupToken: string }> => {
+  const email = 'token' in data ? await consumeByToken(data.token) : await consumeByCode(data.email, data.code);
+
+  const user = await authRepository.findUserByEmail(email);
+  if (!user) {
+    return { signupToken: jwt.sign({ email, purpose: 'signup' }, env.SESSION_JWT_SECRET, { expiresIn: '30m' }) };
+  }
+  if (!user.active) throw new CustomError('invalid_access_key', 401);
+
+  const sessionToken = await startSession(user, deviceInfo);
   // Signing in goes to the activity log (AD-134); whoever has no tenant (platform) does not.
   if (user.tenant)
     void activityLogService.record({ tenantId: user.tenant, userId: user.id, module: 'account', action: 'signin' });
+  return { sessionToken };
+};
 
-  return sessionToken;
+const consumeByToken = async (token: string): Promise<string> => {
+  const email = await authRepository.consumeAccessKeyByToken(hashToken(token));
+  if (!email) throw new CustomError('invalid_access_key', 401);
+  return email;
+};
+
+// Each try spends one attempt before the comparison; the 5th wrong one leaves the key unusable.
+const consumeByCode = async (email: string, code: string): Promise<string> => {
+  const key = await authRepository.spendCodeAttempt(email, MAX_CODE_ATTEMPTS);
+  if (key?.codeHash !== hashCode(email, code) || !(await authRepository.deleteAccessKey(key.id))) {
+    throw new CustomError('invalid_access_key', 401);
+  }
+  return email;
+};
+
+// ACE-04: open sign-up — the confirmed e-mail creates an active office and becomes its admin.
+export const signup = async (data: Signup, deviceInfo: string): Promise<string> => {
+  const email = readSignupToken(data.signupToken);
+  if (await authRepository.findUserByEmail(email)) throw new CustomError('email_already_registered', 409);
+  if (await authRepository.tenantDocumentExists(data.document))
+    throw new CustomError('document_already_registered', 409);
+
+  const user = await authRepository.createOfficeWithAdmin({
+    email,
+    name: data.name,
+    officeName: data.officeName,
+    document: data.document,
+  });
+  return startSession(user, deviceInfo);
+};
+
+const readSignupToken = (signupToken: string): string => {
+  try {
+    const decoded = jwt.verify(signupToken, env.SESSION_JWT_SECRET) as { email?: unknown; purpose?: unknown };
+    if (decoded.purpose === 'signup' && typeof decoded.email === 'string') return decoded.email;
+  } catch {
+    // expired or forged — same answer below
+  }
+  throw new CustomError('invalid_access_key', 401);
 };
 
 // No token validation on purpose: logout has to work even with the

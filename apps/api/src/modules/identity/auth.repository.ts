@@ -1,5 +1,5 @@
 import { effectivePermissions } from '@ethica/contracts';
-import { Session, Tenant, tenantScoped, User } from '@ethica/db';
+import { AccessKey, Session, Tenant, tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type {
   Permissions,
@@ -23,10 +23,8 @@ const avatarOf = (user: { _id: { toString(): string }; avatarUpdatedAt?: Date })
 
 export const findUserByEmail = async (email: string): Promise<UserForSignin | null> =>
   withDbTiming('auth.findUserByEmail', async () => {
-    const user = await User.findOne({ email }).lean();
-    return user
-      ? { id: user._id.toString(), tenant: user.Tenant?.toString(), password: user.password, active: user.active }
-      : null;
+    const user = await User.findOne({ email }).select('Tenant active').lean();
+    return user ? { id: user._id.toString(), tenant: user.Tenant?.toString(), active: user.active } : null;
   });
 
 export const findUserView = async (userId: string): Promise<UserView | null> =>
@@ -147,4 +145,60 @@ export const createSession = async (data: {
 export const deleteSessionByTokenHash = async (tokenHash: string): Promise<void> =>
   withDbTiming('auth.deleteSession', async () => {
     await Session.deleteOne({ tokenHash });
+  });
+
+// ACE-02: one live key per e-mail — asking again replaces the previous one and resets the attempts.
+export const replaceAccessKey = async (data: {
+  email: string;
+  tokenHash: string;
+  codeHash: string;
+  expiresAt: Date;
+}): Promise<void> =>
+  withDbTiming('auth.replaceAccessKey', async () => {
+    await AccessKey.findOneAndUpdate(
+      { email: data.email },
+      { $set: { ...data, attempts: 0 } },
+      { upsert: true, setDefaultsOnInsert: true },
+    );
+  });
+
+// The link is single use: reading and deleting in the same operation.
+export const consumeAccessKeyByToken = async (tokenHash: string): Promise<string | null> =>
+  withDbTiming('auth.consumeAccessKeyByToken', async () => {
+    const key = await AccessKey.findOneAndDelete({ tokenHash, expiresAt: { $gt: new Date() } }).lean();
+    return key?.email ?? null;
+  });
+
+// The attempt is counted in the same query that reads the key: parallel tries cannot pass the limit.
+export const spendCodeAttempt = async (
+  email: string,
+  maxAttempts: number,
+): Promise<{ id: string; codeHash: string } | null> =>
+  withDbTiming('auth.spendCodeAttempt', async () => {
+    const key = await AccessKey.findOneAndUpdate(
+      { email, expiresAt: { $gt: new Date() }, attempts: { $lt: maxAttempts } },
+      { $inc: { attempts: 1 } },
+      { returnDocument: 'after' },
+    ).lean();
+    return key ? { id: key._id.toString(), codeHash: key.codeHash } : null;
+  });
+
+// false = someone else already used this key (two tabs with the same code).
+export const deleteAccessKey = async (id: string): Promise<boolean> =>
+  withDbTiming('auth.deleteAccessKey', async () => (await AccessKey.deleteOne({ _id: id })).deletedCount === 1);
+
+export const tenantDocumentExists = async (document: string): Promise<boolean> =>
+  withDbTiming('auth.tenantDocumentExists', async () => Boolean(await Tenant.exists({ document })));
+
+// ACE-04: the office is born active (nobody else to accept it) with the person as admin.
+export const createOfficeWithAdmin = async (data: {
+  email: string;
+  name: string;
+  officeName: string;
+  document: string;
+}): Promise<{ id: string; tenant: string }> =>
+  withDbTiming('auth.createOfficeWithAdmin', async () => {
+    const tenant = await Tenant.create({ name: data.officeName, document: data.document, status: 'active' });
+    const user = await User.create({ name: data.name, email: data.email, Tenant: tenant._id, role: ['admin'] });
+    return { id: user.id, tenant: tenant.id };
   });

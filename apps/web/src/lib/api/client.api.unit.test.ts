@@ -50,16 +50,16 @@ describe('client.api', () => {
       });
       vi.stubGlobal('fetch', fetchMock);
 
-      const result = await post('/auth/signin', { email: 'a@b.com', password: 'senha123' });
+      const result = await post('/auth/access-key', { email: 'a@b.com' });
 
       expect(result).toEqual({ success: true, message: 'Login realizado com sucesso.' });
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/auth/signin'),
+        expect.stringContaining('/auth/access-key'),
         expect.objectContaining({
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'a@b.com', password: 'senha123' }),
+          body: JSON.stringify({ email: 'a@b.com' }),
         }),
       );
     });

@@ -7,7 +7,6 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { sessionQuery } from '@/query/session.js';
 import { AccountCalendarFeed } from './@components/account-calendar-feed.js';
 import { AccountDeadlineReminder } from './@components/account-deadline-reminder.js';
-import { AccountPasswordForm } from './@components/account-password-form.js';
 import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
 import { profileQuery } from './@query/account.js';
@@ -39,11 +38,6 @@ export function AccountPage() {
                   <DefaultLoading key="profile" />
                 ),
               ],
-            },
-            {
-              title: t('password'),
-              description: t('change_password_description'),
-              fields: [<AccountPasswordForm key="password" />],
             },
             {
               title: t('deadline_alerts'),

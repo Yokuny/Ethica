@@ -26,7 +26,6 @@ const seedSession = async (role: Role[], tenantId?: TenantDocument['_id']) => {
   const user = await User.create({
     name: `Perito ${counter}`,
     email: `vara-${counter}@x.com`,
-    password: 'hash',
     Tenant: tenant,
     role,
   });

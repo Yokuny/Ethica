@@ -1,11 +1,18 @@
-import type { Permissions, SignIn, TenantUser, UpdatePermissions } from '@ethica/contracts';
-import { idSchema, signinSchema, updatePermissionsSchema } from '@ethica/contracts';
+import type { AccessKeyVerify, Permissions, Signup, TenantUser, UpdatePermissions } from '@ethica/contracts';
+import {
+  accessKeyRequestSchema,
+  accessKeyVerifySchema,
+  idSchema,
+  signupSchema,
+  updatePermissionsSchema,
+} from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
+import type { MailProvider } from '../../providers/mail/index.js';
 
-export type { Permissions, SignIn, TenantUser, UpdatePermissions };
+export type { AccessKeyVerify, Permissions, Signup, TenantUser, UpdatePermissions };
 // MOD-08: input schemas and module types in a single place.
-export { signinSchema, updatePermissionsSchema };
+export { accessKeyRequestSchema, accessKeyVerifySchema, signupSchema, updatePermissionsSchema };
 
 // Tenant directory. `active=true` returns only who can get new work
 // (assignee selector); without it the list also brings the inactive ones, which still
@@ -19,12 +26,12 @@ export const userDirectoryQuerySchema = z.object({}).strict();
 // ACC-06: photo of a user from the session tenant.
 export const userIdParamSchema = z.object({ id: idSchema }).strict();
 
-export type AuthRouterDeps = { validToken: RequestHandler };
+// `accessUrl`: screen that receives the link of the access key e-mail (`/auth`).
+export type AuthRouterDeps = { validToken: RequestHandler; mailProvider: MailProvider; accessUrl: string };
 
 export type UserForSignin = {
   id: string;
   tenant?: string;
-  password: string;
   active: boolean;
 };
 

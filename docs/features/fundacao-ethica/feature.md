@@ -95,6 +95,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 ## Histórico
 
 - 2026-11-02 — Harness enxuto: sem validação local nem endereço de teste no fim da entrega, contrato operacional fundido em "Com quem você trabalha", publicação fora da documentação (AD-154).
+- 2026-11-02 — Login por senha, troca de senha e senha do convite saem: acesso e cadastro pela chave enviada ao e-mail (`docs/features/acesso-email/feature.md`, AD-155).
 - 2026-11-01 — Pendências fechadas pelo usuário: escritório só com CNPJ (AD-144) e sem e2e de router extra (AD-145); Datajud com chave real adiado (AD-145).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Papéis fixos de domínio (AD-107) viraram a matriz de permissões por membro; `finance/route.tsx` saiu para a guarda central (`docs/features/gestao-escritorio/feature.md`, AD-137).

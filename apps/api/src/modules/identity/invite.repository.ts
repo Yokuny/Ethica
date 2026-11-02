@@ -1,4 +1,4 @@
-import { Invite, Session, transitionTenantStatus, User } from '@ethica/db';
+import { Invite, transitionTenantStatus, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { InviteWithTenant, Permissions, Role } from './invite.schema.js';
 
@@ -54,7 +54,6 @@ export const activateTenant = async (tenantId: string): Promise<void> =>
 export const createUserFromInvite = async (data: {
   name: string;
   email: string;
-  password: string;
   tenant: string;
   role: Role;
   permissions?: Permissions;
@@ -63,27 +62,9 @@ export const createUserFromInvite = async (data: {
     const user = await User.create({
       name: data.name,
       email: data.email,
-      password: data.password,
       Tenant: data.tenant,
       role: [data.role],
       permissions: data.permissions,
     });
     return { id: user.id };
-  });
-
-export const createSession = async (data: {
-  user: string;
-  tenant: string;
-  tokenHash: string;
-  deviceInfo: string;
-  expiresAt: Date;
-}): Promise<void> =>
-  withDbTiming('invite.createSession', async () => {
-    await Session.create({
-      user: data.user,
-      Tenant: data.tenant,
-      tokenHash: data.tokenHash,
-      deviceInfo: data.deviceInfo,
-      expiresAt: data.expiresAt,
-    });
   });

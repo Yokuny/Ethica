@@ -2,6 +2,29 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "acesso-email",
+      "feature": "Acesso por e-mail (sem senha)",
+      "descricao": "Entrar e criar o escritório só com o e-mail, pela chave de acesso (link e código) enviada à caixa de e-mail da pessoa",
+      "data": "2026-11-02",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-155",
+        "AD-156",
+        "AD-144"
+      ],
+      "spec": [
+        ".specs/features/acesso-email"
+      ],
+      "planos": [],
+      "doc": "features/acesso-email/feature.md"
+    },
+    {
       "slug": "avisos-notificacoes",
       "feature": "Avisos de vencimento e notificações push",
       "descricao": "Varredura agendada dos avisos sem perda nem duplicidade, aviso de vencimento financeiro e notificação push no aparelho",
@@ -986,6 +1009,18 @@
     {
       "id": "AD-154",
       "decisao": "O fluxo da AD-143 deixa de validar na tela local e de terminar a entrega com o endereço `http://localhost:15173` ou a pergunta de subir o si",
+      "data": "2026-11-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-155",
+      "decisao": "O Ethica deixa de ter senha. Entrar e se cadastrar é pela chave de acesso enviada ao e-mail (`AccessKey` em `packages/db`, dono `identity`):",
+      "data": "2026-11-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-156",
+      "decisao": "Em produção (`NODE_ENV=production`) a API recusa subir sem `MAIL_PROVIDER=nodemailer`, `SMTP_HOST` e `SMTP_FROM` (`apps/api/src/config/env.c",
       "data": "2026-11-02",
       "status": "active"
     }

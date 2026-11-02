@@ -28,7 +28,7 @@ export function InviteForm({ form, tenantName, email, submitError, onSubmit }: I
             sections={[
               {
                 title: t('your_data'),
-                description: t('set_name_and_password'),
+                description: t('enter_name_to_finish'),
                 layout: 'vertical',
                 fields: [
                   <FormField
@@ -40,20 +40,6 @@ export function InviteForm({ form, tenantName, email, submitError, onSubmit }: I
                         <FormLabel>{t('name')}</FormLabel>
                         <FormControl>
                           <Input autoComplete="name" placeholder={t('name')} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />,
-                  <FormField
-                    key="password"
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('password')}</FormLabel>
-                        <FormControl>
-                          <Input type="password" autoComplete="new-password" placeholder={t('password')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

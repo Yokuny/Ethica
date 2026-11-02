@@ -2,15 +2,42 @@ import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { clearCookieOptions, cookieOptions } from '../../config/cookie.config.js';
 import { extractToken } from '../../middlewares/authentication.middleware.js';
+import type { MailProvider } from '../../providers/mail/index.js';
 import type { ListUsersQuery } from './auth.schema.js';
 import * as authService from './auth.service.js';
 
-export const signin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const deviceOf = (req: Request) => (req.headers['user-agent'] as string | undefined) ?? 'unknown';
+
+export const requestAccessKey =
+  (mailProvider: MailProvider, accessUrl: string) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await authService.requestAccessKey(req.body.email, mailProvider, accessUrl);
+      res.json(respObj({ message: 'access_key_sent' }));
+    } catch (e) {
+      next(e);
+    }
+  };
+
+export const verifyAccessKey = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const deviceInfo = (req.headers['user-agent'] as string | undefined) ?? 'unknown';
-    const sessionToken = await authService.signin(req.body, deviceInfo);
+    const result = await authService.verifyAccessKey(req.body, deviceOf(req));
+    if ('signupToken' in result) {
+      res.json(respObj({ data: { signupToken: result.signupToken } }));
+      return;
+    }
+    res.cookie('refreshToken', result.sessionToken, cookieOptions);
+    res.json(respObj({ data: { signedIn: true }, message: 'signed_in_successfully' }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const sessionToken = await authService.signup(req.body, deviceOf(req));
     res.cookie('refreshToken', sessionToken, cookieOptions);
-    res.json(respObj({ message: 'signed_in_successfully' }));
+    res.status(201).json(respObj({ message: 'created_successfully' }));
   } catch (e) {
     next(e);
   }

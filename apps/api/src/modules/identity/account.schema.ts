@@ -1,9 +1,9 @@
-import type { ChangePassword, UpdateAvatar, UpdateProfile } from '@ethica/contracts';
-import { changePasswordSchema, updateAvatarSchema, updateProfileSchema } from '@ethica/contracts';
+import type { UpdateAvatar, UpdateProfile } from '@ethica/contracts';
+import { updateAvatarSchema, updateProfileSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 
-export type { ChangePassword, UpdateAvatar, UpdateProfile };
-export { changePasswordSchema, updateAvatarSchema, updateProfileSchema };
+export type { UpdateAvatar, UpdateProfile };
+export { updateAvatarSchema, updateProfileSchema };
 
 export type AccountRouterDeps = { validToken: RequestHandler };
 

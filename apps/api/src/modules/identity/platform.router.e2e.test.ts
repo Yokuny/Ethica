@@ -85,7 +85,6 @@ describe('platform routes', () => {
       const admin = await User.create({
         name: 'Root Admin',
         email: 'root@platform.com',
-        password: 'hash',
         isPlatformAdmin: true,
         role: [],
       });
@@ -112,7 +111,6 @@ describe('platform routes', () => {
       const regularUser = await User.create({
         name: 'Fulano',
         email: 'fulano@empresa.com',
-        password: 'hash',
         Tenant: tenant._id,
         role: ['admin'],
       });
@@ -136,7 +134,6 @@ describe('platform routes', () => {
       const admin = await User.create({
         name: 'Root Admin',
         email: `root-${tenant.id}@platform.com`,
-        password: 'hash',
         isPlatformAdmin: true,
         role: [],
       });
@@ -234,7 +231,6 @@ describe('platform routes', () => {
       await User.create({
         name: 'Já Membro',
         email: 'jamembro@empresa.com',
-        password: 'hash',
         Tenant: tenant._id,
         role: ['operator'],
       });
@@ -254,7 +250,6 @@ describe('platform routes', () => {
       const regularUser = await User.create({
         name: 'Fulano',
         email: 'fulano2@empresa.com',
-        password: 'hash',
         Tenant: tenant._id,
         role: ['admin'],
       });

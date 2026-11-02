@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import { checkRole } from '../../middlewares/authorization.middleware.js';
-import { signinRateLimit } from '../../middlewares/rateLimit.middleware.js';
+import { accessKeyRateLimit, accessVerifyRateLimit } from '../../middlewares/rateLimit.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as authController from './auth.controller.js';
 import type { AuthRouterDeps } from './auth.schema.js';
 import {
+  accessKeyRequestSchema,
+  accessKeyVerifySchema,
   listUsersQuerySchema,
-  signinSchema,
+  signupSchema,
   updatePermissionsSchema,
   userDirectoryQuerySchema,
   userIdParamSchema,
@@ -25,7 +27,20 @@ const isAdmin = checkRole(['admin']);
 export const createAuthRouter = (deps: AuthRouterDeps): Router => {
   const router = Router();
 
-  router.post('/signin', signinRateLimit, validBody(signinSchema), authController.signin);
+  // ACE-01/03/04 (AD-155): access by e-mail key, no password.
+  router.post(
+    '/access-key',
+    accessKeyRateLimit,
+    validBody(accessKeyRequestSchema),
+    authController.requestAccessKey(deps.mailProvider, deps.accessUrl),
+  );
+  router.post(
+    '/access-key/verify',
+    accessVerifyRateLimit,
+    validBody(accessKeyVerifySchema),
+    authController.verifyAccessKey,
+  );
+  router.post('/signup', accessVerifyRateLimit, validBody(signupSchema), authController.signup);
   // No validToken: signing out has to work (and clear the cookie) even with the
   // session already invalid.
   router.post('/signout', authController.signout);

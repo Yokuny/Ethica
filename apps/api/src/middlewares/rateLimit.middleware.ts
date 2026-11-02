@@ -31,8 +31,11 @@ const rejectWithTooManyRequests = (scope: string, keyGenerator = emailAndIpKeyGe
   });
 };
 
-// FND-14: only protects sign-in and invite; both by normalized e-mail + IP.
-export const signinRateLimit = rejectWithTooManyRequests('signin');
+// FND-14: protects access (AD-155) and invite; both by normalized e-mail + IP.
+export const accessKeyRateLimit = rejectWithTooManyRequests('access_key');
+// Checking the key and creating the office: a body with the link has no e-mail, so the key is
+// mostly the IP — more room than asking for keys. The code itself dies after 5 wrong tries.
+export const accessVerifyRateLimit = rejectWithTooManyRequests('access_verify', emailAndIpKeyGenerator, 20);
 export const inviteRateLimit = rejectWithTooManyRequests('invite');
 
 // Datajud search (CNJ public API, with a quota): by tenant + IP. 60 searches

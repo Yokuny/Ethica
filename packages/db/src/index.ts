@@ -3,6 +3,8 @@ export type { EncryptedSecret } from './crypto.helper.js';
 export { decrypt, encrypt, maskSecret, sha256 } from './crypto.helper.js';
 export { dailyTrend } from './dailyTrend.js';
 export { groupStats } from './groupStats.js';
+export type { AccessKeyDocument } from './models/access-key.model.js';
+export { AccessKey } from './models/access-key.model.js';
 export type { ActivityDocument } from './models/activity.model.js';
 export { Activity } from './models/activity.model.js';
 export type { AppointmentDocument, AppointmentOrigin } from './models/appointment.model.js';
@@ -50,6 +52,7 @@ export {
 } from './textSearch.js';
 export { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from './time.js';
 
+import { AccessKey } from './models/access-key.model.js';
 import { Appointment } from './models/appointment.model.js';
 import { Case } from './models/case.model.js';
 import { CourtDivision } from './models/court-division.model.js';
@@ -71,6 +74,7 @@ export const syncIndexes = async (): Promise<void> => {
     User.createIndexes(),
     Invite.createIndexes(),
     Session.createIndexes(),
+    AccessKey.createIndexes(),
     Case.createIndexes(),
     Party.createIndexes(),
     CourtDivision.createIndexes(),

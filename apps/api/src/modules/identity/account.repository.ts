@@ -1,4 +1,4 @@
-import { Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
+import { Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { AccountView, FeedOwner, NoticeRecipient, UpdateProfile } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
@@ -52,24 +52,6 @@ export const updateProfile = async (
         .select(ACCOUNT_FIELDS)
         .lean(),
     );
-  });
-
-export const findPasswordHash = async (tenantId: string, userId: string): Promise<string | null> =>
-  withDbTiming('account.findPasswordHash', async () => {
-    const doc = await User.findOne(own(tenantId, userId)).select('password').lean();
-    return doc?.password ?? null;
-  });
-
-// ACC-04: changes the password and ends the other sessions; the current one (keepTokenHash) stays valid.
-export const updatePassword = async (
-  tenantId: string,
-  userId: string,
-  passwordHash: string,
-  keepTokenHash: string,
-): Promise<void> =>
-  withDbTiming('account.updatePassword', async () => {
-    await User.updateOne(own(tenantId, userId), { $set: { password: passwordHash } });
-    await Session.deleteMany({ user: userId, tokenHash: { $ne: keepTokenHash } });
   });
 
 export const setAvatar = async (tenantId: string, userId: string, image: string | null): Promise<AccountView | null> =>

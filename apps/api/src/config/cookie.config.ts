@@ -6,7 +6,8 @@ export const cookieOptions = {
   secure: env.NODE_ENV !== 'development',
   sameSite: (env.NODE_ENV !== 'development' ? 'none' : 'lax') as 'none' | 'lax',
   path: '/',
-  maxAge: 4 * 86400 * 1000,
+  // ACE-06 (AD-155): 30 days per device, same as the Session TTL.
+  maxAge: 30 * 86400 * 1000,
 };
 
 export const clearCookieOptions = {

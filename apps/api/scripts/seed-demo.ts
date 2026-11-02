@@ -19,7 +19,6 @@ import {
   User,
   wallClockToUtc,
 } from '@ethica/db';
-import bcrypt from 'bcrypt';
 import { env } from '../src/config/env.config.js';
 import { resolveVariables } from '../src/modules/documents/report.html.js';
 import { DEFAULT_TEMPLATES } from '../src/modules/documents/report.library.js';
@@ -30,7 +29,6 @@ import { DEFAULT_TEMPLATES } from '../src/modules/documents/report.library.js';
 //
 //   pnpm --filter api run seed:demo
 const DOCUMENT = '99888777000166';
-const PASSWORD = process.env.SEED_PASSWORD || 'asdQWE123!@#';
 
 const today = dateInDisplayTz(new Date());
 const day = (offset: number): string => {
@@ -144,12 +142,10 @@ const run = async (): Promise<void> => {
     header: '[LOGO]\nPerícias Demo — Engenharia de Segurança do Trabalho\nRua das Perícias, 100 — São Paulo/SP',
     footer: '[NOME_PERITO] · Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]',
   });
-  const password = await bcrypt.hash(PASSWORD, 10);
   const [admin] = await User.create(
     (['admin', 'manager', 'operator'] as const).map((role) => ({
       name: `${role[0]?.toUpperCase()}${role.slice(1)} Demo`,
       email: `${role}@pericias.example.com`,
-      password,
       Tenant: tenant._id,
       role: [role],
       // Permission matrix (AD-137): manager and operator with the profile preset; admin has everything.

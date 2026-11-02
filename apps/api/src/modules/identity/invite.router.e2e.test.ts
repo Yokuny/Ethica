@@ -42,7 +42,6 @@ describe('invite routes (public)', () => {
     const invitedBy = await User.create({
       name: 'Root',
       email: `root-${params.token}@platform.com`,
-      password: 'h',
       isPlatformAdmin: true,
       role: [],
     });
@@ -117,9 +116,7 @@ describe('invite routes (public)', () => {
       const tenant = await seedTenant('Empresa Aceite');
       await seedInvite({ tenant: tenant.id, token: 'accept-1', email: 'novo@empresa.com' });
 
-      const res = await request(buildTestApp())
-        .post('/invites/accept-1/accept')
-        .send({ name: 'Fulano Novo', password: 'passwordSegura123' });
+      const res = await request(buildTestApp()).post('/invites/accept-1/accept').send({ name: 'Fulano Novo' });
 
       expect(res.status).toBe(201);
       const setCookie = res.headers['set-cookie'] as unknown as string[];
@@ -131,7 +128,6 @@ describe('invite routes (public)', () => {
       expect(user?.name).toBe('Fulano Novo');
       expect(user?.Tenant?.toString()).toBe(tenant.id);
       expect(user?.role).toEqual(['admin']);
-      expect(user?.password).not.toBe('passwordSegura123');
 
       const invite = await Invite.findOne({ tokenHash: hashToken('accept-1') }).lean();
       expect(invite?.status).toBe('accepted');
@@ -144,13 +140,13 @@ describe('invite routes (public)', () => {
       expect(session?.Tenant?.toString()).toBe(tenant.id);
     });
 
-    it('responds 400 and creates no user when the password is under 8 characters (FND-03/AC4)', async () => {
+    it('responds 400 and creates no user when a password is still sent (AD-155)', async () => {
       const tenant = await seedTenant();
-      await seedInvite({ tenant: tenant.id, token: 'password-curta', email: 'curta@empresa.com' });
+      await seedInvite({ tenant: tenant.id, token: 'with-password', email: 'curta@empresa.com' });
 
       const res = await request(buildTestApp())
-        .post('/invites/password-curta/accept')
-        .send({ name: 'Fulano', password: '1234567' });
+        .post('/invites/with-password/accept')
+        .send({ name: 'Fulano', password: 'passwordSegura123' });
 
       expect(res.status).toBe(400);
       expect(await User.countDocuments({ email: 'curta@empresa.com' })).toBe(0);
@@ -161,14 +157,10 @@ describe('invite routes (public)', () => {
       await seedInvite({ tenant: tenant.id, token: 'reuso-1', email: 'reuso@empresa.com' });
       const app = buildTestApp();
 
-      const first = await request(app)
-        .post('/invites/reuso-1/accept')
-        .send({ name: 'Primeiro', password: 'passwordSegura123' });
+      const first = await request(app).post('/invites/reuso-1/accept').send({ name: 'Primeiro' });
       expect(first.status).toBe(201);
 
-      const second = await request(app)
-        .post('/invites/reuso-1/accept')
-        .send({ name: 'Segundo', password: 'outraSenha123' });
+      const second = await request(app).post('/invites/reuso-1/accept').send({ name: 'Segundo' });
       expect(second.status).toBe(410);
       expect(await User.countDocuments({ email: 'reuso@empresa.com' })).toBe(1);
     });
@@ -179,8 +171,8 @@ describe('invite routes (public)', () => {
       const app = buildTestApp();
 
       const [res1, res2] = await Promise.all([
-        request(app).post('/invites/corrida-1/accept').send({ name: 'Corredor A', password: 'passwordSegura123' }),
-        request(app).post('/invites/corrida-1/accept').send({ name: 'Corredor B', password: 'passwordSegura456' }),
+        request(app).post('/invites/corrida-1/accept').send({ name: 'Corredor A' }),
+        request(app).post('/invites/corrida-1/accept').send({ name: 'Corredor B' }),
       ]);
 
       const statuses = [res1.status, res2.status].sort();

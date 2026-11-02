@@ -128,7 +128,7 @@ export const buildApp = (
   app.use('/tenant/activity-log', createActivityLogRouter({ validToken }));
   app.use('/tenant', createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/invites', inviteRouter);
-  app.use('/auth', createAuthRouter({ validToken }));
+  app.use('/auth', createAuthRouter({ validToken, mailProvider, accessUrl: `${env.CORS_ORIGIN}/auth` }));
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/expert-cases', createCaseRouter({ validToken }));

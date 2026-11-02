@@ -122,7 +122,6 @@ describe('createAuthMiddleware', () => {
     const user = await User.create({
       name: 'Beatriz',
       email: 'beatriz@example.com',
-      password: 'hash',
       Tenant: tenant._id,
       role: ['operator'],
     });
@@ -155,7 +154,6 @@ describe('createAuthMiddleware', () => {
     const user = await User.create({
       name: 'Ana',
       email: 'ana@example.com',
-      password: 'hash',
       Tenant: tenant._id,
       role: ['manager'],
     });
@@ -188,7 +186,6 @@ describe('createAuthMiddleware', () => {
     const user = await User.create({
       name: 'Carlos',
       email: 'carlos@example.com',
-      password: 'hash',
       Tenant: tenant._id,
       role: ['admin'],
     });
@@ -213,7 +210,6 @@ describe('createAuthMiddleware', () => {
     const user = await User.create({
       name: 'Duda',
       email: 'duda@example.com',
-      password: 'hash',
       Tenant: tenant._id,
       role: ['manager'],
     });
@@ -263,7 +259,6 @@ describe('createAuthMiddleware', () => {
       const user = await User.create({
         name: 'Elis',
         email: 'elis@example.com',
-        password: 'hash',
         Tenant: tenant._id,
         role: ['operator'],
       });
@@ -285,7 +280,6 @@ describe('createAuthMiddleware', () => {
       const user = await User.create({
         name: 'Fábio',
         email: 'fabio@example.com',
-        password: 'hash',
         Tenant: tenant._id,
         role: ['admin'],
       });
@@ -308,7 +302,6 @@ describe('createAuthMiddleware', () => {
       const user = await User.create({
         name: 'Gabriela',
         email: 'gabriela@example.com',
-        password: 'hash',
         Tenant: tenant._id,
         role: ['operator'],
         active: false,
@@ -326,7 +319,6 @@ describe('createAuthMiddleware', () => {
       const user = await User.create({
         name: 'Heitor',
         email: 'heitor@example.com',
-        password: 'hash',
         Tenant: tenant._id,
         role: ['manager'],
       });

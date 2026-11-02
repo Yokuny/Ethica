@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import { ALL_PERMISSIONS, PROFILE_PERMISSIONS, type Role } from '@ethica/contracts';
-import { connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
-import bcrypt from 'bcrypt';
+import { AccessKey, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
@@ -40,12 +39,28 @@ const buildAuthDeps = (): AuthDeps => ({
   },
 });
 
+// Captures the access key e-mails (AD-155): code in the subject, token in the button link.
+const sentMails: Array<{ to: string; subject: string; body: string }> = [];
+const mailProvider = {
+  send: async (to: string, subject: string, body: string) => {
+    sentMails.push({ to, subject, body });
+    return { sent: true };
+  },
+};
+const lastKey = () => {
+  const mail = sentMails.at(-1) as { subject: string; body: string };
+  return {
+    code: (mail.subject.match(/(\d{6})$/) as RegExpMatchArray)[1] as string,
+    token: (mail.body.match(/token=([a-f0-9]{64})/) as RegExpMatchArray)[1] as string,
+  };
+};
+
 const buildTestApp = () => {
   const app = express();
   app.use(cookieParser());
   app.use(express.json());
   const { validToken } = createAuthMiddleware(buildAuthDeps());
-  app.use('/auth', createAuthRouter({ validToken }));
+  app.use('/auth', createAuthRouter({ validToken, mailProvider, accessUrl: 'http://web.test/auth' }));
   app.use(errorHandler);
   return app;
 };
@@ -58,7 +73,8 @@ describe('auth routes', () => {
   });
 
   afterEach(async () => {
-    await Promise.all([Session.deleteMany({}), User.deleteMany({}), Tenant.deleteMany({})]);
+    sentMails.length = 0;
+    await Promise.all([Session.deleteMany({}), User.deleteMany({}), Tenant.deleteMany({}), AccessKey.deleteMany({})]);
   });
 
   afterAll(async () => {
@@ -67,11 +83,9 @@ describe('auth routes', () => {
 
   const seedUser = async (overrides: { active?: boolean; role?: Role[] } = {}) => {
     const tenant = await Tenant.create({ name: 'Empresa Login', document: '55555555000155', status: 'active' });
-    const hashed = await bcrypt.hash('passwordCorreta123', 10);
     const user = await User.create({
       name: 'Usuária Login',
       email: 'login@empresa.com',
-      password: hashed,
       Tenant: tenant._id,
       role: overrides.role ?? ['manager'],
       active: overrides.active ?? true,
@@ -79,8 +93,8 @@ describe('auth routes', () => {
     return { tenant, user };
   };
 
-  // GET /auth/users does not need to go through the real POST /auth/signin (and
-  // spend its budget of 5 attempts/15min, signinRateLimit) — same
+  // Most routes do not need the real access key flow (and spend its budget of
+  // 5 requests/15min, accessKeyRateLimit) — same
   // issueSessionCookie shortcut as in conversation.router.e2e.test.ts, which
   // writes the Session directly and signs the JWT with the same secret/shape.
   const issueSessionCookie = async (userId: string): Promise<string> => {
@@ -94,55 +108,127 @@ describe('auth routes', () => {
     return `refreshToken=${rawToken}`;
   };
 
-  describe('POST /auth/signin', () => {
-    it('sets an httpOnly refreshToken cookie and persists a matching Session on correct credentials (FND-04)', async () => {
+  describe('access by e-mail key (AD-155)', () => {
+    it('sends link and code; the link signs in once, with an httpOnly cookie and a matching Session (ACE-01/03)', async () => {
       const { user } = await seedUser();
+      const app = buildTestApp();
 
-      const res = await request(buildTestApp())
-        .post('/auth/signin')
-        .set('User-Agent', DEVICE)
-        .send({ email: 'login@empresa.com', password: 'passwordCorreta123' });
+      const sent = await request(app).post('/auth/access-key').send({ email: 'Login@Empresa.com' });
+      expect(sent.status).toBe(200);
+      expect(sent.body.message).toBe('access_key_sent');
+      expect(sentMails[0]?.to).toBe('login@empresa.com');
+      expect(sentMails[0]?.body).toContain('http://web.test/auth?token=');
 
+      const { token } = lastKey();
+      const res = await request(app).post('/auth/access-key/verify').set('User-Agent', DEVICE).send({ token });
       expect(res.status).toBe(200);
-      expect(res.body).toEqual({ success: true, data: undefined, message: 'signed_in_successfully' });
+      expect(res.body.data).toEqual({ signedIn: true });
 
       const setCookie = res.headers['set-cookie'] as unknown as string[];
-      expect(setCookie?.[0]).toMatch(/refreshToken=/);
       expect(setCookie?.[0]).toMatch(/HttpOnly/i);
-
       const rawToken = setCookie[0].split(';')[0].split('=')[1];
       const session = await Session.findOne({ tokenHash: hashToken(rawToken) }).lean();
-      expect(session).not.toBeNull();
       expect(session?.user.toString()).toBe(user.id);
       expect(session?.deviceInfo).toBe(DEVICE);
+
+      const again = await request(app).post('/auth/access-key/verify').send({ token });
+      expect(again.status).toBe(401);
+      expect(again.body.message).toBe('invalid_access_key');
     });
 
-    it('responds 401 and creates no session on wrong password (FND-04)', async () => {
-      await seedUser();
-
-      const res = await request(buildTestApp())
-        .post('/auth/signin')
-        .set('User-Agent', DEVICE)
-        .send({ email: 'login@empresa.com', password: 'passwordErrada' });
-
-      expect(res.status).toBe(401);
-      expect(await Session.countDocuments({})).toBe(0);
-    });
-
-    it('never 401s on GET /auth/session called immediately after signin in the same sequence (Risk 5 — awaited session write)', async () => {
+    it('signs in with the 6-digit code and GET /auth/session right after never 401s (Risk 5)', async () => {
       await seedUser();
       const app = buildTestApp();
 
-      const signinRes = await request(app)
-        .post('/auth/signin')
+      await request(app).post('/auth/access-key').send({ email: 'login@empresa.com' });
+      const res = await request(app)
+        .post('/auth/access-key/verify')
         .set('User-Agent', DEVICE)
-        .send({ email: 'login@empresa.com', password: 'passwordCorreta123' });
-      const cookie = (signinRes.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+        .send({ email: 'login@empresa.com', code: lastKey().code });
+      const cookie = (res.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
 
       const sessionRes = await request(app).get('/auth/session').set('Cookie', cookie).set('User-Agent', DEVICE);
-
-      expect(sessionRes.status).not.toBe(401);
       expect(sessionRes.status).toBe(200);
+    });
+
+    it('discards the key after 5 wrong codes, even if the right one comes next (ACE-02)', async () => {
+      await seedUser();
+      const app = buildTestApp();
+
+      await request(app).post('/auth/access-key').send({ email: 'login@empresa.com' });
+      const { code } = lastKey();
+      const wrong = code === '000000' ? '111111' : '000000';
+      for (let i = 0; i < 5; i++) {
+        const res = await request(app)
+          .post('/auth/access-key/verify')
+          .send({ email: 'login@empresa.com', code: wrong });
+        expect(res.status).toBe(401);
+      }
+      const right = await request(app).post('/auth/access-key/verify').send({ email: 'login@empresa.com', code });
+      expect(right.status).toBe(401);
+      expect(await Session.countDocuments({})).toBe(0);
+    });
+
+    it('answers the same for a deactivated account but sends nothing (ACE-01)', async () => {
+      await seedUser({ active: false });
+
+      const res = await request(buildTestApp()).post('/auth/access-key').send({ email: 'login@empresa.com' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.message).toBe('access_key_sent');
+      expect(sentMails).toHaveLength(0);
+    });
+
+    it('a new e-mail confirms and creates its own active office as admin (ACE-04)', async () => {
+      const app = buildTestApp();
+
+      await request(app).post('/auth/access-key').send({ email: 'nova@perita.com' });
+      const verified = await request(app)
+        .post('/auth/access-key/verify')
+        .send({ email: 'nova@perita.com', code: lastKey().code });
+      expect(verified.status).toBe(200);
+      expect(verified.headers['set-cookie']).toBeUndefined();
+      const { signupToken } = verified.body.data as { signupToken: string };
+
+      const res = await request(app)
+        .post('/auth/signup')
+        .set('User-Agent', DEVICE)
+        .send({ signupToken, name: 'Nova Perita', officeName: 'Perícias Nova', document: '11.222.333/0001-81' });
+      expect(res.status).toBe(201);
+      const cookie = (res.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+
+      const session = await request(app).get('/auth/session').set('Cookie', cookie).set('User-Agent', DEVICE);
+      expect(session.body.data.tenant).toMatchObject({ name: 'Perícias Nova', status: 'active' });
+      expect(session.body.data.user).toMatchObject({ name: 'Nova Perita', email: 'nova@perita.com' });
+      expect(session.body.data.role).toEqual(['admin']);
+
+      const twice = await request(app)
+        .post('/auth/signup')
+        .send({ signupToken, name: 'Nova Perita', officeName: 'Outro', document: '44555666000177' });
+      expect(twice.status).toBe(409);
+      expect(twice.body.message).toBe('email_already_registered');
+    });
+
+    it('rejects a forged sign-up ticket and a document already in use', async () => {
+      await seedUser();
+      const app = buildTestApp();
+      const base = { name: 'Alguém', officeName: 'Escritório' };
+
+      const forged = await request(app)
+        .post('/auth/signup')
+        .send({
+          ...base,
+          signupToken: jwt.sign({ email: 'x@y.com', purpose: 'signup' }, 'outro'),
+          document: '44555666000177',
+        });
+      expect(forged.status).toBe(401);
+
+      const signupToken = jwt.sign({ email: 'x@y.com', purpose: 'signup' }, env.SESSION_JWT_SECRET);
+      const taken = await request(app)
+        .post('/auth/signup')
+        .send({ ...base, signupToken, document: '55555555000155' });
+      expect(taken.status).toBe(409);
+      expect(taken.body.message).toBe('document_already_registered');
     });
   });
 
@@ -150,12 +236,7 @@ describe('auth routes', () => {
     it("returns {tenant,user,role} read from the database — a live update to the user's name/tenant is reflected, and a suspended tenant gets 403 (FND-05, AD-014)", async () => {
       const { tenant, user } = await seedUser();
       const app = buildTestApp();
-
-      const signinRes = await request(app)
-        .post('/auth/signin')
-        .set('User-Agent', DEVICE)
-        .send({ email: 'login@empresa.com', password: 'passwordCorreta123' });
-      const cookie = (signinRes.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+      const cookie = await issueSessionCookie(user.id);
 
       // Changes the state in the database AFTER the session is issued — if the response
       // came from the token payload (or from something cached), the old value
@@ -197,14 +278,9 @@ describe('auth routes', () => {
 
   describe('POST /auth/signout', () => {
     it('deletes the Session and clears the refreshToken cookie, revoking a later GET /auth/session', async () => {
-      await seedUser();
+      const { user } = await seedUser();
       const app = buildTestApp();
-
-      const signinRes = await request(app)
-        .post('/auth/signin')
-        .set('User-Agent', DEVICE)
-        .send({ email: 'login@empresa.com', password: 'passwordCorreta123' });
-      const cookie = (signinRes.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+      const cookie = await issueSessionCookie(user.id);
       const rawToken = cookie.split('=')[1];
 
       const res = await request(app).post('/auth/signout').set('Cookie', cookie).set('User-Agent', DEVICE);
@@ -240,7 +316,6 @@ describe('auth routes', () => {
       const ana = await User.create({
         name: 'Ana',
         email: `ana-${randomId()}@empresa.com`,
-        password: 'hash',
         Tenant: tenant._id,
         role: ['operator'],
       });
@@ -248,7 +323,6 @@ describe('auth routes', () => {
       await User.create({
         name: 'De Outro Tenant',
         email: `other-${randomId()}@empresa.com`,
-        password: 'hash',
         Tenant: otherTenant._id,
         role: ['operator'],
       });
@@ -269,7 +343,6 @@ describe('auth routes', () => {
       const inactive = await User.create({
         name: 'Ex Colaboradora',
         email: `ex-${randomId()}@empresa.com`,
-        password: 'hash',
         Tenant: tenant._id,
         role: ['operator'],
         active: false,
@@ -316,12 +389,11 @@ describe('auth routes', () => {
   describe('GET /auth/users/directory', () => {
     const randomId = (): string => crypto.randomBytes(12).toString('hex');
 
-    it('responds 200 to an admin with name, email, role and active of every User of the tenant, never the password', async () => {
+    it('responds 200 to an admin with name, email, role and active of every User of the tenant, never a password', async () => {
       const { tenant, user: admin } = await seedUser({ role: ['admin'] });
       const ana = await User.create({
         name: 'Ana',
         email: `ana-${randomId()}@empresa.com`,
-        password: 'hash',
         Tenant: tenant._id,
         role: ['operator'],
         active: false,
@@ -330,7 +402,6 @@ describe('auth routes', () => {
       await User.create({
         name: 'De Outro Tenant',
         email: `other-${randomId()}@empresa.com`,
-        password: 'hash',
         Tenant: otherTenant._id,
         role: ['admin'],
       });
@@ -400,7 +471,6 @@ describe('auth routes', () => {
       const member = await User.create({
         name: 'Secretária',
         email: `sec-${randomId()}@empresa.com`,
-        password: 'hash',
         Tenant: tenant._id,
         role: ['operator'],
       });
@@ -427,7 +497,6 @@ describe('auth routes', () => {
       const manager = await User.create({
         name: 'Gestor',
         email: `g-${randomId()}@empresa.com`,
-        password: 'hash',
         Tenant: tenant._id,
         role: ['manager'],
       });

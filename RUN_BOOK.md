@@ -49,15 +49,19 @@ pnpm --filter api run seed:demo
 # ou: docker compose exec api /app/node_modules/.bin/tsx scripts/seed-demo.ts
 ```
 
-Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis meses de lançamentos e oportunidades (datas relativas a hoje). Logins (senha `asdQWE123!@#`, ou `SEED_PASSWORD`): `admin@pericias.example.com`, `manager@pericias.example.com`, `operator@pericias.example.com`. Rodar de novo apaga e recria só esse tenant.
+Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis meses de lançamentos e oportunidades (datas relativas a hoje). Logins sem senha (AD-155): `admin@pericias.example.com`, `manager@pericias.example.com`, `operator@pericias.example.com`. Em `http://localhost:15173/auth`, informe o e-mail; com `MAIL_PROVIDER=log` o código de 6 dígitos e o link saem no log da API (`docker compose logs api | grep mail.log_send`). Rodar de novo apaga e recria só esse tenant.
 
 ## Primeiro acesso (tenant real)
 
-1. Seed do admin de plataforma (idempotente): `pnpm --filter api run seed:platform-admin` → `admin@platform.local` / `plataforma123`.
-2. Login e cookie:
+O caminho normal é o **cadastro aberto** (AD-155): a pessoa informa um e-mail novo em `/auth`, confirma com a chave enviada e cria o próprio escritório (vira admin). O roteiro abaixo é o da plataforma, para criar um escritório e convidar o admin dele.
+
+1. Seed do admin de plataforma (idempotente): `pnpm --filter api run seed:platform-admin` → `admin@platform.local` (sem senha).
+2. Login e cookie — pedir a chave e confirmar com o código que sai no e-mail (ou no log com `MAIL_PROVIDER=log`):
    ```bash
-   curl -c /tmp/ethica.cookies -X POST http://localhost:18080/auth/signin \
-     -H 'Content-Type: application/json' -d '{"email":"admin@platform.local","password":"plataforma123"}'
+   curl -X POST http://localhost:18080/auth/access-key \
+     -H 'Content-Type: application/json' -d '{"email":"admin@platform.local"}'
+   curl -c /tmp/ethica.cookies -X POST http://localhost:18080/auth/access-key/verify \
+     -H 'Content-Type: application/json' -d '{"email":"admin@platform.local","code":"<CÓDIGO>"}'
    ```
 3. Criar o tenant (`document` = CNPJ com 14 dígitos, único):
    ```bash

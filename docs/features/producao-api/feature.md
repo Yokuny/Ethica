@@ -46,6 +46,7 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 
 ## Histórico
 
+- 2026-11-02 — SMTP passa a ser obrigatório em produção (AD-156): com o acesso só por e-mail (`docs/features/acesso-email/feature.md`), a API não sobe sem `MAIL_PROVIDER=nodemailer`, `SMTP_HOST` e `SMTP_FROM`. Divergência da spec, que tratava o SMTP como opcional.
 - 2026-11-01 — Spec criada (`.specs/features/producao-api/spec.md`).
 - 2026-11-02 — `/metrics` deixa de existir em produção (`apps/api/src/app.ts`): a API é pública e nada coleta as métricas lá; em dev e nos testes continua.
 - 2026-11-02 — A API lê a porta de `PORT` (Railway) antes de `API_PORT` em `apps/api/src/config/env.config.ts`, qualquer que seja o comando de início; o `Dockerfile` volta a chamar o `tsx` direto.
