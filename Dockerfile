@@ -31,5 +31,5 @@ ENV NODE_ENV=production
 WORKDIR /app/apps/api
 USER node
 
-# A Railway injeta a porta em PORT; a API escuta em API_PORT.
-CMD ["sh", "-c", "API_PORT=${PORT:-$API_PORT} exec /app/node_modules/.bin/tsx src/server.ts"]
+# A porta vem de PORT (Railway) ou API_PORT (apps/api/src/config/env.config.ts).
+CMD ["/app/node_modules/.bin/tsx", "src/server.ts"]

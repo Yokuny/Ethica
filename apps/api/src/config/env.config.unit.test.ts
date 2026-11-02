@@ -35,4 +35,10 @@ describe('parseEnv', () => {
     delete fromExample[key];
     expect(() => parseEnv(fromExample)).toThrowError(new RegExp(key));
   });
+
+  it('uses PORT as API_PORT when the host injects it', () => {
+    const fromExample = parseDotEnvExample();
+    delete fromExample.API_PORT;
+    expect(parseEnv({ ...fromExample, PORT: '8080' }).API_PORT).toBe('8080');
+  });
 });

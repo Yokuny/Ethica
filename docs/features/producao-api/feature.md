@@ -49,6 +49,7 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 ## Histórico
 
 - 2026-11-01 — Spec criada (`.specs/features/producao-api/spec.md`).
+- 2026-11-02 — A API lê a porta de `PORT` (Railway) antes de `API_PORT` em `apps/api/src/config/env.config.ts`, qualquer que seja o comando de início; o `Dockerfile` volta a chamar o `tsx` direto.
 - 2026-11-02 — `vercel.json` sai de `apps/web` para a raiz (com o comando de montagem do web), porque o projeto da Vercel monta a partir da raiz do repositório; a AD-153 cita o caminho antigo.
 - 2026-11-01 — A imagem passa a escutar na `PORT` injetada pela Railway (sem configurar `API_PORT`); `MONGODB_URI` do Atlas precisa do nome do banco.
 - 2026-11-01 — Hospedagem Railway + Vercel (AD-153). Divergência da spec: a imagem roda `tsx` em vez de compilar com `tsc` em multi-stage, e a hospedagem, que estava fora de escopo, foi decidida.

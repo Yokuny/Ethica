@@ -39,8 +39,9 @@ export type Env = z.infer<typeof envSchema>;
 
 // safeParse (not parse): controls the failure message to NAME the missing
 // variable instead of exposing the raw Zod error.
+// PORT (injected by Railway, AD-153) wins over API_PORT, whatever start command runs the API.
 export const parseEnv = (source: NodeJS.ProcessEnv): Env => {
-  const result = envSchema.safeParse(source);
+  const result = envSchema.safeParse({ ...source, API_PORT: source.PORT ?? source.API_PORT });
   if (!result.success) {
     const missing = result.error.issues.map((issue) => issue.path.join('.')).join(', ');
     throw new Error(`Variável(is) de ambiente ausente(s) ou inválida(s): ${missing}`);
