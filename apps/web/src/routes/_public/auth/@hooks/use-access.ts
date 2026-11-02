@@ -1,4 +1,10 @@
-import { type AccessKeyRequest, type AccessKeyVerify, accessKeyRequestSchema } from '@ethica/contracts';
+import {
+  type AccessKeyRequest,
+  type AccessKeyVerify,
+  accessKeyRequestSchema,
+  type PasswordAccess,
+  passwordAccessSchema,
+} from '@ethica/contracts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -11,10 +17,11 @@ import {
   type OfficeForm,
   officeFormSchema,
 } from '../@interface/auth.interface.js';
-import { requestAccessKey, signup, verifyAccessKey } from '../@query/access.js';
+import { passwordAccess, requestAccessKey, signup, verifyAccessKey } from '../@query/access.js';
 
 // ACE-01 to ACE-04 (AD-155): e-mail → key (code typed here or the e-mail link) → office
-// creation when the confirmed e-mail has no account yet.
+// creation when the confirmed e-mail has no account yet. AD-157: the test sign-up (e-mail +
+// password) takes the key's place and leads to the same office step.
 export function useAccess(token?: string) {
   const navigate = useNavigate();
   const [step, setStep] = useState<AccessStep>(token ? 'checking' : 'email');
@@ -28,6 +35,10 @@ export function useAccess(token?: string) {
   const codeForm = useForm<AccessCodeForm>({
     resolver: zodResolver(accessCodeFormSchema),
     defaultValues: { code: '' },
+  });
+  const passwordForm = useForm<PasswordAccess>({
+    resolver: zodResolver(passwordAccessSchema),
+    defaultValues: { email: '', password: '' },
   });
   const officeForm = useForm<OfficeForm>({
     resolver: zodResolver(officeFormSchema),
@@ -88,6 +99,27 @@ export function useAccess(token?: string) {
     navigate({ to: '/' });
   };
 
+  const onSubmitPassword = async (data: PasswordAccess) => {
+    setErrorMessage(undefined);
+    const response = await passwordAccess(data);
+    if (!response.success) {
+      setErrorMessage(response.message || t('action_error'));
+      return;
+    }
+    if (response.data?.signupToken) {
+      setEmail(data.email);
+      setSignupToken(response.data.signupToken);
+      setStep('office');
+      return;
+    }
+    navigate({ to: '/' });
+  };
+
+  const openTestSignup = () => {
+    setErrorMessage(undefined);
+    setStep('password');
+  };
+
   const resend = () => onSubmitEmail({ email });
 
   const changeEmail = () => {
@@ -101,10 +133,13 @@ export function useAccess(token?: string) {
     errorMessage,
     emailForm,
     codeForm,
+    passwordForm,
     officeForm,
     onSubmitEmail,
     onSubmitCode,
     onSubmitOffice,
+    onSubmitPassword,
+    openTestSignup,
     resend,
     changeEmail,
   };

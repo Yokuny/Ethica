@@ -16,6 +16,7 @@ describe('schemaRegistry', () => {
         'updateAvatarSchema',
         'accessKeyRequestSchema',
         'accessKeyVerifySchema',
+        'passwordAccessSchema',
         'signupSchema',
         'idSchema',
         'inviteTokenParamSchema',

@@ -39,7 +39,7 @@ describe('AuthPage', () => {
     expect(screen.getByText('Entrar')).toBeInTheDocument();
     expect(document.querySelector('a[href="/"]')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Conta' })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('button')).toHaveLength(2); // Text size and submit; fixed light theme.
+    expect(screen.getAllByRole('button')).toHaveLength(3); // Text size, submit and test sign-up; fixed light theme.
   });
 
   it('sends the key to the e-mail, then signs in with the 6-digit code (ACE-01/03)', async () => {
@@ -103,5 +103,29 @@ describe('AuthPage', () => {
     expect(await screen.findByText('Chave de acesso inválida ou vencida. Peça uma nova.')).toBeInTheDocument();
     expect(screen.getByLabelText('Código de acesso')).toBeInTheDocument();
     expect(navigateMock).not.toHaveBeenCalled();
+  });
+
+  it('test sign-up: e-mail + password lead to the office step, then create it (AD-157)', async () => {
+    postMock.mockResolvedValueOnce({ success: true, data: { signupToken: 'ticket' } });
+    postMock.mockResolvedValueOnce({ success: true });
+    const user = userEvent.setup();
+    render(<AuthPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Cadastro de teste' }));
+    await user.type(screen.getByLabelText('E-mail'), 'teste@perita.com');
+    await user.type(screen.getByLabelText('Senha'), 'senha-de-teste');
+    await user.click(screen.getByRole('button', { name: 'Entrar' }));
+    await waitFor(() =>
+      expect(postMock).toHaveBeenCalledWith('/auth/password', {
+        email: 'teste@perita.com',
+        password: 'senha-de-teste',
+      }),
+    );
+
+    await user.type(await screen.findByLabelText('Seu nome'), 'Perita Teste');
+    await user.type(screen.getByLabelText('Nome do escritório'), 'Perícias Teste');
+    await user.type(screen.getByLabelText('CNPJ'), '11.222.333/0001-81');
+    await user.click(screen.getByRole('button', { name: 'Criar escritório' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
   });
 });

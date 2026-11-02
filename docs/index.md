@@ -57,6 +57,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-157** (2026-11-02, active) — Enquanto o envio de e-mail estiver bloqueado na Railway (plano Hobby não libera SMTP), a tela `/auth` ganha o "Cadastro de teste": e-mail +
 - **AD-156** (2026-11-02, active) — Em produção (`NODE_ENV=production`) a API recusa subir sem `MAIL_PROVIDER=nodemailer`, `SMTP_HOST` e `SMTP_FROM` (`apps/api/src/config/env.c
 - **AD-155** (2026-11-02, active) — O Ethica deixa de ter senha. Entrar e se cadastrar é pela chave de acesso enviada ao e-mail (`AccessKey` em `packages/db`, dono `identity`):
 - **AD-154** (2026-11-02, active) — O fluxo da AD-143 deixa de validar na tela local e de terminar a entrega com o endereço `http://localhost:15173` ou a pergunta de subir o si
@@ -66,7 +67,6 @@ _Nenhum._
 - **AD-150** (2026-11-01, active) — O mapa do dia ganha ponto de partida escolhido (localização, endereço do escritório ou endereço digitado, lembrado por pessoa no servidor) e
 - **AD-149** (2026-11-01, active) — Laudo concluído pode ser reaberto ("Editar laudo") por quem tem `expert_reports` `update`: volta a rascunho sem desfazer prazo protocolado,
 - **AD-148** (2026-11-01, active) — Membros do escritório têm CRUD só do admin: convidar (já existe), editar nome e perfil, desativar e reativar, e cancelar ou reenviar convite
-- **AD-147** (2026-11-01, active) — Os avisos (prazos hoje; financeiro e push em `avisos-notificacoes`) passam a sair de uma varredura agendada (cron no processo da API, a cada
 
 ## `.specs/` sem registro em `docs/features/`
 

@@ -767,6 +767,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-02
 - **Status**: active
 
+### AD-157
+- **Decision**: Enquanto o envio de e-mail estiver bloqueado na Railway (plano Hobby não libera SMTP), a tela `/auth` ganha o "Cadastro de teste": e-mail + senha por conta. E-mail novo segue para o passo "Criar escritório" (mesmo ticket da AD-155, agora carregando o hash da senha) e vira admin; e-mail com senha entra direto. Supersede parcialmente a AD-155 (a senha volta, só para essas contas).
+- **Reason**: pedido do dono do produto para usar o sistema em produção sem esperar o e-mail. Senha por conta (e não uma senha única de teste) foi a escolha dele.
+- **Trade-off**: a rota é pública: qualquer pessoa cria conta de teste com qualquer e-mail, sem provar que é dona dele, e esse e-mail fica ocupado para o cadastro pela chave. Conta criada pela chave não tem senha e nunca entra por aqui. Hash com `crypto.scrypt` (sem dependência nova), `select: false`. Remover a tela e `User.passwordHash` quando o envio de e-mail funcionar.
+- **Scope**: `packages/db/src/models/user.model.ts`, `packages/contracts/src/schemas/access.schema.ts`, `apps/api/src/modules/identity/auth.*`, `apps/web/src/routes/_public/auth/`.
+- **Date**: 2026-11-02
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `acesso-email` — concluída: acesso e cadastro só pela chave enviada ao e-mail (AD-155). Produção precisa do SMTP configurado na Railway para o deploy entrar no ar (AD-156).

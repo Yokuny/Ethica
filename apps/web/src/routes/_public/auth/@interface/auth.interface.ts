@@ -14,5 +14,5 @@ export type AccessCodeForm = z.infer<typeof accessCodeFormSchema>;
 export const officeFormSchema = signupSchema.omit({ signupToken: true });
 export type OfficeForm = z.infer<typeof officeFormSchema>;
 
-export type AccessStep = 'email' | 'code' | 'office' | 'checking';
+export type AccessStep = 'email' | 'code' | 'password' | 'office' | 'checking';
 export type AccessVerifyResult = { signedIn?: true; signupToken?: string };

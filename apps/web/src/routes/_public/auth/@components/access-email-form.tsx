@@ -11,9 +11,10 @@ type AccessEmailFormProps = {
   form: UseFormReturn<AccessKeyRequest>;
   errorMessage?: string;
   onSubmit: (data: AccessKeyRequest) => Promise<void>;
+  onTestSignup: () => void;
 };
 
-export function AccessEmailForm({ form, errorMessage, onSubmit }: AccessEmailFormProps) {
+export function AccessEmailForm({ form, errorMessage, onSubmit, onTestSignup }: AccessEmailFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
@@ -45,6 +46,9 @@ export function AccessEmailForm({ form, errorMessage, onSubmit }: AccessEmailFor
         {errorMessage && <ItemDescription role="alert">{errorMessage}</ItemDescription>}
         <Button type="submit" disabled={form.formState.isSubmitting}>
           {t('send_access_key')}
+        </Button>
+        <Button type="button" variant="ghost" onClick={onTestSignup}>
+          {t('test_signup')}
         </Button>
       </form>
     </Form>

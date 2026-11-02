@@ -9,6 +9,7 @@ import {
   accessKeyRequestSchema,
   accessKeyVerifySchema,
   listUsersQuerySchema,
+  passwordAccessSchema,
   signupSchema,
   updatePermissionsSchema,
   userDirectoryQuerySchema,
@@ -40,6 +41,8 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     validBody(accessKeyVerifySchema),
     authController.verifyAccessKey,
   );
+  // AD-157: test sign-up by e-mail + password, same limit as checking the key.
+  router.post('/password', accessVerifyRateLimit, validBody(passwordAccessSchema), authController.passwordAccess);
   router.post('/signup', accessVerifyRateLimit, validBody(signupSchema), authController.signup);
   // No validToken: signing out has to work (and clear the cookie) even with the
   // session already invalid.

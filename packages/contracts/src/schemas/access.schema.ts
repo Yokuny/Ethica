@@ -11,6 +11,17 @@ export const accessKeyVerifySchema = z.union([
   z.object({ email: emailSchema, code: z.string().regex(/^\d{6}$/, 'código deve ter 6 dígitos') }).strict(),
 ]);
 
+// AD-157: test sign-up — e-mail + password, without the e-mail key, while sending e-mail is blocked.
+export const passwordAccessSchema = z
+  .object({
+    email: emailSchema,
+    password: z
+      .string()
+      .min(8, 'senha deve ter entre 8 e 128 caracteres')
+      .max(128, 'senha deve ter entre 8 e 128 caracteres'),
+  })
+  .strict();
+
 // ACE-04: e-mail confirmed without an account creates its own office, with the person as admin.
 // Office only with CNPJ, like provisionTenantSchema (AD-144).
 export const signupSchema = z
@@ -35,4 +46,5 @@ export const signupSchema = z
 
 export type AccessKeyRequest = z.infer<typeof accessKeyRequestSchema>;
 export type AccessKeyVerify = z.infer<typeof accessKeyVerifySchema>;
+export type PasswordAccess = z.infer<typeof passwordAccessSchema>;
 export type Signup = z.infer<typeof signupSchema>;

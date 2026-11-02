@@ -5,7 +5,7 @@ descricao: Entrar e criar o escritório só com o e-mail, pela chave de acesso (
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-155, AD-156, AD-144]
+decisoes: [AD-155, AD-156, AD-157, AD-144]
 spec: [.specs/features/acesso-email]
 ---
 
@@ -22,6 +22,7 @@ spec: [.specs/features/acesso-email]
 - Convite pede só o nome. Minha conta perde o bloco Senha.
 - Sessão de 30 dias por aparelho.
 - A senha sai do banco, da API, dos scripts de carga e do bcrypt.
+- "Cadastro de teste" na tela `/auth` (AD-157), provisório enquanto a Railway bloqueia o envio de e-mail: e-mail + senha; e-mail novo cria o escritório, e-mail com senha entra. Só contas criadas por ali têm senha.
 
 ## Por que
 
@@ -48,3 +49,4 @@ A perita pediu que a segurança do login ficasse com o provedor de e-mail de cad
 ## Histórico
 
 - 2026-11-02 — Feature criada: acesso e cadastro pela chave enviada ao e-mail, cadastro aberto, sessão de 30 dias (AD-155); SMTP obrigatório em produção (AD-156). Escritório do cadastro aberto só com CNPJ, seguindo a AD-144.
+- 2026-11-02 — Cadastro de teste por e-mail + senha (AD-157), porque a Railway bloqueia SMTP no plano atual. Sessões passam a ter `jwtid` aleatório: duas entradas da mesma pessoa no mesmo segundo geravam o mesmo token.

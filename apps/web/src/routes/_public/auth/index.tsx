@@ -5,6 +5,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { AccessCodeForm } from './@components/access-code-form.js';
 import { AccessEmailForm } from './@components/access-email-form.js';
 import { AccessOfficeForm } from './@components/access-office-form.js';
+import { AccessPasswordForm } from './@components/access-password-form.js';
 import { useAccess } from './@hooks/use-access.js';
 import { authSearchSchema } from './@interface/auth.interface.js';
 
@@ -19,7 +20,20 @@ export function AuthPage() {
       <CardContent className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center">
         {access.step === 'checking' && <DefaultLoading />}
         {access.step === 'email' && (
-          <AccessEmailForm form={access.emailForm} errorMessage={access.errorMessage} onSubmit={access.onSubmitEmail} />
+          <AccessEmailForm
+            form={access.emailForm}
+            errorMessage={access.errorMessage}
+            onSubmit={access.onSubmitEmail}
+            onTestSignup={access.openTestSignup}
+          />
+        )}
+        {access.step === 'password' && (
+          <AccessPasswordForm
+            form={access.passwordForm}
+            errorMessage={access.errorMessage}
+            onSubmit={access.onSubmitPassword}
+            onBack={access.changeEmail}
+          />
         )}
         {access.step === 'code' && (
           <AccessCodeForm

@@ -1,6 +1,11 @@
 import type { ZodType } from 'zod';
 import { acceptInviteSchema } from './schemas/acceptInvite.schema.js';
-import { accessKeyRequestSchema, accessKeyVerifySchema, signupSchema } from './schemas/access.schema.js';
+import {
+  accessKeyRequestSchema,
+  accessKeyVerifySchema,
+  passwordAccessSchema,
+  signupSchema,
+} from './schemas/access.schema.js';
 import { updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
 import { listActivityLogQuerySchema } from './schemas/activityLog.schema.js';
 import { createAppointmentSchema, updateAppointmentSchema } from './schemas/appointment.schema.js';
@@ -71,6 +76,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'updateAvatarSchema', schema: updateAvatarSchema },
   { name: 'accessKeyRequestSchema', schema: accessKeyRequestSchema },
   { name: 'accessKeyVerifySchema', schema: accessKeyVerifySchema },
+  { name: 'passwordAccessSchema', schema: passwordAccessSchema },
   { name: 'signupSchema', schema: signupSchema },
   { name: 'idSchema', schema: idSchema },
   { name: 'inviteTokenParamSchema', schema: inviteTokenParamSchema },

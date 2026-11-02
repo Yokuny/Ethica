@@ -27,6 +27,20 @@ export const findUserByEmail = async (email: string): Promise<UserForSignin | nu
     return user ? { id: user._id.toString(), tenant: user.Tenant?.toString(), active: user.active } : null;
   });
 
+// AD-157: the test sign-up compares the password; no other read carries the hash.
+export const findUserWithPasswordHash = async (email: string) =>
+  withDbTiming('auth.findUserWithPasswordHash', async () => {
+    const user = await User.findOne({ email }).select('+passwordHash Tenant active').lean();
+    return user
+      ? {
+          id: user._id.toString(),
+          tenant: user.Tenant?.toString(),
+          active: user.active,
+          passwordHash: user.passwordHash,
+        }
+      : null;
+  });
+
 export const findUserView = async (userId: string): Promise<UserView | null> =>
   withDbTiming('auth.findUserView', async () => {
     const user = await User.findById(userId).lean();
@@ -196,9 +210,16 @@ export const createOfficeWithAdmin = async (data: {
   name: string;
   officeName: string;
   document: string;
+  passwordHash?: string;
 }): Promise<{ id: string; tenant: string }> =>
   withDbTiming('auth.createOfficeWithAdmin', async () => {
     const tenant = await Tenant.create({ name: data.officeName, document: data.document, status: 'active' });
-    const user = await User.create({ name: data.name, email: data.email, Tenant: tenant._id, role: ['admin'] });
+    const user = await User.create({
+      name: data.name,
+      email: data.email,
+      passwordHash: data.passwordHash,
+      Tenant: tenant._id,
+      role: ['admin'],
+    });
     return { id: user.id, tenant: tenant.id };
   });

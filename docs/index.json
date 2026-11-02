@@ -16,6 +16,7 @@
       "decisoes": [
         "AD-155",
         "AD-156",
+        "AD-157",
         "AD-144"
       ],
       "spec": [
@@ -1021,6 +1022,12 @@
     {
       "id": "AD-156",
       "decisao": "Em produção (`NODE_ENV=production`) a API recusa subir sem `MAIL_PROVIDER=nodemailer`, `SMTP_HOST` e `SMTP_FROM` (`apps/api/src/config/env.c",
+      "data": "2026-11-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-157",
+      "decisao": "Enquanto o envio de e-mail estiver bloqueado na Railway (plano Hobby não libera SMTP), a tela `/auth` ganha o \"Cadastro de teste\": e-mail +",
       "data": "2026-11-02",
       "status": "active"
     }

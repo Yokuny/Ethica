@@ -232,6 +232,48 @@ describe('auth routes', () => {
     });
   });
 
+  describe('test sign-up by e-mail + password (AD-157)', () => {
+    it('a new e-mail creates its office with the password, then signs in with it; a wrong one gets 401', async () => {
+      const app = buildTestApp();
+      const credentials = { email: 'teste@perita.com', password: 'senha-de-teste' };
+
+      const first = await request(app).post('/auth/password').send(credentials);
+      expect(first.status).toBe(200);
+      expect(first.headers['set-cookie']).toBeUndefined();
+      const { signupToken } = first.body.data as { signupToken: string };
+
+      const created = await request(app)
+        .post('/auth/signup')
+        .send({ signupToken, name: 'Perita Teste', officeName: 'Perícias Teste', document: '11.222.333/0001-81' });
+      expect(created.status).toBe(201);
+      const stored = await User.findOne({ email: credentials.email }).select('+passwordHash').lean();
+      expect(stored?.passwordHash).toMatch(/^[a-f0-9]{32}:[a-f0-9]{128}$/);
+
+      const again = await request(app).post('/auth/password').set('User-Agent', DEVICE).send(credentials);
+      expect(again.status).toBe(200);
+      expect(again.body.data).toEqual({ signedIn: true });
+      const cookie = (again.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+      const session = await request(app).get('/auth/session').set('Cookie', cookie).set('User-Agent', DEVICE);
+      expect(session.body.data.role).toEqual(['admin']);
+
+      const wrong = await request(app)
+        .post('/auth/password')
+        .send({ ...credentials, password: 'outra-senha' });
+      expect(wrong.status).toBe(401);
+      expect(wrong.body.message).toBe('invalid_credentials');
+    });
+
+    it('never signs in an account created by the e-mail key, which has no password', async () => {
+      await seedUser();
+      const app = buildTestApp();
+      const user = await User.findOne().lean();
+
+      const res = await request(app).post('/auth/password').send({ email: user?.email, password: 'qualquer-senha' });
+      expect(res.status).toBe(401);
+      expect(res.body.message).toBe('invalid_credentials');
+    });
+  });
+
   describe('GET /auth/session', () => {
     it("returns {tenant,user,role} read from the database — a live update to the user's name/tenant is reflected, and a suspended tenant gets 403 (FND-05, AD-014)", async () => {
       const { tenant, user } = await seedUser();

@@ -31,6 +31,7 @@ export const API_MESSAGE_KEYS = [
   'signed_out_successfully',
   'access_key_sent',
   'invalid_access_key',
+  'invalid_credentials',
   'document_already_registered',
   'email_send_failed',
   // Convites e links

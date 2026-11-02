@@ -6,7 +6,14 @@ import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { MailProvider } from '../../providers/mail/index.js';
 import * as activityLogService from './activityLog.service.js';
 import * as authRepository from './auth.repository.js';
-import type { AccessKeyVerify, SessionView, Signup, TenantUser, UpdatePermissions } from './auth.schema.js';
+import type {
+  AccessKeyVerify,
+  PasswordAccess,
+  SessionView,
+  Signup,
+  TenantUser,
+  UpdatePermissions,
+} from './auth.schema.js';
 
 // AD-155: no password — the person's mailbox proves who they are.
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -19,7 +26,11 @@ const hashCode = (email: string, code: string) => hashToken(`${email}:${code}`);
 // The single place that opens a session (sign-in, sign-up and invite acceptance). AWAITED
 // before the controller builds the cookie (Risk 5): the first /auth/session never gets a 401.
 export const startSession = async (user: { id: string; tenant?: string }, deviceInfo: string): Promise<string> => {
-  const sessionToken = jwt.sign({ user: user.id }, env.SESSION_JWT_SECRET, { expiresIn: '30d' });
+  // jwtid: two sessions of the same person in the same second would otherwise share the token.
+  const sessionToken = jwt.sign({ user: user.id }, env.SESSION_JWT_SECRET, {
+    expiresIn: '30d',
+    jwtid: crypto.randomUUID(),
+  });
   await authRepository.createSession({
     user: user.id,
     tenant: user.tenant,
@@ -93,9 +104,39 @@ const consumeByCode = async (email: string, code: string): Promise<string> => {
   return email;
 };
 
+// AD-157: test sign-up while sending e-mail is blocked. A known e-mail with a password signs in;
+// a new e-mail gets the same office creation ticket as the key, carrying the password hash.
+export const passwordAccess = async (
+  data: PasswordAccess,
+  deviceInfo: string,
+): Promise<{ sessionToken: string } | { signupToken: string }> => {
+  const user = await authRepository.findUserWithPasswordHash(data.email);
+  if (!user) {
+    const passwordHash = hashPassword(data.password);
+    const signupToken = jwt.sign({ email: data.email, passwordHash, purpose: 'signup' }, env.SESSION_JWT_SECRET, {
+      expiresIn: '30m',
+    });
+    return { signupToken };
+  }
+  if (!user.active || !user.passwordHash || !passwordMatches(data.password, user.passwordHash)) {
+    throw new CustomError('invalid_credentials', 401);
+  }
+  return { sessionToken: await startSession(user, deviceInfo) };
+};
+
+const hashPassword = (password: string): string => {
+  const salt = crypto.randomBytes(16).toString('hex');
+  return `${salt}:${crypto.scryptSync(password, salt, 64).toString('hex')}`;
+};
+
+const passwordMatches = (password: string, stored: string): boolean => {
+  const [salt, hash] = stored.split(':');
+  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), crypto.scryptSync(password, salt, 64));
+};
+
 // ACE-04: open sign-up — the confirmed e-mail creates an active office and becomes its admin.
 export const signup = async (data: Signup, deviceInfo: string): Promise<string> => {
-  const email = readSignupToken(data.signupToken);
+  const { email, passwordHash } = readSignupToken(data.signupToken);
   if (await authRepository.findUserByEmail(email)) throw new CustomError('email_already_registered', 409);
   if (await authRepository.tenantDocumentExists(data.document))
     throw new CustomError('document_already_registered', 409);
@@ -105,14 +146,24 @@ export const signup = async (data: Signup, deviceInfo: string): Promise<string> 
     name: data.name,
     officeName: data.officeName,
     document: data.document,
+    passwordHash,
   });
   return startSession(user, deviceInfo);
 };
 
-const readSignupToken = (signupToken: string): string => {
+const readSignupToken = (signupToken: string): { email: string; passwordHash?: string } => {
   try {
-    const decoded = jwt.verify(signupToken, env.SESSION_JWT_SECRET) as { email?: unknown; purpose?: unknown };
-    if (decoded.purpose === 'signup' && typeof decoded.email === 'string') return decoded.email;
+    const decoded = jwt.verify(signupToken, env.SESSION_JWT_SECRET) as {
+      email?: unknown;
+      passwordHash?: unknown;
+      purpose?: unknown;
+    };
+    if (decoded.purpose === 'signup' && typeof decoded.email === 'string') {
+      return {
+        email: decoded.email,
+        passwordHash: typeof decoded.passwordHash === 'string' ? decoded.passwordHash : undefined,
+      };
+    }
   } catch {
     // expired or forged — same answer below
   }

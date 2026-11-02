@@ -19,15 +19,27 @@ export const requestAccessKey =
     }
   };
 
+// The key (ACE-03) and the test password (AD-157) answer the same way: session or office ticket.
+const respondAccess = (res: Response, result: { sessionToken: string } | { signupToken: string }) => {
+  if ('signupToken' in result) {
+    res.json(respObj({ data: { signupToken: result.signupToken } }));
+    return;
+  }
+  res.cookie('refreshToken', result.sessionToken, cookieOptions);
+  res.json(respObj({ data: { signedIn: true }, message: 'signed_in_successfully' }));
+};
+
 export const verifyAccessKey = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const result = await authService.verifyAccessKey(req.body, deviceOf(req));
-    if ('signupToken' in result) {
-      res.json(respObj({ data: { signupToken: result.signupToken } }));
-      return;
-    }
-    res.cookie('refreshToken', result.sessionToken, cookieOptions);
-    res.json(respObj({ data: { signedIn: true }, message: 'signed_in_successfully' }));
+    respondAccess(res, await authService.verifyAccessKey(req.body, deviceOf(req)));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const passwordAccess = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    respondAccess(res, await authService.passwordAccess(req.body, deviceOf(req)));
   } catch (e) {
     next(e);
   }
