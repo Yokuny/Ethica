@@ -44,11 +44,11 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 - [ ] `design.md` e `tasks.md` (skill `ethica-spec-driven`).
 - [ ] Implementação, validação e UAT das pastas por perícia (PRD-01).
 - [ ] Criar os projetos na Railway e na Vercel e o cluster no Atlas; conferir se o domínio gerado pela Railway bate com o `vercel.json`.
-- [ ] `/metrics` responde sem login (também pela Vercel em `/api/metrics`); fechar antes de dados reais.
 
 ## Histórico
 
 - 2026-11-01 — Spec criada (`.specs/features/producao-api/spec.md`).
+- 2026-11-02 — `/metrics` deixa de existir em produção (`apps/api/src/app.ts`): a API é pública e nada coleta as métricas lá; em dev e nos testes continua.
 - 2026-11-02 — A API lê a porta de `PORT` (Railway) antes de `API_PORT` em `apps/api/src/config/env.config.ts`, qualquer que seja o comando de início; o `Dockerfile` volta a chamar o `tsx` direto.
 - 2026-11-02 — `vercel.json` sai de `apps/web` para a raiz (com o comando de montagem do web), porque o projeto da Vercel monta a partir da raiz do repositório; a AD-153 cita o caminho antigo.
 - 2026-11-01 — A imagem passa a escutar na `PORT` injetada pela Railway (sem configurar `API_PORT`); `MONGODB_URI` do Atlas precisa do nome do banco.

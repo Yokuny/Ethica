@@ -113,12 +113,15 @@ export const buildApp = (
     res.json(respObj({ data: { service: 'api' } }));
   });
 
-  // No validToken (same pattern as /health): Prometheus request and database metrics.
-  app.get('/metrics', async (_req, res) => {
-    res.set('Content-Type', register.contentType);
-    // res.end (not res.send): res.send() reorders the Content-Type parameters.
-    res.end(await register.metrics());
-  });
+  // No validToken (same pattern as /health): Prometheus request and database metrics. Off in
+  // production, where the API is public and nothing scrapes it (AD-153).
+  if (env.NODE_ENV !== 'production') {
+    app.get('/metrics', async (_req, res) => {
+      res.set('Content-Type', register.contentType);
+      // res.end (not res.send): res.send() reorders the Content-Type parameters.
+      res.end(await register.metrics());
+    });
+  }
 
   app.use('/platform', createPlatformRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/tenant/office', createOfficeRouter({ validToken, storage }));
