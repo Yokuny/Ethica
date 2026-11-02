@@ -32,7 +32,7 @@ apps/web (React 19 + Vite 7)  ──HTTP + cookie de sessão──▶  apps/api 
 ## Produção (AD-153)
 
 - API na Railway pela imagem `Dockerfile` (tsx sobre o código-fonte, Chromium dos PDFs), web estático na Vercel; deploy a cada push na `main`. Passo a passo em `RUN_BOOK.md#produção-railway--vercel-ad-153`.
-- O web chama a API em `/api` no próprio domínio da Vercel, que repassa para a Railway (`apps/web/vercel.json`): cookie de sessão sempre do mesmo site.
+- O web chama a API em `/api` no próprio domínio da Vercel, que repassa para a Railway (`vercel.json`): cookie de sessão sempre do mesmo site.
 
 ## Testes e gate
 

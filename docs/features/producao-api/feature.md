@@ -20,7 +20,7 @@ spec: [.specs/features/producao-api]
 ## O que foi feito
 
 - Imagem de produção da API em `Dockerfile` (Node 24, Chromium, só a API e os pacotes de que ela depende, usuário sem root), publicada na Railway por `railway.json` com health check em `/health`.
-- Web na Vercel por `apps/web/vercel.json`: volta para `index.html` em qualquer rota e repassa `/api/*` para a API da Railway (cookie de sessão do mesmo site, AD-153).
+- Web na Vercel por `vercel.json`: volta para `index.html` em qualquer rota e repassa `/api/*` para a API da Railway (cookie de sessão do mesmo site, AD-153).
 - Passo a passo das variáveis e do primeiro acesso em `RUN_BOOK.md#produção-railway--vercel-ad-153`.
 
 ## Por que
@@ -49,6 +49,7 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 ## Histórico
 
 - 2026-11-01 — Spec criada (`.specs/features/producao-api/spec.md`).
+- 2026-11-02 — `vercel.json` sai de `apps/web` para a raiz (com o comando de montagem do web), porque o projeto da Vercel monta a partir da raiz do repositório; a AD-153 cita o caminho antigo.
 - 2026-11-01 — A imagem passa a escutar na `PORT` injetada pela Railway (sem configurar `API_PORT`); `MONGODB_URI` do Atlas precisa do nome do banco.
 - 2026-11-01 — Hospedagem Railway + Vercel (AD-153). Divergência da spec: a imagem roda `tsx` em vez de compilar com `tsc` em multi-stage, e a hospedagem, que estava fora de escopo, foi decidida.
 

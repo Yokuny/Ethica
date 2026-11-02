@@ -99,14 +99,14 @@ pnpm docs:check                # gateway de documentação em dia
 
 ## Produção (Railway + Vercel, AD-153)
 
-Deploy automático a cada push na `main`: a API roda na **Railway** pela imagem `Dockerfile` (config em `railway.json`), o web é estático na **Vercel** (config em `apps/web/vercel.json`). O navegador só fala com a Vercel: ela repassa `/api/*` para a API, então o cookie de sessão é do mesmo site (funciona no Safari/iPhone, que bloqueia cookie de outro domínio).
+Deploy automático a cada push na `main`: a API roda na **Railway** pela imagem `Dockerfile` (config em `railway.json`), o web é estático na **Vercel** (config em `vercel.json`). O navegador só fala com a Vercel: ela repassa `/api/*` para a API, então o cookie de sessão é do mesmo site (funciona no Safari/iPhone, que bloqueia cookie de outro domínio).
 
 Banco: cluster do **MongoDB Atlas** (o M0 gratuito serve), porque a busca usa Atlas Search (AD-059); o Mongo da Railway não tem. Em *Network Access* libere `0.0.0.0/0` (a Railway não tem IP fixo no plano comum).
 
 ### Railway (API)
 
 1. *New Project → Deploy from GitHub repo* → este repositório. Em *Settings → Source*, branch **`main`** (o branch padrão do GitHub não é a `main`), *Root Directory* vazio. Em *Settings → Build*, o builder é **Dockerfile** (vem do `railway.json`) e *Settings → Deploy → Custom Start Command* fica **vazio**: o comando e a porta (`PORT` da Railway) já estão no `Dockerfile`, e só essa imagem tem o Chromium dos PDFs.
-2. *Settings → Networking → Generate Domain*. O endereço precisa bater com o `destination` de `/api` em `apps/web/vercel.json` (hoje `ethica-api-production.up.railway.app`); se sair outro, troque lá.
+2. *Settings → Networking → Generate Domain*. O endereço precisa bater com o `destination` de `/api` em `vercel.json` (hoje `ethica-api-production.up.railway.app`); se sair outro, troque lá.
 3. *Variables*:
 
 | Variável | Valor |
@@ -126,9 +126,9 @@ Banco: cluster do **MongoDB Atlas** (o M0 gratuito serve), porque a busca usa At
 
 ### Vercel (web)
 
-1. *Add New → Project* → este repositório. *Root Directory*: `apps/web` (o framework Vite é detectado pelo `vercel.json`).
+1. *Add New → Project* → este repositório, *Root Directory* na raiz (padrão). O `vercel.json` da raiz monta só o web (`pnpm --filter web run build`) e publica `apps/web/dist`.
 2. *Settings → Git → Production Branch*: **`main`**.
-3. *Environment Variables*: `VITE_API_URL=/api` e `ENABLE_EXPERIMENTAL_COREPACK=1` (usa o pnpm 11 do `packageManager`). *Settings → General → Node.js Version*: 24.x.
+3. *Environment Variables*: `VITE_API_URL=/api` e `ENABLE_EXPERIMENTAL_COREPACK=1` (usa o pnpm 11 do `packageManager`). A Vercel usa o Node indicado em `engines` do `package.json` da raiz.
 
 Testar a imagem localmente, contra o mongo e o s3 do compose:
 
