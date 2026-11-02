@@ -49,6 +49,7 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 ## Histórico
 
 - 2026-11-01 — Spec criada (`.specs/features/producao-api/spec.md`).
+- 2026-11-01 — A imagem passa a escutar na `PORT` injetada pela Railway (sem configurar `API_PORT`); `MONGODB_URI` do Atlas precisa do nome do banco.
 - 2026-11-01 — Hospedagem Railway + Vercel (AD-153). Divergência da spec: a imagem roda `tsx` em vez de compilar com `tsc` em multi-stage, e a hospedagem, que estava fora de escopo, foi decidida.
 
 ## Referências

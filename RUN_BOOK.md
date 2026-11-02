@@ -105,15 +105,14 @@ Banco: cluster do **MongoDB Atlas** (o M0 gratuito serve), porque a busca usa At
 
 ### Railway (API)
 
-1. *New Project → Deploy from GitHub repo* → este repositório. Em *Settings → Source*, branch **`main`** (o branch padrão do GitHub não é a `main`).
+1. *New Project → Deploy from GitHub repo* → este repositório. Em *Settings → Source*, branch **`main`** (o branch padrão do GitHub não é a `main`), *Root Directory* vazio. Em *Settings → Build*, o builder é **Dockerfile** (vem do `railway.json`) e *Settings → Deploy → Custom Start Command* fica **vazio**: o comando e a porta (`PORT` da Railway) já estão no `Dockerfile`, e só essa imagem tem o Chromium dos PDFs.
 2. *Settings → Networking → Generate Domain*. O endereço precisa bater com o `destination` de `/api` em `apps/web/vercel.json` (hoje `ethica-api-production.up.railway.app`); se sair outro, troque lá.
 3. *Variables*:
 
 | Variável | Valor |
 | --- | --- |
 | `NODE_ENV` | `production` (já vem da imagem) |
-| `PORT` e `API_PORT` | `8080` (os dois iguais: a Railway encaminha para `PORT`, a API escuta em `API_PORT`) |
-| `MONGODB_URI` | `mongodb+srv://.../ethica?retryWrites=true&w=majority` do Atlas |
+| `MONGODB_URI` | `mongodb+srv://<usuário>:<senha>@<cluster>.mongodb.net/ethica?retryWrites=true&w=majority` do Atlas; o `/ethica` é o nome do banco (sem ele o Atlas grava no banco `test`) |
 | `SESSION_JWT_SECRET` | segredo longo e aleatório (`openssl rand -hex 32`) |
 | `CORS_ORIGIN` | endereço da Vercel (`https://<projeto>.vercel.app`), usado também nos links dos e-mails |
 | `DATAJUD_API_KEY`, `S3_*`, `MAIL_PROVIDER`/`SMTP_*`, `GEOCODER_*` | opcionais, mesmo significado do `.env.example`; sem eles o recurso fica desligado |
@@ -135,7 +134,7 @@ Testar a imagem localmente, contra o mongo e o s3 do compose:
 
 ```bash
 docker build -t ethica-api-prod .
-docker run --rm --network ethica_default -p 18099:8080 -e API_PORT=8080 \
+docker run --rm --network ethica_default -p 18099:8080 -e PORT=8080 \
   -e MONGODB_URI='mongodb://mongo:27017/ethica?directConnection=true' \
   -e SESSION_JWT_SECRET=teste -e CORS_ORIGIN=http://localhost:15173 ethica-api-prod
 ```
