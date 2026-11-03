@@ -2,6 +2,29 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "novo-laudo",
+      "feature": "Novo laudo",
+      "descricao": "OS por serviço, responsável técnico do laudo, modelo trabalhista da perita, editor em rolagem com itens novos e layout do laudo",
+      "data": "2026-11-03",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-161",
+        "AD-162",
+        "AD-163"
+      ],
+      "spec": [
+        ".specs/features/novo-laudo"
+      ],
+      "planos": [],
+      "doc": "features/novo-laudo/feature.md"
+    },
+    {
       "slug": "acesso-email",
       "feature": "Acesso por e-mail (sem senha)",
       "descricao": "Entrar e criar o escritório só com o e-mail, pela chave de acesso (link e código) enviada à caixa de e-mail da pessoa",
@@ -1070,6 +1093,24 @@
       "id": "AD-160",
       "decisao": "Data, hora e local da perícia no cadastro do serviço (`inspection`, só na criação) viram um compromisso de perícia de 1 hora ligado ao servi",
       "data": "2026-11-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-161",
+      "decisao": "Número de controle de OS por serviço (`Case.serviceOrder`, índice único parcial por tenant). A sequência do escritório (sigla + ano + último",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-162",
+      "decisao": "Responsável técnico do laudo = `Signatory` (coleção do `documents`): nome, CPF, registro, formação, telefone, logo (no storage, pela cota do",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-163",
+      "decisao": "Modelos padrão viram lista (`REPORT_DEFAULT_TEMPLATES`, id → tipo; o primeiro do tipo é o sugerido), com o \"Laudo pericial trabalhista\" da p",
+      "data": "2026-11-03",
       "status": "active"
     }
   ]

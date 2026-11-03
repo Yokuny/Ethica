@@ -799,7 +799,33 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-02
 - **Status**: active
 
+### AD-161
+- **Decision**: Número de controle de OS por serviço (`Case.serviceOrder`, índice único parcial por tenant). A sequência do escritório (sigla + ano + último número) é a coleção `ServiceOrderSequence`, dona `case`: o cadastro sem OS digitada toma o próximo número num único update com pipeline (ano diferente volta a 1), formato `SIGLA-AAAA-NNN`. Só serviços novos são numerados; a OS se digita ou corrige no serviço. `GET|PUT /expert-cases/service-order` (`PUT` só admin), configurada na tela do Escritório.
+- **Reason**: pedido da perita (2026-11-03), que escolheu sigla + ano + sequência e numerar só os novos. A sequência fica no `case` porque é ele quem numera e `case` não depende de ninguém (AD-106).
+- **Trade-off**: a configuração aparece no Escritório mas não mora no `Tenant`. Serviços antigos ficam sem OS até alguém digitar.
+- **Scope**: `packages/db/src/models/service-order.model.ts`, `packages/db/src/models/case.model.ts`, `packages/contracts/src/schemas/{case,document}.schema.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/_admin/office/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
+### AD-162
+- **Decision**: Responsável técnico do laudo = `Signatory` (coleção do `documents`): nome, CPF, registro, formação, telefone, logo (no storage, pela cota do escritório, AD-120), cabeçalho e rodapé; sem acesso ao Ethica. `Report.Signatory` opcional: com ele, capa, abertura, assinatura, `[PERITO_*]`, logo, cabeçalho e rodapé saem dele (vazio cai no do escritório); sem ele, de quem gera o arquivo (AD-126). Cadastra quem pode criar laudo (`expert_reports`).
+- **Reason**: pedido da perita (2026-11-03): o responsável técnico pode não ser a dona da conta; ela escolheu "só cadastro".
+- **Trade-off**: excluir o responsável faz o laudo dele voltar para quem gera o arquivo. Não há histórico de quem assinou cada versão.
+- **Scope**: `packages/db/src/models/signatory.model.ts`, `apps/api/src/modules/documents/signatory.*`, `apps/api/src/modules/documents/report.service.ts`, `apps/web/src/components/signatory-dialog.tsx`.
+- **Date**: 2026-11-03
+- **Status**: active
+
+### AD-163
+- **Decision**: Modelos padrão viram lista (`REPORT_DEFAULT_TEMPLATES`, id → tipo; o primeiro do tipo é o sugerido), com o "Laudo pericial trabalhista" da perita (`standard-labor-report`). Seção ganha `unnumbered` (modelo e laudo) e, no laudo, `included` ("Faz parte do laudo": fica no rascunho, não sai nem bloqueia). Item novo no laudo (`POST /expert-reports/:id/sections`) não vem do modelo e sobrevive à troca de seções do mesmo modelo, depois do item do modelo que o precedia. Layout (`reportLayoutSchema`: fonte, tamanho, entrelinha, espaço entre parágrafos, margens, cor dos títulos, capa, sumário, abertura/assinatura) mora no modelo e é copiado para o laudo, que muda o seu; o PDF recebe as margens pelo `PdfDocument.margin`.
+- **Reason**: pedido da perita (2026-11-03) com o laudo dela como modelo e o protótipo com "Faz parte do laudo" e "Adicionar item". Só Times e Arial porque o Chromium do servidor tem Liberation Serif/Sans.
+- **Trade-off**: mudar o layout do modelo não muda laudos já criados. Supersede, na AD-126, "um modelo padrão por tipo".
+- **Scope**: `packages/contracts/src/schemas/report.schema.ts`, `packages/db/src/models/{report,template}.model.ts`, `apps/api/src/modules/documents/`, `apps/api/src/providers/pdfRenderer.ts`, `apps/web/src/routes/_private/expert-reports/`, `apps/web/src/components/numbered-list.tsx`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
+
+- **Feature**: `novo-laudo` — concluída: OS por serviço, responsável técnico, modelo trabalhista da perita, editor em rolagem e layout (AD-161 a AD-163). Falta a conferência visual no navegador.
 
 - **Feature**: `servicos` — concluída: Perícias vira Serviços, tipo de serviço do escritório, status, pagamento, despesas, líquido e data da perícia (AD-158 a AD-160). Falta a conferência visual no navegador.
 - **Feature**: `acesso-email` — concluída: acesso e cadastro só pela chave enviada ao e-mail (AD-155). Produção precisa do SMTP configurado na Railway para o deploy entrar no ar (AD-156).
