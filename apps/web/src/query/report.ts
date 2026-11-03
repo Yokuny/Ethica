@@ -51,6 +51,8 @@ export type ReportRecord = {
   id: string;
   caseId: string;
   caseNumber?: string;
+  plaintiff?: string;
+  defendant?: string;
   signatoryId?: string;
   type: ReportType;
   status: ReportStatus;

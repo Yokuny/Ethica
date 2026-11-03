@@ -131,6 +131,9 @@ export type ReportRecord = {
   caseId: string;
   // Enriched by the service; missing if the case no longer exists.
   caseNumber?: string;
+  // Names of the parties (without lawyers) of each side, also enriched by the service.
+  plaintiff?: string;
+  defendant?: string;
   // Technical responsible who signs (NLA-02); missing = whoever created the report.
   signatoryId?: string;
   type: ReportType;

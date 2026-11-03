@@ -58,7 +58,9 @@ const withNumber = async <T extends { caseId: string }>(tenantId: string, items:
   const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
   return items.map((item) => {
     const summary = summaries.get(item.caseId);
-    return summary ? { ...item, caseNumber: caseLabel(summary) } : item;
+    return summary
+      ? { ...item, caseNumber: caseLabel(summary), plaintiff: summary.plaintiff, defendant: summary.defendant }
+      : item;
   });
 };
 
