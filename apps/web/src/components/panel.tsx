@@ -3,7 +3,9 @@ import { useRender } from '@base-ui/react/use-render';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
-import { type ReactNode, useId } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { type ReactNode, useId, useState } from 'react';
+import { t } from '@/lib/helpers/translate.helper.js';
 
 // Block wrapper without background or border: visual grouping belongs to what is
 // inside (Item, Table, form). `size` only sets the spacing between children.
@@ -26,10 +28,24 @@ type PanelProps = Omit<useRender.ComponentProps<'section'>, 'title'> &
     title?: ReactNode;
     description?: ReactNode;
     actions?: ReactNode;
+    // The title opens and closes the content, which starts collapsed (AD-172). The content stays mounted
+    // while closed, so its dialogs (rendered in a portal) still open from the header actions.
+    collapsible?: boolean;
   };
 
-function Panel({ className, size = 'default', render, title, description, actions, children, ...props }: PanelProps) {
+function Panel({
+  className,
+  size = 'default',
+  render,
+  title,
+  description,
+  actions,
+  collapsible = false,
+  children,
+  ...props
+}: PanelProps) {
   const headingId = useId();
+  const [open, setOpen] = useState(false);
   const hasHeader = Boolean(title || description || actions);
   // With a title, the block becomes a region named by it (unless the caller already names it).
   const labelled = title && !props['aria-label'] && !props['aria-labelledby'] ? { 'aria-labelledby': headingId } : {};
@@ -45,18 +61,35 @@ function Panel({ className, size = 'default', render, title, description, action
               <div className="flex flex-wrap items-center justify-between gap-2">
                 {(title || description) && (
                   <div className="grid gap-1">
-                    {title && (
-                      <ItemTitle className={'uppercase text-xs'} id={headingId} role="heading" aria-level={2}>
-                        {title}
-                      </ItemTitle>
+                    {title && collapsible ? (
+                      <button
+                        type="button"
+                        aria-expanded={open}
+                        aria-label={open ? t('collapse') : t('expand')}
+                        onClick={() => setOpen((prev) => !prev)}
+                        className="flex items-center gap-1.5 text-left"
+                      >
+                        <ItemTitle className="uppercase text-xs" id={headingId} role="heading" aria-level={2}>
+                          {title}
+                        </ItemTitle>
+                        <ChevronDown
+                          className={cn('size-4 text-muted-foreground transition-transform', open && 'rotate-180')}
+                        />
+                      </button>
+                    ) : (
+                      title && (
+                        <ItemTitle className="uppercase text-xs" id={headingId} role="heading" aria-level={2}>
+                          {title}
+                        </ItemTitle>
+                      )
                     )}
-                    {description && <ItemDescription>{description}</ItemDescription>}
+                    {description && (!collapsible || open) && <ItemDescription>{description}</ItemDescription>}
                   </div>
                 )}
                 {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
               </div>
             )}
-            {children}
+            {collapsible ? <div className={cn(panelVariants({ size }), !open && 'hidden')}>{children}</div> : children}
           </>
         ),
       },

@@ -21,6 +21,7 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
 
   return (
     <Panel
+      collapsible
       size="sm"
       title={t(type === 'technical_opinion' ? 'technical_opinions' : 'expert_reports')}
       actions={

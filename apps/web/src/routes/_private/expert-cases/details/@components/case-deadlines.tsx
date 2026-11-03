@@ -32,6 +32,7 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
 
   return (
     <Panel
+      collapsible
       size="sm"
       title={t('deadlines')}
       actions={

@@ -84,7 +84,7 @@ export function CaseDetailsPage() {
       ) : isEditing ? (
         <CaseEditForm legalCase={legalCase} onSaved={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
       ) : (
-        <CardContent className="gap-10">
+        <CardContent className="gap-6">
           <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} />
           {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
           <CaseDeadlines caseId={legalCase.id} />

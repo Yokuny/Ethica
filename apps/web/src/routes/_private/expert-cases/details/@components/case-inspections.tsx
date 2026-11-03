@@ -23,7 +23,7 @@ export function CaseInspections({ caseId }: { caseId: string }) {
   );
 
   return (
-    <Panel size="sm" title={t('inspections')} description={t('inspections_panel_description')}>
+    <Panel collapsible size="sm" title={t('inspections')} description={t('inspections_panel_description')}>
       {query.isLoading ? (
         <DefaultLoading />
       ) : !records.length ? (

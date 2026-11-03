@@ -12,7 +12,12 @@ export function CaseRelated({ caseId }: { caseId: string }) {
   const appointments = useQuery(upcomingAppointmentsQuery({ limit: 10, caseId }));
 
   return (
-    <Panel size="sm" title={t('upcoming_commitments')} actions={<AppLink to="/agenda">{t('open_agenda')}</AppLink>}>
+    <Panel
+      collapsible
+      size="sm"
+      title={t('upcoming_commitments')}
+      actions={<AppLink to="/agenda">{t('open_agenda')}</AppLink>}
+    >
       {appointments.isLoading ? (
         <DefaultLoading />
       ) : !appointments.data?.length ? (

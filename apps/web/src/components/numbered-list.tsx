@@ -8,7 +8,8 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 // shadcnblocks/feature207 block (numbered rows between rules: number, title and text side by side)
 // mixed with the expand/collapse of ProductSpecs: "Expandir tudo · Recolher tudo" and one by one (NLA-07).
-// Compact rows, all collapsed at first; a click anywhere on the row opens it (AD-172).
+// Compact rows, all collapsed at first; a click anywhere on the row opens it, and the subitems only show
+// under their opened item, like a table of contents (AD-172).
 
 export type NumberedListItem = {
   id: string;
@@ -27,7 +28,7 @@ export type NumberedListItem = {
   actions?: ReactNode;
   // Item left out: shown faded.
   muted?: boolean;
-  // Body of the opened item; without it, the row does not open.
+  // Body of the opened item; without it and without subitems, the row does not open.
   children?: ReactNode;
 };
 
@@ -44,7 +45,20 @@ type NumberedListProps = {
 export function NumberedList({ items, actionsLabel, className }: NumberedListProps) {
   // Keeps the opened ones: an item that shows up later starts closed.
   const [openIds, setOpenIds] = useState<string[]>([]);
-  const expandable = items.filter((item) => item.children);
+  // An item opens when it has a body or subitems; a subitem only shows with every item above it opened.
+  const rows: { item: NumberedListItem; hasSubitems: boolean; visible: boolean }[] = [];
+  const parents: NumberedListItem[] = [];
+  items.forEach((item, i) => {
+    const level = item.level ?? 1;
+    while (parents.length && (parents.at(-1)?.level ?? 1) >= level) parents.pop();
+    rows.push({
+      item,
+      hasSubitems: (items[i + 1]?.level ?? 1) > level,
+      visible: parents.every((parent) => openIds.includes(parent.id)),
+    });
+    parents.push(item);
+  });
+  const expandable = rows.filter((row) => row.item.children || row.hasSubitems).map((row) => row.item);
 
   const toggle = (id: string) =>
     setOpenIds((prev) => (prev.includes(id) ? prev.filter((openId) => openId !== id) : [...prev, id]));
@@ -74,8 +88,10 @@ export function NumberedList({ items, actionsLabel, className }: NumberedListPro
         </div>
       )}
       <Separator />
-      {items.map((item) => {
-        const open = Boolean(item.children) && openIds.includes(item.id);
+      {rows.map(({ item, hasSubitems, visible }) => {
+        if (!visible) return null;
+        const opens = Boolean(item.children) || hasSubitems;
+        const open = opens && openIds.includes(item.id);
         const level = Math.min(Math.max(item.level ?? 1, 1), 3) - 1;
         const heading = (
           <>
@@ -97,15 +113,15 @@ export function NumberedList({ items, actionsLabel, className }: NumberedListPro
               {/* biome-ignore lint/a11y/noStaticElementInteractions: the triggers inside keep the keyboard; the row only widens the mouse target */}
               {/* biome-ignore lint/a11y/useKeyWithClickEvents: same as above */}
               <div
-                className={cn('flex items-center gap-3 py-2.5', item.children && 'cursor-pointer hover:bg-muted/40')}
+                className={cn('flex items-center gap-3 py-2.5', opens && 'cursor-pointer hover:bg-muted/40')}
                 onClick={(event) => {
                   // Controls of the row (checkbox, triggers, links) keep their own click.
-                  if (!item.children || (event.target as HTMLElement).closest('button, a, input, label')) return;
+                  if (!opens || (event.target as HTMLElement).closest('button, a, input, label')) return;
                   toggle(item.id);
                 }}
               >
                 {item.leading && <div className="flex shrink-0 items-center">{item.leading}</div>}
-                {item.children ? (
+                {opens ? (
                   <CollapsibleTrigger className="flex min-w-0 flex-1 items-center gap-4 text-left">
                     {heading}
                   </CollapsibleTrigger>
@@ -114,7 +130,7 @@ export function NumberedList({ items, actionsLabel, className }: NumberedListPro
                 )}
                 {item.badge && <div className="shrink-0">{item.badge}</div>}
                 {item.actions && <div className="flex shrink-0 items-center gap-2">{item.actions}</div>}
-                {item.children && (
+                {opens && (
                   <CollapsibleTrigger aria-label={open ? t('collapse') : t('expand')} className="shrink-0">
                     <ChevronDown
                       className={cn('size-4 text-muted-foreground transition-transform', open && 'rotate-180')}
