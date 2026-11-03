@@ -102,8 +102,9 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       district: 'São Paulo',
       subject: 'Perícia de insalubridade',
       nominationDate: '2026-10-15',
-      reportDeadline: '2026-11-30',
     });
+    // The report deadline is typed by the expert (RSV-02).
+    expect(first.body.data.draft).not.toHaveProperty('reportDeadline');
     expect(first.body.data).not.toHaveProperty('existingId');
     expect(await Case.countDocuments({})).toBe(0);
 

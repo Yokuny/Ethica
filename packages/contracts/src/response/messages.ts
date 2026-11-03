@@ -61,7 +61,6 @@ export const API_MESSAGE_KEYS = [
   'missing_required_field',
   'unsupported_court',
   'multiple_process_numbers',
-  'deadline_calculated',
   // Office files (AD-120)
   'storage_not_configured',
   'storage_quota_exceeded',

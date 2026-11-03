@@ -1,6 +1,6 @@
 import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
-import { BriefcaseBusiness, FileText, Scale, Users } from 'lucide-react';
+import { FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
 import {
   CASE_STATE_VARIANT,
@@ -19,7 +19,6 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseRecord } from '@/query/case.js';
 
 const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`)) : '-');
-const period = (start?: string, end?: string) => (start || end ? `${day(start)} – ${day(end)}` : '-');
 const money = (value?: number) => (value ? formatMoney(value) : '-');
 
 // Record page: header with process and status, strip with deadlines and
@@ -100,26 +99,6 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
                 }))
               : [{ label: t('parties'), value: '-' }],
           },
-          ...(legalCase.courtType === 'labor'
-            ? [
-                {
-                  id: 'labor',
-                  name: t('labor_report_data'),
-                  icon: <BriefcaseBusiness />,
-                  specs: [
-                    { label: t('lawsuit_filing_date'), value: day(legalCase.docketingDate) },
-                    { label: t('hiring_date'), value: day(legalCase.hireDate) },
-                    { label: t('termination_date'), value: day(legalCase.terminationDate) },
-                    {
-                      label: t('non_prescribed_period'),
-                      value: period(legalCase.nonPrescribedPeriodStart, legalCase.nonPrescribedPeriodEnd),
-                    },
-                    { label: t('claimant_job'), value: legalCase.claimantJob || '-' },
-                    { label: t('inspection_address'), value: legalCase.location || '-' },
-                  ],
-                },
-              ]
-            : []),
           {
             id: 'notes',
             name: t('notes'),

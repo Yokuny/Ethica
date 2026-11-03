@@ -10,6 +10,7 @@ import {
   createCaseSchema,
   documentSchema,
   oabSchema,
+  partyNameKey,
   processNumberSchema,
   type Side,
 } from '@ethica/contracts';
@@ -46,12 +47,6 @@ export const parseData = (raw: string): string | undefined => {
   if (!year || !month || !day) return undefined;
   const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
   if (date.getUTCMonth() !== Number(month) - 1 || date.getUTCDate() !== Number(day)) return undefined;
-  return date.toISOString().slice(0, 10);
-};
-
-const addDays = (day: string, days: number): string => {
-  const date = new Date(`${day}T12:00:00.000Z`);
-  date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
 };
 
@@ -106,12 +101,12 @@ const contacts = (row: string): Pick<CasePartyInput, 'crea' | 'email' | 'phone'>
   };
 };
 
-const extractParties = (rows: string[]): CasePartyInput[] => {
+// Parties read from one header block of rows (side and lawyer labels).
+const partiesOfBlock = (rows: string[]): CasePartyInput[] => {
   const parties: CasePartyInput[] = [];
-  // The full process repeats the PJe header on every page: each party enters once.
   const add = (party: CasePartyInput) => {
     const same = (other: CasePartyInput) =>
-      other.side === party.side && other.type === party.type && other.name.toLowerCase() === party.name.toLowerCase();
+      other.side === party.side && other.type === party.type && partyNameKey(other.name) === partyNameKey(party.name);
     if (!parties.some(same)) parties.push(party);
   };
   let side: Side | undefined;
@@ -137,6 +132,28 @@ const extractParties = (rows: string[]): CasePartyInput[] => {
   return parties;
 };
 
+// The full process repeats a header in every document, each with small differences: the parties are
+// the ones of the last header with both sides (the latest order) or, without it, the first one (the
+// initial petition) (RSV-02). A header ends after a few rows without a label.
+const HEADER_GAP = 3;
+const extractParties = (rows: string[]): CasePartyInput[] => {
+  const blocks: string[][] = [];
+  let gap = HEADER_GAP;
+  for (const row of rows) {
+    const labeled = LABEL_SIDE.some(([regex]) => regex.test(row)) || LABEL_LAWYER.test(row);
+    if (!labeled) {
+      gap++;
+      continue;
+    }
+    if (gap >= HEADER_GAP) blocks.push([]);
+    blocks.at(-1)?.push(row);
+    gap = 0;
+  }
+  const headers = blocks.map(partiesOfBlock).filter((parties) => parties.length);
+  const complete = headers.filter((parties) => new Set(parties.map((party) => party.side)).size === 2);
+  return complete.at(-1) ?? headers[0] ?? [];
+};
+
 const extractDivision = (rows: string[], text: string): Pick<PdfDraft, 'division' | 'district'> => {
   const labeledDistrict = text.match(/\b(?:Comarca|Foro)\s+(?:de|da|do)\s+([A-ZÀ-Ú][^\n,–-]*)/)?.[1]?.trim();
   const row = rows.find((l) => /\bVara\b/i.test(l) && l.length <= 120);
@@ -155,21 +172,23 @@ const extractSubject = (text: string): string | undefined => {
   return types.length ? `Perícia de ${types.join(' e ')}` : undefined;
 };
 
+// Date of the last nomination of an expert in the text (RSV-02): a case may be renominated. Only
+// sentences that name an expert count, so "designo audiência" does not.
 const extractNomination = (text: string): string | undefined => {
-  const frase = text.match(/[^.\n]*\b(nomei|nomead|nomea[çc][ãa]o|design)[^.\n]*/i)?.[0] ?? '';
-  const numerica = frase.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0];
-  if (numerica) return parseData(numerica);
-  const words = text.match(/(\d{1,2})º?\s+de\s+([a-zç]+)\s+de\s+(\d{4})/i);
-  const month = words ? MONTHS.indexOf((words[2] ?? '').toLowerCase()) + 1 : 0;
-  return words && month ? parseData(`${words[1]}/${month}/${words[3]}`) : undefined;
-};
-
-const extractDeadline = (text: string, nomination?: string): { reportDeadline?: string; calculado: boolean } => {
-  const frase = text.match(/[^.]*\blaudo\b[^.]*/gi)?.find((f) => /prazo|at[ée]/i.test(f)) ?? '';
-  const data = frase.match(/\d{1,2}\/\d{1,2}\/\d{4}/)?.[0];
-  if (data) return { reportDeadline: parseData(data), calculado: false };
-  const days = Number(frase.match(/prazo\s+de\s+(\d{1,3})/i)?.[1]);
-  return days && nomination ? { reportDeadline: addDays(nomination, days), calculado: true } : { calculado: false };
+  const sentences = (text.match(/[^.]*\b(nomei|nomead|nomea[çc][ãa]o|design)[^.]*/gi) ?? []).filter((frase) =>
+    /perit/i.test(frase),
+  );
+  const dates = sentences.flatMap((frase) => [
+    ...[...frase.matchAll(/\d{1,2}\/\d{1,2}\/\d{4}/g)].map(([date]) => parseData(date)),
+    ...[...frase.matchAll(/(\d{1,2})º?\s+de\s+([a-zç]+)\s+de\s+(\d{4})/gi)].map(([, day, name, year]) => {
+      const month = MONTHS.indexOf((name ?? '').toLowerCase()) + 1;
+      return month ? parseData(`${day}/${month}/${year}`) : undefined;
+    }),
+  ]);
+  return dates
+    .filter((date) => date !== undefined)
+    .sort()
+    .at(-1);
 };
 
 // Pure function: minutes/order text → registration draft + what was missing + warnings.
@@ -186,8 +205,6 @@ export const extractMinutes = (text: string): Omit<PdfExtraction, 'existingId'> 
     warnings.push('invalid_process_number');
   }
   const nominationDate = extractNomination(text);
-  const { reportDeadline, calculado } = extractDeadline(text, nominationDate);
-  if (calculado) warnings.push('deadline_calculated');
   const parties = extractParties(rows);
 
   const draft: PdfDraft = {
@@ -198,18 +215,8 @@ export const extractMinutes = (text: string): Omit<PdfExtraction, 'existingId'> 
     subject: extractSubject(text),
     ...(parties.length ? { parties } : {}),
     nominationDate,
-    reportDeadline,
   };
-  const esperados = [
-    'processNumber',
-    'court',
-    'division',
-    'district',
-    'subject',
-    'parties',
-    'nominationDate',
-    'reportDeadline',
-  ] as const;
+  const esperados = ['processNumber', 'court', 'division', 'district', 'subject', 'parties', 'nominationDate'] as const;
   const clean = Object.fromEntries(Object.entries(draft).filter(([, value]) => value !== undefined)) as PdfDraft;
   return { draft: clean, missing: esperados.filter((field) => !clean[field]), warnings };
 };

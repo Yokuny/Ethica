@@ -38,13 +38,21 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   division: doc.division,
   district: doc.district,
   subject: doc.subject,
-  parties: (doc.parties ?? []).map((party) => ({
-    partyId: party.Party.toString(),
-    side: party.side,
-    type: party.type,
-    name: party.name,
-    ...(party.client ? { client: true } : {}),
-  })),
+  // The same registration on the same side shows once (RSV-01), which also fixes cases saved with repeats.
+  parties: (doc.parties ?? [])
+    .filter(
+      (party, index, all) =>
+        all.findIndex(
+          (other) => other.Party.equals(party.Party) && other.side === party.side && other.type === party.type,
+        ) === index,
+    )
+    .map((party) => ({
+      partyId: party.Party.toString(),
+      side: party.side,
+      type: party.type,
+      name: party.name,
+      ...(party.client ? { client: true } : {}),
+    })),
   status: doc.status,
   phase: doc.phase,
   state: caseState(doc),

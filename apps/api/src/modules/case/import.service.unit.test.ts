@@ -38,7 +38,7 @@ describe('extrairAta (AD-114)', () => {
     expect(draft.parties?.filter((party) => party.name === 'ANA SOUZA')).toHaveLength(1);
   });
 
-  it('extrai número, órgão, vara, comarca, objeto, partes, nomeação e prazo calculado', () => {
+  it('extrai número, órgão, vara, comarca, objeto, partes e nomeação; o prazo do laudo fica para a perita (RSV-02)', () => {
     const { draft, missing, warnings } = extractMinutes(MINUTES);
     expect(draft).toMatchObject({
       processNumber: '0001234-56.2026.5.02.0001',
@@ -49,8 +49,8 @@ describe('extrairAta (AD-114)', () => {
       district: 'São Paulo',
       subject: 'Perícia de insalubridade',
       nominationDate: '2026-10-15',
-      reportDeadline: '2026-11-14',
     });
+    expect(draft).not.toHaveProperty('reportDeadline');
     expect(draft.parties).toEqual([
       { side: 'plaintiff', type: 'party', name: 'MARIA DA SILVA', document: '12345678909' },
       { side: 'plaintiff', type: 'lawyer', name: 'JOÃO PEREIRA', oab: 'SP123456' },
@@ -58,7 +58,24 @@ describe('extrairAta (AD-114)', () => {
       { side: 'defendant', type: 'lawyer', name: 'ANA SOUZA', oab: 'SP654321' },
     ]);
     expect(missing).toEqual([]);
-    expect(warnings).toEqual(['deadline_calculated']);
+    expect(warnings).toEqual([]);
+  });
+
+  it('partes do último despacho do processo e data da última nomeação (RSV-02)', () => {
+    const latest = `RECLAMANTE: Maria da Silva
+ADVOGADO: JOÃO PEREIRA - OAB SP123.456
+RECLAMADO: INDÚSTRIA EXEMPLO LTDA
+RECLAMADO: NOVA EMPRESA S.A.
+DESPACHO
+Destituo o perito anterior e nomeio o engenheiro Paulo Reis em 03/02/2027.`;
+    const { draft } = extractMinutes(`${MINUTES}\n${latest}`);
+    expect(draft.nominationDate).toBe('2027-02-03');
+    expect(draft.parties).toEqual([
+      { side: 'plaintiff', type: 'party', name: 'Maria da Silva' },
+      { side: 'plaintiff', type: 'lawyer', name: 'JOÃO PEREIRA', oab: 'SP123456' },
+      { side: 'defendant', type: 'party', name: 'INDÚSTRIA EXEMPLO LTDA' },
+      { side: 'defendant', type: 'party', name: 'NOVA EMPRESA S.A.' },
+    ]);
   });
 
   it('cabeçalho repetido em cada página do processo completo não repete as partes', () => {
@@ -72,16 +89,16 @@ describe('extrairAta (AD-114)', () => {
     );
     expect(draft.processNumber).toBe('0001234-56.2026.5.02.0001');
     expect(draft).not.toHaveProperty('subject');
-    expect(missing).toEqual(['division', 'district', 'subject', 'parties', 'nominationDate', 'reportDeadline']);
+    expect(missing).toEqual(['division', 'district', 'subject', 'parties', 'nominationDate']);
     expect(warnings).toContain('multiple_process_numbers');
   });
 
-  it('prazo com data explícita não é calculado; número sem pontuação é sinalizado inválido', () => {
+  it('prazo escrito no despacho não preenche o prazo do laudo; número sem pontuação é sinalizado inválido', () => {
     const { draft, warnings } = extractMinutes(
       'Processo 00012345620265020001. Objeto: Perícia médica\nO laudo deverá ser entregue até 30/11/2026.',
     );
     expect(draft.subject).toBe('Perícia médica');
-    expect(draft.reportDeadline).toBe('2026-11-30');
+    expect(draft).not.toHaveProperty('reportDeadline');
     expect(warnings).toEqual(['invalid_process_number']);
   });
 });
