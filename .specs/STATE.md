@@ -823,7 +823,25 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-164
+- **Decision**: Partes sem repetição (PSV-05): `Party.nameKey` (nome sem maiúscula, acento e espaço repetido) e `crea` normalizado. `resolveParties` acha por CPF/CNPJ, OAB ou CREA e, sem achar, pelo `nameKey` do mesmo tipo quando o cadastro não tem documento diferente; completa documento e contatos que faltam, nunca sobrescreve. `POST /parties/merge-duplicates` (admin) junta os cadastros antigos do mesmo tipo e nome no mais antigo e move as perícias; documentos diferentes = pessoas diferentes, mantidas. No serviço, o advogado é da parte que vem logo antes dele no mesmo polo (ordem da lista, sem campo novo); o PDF já lê nessa ordem e agora traz CREA, e-mail e telefone.
+- **Reason**: pedido da perita (2026-11-03): advogados dentro da parte, cada nome uma vez, CREA e contatos lidos do processo.
+- **Trade-off**: homônimos sem documento viram um cadastro só; quem precisar separar edita depois. Reordenar as partes por fora da tela muda quem representa quem.
+- **Scope**: `packages/contracts/src/schemas/party.schema.ts`, `packages/db/src/models/party.model.ts`, `apps/api/src/modules/case/{party.service,party.repository,case.repository,import.service}.ts`, `apps/web/src/routes/_private/expert-cases/@components/case-parties-fields.tsx`, `apps/web/src/routes/_private/parties/`. Supersede, na AD-115, "sem documento, pelo nome exato".
+- **Date**: 2026-11-03
+- **Status**: active
+
+### AD-165
+- **Decision**: O laudo iniciado pelo serviço aceita qualquer modelo cadastrado, e o tipo do documento (laudo ou parecer) é o do modelo escolhido; trocar o modelo de um rascunho segue exigindo o mesmo tipo. O cadastro do serviço perde o bloco "Dados do laudo trabalhista" (os dados seguem no serviço e vêm pelo "Preencher pelo processo" do laudo) e a data/hora da perícia ficam opcionais (com data, a hora é pedida; sem data, não há compromisso); o local da perícia vira o local do serviço quando ele não tem.
+- **Reason**: pedido da perita (2026-11-03).
+- **Trade-off**: um assistente técnico pode iniciar um laudo pericial e vice-versa; a escolha é dela. Supersede, na LAU-06 (AD-126), o tipo pela atuação.
+- **Scope**: `apps/api/src/modules/documents/report.service.ts`, `apps/api/src/modules/case/case.service.ts`, `packages/contracts/src/schemas/case.schema.ts`, `apps/web/src/routes/_private/expert-reports/`, `apps/web/src/routes/_private/expert-cases/@components/case-form-fields.tsx`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
+
+- **Feature**: `partes-servico` — concluída: partes com advogados, partes sem repetição com CREA e contatos do PDF, data da perícia opcional e laudo com qualquer modelo (AD-164, AD-165). Falta a conferência visual no navegador.
 
 - **Feature**: `novo-laudo` — concluída: OS por serviço, responsável técnico, modelo trabalhista da perita, editor em rolagem e layout (AD-161 a AD-163). Falta a conferência visual no navegador.
 

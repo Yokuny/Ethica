@@ -25,6 +25,28 @@
       "doc": "features/novo-laudo/feature.md"
     },
     {
+      "slug": "partes-servico",
+      "feature": "Partes do serviço",
+      "descricao": "Partes com advogados no serviço, sem repetição, com CREA e contatos do PDF; data da perícia opcional; laudo com qualquer modelo",
+      "data": "2026-11-03",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-164",
+        "AD-165"
+      ],
+      "spec": [
+        ".specs/features/partes-servico"
+      ],
+      "planos": [],
+      "doc": "features/partes-servico/feature.md"
+    },
+    {
       "slug": "acesso-email",
       "feature": "Acesso por e-mail (sem senha)",
       "descricao": "Entrar e criar o escritório só com o e-mail, pela chave de acesso (link e código) enviada à caixa de e-mail da pessoa",
@@ -1110,6 +1132,18 @@
     {
       "id": "AD-163",
       "decisao": "Modelos padrão viram lista (`REPORT_DEFAULT_TEMPLATES`, id → tipo; o primeiro do tipo é o sugerido), com o \"Laudo pericial trabalhista\" da p",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-164",
+      "decisao": "Partes sem repetição (PSV-05): `Party.nameKey` (nome sem maiúscula, acento e espaço repetido) e `crea` normalizado. `resolveParties` acha po",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-165",
+      "decisao": "O laudo iniciado pelo serviço aceita qualquer modelo cadastrado, e o tipo do documento (laudo ou parecer) é o do modelo escolhido; trocar o",
       "data": "2026-11-03",
       "status": "active"
     }

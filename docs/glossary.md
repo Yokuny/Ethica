@@ -12,7 +12,7 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`); `other` no tipo de serviço do escritório (AD-158). |
 | Atuação | `role` | Perito do juízo (`court_expert`) ou assistente técnico de uma das partes (`technical_assistant`). |
 | Etapa | `status` da perícia | Nomeada → aceita → vistoria → em laudo → laudo entregue → esclarecimentos → concluída; recusada encerra sem laudo. |
-| Parte | `Party` (`case`), `parties` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117). |
+| Parte | `Party` (`case`), `parties` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB), ambos com CREA opcional; um cadastro por nome (`nameKey`, AD-164). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117); o advogado é da parte que vem antes dele no mesmo polo. |
 | Período imprescrito | `nonPrescribedPeriodStart`/`End` | Parte do contrato de trabalho que ainda pode ser cobrada: do mais recente entre (autuação − 5 anos) e a admissão até a demissão (AD-115). |
 | Movimentação | `Case.movements` | Fato do processo com data (entrega do laudo, notificação de honorários, intimação para esclarecimentos ou laudo complementar) que reinicia a contagem de perícia parada (AD-121). |
 | Perícia parada | `GET /documents/stalled` | Perícia não encerrada sem movimentação há mais de 60 dias (AD-121). |

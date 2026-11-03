@@ -75,6 +75,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Iniciar laudo aceita qualquer modelo; o tipo do documento vem do modelo (`partes-servico`, AD-165).
 - 2026-11-03 — Novo laudo com OS, responsável técnico, modelo trabalhista da perita, editor em rolagem, item novo, "Faz parte do laudo" e layout em `novo-laudo` (AD-161 a AD-163); modelos padrão viram lista.
 - 2026-11-01 — Seções e modelo editáveis no rascunho e marcar subseção marca a seção-mãe (resolve a pendência da numeração) em `laudo-montagem` (LMO-01).
 - 2026-11-01 — Reabrir e excluir laudo concluído e fotos/anotações da vistoria no laudo especificados em `laudo-vistoria` (AD-149).
