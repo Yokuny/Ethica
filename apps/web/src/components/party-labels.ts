@@ -19,6 +19,11 @@ export const formatDocument = (document?: string): string | undefined => {
   return document.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
 };
 
-// Document that identifies the record on screen: the party's CPF/CNPJ or the lawyer's OAB.
-export const partyIdentification = (party: { type: PartyType; document?: string; oab?: string }) =>
-  party.type === 'lawyer' ? (party.oab ? `OAB ${party.oab}` : undefined) : formatDocument(party.document);
+// Registrations that identify the record on screen (PSV-05): CPF/CNPJ, OAB and CREA, as filled.
+export const partyIdentification = (party: { type: PartyType; document?: string; oab?: string; crea?: string }) =>
+  [
+    party.type === 'lawyer' ? party.oab && `OAB ${party.oab}` : formatDocument(party.document),
+    party.crea && `CREA ${party.crea}`,
+  ]
+    .filter(Boolean)
+    .join(' · ') || undefined;

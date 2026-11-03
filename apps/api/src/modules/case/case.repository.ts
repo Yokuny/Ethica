@@ -308,6 +308,25 @@ export const renameParty = async (tenantId: string, partyId: string, name: strin
     );
   });
 
+// Merged duplicate (PSV-05): the cases of `fromId` point to `toId`; the same party twice on the same
+// side of a case stays once.
+export const replaceParty = async (tenantId: string, fromId: string, toId: string, name: string): Promise<void> =>
+  withDbTiming('case.replaceParty', async () => {
+    const docs = await Case.find(tenantScoped({ Tenant: tenantId, 'parties.Party': toObjectId(fromId) }))
+      .select('parties')
+      .lean();
+    for (const doc of docs) {
+      const parties = doc.parties
+        .map((party) => (party.Party.toString() === fromId ? { ...party, Party: toObjectId(toId), name } : party))
+        .filter(
+          (party, index, all) =>
+            all.findIndex((other) => other.Party.toString() === party.Party.toString() && other.side === party.side) ===
+            index,
+        );
+      await Case.updateOne(tenantScoped({ Tenant: tenantId, _id: doc._id }), { $set: { parties } });
+    }
+  });
+
 // Cases the party appears in (IMP-03), from newest to oldest.
 export const listByParty = async (tenantId: string, partyId: string): Promise<CaseRecord[]> =>
   withDbTiming('case.listByParty', async () => {

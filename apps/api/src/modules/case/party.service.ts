@@ -1,3 +1,4 @@
+import { partyNameKey } from '@ethica/contracts';
 import { TextSearchUnavailableError } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseRepository from './case.repository.js';
@@ -48,22 +49,63 @@ export const listPartyCases = async (tenantId: string, id: string) => {
   return caseRepository.listByParty(tenantId, id);
 };
 
-// With `partyId`, uses the chosen record. Without it (AD-115): a party with CPF/CNPJ and a lawyer
-// with OAB are looked up only by the document; without a document, by exact name and type; otherwise it creates one.
+const CONTACTS = ['document', 'oab', 'crea', 'email', 'phone'] as const;
+
+// What the input brings that the record does not have yet (PSV-06): fills in, never overwrites.
+const missingFields = (party: PartyRecord, input: Partial<Record<(typeof CONTACTS)[number], string>>) =>
+  Object.fromEntries(CONTACTS.flatMap((field) => (input[field] && !party[field] ? [[field, input[field]]] : [])));
+
+// With `partyId`, uses the chosen record. Without it (AD-115): a party with CPF/CNPJ, a lawyer with OAB
+// and anyone with CREA are looked up by the document; not found, by the name without case or accent
+// (PSV-05) and type, as long as that record has no other document; otherwise it creates one. Contacts
+// brought by the input complete the record.
 const resolveParty = async (tenantId: string, input: CasePartyInput): Promise<PartyRecord> => {
-  if (input.partyId) {
-    const party = await partyRepository.findById(tenantId, input.partyId);
-    if (!party) throw new CustomError('party_not_found', 400, input.partyId);
-    return party;
-  }
   const name = normalizeName(input.name);
   const document = input.type === 'party' ? input.document : undefined;
   const oab = input.type === 'lawyer' ? input.oab : undefined;
-  const existing = await partyRepository.findOneBy(
-    tenantId,
-    document ? { type: input.type, document } : oab ? { type: input.type, oab } : { type: input.type, name },
-  );
-  return existing ?? partyRepository.createParty(tenantId, { type: input.type, name, document, oab });
+  const fields = { document, oab, crea: input.crea, email: input.email, phone: input.phone };
+  const byDocument = document ? { document } : oab ? { oab } : input.crea ? { crea: input.crea } : undefined;
+  const sameName = async () => {
+    const found = await partyRepository.findOneBy(tenantId, { type: input.type, name });
+    const conflict =
+      found && CONTACTS.slice(0, 3).some((field) => fields[field] && found[field] && found[field] !== fields[field]);
+    return conflict ? null : found;
+  };
+  const existing = input.partyId
+    ? await partyRepository.findById(tenantId, input.partyId)
+    : ((byDocument && (await partyRepository.findOneBy(tenantId, { type: input.type, ...byDocument }))) ??
+      (await sameName()));
+  if (input.partyId && !existing) throw new CustomError('party_not_found', 400, input.partyId);
+  if (!existing) return partyRepository.createParty(tenantId, { type: input.type, name, ...fields });
+  const missing = missingFields(existing, fields);
+  return Object.keys(missing).length
+    ? ((await partyRepository.updateParty(tenantId, existing.id, missing)) ?? existing)
+    : existing;
+};
+
+// PSV-05: records of the same type with the same name (no case or accent difference) become the oldest
+// one, with the documents and contacts the others had. Different documents mean different people: kept.
+export const mergeDuplicates = async (tenantId: string): Promise<{ merged: number }> => {
+  const keepers = new Map<string, PartyRecord>();
+  const removed: string[] = [];
+  for (const party of await partyRepository.listOldestFirst(tenantId)) {
+    const key = `${party.type}:${partyNameKey(party.name)}`;
+    const keeper = keepers.get(key);
+    const conflict =
+      keeper && CONTACTS.slice(0, 3).some((field) => keeper[field] && party[field] && keeper[field] !== party[field]);
+    if (!keeper || conflict) {
+      if (!keeper) keepers.set(key, party);
+      continue;
+    }
+    const missing = missingFields(keeper, party);
+    if (Object.keys(missing).length) {
+      keepers.set(key, (await partyRepository.updateParty(tenantId, keeper.id, missing)) ?? keeper);
+    }
+    await caseRepository.replaceParty(tenantId, party.id, keeper.id, keeper.name);
+    removed.push(party.id);
+  }
+  await partyRepository.deleteMany(tenantId, removed);
+  return { merged: removed.length };
 };
 
 // In sequence: the same party repeated in the list (or in the batch) resolves to a single record.

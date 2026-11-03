@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { can } from '../../middlewares/authorization.middleware.js';
+import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import type { CaseRouterDeps } from './case.schema.js';
@@ -11,6 +11,8 @@ export const createPartyRouter = (deps: CaseRouterDeps): Router => {
   const guard = [deps.validToken, tenantAssignmentCheck];
 
   router.post('/', ...guard, can('parties', 'create'), validBody(createPartySchema), partyController.createParty);
+  // PSV-05: same name, same type → one record (admin).
+  router.post('/merge-duplicates', ...guard, isAdmin, partyController.mergeDuplicates);
   router.get(
     '/',
     ...guard,

@@ -38,6 +38,7 @@ import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
 import {
   casePartyInputSchema,
+  creaSchema,
   createPartySchema,
   documentSchema,
   oabSchema,
@@ -105,6 +106,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'financeReportQuerySchema', schema: financeReportQuerySchema },
   { name: 'documentSchema', schema: documentSchema },
   { name: 'oabSchema', schema: oabSchema },
+  { name: 'creaSchema', schema: creaSchema },
   { name: 'createPartySchema', schema: createPartySchema },
   { name: 'updatePartySchema', schema: updatePartySchema },
   { name: 'casePartyInputSchema', schema: casePartyInputSchema },

@@ -12,6 +12,7 @@ export type PartyRecord = {
   name: string;
   document?: string;
   oab?: string;
+  crea?: string;
   email?: string;
   phone?: string;
   createdAt: string;
@@ -77,6 +78,21 @@ export const createPartyMutation = (queryClient: QueryClient): UseMutationOption
 });
 
 // Renaming updates the name copy on the cases (AD-117): the cases are reloaded.
+// PSV-05: records with the same name and type become one (admin).
+export const mergeDuplicatePartiesMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<{ merged: number }, Error, void> => ({
+  mutationFn: async () => {
+    const res = await post<{ merged: number }>('/parties/merge-duplicates');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
+    return res.data;
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: partyKeys.all });
+    queryClient.invalidateQueries({ queryKey: caseKeys.all });
+  },
+});
+
 export const updatePartyMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<PartyRecord, Error, { id: string; data: UpdateParty }> => ({

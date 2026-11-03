@@ -401,11 +401,12 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const objection = sectionByTitle(template.data.sections, 'Impugnação do laudo pericial');
     const identification = sectionByTitle(template.data.sections, 'Identificação do processo');
 
-    const wrong = await admin
+    // Any template may be chosen from the case; the document type is the template's (PSV-04).
+    const anyTemplate = await admin
       .as(request(app).post('/expert-reports'))
-      .send({ caseId, templateId: 'standard-report', sections: [{ id: 'report-01', variant: 'yes' }] });
-    expect(wrong.status).toBe(422);
-    expect(wrong.body.message).toBe('report_template_type_mismatch');
+      .send({ caseId, templateId: 'standard-report', sections: [{ id: 'laudo-01', variant: 'yes' }] });
+    expect(anyTemplate.status).toBe(201);
+    expect(anyTemplate.body.data.type).toBe('report');
 
     const opinion = await admin.as(request(app).post('/expert-reports')).send({
       caseId,

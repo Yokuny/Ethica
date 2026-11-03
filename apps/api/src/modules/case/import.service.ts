@@ -6,6 +6,7 @@ import {
   CSV_IMPORT_COLUMNS,
   CSV_IMPORT_MAX_ROWS,
   CSV_IMPORT_REQUIRED_COLUMNS,
+  creaSchema,
   createCaseSchema,
   documentSchema,
   oabSchema,
@@ -64,6 +65,10 @@ const LABEL_SIDE: [RegExp, Side][] = [
 const LABEL_LAWYER = /^ADVOGAD[OA]S?\s*:/i;
 const OAB = /OAB\s*[:/]?\s*([A-Z]{2}\s*[\d.]+|[\d.]+\s*\/?\s*[A-Z]{2})/i;
 const CPF_CNPJ = /(?:CPF|CNPJ)\s*:?\s*([\d./-]{11,18})/i;
+// Registration and contacts beside the name (PSV-06): "CREA/SC 184822-0", e-mail and phone with area code.
+const CREA = /CREA\s*[-/:]?\s*([A-Z]{2})?\s*(?:n[ºo°.]*\s*)?([\d.-]{4,})/i;
+const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/;
+const PHONE = /\(?\b\d{2}\)?\s*9?\d{4}-?\d{4}\b/;
 
 const OBJETOS: [RegExp, string][] = [
   [/insalubridade/i, 'insalubridade'],
@@ -79,9 +84,27 @@ const clearName = (raw: string): string =>
   raw
     .replace(CPF_CNPJ, '')
     .replace(OAB, '')
+    .replace(CREA, '')
+    .replace(EMAIL, '')
+    .replace(PHONE, '')
+    .replace(/\b(?:e-?mail|telefone|tel\.?|fone)\s*:?/gi, '')
+    .replace(/(\s*-\s*)+$/, '')
     .replace(/\s+-\s*$|[,;]\s*$/, '')
     .replace(/\s+/g, ' ')
     .trim();
+
+// CREA, e-mail and phone found in the row; what is not valid is left out.
+const contacts = (row: string): Pick<CasePartyInput, 'crea' | 'email' | 'phone'> => {
+  const creaMatch = row.match(CREA);
+  const crea = creaSchema.safeParse(creaMatch ? `${creaMatch[1] ?? ''}${creaMatch[2]}` : '');
+  const email = row.match(EMAIL)?.[0];
+  const phone = row.replace(CPF_CNPJ, '').replace(CREA, '').replace(OAB, '').match(PHONE)?.[0];
+  return {
+    ...(crea.success && crea.data ? { crea: crea.data } : {}),
+    ...(email ? { email: email.toLowerCase() } : {}),
+    ...(phone ? { phone: phone.trim() } : {}),
+  };
+};
 
 const extractParties = (rows: string[]): CasePartyInput[] => {
   const parties: CasePartyInput[] = [];
@@ -99,14 +122,16 @@ const extractParties = (rows: string[]): CasePartyInput[] => {
       const resto = row.replace(label[0], '');
       const name = clearName(resto);
       const document = documentSchema.safeParse(resto.match(CPF_CNPJ)?.[1] ?? '');
-      if (name) add({ side, type: 'party', name, document: document.success ? document.data : undefined });
+      if (name) {
+        add({ side, type: 'party', name, document: document.success ? document.data : undefined, ...contacts(resto) });
+      }
       continue;
     }
     if (side && LABEL_LAWYER.test(row)) {
       const resto = row.replace(LABEL_LAWYER, '');
       const name = clearName(resto);
       const oab = oabSchema.safeParse(resto.match(OAB)?.[1] ?? '');
-      if (name) add({ side, type: 'lawyer', name, oab: oab.success ? oab.data : undefined });
+      if (name) add({ side, type: 'lawyer', name, oab: oab.success ? oab.data : undefined, ...contacts(resto) });
     }
   }
   return parties;

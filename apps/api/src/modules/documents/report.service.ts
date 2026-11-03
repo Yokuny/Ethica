@@ -1,4 +1,4 @@
-import { caseLabel, REPORT_MEDIA_LIMIT, type ReportLayout, reportRoleType } from '@ethica/contracts';
+import { caseLabel, REPORT_MEDIA_LIMIT, type ReportLayout } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -135,13 +135,14 @@ export const openReport = async (ctx: DocumentContext, id: string): Promise<Repo
 };
 
 // Chosen template sections, in template order, with the variant of each one (LAU-02, LMO-01).
+// `type`: a draft keeps the type it was created with; a new report takes the template's (PSV-04).
 const chosenSections = async (
   tenantId: string,
-  type: string,
+  type: string | undefined,
   { templateId, sections }: ChooseReportSections,
 ): Promise<{ template: TemplateRecord; chosen: Array<[TemplateSectionRecord, 'yes' | 'no']> }> => {
   const template = await templateService.getTemplate(tenantId, templateId);
-  if (template.type !== type) throw new CustomError('report_template_type_mismatch', 422);
+  if (type && template.type !== type) throw new CustomError('report_template_type_mismatch', 422);
   const variants = new Map(sections.map((choice) => [choice.id, choice.variant]));
   const chosen = template.sections.flatMap((section): Array<[TemplateSectionRecord, 'yes' | 'no']> => {
     const variant = variants.get(section.id);
@@ -167,15 +168,16 @@ const fromTemplate = (section: TemplateSectionRecord, variant: 'yes' | 'no', val
       : resolveVariables(variant === 'yes' ? section.yesText : section.noText, values, 'html'),
   }) satisfies ReportSectionWrite;
 
-// LAU-02: copies the chosen sections. The type comes from the role on the case (LAU-06).
+// LAU-02: copies the chosen sections. Any template of the office may be chosen; the type (report or
+// opinion) is the template's (PSV-04, before it came from the role on the case, LAU-06).
 export const createReport = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
   data: CreateReport,
 ): Promise<ReportRecord> => {
   const legalCase = await caseService.getCase(ctx.tenantId, data.caseId);
-  const type = reportRoleType(legalCase.role);
-  const { template, chosen } = await chosenSections(ctx.tenantId, type, data);
+  const { template, chosen } = await chosenSections(ctx.tenantId, undefined, data);
+  const type = template.type;
   if (data.signatoryId) await signatoryService.getSignatory(ctx.tenantId, data.signatoryId);
   const { values } = await currentData(providers, ctx, legalCase, data.signatoryId);
   const report = await reportRepository.create({

@@ -20,6 +20,14 @@ export const createParty = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+export const mergeDuplicates = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await partyService.mergeDuplicates(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const listParties = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const result = await partyService.listParties(tenantOf(req), req.query as unknown as ListPartiesQuery);

@@ -19,7 +19,7 @@ export const partyColumns: ColumnDef<PartyRecord, unknown>[] = [
   },
   {
     id: 'document',
-    header: t('document'),
+    header: t('registration'),
     cell: ({ row }) => <TableStack>{partyIdentification(row.original) ?? '—'}</TableStack>,
   },
   {

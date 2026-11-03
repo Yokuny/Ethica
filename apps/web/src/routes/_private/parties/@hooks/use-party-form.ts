@@ -15,6 +15,7 @@ export function usePartyForm({ party, onDone }: { party?: PartyRecord; onDone: (
       name: party?.name ?? '',
       document: party?.document ?? '',
       oab: party?.oab ?? '',
+      crea: party?.crea ?? '',
       email: party?.email ?? '',
       phone: party?.phone ?? '',
     },

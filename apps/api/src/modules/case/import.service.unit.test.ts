@@ -17,6 +17,27 @@ Carlos Lima em 15/10/2026. O perito deverá entregar o laudo no prazo de 30 dias
 São Paulo, 15 de outubro de 2026.`;
 
 describe('extrairAta (AD-114)', () => {
+  it('lê CREA, e-mail e telefone ao lado do nome, uma vez cada (PSV-06)', () => {
+    const text = MINUTES.replace(
+      'ADVOGADO: ANA SOUZA - OAB 654321/SP',
+      'ADVOGADO: ANA SOUZA - OAB 654321/SP - ana@adv.com.br - (11) 98765-4321\nRECLAMADO: CARLOS LIMA - CREA/SC 184822-0',
+    );
+    const { draft } = extractMinutes(`${text}\n${text}`);
+    expect(draft.parties).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'lawyer',
+          name: 'ANA SOUZA',
+          oab: 'SP654321',
+          email: 'ana@adv.com.br',
+          phone: '(11) 98765-4321',
+        }),
+        expect.objectContaining({ type: 'party', name: 'CARLOS LIMA', crea: 'SC1848220' }),
+      ]),
+    );
+    expect(draft.parties?.filter((party) => party.name === 'ANA SOUZA')).toHaveLength(1);
+  });
+
   it('extrai número, órgão, vara, comarca, objeto, partes, nomeação e prazo calculado', () => {
     const { draft, missing, warnings } = extractMinutes(MINUTES);
     expect(draft).toMatchObject({

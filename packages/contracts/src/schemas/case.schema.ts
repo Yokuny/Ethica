@@ -130,13 +130,15 @@ export const caseLabel = (data: { processNumber?: string; subject: string }): st
 
 // Perícia date at registration (AD-160): becomes an inspection appointment on the agenda. The location
 // takes a full address or "lat, long" coordinates.
+// Date and time are optional (PSV-03): without a date there is no appointment; with a date, the time is asked.
 export const caseInspectionSchema = z
   .object({
-    date: calendarDateSchema,
-    time: wallTimeSchema,
-    location: z.string().trim().max(200, 'local inválido').optional(),
+    date: optional(calendarDateSchema),
+    time: optional(wallTimeSchema),
+    location: optional(z.string().trim().max(200, 'local inválido')),
   })
-  .strict();
+  .strict()
+  .refine((value) => !value.date || Boolean(value.time), { message: 'informe a hora da perícia', path: ['time'] });
 
 // "lat, long" typed as the location (AD-160); anything else is an address.
 export const parseCoordinates = (text: string): { lat: number; lng: number } | undefined => {

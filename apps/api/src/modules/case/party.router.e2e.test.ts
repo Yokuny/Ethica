@@ -190,4 +190,49 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
       nonPrescribedPeriodEnd: '2025-12-20',
     });
   });
+  it('nome repetido: reaproveita sem diferença de acento, completa contatos e junta os antigos (PSV-05, PSV-06)', async () => {
+    const { tenant, as } = await seedSession(['admin']);
+    const first = await as(request(app).post('/expert-cases')).send(
+      legalCase('0000101-11.2026.5.02.0001', {
+        parties: [{ side: 'plaintiff', type: 'party', name: 'José da Silva' }],
+      }),
+    );
+    expect(first.status).toBe(201);
+    // Same person written differently, now with CREA and phone: reused and completed.
+    const second = await as(request(app).post('/expert-cases')).send(
+      legalCase('0000102-11.2026.5.02.0001', {
+        parties: [
+          {
+            side: 'plaintiff',
+            type: 'party',
+            name: 'JOSE  DA SILVA',
+            crea: 'CREA/SC 184822-0',
+            phone: '(47) 99999-0000',
+          },
+        ],
+      }),
+    );
+    expect(second.body.data.parties[0].partyId).toBe(first.body.data.parties[0].partyId);
+    const party = await as(request(app).get(`/parties/${first.body.data.parties[0].partyId}`));
+    expect(party.body.data).toMatchObject({ crea: 'SC1848220', phone: '(47) 99999-0000' });
+
+    // Duplicates saved before the rule: the merge keeps the oldest, completes it and moves the cases.
+    const older = await Party.create({ Tenant: tenant._id, type: 'lawyer', name: 'Ana Souza' });
+    const newer = await Party.create({ Tenant: tenant._id, type: 'lawyer', name: 'ANA SOUZA', oab: 'SP123' });
+    await Party.create({ Tenant: tenant._id, type: 'lawyer', name: 'Ana Souza', oab: 'RJ999' });
+    const withNewer = await as(request(app).post('/expert-cases')).send(
+      legalCase('0000103-11.2026.5.02.0001', {
+        parties: [{ side: 'plaintiff', type: 'lawyer', name: 'ANA SOUZA', partyId: newer.id }],
+      }),
+    );
+    const operator = await as(request(app).post('/parties/merge-duplicates'));
+    expect(operator.status).toBe(200);
+    expect(operator.body.data).toEqual({ merged: 1 });
+    expect(await Party.findById(newer.id)).toBeNull();
+    expect((await Party.findById(older.id))?.oab).toBe('SP123');
+    const moved = await as(request(app).get(`/expert-cases/${withNewer.body.data.id}`));
+    expect(moved.body.data.parties[0].partyId).toBe(older.id);
+    // Different OAB is another person: kept.
+    expect(await Party.countDocuments({ Tenant: tenant._id, type: 'lawyer' })).toBe(2);
+  });
 });

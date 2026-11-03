@@ -6,7 +6,6 @@ import { DateField, MoneyField, SelectField, TextareaField, TextField, TimeField
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseFormValues } from '../@interface/cases.interface.js';
 import { CasePartiesFields } from './case-parties-fields.js';
-import { LaborCaseFields } from './labor-case-fields.js';
 import { ServiceTypeField } from './service-type-field.js';
 
 // Case fields shared by `add` and `details` (edit). Editing
@@ -149,15 +148,6 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
           description: t('parties_and_lawyers_description'),
           fields: [<CasePartiesFields key="parties" />],
         },
-        ...(courtType === 'labor'
-          ? [
-              {
-                title: t('labor_report_data'),
-                description: t('labor_report_data_description'),
-                fields: [<LaborCaseFields key="labor" />],
-              },
-            ]
-          : []),
         {
           title: t('fees'),
           description: t('proposed_and_fixed_fees'),

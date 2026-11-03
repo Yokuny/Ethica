@@ -35,11 +35,14 @@ export function PartyForm({ party, onClose, onSaved }: PartyFormProps) {
             disabled={Boolean(party)}
           />
           <TextField control={control} name="name" label={t('name')} placeholder={t('example_name')} />
-          {type === 'lawyer' ? (
-            <TextField control={control} name="oab" label="OAB" placeholder={t('example_oab')} />
-          ) : (
-            <TextField control={control} name="document" label={t('cpf_cnpj')} placeholder="000.000.000-00" />
-          )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {type === 'lawyer' ? (
+              <TextField control={control} name="oab" label="OAB" placeholder={t('example_oab')} />
+            ) : (
+              <TextField control={control} name="document" label={t('cpf_cnpj')} placeholder="000.000.000-00" />
+            )}
+            <TextField control={control} name="crea" label="CREA" placeholder="SC 184822-0" />
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField control={control} name="email" label={t('email')} placeholder={t('example_email')} />
             <TextField control={control} name="phone" label={t('phone')} placeholder="(11) 90000-0000" />

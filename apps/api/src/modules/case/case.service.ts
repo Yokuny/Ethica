@@ -87,6 +87,8 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
   try {
     const legalCase = await caseRepository.createCase({
       ...input,
+      // Without the labor block (PSV-02), the perícia location is the case location ([LOCAL_PERICIA]).
+      location: input.location ?? inspection?.location,
       serviceOrder: input.serviceOrder ?? (await nextServiceOrder(input.tenant)),
       ...(phase ? { phase, status: resolveStatusAndPhase({ status: 'appointed' }, { phase }).status } : {}),
       parties: await partyService.resolveParties(input.tenant, parties ?? []),
@@ -98,13 +100,15 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
         notes: 'Gerado a partir do prazo do laudo informado no cadastro.',
       });
     }
-    // The perícia date becomes an appointment on the agenda (AD-160).
-    if (inspection) {
+    // The perícia date becomes an appointment on the agenda (AD-160); without a date there is none (PSV-03).
+    if (inspection?.date && inspection.time) {
       domainEventBus.emit('case:inspection_scheduled', {
         tenantId: input.tenant,
         caseId: legalCase.id,
         caseLabel: caseLabel(legalCase),
-        ...inspection,
+        location: inspection.location,
+        date: inspection.date,
+        time: inspection.time,
       });
     }
     return legalCase;

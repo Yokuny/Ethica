@@ -87,7 +87,7 @@ export function ReportAddPage() {
             <RecordHeader>
               <RecordHeading
                 icon={<Gavel />}
-                label={t(type)}
+                label={t(template.data?.type ?? type)}
                 title={caseLabel(legalCase.data)}
                 description={[
                   legalCase.data.division ?? legalCase.data.court,
@@ -105,11 +105,7 @@ export function ReportAddPage() {
               <SignatoryPicker value={signatory} onChange={setSignatory} />
             </Panel>
             <Panel title={t('template')} description={t('choose_template_description')}>
-              <TemplateSelect
-                type={type}
-                value={templateId}
-                onChange={(value) => updateSearch({ templateId: value })}
-              />
+              <TemplateSelect value={templateId} onChange={(value) => updateSearch({ templateId: value })} />
             </Panel>
             {template.isLoading ? (
               <DefaultLoading />

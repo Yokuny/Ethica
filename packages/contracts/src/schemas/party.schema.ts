@@ -19,6 +19,22 @@ export const normalizeOab = (raw: string): string => {
   return reversed ? `${reversed[2]}${reversed[1]}` : value;
 };
 
+// "CREA-SC 184822-0", "crea/sc 184822-0" viram "SC1848220" (PSV-05).
+export const normalizeCrea = (raw: string): string =>
+  raw
+    .toUpperCase()
+    .replace(/CREA/g, '')
+    .replace(/[^A-Z0-9]/g, '');
+
+// Key to tell two names apart (PSV-05): no case, accent or repeated space difference.
+export const partyNameKey = (name: string): string =>
+  name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
 // An empty form field becomes missing, never a saved empty string.
 const emptyAsUndefined = (value: string) => value || undefined;
 
@@ -35,19 +51,29 @@ export const oabSchema = z
   .refine((value) => value === '' || /^[A-Z]{2}\d{1,7}[A-Z]?$/.test(value), 'OAB inválida (ex.: SP123456)')
   .transform(emptyAsUndefined);
 
+export const creaSchema = z
+  .string()
+  .max(30, 'CREA inválido')
+  .transform(normalizeCrea)
+  .refine((value) => value === '' || /^[A-Z]{2}\d{3,12}[A-Z]?$/.test(value), 'CREA inválido (ex.: SC1848220)')
+  .transform(emptyAsUndefined);
+
+const emailSchema = z
+  .string()
+  .trim()
+  .refine((value) => value === '' || z.email().safeParse(value).success, 'e-mail inválido')
+  .transform(emptyAsUndefined);
+const phoneSchema = z.string().trim().max(30, 'telefone inválido').transform(emptyAsUndefined);
+
 const nameSchema = z.string().trim().min(1, 'nome é obrigatório').max(200, 'nome inválido');
 
 const partyFields = z.object({
   name: nameSchema,
   document: documentSchema.optional(),
   oab: oabSchema.optional(),
-  email: z
-    .string()
-    .trim()
-    .refine((value) => value === '' || z.email().safeParse(value).success, 'e-mail inválido')
-    .transform(emptyAsUndefined)
-    .optional(),
-  phone: z.string().trim().max(30, 'telefone inválido').transform(emptyAsUndefined).optional(),
+  crea: creaSchema.optional(),
+  email: emailSchema.optional(),
+  phone: phoneSchema.optional(),
 });
 
 export const createPartySchema = partyFields.extend({ type: z.enum(PARTY_TYPES) }).strict();
@@ -67,6 +93,10 @@ export const casePartyInputSchema = z
     name: nameSchema,
     document: documentSchema.optional(),
     oab: oabSchema.optional(),
+    crea: creaSchema.optional(),
+    // Contacts read from the process PDF (PSV-06): they fill what the registry does not have.
+    email: emailSchema.optional(),
+    phone: phoneSchema.optional(),
     // Whoever hired the technical assistant (AD-135); at most one, only in that case.
     client: z.boolean().optional(),
   })

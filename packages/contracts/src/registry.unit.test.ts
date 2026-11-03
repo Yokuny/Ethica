@@ -38,6 +38,7 @@ describe('schemaRegistry', () => {
         'financeReportQuerySchema',
         'documentSchema',
         'oabSchema',
+        'creaSchema',
         'createPartySchema',
         'updatePartySchema',
         'casePartyInputSchema',
