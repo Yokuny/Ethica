@@ -6,12 +6,11 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | --- | --- | --- |
 | Serviço (antes "Perícia" na tela) | `Case` (`case` module) | Um trabalho do perito: processo judicial em que atua como perito ou assistente técnico, ou serviço de tipo criado pelo escritório (AD-158). O processo judicial é identificado pelo número CNJ, único por tenant; o serviço do escritório pode não ter número. |
 | Tipo de serviço | `courtType` + `role`, ou `serviceType` com `courtType: 'other'` | Perícia ou assistência técnica civil, trabalhista ou federal, ou um tipo com nome criado pelo escritório (AD-158). |
-| Status do serviço | `serviceStatus` | Proposta enviada, em andamento, entregue, com pendência, cancelado; escolhido pela perita, independente da etapa (AD-158). |
+| Status do serviço | `status` do `Case` (`CASE_STATUS`) | Lista única na ordem da rotina: nomeado – aguardando aceite → proposta de honorários enviada → honorários aceitos → perícia agendada → perícia realizada – laudo em elaboração → laudo entregue → esclarecimentos/impugnação → aguardando pagamento → concluído; suspenso pausa e recusado/cancelado encerra (AD-166). Substitui etapa, fase e o status antigo. |
 | Honorário líquido | — (calculado na tela) | Honorário fixado ou contratado (sem ele, o proposto) menos as despesas não canceladas do serviço (AD-159). |
 | Número do processo (CNJ) | `processNumber` | Formato `NNNNNNN-DD.AAAA.J.TR.OOOO` (Resolução CNJ 65/2008). |
 | Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`); `other` no tipo de serviço do escritório (AD-158). |
 | Atuação | `role` | Perito do juízo (`court_expert`) ou assistente técnico de uma das partes (`technical_assistant`). |
-| Etapa | `status` da perícia | Nomeada → aceita → vistoria → em laudo → laudo entregue → esclarecimentos → concluída; recusada encerra sem laudo. |
 | Parte | `Party` (`case`), `parties` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB), ambos com CREA opcional; um cadastro por nome (`nameKey`, AD-164). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117); o advogado é da parte que vem antes dele no mesmo polo. |
 | Período imprescrito | `nonPrescribedPeriodStart`/`End` | Parte do contrato de trabalho que ainda pode ser cobrada: do mais recente entre (autuação − 5 anos) e a admissão até a demissão (AD-115). |
 | Movimentação | `Case.movements` | Fato do processo com data (entrega do laudo, notificação de honorários, intimação para esclarecimentos ou laudo complementar) que reinicia a contagem de perícia parada (AD-121). |
@@ -36,7 +35,7 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | OS (ordem de serviço) | `Case.serviceOrder`; sequência `ServiceOrderSequence` (`case`) | Número de controle do serviço, `SIGLA-AAAA-NNN`, dado pela sequência do escritório no cadastro (AD-161). |
 | Faz parte do laudo | `sections[].included` | Item que sai no PDF e no Word; desmarcado fica no rascunho com o texto (AD-163). |
 | Layout do laudo | `layout` (`reportLayoutSchema`) | Fonte, tamanho, espaçamento, margens, cor dos títulos e páginas (capa, sumário, abertura) do laudo (AD-163). |
-| Diário de bordo | `Activity` (`identity`) | Registro de quem fez o quê: toda escrita, exportação e entrada no sistema, guardado por 1 ano (AD-134). |
+| Histórico de auditoria (antes "Diário de bordo") | `Activity` (`identity`) | Registro de quem fez o quê: toda escrita, exportação e entrada no sistema, guardado por 1 ano (AD-134). |
 | Oportunidade | `Opportunity` (`prospecting`) | Processo encontrado no Datajud e salvo para análise; pode ser convertido em perícia. |
 | Valor de domínio | enums em `packages/contracts/src/schemas/` | Gravado e devolvido pela API em inglês (AD-113); o web traduz com `t()` antes de mostrar. |
 | Chave de acesso | `AccessKey` (`identity`) | Link de uso único e código de 6 dígitos enviados ao e-mail da pessoa para entrar ou criar o escritório; vale 15 minutos. Não há senha (AD-155). |

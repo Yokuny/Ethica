@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-03 — Status do serviço passa a lista única no lugar de etapa, fase e status (`rotina-servico`, AD-166).
 - 2026-11-03 — Partes com os advogados dentro, data e hora da perícia opcionais e OS no cadastro (`partes-servico`, `novo-laudo`, AD-161, AD-164, AD-165).
 - 2026-11-02 — Feature entregue a pedido da perita (AD-158 a AD-160).
 

@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Fase detalhada e situação saem: o serviço tem um status único (`rotina-servico`, AD-166); "Diário de bordo" passa a "Histórico de auditoria" na tela.
 - 2026-11-01 — CRUD de membros só do admin especificado em `gestao-membros` (AD-148).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Rotas do web e da API, pastas de rota e valores da matriz e do diário passam a inglês, traduzidos no web (AD-138).

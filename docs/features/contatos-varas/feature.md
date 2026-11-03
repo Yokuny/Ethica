@@ -61,5 +61,6 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — A seção passa a "Varas e comarcas"; base pronta dos 24 TRTs pedida pela perita e pendente em `rotina-servico` (RSV-05).
 - 2026-11-01 — Implementado VAR-01 a VAR-03; validação em `.specs/features/contatos-varas/validation.md`. A justiça reaproveita a da perícia (trabalho, cível e federal) em vez de um tipo novo.
 - 2026-11-01 — Spec criada (`.specs/features/contatos-varas/spec.md`).

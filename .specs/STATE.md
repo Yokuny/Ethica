@@ -437,7 +437,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: duas pessoas homônimas sem documento viram o mesmo cadastro; o fim do período sem demissão é uma aproximação que o perito ajusta.
 - **Scope**: `apps/api/src/modules/pericia/{importacao,parte,pericia}.service.ts`, `packages/contracts/src/schemas/{pericia,importacao}.schema.ts`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (modelo fixo de colunas superseded by AD-167)
 
 ### AD-116
 - **Decision**: A feature `importacao-processos` entra inteira nesta rodada: IMP-01 (PDF), IMP-02 (CSV), IMP-03 (partes e advogados reutilizáveis) e IMP-04 (dados auxiliares trabalhistas).
@@ -581,7 +581,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: duas noções (etapa e fase) na mesma tela; a fase é opcional.
 - **Scope**: `packages/contracts/src/schemas/pericia.schema.ts`, `packages/db/src/models/pericia.model.ts`, `apps/api/src/modules/pericia/`, `apps/api/src/modules/documentos/laudo.service.ts`, `apps/web/src/routes/_private/pericias/`.
 - **Date**: 2026-11-01
-- **Status**: active
+- **Status**: active (fase e situação superseded by AD-166)
 
 ### AD-134
 - **Decision**: **Diário de bordo** é a collection `Atividade` do módulo `identity` (dono, junto do tenant e dos usuários): quem (id e nome gravado), quando, módulo, ação, recurso e o registro afetado (id e rótulo legível). Registra **só escrita** bem-sucedida (POST/PUT/PATCH/DELETE com status < 400), a exportação de dados e a entrada no sistema. A gravação é **um middleware HTTP único** (`apps/api/src/middlewares/diario.middleware.ts`) montado em `app.ts` com a função de gravar injetada (a camada compartilhada não importa módulos): ao terminar a resposta, deduz módulo, recurso e ação pelo caminho e pelo método, o registro pelo primeiro id do caminho ou pelo `id` da resposta e o rótulo pelo corpo da resposta; nunca bloqueia nem derruba a ação (falha só vai ao log). Uma requisição é uma entrada (importação CSV em lote = uma entrada). Guarda de **1 ano** por índice TTL. Só `admin` consulta (`GET /tenant/diario`, paginado no servidor). Substitui `Tenant.dataExports` (AD-122): as últimas exportações do escritório passam a ser lidas do diário.
@@ -781,7 +781,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: `processNumber` opcional em todo o sistema: quem mostra o serviço usa `caseLabel` (número ou, sem ele, o objeto). Tipo do escritório não é renomeado nem excluído; existe enquanto um serviço o usa. Laudo de tipo `other` usa Requerente/Requerido.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
 - **Date**: 2026-11-02
-- **Status**: active
+- **Status**: active (status do serviço superseded by AD-166)
 
 ### AD-159
 - **Decision**: Categorias de despesa: deslocamento, equipamentos, terceiros, materiais, taxas, alimentação e outras; categoria criada pelo escritório é `other_expenses` + `Transaction.categoryName`, com a lista dos nomes já usados (`GET /finance/expense-names`). Pagamento (Sim, Não, Parcial) e honorário líquido do serviço são calculados na tela pelos lançamentos do serviço, sem campo gravado: base = honorário fixado/contratado ou, sem ele, o proposto; líquido = base − despesas não canceladas; pago quando o recebido alcança a base (sem base, quando todo honorário lançado foi recebido).
@@ -839,7 +839,33 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-166
+- **Decision**: O serviço tem **um status só** (`Case.status`, `CASE_STATUS`): nomeado – aguardando aceite, proposta de honorários enviada, honorários aceitos – aguardando data da perícia, perícia agendada, perícia realizada – laudo em elaboração, laudo entregue, esclarecimentos/impugnação, aguardando pagamento, concluído, suspenso, recusado/cancelado. Saem a fase detalhada e a situação derivada (AD-133) e o `serviceStatus` (AD-158). Fechados = concluído e recusado; parados excluem também o suspenso. Os dados antigos são convertidos na subida da API (`migrateCaseStatus` em `packages/db/src/models/case.model.ts`, idempotente). O rótulo de tela não é o valor (`CASE_STATUS_KEY` em `apps/web/src/components/case-labels.ts`), porque `completed`/`declined` têm outro texto em outros domínios.
+- **Reason**: a perita aprovou a lista sugerida em 2026-11-03; três classificações ao mesmo tempo se repetiam.
+- **Trade-off**: a conversão perde a fase detalhada (ex.: "Respondendo impugnação" vira só esclarecimentos/impugnação). Supersede, na AD-133, fase e situação; na AD-158, o status do serviço.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/server.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/`, `apps/web/src/components/case-labels.ts`, `apps/web/src/routes/_private/expert-cases/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
+### AD-167
+- **Decision**: Importação de planilha de **qualquer modelo** (RSV-04): cada coluna é ligada a um campo pelo nome (`suggestCsvField`, sinônimos em `packages/contracts/src/schemas/import.schema.ts`, sem diferença de maiúscula, acento e pontuação); a perita confere as colunas numa tela (! no que não foi reconhecido com certeza) e a importação recebe o campo de cada coluna em `?fields=`. Separador `;`, `,` ou tabulação; arquivo do Excel em Windows-1252 é lido no navegador. Valor ilegível fica em branco e vai para Observações com "(!)"; coluna sem campo vai para Observações como "Coluna: valor". Sem objeto, o tipo de serviço vira o objeto. Sem IA (AD-114 segue).
+- **Reason**: escolha da perita em 2026-11-03 (conferir só as colunas, não linha a linha).
+- **Trade-off**: o arquivo é enviado duas vezes (colunas e importação), sem guardar nada no servidor entre os dois. Supersede, na AD-115, o modelo fixo de colunas.
+- **Scope**: `packages/contracts/src/schemas/import.schema.ts`, `apps/api/src/modules/case/import.*`, `apps/web/src/routes/_private/expert-cases/import/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
+### AD-168
+- **Decision**: O PDF do processo usa as partes do **último cabeçalho com os dois polos** (o último despacho) ou, sem ele, do primeiro (a petição inicial); a data de nomeação é a **mais recente** das frases que nomeiam perito; o prazo do laudo não é mais preenchido pelo PDF (aviso `deadline_calculated` removido). O detalhe do serviço mostra cada cadastro uma vez por polo e tipo, o que corrige os serviços já gravados com repetição.
+- **Reason**: pedido da perita (2026-11-03): partes repetidas no detalhe, renomeação no mesmo processo e prazo digitado por ela.
+- **Trade-off**: parte incluída num documento antigo e ausente do último cabeçalho fica de fora; a perita acrescenta na tela.
+- **Scope**: `apps/api/src/modules/case/import.service.ts`, `apps/api/src/modules/case/case.repository.ts`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
+
+- **Feature**: `rotina-servico` — parcial: partes do último despacho, última nomeação, status único, planilha de qualquer modelo e nomes das seções (AD-166 a AD-168). Falta a base de varas e comarcas dos 24 TRTs (RSV-05, a perita escolheu base pronta para todo escritório; supersede parte da AD-151 quando entrar) e a conferência visual no navegador.
 
 - **Feature**: `partes-servico` — concluída: partes com advogados, partes sem repetição com CREA e contatos do PDF, data da perícia opcional e laudo com qualquer modelo (AD-164, AD-165). Falta a conferência visual no navegador.
 

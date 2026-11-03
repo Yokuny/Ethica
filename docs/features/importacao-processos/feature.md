@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/pericia packages/contracts packages/db/src/
 
 ## Histórico
 
+- 2026-11-03 — Planilha de qualquer modelo com conferência das colunas (AD-167); PDF com partes do último despacho, última nomeação e sem prazo do laudo (AD-168) (`rotina-servico`).
 - 2026-11-03 — Partes sem repetição pelo nome normalizado, "Juntar repetidos", CREA e contatos lidos do PDF; o bloco "Dados do laudo trabalhista" saiu do formulário (`partes-servico`, AD-164, AD-165).
 - 2026-11-01 — Ajustes da perita: o PDF aceita o processo completo (até 50 MB, `PDF_IMPORT_MAX_BYTES`) e a tela mostra o limite; o cabeçalho do PJe repetido em cada página não repete mais as partes (antes, 20 páginas viravam 80 partes, passavam do máximo de 30 e o Salvar falhava sem mensagem; o erro da lista de partes agora aparece na tela); polos aparecem como Reclamante/Reclamada na perícia trabalhista e Autor/Réu na cível e federal (`sideLabel` em `apps/web/src/components/party-labels.ts`).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).

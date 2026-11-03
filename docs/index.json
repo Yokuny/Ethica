@@ -47,6 +47,29 @@
       "doc": "features/partes-servico/feature.md"
     },
     {
+      "slug": "rotina-servico",
+      "feature": "Rotina do serviço",
+      "descricao": "Status único do serviço, partes do último despacho no PDF, planilha de qualquer modelo e nomes das seções; falta a base de varas dos TRTs",
+      "data": "2026-11-03",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-166",
+        "AD-167",
+        "AD-168"
+      ],
+      "spec": [
+        ".specs/features/rotina-servico"
+      ],
+      "planos": [],
+      "doc": "features/rotina-servico/feature.md"
+    },
+    {
       "slug": "acesso-email",
       "feature": "Acesso por e-mail (sem senha)",
       "descricao": "Entrar e criar o escritório só com o e-mail, pela chave de acesso (link e código) enviada à caixa de e-mail da pessoa",
@@ -845,7 +868,7 @@
       "id": "AD-115",
       "decisao": "Defaults da importação confirmados pelo usuário: (1) o PDF só preenche o formulário de cadastro, o perito confere e salva; (2) CSV com separ",
       "data": "2026-10-31",
-      "status": "active"
+      "status": "active (modelo fixo de colunas superseded by AD-167)"
     },
     {
       "id": "AD-116",
@@ -953,7 +976,7 @@
       "id": "AD-133",
       "decisao": "A perícia mantém as 8 etapas (`PERICIA_STATUS`) e ganha uma fase detalhada opcional (`fase`) de lista fixa agrupada por etapa (`PERICIA_FASE",
       "data": "2026-11-01",
-      "status": "active"
+      "status": "active (fase e situação superseded by AD-166)"
     },
     {
       "id": "AD-134",
@@ -1103,7 +1126,7 @@
       "id": "AD-158",
       "decisao": "A seção \"Perícias\" passa a \"Serviços\" só no texto da tela (o código segue `Case`). O tipo de serviço é uma lista única: os judiciais são `co",
       "data": "2026-11-02",
-      "status": "active"
+      "status": "active (status do serviço superseded by AD-166)"
     },
     {
       "id": "AD-159",
@@ -1144,6 +1167,24 @@
     {
       "id": "AD-165",
       "decisao": "O laudo iniciado pelo serviço aceita qualquer modelo cadastrado, e o tipo do documento (laudo ou parecer) é o do modelo escolhido; trocar o",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-166",
+      "decisao": "O serviço tem um status só (`Case.status`, `CASE_STATUS`): nomeado – aguardando aceite, proposta de honorários enviada, honorários aceitos –",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-167",
+      "decisao": "Importação de planilha de qualquer modelo (RSV-04): cada coluna é ligada a um campo pelo nome (`suggestCsvField`, sinônimos em `packages/con",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-168",
+      "decisao": "O PDF do processo usa as partes do último cabeçalho com os dois polos (o último despacho) ou, sem ele, do primeiro (a petição inicial); a da",
       "data": "2026-11-03",
       "status": "active"
     }
