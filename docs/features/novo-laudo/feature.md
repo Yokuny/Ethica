@@ -79,6 +79,8 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Título do item em maiúsculas e do subitem com a primeira letra maiúscula, na tela, no PDF e no Word (AD-174). "Excluir rascunho" no "…" do laudo (sai o botão Remover do rodapé, e só aparece para quem pode excluir) e lixeira na linha do rascunho na lista de laudos. Calibri, Cambria e Source Sans Pro entram nas fontes do laudo e do cabeçalho/rodapé do escritório; o servidor do PDF instala Carlito e Caladea (mesmas medidas de Calibri e Cambria) e Source Sans 3 (`Dockerfile`).
+
 - 2026-11-03 — Lista do laudo como sumário: subitens só aparecem com o item de cima aberto (`NumberedList`); no Escritório, fonte, tamanho e alinhamento do cabeçalho e do rodapé viram três ícones ao lado do nome (AD-172).
 
 - 2026-11-03 — "Faz parte do laudo" passa para o começo da linha de cada item e subitem, antes do número (pedido da perita com foto do protótipo); setas e "…" seguem no fim da linha.

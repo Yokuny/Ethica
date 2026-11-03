@@ -267,7 +267,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(pdf.status).toBe(200);
     expect(pdf.headers['content-disposition']).toContain(`report-${CASE.processNumber}.pdf`);
     expect(rendered?.html).toContain('LAUDO PERICIAL');
-    expect(rendered?.html).toContain('2. Encerramento');
+    expect(rendered?.html).toContain('2. ENCERRAMENTO');
     const docx = await operator
       .as(request(app).get(`/expert-reports/${report.id}/docx`))
       .buffer()

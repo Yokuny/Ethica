@@ -255,7 +255,7 @@ const data = (): ReportExportData => ({
       },
       {
         id: 's3',
-        title: 'Anexo 1',
+        title: 'anexo 1',
         level: 2,
         titleOnly: false,
         pageBreak: false,
@@ -280,7 +280,7 @@ describe('exportação (LAU-03.2)', () => {
     expect(html).toContain('LAUDO PERICIAL');
     expect(html).toContain('<dt>Reclamante:</dt><dd>Ana</dd>');
     expect(html).toContain('<li class="n2">2.1. Anexo 1</li>');
-    expect(html).toContain('1. Objetivo &lt;x&gt;');
+    expect(html).toContain('1. OBJETIVO &lt;X&gt;');
     expect(html).toContain('<section class="secao quebra">');
     expect(footerTemplate).toContain('pageNumber');
     expect(pendingVariables(html)).toEqual([]);
@@ -311,7 +311,7 @@ describe('exportação (LAU-03.2)', () => {
   it('Word: documento válido com títulos numerados, sumário, lista e tabela', async () => {
     const files = unzipSync(new Uint8Array(await reportDocx(data())));
     const document = strFromU8(files['word/document.xml'] as Uint8Array);
-    expect(document).toContain('1. Objetivo &lt;x&gt;');
+    expect(document).toContain('1. OBJETIVO &lt;X&gt;');
     expect(document).toContain('2.1. Anexo 1');
     expect(document).toContain('TOC \\h \\o');
     expect(document).toContain('<w:tbl>');

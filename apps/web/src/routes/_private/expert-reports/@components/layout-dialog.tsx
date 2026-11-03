@@ -1,4 +1,10 @@
-import { REPORT_FONTS, REPORT_LINE_HEIGHTS, type ReportLayout, reportLayoutSchema } from '@ethica/contracts';
+import {
+  REPORT_FONTS,
+  REPORT_LINE_HEIGHTS,
+  type ReportFont,
+  type ReportLayout,
+  reportLayoutSchema,
+} from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@ethica/ui/components/form';
 import { Input } from '@ethica/ui/components/input';
@@ -13,7 +19,13 @@ import { t } from '@/lib/helpers/translate.helper.js';
 // The select works with text: the line spacing travels as a number and is converted on saving.
 type LayoutForm = Omit<ReportLayout, 'lineHeight'> & { lineHeight: string };
 
-const FONT_LABEL = { times: 'font_times', arial: 'font_arial' } as const;
+const FONT_LABEL: Record<ReportFont, string> = {
+  times: 'font_times',
+  arial: 'font_arial',
+  calibri: 'font_calibri',
+  cambria: 'font_cambria',
+  source_sans: 'font_source_sans',
+};
 const FONT_ITEMS = REPORT_FONTS.map((font) => ({ value: font, label: t(FONT_LABEL[font]) }));
 const LINE_HEIGHT_ITEMS = REPORT_LINE_HEIGHTS.map((height) => ({
   value: String(height),

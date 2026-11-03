@@ -86,13 +86,13 @@ describe('identidade do escritório (DOC-01)', () => {
     const saved = await admin.as(request(app).put('/tenant/office')).send({
       header: 'Laudos [NOME_PERITO]',
       footer: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]',
-      headerStyle: { font: 'times', fontSize: 11, align: 'left' },
+      headerStyle: { font: 'calibri', fontSize: 11, align: 'left' },
       footerStyle: DOCUMENT_TEXT_STYLE_DEFAULT,
     });
     expect(saved.status).toBe(200);
     expect(saved.body.data).toMatchObject({
       header: 'Laudos [NOME_PERITO]',
-      headerStyle: { font: 'times', fontSize: 11, align: 'left' },
+      headerStyle: { font: 'calibri', fontSize: 11, align: 'left' },
       storageBytes: 0,
     });
 

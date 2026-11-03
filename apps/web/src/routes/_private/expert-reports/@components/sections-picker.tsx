@@ -1,5 +1,5 @@
 import type { ReportVariant } from '@ethica/contracts';
-import { numberSections, sectionFamily } from '@ethica/contracts';
+import { numberSections, sectionFamily, sectionTitle } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
@@ -70,7 +70,7 @@ export function SectionsPicker({ sections, choices, onChange }: SectionsPickerPr
                 labelClassName="normal-case tracking-normal"
                 label={
                   <span className="flex flex-col">
-                    <ItemTitle>{numbers[i] ? `${numbers[i]}. ${section.title}` : section.title}</ItemTitle>
+                    <ItemTitle>{`${numbers[i] ? `${numbers[i]}. ` : ''}${sectionTitle(section.title, section.level)}`}</ItemTitle>
                     {section.titleOnly && <ItemDescription>{t('title_only')}</ItemDescription>}
                   </span>
                 }

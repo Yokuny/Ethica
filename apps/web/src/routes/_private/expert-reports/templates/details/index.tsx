@@ -1,4 +1,4 @@
-import { numberSections } from '@ethica/contracts';
+import { numberSections, sectionTitle } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
@@ -113,7 +113,7 @@ export function TemplateDetailsPage() {
                       )
                     }
                     className={section.level > 1 ? (section.level > 2 ? 'pl-14' : 'pl-9') : undefined}
-                    title={numbers[i] ? `${numbers[i]}. ${section.title}` : section.title}
+                    title={`${numbers[i] ? `${numbers[i]}. ` : ''}${sectionTitle(section.title, section.level)}`}
                     description={[
                       section.titleOnly && t('title_only'),
                       section.unnumbered && t('without_number'),

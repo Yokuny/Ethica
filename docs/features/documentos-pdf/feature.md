@@ -72,6 +72,8 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 
 ## Histórico
 
+- 2026-11-03 — Calibri, Cambria e Source Sans Pro no cabeçalho e no rodapé (e no layout do laudo). No PDF saem com Carlito, Caladea e Source Sans 3, instaladas no `Dockerfile`, quando a fonte original não existe no servidor.
+
 - 2026-11-03 — Fonte, tamanho e alinhamento do cabeçalho e do rodapé passam a três ícones ao lado do nome do campo, no Escritório.
 
 - 2026-11-03 — Cabeçalho e rodapé com fonte, tamanho e alinhamento (`headerStyle`/`footerStyle` no `Tenant`, `PDF_FONTS` em `document.layout.ts`), também no Word do laudo (AD-172).

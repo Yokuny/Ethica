@@ -903,6 +903,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-174
+- **Decision**: O título de cada parte do laudo aparece do mesmo jeito na tela (laudo, modelo e escolha de itens), no PDF e no Word: item (nível 1) todo em maiúsculas; subitem com a primeira letra maiúscula e o resto como foi digitado (`sectionTitle` em `packages/contracts/src/schemas/report.schema.ts`). O título gravado não muda; a regra é aplicada ao mostrar. Substitui o `text-transform: uppercase` que só o título do item no corpo do PDF tinha (o sumário do PDF e o Word mostravam como digitado).
+- **Reason**: pedido da perita (2026-11-03), com o laudo ETH-2026-008 como referência de formatação.
+- **Trade-off**: o subitem não é passado para minúsculas, senão siglas como NR-15, PPP e LTCAT quebrariam; um subitem digitado todo em maiúsculas continua assim.
+- **Scope**: `packages/contracts/src/schemas/report.schema.ts`, `apps/api/src/modules/documents/report.templates.ts`, `apps/api/src/modules/documents/report.docx.ts`, `apps/web/src/routes/_private/expert-reports/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.

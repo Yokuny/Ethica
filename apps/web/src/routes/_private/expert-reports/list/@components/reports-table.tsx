@@ -1,6 +1,7 @@
+import { Button } from '@ethica/ui/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
 import type { OnChangeFn, PaginationState } from '@tanstack/react-table';
-import { FileSignature } from 'lucide-react';
+import { FileSignature, Trash2 } from 'lucide-react';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { REPORT_STATUS_VARIANT, reportStatusLabel } from '@/components/report-labels.js';
 import { TablePagination } from '@/components/table-pagination.js';
@@ -15,6 +16,8 @@ type ReportsTableProps = {
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
   onRowClick: (row: ReportListItem) => void;
+  // Trash of a draft row; missing for whoever cannot delete.
+  onDelete?: (row: ReportListItem) => void;
 };
 
 export function ReportsTable({
@@ -24,6 +27,7 @@ export function ReportsTable({
   pageSize,
   onPaginationChange,
   onRowClick,
+  onDelete,
 }: ReportsTableProps) {
   return (
     <>
@@ -34,6 +38,7 @@ export function ReportsTable({
             <TableHead>{t('template')}</TableHead>
             <TableHead>{t('status')}</TableHead>
             <TableHead>{t('updated_on')}</TableHead>
+            {onDelete && <TableHead className="w-12" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -57,6 +62,24 @@ export function ReportsTable({
               <TableCell>
                 <TableStack tone="muted">{formatDate(row.updatedAt)}</TableStack>
               </TableCell>
+              {onDelete && (
+                <TableCell>
+                  {row.status === 'draft' && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label={t('delete_draft')}
+                      title={t('delete_draft')}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDelete(row);
+                      }}
+                    >
+                      <Trash2 />
+                    </Button>
+                  )}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

@@ -2,6 +2,7 @@ import {
   DOCUMENT_MARKERS,
   type DocumentTextStyle,
   REPORT_FONTS,
+  type ReportFont,
   TEXT_ALIGNMENTS,
   type UpdateOffice,
 } from '@ethica/contracts';
@@ -24,7 +25,13 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { useOfficeForm } from '../@hooks/use-office-form.js';
 import type { OfficeView } from '../@query/office.js';
 
-const FONT_LABEL = { times: 'font_times', arial: 'font_arial' } as const;
+const FONT_LABEL: Record<ReportFont, string> = {
+  times: 'font_times',
+  arial: 'font_arial',
+  calibri: 'font_calibri',
+  cambria: 'font_cambria',
+  source_sans: 'font_source_sans',
+};
 const ALIGN_LABEL = { left: 'align_left', center: 'align_center', right: 'align_right' } as const;
 const ALIGN_ICON = { left: AlignLeft, center: AlignCenter, right: AlignRight } as const;
 const FONT_SIZES = [7, 8, 8.5, 9, 10, 11, 12, 14];

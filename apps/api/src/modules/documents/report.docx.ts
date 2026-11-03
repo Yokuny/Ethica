@@ -1,4 +1,4 @@
-import { type DocumentTextStyle, numberSections } from '@ethica/contracts';
+import { type DocumentTextStyle, numberSections, type ReportFont, sectionTitle } from '@ethica/contracts';
 import {
   AlignmentType,
   Document,
@@ -171,7 +171,13 @@ function blocks(nos: No[], format: Format = {}, photos: Photos = {}, inCell = fa
   });
 }
 
-const FONTS = { times: 'Times New Roman', arial: 'Arial' } as const;
+const FONTS: Record<ReportFont, string> = {
+  times: 'Times New Roman',
+  arial: 'Arial',
+  calibri: 'Calibri',
+  cambria: 'Cambria',
+  source_sans: 'Source Sans Pro',
+};
 const ALIGNMENT = { left: AlignmentType.LEFT, center: AlignmentType.CENTER, right: AlignmentType.RIGHT } as const;
 
 // Header or footer of the office in its font, size and alignment (AD-172).
@@ -225,7 +231,8 @@ export const reportDocx = async ({
   const { layout } = report;
   const color = layout.titleColor.slice(1).toUpperCase();
   const numbers = numberSections(report.sections);
-  const numbered = (i: number, title: string) => `${numbers[i] ? `${numbers[i]}. ` : ''}${title}`;
+  const numbered = (i: number, section: { title: string; level: number }) =>
+    `${numbers[i] ? `${numbers[i]}. ` : ''}${sectionTitle(section.title, section.level)}`;
   const centered = (text: string, bold = false, before = 0) =>
     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before }, children: [new TextRun({ text, bold })] });
   const signature = [
@@ -307,7 +314,7 @@ export const reportDocx = async ({
     new Paragraph({
       heading: HEADINGS[Math.min(section.level, 3) - 1],
       pageBreakBefore: section.pageBreak,
-      children: [new TextRun(numbered(i, section.title))],
+      children: [new TextRun(numbered(i, section))],
     }),
     ...(section.titleOnly ? [] : blocks(parseDocument(section.html).children as No[], {}, photos)),
   ]);

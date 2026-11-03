@@ -134,10 +134,14 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .gerado { margin-top: 8mm; font-size: 8.5pt; color: #57606a; }
 `;
 
-// Fonts of the PDF: Chromium in the server has the Liberation fonts, metric-compatible with Times and Arial.
+// Fonts of the PDF: Chromium in the server has Liberation, Carlito and Caladea (metric-compatible with Times,
+// Arial, Calibri and Cambria) and Source Sans 3, the current name of Source Sans Pro (Dockerfile).
 export const PDF_FONTS: Record<ReportFont, string> = {
   times: "'Liberation Serif', 'Times New Roman', serif",
   arial: "'Liberation Sans', Arial, sans-serif",
+  calibri: 'Calibri, Carlito, sans-serif',
+  cambria: 'Cambria, Caladea, serif',
+  source_sans: "'Source Sans Pro', 'Source Sans 3', sans-serif",
 };
 
 // Tenant header and footer (AD-121): each text line becomes a line in the office font, size and

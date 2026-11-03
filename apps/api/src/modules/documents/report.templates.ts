@@ -1,4 +1,4 @@
-import { numberSections, type ReportLayout } from '@ethica/contracts';
+import { numberSections, type ReportLayout, sectionTitle } from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import { esc, headerFooter, PDF_FONTS } from './document.layout.js';
 import type { ReportExportData } from './report.schema.js';
@@ -29,7 +29,6 @@ p { margin: 0 0 ${layout.paragraphSpacing}pt; text-align: justify; }
 .sumario .n3 { padding-left: 16mm; }
 .secao.quebra { break-before: page; }
 .titulo-secao { font-size: ${layout.fontSize + 0.5}pt; font-weight: 700; margin: 6mm 0 3mm; break-after: avoid; color: ${layout.titleColor}; }
-.titulo-secao.n1 { text-transform: uppercase; }
 h3, h4 { font-size: ${layout.fontSize}pt; margin: 4mm 0 2mm; break-after: avoid; }
 ul, ol { margin: 0 0 3mm; padding-left: 8mm; }
 li p { margin: 0; }
@@ -63,7 +62,8 @@ const cm = (value: number): string => `${value * 10}mm`;
 export const reportHtml = ({ report, legalCase, identity, expert, values, photos }: ReportExportData): PdfDocument => {
   const { layout } = report;
   const numbers = numberSections(report.sections);
-  const numbered = (i: number, title: string) => `${numbers[i] ? `${numbers[i]}. ` : ''}${esc(title)}`;
+  const numbered = (i: number, section: { title: string; level: number }) =>
+    `${numbers[i] ? `${numbers[i]}. ` : ''}${esc(sectionTitle(section.title, section.level))}`;
   const signature = `<div class="assinatura"><p><strong>${esc(expert.name)}</strong></p><p>${ROLE[report.type]}</p>${[
     expert.education,
     expert.professionalRegistration,
@@ -105,13 +105,13 @@ export const reportHtml = ({ report, legalCase, identity, expert, values, photos
     values['[DATA_EXTENSO]'],
   )}</p>${signature}</section>`;
   const summary = `<section class="sumario"><p class="titulo-sumario"><strong>SUMÁRIO</strong></p><ol>${report.sections
-    .map((section, i) => `<li class="n${section.level}">${numbered(i, section.title)}</li>`)
+    .map((section, i) => `<li class="n${section.level}">${numbered(i, section)}</li>`)
     .join('')}</ol></section>`;
   const sections = report.sections
     .map((section, i) => {
       const level = Math.min(section.level, 3);
       const tag = `h${level + 1}`;
-      return `<section class="secao${section.pageBreak ? ' quebra' : ''}"><${tag} class="titulo-secao n${level}">${numbered(i, section.title)}</${tag}>${section.titleOnly ? '' : withPhotos(section.html, photos)}</section>`;
+      return `<section class="secao${section.pageBreak ? ' quebra' : ''}"><${tag} class="titulo-secao n${level}">${numbered(i, section)}</${tag}>${section.titleOnly ? '' : withPhotos(section.html, photos)}</section>`;
     })
     .join('');
   const body = [

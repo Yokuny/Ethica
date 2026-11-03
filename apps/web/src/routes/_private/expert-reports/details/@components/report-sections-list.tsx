@@ -1,4 +1,4 @@
-import { numberSections, REPORT_LEVEL_MAX, sectionFamily } from '@ethica/contracts';
+import { numberSections, REPORT_LEVEL_MAX, sectionFamily, sectionTitle } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import {
@@ -81,7 +81,7 @@ export function ReportSectionsList({
           id: section.id,
           number: numbers[i],
           level: section.level,
-          title: section.title,
+          title: sectionTitle(section.title, section.level),
           summary: plain(section.html),
           muted: !section.included,
           badge:

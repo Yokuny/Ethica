@@ -121,6 +121,11 @@ export const numberSections = (
   });
 };
 
+// Title as the report shows it, on screen, PDF and Word (AD-174): an item all in capitals, a subitem with the
+// first letter in capital and the rest as typed (so acronyms such as NR-15 and PPP stay).
+export const sectionTitle = (title: string, level: number): string =>
+  level <= 1 ? title.toLocaleUpperCase('pt-BR') : `${title.charAt(0).toLocaleUpperCase('pt-BR')}${title.slice(1)}`;
+
 // Sections tied to the one at `index`: the subsections right below it and the sections above it. Unchecking a
 // section takes its subsections along; checking it brings them back and also checks the ones above, so it is
 // never numbered under the wrong one.
@@ -153,7 +158,7 @@ const htmlSchema = z.string().max(REPORT_HTML_MAX, 'texto muito longo');
 export const templateIdSchema = z.union([idSchema, z.enum(DEFAULT_TEMPLATE_IDS)]);
 
 // Report layout (NLA-06): kept in the template and copied into the report, which can change its own.
-export const REPORT_FONTS = ['times', 'arial'] as const;
+export const REPORT_FONTS = ['times', 'arial', 'calibri', 'cambria', 'source_sans'] as const;
 export type ReportFont = (typeof REPORT_FONTS)[number];
 export const REPORT_LINE_HEIGHTS = [1, 1.15, 1.5, 2] as const;
 

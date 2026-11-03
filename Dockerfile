@@ -4,8 +4,10 @@
 FROM node:24-bookworm-slim
 
 # python3/make/g++ compilam o addon nativo do bcrypt no install. `chromium` gera os PDFs
-# (AD-119, CHROMIUM_PATH=/usr/bin/chromium); `fonts-liberation` dá as fontes dos documentos.
+# (AD-119, CHROMIUM_PATH=/usr/bin/chromium); as fontes dos documentos: Liberation (Times, Arial),
+# Carlito e Caladea (no lugar de Calibri e Cambria) e Source Sans 3 (antiga Source Sans Pro).
 RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ chromium fonts-liberation \
+    fonts-crosextra-carlito fonts-crosextra-caladea fonts-adobe-sourcesans3 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN corepack enable && corepack prepare pnpm@11.11.0 --activate

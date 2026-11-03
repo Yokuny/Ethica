@@ -10,7 +10,7 @@ import { AppLink } from '@/components/app-link.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
 import { RecordHeader, RecordHeading, RecordStatus } from '@/components/record.js';
 import { REPORT_STATUS_VARIANT, reportStatusLabel } from '@/components/report-labels.js';
@@ -170,6 +170,14 @@ export function ReportDetailsPage() {
       <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('docx')}>
         {t('export_word')}
       </DropdownMenuItem>
+      {openDraft && can(session, 'expert_reports', 'delete') && (
+        <>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" disabled={busy} onClick={() => setDialog({ kind: 'removal' })}>
+            {t('delete_draft')}
+          </DropdownMenuItem>
+        </>
+      )}
     </PageMenu>
   );
 
@@ -249,13 +257,6 @@ export function ReportDetailsPage() {
             uploadPhoto={(photo) => uploadPhoto.mutateAsync({ id: report.id, photo })}
           />
         </CardContent>
-      )}
-      {report && openDraft && (
-        <CardFooter className="justify-between gap-2">
-          <Button variant="destructive" onClick={() => setDialog({ kind: 'removal' })}>
-            {t('remove')}
-          </Button>
-        </CardFooter>
       )}
       {report && processResult && (
         <ProcessFillDialog caseId={report.caseId} result={processResult} onClose={() => setProcessResult(null)} />
@@ -382,9 +383,9 @@ export function ReportDetailsPage() {
       )}
       {report && dialog?.kind === 'removal' && (
         <ConfirmDialog
-          title={t('remove_report_question')}
+          title={t('delete_draft_question')}
           description={t('action_cannot_be_undone')}
-          confirmLabel={t('remove')}
+          confirmLabel={t('permission_delete')}
           pending={removal.isPending}
           onClose={() => setDialog(null)}
           onConfirm={() =>
