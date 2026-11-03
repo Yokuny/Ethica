@@ -21,6 +21,7 @@ import {
   listPendingDeadlinesQuerySchema,
   updateDeadlineSchema,
 } from './deadline.schema.js';
+import { csvImportQuerySchema } from './import.schema.js';
 
 export const createCaseRouter = (deps: CaseRouterDeps): Router => {
   const router = Router();
@@ -35,10 +36,19 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
     fileBody('application/pdf', PDF_IMPORT_MAX_BYTES),
     caseController.importPdf,
   );
+  // Any spreadsheet (RSV-04): first the columns with the suggested field, then the import with the checked ones.
+  router.post(
+    '/import/csv/columns',
+    ...guard,
+    can('expert_cases', 'create'),
+    fileBody('text/csv', CSV_IMPORT_MAX_BYTES),
+    caseController.csvColumns,
+  );
   router.post(
     '/import/csv',
     ...guard,
     can('expert_cases', 'create'),
+    validParsedQuery(csvImportQuerySchema),
     fileBody('text/csv', CSV_IMPORT_MAX_BYTES),
     caseController.importCsv,
   );

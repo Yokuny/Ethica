@@ -19,6 +19,7 @@ import {
   listCourtDivisionsQuerySchema,
 } from './case/court-division.schema.js';
 import { deadlineIdParamSchema, listPendingDeadlinesQuerySchema } from './case/deadline.schema.js';
+import { csvImportQuerySchema } from './case/import.schema.js';
 import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
 import { documentCaseParamSchema } from './documents/documents.schema.js';
 import {
@@ -60,6 +61,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'updatePreferencesSchema', schema: updatePreferencesSchema },
   { name: 'caseIdParamSchema', schema: caseIdParamSchema },
   { name: 'listCasesQuerySchema', schema: listCasesQuerySchema },
+  { name: 'csvImportQuerySchema', schema: csvImportQuerySchema },
   { name: 'movementIdParamSchema', schema: movementIdParamSchema },
   { name: 'documentCaseParamSchema', schema: documentCaseParamSchema },
   { name: 'inspectionParamSchema', schema: inspectionParamSchema },

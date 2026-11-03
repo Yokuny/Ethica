@@ -4,6 +4,7 @@ import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { ListCasesQuery } from './case.schema.js';
 import * as caseService from './case.service.js';
 import { CaseNotFoundError } from './case.service.js';
+import type { CsvImportQuery } from './import.schema.js';
 import * as importService from './import.service.js';
 
 // The Tenant always comes from req.tenantUser (AD-010), never from the body/query.
@@ -118,9 +119,18 @@ export const importPdf = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
+export const csvColumns = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: importService.csvColumns(req.body) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const importCsv = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    res.json(respObj({ data: await importService.importCsv(tenantOf(req), req.body) }));
+    const { fields } = req.query as CsvImportQuery;
+    res.json(respObj({ data: await importService.importCsv(tenantOf(req), req.body, fields) }));
   } catch (e) {
     next(e);
   }

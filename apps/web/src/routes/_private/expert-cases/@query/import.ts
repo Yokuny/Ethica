@@ -1,4 +1,4 @@
-import type { CreateCase, CsvImportColumn } from '@ethica/contracts';
+import type { CreateCase, CsvImportField } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { sendFile } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -16,8 +16,12 @@ export type PdfExtraction = {
 export type CsvImportResult = {
   created: number;
   skipped: { line: number; processNumber: string }[];
-  rejected: { line: number; column?: CsvImportColumn; reason: string }[];
+  // `column` is the spreadsheet header.
+  rejected: { line: number; column?: string; reason: string }[];
 };
+
+// Spreadsheet column with the suggested field (RSV-04); not `certain` shows with "!".
+export type CsvColumn = { header: string; sample?: string; field: CsvImportField; certain: boolean };
 
 // Minutes/order PDF → registration draft (AD-114); nothing is saved.
 export const importPdfMutation = (): UseMutationOptions<PdfExtraction, Error, File> => ({
@@ -28,10 +32,25 @@ export const importPdfMutation = (): UseMutationOptions<PdfExtraction, Error, Fi
   },
 });
 
-// CSV → creates the cases of the valid rows and returns the per-row report (AD-115).
-export const importCsvMutation = (queryClient: QueryClient): UseMutationOptions<CsvImportResult, Error, File> => ({
+// Any spreadsheet (RSV-04): the columns with the suggested field, nothing is saved.
+export const csvColumnsMutation = (): UseMutationOptions<CsvColumn[], Error, Blob> => ({
   mutationFn: async (file) => {
-    const res = await sendFile<CsvImportResult>('/expert-cases/import/csv', file, 'text/csv');
+    const res = await sendFile<CsvColumn[]>('/expert-cases/import/csv/columns', file, 'text/csv');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
+    return res.data;
+  },
+});
+
+// CSV + the field of each column → creates the cases of the valid rows and returns the per-row report (AD-115).
+export const importCsvMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<CsvImportResult, Error, { file: Blob; fields: CsvImportField[] }> => ({
+  mutationFn: async ({ file, fields }) => {
+    const res = await sendFile<CsvImportResult>(
+      `/expert-cases/import/csv?${new URLSearchParams({ fields: fields.join(',') })}`,
+      file,
+      'text/csv',
+    );
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
     return res.data;
   },

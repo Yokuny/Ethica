@@ -53,6 +53,8 @@ export const API_MESSAGE_KEYS = [
   'pdf_without_text',
   'csv_empty',
   'csv_invalid_header',
+  'csv_missing_process_number',
+  'csv_missing_subject',
   'csv_too_many_rows',
   'invalid_process_number',
   'invalid_date',

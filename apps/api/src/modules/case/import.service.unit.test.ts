@@ -1,4 +1,4 @@
-import type { CsvImportColumn } from '@ethica/contracts';
+import { suggestCsvField } from '@ethica/contracts';
 import { describe, expect, it } from 'vitest';
 import { courtUnitFromNumber, extractMinutes, parseCsv, parseData, rowToCase } from './import.service.js';
 
@@ -119,29 +119,45 @@ describe('orgaoDoNumero e parseData', () => {
   });
 });
 
-describe('parseCsv e linhaParaPericia (AD-115)', () => {
-  it('separa por ";", respeita aspas e ignora o BOM', () => {
+describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
+  it('separa por ";", "," ou tabulação, respeita aspas e ignora o BOM', () => {
     expect(parseCsv('﻿a;b\r\n"x;y";"diz ""oi"""\n')).toEqual([
       ['a', 'b'],
       ['x;y', 'diz "oi"'],
     ]);
+    expect(parseCsv('a,b\n"1,5",2')).toEqual([
+      ['a', 'b'],
+      ['1,5', '2'],
+    ]);
   });
 
-  const row = (values: Partial<Record<CsvImportColumn, string>>) => (column: CsvImportColumn) => values[column] ?? '';
+  it('sugere o campo pelo nome da coluna; o que não reconhece vai para Observações com dúvida', () => {
+    expect(suggestCsvField('Nº do Processo')).toEqual({ field: 'processNumber', certain: true });
+    expect(suggestCsvField('Reclamante')).toEqual({ field: 'plaintiff', certain: true });
+    expect(suggestCsvField('CPF do Reclamante')).toEqual({ field: 'plaintiffDocument', certain: true });
+    expect(suggestCsvField('Valor dos honorários (R$)')).toEqual({ field: 'proposedFees', certain: false });
+    expect(suggestCsvField('Perito assistente da parte')).toEqual({ field: 'notes', certain: false });
+  });
 
-  it('linha válida vira cadastro com órgão pelo número, datas, dinheiro e partes', () => {
+  const cells = (values: Record<string, string>) =>
+    Object.entries(values).map(([header, value]) => ({ header, value, field: suggestCsvField(header).field }));
+
+  it('linha vira cadastro com tipo, órgão pelo número, status, datas, dinheiro, partes e observações', () => {
     const result = rowToCase(
-      row({
-        numero_processo: '0001234-56.2026.5.02.0001',
-        objeto: 'Insalubridade',
-        papel: 'Assistente',
-        data_nomeacao: '15/10/2026',
-        honorarios_propostos: 'R$ 3.500,50',
-        autor: 'Maria',
-        autor_advogado: 'João',
-        autor_advogado_oab: 'OAB/SP 123456',
-        reu: 'Indústria',
-        reu_documento: '12.345.678/0001-95',
+      cells({
+        'Tipo de serviço': 'Assistência técnica trabalhista',
+        Processo: '00012345620265020001',
+        Objeto: 'Insalubridade',
+        Situação: 'Laudo entregue',
+        'Data da nomeação': '15-10-2026',
+        Prazo: '31/02/2026',
+        Honorários: 'R$ 3.500,50',
+        Reclamante: 'Maria',
+        'Advogado do reclamante': 'João',
+        'OAB do reclamante': 'OAB/SP 123456',
+        Reclamada: 'Indústria',
+        'CNPJ da reclamada': '12.345.678/0001-95',
+        'Perito assistente': 'Carlos',
       }),
     );
     expect(result).toEqual({
@@ -150,6 +166,7 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
         courtType: 'labor',
         court: 'TRT2',
         role: 'technical_assistant',
+        status: 'report_delivered',
         nominationDate: '2026-10-15',
         proposedFeesCents: 350_050,
         parties: [
@@ -157,33 +174,35 @@ describe('parseCsv e linhaParaPericia (AD-115)', () => {
           { side: 'plaintiff', type: 'lawyer', name: 'João', oab: 'SP123456' },
           { side: 'defendant', type: 'party', name: 'Indústria', document: '12345678000195' },
         ],
+        notes: 'Prazo: 31/02/2026 (!)\nPerito assistente: Carlos',
+      }),
+    });
+    expect(result).not.toHaveProperty('data.reportDeadline');
+  });
+
+  it('tipo do escritório sem processo usa o tipo como objeto', () => {
+    expect(rowToCase(cells({ 'Tipo de serviço': 'Avaliação de imóvel', Status: 'xyz' }))).toEqual({
+      data: expect.objectContaining({
+        courtType: 'other',
+        serviceType: 'Avaliação de imóvel',
+        subject: 'Avaliação de imóvel',
+        notes: 'Status: xyz (!)',
       }),
     });
   });
 
   it.each([
-    [{ objeto: 'x' }, { column: 'numero_processo', reason: 'missing_required_field' }],
+    [{ Objeto: 'x' }, { reason: 'csv_missing_process_number' }],
     [
-      { numero_processo: '123', objeto: 'x' },
-      { column: 'numero_processo', reason: 'invalid_process_number' },
+      { Processo: '123', Objeto: 'x' },
+      { column: 'Processo', reason: 'invalid_process_number' },
     ],
     [
-      { numero_processo: '0001234-56.2026.6.26.0100', objeto: 'x' },
-      { column: 'numero_processo', reason: 'unsupported_court' },
+      { Processo: '0001234-56.2026.6.26.0100', Objeto: 'x' },
+      { column: 'Processo', reason: 'unsupported_court' },
     ],
-    [
-      { numero_processo: '0001234-56.2026.5.02.0001', objeto: 'x', data_admissao: '31/02/2020' },
-      { column: 'data_admissao', reason: 'invalid_date' },
-    ],
-    [
-      { numero_processo: '0001234-56.2026.5.02.0001', objeto: 'x', reu_documento: '123' },
-      { column: 'reu_documento', reason: 'invalid_field' },
-    ],
-    [
-      { numero_processo: '0001234-56.2026.5.02.0001', objeto: 'x'.repeat(600) },
-      { column: 'objeto', reason: 'invalid_field' },
-    ],
+    [{ Processo: '0001234-56.2026.5.02.0001' }, { reason: 'csv_missing_subject' }],
   ])('recusa a linha com o motivo (%j)', (values, reason) => {
-    expect(rowToCase(row(values as Partial<Record<CsvImportColumn, string>>))).toEqual(reason);
+    expect(rowToCase(cells(values))).toEqual(reason);
   });
 });

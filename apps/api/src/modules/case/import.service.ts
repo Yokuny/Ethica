@@ -1,24 +1,28 @@
 import {
   type ApiMessageKey,
   type CasePartyInput,
+  type CaseRole,
+  type CaseStatus,
   type CourtType,
   type CreateCase,
-  CSV_IMPORT_COLUMNS,
   CSV_IMPORT_MAX_ROWS,
-  CSV_IMPORT_REQUIRED_COLUMNS,
+  type CsvImportField,
   creaSchema,
+  createCaseFieldsSchema,
   createCaseSchema,
+  csvHeaderKey,
   documentSchema,
   oabSchema,
   partyNameKey,
   processNumberSchema,
   type Side,
+  suggestCsvField,
 } from '@ethica/contracts';
 import { extractText } from 'unpdf';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseRepository from './case.repository.js';
 import * as caseService from './case.service.js';
-import type { CsvImportColumn, CsvImportResult, PdfDraft, PdfExtraction } from './import.schema.js';
+import type { CsvColumn, CsvImportResult, PdfDraft, PdfExtraction } from './import.schema.js';
 
 // --- Court from the CNJ number (AD-118) ---------------------------------------
 // NNNNNNN-DD.AAAA.J.TR.OOOO: J is the court branch segment, TR the court.
@@ -244,14 +248,19 @@ export const extractPdf = async (tenantId: string, file: Buffer): Promise<PdfExt
   return { ...extraction, existingId, warnings: [...extraction.warnings, 'expert_case_already_registered'] };
 };
 
-// --- CSV (AD-115) ---------------------------------------------------------------
-// `;` as separator, double quotes for a field with `;`/line break, BOM ignored.
+// --- CSV (AD-115, RSV-04) ---------------------------------------------------------
+// Separator `;`, `,` or tab (the most frequent in the first line), double quotes for a field with the
+// separator/line break, BOM ignored.
 export const parseCsv = (text: string): string[][] => {
+  const font = text.replace(/^﻿/, '');
+  const firstLine = font.split(/\r?\n/, 1)[0] ?? '';
+  const separator = [';', ',', '\t'].reduce((best, candidate) =>
+    firstLine.split(candidate).length > firstLine.split(best).length ? candidate : best,
+  );
   const records: string[][] = [];
   let field = '';
   let record: string[] = [];
   let aspas = false;
-  const font = text.replace(/^﻿/, '');
   for (let i = 0; i < font.length; i++) {
     const c = font[i];
     if (aspas) {
@@ -261,7 +270,7 @@ export const parseCsv = (text: string): string[][] => {
       } else if (c === '"') aspas = false;
       else field += c;
     } else if (c === '"') aspas = true;
-    else if (c === ';') {
+    else if (c === separator) {
       record.push(field);
       field = '';
     } else if (c === '\n' || c === '\r') {
@@ -276,121 +285,230 @@ export const parseCsv = (text: string): string[][] => {
   return records;
 };
 
-type DeclinedRow = { column?: CsvImportColumn; reason: ApiMessageKey };
-
 const parseCentavos = (raw: string): number | undefined => {
   const limpo = raw.replace(/R\$|\s/g, '');
   const number = Number(limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo);
   return Number.isFinite(number) && number >= 0 ? Math.round(number * 100) : undefined;
 };
 
-const ROLES: Record<string, CreateCase['role']> = {
-  '': 'court_expert',
-  perito: 'court_expert',
-  assistente: 'technical_assistant',
-  'assistente técnico': 'technical_assistant',
-  'assistente tecnico': 'technical_assistant',
+// Dates as spreadsheets write them: 15/10/2026, 15-10-2026, 15.10.2026 or 2026-10-15 (with a time).
+const parseCsvDate = (raw: string): string | undefined =>
+  parseData(
+    raw
+      .trim()
+      .replace(/^(\d{1,2})[.-](\d{1,2})[.-](\d{4})$/, '$1/$2/$3')
+      .replace(/^(\d{4}-\d{2}-\d{2})[T ].*$/, '$1'),
+  );
+
+// 20 digits without the mask become the CNJ number.
+const parseProcessNumber = (raw: string): string | undefined => {
+  const digits = raw.replace(/\D/g, '');
+  const value =
+    digits.length === 20 ? digits.replace(/^(\d{7})(\d{2})(\d{4})(\d)(\d{2})(\d{4})$/, '$1-$2.$3.$4.$5.$6') : raw;
+  return processNumberSchema.safeParse(value).success ? value.trim() : undefined;
 };
 
-const DATES: [CsvImportColumn, keyof CreateCase][] = [
-  ['data_nomeacao', 'nominationDate'],
-  ['prazo_laudo', 'reportDeadline'],
-  ['data_autuacao', 'docketingDate'],
-  ['data_admissao', 'hireDate'],
-  ['data_demissao', 'terminationDate'],
+// Longest name contained in the text: "laudo entregue" wins over "entregue".
+const longestMatch = <T>(text: string, names: [string, T][]): T | undefined => {
+  const key = ` ${csvHeaderKey(text)} `;
+  return names
+    .filter(([name]) => key.includes(` ${name} `))
+    .sort(([a], [b]) => b.length - a.length)
+    .at(0)?.[1];
+};
+
+const STATUS_NAMES: [string, CaseStatus][] = [
+  ['nomeado', 'appointed'],
+  ['nomeada', 'appointed'],
+  ['nomeacao', 'appointed'],
+  ['aguardando aceite', 'appointed'],
+  ['proposta', 'fees_proposed'],
+  ['honorarios propostos', 'fees_proposed'],
+  ['aceito', 'fees_accepted'],
+  ['aceita', 'fees_accepted'],
+  ['honorarios aceitos', 'fees_accepted'],
+  ['agendada', 'inspection_scheduled'],
+  ['agendado', 'inspection_scheduled'],
+  ['pericia agendada', 'inspection_scheduled'],
+  ['em laudo', 'drafting_report'],
+  ['elaborando laudo', 'drafting_report'],
+  ['laudo em elaboracao', 'drafting_report'],
+  ['pericia realizada', 'drafting_report'],
+  ['em andamento', 'drafting_report'],
+  ['entregue', 'report_delivered'],
+  ['laudo entregue', 'report_delivered'],
+  ['esclarecimentos', 'clarifications'],
+  ['impugnacao', 'clarifications'],
+  ['aguardando pagamento', 'awaiting_payment'],
+  ['a receber', 'awaiting_payment'],
+  ['concluido', 'completed'],
+  ['concluida', 'completed'],
+  ['finalizado', 'completed'],
+  ['encerrado', 'completed'],
+  ['pago', 'completed'],
+  ['suspenso', 'suspended'],
+  ['suspensa', 'suspended'],
+  ['acordo', 'suspended'],
+  ['desistencia', 'suspended'],
+  ['recusado', 'declined'],
+  ['recusada', 'declined'],
+  ['cancelado', 'declined'],
+  ['cancelada', 'declined'],
 ];
 
-const TEXTS: [CsvImportColumn, keyof CreateCase][] = [
-  ['vara', 'division'],
-  ['comarca', 'district'],
-  ['objeto', 'subject'],
-  ['funcao_reclamante', 'claimantJob'],
-  ['local_pericia', 'location'],
-  ['observacoes', 'notes'],
-];
+// "Perícia trabalhista", "Assistência técnica cível"…; a name that says no court type is a service type
+// of the office (AD-158).
+const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: CaseRole; serviceType?: string } => {
+  const key = csvHeaderKey(text);
+  const role = /assist/.test(key) ? 'technical_assistant' : /perit|pericia/.test(key) ? 'court_expert' : undefined;
+  const courtType = /trabalh/.test(key)
+    ? 'labor'
+    : /civel|civil/.test(key)
+      ? 'civil'
+      : /federal/.test(key)
+        ? 'federal'
+        : undefined;
+  if (courtType) return { courtType, role };
+  return role && /^(pericia|pericia judicial|perito|assistencia tecnica|assistente tecnico)$/.test(key)
+    ? { role }
+    : { courtType: 'other', serviceType: text.trim() };
+};
 
-const FIELD_COLUMN: Partial<Record<string, CsvImportColumn>> = Object.fromEntries([
-  ['processNumber', 'numero_processo'],
-  ['proposedFeesCents', 'honorarios_propostos'],
-  ...[...DATES, ...TEXTS].map(([column, field]) => [field, column]),
-]);
+const TEXT_FIELDS = ['court', 'division', 'district', 'subject', 'claimantJob', 'location'] as const;
+const DATE_FIELDS = ['nominationDate', 'reportDeadline', 'docketingDate', 'hireDate', 'terminationDate'] as const;
+const NOTES_HEADER = /^(obs|observ|anota|coment)/;
 
-// One CSV row → registration validated by the same schema as the form, or the rejection reason.
-export const rowToCase = (get: (column: CsvImportColumn) => string): { data: CreateCase } | DeclinedRow => {
-  for (const column of CSV_IMPORT_REQUIRED_COLUMNS) {
-    if (!get(column)) return { column: column, reason: 'missing_required_field' };
-  }
-  const processNumber = get('numero_processo');
-  if (!processNumberSchema.safeParse(processNumber).success) {
-    return { column: 'numero_processo', reason: 'invalid_process_number' };
-  }
-  const body = courtUnitFromNumber(processNumber);
-  if (!body) return { column: 'numero_processo', reason: 'unsupported_court' };
-  const role = ROLES[get('papel').toLowerCase()];
-  if (!role) return { column: 'papel', reason: 'invalid_field' };
+export type CsvCell = { header: string; field: CsvImportField; value: string };
+type DeclinedRow = { column?: string; reason: ApiMessageKey };
 
-  const data: Record<string, unknown> = { processNumber, ...body, role };
-  for (const [column, field] of TEXTS) if (get(column)) data[field] = get(column);
-  for (const [column, field] of DATES) {
-    if (!get(column)) continue;
-    const day = parseData(get(column));
-    if (!day) return { column: column, reason: 'invalid_date' };
-    data[field] = day;
-  }
-  if (get('honorarios_propostos')) {
-    const cents = parseCentavos(get('honorarios_propostos'));
-    if (cents === undefined) return { column: 'honorarios_propostos', reason: 'invalid_field' };
-    data.proposedFeesCents = cents;
-  }
+// One spreadsheet row → registration validated by the same schema as the form, or the rejection reason.
+// A value that cannot be read stays blank and goes to the notes with "(!)"; a column without a field goes
+// to the notes as "Column: value" (RSV-04).
+export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow => {
+  const notes: string[] = [];
+  const data: Record<string, unknown> = {};
+  const header: Partial<Record<string, string>> = {};
+  const sides = { plaintiff: {} as Record<string, string>, defendant: {} as Record<string, string> };
+  let typed: ReturnType<typeof serviceTypeFromText> = {};
+  const doubt = (cell: CsvCell) => notes.push(`${cell.header}: ${cell.value} (!)`);
 
-  const parties: CasePartyInput[] = [];
-  const sides: [Side, 'autor' | 'reu'][] = [
-    ['plaintiff', 'autor'],
-    ['defendant', 'reu'],
-  ];
-  for (const [side, prefix] of sides) {
-    const document = documentSchema.safeParse(get(`${prefix}_documento`));
-    if (!document.success) return { column: `${prefix}_documento`, reason: 'invalid_field' };
-    const oab = oabSchema.safeParse(get(`${prefix}_advogado_oab`));
-    if (!oab.success) return { column: `${prefix}_advogado_oab`, reason: 'invalid_field' };
-    if (get(prefix)) parties.push({ side, type: 'party', name: get(prefix), document: document.data });
-    if (get(`${prefix}_advogado`)) {
-      parties.push({ side, type: 'lawyer', name: get(`${prefix}_advogado`), oab: oab.data });
+  for (const cell of cells) {
+    const { field, value } = cell;
+    if (!value || field === 'ignore') continue;
+    if (field === 'notes') {
+      notes.push(NOTES_HEADER.test(csvHeaderKey(cell.header)) ? value : `${cell.header}: ${value}`);
+      continue;
+    }
+    header[field] ??= cell.header;
+    const side = field.startsWith('plaintiff') ? 'plaintiff' : field.startsWith('defendant') ? 'defendant' : undefined;
+    if (side) {
+      sides[side][field.slice(side.length) || 'name'] = value;
+    } else if (field === 'processNumber') {
+      const number = parseProcessNumber(value);
+      if (number) data.processNumber = number;
+      else doubt(cell);
+    } else if (field === 'serviceType') {
+      typed = serviceTypeFromText(value);
+    } else if (field === 'role') {
+      const key = csvHeaderKey(value);
+      if (/assist/.test(key)) data.role = 'technical_assistant';
+      else if (/perit/.test(key)) data.role = 'court_expert';
+      else doubt(cell);
+    } else if (field === 'status') {
+      const status = longestMatch(value, STATUS_NAMES);
+      if (status) data.status = status;
+      else doubt(cell);
+    } else if (field === 'proposedFees') {
+      const cents = parseCentavos(value);
+      if (cents === undefined) doubt(cell);
+      else data.proposedFeesCents = cents;
+    } else if ((DATE_FIELDS as readonly string[]).includes(field)) {
+      const day = parseCsvDate(value);
+      if (day) data[field] = day;
+      else doubt(cell);
+    } else if ((TEXT_FIELDS as readonly string[]).includes(field)) {
+      const parsed = createCaseFieldsSchema.shape[field as (typeof TEXT_FIELDS)[number]].safeParse(value);
+      if (parsed.success) data[field] = parsed.data;
+      else doubt(cell);
     }
   }
+
+  const unit = typeof data.processNumber === 'string' ? courtUnitFromNumber(data.processNumber) : undefined;
+  const courtType = typed.courtType ?? unit?.courtType;
+  if (!courtType) {
+    const reason = data.processNumber
+      ? 'unsupported_court'
+      : header.processNumber
+        ? 'invalid_process_number'
+        : 'csv_missing_process_number';
+    return { column: header.processNumber, reason };
+  }
+  data.courtType = courtType;
+  if (typed.serviceType) data.serviceType = typed.serviceType;
+  data.role ??= typed.role ?? 'court_expert';
+  if (courtType !== 'other') data.court ??= unit?.court;
+  // Without an object column, the service type names the service.
+  data.subject ??= typed.serviceType;
+  if (!data.subject) return { reason: 'csv_missing_subject' };
+
+  const parties: CasePartyInput[] = [];
+  for (const side of ['plaintiff', 'defendant'] as const) {
+    const { name, Document, Lawyer, LawyerOab } = sides[side];
+    const document = documentSchema.safeParse(Document ?? '');
+    const oab = oabSchema.safeParse(LawyerOab ?? '');
+    if (Document && !document.success) notes.push(`${header[`${side}Document`]}: ${Document} (!)`);
+    if (LawyerOab && !oab.success) notes.push(`${header[`${side}LawyerOab`]}: ${LawyerOab} (!)`);
+    if (name) parties.push({ side, type: 'party', name, document: document.success ? document.data : undefined });
+    if (Lawyer) parties.push({ side, type: 'lawyer', name: Lawyer, oab: oab.success ? oab.data : undefined });
+  }
   if (parties.length) data.parties = parties;
+  if (notes.length) data.notes = notes.join('\n').slice(0, 2000);
 
   const parsed = createCaseSchema.safeParse(data);
   if (!parsed.success) {
     const field = String(parsed.error.issues[0]?.path[0] ?? '');
-    return { column: FIELD_COLUMN[field], reason: 'invalid_field' };
+    return { column: header[field === 'proposedFeesCents' ? 'proposedFees' : field], reason: 'invalid_field' };
   }
   return { data: parsed.data };
 };
 
-// Imports the valid rows one by one through the same path as the form and returns the report
-// per row (row 1 is the header). A number already registered is skipped without stopping the batch.
-export const importCsv = async (tenantId: string, text: string): Promise<CsvImportResult> => {
+const readCsv = (text: unknown): { header: string[]; rows: { fields: string[]; line: number }[] } => {
   const [header, ...records] = parseCsv(typeof text === 'string' ? text : '');
   const rows = records
     .map((fields, index) => ({ fields, line: index + 2 }))
     .filter(({ fields }) => fields.some((field) => field.trim()));
   if (!header || !rows.length) throw new CustomError('csv_empty', 400);
   if (rows.length > CSV_IMPORT_MAX_ROWS) throw new CustomError('csv_too_many_rows', 400);
-  const columns = header.map((name) => name.trim().toLowerCase());
-  const faltando = CSV_IMPORT_REQUIRED_COLUMNS.filter((column) => !columns.includes(column));
-  if (faltando.length) throw new CustomError('csv_invalid_header', 400, faltando.join(', '));
-  const position = new Map(
-    CSV_IMPORT_COLUMNS.map((column) => [column, columns.indexOf(column)] as const).filter(([, i]) => i >= 0),
-  );
+  return { header: header.map((name) => name.trim()), rows };
+};
+
+// Columns of the spreadsheet with the suggested field and a sample value, for the expert to check (RSV-04).
+export const csvColumns = (text: unknown): CsvColumn[] => {
+  const { header, rows } = readCsv(text);
+  return header.map((name, i) => ({
+    header: name,
+    sample: rows.map(({ fields }) => (fields[i] ?? '').trim()).find(Boolean),
+    ...suggestCsvField(name),
+  }));
+};
+
+// Imports the valid rows one by one through the same path as the form and returns the report per row
+// (row 1 is the header). `fields` is the field of each column, as checked by the expert; without it, the
+// suggestion. A number already registered is skipped without stopping the batch.
+export const importCsv = async (
+  tenantId: string,
+  text: unknown,
+  fields?: CsvImportField[],
+): Promise<CsvImportResult> => {
+  const { header, rows } = readCsv(text);
+  const columns = fields ?? header.map((name) => suggestCsvField(name).field);
+  if (columns.length !== header.length) throw new CustomError('csv_invalid_header', 400);
 
   const result: CsvImportResult = { created: 0, skipped: [], rejected: [] };
-  for (const { fields, line } of rows) {
-    const get = (column: CsvImportColumn) => {
-      const i = position.get(column);
-      return i === undefined ? '' : (fields[i] ?? '').trim();
-    };
-    const row = rowToCase(get);
+  for (const { fields: values, line } of rows) {
+    const row = rowToCase(
+      header.map((name, i) => ({ header: name, field: columns[i] ?? 'ignore', value: (values[i] ?? '').trim() })),
+    );
     if (!('data' in row)) {
       result.rejected.push({ line, ...row });
       continue;

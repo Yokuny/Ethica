@@ -1,4 +1,4 @@
-import { CSV_IMPORT_COLUMNS, CSV_IMPORT_EXAMPLE, CSV_IMPORT_MAX_ROWS } from '@ethica/contracts';
+import { CSV_IMPORT_EXAMPLE, CSV_IMPORT_MAX_ROWS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { createFileRoute } from '@tanstack/react-router';
@@ -10,11 +10,12 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { Panel } from '@/components/panel.js';
 import { downloadCsvTemplate } from '@/lib/helpers/csvTemplate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { CsvColumnsReview } from './@components/csv-columns-review.js';
 import { useCsvImport } from './@hooks/use-csv-import.js';
 
-// Batch CSV import (IMP-02): template, upload and per-row report.
+// Batch import of any spreadsheet (IMP-02, RSV-04): upload, check the columns and per-row report.
 export function CasesImportPage() {
-  const { handleFile, result, fileError, isPending } = useCsvImport();
+  const { handleFile, columns, fields, setField, submit, result, fileError, isPending } = useCsvImport();
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -24,7 +25,7 @@ export function CasesImportPage() {
           <Button
             variant="outline"
             onClick={() =>
-              downloadCsvTemplate(CSV_IMPORT_COLUMNS, CSV_IMPORT_EXAMPLE, 'modelo-importacao-pericias.csv')
+              downloadCsvTemplate(Object.keys(CSV_IMPORT_EXAMPLE), CSV_IMPORT_EXAMPLE, 'modelo-importacao-servicos.csv')
             }
           >
             <Download />
@@ -32,7 +33,7 @@ export function CasesImportPage() {
           </Button>
           <Button disabled={isPending} onClick={() => inputRef.current?.click()}>
             <FileUp />
-            {t('choose_csv_file')}
+            {columns ? t('choose_another_file') : t('choose_csv_file')}
           </Button>
         </CardAction>
       </CardHeader>
@@ -59,6 +60,8 @@ export function CasesImportPage() {
         )}
         {isPending ? (
           <DefaultLoading />
+        ) : columns ? (
+          <CsvColumnsReview columns={columns} fields={fields} onFieldChange={setField} onSubmit={submit} />
         ) : (
           result && (
             <CsvImportReport

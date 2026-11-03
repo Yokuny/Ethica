@@ -174,17 +174,42 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     expect(await Deadline.countDocuments({ title: 'Entrega do laudo' })).toBe(1);
   });
 
-  it('CSV vazio ou sem coluna obrigatória é recusado inteiro', async () => {
+  it('colunas de qualquer planilha com o campo sugerido; a importação usa os campos conferidos (RSV-04)', async () => {
     const { as } = await seedSession();
-    const post = (body: string) =>
-      as(request(app).post('/expert-cases/import/csv')).set('Content-Type', 'text/csv').send(body);
+    const csv = 'Nº Processo,Assunto,Perito assistente\n0000001-00.2026.5.02.0001,Insalubridade,Carlos\n';
+    const columns = await as(request(app).post('/expert-cases/import/csv/columns'))
+      .set('Content-Type', 'text/csv')
+      .send(csv);
+    expect(columns.body.data).toEqual([
+      { header: 'Nº Processo', sample: '0000001-00.2026.5.02.0001', field: 'processNumber', certain: true },
+      { header: 'Assunto', sample: 'Insalubridade', field: 'subject', certain: true },
+      { header: 'Perito assistente', sample: 'Carlos', field: 'notes', certain: false },
+    ]);
+    expect(await Case.countDocuments({})).toBe(0);
+
+    const res = await as(request(app).post('/expert-cases/import/csv?fields=processNumber,subject,ignore'))
+      .set('Content-Type', 'text/csv')
+      .send(csv);
+    expect(res.body.data).toMatchObject({ created: 1, rejected: [] });
+    const legalCase = await Case.findOne({}).lean();
+    expect(legalCase).toMatchObject({ subject: 'Insalubridade', court: 'TRT2' });
+    expect(legalCase?.notes).toBeUndefined();
+  });
+
+  it('CSV vazio, campos que não batem com as colunas e linha sem objeto', async () => {
+    const { as } = await seedSession();
+    const post = (body: string, query = '') =>
+      as(request(app).post(`/expert-cases/import/csv${query}`))
+        .set('Content-Type', 'text/csv')
+        .send(body);
 
     const empty = await post(`${HEADER}\n`);
     expect(empty.status).toBe(400);
     expect(empty.body.message).toBe('csv_empty');
 
-    const withoutSubject = await post('numero_processo;papel\n0000001-00.2026.5.02.0001;perito\n');
-    expect(withoutSubject.status).toBe(400);
-    expect(withoutSubject.body.message).toBe('csv_invalid_header');
+    const withoutSubject = 'numero_processo;papel\n0000001-00.2026.5.02.0001;perito\n';
+    expect((await post(withoutSubject, '?fields=processNumber')).body.message).toBe('csv_invalid_header');
+    expect((await post(withoutSubject, '?fields=processNumber,nope')).status).toBe(400);
+    expect((await post(withoutSubject)).body.data.rejected).toEqual([{ line: 2, reason: 'csv_missing_subject' }]);
   });
 });

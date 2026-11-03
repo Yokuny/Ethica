@@ -1,0 +1,31 @@
+import type { CsvImportField } from '@ethica/contracts';
+
+// Label key of each field a spreadsheet column can go to (RSV-04).
+export const CSV_FIELD_LABEL: Record<CsvImportField, string> = {
+  serviceType: 'service_type',
+  role: 'role_in_case',
+  processNumber: 'process_number',
+  court: 'court',
+  division: 'court_division',
+  district: 'judicial_district',
+  subject: 'object',
+  status: 'service_status',
+  nominationDate: 'appointment_date',
+  reportDeadline: 'report_deadline',
+  proposedFees: 'proposed_fees',
+  plaintiff: 'plaintiff_party',
+  plaintiffDocument: 'plaintiff_document',
+  plaintiffLawyer: 'plaintiff_lawyer',
+  plaintiffLawyerOab: 'plaintiff_lawyer_oab',
+  defendant: 'defendant_party',
+  defendantDocument: 'defendant_document',
+  defendantLawyer: 'defendant_lawyer',
+  defendantLawyerOab: 'defendant_lawyer_oab',
+  docketingDate: 'lawsuit_filing_date',
+  hireDate: 'hiring_date',
+  terminationDate: 'termination_date',
+  claimantJob: 'claimant_job',
+  location: 'inspection_location',
+  notes: 'notes',
+  ignore: 'dont_import',
+};
