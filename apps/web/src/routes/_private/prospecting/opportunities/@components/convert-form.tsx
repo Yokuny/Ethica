@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
-import { COURT_TYPE_ITEMS, ROLE_ITEMS } from '@/components/case-labels.js';
+import { JUDICIAL_COURT_TYPE_ITEMS, ROLE_ITEMS } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { DateField, SelectField, TextField } from '@/components/form-fields.js';
@@ -53,7 +53,7 @@ export function ConvertForm({ opportunity, onClose }: { opportunity: Opportunity
                       name="courtType"
                       label={t('court_type')}
                       placeholder={t('select')}
-                      items={COURT_TYPE_ITEMS}
+                      items={JUDICIAL_COURT_TYPE_ITEMS}
                     />
                     <SelectField
                       control={form.control}

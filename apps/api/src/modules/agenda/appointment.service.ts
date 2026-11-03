@@ -1,3 +1,4 @@
+import { caseLabel, parseCoordinates } from '@ethica/contracts';
 import { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { Geocoder } from '../../providers/geocoder.js';
@@ -27,8 +28,8 @@ const withCaseNumber = async (tenantId: string, items: AppointmentRecord[]): Pro
   const ids = [...new Set(items.flatMap((item) => (item.caseId ? [item.caseId] : [])))];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
-    const number = item.caseId ? summaries.get(item.caseId)?.processNumber : undefined;
-    return number ? { ...item, caseNumber: number } : item;
+    const summary = item.caseId ? summaries.get(item.caseId) : undefined;
+    return summary ? { ...item, caseNumber: caseLabel(summary) } : item;
   });
 };
 
@@ -87,13 +88,14 @@ export const getAppointment = async (tenantId: string, id: string): Promise<Appo
 
 // Field map (AD-131): geocodes the address once and stores it on the appointment. An address
 // not found returns the appointment without coordinates; the provider being down is 503.
+// Coordinates typed as the location (AD-160) are stored as they are, without the provider.
 export const geocode = async (geocoder: Geocoder, tenantId: string, id: string): Promise<AppointmentRecord> => {
   const appointment = await getAppointment(tenantId, id);
   if (appointment.coordinates || !appointment.location) return appointment;
   const address = appointment.location;
-  let coordinates: Awaited<ReturnType<Geocoder['geocode']>>;
+  let coordinates: Awaited<ReturnType<Geocoder['geocode']>> = parseCoordinates(address) ?? null;
   try {
-    coordinates = await geocoder.geocode(address);
+    coordinates ??= await geocoder.geocode(address);
   } catch (error) {
     throw new CustomError('geocoding_unavailable', 503, error instanceof Error ? error.message : undefined);
   }
@@ -137,7 +139,7 @@ export const sendNotice = async (
     '[DATA]': day(appointment.start),
     '[HORA]': timeInDisplayTz(appointment.start),
     '[ENDERECO]': appointment.location ?? '',
-    '[NUMERO_PROCESSO]': legalCase.processNumber,
+    '[NUMERO_PROCESSO]': legalCase.processNumber ?? '',
     '[NOME_PERITO]': expert.name,
     '[VARA]': legalCase.division ?? '',
     '[COMARCA]': legalCase.district ?? '',

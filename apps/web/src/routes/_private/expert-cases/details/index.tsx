@@ -16,6 +16,7 @@ import { CaseCourtDivision } from './@components/case-court-division.js';
 import { CaseDeadlines } from './@components/case-deadlines.js';
 import { CaseDetailsView } from './@components/case-details-view.js';
 import { CaseEditForm } from './@components/case-edit-form.js';
+import { CaseFinance } from './@components/case-finance.js';
 import { CaseInspections } from './@components/case-inspections.js';
 import { CaseMovements } from './@components/case-movements.js';
 import { CaseRelated } from './@components/case-related.js';
@@ -90,7 +91,10 @@ export function CaseDetailsPage() {
           <CaseInspections caseId={legalCase.id} />
           <CaseReports legalCase={legalCase} />
           <CaseMovements legalCase={legalCase} />
-          <CaseRelated caseId={legalCase.id} canSeeFinance={can(session, 'finance')} />
+          {can(session, 'finance') && (
+            <CaseFinance legalCase={legalCase} canCreate={can(session, 'finance', 'create')} />
+          )}
+          <CaseRelated caseId={legalCase.id} />
         </CardContent>
       )}
       {legalCase && !isEditing && (

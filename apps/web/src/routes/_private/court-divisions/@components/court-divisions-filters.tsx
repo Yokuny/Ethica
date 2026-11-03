@@ -2,7 +2,7 @@ import { BRAZILIAN_STATES } from '@ethica/contracts';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
-import { COURT_TYPE_ITEMS } from '@/components/case-labels.js';
+import { JUDICIAL_COURT_TYPE_ITEMS } from '@/components/case-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { courtDivisionCitiesQuery } from '@/query/court-division.js';
 import type { CourtDivisionsSearch } from '../@interface/court-divisions.interface.js';
@@ -76,7 +76,7 @@ export function CourtDivisionsFilters({
       />
       <FilterSelect
         label={t('court_type')}
-        items={COURT_TYPE_ITEMS}
+        items={JUDICIAL_COURT_TYPE_ITEMS}
         value={search.courtType}
         onChange={(courtType) => onChange({ courtType: courtType as CourtDivisionsSearch['courtType'] })}
       />

@@ -7,7 +7,7 @@ vi.mock('../../modules/finance/transaction.service.js', () => ({
   postFixedFees: vi.fn().mockResolvedValue(undefined),
 }));
 
-const CASE = { tenantId: 't1', caseId: 'p1', processNumber: '0000001-00.2026.5.02.0001' };
+const CASE = { tenantId: 't1', caseId: 'p1', caseLabel: '0000001-00.2026.5.02.0001' };
 
 describe('registerAllSubscribers', () => {
   it('is idempotent: two calls leave a single listener per event', () => {

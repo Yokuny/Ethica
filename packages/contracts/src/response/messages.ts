@@ -43,6 +43,7 @@ export const API_MESSAGE_KEYS = [
   'invite_email_failed',
   // Cases
   'expert_case_already_registered',
+  'invalid_service_type',
   'phase_stage_mismatch',
   'invalid_contracting_party',
   'party_not_found',

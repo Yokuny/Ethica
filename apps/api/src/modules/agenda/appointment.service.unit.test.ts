@@ -30,7 +30,9 @@ describe('appointment.service', () => {
       { id: 'c2', caseId: 'p1' },
       { id: 'c3', caseId: 'p-apagada' },
     ] as never);
-    vi.mocked(caseService.findSummariesByIds).mockResolvedValue(new Map([['p1', { processNumber: '0001' }]]));
+    vi.mocked(caseService.findSummariesByIds).mockResolvedValue(
+      new Map([['p1', { processNumber: '0001', subject: 'Insalubridade' }]]),
+    );
 
     const items = await listAppointments('t1', { from: '2026-11-01', to: '2026-12-01' });
 

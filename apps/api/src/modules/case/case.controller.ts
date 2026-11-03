@@ -67,6 +67,14 @@ export const caseStats = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
+export const listServiceTypes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await caseService.listServiceTypes(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const caseDistribution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await caseService.caseDistribution(tenantOf(req)) }));

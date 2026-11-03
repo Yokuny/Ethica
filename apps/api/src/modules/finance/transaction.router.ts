@@ -34,6 +34,7 @@ export const createFinanceRouter = (deps: FinanceRouterDeps): Router => {
     validParsedQuery(categoriesQuerySchema),
     transactionController.totalsByCategory,
   );
+  router.get('/expense-names', ...guard, can('finance', 'view'), transactionController.listExpenseNames);
   router.post(
     '/entries',
     ...guard,

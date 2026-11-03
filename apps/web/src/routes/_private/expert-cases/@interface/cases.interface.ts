@@ -12,6 +12,6 @@ export const casesSearchSchema = z.object({
 });
 export type CasesSearch = z.infer<typeof casesSearchSchema>;
 
-// `add` and `details` form fields: the edit ones + the report deadline, which only exists
-// at registration (it becomes the "Entrega do laudo" deadline, AD-109).
-export type CaseFormValues = UpdateCase & Pick<CreateCase, 'reportDeadline'>;
+// `add` and `details` form fields: the edit ones + the report deadline and the perícia date, which
+// only exist at registration (the "Entrega do laudo" deadline, AD-109, and the appointment, AD-160).
+export type CaseFormValues = UpdateCase & Pick<CreateCase, 'reportDeadline' | 'inspection'>;

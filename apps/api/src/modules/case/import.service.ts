@@ -368,7 +368,7 @@ export const importCsv = async (tenantId: string, text: string): Promise<CsvImpo
       result.created++;
     } catch (error) {
       if (error instanceof CustomError && error.message === 'expert_case_already_registered') {
-        result.skipped.push({ line, processNumber: row.data.processNumber });
+        result.skipped.push({ line, processNumber: row.data.processNumber ?? '' });
       } else if (error instanceof CustomError && error.status < 500) {
         result.rejected.push({ line, reason: error.message });
       } else {

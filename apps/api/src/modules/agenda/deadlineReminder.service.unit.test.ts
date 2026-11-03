@@ -43,7 +43,9 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
       { tenantId: 't1', name: 'Ana', email: 'ana@x.com' },
       { tenantId: 't1', name: 'Bia', email: 'bia@x.com' },
     ]);
-    vi.mocked(caseService.findSummariesByIds).mockResolvedValue(new Map([['per-a', { processNumber: '0001' }]]));
+    vi.mocked(caseService.findSummariesByIds).mockResolvedValue(
+      new Map([['per-a', { processNumber: '0001', subject: 'Insalubridade' }]]),
+    );
     const send = vi.fn().mockResolvedValue({ sent: true });
 
     const result = await sendDeadlineNotices({ mail: { send }, appUrl: 'https://app.ethica' }, now);

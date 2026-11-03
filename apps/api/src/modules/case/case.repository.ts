@@ -21,6 +21,7 @@ import type {
   CaseSummary,
   CaseUpdateWrite,
   ListCasesQuery,
+  ServiceTypeItem,
   StalledCase,
 } from './case.schema.js';
 import type { CasePartyWrite } from './party.schema.js';
@@ -29,7 +30,9 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   id: doc._id.toString(),
   processNumber: doc.processNumber,
   courtType: doc.courtType,
+  serviceType: doc.serviceType,
   role: doc.role,
+  serviceStatus: doc.serviceStatus,
   court: doc.court,
   division: doc.division,
   district: doc.district,
@@ -116,12 +119,13 @@ export const updateCase = async (
   { parties, ...data }: CaseUpdateWrite,
 ): Promise<CaseRecord | null> =>
   withDbTiming('case.updateCase', async () => {
-    const { phase, ...rest } = data;
+    // `null` becomes `$unset` (phase, AD-133; service type, AD-158).
+    const entries = Object.entries(data);
+    const unset = entries.filter(([, value]) => value === null).map(([key]) => [key, 1]);
     const update = {
-      ...Object.fromEntries(Object.entries(rest).filter(([, value]) => value !== undefined)),
+      ...Object.fromEntries(entries.filter(([, value]) => value !== undefined && value !== null)),
       ...(parties ? { parties: toPartiesDocs(parties) } : {}),
-      ...(phase ? { phase } : {}),
-      ...(phase === null ? { $unset: { phase: 1 } } : {}),
+      ...(unset.length ? { $unset: Object.fromEntries(unset) } : {}),
     };
     const doc = await Case.findOneAndUpdate(tenantScoped({ Tenant: tenantId, _id: id }), update, {
       returnDocument: 'after',
@@ -272,7 +276,7 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
   withDbTiming('case.findSummariesByIds', async () => {
     if (ids.length === 0) return new Map();
     const docs = await Case.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } }))
-      .select('processNumber parties')
+      .select('processNumber subject parties')
       .lean();
     const names = (parties: CaseDocument['parties'], side: string) =>
       (parties ?? [])
@@ -284,6 +288,7 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
         doc._id.toString(),
         {
           processNumber: doc.processNumber,
+          subject: doc.subject,
           plaintiff: names(doc.parties, 'plaintiff'),
           defendant: names(doc.parties, 'defendant'),
           client: doc.parties?.find((party) => party.client)?.name,
@@ -353,4 +358,15 @@ export const distribution = async (tenantId: string): Promise<CaseDistribution> 
       groupStats(Case, tenantId, '$courtType', 'civil'),
     ]);
     return { status: status.groups, courtType: courtType.groups };
+  });
+
+// Service types created by the office (AD-158): the names already used, by name.
+export const listServiceTypes = async (tenantId: string): Promise<ServiceTypeItem[]> =>
+  withDbTiming('case.listServiceTypes', async () => {
+    const rows = await Case.aggregate<{ _id: string; role: ServiceTypeItem['role'] }>([
+      { $match: { Tenant: toObjectId(tenantId), serviceType: { $type: 'string' } } },
+      { $group: { _id: '$serviceType', role: { $first: '$role' } } },
+      { $sort: { _id: 1 } },
+    ]);
+    return rows.map((row) => ({ name: row._id, role: row.role }));
   });

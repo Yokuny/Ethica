@@ -10,6 +10,8 @@ import { updateAvatarSchema, updateProfileSchema } from './schemas/account.schem
 import { listActivityLogQuerySchema } from './schemas/activityLog.schema.js';
 import { createAppointmentSchema, updateAppointmentSchema } from './schemas/appointment.schema.js';
 import {
+  caseInspectionSchema,
+  createCaseFieldsSchema,
   createCaseSchema,
   createMovementSchema,
   processNumberSchema,
@@ -85,6 +87,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'wallTimeSchema', schema: wallTimeSchema },
   { name: 'processNumberSchema', schema: processNumberSchema },
   { name: 'createCaseSchema', schema: createCaseSchema },
+  { name: 'createCaseFieldsSchema', schema: createCaseFieldsSchema },
+  { name: 'caseInspectionSchema', schema: caseInspectionSchema },
   { name: 'updateCaseSchema', schema: updateCaseSchema },
   { name: 'createMovementSchema', schema: createMovementSchema },
   { name: 'updateOfficeSchema', schema: updateOfficeSchema },

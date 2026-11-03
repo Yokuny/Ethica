@@ -69,6 +69,14 @@ export const monthlyFlow = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+export const listExpenseNames = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await transactionService.listExpenseNames(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const totalsByCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const kind = req.query.kind as string;

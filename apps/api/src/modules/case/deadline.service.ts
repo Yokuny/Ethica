@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from './case.service.js';
@@ -16,8 +17,8 @@ const withCaseNumber = async <T extends DeadlineRecord>(tenantId: string, items:
   const ids = [...new Set(items.map((item) => item.caseId))];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
-    const number = summaries.get(item.caseId)?.processNumber;
-    return number ? { ...item, caseNumber: number } : item;
+    const summary = summaries.get(item.caseId);
+    return summary ? { ...item, caseNumber: caseLabel(summary) } : item;
   });
 };
 

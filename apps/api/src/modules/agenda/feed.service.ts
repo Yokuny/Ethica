@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import type { CaseSummary } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
@@ -62,7 +63,7 @@ const description = (type: string, title: string, summary?: CaseSummary, notes?:
   return [
     `Tipo: ${type}`,
     `Título: ${title}`,
-    summary ? `Processo: ${summary.processNumber}` : '',
+    summary ? `Processo: ${caseLabel(summary)}` : '',
     parties ? `Partes: ${parties}` : '',
     notes ? `Observações: ${notes}` : '',
   ]

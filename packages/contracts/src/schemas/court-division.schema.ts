@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { COURTTYPES } from './case.schema.js';
+import { JUDICIAL_COURT_TYPES } from './case.schema.js';
 
 // Contact book of court divisions (varas) kept by the office (AD-151): it starts empty and grows on
 // screen or by spreadsheet. The court type reuses the case one (labor, civil, federal).
@@ -43,7 +43,7 @@ const optionalText = (max: number, message: string) =>
     .optional();
 
 const courtDivisionFields = z.object({
-  courtType: z.enum(COURTTYPES),
+  courtType: z.enum(JUDICIAL_COURT_TYPES),
   name: z.string().trim().min(1, 'nome da vara é obrigatório').max(200, 'nome da vara inválido'),
   court: optionalText(20, 'tribunal inválido'),
   state: z.enum(BRAZILIAN_STATES, 'UF inválida'),
@@ -100,7 +100,7 @@ export const COURT_DIVISION_CSV_EXAMPLE: Record<CourtDivisionCsvColumn, string> 
   observacoes: '',
 };
 // Spreadsheet word for each court type ("trabalho", "civel", "federal").
-export const COURT_TYPE_CSV: Record<string, (typeof COURTTYPES)[number]> = {
+export const COURT_TYPE_CSV: Record<string, (typeof JUDICIAL_COURT_TYPES)[number]> = {
   trabalho: 'labor',
   trabalhista: 'labor',
   civel: 'civil',

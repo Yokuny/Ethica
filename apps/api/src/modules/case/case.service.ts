@@ -1,12 +1,14 @@
 import {
   type CasePhase,
   type CaseStatus,
+  caseLabel,
   DEADLINE_DUE_SOON_DAYS,
   phaseFitsInStatus,
   phaseStatus,
   STALLED_CASE_DAYS,
   suggestNonPrescribedPeriod,
   validClient,
+  validServiceType,
 } from '@ethica/contracts';
 import { dateInDisplayTz, TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
@@ -59,8 +61,9 @@ export const resolveStatusAndPhase = (
 // Single creation path (form, PDF, CSV, opportunity): resolves the parties in the
 // registry (AD-117) and turns the report deadline into the "Entrega do laudo" deadline (AD-109).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
-  const { reportDeadline, parties, phase, ...input } = withSuggestedPeriod(data);
+  const { reportDeadline, parties, phase, inspection, ...input } = withSuggestedPeriod(data);
   if (!validClient({ role: input.role, parties })) throw new CustomError('invalid_contracting_party', 422);
+  if (!validServiceType(input)) throw new CustomError('invalid_service_type', 422);
   try {
     const legalCase = await caseRepository.createCase({
       ...input,
@@ -72,6 +75,15 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
         title: REPORT_DELIVERY_DEADLINE,
         dueDate: reportDeadline,
         notes: 'Gerado a partir do prazo do laudo informado no cadastro.',
+      });
+    }
+    // The perícia date becomes an appointment on the agenda (AD-160).
+    if (inspection) {
+      domainEventBus.emit('case:inspection_scheduled', {
+        tenantId: input.tenant,
+        caseId: legalCase.id,
+        caseLabel: caseLabel(legalCase),
+        ...inspection,
       });
     }
     return legalCase;
@@ -93,10 +105,20 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
   if (!validClient({ role: rest.role ?? before.role, parties: parties ?? before.parties })) {
     throw new CustomError('invalid_contracting_party', 422);
   }
+  const courtType = rest.courtType ?? before.courtType;
+  const final = {
+    courtType,
+    serviceType: courtType === 'other' ? (rest.serviceType ?? before.serviceType) : undefined,
+    processNumber: rest.processNumber ?? before.processNumber,
+    court: rest.court ?? before.court,
+  };
+  if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
   const resolved =
     status !== undefined || phase !== undefined ? resolveStatusAndPhase(before, { status, phase }) : undefined;
   const updated = await caseRepository.updateCase(tenantId, id, {
     ...rest,
+    // A judicial type drops the name of the office's type (AD-158).
+    serviceType: final.serviceType ?? (before.serviceType ? null : undefined),
     ...(resolved ? { status: resolved.status, phase: resolved.phase } : {}),
     parties: parties ? await partyService.resolveParties(tenantId, parties) : undefined,
   });
@@ -107,7 +129,7 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
     domainEventBus.emit('case:fixed_fees', {
       tenantId,
       caseId: updated.id,
-      processNumber: updated.processNumber,
+      caseLabel: caseLabel(updated),
       amountCents: updated.fixedFeesCents,
       category: updated.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
     });
@@ -174,6 +196,8 @@ export const listStalled = async (tenantId: string, now: Date = new Date()): Pro
 };
 
 export const listForExport = (tenantId: string) => caseRepository.listAll(tenantId);
+
+export const listServiceTypes = (tenantId: string) => caseRepository.listServiceTypes(tenantId);
 
 export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DEADLINE_DUE_SOON_DAYS);
 export const caseDistribution = (tenantId: string) => caseRepository.distribution(tenantId);

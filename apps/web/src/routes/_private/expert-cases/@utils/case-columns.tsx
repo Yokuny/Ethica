@@ -1,6 +1,14 @@
+import { caseLabel } from '@ethica/contracts';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
-import { CASE_STATE_VARIANT, CASE_STATUS_VARIANT, courtTypeLabel, phaseLabel } from '@/components/case-labels.js';
+import {
+  CASE_STATE_VARIANT,
+  CASE_STATUS_VARIANT,
+  phaseLabel,
+  SERVICE_STATUS_VARIANT,
+  serviceStatusLabel,
+  serviceTypeLabel,
+} from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { deadlineAlert } from '@/components/deadline-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -17,15 +25,37 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     id: 'process',
     header: t('process'),
     cell: ({ row }) => (
-      <TableIdentity icon={Gavel} title={row.original.processNumber} description={row.original.subject} />
+      <TableIdentity
+        icon={Gavel}
+        title={caseLabel(row.original)}
+        description={row.original.processNumber ? row.original.subject : undefined}
+      />
     ),
+  },
+  {
+    id: 'service',
+    header: t('service_type'),
+    cell: ({ row }) => {
+      const { serviceStatus } = row.original;
+      return (
+        <TableStack description={serviceTypeLabel(row.original)}>
+          {serviceStatus ? (
+            <TableStatus variant={SERVICE_STATUS_VARIANT[serviceStatus]}>
+              {serviceStatusLabel(serviceStatus)}
+            </TableStatus>
+          ) : (
+            '—'
+          )}
+        </TableStack>
+      );
+    },
   },
   {
     id: 'juizo',
     header: t('court_header'),
     cell: ({ row }) => (
       <TableStack description={[row.original.division, row.original.district].filter(Boolean).join(' · ') || undefined}>
-        {`${row.original.court} · ${courtTypeLabel(row.original.courtType)}`}
+        {row.original.court ?? '—'}
       </TableStack>
     ),
   },

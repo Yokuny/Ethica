@@ -8,7 +8,8 @@ export type TransactionKind = (typeof TRANSACTION_KINDS)[number];
 
 export const TRANSACTION_CATEGORIES = {
   income: ['advance_fees', 'fixed_fees', 'contracted_fees'],
-  expense: ['travel', 'supplies', 'fees_and_taxes', 'other_expenses'],
+  // `other_expenses` with a `categoryName` is an expense category created by the office (AD-159).
+  expense: ['travel', 'equipment', 'third_parties', 'supplies', 'fees_and_taxes', 'food', 'other_expenses'],
 } as const;
 export type TransactionCategory = (typeof TRANSACTION_CATEGORIES)[TransactionKind][number];
 export const ALL_TRANSACTION_CATEGORIES = [
@@ -26,13 +27,15 @@ const transactionFields = z.object({
   kind: z.enum(TRANSACTION_KINDS),
   category: z.enum(ALL_TRANSACTION_CATEGORIES),
   description: z.string().trim().min(1, 'descrição é obrigatória').max(200, 'descrição inválida'),
+  categoryName: z.string().trim().min(1).max(60, 'categoria inválida').optional(),
   amountCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
   dueDate: calendarDateSchema,
   caseId: idSchema.optional(),
 });
 
-const kindCategory = (data: { kind?: TransactionKind; category?: TransactionCategory }) =>
-  !data.kind || !data.category || (TRANSACTION_CATEGORIES[data.kind] as readonly string[]).includes(data.category);
+const kindCategory = (data: { kind?: TransactionKind; category?: TransactionCategory; categoryName?: string }) =>
+  (!data.kind || !data.category || (TRANSACTION_CATEGORIES[data.kind] as readonly string[]).includes(data.category)) &&
+  (!data.categoryName || data.category === 'other_expenses');
 
 export const createTransactionSchema = transactionFields
   .strict()

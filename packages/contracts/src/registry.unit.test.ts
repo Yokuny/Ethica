@@ -25,6 +25,8 @@ describe('schemaRegistry', () => {
         'wallTimeSchema',
         'processNumberSchema',
         'createCaseSchema',
+        'createCaseFieldsSchema',
+        'caseInspectionSchema',
         'updateCaseSchema',
         'createMovementSchema',
         'updateOfficeSchema',

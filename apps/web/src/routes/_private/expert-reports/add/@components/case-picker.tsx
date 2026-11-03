@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import { useQuery } from '@tanstack/react-query';
 import { Gavel } from 'lucide-react';
 import { useState } from 'react';
@@ -31,7 +32,7 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
                 key={legalCase.id}
                 icon={Gavel}
                 render={<button type="button" className="w-full text-left" onClick={() => onPick(legalCase.id)} />}
-                title={legalCase.processNumber}
+                title={caseLabel(legalCase)}
                 description={[t(legalCase.role), legalCase.division ?? legalCase.court, legalCase.subject].join(' · ')}
               />
             ))}

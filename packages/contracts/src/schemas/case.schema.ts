@@ -1,8 +1,11 @@
 import { z } from 'zod';
-import { calendarDateSchema } from './date.schema.js';
+import { calendarDateSchema, wallTimeSchema } from './date.schema.js';
 import { casePartyInputSchema } from './party.schema.js';
 
-export const COURTTYPES = ['labor', 'civil', 'federal'] as const;
+export const JUDICIAL_COURT_TYPES = ['labor', 'civil', 'federal'] as const;
+export type JudicialCourtType = (typeof JUDICIAL_COURT_TYPES)[number];
+// `other`: service type created by the office (AD-158), named in `Case.serviceType`; it may have no process.
+export const COURTTYPES = [...JUDICIAL_COURT_TYPES, 'other'] as const;
 export type CourtType = (typeof COURTTYPES)[number];
 
 export const CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
@@ -48,6 +51,10 @@ export const CASE_PHASES = [
 ] as readonly CasePhase[];
 export type CasePhase = (typeof CASE_PHASES_BY_STATUS)[CaseStatus][number] | (typeof CASE_PHASES_SUSPENSION)[number];
 
+// Service status chosen by the expert (AD-158), independent of the stage and phase above.
+export const SERVICE_STATUS = ['proposal_sent', 'in_progress', 'delivered', 'pending', 'canceled'] as const;
+export type ServiceStatus = (typeof SERVICE_STATUS)[number];
+
 export const CASE_STATES = ['active', 'suspended', 'closed'] as const;
 export type CaseState = (typeof CASE_STATES)[number];
 export const CASE_CLOSED_STATUSES: readonly CaseStatus[] = ['completed', 'declined'];
@@ -73,11 +80,17 @@ export const processNumberSchema = z
 
 const centsSchema = z.number().int('valor deve ser inteiro').min(0, 'valor não pode ser negativo');
 
+// Optional text that the form sends empty: empty is missing (service without a process, AD-158).
+const optional = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((value) => (value === '' ? undefined : value), schema.optional());
+
 const caseFields = z.object({
-  processNumber: processNumberSchema,
+  processNumber: optional(processNumberSchema),
   courtType: z.enum(COURTTYPES),
+  serviceType: z.string().trim().min(1, 'tipo de serviço é obrigatório').max(80, 'tipo de serviço inválido').optional(),
   role: z.enum(CASE_ROLES),
-  court: z.string().trim().min(1, 'tribunal é obrigatório').max(20, 'tribunal inválido'),
+  serviceStatus: z.enum(SERVICE_STATUS).optional(),
+  court: optional(z.string().trim().min(1, 'tribunal é obrigatório').max(20, 'tribunal inválido')),
   division: z.string().trim().max(120, 'vara inválida').optional(),
   district: z.string().trim().max(120, 'comarca inválida').optional(),
   subject: z.string().trim().min(1, 'objeto é obrigatório').max(500, 'objeto inválido'),
@@ -96,10 +109,55 @@ const caseFields = z.object({
   location: z.string().trim().max(300, 'endereço inválido').optional(),
 });
 
-// `reportDeadline` only exists at registration: it becomes the "Entrega do laudo" deadline (AD-109), not a case field.
-export const createCaseSchema = caseFields
-  .extend({ reportDeadline: calendarDateSchema.optional(), phase: z.enum(CASE_PHASES).optional() })
+// Process number and court are required except in a service type created by the office, which is
+// the only one carrying a name (AD-158). Checked on the final result in the service when editing.
+export const validServiceType = (data: {
+  courtType?: CourtType;
+  serviceType?: string;
+  processNumber?: string;
+  court?: string;
+}): boolean =>
+  data.courtType === 'other'
+    ? Boolean(data.serviceType)
+    : !data.serviceType && Boolean(data.processNumber && data.court);
+
+// How a case is named on screen, in e-mails and in file names: the process number or, in a service
+// without a process (AD-158), its object.
+export const caseLabel = (data: { processNumber?: string; subject: string }): string =>
+  data.processNumber ?? data.subject;
+
+// Perícia date at registration (AD-160): becomes an inspection appointment on the agenda. The location
+// takes a full address or "lat, long" coordinates.
+export const caseInspectionSchema = z
+  .object({
+    date: calendarDateSchema,
+    time: wallTimeSchema,
+    location: z.string().trim().max(200, 'local inválido').optional(),
+  })
   .strict();
+
+// "lat, long" typed as the location (AD-160); anything else is an address.
+export const parseCoordinates = (text: string): { lat: number; lng: number } | undefined => {
+  const match = text.trim().match(/^(-?\d{1,2}(?:\.\d+)?)\s*[,;]\s*(-?\d{1,3}(?:\.\d+)?)$/);
+  if (!match) return undefined;
+  const [lat, lng] = [Number(match[1]), Number(match[2])];
+  return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : undefined;
+};
+
+// `reportDeadline` and `inspection` only exist at registration: they become the "Entrega do laudo"
+// deadline (AD-109) and the perícia appointment (AD-160), not case fields.
+// The unrefined shape serves `.pick` (opportunity conversion); the API validates with the refined one.
+export const createCaseFieldsSchema = caseFields
+  .extend({
+    reportDeadline: calendarDateSchema.optional(),
+    phase: z.enum(CASE_PHASES).optional(),
+    inspection: caseInspectionSchema.optional(),
+  })
+  .strict();
+export const createCaseSchema = createCaseFieldsSchema.refine(validServiceType, {
+  message: 'número do processo e tribunal são obrigatórios',
+  path: ['processNumber'],
+});
 export type CreateCase = z.infer<typeof createCaseSchema>;
 
 // PATCH accepts any subset of the fields + the status, the phase (`null` clears it, AD-133) and the

@@ -19,6 +19,7 @@ export function useTransactionForm({ transaction, onDone }: { transaction?: Tran
       ? {
           kind: transaction.kind,
           category: transaction.category,
+          categoryName: transaction.categoryName,
           description: transaction.description,
           amountCents: transaction.amountCents,
           dueDate: transaction.dueDate,
@@ -49,11 +50,12 @@ export function useTransactionForm({ transaction, onDone }: { transaction?: Tran
   // Changing the kind moves the category to the first one of that kind.
   function handleKindChange(value: string) {
     form.setValue('category', TRANSACTION_CATEGORIES[value as CreateTransaction['kind']][0]);
+    form.setValue('categoryName', undefined);
   }
 
   const caseItems = (cases.data?.items ?? []).map((legalCase) => ({
     value: legalCase.id,
-    label: `${legalCase.processNumber} · ${legalCase.subject}`,
+    label: [legalCase.processNumber, legalCase.subject].filter(Boolean).join(' · '),
   }));
 
   return {

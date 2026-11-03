@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
@@ -149,7 +150,9 @@ export function MapPage() {
                       </div>
                       <ItemTitle>{appointment.title}</ItemTitle>
                       <ItemDescription className="line-clamp-none">
-                        {[item.legalCase?.processNumber, appointment.location].filter(Boolean).join(' · ')}
+                        {[item.legalCase && caseLabel(item.legalCase), appointment.location]
+                          .filter(Boolean)
+                          .join(' · ')}
                       </ItemDescription>
                     </ItemContent>
                     <ItemActions className="flex-wrap">

@@ -37,7 +37,12 @@ const deadline: DeadlineRecord = {
 const summaries = new Map([
   [
     'p1',
-    { processNumber: '0001234-56.2026.5.02.0001', plaintiff: 'Maria da Silva', defendant: 'Indústria Exemplo Ltda.' },
+    {
+      processNumber: '0001234-56.2026.5.02.0001',
+      subject: 'Insalubridade',
+      plaintiff: 'Maria da Silva',
+      defendant: 'Indústria Exemplo Ltda.',
+    },
   ],
 ]);
 

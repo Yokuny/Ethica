@@ -63,7 +63,7 @@ export function useAppointmentForm({
 
   const caseItems = (cases.data?.items ?? []).map((legalCase) => ({
     value: legalCase.id,
-    label: `${legalCase.processNumber} · ${legalCase.subject}`,
+    label: [legalCase.processNumber, legalCase.subject].filter(Boolean).join(' · '),
   }));
 
   return { form, onSubmit: form.handleSubmit(onSubmit), isPending, errorMessage, caseItems };

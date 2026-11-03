@@ -23,7 +23,7 @@ export type InspectionRecord = {
   media: MediaRecord[];
   updatedAt?: string;
 };
-export type FieldCase = { id: string; processNumber: string; plaintiff?: string; defendant?: string };
+export type FieldCase = { id: string; processNumber?: string; subject: string; plaintiff?: string; defendant?: string };
 export type DayInspection = { appointment: AppointmentRecord; legalCase?: FieldCase; inspection: InspectionRecord };
 
 export const inspectionKeys = {

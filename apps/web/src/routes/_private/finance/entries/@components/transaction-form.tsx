@@ -2,6 +2,7 @@ import { Button } from '@ethica/ui/components/button';
 import { Form } from '@ethica/ui/components/form';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
+import { ExpenseCategoryField } from '@/components/expense-category-field.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { DateField, MoneyField, SelectField, TextField } from '@/components/form-fields.js';
 import { categoryItems, KIND_ITEMS } from '@/components/transaction-labels.js';
@@ -38,13 +39,17 @@ export function TransactionForm({ transaction, onClose }: { transaction?: Transa
                       // The kind does not change after posting (different status rules, AD-111).
                       disabled={Boolean(transaction)}
                     />
-                    <SelectField
-                      control={control}
-                      name="category"
-                      label={t('category')}
-                      placeholder={t('select')}
-                      items={categoryItems(kind)}
-                    />
+                    {kind === 'expense' ? (
+                      <ExpenseCategoryField />
+                    ) : (
+                      <SelectField
+                        control={control}
+                        name="category"
+                        label={t('category')}
+                        placeholder={t('select')}
+                        items={categoryItems(kind)}
+                      />
+                    )}
                   </div>,
                   <TextField
                     key="description"

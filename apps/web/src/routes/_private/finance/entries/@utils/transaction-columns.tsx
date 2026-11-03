@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { TableIdentity, TableRowAction, TableRowActions, TableStack, TableStatus } from '@/components/data-table.js';
-import { STATE_VARIANT, transactionState } from '@/components/transaction-labels.js';
+import { categoryLabel, STATE_VARIANT, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -26,7 +26,7 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
         <TableIdentity
           icon={row.original.kind === 'income' ? ArrowDownLeft : ArrowUpRight}
           title={row.original.description}
-          description={[t(row.original.category), row.original.caseNumber, row.original.client]
+          description={[categoryLabel(row.original), row.original.caseNumber, row.original.client]
             .filter(Boolean)
             .join(' · ')}
           link={row.original.caseId ? { to: '/expert-cases/details', search: { id: row.original.caseId } } : undefined}

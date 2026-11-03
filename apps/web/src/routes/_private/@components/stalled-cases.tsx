@@ -1,4 +1,4 @@
-import { STALLED_CASE_DAYS } from '@ethica/contracts';
+import { caseLabel, STALLED_CASE_DAYS } from '@ethica/contracts';
 import { Link } from '@tanstack/react-router';
 import { Hourglass } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
@@ -16,7 +16,7 @@ export function StalledCasesList({ stalled }: { stalled: StalledCases }) {
             key={legalCase.id}
             render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}
             icon={Hourglass}
-            title={legalCase.processNumber}
+            title={caseLabel(legalCase)}
             description={`${legalCase.stalledDays} ${t('days_without_movement')} · ${legalCase.subject}`}
           />
         ))}

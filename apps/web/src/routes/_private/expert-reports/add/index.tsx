@@ -1,4 +1,4 @@
-import { REPORT_DEFAULT_TEMPLATES, reportRoleType } from '@ethica/contracts';
+import { caseLabel, REPORT_DEFAULT_TEMPLATES, reportRoleType } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
@@ -84,7 +84,7 @@ export function ReportAddPage() {
               <RecordHeading
                 icon={<Gavel />}
                 label={t(type)}
-                title={legalCase.data.processNumber}
+                title={caseLabel(legalCase.data)}
                 description={[
                   legalCase.data.division ?? legalCase.data.court,
                   parties('plaintiff') && `${parties('plaintiff')} × ${parties('defendant') || '—'}`,

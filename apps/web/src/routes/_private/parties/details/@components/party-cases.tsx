@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
@@ -29,7 +30,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
                 key={legalCase.id}
                 icon={Gavel}
                 render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}
-                title={legalCase.processNumber}
+                title={caseLabel(legalCase)}
                 badges={<Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>{t(legalCase.status)}</Badge>}
                 description={[link && sideLabel(link.side, legalCase.courtType), legalCase.subject]
                   .filter(Boolean)

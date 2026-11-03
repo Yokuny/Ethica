@@ -1,4 +1,4 @@
-import { REPORT_MEDIA_LIMIT, reportRoleType } from '@ethica/contracts';
+import { caseLabel, REPORT_MEDIA_LIMIT, reportRoleType } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -46,8 +46,8 @@ const BEFORE_DELIVERY = new Set(['appointed', 'accepted', 'inspection', 'draftin
 const withNumber = async <T extends { caseId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
   const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
   return items.map((item) => {
-    const number = summaries.get(item.caseId)?.processNumber;
-    return number ? { ...item, caseNumber: number } : item;
+    const summary = summaries.get(item.caseId);
+    return summary ? { ...item, caseNumber: caseLabel(summary) } : item;
   });
 };
 
@@ -172,7 +172,7 @@ export const createReport = async (
     templateName: template.name,
     sections: chosen.map(([section, variant]) => fromTemplate(section, variant, values)),
   });
-  return { ...report, caseNumber: legalCase.processNumber };
+  return { ...report, caseNumber: caseLabel(legalCase) };
 };
 
 // LMO-01: redoes the choice of sections in the draft. A section still chosen in the same variant keeps
@@ -386,7 +386,7 @@ const toExport = async (providers: Providers, ctx: DocumentContext, id: string, 
 };
 
 const fileName = (report: ReportRecord, legalCase: CaseRecord, extension: string): string =>
-  `${report.type === 'technical_opinion' ? 'technical-opinion' : 'report'}-${legalCase.processNumber}.${extension}`;
+  `${report.type === 'technical_opinion' ? 'technical-opinion' : 'report'}-${legalCase.processNumber ?? legalCase.id}.${extension}`;
 
 export const generatePdf = async (
   providers: Providers,

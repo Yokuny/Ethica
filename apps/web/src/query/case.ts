@@ -8,6 +8,7 @@ import type {
   CreateMovement,
   MovementType,
   PartyType,
+  ServiceStatus,
   Side,
   UpdateCase,
 } from '@ethica/contracts';
@@ -20,10 +21,13 @@ import { t } from '../lib/helpers/translate.helper.js';
 // truth lives in the back-end. Calendar dates arrive as `YYYY-MM-DD`; instants, ISO.
 export type CaseRecord = {
   id: string;
-  processNumber: string;
+  // Missing only in a service type created by the office (AD-158).
+  processNumber?: string;
   courtType: CourtType;
+  serviceType?: string;
   role: CaseRole;
-  court: string;
+  serviceStatus?: ServiceStatus;
+  court?: string;
   division?: string;
   district?: string;
   subject: string;
@@ -77,7 +81,11 @@ export const caseKeys = {
   list: (params: CasesQueryParams) => [...caseKeys.lists(), params] as const,
   detail: (id: string) => [...caseKeys.all, 'detail', id] as const,
   distribution: () => [...caseKeys.all, 'distribution'] as const,
+  serviceTypes: () => [...caseKeys.all, 'service-types'] as const,
 };
+
+// Service types created by the office (AD-158).
+export type ServiceTypeItem = { name: string; role: CaseRole };
 
 const toQueryString = (params: Record<string, string | number | undefined>): string => {
   const search = new URLSearchParams();
@@ -112,6 +120,15 @@ export const caseDistributionQuery = queryOptions({
   queryKey: caseKeys.distribution(),
   queryFn: async (): Promise<CaseDistribution> => {
     const res = await get<CaseDistribution>('/expert-cases/distribution');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+    return res.data;
+  },
+});
+
+export const serviceTypesQuery = queryOptions({
+  queryKey: caseKeys.serviceTypes(),
+  queryFn: async (): Promise<ServiceTypeItem[]> => {
+    const res = await get<ServiceTypeItem[]>('/expert-cases/service-types');
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },
@@ -180,7 +197,7 @@ export const removeMovementMutation = (
 // Home "Stalled cases" block (GES-05): same rule as the PDF (AD-121), without the suspended ones.
 export type StalledCase = {
   id: string;
-  processNumber: string;
+  processNumber?: string;
   status: CaseStatus;
   subject: string;
   reference: string;

@@ -21,6 +21,8 @@ export interface TransactionDocument {
   Tenant: mongoose.Types.ObjectId;
   kind: TransactionKind;
   category: TransactionCategory;
+  // Expense category created by the office (AD-159), only with `other_expenses`.
+  categoryName?: string;
   description: string;
   amountCents: number;
   // Calendar dates `YYYY-MM-DD` in the display time zone (AD-036, AD-103).
@@ -38,6 +40,7 @@ const transactionSchema = new Schema<TransactionDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     kind: { type: String, enum: TRANSACTION_KINDS, required: true },
     category: { type: String, enum: ALL_TRANSACTION_CATEGORIES, required: true },
+    categoryName: { type: String, trim: true },
     description: { type: String, required: true, trim: true },
     amountCents: { type: Number, required: true, min: 1, validate: Number.isSafeInteger },
     dueDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },

@@ -16,6 +16,8 @@ export type TransactionRecord = {
   id: string;
   kind: TransactionKind;
   category: TransactionCategory;
+  // Expense category created by the office (AD-159).
+  categoryName?: string;
   description: string;
   amountCents: number;
   dueDate: string;
@@ -62,6 +64,7 @@ export const transactionKeys = {
   summary: () => [...transactionKeys.all, 'summary'] as const,
   flow: (months: number) => [...transactionKeys.all, 'flow', months] as const,
   categories: (kind: TransactionKind) => [...transactionKeys.all, 'categories', kind] as const,
+  expenseNames: () => [...transactionKeys.all, 'expense-names'] as const,
 };
 
 const fetchData = async <T>(path: string): Promise<T> => {
@@ -98,6 +101,12 @@ export const categoriesQuery = (kind: TransactionKind) =>
     queryKey: transactionKeys.categories(kind),
     queryFn: () => fetchData<CategoryTotal[]>(`/finance/categories?kind=${kind}`),
   });
+
+// Expense categories created by the office (AD-159).
+export const expenseNamesQuery = queryOptions({
+  queryKey: transactionKeys.expenseNames(),
+  queryFn: () => fetchData<string[]>('/finance/expense-names'),
+});
 
 // Every write touches the totals: invalidates lists, summary, flow and categories at once.
 export const createTransactionMutation = (

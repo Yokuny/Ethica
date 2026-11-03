@@ -7,6 +7,7 @@ import type {
   CreateCase,
   CreateMovement,
   MovementType,
+  ServiceStatus,
   UpdateCase,
 } from '@ethica/contracts';
 import {
@@ -48,10 +49,13 @@ export type CaseRouterDeps = { validToken: RequestHandler };
 
 export type CaseRecord = {
   id: string;
-  processNumber: string;
+  // Missing only in a service type created by the office (AD-158).
+  processNumber?: string;
   courtType: CourtType;
+  serviceType?: string;
   role: CaseRole;
-  court: string;
+  serviceStatus?: ServiceStatus;
+  court?: string;
   division?: string;
   district?: string;
   subject: string;
@@ -84,9 +88,9 @@ export type MovementRecord = { id: string; type: MovementType; date: string; not
 // or the registration day; `origin` says which one.
 export type StalledCase = {
   id: string;
-  processNumber: string;
+  processNumber?: string;
   status: CaseStatus;
-  court: string;
+  court?: string;
   division?: string;
   subject: string;
   reference: string;
@@ -96,10 +100,19 @@ export type StalledCase = {
 
 export type CreateCaseInput = CreateCase & { tenant: string; opportunityId?: string };
 
-// What the repository saves: parties already resolved in the registry (AD-117), without the report deadline.
-export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties'> & { parties: CasePartyWrite[] };
-// `phase: null` becomes `$unset` in the repository (AD-133).
-export type CaseUpdateWrite = Omit<UpdateCase, 'parties'> & { parties?: CasePartyWrite[] };
+// What the repository saves: parties already resolved in the registry (AD-117), without the report deadline
+// and the perícia date.
+export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties' | 'inspection'> & {
+  parties: CasePartyWrite[];
+};
+
+// Service type created by the office (AD-158), with the role of the cases that use it.
+export type ServiceTypeItem = { name: string; role: CaseRole };
+// `null` becomes `$unset` in the repository: phase (AD-133) and service type (AD-158).
+export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'serviceType'> & {
+  parties?: CasePartyWrite[];
+  serviceType?: string | null;
+};
 
 // Listing: each case with its nearest pending deadline (missing if there is none).
 export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };
@@ -107,7 +120,13 @@ export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };
 // Cross-module enrichment (agenda, finance, feed, reminder): number and the names of the
 // parties on each side (without lawyers), comma-separated.
 // `client`: name of whoever hired the technical assistant (AD-135).
-export type CaseSummary = { processNumber: string; plaintiff?: string; defendant?: string; client?: string };
+export type CaseSummary = {
+  processNumber?: string;
+  subject: string;
+  plaintiff?: string;
+  defendant?: string;
+  client?: string;
+};
 
 export type CaseDistribution = {
   status: { key: string; count: number }[];

@@ -1,8 +1,8 @@
 import type {
   BrazilianState,
   CourtDivisionCsvColumn,
-  CourtType,
   CreateCourtDivision,
+  JudicialCourtType,
   UpdateCourtDivision,
 } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { t } from '../lib/helpers/translate.helper.js';
 // Mirrors CourtDivisionRecord of apps/api/src/modules/case/court-division.schema.ts (AD-151).
 export type CourtDivisionRecord = {
   id: string;
-  courtType: CourtType;
+  courtType: JudicialCourtType;
   name: string;
   court?: string;
   state: BrazilianState;
@@ -27,7 +27,7 @@ export type CourtDivisionRecord = {
   updatedAt: string;
 };
 
-export type CourtDivisionsQueryParams = { state?: BrazilianState; city?: string; courtType?: CourtType };
+export type CourtDivisionsQueryParams = { state?: BrazilianState; city?: string; courtType?: JudicialCourtType };
 
 export type CourtDivisionImportResult = {
   created: number;

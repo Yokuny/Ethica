@@ -1,3 +1,4 @@
+import { registerAgendaSubscriber } from './agenda.subscriber.js';
 import { registerDocumentsSubscriber } from './documents.subscriber.js';
 import { registerFinanceSubscriber } from './finance.subscriber.js';
 
@@ -10,4 +11,5 @@ export const registerAllSubscribers = (): void => {
   registered = true;
   registerFinanceSubscriber();
   registerDocumentsSubscriber();
+  registerAgendaSubscriber();
 };

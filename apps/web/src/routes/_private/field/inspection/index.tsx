@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useSearch } from '@tanstack/react-router';
@@ -58,7 +59,7 @@ export function InspectionPage() {
               description={
                 item.legalCase ? (
                   <AppLink to="/expert-cases/details" search={{ id: item.legalCase.id }} as="description">
-                    {item.legalCase.processNumber}
+                    {caseLabel(item.legalCase)}
                   </AppLink>
                 ) : (
                   item.appointment.location

@@ -1,22 +1,17 @@
 import { type CaseStatus, phaseFitsInStatus } from '@ethica/contracts';
 import { type Control, useFormContext, useWatch } from 'react-hook-form';
-import {
-  CASE_STATUS_ITEMS,
-  COURT_TYPE_ITEMS,
-  phaseItems,
-  ROLE_ITEMS,
-  WITHOUT_PHASE,
-} from '@/components/case-labels.js';
+import { CASE_STATUS_ITEMS, phaseItems, SERVICE_STATUS_ITEMS, WITHOUT_PHASE } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
-import { DateField, MoneyField, SelectField, TextareaField, TextField } from '@/components/form-fields.js';
+import { DateField, MoneyField, SelectField, TextareaField, TextField, TimeField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseFormValues } from '../@interface/cases.interface.js';
 import { CasePartiesFields } from './case-parties-fields.js';
 import { LaborCaseFields } from './labor-case-fields.js';
+import { ServiceTypeField } from './service-type-field.js';
 
 // Case fields shared by `add` and `details` (edit). Editing
-// also includes the status and the fee fixed by the court; the report deadline only at
-// registration (afterwards the deadlines are edited in the detail deadlines panel).
+// also includes the stage and the fee fixed by the court; the report deadline and the perícia date
+// only at registration (afterwards they are edited in the deadlines panel and on the agenda).
 export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
   const { getValues, setValue } = useFormContext<CaseFormValues>();
   const courtType = useWatch({ control, name: 'courtType' });
@@ -29,28 +24,24 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
           title: t('process'),
           description: t('process_identification_data'),
           fields: [
+            <div key="service" className="grid gap-4 sm:grid-cols-2">
+              <ServiceTypeField />
+              <SelectField
+                control={control}
+                name="serviceStatus"
+                label={t('service_status')}
+                placeholder={t('select')}
+                items={SERVICE_STATUS_ITEMS}
+              />
+            </div>,
             <div key="process" className="grid gap-4 sm:grid-cols-2">
               <TextField
                 control={control}
                 name="processNumber"
                 label={t('process_number')}
-                placeholder="0000000-00.0000.0.00.0000"
+                placeholder={courtType === 'other' ? t('optional_without_process') : '0000000-00.0000.0.00.0000'}
               />
               <TextField control={control} name="court" label={t('court')} placeholder={t('example_court')} />
-              <SelectField
-                control={control}
-                name="courtType"
-                label={t('court_type')}
-                placeholder={t('select')}
-                items={COURT_TYPE_ITEMS}
-              />
-              <SelectField
-                control={control}
-                name="role"
-                label={t('role_in_case')}
-                placeholder={t('select')}
-                items={ROLE_ITEMS}
-              />
               <TextField
                 control={control}
                 name="division"
@@ -121,6 +112,32 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
             </div>,
           ],
         },
+        ...(editing
+          ? []
+          : [
+              {
+                title: t('inspection_date_time'),
+                description: t('inspection_date_description'),
+                fields: [
+                  <div key="inspection" className="grid gap-4 sm:grid-cols-2">
+                    <DateField
+                      control={control}
+                      name="inspection.date"
+                      label={t('date')}
+                      placeholder={t('choose_day')}
+                    />
+                    <TimeField control={control} name="inspection.time" label={t('time')} placeholder="09:00" />
+                  </div>,
+                  <TextField
+                    key="inspection-location"
+                    control={control}
+                    name="inspection.location"
+                    label={t('inspection_location')}
+                    placeholder={t('address_or_coordinates')}
+                  />,
+                ],
+              },
+            ]),
         {
           title: t('parties'),
           description: t('parties_and_lawyers_description'),

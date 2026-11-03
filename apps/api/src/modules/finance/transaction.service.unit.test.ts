@@ -51,7 +51,7 @@ describe('transaction.service', () => {
       {
         tenantId: 't1',
         caseId: 'p1',
-        processNumber: '0001',
+        caseLabel: '0001',
         amountCents: 500_000,
         category: 'fixed_fees' as const,
       },
@@ -71,7 +71,7 @@ describe('transaction.service', () => {
   it('honorário contratado do assistente técnico vira receita contracted_fees (AD-135)', async () => {
     vi.mocked(transactionRepository.findFixedFee).mockResolvedValue(null);
     await postFixedFees(
-      { tenantId: 't1', caseId: 'p1', processNumber: '0001', amountCents: 300_000, category: 'contracted_fees' },
+      { tenantId: 't1', caseId: 'p1', caseLabel: '0001', amountCents: 300_000, category: 'contracted_fees' },
       now,
     );
 
@@ -90,7 +90,7 @@ describe('transaction.service', () => {
       {
         tenantId: 't1',
         caseId: 'p1',
-        processNumber: '0001',
+        caseLabel: '0001',
         amountCents: 650_000,
         category: 'fixed_fees' as const,
       },
@@ -107,7 +107,7 @@ describe('transaction.service', () => {
 
     await expect(
       postFixedFees(
-        { tenantId: 't1', caseId: 'p1', processNumber: '0001', amountCents: 1, category: 'fixed_fees' as const },
+        { tenantId: 't1', caseId: 'p1', caseLabel: '0001', amountCents: 1, category: 'fixed_fees' as const },
         now,
       ),
     ).rejects.toMatchObject({ message: 'amount_below_received' });

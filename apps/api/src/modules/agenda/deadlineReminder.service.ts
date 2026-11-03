@@ -1,4 +1,4 @@
-import { DEADLINE_DUE_SOON_DAYS } from '@ethica/contracts';
+import { caseLabel, DEADLINE_DUE_SOON_DAYS } from '@ethica/contracts';
 import { dateInDisplayTz, wallClockToUtc } from '@ethica/db';
 import type { MailProvider } from '../../providers/mail/index.js';
 import type { CaseSummary } from '../case/case.schema.js';
@@ -38,7 +38,8 @@ const buildEmail = (
     .map((section) => {
       const items = section.deadlines
         .map((deadline) => {
-          const number = summaries.get(deadline.caseId)?.processNumber ?? '';
+          const summary = summaries.get(deadline.caseId);
+          const number = summary ? caseLabel(summary) : '';
           const link = `${appUrl}/expert-cases/details?id=${encodeURIComponent(deadline.caseId)}`;
           return `<li><a href="${escapeHtml(link)}">${escapeHtml(deadline.title)}</a> — ${escapeHtml(number)} (${formatDay(deadline.dueDate)})</li>`;
         })

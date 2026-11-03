@@ -153,7 +153,7 @@ describe('case.service', () => {
     expect(emit).toHaveBeenCalledWith('case:fixed_fees', {
       tenantId: 't1',
       caseId: 'p1',
-      processNumber: legalCase.processNumber,
+      caseLabel: legalCase.processNumber,
       amountCents: 250_000,
       category: 'fixed_fees',
     });

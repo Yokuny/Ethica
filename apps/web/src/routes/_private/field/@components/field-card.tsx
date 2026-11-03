@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from '@ethica/ui/components/item';
@@ -36,7 +37,7 @@ export function FieldCard({ item, onStatus }: FieldCardProps) {
           <ItemTitle>{appointment.title}</ItemTitle>
           {legalCase && (
             <ItemDescription className="line-clamp-none">
-              {[legalCase.processNumber, [legalCase.plaintiff, legalCase.defendant].filter(Boolean).join(' × ')]
+              {[caseLabel(legalCase), [legalCase.plaintiff, legalCase.defendant].filter(Boolean).join(' × ')]
                 .filter(Boolean)
                 .join(' · ')}
             </ItemDescription>

@@ -1,6 +1,15 @@
+import { caseLabel } from '@ethica/contracts';
+import { Badge } from '@ethica/ui/components/badge';
 import { BriefcaseBusiness, FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
-import { CASE_STATE_VARIANT, CASE_STATUS_VARIANT, courtTypeLabel, phaseLabel } from '@/components/case-labels.js';
+import {
+  CASE_STATE_VARIANT,
+  CASE_STATUS_VARIANT,
+  phaseLabel,
+  SERVICE_STATUS_VARIANT,
+  serviceStatusLabel,
+  serviceTypeLabel,
+} from '@/components/case-labels.js';
 import { sideLabel } from '@/components/party-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
@@ -23,8 +32,8 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
       <RecordHeader>
         <RecordHeading
           icon={<Scale />}
-          label={t(legalCase.role)}
-          title={legalCase.processNumber}
+          label={serviceTypeLabel(legalCase)}
+          title={caseLabel(legalCase)}
           description={legalCase.phase ? `${legalCase.subject} · ${phaseLabel(legalCase.phase)}` : legalCase.subject}
         />
         {legalCase.state === 'suspended' ? (
@@ -34,6 +43,16 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
         )}
       </RecordHeader>
       <RecordStats>
+        {legalCase.serviceStatus && (
+          <RecordStat
+            label={t('service_status')}
+            value={
+              <Badge variant={SERVICE_STATUS_VARIANT[legalCase.serviceStatus]}>
+                {serviceStatusLabel(legalCase.serviceStatus)}
+              </Badge>
+            }
+          />
+        )}
         <RecordStat label={t('appointment_date')} value={day(legalCase.nominationDate)} />
         {client && <RecordStat label={t('contracting_party')} value={client} />}
         {/* Amounts only for whoever sees finance (AD-137). */}
@@ -52,8 +71,9 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             name: t('court_header'),
             icon: <Scale />,
             specs: [
-              { label: t('court_type'), value: courtTypeLabel(legalCase.courtType) },
-              { label: t('court'), value: legalCase.court },
+              { label: t('service_type'), value: serviceTypeLabel(legalCase) },
+              { label: t('role_in_case'), value: t(legalCase.role) },
+              { label: t('court'), value: legalCase.court || '-' },
               { label: t('court_division'), value: legalCase.division || '-' },
               { label: t('judicial_district'), value: legalCase.district || '-' },
             ],

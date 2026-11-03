@@ -1,3 +1,4 @@
+import { caseLabel } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from '../case/case.service.js';
@@ -38,7 +39,7 @@ const withCaseNumber = async (tenantId: string, items: TransactionRecord[]): Pro
     if (!summary) return item;
     return {
       ...item,
-      caseNumber: summary.processNumber,
+      caseNumber: caseLabel(summary),
       ...(summary.client ? { client: summary.client } : {}),
     };
   });
@@ -145,6 +146,8 @@ export const monthlyFlow = (tenantId: string, months: number, now: Date = new Da
   );
 };
 
+export const listExpenseNames = (tenantId: string) => transactionRepository.listExpenseNames(tenantId);
+
 export const totalsByCategory = (tenantId: string, kind: string) =>
   transactionRepository.totalsByCategory(tenantId, kind);
 
@@ -228,7 +231,7 @@ export const postFixedFees = async (
   input: {
     tenantId: string;
     caseId: string;
-    processNumber: string;
+    caseLabel: string;
     amountCents: number;
     category: 'fixed_fees' | 'contracted_fees';
   },
@@ -245,7 +248,7 @@ export const postFixedFees = async (
   await transactionRepository.createTransaction(input.tenantId, {
     kind: 'income',
     category: input.category,
-    description: `${input.category === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.processNumber}`,
+    description: `${input.category === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.caseLabel}`,
     amountCents: input.amountCents,
     dueDate: addDays(dateInDisplayTz(now), DAYS_TO_RECEIVE_FEES),
     caseId: input.caseId,

@@ -41,7 +41,7 @@ export const generateSheet = async (providers: Providers, ctx: DocumentContext, 
   ]);
   return pdf(
     providers,
-    `ficha-${legalCase.processNumber}.pdf`,
+    `ficha-${legalCase.processNumber ?? legalCase.id}.pdf`,
     sheetHtml({ ...baseData, legalCase, deadlines, appointments, finance }),
   );
 };
@@ -50,7 +50,7 @@ export const generateChecklist = async (providers: Providers, ctx: DocumentConte
   const legalCase = await caseService.getCase(ctx.tenantId, caseId);
   return pdf(
     providers,
-    `checklist-${legalCase.processNumber}.pdf`,
+    `checklist-${legalCase.processNumber ?? legalCase.id}.pdf`,
     checklistHtml({ ...(await base(providers, ctx)), legalCase }),
   );
 };

@@ -45,6 +45,7 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
   router.get('/stats', ...guard, can('expert_cases', 'view'), caseController.caseStats);
   router.get('/stalled', ...guard, can('expert_cases', 'view'), caseController.stalledSummary);
   router.get('/distribution', ...guard, can('expert_cases', 'view'), caseController.caseDistribution);
+  router.get('/service-types', ...guard, can('expert_cases', 'view'), caseController.listServiceTypes);
   // Deadlines (AD-109) follow the cases permission (AD-137). `/deadlines` comes before `/:id`.
   router.get(
     '/deadlines',

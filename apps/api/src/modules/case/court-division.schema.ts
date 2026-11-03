@@ -2,15 +2,15 @@ import type {
   ApiMessageKey,
   BrazilianState,
   CourtDivisionCsvColumn,
-  CourtType,
   CreateCourtDivision,
+  JudicialCourtType,
   UpdateCourtDivision,
 } from '@ethica/contracts';
 import {
   BRAZILIAN_STATES,
-  COURTTYPES,
   createCourtDivisionSchema,
   idSchema,
+  JUDICIAL_COURT_TYPES,
   updateCourtDivisionSchema,
 } from '@ethica/contracts';
 import { z } from 'zod';
@@ -25,7 +25,7 @@ export const listCourtDivisionsQuerySchema = z
   .object({
     state: z.enum(BRAZILIAN_STATES).optional(),
     city: z.string().trim().max(120).optional(),
-    courtType: z.enum(COURTTYPES).optional(),
+    courtType: z.enum(JUDICIAL_COURT_TYPES).optional(),
   })
   .strict();
 export type ListCourtDivisionsQuery = z.infer<typeof listCourtDivisionsQuerySchema>;
@@ -34,7 +34,7 @@ export const courtDivisionCitiesQuerySchema = z.object({ state: z.enum(BRAZILIAN
 
 export type CourtDivisionRecord = {
   id: string;
-  courtType: CourtType;
+  courtType: JudicialCourtType;
   name: string;
   court?: string;
   state: BrazilianState;

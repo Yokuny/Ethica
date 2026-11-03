@@ -22,7 +22,7 @@ describe('domainEventBus', () => {
     const payload = {
       tenantId: 't1',
       caseId: 'p1',
-      processNumber: '0000001-00.2026.5.02.0001',
+      caseLabel: '0000001-00.2026.5.02.0001',
       amountCents: 100_000,
       category: 'fixed_fees' as const,
     };
@@ -42,7 +42,7 @@ describe('domainEventBus', () => {
       domainEventBus.emit('case:fixed_fees', {
         tenantId: 't1',
         caseId: 'p1',
-        processNumber: '0000001-00.2026.5.02.0001',
+        caseLabel: '0000001-00.2026.5.02.0001',
         amountCents: 100_000,
         category: 'fixed_fees' as const,
       }),
@@ -57,7 +57,7 @@ describe('domainEventBus', () => {
     expect(healthy).toHaveBeenCalledWith({
       tenantId: 't1',
       caseId: 'p1',
-      processNumber: '0000001-00.2026.5.02.0001',
+      caseLabel: '0000001-00.2026.5.02.0001',
       amountCents: 100_000,
       category: 'fixed_fees' as const,
     });
@@ -68,7 +68,7 @@ describe('domainEventBus', () => {
     domainEventBus.emit('case:fixed_fees', {
       tenantId: 't1',
       caseId: 'p1',
-      processNumber: '0000001-00.2026.5.02.0001',
+      caseLabel: '0000001-00.2026.5.02.0001',
       amountCents: 100_000,
       category: 'fixed_fees' as const,
     });
@@ -78,7 +78,7 @@ describe('domainEventBus', () => {
     domainEventBus.emit('case:fixed_fees', {
       tenantId: 't2',
       caseId: 'p2',
-      processNumber: '0000002-00.2026.5.02.0001',
+      caseLabel: '0000002-00.2026.5.02.0001',
       amountCents: 100_000,
       category: 'fixed_fees' as const,
     });

@@ -49,7 +49,7 @@ export type InspectionRecord = {
 export type InspectionMediaWrite = MediaRecord & { key: string };
 
 // Case summary in the field: number and parties by side.
-export type FieldCase = { id: string; processNumber: string; plaintiff?: string; defendant?: string };
+export type FieldCase = { id: string; processNumber?: string; subject: string; plaintiff?: string; defendant?: string };
 
 // One appointment of the day with what the phone needs without a connection (AD-128).
 export type DayInspection = { appointment: AppointmentRecord; legalCase?: FieldCase; inspection: InspectionRecord };

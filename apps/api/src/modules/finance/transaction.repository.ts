@@ -25,6 +25,7 @@ const toRecord = (doc: TransactionDocument): TransactionRecord => {
     id: doc._id.toString(),
     kind: doc.kind,
     category: doc.category,
+    categoryName: doc.categoryName,
     description: doc.description,
     amountCents: doc.amountCents,
     dueDate: doc.dueDate,
@@ -43,6 +44,8 @@ const toDocumentFields = ({ caseId, ...data }: UpdateTransaction) => {
     Object.entries(data).filter(([, value]) => value !== undefined),
   );
   if (caseId !== undefined) fields.Case = caseId;
+  // Another category drops the name of the office's category (AD-159).
+  if (data.category && data.category !== 'other_expenses') return { ...fields, $unset: { categoryName: 1 } };
   return fields;
 };
 
@@ -331,4 +334,14 @@ export const listAll = async (
       .sort({ dueDate: 1 })
       .lean();
     return docs.map(toRecord);
+  });
+
+// Expense categories created by the office (AD-159): the names already used, by name.
+export const listExpenseNames = async (tenantId: string): Promise<string[]> =>
+  withDbTiming('finance.listExpenseNames', async () => {
+    const rows = await Transaction.aggregate<{ _id: string }>([
+      { $match: { Tenant: toObjectId(tenantId), kind: 'expense', categoryName: { $type: 'string' } } },
+      { $group: { _id: '$categoryName' } },
+    ]);
+    return rows.map((row) => row._id).sort((a, b) => a.localeCompare(b, 'pt-BR'));
   });

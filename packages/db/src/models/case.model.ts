@@ -11,6 +11,8 @@ import {
   type MovementType,
   PARTY_TYPES,
   type PartyType,
+  SERVICE_STATUS,
+  type ServiceStatus,
   SIDES,
   type Side,
 } from '@ethica/contracts';
@@ -38,10 +40,13 @@ export interface CaseMovementDocument {
 export interface CaseDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
-  processNumber: string;
+  // Optional only in a service type created by the office (AD-158).
+  processNumber?: string;
   courtType: CourtType;
+  serviceType?: string;
   role: CaseRole;
-  court: string;
+  serviceStatus?: ServiceStatus;
+  court?: string;
   division?: string;
   district?: string;
   subject: string;
@@ -72,10 +77,12 @@ export interface CaseDocument {
 const caseSchema = new Schema<CaseDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
-    processNumber: { type: String, required: true, trim: true },
+    processNumber: { type: String, trim: true },
     courtType: { type: String, enum: COURTTYPES, required: true },
+    serviceType: { type: String, trim: true },
     role: { type: String, enum: CASE_ROLES, required: true },
-    court: { type: String, required: true, trim: true },
+    serviceStatus: { type: String, enum: SERVICE_STATUS },
+    court: { type: String, trim: true },
     division: { type: String, trim: true },
     district: { type: String, trim: true },
     subject: { type: String, required: true, trim: true },
@@ -123,8 +130,13 @@ const caseSchema = new Schema<CaseDocument>(
 );
 
 // A process shows up once per tenant: the expert cannot register the same
-// nomination twice (the index guarantees it, not the code).
-caseSchema.index({ Tenant: 1, processNumber: 1 }, { unique: true });
+// nomination twice (the index guarantees it, not the code). Services without a number are not counted (AD-158).
+caseSchema.index(
+  { Tenant: 1, processNumber: 1 },
+  { unique: true, partialFilterExpression: { processNumber: { $type: 'string' } } },
+);
+// Service types created by the office (AD-158).
+caseSchema.index({ Tenant: 1, serviceType: 1 }, { partialFilterExpression: { serviceType: { $type: 'string' } } });
 caseSchema.index({ Tenant: 1, status: 1 });
 caseSchema.index({ Tenant: 1, createdAt: -1 });
 // Cases of a party (IMP-03) and name copy on rename.

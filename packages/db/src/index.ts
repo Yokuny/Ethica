@@ -75,7 +75,8 @@ export const syncIndexes = async (): Promise<void> => {
     Invite.createIndexes(),
     Session.createIndexes(),
     AccessKey.createIndexes(),
-    Case.createIndexes(),
+    // syncIndexes replaces the old unique process number index by the partial one (AD-158).
+    Case.syncIndexes(),
     Party.createIndexes(),
     CourtDivision.createIndexes(),
     Deadline.createIndexes(),
