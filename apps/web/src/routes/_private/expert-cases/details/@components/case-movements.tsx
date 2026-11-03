@@ -35,6 +35,7 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
   return (
     <Panel
       collapsible
+      icon={<History />}
       size="sm"
       title={t('movements')}
       description={t('movements_panel_description')}

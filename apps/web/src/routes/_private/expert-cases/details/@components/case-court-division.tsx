@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Landmark } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
 import { CourtDivisionContacts } from '@/components/court-division-contacts.js';
 import { Panel } from '@/components/panel.js';
@@ -25,6 +26,7 @@ export function CaseCourtDivision({ legalCase }: { legalCase: CaseRecord }) {
   return (
     <Panel
       collapsible
+      icon={<Landmark />}
       size="sm"
       title={t('court_division_contact')}
       description={`${found.name} · ${found.city}/${found.state}`}

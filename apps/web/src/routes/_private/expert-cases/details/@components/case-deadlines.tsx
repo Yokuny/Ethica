@@ -33,6 +33,7 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
   return (
     <Panel
       collapsible
+      icon={<CalendarClock />}
       size="sm"
       title={t('deadlines')}
       actions={

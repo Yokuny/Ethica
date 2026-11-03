@@ -25,7 +25,7 @@ _Nenhum._
 | Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Agenda por eventos](features/agenda-eventos/feature.md) | Perícia, prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento, com tipo, estado e filtro | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/agenda-eventos) | — |
-| [Novo laudo](features/novo-laudo/feature.md) | OS por serviço, responsável técnico do laudo, modelo trabalhista da perita, editor em rolagem com itens novos e layout do laudo | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/novo-laudo) | 1 |
+| [Novo laudo](features/novo-laudo/feature.md) | OS por serviço, responsável técnico do laudo, modelo trabalhista da perita, editor em rolagem com itens novos e layout do laudo | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/novo-laudo) | 2 |
 | [Partes do serviço](features/partes-servico/feature.md) | Partes com advogados no serviço, sem repetição, com CREA e contatos do PDF; data da perícia opcional; laudo com qualquer modelo | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/partes-servico) | — |
 | [Rotina do serviço](features/rotina-servico/feature.md) | Status único do serviço, partes do último despacho no PDF, planilha de qualquer modelo e nomes das seções; falta a base de varas dos TRTs | parcial | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/rotina-servico) | — |
 | [Acesso por e-mail (sem senha)](features/acesso-email/feature.md) | Entrar e criar o escritório só com o e-mail, pela chave de acesso (link e código) enviada à caixa de e-mail da pessoa | concluido | 2026-11-02 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/acesso-email) | — |
@@ -63,6 +63,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-174** (2026-11-03, active) — O título de cada parte do laudo aparece do mesmo jeito na tela (laudo, modelo e escolha de itens), no PDF e no Word: item (nível 1) todo em
 - **AD-173** (2026-11-03, active) — O "Preencher com PDF ou ZIP" do cadastro do serviço aceita um ZIP com os PDFs do processo dividido em partes: o servidor abre o ZIP, lê só o
 - **AD-172** (2026-11-03, active) — Cabeçalho e rodapé do escritório têm fonte (Times, Arial), tamanho e alinhamento próprios (`headerStyle`/`footerStyle` no `Tenant`, sem eles
 - **AD-171** (2026-11-03, active) — No laudo, cada item tem na própria linha as setas de subir/descer, "Faz parte do laudo" e um "…" com Editar título, Adicionar item abaixo, A
@@ -72,7 +73,6 @@ _Nenhum._
 - **AD-167** (2026-11-03, active) — Importação de planilha de qualquer modelo (RSV-04): cada coluna é ligada a um campo pelo nome (`suggestCsvField`, sinônimos em `packages/con
 - **AD-166** (2026-11-03, active) — O serviço tem um status só (`Case.status`, `CASE_STATUS`): nomeado – aguardando aceite, proposta de honorários enviada, honorários aceitos –
 - **AD-165** (2026-11-03, active) — O laudo iniciado pelo serviço aceita qualquer modelo cadastrado, e o tipo do documento (laudo ou parecer) é o do modelo escolhido; trocar o
-- **AD-164** (2026-11-03, active) — Partes sem repetição (PSV-05): `Party.nameKey` (nome sem maiúscula, acento e espaço repetido) e `crea` normalizado. `resolveParties` acha po
 
 ## `.specs/` sem registro em `docs/features/`
 

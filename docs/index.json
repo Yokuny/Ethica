@@ -46,7 +46,8 @@
         ".specs/features/novo-laudo"
       ],
       "planos": [
-        ".specs/features/novo-laudo/plans/2026-11-03-ajustes-escritorio-e-laudo.md"
+        ".specs/features/novo-laudo/plans/2026-11-03-ajustes-escritorio-e-laudo.md",
+        ".specs/features/novo-laudo/plans/2026-11-03-titulos-exclusao-e-fontes.md"
       ],
       "doc": "features/novo-laudo/feature.md"
     },
@@ -1243,6 +1244,12 @@
     {
       "id": "AD-173",
       "decisao": "O \"Preencher com PDF ou ZIP\" do cadastro do serviço aceita um ZIP com os PDFs do processo dividido em partes: o servidor abre o ZIP, lê só o",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-174",
+      "decisao": "O título de cada parte do laudo aparece do mesmo jeito na tela (laudo, modelo e escolha de itens), no PDF e no Word: item (nível 1) todo em",
       "data": "2026-11-03",
       "status": "active"
     }

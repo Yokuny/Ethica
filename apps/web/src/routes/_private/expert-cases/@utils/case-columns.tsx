@@ -1,4 +1,4 @@
-import { caseLabel } from '@ethica/contracts';
+import { caseLabel, type Side } from '@ethica/contracts';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
 import { CASE_STATUS_VARIANT, caseStatusLabel, serviceTypeLabel } from '@/components/case-labels.js';
@@ -11,6 +11,12 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseListItem } from '@/query/case.js';
 
 const toDate = (day: string) => new Date(`${day}T12:00:00`);
+// Names of the parties (not the lawyers) of one side, for the "Partes" column.
+const names = (row: CaseListItem, side: Side) =>
+  row.parties
+    .filter((party) => party.side === side && party.type === 'party')
+    .map((party) => party.name)
+    .join(', ');
 
 // The server does not accept sort: no column is sortable.
 export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
@@ -23,6 +29,16 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
         title={caseLabel(row.original)}
         description={row.original.processNumber ? row.original.subject : undefined}
       />
+    ),
+  },
+  {
+    // Plaintiff on the first line, defendant below.
+    id: 'parties',
+    header: t('parties'),
+    cell: ({ row }) => (
+      <TableStack description={names(row.original, 'defendant') || undefined}>
+        {names(row.original, 'plaintiff') || '—'}
+      </TableStack>
     ),
   },
   {

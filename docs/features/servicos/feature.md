@@ -78,6 +78,8 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-03 — Blocos recolhidos do detalhe do serviço ficam na mesma caixa arredondada, com ícone, de Juízo, Partes e Observações (`icon` no `Panel` recolhível). Lista de serviços ganha a coluna Partes (reclamante em cima, reclamada embaixo; sem advogados) entre Processo e Tipo de serviço.
+
 - 2026-11-03 — Detalhe do serviço mais compacto: prazos, vistorias, laudos, movimentações, financeiro, contato da vara e próximos compromissos começam recolhidos e abrem pelo título (`collapsible` em `apps/web/src/components/panel.tsx`, AD-172).
 
 - 2026-11-03 — Data da perícia também na edição, movendo o compromisso; vencimentos do financeiro na agenda (`agenda-eventos`, AD-169).

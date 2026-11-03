@@ -5,10 +5,9 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
 import { ChevronDown } from 'lucide-react';
 import { type ReactNode, useId, useState } from 'react';
-import { t } from '@/lib/helpers/translate.helper.js';
 
 // Block wrapper without background or border: visual grouping belongs to what is
-// inside (Item, Table, form). `size` only sets the spacing between children.
+// inside (Item, Table, form). `size` only sets the spacing between children; a collapsible block is boxed.
 const panelVariants = cva('flex w-full min-w-0 flex-col', {
   variants: {
     size: {
@@ -28,9 +27,11 @@ type PanelProps = Omit<useRender.ComponentProps<'section'>, 'title'> &
     title?: ReactNode;
     description?: ReactNode;
     actions?: ReactNode;
-    // The title opens and closes the content, which starts collapsed (AD-172). The content stays mounted
-    // while closed, so its dialogs (rendered in a portal) still open from the header actions.
+    // The title opens and closes the content, which starts collapsed (AD-172), inside a rounded box. The
+    // content stays mounted while closed, so its dialogs (rendered in a portal) still open from the header actions.
     collapsible?: boolean;
+    // Beside the title of a collapsible block.
+    icon?: ReactNode;
   };
 
 function Panel({
@@ -41,6 +42,7 @@ function Panel({
   description,
   actions,
   collapsible = false,
+  icon,
   children,
   ...props
 }: PanelProps) {
@@ -53,43 +55,60 @@ function Panel({
     defaultTagName: 'section',
     props: mergeProps<'section'>(
       {
-        className: cn(panelVariants({ size, className })),
+        className: collapsible
+          ? cn('w-full min-w-0 rounded-lg border', className)
+          : cn(panelVariants({ size, className })),
         ...labelled,
-        children: (
+        children: collapsible ? (
+          // Same box as the ProductSpecs groups (Juízo, Partes): rounded border, icon and title on the left,
+          // chevron and actions on the right; the description opens with the content.
+          <>
+            <div className="flex items-center">
+              <button
+                type="button"
+                aria-expanded={open}
+                onClick={() => setOpen((prev) => !prev)}
+                className="flex min-w-0 flex-1 items-center justify-between gap-3 p-4 text-left hover:bg-muted/50"
+              >
+                <div className="flex items-center gap-3">
+                  {icon && (
+                    <div className="flex size-8 items-center justify-center rounded-md bg-muted [&_svg]:size-4">
+                      {icon}
+                    </div>
+                  )}
+                  <ItemTitle id={headingId} role="heading" aria-level={2}>
+                    {title}
+                  </ItemTitle>
+                </div>
+                <ChevronDown
+                  className={cn('size-5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')}
+                />
+              </button>
+              {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 pr-4">{actions}</div>}
+            </div>
+            <div className={cn(panelVariants({ size }), 'border-t p-4', !open && 'hidden')}>
+              {description && <ItemDescription>{description}</ItemDescription>}
+              {children}
+            </div>
+          </>
+        ) : (
           <>
             {hasHeader && (
               <div className="flex flex-wrap items-center justify-between gap-2">
                 {(title || description) && (
                   <div className="grid gap-1">
-                    {title && collapsible ? (
-                      <button
-                        type="button"
-                        aria-expanded={open}
-                        aria-label={open ? t('collapse') : t('expand')}
-                        onClick={() => setOpen((prev) => !prev)}
-                        className="flex items-center gap-1.5 text-left"
-                      >
-                        <ItemTitle className="uppercase text-xs" id={headingId} role="heading" aria-level={2}>
-                          {title}
-                        </ItemTitle>
-                        <ChevronDown
-                          className={cn('size-4 text-muted-foreground transition-transform', open && 'rotate-180')}
-                        />
-                      </button>
-                    ) : (
-                      title && (
-                        <ItemTitle className="uppercase text-xs" id={headingId} role="heading" aria-level={2}>
-                          {title}
-                        </ItemTitle>
-                      )
+                    {title && (
+                      <ItemTitle className="uppercase text-xs" id={headingId} role="heading" aria-level={2}>
+                        {title}
+                      </ItemTitle>
                     )}
-                    {description && (!collapsible || open) && <ItemDescription>{description}</ItemDescription>}
+                    {description && <ItemDescription>{description}</ItemDescription>}
                   </div>
                 )}
                 {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
               </div>
             )}
-            {collapsible ? <div className={cn(panelVariants({ size }), !open && 'hidden')}>{children}</div> : children}
+            {children}
           </>
         ),
       },

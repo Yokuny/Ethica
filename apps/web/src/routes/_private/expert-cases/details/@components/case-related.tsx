@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { CalendarDays } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -14,6 +15,7 @@ export function CaseRelated({ caseId }: { caseId: string }) {
   return (
     <Panel
       collapsible
+      icon={<CalendarDays />}
       size="sm"
       title={t('upcoming_commitments')}
       actions={<AppLink to="/agenda">{t('open_agenda')}</AppLink>}
