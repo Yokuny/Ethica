@@ -5,7 +5,7 @@ descricao: OS por serviço, responsável técnico do laudo, modelo trabalhista d
 data: 2026-11-03
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-161, AD-162, AD-163, AD-170, AD-171]
+decisoes: [AD-161, AD-162, AD-163, AD-170, AD-171, AD-172]
 spec: [.specs/features/novo-laudo]
 branches: [main]
 ---
@@ -19,11 +19,11 @@ branches: [main]
 
 ## O que foi feito
 
-- **Controle de OS** no Escritório, depois de logo, cabeçalho e rodapé: "O escritório já tem número de controle de OS?" (sigla, ano e último número) ou "Criar sequência de OS". Cada serviço novo recebe o próximo número (ETH-2026-009), que volta a 001 em janeiro; a OS aparece e se edita no serviço e sai na capa do laudo (`[NUMERO_OS]`).
+- **Controle de OS** no Escritório, depois de logo, cabeçalho e rodapé: "O escritório já tem número de controle de OS?" (sigla, ano e último número) ou "Criar sequência de OS". "Personalizar padrão da OS" troca o formato (marcadores `[SIGLA]`, `[ANO]`, `[NUMERO]` e dígitos do número; "Usar o padrão sugerido" volta ao ETH-2026-001). Cada serviço novo recebe o próximo número (ETH-2026-009), que volta a 001 em janeiro quando o padrão tem o ano; a OS aparece e se edita no serviço e sai na capa do laudo (`[NUMERO_OS]`).
 - **Responsável técnico**: cadastro de quem assina laudos além da dona da conta (nome, CPF, registro, formação, telefone, logo, cabeçalho e rodapé), sem acesso ao Ethica, no Escritório e no "Novo laudo". O laudo dele sai com os dados e a identidade dele (vazio cai no do escritório).
-- **Novo laudo** (botão no hub e na lista de Laudos): serviço (por número ou nome), OS vinculada (digitável se o serviço não tiver), responsável técnico com os dados pessoais e modelo com os itens.
+- **Novo laudo** (botão no hub e na lista de Laudos): serviço (por número ou nome), OS vinculada (digitável se o serviço não tiver), responsável técnico com os dados pessoais e modelo com os itens. Sair para outra tela com o serviço escolhido pergunta "Salvar como rascunho?" (salvar e seguir, descartar e sair ou ficar).
 - **Modelo "Laudo pericial trabalhista"** com os 21 itens e subitens do laudo da perita (objeto e considerações preliminares sem número, abertura ao juiz e "É o laudo." com assinatura); o modelo anterior segue como "Laudo pericial (NR-15 e NR-16)".
-- **Editor em rolagem**: todos os itens numa lista numerada, expandir/recolher tudo e um a um, "Faz parte do laudo" (fora do laudo não sai no PDF/Word nem bloqueia), selo "pendente" (e "pendente · vistoria" quando falta dado da vistoria), "Adicionar item abaixo" (item ou subitem) e remover item.
+- **Editor em rolagem**: todos os itens numa lista numerada e compacta, tudo recolhido ao abrir, clique em qualquer ponto da linha abre o item, expandir/recolher tudo e um a um, "Faz parte do laudo" escrito uma vez acima da lista, "Faz parte do laudo" (fora do laudo não sai no PDF/Word nem bloqueia), selo "pendente" (e "pendente · vistoria" quando falta dado da vistoria), "Adicionar item abaixo" (item ou subitem) e remover item.
 - **Layout** no laudo e no modelo do escritório: fonte (Times New Roman, Arial), tamanho, entrelinha, espaço entre parágrafos, margens, cor dos títulos, capa, sumário e abertura/assinatura final, no PDF e no Word.
 - **Salvar como modelo** no "…" do laudo: os itens que fazem parte do laudo, com o texto escrito, viram um modelo do escritório; os dados do serviço voltam a ser marcadores (AD-170). Desmarcar um tópico desmarca os subitens (no laudo e na escolha de itens do modelo).
 - **Linha de cada item**: setas para subir/descer (o item vai com os subitens, dentro do tópico), "Faz parte do laudo" e "…" com Editar título, Adicionar item abaixo, Adicionar subitem e Remover; o item aberto só edita o texto (AD-171).
@@ -78,6 +78,8 @@ pnpm run check && (cd apps/web && pnpm run build)
 - [ ] Responsável técnico excluído: o laudo dele volta a sair com quem gera o arquivo.
 
 ## Histórico
+
+- 2026-11-03 — Padrão de OS personalizável, saída do "Novo laudo" pergunta pelo rascunho, lista do laudo compacta com a linha inteira clicável e tudo recolhido (`ProductSpecs` também), formatação do cabeçalho/rodapé do escritório (AD-172). Plano: `.specs/features/novo-laudo/plans/2026-11-03-ajustes-escritorio-e-laudo.md`.
 
 - 2026-11-03 — Título, item novo, subitem e setas na linha de cada item (AD-171): `section-title-dialog.tsx` substitui `add-section-dialog.tsx`; `POST /expert-reports/:id/sections/:sectionId/move`. Item novo passa a entrar depois dos subitens; item criado no laudo não some mais ao refazer a escolha de itens do modelo.
 - 2026-11-03 — Salvar como modelo pelo "…", tópico desmarcado leva os subitens e ações do laudo agrupadas no "…" (AD-170). Componente novo: `apps/web/src/routes/_private/expert-reports/details/@components/save-template-dialog.tsx`.

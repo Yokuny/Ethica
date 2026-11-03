@@ -63,6 +63,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-172** (2026-11-03, active) — Cabeçalho e rodapé do escritório têm fonte (Times, Arial), tamanho e alinhamento próprios (`headerStyle`/`footerStyle` no `Tenant`, sem eles
 - **AD-171** (2026-11-03, active) — No laudo, cada item tem na própria linha as setas de subir/descer, "Faz parte do laudo" e um "…" com Editar título, Adicionar item abaixo, A
 - **AD-170** (2026-11-03, active) — O laudo vira modelo do escritório pelo "…" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variant
 - **AD-169** (2026-11-03, active) — Agenda por eventos. Quem tem data avisa a agenda pelo evento único `agenda:entries_synced` (origem = fonte + id, e a lista completa dos iten
@@ -72,7 +73,6 @@ _Nenhum._
 - **AD-165** (2026-11-03, active) — O laudo iniciado pelo serviço aceita qualquer modelo cadastrado, e o tipo do documento (laudo ou parecer) é o do modelo escolhido; trocar o
 - **AD-164** (2026-11-03, active) — Partes sem repetição (PSV-05): `Party.nameKey` (nome sem maiúscula, acento e espaço repetido) e `crea` normalizado. `resolveParties` acha po
 - **AD-163** (2026-11-03, active) — Modelos padrão viram lista (`REPORT_DEFAULT_TEMPLATES`, id → tipo; o primeiro do tipo é o sugerido), com o "Laudo pericial trabalhista" da p
-- **AD-162** (2026-11-03, active) — Responsável técnico do laudo = `Signatory` (coleção do `documents`): nome, CPF, registro, formação, telefone, logo (no storage, pela cota do
 
 ## `.specs/` sem registro em `docs/features/`
 

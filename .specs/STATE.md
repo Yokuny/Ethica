@@ -887,6 +887,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-172
+- **Decision**: Cabeçalho e rodapé do escritório têm fonte (Times, Arial), tamanho e alinhamento próprios (`headerStyle`/`footerStyle` no `Tenant`, sem eles Arial 8,5 centralizado), aplicados no PDF e no Word; o responsável técnico usa a formatação do escritório. A sequência de OS tem um padrão com os marcadores `[SIGLA]`, `[ANO]`, `[NUMERO]` e os dígitos do número (sugerido `[SIGLA]-[ANO]-[NUMERO]`, 3 dígitos); sem `[ANO]` o número não volta a 1 em janeiro. Todo bloco de expandir/recolher (`ProductSpecs`, `NumberedList`) começa recolhido; na lista do laudo a linha inteira abre o item e "Faz parte do laudo" aparece uma vez acima da lista. Sair do "Novo laudo" com o serviço escolhido pergunta se salva como rascunho.
+- **Reason**: pedido da perita (2026-11-03): formatar cabeçalho/rodapé, OS fora do padrão sugerido, tudo recolhido, itens do laudo difíceis de abrir e rótulo repetido, e não perder o novo laudo ao trocar de tela.
+- **Trade-off**: a formatação é uma só por escritório (o responsável técnico tem texto próprio, não formatação própria). Sequência antiga sem padrão lê como o sugerido, sem migração. O aviso de saída não cobre fechar a aba (o navegador só mostra o aviso padrão dele).
+- **Scope**: `packages/contracts/src/schemas/document.schema.ts`, `packages/db/src/models/{tenant,service-order}.model.ts`, `apps/api/src/modules/documents/{document.layout,report.docx}.ts`, `apps/api/src/modules/case/service-order.repository.ts`, `apps/web/src/components/{numbered-list,product-specs}.tsx`, `apps/web/src/routes/_private/_admin/office/`, `apps/web/src/routes/_private/expert-reports/add/index.tsx`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.

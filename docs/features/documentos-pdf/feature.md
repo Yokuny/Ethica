@@ -5,7 +5,7 @@ descricao: Identidade do escritório, dados profissionais, PDFs (ficha, checklis
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db, infra]
-decisoes: [AD-103, AD-107, AD-113, AD-118, AD-119, AD-120, AD-121, AD-122]
+decisoes: [AD-103, AD-107, AD-113, AD-118, AD-119, AD-120, AD-121, AD-122, AD-172]
 spec: [.specs/features/documentos-pdf]
 branches: [feat/documentos-pdf]
 ---
@@ -19,7 +19,7 @@ branches: [feat/documentos-pdf]
 
 ## O que foi feito
 
-- **Escritório** (`/office`, só admin): logo, cabeçalho e rodapé dos documentos com marcadores, uso do armazenamento e exportação de dados com as últimas exportações.
+- **Escritório** (`/office`, só admin): logo, cabeçalho e rodapé dos documentos com marcadores e com fonte, tamanho e alinhamento de cada um (PDF e Word), uso do armazenamento e exportação de dados com as últimas exportações.
 - **Dados profissionais** na conta de cada usuário: CPF, registro profissional e formação.
 - **PDFs** gerados no servidor com a identidade do escritório: ficha da perícia e checklist de campo (menu "…" do detalhe da perícia); cronograma de prazos, perícias paradas e relatório financeiro do período em `/reports`.
 - **Movimentações** da perícia (entrega do laudo, notificação de honorários, intimação para esclarecimentos ou laudo complementar), lançadas no detalhe; definem a perícia parada.
@@ -71,6 +71,8 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 - [ ] Número do processo quebra no meio em colunas estreitas das tabelas do PDF.
 
 ## Histórico
+
+- 2026-11-03 — Cabeçalho e rodapé com fonte, tamanho e alinhamento (`headerStyle`/`footerStyle` no `Tenant`, `PDF_FONTS` em `document.layout.ts`), também no Word do laudo (AD-172).
 
 - 2026-11-01 — Imagem de produção especificada em `producao-api` (AD-146).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).

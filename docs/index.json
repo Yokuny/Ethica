@@ -39,7 +39,8 @@
         "AD-162",
         "AD-163",
         "AD-170",
-        "AD-171"
+        "AD-171",
+        "AD-172"
       ],
       "spec": [
         ".specs/features/novo-laudo"
@@ -265,7 +266,8 @@
         "AD-119",
         "AD-120",
         "AD-121",
-        "AD-122"
+        "AD-122",
+        "AD-172"
       ],
       "spec": [
         ".specs/features/documentos-pdf"
@@ -1228,6 +1230,12 @@
     {
       "id": "AD-171",
       "decisao": "No laudo, cada item tem na própria linha as setas de subir/descer, \"Faz parte do laudo\" e um \"…\" com Editar título, Adicionar item abaixo, A",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-172",
+      "decisao": "Cabeçalho e rodapé do escritório têm fonte (Times, Arial), tamanho e alinhamento próprios (`headerStyle`/`footerStyle` no `Tenant`, sem eles",
       "data": "2026-11-03",
       "status": "active"
     }
