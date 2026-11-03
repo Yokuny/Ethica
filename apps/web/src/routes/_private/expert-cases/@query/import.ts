@@ -23,10 +23,14 @@ export type CsvImportResult = {
 // Spreadsheet column with the suggested field (RSV-04); not `certain` shows with "!".
 export type CsvColumn = { header: string; sample?: string; field: CsvImportField; certain: boolean };
 
-// Minutes/order PDF → registration draft (AD-114); nothing is saved.
-export const importPdfMutation = (): UseMutationOptions<PdfExtraction, Error, File> => ({
-  mutationFn: async (file) => {
-    const res = await sendFile<PdfExtraction>('/expert-cases/import/pdf', file, 'application/pdf');
+// Minutes/order PDF, or ZIP with the PDFs of the parts (AD-173) → registration draft (AD-114); nothing is saved.
+export const importPdfMutation = (): UseMutationOptions<
+  PdfExtraction,
+  Error,
+  { file: File; type: 'application/pdf' | 'application/zip' }
+> => ({
+  mutationFn: async ({ file, type }) => {
+    const res = await sendFile<PdfExtraction>('/expert-cases/import/pdf', file, type);
     if (!res.success || !res.data) throw new Error(res.message ?? t('action_error'));
     return res.data;
   },

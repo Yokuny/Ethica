@@ -18,6 +18,7 @@ import {
   type Side,
   suggestCsvField,
 } from '@ethica/contracts';
+import { unzipSync } from 'fflate';
 import { extractText } from 'unpdf';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseRepository from './case.repository.js';
@@ -226,16 +227,47 @@ export const extractMinutes = (text: string): Omit<PdfExtraction, 'existingId'> 
 };
 
 // Text of a PDF with selectable text (AD-114); also read by the report from the full process (AD-152).
-export const extractPdfText = async (file: Buffer): Promise<string> => {
-  if (!Buffer.isBuffer(file) || file.subarray(0, 5).toString('latin1') !== '%PDF-') {
+const pdfText = async (file: Uint8Array): Promise<string> => {
+  if (Buffer.from(file.subarray(0, 5)).toString('latin1') !== '%PDF-') {
     throw new CustomError('unsupported_file_type', 415);
   }
-  let text: string;
   try {
-    text = (await extractText(new Uint8Array(file), { mergePages: true })).text;
+    return (await extractText(file, { mergePages: true })).text;
   } catch (error) {
     throw new CustomError('unsupported_file_type', 415, error instanceof Error ? error.message : undefined);
   }
+};
+
+// A process split into parts comes as a ZIP of PDFs (AD-173): read in the order of the file names
+// ("parte 2" before "parte 10"). The unzipped total has a ceiling, so a small ZIP cannot fill the memory.
+const ZIP_MAX_UNZIPPED_BYTES = 200 * 1024 * 1024;
+const zipPdfs = (file: Buffer): Uint8Array[] => {
+  let total = 0;
+  let entries: Record<string, Uint8Array>;
+  try {
+    entries = unzipSync(new Uint8Array(file), {
+      filter: (entry) => {
+        const pdf = /\.pdf$/i.test(entry.name) && !entry.name.startsWith('__MACOSX/');
+        if (pdf) total += entry.originalSize;
+        return pdf && total <= ZIP_MAX_UNZIPPED_BYTES;
+      },
+    });
+  } catch (error) {
+    throw new CustomError('unsupported_file_type', 415, error instanceof Error ? error.message : undefined);
+  }
+  if (total > ZIP_MAX_UNZIPPED_BYTES) throw new CustomError('file_too_large', 413);
+  const names = Object.keys(entries).sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric: true }));
+  if (!names.length) throw new CustomError('zip_without_pdf', 422);
+  return names.map((name) => entries[name] as Uint8Array);
+};
+
+const isZip = (file: Buffer): boolean => file.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+
+// PDF, or ZIP with the PDFs of the parts, joined in one text.
+export const extractPdfText = async (file: Buffer): Promise<string> => {
+  if (!Buffer.isBuffer(file)) throw new CustomError('unsupported_file_type', 415);
+  const parts = isZip(file) ? zipPdfs(file) : [new Uint8Array(file)];
+  const text = (await Promise.all(parts.map(pdfText))).join('\n');
   if (!text.trim()) throw new CustomError('pdf_without_text', 422);
   return text;
 };

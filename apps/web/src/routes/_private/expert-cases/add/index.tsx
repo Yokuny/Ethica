@@ -44,7 +44,7 @@ export function CaseAddPage() {
             <input
               ref={pdfInputRef}
               type="file"
-              accept="application/pdf"
+              accept=".pdf,.zip,application/pdf,application/zip"
               className="sr-only"
               tabIndex={-1}
               aria-label={t('fill_from_pdf')}

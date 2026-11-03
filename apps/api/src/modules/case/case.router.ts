@@ -23,12 +23,12 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
   const guard = [deps.validToken, tenantAssignmentCheck];
 
   router.post('/', ...guard, can('expert_cases', 'create'), validBody(createCaseSchema), caseController.createCase);
-  // Import (AD-114, AD-118): the PDF only returns the draft; the CSV creates the cases.
+  // Import (AD-114, AD-118): the PDF (or a ZIP with its parts, AD-173) only returns the draft; the CSV creates the cases.
   router.post(
     '/import/pdf',
     ...guard,
     can('expert_cases', 'create'),
-    fileBody('application/pdf', PDF_IMPORT_MAX_BYTES),
+    fileBody(['application/pdf', 'application/zip'], PDF_IMPORT_MAX_BYTES),
     caseController.importPdf,
   );
   // Any spreadsheet (RSV-04): first the columns with the suggested field, then the import with the checked ones.

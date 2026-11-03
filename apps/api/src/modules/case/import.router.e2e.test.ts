@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Case, connect, Deadline, disconnect, hashToken, Party, Session, Tenant, User } from '@ethica/db';
+import { zipSync } from 'fflate';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -115,6 +116,29 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     const segunda = await send();
     expect(segunda.body.data.existingId).toBe(salva.body.data.id);
     expect(segunda.body.data.warnings).toContain('expert_case_already_registered');
+  });
+
+  it('processo dividido em partes: ZIP com os PDFs vira um rascunho só; ZIP sem PDF é recusado (AD-173)', async () => {
+    const { as } = await seedSession();
+    const half = Math.ceil(MINUTES.length / 2);
+    const zip = Buffer.from(
+      zipSync({
+        'processo/parte 10.pdf': new Uint8Array(pdfDe(MINUTES.slice(half))),
+        'processo/parte 2.pdf': new Uint8Array(pdfDe(MINUTES.slice(0, half))),
+        'leia-me.txt': new Uint8Array(Buffer.from('x')),
+      }),
+    );
+    const parts = await as(request(app).post('/expert-cases/import/pdf'))
+      .set('Content-Type', 'application/zip')
+      .send(zip);
+    expect(parts.status).toBe(200);
+    expect(parts.body.data.draft).toMatchObject({ processNumber: '0001234-56.2026.5.02.0001', court: 'TRT2' });
+
+    const empty = await as(request(app).post('/expert-cases/import/pdf'))
+      .set('Content-Type', 'application/zip')
+      .send(Buffer.from(zipSync({ 'leia-me.txt': new Uint8Array(Buffer.from('x')) })));
+    expect(empty.status).toBe(422);
+    expect(empty.body.message).toBe('zip_without_pdf');
   });
 
   it('recusa arquivo que não é PDF (415), PDF grande demais (413) e PDF sem texto (422) (IMP-01.5)', async () => {
