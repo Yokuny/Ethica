@@ -3,7 +3,12 @@ import * as transactionRepository from './transaction.repository.js';
 import { monthlyFlow, postFixedFees, summary, updateTransaction } from './transaction.service.js';
 
 vi.mock('./transaction.repository.js', () => ({
-  createTransaction: vi.fn(),
+  createTransaction: vi.fn(async (_tenant: string, data: object) => ({
+    id: 'tx1',
+    status: 'expected',
+    installments: [],
+    ...data,
+  })),
   findById: vi.fn(),
   findFixedFee: vi.fn(),
   updateTransaction: vi.fn(),

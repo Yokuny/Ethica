@@ -12,6 +12,7 @@ import {
   upcomingAppointmentsQuerySchema,
   updateAppointmentSchema,
 } from './appointment.schema.js';
+import { listCalendarEntriesQuerySchema } from './calendar-entry.schema.js';
 import * as feedController from './feed.controller.js';
 import { feedTokenParamSchema } from './feed.schema.js';
 
@@ -27,6 +28,13 @@ export const createAgendaRouter = (deps: AgendaRouterDeps): Router => {
     can('agenda', 'create'),
     validBody(createAppointmentSchema),
     appointmentController.createAppointment,
+  );
+  router.get(
+    '/entries',
+    ...guard,
+    can('agenda', 'view'),
+    validParsedQuery(listCalendarEntriesQuerySchema),
+    appointmentController.listCalendarEntries,
   );
   router.get(
     '/upcoming',

@@ -1,9 +1,12 @@
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import type { CSSProperties } from 'react';
+import { calendarEntryStatusLabel } from '@/components/calendar-entry-labels.js';
 import { Time12h } from '@/components/time12h.js';
+import { formatMoney } from '@/lib/helpers/money.helper.js';
+import { t } from '@/lib/helpers/translate.helper.js';
 import { cn } from '@/lib/utils.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
-import type { DeadlineRecord } from '@/query/deadline.js';
+import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
 
 // Color by appointment type; canceled fades and completed stays faded.
 const typeClasses: Record<AppointmentRecord['type'], string> = {
@@ -54,30 +57,43 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
   );
 }
 
-// Pending deadline (AD-109): all-day event, without a time; overdue shows in red.
-export function CalendarDeadlineChip({
-  deadline,
+// All-day entry (AD-169): deadline or finance, without a time. An open one past its day shows in red;
+// paid, filed, missed and canceled stay on the day with the mark beside the title (AEV-03).
+const entryClasses: Record<CalendarEntryRecord['type'], string> = {
+  deadline: 'border-amber-500/40 bg-amber-50 text-amber-900',
+  income: 'border-emerald-500/40 bg-emerald-50 text-emerald-900',
+  receipt: 'border-emerald-500/20 bg-emerald-50/60 text-emerald-900',
+  expense: 'border-rose-500/30 bg-rose-50 text-rose-900',
+};
+
+export function CalendarEntryChip({
+  entry,
   today,
   onSelect,
 }: {
-  deadline: DeadlineRecord;
+  entry: CalendarEntryRecord;
   today: string;
-  onSelect: (deadline: DeadlineRecord) => void;
+  onSelect: (entry: CalendarEntryRecord) => void;
 }) {
+  const mark = calendarEntryStatusLabel(entry.type, entry.status);
   return (
     <button
       type="button"
-      data-testid={`calendar-deadline-${deadline.id}`}
-      onClick={() => onSelect(deadline)}
+      data-testid={`calendar-entry-${entry.id}`}
+      onClick={() => onSelect(entry)}
       className={cn(
         'w-full truncate rounded-sm border px-1.5 py-0.5 text-left text-xs',
-        'border-amber-500/40 bg-amber-50 text-amber-900',
-        deadline.dueDate < today && 'border-destructive bg-destructive/10 text-destructive',
+        entryClasses[entry.type],
+        entry.status === 'open' && entry.date < today && 'border-destructive bg-destructive/10 text-destructive',
+        entry.status !== 'open' && entry.type !== 'receipt' && 'opacity-60',
+        entry.status === 'canceled' && 'line-through',
       )}
     >
       <ItemDescription className="text-inherit line-clamp-none">
-        {deadline.title}
-        {deadline.caseNumber ? ` · ${deadline.caseNumber}` : ''}
+        {`${t(entry.type)}: ${entry.title}`}
+        {entry.amountCents ? ` · ${formatMoney(entry.amountCents)}` : ''}
+        {entry.caseNumber ? ` · ${entry.caseNumber}` : ''}
+        {mark ? ` · ${mark}` : ''}
       </ItemDescription>
     </button>
   );

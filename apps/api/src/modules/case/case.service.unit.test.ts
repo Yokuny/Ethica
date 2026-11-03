@@ -17,7 +17,12 @@ vi.mock('./case.repository.js', () => ({
 // Without an office sequence by default: the service is registered without a service order (NLA-01).
 vi.mock('./service-order.repository.js', () => ({ take: vi.fn().mockResolvedValue(null) }));
 vi.mock('./deadline.repository.js', () => ({
-  createDeadline: vi.fn(),
+  createDeadline: vi.fn(async (_tenant: string, caseId: string, data: { title: string; dueDate: string }) => ({
+    id: 'd1',
+    caseId,
+    ...data,
+    status: 'pending',
+  })),
   deleteByCase: vi.fn(),
   upcomingByCaseIds: vi.fn(),
 }));
@@ -137,7 +142,13 @@ describe('case.service', () => {
 
   it('createCase dá o próximo número da OS do escritório quando o cadastro não traz OS (NLA-01)', async () => {
     vi.mocked(caseRepository.createCase).mockResolvedValue(legalCase);
-    vi.mocked(serviceOrderRepository.take).mockResolvedValueOnce({ prefix: 'ETH', year: 2026, last: 9 });
+    vi.mocked(serviceOrderRepository.take).mockResolvedValueOnce({
+      pattern: '[SIGLA]-[ANO]-[NUMERO]',
+      prefix: 'ETH',
+      digits: 3,
+      year: 2026,
+      last: 9,
+    });
 
     await createCase(input);
     expect(caseRepository.createCase).toHaveBeenLastCalledWith(

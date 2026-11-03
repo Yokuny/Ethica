@@ -1,6 +1,8 @@
 import {
+  type CaseInspection,
   caseLabel,
   DEADLINE_DUE_SOON_DAYS,
+  deadlineAgendaEntries,
   formatServiceOrder,
   type ServiceOrderSettings,
   STALLED_CASE_DAYS,
@@ -59,6 +61,25 @@ const withSuggestedPeriod = <T extends CreateCaseInput>(input: T): T => {
     : input;
 };
 
+// The perícia date becomes the case's perícia appointment on the agenda (AD-160, AD-169), at registration
+// and when editing; without a date there is none (PSV-03).
+const scheduleInspection = (tenantId: string, legalCase: CaseRecord, inspection?: CaseInspection): void => {
+  if (!inspection?.date || !inspection.time) return;
+  domainEventBus.emit('agenda:entries_synced', {
+    tenantId,
+    source: 'case',
+    originId: legalCase.id,
+    caseId: legalCase.id,
+    entries: [],
+    inspection: {
+      title: `Perícia — ${caseLabel(legalCase)}`,
+      date: inspection.date,
+      time: inspection.time,
+      location: inspection.location,
+    },
+  });
+};
+
 // Single creation path (form, PDF, CSV, opportunity): resolves the parties in the
 // registry (AD-117) and turns the report deadline into the "Entrega do laudo" deadline (AD-109).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
@@ -74,23 +95,20 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
       parties: await partyService.resolveParties(input.tenant, parties ?? []),
     });
     if (reportDeadline) {
-      await deadlineRepository.createDeadline(input.tenant, legalCase.id, {
+      const deadline = await deadlineRepository.createDeadline(input.tenant, legalCase.id, {
         title: REPORT_DELIVERY_DEADLINE,
         dueDate: reportDeadline,
         notes: 'Gerado a partir do prazo do laudo informado no cadastro.',
       });
-    }
-    // The perícia date becomes an appointment on the agenda (AD-160); without a date there is none (PSV-03).
-    if (inspection?.date && inspection.time) {
-      domainEventBus.emit('case:inspection_scheduled', {
+      domainEventBus.emit('agenda:entries_synced', {
         tenantId: input.tenant,
+        source: 'deadline',
+        originId: deadline.id,
         caseId: legalCase.id,
-        caseLabel: caseLabel(legalCase),
-        location: inspection.location,
-        date: inspection.date,
-        time: inspection.time,
+        entries: deadlineAgendaEntries(deadline),
       });
     }
+    scheduleInspection(input.tenant, legalCase, inspection);
     return legalCase;
   } catch (e) {
     if (isDuplicateKeyError(e)) throw duplicateError(e);
@@ -106,7 +124,7 @@ export const getCase = async (tenantId: string, id: string): Promise<CaseRecord>
 
 export const updateCase = async (tenantId: string, id: string, data: UpdateCase): Promise<CaseRecord> => {
   const before = await getCase(tenantId, id);
-  const { parties, ...rest } = data;
+  const { parties, inspection, ...rest } = data;
   if (!validClient({ role: rest.role ?? before.role, parties: parties ?? before.parties })) {
     throw new CustomError('invalid_contracting_party', 422);
   }
@@ -140,12 +158,13 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
       category: updated.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
     });
   }
+  scheduleInspection(tenantId, updated, inspection);
   return updated;
 };
 
-// Deleting is an admin action (case.router.ts) and takes the deadlines along; the reports leave through the
-// evento `pericia:deleted` (AD-126). Compromissos e
-// transactions that point to it lose the link: a missing reference becomes a missing field.
+// Deleting is an admin action (case.router.ts) and takes the deadlines along; the reports and the agenda
+// entries of those deadlines leave through `case:deleted` (AD-126, AD-169). Appointments and transactions
+// that point to it lose the link: a missing reference becomes a missing field.
 export const deleteCase = async (tenantId: string, id: string): Promise<void> => {
   const { deletedCount } = await caseRepository.deleteCase(tenantId, id);
   if (deletedCount === 0) throw new CaseNotFoundError('not_found');

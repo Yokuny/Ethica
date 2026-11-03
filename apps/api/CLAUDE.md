@@ -57,7 +57,7 @@ Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `ident
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Invite AccessKey Activity transitionTenantStatus` (inclui identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
 | `case` | `Case Deadline Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) |
-| `agenda` | `Appointment Inspection` (AD-130) |
+| `agenda` | `Appointment Inspection` (AD-130) `CalendarEntry` (itens de dia inteiro vindos de outros módulos, AD-169) |
 | `finance` | `Transaction` |
 | `prospecting` | `Opportunity` |
 | `documents` | `Report Template` (AD-126) `Signatory` (responsável técnico, AD-162) |

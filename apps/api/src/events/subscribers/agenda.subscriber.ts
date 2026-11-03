@@ -1,17 +1,15 @@
 import * as appointmentService from '../../modules/agenda/appointment.service.js';
+import * as calendarEntryService from '../../modules/agenda/calendar-entry.service.js';
 import { domainEventBus } from '../event-bus.js';
 
-// Perícia date given at registration (AD-160): a one-hour inspection appointment linked to the case.
+// Agenda by events (AD-169): the agenda accepts the entries of every origin. The perícia of a case
+// is its appointment (AD-160); the rest are all-day entries replaced by origin.
 export const registerAgendaSubscriber = (): void => {
-  domainEventBus.on('case:inspection_scheduled', async ({ tenantId, caseId, caseLabel, date, time, location }) => {
-    await appointmentService.createAppointment(tenantId, {
-      type: 'inspection',
-      title: `Perícia — ${caseLabel}`,
-      date,
-      time,
-      durationMinutes: 60,
-      location,
-      caseId,
-    });
+  domainEventBus.on('agenda:entries_synced', async ({ tenantId, source, originId, caseId, entries, inspection }) => {
+    if (inspection && caseId) await appointmentService.saveCaseInspection(tenantId, caseId, inspection);
+    if (source !== 'case') await calendarEntryService.syncOrigin({ tenantId, source, originId, caseId, entries });
+  });
+  domainEventBus.on('case:deleted', async ({ tenantId, caseId }) => {
+    await calendarEntryService.deleteDeadlinesOfCase(tenantId, caseId);
   });
 };

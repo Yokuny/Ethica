@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import { pathToFileURL } from 'node:url';
-import { connect, migrateCaseStatus, syncIndexes } from '@ethica/db';
+import { backfillCalendarEntries, connect, migrateCaseStatus, syncIndexes } from '@ethica/db';
 import { buildApp, buildMailProvider } from './app.js';
 import { env } from './config/env.config.js';
 import { nextExecution, sendDeadlineNotices } from './modules/agenda/deadlineReminder.service.js';
@@ -31,13 +31,14 @@ export type StartOptions = { port?: number };
 
 export type StartHandle = { httpServer: Server };
 
-// env → connect → syncIndexes → data conversion (RSV-03) → listen, with an explicit catch: Mongo
+// env → connect → syncIndexes → data conversion (RSV-03, AEV-05) → listen, with an explicit catch: Mongo
 // unavailable never leaves the process up accepting traffic.
 export const start = async (opts: StartOptions = {}): Promise<StartHandle | undefined> => {
   try {
     await connect(env.MONGODB_URI);
     await syncIndexes();
     await migrateCaseStatus();
+    await backfillCalendarEntries();
 
     const port = opts.port ?? Number(env.API_PORT);
     const httpServer = buildApp().listen(port, () => {

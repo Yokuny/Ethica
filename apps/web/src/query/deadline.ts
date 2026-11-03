@@ -20,7 +20,6 @@ export type DeadlineRecord = {
 export const deadlineKeys = {
   all: ['deadline'] as const,
   ofCase: (caseId: string) => [...deadlineKeys.all, 'legalCase', caseId] as const,
-  pending: (range: { from: string; to: string }) => [...deadlineKeys.all, 'pending', range] as const,
 };
 
 const fetchData = async <T>(path: string): Promise<T> => {
@@ -33,13 +32,6 @@ export const caseDeadlinesQuery = (caseId: string) =>
   queryOptions({
     queryKey: deadlineKeys.ofCase(caseId),
     queryFn: () => fetchData<DeadlineRecord[]>(`/expert-cases/${encodeURIComponent(caseId)}/deadlines`),
-  });
-
-// Agenda calendar: pending ones due in [from, to).
-export const pendingDeadlinesQuery = (range: { from: string; to: string }) =>
-  queryOptions({
-    queryKey: deadlineKeys.pending(range),
-    queryFn: () => fetchData<DeadlineRecord[]>(`/expert-cases/deadlines?from=${range.from}&to=${range.to}`),
   });
 
 // A deadline changes the listing's "next deadline" and the cases indicator strip.

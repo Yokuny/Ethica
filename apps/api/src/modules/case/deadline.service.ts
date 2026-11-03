@@ -1,5 +1,6 @@
-import { caseLabel } from '@ethica/contracts';
+import { caseLabel, deadlineAgendaEntries } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
+import { domainEventBus } from '../../events/event-bus.js';
 import { KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from './case.service.js';
 import * as deadlineRepository from './deadline.repository.js';
@@ -29,6 +30,17 @@ const toWrite = ({ status, filedDate, ...rest }: UpdateDeadline, today: string):
   return { ...rest, status, filedDate: status === 'filed' ? (filedDate ?? today) : null };
 };
 
+// Agenda by events (AD-169): the deadline's entry on every change; none once it is deleted.
+const syncAgenda = (tenantId: string, id: string, deadline?: DeadlineRecord): void => {
+  domainEventBus.emit('agenda:entries_synced', {
+    tenantId,
+    source: 'deadline',
+    originId: id,
+    caseId: deadline?.caseId,
+    entries: deadline ? deadlineAgendaEntries(deadline) : [],
+  });
+};
+
 // Missing case (or from another tenant) → CaseNotFoundError, the same 404 as the case.
 export const createDeadline = async (
   tenantId: string,
@@ -36,7 +48,9 @@ export const createDeadline = async (
   data: CreateDeadline,
 ): Promise<DeadlineRecord> => {
   await caseService.getCase(tenantId, caseId);
-  return deadlineRepository.createDeadline(tenantId, caseId, data);
+  const deadline = await deadlineRepository.createDeadline(tenantId, caseId, data);
+  syncAgenda(tenantId, deadline.id, deadline);
+  return deadline;
 };
 
 export const listCaseDeadlines = async (tenantId: string, caseId: string): Promise<DeadlineRecord[]> => {
@@ -52,12 +66,14 @@ export const updateDeadline = async (
 ): Promise<DeadlineRecord> => {
   const updated = await deadlineRepository.updateDeadline(tenantId, id, toWrite(data, dateInDisplayTz(now)));
   if (!updated) throw new DeadlineNotFoundError('not_found');
+  syncAgenda(tenantId, id, updated);
   return updated;
 };
 
 export const deleteDeadline = async (tenantId: string, id: string): Promise<void> => {
   const { deletedCount } = await deadlineRepository.deleteDeadline(tenantId, id);
   if (deletedCount === 0) throw new DeadlineNotFoundError('not_found');
+  syncAgenda(tenantId, id);
 };
 
 export const listPendingDeadlines = async (tenantId: string, range: { from?: string; to?: string } = {}) =>
@@ -68,7 +84,10 @@ export const listDeadlinesToNotice = (days: string[]) => deadlineRepository.list
 
 // Completing the report with delivery (AD-126): files today the oldest pending "Entrega do laudo"
 // deadline of the case; with none pending, does nothing.
-export const fileReportDelivery = (tenantId: string, caseId: string, now: Date = new Date()) =>
-  deadlineRepository.filePending(tenantId, caseId, REPORT_DELIVERY_DEADLINE, dateInDisplayTz(now));
+export const fileReportDelivery = async (tenantId: string, caseId: string, now: Date = new Date()) => {
+  const filed = await deadlineRepository.filePending(tenantId, caseId, REPORT_DELIVERY_DEADLINE, dateInDisplayTz(now));
+  if (filed) syncAgenda(tenantId, filed.id, filed);
+  return filed;
+};
 
 export const listForExport = (tenantId: string) => deadlineRepository.listAll(tenantId);

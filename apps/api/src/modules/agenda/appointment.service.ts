@@ -39,6 +39,25 @@ export const createAppointment = async (tenantId: string, data: CreateAppointmen
   return appointmentRepository.createAppointment(tenantId, { ...rest, ...toInterval(date, time, durationMinutes) });
 };
 
+// Perícia date of a case (AD-160, AEV-04): one one-hour appointment per case, moved when the date changes.
+export const saveCaseInspection = async (
+  tenantId: string,
+  caseId: string,
+  inspection: { title: string; date: string; time: string; location?: string },
+): Promise<void> => {
+  const { date, time, ...rest } = inspection;
+  const fields = { ...rest, ...toInterval(date, time, 60) };
+  const current = await appointmentRepository.findCaseInspection(tenantId, caseId);
+  if (current) await appointmentRepository.updateAppointment(tenantId, current.id, fields);
+  else
+    await appointmentRepository.createAppointment(tenantId, {
+      ...fields,
+      type: 'inspection',
+      caseId,
+      origin: 'automatic',
+    });
+};
+
 // Rescheduling requires date, time and duration together: the whole range is recalculated.
 export const updateAppointment = async (
   tenantId: string,

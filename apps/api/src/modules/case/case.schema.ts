@@ -99,7 +99,7 @@ export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties'
 // Service type created by the office (AD-158), with the role of the cases that use it.
 export type ServiceTypeItem = { name: string; role: CaseRole };
 // `null` becomes `$unset` in the repository: service type (AD-158).
-export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'serviceType'> & {
+export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'serviceType' | 'inspection'> & {
   parties?: CasePartyWrite[];
   serviceType?: string | null;
 };

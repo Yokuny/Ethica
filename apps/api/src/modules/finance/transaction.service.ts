@@ -1,5 +1,6 @@
-import { caseLabel } from '@ethica/contracts';
+import { caseLabel, transactionAgendaEntries } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
+import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from '../case/case.service.js';
 import * as transactionRepository from './transaction.repository.js';
@@ -45,6 +46,17 @@ const withCaseNumber = async (tenantId: string, items: TransactionRecord[]): Pro
   });
 };
 
+// Agenda by events (AD-169): the due day and the installments on every change; none once deleted.
+const syncAgenda = (tenantId: string, id: string, transaction?: TransactionRecord): void => {
+  domainEventBus.emit('agenda:entries_synced', {
+    tenantId,
+    source: 'transaction',
+    originId: id,
+    caseId: transaction?.caseId,
+    entries: transaction ? transactionAgendaEntries(transaction) : [],
+  });
+};
+
 // Settling without a date saves today.
 const withLiquidacao = (data: UpdateTransaction, today: string): UpdateTransaction => {
   if (data.status === 'settled') return { ...data, settledDate: data.settledDate ?? today };
@@ -53,7 +65,9 @@ const withLiquidacao = (data: UpdateTransaction, today: string): UpdateTransacti
 
 export const createTransaction = async (tenantId: string, data: CreateTransaction): Promise<TransactionRecord> => {
   if (data.caseId) await caseService.getCase(tenantId, data.caseId);
-  return transactionRepository.createTransaction(tenantId, data);
+  const created = await transactionRepository.createTransaction(tenantId, data);
+  syncAgenda(tenantId, created.id, created);
+  return created;
 };
 
 const findOrThrow = async (tenantId: string, id: string): Promise<TransactionRecord> => {
@@ -79,6 +93,7 @@ export const updateTransaction = async (
     if (data.status || data.settledDate) throw new CustomError('fee_status_comes_from_parcels', 422);
     const updated = await transactionRepository.updateIncome(tenantId, id, data);
     if (!updated) throw new CustomError('amount_below_received', 422);
+    syncAgenda(tenantId, id, updated);
     return updated;
   }
 
@@ -89,6 +104,7 @@ export const updateTransaction = async (
     withLiquidacao(data, dateInDisplayTz(now)),
   );
   if (!updated) throw new TransactionNotFoundError('not_found');
+  syncAgenda(tenantId, id, updated);
   return updated;
 };
 
@@ -97,6 +113,7 @@ export const deleteTransaction = async (tenantId: string, id: string): Promise<v
   if (current.kind === 'income') throw new CustomError('fee_cannot_be_removed', 409);
   const { deletedCount } = await transactionRepository.deleteTransaction(tenantId, id);
   if (deletedCount === 0) throw new TransactionNotFoundError('not_found');
+  syncAgenda(tenantId, id);
 };
 
 // Partial receipt (PRZ-02): the installment does not exceed the balance; the status is recalculated with it.
@@ -109,6 +126,7 @@ export const addInstallment = async (
   if (current.kind !== 'income') throw new CustomError('invalid_data', 422);
   const updated = await transactionRepository.addInstallment(tenantId, id, installment);
   if (!updated) throw new CustomError('parcel_exceeds_balance', 422);
+  syncAgenda(tenantId, id, updated);
   return updated;
 };
 
@@ -119,6 +137,7 @@ export const reverseInstallment = async (
 ): Promise<TransactionRecord> => {
   const updated = await transactionRepository.removeInstallment(tenantId, id, installmentId);
   if (!updated) throw new TransactionNotFoundError('not_found');
+  syncAgenda(tenantId, id, updated);
   return updated;
 };
 
@@ -243,9 +262,10 @@ export const postFixedFees = async (
       amountCents: input.amountCents,
     });
     if (!updated) throw new CustomError('amount_below_received', 422);
+    syncAgenda(input.tenantId, existing.id, updated);
     return;
   }
-  await transactionRepository.createTransaction(input.tenantId, {
+  const created = await transactionRepository.createTransaction(input.tenantId, {
     kind: 'income',
     category: input.category,
     description: `${input.category === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.caseLabel}`,
@@ -253,4 +273,5 @@ export const postFixedFees = async (
     dueDate: addDays(dateInDisplayTz(now), DAYS_TO_RECEIVE_FEES),
     caseId: input.caseId,
   });
+  syncAgenda(input.tenantId, created.id, created);
 };

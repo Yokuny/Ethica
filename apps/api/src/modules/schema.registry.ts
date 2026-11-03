@@ -4,6 +4,7 @@ import {
   listAppointmentsQuerySchema,
   upcomingAppointmentsQuerySchema,
 } from './agenda/appointment.schema.js';
+import { listCalendarEntriesQuerySchema } from './agenda/calendar-entry.schema.js';
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import {
   inspectionCaseParamSchema,
@@ -18,7 +19,7 @@ import {
   courtDivisionIdParamSchema,
   listCourtDivisionsQuerySchema,
 } from './case/court-division.schema.js';
-import { deadlineIdParamSchema, listPendingDeadlinesQuerySchema } from './case/deadline.schema.js';
+import { deadlineIdParamSchema } from './case/deadline.schema.js';
 import { csvImportQuerySchema } from './case/import.schema.js';
 import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
 import { documentCaseParamSchema } from './documents/documents.schema.js';
@@ -62,6 +63,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'caseIdParamSchema', schema: caseIdParamSchema },
   { name: 'listCasesQuerySchema', schema: listCasesQuerySchema },
   { name: 'csvImportQuerySchema', schema: csvImportQuerySchema },
+  { name: 'listCalendarEntriesQuerySchema', schema: listCalendarEntriesQuerySchema },
   { name: 'movementIdParamSchema', schema: movementIdParamSchema },
   { name: 'documentCaseParamSchema', schema: documentCaseParamSchema },
   { name: 'inspectionParamSchema', schema: inspectionParamSchema },
@@ -84,7 +86,6 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'courtDivisionCitiesQuerySchema', schema: courtDivisionCitiesQuerySchema },
   { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
   { name: 'deadlineIdParamSchema', schema: deadlineIdParamSchema },
-  { name: 'listPendingDeadlinesQuerySchema', schema: listPendingDeadlinesQuerySchema },
   { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
   { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },
   { name: 'upcomingAppointmentsQuerySchema', schema: upcomingAppointmentsQuerySchema },

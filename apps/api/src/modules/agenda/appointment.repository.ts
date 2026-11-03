@@ -122,6 +122,23 @@ export const listAll = async (tenantId: string, filter: { caseId?: string } = {}
     return docs.map(toRecord);
   });
 
+// The perícia appointment created from the case (AD-169): automatic, still scheduled.
+export const findCaseInspection = async (tenantId: string, caseId: string): Promise<AppointmentRecord | null> =>
+  withDbTiming('appointment.findCaseInspection', async () => {
+    const doc = await Appointment.findOne(
+      tenantScoped({
+        Tenant: tenantId,
+        Case: caseId,
+        type: 'inspection' as const,
+        origin: 'automatic' as const,
+        status: 'scheduled' as const,
+      }),
+    )
+      .sort({ start: 1 })
+      .lean();
+    return doc ? toRecord(doc) : null;
+  });
+
 // Geocoding cache of the current address (AD-131).
 export const setCoordinates = async (
   tenantId: string,

@@ -3,9 +3,12 @@ import { ButtonGroup } from '@ethica/ui/components/button-group';
 import { ItemTitle } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { APPOINTMENT_TYPE_ITEMS } from '@/components/appointment-labels.js';
+import { calendarEntryTypeItems } from '@/components/calendar-entry-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { ALL_FILTER_VALUE, CALENDAR_VIEWS } from '../@consts/calendar.js';
 import type { useAgendaPage } from '../@hooks/use-agenda-page.js';
 
@@ -14,7 +17,13 @@ const monthTitle = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'nume
 export function CalendarToolbar({ state }: { state: ReturnType<typeof useAgendaPage> }) {
   const { view, date, search, setPanel, handleViewChange, handlePrevious, handleNext, handleToday, handleTypeChange } =
     state;
-  const typeItems = [{ value: ALL_FILTER_VALUE, label: t('all_types') }, ...APPOINTMENT_TYPE_ITEMS];
+  const { data: session } = useQuery(sessionQuery);
+  // Appointment types and the all-day entry types; finance only for whoever sees finance (AD-137).
+  const typeItems = [
+    { value: ALL_FILTER_VALUE, label: t('all_types') },
+    ...APPOINTMENT_TYPE_ITEMS,
+    ...calendarEntryTypeItems(Boolean(session && can(session, 'finance'))),
+  ];
 
   return (
     <div className="flex flex-wrap items-center gap-2">

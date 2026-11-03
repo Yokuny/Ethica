@@ -9,6 +9,8 @@ export type { ActivityDocument } from './models/activity.model.js';
 export { Activity } from './models/activity.model.js';
 export type { AppointmentDocument, AppointmentOrigin } from './models/appointment.model.js';
 export { Appointment } from './models/appointment.model.js';
+export type { CalendarEntryDocument } from './models/calendar-entry.model.js';
+export { backfillCalendarEntries, CalendarEntry } from './models/calendar-entry.model.js';
 export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './models/case.model.js';
 export { Case, migrateCaseStatus } from './models/case.model.js';
 export type { CourtDivisionDocument } from './models/court-division.model.js';
@@ -58,6 +60,7 @@ export { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from './time.js';
 
 import { AccessKey } from './models/access-key.model.js';
 import { Appointment } from './models/appointment.model.js';
+import { CalendarEntry } from './models/calendar-entry.model.js';
 import { Case } from './models/case.model.js';
 import { CourtDivision } from './models/court-division.model.js';
 import { Deadline } from './models/deadline.model.js';
@@ -89,6 +92,7 @@ export const syncIndexes = async (): Promise<void> => {
     CourtDivision.createIndexes(),
     Deadline.createIndexes(),
     Appointment.createIndexes(),
+    CalendarEntry.createIndexes(),
     Transaction.createIndexes(),
     Opportunity.createIndexes(),
     Report.createIndexes(),

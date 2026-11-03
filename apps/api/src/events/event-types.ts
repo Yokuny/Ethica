@@ -1,3 +1,5 @@
+import type { CalendarEntryInput, CalendarEntrySource } from '@ethica/contracts';
+
 // AD-039: in-process domain events. Only side effects whose result the
 // HTTP response does not use become events — fire-and-forget.
 export interface CaseFixedFeesPayload {
@@ -16,18 +18,20 @@ export interface CaseDeletedPayload {
   caseId: string;
 }
 
-// Perícia date given at registration (AD-160): the agenda creates the inspection appointment.
-export interface CaseInspectionScheduledPayload {
+// Agenda by events (AD-169): an origin (deadline, transaction, case) sends all its agenda entries on every
+// change and the agenda replaces the previous ones (an empty list removes them). `inspection` is the perícia
+// date of a case (AD-160, AEV-04): timed, it becomes the case's perícia appointment.
+export interface AgendaEntriesSyncedPayload {
   tenantId: string;
-  caseId: string;
-  caseLabel: string;
-  date: string;
-  time: string;
-  location?: string;
+  source: CalendarEntrySource | 'case';
+  originId: string;
+  caseId?: string;
+  entries: CalendarEntryInput[];
+  inspection?: { title: string; date: string; time: string; location?: string };
 }
 
 export type DomainEventMap = {
-  'case:inspection_scheduled': CaseInspectionScheduledPayload;
+  'agenda:entries_synced': AgendaEntriesSyncedPayload;
   'case:fixed_fees': CaseFixedFeesPayload;
   'case:deleted': CaseDeletedPayload;
 };

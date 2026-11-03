@@ -8,8 +8,7 @@ import { CasePartiesFields } from './case-parties-fields.js';
 import { ServiceTypeField } from './service-type-field.js';
 
 // Case fields shared by `add` and `details` (edit). Editing also includes the fee fixed by the court;
-// the report deadline and the perícia date only at registration (afterwards they are edited in the
-// deadlines panel and on the agenda).
+// the report deadline only at registration (afterwards it is edited in the deadlines panel).
 export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
   const courtType = useWatch({ control, name: 'courtType' });
   const role = useWatch({ control, name: 'role' });
@@ -88,32 +87,24 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
             </div>,
           ],
         },
-        ...(editing
-          ? []
-          : [
-              {
-                title: t('inspection_date_time'),
-                description: t('inspection_date_description'),
-                fields: [
-                  <div key="inspection" className="grid gap-4 sm:grid-cols-2">
-                    <DateField
-                      control={control}
-                      name="inspection.date"
-                      label={t('date')}
-                      placeholder={t('choose_day')}
-                    />
-                    <TimeField control={control} name="inspection.time" label={t('time')} placeholder="09:00" />
-                  </div>,
-                  <TextField
-                    key="inspection-location"
-                    control={control}
-                    name="inspection.location"
-                    label={t('inspection_location')}
-                    placeholder={t('address_or_coordinates')}
-                  />,
-                ],
-              },
-            ]),
+        {
+          title: t('inspection_date_time'),
+          // Editing moves the perícia on the agenda (AEV-04); blank leaves it as it is.
+          description: editing ? t('inspection_date_edit_description') : t('inspection_date_description'),
+          fields: [
+            <div key="inspection" className="grid gap-4 sm:grid-cols-2">
+              <DateField control={control} name="inspection.date" label={t('date')} placeholder={t('choose_day')} />
+              <TimeField control={control} name="inspection.time" label={t('time')} placeholder="09:00" />
+            </div>,
+            <TextField
+              key="inspection-location"
+              control={control}
+              name="inspection.location"
+              label={t('inspection_location')}
+              placeholder={t('address_or_coordinates')}
+            />,
+          ],
+        },
         {
           title: t('parties'),
           description: t('parties_and_lawyers_description'),

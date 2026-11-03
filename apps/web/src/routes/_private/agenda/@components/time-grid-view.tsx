@@ -4,9 +4,9 @@ import { weekdayIndexOfDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
-import type { DeadlineRecord } from '@/query/deadline.js';
+import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
 import { computePositionedItems, HOUR_HEIGHT_PX, HOURS_IN_DAY } from '../@utils/calendar-grid.utils.js';
-import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
+import { CalendarEntryChip, CalendarEventChip } from './calendar-event.js';
 import {
   CalendarTimeGrid,
   CalendarTimeGridColumns,
@@ -20,9 +20,9 @@ export type TimeGridViewProps = {
   days: string[];
   items: AppointmentRecord[];
   onSelect: (item: AppointmentRecord) => void;
-  // Pending deadlines: "all day" strip under the header (a deadline is a day, not a time).
-  deadlines?: DeadlineRecord[];
-  onSelectDeadline?: (deadline: DeadlineRecord) => void;
+  // All-day entries (deadlines, finance): "all day" strip under the header.
+  entries?: CalendarEntryRecord[];
+  onSelectEntry?: (entry: CalendarEntryRecord) => void;
   today?: string;
 };
 
@@ -51,11 +51,11 @@ export function TimeGridView({
   days,
   items,
   onSelect,
-  deadlines = [],
-  onSelectDeadline = () => {},
+  entries = [],
+  onSelectEntry = () => {},
   today = '',
 }: TimeGridViewProps) {
-  const hasDeadlines = deadlines.some((deadline) => days.includes(deadline.dueDate));
+  const hasEntries = entries.some((entry) => days.includes(entry.date));
   return (
     <CalendarTimeGrid className="min-w-160 flex-col" data-testid="time-grid-view">
       {/* Fixed header (outside the ScrollArea): empty hours ruler + date of
@@ -73,7 +73,7 @@ export function TimeGridView({
           ))}
         </CalendarTimeGridColumns>
       </div>
-      {hasDeadlines && (
+      {hasEntries && (
         <div className="flex" data-testid="time-grid-all-day">
           <ItemDescription className="line-clamp-none w-10 shrink-0 pr-1 text-right text-[10px]">
             {t('all_day')}
@@ -81,15 +81,10 @@ export function TimeGridView({
           <CalendarTimeGridColumns style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
             {days.map((day) => (
               <div key={day} className="grid content-start gap-1 p-1">
-                {deadlines
-                  .filter((deadline) => deadline.dueDate === day)
-                  .map((deadline) => (
-                    <CalendarDeadlineChip
-                      key={deadline.id}
-                      deadline={deadline}
-                      today={today}
-                      onSelect={onSelectDeadline}
-                    />
+                {entries
+                  .filter((entry) => entry.date === day)
+                  .map((entry) => (
+                    <CalendarEntryChip key={entry.id} entry={entry} today={today} onSelect={onSelectEntry} />
                   ))}
               </div>
             ))}

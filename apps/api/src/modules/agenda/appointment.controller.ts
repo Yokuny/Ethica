@@ -1,4 +1,4 @@
-import { respObj } from '@ethica/contracts';
+import { hasPermission, respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -8,6 +8,8 @@ import { CaseNotFoundError } from '../case/case.service.js';
 import type { ListAppointmentsQuery, UpcomingAppointmentsQuery } from './appointment.schema.js';
 import * as appointmentService from './appointment.service.js';
 import { AppointmentNotFoundError } from './appointment.service.js';
+import type { ListCalendarEntriesQuery } from './calendar-entry.schema.js';
+import * as calendarEntryService from './calendar-entry.service.js';
 import * as inspectionService from './inspection.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
@@ -34,6 +36,17 @@ export const listAppointments = async (req: Request, res: Response, next: NextFu
   try {
     const query = req.query as unknown as ListAppointmentsQuery;
     res.json(respObj({ data: await appointmentService.listAppointments(tenantOf(req), query) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+// All-day entries sent by the other modules (AEV-03).
+export const listCalendarEntries = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const query = req.query as unknown as ListCalendarEntriesQuery;
+    const canSeeFinance = hasPermission(req.tenantUser.permissions, 'finance', 'view');
+    res.json(respObj({ data: await calendarEntryService.listEntries(tenantOf(req), query, canSeeFinance) }));
   } catch (e) {
     next(e);
   }

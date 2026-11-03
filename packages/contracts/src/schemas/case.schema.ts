@@ -99,6 +99,7 @@ export const caseInspectionSchema = z
   })
   .strict()
   .refine((value) => !value.date || Boolean(value.time), { message: 'informe a hora da perícia', path: ['time'] });
+export type CaseInspection = z.infer<typeof caseInspectionSchema>;
 
 // "lat, long" typed as the location (AD-160); anything else is an address.
 export const parseCoordinates = (text: string): { lat: number; lng: number } | undefined => {
@@ -124,11 +125,12 @@ export const createCaseSchema = createCaseFieldsSchema.refine(validServiceType, 
 export type CreateCase = z.infer<typeof createCaseSchema>;
 
 // PATCH accepts any subset of the fields + the fee fixed by the court or, in an assistant case, the
-// contracted one (AD-135).
+// contracted one (AD-135), and the perícia date, which moves the appointment on the agenda (AEV-04).
 export const updateCaseSchema = caseFields
   .partial()
   .extend({
     fixedFeesCents: centsSchema.optional(),
+    inspection: caseInspectionSchema.optional(),
   })
   .strict();
 export type UpdateCase = z.infer<typeof updateCaseSchema>;

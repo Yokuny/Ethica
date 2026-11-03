@@ -104,8 +104,8 @@ describe('prazos da perícia (PRZ-01)', () => {
     expect(missed.body.data.status).toBe('missed');
     expect(missed.body.data).not.toHaveProperty('filedDate');
 
-    const pending = await as(request(app).get('/expert-cases/deadlines'));
-    expect(pending.body.data).toEqual([]);
+    const [listed] = (await as(request(app).get(`/expert-cases/${legalCase.id}/deadlines`))).body.data;
+    expect(listed.status).toBe('missed');
   });
 
   it('listagem mostra o próximo prazo pendente e a faixa conta vencidos e os que vencem em até 15 dias (AC 5)', async () => {
@@ -129,7 +129,7 @@ describe('prazos da perícia (PRZ-01)', () => {
     expect(groups).toMatchObject({ overdue_deadlines: 1, deadlines_due_soon: 1 });
   });
 
-  it('calendário recebe só os pendentes do intervalo, com o número do processo (AC 6)', async () => {
+  it('a agenda recebe os prazos do intervalo por evento, com o número do processo (AC 6, AD-169)', async () => {
     const { as } = await seedSession();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
     await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
@@ -141,9 +141,10 @@ describe('prazos da perícia (PRZ-01)', () => {
       dueDate: day(40),
     });
 
-    const res = await as(request(app).get(`/expert-cases/deadlines?from=${day(0)}&to=${day(7)}`));
-    expect(res.status).toBe(200);
-    expect(res.body.data).toEqual([expect.objectContaining({ title: 'Dentro', caseNumber: CASE.processNumber })]);
+    const entries = async () => (await as(request(app).get(`/agenda/entries?from=${day(0)}&to=${day(7)}`))).body.data;
+    await expect
+      .poll(entries)
+      .toEqual([expect.objectContaining({ type: 'deadline', title: 'Dentro', caseNumber: CASE.processNumber })]);
   });
 
   it('excluir a perícia exclui os prazos; prazo de outro tenant é 404', async () => {

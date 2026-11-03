@@ -8,9 +8,9 @@ import {
 } from '@/lib/helpers/displayTime.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
-import type { DeadlineRecord } from '@/query/deadline.js';
+import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
 import { itemOverlapsDay } from '../@utils/calendar-grid.utils.js';
-import { CalendarDeadlineChip, CalendarEventChip } from './calendar-event.js';
+import { CalendarEntryChip, CalendarEventChip } from './calendar-event.js';
 import { CalendarMonthCell, CalendarMonthGrid } from './calendar-grid.js';
 
 export type MonthViewProps = {
@@ -18,9 +18,9 @@ export type MonthViewProps = {
   month: string;
   items: AppointmentRecord[];
   onSelect: (item: AppointmentRecord) => void;
-  // Pending deadlines: they come first on the due day, without counting against the appointments limit.
-  deadlines?: DeadlineRecord[];
-  onSelectDeadline?: (deadline: DeadlineRecord) => void;
+  // All-day entries (deadlines, finance): they come first on the day, without counting against the appointments limit.
+  entries?: CalendarEntryRecord[];
+  onSelectEntry?: (entry: CalendarEntryRecord) => void;
   today?: string;
 };
 
@@ -34,8 +34,8 @@ export function MonthView({
   month,
   items,
   onSelect,
-  deadlines = [],
-  onSelectDeadline = () => {},
+  entries = [],
+  onSelectEntry = () => {},
   today = '',
 }: MonthViewProps) {
   const monthPrefix = startOfDisplayMonth(month).slice(0, 7);
@@ -67,10 +67,10 @@ export function MonthView({
         return (
           <CalendarMonthCell key={day} data-testid={`month-view-day-${day}`} outside={!day.startsWith(monthPrefix)}>
             <div className="text-right text-[10px]">{day.slice(-2)}</div>
-            {deadlines
-              .filter((deadline) => deadline.dueDate === day)
-              .map((deadline) => (
-                <CalendarDeadlineChip key={deadline.id} deadline={deadline} today={today} onSelect={onSelectDeadline} />
+            {entries
+              .filter((entry) => entry.date === day)
+              .map((entry) => (
+                <CalendarEntryChip key={entry.id} entry={entry} today={today} onSelect={onSelectEntry} />
               ))}
             {visible.map((item) => (
               <CalendarEventChip key={item.id} item={item} onSelect={onSelect} variant="compact" />

@@ -1,7 +1,7 @@
-import { APPOINTMENT_TYPES } from '@ethica/contracts';
+import { APPOINTMENT_TYPES, CALENDAR_ENTRY_TYPES } from '@ethica/contracts';
 import { z } from 'zod';
 import type { AppointmentRecord } from '@/query/appointment.js';
-import type { DeadlineRecord } from '@/query/deadline.js';
+import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
 import { CALENDAR_VIEWS } from '../@consts/calendar.js';
 
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];
@@ -11,7 +11,7 @@ export type PanelState =
   | { kind: 'create'; date?: string }
   | { kind: 'detail'; appointment: AppointmentRecord }
   | { kind: 'edit'; appointment: AppointmentRecord }
-  | { kind: 'deadline'; deadline: DeadlineRecord }
+  | { kind: 'deadline'; entry: CalendarEntryRecord }
   | null;
 
 // `view`/`date`/`type` are the only source of truth for what is rendered:
@@ -22,7 +22,8 @@ export const calendarSearchSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'date inválida (YYYY-MM-DD)')
     .optional(),
-  type: z.enum(APPOINTMENT_TYPES).optional(),
+  // An appointment type or an all-day entry type (AD-169): the filter shows only that one.
+  type: z.enum([...APPOINTMENT_TYPES, ...CALENDAR_ENTRY_TYPES]).optional(),
   // Shortcut from the case detail: opens the "new appointment" already linked.
   caseId: z.string().optional(),
 });
