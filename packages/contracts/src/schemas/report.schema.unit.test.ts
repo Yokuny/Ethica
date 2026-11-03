@@ -15,6 +15,18 @@ describe('numberSections', () => {
   it('trata o salto de nível como o seguinte do anterior', () => {
     expect(numberSections([{ level: 3 }, { level: 1 }, { level: 3 }])).toEqual(['1', '2', '2.1']);
   });
+
+  it('item sem número ou fora do laudo fica sem número e não conta (NLA-04, NLA-05)', () => {
+    expect(
+      numberSections([
+        { level: 1, unnumbered: true },
+        { level: 1 },
+        { level: 2, included: false },
+        { level: 2 },
+        { level: 1 },
+      ]),
+    ).toEqual(['', '1', '', '1.1', '2']);
+  });
 });
 
 describe('pendingVariables', () => {

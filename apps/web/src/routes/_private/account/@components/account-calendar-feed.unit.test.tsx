@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { accountKeys, calendarFeedUrl } from '../@query/account.js';
+import { accountKeys, calendarFeedUrl } from '@/query/account.js';
 import { AccountCalendarFeed } from './account-calendar-feed.js';
 
 const renderFeed = (active: boolean) => {

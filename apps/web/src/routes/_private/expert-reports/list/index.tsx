@@ -40,11 +40,7 @@ export function ReportsListPage() {
       <CardHeader title={t('reports_and_opinions')}>
         {session && can(session, 'expert_reports', 'create') && (
           <CardAction>
-            <Button
-              nativeButton={false}
-              role="link"
-              render={<Link to="/expert-reports/add">{t('start_report')}</Link>}
-            />
+            <Button nativeButton={false} role="link" render={<Link to="/expert-reports/add">{t('new_report')}</Link>} />
           </CardAction>
         )}
       </CardHeader>

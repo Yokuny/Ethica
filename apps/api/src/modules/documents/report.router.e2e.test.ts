@@ -130,7 +130,10 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
 
     const list = await operator.as(request(app).get('/expert-reports/templates?type=report'));
     expect(list.status).toBe(200);
-    expect(list.body.data).toEqual([expect.objectContaining({ id: 'standard-report', isDefault: true })]);
+    expect(list.body.data).toEqual([
+      expect.objectContaining({ id: 'standard-labor-report', isDefault: true }),
+      expect.objectContaining({ id: 'standard-report', isDefault: true }),
+    ]);
     const isDefault = await operator.as(request(app).get('/expert-reports/templates/standard-report'));
     expect(isDefault.body.data.sections.length).toBeGreaterThan(30);
 
@@ -159,6 +162,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       title: 'Anexo fotográfico',
       level: 1,
       titleOnly: false,
+      unnumbered: false,
       pageBreak: true,
       yesText: '<p onclick="x()">Fotos <script>alert(1)</script><a href="http://x">aqui</a></p>',
       noText: '<p>Sem fotos</p>',
@@ -177,7 +181,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(removida.body.data.sections).toHaveLength(isDefault.body.data.sections.length);
 
     const ofOffice = await operator.as(request(app).get('/expert-reports/templates?type=report'));
-    expect(ofOffice.body.data).toHaveLength(2);
+    expect(ofOffice.body.data).toHaveLength(3);
   });
 
   it('laudo: cria com variáveis resolvidas, bloqueia com pendência, conclui com a entrega e fica só leitura', async () => {
@@ -421,5 +425,95 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
 
     await admin.as(request(app).delete(`/expert-cases/${caseId}`)).expect(200);
     await expect.poll(() => Report.countDocuments({ Case: caseId })).toBe(0);
+  });
+  it('novo laudo: OS da sequência, responsável técnico, item novo, fora do laudo e layout (NLA-01 a NLA-06)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const operator = await seedSession(tenant._id, ['operator']);
+
+    const sequence = await admin
+      .as(request(app).put('/expert-cases/service-order'))
+      .send({ prefix: 'eth', year: new Date().getFullYear(), last: 8 });
+    expect(sequence.status).toBe(200);
+    expect(sequence.body.data.prefix).toBe('ETH');
+    expect((await operator.as(request(app).put('/expert-cases/service-order')).send(sequence.body.data)).status).toBe(
+      403,
+    );
+    const legalCase = await admin
+      .as(request(app).post('/expert-cases'))
+      .send({ ...CASE, processNumber: '0008888-11.2026.5.15.0001' });
+    expect(legalCase.body.data.serviceOrder).toBe(`ETH-${new Date().getFullYear()}-009`);
+    const repeated = await admin
+      .as(request(app).post('/expert-cases'))
+      .send({ ...CASE, processNumber: '0008889-11.2026.5.15.0001', serviceOrder: legalCase.body.data.serviceOrder });
+    expect(repeated.status).toBe(409);
+    expect(repeated.body.message).toBe('service_order_taken');
+
+    // Whoever drafts reports registers the technical responsible (NLA-02).
+    const created = await operator.as(request(app).post('/expert-reports/signatories')).send({
+      name: 'Eng. Carla Souza',
+      cpf: '123.456.789-09',
+      professionalRegistration: 'CREA/SC 999',
+      education: 'Engenheira de Segurança do Trabalho',
+      phone: '',
+      header: 'Carla Souza · [NOME_PERITO]',
+      footer: '',
+    });
+    expect(created.status).toBe(201);
+    expect(created.body.data).toMatchObject({ cpf: '12345678909', phone: '' });
+
+    const { body: template } = await admin.as(request(app).get('/expert-reports/templates/standard-labor-report'));
+    expect(template.data.layout.opening).toBe(true);
+    const object = sectionByTitle(template.data.sections, 'Objeto da perícia');
+    const role = sectionByTitle(template.data.sections, 'Função');
+    const report = await admin.as(request(app).post('/expert-reports')).send({
+      caseId: legalCase.body.data.id,
+      signatoryId: created.body.data.id,
+      templateId: 'standard-labor-report',
+      sections: [
+        { id: object.id, variant: 'yes' },
+        { id: role.id, variant: 'yes' },
+      ],
+    });
+    expect(report.status).toBe(201);
+    const id = report.body.data.id;
+    expect(report.body.data).toMatchObject({ signatoryId: created.body.data.id, layout: { opening: true } });
+    expect(report.body.data.sections[0]).toMatchObject({ unnumbered: true, included: true });
+
+    const added = await admin
+      .as(request(app).post(`/expert-reports/${id}/sections`))
+      .send({ title: 'Item da perita', level: 1, afterId: report.body.data.sections[0].id });
+    expect(added.status).toBe(201);
+    expect(added.body.data.sections.map((section: Section) => section.title)).toEqual([
+      'Objeto da perícia',
+      'Item da perita',
+      'Função',
+    ]);
+    // Choosing the template sections again keeps the item added after the same template item.
+    const chosen = await admin
+      .as(request(app).put(`/expert-reports/${id}/sections`))
+      .send({ templateId: 'standard-labor-report', sections: [{ id: object.id, variant: 'yes' }] });
+    expect(chosen.body.data.sections.map((section: Section) => section.title)).toEqual([
+      'Objeto da perícia',
+      'Item da perita',
+    ]);
+
+    // Out of the report: no longer blocks nor leaves in the PDF.
+    const item = chosen.body.data.sections[1];
+    await admin
+      .as(request(app).patch(`/expert-reports/${id}/sections/${item.id}`))
+      .send({ html: '<p>[NOME_AUTOR]</p>', included: false })
+      .expect(200);
+    const layout = { ...template.data.layout, font: 'arial', cover: false };
+    const withLayout = await admin.as(request(app).put(`/expert-reports/${id}/layout`)).send(layout);
+    expect(withLayout.body.data.layout.font).toBe('arial');
+    expect(withLayout.body.data.issues).toEqual([]);
+    const pdf = await admin.as(request(app).get(`/expert-reports/${id}/pdf`));
+    expect(pdf.status).toBe(200);
+    expect(rendered?.html).not.toContain('Item da perita');
+    expect(rendered?.html).toContain('ENG. CARLA SOUZA');
+    expect(rendered?.html).toContain('É o laudo.');
+    expect(rendered?.html).not.toContain('class="capa"');
+    expect(rendered?.headerTemplate).toContain('Carla Souza · Eng. Carla Souza');
   });
 });

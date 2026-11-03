@@ -1,4 +1,4 @@
-import { REPORT_LEVEL_MAX, REPORT_TYPES, type ReportType } from '@ethica/contracts';
+import { REPORT_LEVEL_MAX, REPORT_TYPES, type ReportLayout, type ReportType } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 // Template section (LAU-01): the order is the array order and the number ("2.1") is calculated from the level,
@@ -9,6 +9,7 @@ export interface TemplateSectionDocument {
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
+  unnumbered: boolean;
   yesText: string;
   noText: string;
 }
@@ -19,6 +20,8 @@ export interface TemplateDocument {
   name: string;
   type: ReportType;
   sections: TemplateSectionDocument[];
+  // Missing = REPORT_LAYOUT_DEFAULT (NLA-06).
+  layout?: ReportLayout;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,6 +31,7 @@ const sectionSchema = new Schema<TemplateSectionDocument>({
   level: { type: Number, required: true, min: 1, max: REPORT_LEVEL_MAX },
   titleOnly: { type: Boolean, default: false },
   pageBreak: { type: Boolean, default: false },
+  unnumbered: { type: Boolean, default: false },
   yesText: { type: String, default: '' },
   noText: { type: String, default: '' },
 });
@@ -38,6 +42,7 @@ const templateSchema = new Schema<TemplateDocument>(
     name: { type: String, required: true, trim: true },
     type: { type: String, enum: REPORT_TYPES, required: true },
     sections: { type: [sectionSchema], default: [] },
+    layout: { type: Schema.Types.Mixed },
   },
   { timestamps: true, collection: 'templates' },
 );

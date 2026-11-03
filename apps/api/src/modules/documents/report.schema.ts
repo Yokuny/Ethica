@@ -1,9 +1,11 @@
 import type {
+  AddReportSection,
   ChooseReportSections,
   CompleteReport,
   CreateReport,
   CreateTemplate,
   MoveSection,
+  ReportLayout,
   ReportStatus,
   ReportType,
   ReportVariable,
@@ -13,6 +15,7 @@ import type {
   UpdateTemplate,
 } from '@ethica/contracts';
 import {
+  addReportSectionSchema,
   chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
@@ -20,9 +23,10 @@ import {
   idSchema,
   mediaIdSchema,
   moveSectionSchema,
-  REPORT_DEFAULT_TEMPLATES,
   REPORT_STATUS,
   REPORT_TYPES,
+  reportLayoutSchema,
+  templateIdSchema,
   templateSectionSchema,
   updateReportSectionSchema,
   updateTemplateSchema,
@@ -36,6 +40,7 @@ import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
 
 export type {
+  AddReportSection,
   ChooseReportSections,
   CompleteReport,
   CreateReport,
@@ -46,21 +51,19 @@ export type {
   UpdateTemplate,
 };
 export {
+  addReportSectionSchema,
   chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
   createTemplateSchema,
   moveSectionSchema,
+  reportLayoutSchema,
   templateSectionSchema,
   updateReportSectionSchema,
   updateTemplateSchema,
 };
 
 // The default template has a fixed id (AD-126); the office one, an ObjectId.
-const templateIdSchema = z.union([
-  idSchema,
-  z.enum([REPORT_DEFAULT_TEMPLATES.report, REPORT_DEFAULT_TEMPLATES.technical_opinion]),
-]);
 
 export const templateIdParamSchema = z.object({ id: templateIdSchema }).strict();
 export const templateSectionParamSchema = z.object({ id: templateIdSchema, sectionId: idSchema }).strict();
@@ -96,10 +99,11 @@ export type TemplateRecord = {
   // Default library template: read-only, clonable (AD-126).
   isDefault: boolean;
   sections: TemplateSectionRecord[];
+  layout: ReportLayout;
   updatedAt?: Date;
 };
 
-export type TemplateSummary = Omit<TemplateRecord, 'sections'> & { totalSections: number };
+export type TemplateSummary = Omit<TemplateRecord, 'sections' | 'layout'> & { totalSections: number };
 
 export type ReportSectionRecord = {
   id: string;
@@ -108,6 +112,8 @@ export type ReportSectionRecord = {
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
+  unnumbered: boolean;
+  included: boolean;
   variant: ReportVariant;
   html: string;
 };
@@ -125,29 +131,34 @@ export type ReportRecord = {
   caseId: string;
   // Enriched by the service; missing if the case no longer exists.
   caseNumber?: string;
+  // Technical responsible who signs (NLA-02); missing = whoever created the report.
+  signatoryId?: string;
   type: ReportType;
   status: ReportStatus;
   title: string;
   templateId?: string;
   templateName: string;
   sections: ReportSectionRecord[];
+  layout: ReportLayout;
   issues: ReportIssue[];
   completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues'> & { totalSections: number };
+export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues' | 'layout'> & { totalSections: number };
 
 export type ReportCreateInput = {
   tenantId: string;
   caseId: string;
   userId: string;
+  signatoryId?: string;
   type: ReportType;
   title: string;
   templateId: string;
   templateName: string;
   sections: ReportSectionWrite[];
+  layout: ReportLayout;
 };
 
 // New list of sections (LMO-01): a kept section carries its `id`; a new one does not.

@@ -34,7 +34,9 @@ export const resolveVariables = (text: string, values: ReportValues, format: 'ht
   }, text);
 
 // Markers still without a value, by section (title and text): they block export and completion (AD-126).
-export const issuesOf = (sections: ReadonlyArray<{ id: string; title: string; html: string }>) =>
+// A section out of the report (NLA-05) does not leave in the document, so it does not block it.
+export const issuesOf = (sections: ReadonlyArray<{ id: string; title: string; html: string; included?: boolean }>) =>
   sections
+    .filter((section) => section.included !== false)
     .map((section) => ({ sectionId: section.id, variables: pendingVariables(`${section.title} ${section.html}`) }))
     .filter((issue) => issue.variables.length > 0);

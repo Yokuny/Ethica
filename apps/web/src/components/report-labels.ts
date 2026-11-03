@@ -5,6 +5,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 // Label of each report variable with a sample value (LAU-01.3).
 const VARIABLE_KEY: Record<ReportVariable, string> = {
   '[NUMERO_PROCESSO]': 'variable_process_number',
+  '[NUMERO_OS]': 'variable_service_order',
   '[TRIBUNAL]': 'variable_court',
   '[VARA]': 'variable_court_division',
   '[COMARCA]': 'variable_district',
@@ -40,6 +41,20 @@ const VARIABLE_KEY: Record<ReportVariable, string> = {
 };
 
 export const variableLabel = (variable: ReportVariable): string => t(VARIABLE_KEY[variable]);
+
+// Variables that only get a value after the inspection is recorded: the pending item says "vistoria" (NLA-05).
+export const INSPECTION_VARIABLES: readonly ReportVariable[] = [
+  '[DATA_VISTORIA]',
+  '[HORA_VISTORIA]',
+  '[PRESENTES_VISTORIA]',
+  '[PARADIGMAS_AUTOR]',
+  '[PARADIGMAS_REU]',
+  '[FUNCOES_AUTOR]',
+  '[FUNCOES_REU]',
+  '[AGENTES_PRESENTES]',
+  '[AGENTES_AUSENTES]',
+  '[DOCUMENTOS_SOLICITADOS]',
+];
 
 export const variableItems = REPORT_VARIABLES.map((variable) => ({
   value: variable,

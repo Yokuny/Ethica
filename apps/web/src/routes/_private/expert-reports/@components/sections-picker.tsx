@@ -84,9 +84,7 @@ export function SectionsPicker({ sections, choices, onChange }: SectionsPickerPr
                 labelClassName="normal-case tracking-normal"
                 label={
                   <span className="flex flex-col">
-                    <ItemTitle>
-                      {numbers[i]}. {section.title}
-                    </ItemTitle>
+                    <ItemTitle>{numbers[i] ? `${numbers[i]}. ${section.title}` : section.title}</ItemTitle>
                     {section.titleOnly && <ItemDescription>{t('title_only')}</ItemDescription>}
                   </span>
                 }

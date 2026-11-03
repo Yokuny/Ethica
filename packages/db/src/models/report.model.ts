@@ -3,6 +3,7 @@ import {
   REPORT_STATUS,
   REPORT_TYPES,
   REPORT_VARIANTS,
+  type ReportLayout,
   type ReportStatus,
   type ReportType,
   type ReportVariant,
@@ -19,6 +20,9 @@ export interface ReportSectionDocument {
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
+  unnumbered: boolean;
+  // Unchecked "Faz parte do laudo" (NLA-05): stays in the draft, out of PDF and Word.
+  included: boolean;
   variant: ReportVariant;
   html: string;
 }
@@ -36,6 +40,8 @@ export interface ReportDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
   Case: mongoose.Types.ObjectId;
+  // Technical responsible who signs (NLA-02); missing = the user who created it.
+  Signatory?: mongoose.Types.ObjectId;
   type: ReportType;
   status: ReportStatus;
   title: string;
@@ -43,6 +49,8 @@ export interface ReportDocument {
   templateName: string;
   sections: ReportSectionDocument[];
   media: ReportMediaDocument[];
+  // Missing = REPORT_LAYOUT_DEFAULT (NLA-06).
+  layout?: ReportLayout;
   CreatedBy: mongoose.Types.ObjectId;
   CompletedBy?: mongoose.Types.ObjectId;
   completedAt?: Date;
@@ -56,6 +64,8 @@ const sectionSchema = new Schema<ReportSectionDocument>({
   level: { type: Number, required: true, min: 1, max: REPORT_LEVEL_MAX },
   titleOnly: { type: Boolean, default: false },
   pageBreak: { type: Boolean, default: false },
+  unnumbered: { type: Boolean, default: false },
+  included: { type: Boolean, default: true },
   variant: { type: String, enum: REPORT_VARIANTS, required: true },
   html: { type: String, default: '' },
 });
@@ -75,6 +85,7 @@ const reportSchema = new Schema<ReportDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     Case: { type: Schema.Types.ObjectId, ref: 'Case', required: true },
+    Signatory: { type: Schema.Types.ObjectId, ref: 'Signatory' },
     type: { type: String, enum: REPORT_TYPES, required: true },
     status: { type: String, enum: REPORT_STATUS, default: 'draft', required: true },
     title: { type: String, required: true, trim: true },
@@ -82,6 +93,7 @@ const reportSchema = new Schema<ReportDocument>(
     templateName: { type: String, required: true, trim: true },
     sections: { type: [sectionSchema], default: [] },
     media: { type: [mediaSchema], default: [] },
+    layout: { type: Schema.Types.Mixed },
     CreatedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     CompletedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     completedAt: { type: Date },

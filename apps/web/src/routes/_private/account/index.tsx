@@ -4,12 +4,12 @@ import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { profileQuery } from '@/query/account.js';
 import { sessionQuery } from '@/query/session.js';
 import { AccountCalendarFeed } from './@components/account-calendar-feed.js';
 import { AccountDeadlineReminder } from './@components/account-deadline-reminder.js';
 import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
-import { profileQuery } from './@query/account.js';
 
 // ACC-01: the signed-in person's account. Each block saves on its own; the session
 // (guaranteed by the _private guard) gives the current name and photo.

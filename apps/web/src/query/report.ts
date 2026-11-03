@@ -1,8 +1,10 @@
 import type {
+  AddReportSection,
   ChooseReportSections,
   CompleteReport,
   CreateReport,
   CreateTemplate,
+  ReportLayout,
   ReportStatus,
   ReportType,
   ReportVariable,
@@ -25,9 +27,10 @@ export type TemplateRecord = {
   type: ReportType;
   isDefault: boolean;
   sections: TemplateSectionRecord[];
+  layout: ReportLayout;
   updatedAt?: string;
 };
-export type TemplateSummary = Omit<TemplateRecord, 'sections'> & { totalSections: number };
+export type TemplateSummary = Omit<TemplateRecord, 'sections' | 'layout'> & { totalSections: number };
 
 export type ReportSectionRecord = {
   id: string;
@@ -37,6 +40,9 @@ export type ReportSectionRecord = {
   level: number;
   titleOnly: boolean;
   pageBreak: boolean;
+  unnumbered: boolean;
+  // "Faz parte do laudo" (NLA-05).
+  included: boolean;
   variant: ReportVariant;
   html: string;
 };
@@ -44,18 +50,20 @@ export type ReportRecord = {
   id: string;
   caseId: string;
   caseNumber?: string;
+  signatoryId?: string;
   type: ReportType;
   status: ReportStatus;
   title: string;
   templateId?: string;
   templateName: string;
   sections: ReportSectionRecord[];
+  layout: ReportLayout;
   issues: { sectionId: string; variables: ReportVariable[] }[];
   completedAt?: string;
   createdAt: string;
   updatedAt: string;
 };
-export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues'> & { totalSections: number };
+export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues' | 'layout'> & { totalSections: number };
 // Full process read into the draft (LMO-03); `missing` are translation keys.
 export type ProcessFill = {
   report: ReportRecord;
@@ -129,6 +137,23 @@ export const updateReportSectionMutation = (
 ): UseMutationOptions<ReportRecord, Error, { id: string; sectionId: string; data: UpdateReportSection }> => ({
   mutationFn: async ({ id, sectionId, data }) =>
     unwrap(await patch<ReportRecord>(`/expert-reports/${id}/sections/${sectionId}`, data), 'save_error'),
+  onSuccess: (report) => updatedReport(queryClient, report),
+});
+
+// New item right after another (NLA-05).
+export const addReportSectionMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<ReportRecord, Error, { id: string; data: AddReportSection }> => ({
+  mutationFn: async ({ id, data }) =>
+    unwrap(await post<ReportRecord>(`/expert-reports/${id}/sections`, data), 'save_error'),
+  onSuccess: (report) => updatedReport(queryClient, report),
+});
+
+export const setReportLayoutMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<ReportRecord, Error, { id: string; layout: ReportLayout }> => ({
+  mutationFn: async ({ id, layout }) =>
+    unwrap(await put<ReportRecord>(`/expert-reports/${id}/layout`, layout), 'save_error'),
   onSuccess: (report) => updatedReport(queryClient, report),
 });
 
@@ -233,6 +258,14 @@ export const removeTemplateSectionMutation = (
 ): UseMutationOptions<TemplateRecord, Error, { id: string; sectionId: string }> => ({
   mutationFn: async ({ id, sectionId }) =>
     unwrap(await del<TemplateRecord>(`/expert-reports/templates/${id}/sections/${sectionId}`), 'remove_error'),
+  onSuccess: (template) => updatedTemplate(queryClient, template),
+});
+
+export const setTemplateLayoutMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<TemplateRecord, Error, { id: string; layout: ReportLayout }> => ({
+  mutationFn: async ({ id, layout }) =>
+    unwrap(await put<TemplateRecord>(`/expert-reports/templates/${id}/layout`, layout), 'save_error'),
   onSuccess: (template) => updatedTemplate(queryClient, template),
 });
 

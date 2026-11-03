@@ -21,6 +21,24 @@ export const updateOfficeSchema = z
   .strict();
 export type UpdateOffice = z.infer<typeof updateOfficeSchema>;
 
+// Service order sequence of the office (NLA-01): prefix + year + sequence, back to 1 in January.
+// `last` is the last number already used (0 when the sequence starts now).
+export const serviceOrderSettingsSchema = z
+  .object({
+    prefix: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9]{1,10}$/, 'sigla inválida'),
+    year: z.number().int().min(2000).max(2100),
+    last: z.number().int().min(0).max(999_999),
+  })
+  .strict();
+export type ServiceOrderSettings = z.infer<typeof serviceOrderSettingsSchema>;
+
+export const formatServiceOrder = ({ prefix, year, last }: ServiceOrderSettings): string =>
+  `${prefix}-${year}-${String(last).padStart(3, '0')}`;
+
 // Finance report for a period (DOC-03): inclusive dates.
 export const financeReportQuerySchema = z
   .object({ from: calendarDateSchema, to: calendarDateSchema })

@@ -1,6 +1,6 @@
-import { CSV_IMPORT_MAX_BYTES, PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
+import { CSV_IMPORT_MAX_BYTES, PDF_IMPORT_MAX_BYTES, serviceOrderSettingsSchema } from '@ethica/contracts';
 import { Router } from 'express';
-import { can } from '../../middlewares/authorization.middleware.js';
+import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
 import { fileBody } from '../../middlewares/fileBody.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
@@ -46,6 +46,15 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
   router.get('/stalled', ...guard, can('expert_cases', 'view'), caseController.stalledSummary);
   router.get('/distribution', ...guard, can('expert_cases', 'view'), caseController.caseDistribution);
   router.get('/service-types', ...guard, can('expert_cases', 'view'), caseController.listServiceTypes);
+  // Service order sequence of the office (NLA-01): set up by the admin on the office screen.
+  router.get('/service-order', ...guard, can('expert_cases', 'view'), caseController.getServiceOrder);
+  router.put(
+    '/service-order',
+    ...guard,
+    isAdmin,
+    validBody(serviceOrderSettingsSchema),
+    caseController.setServiceOrder,
+  );
   // Deadlines (AD-109) follow the cases permission (AD-137). `/deadlines` comes before `/:id`.
   router.get(
     '/deadlines',

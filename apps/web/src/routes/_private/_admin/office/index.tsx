@@ -9,6 +9,8 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { OfficeExport } from './@components/office-export.js';
 import { OfficeLogo } from './@components/office-logo.js';
 import { OfficeScheduleNotice } from './@components/office-schedule-notice.js';
+import { OfficeServiceOrder } from './@components/office-service-order.js';
+import { OfficeSignatories } from './@components/office-signatories.js';
 import { OfficeStorage } from './@components/office-storage.js';
 import { OfficeTextsForm } from './@components/office-texts-form.js';
 import { officeQuery } from './@query/office.js';
@@ -40,6 +42,16 @@ export function OfficePage() {
                 title: t('header_and_footer'),
                 description: t('header_and_footer_description'),
                 fields: [<OfficeTextsForm key="texts" office={office} />],
+              },
+              {
+                title: t('service_order_control'),
+                description: t('service_order_control_description'),
+                fields: [<OfficeServiceOrder key="service-order" />],
+              },
+              {
+                title: t('technical_responsibles'),
+                description: t('technical_responsibles_description'),
+                fields: [<OfficeSignatories key="signatories" />],
               },
               {
                 title: t('scheduling_notice'),

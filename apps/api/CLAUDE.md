@@ -56,11 +56,11 @@ Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `ident
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Invite AccessKey Activity transitionTenantStatus` (inclui identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
-| `case` | `Case Deadline Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) |
+| `case` | `Case Deadline Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) |
 | `agenda` | `Appointment Inspection` (AD-130) |
 | `finance` | `Transaction` |
 | `prospecting` | `Opportunity` |
-| `documents` | `Report Template` (AD-126) |
+| `documents` | `Report Template` (AD-126) `Signatory` (responsável técnico, AD-162) |
 
 Helpers sem dono (`tenantScoped`, `hashToken`, datas, tipos) podem ser importados por qualquer módulo — a tabela só restringe **models e transições de negócio**. A tabela vive de verdade em `tests/structural/module-boundary.structural.test.ts`(`DB_OWNERSHIP`) — atualizar os dois lugares (aqui e lá) ao mudar o dono de algo.
 

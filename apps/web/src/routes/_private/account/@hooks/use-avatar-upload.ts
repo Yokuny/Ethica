@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ChangeEvent } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { setAvatarMutation } from '../@query/account.js';
+import { setAvatarMutation } from '@/query/account.js';
 import { resizeAvatar } from '../@utils/resize-avatar.js';
 
 export function useAvatarUpload() {

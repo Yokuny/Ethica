@@ -43,6 +43,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
         )}
       </RecordHeader>
       <RecordStats>
+        {legalCase.serviceOrder && <RecordStat label={t('service_order')} value={legalCase.serviceOrder} />}
         {legalCase.serviceStatus && (
           <RecordStat
             label={t('service_status')}

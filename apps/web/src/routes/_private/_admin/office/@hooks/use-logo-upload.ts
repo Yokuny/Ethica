@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ChangeEvent } from 'react';
 import { toast } from 'sonner';
+import { resizeLogo } from '@/lib/helpers/resizeLogo.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { setLogoMutation } from '../@query/office.js';
-import { resizeLogo } from '../@utils/resize-logo.js';
 
 export function useLogoUpload() {
   const queryClient = useQueryClient();

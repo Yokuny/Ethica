@@ -6,6 +6,7 @@ import type { DocumentContext, GeneratedFile } from './documents.schema.js';
 import type { ListReportsQuery, ListTemplatesQuery, ReportPdfQuery, ReportRouterDeps } from './report.schema.js';
 import * as reportService from './report.service.js';
 import { ReportNotFoundError } from './report.service.js';
+import { SignatoryNotFoundError } from './signatory.service.js';
 import * as templateService from './template.service.js';
 import { TemplateNotFoundError } from './template.service.js';
 
@@ -25,7 +26,10 @@ const context = (req: Request): DocumentContext => {
 // Report, template or case missing (or from another tenant) → 404.
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(
-    e instanceof ReportNotFoundError || e instanceof TemplateNotFoundError || e instanceof CaseNotFoundError
+    e instanceof ReportNotFoundError ||
+      e instanceof TemplateNotFoundError ||
+      e instanceof CaseNotFoundError ||
+      e instanceof SignatoryNotFoundError
       ? new CustomError(e.message, 404, e.detail)
       : e,
   );
@@ -86,6 +90,7 @@ export const updateTemplateSection = json((req) =>
 export const removeTemplateSection = json((req) =>
   templateService.removeSection(tenantOf(req), id(req), sectionId(req)),
 );
+export const setTemplateLayout = json((req) => templateService.setLayout(tenantOf(req), id(req), req.body));
 export const moveTemplateSection = json((req) =>
   templateService.moveSection(tenantOf(req), id(req), sectionId(req), req.body),
 );
@@ -100,6 +105,8 @@ export const createReport = (providers: Providers) =>
 export const updateReportSection = json((req) =>
   reportService.updateSection(context(req), id(req), sectionId(req), req.body),
 );
+export const addReportSection = json((req) => reportService.addSection(context(req), id(req), req.body), 201);
+export const setReportLayout = json((req) => reportService.setLayout(context(req), id(req), req.body));
 export const chooseReportSections = (providers: Providers) =>
   json((req) => reportService.chooseSections(providers, context(req), id(req), req.body));
 export const fillReportFromProcess = json((req) =>

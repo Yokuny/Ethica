@@ -1,4 +1,4 @@
-import { pendingVariables, REPORT_VARIABLES } from '@ethica/contracts';
+import { pendingVariables, REPORT_LAYOUT_DEFAULT, REPORT_VARIABLES } from '@ethica/contracts';
 import { strFromU8, unzipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
 import type { CaseRecord } from '../case/case.schema.js';
@@ -161,9 +161,10 @@ describe('variáveis (AD-126)', () => {
 
 describe('biblioteca padrão (LAU-05, LAU-06)', () => {
   it('toda seção com texto tem as duas variantes, HTML já saneado e só marcadores da lista', () => {
-    for (const template of Object.values(DEFAULT_TEMPLATES)) {
+    for (const template of DEFAULT_TEMPLATES) {
       for (const section of template.sections) {
-        if (!section.titleOnly) {
+        // An item of the labor report may start empty (NLA-04); with text, both variants have it.
+        if (!section.titleOnly && (section.yesText || section.noText)) {
           expect(section.yesText, section.title).not.toBe('');
           expect(section.noText, section.title).not.toBe('');
         }
@@ -175,7 +176,8 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
   });
 
   it('cobre NR-15 anexos 1 a 14, NR-16, quesitos e o parecer técnico', () => {
-    const titulos = DEFAULT_TEMPLATES.report.sections.map((section) => section.title);
+    const byId = (id: string) => DEFAULT_TEMPLATES.find((template) => template.id === id)?.sections ?? [];
+    const titulos = byId('standard-report').map((section) => section.title);
     for (let attachment = 1; attachment <= 14; attachment += 1) {
       expect(titulos.some((title) => title.startsWith(`Anexo ${attachment} — `))).toBe(true);
     }
@@ -191,7 +193,7 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
         'Honorários periciais',
       ]),
     );
-    expect(DEFAULT_TEMPLATES.technical_opinion.sections.map((section) => section.title)).toEqual(
+    expect(byId('standard-technical_opinion').map((section) => section.title)).toEqual(
       expect.arrayContaining([
         'Medições de agentes quantitativos',
         'Quesitos complementares',
@@ -217,6 +219,7 @@ const data = (): ReportExportData => ({
     status: 'draft',
     title: 'Laudo pericial',
     templateName: 'Padrão',
+    layout: REPORT_LAYOUT_DEFAULT,
     issues: [],
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -227,6 +230,8 @@ const data = (): ReportExportData => ({
         level: 1,
         titleOnly: false,
         pageBreak: false,
+        unnumbered: false,
+        included: true,
         variant: 'yes',
         html: '<p>Texto <strong>forte</strong></p>',
       },
@@ -236,6 +241,8 @@ const data = (): ReportExportData => ({
         level: 1,
         titleOnly: true,
         pageBreak: true,
+        unnumbered: false,
+        included: true,
         variant: 'yes',
         html: '',
       },
@@ -245,6 +252,8 @@ const data = (): ReportExportData => ({
         level: 2,
         titleOnly: false,
         pageBreak: false,
+        unnumbered: false,
+        included: true,
         variant: 'no',
         html: `<ol><li><p>um</p></li></ol><table><tbody><tr><th>A</th></tr><tr><td>1</td></tr></tbody></table><img src="${PHOTO}" alt="Prensa"><img src="/inspections/6560a0a0a0a0a0a0a0a0a0a1/media/0f8fad5b-d9cb-469f-a165-70867728950f" alt="sumiu">`,
       },
@@ -271,6 +280,25 @@ describe('exportação (LAU-03.2)', () => {
     // Inspection photo as a data URL; one that is gone leaves the document (AD-129).
     expect(html).toContain('<img src="data:image/jpeg;base64,');
     expect(html).not.toContain('/media/');
+  });
+
+  it('PDF: layout escolhe fonte, margens, capa, sumário e a abertura ao juiz com "É o laudo." (NLA-06)', () => {
+    const base = data();
+    const layout = {
+      ...REPORT_LAYOUT_DEFAULT,
+      font: 'arial' as const,
+      cover: false,
+      summary: false,
+      opening: true,
+      marginLeft: 2.5,
+    };
+    const { html, margin } = reportHtml({ ...base, report: { ...base.report, layout } });
+    expect(html).toContain('Liberation Sans');
+    expect(html).not.toContain('class="capa"');
+    expect(html).not.toContain('SUMÁRIO');
+    expect(html).toContain('EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A)');
+    expect(html).toContain('É o laudo.');
+    expect(margin?.left).toBe('25mm');
   });
 
   it('Word: documento válido com títulos numerados, sumário, lista e tabela', async () => {

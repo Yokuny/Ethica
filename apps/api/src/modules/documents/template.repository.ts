@@ -1,4 +1,4 @@
-import type { ReportType } from '@ethica/contracts';
+import { REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType } from '@ethica/contracts';
 import type { TemplateDocument, TemplateSectionDocument } from '@ethica/db';
 import { Template, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
@@ -10,6 +10,7 @@ const sectionToRecord = (section: TemplateSectionDocument): TemplateSectionRecor
   level: section.level,
   titleOnly: section.titleOnly,
   pageBreak: section.pageBreak,
+  unnumbered: section.unnumbered ?? false,
   yesText: section.yesText,
   noText: section.noText,
 });
@@ -20,6 +21,7 @@ const toRecord = (doc: TemplateDocument): TemplateRecord => ({
   type: doc.type,
   isDefault: false,
   sections: doc.sections.map(sectionToRecord),
+  layout: { ...REPORT_LAYOUT_DEFAULT, ...doc.layout },
   updatedAt: doc.updatedAt,
 });
 
@@ -47,7 +49,7 @@ export const findById = async (tenantId: string, id: string): Promise<TemplateRe
 
 export const create = async (
   tenantId: string,
-  data: { name: string; type: ReportType; sections: TemplateSection[] },
+  data: { name: string; type: ReportType; sections: TemplateSection[]; layout: ReportLayout },
 ): Promise<TemplateRecord> =>
   withDbTiming('template.create', async () => toRecord(await Template.create({ ...data, Tenant: tenantId })));
 
@@ -57,6 +59,16 @@ export const updateName = async (tenantId: string, id: string, name: string): Pr
       tenantScoped({ Tenant: tenantId, _id: id }),
       { $set: { name } },
       { returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+export const setLayout = async (tenantId: string, id: string, layout: ReportLayout): Promise<TemplateRecord | null> =>
+  withDbTiming('template.setLayout', async () => {
+    const doc = await Template.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, _id: id }),
+      { $set: { layout } },
+      { returnDocument: 'after' },
     ).lean();
     return doc ? toRecord(doc) : null;
   });

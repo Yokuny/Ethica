@@ -1,16 +1,26 @@
+import { Button } from '@ethica/ui/components/button';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { FileSignature, Files, ListTree, Variable } from 'lucide-react';
 import { HubIllustration } from '@/components/hub-illustration.js';
 import { LinkCard, LinkCardList } from '@/components/link-card.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { can, sessionQuery } from '@/query/session.js';
 
 // Module hub: drafted reports and opinions and the office templates.
 export function ReportsIndexPage() {
+  const session = useQuery(sessionQuery).data;
   return (
     <Card asPage>
-      <CardHeader title={t('reports_and_opinions')} />
+      <CardHeader title={t('reports_and_opinions')}>
+        {session && can(session, 'expert_reports', 'create') && (
+          <CardAction>
+            <Button nativeButton={false} role="link" render={<Link to="/expert-reports/add">{t('new_report')}</Link>} />
+          </CardAction>
+        )}
+      </CardHeader>
       <CardContent className="max-w-4xl gap-8">
         <PageIntro
           title={t('reports_and_opinions')}

@@ -1,63 +1,49 @@
-import { numberSections } from '@ethica/contracts';
+import type { ReportVariable } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
-import { Panel } from '@/components/panel.js';
 import { variableLabel } from '@/components/report-labels.js';
 import { type PhotoEditor, RichTextEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { ReportRecord, ReportSectionRecord } from '@/query/report.js';
+import type { ReportSectionRecord } from '@/query/report.js';
 
 export type SectionDraft = { title: string; html: string };
 
 type ReportSectionEditorProps = {
-  report: ReportRecord;
+  reportId: string;
   section: ReportSectionRecord;
   draft: SectionDraft;
+  readOnly: boolean;
+  pending: ReportVariable[];
   onChange: (draft: SectionDraft) => void;
   dirty: boolean;
   saving: boolean;
   onSave: () => void;
+  onAdd: () => void;
   onRemove: () => void;
   photos?: PhotoEditor[];
   uploadPhoto?: (photo: Blob) => Promise<string>;
 };
 
-// One section at a time (LAU-03.1): saving saves only it; the rest of the report does not change.
+// Body of an opened item (LAU-03.1, NLA-05): title, text and the actions of the item. Saving saves only it.
 export function ReportSectionEditor({
-  report,
+  reportId,
   section,
   draft,
+  readOnly,
+  pending,
   onChange,
   dirty,
   saving,
   onSave,
+  onAdd,
   onRemove,
   photos,
   uploadPhoto,
 }: ReportSectionEditorProps) {
-  const readOnly = report.status === 'completed';
-  const number = numberSections(report.sections)[report.sections.findIndex((item) => item.id === section.id)];
-  const pending = report.issues.find((issue) => issue.sectionId === section.id)?.variables ?? [];
-
   return (
-    <Panel
-      title={`${number}. ${section.title}`}
-      description={section.titleOnly ? t('title_only') : t(section.variant === 'yes' ? 'yes_text' : 'no_text')}
-      actions={
-        !readOnly && (
-          <>
-            <Button variant="destructive" onClick={onRemove} disabled={report.sections.length === 1 || saving}>
-              {t('remove_section')}
-            </Button>
-            <Button onClick={onSave} disabled={!dirty || saving}>
-              {t('save')}
-            </Button>
-          </>
-        )
-      }
-    >
+    <div className="grid gap-4">
       {pending.length > 0 && (
         <div role="alert" className="flex flex-wrap items-center gap-1.5">
           <ItemDescription className="line-clamp-none">{t('fill_or_remove_variables')}</ItemDescription>
@@ -77,7 +63,7 @@ export function ReportSectionEditor({
       />
       {!section.titleOnly && (
         <RichTextEditor
-          key={`${report.id}-${section.id}-${report.status}`}
+          key={`${reportId}-${section.id}-${readOnly}`}
           value={draft.html}
           readOnly={readOnly}
           label={t('section_text')}
@@ -86,6 +72,19 @@ export function ReportSectionEditor({
           onChange={(html) => onChange({ ...draft, html })}
         />
       )}
-    </Panel>
+      {!readOnly && (
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button variant="ghost" onClick={onRemove} disabled={saving}>
+            {t('remove_section')}
+          </Button>
+          <Button variant="outline" onClick={onAdd} disabled={saving}>
+            {t('add_item_below')}
+          </Button>
+          <Button onClick={onSave} disabled={!dirty || saving}>
+            {t('save')}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

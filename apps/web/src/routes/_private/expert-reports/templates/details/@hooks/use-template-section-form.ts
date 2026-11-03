@@ -23,6 +23,7 @@ export function useTemplateSectionForm({
       level: section?.level ?? 1,
       titleOnly: section?.titleOnly ?? false,
       pageBreak: section?.pageBreak ?? false,
+      unnumbered: section?.unnumbered ?? false,
       yesText: section?.yesText ?? '',
       noText: section?.noText ?? '',
     },

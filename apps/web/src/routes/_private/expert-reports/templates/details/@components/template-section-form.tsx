@@ -85,6 +85,17 @@ export function TemplateSectionForm({ templateId, section, onClose }: TemplateSe
                 />
               )}
             />
+            <FormField
+              control={control}
+              name="unnumbered"
+              render={({ field }) => (
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(Boolean(checked))}
+                  label={t('without_number')}
+                />
+              )}
+            />
           </div>
           {!titleOnly &&
             (['yesText', 'noText'] as const).map((name) => (

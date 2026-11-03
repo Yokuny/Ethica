@@ -86,6 +86,8 @@ const optional = <T extends z.ZodType>(schema: T) =>
 
 const caseFields = z.object({
   processNumber: optional(processNumberSchema),
+  // Service order control number (NLA-01): given by the office sequence when missing at registration.
+  serviceOrder: optional(z.string().trim().max(30, 'OS inválida')),
   courtType: z.enum(COURTTYPES),
   serviceType: z.string().trim().min(1, 'tipo de serviço é obrigatório').max(80, 'tipo de serviço inválido').optional(),
   role: z.enum(CASE_ROLES),

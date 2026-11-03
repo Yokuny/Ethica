@@ -1,4 +1,4 @@
-import { caseLabel, REPORT_DEFAULT_TEMPLATES, reportRoleType } from '@ethica/contracts';
+import { caseLabel, defaultTemplateOf, reportRoleType } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
@@ -16,6 +16,8 @@ import { createReportMutation, templateQuery } from '@/query/report.js';
 import { type Choices, SectionsPicker } from '../@components/sections-picker.js';
 import { TemplateSelect } from '../@components/template-select.js';
 import { CasePicker } from './@components/case-picker.js';
+import { ServiceOrderField } from './@components/service-order-field.js';
+import { ACCOUNT_OWNER, SignatoryPicker } from './@components/signatory-picker.js';
 import { type ReportAddSearch, reportAddSearchSchema } from './@interface/report-add.interface.js';
 
 // LAU-02: case → template of the right type (report or opinion, LAU-06) → sections and variants.
@@ -26,14 +28,15 @@ export function ReportAddPage() {
   const caseId = search.caseId ?? '';
   const legalCase = useQuery({ ...caseQuery(caseId), enabled: Boolean(caseId), retry: false });
   const type = legalCase.data ? reportRoleType(legalCase.data.role) : undefined;
-  const templateId = search.templateId ?? (type ? REPORT_DEFAULT_TEMPLATES[type] : '');
+  const templateId = search.templateId ?? (type ? defaultTemplateOf(type) : '');
   const template = useQuery({ ...templateQuery(templateId), enabled: Boolean(templateId) });
   const create = useMutation(createReportMutation(queryClient));
   const [choices, setChoices] = useState<{ templateId: string; values: Choices } | null>(null);
+  const [signatory, setSignatory] = useState(ACCOUNT_OWNER);
 
   // When switching templates, every section starts checked on the "yes" variant.
   const current: Choices =
-    choices?.templateId === templateId
+    choices && choices.templateId === templateId
       ? choices.values
       : Object.fromEntries((template.data?.sections ?? []).map((section) => [section.id, 'yes']));
   const chosen = Object.entries(current).filter((entry): entry is [string, 'yes' | 'no'] => Boolean(entry[1]));
@@ -52,6 +55,7 @@ export function ReportAddPage() {
     create.mutate(
       {
         caseId: legalCase.data.id,
+        ...(signatory === ACCOUNT_OWNER ? {} : { signatoryId: signatory }),
         templateId,
         sections: chosen.map(([id, variant]) => ({ id, variant })),
       },
@@ -64,7 +68,7 @@ export function ReportAddPage() {
 
   return (
     <Card asPage>
-      <CardHeader title={t('start_report')} />
+      <CardHeader title={t('new_report')} />
       {!caseId ? (
         <CardContent className="max-w-4xl">
           <CasePicker onPick={(id) => updateSearch({ caseId: id, templateId: undefined })} />
@@ -94,6 +98,12 @@ export function ReportAddPage() {
                   .join(' · ')}
               />
             </RecordHeader>
+            <Panel title={t('linked_service_order')} description={t('linked_service_order_description')}>
+              <ServiceOrderField legalCase={legalCase.data} />
+            </Panel>
+            <Panel title={t('technical_responsible')} description={t('technical_responsible_description')}>
+              <SignatoryPicker value={signatory} onChange={setSignatory} />
+            </Panel>
             <Panel title={t('template')} description={t('choose_template_description')}>
               <TemplateSelect
                 type={type}
@@ -127,6 +137,6 @@ export function ReportAddPage() {
 
 export const Route = createFileRoute('/_private/expert-reports/add/')({
   component: ReportAddPage,
-  staticData: { title: t('start_report') },
+  staticData: { title: t('new_report') },
   validateSearch: (search: Record<string, unknown>): ReportAddSearch => reportAddSearchSchema.parse(search),
 });

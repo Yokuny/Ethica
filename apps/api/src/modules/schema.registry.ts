@@ -31,6 +31,7 @@ import {
   templateIdParamSchema,
   templateSectionParamSchema,
 } from './documents/report.schema.js';
+import { signatoryIdParamSchema } from './documents/signatory.schema.js';
 import {
   categoriesQuerySchema,
   flowQuerySchema,
@@ -74,6 +75,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'reportMediaParamSchema', schema: reportMediaParamSchema },
   { name: 'listTemplatesQuerySchema', schema: listTemplatesQuerySchema },
   { name: 'listReportsQuerySchema', schema: listReportsQuerySchema },
+  { name: 'signatoryIdParamSchema', schema: signatoryIdParamSchema },
   { name: 'partyIdParamSchema', schema: partyIdParamSchema },
   { name: 'courtDivisionIdParamSchema', schema: courtDivisionIdParamSchema },
   { name: 'listCourtDivisionsQuerySchema', schema: listCourtDivisionsQuerySchema },

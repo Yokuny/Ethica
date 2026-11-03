@@ -1,4 +1,4 @@
-import { isDefaultTemplate, type ReportType } from '@ethica/contracts';
+import { isDefaultTemplate, REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType } from '@ethica/contracts';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import { sanitizeReportHtml } from './report.html.js';
 import { DEFAULT_TEMPLATES } from './report.library.js';
@@ -7,7 +7,7 @@ import * as templateRepository from './template.repository.js';
 
 export class TemplateNotFoundError extends KeyedError {}
 
-const DEFAULT = Object.values(DEFAULT_TEMPLATES);
+const DEFAULT = DEFAULT_TEMPLATES;
 
 // The default template is read-only (AD-126): the office clones it to adapt.
 const ofOffice = (id: string): void => {
@@ -26,10 +26,12 @@ const sanitized = (section: TemplateSection): TemplateSection => ({
 });
 
 export const listTemplates = async (tenantId: string, type?: ReportType): Promise<TemplateSummary[]> => [
-  ...DEFAULT.filter((template) => !type || template.type === type).map(({ sections, ...template }) => ({
-    ...template,
-    totalSections: sections.length,
-  })),
+  ...DEFAULT.filter((template) => !type || template.type === type).map(
+    ({ sections, layout: _layout, ...template }) => ({
+      ...template,
+      totalSections: sections.length,
+    }),
+  ),
   ...(await templateRepository.list(tenantId, type)),
 ];
 
@@ -44,7 +46,14 @@ export const createTemplate = async (tenantId: string, data: CreateTemplate): Pr
     name: data.name,
     type: data.type,
     sections: (base?.sections ?? []).map(({ id: _id, ...section }) => section),
+    layout: base?.layout ?? REPORT_LAYOUT_DEFAULT,
   });
+};
+
+// Layout of the reports created from it (NLA-06).
+export const setLayout = async (tenantId: string, id: string, layout: ReportLayout): Promise<TemplateRecord> => {
+  ofOffice(id);
+  return found(await templateRepository.setLayout(tenantId, id, layout));
 };
 
 export const renameTemplate = async (tenantId: string, id: string, name: string): Promise<TemplateRecord> => {

@@ -134,6 +134,7 @@ export const reportValues = ({
   const { nonPrescribedPeriodStart: start, nonPrescribedPeriodEnd: end } = legalCase;
   return {
     '[NUMERO_PROCESSO]': legalCase.processNumber,
+    '[NUMERO_OS]': legalCase.serviceOrder,
     '[TRIBUNAL]': legalCase.court,
     '[VARA]': legalCase.division,
     '[COMARCA]': legalCase.district,

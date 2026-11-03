@@ -17,16 +17,23 @@ export type ReportStatus = (typeof REPORT_STATUS)[number];
 export const REPORT_VARIANTS = ['yes', 'no'] as const;
 export type ReportVariant = (typeof REPORT_VARIANTS)[number];
 
-// Default templates live in the API code and apply to every tenant (AD-126); the id is fixed.
+// Default templates live in the API code and apply to every tenant (AD-126); the id is fixed. The first
+// of each type is the one "Novo laudo" suggests (NLA-04).
 export const REPORT_DEFAULT_TEMPLATES = {
-  report: 'standard-report',
-  technical_opinion: 'standard-technical_opinion',
-} as const satisfies Record<ReportType, string>;
-export const isDefaultTemplate = (id: string): boolean => Object.values<string>(REPORT_DEFAULT_TEMPLATES).includes(id);
+  'standard-labor-report': 'report',
+  'standard-report': 'report',
+  'standard-technical_opinion': 'technical_opinion',
+} as const satisfies Record<string, ReportType>;
+export type DefaultTemplateId = keyof typeof REPORT_DEFAULT_TEMPLATES;
+const DEFAULT_TEMPLATE_IDS = Object.keys(REPORT_DEFAULT_TEMPLATES) as [DefaultTemplateId, ...DefaultTemplateId[]];
+export const isDefaultTemplate = (id: string): id is DefaultTemplateId => id in REPORT_DEFAULT_TEMPLATES;
+export const defaultTemplateOf = (type: ReportType): DefaultTemplateId =>
+  DEFAULT_TEMPLATE_IDS.find((id) => REPORT_DEFAULT_TEMPLATES[id] === type) as DefaultTemplateId;
 
 // Markers replaced by the case, expert and office data (AD-126).
 export const REPORT_VARIABLES = [
   '[NUMERO_PROCESSO]',
+  '[NUMERO_OS]',
   '[TRIBUNAL]',
   '[VARA]',
   '[COMARCA]',
@@ -99,10 +106,14 @@ export const REPORT_MEDIA_LIMIT = { maxBytes: 2 * 1024 * 1024, maxByReport: 60, 
 export const REPORT_LEVEL_MAX = 3;
 
 // Number of each section ("1", "1.1", "2") by position and level; never stored (AD-126).
-// A level that skips (1 → 3) counts as the one after the previous.
-export const numberSections = (sections: ReadonlyArray<{ level: number }>): string[] => {
+// A level that skips (1 → 3) counts as the one after the previous. A section without number or out of
+// the report (NLA-04, NLA-05) gets `''` and does not count.
+export const numberSections = (
+  sections: ReadonlyArray<{ level: number; unnumbered?: boolean; included?: boolean }>,
+): string[] => {
   const counters: number[] = [];
-  return sections.map(({ level }) => {
+  return sections.map(({ level, unnumbered, included }) => {
+    if (unnumbered || included === false) return '';
     const target = Math.min(Math.max(level, 1), counters.length + 1);
     counters.length = target;
     counters[target - 1] = (counters[target - 1] ?? 0) + 1;
@@ -115,10 +126,50 @@ export const REPORT_SECTIONS_MAX = 200;
 
 const titleSchema = z.string().trim().min(1, 'título é obrigatório').max(200, 'título muito longo');
 const htmlSchema = z.string().max(REPORT_HTML_MAX, 'texto muito longo');
-const templateIdSchema = z.union([
-  idSchema,
-  z.enum([REPORT_DEFAULT_TEMPLATES.report, REPORT_DEFAULT_TEMPLATES.technical_opinion]),
-]);
+export const templateIdSchema = z.union([idSchema, z.enum(DEFAULT_TEMPLATE_IDS)]);
+
+// Report layout (NLA-06): kept in the template and copied into the report, which can change its own.
+export const REPORT_FONTS = ['times', 'arial'] as const;
+export type ReportFont = (typeof REPORT_FONTS)[number];
+export const REPORT_LINE_HEIGHTS = [1, 1.15, 1.5, 2] as const;
+
+export const reportLayoutSchema = z
+  .object({
+    font: z.enum(REPORT_FONTS),
+    fontSize: z.number().int().min(10).max(14),
+    lineHeight: z
+      .number()
+      .refine((value) => REPORT_LINE_HEIGHTS.some((height) => height === value), 'entrelinha inválida'),
+    // Space after each paragraph, in points.
+    paragraphSpacing: z.number().int().min(0).max(24),
+    // Page margins in centimeters.
+    marginTop: z.number().min(1).max(5),
+    marginBottom: z.number().min(1).max(5),
+    marginLeft: z.number().min(1).max(5),
+    marginRight: z.number().min(1).max(5),
+    titleColor: z.string().regex(/^#[0-9a-f]{6}$/i, 'cor inválida'),
+    cover: z.boolean(),
+    summary: z.boolean(),
+    // Page to the judge at the start and "É o laudo." with the signature at the end.
+    opening: z.boolean(),
+  })
+  .strict();
+export type ReportLayout = z.infer<typeof reportLayoutSchema>;
+
+export const REPORT_LAYOUT_DEFAULT: ReportLayout = {
+  font: 'times',
+  fontSize: 12,
+  lineHeight: 1.5,
+  paragraphSpacing: 8,
+  marginTop: 3.4,
+  marginBottom: 2.2,
+  marginLeft: 3,
+  marginRight: 2,
+  titleColor: '#111111',
+  cover: true,
+  summary: true,
+  opening: false,
+};
 
 export const createTemplateSchema = z
   .object({
@@ -139,6 +190,8 @@ export const templateSectionSchema = z
     level: z.number().int().min(1).max(REPORT_LEVEL_MAX),
     titleOnly: z.boolean(),
     pageBreak: z.boolean(),
+    // Heading without a number ("Objeto da perícia", NLA-04).
+    unnumbered: z.boolean(),
     yesText: htmlSchema,
     noText: htmlSchema,
   })
@@ -151,6 +204,8 @@ export type MoveSection = z.infer<typeof moveSectionSchema>;
 export const createReportSchema = z
   .object({
     caseId: idSchema,
+    // Technical responsible registered by the office (NLA-02); missing = whoever creates the report.
+    signatoryId: idSchema.optional(),
     templateId: templateIdSchema,
     sections: z
       .array(z.object({ id: z.string().min(1).max(40), variant: z.enum(REPORT_VARIANTS) }).strict())
@@ -161,13 +216,45 @@ export const createReportSchema = z
 export type CreateReport = z.infer<typeof createReportSchema>;
 
 // Sections of the template in the draft (LMO-01): the same choice as creating; another `templateId` changes the template.
-export const chooseReportSectionsSchema = createReportSchema.omit({ caseId: true }).strict();
+export const chooseReportSectionsSchema = createReportSchema.omit({ caseId: true, signatoryId: true }).strict();
 export type ChooseReportSections = z.infer<typeof chooseReportSectionsSchema>;
 
+// `included: false` keeps the item and its text in the draft, out of the PDF and Word (NLA-05).
 export const updateReportSectionSchema = z
-  .object({ title: titleSchema.optional(), html: htmlSchema.optional() })
+  .object({ title: titleSchema.optional(), html: htmlSchema.optional(), included: z.boolean().optional() })
   .strict();
 export type UpdateReportSection = z.infer<typeof updateReportSectionSchema>;
+
+// New item of the report itself (NLA-05): right after `afterId`, or at the start without it.
+export const addReportSectionSchema = z
+  .object({
+    title: titleSchema,
+    level: z.number().int().min(1).max(REPORT_LEVEL_MAX),
+    afterId: idSchema.optional(),
+  })
+  .strict();
+export type AddReportSection = z.infer<typeof addReportSectionSchema>;
+
+// Technical responsible who signs the report (NLA-02): a registry without access to Ethica. `''` clears.
+export const signatorySchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(3, 'nome deve ter entre 3 e 80 caracteres')
+      .max(80, 'nome deve ter entre 3 e 80 caracteres'),
+    cpf: z
+      .string()
+      .transform((value) => value.replace(/\D/g, ''))
+      .refine((value) => value === '' || /^\d{11}$/.test(value), 'CPF inválido'),
+    professionalRegistration: z.string().trim().max(120, 'registro inválido'),
+    education: z.string().trim().max(120, 'formação inválida'),
+    phone: z.string().trim().max(30, 'telefone inválido'),
+    header: z.string().trim().max(1000, 'cabeçalho muito longo'),
+    footer: z.string().trim().max(1000, 'rodapé muito longo'),
+  })
+  .strict();
+export type SignatoryInput = z.infer<typeof signatorySchema>;
 
 // Record the delivery: files the "Entrega do laudo" deadline, posts the `report_filed` movement
 // and advances the status to `report_delivered` (AD-126).

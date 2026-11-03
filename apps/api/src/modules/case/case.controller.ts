@@ -67,6 +67,22 @@ export const caseStats = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
+export const getServiceOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await caseService.getServiceOrder(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const setServiceOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await caseService.setServiceOrder(tenantOf(req), req.body) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const listServiceTypes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await caseService.listServiceTypes(tenantOf(req)) }));

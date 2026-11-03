@@ -2,8 +2,8 @@ import { Button } from '@ethica/ui/components/button';
 import { Form } from '@ethica/ui/components/form';
 import { TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import type { AccountView } from '@/query/account.js';
 import { useProfileForm } from '../@hooks/use-profile-form.js';
-import type { AccountView } from '../@query/account.js';
 
 export function AccountProfileForm({ profile }: { profile: AccountView }) {
   const { form, onSubmit, isPending } = useProfileForm(profile);

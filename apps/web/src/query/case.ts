@@ -23,6 +23,8 @@ export type CaseRecord = {
   id: string;
   // Missing only in a service type created by the office (AD-158).
   processNumber?: string;
+  // Service order control number (NLA-01).
+  serviceOrder?: string;
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;

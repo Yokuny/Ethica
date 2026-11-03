@@ -42,6 +42,8 @@ export interface CaseDocument {
   Tenant: mongoose.Types.ObjectId;
   // Optional only in a service type created by the office (AD-158).
   processNumber?: string;
+  // Service order control number (NLA-01).
+  serviceOrder?: string;
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;
@@ -78,6 +80,7 @@ const caseSchema = new Schema<CaseDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     processNumber: { type: String, trim: true },
+    serviceOrder: { type: String, trim: true },
     courtType: { type: String, enum: COURTTYPES, required: true },
     serviceType: { type: String, trim: true },
     role: { type: String, enum: CASE_ROLES, required: true },
@@ -134,6 +137,11 @@ const caseSchema = new Schema<CaseDocument>(
 caseSchema.index(
   { Tenant: 1, processNumber: 1 },
   { unique: true, partialFilterExpression: { processNumber: { $type: 'string' } } },
+);
+// One service order number per tenant (NLA-01); services without one are not counted.
+caseSchema.index(
+  { Tenant: 1, serviceOrder: 1 },
+  { unique: true, partialFilterExpression: { serviceOrder: { $type: 'string' } } },
 );
 // Service types created by the office (AD-158).
 caseSchema.index({ Tenant: 1, serviceType: 1 }, { partialFilterExpression: { serviceType: { $type: 'string' } } });

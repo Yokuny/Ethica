@@ -1,4 +1,4 @@
-import type { UpdateOffice } from '@ethica/contracts';
+import type { ServiceOrderSettings, UpdateOffice } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, put, sendFile } from '@/lib/api/client.api.js';
@@ -72,4 +72,27 @@ export const updateScheduleNoticeMutation = (
     return res.data;
   },
   onSuccess: (data) => queryClient.setQueryData(scheduleNoticeKeys.detail, data),
+});
+
+// Service order sequence of the office (NLA-01); `null` while the office has none.
+export const serviceOrderKeys = { detail: ['office', 'service-order'] as const };
+
+export const serviceOrderQuery = queryOptions({
+  queryKey: serviceOrderKeys.detail,
+  queryFn: async (): Promise<ServiceOrderSettings | null> => {
+    const res = await get<ServiceOrderSettings | null>('/expert-cases/service-order');
+    if (!res.success) throw new Error(res.message ?? t('load_error'));
+    return res.data ?? null;
+  },
+});
+
+export const setServiceOrderMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<ServiceOrderSettings, Error, ServiceOrderSettings> => ({
+  mutationFn: async (data) => {
+    const res = await put<ServiceOrderSettings>('/expert-cases/service-order', data);
+    if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
+    return res.data;
+  },
+  onSuccess: (data) => queryClient.setQueryData(serviceOrderKeys.detail, data),
 });

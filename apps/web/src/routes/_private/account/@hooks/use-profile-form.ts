@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { type AccountView, updateProfileMutation } from '../@query/account.js';
+import { type AccountView, updateProfileMutation } from '@/query/account.js';
 
 // Campo profissional vazio vai como '' e a API o apaga (DOC-01).
 const toValues = (profile: AccountView): UpdateProfile => ({

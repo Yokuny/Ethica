@@ -1,4 +1,4 @@
-import { PDF_IMPORT_MAX_BYTES, REPORT_MEDIA_LIMIT } from '@ethica/contracts';
+import { PDF_IMPORT_MAX_BYTES, REPORT_MEDIA_LIMIT, TENANT_LOGO_MAX_BYTES } from '@ethica/contracts';
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
 import { fileBody } from '../../middlewares/fileBody.middleware.js';
@@ -6,6 +6,7 @@ import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as reportController from './report.controller.js';
 import {
+  addReportSectionSchema,
   chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
@@ -15,6 +16,7 @@ import {
   moveSectionSchema,
   type ReportRouterDeps,
   reportIdParamSchema,
+  reportLayoutSchema,
   reportMediaParamSchema,
   reportPdfQuerySchema,
   reportSectionParamSchema,
@@ -24,6 +26,8 @@ import {
   updateReportSectionSchema,
   updateTemplateSchema,
 } from './report.schema.js';
+import * as signatoryController from './signatory.controller.js';
+import { signatoryIdParamSchema, signatorySchema } from './signatory.schema.js';
 
 // A template is an office default: only admin and manager edit it (AD-126).
 
@@ -90,6 +94,14 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     templateSection,
     reportController.removeTemplateSection,
   );
+  router.put(
+    '/templates/:id/layout',
+    ...guard,
+    can('report_templates', 'update'),
+    template,
+    validBody(reportLayoutSchema),
+    reportController.setTemplateLayout,
+  );
   router.post(
     '/templates/:id/sections/:sectionId/move',
     ...guard,
@@ -97,6 +109,54 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     templateSection,
     validBody(moveSectionSchema),
     reportController.moveTemplateSection,
+  );
+
+  // Technical responsible who signs the report (NLA-02): whoever drafts reports registers them.
+  const signatory = validParams(signatoryIdParamSchema);
+  router.get('/signatories', ...guard, can('expert_reports', 'view'), signatoryController.listSignatories);
+  router.post(
+    '/signatories',
+    ...guard,
+    can('expert_reports', 'create'),
+    validBody(signatorySchema),
+    signatoryController.createSignatory,
+  );
+  router.put(
+    '/signatories/:id',
+    ...guard,
+    can('expert_reports', 'update'),
+    signatory,
+    validBody(signatorySchema),
+    signatoryController.updateSignatory,
+  );
+  router.delete(
+    '/signatories/:id',
+    ...guard,
+    can('expert_reports', 'delete'),
+    signatory,
+    signatoryController.deleteSignatory(deps.storage),
+  );
+  router.get(
+    '/signatories/:id/logo',
+    ...guard,
+    can('expert_reports', 'view'),
+    signatory,
+    signatoryController.getSignatoryLogo(deps.storage),
+  );
+  router.post(
+    '/signatories/:id/logo',
+    ...guard,
+    can('expert_reports', 'update'),
+    signatory,
+    fileBody('image/png', TENANT_LOGO_MAX_BYTES),
+    signatoryController.setSignatoryLogo(deps.storage),
+  );
+  router.delete(
+    '/signatories/:id/logo',
+    ...guard,
+    can('expert_reports', 'update'),
+    signatory,
+    signatoryController.removeSignatoryLogo(deps.storage),
   );
 
   router.get(
@@ -138,6 +198,22 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     report,
     validBody(chooseReportSectionsSchema),
     reportController.chooseReportSections(providers),
+  );
+  router.post(
+    '/:id/sections',
+    ...guard,
+    can('expert_reports', 'update'),
+    report,
+    validBody(addReportSectionSchema),
+    reportController.addReportSection,
+  );
+  router.put(
+    '/:id/layout',
+    ...guard,
+    can('expert_reports', 'update'),
+    report,
+    validBody(reportLayoutSchema),
+    reportController.setReportLayout,
   );
   router.patch(
     '/:id/sections/:sectionId',

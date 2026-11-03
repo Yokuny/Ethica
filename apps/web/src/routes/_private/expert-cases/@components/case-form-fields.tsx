@@ -26,6 +26,12 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
           fields: [
             <div key="service" className="grid gap-4 sm:grid-cols-2">
               <ServiceTypeField />
+              <TextField
+                control={control}
+                name="serviceOrder"
+                label={t('service_order')}
+                placeholder={t('service_order_automatic')}
+              />
               <SelectField
                 control={control}
                 name="serviceStatus"

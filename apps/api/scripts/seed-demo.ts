@@ -22,6 +22,7 @@ import {
 import { env } from '../src/config/env.config.js';
 import { resolveVariables } from '../src/modules/documents/report.html.js';
 import { DEFAULT_TEMPLATES } from '../src/modules/documents/report.library.js';
+import type { TemplateRecord } from '../src/modules/documents/report.schema.js';
 
 // Dev tool: creates (or recreates) the "Perícias Demo" demo tenant
 // with a team, cases in several statuses, agenda, transactions and opportunities,
@@ -450,7 +451,7 @@ const run = async (): Promise<void> => {
 
   // Reports (AD-126): an office template cloned from the default and a draft report of the case
   // being drafted, with the hazardous conditions sections and a pending variable to show the lock.
-  const isDefault = DEFAULT_TEMPLATES.report;
+  const isDefault = DEFAULT_TEMPLATES.find((template) => template.id === 'standard-report') as TemplateRecord;
   await Template.create({
     Tenant: tenant._id,
     name: 'Periculosidade — inflamáveis (escritório)',

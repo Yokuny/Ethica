@@ -29,6 +29,7 @@ import type { CasePartyWrite } from './party.schema.js';
 const toRecord = (doc: CaseDocument): CaseRecord => ({
   id: doc._id.toString(),
   processNumber: doc.processNumber,
+  serviceOrder: doc.serviceOrder,
   courtType: doc.courtType,
   serviceType: doc.serviceType,
   role: doc.role,

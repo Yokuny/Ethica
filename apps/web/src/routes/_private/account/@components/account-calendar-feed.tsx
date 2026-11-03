@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { calendarFeedQuery, generateCalendarFeedMutation, revokeCalendarFeedMutation } from '../@query/account.js';
+import { calendarFeedQuery, generateCalendarFeedMutation, revokeCalendarFeedMutation } from '@/query/account.js';
 
 // PRZ-03: secret link to subscribe to the agenda and deadlines in Google, Outlook or Apple.
 // The link only shows right after it is generated; generating again invalidates the previous one.

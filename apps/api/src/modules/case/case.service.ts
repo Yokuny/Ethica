@@ -3,8 +3,10 @@ import {
   type CaseStatus,
   caseLabel,
   DEADLINE_DUE_SOON_DAYS,
+  formatServiceOrder,
   phaseFitsInStatus,
   phaseStatus,
+  type ServiceOrderSettings,
   STALLED_CASE_DAYS,
   suggestNonPrescribedPeriod,
   validClient,
@@ -26,6 +28,7 @@ import type {
 import * as deadlineRepository from './deadline.repository.js';
 import { REPORT_DELIVERY_DEADLINE } from './deadline.schema.js';
 import * as partyService from './party.service.js';
+import * as serviceOrderRepository from './service-order.repository.js';
 
 // AD-010: findById/update/delete are already tenant-scoped — an id from another tenant
 // simply does not exist for this session.
@@ -33,6 +36,23 @@ export class CaseNotFoundError extends KeyedError {}
 
 const isDuplicateKeyError = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
+
+// The repeated value: the service order number (NLA-01) or, otherwise, the process number.
+const duplicateError = (e: unknown): CustomError =>
+  (e as { keyPattern?: Record<string, unknown> }).keyPattern?.serviceOrder
+    ? new CustomError('service_order_taken', 409)
+    : new CustomError('expert_case_already_registered', 409);
+
+export const getServiceOrder = (tenantId: string) => serviceOrderRepository.find(tenantId);
+
+export const setServiceOrder = (tenantId: string, data: ServiceOrderSettings) =>
+  serviceOrderRepository.save(tenantId, data);
+
+// Next number of the office sequence (NLA-01), e.g. "ETH-2026-009"; `undefined` without a sequence.
+const nextServiceOrder = async (tenantId: string): Promise<string | undefined> => {
+  const sequence = await serviceOrderRepository.take(tenantId, Number(dateInDisplayTz(new Date()).slice(0, 4)));
+  return sequence ? formatServiceOrder(sequence) : undefined;
+};
 
 // With no non-prescribed period given, saves the one suggested by the contract dates (AD-115).
 const withSuggestedPeriod = <T extends CreateCaseInput>(input: T): T => {
@@ -67,6 +87,7 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
   try {
     const legalCase = await caseRepository.createCase({
       ...input,
+      serviceOrder: input.serviceOrder ?? (await nextServiceOrder(input.tenant)),
       ...(phase ? { phase, status: resolveStatusAndPhase({ status: 'appointed' }, { phase }).status } : {}),
       parties: await partyService.resolveParties(input.tenant, parties ?? []),
     });
@@ -88,7 +109,7 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
     }
     return legalCase;
   } catch (e) {
-    if (isDuplicateKeyError(e)) throw new CustomError('expert_case_already_registered', 409);
+    if (isDuplicateKeyError(e)) throw duplicateError(e);
     throw e;
   }
 };
@@ -115,13 +136,17 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
   if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
   const resolved =
     status !== undefined || phase !== undefined ? resolveStatusAndPhase(before, { status, phase }) : undefined;
-  const updated = await caseRepository.updateCase(tenantId, id, {
-    ...rest,
-    // A judicial type drops the name of the office's type (AD-158).
-    serviceType: final.serviceType ?? (before.serviceType ? null : undefined),
-    ...(resolved ? { status: resolved.status, phase: resolved.phase } : {}),
-    parties: parties ? await partyService.resolveParties(tenantId, parties) : undefined,
-  });
+  const updated = await caseRepository
+    .updateCase(tenantId, id, {
+      ...rest,
+      // A judicial type drops the name of the office's type (AD-158).
+      serviceType: final.serviceType ?? (before.serviceType ? null : undefined),
+      ...(resolved ? { status: resolved.status, phase: resolved.phase } : {}),
+      parties: parties ? await partyService.resolveParties(tenantId, parties) : undefined,
+    })
+    .catch((e: unknown) => {
+      throw isDuplicateKeyError(e) ? duplicateError(e) : e;
+    });
   if (!updated) throw new CaseNotFoundError('not_found');
   // Fee fixed by the court or contracted by the assistant (AD-135), new or changed,
   // becomes receivable income in finance.

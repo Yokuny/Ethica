@@ -151,13 +151,7 @@ function blocks(nos: No[], format: Format = {}, photos: Photos = {}, inCell = fa
   return nos.flatMap((no): Block[] => {
     switch (tag(no)) {
       case 'p':
-        return [
-          new Paragraph({
-            alignment: AlignmentType.JUSTIFIED,
-            spacing: { after: 120 },
-            children: runs(children(no), format),
-          }),
-        ];
+        return [new Paragraph({ alignment: AlignmentType.JUSTIFIED, children: runs(children(no), format) })];
       // Heading inside the text: bold, left out of the table of contents (which only lists sections).
       case 'h3':
       case 'h4':
@@ -212,6 +206,11 @@ const templateRows = (text: string, logo: Buffer | undefined, expertName: string
     );
 
 const TYPE = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
+const OPENING_TYPE = { report: 'LAUDO TÉCNICO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
+const ROLE = { report: 'Perito(a) do Juízo', technical_opinion: 'Assistente Técnico(a)' } as const;
+const FONTS = { times: 'Times New Roman', arial: 'Arial' } as const;
+// 1 cm = 567 twips.
+const twips = (cm: number): number => Math.round(cm * 567);
 
 export const reportDocx = async ({
   report,
@@ -221,7 +220,18 @@ export const reportDocx = async ({
   values,
   photos,
 }: ReportExportData): Promise<Buffer> => {
+  const { layout } = report;
+  const color = layout.titleColor.slice(1).toUpperCase();
   const numbers = numberSections(report.sections);
+  const numbered = (i: number, title: string) => `${numbers[i] ? `${numbers[i]}. ` : ''}${title}`;
+  const centered = (text: string, bold = false, before = 0) =>
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before }, children: [new TextRun({ text, bold })] });
+  const signature = [
+    centered(expert.name, true, 600),
+    centered(ROLE[report.type]),
+    ...[expert.education, expert.professionalRegistration].flatMap((row) => (row ? [centered(row)] : [])),
+  ];
+  const pageBreak = () => new Paragraph({ children: [new PageBreak()] });
   const logo = identity.logoDataUrl
     ? Buffer.from(identity.logoDataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
     : undefined;
@@ -242,41 +252,79 @@ export const reportDocx = async ({
       children: [new TextRun({ text: TYPE[report.type], bold: true, size: 40 })],
     }),
     ...coverRow('Processo nº', legalCase.processNumber),
+    ...coverRow('OS', legalCase.serviceOrder),
     ...coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
     ...coverRow('Tribunal', legalCase.court),
     ...coverRow(values['[DENOMINACAO_AUTOR]'], values['[NOME_AUTOR]']),
     ...coverRow(values['[DENOMINACAO_REU]'], values['[NOME_REU]']),
     ...coverRow('Objeto', legalCase.subject),
-    ...[expert.name, expert.education, expert.professionalRegistration, values['[DATA_EXTENSO]']]
-      .filter((row): row is string => Boolean(row))
-      .map(
-        (row, i) =>
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { before: i === 0 ? 2400 : 0 },
-            children: [new TextRun({ text: row, bold: i === 0 })],
-          }),
-      ),
+    centered(values['[DATA_EXTENSO]'] ?? '', false, 2400),
+    ...signature,
+    pageBreak(),
+  ];
+  // Page to the judge and "É o laudo." with the signature (NLA-04).
+  const credentials = [
+    expert.education,
+    expert.professionalRegistration && `inscrito(a) no ${expert.professionalRegistration}`,
+  ]
+    .filter(Boolean)
+    .map((row) => `, ${row}`)
+    .join('');
+  const opening = [
+    centered(`EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A) DA ${(legalCase.division ?? 'VARA').toUpperCase()}`, true),
+    ...(legalCase.processNumber
+      ? [new Paragraph({ spacing: { before: 240 }, text: `Processo: ${legalCase.processNumber}` })]
+      : []),
+    centered(OPENING_TYPE[report.type], true, 240),
+    centered(legalCase.subject.toUpperCase(), true),
+    new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      spacing: { before: 240 },
+      children: [
+        new TextRun({ text: expert.name.toUpperCase(), bold: true }),
+        new TextRun(
+          `${credentials}, ${ROLE[report.type]} nos autos do processo em epígrafe, vem, respeitosamente, à presença de Vossa Excelência, apresentar o ${OPENING_TYPE[report.type]}, nos termos dos arts. 473 e 477 do CPC, pelas razões técnicas a seguir expostas.`,
+        ),
+      ],
+    }),
+    new Paragraph({ text: values['[DATA_EXTENSO]'] ?? '' }),
+    ...signature,
+    pageBreak(),
+  ];
+  const closing = [
+    new Paragraph({ spacing: { before: 480 }, text: report.type === 'report' ? 'É o laudo.' : 'É o parecer.' }),
+    new Paragraph({ text: values['[DATA_EXTENSO]'] ?? '' }),
+    ...signature,
+  ];
+  const summary = [
+    new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'SUMÁRIO', bold: true, color })] }),
+    new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-3' }),
+    pageBreak(),
   ];
   const sections = report.sections.flatMap((section, i) => [
     new Paragraph({
       heading: HEADINGS[Math.min(section.level, 3) - 1],
       pageBreakBefore: section.pageBreak,
-      children: [new TextRun(`${numbers[i]}. ${section.title}`)],
+      children: [new TextRun(numbered(i, section.title))],
     }),
     ...(section.titleOnly ? [] : blocks(parseDocument(section.html).children as No[], {}, photos)),
   ]);
   const doc = new Document({
     features: { updateFields: true },
     styles: {
-      default: { document: { run: { font: 'Times New Roman', size: 24 } } },
+      default: {
+        document: {
+          run: { font: FONTS[layout.font], size: layout.fontSize * 2 },
+          paragraph: { spacing: { after: layout.paragraphSpacing * 20, line: Math.round(layout.lineHeight * 240) } },
+        },
+      },
       paragraphStyles: [
         {
           id: 'Heading1',
           name: 'Heading 1',
           basedOn: 'Normal',
           next: 'Normal',
-          run: { bold: true, size: 26, allCaps: true, color: '000000' },
+          run: { bold: true, size: layout.fontSize * 2 + 2, allCaps: true, color },
           paragraph: { spacing: { before: 360, after: 120 } },
         },
         {
@@ -284,7 +332,7 @@ export const reportDocx = async ({
           name: 'Heading 2',
           basedOn: 'Normal',
           next: 'Normal',
-          run: { bold: true, size: 24, color: '000000' },
+          run: { bold: true, size: layout.fontSize * 2, color },
           paragraph: { spacing: { before: 240, after: 120 } },
         },
         {
@@ -292,7 +340,7 @@ export const reportDocx = async ({
           name: 'Heading 3',
           basedOn: 'Normal',
           next: 'Normal',
-          run: { bold: true, italics: true, size: 24, color: '000000' },
+          run: { bold: true, italics: true, size: layout.fontSize * 2, color },
           paragraph: { spacing: { before: 200, after: 100 } },
         },
       ],
@@ -314,17 +362,25 @@ export const reportDocx = async ({
     sections: [
       {
         properties: {
-          page: { margin: { top: 1900, bottom: 1250, left: 1700, right: 1130, header: 600, footer: 500 } },
+          page: {
+            margin: {
+              top: twips(layout.marginTop),
+              bottom: twips(layout.marginBottom),
+              left: twips(layout.marginLeft),
+              right: twips(layout.marginRight),
+              header: 600,
+              footer: 500,
+            },
+          },
         },
         headers: { default: new Header({ children: templateRows(header, logo, expert.name) }) },
         footers: { default: new Footer({ children: templateRows(footer, logo, expert.name) }) },
         children: [
-          ...cover,
-          new Paragraph({ children: [new PageBreak()] }),
-          new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'SUMÁRIO', bold: true })] }),
-          new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-3' }),
-          new Paragraph({ children: [new PageBreak()] }),
+          ...(layout.cover ? cover : []),
+          ...(layout.summary ? summary : []),
+          ...(layout.opening ? opening : []),
           ...sections,
+          ...(layout.opening ? closing : []),
         ],
       },
     ],

@@ -1,3 +1,4 @@
+import { REPORT_LAYOUT_DEFAULT, type ReportLayout } from '@ethica/contracts';
 import type { ReportDocument, ReportSectionDocument } from '@ethica/db';
 import { Report, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
@@ -10,6 +11,7 @@ import type {
   ReportRecord,
   ReportSectionRecord,
   ReportSectionsReplace,
+  ReportSectionWrite,
   UpdateReportSection,
 } from './report.schema.js';
 
@@ -20,6 +22,8 @@ const sectionToRecord = (section: ReportSectionDocument): ReportSectionRecord =>
   level: section.level,
   titleOnly: section.titleOnly,
   pageBreak: section.pageBreak,
+  unnumbered: section.unnumbered ?? false,
+  included: section.included ?? true,
   variant: section.variant,
   html: section.html,
 });
@@ -29,12 +33,14 @@ const toRecord = (doc: ReportDocument): ReportRecord => {
   return {
     id: doc._id.toString(),
     caseId: doc.Case.toString(),
+    ...(doc.Signatory ? { signatoryId: doc.Signatory.toString() } : {}),
     type: doc.type,
     status: doc.status,
     title: doc.title,
     ...(doc.templateId ? { templateId: doc.templateId } : {}),
     templateName: doc.templateName,
     sections,
+    layout: { ...REPORT_LAYOUT_DEFAULT, ...doc.layout },
     issues: issuesOf(sections),
     completedAt: doc.completedAt,
     createdAt: doc.createdAt,
@@ -44,8 +50,10 @@ const toRecord = (doc: ReportDocument): ReportRecord => {
 
 export const create = async (input: ReportCreateInput): Promise<ReportRecord> =>
   withDbTiming('report.create', async () => {
-    const { tenantId, caseId, userId, ...rest } = input;
-    return toRecord(await Report.create({ ...rest, Tenant: tenantId, Case: caseId, CreatedBy: userId }));
+    const { tenantId, caseId, userId, signatoryId, ...rest } = input;
+    return toRecord(
+      await Report.create({ ...rest, Tenant: tenantId, Case: caseId, Signatory: signatoryId, CreatedBy: userId }),
+    );
   });
 
 export const findById = async (tenantId: string, id: string): Promise<ReportRecord | null> =>
@@ -141,6 +149,32 @@ export const replaceSections = async (
         },
       },
       { returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+// New item of the report itself (NLA-05) at `position` of the list.
+export const insertSection = async (
+  tenantId: string,
+  id: string,
+  position: number,
+  section: ReportSectionWrite,
+): Promise<ReportRecord | null> =>
+  withDbTiming('report.insertSection', async () => {
+    const doc = await Report.findOneAndUpdate(
+      draft(tenantId, id),
+      { $push: { sections: { $each: [section], $position: position } } },
+      { returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+export const setLayout = async (tenantId: string, id: string, layout: ReportLayout): Promise<ReportRecord | null> =>
+  withDbTiming('report.setLayout', async () => {
+    const doc = await Report.findOneAndUpdate(
+      draft(tenantId, id),
+      { $set: { layout } },
+      { returnDocument: 'after' },
     ).lean();
     return doc ? toRecord(doc) : null;
   });

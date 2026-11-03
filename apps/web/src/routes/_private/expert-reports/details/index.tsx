@@ -18,24 +18,31 @@ import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseInspectionsQuery } from '@/query/inspection.js';
 import {
+  addReportSectionMutation,
   completeReportMutation,
   deleteReportMutation,
   fillReportFromProcessMutation,
   type ProcessFill,
   removeReportSectionMutation,
   reportQuery,
+  setReportLayoutMutation,
   updateReportSectionMutation,
   uploadReportPhotoMutation,
 } from '@/query/report.js';
+import { LayoutDialog } from '../@components/layout-dialog.js';
+import { AddSectionDialog } from './@components/add-section-dialog.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
 import { ProcessFillDialog } from './@components/process-fill-dialog.js';
 import { ReportPreviewDialog } from './@components/report-preview-dialog.js';
-import { ReportSectionEditor, type SectionDraft } from './@components/report-section-editor.js';
+import type { SectionDraft } from './@components/report-section-editor.js';
 import { ReportSectionsDialog } from './@components/report-sections-dialog.js';
-import { ReportSectionsNav } from './@components/report-sections-nav.js';
+import { ReportSectionsList } from './@components/report-sections-list.js';
 import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
-type Dialog = 'complete' | 'removal' | 'remove-section' | 'sections' | 'preview' | null;
+type Dialog =
+  | { kind: 'complete' | 'removal' | 'sections' | 'preview' | 'layout' }
+  | { kind: 'add-section' | 'remove-section'; sectionId: string }
+  | null;
 
 export function ReportDetailsPage() {
   const search = useSearch({ strict: false }) as ReportDetailsSearch;
@@ -43,7 +50,9 @@ export function ReportDetailsPage() {
   const queryClient = useQueryClient();
   const query = useQuery({ ...reportQuery(search.id), retry: false });
   const save = useMutation(updateReportSectionMutation(queryClient));
+  const addSection = useMutation(addReportSectionMutation(queryClient));
   const dropSection = useMutation(removeReportSectionMutation(queryClient));
+  const setLayout = useMutation(setReportLayoutMutation(queryClient));
   const complete = useMutation(completeReportMutation(queryClient));
   const removal = useMutation(deleteReportMutation(queryClient));
   const uploadPhoto = useMutation(uploadReportPhotoMutation());
@@ -58,36 +67,53 @@ export function ReportDetailsPage() {
       .filter((media) => media.type === 'photo')
       .map((media) => ({ src: `/inspections/${appointment.id}/media/${media.id}`, caption: media.caption })),
   );
-  const [draft, setDraft] = useState<(SectionDraft & { sectionId: string }) | null>(null);
+  // Text being edited by item (NLA-05): several items may be open at the same time.
+  const [drafts, setDrafts] = useState<Record<string, SectionDraft>>({});
   const [dialog, setDialog] = useState<Dialog>(null);
+  const [savingAll, setSavingAll] = useState(false);
   const report = query.data;
-  const section = report?.sections.find((item) => item.id === search.section) ?? report?.sections[0];
-  const current =
-    section && draft?.sectionId === section.id
-      ? draft
-      : section && { sectionId: section.id, title: section.title, html: section.html };
-  const dirty = Boolean(section && current && (current.title !== section.title || current.html !== section.html));
+  const dirtyIds = Object.entries(drafts)
+    .filter(([sectionId, draft]) => {
+      const section = report?.sections.find((item) => item.id === sectionId);
+      return section && (draft.title !== section.title || draft.html !== section.html);
+    })
+    .map(([sectionId]) => sectionId);
+  const busy = savingAll || save.isPending || addSection.isPending || dropSection.isPending;
   const onError = (error: Error) => toast.error(error.message);
 
-  function saveCurrent(depois?: () => void) {
-    if (!report || !section || !current || !dirty) return depois?.();
+  const forget = (sectionId: string) =>
+    setDrafts((prev) => Object.fromEntries(Object.entries(prev).filter(([id]) => id !== sectionId)));
+
+  function saveSection(sectionId: string) {
+    const draft = drafts[sectionId];
+    if (!report || !draft) return;
     save.mutate(
-      { id: report.id, sectionId: section.id, data: { title: current.title, html: current.html } },
-      {
-        onSuccess: () => {
-          setDraft(null);
-          depois?.();
-        },
-        onError,
-      },
+      { id: report.id, sectionId, data: { title: draft.title, html: draft.html } },
+      { onSuccess: () => forget(sectionId), onError },
     );
   }
 
-  // Switching sections first saves the one that was open, so no text is lost.
-  function selecionar(sectionId: string) {
-    saveCurrent(() =>
-      navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: sectionId }), replace: true }),
-    );
+  // Before leaving the editor (preview, export, template, process), every changed item is saved, so no text is lost.
+  async function saveAll(then?: () => void) {
+    if (!report) return;
+    setSavingAll(true);
+    try {
+      for (const sectionId of dirtyIds) {
+        const draft = drafts[sectionId] as SectionDraft;
+        await save.mutateAsync({ id: report.id, sectionId, data: { title: draft.title, html: draft.html } });
+      }
+      setDrafts({});
+      then?.();
+    } catch (error) {
+      onError(error as Error);
+    } finally {
+      setSavingAll(false);
+    }
+  }
+
+  function toggleIncluded(sectionId: string, included: boolean) {
+    if (!report) return;
+    save.mutate({ id: report.id, sectionId, data: { included } }, { onError });
   }
 
   // LMO-03: the full process PDF fills questions and claims; the dialog shows what was found.
@@ -96,26 +122,19 @@ export function ReportDetailsPage() {
     event.target.value = '';
     if (!file || !report) return;
     if (file.size > PDF_IMPORT_MAX_BYTES) return void toast.error(t('file_too_large'));
-    saveCurrent(() =>
-      fillFromProcess.mutate(
-        { id: report.id, file },
-        {
-          onSuccess: (result) => {
-            setDraft(null);
-            setProcessResult(result);
-          },
-          onError,
-        },
-      ),
+    void saveAll(() =>
+      fillFromProcess.mutate({ id: report.id, file }, { onSuccess: (result) => setProcessResult(result), onError }),
     );
   }
 
   function runExport(format: 'pdf' | 'docx') {
     if (!report) return;
-    saveCurrent(() => void download(`/expert-reports/${report.id}/${format}`));
+    void saveAll(() => void download(`/expert-reports/${report.id}/${format}`));
   }
 
   const openDraft = report?.status === 'draft';
+  const target =
+    dialog && 'sectionId' in dialog ? report?.sections.find((item) => item.id === dialog.sectionId) : undefined;
   const menu = report && (
     <PageMenu>
       <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('pdf')}>
@@ -132,13 +151,17 @@ export function ReportDetailsPage() {
       <CardHeader title={t('details')}>
         {report && (
           <CardAction>
-            <Button variant="outline" onClick={() => saveCurrent(() => setDialog('preview'))}>
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={() => void saveAll(() => setDialog({ kind: 'preview' }))}
+            >
               {t('preview_pdf')}
             </Button>
             {openDraft && (
               <Button
                 variant="outline"
-                disabled={fillFromProcess.isPending}
+                disabled={fillFromProcess.isPending || busy}
                 onClick={() => processInputRef.current?.click()}
               >
                 {fillFromProcess.isPending ? t('reading_pdf') : t('fill_from_process')}
@@ -154,15 +177,24 @@ export function ReportDetailsPage() {
               onChange={handleProcessFile}
             />
             {openDraft && (
-              <Button variant="outline" onClick={() => saveCurrent(() => setDialog('sections'))}>
+              <Button
+                variant="outline"
+                disabled={busy}
+                onClick={() => void saveAll(() => setDialog({ kind: 'sections' }))}
+              >
                 {t('template_sections')}
               </Button>
             )}
             {openDraft && (
+              <Button variant="outline" onClick={() => setDialog({ kind: 'layout' })}>
+                {t('report_layout')}
+              </Button>
+            )}
+            {openDraft && (
               <Button
-                disabled={report.issues.length > 0 || dirty}
+                disabled={report.issues.length > 0 || dirtyIds.length > 0 || busy}
                 title={report.issues.length ? t('fill_or_remove_variables') : undefined}
-                onClick={() => setDialog('complete')}
+                onClick={() => setDialog({ kind: 'complete' })}
               >
                 {t('complete')}
               </Button>
@@ -175,7 +207,7 @@ export function ReportDetailsPage() {
         <CardContent>
           <DefaultLoading />
         </CardContent>
-      ) : !report || !section || !current ? (
+      ) : !report ? (
         <CardContent>
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
@@ -198,26 +230,23 @@ export function ReportDetailsPage() {
               pulse={report.status === 'draft'}
             />
           </RecordHeader>
-          <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
-            <ReportSectionsNav report={report} selected={section.id} onSelect={selecionar} />
-            <ReportSectionEditor
-              report={report}
-              section={section}
-              draft={current}
-              onChange={(next) => setDraft({ ...next, sectionId: section.id })}
-              dirty={dirty}
-              saving={save.isPending || dropSection.isPending}
-              onSave={() => saveCurrent()}
-              onRemove={() => setDialog('remove-section')}
-              photos={photos}
-              uploadPhoto={(photo) => uploadPhoto.mutateAsync({ id: report.id, photo })}
-            />
-          </div>
+          <ReportSectionsList
+            report={report}
+            drafts={drafts}
+            saving={busy}
+            onChange={(sectionId, draft) => setDrafts((prev) => ({ ...prev, [sectionId]: draft }))}
+            onSave={saveSection}
+            onToggleIncluded={toggleIncluded}
+            onAdd={(sectionId) => setDialog({ kind: 'add-section', sectionId })}
+            onRemove={(sectionId) => setDialog({ kind: 'remove-section', sectionId })}
+            photos={photos}
+            uploadPhoto={(photo) => uploadPhoto.mutateAsync({ id: report.id, photo })}
+          />
         </CardContent>
       )}
       {report && openDraft && (
         <CardFooter className="justify-between gap-2">
-          <Button variant="destructive" onClick={() => setDialog('removal')}>
+          <Button variant="destructive" onClick={() => setDialog({ kind: 'removal' })}>
             {t('remove')}
           </Button>
         </CardFooter>
@@ -225,7 +254,7 @@ export function ReportDetailsPage() {
       {report && processResult && (
         <ProcessFillDialog caseId={report.caseId} result={processResult} onClose={() => setProcessResult(null)} />
       )}
-      {report && dialog === 'preview' && (
+      {report && dialog?.kind === 'preview' && (
         <ReportPreviewDialog
           reportId={report.id}
           downloading={Boolean(pending)}
@@ -233,16 +262,40 @@ export function ReportDetailsPage() {
           onClose={() => setDialog(null)}
         />
       )}
-      {report && dialog === 'sections' && (
-        <ReportSectionsDialog
-          report={report}
-          onClose={() => {
-            setDialog(null);
-            navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: undefined }), replace: true });
-          }}
+      {report && dialog?.kind === 'sections' && (
+        <ReportSectionsDialog report={report} onClose={() => setDialog(null)} />
+      )}
+      {report && dialog?.kind === 'layout' && (
+        <LayoutDialog
+          layout={report.layout}
+          pending={setLayout.isPending}
+          onClose={() => setDialog(null)}
+          onSave={(layout) =>
+            setLayout.mutate(
+              { id: report.id, layout },
+              {
+                onSuccess: () => {
+                  setDialog(null);
+                  toast.success(t('changes_saved'));
+                },
+                onError,
+              },
+            )
+          }
         />
       )}
-      {report && dialog === 'complete' && (
+      {report && target && dialog?.kind === 'add-section' && (
+        <AddSectionDialog
+          afterId={target.id}
+          level={target.level}
+          pending={addSection.isPending}
+          onClose={() => setDialog(null)}
+          onConfirm={(data) =>
+            addSection.mutate({ id: report.id, data }, { onSuccess: () => setDialog(null), onError })
+          }
+        />
+      )}
+      {report && dialog?.kind === 'complete' && (
         <CompleteReportDialog
           pending={complete.isPending}
           onClose={() => setDialog(null)}
@@ -260,21 +313,20 @@ export function ReportDetailsPage() {
           }
         />
       )}
-      {report && section && dialog === 'remove-section' && (
+      {report && target && dialog?.kind === 'remove-section' && (
         <ConfirmDialog
           title={t('remove_section_question')}
-          description={section.title}
+          description={target.title}
           confirmLabel={t('remove')}
           pending={dropSection.isPending}
           onClose={() => setDialog(null)}
           onConfirm={() =>
             dropSection.mutate(
-              { id: report.id, sectionId: section.id },
+              { id: report.id, sectionId: target.id },
               {
                 onSuccess: () => {
                   setDialog(null);
-                  setDraft(null);
-                  navigate({ search: (prev: ReportDetailsSearch) => ({ ...prev, section: undefined }), replace: true });
+                  forget(target.id);
                 },
                 onError,
               },
@@ -282,7 +334,7 @@ export function ReportDetailsPage() {
           }
         />
       )}
-      {report && dialog === 'removal' && (
+      {report && dialog?.kind === 'removal' && (
         <ConfirmDialog
           title={t('remove_report_question')}
           description={t('action_cannot_be_undone')}

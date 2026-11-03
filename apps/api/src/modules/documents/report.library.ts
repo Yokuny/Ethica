@@ -1,4 +1,4 @@
-import { REPORT_DEFAULT_TEMPLATES, type ReportType } from '@ethica/contracts';
+import { REPORT_LAYOUT_DEFAULT } from '@ethica/contracts';
 import type { TemplateRecord, TemplateSectionRecord } from './report.schema.js';
 
 // Default library (LAU-05, LAU-06, AD-127): short base text citing the standard, in the variants
@@ -7,8 +7,8 @@ import type { TemplateRecord, TemplateSectionRecord } from './report.schema.js';
 
 const p = (...paragraphs: string[]): string => paragraphs.map((text) => `<p>${text}</p>`).join('');
 
-type Section = Omit<TemplateSectionRecord, 'id' | 'titleOnly' | 'pageBreak'> &
-  Partial<Pick<TemplateSectionRecord, 'titleOnly' | 'pageBreak'>>;
+type Section = Omit<TemplateSectionRecord, 'id' | 'titleOnly' | 'pageBreak' | 'unnumbered'> &
+  Partial<Pick<TemplateSectionRecord, 'titleOnly' | 'pageBreak' | 'unnumbered'>>;
 
 const group = (title: string, pageBreak = false): Section => ({
   title,
@@ -384,27 +384,179 @@ const TECHNICAL_OPINION: Section[] = [
   ENCERRAMENTO,
 ];
 
-const comIds = (prefix: string, sections: Section[]): TemplateSectionRecord[] =>
+// Labor report of the expert (NLA-04): the items and sub-items of the model she uses, in her order. Items
+// the case already fills come with text; the others start empty for her to write.
+const item = (title: string, level: number, text = '', extra: Partial<Section> = {}): Section => ({
+  title,
+  level,
+  yesText: text,
+  noText: text,
+  ...extra,
+});
+const heading = (title: string, level = 1, pageBreak = false): Section => ({ ...group(title, pageBreak), level });
+const fromLibrary = (title: string, level: number, base: Section | undefined): Section => ({
+  title,
+  level,
+  yesText: base?.yesText ?? '',
+  noText: base?.noText ?? '',
+});
+const nr15 = (annex: string) => NR15.find((section) => section.title.startsWith(`Anexo ${annex} — `));
+const nr16 = (prefix: string) => NR16.find((section) => section.title.startsWith(prefix));
+const byTitle = (title: string) => EXPERT_REPORT.find((section) => section.title === title);
+const answers = (title: string, of: string): Section => ({ ...questions(of), title, level: 2 });
+
+const LABOR_REPORT: Section[] = [
+  item('Objeto da perícia', 1, p('[OBJETO].'), { unnumbered: true }),
+  { ...heading('Considerações preliminares'), unnumbered: true },
+  heading('Introdução'),
+  item('Do amparo constitucional e legal', 2),
+  item('Da insalubridade (NR-15)', 2),
+  item('Da periculosidade (NR-16)', 2),
+  item('Da análise ergonômica do trabalho (NR-17)', 2),
+  item('Do acidente do trabalho e gestão de riscos (NR-1)', 2),
+  item('Das condições ambientais e documentação previdenciária (PPP)', 2),
+  item('Hierarquia de controle e conclusão', 2),
+  heading('Preliminares'),
+  fromLibrary('Dados do processo', 2, IDENTIFICATION),
+  item('Ata de audiência', 2),
+  item('Prova pericial conforme ata de audiência', 2),
+  item('Comunicação', 2),
+  heading('Vistorias'),
+  item('Local e data', 2, p('Vistoria realizada em [DATA_VISTORIA], às [HORA_VISTORIA], em [LOCAL_PERICIA].')),
+  item('Presentes', 2, p('[PRESENTES_VISTORIA].')),
+  item('Reclamante', 3, p('[NOME_AUTOR].')),
+  item('Reclamada', 3, p('[NOME_REU].')),
+  heading('Período/função/atividades', 2),
+  item(
+    'Período',
+    3,
+    p('Admissão em [DATA_ADMISSAO] e demissão em [DATA_DEMISSAO]. Período imprescrito: [PERIODO_IMPRESCRITO].'),
+  ),
+  item('Função', 3, p('Função informada nos autos: [FUNCAO_RECLAMANTE].')),
+  item(
+    'Atividades',
+    3,
+    p(
+      'Atividades relatadas pelo(a) [DENOMINACAO_AUTOR]: [FUNCOES_AUTOR].',
+      'Atividades relatadas pelo(a) [DENOMINACAO_REU]: [FUNCOES_REU].',
+    ),
+  ),
+  item('Dos locais de trabalho do(a) reclamante', 1),
+  fromLibrary('Das medidas de proteção e controle', 1, byTitle('Equipamentos de proteção individual')),
+  fromLibrary('Da documentação de segurança existente nos autos', 1, ANALYZED_DOCUMENTS),
+  heading('Avaliação da insalubridade', 1, true),
+  fromLibrary('Anexo 1 – Limites de Tolerância para Ruído contínuo ou intermitente', 2, nr15('1')),
+  fromLibrary('Anexo 2 – Limites de tolerância para ruído de impacto', 2, nr15('2')),
+  fromLibrary('Anexo 3 – Limites de tolerância para exposição ao calor', 2, nr15('3')),
+  fromLibrary('Anexo 4 – Iluminamento', 2, nr15('4')),
+  fromLibrary('Anexo 5 – Radiações ionizantes', 2, nr15('5')),
+  fromLibrary('Anexo 6 – Trabalho sob condições hiperbáricas', 2, nr15('6')),
+  fromLibrary('Anexo 7 – Radiações não ionizantes', 2, nr15('7')),
+  fromLibrary('Anexo 8 – Vibrações', 2, nr15('8')),
+  fromLibrary('Anexo 9 – Frio', 2, nr15('9')),
+  fromLibrary('Anexo 10 – Umidade', 2, nr15('10')),
+  fromLibrary(
+    'Anexo 11 – Agentes químicos cuja insalubridade é caracterizada por limite de tolerância e inspeção no local de trabalho',
+    2,
+    nr15('11'),
+  ),
+  fromLibrary('Anexo 12 – Limites de tolerância para poeiras minerais', 2, nr15('12')),
+  fromLibrary('Anexo 13 – Agentes químicos', 2, nr15('13')),
+  fromLibrary('Anexo 14 – Agentes biológicos', 2, nr15('14')),
+  heading('Do levantamento das atividades e operações perigosas', 1, true),
+  fromLibrary('Anexo 1 – Atividades e operações perigosas com explosivos', 2, nr16('Anexo 1 ')),
+  fromLibrary('Anexo 2 – Atividades e operações perigosas com inflamáveis', 2, nr16('Anexo 2 ')),
+  fromLibrary(
+    'Anexo 3 – Atividades e operações perigosas com exposição a roubos ou outras espécies de violência física nas atividades profissionais de segurança pessoal ou patrimonial',
+    2,
+    nr16('Anexo 3 '),
+  ),
+  fromLibrary('Anexo 4 - Atividades e operações perigosas com energia elétrica', 2, nr16('Anexo 4 ')),
+  fromLibrary('Anexo 5 - Atividades perigosas em motocicleta', 2, nr16('Anexo 5 ')),
+  item('Anexo 6 - Atividades perigosas dos agentes das autoridades de trânsito', 2),
+  fromLibrary(
+    'Anexo * - Atividades e operações perigosas com radiações ionizantes ou substâncias radioativas',
+    2,
+    nr16('Radiações'),
+  ),
+  heading('Acidente de trabalho', 1, true),
+  item('Fundamentação técnico-científica', 2),
+  item('Depoimento do acidente pelo(a) reclamante', 2),
+  item('Depoimento do acidente pela reclamada', 2),
+  item('Treinamentos normativos aplicáveis e atendimento', 2),
+  item('Normas aplicáveis à atividade / acidente x atendimento', 2),
+  item('Análise do acidente de trabalho', 2),
+  item('Conformidades e não conformidades identificadas', 2),
+  item('Conclusão técnica do acidente', 2),
+  heading('Ergonomia', 1, true),
+  item('Metodologia utilizada', 2),
+  item('Organização do trabalho', 2),
+  item('Análise da AET', 2),
+  item('Conclusão da análise ergonômica', 2),
+  heading('Avaliação do meio ambiente de trabalho', 1, true),
+  item('Metodologia utilizada', 2),
+  item('Treinamentos normativos aplicáveis e atendimento', 2),
+  item('Normas aplicáveis à atividade x atendimento', 2),
+  item('Conclusão da análise do meio ambiente de trabalho', 2),
+  heading('Avaliação do PPP', 1, true),
+  item('Metodologia utilizada', 2),
+  item('LTCAT / PGR x riscos identificados', 2),
+  item('Conformidades e não conformidades identificadas', 2),
+  item('Conclusão da análise do PPP', 2),
+  heading('Respostas aos quesitos', 1, true),
+  answers('Reclamante', 'pelo(a) [DENOMINACAO_AUTOR]'),
+  answers('1ª reclamada', 'pela 1ª reclamada'),
+  answers('2ª reclamada', 'pela 2ª reclamada'),
+  answers('Juízo', 'pelo Juízo'),
+  { ...fromLibrary('Conclusão / parecer técnico', 1, byTitle('Conclusão')), pageBreak: true },
+  fromLibrary('Honorários', 1, byTitle('Honorários periciais')),
+  item('Considerações finais', 1),
+  item(
+    'Encerramento',
+    1,
+    p(
+      'Nada mais havendo a esclarecer, encerra-se o presente laudo, colocando-se a signatária à disposição do Juízo para os esclarecimentos que se fizerem necessários.',
+    ),
+  ),
+  item('Anexo I – Agendamento da perícia', 1, '', { pageBreak: true }),
+  item('Anexo II – Avaliações ambientais', 1),
+  item('Anexo III – Certificação de calibração', 1),
+  item('Anexo IV – Referências bibliográficas', 1),
+];
+
+const withIds = (prefix: string, sections: Section[]): TemplateSectionRecord[] =>
   sections.map((section, index) => ({
     titleOnly: false,
     pageBreak: false,
+    unnumbered: false,
     ...section,
     id: `${prefix}-${String(index + 1).padStart(2, '0')}`,
   }));
 
-export const DEFAULT_TEMPLATES: Record<ReportType, TemplateRecord> = {
-  report: {
-    id: REPORT_DEFAULT_TEMPLATES.report,
+// The first of each type is the one "Novo laudo" suggests (REPORT_DEFAULT_TEMPLATES).
+export const DEFAULT_TEMPLATES: TemplateRecord[] = [
+  {
+    id: 'standard-labor-report',
     name: 'Laudo pericial trabalhista',
     type: 'report',
     isDefault: true,
-    sections: comIds('laudo', EXPERT_REPORT),
+    sections: withIds('trabalhista', LABOR_REPORT),
+    layout: { ...REPORT_LAYOUT_DEFAULT, opening: true },
   },
-  technical_opinion: {
-    id: REPORT_DEFAULT_TEMPLATES.technical_opinion,
+  {
+    id: 'standard-report',
+    name: 'Laudo pericial (NR-15 e NR-16)',
+    type: 'report',
+    isDefault: true,
+    sections: withIds('laudo', EXPERT_REPORT),
+    layout: REPORT_LAYOUT_DEFAULT,
+  },
+  {
+    id: 'standard-technical_opinion',
     name: 'Parecer técnico',
     type: 'technical_opinion',
     isDefault: true,
-    sections: comIds('parecer', TECHNICAL_OPINION),
+    sections: withIds('parecer', TECHNICAL_OPINION),
+    layout: REPORT_LAYOUT_DEFAULT,
   },
-};
+];

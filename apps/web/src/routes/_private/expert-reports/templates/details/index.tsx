@@ -20,10 +20,12 @@ import {
   deleteTemplateMutation,
   moveTemplateSectionMutation,
   removeTemplateSectionMutation,
+  setTemplateLayoutMutation,
   type TemplateSectionRecord,
   templateQuery,
 } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
+import { LayoutDialog } from '../../@components/layout-dialog.js';
 import { TemplateCreateForm } from '../@components/template-create-form.js';
 import { TemplateSectionForm } from './@components/template-section-form.js';
 import { TemplateSectionView } from './@components/template-section-view.js';
@@ -34,6 +36,7 @@ type PanelState =
   | { kind: 'ver'; section: TemplateSectionRecord }
   | { kind: 'remove-section'; section: TemplateSectionRecord }
   | { kind: 'duplicate' }
+  | { kind: 'layout' }
   | { kind: 'removal' }
   | null;
 
@@ -47,6 +50,7 @@ export function TemplateDetailsPage() {
   const move = useMutation(moveTemplateSectionMutation(queryClient));
   const dropSection = useMutation(removeTemplateSectionMutation(queryClient));
   const removal = useMutation(deleteTemplateMutation(queryClient));
+  const setLayout = useMutation(setTemplateLayoutMutation(queryClient));
   const [panel, setPanel] = useState<PanelState>(null);
   const template = query.data;
   const canEdit = Boolean(template && !template.isDefault && can(session, 'report_templates', 'update'));
@@ -58,6 +62,11 @@ export function TemplateDetailsPage() {
       <CardHeader title={t('details')}>
         {template && can(session, 'report_templates', 'update') && (
           <CardAction>
+            {canEdit && (
+              <Button variant="outline" onClick={() => setPanel({ kind: 'layout' })}>
+                {t('report_layout')}
+              </Button>
+            )}
             {canEdit && <Button onClick={() => setPanel({ kind: 'section' })}>{t('new_section')}</Button>}
             <PageMenu>
               <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicate' })}>
@@ -104,8 +113,12 @@ export function TemplateDetailsPage() {
                       )
                     }
                     className={section.level > 1 ? (section.level > 2 ? 'pl-14' : 'pl-9') : undefined}
-                    title={`${numbers[i]}. ${section.title}`}
-                    description={[section.titleOnly && t('title_only'), section.pageBreak && t('page_break_before')]
+                    title={numbers[i] ? `${numbers[i]}. ${section.title}` : section.title}
+                    description={[
+                      section.titleOnly && t('title_only'),
+                      section.unnumbered && t('without_number'),
+                      section.pageBreak && t('page_break_before'),
+                    ]
                       .filter(Boolean)
                       .join(' · ')}
                   >
@@ -167,6 +180,25 @@ export function TemplateDetailsPage() {
       )}
       {template && panel?.kind === 'section' && (
         <TemplateSectionForm templateId={template.id} section={panel.section} onClose={() => setPanel(null)} />
+      )}
+      {template && panel?.kind === 'layout' && (
+        <LayoutDialog
+          layout={template.layout}
+          pending={setLayout.isPending}
+          onClose={() => setPanel(null)}
+          onSave={(layout) =>
+            setLayout.mutate(
+              { id: template.id, layout },
+              {
+                onSuccess: () => {
+                  setPanel(null);
+                  toast.success(t('changes_saved'));
+                },
+                onError,
+              },
+            )
+          }
+        />
       )}
       {panel?.kind === 'ver' && <TemplateSectionView section={panel.section} onClose={() => setPanel(null)} />}
       {template && panel?.kind === 'duplicate' && (

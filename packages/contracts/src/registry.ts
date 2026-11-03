@@ -21,7 +21,12 @@ import { createCourtDivisionSchema, updateCourtDivisionSchema } from './schemas/
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
 import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
-import { financeReportQuerySchema, updateOfficeSchema, updateScheduleNoticeSchema } from './schemas/document.schema.js';
+import {
+  financeReportQuerySchema,
+  serviceOrderSettingsSchema,
+  updateOfficeSchema,
+  updateScheduleNoticeSchema,
+} from './schemas/document.schema.js';
 import { idSchema } from './schemas/id.schema.js';
 import {
   inspectionDataSchema,
@@ -42,11 +47,15 @@ import { permissionsSchema, updatePermissionsSchema } from './schemas/permission
 import { createOpportunitySchema, datajudSearchSchema, updateOpportunitySchema } from './schemas/prospecting.schema.js';
 import { provisionTenantSchema } from './schemas/provisionTenant.schema.js';
 import {
+  addReportSectionSchema,
   chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
   createTemplateSchema,
   moveSectionSchema,
+  reportLayoutSchema,
+  signatorySchema,
+  templateIdSchema,
   templateSectionSchema,
   updateReportSectionSchema,
   updateTemplateSchema,
@@ -92,6 +101,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'updateCaseSchema', schema: updateCaseSchema },
   { name: 'createMovementSchema', schema: createMovementSchema },
   { name: 'updateOfficeSchema', schema: updateOfficeSchema },
+  { name: 'serviceOrderSettingsSchema', schema: serviceOrderSettingsSchema },
   { name: 'financeReportQuerySchema', schema: financeReportQuerySchema },
   { name: 'documentSchema', schema: documentSchema },
   { name: 'oabSchema', schema: oabSchema },
@@ -107,6 +117,10 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'updateCourtDivisionSchema', schema: updateCourtDivisionSchema },
   { name: 'chooseReportSectionsSchema', schema: chooseReportSectionsSchema },
   { name: 'updateReportSectionSchema', schema: updateReportSectionSchema },
+  { name: 'addReportSectionSchema', schema: addReportSectionSchema },
+  { name: 'reportLayoutSchema', schema: reportLayoutSchema },
+  { name: 'signatorySchema', schema: signatorySchema },
+  { name: 'templateIdSchema', schema: templateIdSchema },
   { name: 'completeReportSchema', schema: completeReportSchema },
   { name: 'createDeadlineSchema', schema: createDeadlineSchema },
   { name: 'updateDeadlineSchema', schema: updateDeadlineSchema },

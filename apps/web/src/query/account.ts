@@ -1,10 +1,10 @@
 import type { UpdateProfile } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
-import { apiUrl, del, get, patch, post, put } from '@/lib/api/client.api.js';
-import { t } from '@/lib/helpers/translate.helper.js';
-import { sessionKeys } from '@/query/session.js';
-import { userKeys } from '@/query/user.js';
+import { apiUrl, del, get, patch, post, put } from '../lib/api/client.api.js';
+import { t } from '../lib/helpers/translate.helper.js';
+import { sessionKeys } from './session.js';
+import { userKeys } from './user.js';
 
 // Mirrors AccountView of apps/api/src/modules/identity/account.schema.ts.
 export type AccountView = {

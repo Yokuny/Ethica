@@ -1,4 +1,4 @@
-import { caseLabel, REPORT_MEDIA_LIMIT, reportRoleType } from '@ethica/contracts';
+import { caseLabel, REPORT_MEDIA_LIMIT, type ReportLayout, reportRoleType } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -17,6 +17,7 @@ import { issuesOf, type ReportValues, resolveVariables, sanitizeReportHtml } fro
 import { applyProcess, extractProcess } from './report.process.js';
 import * as reportRepository from './report.repository.js';
 import type {
+  AddReportSection,
   ChooseReportSections,
   CompleteReport,
   CreateReport,
@@ -33,6 +34,7 @@ import type {
 } from './report.schema.js';
 import { reportHtml } from './report.templates.js';
 import { reportValues } from './report.variables.js';
+import * as signatoryService from './signatory.service.js';
 import * as templateService from './template.service.js';
 
 export class ReportNotFoundError extends KeyedError {}
@@ -62,14 +64,25 @@ const editable = async (tenantId: string, id: string): Promise<ReportRecord> => 
   return report;
 };
 
-// Data of the case, of whoever generates it and of the office at the moment (AD-126).
-const currentData = async (providers: Pick<Providers, 'storage'>, ctx: DocumentContext, legalCase: CaseRecord) => {
-  const [identity, expert, appointments, field] = await Promise.all([
+// Data of the case, of who signs and of the office at the moment (AD-126). Who signs is the technical
+// responsible of the report (NLA-02) or, without one, whoever generates it.
+const currentData = async (
+  providers: Pick<Providers, 'storage'>,
+  ctx: DocumentContext,
+  legalCase: CaseRecord,
+  signatoryId?: string,
+) => {
+  const [office, profile, appointments, field] = await Promise.all([
     officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
     accountService.getProfile(ctx.tenantId, ctx.userId),
     appointmentService.listByCase(ctx.tenantId, legalCase.id),
     inspectionService.lastDoneByCase(ctx.tenantId, legalCase.id),
   ]);
+  const signer = signatoryId
+    ? await signatoryService.documentSigner(providers.storage, ctx.tenantId, signatoryId, office)
+    : null;
+  const identity = signer?.identity ?? office;
+  const expert = signer?.expert ?? profile;
   const values = reportValues({
     legalCase,
     expert,
@@ -116,7 +129,7 @@ export const openReport = async (ctx: DocumentContext, id: string): Promise<Repo
   const report = await getReport(ctx.tenantId, id);
   if (report.status === 'completed') return report;
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
-  const { values } = await currentData({}, ctx, legalCase);
+  const { values } = await currentData({}, ctx, legalCase, report.signatoryId);
   const sections = resolveSections(report.sections, values);
   return { ...report, sections, issues: issuesOf(sections) };
 };
@@ -146,6 +159,8 @@ const fromTemplate = (section: TemplateSectionRecord, variant: 'yes' | 'no', val
     level: section.level,
     titleOnly: section.titleOnly,
     pageBreak: section.pageBreak,
+    unnumbered: section.unnumbered,
+    included: true,
     variant,
     html: section.titleOnly
       ? ''
@@ -161,11 +176,14 @@ export const createReport = async (
   const legalCase = await caseService.getCase(ctx.tenantId, data.caseId);
   const type = reportRoleType(legalCase.role);
   const { template, chosen } = await chosenSections(ctx.tenantId, type, data);
-  const { values } = await currentData(providers, ctx, legalCase);
+  if (data.signatoryId) await signatoryService.getSignatory(ctx.tenantId, data.signatoryId);
+  const { values } = await currentData(providers, ctx, legalCase, data.signatoryId);
   const report = await reportRepository.create({
     tenantId: ctx.tenantId,
     caseId: legalCase.id,
     userId: ctx.userId,
+    signatoryId: data.signatoryId,
+    layout: template.layout,
     type,
     title: type === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial',
     templateId: template.id,
@@ -186,16 +204,28 @@ export const chooseSections = async (
   const report = await editable(ctx.tenantId, id);
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
   const { template, chosen } = await chosenSections(ctx.tenantId, report.type, data);
-  const { values } = await currentData(providers, ctx, legalCase);
+  const { values } = await currentData(providers, ctx, legalCase, report.signatoryId);
+  const sameTemplate = report.templateId === template.id;
   const current = new Map(
-    report.templateId === template.id
+    sameTemplate
       ? report.sections.flatMap((section) => (section.templateSectionId ? [[section.templateSectionId, section]] : []))
       : [],
   );
-  const sections = chosen.map(([section, variant]) => {
+  const fromChoice = chosen.map(([section, variant]) => {
     const kept = current.get(section.id);
     return kept?.variant === variant ? kept : fromTemplate(section, variant, values);
   });
+  // Items added in the report (NLA-05) stay after the template item they followed, in the same template.
+  const added = new Map<string | undefined, ReportSectionRecord[]>();
+  let anchor: string | undefined;
+  for (const section of sameTemplate ? report.sections : []) {
+    if (section.templateSectionId) anchor = section.templateSectionId;
+    else added.set(anchor, [...(added.get(anchor) ?? []), section]);
+  }
+  const sections = [
+    ...(added.get(undefined) ?? []),
+    ...fromChoice.flatMap((section) => [section, ...(added.get(section.templateSectionId) ?? [])]),
+  ];
   found(
     await reportRepository.replaceSections(ctx.tenantId, id, {
       templateId: template.id,
@@ -217,8 +247,35 @@ export const updateSection = async (
   const updated = await reportRepository.updateSection(tenantId, id, sectionId, {
     title: data.title,
     html: data.html === undefined ? undefined : sanitizeReportHtml(data.html),
+    included: data.included,
   });
   return openReport(ctx, found(updated).id);
+};
+
+// NLA-05: blank item right after `afterId` (or at the start), out of the template.
+export const addSection = async (ctx: DocumentContext, id: string, data: AddReportSection): Promise<ReportRecord> => {
+  const report = await editable(ctx.tenantId, id);
+  const position = data.afterId ? report.sections.findIndex((section) => section.id === data.afterId) + 1 : 0;
+  if (data.afterId && position === 0) throw new ReportNotFoundError('not_found');
+  found(
+    await reportRepository.insertSection(ctx.tenantId, id, position, {
+      title: data.title,
+      level: data.level,
+      titleOnly: false,
+      pageBreak: false,
+      unnumbered: false,
+      included: true,
+      variant: 'yes',
+      html: '',
+    }),
+  );
+  return openReport(ctx, id);
+};
+
+export const setLayout = async (ctx: DocumentContext, id: string, layout: ReportLayout): Promise<ReportRecord> => {
+  await editable(ctx.tenantId, id);
+  found(await reportRepository.setLayout(ctx.tenantId, id, layout));
+  return openReport(ctx, id);
 };
 
 // LMO-03 (AD-152): reads the full process PDF and fills the draft with the questions and the claims; the
@@ -270,7 +327,7 @@ export const completeReport = async (
 ): Promise<ReportRecord> => {
   const report = await editable(ctx.tenantId, id);
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
-  const { values } = await currentData(providers, ctx, legalCase);
+  const { values } = await currentData(providers, ctx, legalCase, report.signatoryId);
   const sections = resolveSections(report.sections, values);
   withoutIssues(sections);
   found(await reportRepository.complete(ctx.tenantId, id, ctx.userId, ctx.now, sections));
@@ -369,8 +426,12 @@ export const deleteByCase = (tenantId: string, caseId: string) => reportReposito
 const toExport = async (providers: Providers, ctx: DocumentContext, id: string, preview = false) => {
   const report = await getReport(ctx.tenantId, id);
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
-  const { identity, expert, values } = await currentData(providers, ctx, legalCase);
-  const sections = resolveSections(report.sections, values);
+  const { identity, expert, values } = await currentData(providers, ctx, legalCase, report.signatoryId);
+  // Only the items that are part of the report leave (NLA-05).
+  const sections = resolveSections(
+    report.sections.filter((section) => section.included),
+    values,
+  );
   if (!preview) withoutIssues(sections);
   // Inspection photos in the text (AD-129): bytes read here, only from the same tenant.
   const srcs = [

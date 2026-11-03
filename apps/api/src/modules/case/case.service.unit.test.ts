@@ -12,6 +12,7 @@ import {
   updateCase,
 } from './case.service.js';
 import * as deadlineRepository from './deadline.repository.js';
+import * as serviceOrderRepository from './service-order.repository.js';
 
 vi.mock('./case.repository.js', () => ({
   createCase: vi.fn(),
@@ -20,6 +21,8 @@ vi.mock('./case.repository.js', () => ({
   deleteCase: vi.fn(),
   listCases: vi.fn(),
 }));
+// Without an office sequence by default: the service is registered without a service order (NLA-01).
+vi.mock('./service-order.repository.js', () => ({ take: vi.fn().mockResolvedValue(null) }));
 vi.mock('./deadline.repository.js', () => ({
   createDeadline: vi.fn(),
   deleteByCase: vi.fn(),
@@ -138,6 +141,31 @@ describe('case.service', () => {
 
     expect(error).toBeInstanceOf(CustomError);
     expect(error).toMatchObject({ message: 'expert_case_already_registered', status: 409 });
+  });
+
+  it('createCase dá o próximo número da OS do escritório quando o cadastro não traz OS (NLA-01)', async () => {
+    vi.mocked(caseRepository.createCase).mockResolvedValue(legalCase);
+    vi.mocked(serviceOrderRepository.take).mockResolvedValueOnce({ prefix: 'ETH', year: 2026, last: 9 });
+
+    await createCase(input);
+    expect(caseRepository.createCase).toHaveBeenLastCalledWith(
+      expect.objectContaining({ serviceOrder: 'ETH-2026-009' }),
+    );
+
+    await createCase({ ...input, serviceOrder: 'OS-77' });
+    expect(serviceOrderRepository.take).toHaveBeenCalledTimes(1);
+    expect(caseRepository.createCase).toHaveBeenLastCalledWith(expect.objectContaining({ serviceOrder: 'OS-77' }));
+  });
+
+  it('createCase traduz OS repetida em 409 service_order_taken', async () => {
+    vi.mocked(caseRepository.createCase).mockRejectedValue(
+      Object.assign(new Error('dup'), { code: 11000, keyPattern: { Tenant: 1, serviceOrder: 1 } }),
+    );
+
+    await expect(createCase({ ...input, serviceOrder: 'OS-77' })).rejects.toMatchObject({
+      message: 'service_order_taken',
+      status: 409,
+    });
   });
 
   it('updatePericia emite honorarios_fixados só quando o valor fixado muda', async () => {
