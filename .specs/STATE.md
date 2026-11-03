@@ -797,7 +797,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: se o compromisso falhar, o serviço fica salvo e a falha só vai para o log; a data se ajusta depois na agenda. Duração fixa de 1 hora.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `apps/api/src/modules/case/case.service.ts`, `apps/api/src/events/`, `apps/api/src/modules/agenda/appointment.service.ts`.
 - **Date**: 2026-11-02
-- **Status**: active
+- **Status**: active (evento `case:inspection_scheduled` superseded by AD-169)
 
 ### AD-161
 - **Decision**: Número de controle de OS por serviço (`Case.serviceOrder`, índice único parcial por tenant). A sequência do escritório (sigla + ano + último número) é a coleção `ServiceOrderSequence`, dona `case`: o cadastro sem OS digitada toma o próximo número num único update com pipeline (ano diferente volta a 1), formato `SIGLA-AAAA-NNN`. Só serviços novos são numerados; a OS se digita ou corrige no serviço. `GET|PUT /expert-cases/service-order` (`PUT` só admin), configurada na tela do Escritório.
@@ -863,6 +863,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-169
+- **Decision**: Agenda por eventos. Quem tem data avisa a agenda pelo evento único `agenda:entries_synced` (origem = fonte + id, e a lista completa dos itens dela); a agenda substitui os itens daquela origem a cada aviso (lista vazia = origem apagada). Itens de dia inteiro ficam em `CalendarEntry` (dono `agenda`): prazo, honorário a receber, despesa e recebimento, com estado aberto, feito (protocolado/pago), perdido ou cancelado, e continuam no dia depois de pagos ou cancelados. A perícia do serviço (`inspection` no aviso, com hora) vira o compromisso de perícia automático do serviço, criado no cadastro e movido na edição. Os mapeamentos origem → itens são funções puras em `packages/contracts/src/schemas/calendar-entry.schema.ts`, usadas por quem emite e pelo preenchimento inicial (`backfillCalendarEntries`, na subida, só com a coleção vazia). Itens do financeiro só para quem vê o financeiro (AD-137). Sai `case:inspection_scheduled` e a rota `GET /expert-cases/deadlines` (a agenda não lê mais os prazos do `case`). O feed iCal segue com compromissos e prazos pendentes.
+- **Reason**: pedido de 2026-11-03: data da perícia, financeiro e outras datas na agenda, com a agenda por eventos aceitando vários tipos; respostas: as quatro origens, pago fica marcado, "planilha" é a agenda.
+- **Trade-off**: a agenda guarda uma cópia; um aviso perdido (falha do handler, só no log, AD-039) deixa a cópia desatualizada até a próxima mudança da origem. Prazos apagados junto com o serviço saem pelo `case:deleted`.
+- **Scope**: `packages/contracts/src/schemas/calendar-entry.schema.ts`, `packages/db/src/models/calendar-entry.model.ts`, `apps/api/src/events/`, `apps/api/src/modules/agenda/calendar-entry.*`, `apps/api/src/modules/{case,finance}/`, `apps/web/src/routes/_private/agenda/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ### AD-170
 - **Decision**: O laudo vira modelo do escritório pelo "…" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variante que o item usa (a outra variante vem do modelo original, se ainda existir), o layout do laudo e o tipo. O texto já resolvido com os dados do serviço volta aos marcadores (`[NUMERO_PROCESSO]`, nomes, datas) quando o valor tem 8 caracteres ou mais. Marcar/desmarcar "Faz parte do laudo" (e a escolha de itens do modelo) leva junto os subitens do tópico; marcar também marca os tópicos acima.
 - **Reason**: pedido da perita (2026-11-03): montar um laudo genérico, escolhendo tópicos, e reaproveitar como modelo; o tópico desmarcado deixava os subitens marcados.
@@ -880,6 +888,8 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Status**: active
 
 ## Handoff
+
+- **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.
 
 - **Feature**: `rotina-servico` — parcial: partes do último despacho, última nomeação, status único, planilha de qualquer modelo e nomes das seções (AD-166 a AD-168). Falta a base de varas e comarcas dos 24 TRTs (RSV-05, a perita escolheu base pronta para todo escritório; supersede parte da AD-151 quando entrar) e a conferência visual no navegador.
 

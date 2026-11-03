@@ -22,7 +22,8 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Prazo | `Deadline` (`case`) | Prazo processual da perícia (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo) ou perdido. **Vence em breve** = até 15 dias. |
 | Honorários propostos | `proposedFeesCents` | Proposta do perito. |
 | Honorários fixados | `fixedFeesCents` | Valor fixado pelo juízo; vira receita a receber no financeiro. |
-| Compromisso | `Appointment` (`agenda`) | Item da agenda com horário: vistoria, audiência, reunião ou outro. Prazos aparecem no calendário, mas são `Deadline`. |
+| Compromisso | `Appointment` (`agenda`) | Item da agenda com horário: vistoria, audiência, reunião ou outro. A data da perícia do serviço vira o compromisso de perícia automático (AD-169). |
+| Item da agenda | `CalendarEntry` (`agenda`) | Item de dia inteiro enviado por outro módulo (AD-169): prazo, honorário a receber, despesa ou recebimento, aberto, feito (protocolado/pago), perdido ou cancelado. |
 | Vistoria | `type: 'inspection'` no `Appointment`; registro `Inspection` (`agenda`) | Visita técnica ao local periciado. O registro colhido em campo (presentes, paradigmas, funções, agentes, mídias) é um `Inspection` por compromisso (AD-130). |
 | Lançamento | `Transaction` (`finance`) | Receita (honorário prévio ou fixado) ou despesa operacional (deslocamento, material, taxas, outras). |
 | Parcela (recebimento) | `installments` do lançamento de receita | Valor que caiu na conta contra um honorário, com data e conta; estornável. Honorário não é excluído nem cancelado (AD-111). |

@@ -2,6 +2,27 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "agenda-eventos",
+      "feature": "Agenda por eventos",
+      "descricao": "Perícia, prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento, com tipo, estado e filtro",
+      "data": "2026-11-03",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-169"
+      ],
+      "spec": [
+        ".specs/features/agenda-eventos"
+      ],
+      "planos": [],
+      "doc": "features/agenda-eventos/feature.md"
+    },
+    {
       "slug": "novo-laudo",
       "feature": "Novo laudo",
       "descricao": "OS por serviço, responsável técnico do laudo, modelo trabalhista da perita, editor em rolagem com itens novos e layout do laudo",
@@ -23,7 +44,9 @@
       "spec": [
         ".specs/features/novo-laudo"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/novo-laudo/plans/2026-11-03-ajustes-escritorio-e-laudo.md"
+      ],
       "doc": "features/novo-laudo/feature.md"
     },
     {
@@ -1140,7 +1163,7 @@
       "id": "AD-160",
       "decisao": "Data, hora e local da perícia no cadastro do serviço (`inspection`, só na criação) viram um compromisso de perícia de 1 hora ligado ao servi",
       "data": "2026-11-02",
-      "status": "active"
+      "status": "active (evento `case:inspection_scheduled` superseded by AD-169)"
     },
     {
       "id": "AD-161",
@@ -1187,6 +1210,12 @@
     {
       "id": "AD-168",
       "decisao": "O PDF do processo usa as partes do último cabeçalho com os dois polos (o último despacho) ou, sem ele, do primeiro (a petição inicial); a da",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-169",
+      "decisao": "Agenda por eventos. Quem tem data avisa a agenda pelo evento único `agenda:entries_synced` (origem = fonte + id, e a lista completa dos iten",
       "data": "2026-11-03",
       "status": "active"
     },

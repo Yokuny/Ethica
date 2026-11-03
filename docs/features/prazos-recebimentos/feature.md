@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Prazos e recebimentos chegam à agenda por evento; sai a leitura direta dos prazos pela agenda (`agenda-eventos`, AD-169).
 - 2026-11-01 — Varredura agendada no lugar do timer, aviso financeiro e push especificados em `avisos-notificacoes` (AD-147).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-11-01 — Honorário do assistente técnico lançado como `contracted_fees`, o mesmo automático por perícia (`docs/features/gestao-escritorio/feature.md`, AD-135).
