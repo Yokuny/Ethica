@@ -5,7 +5,9 @@ import type { TenantLogo, UpdateOffice } from './office.schema.js';
 
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
-    Tenant.findById(tenantId).select('name header footer logo storageBytes scheduleNotice').lean(),
+    Tenant.findById(tenantId)
+      .select('name header footer headerStyle footerStyle logo storageBytes scheduleNotice')
+      .lean(),
   );
 
 // Empty text clears the header/footer: the documents go back to the default.

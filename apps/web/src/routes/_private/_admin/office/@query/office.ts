@@ -1,4 +1,4 @@
-import type { ServiceOrderSettings, UpdateOffice } from '@ethica/contracts';
+import type { DocumentTextStyle, ServiceOrderSettings, UpdateOffice } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, put, sendFile } from '@/lib/api/client.api.js';
@@ -8,6 +8,8 @@ import { t } from '@/lib/helpers/translate.helper.js';
 export type OfficeView = {
   header: string;
   footer: string;
+  headerStyle: DocumentTextStyle;
+  footerStyle: DocumentTextStyle;
   logo?: string;
   storageBytes: number;
   storageQuotaBytes: number;

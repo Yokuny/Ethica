@@ -31,13 +31,13 @@ export type ProductSpecGroup = {
 };
 
 export function ProductSpecs({ groups, className }: { groups: ProductSpecGroup[]; className?: string }) {
-  // Keeps the closed ones: a group that shows up later starts open.
-  const [closedIds, setClosedIds] = useState<string[]>([]);
+  // Keeps the opened ones: every group starts collapsed (AD-172).
+  const [openIds, setOpenIds] = useState<string[]>([]);
 
   const toggle = (id: string) =>
-    setClosedIds((prev) => (prev.includes(id) ? prev.filter((closedId) => closedId !== id) : [...prev, id]));
-  const expandAll = () => setClosedIds([]);
-  const collapseAll = () => setClosedIds(groups.map((group) => group.id));
+    setOpenIds((prev) => (prev.includes(id) ? prev.filter((openId) => openId !== id) : [...prev, id]));
+  const expandAll = () => setOpenIds(groups.map((group) => group.id));
+  const collapseAll = () => setOpenIds([]);
 
   return (
     <div className={cn('grid gap-4', className)}>
@@ -52,7 +52,7 @@ export function ProductSpecs({ groups, className }: { groups: ProductSpecGroup[]
       </div>
 
       {groups.map((group) => {
-        const open = !closedIds.includes(group.id);
+        const open = openIds.includes(group.id);
         return (
           <Collapsible
             key={group.id}

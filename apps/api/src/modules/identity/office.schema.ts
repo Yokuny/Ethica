@@ -1,4 +1,4 @@
-import type { UpdateOffice, UpdateScheduleNotice } from '@ethica/contracts';
+import type { DocumentTextStyle, UpdateOffice, UpdateScheduleNotice } from '@ethica/contracts';
 import { updateOfficeSchema, updateScheduleNoticeSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -13,6 +13,8 @@ export type OfficeRouterDeps = { validToken: RequestHandler; storage?: FileStora
 export type OfficeView = {
   header: string;
   footer: string;
+  headerStyle: DocumentTextStyle;
+  footerStyle: DocumentTextStyle;
   logo?: string;
   storageBytes: number;
   storageQuotaBytes: number;
@@ -21,5 +23,13 @@ export type OfficeView = {
 
 export type TenantLogo = { key: string; bytes: number; updatedAt?: Date };
 
-// Identity used when generating the PDFs (AD-121): the logo already as a data URL.
-export type DocumentIdentity = { name: string; header?: string; footer?: string; logoDataUrl?: string };
+// Identity used when generating the PDFs (AD-121): the logo already as a data URL; the style of the
+// header and footer is always the office one (AD-172).
+export type DocumentIdentity = {
+  name: string;
+  header?: string;
+  footer?: string;
+  headerStyle: DocumentTextStyle;
+  footerStyle: DocumentTextStyle;
+  logoDataUrl?: string;
+};

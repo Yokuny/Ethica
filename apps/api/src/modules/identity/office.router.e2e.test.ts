@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { type Role, TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
+import { DOCUMENT_TEXT_STYLE_DEFAULT, type Role, TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
 import { connect, disconnect, hashToken, Session, Tenant, type TenantDocument, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
@@ -83,16 +83,32 @@ describe('identidade do escritório (DOC-01)', () => {
     const manager = await seedSession(['manager'], admin.tenant);
     expect((await manager.as(request(app).get('/tenant/office'))).status).toBe(403);
 
-    const saved = await admin
-      .as(request(app).put('/tenant/office'))
-      .send({ header: 'Laudos [NOME_PERITO]', footer: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' });
+    const saved = await admin.as(request(app).put('/tenant/office')).send({
+      header: 'Laudos [NOME_PERITO]',
+      footer: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]',
+      headerStyle: { font: 'times', fontSize: 11, align: 'left' },
+      footerStyle: DOCUMENT_TEXT_STYLE_DEFAULT,
+    });
     expect(saved.status).toBe(200);
-    expect(saved.body.data).toMatchObject({ header: 'Laudos [NOME_PERITO]', storageBytes: 0 });
+    expect(saved.body.data).toMatchObject({
+      header: 'Laudos [NOME_PERITO]',
+      headerStyle: { font: 'times', fontSize: 11, align: 'left' },
+      storageBytes: 0,
+    });
 
     await admin.as(request(app).get('/documents/deadlines'));
     expect(rendered?.headerTemplate).toContain(`Laudos ${admin.user.name}`);
+    // Font, size and alignment of the office (AD-172).
+    expect(rendered?.headerTemplate).toContain('font-size:11pt');
+    expect(rendered?.headerTemplate).toContain('text-align:left');
+    expect(rendered?.footerTemplate).toContain('text-align:center');
 
-    const cleared = await admin.as(request(app).put('/tenant/office')).send({ header: '', footer: '' });
+    const cleared = await admin.as(request(app).put('/tenant/office')).send({
+      header: '',
+      footer: '',
+      headerStyle: DOCUMENT_TEXT_STYLE_DEFAULT,
+      footerStyle: DOCUMENT_TEXT_STYLE_DEFAULT,
+    });
     expect(cleared.body.data).toMatchObject({ header: '', footer: '' });
     expect((await Tenant.findById(admin.tenant).lean())?.header).toBeUndefined();
   });

@@ -1,4 +1,4 @@
-import { numberSections } from '@ethica/contracts';
+import { type DocumentTextStyle, numberSections } from '@ethica/contracts';
 import {
   AlignmentType,
   Document,
@@ -171,15 +171,20 @@ function blocks(nos: No[], format: Format = {}, photos: Photos = {}, inCell = fa
   });
 }
 
-const templateRows = (text: string, logo: Buffer | undefined, expertName: string): Paragraph[] =>
-  text
+const FONTS = { times: 'Times New Roman', arial: 'Arial' } as const;
+const ALIGNMENT = { left: AlignmentType.LEFT, center: AlignmentType.CENTER, right: AlignmentType.RIGHT } as const;
+
+// Header or footer of the office in its font, size and alignment (AD-172).
+const templateRows = (text: string, style: DocumentTextStyle, logo: Buffer | undefined, expertName: string) => {
+  const run = { font: FONTS[style.font], size: Math.round(style.fontSize * 2), color: '57606A' };
+  return text
     .split('\n')
     .map((row) => row.trim())
     .filter((row) => row && (row !== '[LOGO]' || logo))
     .map(
       (row) =>
         new Paragraph({
-          alignment: AlignmentType.CENTER,
+          alignment: ALIGNMENT[style.align],
           children: row
             .split(/(\[LOGO\]|\[NOME_PERITO\]|\[PAGINA_ATUAL\]|\[TOTAL_PAGINAS\])/)
             .filter(Boolean)
@@ -194,21 +199,18 @@ const templateRows = (text: string, logo: Buffer | undefined, expertName: string
                   transformation: { width: Math.round(width * scale), height: Math.round(height * scale) },
                 });
               }
-              if (party === '[NOME_PERITO]') return new TextRun({ text: expertName, size: 17, color: '57606A' });
-              if (party === '[PAGINA_ATUAL]')
-                return new TextRun({ children: [PageNumber.CURRENT], size: 17, color: '57606A' });
-              if (party === '[TOTAL_PAGINAS]') {
-                return new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 17, color: '57606A' });
-              }
-              return new TextRun({ text: party, size: 17, color: '57606A' });
+              if (party === '[NOME_PERITO]') return new TextRun({ ...run, text: expertName });
+              if (party === '[PAGINA_ATUAL]') return new TextRun({ ...run, children: [PageNumber.CURRENT] });
+              if (party === '[TOTAL_PAGINAS]') return new TextRun({ ...run, children: [PageNumber.TOTAL_PAGES] });
+              return new TextRun({ ...run, text: party });
             }),
         }),
     );
+};
 
 const TYPE = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 const OPENING_TYPE = { report: 'LAUDO TÉCNICO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 const ROLE = { report: 'Perito(a) do Juízo', technical_opinion: 'Assistente Técnico(a)' } as const;
-const FONTS = { times: 'Times New Roman', arial: 'Arial' } as const;
 // 1 cm = 567 twips.
 const twips = (cm: number): number => Math.round(cm * 567);
 
@@ -373,8 +375,8 @@ export const reportDocx = async ({
             },
           },
         },
-        headers: { default: new Header({ children: templateRows(header, logo, expert.name) }) },
-        footers: { default: new Footer({ children: templateRows(footer, logo, expert.name) }) },
+        headers: { default: new Header({ children: templateRows(header, identity.headerStyle, logo, expert.name) }) },
+        footers: { default: new Footer({ children: templateRows(footer, identity.footerStyle, logo, expert.name) }) },
         children: [
           ...(layout.cover ? cover : []),
           ...(layout.summary ? summary : []),

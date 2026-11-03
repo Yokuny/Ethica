@@ -6,19 +6,26 @@ import { toast } from 'sonner';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type OfficeView, updateOfficeMutation } from '../@query/office.js';
 
+const textsOf = ({ header, footer, headerStyle, footerStyle }: OfficeView): UpdateOffice => ({
+  header,
+  footer,
+  headerStyle,
+  footerStyle,
+});
+
 export function useOfficeForm(office: OfficeView) {
   const queryClient = useQueryClient();
   const mutation = useMutation(updateOfficeMutation(queryClient));
   const form = useForm<UpdateOffice>({
     resolver: zodResolver(updateOfficeSchema),
-    defaultValues: { header: office.header, footer: office.footer },
+    defaultValues: textsOf(office),
   });
 
   function onSubmit(data: UpdateOffice) {
     if (mutation.isPending) return;
     mutation.mutate(data, {
       onSuccess: (saved) => {
-        form.reset({ header: saved.header, footer: saved.footer });
+        form.reset(textsOf(saved));
         toast.success(t('changes_saved'));
       },
       onError: (error) => toast.error(error.message),

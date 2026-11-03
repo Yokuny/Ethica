@@ -1,4 +1,4 @@
-import { DISPLAY_TIMEZONE } from '@ethica/contracts';
+import { DISPLAY_TIMEZONE, type DocumentTextStyle, type ReportFont } from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import type { DocumentIdentity } from './documents.schema.js';
 
@@ -134,9 +134,15 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .gerado { margin-top: 8mm; font-size: 8.5pt; color: #57606a; }
 `;
 
-// Tenant header and footer (AD-121): each text line becomes a centered line and the
-// markers are replaced. A line left empty (only `[LOGO]` without a logo) is dropped.
-const template = (text: string, identity: DocumentIdentity, expertName: string): string => {
+// Fonts of the PDF: Chromium in the server has the Liberation fonts, metric-compatible with Times and Arial.
+export const PDF_FONTS: Record<ReportFont, string> = {
+  times: "'Liberation Serif', 'Times New Roman', serif",
+  arial: "'Liberation Sans', Arial, sans-serif",
+};
+
+// Tenant header and footer (AD-121): each text line becomes a line in the office font, size and
+// alignment (AD-172) and the markers are replaced. A line left empty (only `[LOGO]` without a logo) is dropped.
+const template = (text: string, style: DocumentTextStyle, identity: DocumentIdentity, expertName: string): string => {
   const rows = text
     .split('\n')
     .map((row) =>
@@ -152,7 +158,7 @@ const template = (text: string, identity: DocumentIdentity, expertName: string):
     )
     .filter(Boolean);
   // The Chromium template does not inherit the page CSS: everything inline and with an explicit font-size.
-  return `<div style="width:100%;padding:0 16mm;font-family:'Liberation Sans',Arial,sans-serif;font-size:8.5pt;color:#57606a;text-align:center;line-height:1.35;-webkit-print-color-adjust:exact;">${rows
+  return `<div style="width:100%;padding:0 16mm;font-family:${PDF_FONTS[style.font]};font-size:${style.fontSize}pt;color:#57606a;text-align:${style.align};line-height:1.35;-webkit-print-color-adjust:exact;">${rows
     .map((row) => `<div>${row}</div>`)
     .join('')}</div>`;
 };
@@ -172,8 +178,8 @@ export const headerFooter = (
 ): Pick<PdfDocument, 'headerTemplate' | 'footerTemplate'> => {
   const { header, footer } = textsHeaderFooter(identity);
   return {
-    headerTemplate: template(header, identity, expertName),
-    footerTemplate: template(footer, identity, expertName),
+    headerTemplate: template(header, identity.headerStyle, identity, expertName),
+    footerTemplate: template(footer, identity.footerStyle, identity, expertName),
   };
 };
 

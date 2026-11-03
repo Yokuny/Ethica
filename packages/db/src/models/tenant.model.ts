@@ -1,3 +1,4 @@
+import { type DocumentTextStyle, REPORT_FONTS, TEXT_ALIGNMENTS } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 export type TenantStatus = 'provisioned' | 'active' | 'suspended';
@@ -10,6 +11,9 @@ export interface TenantDocument {
   // Document identity (AD-121): text with markers, replaced when the PDF is generated.
   header?: string;
   footer?: string;
+  // Font, size and alignment of each one (AD-172); without them the default applies.
+  headerStyle?: DocumentTextStyle;
+  footerStyle?: DocumentTextStyle;
   // Files in S3 storage (AD-120). `storageBytes` is the total used, reserved in the same
   // update that saves the file reference, to respect the tenant quota.
   logo?: { key: string; bytes: number; updatedAt: Date };
@@ -19,6 +23,18 @@ export interface TenantDocument {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const textStyleSchema = {
+  type: new Schema(
+    {
+      font: { type: String, enum: REPORT_FONTS, required: true },
+      fontSize: { type: Number, min: 6, max: 16, required: true },
+      align: { type: String, enum: TEXT_ALIGNMENTS, required: true },
+    },
+    { _id: false },
+  ),
+  required: false,
+};
 
 const tenantSchema = new Schema<TenantDocument>(
   {
@@ -32,6 +48,8 @@ const tenantSchema = new Schema<TenantDocument>(
     },
     header: { type: String, maxlength: 1000 },
     footer: { type: String, maxlength: 1000 },
+    headerStyle: textStyleSchema,
+    footerStyle: textStyleSchema,
     logo: {
       type: new Schema(
         { key: { type: String, required: true }, bytes: { type: Number, required: true }, updatedAt: Date },

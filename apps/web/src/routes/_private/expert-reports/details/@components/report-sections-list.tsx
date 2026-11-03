@@ -71,6 +71,7 @@ export function ReportSectionsList({
 
   return (
     <NumberedList
+      actionsLabel={t('part_of_report_hint')}
       items={sections.map((section, i) => {
         const draft = drafts[section.id] ?? section.html;
         const pending = report.issues.find((issue) => issue.sectionId === section.id)?.variables ?? [];
@@ -97,8 +98,8 @@ export function ReportSectionsList({
             <Checkbox
               checked={section.included}
               disabled
-              label={t('part_of_report')}
-              labelClassName="hidden sm:inline"
+              aria-label={t('part_of_report')}
+              title={t('part_of_report')}
             />
           ) : (
             <>
@@ -123,8 +124,8 @@ export function ReportSectionsList({
               <Checkbox
                 checked={section.included}
                 disabled={saving}
-                label={t('part_of_report')}
-                labelClassName="hidden sm:inline"
+                aria-label={t('part_of_report')}
+                title={t('part_of_report')}
                 onCheckedChange={(checked) => onToggleIncluded(section.id, checked)}
               />
               <DropdownMenu>

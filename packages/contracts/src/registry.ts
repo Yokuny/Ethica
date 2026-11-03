@@ -22,6 +22,7 @@ import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
 import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
 import {
+  documentTextStyleSchema,
   financeReportQuerySchema,
   serviceOrderSettingsSchema,
   updateOfficeSchema,
@@ -101,6 +102,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'caseInspectionSchema', schema: caseInspectionSchema },
   { name: 'updateCaseSchema', schema: updateCaseSchema },
   { name: 'createMovementSchema', schema: createMovementSchema },
+  { name: 'documentTextStyleSchema', schema: documentTextStyleSchema },
   { name: 'updateOfficeSchema', schema: updateOfficeSchema },
   { name: 'serviceOrderSettingsSchema', schema: serviceOrderSettingsSchema },
   { name: 'financeReportQuerySchema', schema: financeReportQuerySchema },

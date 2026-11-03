@@ -1,4 +1,9 @@
-import { pendingVariables, REPORT_LAYOUT_DEFAULT, REPORT_VARIABLES } from '@ethica/contracts';
+import {
+  DOCUMENT_TEXT_STYLE_DEFAULT,
+  pendingVariables,
+  REPORT_LAYOUT_DEFAULT,
+  REPORT_VARIABLES,
+} from '@ethica/contracts';
 import { strFromU8, unzipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
 import type { CaseRecord } from '../case/case.schema.js';
@@ -8,6 +13,8 @@ import { DEFAULT_TEMPLATES } from './report.library.js';
 import type { ReportExportData } from './report.schema.js';
 import { reportHtml } from './report.templates.js';
 import { reportValues } from './report.variables.js';
+
+const STYLES = { headerStyle: DOCUMENT_TEXT_STYLE_DEFAULT, footerStyle: DOCUMENT_TEXT_STYLE_DEFAULT };
 
 const legalCase = {
   id: 'p1',
@@ -61,7 +68,7 @@ describe('variáveis de campo (AD-130)', () => {
   const base = {
     legalCase,
     expert: { name: 'Eng. Paula' },
-    identity: { name: 'Escritório' },
+    identity: { ...STYLES, name: 'Escritório' },
     appointments: [{ type: 'inspection', status: 'done', start: new Date('2026-05-10T13:30:00Z') }] as never,
     today: '2026-10-31',
   };
@@ -120,7 +127,7 @@ describe('variáveis (AD-126)', () => {
   const values = reportValues({
     legalCase,
     expert: { name: 'Eng. Paula', professionalRegistration: 'CREA 1' },
-    identity: { name: 'Escritório' },
+    identity: { ...STYLES, name: 'Escritório' },
     appointments: [
       { type: 'inspection', status: 'done', start: new Date('2026-05-10T13:00:00Z') },
       { type: 'inspection', status: 'canceled', start: new Date('2026-06-10T13:00:00Z') },
@@ -143,7 +150,7 @@ describe('variáveis (AD-126)', () => {
     const civil = reportValues({
       legalCase: { ...legalCase, courtType: 'civil' },
       expert: { name: 'X' },
-      identity: { name: 'E' },
+      identity: { ...STYLES, name: 'E' },
       appointments: [],
       today: '2026-01-05',
     });
@@ -260,7 +267,7 @@ const data = (): ReportExportData => ({
     ],
   },
   legalCase,
-  identity: { name: 'Escritório', footer: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' },
+  identity: { ...STYLES, name: 'Escritório', footer: 'Página [PAGINA_ATUAL] de [TOTAL_PAGINAS]' },
   expert: { name: 'Eng. Paula', professionalRegistration: 'CREA 1' },
   values: { '[DENOMINACAO_AUTOR]': 'Reclamante', '[NOME_AUTOR]': 'Ana', '[DATA_EXTENSO]': '31 de outubro de 2026' },
   photos: { [PHOTO]: { body: JPEG, mime: 'image/jpeg' } },

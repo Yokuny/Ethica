@@ -34,6 +34,7 @@ describe('schemaRegistry', () => {
         'caseInspectionSchema',
         'updateCaseSchema',
         'createMovementSchema',
+        'documentTextStyleSchema',
         'updateOfficeSchema',
         'financeReportQuerySchema',
         'documentSchema',

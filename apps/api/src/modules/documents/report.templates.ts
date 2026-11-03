@@ -1,19 +1,14 @@
 import { numberSections, type ReportLayout } from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
-import { esc, headerFooter } from './document.layout.js';
+import { esc, headerFooter, PDF_FONTS } from './document.layout.js';
 import type { ReportExportData } from './report.schema.js';
 
 // Report as PDF (LAU-03.2, AD-119): cover, table of contents and numbered sections. The section HTML already
 // arrives sanitized (AD-123) with the variables resolved; titles are text and are escaped here. Font, spacing,
 // margins, title color and which pages leave come from the report layout (NLA-06).
-const FONTS: Record<ReportLayout['font'], string> = {
-  times: "'Liberation Serif', 'Times New Roman', serif",
-  arial: "'Liberation Sans', Arial, sans-serif",
-};
-
 const css = (layout: ReportLayout) => `
 * { box-sizing: border-box; }
-body { font-family: ${FONTS[layout.font]}; font-size: ${layout.fontSize}pt; line-height: ${layout.lineHeight}; color: #111; margin: 0; }
+body { font-family: ${PDF_FONTS[layout.font]}; font-size: ${layout.fontSize}pt; line-height: ${layout.lineHeight}; color: #111; margin: 0; }
 p { margin: 0 0 ${layout.paragraphSpacing}pt; text-align: justify; }
 .capa { min-height: 220mm; display: flex; flex-direction: column; justify-content: space-between; break-after: page; }
 .capa .tipo { font-size: 20pt; font-weight: 700; text-align: center; letter-spacing: 0.08em; margin: 30mm 0 14mm; color: ${layout.titleColor}; }

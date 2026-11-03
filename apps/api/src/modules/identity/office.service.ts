@@ -1,4 +1,4 @@
-import { TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
+import { DOCUMENT_TEXT_STYLE_DEFAULT, TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import * as activityLogService from './activityLog.service.js';
@@ -26,6 +26,8 @@ export const getOffice = async (tenantId: string): Promise<OfficeView> => {
   return {
     header: tenant.header ?? '',
     footer: tenant.footer ?? '',
+    headerStyle: tenant.headerStyle ?? DOCUMENT_TEXT_STYLE_DEFAULT,
+    footerStyle: tenant.footerStyle ?? DOCUMENT_TEXT_STYLE_DEFAULT,
     ...(tenant.logo ? { logo: `/tenant/office/logo?v=${tenant.logo.updatedAt?.getTime() ?? 0}` } : {}),
     storageBytes: tenant.storageBytes ?? 0,
     storageQuotaBytes: TENANT_STORAGE_QUOTA_BYTES,
@@ -84,6 +86,8 @@ export const getDocumentIdentity = async (
     name: tenant.name,
     ...(tenant.header ? { header: tenant.header } : {}),
     ...(tenant.footer ? { footer: tenant.footer } : {}),
+    headerStyle: tenant.headerStyle ?? DOCUMENT_TEXT_STYLE_DEFAULT,
+    footerStyle: tenant.footerStyle ?? DOCUMENT_TEXT_STYLE_DEFAULT,
     ...(bytes ? { logoDataUrl: `data:image/png;base64,${bytes.toString('base64')}` } : {}),
   };
 };

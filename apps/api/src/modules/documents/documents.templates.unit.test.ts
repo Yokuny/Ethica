@@ -1,9 +1,12 @@
+import { DOCUMENT_TEXT_STYLE_DEFAULT } from '@ethica/contracts';
 import { describe, expect, it } from 'vitest';
 import type { SheetData } from './documents.schema.js';
 import { checklistHtml, scheduleHtml, sheetHtml, stalledHtml } from './documents.templates.js';
 
+const STYLES = { headerStyle: DOCUMENT_TEXT_STYLE_DEFAULT, footerStyle: DOCUMENT_TEXT_STYLE_DEFAULT };
+
 const base = {
-  identity: { name: 'Escritório Ribeiro' },
+  identity: { ...STYLES, name: 'Escritório Ribeiro' },
   expert: { name: 'Ana Perita', professionalRegistration: 'CREA-SP 123', education: 'Engenharia de Segurança' },
   generatedAt: new Date('2026-10-31T15:00:00Z'),
 };
@@ -27,6 +30,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
     const doc = sheetHtml({
       ...base,
       identity: {
+        ...STYLES,
         name: 'X',
         header: '[LOGO]\nPerito <b>[NOME_PERITO]</b>',
         footer: 'Pág. [PAGINA_ATUAL]/[TOTAL_PAGINAS]',
@@ -44,7 +48,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
   it('logo presente vira imagem; sem texto configurado o cabeçalho é o logo e o nome do escritório', () => {
     const doc = scheduleHtml({
       ...base,
-      identity: { name: 'Escritório Ribeiro', logoDataUrl: 'data:image/png;base64,AAAA' },
+      identity: { ...STYLES, name: 'Escritório Ribeiro', logoDataUrl: 'data:image/png;base64,AAAA' },
       deadlines: [],
       today: '2026-10-31',
     });

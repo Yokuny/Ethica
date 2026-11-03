@@ -1058,6 +1058,23 @@ const translations: Record<string, string> = {
   variable_service_order: 'Número da OS (ETH-2026-001)',
   without_number: 'Sem número',
   year: 'Ano',
+  // Ajustes do escritório e do laudo (AD-172)
+  alignment: 'Alinhamento',
+  align_left: 'À esquerda',
+  align_center: 'Centralizado',
+  align_right: 'À direita',
+  customize_service_order_pattern: 'Personalizar padrão da OS',
+  use_suggested_pattern: 'Usar o padrão sugerido',
+  service_order_pattern: 'Padrão da OS',
+  service_order_pattern_hint: 'Escreva como o número deve sair. Marcadores:',
+  service_order_without_year_hint: 'Sem o [ANO] no padrão, a numeração não volta a 001 em janeiro.',
+  number_digits: 'Dígitos do número',
+  part_of_report_hint: 'A caixa ao lado de cada item marca o que faz parte do laudo.',
+  save_draft: 'Salvar rascunho',
+  save_draft_question: 'Salvar como rascunho?',
+  save_draft_question_description:
+    'O preenchimento deste laudo ainda não foi salvo. Salve como rascunho para continuar depois ou descarte.',
+  discard_and_leave: 'Descartar e sair',
 };
 
 // Languages supported by the app — today only pt-BR (the default). A new language

@@ -434,7 +434,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
 
     const sequence = await admin
       .as(request(app).put('/expert-cases/service-order'))
-      .send({ prefix: 'eth', year: new Date().getFullYear(), last: 8 });
+      .send({ pattern: '[SIGLA]-[ANO]-[NUMERO]', prefix: 'eth', digits: 3, year: new Date().getFullYear(), last: 8 });
     expect(sequence.status).toBe(200);
     expect(sequence.body.data.prefix).toBe('ETH');
     expect((await operator.as(request(app).put('/expert-cases/service-order')).send(sequence.body.data)).status).toBe(
@@ -449,6 +449,15 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       .send({ ...CASE, processNumber: '0008889-11.2026.5.15.0001', serviceOrder: legalCase.body.data.serviceOrder });
     expect(repeated.status).toBe(409);
     expect(repeated.body.message).toBe('service_order_taken');
+    // Custom pattern (AD-172): the sequence goes on from the last number used.
+    const custom = await admin
+      .as(request(app).put('/expert-cases/service-order'))
+      .send({ ...sequence.body.data, pattern: 'OS [NUMERO]/[ANO]', prefix: '', digits: 4, last: 9 });
+    expect(custom.status).toBe(200);
+    const customCase = await admin
+      .as(request(app).post('/expert-cases'))
+      .send({ ...CASE, processNumber: '0008890-11.2026.5.15.0001' });
+    expect(customCase.body.data.serviceOrder).toBe(`OS 0010/${new Date().getFullYear()}`);
 
     // Whoever drafts reports registers the technical responsible (NLA-02).
     const created = await operator.as(request(app).post('/expert-reports/signatories')).send({

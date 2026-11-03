@@ -1,10 +1,11 @@
 import { caseLabel, defaultTemplateOf, reportRoleType } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
+import { createFileRoute, useBlocker, useNavigate, useSearch } from '@tanstack/react-router';
 import { Gavel } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
@@ -33,6 +34,15 @@ export function ReportAddPage() {
   const create = useMutation(createReportMutation(queryClient));
   const [choices, setChoices] = useState<{ templateId: string; values: Choices } | null>(null);
   const [signatory, setSignatory] = useState(ACCOUNT_OWNER);
+  // The draft was created: leaving the page no longer asks.
+  const saved = useRef(false);
+  // Started = a case chosen. Leaving for another page asks whether to save it as a draft first;
+  // changing the case or template stays on the page and does not ask.
+  const leave = useBlocker({
+    shouldBlockFn: ({ current, next }) => !saved.current && current.pathname !== next.pathname,
+    disabled: !legalCase.data,
+    withResolver: true,
+  });
 
   // When switching templates, every section starts checked on the "yes" variant.
   const current: Choices =
@@ -50,7 +60,8 @@ export function ReportAddPage() {
     navigate({ search: (prev: ReportAddSearch) => ({ ...prev, ...patch }), replace: true });
   }
 
-  function handleCreate() {
+  // `then` of the confirmation: by default opens the new draft; when leaving, goes where the user was going.
+  function handleCreate(then?: () => void) {
     if (!legalCase.data || !chosen.length) return;
     create.mutate(
       {
@@ -60,7 +71,11 @@ export function ReportAddPage() {
         sections: chosen.map(([id, variant]) => ({ id, variant })),
       },
       {
-        onSuccess: (report) => navigate({ to: '/expert-reports/details', search: { id: report.id } }),
+        onSuccess: (report) => {
+          saved.current = true;
+          if (then) then();
+          else navigate({ to: '/expert-reports/details', search: { id: report.id } });
+        },
         onError: (error) => toast.error(error.message),
       },
     );
@@ -68,6 +83,22 @@ export function ReportAddPage() {
 
   return (
     <Card asPage>
+      {leave.status === 'blocked' && (
+        <ConfirmDialog
+          title={t('save_draft_question')}
+          description={t('save_draft_question_description')}
+          confirmLabel={t('save_draft')}
+          variant="default"
+          pending={create.isPending}
+          errorMessage={create.error?.message}
+          onConfirm={() => (chosen.length ? handleCreate(leave.proceed) : leave.proceed())}
+          onClose={leave.reset}
+        >
+          <Button variant="ghost" className="self-start" disabled={create.isPending} onClick={leave.proceed}>
+            {t('discard_and_leave')}
+          </Button>
+        </ConfirmDialog>
+      )}
       <CardHeader title={t('new_report')} />
       {!caseId ? (
         <CardContent className="max-w-4xl">
@@ -121,7 +152,7 @@ export function ReportAddPage() {
             <Button variant="outline" onClick={() => updateSearch({ caseId: undefined, templateId: undefined })}>
               {t('change_expert_case')}
             </Button>
-            <Button disabled={!chosen.length || create.isPending} onClick={handleCreate}>
+            <Button disabled={!chosen.length || create.isPending} onClick={() => handleCreate()}>
               {t('create_draft')}
             </Button>
           </CardFooter>
