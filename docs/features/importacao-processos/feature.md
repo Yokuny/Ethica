@@ -5,7 +5,7 @@ descricao: Cadastro de perícia a partir do PDF da ata, importação em lote por
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-107, AD-113, AD-114, AD-115, AD-116, AD-117, AD-118]
+decisoes: [AD-103, AD-107, AD-113, AD-114, AD-115, AD-116, AD-117, AD-118, AD-173]
 spec: [.specs/features/importacao-processos]
 branches: [feat/importacao-processos]
 ---
@@ -77,6 +77,8 @@ pnpm vitest run apps/api/src/modules/pericia packages/contracts packages/db/src/
 - [ ] Os padrões da ata foram escritos sobre o cabeçalho do PJe; validar com atas reais de outros tribunais e ajustar `extractMinutes`.
 
 ## Histórico
+
+- 2026-11-03 — "Preencher com PDF ou ZIP": processo dividido em partes vai num ZIP com os PDFs, lidos na ordem do nome e juntados num rascunho só (AD-173, `extractPdfText` em `apps/api/src/modules/case/import.service.ts`).
 
 - 2026-11-03 — Planilha de qualquer modelo com conferência das colunas (AD-167); PDF com partes do último despacho, última nomeação e sem prazo do laudo (AD-168) (`rotina-servico`).
 - 2026-11-03 — Partes sem repetição pelo nome normalizado, "Juntar repetidos", CREA e contatos lidos do PDF; o bloco "Dados do laudo trabalhista" saiu do formulário (`partes-servico`, AD-164, AD-165).

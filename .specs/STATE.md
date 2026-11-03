@@ -895,6 +895,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-173
+- **Decision**: O "Preencher com PDF ou ZIP" do cadastro do serviço aceita um ZIP com os PDFs do processo dividido em partes: o servidor abre o ZIP, lê só os `.pdf` na ordem do nome do arquivo ("parte 2" antes de "parte 10"), junta o texto e monta um rascunho só. ZIP sem PDF é recusado (`zip_without_pdf`); o total descompactado tem teto de 200 MB.
+- **Reason**: pedido da perita (2026-11-03): processo baixado do PJe em várias partes.
+- **Trade-off**: só ZIP (RAR e 7z não). Parte escaneada sem texto não ajuda a preencher; o rascunho sai do texto das outras partes. O arquivo não fica guardado, como o PDF (AD-114).
+- **Scope**: `apps/api/src/modules/case/import.service.ts` (`extractPdfText`), `apps/api/src/modules/case/case.router.ts`, `apps/web/src/routes/_private/expert-cases/add/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.

@@ -79,6 +79,8 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Lista do laudo como sumário: subitens só aparecem com o item de cima aberto (`NumberedList`); no Escritório, fonte, tamanho e alinhamento do cabeçalho e do rodapé viram três ícones ao lado do nome (AD-172).
+
 - 2026-11-03 — "Faz parte do laudo" passa para o começo da linha de cada item e subitem, antes do número (pedido da perita com foto do protótipo); setas e "…" seguem no fim da linha.
 
 - 2026-11-03 — Padrão de OS personalizável, saída do "Novo laudo" pergunta pelo rascunho, lista do laudo compacta com a linha inteira clicável e tudo recolhido (`ProductSpecs` também), formatação do cabeçalho/rodapé do escritório (AD-172). Plano: `.specs/features/novo-laudo/plans/2026-11-03-ajustes-escritorio-e-laudo.md`.

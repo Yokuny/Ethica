@@ -414,7 +414,8 @@
         "AD-115",
         "AD-116",
         "AD-117",
-        "AD-118"
+        "AD-118",
+        "AD-173"
       ],
       "spec": [
         ".specs/features/importacao-processos"
@@ -1236,6 +1237,12 @@
     {
       "id": "AD-172",
       "decisao": "Cabeçalho e rodapé do escritório têm fonte (Times, Arial), tamanho e alinhamento próprios (`headerStyle`/`footerStyle` no `Tenant`, sem eles",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-173",
+      "decisao": "O \"Preencher com PDF ou ZIP\" do cadastro do serviço aceita um ZIP com os PDFs do processo dividido em partes: o servidor abre o ZIP, lê só o",
       "data": "2026-11-03",
       "status": "active"
     }

@@ -78,6 +78,8 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-03 — Detalhe do serviço mais compacto: prazos, vistorias, laudos, movimentações, financeiro, contato da vara e próximos compromissos começam recolhidos e abrem pelo título (`collapsible` em `apps/web/src/components/panel.tsx`, AD-172).
+
 - 2026-11-03 — Data da perícia também na edição, movendo o compromisso; vencimentos do financeiro na agenda (`agenda-eventos`, AD-169).
 - 2026-11-03 — Status do serviço passa a lista única no lugar de etapa, fase e status (`rotina-servico`, AD-166).
 - 2026-11-03 — Partes com os advogados dentro, data e hora da perícia opcionais e OS no cadastro (`partes-servico`, `novo-laudo`, AD-161, AD-164, AD-165).
