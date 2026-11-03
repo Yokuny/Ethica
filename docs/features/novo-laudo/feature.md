@@ -79,6 +79,8 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — "Faz parte do laudo" passa para o começo da linha de cada item e subitem, antes do número (pedido da perita com foto do protótipo); setas e "…" seguem no fim da linha.
+
 - 2026-11-03 — Padrão de OS personalizável, saída do "Novo laudo" pergunta pelo rascunho, lista do laudo compacta com a linha inteira clicável e tudo recolhido (`ProductSpecs` também), formatação do cabeçalho/rodapé do escritório (AD-172). Plano: `.specs/features/novo-laudo/plans/2026-11-03-ajustes-escritorio-e-laudo.md`.
 
 - 2026-11-03 — Título, item novo, subitem e setas na linha de cada item (AD-171): `section-title-dialog.tsx` substitui `add-section-dialog.tsx`; `POST /expert-reports/:id/sections/:sectionId/move`. Item novo passa a entrar depois dos subitens; item criado no laudo não some mais ao refazer a escolha de itens do modelo.

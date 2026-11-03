@@ -1069,7 +1069,7 @@ const translations: Record<string, string> = {
   service_order_pattern_hint: 'Escreva como o número deve sair. Marcadores:',
   service_order_without_year_hint: 'Sem o [ANO] no padrão, a numeração não volta a 001 em janeiro.',
   number_digits: 'Dígitos do número',
-  part_of_report_hint: 'A caixa ao lado de cada item marca o que faz parte do laudo.',
+  part_of_report_hint: 'A caixa à esquerda de cada item marca o que faz parte do laudo.',
   save_draft: 'Salvar rascunho',
   save_draft_question: 'Salvar como rascunho?',
   save_draft_question_description:

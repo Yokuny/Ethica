@@ -21,7 +21,9 @@ export type NumberedListItem = {
   level?: number;
   // Beside the title (status, pending).
   badge?: ReactNode;
-  // Controls of the item, outside the expand button (checkbox, menu).
+  // Control at the start of the row, before the number (e.g. "Faz parte do laudo").
+  leading?: ReactNode;
+  // Controls at the end of the row, outside the expand button (arrows, menu).
   actions?: ReactNode;
   // Item left out: shown faded.
   muted?: boolean;
@@ -34,7 +36,7 @@ const TITLE_SIZE = ['text-base', 'text-sm', 'text-sm'];
 
 type NumberedListProps = {
   items: NumberedListItem[];
-  // Said once above the list: what the `actions` of each row are (e.g. "Faz parte do laudo").
+  // Said once above the list: what the control of each row is (e.g. "Faz parte do laudo").
   actionsLabel?: ReactNode;
   className?: string;
 };
@@ -102,6 +104,7 @@ export function NumberedList({ items, actionsLabel, className }: NumberedListPro
                   toggle(item.id);
                 }}
               >
+                {item.leading && <div className="flex shrink-0 items-center">{item.leading}</div>}
                 {item.children ? (
                   <CollapsibleTrigger className="flex min-w-0 flex-1 items-center gap-4 text-left">
                     {heading}

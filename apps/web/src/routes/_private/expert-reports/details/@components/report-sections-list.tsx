@@ -41,8 +41,8 @@ const plain = (html: string): string =>
     .trim();
 
 // NLA-05: the whole report in one scroll, numbered by position (AD-126), one item opened at a time or all.
-// Each row has the arrows (the item moves with its subitems inside its topic, AD-171), "Faz parte do laudo"
-// and its "…" (title, new item or subitem, remove).
+// "Faz parte do laudo" starts each row, at the left (AD-172); at the end, the arrows (the item moves with its
+// subitems inside its topic, AD-171) and its "…" (title, new item or subitem, remove).
 export function ReportSectionsList({
   report,
   drafts,
@@ -94,14 +94,16 @@ export function ReportSectionsList({
             ) : dirty ? (
               <Badge variant="info">{t('not_saved')}</Badge>
             ) : undefined,
-          actions: readOnly ? (
+          leading: (
             <Checkbox
               checked={section.included}
-              disabled
+              disabled={readOnly || saving}
               aria-label={t('part_of_report')}
               title={t('part_of_report')}
+              onCheckedChange={(checked) => onToggleIncluded(section.id, checked)}
             />
-          ) : (
+          ),
+          actions: readOnly ? undefined : (
             <>
               <Button
                 size="icon-sm"
@@ -121,13 +123,6 @@ export function ReportSectionsList({
               >
                 <ArrowDown />
               </Button>
-              <Checkbox
-                checked={section.included}
-                disabled={saving}
-                aria-label={t('part_of_report')}
-                title={t('part_of_report')}
-                onCheckedChange={(checked) => onToggleIncluded(section.id, checked)}
-              />
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={<Button size="icon-sm" variant="ghost" aria-label={t('more_actions')} disabled={saving} />}
