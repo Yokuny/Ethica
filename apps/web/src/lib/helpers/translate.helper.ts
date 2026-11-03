@@ -731,6 +731,9 @@ const translations: Record<string, string> = {
   document_type: 'Tipo de documento',
   start_from: 'Começar de',
   blank_template: 'Em branco',
+  save_as_template: 'Salvar como modelo',
+  save_as_template_description:
+    'Os itens que fazem parte do laudo viram um modelo do escritório, com o texto escrito. Os dados do serviço voltam a ser marcadores.',
   remove_template_question: 'Remover o modelo?',
   remove_template_description: 'Laudos já criados com ele não mudam.',
   new_section: 'Nova seção',

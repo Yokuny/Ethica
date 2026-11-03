@@ -1,7 +1,7 @@
 import { PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { DropdownMenuItem, DropdownMenuSeparator } from '@ethica/ui/components/dropdown-menu';
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { FileSignature } from 'lucide-react';
 import { type ChangeEvent, useRef, useState } from 'react';
@@ -25,10 +25,12 @@ import {
   type ProcessFill,
   removeReportSectionMutation,
   reportQuery,
+  saveReportAsTemplateMutation,
   setReportLayoutMutation,
   updateReportSectionMutation,
   uploadReportPhotoMutation,
 } from '@/query/report.js';
+import { can, sessionQuery } from '@/query/session.js';
 import { LayoutDialog } from '../@components/layout-dialog.js';
 import { AddSectionDialog } from './@components/add-section-dialog.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
@@ -37,10 +39,11 @@ import { ReportPreviewDialog } from './@components/report-preview-dialog.js';
 import type { SectionDraft } from './@components/report-section-editor.js';
 import { ReportSectionsDialog } from './@components/report-sections-dialog.js';
 import { ReportSectionsList } from './@components/report-sections-list.js';
+import { SaveTemplateDialog } from './@components/save-template-dialog.js';
 import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
 type Dialog =
-  | { kind: 'complete' | 'removal' | 'sections' | 'preview' | 'layout' }
+  | { kind: 'complete' | 'removal' | 'sections' | 'preview' | 'layout' | 'save-template' }
   | { kind: 'add-section' | 'remove-section'; sectionId: string }
   | null;
 
@@ -48,12 +51,14 @@ export function ReportDetailsPage() {
   const search = useSearch({ strict: false }) as ReportDetailsSearch;
   const navigate = useNavigate({ from: '/expert-reports/details/' });
   const queryClient = useQueryClient();
+  const { data: session } = useSuspenseQuery(sessionQuery);
   const query = useQuery({ ...reportQuery(search.id), retry: false });
   const save = useMutation(updateReportSectionMutation(queryClient));
   const addSection = useMutation(addReportSectionMutation(queryClient));
   const dropSection = useMutation(removeReportSectionMutation(queryClient));
   const setLayout = useMutation(setReportLayoutMutation(queryClient));
   const complete = useMutation(completeReportMutation(queryClient));
+  const saveTemplate = useMutation(saveReportAsTemplateMutation(queryClient));
   const removal = useMutation(deleteReportMutation(queryClient));
   const uploadPhoto = useMutation(uploadReportPhotoMutation());
   const fillFromProcess = useMutation(fillReportFromProcessMutation(queryClient));
@@ -135,8 +140,32 @@ export function ReportDetailsPage() {
   const openDraft = report?.status === 'draft';
   const target =
     dialog && 'sectionId' in dialog ? report?.sections.find((item) => item.id === dialog.sectionId) : undefined;
+  // Secondary actions in the "…" (the expert asked for a cleaner header): only preview and complete stay outside.
   const menu = report && (
     <PageMenu>
+      {openDraft && (
+        <>
+          <DropdownMenuItem
+            disabled={fillFromProcess.isPending || busy}
+            onClick={() => processInputRef.current?.click()}
+          >
+            {fillFromProcess.isPending ? t('reading_pdf') : t('fill_from_process')}
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={busy} onClick={() => void saveAll(() => setDialog({ kind: 'sections' }))}>
+            {t('template_sections')}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDialog({ kind: 'layout' })}>{t('report_layout')}</DropdownMenuItem>
+          <DropdownMenuSeparator />
+        </>
+      )}
+      {can(session, 'report_templates', 'create') && (
+        <>
+          <DropdownMenuItem disabled={busy} onClick={() => void saveAll(() => setDialog({ kind: 'save-template' }))}>
+            {t('save_as_template')}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+        </>
+      )}
       <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('pdf')}>
         {t('export_pdf')}
       </DropdownMenuItem>
@@ -158,15 +187,6 @@ export function ReportDetailsPage() {
             >
               {t('preview_pdf')}
             </Button>
-            {openDraft && (
-              <Button
-                variant="outline"
-                disabled={fillFromProcess.isPending || busy}
-                onClick={() => processInputRef.current?.click()}
-              >
-                {fillFromProcess.isPending ? t('reading_pdf') : t('fill_from_process')}
-              </Button>
-            )}
             <input
               ref={processInputRef}
               type="file"
@@ -176,20 +196,6 @@ export function ReportDetailsPage() {
               aria-label={t('fill_from_process')}
               onChange={handleProcessFile}
             />
-            {openDraft && (
-              <Button
-                variant="outline"
-                disabled={busy}
-                onClick={() => void saveAll(() => setDialog({ kind: 'sections' }))}
-              >
-                {t('template_sections')}
-              </Button>
-            )}
-            {openDraft && (
-              <Button variant="outline" onClick={() => setDialog({ kind: 'layout' })}>
-                {t('report_layout')}
-              </Button>
-            )}
             {openDraft && (
               <Button
                 disabled={report.issues.length > 0 || dirtyIds.length > 0 || busy}
@@ -277,6 +283,30 @@ export function ReportDetailsPage() {
                 onSuccess: () => {
                   setDialog(null);
                   toast.success(t('changes_saved'));
+                },
+                onError,
+              },
+            )
+          }
+        />
+      )}
+      {report && dialog?.kind === 'save-template' && (
+        <SaveTemplateDialog
+          name={report.templateName}
+          pending={saveTemplate.isPending}
+          onClose={() => setDialog(null)}
+          onConfirm={(data) =>
+            saveTemplate.mutate(
+              { id: report.id, data },
+              {
+                onSuccess: (template) => {
+                  setDialog(null);
+                  toast.success(t('saved_successfully'), {
+                    action: {
+                      label: t('view'),
+                      onClick: () => navigate({ to: '/expert-reports/templates/details', search: { id: template.id } }),
+                    },
+                  });
                 },
                 onError,
               },

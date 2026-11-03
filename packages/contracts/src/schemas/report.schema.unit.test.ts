@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { createReportSchema, numberSections, pendingVariables, reportRoleType } from './report.schema.js';
+import {
+  createReportSchema,
+  numberSections,
+  pendingVariables,
+  reportRoleType,
+  sectionFamily,
+} from './report.schema.js';
 
 describe('numberSections', () => {
   it('numera pela posição e pelo nível e reinicia o subnível', () => {
@@ -48,5 +54,21 @@ describe('report', () => {
     expect(
       createReportSchema.safeParse({ ...base, templateId: 'qualquer', sections: [{ id: 'a', variant: 'no' }] }).success,
     ).toBe(false);
+  });
+});
+
+describe('sectionFamily', () => {
+  const sections = [
+    { id: 'a', level: 1 },
+    { id: 'a1', level: 2 },
+    { id: 'a1x', level: 3 },
+    { id: 'a2', level: 2 },
+    { id: 'b', level: 1 },
+  ];
+
+  it('takes the subsections right below and the sections above', () => {
+    expect(sectionFamily(sections, 0)).toEqual({ parents: [], children: ['a1', 'a1x', 'a2'] });
+    expect(sectionFamily(sections, 2)).toEqual({ parents: ['a1', 'a'], children: [] });
+    expect(sectionFamily(sections, 3)).toEqual({ parents: ['a'], children: [] });
   });
 });

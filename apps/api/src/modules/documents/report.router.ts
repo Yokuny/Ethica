@@ -230,6 +230,14 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     reportSection,
     reportController.removeReportSection,
   );
+  router.post(
+    '/:id/template',
+    ...guard,
+    can('report_templates', 'create'),
+    report,
+    validBody(updateTemplateSchema),
+    reportController.saveReportAsTemplate,
+  );
   // Full process PDF in the body, like the minutes (AD-118, AD-152).
   router.post(
     '/:id/process',

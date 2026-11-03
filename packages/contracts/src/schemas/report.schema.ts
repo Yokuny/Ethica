@@ -121,6 +121,30 @@ export const numberSections = (
   });
 };
 
+// Sections tied to the one at `index`: the subsections right below it and the sections above it. Unchecking a
+// section takes its subsections along; checking it brings them back and also checks the ones above, so it is
+// never numbered under the wrong one.
+export const sectionFamily = (
+  sections: ReadonlyArray<{ id: string; level: number }>,
+  index: number,
+): { parents: string[]; children: string[] } => {
+  const level = sections[index]?.level ?? 1;
+  const children: string[] = [];
+  for (let i = index + 1; i < sections.length && (sections[i]?.level ?? 1) > level; i++) {
+    children.push((sections[i] as { id: string }).id);
+  }
+  const parents: string[] = [];
+  let current = level;
+  for (let i = index - 1; i >= 0 && current > 1; i--) {
+    const section = sections[i] as { id: string; level: number };
+    if (section.level < current) {
+      parents.push(section.id);
+      current = section.level;
+    }
+  }
+  return { parents, children };
+};
+
 const REPORT_HTML_MAX = 200_000;
 export const REPORT_SECTIONS_MAX = 200;
 

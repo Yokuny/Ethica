@@ -62,6 +62,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-170** (2026-11-03, active) — O laudo vira modelo do escritório pelo "…" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variant
 - **AD-168** (2026-11-03, active) — O PDF do processo usa as partes do último cabeçalho com os dois polos (o último despacho) ou, sem ele, do primeiro (a petição inicial); a da
 - **AD-167** (2026-11-03, active) — Importação de planilha de qualquer modelo (RSV-04): cada coluna é ligada a um campo pelo nome (`suggestCsvField`, sinônimos em `packages/con
 - **AD-166** (2026-11-03, active) — O serviço tem um status só (`Case.status`, `CASE_STATUS`): nomeado – aguardando aceite, proposta de honorários enviada, honorários aceitos –
@@ -71,7 +72,6 @@ _Nenhum._
 - **AD-162** (2026-11-03, active) — Responsável técnico do laudo = `Signatory` (coleção do `documents`): nome, CPF, registro, formação, telefone, logo (no storage, pela cota do
 - **AD-161** (2026-11-03, active) — Número de controle de OS por serviço (`Case.serviceOrder`, índice único parcial por tenant). A sequência do escritório (sigla + ano + último
 - **AD-160** (2026-11-02, active) — Data, hora e local da perícia no cadastro do serviço (`inspection`, só na criação) viram um compromisso de perícia de 1 hora ligado ao servi
-- **AD-159** (2026-11-02, active) — Categorias de despesa: deslocamento, equipamentos, terceiros, materiais, taxas, alimentação e outras; categoria criada pelo escritório é `ot
 
 ## `.specs/` sem registro em `docs/features/`
 

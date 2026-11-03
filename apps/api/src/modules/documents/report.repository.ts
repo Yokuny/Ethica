@@ -131,6 +131,22 @@ export const updateSection = async (
     return doc ? toRecord(doc) : null;
   });
 
+// "Faz parte do laudo" of a topic goes to its subsections too (sectionFamily).
+export const setIncluded = async (
+  tenantId: string,
+  id: string,
+  sectionIds: string[],
+  included: boolean,
+): Promise<ReportRecord | null> =>
+  withDbTiming('report.setIncluded', async () => {
+    const doc = await Report.findOneAndUpdate(
+      draft(tenantId, id),
+      { $set: { 'sections.$[item].included': included } },
+      { arrayFilters: [{ 'item._id': { $in: sectionIds.map(toObjectId) } }], returnDocument: 'after' },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
 export const replaceSections = async (
   tenantId: string,
   id: string,

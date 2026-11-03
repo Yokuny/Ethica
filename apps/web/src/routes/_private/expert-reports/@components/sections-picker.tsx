@@ -1,5 +1,5 @@
 import type { ReportVariant } from '@ethica/contracts';
-import { numberSections } from '@ethica/contracts';
+import { numberSections, sectionFamily } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
@@ -21,18 +21,14 @@ type SectionsPickerProps = {
 export function SectionsPicker({ sections, choices, onChange }: SectionsPickerProps) {
   const numbers = numberSections(sections);
   const checked = sections.filter((section) => choices[section.id]).length;
-  // Checking a subsection also checks the sections above it, so it is not numbered under the wrong one.
-  const parentsOf = (index: number): string[] => {
-    const ids: string[] = [];
-    let level = sections[index]?.level ?? 1;
-    for (let i = index - 1; i >= 0 && level > 1; i--) {
-      const section = sections[i] as TemplateSectionRecord;
-      if (section.level < level) {
-        ids.push(section.id);
-        level = section.level;
-      }
-    }
-    return ids;
+  // A topic takes its subsections along (unchecked or checked); checking also checks the sections above it.
+  const toggle = (index: number, id: string, checked: boolean) => {
+    const { parents, children } = sectionFamily(sections, index);
+    const ids = checked ? [...parents, id, ...children] : [id, ...children];
+    onChange({
+      ...choices,
+      ...Object.fromEntries(ids.map((item) => [item, checked ? (choices[item] ?? 'yes') : undefined])),
+    });
   };
 
   return (
@@ -69,17 +65,7 @@ export function SectionsPicker({ sections, choices, onChange }: SectionsPickerPr
             >
               <Checkbox
                 checked={Boolean(variant)}
-                onCheckedChange={(checked) =>
-                  onChange(
-                    checked
-                      ? {
-                          ...Object.fromEntries(parentsOf(i).map((id) => [id, choices[id] ?? 'yes'])),
-                          ...choices,
-                          [section.id]: 'yes',
-                        }
-                      : { ...choices, [section.id]: undefined },
-                  )
-                }
+                onCheckedChange={(checked) => toggle(i, section.id, checked)}
                 aria-label={section.title}
                 labelClassName="normal-case tracking-normal"
                 label={

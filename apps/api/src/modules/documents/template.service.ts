@@ -50,6 +50,12 @@ export const createTemplate = async (tenantId: string, data: CreateTemplate): Pr
   });
 };
 
+// Template saved from a report (AD-170): its items and texts, already chosen by the expert.
+export const createFromReport = (
+  tenantId: string,
+  data: { name: string; type: ReportType; sections: TemplateSection[]; layout: ReportLayout },
+): Promise<TemplateRecord> => templateRepository.create(tenantId, { ...data, sections: data.sections.map(sanitized) });
+
 // Layout of the reports created from it (NLA-06).
 export const setLayout = async (tenantId: string, id: string, layout: ReportLayout): Promise<TemplateRecord> => {
   ofOffice(id);

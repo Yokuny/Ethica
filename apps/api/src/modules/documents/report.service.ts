@@ -1,4 +1,4 @@
-import { caseLabel, REPORT_MEDIA_LIMIT, type ReportLayout } from '@ethica/contracts';
+import { caseLabel, REPORT_MEDIA_LIMIT, REPORT_VARIABLES, type ReportLayout, sectionFamily } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -11,6 +11,7 @@ import * as deadlineService from '../case/deadline.service.js';
 import * as importService from '../case/import.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as officeService from '../identity/office.service.js';
+import { esc } from './document.layout.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
 import { reportDocx } from './report.docx.js';
 import { issuesOf, type ReportValues, resolveVariables, sanitizeReportHtml } from './report.html.js';
@@ -29,8 +30,10 @@ import type {
   ReportSectionRecord,
   ReportSectionWrite,
   TemplateRecord,
+  TemplateSection,
   TemplateSectionRecord,
   UpdateReportSection,
+  UpdateTemplate,
 } from './report.schema.js';
 import { reportHtml } from './report.templates.js';
 import { reportValues } from './report.variables.js';
@@ -247,16 +250,64 @@ export const updateSection = async (
   ctx: DocumentContext,
   id: string,
   sectionId: string,
-  data: UpdateReportSection,
+  { included, ...data }: UpdateReportSection,
 ): Promise<ReportRecord> => {
   const { tenantId } = ctx;
-  await editable(tenantId, id);
-  const updated = await reportRepository.updateSection(tenantId, id, sectionId, {
-    title: data.title,
-    html: data.html === undefined ? undefined : sanitizeReportHtml(data.html),
-    included: data.included,
-  });
-  return openReport(ctx, found(updated).id);
+  const report = await editable(tenantId, id);
+  const index = report.sections.findIndex((section) => section.id === sectionId);
+  if (index < 0) throw new ReportNotFoundError('not_found');
+  if (included !== undefined) {
+    const { parents, children } = sectionFamily(report.sections, index);
+    const ids = [sectionId, ...children, ...(included ? parents : [])];
+    found(await reportRepository.setIncluded(tenantId, id, ids, included));
+  }
+  if (data.title !== undefined || data.html !== undefined) {
+    found(
+      await reportRepository.updateSection(tenantId, id, sectionId, {
+        title: data.title,
+        html: data.html === undefined ? undefined : sanitizeReportHtml(data.html),
+      }),
+    );
+  }
+  return openReport(ctx, id);
+};
+
+// Text resolved with the case data goes back to the markers, so the template stays generic for the
+// next case (AD-170). Short values ("Réu", "nenhum") are words of any text and stay as they are.
+const MARKER_MIN = 8;
+const toMarkers = (text: string, values: ReportValues, format: 'html' | 'text'): string =>
+  REPORT_VARIABLES.flatMap((variable) => {
+    const amount = values[variable]?.trim();
+    return amount && amount.length >= MARKER_MIN ? [[variable, format === 'html' ? esc(amount) : amount] as const] : [];
+  })
+    .sort(([, a], [, b]) => b.length - a.length)
+    .reduce((result, [variable, amount]) => result.replaceAll(amount, variable), text);
+
+// AD-170: saves the items that are part of the report, with the written text, as an office template. The text
+// goes in the variant the item uses; the other variant comes from the original template, when it still exists.
+export const saveAsTemplate = async (ctx: DocumentContext, id: string, { name }: UpdateTemplate) => {
+  const report = await getReport(ctx.tenantId, id);
+  const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
+  const { values } = await currentData({}, ctx, legalCase, report.signatoryId);
+  const original = report.templateId
+    ? await templateService.getTemplate(ctx.tenantId, report.templateId).catch(() => undefined)
+    : undefined;
+  const sections = report.sections
+    .filter((section) => section.included)
+    .map((section): TemplateSection => {
+      const base = original?.sections.find((item) => item.id === section.templateSectionId);
+      const html = toMarkers(section.html, values, 'html');
+      return {
+        title: toMarkers(section.title, values, 'text'),
+        level: section.level,
+        titleOnly: section.titleOnly,
+        pageBreak: section.pageBreak,
+        unnumbered: section.unnumbered,
+        yesText: section.variant === 'yes' ? html : (base?.yesText ?? ''),
+        noText: section.variant === 'no' ? html : (base?.noText ?? ''),
+      };
+    });
+  return templateService.createFromReport(ctx.tenantId, { name, type: report.type, sections, layout: report.layout });
 };
 
 // NLA-05: blank item right after `afterId` (or at the start), out of the template.

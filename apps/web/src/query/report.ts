@@ -11,6 +11,7 @@ import type {
   ReportVariant,
   TemplateSection,
   UpdateReportSection,
+  UpdateTemplate,
 } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
@@ -221,6 +222,15 @@ export const createTemplateMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<TemplateRecord, Error, CreateTemplate> => ({
   mutationFn: async (data) => unwrap(await post<TemplateRecord>('/expert-reports/templates', data), 'create_error'),
+  onSuccess: (template) => updatedTemplate(queryClient, template),
+});
+
+// AD-170: the items that are part of the report become an office template.
+export const saveReportAsTemplateMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<TemplateRecord, Error, { id: string; data: UpdateTemplate }> => ({
+  mutationFn: async ({ id, data }) =>
+    unwrap(await post<TemplateRecord>(`/expert-reports/${id}/template`, data), 'create_error'),
   onSuccess: (template) => updatedTemplate(queryClient, template),
 });
 

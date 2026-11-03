@@ -105,6 +105,7 @@ export const createReport = (providers: Providers) =>
 export const updateReportSection = json((req) =>
   reportService.updateSection(context(req), id(req), sectionId(req), req.body),
 );
+export const saveReportAsTemplate = json((req) => reportService.saveAsTemplate(context(req), id(req), req.body), 201);
 export const addReportSection = json((req) => reportService.addSection(context(req), id(req), req.body), 201);
 export const setReportLayout = json((req) => reportService.setLayout(context(req), id(req), req.body));
 export const chooseReportSections = (providers: Providers) =>

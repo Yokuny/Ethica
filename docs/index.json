@@ -16,7 +16,8 @@
       "decisoes": [
         "AD-161",
         "AD-162",
-        "AD-163"
+        "AD-163",
+        "AD-170"
       ],
       "spec": [
         ".specs/features/novo-laudo"
@@ -1185,6 +1186,12 @@
     {
       "id": "AD-168",
       "decisao": "O PDF do processo usa as partes do último cabeçalho com os dois polos (o último despacho) ou, sem ele, do primeiro (a petição inicial); a da",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-170",
+      "decisao": "O laudo vira modelo do escritório pelo \"…\" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variant",
       "data": "2026-11-03",
       "status": "active"
     }

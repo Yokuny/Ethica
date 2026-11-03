@@ -5,7 +5,7 @@ descricao: OS por serviço, responsável técnico do laudo, modelo trabalhista d
 data: 2026-11-03
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-161, AD-162, AD-163]
+decisoes: [AD-161, AD-162, AD-163, AD-170]
 spec: [.specs/features/novo-laudo]
 branches: [main]
 ---
@@ -25,6 +25,8 @@ branches: [main]
 - **Modelo "Laudo pericial trabalhista"** com os 21 itens e subitens do laudo da perita (objeto e considerações preliminares sem número, abertura ao juiz e "É o laudo." com assinatura); o modelo anterior segue como "Laudo pericial (NR-15 e NR-16)".
 - **Editor em rolagem**: todos os itens numa lista numerada, expandir/recolher tudo e um a um, "Faz parte do laudo" (fora do laudo não sai no PDF/Word nem bloqueia), selo "pendente" (e "pendente · vistoria" quando falta dado da vistoria), "Adicionar item abaixo" (item ou subitem) e remover item.
 - **Layout** no laudo e no modelo do escritório: fonte (Times New Roman, Arial), tamanho, entrelinha, espaço entre parágrafos, margens, cor dos títulos, capa, sumário e abertura/assinatura final, no PDF e no Word.
+- **Salvar como modelo** no "…" do laudo: os itens que fazem parte do laudo, com o texto escrito, viram um modelo do escritório; os dados do serviço voltam a ser marcadores (AD-170). Desmarcar um tópico desmarca os subitens (no laudo e na escolha de itens do modelo).
+- **Cabeçalho do laudo** só com Visualizar PDF e Concluir; Preencher pelo processo, Seções do modelo, Layout, Salvar como modelo e Exportar PDF/Word ficam no "…".
 - **Componente padrão** `NumberedList` (lista numerada expansível, visual do bloco `feature207`).
 
 ## Por que
@@ -42,6 +44,7 @@ Não desfazer sem ler: a sequência de OS é do módulo `case` (`ServiceOrderSeq
 - `apps/api/src/modules/documents/report.service.ts` — `currentData` usa o responsável do laudo; `addSection`; `setLayout`; `chooseSections` mantém os itens adicionados; exportação só com os itens que fazem parte do laudo.
 - `apps/api/src/modules/documents/report.library.ts` — `DEFAULT_TEMPLATES` em lista, com o modelo trabalhista (`standard-labor-report`).
 - `apps/api/src/modules/documents/report.templates.ts` e `report.docx.ts` — layout, abertura e "É o laudo."; `apps/api/src/providers/pdfRenderer.ts` aceita margens.
+- `report.service.ts` — `saveAsTemplate` (`POST /expert-reports/:id/template`, permissão `report_templates.create`) e `updateSection` com `included` levando os subitens (`sectionFamily` em `packages/contracts/src/schemas/report.schema.ts`); `template.service.ts` — `createFromReport`.
 - Rotas novas: `POST /expert-reports/:id/sections`, `PUT /expert-reports/:id/layout`, `PUT /expert-reports/templates/:id/layout`.
 
 ### `apps/web`
@@ -75,5 +78,6 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Salvar como modelo pelo "…", tópico desmarcado leva os subitens e ações do laudo agrupadas no "…" (AD-170). Componente novo: `apps/web/src/routes/_private/expert-reports/details/@components/save-template-dialog.tsx`.
 - 2026-11-03 — Implementado NLA-01 a NLA-07 (AD-161 a AD-163). Divergências da spec: a sequência de OS mora no módulo `case` (coleção própria) e não no escritório, para o `case` seguir sem depender de `identity`; sem responsável cadastrado o laudo sai com quem gera o arquivo (como já era), não com quem o criou; o operador também cadastra responsável técnico (mesma permissão de criar laudo).
 - 2026-11-03 — Spec criada (`.specs/features/novo-laudo/spec.md`).

@@ -863,6 +863,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-170
+- **Decision**: O laudo vira modelo do escritório pelo "…" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variante que o item usa (a outra variante vem do modelo original, se ainda existir), o layout do laudo e o tipo. O texto já resolvido com os dados do serviço volta aos marcadores (`[NUMERO_PROCESSO]`, nomes, datas) quando o valor tem 8 caracteres ou mais. Marcar/desmarcar "Faz parte do laudo" (e a escolha de itens do modelo) leva junto os subitens do tópico; marcar também marca os tópicos acima.
+- **Reason**: pedido da perita (2026-11-03): montar um laudo genérico, escolhendo tópicos, e reaproveitar como modelo; o tópico desmarcado deixava os subitens marcados.
+- **Trade-off**: valor curto (comarca, "Réu") fica escrito no modelo para não trocar palavras comuns do texto; a perita corrige no modelo. O laudo continua ligado ao modelo de onde nasceu.
+- **Scope**: `apps/api/src/modules/documents/report.service.ts` (`saveAsTemplate`, `updateSection`), `packages/contracts/src/schemas/report.schema.ts` (`sectionFamily`), `apps/web/src/routes/_private/expert-reports/details/index.tsx`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `rotina-servico` — parcial: partes do último despacho, última nomeação, status único, planilha de qualquer modelo e nomes das seções (AD-166 a AD-168). Falta a base de varas e comarcas dos 24 TRTs (RSV-05, a perita escolheu base pronta para todo escritório; supersede parte da AD-151 quando entrar) e a conferência visual no navegador.

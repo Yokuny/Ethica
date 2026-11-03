@@ -516,5 +516,35 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(rendered?.html).toContain('É o laudo.');
     expect(rendered?.html).not.toContain('class="capa"');
     expect(rendered?.headerTemplate).toContain('Carla Souza · Eng. Carla Souza');
+
+    // Unchecking a topic takes its subitems along; checking it again brings them back.
+    const topic = chosen.body.data.sections[0];
+    const sub = await admin
+      .as(request(app).post(`/expert-reports/${id}/sections`))
+      .send({ title: 'Subitem', level: 2, afterId: topic.id });
+    const subId = sub.body.data.sections[1].id;
+    const off = await admin
+      .as(request(app).patch(`/expert-reports/${id}/sections/${topic.id}`))
+      .send({ included: false });
+    expect(off.body.data.sections.map((section: Section & { included: boolean }) => section.included)).toEqual([
+      false,
+      false,
+      false,
+    ]);
+    await admin.as(request(app).patch(`/expert-reports/${id}/sections/${topic.id}`)).send({ included: true });
+    await admin
+      .as(request(app).patch(`/expert-reports/${id}/sections/${subId}`))
+      .send({ html: '<p>Processo 0008888-11.2026.5.15.0001</p>' })
+      .expect(200);
+
+    // AD-170: the items that are part of the report become a template, with the case data back to markers.
+    expect(
+      (await operator.as(request(app).post(`/expert-reports/${id}/template`)).send({ name: 'Meu modelo' })).status,
+    ).toBe(403);
+    const saved = await admin.as(request(app).post(`/expert-reports/${id}/template`)).send({ name: 'Meu modelo' });
+    expect(saved.status).toBe(201);
+    expect(saved.body.data).toMatchObject({ name: 'Meu modelo', type: 'report', isDefault: false });
+    expect(saved.body.data.sections.map((section: Section) => section.title)).toEqual(['Objeto da perícia', 'Subitem']);
+    expect(saved.body.data.sections[1].yesText).toBe('<p>Processo [NUMERO_PROCESSO]</p>');
   });
 });
