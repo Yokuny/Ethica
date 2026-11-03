@@ -4,11 +4,19 @@
 FROM node:24-bookworm-slim
 
 # python3/make/g++ compilam o addon nativo do bcrypt no install. `chromium` gera os PDFs
-# (AD-119, CHROMIUM_PATH=/usr/bin/chromium); as fontes dos documentos: Liberation (Times, Arial),
-# Carlito e Caladea (no lugar de Calibri e Cambria) e Source Sans 3 (antiga Source Sans Pro).
+# (AD-119, CHROMIUM_PATH=/usr/bin/chromium); as fontes dos documentos: Liberation (Times, Arial) e
+# Carlito e Caladea (no lugar de Calibri e Cambria).
 RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ chromium fonts-liberation \
-    fonts-crosextra-carlito fonts-crosextra-caladea fonts-adobe-sourcesans3 \
+    fonts-crosextra-carlito fonts-crosextra-caladea \
     && rm -rf /var/lib/apt/lists/*
+
+# Source Sans 3 (antiga Source Sans Pro, licença OFL) não tem pacote no Debian bookworm: vem da Adobe.
+ADD https://github.com/adobe-fonts/source-sans/raw/release/TTF/SourceSans3-Regular.ttf \
+    https://github.com/adobe-fonts/source-sans/raw/release/TTF/SourceSans3-Bold.ttf \
+    https://github.com/adobe-fonts/source-sans/raw/release/TTF/SourceSans3-It.ttf \
+    https://github.com/adobe-fonts/source-sans/raw/release/TTF/SourceSans3-BoldIt.ttf \
+    /usr/share/fonts/truetype/source-sans/
+RUN chmod 644 /usr/share/fonts/truetype/source-sans/*.ttf
 
 RUN corepack enable && corepack prepare pnpm@11.11.0 --activate
 
