@@ -17,7 +17,8 @@
         "AD-161",
         "AD-162",
         "AD-163",
-        "AD-170"
+        "AD-170",
+        "AD-171"
       ],
       "spec": [
         ".specs/features/novo-laudo"
@@ -1192,6 +1193,12 @@
     {
       "id": "AD-170",
       "decisao": "O laudo vira modelo do escritório pelo \"…\" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variant",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-171",
+      "decisao": "No laudo, cada item tem na própria linha as setas de subir/descer, \"Faz parte do laudo\" e um \"…\" com Editar título, Adicionar item abaixo, A",
       "data": "2026-11-03",
       "status": "active"
     }

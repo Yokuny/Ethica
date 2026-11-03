@@ -23,6 +23,7 @@ import type {
   CompleteReport,
   CreateReport,
   ListReportsQuery,
+  MoveSection,
   ProcessFill,
   ProcessMissing,
   ReportListItem,
@@ -225,12 +226,15 @@ export const chooseSections = async (
     const kept = current.get(section.id);
     return kept?.variant === variant ? kept : fromTemplate(section, variant, values);
   });
-  // Items added in the report (NLA-05) stay after the template item they followed, in the same template.
+  // Items added in the report (NLA-05) stay after the template item they followed, in the same template; if
+  // that one left, after the last one above it that stayed.
+  const kept = new Set(chosen.map(([section]) => section.id));
   const added = new Map<string | undefined, ReportSectionRecord[]>();
   let anchor: string | undefined;
   for (const section of sameTemplate ? report.sections : []) {
-    if (section.templateSectionId) anchor = section.templateSectionId;
-    else added.set(anchor, [...(added.get(anchor) ?? []), section]);
+    if (section.templateSectionId) {
+      if (kept.has(section.templateSectionId)) anchor = section.templateSectionId;
+    } else added.set(anchor, [...(added.get(anchor) ?? []), section]);
   }
   const sections = [
     ...(added.get(undefined) ?? []),
@@ -310,11 +314,13 @@ export const saveAsTemplate = async (ctx: DocumentContext, id: string, { name }:
   return templateService.createFromReport(ctx.tenantId, { name, type: report.type, sections, layout: report.layout });
 };
 
-// NLA-05: blank item right after `afterId` (or at the start), out of the template.
+// NLA-05: blank item after `afterId` and its subitems (or at the start), out of the template. Right after the
+// item it would take the subitems of `afterId` as its own.
 export const addSection = async (ctx: DocumentContext, id: string, data: AddReportSection): Promise<ReportRecord> => {
   const report = await editable(ctx.tenantId, id);
-  const position = data.afterId ? report.sections.findIndex((section) => section.id === data.afterId) + 1 : 0;
-  if (data.afterId && position === 0) throw new ReportNotFoundError('not_found');
+  const index = data.afterId ? report.sections.findIndex((section) => section.id === data.afterId) : -1;
+  if (data.afterId && index < 0) throw new ReportNotFoundError('not_found');
+  const position = data.afterId ? index + 1 + sectionFamily(report.sections, index).children.length : 0;
   found(
     await reportRepository.insertSection(ctx.tenantId, id, position, {
       title: data.title,
@@ -327,6 +333,41 @@ export const addSection = async (ctx: DocumentContext, id: string, data: AddRepo
       html: '',
     }),
   );
+  return openReport(ctx, id);
+};
+
+// Arrows on the screen (AD-171): the item goes with its subitems and swaps with the neighbor of the same level,
+// never leaving the topic it is in. At the edge nothing changes.
+export const moveSection = async (
+  ctx: DocumentContext,
+  id: string,
+  sectionId: string,
+  { direction }: MoveSection,
+): Promise<ReportRecord> => {
+  const report = await editable(ctx.tenantId, id);
+  const { sections } = report;
+  const index = sections.findIndex((section) => section.id === sectionId);
+  if (index < 0) throw new ReportNotFoundError('not_found');
+  const level = (sections[index] as ReportSectionRecord).level;
+  const end = index + 1 + sectionFamily(sections, index).children.length;
+  let neighbor = -1;
+  if (direction === 'up') {
+    for (let i = index - 1; i >= 0 && neighbor < 0; i--) {
+      if ((sections[i] as ReportSectionRecord).level <= level) neighbor = i;
+    }
+  } else if (end < sections.length) {
+    neighbor = end;
+  }
+  if (neighbor < 0 || (sections[neighbor] as ReportSectionRecord).level < level) return openReport(ctx, id);
+  const [first, second] = direction === 'up' ? [neighbor, index] : [index, neighbor];
+  const secondEnd = second + 1 + sectionFamily(sections, second).children.length;
+  const reordered = [
+    ...sections.slice(0, first),
+    ...sections.slice(second, secondEnd),
+    ...sections.slice(first, second),
+    ...sections.slice(secondEnd),
+  ];
+  found(await reportRepository.setSections(ctx.tenantId, id, reordered));
   return openReport(ctx, id);
 };
 

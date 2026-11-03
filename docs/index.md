@@ -62,6 +62,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-171** (2026-11-03, active) — No laudo, cada item tem na própria linha as setas de subir/descer, "Faz parte do laudo" e um "…" com Editar título, Adicionar item abaixo, A
 - **AD-170** (2026-11-03, active) — O laudo vira modelo do escritório pelo "…" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variant
 - **AD-168** (2026-11-03, active) — O PDF do processo usa as partes do último cabeçalho com os dois polos (o último despacho) ou, sem ele, do primeiro (a petição inicial); a da
 - **AD-167** (2026-11-03, active) — Importação de planilha de qualquer modelo (RSV-04): cada coluna é ligada a um campo pelo nome (`suggestCsvField`, sinônimos em `packages/con
@@ -71,7 +72,6 @@ _Nenhum._
 - **AD-163** (2026-11-03, active) — Modelos padrão viram lista (`REPORT_DEFAULT_TEMPLATES`, id → tipo; o primeiro do tipo é o sugerido), com o "Laudo pericial trabalhista" da p
 - **AD-162** (2026-11-03, active) — Responsável técnico do laudo = `Signatory` (coleção do `documents`): nome, CPF, registro, formação, telefone, logo (no storage, pela cota do
 - **AD-161** (2026-11-03, active) — Número de controle de OS por serviço (`Case.serviceOrder`, índice único parcial por tenant). A sequência do escritório (sigla + ano + último
-- **AD-160** (2026-11-02, active) — Data, hora e local da perícia no cadastro do serviço (`inspection`, só na criação) viram um compromisso de perícia de 1 hora ligado ao servi
 
 ## `.specs/` sem registro em `docs/features/`
 

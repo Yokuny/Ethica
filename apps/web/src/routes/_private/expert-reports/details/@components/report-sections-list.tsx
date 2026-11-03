@@ -1,21 +1,32 @@
-import { numberSections } from '@ethica/contracts';
+import { numberSections, REPORT_LEVEL_MAX, sectionFamily } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
+import { Button } from '@ethica/ui/components/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@ethica/ui/components/dropdown-menu';
+import { ArrowDown, ArrowUp, Ellipsis } from 'lucide-react';
 import { Checkbox } from '@/components/checkbox.js';
 import { NumberedList } from '@/components/numbered-list.js';
 import { INSPECTION_VARIABLES } from '@/components/report-labels.js';
 import type { PhotoEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { ReportRecord } from '@/query/report.js';
-import { ReportSectionEditor, type SectionDraft } from './report-section-editor.js';
+import { ReportSectionEditor } from './report-section-editor.js';
 
 type ReportSectionsListProps = {
   report: ReportRecord;
-  drafts: Record<string, SectionDraft>;
+  drafts: Record<string, string>;
   saving: boolean;
-  onChange: (sectionId: string, draft: SectionDraft) => void;
+  onChange: (sectionId: string, html: string) => void;
   onSave: (sectionId: string) => void;
   onToggleIncluded: (sectionId: string, included: boolean) => void;
-  onAdd: (sectionId: string) => void;
+  onMove: (sectionId: string, direction: 'up' | 'down') => void;
+  onRename: (sectionId: string) => void;
+  onAdd: (sectionId: string, level: number) => void;
   onRemove: (sectionId: string) => void;
   photos?: PhotoEditor[];
   uploadPhoto?: (photo: Blob) => Promise<string>;
@@ -30,6 +41,8 @@ const plain = (html: string): string =>
     .trim();
 
 // NLA-05: the whole report in one scroll, numbered by position (AD-126), one item opened at a time or all.
+// Each row has the arrows (the item moves with its subitems inside its topic, AD-171), "Faz parte do laudo"
+// and its "…" (title, new item or subitem, remove).
 export function ReportSectionsList({
   report,
   drafts,
@@ -37,21 +50,32 @@ export function ReportSectionsList({
   onChange,
   onSave,
   onToggleIncluded,
+  onMove,
+  onRename,
   onAdd,
   onRemove,
   photos,
   uploadPhoto,
 }: ReportSectionsListProps) {
   const readOnly = report.status === 'completed';
-  const numbers = numberSections(report.sections);
+  const { sections } = report;
+  const numbers = numberSections(sections);
+  // A sibling of the same level above or below, inside the same topic.
+  const canMove = (index: number, direction: 'up' | 'down'): boolean => {
+    const level = sections[index]?.level ?? 1;
+    if (direction === 'down') {
+      return sections[index + 1 + sectionFamily(sections, index).children.length]?.level === level;
+    }
+    return sections.slice(0, index).findLast((section) => section.level <= level)?.level === level;
+  };
 
   return (
     <NumberedList
-      items={report.sections.map((section, i) => {
-        const draft = drafts[section.id] ?? { title: section.title, html: section.html };
+      items={sections.map((section, i) => {
+        const draft = drafts[section.id] ?? section.html;
         const pending = report.issues.find((issue) => issue.sectionId === section.id)?.variables ?? [];
         const empty = !section.titleOnly && !plain(section.html);
-        const dirty = draft.title !== section.title || draft.html !== section.html;
+        const dirty = draft !== section.html;
         return {
           id: section.id,
           number: numbers[i],
@@ -69,16 +93,65 @@ export function ReportSectionsList({
             ) : dirty ? (
               <Badge variant="info">{t('not_saved')}</Badge>
             ) : undefined,
-          actions: (
+          actions: readOnly ? (
             <Checkbox
               checked={section.included}
-              disabled={readOnly || saving}
+              disabled
               label={t('part_of_report')}
               labelClassName="hidden sm:inline"
-              onCheckedChange={(checked) => onToggleIncluded(section.id, checked)}
             />
+          ) : (
+            <>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-label={t('move_up')}
+                disabled={saving || !canMove(i, 'up')}
+                onClick={() => onMove(section.id, 'up')}
+              >
+                <ArrowUp />
+              </Button>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-label={t('move_down')}
+                disabled={saving || !canMove(i, 'down')}
+                onClick={() => onMove(section.id, 'down')}
+              >
+                <ArrowDown />
+              </Button>
+              <Checkbox
+                checked={section.included}
+                disabled={saving}
+                label={t('part_of_report')}
+                labelClassName="hidden sm:inline"
+                onCheckedChange={(checked) => onToggleIncluded(section.id, checked)}
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={<Button size="icon-sm" variant="ghost" aria-label={t('more_actions')} disabled={saving} />}
+                >
+                  <Ellipsis />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onRename(section.id)}>{t('edit_title')}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onAdd(section.id, section.level)}>
+                    {t('add_item_below')}
+                  </DropdownMenuItem>
+                  {section.level < REPORT_LEVEL_MAX && (
+                    <DropdownMenuItem onClick={() => onAdd(section.id, section.level + 1)}>
+                      {t('add_sub_item')}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive" onClick={() => onRemove(section.id)}>
+                    {t('remove_section')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ),
-          children: (
+          children: section.titleOnly ? undefined : (
             <ReportSectionEditor
               reportId={report.id}
               section={section}
@@ -87,10 +160,8 @@ export function ReportSectionsList({
               pending={pending}
               dirty={dirty}
               saving={saving}
-              onChange={(next) => onChange(section.id, next)}
+              onChange={(html) => onChange(section.id, html)}
               onSave={() => onSave(section.id)}
-              onAdd={() => onAdd(section.id)}
-              onRemove={() => onRemove(section.id)}
               photos={photos}
               uploadPhoto={uploadPhoto}
             />

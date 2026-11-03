@@ -485,12 +485,13 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       .as(request(app).post(`/expert-reports/${id}/sections`))
       .send({ title: 'Item da perita', level: 1, afterId: report.body.data.sections[0].id });
     expect(added.status).toBe(201);
+    // A new item goes after the subitems of the one chosen, never taking them as its own.
     expect(added.body.data.sections.map((section: Section) => section.title)).toEqual([
       'Objeto da perícia',
-      'Item da perita',
       'Função',
+      'Item da perita',
     ]);
-    // Choosing the template sections again keeps the item added after the same template item.
+    // Choosing the template sections again keeps the added item, after the template item above that stayed.
     const chosen = await admin
       .as(request(app).put(`/expert-reports/${id}/sections`))
       .send({ templateId: 'standard-labor-report', sections: [{ id: object.id, variant: 'yes' }] });
@@ -546,5 +547,21 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(saved.body.data).toMatchObject({ name: 'Meu modelo', type: 'report', isDefault: false });
     expect(saved.body.data.sections.map((section: Section) => section.title)).toEqual(['Objeto da perícia', 'Subitem']);
     expect(saved.body.data.sections[1].yesText).toBe('<p>Processo [NUMERO_PROCESSO]</p>');
+
+    // Arrows (AD-171): the item moves with its subitems and never leaves its topic; a new item goes after the subitems.
+    const titles = (body: { data: { sections: Section[] } }) => body.data.sections.map((section) => section.title);
+    const lastId = off.body.data.sections[2].id;
+    const up = await admin
+      .as(request(app).post(`/expert-reports/${id}/sections/${lastId}/move`))
+      .send({ direction: 'up' });
+    expect(titles(up.body)).toEqual(['Item da perita', 'Objeto da perícia', 'Subitem']);
+    const stuck = await admin
+      .as(request(app).post(`/expert-reports/${id}/sections/${subId}/move`))
+      .send({ direction: 'up' });
+    expect(titles(stuck.body)).toEqual(['Item da perita', 'Objeto da perícia', 'Subitem']);
+    const after = await admin
+      .as(request(app).post(`/expert-reports/${id}/sections`))
+      .send({ title: 'Novo', level: 1, afterId: topic.id });
+    expect(titles(after.body)).toEqual(['Item da perita', 'Objeto da perícia', 'Subitem', 'Novo']);
   });
 });

@@ -1,32 +1,28 @@
 import type { ReportVariable } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { variableLabel } from '@/components/report-labels.js';
 import { type PhotoEditor, RichTextEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { ReportSectionRecord } from '@/query/report.js';
 
-export type SectionDraft = { title: string; html: string };
-
 type ReportSectionEditorProps = {
   reportId: string;
   section: ReportSectionRecord;
-  draft: SectionDraft;
+  // Text being edited (HTML).
+  draft: string;
   readOnly: boolean;
   pending: ReportVariable[];
-  onChange: (draft: SectionDraft) => void;
+  onChange: (html: string) => void;
   dirty: boolean;
   saving: boolean;
   onSave: () => void;
-  onAdd: () => void;
-  onRemove: () => void;
   photos?: PhotoEditor[];
   uploadPhoto?: (photo: Blob) => Promise<string>;
 };
 
-// Body of an opened item (LAU-03.1, NLA-05): title, text and the actions of the item. Saving saves only it.
+// Body of an opened item (LAU-03.1, NLA-05): the text. Title, order and the other actions are on the item row.
 export function ReportSectionEditor({
   reportId,
   section,
@@ -37,8 +33,6 @@ export function ReportSectionEditor({
   dirty,
   saving,
   onSave,
-  onAdd,
-  onRemove,
   photos,
   uploadPhoto,
 }: ReportSectionEditorProps) {
@@ -54,32 +48,17 @@ export function ReportSectionEditor({
           ))}
         </div>
       )}
-      <Input
-        value={draft.title}
+      <RichTextEditor
+        key={`${reportId}-${section.id}-${readOnly}`}
+        value={draft}
         readOnly={readOnly}
-        aria-label={t('section_title')}
-        placeholder={t('section_title')}
-        onChange={(event) => onChange({ ...draft, title: event.target.value })}
+        label={t('section_text')}
+        photos={photos}
+        uploadPhoto={uploadPhoto}
+        onChange={onChange}
       />
-      {!section.titleOnly && (
-        <RichTextEditor
-          key={`${reportId}-${section.id}-${readOnly}`}
-          value={draft.html}
-          readOnly={readOnly}
-          label={t('section_text')}
-          photos={photos}
-          uploadPhoto={uploadPhoto}
-          onChange={(html) => onChange({ ...draft, html })}
-        />
-      )}
       {!readOnly && (
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button variant="ghost" onClick={onRemove} disabled={saving}>
-            {t('remove_section')}
-          </Button>
-          <Button variant="outline" onClick={onAdd} disabled={saving}>
-            {t('add_item_below')}
-          </Button>
+        <div className="flex justify-end">
           <Button onClick={onSave} disabled={!dirty || saving}>
             {t('save')}
           </Button>

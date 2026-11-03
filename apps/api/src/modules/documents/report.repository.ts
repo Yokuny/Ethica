@@ -169,6 +169,25 @@ export const replaceSections = async (
     return doc ? toRecord(doc) : null;
   });
 
+// New order of the items (arrows on the screen), keeping each item id.
+export const setSections = async (
+  tenantId: string,
+  id: string,
+  sections: ReportSectionRecord[],
+): Promise<ReportRecord | null> =>
+  withDbTiming('report.setSections', async () => {
+    const doc = await Report.findOneAndUpdate(
+      draft(tenantId, id),
+      {
+        $set: {
+          sections: sections.map(({ id: sectionId, ...section }) => ({ ...section, _id: toObjectId(sectionId) })),
+        },
+      },
+      { returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
 // New item of the report itself (NLA-05) at `position` of the list.
 export const insertSection = async (
   tenantId: string,

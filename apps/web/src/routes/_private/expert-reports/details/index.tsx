@@ -22,6 +22,7 @@ import {
   completeReportMutation,
   deleteReportMutation,
   fillReportFromProcessMutation,
+  moveReportSectionMutation,
   type ProcessFill,
   removeReportSectionMutation,
   reportQuery,
@@ -32,19 +33,19 @@ import {
 } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { LayoutDialog } from '../@components/layout-dialog.js';
-import { AddSectionDialog } from './@components/add-section-dialog.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
 import { ProcessFillDialog } from './@components/process-fill-dialog.js';
 import { ReportPreviewDialog } from './@components/report-preview-dialog.js';
-import type { SectionDraft } from './@components/report-section-editor.js';
 import { ReportSectionsDialog } from './@components/report-sections-dialog.js';
 import { ReportSectionsList } from './@components/report-sections-list.js';
 import { SaveTemplateDialog } from './@components/save-template-dialog.js';
+import { SectionTitleDialog } from './@components/section-title-dialog.js';
 import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
 type Dialog =
   | { kind: 'complete' | 'removal' | 'sections' | 'preview' | 'layout' | 'save-template' }
-  | { kind: 'add-section' | 'remove-section'; sectionId: string }
+  | { kind: 'rename-section' | 'remove-section'; sectionId: string }
+  | { kind: 'add-section'; sectionId: string; level: number }
   | null;
 
 export function ReportDetailsPage() {
@@ -56,6 +57,7 @@ export function ReportDetailsPage() {
   const save = useMutation(updateReportSectionMutation(queryClient));
   const addSection = useMutation(addReportSectionMutation(queryClient));
   const dropSection = useMutation(removeReportSectionMutation(queryClient));
+  const move = useMutation(moveReportSectionMutation(queryClient));
   const setLayout = useMutation(setReportLayoutMutation(queryClient));
   const complete = useMutation(completeReportMutation(queryClient));
   const saveTemplate = useMutation(saveReportAsTemplateMutation(queryClient));
@@ -73,29 +75,26 @@ export function ReportDetailsPage() {
       .map((media) => ({ src: `/inspections/${appointment.id}/media/${media.id}`, caption: media.caption })),
   );
   // Text being edited by item (NLA-05): several items may be open at the same time.
-  const [drafts, setDrafts] = useState<Record<string, SectionDraft>>({});
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [dialog, setDialog] = useState<Dialog>(null);
   const [savingAll, setSavingAll] = useState(false);
   const report = query.data;
   const dirtyIds = Object.entries(drafts)
     .filter(([sectionId, draft]) => {
       const section = report?.sections.find((item) => item.id === sectionId);
-      return section && (draft.title !== section.title || draft.html !== section.html);
+      return section && draft !== section.html;
     })
     .map(([sectionId]) => sectionId);
-  const busy = savingAll || save.isPending || addSection.isPending || dropSection.isPending;
+  const busy = savingAll || save.isPending || addSection.isPending || dropSection.isPending || move.isPending;
   const onError = (error: Error) => toast.error(error.message);
 
   const forget = (sectionId: string) =>
     setDrafts((prev) => Object.fromEntries(Object.entries(prev).filter(([id]) => id !== sectionId)));
 
   function saveSection(sectionId: string) {
-    const draft = drafts[sectionId];
-    if (!report || !draft) return;
-    save.mutate(
-      { id: report.id, sectionId, data: { title: draft.title, html: draft.html } },
-      { onSuccess: () => forget(sectionId), onError },
-    );
+    const html = drafts[sectionId];
+    if (!report || html === undefined) return;
+    save.mutate({ id: report.id, sectionId, data: { html } }, { onSuccess: () => forget(sectionId), onError });
   }
 
   // Before leaving the editor (preview, export, template, process), every changed item is saved, so no text is lost.
@@ -104,8 +103,7 @@ export function ReportDetailsPage() {
     setSavingAll(true);
     try {
       for (const sectionId of dirtyIds) {
-        const draft = drafts[sectionId] as SectionDraft;
-        await save.mutateAsync({ id: report.id, sectionId, data: { title: draft.title, html: draft.html } });
+        await save.mutateAsync({ id: report.id, sectionId, data: { html: drafts[sectionId] } });
       }
       setDrafts({});
       then?.();
@@ -240,10 +238,12 @@ export function ReportDetailsPage() {
             report={report}
             drafts={drafts}
             saving={busy}
-            onChange={(sectionId, draft) => setDrafts((prev) => ({ ...prev, [sectionId]: draft }))}
+            onChange={(sectionId, html) => setDrafts((prev) => ({ ...prev, [sectionId]: html }))}
             onSave={saveSection}
             onToggleIncluded={toggleIncluded}
-            onAdd={(sectionId) => setDialog({ kind: 'add-section', sectionId })}
+            onMove={(sectionId, direction) => move.mutate({ id: report.id, sectionId, direction }, { onError })}
+            onRename={(sectionId) => setDialog({ kind: 'rename-section', sectionId })}
+            onAdd={(sectionId, level) => setDialog({ kind: 'add-section', sectionId, level })}
             onRemove={(sectionId) => setDialog({ kind: 'remove-section', sectionId })}
             photos={photos}
             uploadPhoto={(photo) => uploadPhoto.mutateAsync({ id: report.id, photo })}
@@ -315,13 +315,29 @@ export function ReportDetailsPage() {
         />
       )}
       {report && target && dialog?.kind === 'add-section' && (
-        <AddSectionDialog
-          afterId={target.id}
-          level={target.level}
+        <SectionTitleDialog
+          heading={dialog.level > target.level ? t('add_sub_item') : t('add_item')}
           pending={addSection.isPending}
           onClose={() => setDialog(null)}
-          onConfirm={(data) =>
-            addSection.mutate({ id: report.id, data }, { onSuccess: () => setDialog(null), onError })
+          onConfirm={(title) =>
+            addSection.mutate(
+              { id: report.id, data: { title, level: dialog.level, afterId: target.id } },
+              { onSuccess: () => setDialog(null), onError },
+            )
+          }
+        />
+      )}
+      {report && target && dialog?.kind === 'rename-section' && (
+        <SectionTitleDialog
+          heading={t('edit_title')}
+          title={target.title}
+          pending={save.isPending}
+          onClose={() => setDialog(null)}
+          onConfirm={(title) =>
+            save.mutate(
+              { id: report.id, sectionId: target.id, data: { title } },
+              { onSuccess: () => setDialog(null), onError },
+            )
           }
         />
       )}

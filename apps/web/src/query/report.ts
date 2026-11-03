@@ -191,6 +191,15 @@ export const removeReportSectionMutation = (
   onSuccess: (report) => updatedReport(queryClient, report),
 });
 
+// Arrows (AD-171): the item moves with its subitems.
+export const moveReportSectionMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<ReportRecord, Error, { id: string; sectionId: string; direction: 'up' | 'down' }> => ({
+  mutationFn: async ({ id, sectionId, direction }) =>
+    unwrap(await post<ReportRecord>(`/expert-reports/${id}/sections/${sectionId}/move`, { direction }), 'save_error'),
+  onSuccess: (report) => updatedReport(queryClient, report),
+});
+
 // Completing with delivery touches the case deadline, movements and status (AD-126).
 export const completeReportMutation = (
   queryClient: QueryClient,

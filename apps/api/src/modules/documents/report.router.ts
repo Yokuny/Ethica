@@ -238,6 +238,14 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     validBody(updateTemplateSchema),
     reportController.saveReportAsTemplate,
   );
+  router.post(
+    '/:id/sections/:sectionId/move',
+    ...guard,
+    can('expert_reports', 'update'),
+    reportSection,
+    validBody(moveSectionSchema),
+    reportController.moveReportSection,
+  );
   // Full process PDF in the body, like the minutes (AD-118, AD-152).
   router.post(
     '/:id/process',

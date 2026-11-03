@@ -871,6 +871,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-171
+- **Decision**: No laudo, cada item tem na própria linha as setas de subir/descer, "Faz parte do laudo" e um "…" com Editar título, Adicionar item abaixo, Adicionar subitem e Remover; o item aberto só edita o texto. A seta move o item com os subitens e troca com o vizinho do mesmo nível, sem sair do tópico em que está. Item novo entra depois dos subitens do item escolhido (antes entrava logo abaixo e "roubava" os subitens). Ao refazer a escolha de itens do modelo, item criado no laudo cujo item de referência saiu fica depois do item acima que ficou (antes sumia).
+- **Reason**: pedido da perita (2026-11-03): editar título de item e subitem, adicionar item e subitem e reordenar por setas.
+- **Trade-off**: subitem não muda de tópico pelas setas (remove e cria no outro). Refazer a escolha de itens do modelo volta os itens do modelo à ordem do modelo.
+- **Scope**: `apps/api/src/modules/documents/report.service.ts` (`moveSection`, `addSection`, `chooseSections`), `apps/web/src/routes/_private/expert-reports/details/@components/report-sections-list.tsx`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `rotina-servico` — parcial: partes do último despacho, última nomeação, status único, planilha de qualquer modelo e nomes das seções (AD-166 a AD-168). Falta a base de varas e comarcas dos 24 TRTs (RSV-05, a perita escolheu base pronta para todo escritório; supersede parte da AD-151 quando entrar) e a conferência visual no navegador.
