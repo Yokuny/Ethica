@@ -4,9 +4,12 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 
 | Termo | Código | Significado |
 | --- | --- | --- |
-| Perícia | `Case` (`case` module) | Um processo judicial em que o perito (ou assistente técnico) atua. Identificada pelo número CNJ, única por tenant. |
+| Serviço (antes "Perícia" na tela) | `Case` (`case` module) | Um trabalho do perito: processo judicial em que atua como perito ou assistente técnico, ou serviço de tipo criado pelo escritório (AD-158). O processo judicial é identificado pelo número CNJ, único por tenant; o serviço do escritório pode não ter número. |
+| Tipo de serviço | `courtType` + `role`, ou `serviceType` com `courtType: 'other'` | Perícia ou assistência técnica civil, trabalhista ou federal, ou um tipo com nome criado pelo escritório (AD-158). |
+| Status do serviço | `serviceStatus` | Proposta enviada, em andamento, entregue, com pendência, cancelado; escolhido pela perita, independente da etapa (AD-158). |
+| Honorário líquido | — (calculado na tela) | Honorário fixado ou contratado (sem ele, o proposto) menos as despesas não canceladas do serviço (AD-159). |
 | Número do processo (CNJ) | `processNumber` | Formato `NNNNNNN-DD.AAAA.J.TR.OOOO` (Resolução CNJ 65/2008). |
-| Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`). |
+| Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`); `other` no tipo de serviço do escritório (AD-158). |
 | Atuação | `role` | Perito do juízo (`court_expert`) ou assistente técnico de uma das partes (`technical_assistant`). |
 | Etapa | `status` da perícia | Nomeada → aceita → vistoria → em laudo → laudo entregue → esclarecimentos → concluída; recusada encerra sem laudo. |
 | Parte | `Party` (`case`), `parties` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117). |

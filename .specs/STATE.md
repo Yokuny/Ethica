@@ -775,8 +775,33 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-02
 - **Status**: active
 
+### AD-158
+- **Decision**: A seção "Perícias" passa a "Serviços" só no texto da tela (o código segue `Case`). O tipo de serviço é uma lista única: os judiciais são `courtType` × `role`; o tipo criado pelo escritório é `courtType: 'other'` + `Case.serviceType` (nome), sem coleção própria — a lista vem dos nomes já usados (`GET /expert-cases/service-types`). No tipo do escritório, número do processo e tribunal são opcionais; o índice único do número vira parcial (só quando existe) e o `Case` passa a `syncIndexes()` na subida. Status do serviço (`serviceStatus`: proposta enviada, em andamento, entregue, com pendência, cancelado) é campo próprio, ao lado de etapa e fase (AD-133), que continuam.
+- **Reason**: pedido da perita (2026-11-02): serviços que não são nomeação judicial e um status simples. Ela escolheu manter as etapas e deixar o número opcional só no tipo novo.
+- **Trade-off**: `processNumber` opcional em todo o sistema: quem mostra o serviço usa `caseLabel` (número ou, sem ele, o objeto). Tipo do escritório não é renomeado nem excluído; existe enquanto um serviço o usa. Laudo de tipo `other` usa Requerente/Requerido.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
+- **Date**: 2026-11-02
+- **Status**: active
+
+### AD-159
+- **Decision**: Categorias de despesa: deslocamento, equipamentos, terceiros, materiais, taxas, alimentação e outras; categoria criada pelo escritório é `other_expenses` + `Transaction.categoryName`, com a lista dos nomes já usados (`GET /finance/expense-names`). Pagamento (Sim, Não, Parcial) e honorário líquido do serviço são calculados na tela pelos lançamentos do serviço, sem campo gravado: base = honorário fixado/contratado ou, sem ele, o proposto; líquido = base − despesas não canceladas; pago quando o recebido alcança a base (sem base, quando todo honorário lançado foi recebido).
+- **Reason**: pedido da perita (2026-11-02); ela escolheu o pagamento automático pelos recebimentos e o líquido sobre o honorário fixado/contratado.
+- **Trade-off**: o relatório por categoria soma as categorias novas em "Outras despesas". Trocar a categoria de um lançamento apaga o nome criado.
+- **Scope**: `packages/contracts/src/schemas/transaction.schema.ts`, `packages/db/src/models/transaction.model.ts`, `apps/api/src/modules/finance/`, `apps/web/src/routes/_private/expert-cases/details/`, `apps/web/src/components/expense-category-field.tsx`.
+- **Date**: 2026-11-02
+- **Status**: active
+
+### AD-160
+- **Decision**: Data, hora e local da perícia no cadastro do serviço (`inspection`, só na criação) viram um compromisso de perícia de 1 hora ligado ao serviço, pelo evento `case:inspection_scheduled` consumido em `events/subscribers/agenda.subscriber.ts`. O local aceita endereço ou coordenada "lat, long"; `appointment.service.geocode` grava a coordenada digitada sem chamar o geocodificador.
+- **Reason**: pedido da perita (2026-11-02). Evento porque `agenda` depende de `case` e a resposta do cadastro não usa o compromisso (AD-039).
+- **Trade-off**: se o compromisso falhar, o serviço fica salvo e a falha só vai para o log; a data se ajusta depois na agenda. Duração fixa de 1 hora.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `apps/api/src/modules/case/case.service.ts`, `apps/api/src/events/`, `apps/api/src/modules/agenda/appointment.service.ts`.
+- **Date**: 2026-11-02
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `servicos` — concluída: Perícias vira Serviços, tipo de serviço do escritório, status, pagamento, despesas, líquido e data da perícia (AD-158 a AD-160). Falta a conferência visual no navegador.
 - **Feature**: `acesso-email` — concluída: acesso e cadastro só pela chave enviada ao e-mail (AD-155). Produção precisa do SMTP configurado na Railway para o deploy entrar no ar (AD-156).
 - **Fluxo**: a partir de 2026-11-01 a perita desenvolve com um agente direto na `main` (AD-143). Próximas frentes com spec pronta e perguntas em aberto a confirmar com ela: `laudo-vistoria`, `avisos-notificacoes`, `rotas-vistoria`, `gestao-membros`, `producao-api` (AD-146 a AD-150). IA e Datajud ficam para depois (AD-145).
 - **Feature**: `english-naming` — concluída: todo nome de código em inglês pelo glossário da AD-140 (AD-139 a AD-142, `validation.md` PASS, UAT no navegador). Banco local antigo precisa ser recriado (AD-141).

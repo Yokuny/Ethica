@@ -26,6 +26,29 @@
       "doc": "features/acesso-email/feature.md"
     },
     {
+      "slug": "servicos",
+      "feature": "Serviços",
+      "descricao": "Seção Perícias vira Serviços, com tipo de serviço (inclusive do escritório), status, pagamento, despesas, líquido e data da perícia",
+      "data": "2026-11-02",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-158",
+        "AD-159",
+        "AD-160"
+      ],
+      "spec": [
+        ".specs/features/servicos"
+      ],
+      "planos": [],
+      "doc": "features/servicos/feature.md"
+    },
+    {
       "slug": "avisos-notificacoes",
       "feature": "Avisos de vencimento e notificações push",
       "descricao": "Varredura agendada dos avisos sem perda nem duplicidade, aviso de vencimento financeiro e notificação push no aparelho",
@@ -1028,6 +1051,24 @@
     {
       "id": "AD-157",
       "decisao": "Enquanto o envio de e-mail estiver bloqueado na Railway (plano Hobby não libera SMTP), a tela `/auth` ganha o \"Cadastro de teste\": e-mail +",
+      "data": "2026-11-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-158",
+      "decisao": "A seção \"Perícias\" passa a \"Serviços\" só no texto da tela (o código segue `Case`). O tipo de serviço é uma lista única: os judiciais são `co",
+      "data": "2026-11-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-159",
+      "decisao": "Categorias de despesa: deslocamento, equipamentos, terceiros, materiais, taxas, alimentação e outras; categoria criada pelo escritório é `ot",
+      "data": "2026-11-02",
+      "status": "active"
+    },
+    {
+      "id": "AD-160",
+      "decisao": "Data, hora e local da perícia no cadastro do serviço (`inspection`, só na criação) viram um compromisso de perícia de 1 hora ligado ao servi",
       "data": "2026-11-02",
       "status": "active"
     }
