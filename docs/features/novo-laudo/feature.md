@@ -79,6 +79,8 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Lista de laudos: no rascunho, lápis (abrir), baixar PDF e lixeira lado a lado na última coluna (substitui a lixeira no início da linha); colunas Tribunal e vara; "Atualizado em" com o nome de quem gravou por último (AD-175).
+
 - 2026-11-03 — Lista de laudos: a lixeira do rascunho passa para o início da linha (à esquerda do ícone do laudo, acinzentada e vermelha ao passar o mouse) e entra a coluna Partes, igual à da lista de serviços (autor em cima, réu embaixo). A API devolve `plaintiff`/`defendant` do resumo da perícia junto com o número (`apps/api/src/modules/documents/report.service.ts`).
 
 - 2026-11-03 — Título do item em maiúsculas e do subitem com a primeira letra maiúscula, na tela, no PDF e no Word (AD-174). "Excluir rascunho" no "…" do laudo (sai o botão Remover do rodapé, e só aparece para quem pode excluir) e lixeira na linha do rascunho na lista de laudos. Calibri, Cambria e Source Sans Pro entram nas fontes do laudo e do cabeçalho/rodapé do escritório; o servidor do PDF instala Carlito e Caladea (mesmas medidas de Calibri e Cambria) e Source Sans 3 (`Dockerfile`).

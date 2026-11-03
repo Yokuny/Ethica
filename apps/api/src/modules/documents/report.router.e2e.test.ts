@@ -209,6 +209,14 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(created.status).toBe(201);
     const report = created.body.data;
     expect(report).toMatchObject({ type: 'report', status: 'draft', caseNumber: CASE.processNumber });
+    // The list brings the court, the division and who wrote last in the report.
+    const listed = await admin.as(request(app).get(`/expert-reports?caseId=${caseId}`));
+    expect(listed.body.data.items[0]).toMatchObject({
+      court: CASE.court,
+      division: CASE.division,
+      updatedById: operator.user.id,
+      updatedByName: operator.user.name,
+    });
     // Template order, not the order of the selection.
     expect(report.sections.map((section: Section) => section.title)).toEqual([
       'Identificação do processo',

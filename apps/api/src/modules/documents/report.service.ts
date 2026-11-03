@@ -10,6 +10,7 @@ import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
 import * as importService from '../case/import.service.js';
 import * as accountService from '../identity/account.service.js';
+import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
 import { esc } from './document.layout.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
@@ -58,9 +59,9 @@ const withNumber = async <T extends { caseId: string }>(tenantId: string, items:
   const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
   return items.map((item) => {
     const summary = summaries.get(item.caseId);
-    return summary
-      ? { ...item, caseNumber: caseLabel(summary), plaintiff: summary.plaintiff, defendant: summary.defendant }
-      : item;
+    if (!summary) return item;
+    const { court, division, plaintiff, defendant } = summary;
+    return { ...item, caseNumber: caseLabel(summary), court, division, plaintiff, defendant };
   });
 };
 
@@ -125,7 +126,16 @@ export const listReports = async (
   query: ListReportsQuery,
 ): Promise<{ items: ReportListItem[]; total: number }> => {
   const result = await reportRepository.list(tenantId, query);
-  return { ...result, items: await withNumber(tenantId, result.items) };
+  const items = await withNumber(tenantId, result.items);
+  const ids = [...new Set(items.flatMap((item) => (item.updatedById ? [item.updatedById] : [])))];
+  const names = new Map((await authService.findUserNamesByIds(tenantId, ids)).map((user) => [user.id, user.name]));
+  return {
+    ...result,
+    items: items.map((item) => {
+      const updatedByName = item.updatedById && names.get(item.updatedById);
+      return updatedByName ? { ...item, updatedByName } : item;
+    }),
+  };
 };
 
 const getReport = async (tenantId: string, id: string): Promise<ReportRecord> => {
@@ -243,7 +253,7 @@ export const chooseSections = async (
     ...fromChoice.flatMap((section) => [section, ...(added.get(section.templateSectionId) ?? [])]),
   ];
   found(
-    await reportRepository.replaceSections(ctx.tenantId, id, {
+    await reportRepository.replaceSections(ctx, id, {
       templateId: template.id,
       templateName: template.name,
       sections,
@@ -265,11 +275,11 @@ export const updateSection = async (
   if (included !== undefined) {
     const { parents, children } = sectionFamily(report.sections, index);
     const ids = [sectionId, ...children, ...(included ? parents : [])];
-    found(await reportRepository.setIncluded(tenantId, id, ids, included));
+    found(await reportRepository.setIncluded(ctx, id, ids, included));
   }
   if (data.title !== undefined || data.html !== undefined) {
     found(
-      await reportRepository.updateSection(tenantId, id, sectionId, {
+      await reportRepository.updateSection(ctx, id, sectionId, {
         title: data.title,
         html: data.html === undefined ? undefined : sanitizeReportHtml(data.html),
       }),
@@ -324,7 +334,7 @@ export const addSection = async (ctx: DocumentContext, id: string, data: AddRepo
   if (data.afterId && index < 0) throw new ReportNotFoundError('not_found');
   const position = data.afterId ? index + 1 + sectionFamily(report.sections, index).children.length : 0;
   found(
-    await reportRepository.insertSection(ctx.tenantId, id, position, {
+    await reportRepository.insertSection(ctx, id, position, {
       title: data.title,
       level: data.level,
       titleOnly: false,
@@ -369,13 +379,13 @@ export const moveSection = async (
     ...sections.slice(first, second),
     ...sections.slice(secondEnd),
   ];
-  found(await reportRepository.setSections(ctx.tenantId, id, reordered));
+  found(await reportRepository.setSections(ctx, id, reordered));
   return openReport(ctx, id);
 };
 
 export const setLayout = async (ctx: DocumentContext, id: string, layout: ReportLayout): Promise<ReportRecord> => {
   await editable(ctx.tenantId, id);
-  found(await reportRepository.setLayout(ctx.tenantId, id, layout));
+  found(await reportRepository.setLayout(ctx, id, layout));
   return openReport(ctx, id);
 };
 
@@ -386,7 +396,7 @@ export const fillFromProcess = async (ctx: DocumentContext, id: string, file: Bu
   const extraction = extractProcess(await importService.extractPdfText(file));
   const changed = applyProcess(report.sections, extraction);
   for (const section of changed) {
-    await reportRepository.updateSection(ctx.tenantId, id, section.id, { html: sanitizeReportHtml(section.html) });
+    await reportRepository.updateSection(ctx, id, section.id, { html: sanitizeReportHtml(section.html) });
   }
   const { questions, labor, claims } = extraction;
   const missing = (
@@ -414,7 +424,7 @@ export const removeSection = async (ctx: DocumentContext, id: string, sectionId:
   const report = await editable(tenantId, id);
   if (!report.sections.some((section) => section.id === sectionId)) throw new ReportNotFoundError('not_found');
   if (report.sections.length === 1) throw new CustomError('report_needs_section', 422);
-  found(await reportRepository.removeSection(tenantId, id, sectionId));
+  found(await reportRepository.removeSection(ctx, id, sectionId));
   return openReport(ctx, id);
 };
 
@@ -431,7 +441,7 @@ export const completeReport = async (
   const { values } = await currentData(providers, ctx, legalCase, report.signatoryId);
   const sections = resolveSections(report.sections, values);
   withoutIssues(sections);
-  found(await reportRepository.complete(ctx.tenantId, id, ctx.userId, ctx.now, sections));
+  found(await reportRepository.complete(ctx, id, ctx.now, sections));
   if (recordDelivery) {
     await deadlineService.fileReportDelivery(ctx.tenantId, legalCase.id, ctx.now);
     await caseService.addMovement(ctx.tenantId, legalCase.id, {

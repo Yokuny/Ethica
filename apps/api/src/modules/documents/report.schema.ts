@@ -131,9 +131,13 @@ export type ReportRecord = {
   caseId: string;
   // Enriched by the service; missing if the case no longer exists.
   caseNumber?: string;
-  // Names of the parties (without lawyers) of each side, also enriched by the service.
+  // Court, division and the names of the parties (without lawyers) of each side, also enriched by the service.
+  court?: string;
+  division?: string;
   plaintiff?: string;
   defendant?: string;
+  // Last user who wrote in the report; missing in reports saved before AD-175.
+  updatedById?: string;
   // Technical responsible who signs (NLA-02); missing = whoever created the report.
   signatoryId?: string;
   type: ReportType;
@@ -149,7 +153,11 @@ export type ReportRecord = {
   updatedAt: Date;
 };
 
-export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues' | 'layout'> & { totalSections: number };
+export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues' | 'layout'> & {
+  totalSections: number;
+  // Name of `updatedById`, enriched by the service in the list.
+  updatedByName?: string;
+};
 
 export type ReportCreateInput = {
   tenantId: string;

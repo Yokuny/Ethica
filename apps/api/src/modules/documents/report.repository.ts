@@ -45,6 +45,7 @@ const toRecord = (doc: ReportDocument): ReportRecord => {
     completedAt: doc.completedAt,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
+    ...(doc.UpdatedBy ? { updatedById: doc.UpdatedBy.toString() } : {}),
   };
 };
 
@@ -52,7 +53,14 @@ export const create = async (input: ReportCreateInput): Promise<ReportRecord> =>
   withDbTiming('report.create', async () => {
     const { tenantId, caseId, userId, signatoryId, ...rest } = input;
     return toRecord(
-      await Report.create({ ...rest, Tenant: tenantId, Case: caseId, Signatory: signatoryId, CreatedBy: userId }),
+      await Report.create({
+        ...rest,
+        Tenant: tenantId,
+        Case: caseId,
+        Signatory: signatoryId,
+        CreatedBy: userId,
+        UpdatedBy: userId,
+      }),
     );
   });
 
@@ -102,17 +110,21 @@ export const list = async (
         completedAt: doc.completedAt,
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
+        ...(doc.UpdatedBy ? { updatedById: String(doc.UpdatedBy) } : {}),
       })),
       total: result?.total[0]?.n ?? 0,
     };
   });
+
+// Who writes: every write records the last author, shown in "Atualizado em" of the list.
+type Author = { tenantId: string; userId: string };
 
 // Writes only apply to drafts: the `status: 'draft'` filter is the server-side lock (AD-126).
 const draft = (tenantId: string, id: string, extra: Record<string, unknown> = {}) =>
   tenantScoped({ Tenant: tenantId, _id: id, status: 'draft' as const, ...extra });
 
 export const updateSection = async (
-  tenantId: string,
+  { tenantId, userId }: Author,
   id: string,
   sectionId: string,
   data: UpdateReportSection,
@@ -125,7 +137,7 @@ export const updateSection = async (
     );
     const doc = await Report.findOneAndUpdate(
       draft(tenantId, id, { 'sections._id': toObjectId(sectionId) }),
-      { $set },
+      { $set: { ...$set, UpdatedBy: userId } },
       { returnDocument: 'after', runValidators: true },
     ).lean();
     return doc ? toRecord(doc) : null;
@@ -133,7 +145,7 @@ export const updateSection = async (
 
 // "Faz parte do laudo" of a topic goes to its subsections too (sectionFamily).
 export const setIncluded = async (
-  tenantId: string,
+  { tenantId, userId }: Author,
   id: string,
   sectionIds: string[],
   included: boolean,
@@ -141,14 +153,14 @@ export const setIncluded = async (
   withDbTiming('report.setIncluded', async () => {
     const doc = await Report.findOneAndUpdate(
       draft(tenantId, id),
-      { $set: { 'sections.$[item].included': included } },
+      { $set: { 'sections.$[item].included': included, UpdatedBy: userId } },
       { arrayFilters: [{ 'item._id': { $in: sectionIds.map(toObjectId) } }], returnDocument: 'after' },
     ).lean();
     return doc ? toRecord(doc) : null;
   });
 
 export const replaceSections = async (
-  tenantId: string,
+  { tenantId, userId }: Author,
   id: string,
   { templateId, templateName, sections }: ReportSectionsReplace,
 ): Promise<ReportRecord | null> =>
@@ -157,6 +169,7 @@ export const replaceSections = async (
       draft(tenantId, id),
       {
         $set: {
+          UpdatedBy: userId,
           templateId,
           templateName,
           sections: sections.map(({ id: sectionId, ...section }) =>
@@ -171,7 +184,7 @@ export const replaceSections = async (
 
 // New order of the items (arrows on the screen), keeping each item id.
 export const setSections = async (
-  tenantId: string,
+  { tenantId, userId }: Author,
   id: string,
   sections: ReportSectionRecord[],
 ): Promise<ReportRecord | null> =>
@@ -180,6 +193,7 @@ export const setSections = async (
       draft(tenantId, id),
       {
         $set: {
+          UpdatedBy: userId,
           sections: sections.map(({ id: sectionId, ...section }) => ({ ...section, _id: toObjectId(sectionId) })),
         },
       },
@@ -190,7 +204,7 @@ export const setSections = async (
 
 // New item of the report itself (NLA-05) at `position` of the list.
 export const insertSection = async (
-  tenantId: string,
+  { tenantId, userId }: Author,
   id: string,
   position: number,
   section: ReportSectionWrite,
@@ -198,27 +212,35 @@ export const insertSection = async (
   withDbTiming('report.insertSection', async () => {
     const doc = await Report.findOneAndUpdate(
       draft(tenantId, id),
-      { $push: { sections: { $each: [section], $position: position } } },
+      { $push: { sections: { $each: [section], $position: position } }, $set: { UpdatedBy: userId } },
       { returnDocument: 'after', runValidators: true },
     ).lean();
     return doc ? toRecord(doc) : null;
   });
 
-export const setLayout = async (tenantId: string, id: string, layout: ReportLayout): Promise<ReportRecord | null> =>
+export const setLayout = async (
+  { tenantId, userId }: Author,
+  id: string,
+  layout: ReportLayout,
+): Promise<ReportRecord | null> =>
   withDbTiming('report.setLayout', async () => {
     const doc = await Report.findOneAndUpdate(
       draft(tenantId, id),
-      { $set: { layout } },
+      { $set: { layout, UpdatedBy: userId } },
       { returnDocument: 'after' },
     ).lean();
     return doc ? toRecord(doc) : null;
   });
 
-export const removeSection = async (tenantId: string, id: string, sectionId: string): Promise<ReportRecord | null> =>
+export const removeSection = async (
+  { tenantId, userId }: Author,
+  id: string,
+  sectionId: string,
+): Promise<ReportRecord | null> =>
   withDbTiming('report.removeSection', async () => {
     const doc = await Report.findOneAndUpdate(
       draft(tenantId, id, { 'sections._id': toObjectId(sectionId), 'sections.1': { $exists: true } }),
-      { $pull: { sections: { _id: toObjectId(sectionId) } } },
+      { $pull: { sections: { _id: toObjectId(sectionId) } }, $set: { UpdatedBy: userId } },
       { returnDocument: 'after' },
     ).lean();
     return doc ? toRecord(doc) : null;
@@ -226,9 +248,8 @@ export const removeSection = async (tenantId: string, id: string, sectionId: str
 
 // Saves the final text, with the variables resolved again, together with the status.
 export const complete = async (
-  tenantId: string,
+  { tenantId, userId }: Author,
   id: string,
-  userId: string,
   now: Date,
   sections: ReportSectionRecord[],
 ): Promise<ReportRecord | null> =>
@@ -240,6 +261,7 @@ export const complete = async (
           status: 'completed',
           completedAt: now,
           CompletedBy: userId,
+          UpdatedBy: userId,
           sections: sections.map(({ id: sectionId, ...section }) => ({ ...section, _id: toObjectId(sectionId) })),
         },
       },

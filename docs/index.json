@@ -1252,6 +1252,12 @@
       "decisao": "O título de cada parte do laudo aparece do mesmo jeito na tela (laudo, modelo e escolha de itens), no PDF e no Word: item (nível 1) todo em",
       "data": "2026-11-03",
       "status": "active"
+    },
+    {
+      "id": "AD-175",
+      "decisao": "O laudo guarda quem gravou por último (`Report.UpdatedBy`), atualizado em toda escrita do rascunho e na conclusão; a lista devolve `updatedB",
+      "data": "2026-11-03",
+      "status": "active"
     }
   ]
 }

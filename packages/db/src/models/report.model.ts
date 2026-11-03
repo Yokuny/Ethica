@@ -53,6 +53,8 @@ export interface ReportDocument {
   layout?: ReportLayout;
   CreatedBy: mongoose.Types.ObjectId;
   CompletedBy?: mongoose.Types.ObjectId;
+  // Last user who wrote in the report; missing in reports saved before this field.
+  UpdatedBy?: mongoose.Types.ObjectId;
   completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -96,6 +98,7 @@ const reportSchema = new Schema<ReportDocument>(
     layout: { type: Schema.Types.Mixed },
     CreatedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     CompletedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    UpdatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     completedAt: { type: Date },
   },
   { timestamps: true },

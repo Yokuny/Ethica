@@ -63,6 +63,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-175** (2026-11-03, active) — O laudo guarda quem gravou por último (`Report.UpdatedBy`), atualizado em toda escrita do rascunho e na conclusão; a lista devolve `updatedB
 - **AD-174** (2026-11-03, active) — O título de cada parte do laudo aparece do mesmo jeito na tela (laudo, modelo e escolha de itens), no PDF e no Word: item (nível 1) todo em
 - **AD-173** (2026-11-03, active) — O "Preencher com PDF ou ZIP" do cadastro do serviço aceita um ZIP com os PDFs do processo dividido em partes: o servidor abre o ZIP, lê só o
 - **AD-172** (2026-11-03, active) — Cabeçalho e rodapé do escritório têm fonte (Times, Arial), tamanho e alinhamento próprios (`headerStyle`/`footerStyle` no `Tenant`, sem eles
@@ -72,7 +73,6 @@ _Nenhum._
 - **AD-168** (2026-11-03, active) — O PDF do processo usa as partes do último cabeçalho com os dois polos (o último despacho) ou, sem ele, do primeiro (a petição inicial); a da
 - **AD-167** (2026-11-03, active) — Importação de planilha de qualquer modelo (RSV-04): cada coluna é ligada a um campo pelo nome (`suggestCsvField`, sinônimos em `packages/con
 - **AD-166** (2026-11-03, active) — O serviço tem um status só (`Case.status`, `CASE_STATUS`): nomeado – aguardando aceite, proposta de honorários enviada, honorários aceitos –
-- **AD-165** (2026-11-03, active) — O laudo iniciado pelo serviço aceita qualquer modelo cadastrado, e o tipo do documento (laudo ou parecer) é o do modelo escolhido; trocar o
 
 ## `.specs/` sem registro em `docs/features/`
 

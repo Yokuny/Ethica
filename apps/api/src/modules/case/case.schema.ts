@@ -107,12 +107,14 @@ export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'serviceType' | 'insp
 // Listing: each case with its nearest pending deadline (missing if there is none).
 export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };
 
-// Cross-module enrichment (agenda, finance, feed, reminder): number and the names of the
+// Cross-module enrichment (agenda, finance, feed, reminder, reports): number, court and division, and the names of the
 // parties on each side (without lawyers), comma-separated.
 // `client`: name of whoever hired the technical assistant (AD-135).
 export type CaseSummary = {
   processNumber?: string;
   subject: string;
+  court?: string;
+  division?: string;
   plaintiff?: string;
   defendant?: string;
   client?: string;

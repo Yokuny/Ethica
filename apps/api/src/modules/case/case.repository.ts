@@ -275,7 +275,7 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
   withDbTiming('case.findSummariesByIds', async () => {
     if (ids.length === 0) return new Map();
     const docs = await Case.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } }))
-      .select('processNumber subject parties')
+      .select('processNumber subject court division parties')
       .lean();
     const names = (parties: CaseDocument['parties'], side: string) =>
       (parties ?? [])
@@ -288,6 +288,8 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
         {
           processNumber: doc.processNumber,
           subject: doc.subject,
+          court: doc.court,
+          division: doc.division,
           plaintiff: names(doc.parties, 'plaintiff'),
           defendant: names(doc.parties, 'defendant'),
           client: doc.parties?.find((party) => party.client)?.name,

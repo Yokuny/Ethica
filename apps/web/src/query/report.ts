@@ -51,8 +51,11 @@ export type ReportRecord = {
   id: string;
   caseId: string;
   caseNumber?: string;
+  court?: string;
+  division?: string;
   plaintiff?: string;
   defendant?: string;
+  updatedById?: string;
   signatoryId?: string;
   type: ReportType;
   status: ReportStatus;
@@ -66,7 +69,10 @@ export type ReportRecord = {
   createdAt: string;
   updatedAt: string;
 };
-export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues' | 'layout'> & { totalSections: number };
+export type ReportListItem = Omit<ReportRecord, 'sections' | 'issues' | 'layout'> & {
+  totalSections: number;
+  updatedByName?: string;
+};
 // Full process read into the draft (LMO-03); `missing` are translation keys.
 export type ProcessFill = {
   report: ReportRecord;

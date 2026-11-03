@@ -12,6 +12,7 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { reportStatusLabel } from '@/components/report-labels.js';
+import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { deleteReportMutation, type ReportListItem, reportsQuery } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
@@ -28,6 +29,7 @@ export function ReportsListPage() {
   const queryClient = useQueryClient();
   const removal = useMutation(deleteReportMutation(queryClient));
   const [removing, setRemoving] = useState<ReportListItem | null>(null);
+  const { download, pending } = useFileDownload();
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -85,6 +87,8 @@ export function ReportsListPage() {
               pageSize={search.limit}
               onPaginationChange={handlePaginationChange}
               onRowClick={(row) => navigate({ to: '/expert-reports/details', search: { id: row.id } })}
+              onDownload={(row) => void download(`/expert-reports/${row.id}/pdf`)}
+              downloading={Boolean(pending)}
               onDelete={session && can(session, 'expert_reports', 'delete') ? setRemoving : undefined}
             />
           )}

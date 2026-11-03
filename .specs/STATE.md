@@ -911,6 +911,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-175
+- **Decision**: O laudo guarda quem gravou por último (`Report.UpdatedBy`), atualizado em toda escrita do rascunho e na conclusão; a lista devolve `updatedById` e o nome (`updatedByName`, uma consulta `$in` aos usuários) e mostra o nome abaixo da data em "Atualizado em". As escritas do repositório recebem `{ tenantId, userId }` em vez de só o tenant. A lista também traz tribunal e vara do resumo da perícia (`CaseSummary.court`/`division`). Envio de foto não conta como atualização (a foto só entra no laudo quando o texto do item é salvo).
+- **Reason**: pedido da perita (2026-11-03): saber quem mexeu por último em cada rascunho.
+- **Trade-off**: laudos gravados antes deste campo ficam sem nome até a próxima edição; não se usa o diário de bordo (AD-134) porque ele expira em 1 ano e depende do caminho da requisição.
+- **Scope**: `packages/db/src/models/report.model.ts`, `apps/api/src/modules/documents/report.{repository,service,schema}.ts`, `apps/api/src/modules/case/case.{repository,schema}.ts`, `apps/web/src/routes/_private/expert-reports/list/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.

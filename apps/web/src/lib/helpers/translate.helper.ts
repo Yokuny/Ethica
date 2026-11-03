@@ -408,6 +408,7 @@ const translations: Record<string, string> = {
   users: 'Usuários',
   value: 'Valor',
   court_division: 'Vara',
+  court_and_division: 'Tribunal e vara',
   court_divisions: 'Varas e comarcas',
   court_divisions_page_description: 'Contatos das varas e comarcas, por estado e cidade.',
   no_court_divisions_yet: 'Nenhuma vara cadastrada.',
