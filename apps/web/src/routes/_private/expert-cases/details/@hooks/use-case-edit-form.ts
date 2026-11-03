@@ -9,15 +9,7 @@ import type { CaseEditFormProps } from '../@interface/case-details.interface.js'
 
 export function useCaseEditForm({ legalCase, onSaved }: Pick<CaseEditFormProps, 'legalCase' | 'onSaved'>) {
   const queryClient = useQueryClient();
-  const {
-    id: _id,
-    createdAt: _c,
-    updatedAt: _u,
-    opportunityId: _o,
-    state: _s,
-    movements: _m,
-    ...defaultValues
-  } = legalCase;
+  const { id: _id, createdAt: _c, updatedAt: _u, opportunityId: _o, movements: _m, ...defaultValues } = legalCase;
   const form = useForm<CaseFormValues>({
     resolver: zodResolver(updateCaseSchema) as unknown as Resolver<CaseFormValues>,
     defaultValues,

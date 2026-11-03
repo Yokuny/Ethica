@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { caseState, phaseFitsInStatus, phaseStatus, suggestNonPrescribedPeriod, validClient } from './case.schema.js';
+import { suggestNonPrescribedPeriod, validClient } from './case.schema.js';
 import { documentSchema, normalizeOab, oabSchema } from './party.schema.js';
 
 describe('sugerirPeriodoImprescrito (AD-115)', () => {
@@ -45,26 +45,7 @@ describe('documento e OAB da parte', () => {
   });
 });
 
-describe('fase e situação da perícia (AD-133)', () => {
-  it('cada fase de etapa pertence a uma só etapa; suspensão não tem etapa', () => {
-    expect(phaseStatus('answering_objection')).toBe('clarifications');
-    expect(phaseStatus('awaiting_objections')).toBe('report_delivered');
-    expect(phaseStatus('settlement')).toBeUndefined();
-  });
-
-  it('suspensão cabe em qualquer etapa aberta, nunca nas encerradas', () => {
-    expect(phaseFitsInStatus('withdrawal', 'inspection')).toBe(true);
-    expect(phaseFitsInStatus('withdrawal', 'completed')).toBe(false);
-    expect(phaseFitsInStatus('reviewing_report', 'inspection')).toBe(false);
-  });
-
-  it('deriva a situação da etapa e da fase', () => {
-    expect(caseState({ status: 'inspection' })).toBe('active');
-    expect(caseState({ status: 'inspection', phase: 'settlement' })).toBe('suspended');
-    expect(caseState({ status: 'completed', phase: 'fees_received' })).toBe('closed');
-    expect(caseState({ status: 'declined' })).toBe('closed');
-  });
-
+describe('contratante do serviço', () => {
   it('contratante: no máximo um e só na perícia de assistente técnico (AD-135)', () => {
     expect(validClient({ role: 'technical_assistant', parties: [{ client: true }, {}] })).toBe(true);
     expect(validClient({ role: 'court_expert', parties: [{ client: true }] })).toBe(false);

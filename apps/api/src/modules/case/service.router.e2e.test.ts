@@ -92,9 +92,9 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
 
     const first = await admin
       .as(request(app).post('/expert-cases'))
-      .send({ ...PRIVATE_SERVICE, serviceStatus: 'proposal_sent' });
+      .send({ ...PRIVATE_SERVICE, status: 'fees_proposed' });
     expect(first.status).toBe(201);
-    expect(first.body.data).toMatchObject({ serviceType: 'Avaliação de imóvel', serviceStatus: 'proposal_sent' });
+    expect(first.body.data).toMatchObject({ serviceType: 'Avaliação de imóvel', status: 'fees_proposed' });
     expect(first.body.data.processNumber).toBeUndefined();
     // Two services without a number in the same office.
     expect((await admin.as(request(app).post('/expert-cases')).send(PRIVATE_SERVICE)).status).toBe(201);

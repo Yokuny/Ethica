@@ -1,15 +1,7 @@
-import { caseLabel } from '@ethica/contracts';
-import { Badge } from '@ethica/ui/components/badge';
+import { CASE_IDLE_STATUSES, caseLabel } from '@ethica/contracts';
 import { FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
-import {
-  CASE_STATE_VARIANT,
-  CASE_STATUS_VARIANT,
-  phaseLabel,
-  SERVICE_STATUS_VARIANT,
-  serviceStatusLabel,
-  serviceTypeLabel,
-} from '@/components/case-labels.js';
+import { CASE_STATUS_VARIANT, caseStatusLabel, serviceTypeLabel } from '@/components/case-labels.js';
 import { sideLabel } from '@/components/party-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
@@ -24,7 +16,6 @@ const money = (value?: number) => (value ? formatMoney(value) : '-');
 // Record page: header with process and status, strip with deadlines and
 // fees, and the read groups (court, parties, notes).
 export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseRecord; canSeeFinance: boolean }) {
-  const variant = CASE_STATUS_VARIANT[legalCase.status];
   const client = legalCase.parties.find((party) => party.client)?.name;
   return (
     <div className="grid gap-6">
@@ -33,26 +24,16 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
           icon={<Scale />}
           label={serviceTypeLabel(legalCase)}
           title={caseLabel(legalCase)}
-          description={legalCase.phase ? `${legalCase.subject} · ${phaseLabel(legalCase.phase)}` : legalCase.subject}
+          description={legalCase.subject}
         />
-        {legalCase.state === 'suspended' ? (
-          <RecordStatus variant={CASE_STATE_VARIANT.suspended} label={t('situation_suspended')} />
-        ) : (
-          <RecordStatus variant={variant} label={t(legalCase.status)} pulse={legalCase.state === 'active'} />
-        )}
+        <RecordStatus
+          variant={CASE_STATUS_VARIANT[legalCase.status]}
+          label={caseStatusLabel(legalCase.status)}
+          pulse={!CASE_IDLE_STATUSES.includes(legalCase.status)}
+        />
       </RecordHeader>
       <RecordStats>
         {legalCase.serviceOrder && <RecordStat label={t('service_order')} value={legalCase.serviceOrder} />}
-        {legalCase.serviceStatus && (
-          <RecordStat
-            label={t('service_status')}
-            value={
-              <Badge variant={SERVICE_STATUS_VARIANT[legalCase.serviceStatus]}>
-                {serviceStatusLabel(legalCase.serviceStatus)}
-              </Badge>
-            }
-          />
-        )}
         <RecordStat label={t('appointment_date')} value={day(legalCase.nominationDate)} />
         {client && <RecordStat label={t('contracting_party')} value={client} />}
         {/* Amounts only for whoever sees finance (AD-137). */}

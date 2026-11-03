@@ -1,6 +1,6 @@
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
-import { CASE_PHASE_ITEMS, CASE_STATE_ITEMS, CASE_STATUS_ITEMS, COURT_TYPE_ITEMS } from '@/components/case-labels.js';
+import { CASE_STATUS_ITEMS, COURT_TYPE_ITEMS } from '@/components/case-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CasesSearch } from '../@interface/cases.interface.js';
 
@@ -41,7 +41,7 @@ function FilterSelect({
   );
 }
 
-// Listing "Filtros" popover content: state, status, phase (AD-133) and court type.
+// Listing "Filtros" popover content: status (RSV-03) and court type.
 export function CasesFilters({
   search,
   onChange,
@@ -52,22 +52,10 @@ export function CasesFilters({
   return (
     <>
       <FilterSelect
-        label={t('situation')}
-        items={CASE_STATE_ITEMS}
-        value={search.state}
-        onChange={(state) => onChange({ state: state as CasesSearch['state'], page: 1 })}
-      />
-      <FilterSelect
-        label={t('stage')}
+        label={t('status')}
         items={CASE_STATUS_ITEMS}
         value={search.status}
         onChange={(status) => onChange({ status: status as CasesSearch['status'], page: 1 })}
-      />
-      <FilterSelect
-        label={t('phase')}
-        items={CASE_PHASE_ITEMS}
-        value={search.phase}
-        onChange={(phase) => onChange({ phase: phase as CasesSearch['phase'], page: 1 })}
       />
       <FilterSelect
         label={t('court_type')}

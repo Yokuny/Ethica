@@ -41,9 +41,14 @@ export class ReportNotFoundError extends KeyedError {}
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
-// Statuses before delivery: completing with delivery moves to `report_delivered` (AD-126)
-// with the "waiting for the parties' response" phase (AD-133).
-const BEFORE_DELIVERY = new Set(['appointed', 'accepted', 'inspection', 'drafting_report']);
+// Statuses before delivery: completing with delivery moves to `report_delivered` (AD-126, RSV-03).
+const BEFORE_DELIVERY = new Set([
+  'appointed',
+  'fees_proposed',
+  'fees_accepted',
+  'inspection_scheduled',
+  'drafting_report',
+]);
 
 const withNumber = async <T extends { caseId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
   const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
@@ -341,10 +346,7 @@ export const completeReport = async (
       notes: `${report.title} concluído no Ethica.`,
     });
     if (BEFORE_DELIVERY.has(legalCase.status)) {
-      await caseService.updateCase(ctx.tenantId, legalCase.id, {
-        status: 'report_delivered',
-        phase: 'awaiting_objections',
-      });
+      await caseService.updateCase(ctx.tenantId, legalCase.id, { status: 'report_delivered' });
     }
   }
   return getReport(ctx.tenantId, id);

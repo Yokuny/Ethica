@@ -1,14 +1,11 @@
 import type {
-  CasePhase,
   CaseRole,
-  CaseState,
   CaseStatus,
   CourtType,
   CreateCase,
   CreateMovement,
   MovementType,
   PartyType,
-  ServiceStatus,
   Side,
   UpdateCase,
 } from '@ethica/contracts';
@@ -28,7 +25,6 @@ export type CaseRecord = {
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;
-  serviceStatus?: ServiceStatus;
   court?: string;
   division?: string;
   district?: string;
@@ -36,9 +32,6 @@ export type CaseRecord = {
   // Type and name copy from the party registry (AD-117).
   parties: { partyId: string; side: Side; type: PartyType; name: string; client?: boolean }[];
   status: CaseStatus;
-  // Detailed phase and state derived on the server (AD-133).
-  phase?: CasePhase;
-  state: CaseState;
   nominationDate?: string;
   proposedFeesCents?: number;
   fixedFeesCents?: number;
@@ -62,8 +55,6 @@ export type CasesQueryParams = {
   limit?: number;
   q?: string;
   status?: CaseStatus;
-  state?: CaseState;
-  phase?: CasePhase;
   courtType?: CourtType;
 };
 

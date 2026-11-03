@@ -1,6 +1,5 @@
-import { type CaseStatus, phaseFitsInStatus } from '@ethica/contracts';
-import { type Control, useFormContext, useWatch } from 'react-hook-form';
-import { CASE_STATUS_ITEMS, phaseItems, SERVICE_STATUS_ITEMS, WITHOUT_PHASE } from '@/components/case-labels.js';
+import { type Control, useWatch } from 'react-hook-form';
+import { CASE_STATUS_ITEMS } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DateField, MoneyField, SelectField, TextareaField, TextField, TimeField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -8,14 +7,12 @@ import type { CaseFormValues } from '../@interface/cases.interface.js';
 import { CasePartiesFields } from './case-parties-fields.js';
 import { ServiceTypeField } from './service-type-field.js';
 
-// Case fields shared by `add` and `details` (edit). Editing
-// also includes the stage and the fee fixed by the court; the report deadline and the perícia date
-// only at registration (afterwards they are edited in the deadlines panel and on the agenda).
+// Case fields shared by `add` and `details` (edit). Editing also includes the fee fixed by the court;
+// the report deadline and the perícia date only at registration (afterwards they are edited in the
+// deadlines panel and on the agenda).
 export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
-  const { getValues, setValue } = useFormContext<CaseFormValues>();
   const courtType = useWatch({ control, name: 'courtType' });
   const role = useWatch({ control, name: 'role' });
-  const status = useWatch({ control, name: 'status' });
   return (
     <DefaultFormLayout
       sections={[
@@ -33,10 +30,10 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
               />
               <SelectField
                 control={control}
-                name="serviceStatus"
+                name="status"
                 label={t('service_status')}
                 placeholder={t('select')}
-                items={SERVICE_STATUS_ITEMS}
+                items={CASE_STATUS_ITEMS}
               />
             </div>,
             <div key="process" className="grid gap-4 sm:grid-cols-2">
@@ -86,32 +83,6 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                   name="reportDeadline"
                   label={t('report_deadline')}
                   placeholder={t('choose_day')}
-                />
-              )}
-              {editing && (
-                <SelectField
-                  control={control}
-                  name="status"
-                  label={t('stage')}
-                  placeholder={t('select')}
-                  items={CASE_STATUS_ITEMS}
-                  // A phase that does not fit the new status is dropped (AD-133); the API would reject the combination.
-                  onValueChange={(status) => {
-                    const phase = getValues('phase');
-                    if (phase && !phaseFitsInStatus(phase, status as CaseStatus)) setValue('phase', null);
-                  }}
-                />
-              )}
-              {editing && status && (
-                <SelectField
-                  control={control}
-                  name="phase"
-                  label={t('phase')}
-                  placeholder={t('no_detailed_phase')}
-                  items={phaseItems(status)}
-                  onValueChange={(phase) => {
-                    if (phase === WITHOUT_PHASE) setValue('phase', null);
-                  }}
                 />
               )}
             </div>,

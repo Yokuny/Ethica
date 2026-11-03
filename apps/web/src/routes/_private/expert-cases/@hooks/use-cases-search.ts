@@ -24,11 +24,11 @@ export function useCasesSearch() {
     navigate({ to: '/expert-cases/details', search: { id: row.id } });
   }
 
-  const activeFilters = [search.state, search.status, search.phase, search.courtType].filter(Boolean).length;
+  const activeFilters = [search.status, search.courtType].filter(Boolean).length;
   const hasFilters = Boolean(search.q) || activeFilters > 0;
 
   function clearFilters() {
-    update({ q: '', state: undefined, status: undefined, phase: undefined, courtType: undefined, page: 1 });
+    update({ q: '', status: undefined, courtType: undefined, page: 1 });
   }
 
   return {

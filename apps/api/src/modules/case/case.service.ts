@@ -1,11 +1,7 @@
 import {
-  type CasePhase,
-  type CaseStatus,
   caseLabel,
   DEADLINE_DUE_SOON_DAYS,
   formatServiceOrder,
-  phaseFitsInStatus,
-  phaseStatus,
   type ServiceOrderSettings,
   STALLED_CASE_DAYS,
   suggestNonPrescribedPeriod,
@@ -63,25 +59,10 @@ const withSuggestedPeriod = <T extends CreateCaseInput>(input: T): T => {
     : input;
 };
 
-// Status and phase always consistent (AD-133): a status phase moves the case to it; changing only the
-// status clears a phase that does not fit; inconsistent phase and status in the same request are rejected.
-export const resolveStatusAndPhase = (
-  before: { status: CaseStatus; phase?: CasePhase },
-  data: { status?: CaseStatus; phase?: CasePhase | null },
-): { status: CaseStatus; phase: CasePhase | null } => {
-  const status = data.status ?? (data.phase ? phaseStatus(data.phase) : undefined) ?? before.status;
-  if (data.phase) {
-    if (!phaseFitsInStatus(data.phase, status)) throw new CustomError('phase_stage_mismatch', 422);
-    return { status, phase: data.phase };
-  }
-  if (data.phase === null || !before.phase) return { status, phase: null };
-  return { status, phase: phaseFitsInStatus(before.phase, status) ? before.phase : null };
-};
-
 // Single creation path (form, PDF, CSV, opportunity): resolves the parties in the
 // registry (AD-117) and turns the report deadline into the "Entrega do laudo" deadline (AD-109).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
-  const { reportDeadline, parties, phase, inspection, ...input } = withSuggestedPeriod(data);
+  const { reportDeadline, parties, inspection, ...input } = withSuggestedPeriod(data);
   if (!validClient({ role: input.role, parties })) throw new CustomError('invalid_contracting_party', 422);
   if (!validServiceType(input)) throw new CustomError('invalid_service_type', 422);
   try {
@@ -90,7 +71,6 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
       // Without the labor block (PSV-02), the perícia location is the case location ([LOCAL_PERICIA]).
       location: input.location ?? inspection?.location,
       serviceOrder: input.serviceOrder ?? (await nextServiceOrder(input.tenant)),
-      ...(phase ? { phase, status: resolveStatusAndPhase({ status: 'appointed' }, { phase }).status } : {}),
       parties: await partyService.resolveParties(input.tenant, parties ?? []),
     });
     if (reportDeadline) {
@@ -126,7 +106,7 @@ export const getCase = async (tenantId: string, id: string): Promise<CaseRecord>
 
 export const updateCase = async (tenantId: string, id: string, data: UpdateCase): Promise<CaseRecord> => {
   const before = await getCase(tenantId, id);
-  const { parties, status, phase, ...rest } = data;
+  const { parties, ...rest } = data;
   if (!validClient({ role: rest.role ?? before.role, parties: parties ?? before.parties })) {
     throw new CustomError('invalid_contracting_party', 422);
   }
@@ -138,14 +118,11 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
     court: rest.court ?? before.court,
   };
   if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
-  const resolved =
-    status !== undefined || phase !== undefined ? resolveStatusAndPhase(before, { status, phase }) : undefined;
   const updated = await caseRepository
     .updateCase(tenantId, id, {
       ...rest,
       // A judicial type drops the name of the office's type (AD-158).
       serviceType: final.serviceType ?? (before.serviceType ? null : undefined),
-      ...(resolved ? { status: resolved.status, phase: resolved.phase } : {}),
       parties: parties ? await partyService.resolveParties(tenantId, parties) : undefined,
     })
     .catch((e: unknown) => {

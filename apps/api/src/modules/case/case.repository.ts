@@ -1,5 +1,5 @@
 import type { CreateMovement, ListStats } from '@ethica/contracts';
-import { CASE_CLOSED_STATUSES, CASE_PHASES_SUSPENSION, caseState, DISPLAY_TIMEZONE } from '@ethica/contracts';
+import { CASE_IDLE_STATUSES, type CaseStatus, DISPLAY_TIMEZONE } from '@ethica/contracts';
 import type { CaseDocument } from '@ethica/db';
 import {
   Case,
@@ -33,7 +33,6 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   courtType: doc.courtType,
   serviceType: doc.serviceType,
   role: doc.role,
-  serviceStatus: doc.serviceStatus,
   court: doc.court,
   division: doc.division,
   district: doc.district,
@@ -54,8 +53,6 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
       ...(party.client ? { client: true } : {}),
     })),
   status: doc.status,
-  phase: doc.phase,
-  state: caseState(doc),
   nominationDate: doc.nominationDate,
   proposedFeesCents: doc.proposedFeesCents,
   fixedFeesCents: doc.fixedFeesCents,
@@ -83,15 +80,16 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
 const toPartiesDocs = (parties: CasePartyWrite[]) =>
   parties.map(({ partyId, ...party }) => ({ ...party, Party: partyId }));
 
-// Derived state (AD-133) as a database filter: the same rule as `caseState`.
-const stateFilter = {
-  closed: { status: { $in: CASE_CLOSED_STATUSES } },
-  suspended: { status: { $nin: CASE_CLOSED_STATUSES }, phase: { $in: CASE_PHASES_SUSPENSION } },
-  active: { status: { $nin: CASE_CLOSED_STATUSES }, phase: { $nin: CASE_PHASES_SUSPENSION } },
-};
-
 // Statuses in which the case still has work ahead for the expert.
-const OPEN = ['appointed', 'accepted', 'inspection', 'drafting_report', 'clarifications'];
+const OPEN: CaseStatus[] = [
+  'appointed',
+  'fees_proposed',
+  'fees_accepted',
+  'inspection_scheduled',
+  'drafting_report',
+  'clarifications',
+];
+const DELIVERED: CaseStatus[] = ['report_delivered', 'awaiting_payment', 'completed'];
 
 export const createCase = async ({ tenant, opportunityId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
   withDbTiming('case.createCase', async () => {
@@ -128,7 +126,7 @@ export const updateCase = async (
   { parties, ...data }: CaseUpdateWrite,
 ): Promise<CaseRecord | null> =>
   withDbTiming('case.updateCase', async () => {
-    // `null` becomes `$unset` (phase, AD-133; service type, AD-158).
+    // `null` becomes `$unset` (service type, AD-158).
     const entries = Object.entries(data);
     const unset = entries.filter(([, value]) => value === null).map(([key]) => [key, 1]);
     const update = {
@@ -180,14 +178,8 @@ export const listStalled = async (tenantId: string, limit: string): Promise<Arra
       nominationDate?: string;
       reference: string;
     }>([
-      // Suspended (AD-133) is not stalled: it waits for a fact outside the expert's control.
-      {
-        $match: {
-          Tenant: toObjectId(tenantId),
-          status: { $nin: ['completed', 'declined'] },
-          phase: { $nin: CASE_PHASES_SUSPENSION },
-        },
-      },
+      // Suspended is not stalled: it waits for a fact outside the expert's control.
+      { $match: { Tenant: toObjectId(tenantId), status: { $nin: CASE_IDLE_STATUSES } } },
       { $addFields: { last: { $max: '$movements.date' } } },
       {
         $addFields: {
@@ -249,9 +241,7 @@ export const listCases = async (
   withDbTiming('case.listCases', async () => {
     const filters = {
       ...(query.status ? { status: query.status } : {}),
-      ...(query.phase ? { phase: query.phase } : {}),
       ...(query.courtType ? { courtType: query.courtType } : {}),
-      ...(query.state ? { $and: [stateFilter[query.state]] } : {}),
     };
     const skip = (query.page - 1) * query.limit;
 
@@ -364,7 +354,7 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
       count({ status: { $in: OPEN } }),
       deadlines({ $lt: today }),
       deadlines({ $gte: today, $lte: addDays(today, dueSoonDays) }),
-      count({ status: { $in: ['report_delivered', 'completed'] } }),
+      count({ status: { $in: DELIVERED } }),
       dailyTrend(Case, tenantId, 'createdAt'),
     ]);
     return {

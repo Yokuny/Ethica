@@ -55,7 +55,7 @@ const processData = (legalCase: Case) =>
     ['Vara', legalCase.division],
     ['Comarca', legalCase.district],
     ['Atuação', label(legalCase.role)],
-    ['Etapa', label(legalCase.status)],
+    ['Status', label(legalCase.status)],
     ['Nomeação', day(legalCase.nominationDate)],
     ['Objeto', legalCase.subject],
   ]);
@@ -318,7 +318,7 @@ export const stalledHtml = (data: StalledData): PdfDocument =>
     `Abertas sem movimentação (entrega do laudo, honorários, intimação para esclarecimentos ou laudo complementar) há mais de ${STALLED_CASE_DAYS} dias`,
     data.stalled.length
       ? table(
-          ['Processo', 'Etapa', 'Tribunal / vara', 'Desde', 'Dias parada'],
+          ['Processo', 'Status', 'Tribunal / vara', 'Desde', 'Dias parada'],
           data.stalled.map((stalled) => [
             esc(stalled.processNumber),
             esc(label(stalled.status)),

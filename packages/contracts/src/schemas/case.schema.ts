@@ -11,66 +11,26 @@ export type CourtType = (typeof COURTTYPES)[number];
 export const CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
 export type CaseRole = (typeof CASE_ROLES)[number];
 
-// Case statuses, in flow order. `declined` closes without a report.
+// Service status (RSV-03), one list in the order of the expert's routine: it replaces the stage, the
+// detailed phase and the service status of AD-133/AD-158. `suspended` pauses (settlement, withdrawal,
+// removal); `declined` closes without a report.
 export const CASE_STATUS = [
   'appointed',
-  'accepted',
-  'inspection',
+  'fees_proposed',
+  'fees_accepted',
+  'inspection_scheduled',
   'drafting_report',
   'report_delivered',
   'clarifications',
+  'awaiting_payment',
   'completed',
+  'suspended',
   'declined',
 ] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
-
-// Detailed phase (AD-133): optional, each one belonging to a status. The suspension ones fit any
-// open status and do not change the status. The state is derived, never stored.
-export const CASE_PHASES_BY_STATUS = {
-  appointed: ['awaiting_acceptance_signature'],
-  accepted: ['awaiting_site_info', 'scheduling_inspection'],
-  inspection: ['awaiting_inspection', 'return_environmental_assessment', 'return_complement_inspection'],
-  drafting_report: ['writing_report', 'reviewing_report', 'awaiting_report_approval'],
-  report_delivered: ['awaiting_objections'],
-  clarifications: [
-    'answering_objection',
-    'awaiting_objection_reply',
-    'awaiting_clarification_approval',
-    'awaiting_clarification_reply',
-    'awaiting_new_clarifications',
-    'awaiting_judge_decision',
-    'drafting_petition',
-  ],
-  completed: ['monitoring_fees', 'fees_received'],
-  declined: [],
-} as const satisfies Record<CaseStatus, readonly string[]>;
-export const CASE_PHASES_SUSPENSION = ['withdrawal', 'removal', 'settlement'] as const;
-export const CASE_PHASES = [
-  ...Object.values(CASE_PHASES_BY_STATUS).flat(),
-  ...CASE_PHASES_SUSPENSION,
-] as readonly CasePhase[];
-export type CasePhase = (typeof CASE_PHASES_BY_STATUS)[CaseStatus][number] | (typeof CASE_PHASES_SUSPENSION)[number];
-
-// Service status chosen by the expert (AD-158), independent of the stage and phase above.
-export const SERVICE_STATUS = ['proposal_sent', 'in_progress', 'delivered', 'pending', 'canceled'] as const;
-export type ServiceStatus = (typeof SERVICE_STATUS)[number];
-
-export const CASE_STATES = ['active', 'suspended', 'closed'] as const;
-export type CaseState = (typeof CASE_STATES)[number];
 export const CASE_CLOSED_STATUSES: readonly CaseStatus[] = ['completed', 'declined'];
-
-const isSuspension = (phase: CasePhase): boolean => (CASE_PHASES_SUSPENSION as readonly string[]).includes(phase);
-
-export const phaseStatus = (phase: CasePhase): CaseStatus | undefined =>
-  CASE_STATUS.find((status) => (CASE_PHASES_BY_STATUS[status] as readonly string[]).includes(phase));
-
-export const phaseFitsInStatus = (phase: CasePhase, status: CaseStatus): boolean =>
-  isSuspension(phase) ? !CASE_CLOSED_STATUSES.includes(status) : phaseStatus(phase) === status;
-
-export const caseState = ({ status, phase }: { status: CaseStatus; phase?: CasePhase }): CaseState => {
-  if (CASE_CLOSED_STATUSES.includes(status)) return 'closed';
-  return phase && isSuspension(phase) ? 'suspended' : 'active';
-};
+// Not counted as stalled: closed or paused on purpose.
+export const CASE_IDLE_STATUSES: readonly CaseStatus[] = [...CASE_CLOSED_STATUSES, 'suspended'];
 
 // CNJ unique number (Resolution 65/2008): NNNNNNN-DD.AAAA.J.TR.OOOO.
 export const processNumberSchema = z
@@ -91,7 +51,7 @@ const caseFields = z.object({
   courtType: z.enum(COURTTYPES),
   serviceType: z.string().trim().min(1, 'tipo de serviço é obrigatório').max(80, 'tipo de serviço inválido').optional(),
   role: z.enum(CASE_ROLES),
-  serviceStatus: z.enum(SERVICE_STATUS).optional(),
+  status: z.enum(CASE_STATUS).optional(),
   court: optional(z.string().trim().min(1, 'tribunal é obrigatório').max(20, 'tribunal inválido')),
   division: z.string().trim().max(120, 'vara inválida').optional(),
   district: z.string().trim().max(120, 'comarca inválida').optional(),
@@ -154,7 +114,6 @@ export const parseCoordinates = (text: string): { lat: number; lng: number } | u
 export const createCaseFieldsSchema = caseFields
   .extend({
     reportDeadline: calendarDateSchema.optional(),
-    phase: z.enum(CASE_PHASES).optional(),
     inspection: caseInspectionSchema.optional(),
   })
   .strict();
@@ -164,13 +123,11 @@ export const createCaseSchema = createCaseFieldsSchema.refine(validServiceType, 
 });
 export type CreateCase = z.infer<typeof createCaseSchema>;
 
-// PATCH accepts any subset of the fields + the status, the phase (`null` clears it, AD-133) and the
-// fee fixed by the court or, in an assistant case, the contracted one (AD-135).
+// PATCH accepts any subset of the fields + the fee fixed by the court or, in an assistant case, the
+// contracted one (AD-135).
 export const updateCaseSchema = caseFields
   .partial()
   .extend({
-    status: z.enum(CASE_STATUS).optional(),
-    phase: z.enum(CASE_PHASES).nullable().optional(),
     fixedFeesCents: centsSchema.optional(),
   })
   .strict();

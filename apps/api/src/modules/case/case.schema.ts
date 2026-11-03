@@ -1,18 +1,13 @@
 import type {
-  CasePhase,
   CaseRole,
-  CaseState,
   CaseStatus,
   CourtType,
   CreateCase,
   CreateMovement,
   MovementType,
-  ServiceStatus,
   UpdateCase,
 } from '@ethica/contracts';
 import {
-  CASE_PHASES,
-  CASE_STATES,
   CASE_STATUS,
   COURTTYPES,
   createCaseSchema,
@@ -38,8 +33,6 @@ export const listCasesQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(20),
     q: z.string().trim().max(120).optional(),
     status: z.enum(CASE_STATUS).optional(),
-    state: z.enum(CASE_STATES).optional(),
-    phase: z.enum(CASE_PHASES).optional(),
     courtType: z.enum(COURTTYPES).optional(),
   })
   .strict();
@@ -55,16 +48,12 @@ export type CaseRecord = {
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;
-  serviceStatus?: ServiceStatus;
   court?: string;
   division?: string;
   district?: string;
   subject: string;
   parties: CasePartyWrite[];
   status: CaseStatus;
-  phase?: CasePhase;
-  // Derived from status and phase (AD-133), never stored.
-  state: CaseState;
   nominationDate?: string;
   proposedFeesCents?: number;
   fixedFeesCents?: number;
@@ -109,7 +98,7 @@ export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties'
 
 // Service type created by the office (AD-158), with the role of the cases that use it.
 export type ServiceTypeItem = { name: string; role: CaseRole };
-// `null` becomes `$unset` in the repository: phase (AD-133) and service type (AD-158).
+// `null` becomes `$unset` in the repository: service type (AD-158).
 export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'serviceType'> & {
   parties?: CasePartyWrite[];
   serviceType?: string | null;

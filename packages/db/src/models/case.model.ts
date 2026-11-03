@@ -1,8 +1,6 @@
 import {
-  CASE_PHASES,
   CASE_ROLES,
   CASE_STATUS,
-  type CasePhase,
   type CaseRole,
   type CaseStatus,
   COURTTYPES,
@@ -11,8 +9,6 @@ import {
   type MovementType,
   PARTY_TYPES,
   type PartyType,
-  SERVICE_STATUS,
-  type ServiceStatus,
   SIDES,
   type Side,
 } from '@ethica/contracts';
@@ -47,15 +43,12 @@ export interface CaseDocument {
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;
-  serviceStatus?: ServiceStatus;
   court?: string;
   division?: string;
   district?: string;
   subject: string;
   parties: CasePartyDocument[];
   status: CaseStatus;
-  // Detailed phase (AD-133), always consistent with the status (rule in the service).
-  phase?: CasePhase;
   // Calendar dates `YYYY-MM-DD` in the display time zone (AD-036, AD-103), not instants.
   nominationDate?: string;
   proposedFeesCents?: number;
@@ -84,7 +77,6 @@ const caseSchema = new Schema<CaseDocument>(
     courtType: { type: String, enum: COURTTYPES, required: true },
     serviceType: { type: String, trim: true },
     role: { type: String, enum: CASE_ROLES, required: true },
-    serviceStatus: { type: String, enum: SERVICE_STATUS },
     court: { type: String, trim: true },
     division: { type: String, trim: true },
     district: { type: String, trim: true },
@@ -105,7 +97,6 @@ const caseSchema = new Schema<CaseDocument>(
       default: [],
     },
     status: { type: String, enum: CASE_STATUS, default: 'appointed', required: true },
-    phase: { type: String, enum: CASE_PHASES },
     nominationDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     proposedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     fixedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
@@ -151,3 +142,25 @@ caseSchema.index({ Tenant: 1, createdAt: -1 });
 caseSchema.index({ Tenant: 1, 'parties.Party': 1 });
 
 export const Case = mongoose.model<CaseDocument>('Case', caseSchema);
+
+// Old classification (stage + detailed phase + service status, AD-133/AD-158) → the single status
+// (RSV-03). Runs on API boot; idempotent: once `phase` and `serviceStatus` are gone nothing matches.
+export const migrateCaseStatus = async (): Promise<void> => {
+  const cases = Case.collection;
+  const open = { status: { $nin: ['completed', 'declined'] } };
+  await cases.updateMany(
+    { ...open, phase: { $in: ['withdrawal', 'removal', 'settlement'] } },
+    { $set: { status: 'suspended' } },
+  );
+  await cases.updateMany({ ...open, serviceStatus: 'canceled' }, { $set: { status: 'declined' } });
+  await cases.updateMany(
+    { status: 'appointed', serviceStatus: 'proposal_sent' },
+    { $set: { status: 'fees_proposed' } },
+  );
+  await cases.updateMany({ status: 'accepted' }, { $set: { status: 'fees_accepted' } });
+  await cases.updateMany({ status: 'inspection' }, { $set: { status: 'inspection_scheduled' } });
+  await cases.updateMany(
+    { $or: [{ phase: { $exists: true } }, { serviceStatus: { $exists: true } }] },
+    { $unset: { phase: '', serviceStatus: '' } },
+  );
+};

@@ -3,14 +3,7 @@ import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseRepository from './case.repository.js';
 import type { CaseRecord } from './case.schema.js';
-import {
-  CaseNotFoundError,
-  createCase,
-  deleteCase,
-  listCases,
-  resolveStatusAndPhase,
-  updateCase,
-} from './case.service.js';
+import { CaseNotFoundError, createCase, deleteCase, listCases, updateCase } from './case.service.js';
 import * as deadlineRepository from './deadline.repository.js';
 import * as serviceOrderRepository from './service-order.repository.js';
 
@@ -39,7 +32,6 @@ const legalCase: CaseRecord = {
   parties: [],
   movements: [],
   status: 'appointed',
-  state: 'active',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -173,7 +165,7 @@ describe('case.service', () => {
     vi.mocked(caseRepository.findById).mockResolvedValue({ ...legalCase, fixedFeesCents: 100_000 });
     vi.mocked(caseRepository.updateCase).mockResolvedValue({ ...legalCase, fixedFeesCents: 100_000 });
 
-    await updateCase('t1', 'p1', { status: 'accepted' });
+    await updateCase('t1', 'p1', { status: 'fees_accepted' });
     expect(emit).not.toHaveBeenCalled();
 
     vi.mocked(caseRepository.updateCase).mockResolvedValue({ ...legalCase, fixedFeesCents: 250_000 });
@@ -190,48 +182,7 @@ describe('case.service', () => {
   it('updatePericia de id inexistente (ou de outro tenant) é PericiaNotFoundError', async () => {
     vi.mocked(caseRepository.findById).mockResolvedValue(null);
 
-    await expect(updateCase('t1', 'nope', { status: 'accepted' })).rejects.toBeInstanceOf(CaseNotFoundError);
-  });
-});
-
-describe('resolverEtapaEFase (AD-133)', () => {
-  it('a fase de uma etapa leva a perícia a ela', () => {
-    expect(resolveStatusAndPhase({ status: 'inspection' }, { phase: 'reviewing_report' })).toEqual({
-      status: 'drafting_report',
-      phase: 'reviewing_report',
-    });
-  });
-
-  it('suspensão mantém a etapa', () => {
-    expect(resolveStatusAndPhase({ status: 'inspection' }, { phase: 'settlement' })).toEqual({
-      status: 'inspection',
-      phase: 'settlement',
-    });
-  });
-
-  it('mudar só a etapa apaga a fase que não cabe e mantém a que cabe', () => {
-    expect(
-      resolveStatusAndPhase({ status: 'inspection', phase: 'awaiting_inspection' }, { status: 'drafting_report' }),
-    ).toEqual({ status: 'drafting_report', phase: null });
-    expect(resolveStatusAndPhase({ status: 'inspection', phase: 'withdrawal' }, { status: 'drafting_report' })).toEqual(
-      {
-        status: 'drafting_report',
-        phase: 'withdrawal',
-      },
-    );
-  });
-
-  it('recusa fase e etapa incoerentes no mesmo pedido', () => {
-    expect(() =>
-      resolveStatusAndPhase({ status: 'inspection' }, { status: 'completed', phase: 'reviewing_report' }),
-    ).toThrow(CustomError);
-  });
-
-  it('null apaga a fase', () => {
-    expect(resolveStatusAndPhase({ status: 'inspection', phase: 'settlement' }, { phase: null })).toEqual({
-      status: 'inspection',
-      phase: null,
-    });
+    await expect(updateCase('t1', 'nope', { status: 'fees_accepted' })).rejects.toBeInstanceOf(CaseNotFoundError);
   });
 });
 

@@ -1,14 +1,7 @@
 import { caseLabel } from '@ethica/contracts';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
-import {
-  CASE_STATE_VARIANT,
-  CASE_STATUS_VARIANT,
-  phaseLabel,
-  SERVICE_STATUS_VARIANT,
-  serviceStatusLabel,
-  serviceTypeLabel,
-} from '@/components/case-labels.js';
+import { CASE_STATUS_VARIANT, caseStatusLabel, serviceTypeLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { deadlineAlert } from '@/components/deadline-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -35,20 +28,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
   {
     id: 'service',
     header: t('service_type'),
-    cell: ({ row }) => {
-      const { serviceStatus } = row.original;
-      return (
-        <TableStack description={serviceTypeLabel(row.original)}>
-          {serviceStatus ? (
-            <TableStatus variant={SERVICE_STATUS_VARIANT[serviceStatus]}>
-              {serviceStatusLabel(serviceStatus)}
-            </TableStatus>
-          ) : (
-            '—'
-          )}
-        </TableStack>
-      );
-    },
+    cell: ({ row }) => serviceTypeLabel(row.original),
   },
   {
     id: 'juizo',
@@ -61,16 +41,11 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
   },
   {
     id: 'status',
-    header: t('stage'),
+    header: t('status'),
     cell: ({ row }) => (
-      // Suspended shows in place of the status: it is what needs attention (AD-133).
-      <TableStack description={row.original.phase ? phaseLabel(row.original.phase) : undefined}>
-        {row.original.state === 'suspended' ? (
-          <TableStatus variant={CASE_STATE_VARIANT.suspended}>{t('situation_suspended')}</TableStatus>
-        ) : (
-          <TableStatus variant={CASE_STATUS_VARIANT[row.original.status]}>{t(row.original.status)}</TableStatus>
-        )}
-      </TableStack>
+      <TableStatus variant={CASE_STATUS_VARIANT[row.original.status]}>
+        {caseStatusLabel(row.original.status)}
+      </TableStatus>
     ),
   },
   {

@@ -46,8 +46,7 @@ const CASES = [
     court: 'TRT2',
     division: '1ª Vara do Trabalho de São Paulo',
     subject: 'Insalubridade por ruído',
-    status: 'inspection',
-    phase: 'awaiting_inspection',
+    status: 'inspection_scheduled',
     deadline: 12,
     proposed: 450_000,
   },
@@ -58,7 +57,6 @@ const CASES = [
     division: '11ª Vara do Trabalho de São Paulo',
     subject: 'Periculosidade — inflamáveis',
     status: 'drafting_report',
-    phase: 'reviewing_report',
     deadline: 3,
     proposed: 380_000,
     fixed: 350_000,
@@ -82,7 +80,6 @@ const CASES = [
     division: '2ª Vara Federal Previdenciária',
     subject: 'Aposentadoria especial — agentes químicos',
     status: 'report_delivered',
-    phase: 'awaiting_objections',
     deadline: -5,
     proposed: 320_000,
     fixed: 300_000,
@@ -94,7 +91,6 @@ const CASES = [
     division: 'Vara do Trabalho de Campinas',
     subject: 'Doença ocupacional — LER/DORT',
     status: 'clarifications',
-    phase: 'answering_objection',
     deadline: -2,
     proposed: 400_000,
     fixed: 400_000,
@@ -105,8 +101,7 @@ const CASES = [
     court: 'TJSP',
     division: '3ª Vara Cível de Guarulhos',
     subject: 'Avaliação de imóvel',
-    status: 'completed',
-    phase: 'fees_received',
+    status: 'awaiting_payment',
     proposed: 250_000,
     fixed: 250_000,
   },
@@ -216,7 +211,6 @@ const run = async (): Promise<void> => {
           }
         : {}),
       status: p.status,
-      ...('phase' in p ? { phase: p.phase } : {}),
       // The civil one (index 2) was nominated 95 days ago and never moved: it shows up in stalled cases.
       nominationDate: index === 2 ? day(-95) : day(-40 + index * 3),
       // Movements (AD-121): report delivered 70 days ago (stalled) and a recent summons (active).
@@ -241,7 +235,7 @@ const run = async (): Promise<void> => {
     ...CASES.flatMap((p, index) => {
       const legalCase = cases[index];
       if (!('deadline' in p) || !legalCase) return [];
-      const entregue = ['report_delivered', 'completed'].includes(p.status);
+      const entregue = ['report_delivered', 'awaiting_payment'].includes(p.status);
       return [
         {
           Tenant: tenant._id,

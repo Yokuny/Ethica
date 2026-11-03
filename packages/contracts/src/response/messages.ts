@@ -45,7 +45,6 @@ export const API_MESSAGE_KEYS = [
   'expert_case_already_registered',
   'service_order_taken',
   'invalid_service_type',
-  'phase_stage_mismatch',
   'invalid_contracting_party',
   'party_not_found',
   // Case import (AD-114, AD-115, AD-118): file, CSV row and PDF warnings

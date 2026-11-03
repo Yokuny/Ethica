@@ -33,8 +33,6 @@ export function CasesIndexPage() {
       limit: search.limit,
       q: search.q || undefined,
       status: search.status,
-      state: search.state,
-      phase: search.phase,
       courtType: search.courtType,
     }),
   );

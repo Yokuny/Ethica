@@ -6,6 +6,6 @@ export const DEFAULT_VALUES: CaseFormValues = {
   subject: '',
   courtType: 'labor',
   role: 'court_expert',
-  serviceStatus: 'proposal_sent',
+  status: 'appointed',
   parties: [],
 };

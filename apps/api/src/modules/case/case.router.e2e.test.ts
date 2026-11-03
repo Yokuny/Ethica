@@ -86,35 +86,20 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     expect((await operator.as(request(app).post('/expert-cases')).send(CASE)).status).toBe(201);
   });
 
-  it('fase ajusta a etapa, suspensão muda a situação e a listagem filtra (AD-133)', async () => {
+  it('status único: cadastro e edição, filtro da listagem e valor fora da lista recusado (RSV-03)', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['admin']);
-    const { body } = await as(request(app).post('/expert-cases')).send(CASE);
+    const { body } = await as(request(app).post('/expert-cases')).send({ ...CASE, status: 'fees_proposed' });
     const id = body.data.id as string;
+    expect(body.data.status).toBe('fees_proposed');
 
-    const revisao = await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'reviewing_report' });
-    expect(revisao.body.data).toMatchObject({
-      status: 'drafting_report',
-      phase: 'reviewing_report',
-      state: 'active',
-    });
+    const suspended = await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'suspended' });
+    expect(suspended.body.data.status).toBe('suspended');
+    const listed = await as(request(app).get('/expert-cases?status=suspended'));
+    expect(listed.body.data.items.map((item: { id: string }) => item.id)).toEqual([id]);
 
-    const incoerente = await as(request(app).patch(`/expert-cases/${id}`)).send({
-      status: 'completed',
-      phase: 'reviewing_report',
-    });
-    expect(incoerente.status).toBe(422);
-
-    const acordo = await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'settlement' });
-    expect(acordo.body.data).toMatchObject({ status: 'drafting_report', state: 'suspended' });
-
-    const suspensas = await as(request(app).get('/expert-cases?state=suspended'));
-    expect(suspensas.body.data.items.map((item: { id: string }) => item.id)).toEqual([id]);
-    expect((await as(request(app).get('/expert-cases?state=active'))).body.data.total).toBe(0);
-
-    const closed = await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'completed' });
-    expect(closed.body.data).toMatchObject({ state: 'closed' });
-    expect(closed.body.data.phase).toBeUndefined();
+    expect((await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'settlement' })).status).toBe(400);
+    expect((await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'accepted' })).status).toBe(400);
   });
 
   it('honorário contratado do assistente técnico vira receita com o contratante (AD-135)', async () => {
@@ -153,7 +138,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
         Tenant: tenant._id,
         processNumber: '0001234-56.2026.5.02.0003',
         nominationDate: '2020-01-10',
-        phase: 'withdrawal' as const,
+        status: 'suspended' as const,
       },
     ]);
     const res = await as(request(app).get('/expert-cases/stalled'));
