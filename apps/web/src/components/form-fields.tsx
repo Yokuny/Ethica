@@ -15,16 +15,25 @@ type BaseFieldProps<T extends FieldValues> = {
   label: string;
   placeholder: string;
   disabled?: boolean;
+  // Red asterisk on the label; the form schema is what requires it.
+  required?: boolean;
 };
 
-export function TextField<T extends FieldValues>({ control, name, label, placeholder, disabled }: BaseFieldProps<T>) {
+export function TextField<T extends FieldValues>({
+  control,
+  name,
+  label,
+  placeholder,
+  disabled,
+  required,
+}: BaseFieldProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <Input placeholder={placeholder} disabled={disabled} {...field} value={field.value ?? ''} />
           </FormControl>
@@ -41,6 +50,7 @@ export function TextareaField<T extends FieldValues>({
   label,
   placeholder,
   disabled,
+  required,
 }: BaseFieldProps<T>) {
   return (
     <FormField
@@ -48,7 +58,7 @@ export function TextareaField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <Textarea placeholder={placeholder} disabled={disabled} {...field} value={field.value ?? ''} />
           </FormControl>
@@ -65,6 +75,7 @@ export function SelectField<T extends FieldValues>({
   label,
   placeholder,
   disabled,
+  required,
   items,
   onValueChange,
 }: BaseFieldProps<T> & {
@@ -78,7 +89,7 @@ export function SelectField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <Select
             items={items}
             value={field.value ?? null}
@@ -109,14 +120,21 @@ export function SelectField<T extends FieldValues>({
 }
 
 // Amount in cents (integer), as it travels in the API.
-export function MoneyField<T extends FieldValues>({ control, name, label, placeholder, disabled }: BaseFieldProps<T>) {
+export function MoneyField<T extends FieldValues>({
+  control,
+  name,
+  label,
+  placeholder,
+  disabled,
+  required,
+}: BaseFieldProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <MoneyInput
               placeholder={placeholder}
@@ -134,14 +152,21 @@ export function MoneyField<T extends FieldValues>({ control, name, label, placeh
 }
 
 // Calendar date `YYYY-MM-DD`.
-export function DateField<T extends FieldValues>({ control, name, label, placeholder, disabled }: BaseFieldProps<T>) {
+export function DateField<T extends FieldValues>({
+  control,
+  name,
+  label,
+  placeholder,
+  disabled,
+  required,
+}: BaseFieldProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <DatePicker value={field.value} onChange={field.onChange} placeholder={placeholder} disabled={disabled} />
           </FormControl>
@@ -158,6 +183,7 @@ export function NumberField<T extends FieldValues>({
   label,
   placeholder,
   disabled,
+  required,
   min,
   step,
 }: BaseFieldProps<T> & { min?: number; step?: number }) {
@@ -167,7 +193,7 @@ export function NumberField<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <Input
               type="number"
@@ -189,14 +215,21 @@ export function NumberField<T extends FieldValues>({
 }
 
 // Wall-clock time `HH:mm`.
-export function TimeField<T extends FieldValues>({ control, name, label, placeholder, disabled }: BaseFieldProps<T>) {
+export function TimeField<T extends FieldValues>({
+  control,
+  name,
+  label,
+  placeholder,
+  disabled,
+  required,
+}: BaseFieldProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <Input type="time" placeholder={placeholder} disabled={disabled} {...field} value={field.value ?? ''} />
           </FormControl>

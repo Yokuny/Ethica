@@ -79,10 +79,20 @@ function FormItem({ className, ...props }: ComponentProps<'div'>) {
   );
 }
 
-function FormLabel({ className, ...props }: ComponentProps<typeof Label>) {
+// `required`: red asterisk after the text (the rule itself lives in the form schema).
+function FormLabel({ className, required, children, ...props }: ComponentProps<typeof Label> & { required?: boolean }) {
   const { error, formItemId } = useFormField();
 
-  return <Label data-slot="form-label" data-error={!!error} className={className} htmlFor={formItemId} {...props} />;
+  return (
+    <Label data-slot="form-label" data-error={!!error} className={className} htmlFor={formItemId} {...props}>
+      {children}
+      {required && (
+        <span aria-hidden className="text-destructive">
+          *
+        </span>
+      )}
+    </Label>
+  );
 }
 
 // Radix's `Slot` unconditionally clones its single child with merged props

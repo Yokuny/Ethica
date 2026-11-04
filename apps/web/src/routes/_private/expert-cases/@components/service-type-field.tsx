@@ -16,14 +16,20 @@ const TYPED = 'typed:';
 // "Tipo de serviço" (AD-158): one list for court type, role and the office's own types. "Cadastrar
 // novo" asks for the name. In the office's own type the role is chosen or typed (AD-176); a judicial
 // type drops the role name, the typed status and the contractor.
-export function ServiceTypeField() {
+// `creating` lives in the form: picking an own type swaps the form layout and remounts this field.
+export function ServiceTypeField({
+  creating,
+  onCreating,
+}: {
+  creating: boolean;
+  onCreating: (creating: boolean) => void;
+}) {
   const { control, setValue, getValues } = useFormContext<CaseFormValues>();
   const [courtType, role, serviceType, roleName] = useWatch({
     control,
     name: ['courtType', 'role', 'serviceType', 'roleName'],
   });
   const officeTypes = useQuery(serviceTypesQuery);
-  const [creating, setCreating] = useState(false);
   const [typingRole, setTypingRole] = useState(false);
   const items = serviceTypeItems(officeTypes.data ?? []);
   const value = creating ? NEW_SERVICE_TYPE : serviceTypeValue({ courtType, role, serviceType });
@@ -50,7 +56,7 @@ export function ServiceTypeField() {
   };
 
   const choose = (chosen: string) => {
-    setCreating(chosen === NEW_SERVICE_TYPE);
+    onCreating(chosen === NEW_SERVICE_TYPE);
     if (chosen === NEW_SERVICE_TYPE) return toOwnType('');
     const [type, rest] = chosen.split(/:(.*)/s) as [CourtType, string];
     if (type === 'other') return toOwnType(rest);
@@ -82,7 +88,7 @@ export function ServiceTypeField() {
         name="courtType"
         render={() => (
           <FormItem>
-            <FormLabel>{t('service_type')}</FormLabel>
+            <FormLabel required>{t('service_type')}</FormLabel>
             <Select items={items} value={value ?? null} onValueChange={(chosen) => chosen && choose(chosen)}>
               <FormControl>
                 <SelectTrigger className="w-full">
@@ -106,6 +112,7 @@ export function ServiceTypeField() {
           control={control}
           name="serviceType"
           label={t('new_service_type_name')}
+          required
           placeholder={t('example_service_type')}
         />
       )}

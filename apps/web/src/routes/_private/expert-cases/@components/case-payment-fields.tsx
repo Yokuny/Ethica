@@ -54,8 +54,15 @@ export function CasePaymentFields() {
             label={t('received_amount')}
             placeholder={t('example_money')}
             disabled={state === 'yes'}
+            required
           />
-          <DateField control={control} name="payment.date" label={t('payoff_date')} placeholder={t('choose_day')} />
+          <DateField
+            control={control}
+            name="payment.date"
+            label={t('payoff_date')}
+            placeholder={t('choose_day')}
+            required
+          />
         </>
       )}
     </div>

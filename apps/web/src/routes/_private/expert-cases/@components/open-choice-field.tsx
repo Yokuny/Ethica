@@ -20,7 +20,7 @@ type OpenChoiceFieldProps = {
   textPlaceholder: string;
 };
 
-// Role and status of the office's own type (AD-176): choose one already used or type a new one.
+// Role and status of the office's own type (AD-176): choose one already used or type a new one; both required.
 export function OpenChoiceField({
   name,
   label,
@@ -41,7 +41,7 @@ export function OpenChoiceField({
         name={name}
         render={() => (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            <FormLabel required>{label}</FormLabel>
             <Select items={options} value={value ?? null} onValueChange={(chosen) => chosen && onChoose(chosen)}>
               <FormControl>
                 <SelectTrigger className="w-full">
@@ -61,7 +61,7 @@ export function OpenChoiceField({
         )}
       />
       {value === NEW_CHOICE && (
-        <TextField control={control} name={textName} label={textLabel} placeholder={textPlaceholder} />
+        <TextField control={control} name={textName} label={textLabel} placeholder={textPlaceholder} required />
       )}
     </>
   );

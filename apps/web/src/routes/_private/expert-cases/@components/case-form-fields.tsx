@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { type Control, useWatch } from 'react-hook-form';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DateField, MoneyField, TextareaField, TextField, TimeField } from '@/components/form-fields.js';
@@ -19,9 +20,10 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
   const role = useWatch({ control, name: 'role' });
   const session = useQuery(sessionQuery).data;
   const own = courtType === 'other';
+  const [creatingType, setCreatingType] = useState(false);
   const serviceFields = (
     <div key="service" className="grid gap-4 sm:grid-cols-2">
-      <ServiceTypeField />
+      <ServiceTypeField creating={creatingType} onCreating={setCreatingType} />
       <TextField
         control={control}
         name="serviceOrder"
@@ -62,7 +64,14 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
     </div>
   );
   const subject = (
-    <TextField key="subject" control={control} name="subject" label={t('object')} placeholder={t('example_object')} />
+    <TextField
+      key="subject"
+      control={control}
+      name="subject"
+      label={t('object')}
+      placeholder={t('example_object')}
+      required
+    />
   );
 
   if (own) {
@@ -80,6 +89,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                 name="contractor.name"
                 label={t('name_or_company_name')}
                 placeholder={t('name_or_company_name')}
+                required
               />,
               <div key="contractor" className="grid gap-4 sm:grid-cols-2">
                 <TextField
@@ -134,8 +144,9 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                 name="processNumber"
                 label={t('process_number')}
                 placeholder="0000000-00.0000.0.00.0000"
+                required
               />
-              <TextField control={control} name="court" label={t('court')} placeholder={t('example_court')} />
+              <TextField control={control} name="court" label={t('court')} placeholder={t('example_court')} required />
               <TextField
                 control={control}
                 name="division"
