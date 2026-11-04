@@ -3,44 +3,64 @@ import { describe, expect, it } from 'vitest';
 import { useTestDb } from '../../tests/helpers/db.helper.js';
 import { Case, migrateCases } from './case.model.js';
 
-describe('migrateCases (RSV-03, AD-177)', () => {
+describe('migrateCases (AD-178)', () => {
   useTestDb();
 
-  it('converts stage, phase and service status into the single status and is idempotent', async () => {
+  it('turns the routine status into phase + status and is idempotent', async () => {
     const tenant = new mongoose.Types.ObjectId();
     const old = (status: string, extra: object = {}) => ({ Tenant: tenant, status, subject: status, ...extra });
     await Case.collection.insertMany([
-      old('accepted', { phase: 'scheduling_inspection' }),
-      old('inspection', { phase: 'settlement' }),
-      old('appointed', { serviceStatus: 'proposal_sent' }),
-      old('drafting_report', { serviceStatus: 'canceled' }),
-      old('completed', { phase: 'fees_received' }),
-      old('inspection'),
+      old('fees_accepted'),
+      old('inspection_scheduled'),
+      old('clarifications'),
+      old('completed'),
+      old('suspended'),
+      old('declined', { serviceStatus: 'canceled' }),
+      old('custom', { statusName: 'Aguardando documentos', serviceType: 'Avaliação' }),
+      old('active', { phase: 'awaiting_judge' }),
     ]);
 
     await migrateCases();
     await migrateCases();
 
     const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
-    expect(docs.map((doc) => doc.status)).toEqual([
-      'fees_accepted',
-      'suspended',
-      'fees_proposed',
-      'declined',
-      'completed',
-      'inspection_scheduled',
+    expect(docs.map((doc) => [doc.phase, doc.status])).toEqual([
+      ['awaiting_scheduling', 'active'],
+      ['awaiting_inspection', 'active'],
+      ['objection_reply_1', 'active'],
+      ['fees_received', 'active'],
+      ['awaiting_scheduling', 'suspended'],
+      ['awaiting_scheduling', 'canceled'],
+      ['custom', 'active'],
+      ['awaiting_judge', 'active'],
     ]);
-    expect(docs.some((doc) => 'phase' in doc || 'serviceStatus' in doc)).toBe(false);
+    expect(docs[6]?.phaseName).toBe('Aguardando documentos');
+    expect(docs.some((doc) => 'statusName' in doc || 'serviceStatus' in doc)).toBe(false);
   });
 
-  it('turns the old office type marker into the sphere "Extrajudicial"', async () => {
+  it('drops the "Extrajudicial" sphere and turns "Parceria" into an own type', async () => {
     const tenant = new mongoose.Types.ObjectId();
     await Case.collection.insertMany([
-      { Tenant: tenant, status: 'appointed', subject: 'a', courtType: 'other', serviceType: 'Avaliação' },
-      { Tenant: tenant, status: 'appointed', subject: 'b', courtType: 'labor' },
+      {
+        Tenant: tenant,
+        status: 'active',
+        phase: 'awaiting_scheduling',
+        subject: 'a',
+        courtType: 'extrajudicial',
+        role: 'partnership',
+      },
+      {
+        Tenant: tenant,
+        status: 'active',
+        phase: 'awaiting_scheduling',
+        subject: 'b',
+        courtType: 'labor',
+        role: 'court_expert',
+      },
     ]);
     await migrateCases();
     const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
-    expect(docs.map((doc) => doc.courtType)).toEqual(['extrajudicial', 'labor']);
+    expect(docs.map((doc) => doc.courtType)).toEqual([undefined, 'labor']);
+    expect(docs[0]).toMatchObject({ role: 'other', roleName: 'Parceria', serviceType: 'Parceria' });
   });
 });

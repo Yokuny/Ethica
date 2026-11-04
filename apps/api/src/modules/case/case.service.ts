@@ -9,6 +9,7 @@ import {
   type ServiceOrderSettings,
   STALLED_CASE_DAYS,
   suggestNonPrescribedPeriod,
+  usesContractor,
   validClient,
   validServiceType,
 } from '@ethica/contracts';
@@ -91,7 +92,7 @@ const postFees = (tenantId: string, legalCase: CaseRecord, received?: CasePaymen
     caseId: legalCase.id,
     caseLabel: caseLabel(legalCase),
     amountCents: legalCase.fixedFeesCents,
-    category: isOwnType(legalCase) || legalCase.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
+    category: usesContractor(legalCase) ? 'contracted_fees' : 'fixed_fees',
     received,
   });
 };
@@ -105,6 +106,8 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
   try {
     const legalCase = await caseRepository.createCase({
       ...input,
+      // Only a perícia has a sphere (AD-178).
+      courtType: usesContractor(input) ? undefined : input.courtType,
       // Without the labor block (PSV-02), the perícia location is the case location ([LOCAL_PERICIA]).
       location: input.location ?? inspection?.location,
       serviceOrder: input.serviceOrder ?? (await nextServiceOrder(input.tenant)),
@@ -154,28 +157,31 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
     value === null ? undefined : (value ?? previous);
   const role = rest.role ?? before.role;
   const serviceType = next(rest.serviceType, before.serviceType);
-  const own = isOwnType({ serviceType, role });
-  // A judicial type drops the fields of the office's own type (AD-158, AD-176, AD-177).
+  const own = isOwnType({ serviceType });
+  const contracted = usesContractor({ serviceType, role });
+  const phase = rest.phase ?? before.phase;
+  // Each type keeps only its fields (AD-158, AD-176, AD-178): the sphere in a perícia, the contractor in the
+  // other types, the typed role and phase in the office's own type.
   const final = {
-    courtType: rest.courtType ?? before.courtType,
+    courtType: contracted ? undefined : next(rest.courtType, before.courtType),
     serviceType: own ? serviceType : undefined,
     processNumber: rest.processNumber ?? before.processNumber,
     court: rest.court ?? before.court,
     role,
-    status: rest.status ?? before.status,
+    phase,
     roleName: role === 'other' ? next(rest.roleName, before.roleName) : undefined,
-    statusName: (rest.status ?? before.status) === 'custom' ? next(rest.statusName, before.statusName) : undefined,
-    contractor: own ? next(rest.contractor, before.contractor) : undefined,
+    phaseName: phase === 'custom' ? next(rest.phaseName, before.phaseName) : undefined,
+    contractor: contracted ? next(rest.contractor, before.contractor) : undefined,
   };
   if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
   const unsetWhenGone = <T>(value: T | undefined, previous: unknown) => value ?? (previous ? null : undefined);
   const updated = await caseRepository
     .updateCase(tenantId, id, {
       ...rest,
-      // A judicial type drops the name of the office's type (AD-158).
+      courtType: unsetWhenGone(final.courtType, before.courtType),
       serviceType: unsetWhenGone(final.serviceType, before.serviceType),
       roleName: unsetWhenGone(final.roleName, before.roleName),
-      statusName: unsetWhenGone(final.statusName, before.statusName),
+      phaseName: unsetWhenGone(final.phaseName, before.phaseName),
       contractor: unsetWhenGone(final.contractor, before.contractor),
       parties: parties ? await partyService.resolveParties(tenantId, parties) : undefined,
     })

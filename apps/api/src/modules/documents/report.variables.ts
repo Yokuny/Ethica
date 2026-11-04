@@ -28,13 +28,13 @@ const byWords = (data: string): string => {
 };
 
 // Party naming by court type (LAU-06): labor claimant/respondent; civil and
-// federal plaintiff/defendant. The logic and the deliverables are the same.
+// federal plaintiff/defendant; a service without a sphere (AD-178), applicant/respondent.
 const NAME = {
   labor: { plaintiff: 'Reclamante', defendant: 'Reclamada' },
   civil: { plaintiff: 'Autor', defendant: 'Réu' },
   federal: { plaintiff: 'Autor', defendant: 'Réu' },
-  extrajudicial: { plaintiff: 'Requerente', defendant: 'Requerido' },
 } as const;
+const NO_SPHERE_NAME = { plaintiff: 'Requerente', defendant: 'Requerido' } as const;
 
 const names = (legalCase: CaseRecord, side: Side, type: 'party' | 'lawyer'): string =>
   legalCase.parties
@@ -53,7 +53,7 @@ export type VariablesData = {
   today: string;
 };
 
-type Name = (typeof NAME)[keyof typeof NAME];
+type Name = { plaintiff: string; defendant: string };
 
 // Field list as running text; empty with a recorded inspection becomes "nenhum" (not an issue).
 const juntar = (items: string[]): string => (items.length ? items.join('; ') : 'none');
@@ -125,7 +125,7 @@ export const reportValues = ({
   field,
   today,
 }: VariablesData): ReportValues => {
-  const name = NAME[legalCase.courtType];
+  const name = legalCase.courtType ? NAME[legalCase.courtType] : NO_SPHERE_NAME;
   const inspectionStart =
     field?.start ??
     appointments

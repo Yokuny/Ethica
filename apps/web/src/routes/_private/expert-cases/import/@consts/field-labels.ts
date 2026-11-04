@@ -9,7 +9,7 @@ export const CSV_FIELD_LABEL: Record<CsvImportField, string> = {
   division: 'court_division',
   district: 'judicial_district',
   subject: 'object',
-  status: 'service_status',
+  status: 'service_phase',
   nominationDate: 'appointment_date',
   reportDeadline: 'report_deadline',
   proposedFees: 'proposed_fees',

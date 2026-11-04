@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import {
   COURT_TYPE_ITEMS,
-  JUDICIAL_COURT_TYPE_ITEMS,
   NEW_SERVICE_TYPE,
   OWN_TYPE_PREFIX,
   ROLE_ITEMS,
@@ -21,10 +20,10 @@ import { NEW_CHOICE, OpenChoiceField } from './open-choice-field.js';
 
 const TYPED = 'typed:';
 
-// "Esfera" and "Tipo de serviço" (AD-177): Perícia, Assistência técnica, Parceria, the office's own types
-// and "Cadastrar novo" (name). In an own type the role is chosen or typed (AD-176). A judicial type drops
-// the own type's fields and is in one of the three courts.
-// `creating` lives in the form: picking an own type swaps the form layout and remounts this field.
+// "Tipo de serviço" (AD-178): Perícia, Assistência técnica, the office's own types and "Cadastrar novo" (name).
+// "Esfera" only in a perícia. In an own type the role is chosen or typed (AD-176). Each type drops the fields
+// of the others: the sphere outside the perícia, the contractor in the perícia, the typed phase outside the own type.
+// `creating` lives in the form: picking another type swaps the form layout and remounts this field.
 export function ServiceTypeField({
   creating,
   onCreating,
@@ -33,46 +32,38 @@ export function ServiceTypeField({
   onCreating: (creating: boolean) => void;
 }) {
   const { control, setValue, getValues } = useFormContext<CaseFormValues>();
-  const [courtType, role, serviceType, roleName] = useWatch({
-    control,
-    name: ['courtType', 'role', 'serviceType', 'roleName'],
-  });
+  const [role, serviceType, roleName] = useWatch({ control, name: ['role', 'serviceType', 'roleName'] });
   const officeTypes = useQuery(serviceTypesQuery);
   const [typingRole, setTypingRole] = useState(false);
-  const judicial = !creating && !serviceType && role !== 'partnership';
   const items = [...serviceTypeItems(officeTypes.data ?? []), { value: NEW_SERVICE_TYPE, label: t('register_new') }];
   const value = creating ? NEW_SERVICE_TYPE : serviceTypeValue({ role, serviceType: serviceType ?? undefined });
   const roleNames = [...new Set((officeTypes.data ?? []).flatMap((item) => (item.roleName ? [item.roleName] : [])))];
   const roleItems = [...ROLE_ITEMS, ...roleNames.map((name) => ({ value: `${TYPED}${name}`, label: name }))];
   const roleValue = typingRole ? NEW_CHOICE : role === 'other' ? (roleName ? `${TYPED}${roleName}` : undefined) : role;
 
-  // Own types offer only "Concluído", "Cancelado" and the typed statuses (AD-176).
-  const toOwnStatus = (name?: string) => {
-    const status = getValues('status');
-    if (status === 'completed' || status === 'declined' || status === 'custom') return;
-    setValue('status', 'custom');
-    setValue('statusName', officeTypes.data?.find((item) => item.name === name)?.statuses[0] ?? '');
-  };
-
   const choose = (chosen: string) => {
     onCreating(chosen === NEW_SERVICE_TYPE);
     setTypingRole(false);
+    if (chosen !== 'court_expert') setValue('courtType', undefined);
     if (chosen === NEW_SERVICE_TYPE || chosen.startsWith(OWN_TYPE_PREFIX)) {
       const name = chosen === NEW_SERVICE_TYPE ? '' : chosen.slice(OWN_TYPE_PREFIX.length);
       const found = officeTypes.data?.find((item) => item.name === name);
       setValue('serviceType', name, { shouldValidate: Boolean(name) });
-      setValue('role', found?.role ?? (getValues('role') === 'partnership' ? 'court_expert' : getValues('role')));
+      setValue('role', found?.role ?? getValues('role'));
       setValue('roleName', found?.roleName);
-      return toOwnStatus(name);
+      // Own types offer only "Honorários recebidos" and the typed phases (AD-178).
+      if (getValues('phase') !== 'fees_received' && getValues('phase') !== 'custom') {
+        setValue('phase', 'custom');
+        setValue('phaseName', found?.phases[0] ?? '');
+      }
+      return;
     }
     setValue('serviceType', undefined);
     setValue('roleName', undefined);
     setValue('role', chosen as CaseRole, { shouldValidate: true });
-    if (chosen === 'partnership') return toOwnStatus();
-    setValue('contractor', undefined);
-    if (getValues('status') === 'custom') setValue('status', 'appointed');
-    setValue('statusName', undefined);
-    if (courtType === 'extrajudicial') setValue('courtType', undefined as unknown as CaseFormValues['courtType']);
+    if (chosen === 'court_expert') setValue('contractor', undefined);
+    if (getValues('phase') === 'custom') setValue('phase', 'awaiting_scheduling');
+    setValue('phaseName', undefined);
   };
 
   const chooseRole = (chosen: string) => {
@@ -88,14 +79,6 @@ export function ServiceTypeField({
 
   return (
     <>
-      <SelectField
-        control={control}
-        name="courtType"
-        label={t('sphere')}
-        placeholder={t('select')}
-        items={judicial ? JUDICIAL_COURT_TYPE_ITEMS : COURT_TYPE_ITEMS}
-        required
-      />
       <FormField
         control={control}
         name="serviceType"
@@ -120,6 +103,16 @@ export function ServiceTypeField({
           </FormItem>
         )}
       />
+      {!creating && !serviceType && role === 'court_expert' && (
+        <SelectField
+          control={control}
+          name="courtType"
+          label={t('sphere')}
+          placeholder={t('select')}
+          items={COURT_TYPE_ITEMS}
+          required
+        />
+      )}
       {creating && (
         <TextField
           control={control}

@@ -8,19 +8,19 @@ import type { CaseFormValues } from '../@interface/cases.interface.js';
 export const NEW_CHOICE = 'new';
 
 type OpenChoiceFieldProps = {
-  name: 'role' | 'status';
+  name: 'role' | 'phase';
   label: string;
   items: { value: string; label: string }[];
   // `NEW_CHOICE` shows the text field.
   value?: string;
   newLabel: string;
   onChoose: (value: string) => void;
-  textName: 'roleName' | 'statusName';
+  textName: 'roleName' | 'phaseName';
   textLabel: string;
   textPlaceholder: string;
 };
 
-// Role and status of the office's own type (AD-176): choose one already used or type a new one; both required.
+// Role and phase of the office's own type (AD-176, AD-178): choose one already used or type a new one; both required.
 export function OpenChoiceField({
   name,
   label,

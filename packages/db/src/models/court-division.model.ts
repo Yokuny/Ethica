@@ -1,11 +1,11 @@
-import { BRAZILIAN_STATES, type BrazilianState, JUDICIAL_COURT_TYPES, type JudicialCourtType } from '@ethica/contracts';
+import { BRAZILIAN_STATES, type BrazilianState, COURTTYPES, type CourtType } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 // Court division (vara) in the office contact book (AD-151).
 export interface CourtDivisionDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
-  courtType: JudicialCourtType;
+  courtType: CourtType;
   name: string;
   court?: string;
   state: BrazilianState;
@@ -25,7 +25,7 @@ export const COURT_DIVISION_COLLATION = { locale: 'pt', strength: 1 } as const;
 const courtDivisionSchema = new Schema<CourtDivisionDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
-    courtType: { type: String, enum: JUDICIAL_COURT_TYPES, required: true },
+    courtType: { type: String, enum: COURTTYPES, required: true },
     name: { type: String, required: true, trim: true },
     court: { type: String, trim: true },
     state: { type: String, enum: BRAZILIAN_STATES, required: true },

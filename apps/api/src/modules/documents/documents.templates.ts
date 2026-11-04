@@ -2,8 +2,8 @@ import {
   DEADLINE_DUE_SOON_DAYS,
   INSPECTION_AGENTS,
   INSPECTION_DOCUMENTS,
-  isOwnType,
   STALLED_CASE_DAYS,
+  usesContractor,
 } from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import {
@@ -62,8 +62,9 @@ const processData = (legalCase: Case) =>
     ['Comarca', legalCase.district],
     ['Contratante', legalCase.contractor?.name],
     ['Atuação', legalCase.roleName ?? label(legalCase.role)],
-    ['Status', legalCase.statusName ?? label(legalCase.status)],
-    [isOwnType(legalCase) ? 'Contratação' : 'Nomeação', day(legalCase.nominationDate)],
+    ['Fase', legalCase.phaseName ?? label(legalCase.phase)],
+    ['Status', label(legalCase.status)],
+    [usesContractor(legalCase) ? 'Contratação' : 'Nomeação', day(legalCase.nominationDate)],
     ['Objeto', legalCase.subject],
   ]);
 
@@ -325,10 +326,10 @@ export const stalledHtml = (data: StalledData): PdfDocument =>
     `Abertas sem movimentação (entrega do laudo, honorários, intimação para esclarecimentos ou laudo complementar) há mais de ${STALLED_CASE_DAYS} dias`,
     data.stalled.length
       ? table(
-          ['Processo', 'Status', 'Tribunal / vara', 'Desde', 'Dias parada'],
+          ['Processo', 'Fase', 'Tribunal / vara', 'Desde', 'Dias parada'],
           data.stalled.map((stalled) => [
             esc(stalled.processNumber),
-            esc(label(stalled.status)),
+            esc(stalled.phaseName ?? label(stalled.phase)),
             esc([stalled.court, stalled.division].filter(Boolean).join(' · ')),
             esc(`${day(stalled.reference)} (${label(stalled.origin)})`),
             `<span class="num">${stalled.stalledDays}</span>`,

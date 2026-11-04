@@ -25,6 +25,7 @@ export function useCasesSearch() {
   }
 
   const activeFilters = [
+    search.phase,
     search.status,
     search.courtType,
     search.role ?? search.serviceType,
@@ -35,6 +36,7 @@ export function useCasesSearch() {
   function clearFilters() {
     update({
       q: '',
+      phase: undefined,
       status: undefined,
       courtType: undefined,
       role: undefined,

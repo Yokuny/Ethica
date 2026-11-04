@@ -1,7 +1,7 @@
 import { caseLabel, isOwnType, type Side } from '@ethica/contracts';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
-import { CASE_STATUS_VARIANT, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
+import { CASE_STATUS_VARIANT, casePhaseLabel, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { deadlineAlert } from '@/components/deadline-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -57,11 +57,17 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     ),
   },
   {
-    id: 'status',
-    header: t('status'),
+    id: 'phase',
+    header: t('service_phase'),
+    // Phase in the tone of the status (AD-178); a status other than active is named after it.
     cell: ({ row }) => (
       <TableStatus variant={CASE_STATUS_VARIANT[row.original.status]}>
-        {caseStatusLabel(row.original.status, row.original.statusName)}
+        {[
+          casePhaseLabel(row.original.phase, row.original.phaseName),
+          row.original.status !== 'active' && caseStatusLabel(row.original.status),
+        ]
+          .filter(Boolean)
+          .join(' · ')}
       </TableStatus>
     ),
   },

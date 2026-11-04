@@ -67,4 +67,5 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts packages/db
 
 ## Histórico
 
+- 2026-11-03 — Revisto pela `fase-servico` (AD-178): esfera só na perícia, sem Extrajudicial, e Parceria virou tipo do escritório.
 - 2026-11-03 — Implementado ESF-01 a ESF-05 (AD-177). Conferido no navegador: cadastro de Parceria extrajudicial, "Limpar data" e filtros. Corrigido junto: "Serviços em aberto" não contava o status digitado (AD-176).

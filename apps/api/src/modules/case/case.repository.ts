@@ -1,5 +1,5 @@
 import type { CreateMovement, ListStats } from '@ethica/contracts';
-import { CASE_IDLE_STATUSES, type CaseStatus, DISPLAY_TIMEZONE } from '@ethica/contracts';
+import { CASE_CLOSED_PHASES, CASE_PHASE_GROUPS, type CasePhase, DISPLAY_TIMEZONE } from '@ethica/contracts';
 import type { CaseDocument } from '@ethica/db';
 import {
   Case,
@@ -34,7 +34,7 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   serviceType: doc.serviceType,
   role: doc.role,
   roleName: doc.roleName,
-  statusName: doc.statusName,
+  phaseName: doc.phaseName,
   contractor: doc.contractor,
   court: doc.court,
   division: doc.division,
@@ -55,6 +55,7 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
       name: party.name,
       ...(party.client ? { client: true } : {}),
     })),
+  phase: doc.phase,
   status: doc.status,
   nominationDate: doc.nominationDate,
   proposedFeesCents: doc.proposedFeesCents,
@@ -83,17 +84,11 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
 const toPartiesDocs = (parties: CasePartyWrite[]) =>
   parties.map(({ partyId, ...party }) => ({ ...party, Party: partyId }));
 
-// Statuses in which the case still has work ahead for the expert; a typed status counts as open (AD-176).
-const OPEN: CaseStatus[] = [
-  'appointed',
-  'fees_proposed',
-  'fees_accepted',
-  'inspection_scheduled',
-  'drafting_report',
-  'clarifications',
-  'custom',
-];
-const DELIVERED: CaseStatus[] = ['report_delivered', 'awaiting_payment', 'completed'];
+// Still with work ahead for the expert (AD-178): not canceled nor in a closing phase.
+const OPEN = { status: { $ne: 'canceled' }, phase: { $nin: CASE_CLOSED_PHASES } };
+// Report already delivered: from "Laudo entregue" on, up to the fees received.
+const { final, receiving } = CASE_PHASE_GROUPS;
+const DELIVERED: CasePhase[] = [...final.slice(final.indexOf('report_delivered')), ...receiving];
 
 export const createCase = async ({ tenant, opportunityId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
   withDbTiming('case.createCase', async () => {
@@ -174,7 +169,8 @@ export const listStalled = async (tenantId: string, limit: string): Promise<Arra
     const docs = await Case.aggregate<{
       _id: { toString(): string };
       processNumber: string;
-      status: StalledCase['status'];
+      phase: StalledCase['phase'];
+      phaseName?: string;
       court: string;
       division?: string;
       subject: string;
@@ -183,7 +179,7 @@ export const listStalled = async (tenantId: string, limit: string): Promise<Arra
       reference: string;
     }>([
       // Suspended is not stalled: it waits for a fact outside the expert's control.
-      { $match: { Tenant: toObjectId(tenantId), status: { $nin: CASE_IDLE_STATUSES } } },
+      { $match: { Tenant: toObjectId(tenantId), ...OPEN, status: 'active' } },
       { $addFields: { last: { $max: '$movements.date' } } },
       {
         $addFields: {
@@ -201,7 +197,8 @@ export const listStalled = async (tenantId: string, limit: string): Promise<Arra
       {
         $project: {
           processNumber: 1,
-          status: 1,
+          phase: 1,
+          phaseName: 1,
           court: 1,
           division: 1,
           subject: 1,
@@ -214,7 +211,8 @@ export const listStalled = async (tenantId: string, limit: string): Promise<Arra
     return docs.map((doc) => ({
       id: doc._id.toString(),
       processNumber: doc.processNumber,
-      status: doc.status,
+      phase: doc.phase,
+      phaseName: doc.phaseName,
       court: doc.court,
       division: doc.division,
       subject: doc.subject,
@@ -246,9 +244,10 @@ export const listCases = async (
 ): Promise<{ items: CaseRecord[]; total: number }> =>
   withDbTiming('case.listCases', async () => {
     const filters = {
+      ...(query.phase ? { phase: query.phase } : {}),
       ...(query.status ? { status: query.status } : {}),
       ...(query.courtType ? { courtType: query.courtType } : {}),
-      // A judicial type or Parceria has no own type name (AD-177).
+      // Perícia and Assistência técnica have no own type name (AD-177).
       ...(query.role ? { role: query.role, serviceType: { $exists: false } } : {}),
       ...(query.serviceType ? { serviceType: query.serviceType } : {}),
       ...(ids ? { _id: { $in: ids.map(toObjectId) } } : {}),
@@ -363,10 +362,10 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
       Deadline.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pending' as const, dueDate }));
     const [total, open, vencidas, proximas, entregues, trend] = await Promise.all([
       count({}),
-      count({ status: { $in: OPEN } }),
+      count(OPEN),
       deadlines({ $lt: today }),
       deadlines({ $gte: today, $lte: addDays(today, dueSoonDays) }),
-      count({ status: { $in: DELIVERED } }),
+      count({ phase: { $in: DELIVERED } }),
       dailyTrend(Case, tenantId, 'createdAt'),
     ]);
     return {
@@ -383,11 +382,12 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
 
 export const distribution = async (tenantId: string): Promise<CaseDistribution> =>
   withDbTiming('case.distribution', async () => {
-    const [status, courtType] = await Promise.all([
-      groupStats(Case, tenantId, '$status', 'appointed'),
-      groupStats(Case, tenantId, '$courtType', 'civil'),
+    // Without a sphere (not a perícia, AD-178) is `none`, left out of the chart.
+    const [phase, courtType] = await Promise.all([
+      groupStats(Case, tenantId, '$phase', 'awaiting_scheduling'),
+      groupStats(Case, tenantId, '$courtType', 'none'),
     ]);
-    return { status: status.groups, courtType: courtType.groups };
+    return { phase: phase.groups, courtType: courtType.groups };
   });
 
 // Service types created by the office (AD-158): the names already used, by name.
@@ -397,7 +397,7 @@ export const listServiceTypes = async (tenantId: string): Promise<ServiceTypeIte
       _id: string;
       role: ServiceTypeItem['role'];
       roleName?: string;
-      statuses: (string | null)[];
+      phases: (string | null)[];
     }>([
       { $match: { Tenant: toObjectId(tenantId), serviceType: { $type: 'string' } } },
       { $sort: { updatedAt: -1 } },
@@ -406,7 +406,7 @@ export const listServiceTypes = async (tenantId: string): Promise<ServiceTypeIte
           _id: '$serviceType',
           role: { $first: '$role' },
           roleName: { $first: '$roleName' },
-          statuses: { $addToSet: '$statusName' },
+          phases: { $addToSet: '$phaseName' },
         },
       },
       { $sort: { _id: 1 } },
@@ -415,6 +415,6 @@ export const listServiceTypes = async (tenantId: string): Promise<ServiceTypeIte
       name: row._id,
       role: row.role,
       ...(row.roleName ? { roleName: row.roleName } : {}),
-      statuses: row.statuses.filter((status): status is string => Boolean(status)).sort(),
+      phases: row.phases.filter((phase): phase is string => Boolean(phase)).sort(),
     }));
   });

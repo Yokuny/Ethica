@@ -32,6 +32,7 @@ export function CasesIndexPage() {
       page: search.page,
       limit: search.limit,
       q: search.q || undefined,
+      phase: search.phase,
       status: search.status,
       courtType: search.courtType,
       role: search.role,

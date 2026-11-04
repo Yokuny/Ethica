@@ -3,7 +3,7 @@ import { Badge } from '@ethica/ui/components/badge';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { Gavel } from 'lucide-react';
-import { CASE_STATUS_VARIANT, caseStatusLabel } from '@/components/case-labels.js';
+import { CASE_STATUS_VARIANT, casePhaseLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
@@ -33,7 +33,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
                 title={caseLabel(legalCase)}
                 badges={
                   <Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>
-                    {caseStatusLabel(legalCase.status, legalCase.statusName)}
+                    {casePhaseLabel(legalCase.phase, legalCase.phaseName)}
                   </Badge>
                 }
                 description={[link && sideLabel(link.side, legalCase.courtType), legalCase.subject]

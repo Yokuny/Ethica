@@ -292,7 +292,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const deadline = await Deadline.findOne({ Case: caseId }).lean();
     expect(deadline).toMatchObject({ status: 'filed', filedDate: today });
     const depois = await operator.as(request(app).get(`/expert-cases/${caseId}`));
-    expect(depois.body.data.status).toBe('report_delivered');
+    expect(depois.body.data.phase).toBe('report_delivered');
     expect(depois.body.data.movements).toEqual([expect.objectContaining({ type: 'report_filed', date: today })]);
 
     const editCompleted = await operator
@@ -426,7 +426,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     });
     expect(opinion.status).toBe(201);
     expect(opinion.body.data.type).toBe('technical_opinion');
-    expect(opinion.body.data.sections[0].html).toContain('Autor');
+    expect(opinion.body.data.sections[0].html).toContain('Requerente');
     expect(opinion.body.data.sections[1].html).toBe('<p>Não há impugnação ao laudo pericial.</p>');
 
     const other = await seedSession((await seedTenant())._id, ['admin']);

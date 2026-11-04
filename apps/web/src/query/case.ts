@@ -1,5 +1,6 @@
 import type {
   CaseContractor,
+  CasePhase,
   CaseRole,
   CaseStatus,
   CourtType,
@@ -23,12 +24,13 @@ export type CaseRecord = {
   processNumber?: string;
   // Service order control number (NLA-01).
   serviceOrder?: string;
-  courtType: CourtType;
+  // Sphere, only in a perícia (AD-178).
+  courtType?: CourtType;
   serviceType?: string;
   role: CaseRole;
-  // Typed role and status and the contractor of the office's own type (AD-176).
+  // Typed role and phase of the office's own type and the contractor (AD-176, AD-178).
   roleName?: string;
-  statusName?: string;
+  phaseName?: string;
   contractor?: CaseContractor;
   court?: string;
   division?: string;
@@ -36,6 +38,7 @@ export type CaseRecord = {
   subject: string;
   // Type and name copy from the party registry (AD-117).
   parties: { partyId: string; side: Side; type: PartyType; name: string; client?: boolean }[];
+  phase: CasePhase;
   status: CaseStatus;
   nominationDate?: string;
   proposedFeesCents?: number;
@@ -59,9 +62,10 @@ export type CasesQueryParams = {
   page?: number;
   limit?: number;
   q?: string;
+  phase?: CasePhase;
   status?: CaseStatus;
   courtType?: CourtType;
-  role?: 'court_expert' | 'technical_assistant' | 'partnership';
+  role?: 'court_expert' | 'technical_assistant';
   serviceType?: string;
   deliveryFrom?: string;
   deliveryTo?: string;
@@ -73,7 +77,7 @@ export type CaseListItem = CaseRecord & { nextDeadline?: { title: string; dueDat
 export type CasesListResult = { items: CaseListItem[]; total: number };
 
 export type CaseDistribution = {
-  status: { key: string; count: number }[];
+  phase: { key: string; count: number }[];
   courtType: { key: string; count: number }[];
 };
 
@@ -86,8 +90,8 @@ export const caseKeys = {
   serviceTypes: () => [...caseKeys.all, 'service-types'] as const,
 };
 
-// Service types created by the office (AD-158), with their typed role and statuses (AD-176).
-export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; statuses: string[] };
+// Service types created by the office (AD-158), with their typed role and phases (AD-176, AD-178).
+export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; phases: string[] };
 
 const toQueryString = (params: Record<string, string | number | undefined>): string => {
   const search = new URLSearchParams();

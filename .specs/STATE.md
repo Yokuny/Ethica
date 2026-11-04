@@ -845,7 +845,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: a conversão perde a fase detalhada (ex.: "Respondendo impugnação" vira só esclarecimentos/impugnação). Supersede, na AD-133, fase e situação; na AD-158, o status do serviço.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/server.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/`, `apps/web/src/components/case-labels.ts`, `apps/web/src/routes/_private/expert-cases/`.
 - **Date**: 2026-11-03
-- **Status**: active
+- **Status**: active (status único superseded by AD-178: fase + status)
 
 ### AD-167
 - **Decision**: Importação de planilha de **qualquer modelo** (RSV-04): cada coluna é ligada a um campo pelo nome (`suggestCsvField`, sinônimos em `packages/contracts/src/schemas/import.schema.ts`, sem diferença de maiúscula, acento e pontuação); a perita confere as colunas numa tela (! no que não foi reconhecido com certeza) e a importação recebe o campo de cada coluna em `?fields=`. Separador `;`, `,` ou tabulação; arquivo do Excel em Windows-1252 é lido no navegador. Valor ilegível fica em branco e vai para Observações com "(!)"; coluna sem campo vai para Observações como "Coluna: valor". Sem objeto, o tipo de serviço vira o objeto. Sem IA (AD-114 segue).
@@ -925,7 +925,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: contratante obrigatório só no formulário (a importação por PDF/planilha cria o tipo sem ele); serviços do tipo próprio já cadastrados mantêm o status da rotina judicial até serem trocados; o prazo "Entrega do serviço" não é protocolado sozinho ao concluir um laudo (só "Entrega do laudo" é); pagamento só no cadastro.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/finance/transaction.service.ts`, `apps/api/src/events/event-types.ts`, `apps/api/src/modules/documents/documents.templates.ts`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
 - **Date**: 2026-11-03
-- **Status**: active
+- **Status**: active (`status: 'custom'`/`statusName` superseded by AD-178: `phase: 'custom'`/`phaseName`)
 
 ### AD-177
 - **Decision**: O cadastro separa **Esfera** de **Tipo de serviço**. `Case.courtType` vira a esfera (`labor`, `civil`, `federal`, `extrajudicial`, obrigatória); sai o `other` da AD-158, convertido para `extrajudicial` na subida (`migrateCases`). O tipo é Perícia (`role: court_expert`), Assistência técnica (`technical_assistant`), **Parceria** (`partnership`, novo papel) ou um tipo do escritório (`serviceType`). Tipo próprio = tem nome de tipo ou é parceria (`isOwnType`), e só ele usa o formulário de contratante, status e atuação abertos (AD-176). Perícia e assistência exigem processo, tribunal e esfera de tribunal. Na edição, `null` apaga: os campos do tipo próprio ao virar judicial e as datas apagadas ("Limpar data" no `DatePicker`). A lista filtra por esfera, tipo (`role` ou `serviceType`) e período de entrega (prazo "Entrega do laudo"/"Entrega do serviço", com aviso na tela). "Serviços em aberto" passa a contar o status digitado.
@@ -933,9 +933,19 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: tipos do escritório antigos ficam com esfera Extrajudicial até alguém trocar; perícia ou assistência não podem ser extrajudiciais; apagar a data da perícia na edição continua sem mover/remover o compromisso (só o cadastro e a troca de data movem).
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/`, `apps/web/src/components/{case-labels.ts,date-picker.tsx}`, `apps/web/src/routes/_private/expert-cases/`.
 - **Date**: 2026-11-03
+- **Status**: active (esfera Extrajudicial, esfera fora da perícia e Parceria superseded by AD-178)
+
+### AD-178
+- **Decision**: O serviço tem **fase** e **status** separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento, auxiliares) é a lista da perita; no tipo do escritório, `phase: 'custom'` + `Case.phaseName` (substitui `status: 'custom'`/`statusName`), além de "Honorários recebidos". `Case.status` vira `active | suspended | canceled`. Encerrado = `canceled` ou fase de perdas ou `fees_received` (`isCaseClosed`); parado só com `active` e fase aberta. Tipo de serviço: Perícia, Assistência técnica, tipos do escritório e Cadastrar novo; **Esfera** (`courtType`, `labor | civil | federal`, agora opcional) só e obrigatória na perícia. Assistência técnica usa o formulário de contratante (`usesContractor`), sem processo obrigatório. Saem a esfera Extrajudicial e o papel `partnership`. Conversão na subida (`migrateCases`): status antigo → fase + status (tabela em `.specs/features/fase-servico/design.md`), Extrajudicial → sem esfera, Parceria → tipo do escritório "Parceria" (`role: other`, `roleName: 'Parceria'`). Data da nomeação obrigatória só no formulário da perícia (`validNominationDate`).
+- **Reason**: pedido da perita (2026-11-03) com a lista de fases do sistema que ela usava; ela escolheu assistência com contratante, fases digitadas no tipo novo, perdas como encerramento e processo, tribunal e data da nomeação obrigatórios.
+- **Trade-off**: serviços antigos suspensos ou recusados perdem a etapa (voltam para "Aguardando agendamento perícia"); assistência antiga perde a esfera na primeira edição; laudo de assistência técnica sem esfera chama as partes de Requerente/Requerido; a importação de PDF/planilha cria sem data da nomeação.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/`, `apps/web/src/components/case-labels.ts`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/routes/_private/@components/cases-phase-chart.tsx`.
+- **Date**: 2026-11-03
 - **Status**: active
 
 ## Handoff
+
+- **Feature**: `fase-servico` — concluída: tipo Perícia/Assistência técnica/Cadastrar novo, esfera só na perícia, fase em grupos e status à parte (AD-178). Conferido no navegador; falta a perita conferir os textos das fases.
 
 - **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.
 

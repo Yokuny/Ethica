@@ -2,43 +2,59 @@ import { z } from 'zod';
 import { calendarDateSchema, wallTimeSchema } from './date.schema.js';
 import { casePartyInputSchema, documentSchema, emailSchema, phoneSchema } from './party.schema.js';
 
-export const JUDICIAL_COURT_TYPES = ['labor', 'civil', 'federal'] as const;
-export type JudicialCourtType = (typeof JUDICIAL_COURT_TYPES)[number];
-// Sphere of the service ("Esfera", AD-177): the three courts or out of court. It no longer says whether
-// the type is the office's own: that is `isOwnType`.
-export const COURTTYPES = [...JUDICIAL_COURT_TYPES, 'extrajudicial'] as const;
+// Sphere of the service ("Esfera"): only a perícia has one (AD-178).
+export const COURTTYPES = ['labor', 'civil', 'federal'] as const;
 export type CourtType = (typeof COURTTYPES)[number];
 
-// `partnership`: "Parceria", a service type with the form of the office's own type (AD-177).
 // `other`: role typed by the office in its own service type (AD-176), named in `Case.roleName`.
-export const CASE_ROLES = ['court_expert', 'technical_assistant', 'partnership', 'other'] as const;
+export const CASE_ROLES = ['court_expert', 'technical_assistant', 'other'] as const;
 export type CaseRole = (typeof CASE_ROLES)[number];
 export const JUDICIAL_CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
 
-// Service status (RSV-03), one list in the order of the expert's routine: it replaces the stage, the
-// detailed phase and the service status of AD-133/AD-158. `suspended` pauses (settlement, withdrawal,
-// removal); `declined` closes without a report.
-export const CASE_STATUS = [
-  'appointed',
-  'fees_proposed',
-  'fees_accepted',
-  'inspection_scheduled',
-  'drafting_report',
-  'report_delivered',
-  'clarifications',
-  'awaiting_payment',
-  'completed',
-  'suspended',
-  'declined',
-  // Status typed by the office in its own service type (AD-176), named in `Case.statusName`; counts as open.
-  'custom',
-] as const;
+// Service phase (AD-178): the expert's routine list, in groups and in order. `custom`: phase typed in the
+// office's own type, named in `Case.phaseName`.
+export const CASE_PHASE_GROUPS = {
+  initial: [
+    'awaiting_scheduling',
+    'awaiting_report_approval',
+    'awaiting_pje_signature',
+    'awaiting_site_info',
+    'awaiting_inspection',
+  ],
+  losses: ['withdrawal', 'removal', 'settlement'],
+  final: [
+    'awaiting_expert_report',
+    'reviewing_report',
+    'report_delivered',
+    'objection_reply_1',
+    'objection_return_1',
+    'objection_reply_2',
+    'objection_return_2',
+    'objection_reply_3',
+    'objection_return_3',
+    'objection_reply_4',
+    'objection_return_4',
+    'awaiting_clarification_approval',
+    'awaiting_clarification_response',
+    'awaiting_new_clarifications',
+    'awaiting_judge',
+  ],
+  receiving: ['evidence_closed', 'fees_received'],
+  auxiliary: ['environmental_assessment', 'supplement_inspection', 'petition'],
+} as const;
+export type CasePhaseGroup = keyof typeof CASE_PHASE_GROUPS;
+export const CASE_PHASES = [...Object.values(CASE_PHASE_GROUPS).flat(), 'custom'] as const;
+export type CasePhase = (typeof CASE_PHASES)[number];
+// The office's own type offers its typed phases and this one of the routine list (AD-178).
+export const OWN_TYPE_PHASES: readonly CasePhase[] = ['fees_received'];
+
+// Service status (AD-178), apart from the phase.
+export const CASE_STATUS = ['active', 'suspended', 'canceled'] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
-// The office's own type offers only these of the routine list (AD-176); the other statuses are typed.
-export const OWN_TYPE_STATUSES: readonly CaseStatus[] = ['completed', 'declined'];
-export const CASE_CLOSED_STATUSES: readonly CaseStatus[] = ['completed', 'declined'];
-// Not counted as stalled: closed or paused on purpose.
-export const CASE_IDLE_STATUSES: readonly CaseStatus[] = [...CASE_CLOSED_STATUSES, 'suspended'];
+// Closed (AD-178): canceled, or a loss phase, or fees received. Suspended is open but not stalled.
+export const CASE_CLOSED_PHASES: readonly CasePhase[] = [...CASE_PHASE_GROUPS.losses, 'fees_received'];
+export const isCaseClosed = (data: { status: CaseStatus; phase: CasePhase }): boolean =>
+  data.status === 'canceled' || CASE_CLOSED_PHASES.includes(data.phase);
 
 // CNJ unique number (Resolution 65/2008): NNNNNNN-DD.AAAA.J.TR.OOOO.
 export const processNumberSchema = z
@@ -70,12 +86,13 @@ const caseFields = z.object({
   processNumber: optional(processNumberSchema),
   // Service order control number (NLA-01): given by the office sequence when missing at registration.
   serviceOrder: optional(z.string().trim().max(30, 'OS inválida')),
-  courtType: z.enum(COURTTYPES, 'esfera é obrigatória'),
+  courtType: z.enum(COURTTYPES, 'esfera é obrigatória').optional(),
   serviceType: z.string().trim().min(1, 'tipo de serviço é obrigatório').max(80, 'tipo de serviço inválido').optional(),
   role: z.enum(CASE_ROLES),
   roleName: nameText('atuação inválida').optional(),
+  phase: z.enum(CASE_PHASES).optional(),
+  phaseName: nameText('fase inválida').optional(),
   status: z.enum(CASE_STATUS).optional(),
-  statusName: nameText('status inválido').optional(),
   contractor: caseContractorSchema.optional(),
   court: optional(z.string().trim().min(1, 'tribunal é obrigatório').max(20, 'tribunal inválido')),
   division: z.string().trim().max(120, 'vara inválida').optional(),
@@ -96,14 +113,14 @@ const caseFields = z.object({
   location: z.string().trim().max(300, 'endereço inválido').optional(),
 });
 
-// The office's own type (AD-158, AD-176) and "Parceria" (AD-177) ask for the contractor instead of the
-// process; "Perícia" and "Assistência técnica" are the judicial types.
-export const isOwnType = (data: { serviceType?: string | null; role?: CaseRole }): boolean =>
-  Boolean(data.serviceType) || data.role === 'partnership';
+// The office's own type (AD-158) carries its name; "Perícia" and "Assistência técnica" do not.
+export const isOwnType = (data: { serviceType?: string | null }): boolean => Boolean(data.serviceType);
+// The contractor form (AD-176) instead of the process: the office's own type and the technical assistance (AD-178).
+export const usesContractor = (data: { serviceType?: string | null; role?: CaseRole }): boolean =>
+  isOwnType(data) || data.role === 'technical_assistant';
 
-// Judicial types need the process number and the court, in one of the three courts, and take none of the
-// own type's fields; own types take an optional process and the typed role and status with their names.
-// Checked on the final result in the service when editing.
+// Perícia needs the sphere, the process number and the court; the other types take the contractor. Only the
+// own type takes a typed role and a typed phase, with their names. Checked on the final result when editing.
 export const validServiceType = (data: {
   courtType?: CourtType;
   serviceType?: string;
@@ -111,26 +128,15 @@ export const validServiceType = (data: {
   court?: string;
   role?: CaseRole;
   roleName?: string;
-  status?: CaseStatus;
-  statusName?: string;
+  phase?: CasePhase;
+  phaseName?: string;
   contractor?: CaseContractor;
 }): boolean => {
-  if (!isOwnType(data)) {
-    return (
-      data.courtType !== 'extrajudicial' &&
-      Boolean(data.processNumber && data.court) &&
-      data.role !== 'other' &&
-      data.status !== 'custom' &&
-      !data.roleName &&
-      !data.statusName &&
-      !data.contractor
-    );
-  }
-  return (
-    !(data.role === 'partnership' && data.serviceType) &&
-    (data.role === 'other') === Boolean(data.roleName) &&
-    (data.status === 'custom') === Boolean(data.statusName)
-  );
+  if ((data.phase === 'custom') !== Boolean(data.phaseName)) return false;
+  if (isOwnType(data)) return (data.role === 'other') === Boolean(data.roleName);
+  if (data.role === 'other' || data.roleName || data.phase === 'custom') return false;
+  if (data.role === 'technical_assistant') return true;
+  return Boolean(data.courtType && data.processNumber && data.court) && !data.contractor;
 };
 
 // How a case is named on screen, in e-mails and in file names: the process number or, in a service
@@ -181,12 +187,12 @@ export const createCaseFieldsSchema = caseFields
   })
   .strict();
 export const createCaseSchema = createCaseFieldsSchema
-  .refine((data) => !isOwnType(data) || validServiceType(data), {
+  .refine((data) => !usesContractor(data) || validServiceType(data), {
     message: 'tipo de serviço inválido',
     path: ['serviceType'],
   })
-  .refine((data) => isOwnType(data) || validServiceType(data), {
-    message: 'número do processo e tribunal são obrigatórios',
+  .refine((data) => usesContractor(data) || validServiceType(data), {
+    message: 'esfera, número do processo e tribunal são obrigatórios',
     path: ['processNumber'],
   })
   .refine((data) => !data.payment || data.payment.amountCents <= (data.fixedFeesCents ?? 0), {
@@ -194,13 +200,18 @@ export const createCaseSchema = createCaseFieldsSchema
     path: ['payment', 'amountCents'],
   });
 export type CreateCase = z.infer<typeof createCaseSchema>;
-// The registration form asks for the contractor in the office's own type (AD-176); imports (PDF, CSV)
-// create the type without one, so the API accepts it missing.
+// The registration form asks for the contractor (AD-176) and, in a perícia, the nomination date (AD-178);
+// imports (PDF, CSV) may come without them, so the API accepts them missing.
 export const validContractor = (data: {
-  serviceType?: string;
+  serviceType?: string | null;
   role?: CaseRole;
   contractor?: CaseContractor;
-}): boolean => !isOwnType(data) || Boolean(data.contractor?.name);
+}): boolean => !usesContractor(data) || Boolean(data.contractor?.name);
+export const validNominationDate = (data: {
+  serviceType?: string | null;
+  role?: CaseRole;
+  nominationDate?: string | null;
+}): boolean => usesContractor(data) || Boolean(data.nominationDate);
 
 // PATCH accepts any subset of the fields + the fee fixed by the court or, in an assistant case, the
 // contracted one (AD-135), and the perícia date, which moves the appointment on the agenda (AEV-04).
@@ -213,7 +224,8 @@ export const updateCaseSchema = caseFields
     inspection: caseInspectionSchema.optional(),
     serviceType: clearable(caseFields.shape.serviceType.unwrap()),
     roleName: clearable(caseFields.shape.roleName.unwrap()),
-    statusName: clearable(caseFields.shape.statusName.unwrap()),
+    courtType: clearable(caseFields.shape.courtType.unwrap()),
+    phaseName: clearable(caseFields.shape.phaseName.unwrap()),
     contractor: clearable(caseContractorSchema),
     nominationDate: clearable(calendarDateSchema),
     docketingDate: clearable(calendarDateSchema),

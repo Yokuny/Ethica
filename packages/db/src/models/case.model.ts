@@ -1,6 +1,8 @@
 import {
+  CASE_PHASES,
   CASE_ROLES,
   CASE_STATUS,
+  type CasePhase,
   type CaseRole,
   type CaseStatus,
   COURTTYPES,
@@ -48,18 +50,20 @@ export interface CaseDocument {
   processNumber?: string;
   // Service order control number (NLA-01).
   serviceOrder?: string;
-  courtType: CourtType;
+  // Sphere, only in a perícia (AD-178).
+  courtType?: CourtType;
   serviceType?: string;
   role: CaseRole;
-  // Typed role and status of the office's own type (AD-176).
+  // Typed role and phase of the office's own type (AD-176, AD-178).
   roleName?: string;
-  statusName?: string;
+  phaseName?: string;
   contractor?: CaseContractorDocument;
   court?: string;
   division?: string;
   district?: string;
   subject: string;
   parties: CasePartyDocument[];
+  phase: CasePhase;
   status: CaseStatus;
   // Calendar dates `YYYY-MM-DD` in the display time zone (AD-036, AD-103), not instants.
   nominationDate?: string;
@@ -86,11 +90,11 @@ const caseSchema = new Schema<CaseDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     processNumber: { type: String, trim: true },
     serviceOrder: { type: String, trim: true },
-    courtType: { type: String, enum: COURTTYPES, required: true },
+    courtType: { type: String, enum: COURTTYPES },
     serviceType: { type: String, trim: true },
     role: { type: String, enum: CASE_ROLES, required: true },
     roleName: { type: String, trim: true },
-    statusName: { type: String, trim: true },
+    phaseName: { type: String, trim: true },
     contractor: {
       type: new Schema<CaseContractorDocument>(
         {
@@ -122,7 +126,8 @@ const caseSchema = new Schema<CaseDocument>(
       ],
       default: [],
     },
-    status: { type: String, enum: CASE_STATUS, default: 'appointed', required: true },
+    phase: { type: String, enum: CASE_PHASES, default: 'awaiting_scheduling', required: true },
+    status: { type: String, enum: CASE_STATUS, default: 'active', required: true },
     nominationDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     proposedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     fixedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
@@ -163,6 +168,7 @@ caseSchema.index(
 // Service types created by the office (AD-158).
 caseSchema.index({ Tenant: 1, serviceType: 1 }, { partialFilterExpression: { serviceType: { $type: 'string' } } });
 caseSchema.index({ Tenant: 1, status: 1 });
+caseSchema.index({ Tenant: 1, phase: 1 });
 caseSchema.index({ Tenant: 1, createdAt: -1 });
 // Cases of a party (IMP-03) and name copy on rename.
 caseSchema.index({ Tenant: 1, 'parties.Party': 1 });
@@ -170,25 +176,41 @@ caseSchema.index({ Tenant: 1, 'parties.Party': 1 });
 export const Case = mongoose.model<CaseDocument>('Case', caseSchema);
 
 // Data conversions on API boot; idempotent: once converted nothing matches.
-// Old classification (stage + detailed phase + service status, AD-133/AD-158) → the single status (RSV-03);
-// the office's own type marked by `courtType: 'other'` → sphere "Extrajudicial" (AD-177).
+// The routine status (RSV-03, and the older AD-133 values) → phase + status (AD-178); "Extrajudicial" →
+// no sphere; "Parceria" → the office's own type of that name.
+const PHASE_OF_STATUS: Record<string, CasePhase> = {
+  appointed: 'awaiting_scheduling',
+  fees_proposed: 'awaiting_scheduling',
+  fees_accepted: 'awaiting_scheduling',
+  accepted: 'awaiting_scheduling',
+  inspection_scheduled: 'awaiting_inspection',
+  inspection: 'awaiting_inspection',
+  drafting_report: 'awaiting_expert_report',
+  report_delivered: 'report_delivered',
+  clarifications: 'objection_reply_1',
+  awaiting_payment: 'evidence_closed',
+  completed: 'fees_received',
+  declined: 'awaiting_scheduling',
+};
 export const migrateCases = async (): Promise<void> => {
   const cases = Case.collection;
-  await cases.updateMany({ courtType: 'other' }, { $set: { courtType: 'extrajudicial' } });
-  const open = { status: { $nin: ['completed', 'declined'] } };
+  for (const [status, phase] of Object.entries(PHASE_OF_STATUS)) {
+    await cases.updateMany({ status }, { $set: { phase, status: status === 'declined' ? 'canceled' : 'active' } });
+  }
   await cases.updateMany(
-    { ...open, phase: { $in: ['withdrawal', 'removal', 'settlement'] } },
-    { $set: { status: 'suspended' } },
+    { status: 'suspended', phase: { $nin: [...CASE_PHASES] } },
+    { $set: { phase: 'awaiting_scheduling' } },
   );
-  await cases.updateMany({ ...open, serviceStatus: 'canceled' }, { $set: { status: 'declined' } });
+  await cases.updateMany({ status: 'custom' }, [
+    { $set: { phase: 'custom', phaseName: '$statusName', status: 'active' } },
+  ]);
   await cases.updateMany(
-    { status: 'appointed', serviceStatus: 'proposal_sent' },
-    { $set: { status: 'fees_proposed' } },
+    { $or: [{ statusName: { $exists: true } }, { serviceStatus: { $exists: true } }] },
+    { $unset: { statusName: '', serviceStatus: '' } },
   );
-  await cases.updateMany({ status: 'accepted' }, { $set: { status: 'fees_accepted' } });
-  await cases.updateMany({ status: 'inspection' }, { $set: { status: 'inspection_scheduled' } });
+  await cases.updateMany({ courtType: { $in: ['extrajudicial', 'other'] } }, { $unset: { courtType: '' } });
   await cases.updateMany(
-    { $or: [{ phase: { $exists: true } }, { serviceStatus: { $exists: true } }] },
-    { $unset: { phase: '', serviceStatus: '' } },
+    { role: 'partnership' },
+    { $set: { role: 'other', roleName: 'Parceria', serviceType: 'Parceria' } },
   );
 };

@@ -44,6 +44,27 @@
       "doc": "features/esfera-servico/feature.md"
     },
     {
+      "slug": "fase-servico",
+      "feature": "Fase e status do serviço",
+      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
+      "data": "2026-11-03",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-178"
+      ],
+      "spec": [
+        ".specs/features/fase-servico"
+      ],
+      "planos": [],
+      "doc": "features/fase-servico/feature.md"
+    },
+    {
       "slug": "novo-laudo",
       "feature": "Novo laudo",
       "descricao": "OS por serviço, responsável técnico do laudo, modelo trabalhista da perita, editor em rolagem com itens novos e layout do laudo",
@@ -1245,7 +1266,7 @@
       "id": "AD-166",
       "decisao": "O serviço tem um status só (`Case.status`, `CASE_STATUS`): nomeado – aguardando aceite, proposta de honorários enviada, honorários aceitos –",
       "data": "2026-11-03",
-      "status": "active"
+      "status": "active (status único superseded by AD-178: fase + status)"
     },
     {
       "id": "AD-167",
@@ -1305,11 +1326,17 @@
       "id": "AD-176",
       "decisao": "No tipo de serviço do escritório (`courtType: 'other'`, AD-158) a atuação e o status podem ser digitados: `role: 'other'` + `Case.roleName`",
       "data": "2026-11-03",
-      "status": "active"
+      "status": "active (`status: 'custom'`/`statusName` superseded by AD-178: `phase: 'custom'`/`phaseName`)"
     },
     {
       "id": "AD-177",
       "decisao": "O cadastro separa Esfera de Tipo de serviço. `Case.courtType` vira a esfera (`labor`, `civil`, `federal`, `extrajudicial`, obrigatória); sai",
+      "data": "2026-11-03",
+      "status": "active (esfera Extrajudicial, esfera fora da perícia e Parceria superseded by AD-178)"
+    },
+    {
+      "id": "AD-178",
+      "decisao": "O serviço tem fase e status separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento",
       "data": "2026-11-03",
       "status": "active"
     }

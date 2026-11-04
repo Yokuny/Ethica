@@ -1,4 +1,12 @@
-import { caseLabel, REPORT_MEDIA_LIMIT, REPORT_VARIABLES, type ReportLayout, sectionFamily } from '@ethica/contracts';
+import {
+  CASE_PHASE_GROUPS,
+  type CasePhase,
+  caseLabel,
+  REPORT_MEDIA_LIMIT,
+  REPORT_VARIABLES,
+  type ReportLayout,
+  sectionFamily,
+} from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -46,13 +54,11 @@ export class ReportNotFoundError extends KeyedError {}
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
-// Statuses before delivery: completing with delivery moves to `report_delivered` (AD-126, RSV-03).
-const BEFORE_DELIVERY = new Set([
-  'appointed',
-  'fees_proposed',
-  'fees_accepted',
-  'inspection_scheduled',
-  'drafting_report',
+// Phases before delivery: completing with delivery moves to `report_delivered` (AD-126, AD-178).
+const BEFORE_DELIVERY = new Set<CasePhase>([
+  ...CASE_PHASE_GROUPS.initial,
+  'awaiting_expert_report',
+  'reviewing_report',
 ]);
 
 const withNumber = async <T extends { caseId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
@@ -449,8 +455,8 @@ export const completeReport = async (
       date: dateInDisplayTz(ctx.now),
       notes: `${report.title} concluído no Ethica.`,
     });
-    if (BEFORE_DELIVERY.has(legalCase.status)) {
-      await caseService.updateCase(ctx.tenantId, legalCase.id, { status: 'report_delivered' });
+    if (BEFORE_DELIVERY.has(legalCase.phase)) {
+      await caseService.updateCase(ctx.tenantId, legalCase.id, { phase: 'report_delivered' });
     }
   }
   return getReport(ctx.tenantId, id);

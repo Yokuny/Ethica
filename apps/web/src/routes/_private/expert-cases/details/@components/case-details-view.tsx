@@ -1,8 +1,9 @@
-import { CASE_IDLE_STATUSES, caseLabel, isOwnType } from '@ethica/contracts';
+import { caseLabel, isCaseClosed, usesContractor } from '@ethica/contracts';
 import { Building2, FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
 import {
   CASE_STATUS_VARIANT,
+  casePhaseLabel,
   caseRoleLabel,
   caseStatusLabel,
   courtTypeLabel,
@@ -24,7 +25,7 @@ const money = (value?: number) => (value ? formatMoney(value) : '-');
 // fees, and the read groups (court, parties, notes). The office's own type (AD-176) shows the contractor
 // in place of the court and the parties.
 export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseRecord; canSeeFinance: boolean }) {
-  const own = isOwnType(legalCase);
+  const own = usesContractor(legalCase);
   const client = legalCase.contractor?.name ?? legalCase.parties.find((party) => party.client)?.name;
   const { contractor } = legalCase;
   return (
@@ -38,21 +39,19 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
         />
         <RecordStatus
           variant={CASE_STATUS_VARIANT[legalCase.status]}
-          label={caseStatusLabel(legalCase.status, legalCase.statusName)}
-          pulse={!CASE_IDLE_STATUSES.includes(legalCase.status)}
+          label={caseStatusLabel(legalCase.status)}
+          pulse={legalCase.status === 'active' && !isCaseClosed(legalCase)}
         />
       </RecordHeader>
       <RecordStats>
         {legalCase.serviceOrder && <RecordStat label={t('service_order')} value={legalCase.serviceOrder} />}
+        <RecordStat label={t('service_phase')} value={casePhaseLabel(legalCase.phase, legalCase.phaseName)} />
         <RecordStat label={own ? t('contracting_date') : t('appointment_date')} value={day(legalCase.nominationDate)} />
         {client && <RecordStat label={t('contracting_party')} value={client} />}
         {/* Amounts only for whoever sees finance (AD-137). */}
         {canSeeFinance && !own && <RecordStat label={t('proposed_fees')} value={money(legalCase.proposedFeesCents)} />}
         {canSeeFinance && (
-          <RecordStat
-            label={own || legalCase.role === 'technical_assistant' ? t('contracted_fees') : t('fixed_fees')}
-            value={money(legalCase.fixedFeesCents)}
-          />
+          <RecordStat label={own ? t('contracted_fees') : t('fixed_fees')} value={money(legalCase.fixedFeesCents)} />
         )}
       </RecordStats>
       <ProductSpecs
@@ -64,8 +63,6 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
                 icon: <Building2 />,
                 specs: [
                   { label: t('service_type'), value: serviceTypeLabel(legalCase) },
-                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
-                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
                   { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
                   { label: t('name_or_company_name'), value: contractor?.name || '-' },
                   { label: t('cpf_cnpj'), value: contractor?.document || '-' },
@@ -80,8 +77,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
                 icon: <Scale />,
                 specs: [
                   { label: t('service_type'), value: serviceTypeLabel(legalCase) },
-                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
-                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
+                  { label: t('sphere'), value: legalCase.courtType ? courtTypeLabel(legalCase.courtType) : '-' },
                   { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
                   { label: t('court'), value: legalCase.court || '-' },
                   { label: t('court_division'), value: legalCase.division || '-' },

@@ -6,7 +6,8 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | --- | --- | --- |
 | Serviço (antes "Perícia" na tela) | `Case` (`case` module) | Um trabalho do perito: processo judicial em que atua como perito ou assistente técnico, ou serviço de tipo criado pelo escritório (AD-158). O processo judicial é identificado pelo número CNJ, único por tenant; o serviço do escritório pode não ter número. |
 | Tipo de serviço | `courtType` + `role`, ou `serviceType` com `courtType: 'other'` | Perícia ou assistência técnica civil, trabalhista ou federal, ou um tipo com nome criado pelo escritório (AD-158). |
-| Status do serviço | `status` do `Case` (`CASE_STATUS`) | Lista única na ordem da rotina: nomeado – aguardando aceite → proposta de honorários enviada → honorários aceitos → perícia agendada → perícia realizada – laudo em elaboração → laudo entregue → esclarecimentos/impugnação → aguardando pagamento → concluído; suspenso pausa e recusado/cancelado encerra (AD-166). Substitui etapa, fase e o status antigo. |
+| Fase do serviço | `phase` do `Case` (`CASE_PHASES`, grupos em `CASE_PHASE_GROUPS`) | Lista da perita em grupos: inicial, de perdas, final, de recebimento e auxiliares; no tipo do escritório, fase digitada (`custom` + `phaseName`) ou "Honorários recebidos" (AD-178). |
+| Status do serviço | `status` do `Case` (`CASE_STATUS`) | Ativo, Suspenso ou Cancelado (AD-178). Encerrado = cancelado, fase de perdas ou honorários recebidos. |
 | Honorário líquido | — (calculado na tela) | Honorário fixado ou contratado (sem ele, o proposto) menos as despesas não canceladas do serviço (AD-159). |
 | Número do processo (CNJ) | `processNumber` | Formato `NNNNNNN-DD.AAAA.J.TR.OOOO` (Resolução CNJ 65/2008). |
 | Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`); `other` no tipo de serviço do escritório (AD-158). |

@@ -86,20 +86,26 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     expect((await operator.as(request(app).post('/expert-cases')).send(CASE)).status).toBe(201);
   });
 
-  it('status único: cadastro e edição, filtro da listagem e valor fora da lista recusado (RSV-03)', async () => {
+  it('fase e status: cadastro e edição, encerrado nas perdas e valor fora da lista recusado (AD-178)', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['admin']);
-    const { body } = await as(request(app).post('/expert-cases')).send({ ...CASE, status: 'fees_proposed' });
+    const { body } = await as(request(app).post('/expert-cases')).send({ ...CASE, phase: 'awaiting_site_info' });
     const id = body.data.id as string;
-    expect(body.data.status).toBe('fees_proposed');
+    expect(body.data).toMatchObject({ phase: 'awaiting_site_info', status: 'active' });
+    const open = async () =>
+      (await as(request(app).get('/expert-cases/stats'))).body.data.groups.find(
+        (group: { key: string }) => group.key === 'open',
+      )?.count;
+    expect(await open()).toBe(1);
 
-    const suspended = await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'suspended' });
-    expect(suspended.body.data.status).toBe('suspended');
-    const listed = await as(request(app).get('/expert-cases?status=suspended'));
-    expect(listed.body.data.items.map((item: { id: string }) => item.id)).toEqual([id]);
+    const settled = await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'settlement' });
+    expect(settled.body.data.phase).toBe('settlement');
+    expect(await open()).toBe(0);
+    await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'awaiting_inspection', status: 'canceled' });
+    expect(await open()).toBe(0);
 
-    expect((await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'settlement' })).status).toBe(400);
-    expect((await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'accepted' })).status).toBe(400);
+    expect((await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'appointed' })).status).toBe(400);
+    expect((await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'accepted' })).status).toBe(400);
   });
 
   it('honorário contratado do assistente técnico vira receita com o contratante (AD-135)', async () => {
@@ -107,6 +113,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     const { as } = await seedSession(tenant._id, ['admin']);
     const { body } = await as(request(app).post('/expert-cases')).send({
       ...CASE,
+      courtType: undefined,
       role: 'technical_assistant',
       parties: [
         { side: 'plaintiff', type: 'party', name: 'Maria Reclamante', client: true },

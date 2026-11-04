@@ -36,7 +36,8 @@ const legalCase: CaseRecord = {
   subject: 'Insalubridade',
   parties: [],
   movements: [],
-  status: 'appointed',
+  phase: 'awaiting_scheduling',
+  status: 'active',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -176,7 +177,7 @@ describe('case.service', () => {
     vi.mocked(caseRepository.findById).mockResolvedValue({ ...legalCase, fixedFeesCents: 100_000 });
     vi.mocked(caseRepository.updateCase).mockResolvedValue({ ...legalCase, fixedFeesCents: 100_000 });
 
-    await updateCase('t1', 'p1', { status: 'fees_accepted' });
+    await updateCase('t1', 'p1', { phase: 'awaiting_inspection' });
     expect(emit).not.toHaveBeenCalled();
 
     vi.mocked(caseRepository.updateCase).mockResolvedValue({ ...legalCase, fixedFeesCents: 250_000 });
@@ -193,7 +194,7 @@ describe('case.service', () => {
   it('updatePericia de id inexistente (ou de outro tenant) é PericiaNotFoundError', async () => {
     vi.mocked(caseRepository.findById).mockResolvedValue(null);
 
-    await expect(updateCase('t1', 'nope', { status: 'fees_accepted' })).rejects.toBeInstanceOf(CaseNotFoundError);
+    await expect(updateCase('t1', 'nope', { phase: 'awaiting_inspection' })).rejects.toBeInstanceOf(CaseNotFoundError);
   });
 });
 

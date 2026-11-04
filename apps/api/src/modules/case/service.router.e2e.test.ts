@@ -61,14 +61,13 @@ const JUDICIAL = {
 } as const;
 
 const PRIVATE_SERVICE = {
-  courtType: 'extrajudicial',
   serviceType: 'Avaliação de imóvel',
   role: 'technical_assistant',
   subject: 'Avaliação do apartamento da Rua A',
   contractor: { name: 'Construtora Alfa' },
 } as const;
 
-describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/06)', () => {
+describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/03/05/06, AD-178)', () => {
   beforeAll(async () => {
     await connect(process.env.MONGODB_URI as string);
   });
@@ -87,44 +86,59 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
     await disconnect();
   });
 
-  it('tipo novo dispensa número e tribunal e aparece na lista de tipos; tipo judicial exige (AD-158)', async () => {
+  it('perícia exige esfera, processo e tribunal; assistência e tipo novo não; tipos do escritório listados', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
+    const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
 
-    const first = await admin
-      .as(request(app).post('/expert-cases'))
-      .send({ ...PRIVATE_SERVICE, status: 'fees_proposed' });
+    const first = await post({ ...PRIVATE_SERVICE, phase: 'awaiting_inspection' });
     expect(first.status).toBe(201);
-    expect(first.body.data).toMatchObject({ serviceType: 'Avaliação de imóvel', status: 'fees_proposed' });
+    expect(first.body.data).toMatchObject({
+      serviceType: 'Avaliação de imóvel',
+      phase: 'awaiting_inspection',
+      status: 'active',
+    });
     expect(first.body.data.processNumber).toBeUndefined();
     // Two services without a number in the same office.
-    expect((await admin.as(request(app).post('/expert-cases')).send(PRIVATE_SERVICE)).status).toBe(201);
+    expect((await post(PRIVATE_SERVICE)).status).toBe(201);
 
     const { processNumber: _, ...withoutNumber } = JUDICIAL;
-    expect((await admin.as(request(app).post('/expert-cases')).send(withoutNumber)).status).toBe(400);
-    // A judicial type is not "Extrajudicial" (AD-177).
-    expect(
-      (await admin.as(request(app).post('/expert-cases')).send({ ...JUDICIAL, courtType: 'extrajudicial' })).status,
-    ).toBe(400);
+    const { courtType: __, ...withoutSphere } = JUDICIAL;
+    expect((await post(withoutNumber)).status).toBe(400);
+    expect((await post(withoutSphere)).status).toBe(400);
+    // Technical assistance takes the contractor, without sphere or process.
+    const assistance = await post({
+      role: 'technical_assistant',
+      subject: 'Assistência ao reclamante',
+      contractor: { name: 'Maria' },
+    });
+    expect(assistance.status).toBe(201);
+    expect(assistance.body.data.courtType).toBeUndefined();
 
     const types = await admin.as(request(app).get('/expert-cases/service-types'));
-    expect(types.body.data).toEqual([{ name: 'Avaliação de imóvel', role: 'technical_assistant', statuses: [] }]);
+    expect(types.body.data).toEqual([{ name: 'Avaliação de imóvel', role: 'technical_assistant', phases: [] }]);
 
-    // Becoming judicial (the type name cleared with null) drops the own type's fields and requires the process.
+    // Becoming a perícia (the type name cleared with null) drops the own type's fields and requires the process.
     const id = first.body.data.id;
-    expect(
-      (await admin.as(request(app).patch(`/expert-cases/${id}`)).send({ serviceType: null, courtType: 'civil' }))
-        .status,
-    ).toBe(422);
-    const judicial = await admin
-      .as(request(app).patch(`/expert-cases/${id}`))
-      .send({ serviceType: null, courtType: 'civil', processNumber: '0009999-11.2026.8.26.0100', court: 'TJSP' });
+    const patch = (body: object) => admin.as(request(app).patch(`/expert-cases/${id}`)).send(body);
+    expect((await patch({ serviceType: null, role: 'court_expert', courtType: 'civil' })).status).toBe(422);
+    const judicial = await patch({
+      serviceType: null,
+      role: 'court_expert',
+      courtType: 'civil',
+      processNumber: '0009999-11.2026.8.26.0100',
+      court: 'TJSP',
+    });
     expect(judicial.status).toBe(200);
     expect(judicial.body.data.serviceType).toBeUndefined();
     expect(judicial.body.data.contractor).toBeUndefined();
+    // Back to assistance: the sphere goes away.
+    const back = await patch({ role: 'technical_assistant', contractor: { name: 'Maria' } });
+    expect(back.status).toBe(200);
+    expect(back.body.data.courtType).toBeUndefined();
   });
 
-  it('tipo próprio: contratante, atuação e status digitados, entrega e pagamento no cadastro (AD-176)', async () => {
+  it('tipo próprio: contratante, atuação e fase digitadas, entrega e pagamento no cadastro (AD-176)', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const operator = await seedSession(tenant._id, ['operator']);
@@ -132,8 +146,8 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
       ...PRIVATE_SERVICE,
       role: 'other',
       roleName: 'Consultoria',
-      status: 'custom',
-      statusName: 'Aguardando documentos',
+      phase: 'custom',
+      phaseName: 'Aguardando documentos',
       contractor: { name: 'Construtora Alfa', document: '11.222.333/0001-81', address: 'Rua A, 10' },
       nominationDate: '2026-11-01',
       reportDeadline: '2026-12-01',
@@ -141,9 +155,9 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
       payment: { amountCents: 100_000, date: '2026-11-05' },
     };
 
-    // The typed role or status needs its name; a judicial type takes neither.
+    // The typed role or phase needs its name; perícia and assistance take neither.
     expect((await admin.as(request(app).post('/expert-cases')).send({ ...own, roleName: undefined })).status).toBe(400);
-    expect((await admin.as(request(app).post('/expert-cases')).send({ ...JUDICIAL, status: 'custom' })).status).toBe(
+    expect((await admin.as(request(app).post('/expert-cases')).send({ ...JUDICIAL, phase: 'custom' })).status).toBe(
       400,
     );
     expect(
@@ -160,7 +174,7 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
     expect(created.status).toBe(201);
     expect(created.body.data).toMatchObject({
       roleName: 'Consultoria',
-      statusName: 'Aguardando documentos',
+      phaseName: 'Aguardando documentos',
       contractor: { name: 'Construtora Alfa', document: '11222333000181', address: 'Rua A, 10' },
     });
     const id = created.body.data.id;
@@ -178,51 +192,52 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
 
     const types = await admin.as(request(app).get('/expert-cases/service-types'));
     expect(types.body.data).toEqual([
-      { name: 'Avaliação de imóvel', role: 'other', roleName: 'Consultoria', statuses: ['Aguardando documentos'] },
+      { name: 'Avaliação de imóvel', role: 'other', roleName: 'Consultoria', phases: ['Aguardando documentos'] },
     ]);
 
-    // Completed closes it and drops the typed status.
-    const completed = await admin.as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'completed' });
-    expect(completed.status).toBe(200);
-    expect(completed.body.data).toMatchObject({ status: 'completed' });
-    expect(completed.body.data.statusName).toBeUndefined();
+    // "Honorários recebidos" closes it and drops the typed phase.
+    const done = await admin.as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'fees_received' });
+    expect(done.status).toBe(200);
+    expect(done.body.data).toMatchObject({ phase: 'fees_received' });
+    expect(done.body.data.phaseName).toBeUndefined();
   });
 
-  it('Parceria, filtros por esfera, tipo e período de entrega e data apagada (AD-177)', async () => {
+  it('filtros por fase, status, esfera, tipo e período de entrega e data apagada (AD-177, AD-178)', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
 
-    const partnership = await post({
-      courtType: 'labor',
-      role: 'partnership',
-      subject: 'Parceria com o perito X',
+    const assistance = await post({
+      role: 'technical_assistant',
+      subject: 'Assistência ao perito X',
       contractor: { name: 'Perito X' },
       nominationDate: '2026-11-01',
       reportDeadline: '2026-12-10',
+      status: 'suspended',
     });
-    expect(partnership.status).toBe(201);
-    // Parceria is a type of its own, not a name.
-    expect((await post({ ...PRIVATE_SERVICE, role: 'partnership' })).status).toBe(400);
-    const judicial = await post({ ...JUDICIAL, reportDeadline: '2027-01-20' });
+    expect(assistance.status).toBe(201);
+    const judicial = await post({ ...JUDICIAL, reportDeadline: '2027-01-20', phase: 'awaiting_judge' });
     const own = await post(PRIVATE_SERVICE);
     expect([judicial.status, own.status]).toEqual([201, 201]);
-    expect((await Deadline.findOne({ Case: partnership.body.data.id }).lean())?.title).toBe('Entrega do serviço');
+    expect((await Deadline.findOne({ Case: assistance.body.data.id }).lean())?.title).toBe('Entrega do laudo');
 
     const ids = async (query: string) =>
       ((await admin.as(request(app).get(`/expert-cases?${query}`))).body.data.items as { id: string }[]).map(
         (item) => item.id,
       );
-    expect(await ids('role=partnership')).toEqual([partnership.body.data.id]);
+    expect(await ids('role=technical_assistant')).toEqual([assistance.body.data.id]);
     expect(await ids('role=court_expert')).toEqual([judicial.body.data.id]);
     expect(await ids(`serviceType=${encodeURIComponent(PRIVATE_SERVICE.serviceType)}`)).toEqual([own.body.data.id]);
-    expect(await ids('courtType=extrajudicial')).toEqual([own.body.data.id]);
-    expect(await ids('deliveryFrom=2026-12-01&deliveryTo=2026-12-31')).toEqual([partnership.body.data.id]);
+    expect(await ids('courtType=labor')).toEqual([judicial.body.data.id]);
+    expect(await ids('phase=awaiting_judge')).toEqual([judicial.body.data.id]);
+    expect(await ids('status=suspended')).toEqual([assistance.body.data.id]);
+    expect(await ids('deliveryFrom=2026-12-01&deliveryTo=2026-12-31')).toEqual([assistance.body.data.id]);
     expect(await ids('deliveryFrom=2027-01-01')).toEqual([judicial.body.data.id]);
+    expect((await admin.as(request(app).get('/expert-cases?status=custom'))).status).toBe(400);
 
     // A date erased on screen is cleared with null.
     const cleared = await admin
-      .as(request(app).patch(`/expert-cases/${partnership.body.data.id}`))
+      .as(request(app).patch(`/expert-cases/${assistance.body.data.id}`))
       .send({ nominationDate: null });
     expect(cleared.status).toBe(200);
     expect(cleared.body.data.nominationDate).toBeUndefined();

@@ -142,10 +142,10 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
   const cells = (values: Record<string, string>) =>
     Object.entries(values).map(([header, value]) => ({ header, value, field: suggestCsvField(header).field }));
 
-  it('linha vira cadastro com tipo, órgão pelo número, status, datas, dinheiro, partes e observações', () => {
+  it('linha vira cadastro com tipo, órgão pelo número, fase, datas, dinheiro, partes e observações', () => {
     const result = rowToCase(
       cells({
-        'Tipo de serviço': 'Assistência técnica trabalhista',
+        'Tipo de serviço': 'Perícia trabalhista',
         Processo: '00012345620265020001',
         Objeto: 'Insalubridade',
         Situação: 'Laudo entregue',
@@ -165,8 +165,8 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
         processNumber: '0001234-56.2026.5.02.0001',
         courtType: 'labor',
         court: 'TRT2',
-        role: 'technical_assistant',
-        status: 'report_delivered',
+        role: 'court_expert',
+        phase: 'report_delivered',
         nominationDate: '2026-10-15',
         proposedFeesCents: 350_050,
         parties: [
@@ -180,10 +180,15 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
     expect(result).not.toHaveProperty('data.reportDeadline');
   });
 
+  it('assistência técnica não tem esfera nem exige processo (AD-178)', () => {
+    const result = rowToCase(cells({ 'Tipo de serviço': 'Assistência técnica', Objeto: 'x', Situação: 'Suspenso' }));
+    expect(result).toEqual({ data: expect.objectContaining({ role: 'technical_assistant', status: 'suspended' }) });
+    expect(result).not.toHaveProperty('data.courtType');
+  });
+
   it('tipo do escritório sem processo usa o tipo como objeto', () => {
     expect(rowToCase(cells({ 'Tipo de serviço': 'Avaliação de imóvel', Status: 'xyz' }))).toEqual({
       data: expect.objectContaining({
-        courtType: 'extrajudicial',
         serviceType: 'Avaliação de imóvel',
         subject: 'Avaliação de imóvel',
         notes: 'Status: xyz (!)',

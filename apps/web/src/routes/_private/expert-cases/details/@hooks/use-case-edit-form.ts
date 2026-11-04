@@ -1,16 +1,18 @@
-import { type UpdateCase, updateCaseSchema } from '@ethica/contracts';
+import { type UpdateCase, updateCaseSchema, validNominationDate } from '@ethica/contracts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
+import { t } from '@/lib/helpers/translate.helper.js';
 import { updateCaseMutation } from '@/query/case.js';
 import type { CaseFormValues } from '../../@interface/cases.interface.js';
 import type { CaseEditFormProps } from '../@interface/case-details.interface.js';
 
 const CLEARABLE = [
+  'courtType',
   'serviceType',
   'roleName',
-  'statusName',
+  'phaseName',
   'contractor',
   'nominationDate',
   'docketingDate',
@@ -24,7 +26,12 @@ export function useCaseEditForm({ legalCase, onSaved }: Pick<CaseEditFormProps, 
   const queryClient = useQueryClient();
   const { id: _id, createdAt: _c, updatedAt: _u, opportunityId: _o, movements: _m, ...defaultValues } = legalCase;
   const form = useForm<CaseFormValues>({
-    resolver: zodResolver(updateCaseSchema) as unknown as Resolver<CaseFormValues>,
+    resolver: zodResolver(
+      updateCaseSchema.refine(validNominationDate, {
+        message: t('nomination_date_required'),
+        path: ['nominationDate'],
+      }),
+    ) as unknown as Resolver<CaseFormValues>,
     defaultValues,
   });
   const mutation = useMutation(updateCaseMutation(queryClient));

@@ -17,7 +17,7 @@ import { preferencesQuery } from '@/query/preferences.js';
 import { can } from '@/query/session.js';
 import { financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CasesCourtTypeChart } from './@components/cases-court-type-chart.js';
-import { CasesStatusChart } from './@components/cases-status-chart.js';
+import { CasesPhaseChart } from './@components/cases-phase-chart.js';
 import { HomeCustomize } from './@components/home-customize.js';
 import { HomeOverview } from './@components/home-overview.js';
 import { HomeSections } from './@components/home-sections.js';
@@ -103,7 +103,7 @@ export function PrivateIndexPage() {
                 {distribution.isLoading ? (
                   <DefaultLoading />
                 ) : (
-                  <CasesStatusChart groups={distribution.data?.status ?? []} />
+                  <CasesPhaseChart groups={distribution.data?.phase ?? []} />
                 )}
               </Panel>
             )}

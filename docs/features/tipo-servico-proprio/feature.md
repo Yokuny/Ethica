@@ -68,6 +68,7 @@ Não desfazer sem ler: atuação e status digitados são `role: 'other'` + `role
 
 ## Histórico
 
+- 2026-11-03 — Revisto pela `fase-servico` (AD-178): o status digitado virou fase digitada (`phase: 'custom'` + `phaseName`) e Concluído/Cancelado viraram "Honorários recebidos" e o status Cancelado; assistência técnica também usa o formulário de contratante.
 - 2026-11-03 — O tipo próprio deixa de ser `courtType: 'other'`: passa a ser nome de tipo ou Parceria (`isOwnType`), com esfera própria; ver `esfera-servico` (AD-177). "Serviços em aberto" passa a contar o status digitado.
 
 - 2026-11-03 — Correção: ao escolher "Cadastrar novo" o campo "Nome do novo tipo" sumia (a troca de layout do formulário remontava o campo e perdia o estado) e o serviço não salvava, com o erro escondido. O estado passa a viver em `case-form-fields.tsx`. Campos obrigatórios ganham asterisco vermelho (`required` em `FormLabel`, `packages/ui/src/components/form.tsx`, e nos campos de `apps/web/src/components/form-fields.tsx`): tipo de serviço, nome do novo tipo, atuação, status e os nomes digitados, nome/razão social, objeto, número do processo e tribunal (judiciais), valor recebido e data da quitação.

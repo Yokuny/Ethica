@@ -1,27 +1,29 @@
-import { isOwnType } from '@ethica/contracts';
+import { usesContractor } from '@ethica/contracts';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { type Control, useWatch } from 'react-hook-form';
+import { CASE_STATUS_ITEMS } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
-import { DateField, MoneyField, TextareaField, TextField, TimeField } from '@/components/form-fields.js';
+import { DateField, MoneyField, SelectField, TextareaField, TextField, TimeField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
 import type { CaseFormValues } from '../@interface/cases.interface.js';
 import { CasePartiesFields } from './case-parties-fields.js';
 import { CasePaymentFields } from './case-payment-fields.js';
-import { CaseStatusField } from './case-status-field.js';
+import { CasePhaseField } from './case-phase-field.js';
 import { ServiceTypeField } from './service-type-field.js';
 
 // Case fields shared by `add` and `details` (edit). Editing also includes the fee fixed by the court;
 // the report deadline only at registration (afterwards it is edited in the deadlines panel).
-// The office's own type (AD-176) swaps the process for the contractor and drops the perícia date, the
-// parties and the proposed fee; the contracted fee and its payment come already at registration.
+// The office's own type (AD-176) and the technical assistance (AD-178) swap the process for the contractor and
+// drop the perícia date, the parties and the proposed fee; the contracted fee and its payment come already at
+// registration.
 export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
   const role = useWatch({ control, name: 'role' });
   const session = useQuery(sessionQuery).data;
   const serviceType = useWatch({ control, name: 'serviceType' });
   const [creatingType, setCreatingType] = useState(false);
-  const own = creatingType || isOwnType({ serviceType, role });
+  const own = creatingType || usesContractor({ serviceType, role });
   const serviceFields = (
     <div key="service" className="grid gap-4 sm:grid-cols-2">
       <ServiceTypeField creating={creatingType} onCreating={setCreatingType} />
@@ -31,7 +33,15 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
         label={t('service_order')}
         placeholder={t('service_order_automatic')}
       />
-      <CaseStatusField creating={creatingType} />
+      <CasePhaseField creating={creatingType} />
+      <SelectField
+        control={control}
+        name="status"
+        label={t('status')}
+        placeholder={t('select')}
+        items={CASE_STATUS_ITEMS}
+        required
+      />
     </div>
   );
   const contractedFee = (
@@ -53,6 +63,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
         name="nominationDate"
         label={own ? t('contracting_date') : t('appointment_date')}
         placeholder={t('choose_day')}
+        required={!own}
       />
       {!editing && (
         <DateField
@@ -206,8 +217,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                 <MoneyField
                   control={control}
                   name="fixedFeesCents"
-                  // In a technical assistant case it is the fee agreed with the client (AD-135).
-                  label={role === 'technical_assistant' ? t('contracted_fees') : t('fixed_fees')}
+                  label={t('fixed_fees')}
                   placeholder={t('example_money')}
                 />
               )}

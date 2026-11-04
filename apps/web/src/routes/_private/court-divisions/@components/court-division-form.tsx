@@ -2,7 +2,7 @@ import { BRAZILIAN_STATES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Form } from '@ethica/ui/components/form';
 import { ItemDescription } from '@ethica/ui/components/item';
-import { JUDICIAL_COURT_TYPE_ITEMS } from '@/components/case-labels.js';
+import { COURT_TYPE_ITEMS } from '@/components/case-labels.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { SelectField, TextareaField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -25,7 +25,7 @@ export function CourtDivisionForm({ division, onClose }: { division?: CourtDivis
               name="courtType"
               label={t('court_type')}
               placeholder={t('select')}
-              items={JUDICIAL_COURT_TYPE_ITEMS}
+              items={COURT_TYPE_ITEMS}
             />
             <TextField control={control} name="court" label={t('court')} placeholder={t('example_court')} />
           </div>

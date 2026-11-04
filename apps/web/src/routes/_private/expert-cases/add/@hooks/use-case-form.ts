@@ -1,4 +1,4 @@
-import { type CreateCase, createCaseSchema, validContractor } from '@ethica/contracts';
+import { type CreateCase, createCaseSchema, validContractor, validNominationDate } from '@ethica/contracts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -15,10 +15,9 @@ export function useCaseForm() {
   // The fields are the same as in editing (+ report deadline); the validation is the creation one.
   const form = useForm<CaseFormValues>({
     resolver: zodResolver(
-      createCaseSchema.refine(validContractor, {
-        message: t('contractor_name_required'),
-        path: ['contractor', 'name'],
-      }),
+      createCaseSchema
+        .refine(validContractor, { message: t('contractor_name_required'), path: ['contractor', 'name'] })
+        .refine(validNominationDate, { message: t('nomination_date_required'), path: ['nominationDate'] }),
     ) as unknown as Resolver<CaseFormValues>,
     defaultValues: DEFAULT_VALUES,
   });

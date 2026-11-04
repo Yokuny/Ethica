@@ -40,7 +40,7 @@ export type OpportunityRecord = Omit<DatajudResult, 'opportunityId'> & {
 export type OpportunitiesListResult = { items: OpportunityRecord[]; total: number };
 export type OpportunitiesQueryParams = { page: number; limit: number; status?: OpportunityStatus };
 export type ConvertOpportunity = {
-  courtType: CourtType;
+  courtType?: CourtType;
   role: CaseRole;
   subject: string;
   nominationDate?: string;

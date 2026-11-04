@@ -191,7 +191,8 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       rejected: [{ line: 6, column: 'numero_processo', reason: 'invalid_process_number' }],
     });
     const civil = await Case.findOne({ processNumber: '0000002-00.2026.8.26.0100' }).lean();
-    expect(civil).toMatchObject({ courtType: 'civil', court: 'TJSP', role: 'technical_assistant' });
+    expect(civil).toMatchObject({ court: 'TJSP', role: 'technical_assistant' });
+    expect(civil?.courtType).toBeUndefined();
     expect(civil?.subject).toBe('Perícia contábil; apuração');
     // The same defendant on both rows becomes a single record (AD-115).
     expect(await Party.countDocuments({})).toBe(1);

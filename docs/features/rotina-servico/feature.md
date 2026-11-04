@@ -68,5 +68,6 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-03 — Revisto pela `fase-servico` (AD-178): o status único foi dividido em fase (lista da perita) e status (Ativo, Suspenso, Cancelado).
 - 2026-11-03 — Implementado RSV-01 a RSV-04 e RSV-06 (AD-166 a AD-168). RSV-05 pendente. Divergência da spec: a importação recebe os campos por `?fields=` com o próprio arquivo no corpo, sem JSON; sem objeto, o tipo de serviço vira o objeto.
 - 2026-11-03 — Spec criada (`.specs/features/rotina-servico/spec.md`).

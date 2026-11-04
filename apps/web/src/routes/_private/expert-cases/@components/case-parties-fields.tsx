@@ -86,7 +86,7 @@ function PartyRow({ index, lawyerIndexes, onRemove, onAddLawyer, onRemoveLawyer 
             name={`parties.${index}.side`}
             label={t('side')}
             placeholder={t('select')}
-            items={sideItems(courtType)}
+            items={sideItems(courtType ?? undefined)}
             onValueChange={(side) => {
               for (const lawyer of lawyerIndexes) setValue(`parties.${lawyer}.side`, side as Side);
             }}

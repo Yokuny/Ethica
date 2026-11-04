@@ -1,5 +1,6 @@
 import type {
   CaseContractor,
+  CasePhase,
   CaseRole,
   CaseStatus,
   CourtType,
@@ -9,6 +10,7 @@ import type {
   UpdateCase,
 } from '@ethica/contracts';
 import {
+  CASE_PHASES,
   CASE_STATUS,
   COURTTYPES,
   calendarDateSchema,
@@ -34,10 +36,11 @@ export const listCasesQuerySchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     q: z.string().trim().max(120).optional(),
+    phase: z.enum(CASE_PHASES).optional(),
     status: z.enum(CASE_STATUS).optional(),
     courtType: z.enum(COURTTYPES).optional(),
-    // "Tipo" filter (AD-177): a judicial type or Parceria by `role`, an own type by its name.
-    role: z.enum(['court_expert', 'technical_assistant', 'partnership']).optional(),
+    // "Tipo" filter (AD-177): Perícia or Assistência técnica by `role`, an own type by its name.
+    role: z.enum(['court_expert', 'technical_assistant']).optional(),
     serviceType: z.string().trim().min(1).max(80).optional(),
     // Delivery date of the service: the "Entrega do laudo" / "Entrega do serviço" deadline (AD-177).
     deliveryFrom: calendarDateSchema.optional(),
@@ -53,18 +56,20 @@ export type CaseRecord = {
   // Missing only in a service type created by the office (AD-158).
   processNumber?: string;
   serviceOrder?: string;
-  courtType: CourtType;
+  // Sphere, only in a perícia (AD-178).
+  courtType?: CourtType;
   serviceType?: string;
   role: CaseRole;
-  // Typed role and status and the contractor of the office's own type (AD-176).
+  // Typed role and phase of the office's own type and the contractor (AD-176, AD-178).
   roleName?: string;
-  statusName?: string;
+  phaseName?: string;
   contractor?: CaseContractor;
   court?: string;
   division?: string;
   district?: string;
   subject: string;
   parties: CasePartyWrite[];
+  phase: CasePhase;
   status: CaseStatus;
   nominationDate?: string;
   proposedFeesCents?: number;
@@ -91,7 +96,8 @@ export type MovementRecord = { id: string; type: MovementType; date: string; not
 export type StalledCase = {
   id: string;
   processNumber?: string;
-  status: CaseStatus;
+  phase: CasePhase;
+  phaseName?: string;
   court?: string;
   division?: string;
   subject: string;
@@ -109,8 +115,8 @@ export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties'
 };
 
 // Service type created by the office (AD-158), with the role of the cases that use it and the
-// statuses typed in it (AD-176).
-export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; statuses: string[] };
+// phases typed in it (AD-176, AD-178).
+export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; phases: string[] };
 // `null` becomes `$unset` in the repository: fields of the office's own type and erased dates (AD-177).
 export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'inspection'> & { parties?: CasePartyWrite[] };
 
@@ -131,6 +137,6 @@ export type CaseSummary = {
 };
 
 export type CaseDistribution = {
-  status: { key: string; count: number }[];
+  phase: { key: string; count: number }[];
   courtType: { key: string; count: number }[];
 };

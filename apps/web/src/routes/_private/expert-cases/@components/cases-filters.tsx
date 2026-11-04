@@ -1,7 +1,13 @@
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
-import { CASE_STATUS_ITEMS, COURT_TYPE_ITEMS, OWN_TYPE_PREFIX, serviceTypeItems } from '@/components/case-labels.js';
+import {
+  CASE_PHASE_ITEMS,
+  CASE_STATUS_ITEMS,
+  COURT_TYPE_ITEMS,
+  OWN_TYPE_PREFIX,
+  serviceTypeItems,
+} from '@/components/case-labels.js';
 import { DatePicker } from '@/components/date-picker.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { serviceTypesQuery } from '@/query/case.js';
@@ -44,7 +50,7 @@ function FilterSelect({
   );
 }
 
-// Listing "Filtros" popover content: status (RSV-03), sphere, type (AD-177) and delivery period.
+// Listing "Filtros" popover content: phase and status (AD-178), sphere, type (AD-177) and delivery period.
 export function CasesFilters({
   search,
   onChange,
@@ -62,6 +68,12 @@ export function CasesFilters({
     });
   return (
     <>
+      <FilterSelect
+        label={t('service_phase')}
+        items={CASE_PHASE_ITEMS}
+        value={search.phase}
+        onChange={(phase) => onChange({ phase: phase as CasesSearch['phase'], page: 1 })}
+      />
       <FilterSelect
         label={t('status')}
         items={CASE_STATUS_ITEMS}

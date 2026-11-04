@@ -1,6 +1,7 @@
 import {
   type ApiMessageKey,
   type CasePartyInput,
+  type CasePhase,
   type CaseRole,
   type CaseStatus,
   type CourtType,
@@ -12,12 +13,12 @@ import {
   createCaseSchema,
   csvHeaderKey,
   documentSchema,
-  isOwnType,
   oabSchema,
   partyNameKey,
   processNumberSchema,
   type Side,
   suggestCsvField,
+  usesContractor,
 } from '@ethica/contracts';
 import { unzipSync } from 'fflate';
 import { extractText } from 'unpdf';
@@ -350,56 +351,56 @@ const longestMatch = <T>(text: string, names: [string, T][]): T | undefined => {
     .at(0)?.[1];
 };
 
-const STATUS_NAMES: [string, CaseStatus][] = [
-  ['nomeado', 'appointed'],
-  ['nomeada', 'appointed'],
-  ['nomeacao', 'appointed'],
-  ['aguardando aceite', 'appointed'],
-  ['proposta', 'fees_proposed'],
-  ['honorarios propostos', 'fees_proposed'],
-  ['aceito', 'fees_accepted'],
-  ['aceita', 'fees_accepted'],
-  ['honorarios aceitos', 'fees_accepted'],
-  ['agendada', 'inspection_scheduled'],
-  ['agendado', 'inspection_scheduled'],
-  ['pericia agendada', 'inspection_scheduled'],
-  ['em laudo', 'drafting_report'],
-  ['elaborando laudo', 'drafting_report'],
-  ['laudo em elaboracao', 'drafting_report'],
-  ['pericia realizada', 'drafting_report'],
-  ['em andamento', 'drafting_report'],
-  ['entregue', 'report_delivered'],
-  ['laudo entregue', 'report_delivered'],
-  ['esclarecimentos', 'clarifications'],
-  ['impugnacao', 'clarifications'],
-  ['aguardando pagamento', 'awaiting_payment'],
-  ['a receber', 'awaiting_payment'],
-  ['concluido', 'completed'],
-  ['concluida', 'completed'],
-  ['finalizado', 'completed'],
-  ['encerrado', 'completed'],
-  ['pago', 'completed'],
-  ['suspenso', 'suspended'],
-  ['suspensa', 'suspended'],
-  ['acordo', 'suspended'],
-  ['desistencia', 'suspended'],
-  ['recusado', 'declined'],
-  ['recusada', 'declined'],
-  ['cancelado', 'declined'],
-  ['cancelada', 'declined'],
+// Phase and status (AD-178) read from the spreadsheet text.
+type PhaseAndStatus = { phase?: CasePhase; status?: CaseStatus };
+const PHASE_NAMES: [string, PhaseAndStatus][] = [
+  ['nomeado', { phase: 'awaiting_scheduling' }],
+  ['nomeada', { phase: 'awaiting_scheduling' }],
+  ['aguardando agendamento', { phase: 'awaiting_scheduling' }],
+  ['checklist', { phase: 'awaiting_scheduling' }],
+  ['agendada', { phase: 'awaiting_inspection' }],
+  ['agendado', { phase: 'awaiting_inspection' }],
+  ['aguardando pericia', { phase: 'awaiting_inspection' }],
+  ['pericia agendada', { phase: 'awaiting_inspection' }],
+  ['em laudo', { phase: 'awaiting_expert_report' }],
+  ['elaborando laudo', { phase: 'awaiting_expert_report' }],
+  ['laudo em elaboracao', { phase: 'awaiting_expert_report' }],
+  ['aguardando laudo', { phase: 'awaiting_expert_report' }],
+  ['pericia realizada', { phase: 'awaiting_expert_report' }],
+  ['revisar laudo', { phase: 'reviewing_report' }],
+  ['entregue', { phase: 'report_delivered' }],
+  ['laudo entregue', { phase: 'report_delivered' }],
+  ['impugnacao', { phase: 'objection_reply_1' }],
+  ['esclarecimentos', { phase: 'awaiting_new_clarifications' }],
+  ['resposta do juiz', { phase: 'awaiting_judge' }],
+  ['aguardando pagamento', { phase: 'evidence_closed' }],
+  ['a receber', { phase: 'evidence_closed' }],
+  ['monitorar honorarios', { phase: 'evidence_closed' }],
+  ['honorarios recebidos', { phase: 'fees_received' }],
+  ['concluido', { phase: 'fees_received' }],
+  ['concluida', { phase: 'fees_received' }],
+  ['finalizado', { phase: 'fees_received' }],
+  ['encerrado', { phase: 'fees_received' }],
+  ['pago', { phase: 'fees_received' }],
+  ['acordo', { phase: 'settlement' }],
+  ['desistencia', { phase: 'withdrawal' }],
+  ['destituicao', { phase: 'removal' }],
+  ['destituido', { phase: 'removal' }],
+  ['manifestacao', { phase: 'petition' }],
+  ['peticao', { phase: 'petition' }],
+  ['ativo', { status: 'active' }],
+  ['suspenso', { status: 'suspended' }],
+  ['suspensa', { status: 'suspended' }],
+  ['recusado', { status: 'canceled' }],
+  ['recusada', { status: 'canceled' }],
+  ['cancelado', { status: 'canceled' }],
+  ['cancelada', { status: 'canceled' }],
 ];
 
-// "Perícia trabalhista", "Assistência técnica cível", "Parceria"…; a name that says no court type is a
-// service type of the office (AD-158), in the sphere "Extrajudicial" (AD-177).
+// "Perícia trabalhista", "Assistência técnica"…; any other name is a service type of the office (AD-158).
 const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: CaseRole; serviceType?: string } => {
   const key = csvHeaderKey(text);
-  const role = /assist/.test(key)
-    ? 'technical_assistant'
-    : /perit|pericia/.test(key)
-      ? 'court_expert'
-      : /parceri/.test(key)
-        ? 'partnership'
-        : undefined;
+  const role = /assist/.test(key) ? 'technical_assistant' : /perit|pericia/.test(key) ? 'court_expert' : undefined;
   const courtType = /trabalh/.test(key)
     ? 'labor'
     : /civel|civil/.test(key)
@@ -407,11 +408,10 @@ const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: Case
       : /federal/.test(key)
         ? 'federal'
         : undefined;
-  if (role === 'partnership') return { courtType: courtType ?? 'extrajudicial', role };
   if (courtType) return { courtType, role };
   return role && /^(pericia|pericia judicial|perito|assistencia tecnica|assistente tecnico)$/.test(key)
     ? { role }
-    : { courtType: 'extrajudicial', serviceType: text.trim() };
+    : { serviceType: text.trim() };
 };
 
 const TEXT_FIELDS = ['court', 'division', 'district', 'subject', 'claimantJob', 'location'] as const;
@@ -455,8 +455,8 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
       else if (/perit/.test(key)) data.role = 'court_expert';
       else doubt(cell);
     } else if (field === 'status') {
-      const status = longestMatch(value, STATUS_NAMES);
-      if (status) data.status = status;
+      const found = longestMatch(value, PHASE_NAMES);
+      if (found) Object.assign(data, found);
       else doubt(cell);
     } else if (field === 'proposedFees') {
       const cents = parseCentavos(value);
@@ -473,20 +473,23 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
     }
   }
 
-  const unit = typeof data.processNumber === 'string' ? courtUnitFromNumber(data.processNumber) : undefined;
-  const courtType = typed.courtType ?? unit?.courtType;
-  if (!courtType) {
-    const reason = data.processNumber
-      ? 'unsupported_court'
-      : header.processNumber
-        ? 'invalid_process_number'
-        : 'csv_missing_process_number';
-    return { column: header.processNumber, reason };
-  }
-  data.courtType = courtType;
   if (typed.serviceType) data.serviceType = typed.serviceType;
   data.role ??= typed.role ?? 'court_expert';
-  if (!isOwnType(data)) data.court ??= unit?.court;
+  const unit = typeof data.processNumber === 'string' ? courtUnitFromNumber(data.processNumber) : undefined;
+  // Only a perícia has a sphere and needs the process (AD-178).
+  if (!usesContractor(data)) {
+    const courtType = typed.courtType ?? unit?.courtType;
+    if (!courtType) {
+      const reason = data.processNumber
+        ? 'unsupported_court'
+        : header.processNumber
+          ? 'invalid_process_number'
+          : 'csv_missing_process_number';
+      return { column: header.processNumber, reason };
+    }
+    data.courtType = courtType;
+  }
+  data.court ??= unit?.court;
   // Without an object column, the service type names the service.
   data.subject ??= typed.serviceType;
   if (!data.subject) return { reason: 'csv_missing_subject' };

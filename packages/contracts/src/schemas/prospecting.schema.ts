@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { type JUDICIAL_COURT_TYPES, processNumberSchema } from './case.schema.js';
+import { type COURTTYPES, processNumberSchema } from './case.schema.js';
 
 // Datajud Public API index alias (`api_publica_<alias>`), by court type.
 // List of the courts served today; add here to enable another court.
@@ -60,7 +60,7 @@ export const DATAJUD_COURTS = {
     'tjsp',
     'tjto',
   ],
-} as const satisfies Record<(typeof JUDICIAL_COURT_TYPES)[number], readonly string[]>;
+} as const satisfies Record<(typeof COURTTYPES)[number], readonly string[]>;
 export const ALL_DATAJUD_COURTS = [
   ...DATAJUD_COURTS.labor,
   ...DATAJUD_COURTS.federal,
