@@ -58,12 +58,12 @@ export const creaSchema = z
   .refine((value) => value === '' || /^[A-Z]{2}\d{3,12}[A-Z]?$/.test(value), 'CREA inválido (ex.: SC1848220)')
   .transform(emptyAsUndefined);
 
-const emailSchema = z
+export const emailSchema = z
   .string()
   .trim()
   .refine((value) => value === '' || z.email().safeParse(value).success, 'e-mail inválido')
   .transform(emptyAsUndefined);
-const phoneSchema = z.string().trim().max(30, 'telefone inválido').transform(emptyAsUndefined);
+export const phoneSchema = z.string().trim().max(30, 'telefone inválido').transform(emptyAsUndefined);
 
 const nameSchema = z.string().trim().min(1, 'nome é obrigatório').max(200, 'nome inválido');
 

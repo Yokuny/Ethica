@@ -1,5 +1,6 @@
 import {
   type CaseInspection,
+  type CasePayment,
   caseLabel,
   DEADLINE_DUE_SOON_DAYS,
   deadlineAgendaEntries,
@@ -24,7 +25,7 @@ import type {
   UpdateCase,
 } from './case.schema.js';
 import * as deadlineRepository from './deadline.repository.js';
-import { REPORT_DELIVERY_DEADLINE } from './deadline.schema.js';
+import { REPORT_DELIVERY_DEADLINE, SERVICE_DELIVERY_DEADLINE } from './deadline.schema.js';
 import * as partyService from './party.service.js';
 import * as serviceOrderRepository from './service-order.repository.js';
 
@@ -80,10 +81,25 @@ const scheduleInspection = (tenantId: string, legalCase: CaseRecord, inspection?
   });
 };
 
+// Fee fixed by the court or contracted (technical assistant, AD-135, or the office's own type, AD-176)
+// becomes receivable income in finance; the payment given at registration becomes its receipt.
+const postFees = (tenantId: string, legalCase: CaseRecord, received?: CasePayment): void => {
+  if (!legalCase.fixedFeesCents) return;
+  domainEventBus.emit('case:fixed_fees', {
+    tenantId,
+    caseId: legalCase.id,
+    caseLabel: caseLabel(legalCase),
+    amountCents: legalCase.fixedFeesCents,
+    category:
+      legalCase.courtType === 'other' || legalCase.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
+    received,
+  });
+};
+
 // Single creation path (form, PDF, CSV, opportunity): resolves the parties in the
 // registry (AD-117) and turns the report deadline into the "Entrega do laudo" deadline (AD-109).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
-  const { reportDeadline, parties, inspection, ...input } = withSuggestedPeriod(data);
+  const { reportDeadline, parties, inspection, payment, ...input } = withSuggestedPeriod(data);
   if (!validClient({ role: input.role, parties })) throw new CustomError('invalid_contracting_party', 422);
   if (!validServiceType(input)) throw new CustomError('invalid_service_type', 422);
   try {
@@ -95,10 +111,14 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
       parties: await partyService.resolveParties(input.tenant, parties ?? []),
     });
     if (reportDeadline) {
+      // The office's own type delivers a service, not necessarily a report (AD-176).
+      const own = legalCase.courtType === 'other';
       const deadline = await deadlineRepository.createDeadline(input.tenant, legalCase.id, {
-        title: REPORT_DELIVERY_DEADLINE,
+        title: own ? SERVICE_DELIVERY_DEADLINE : REPORT_DELIVERY_DEADLINE,
         dueDate: reportDeadline,
-        notes: 'Gerado a partir do prazo do laudo informado no cadastro.',
+        notes: own
+          ? 'Gerado a partir da data de entrega informada no cadastro.'
+          : 'Gerado a partir do prazo do laudo informado no cadastro.',
       });
       domainEventBus.emit('agenda:entries_synced', {
         tenantId: input.tenant,
@@ -109,6 +129,7 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
       });
     }
     scheduleInspection(input.tenant, legalCase, inspection);
+    if (legalCase.fixedFeesCents) postFees(input.tenant, legalCase, payment);
     return legalCase;
   } catch (e) {
     if (isDuplicateKeyError(e)) throw duplicateError(e);
@@ -129,18 +150,29 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
     throw new CustomError('invalid_contracting_party', 422);
   }
   const courtType = rest.courtType ?? before.courtType;
+  const own = courtType === 'other';
+  // A judicial type drops the fields of the office's own type (AD-158, AD-176).
   const final = {
     courtType,
-    serviceType: courtType === 'other' ? (rest.serviceType ?? before.serviceType) : undefined,
+    serviceType: own ? (rest.serviceType ?? before.serviceType) : undefined,
     processNumber: rest.processNumber ?? before.processNumber,
     court: rest.court ?? before.court,
+    role: rest.role ?? before.role,
+    status: rest.status ?? before.status,
+    roleName: (rest.role ?? before.role) === 'other' ? (rest.roleName ?? before.roleName) : undefined,
+    statusName: (rest.status ?? before.status) === 'custom' ? (rest.statusName ?? before.statusName) : undefined,
+    contractor: own ? (rest.contractor ?? before.contractor) : undefined,
   };
   if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
+  const unsetWhenGone = <T>(value: T | undefined, previous: unknown) => value ?? (previous ? null : undefined);
   const updated = await caseRepository
     .updateCase(tenantId, id, {
       ...rest,
       // A judicial type drops the name of the office's type (AD-158).
-      serviceType: final.serviceType ?? (before.serviceType ? null : undefined),
+      serviceType: unsetWhenGone(final.serviceType, before.serviceType),
+      roleName: unsetWhenGone(final.roleName, before.roleName),
+      statusName: unsetWhenGone(final.statusName, before.statusName),
+      contractor: unsetWhenGone(final.contractor, before.contractor),
       parties: parties ? await partyService.resolveParties(tenantId, parties) : undefined,
     })
     .catch((e: unknown) => {
@@ -149,15 +181,7 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
   if (!updated) throw new CaseNotFoundError('not_found');
   // Fee fixed by the court or contracted by the assistant (AD-135), new or changed,
   // becomes receivable income in finance.
-  if (updated.fixedFeesCents && updated.fixedFeesCents !== before.fixedFeesCents) {
-    domainEventBus.emit('case:fixed_fees', {
-      tenantId,
-      caseId: updated.id,
-      caseLabel: caseLabel(updated),
-      amountCents: updated.fixedFeesCents,
-      category: updated.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
-    });
-  }
+  if (updated.fixedFeesCents && updated.fixedFeesCents !== before.fixedFeesCents) postFees(tenantId, updated);
   scheduleInspection(tenantId, updated, inspection);
   return updated;
 };

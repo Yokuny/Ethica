@@ -10,6 +10,8 @@ export interface CaseFixedFeesPayload {
   amountCents: number;
   // Fixed by the court or contracted by the party that hired the technical assistant (AD-135).
   category: 'fixed_fees' | 'contracted_fees';
+  // Payment given at registration (AD-176): a receipt of the income on the payoff date.
+  received?: { amountCents: number; date: string };
 }
 
 // Case deleted: whoever keeps data linked to it (reports, AD-126) deletes its own.

@@ -1,4 +1,5 @@
 import type {
+  CaseContractor,
   CaseRole,
   CaseStatus,
   CourtType,
@@ -48,6 +49,10 @@ export type CaseRecord = {
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;
+  // Typed role and status and the contractor of the office's own type (AD-176).
+  roleName?: string;
+  statusName?: string;
+  contractor?: CaseContractor;
   court?: string;
   division?: string;
   district?: string;
@@ -92,16 +97,23 @@ export type CreateCaseInput = CreateCase & { tenant: string; opportunityId?: str
 
 // What the repository saves: parties already resolved in the registry (AD-117), without the report deadline
 // and the perícia date.
-export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties' | 'inspection'> & {
+export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties' | 'inspection' | 'payment'> & {
   parties: CasePartyWrite[];
 };
 
-// Service type created by the office (AD-158), with the role of the cases that use it.
-export type ServiceTypeItem = { name: string; role: CaseRole };
-// `null` becomes `$unset` in the repository: service type (AD-158).
-export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'serviceType' | 'inspection'> & {
+// Service type created by the office (AD-158), with the role of the cases that use it and the
+// statuses typed in it (AD-176).
+export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; statuses: string[] };
+// `null` becomes `$unset` in the repository: fields of the office's own type (AD-158, AD-176).
+export type CaseUpdateWrite = Omit<
+  UpdateCase,
+  'parties' | 'serviceType' | 'roleName' | 'statusName' | 'contractor' | 'inspection'
+> & {
   parties?: CasePartyWrite[];
   serviceType?: string | null;
+  roleName?: string | null;
+  statusName?: string | null;
+  contractor?: CaseContractor | null;
 };
 
 // Listing: each case with its nearest pending deadline (missing if there is none).

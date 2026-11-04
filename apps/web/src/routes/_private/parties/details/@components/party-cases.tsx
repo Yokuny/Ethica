@@ -32,7 +32,9 @@ export function PartyCases({ partyId }: { partyId: string }) {
                 render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}
                 title={caseLabel(legalCase)}
                 badges={
-                  <Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>{caseStatusLabel(legalCase.status)}</Badge>
+                  <Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>
+                    {caseStatusLabel(legalCase.status, legalCase.statusName)}
+                  </Badge>
                 }
                 description={[link && sideLabel(link.side, legalCase.courtType), legalCase.subject]
                   .filter(Boolean)

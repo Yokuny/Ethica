@@ -7,6 +7,8 @@ export { createDeadlineSchema, updateDeadlineSchema };
 
 // Deadline created from the registration `reportDeadline` (AD-109) and filed when the report is completed (AD-126).
 export const REPORT_DELIVERY_DEADLINE = 'Entrega do laudo';
+// Delivery date of a service of the office's own type (AD-176).
+export const SERVICE_DELIVERY_DEADLINE = 'Entrega do serviço';
 
 export const deadlineIdParamSchema = z.object({ deadlineId: idSchema }).strict();
 

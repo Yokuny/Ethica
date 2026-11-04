@@ -65,6 +65,7 @@ const PRIVATE_SERVICE = {
   serviceType: 'Avaliação de imóvel',
   role: 'technical_assistant',
   subject: 'Avaliação do apartamento da Rua A',
+  contractor: { name: 'Construtora Alfa' },
 } as const;
 
 describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/06)', () => {
@@ -107,7 +108,7 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
     ).toBe(400);
 
     const types = await admin.as(request(app).get('/expert-cases/service-types'));
-    expect(types.body.data).toEqual([{ name: 'Avaliação de imóvel', role: 'technical_assistant' }]);
+    expect(types.body.data).toEqual([{ name: 'Avaliação de imóvel', role: 'technical_assistant', statuses: [] }]);
 
     // Becoming judicial drops the type name and requires the process.
     const id = first.body.data.id;
@@ -117,6 +118,71 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
       .send({ courtType: 'civil', processNumber: '0009999-11.2026.8.26.0100', court: 'TJSP' });
     expect(judicial.status).toBe(200);
     expect(judicial.body.data.serviceType).toBeUndefined();
+    expect(judicial.body.data.contractor).toBeUndefined();
+  });
+
+  it('tipo próprio: contratante, atuação e status digitados, entrega e pagamento no cadastro (AD-176)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const operator = await seedSession(tenant._id, ['operator']);
+    const own = {
+      ...PRIVATE_SERVICE,
+      role: 'other',
+      roleName: 'Consultoria',
+      status: 'custom',
+      statusName: 'Aguardando documentos',
+      contractor: { name: 'Construtora Alfa', document: '11.222.333/0001-81', address: 'Rua A, 10' },
+      nominationDate: '2026-11-01',
+      reportDeadline: '2026-12-01',
+      fixedFeesCents: 300_000,
+      payment: { amountCents: 100_000, date: '2026-11-05' },
+    };
+
+    // The typed role or status needs its name; a judicial type takes neither.
+    expect((await admin.as(request(app).post('/expert-cases')).send({ ...own, roleName: undefined })).status).toBe(400);
+    expect((await admin.as(request(app).post('/expert-cases')).send({ ...JUDICIAL, status: 'custom' })).status).toBe(
+      400,
+    );
+    expect(
+      (
+        await admin
+          .as(request(app).post('/expert-cases'))
+          .send({ ...own, payment: { amountCents: 400_000, date: '2026-11-05' } })
+      ).status,
+    ).toBe(400);
+    // Whoever does not post in finance does not send the payment.
+    expect((await operator.as(request(app).post('/expert-cases')).send(own)).status).toBe(403);
+
+    const created = await admin.as(request(app).post('/expert-cases')).send(own);
+    expect(created.status).toBe(201);
+    expect(created.body.data).toMatchObject({
+      roleName: 'Consultoria',
+      statusName: 'Aguardando documentos',
+      contractor: { name: 'Construtora Alfa', document: '11222333000181', address: 'Rua A, 10' },
+    });
+    const id = created.body.data.id;
+    expect(await Deadline.findOne({ Case: id }).lean()).toMatchObject({
+      title: 'Entrega do serviço',
+      dueDate: '2026-12-01',
+    });
+    await expect.poll(async () => (await Transaction.findOne({ Case: id }).lean())?.installments?.length).toBe(1);
+    expect(await Transaction.findOne({ Case: id }).lean()).toMatchObject({
+      category: 'contracted_fees',
+      amountCents: 300_000,
+      status: 'partial',
+      installments: [expect.objectContaining({ amountCents: 100_000, date: '2026-11-05' })],
+    });
+
+    const types = await admin.as(request(app).get('/expert-cases/service-types'));
+    expect(types.body.data).toEqual([
+      { name: 'Avaliação de imóvel', role: 'other', roleName: 'Consultoria', statuses: ['Aguardando documentos'] },
+    ]);
+
+    // Completed closes it and drops the typed status.
+    const completed = await admin.as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'completed' });
+    expect(completed.status).toBe(200);
+    expect(completed.body.data).toMatchObject({ status: 'completed' });
+    expect(completed.body.data.statusName).toBeUndefined();
   });
 
   it('a data da perícia no cadastro vira compromisso de perícia na agenda (AD-160)', async () => {

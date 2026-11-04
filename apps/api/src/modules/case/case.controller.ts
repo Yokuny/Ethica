@@ -1,4 +1,4 @@
-import { respObj } from '@ethica/contracts';
+import { hasPermission, respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { ListCasesQuery } from './case.schema.js';
@@ -18,6 +18,10 @@ const STALLED_IN_START = 5;
 
 export const createCase = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    // The payment given at registration is a receipt in finance (AD-176).
+    if (req.body.payment && !hasPermission(req.tenantUser.permissions, 'finance', 'create')) {
+      throw new CustomError('no_permission', 403);
+    }
     const result = await caseService.createCase({ ...req.body, tenant: tenantOf(req) });
     res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
   } catch (e) {

@@ -1,4 +1,5 @@
 import type {
+  CaseContractor,
   CaseRole,
   CaseStatus,
   CourtType,
@@ -25,6 +26,10 @@ export type CaseRecord = {
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;
+  // Typed role and status and the contractor of the office's own type (AD-176).
+  roleName?: string;
+  statusName?: string;
+  contractor?: CaseContractor;
   court?: string;
   division?: string;
   district?: string;
@@ -77,8 +82,8 @@ export const caseKeys = {
   serviceTypes: () => [...caseKeys.all, 'service-types'] as const,
 };
 
-// Service types created by the office (AD-158).
-export type ServiceTypeItem = { name: string; role: CaseRole };
+// Service types created by the office (AD-158), with their typed role and statuses (AD-176).
+export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; statuses: string[] };
 
 const toQueryString = (params: Record<string, string | number | undefined>): string => {
   const search = new URLSearchParams();

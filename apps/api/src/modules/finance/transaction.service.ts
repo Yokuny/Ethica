@@ -253,6 +253,7 @@ export const postFixedFees = async (
     caseLabel: string;
     amountCents: number;
     category: 'fixed_fees' | 'contracted_fees';
+    received?: CreateInstallment;
   },
   now: Date = new Date(),
 ): Promise<void> => {
@@ -273,5 +274,8 @@ export const postFixedFees = async (
     dueDate: addDays(dateInDisplayTz(now), DAYS_TO_RECEIVE_FEES),
     caseId: input.caseId,
   });
-  syncAgenda(input.tenantId, created.id, created);
+  // Payment given at registration (AD-176).
+  const paid =
+    input.received && (await transactionRepository.addInstallment(input.tenantId, created.id, input.received));
+  syncAgenda(input.tenantId, created.id, paid || created);
 };

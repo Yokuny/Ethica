@@ -33,6 +33,9 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   courtType: doc.courtType,
   serviceType: doc.serviceType,
   role: doc.role,
+  roleName: doc.roleName,
+  statusName: doc.statusName,
+  contractor: doc.contractor,
   court: doc.court,
   division: doc.division,
   district: doc.district,
@@ -383,10 +386,28 @@ export const distribution = async (tenantId: string): Promise<CaseDistribution> 
 // Service types created by the office (AD-158): the names already used, by name.
 export const listServiceTypes = async (tenantId: string): Promise<ServiceTypeItem[]> =>
   withDbTiming('case.listServiceTypes', async () => {
-    const rows = await Case.aggregate<{ _id: string; role: ServiceTypeItem['role'] }>([
+    const rows = await Case.aggregate<{
+      _id: string;
+      role: ServiceTypeItem['role'];
+      roleName?: string;
+      statuses: (string | null)[];
+    }>([
       { $match: { Tenant: toObjectId(tenantId), serviceType: { $type: 'string' } } },
-      { $group: { _id: '$serviceType', role: { $first: '$role' } } },
+      { $sort: { updatedAt: -1 } },
+      {
+        $group: {
+          _id: '$serviceType',
+          role: { $first: '$role' },
+          roleName: { $first: '$roleName' },
+          statuses: { $addToSet: '$statusName' },
+        },
+      },
       { $sort: { _id: 1 } },
     ]);
-    return rows.map((row) => ({ name: row._id, role: row.role }));
+    return rows.map((row) => ({
+      name: row._id,
+      role: row.role,
+      ...(row.roleName ? { roleName: row.roleName } : {}),
+      statuses: row.statuses.filter((status): status is string => Boolean(status)).sort(),
+    }));
   });

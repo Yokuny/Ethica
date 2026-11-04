@@ -919,6 +919,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-176
+- **Decision**: No tipo de serviço do escritório (`courtType: 'other'`, AD-158) a atuação e o status podem ser digitados: `role: 'other'` + `Case.roleName` e `status: 'custom'` + `Case.statusName` (status digitado conta como em aberto; Concluído e Cancelado continuam `completed`/`declined`). O serviço ganha `Case.contractor` (nome, CPF/CNPJ, telefone, e-mail, endereço), campo do serviço e não parte do cadastro (AD-117). A consistência tipo × campos é `validServiceType` (contrato), checada no cadastro e com o resultado final da edição; virar judicial apaga nome do tipo, atuação e status digitados e contratante. A data de entrega cria o prazo "Entrega do serviço". O cadastro aceita honorário contratado e `payment` (valor ≤ honorário, data): `case:fixed_fees` leva `received` e o financeiro lança o recebimento; só `finance:create` envia pagamento (403). `GET /expert-cases/service-types` devolve `roleName` e os `statuses` digitados de cada tipo.
+- **Reason**: pedido da perita (2026-11-03): serviço contratado por cliente, sem processo nem rotina judicial; ela escolheu os campos, "escolher ou digitar" para atuação e status, Concluído/Cancelado fixos e a entrega como prazo com aviso.
+- **Trade-off**: contratante obrigatório só no formulário (a importação por PDF/planilha cria o tipo sem ele); serviços do tipo próprio já cadastrados mantêm o status da rotina judicial até serem trocados; o prazo "Entrega do serviço" não é protocolado sozinho ao concluir um laudo (só "Entrega do laudo" é); pagamento só no cadastro.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/finance/transaction.service.ts`, `apps/api/src/events/event-types.ts`, `apps/api/src/modules/documents/documents.templates.ts`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.

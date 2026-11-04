@@ -97,6 +97,27 @@
       "doc": "features/rotina-servico/feature.md"
     },
     {
+      "slug": "tipo-servico-proprio",
+      "feature": "Tipo de serviço próprio",
+      "descricao": "Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro",
+      "data": "2026-11-03",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-176"
+      ],
+      "spec": [
+        ".specs/features/tipo-servico-proprio"
+      ],
+      "planos": [],
+      "doc": "features/tipo-servico-proprio/feature.md"
+    },
+    {
       "slug": "acesso-email",
       "feature": "Acesso por e-mail (sem senha)",
       "descricao": "Entrar e criar o escritório só com o e-mail, pela chave de acesso (link e código) enviada à caixa de e-mail da pessoa",
@@ -1256,6 +1277,12 @@
     {
       "id": "AD-175",
       "decisao": "O laudo guarda quem gravou por último (`Report.UpdatedBy`), atualizado em toda escrita do rascunho e na conclusão; a lista devolve `updatedB",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-176",
+      "decisao": "No tipo de serviço do escritório (`courtType: 'other'`, AD-158) a atuação e o status podem ser digitados: `role: 'other'` + `Case.roleName`",
       "data": "2026-11-03",
       "status": "active"
     }

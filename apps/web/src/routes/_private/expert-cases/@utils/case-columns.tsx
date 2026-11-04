@@ -36,8 +36,9 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     id: 'parties',
     header: t('parties'),
     cell: ({ row }) => (
+      // The office's own type (AD-176) shows its contractor.
       <TableStack description={names(row.original, 'defendant') || undefined}>
-        {names(row.original, 'plaintiff') || '—'}
+        {names(row.original, 'plaintiff') || row.original.contractor?.name || '—'}
       </TableStack>
     ),
   },
@@ -60,7 +61,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     header: t('status'),
     cell: ({ row }) => (
       <TableStatus variant={CASE_STATUS_VARIANT[row.original.status]}>
-        {caseStatusLabel(row.original.status)}
+        {caseStatusLabel(row.original.status, row.original.statusName)}
       </TableStatus>
     ),
   },
@@ -88,8 +89,9 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     cell: ({ row }) => {
       const { fixedFeesCents, proposedFeesCents, role } = row.original;
       const value = fixedFeesCents ?? proposedFeesCents;
-      // In a technical assistant case the set amount is the contracted one (AD-135).
-      const definido = role === 'technical_assistant' ? t('contracted') : t('fixed');
+      // In a technical assistant case (AD-135) and in the office's own type (AD-176) it is the contracted one.
+      const definido =
+        role === 'technical_assistant' || row.original.courtType === 'other' ? t('contracted') : t('fixed');
       return (
         <TableStack description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>
           {value ? formatMoney(value) : '—'}

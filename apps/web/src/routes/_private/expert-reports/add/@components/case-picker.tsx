@@ -2,6 +2,7 @@ import { caseLabel } from '@ethica/contracts';
 import { useQuery } from '@tanstack/react-query';
 import { Gavel } from 'lucide-react';
 import { useState } from 'react';
+import { caseRoleLabel } from '@/components/case-labels.js';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -33,7 +34,11 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
                 icon={Gavel}
                 render={<button type="button" className="w-full text-left" onClick={() => onPick(legalCase.id)} />}
                 title={caseLabel(legalCase)}
-                description={[t(legalCase.role), legalCase.division ?? legalCase.court, legalCase.subject].join(' · ')}
+                description={[
+                  caseRoleLabel(legalCase.role, legalCase.roleName),
+                  legalCase.division ?? legalCase.court,
+                  legalCase.subject,
+                ].join(' · ')}
               />
             ))}
           </LinkList>

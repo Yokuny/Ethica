@@ -1,9 +1,10 @@
-import { type CreateCase, createCaseSchema } from '@ethica/contracts';
+import { type CreateCase, createCaseSchema, validContractor } from '@ethica/contracts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { type Resolver, useForm } from 'react-hook-form';
+import { t } from '@/lib/helpers/translate.helper.js';
 import { createCaseMutation } from '@/query/case.js';
 import type { CaseFormValues } from '../../@interface/cases.interface.js';
 import { DEFAULT_VALUES } from '../@consts/default-values.js';
@@ -13,7 +14,12 @@ export function useCaseForm() {
   const queryClient = useQueryClient();
   // The fields are the same as in editing (+ report deadline); the validation is the creation one.
   const form = useForm<CaseFormValues>({
-    resolver: zodResolver(createCaseSchema) as unknown as Resolver<CaseFormValues>,
+    resolver: zodResolver(
+      createCaseSchema.refine(validContractor, {
+        message: t('contractor_name_required'),
+        path: ['contractor', 'name'],
+      }),
+    ) as unknown as Resolver<CaseFormValues>,
     defaultValues: DEFAULT_VALUES,
   });
   const mutation = useMutation(createCaseMutation(queryClient));

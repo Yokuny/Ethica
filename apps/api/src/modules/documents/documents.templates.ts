@@ -54,9 +54,10 @@ const processData = (legalCase: Case) =>
     ['Tribunal', legalCase.court],
     ['Vara', legalCase.division],
     ['Comarca', legalCase.district],
-    ['Atuação', label(legalCase.role)],
-    ['Status', label(legalCase.status)],
-    ['Nomeação', day(legalCase.nominationDate)],
+    ['Contratante', legalCase.contractor?.name],
+    ['Atuação', legalCase.roleName ?? label(legalCase.role)],
+    ['Status', legalCase.statusName ?? label(legalCase.status)],
+    [legalCase.courtType === 'other' ? 'Contratação' : 'Nomeação', day(legalCase.nominationDate)],
     ['Objeto', legalCase.subject],
   ]);
 

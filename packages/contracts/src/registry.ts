@@ -10,7 +10,9 @@ import { updateAvatarSchema, updateProfileSchema } from './schemas/account.schem
 import { listActivityLogQuerySchema } from './schemas/activityLog.schema.js';
 import { createAppointmentSchema, updateAppointmentSchema } from './schemas/appointment.schema.js';
 import {
+  caseContractorSchema,
   caseInspectionSchema,
+  casePaymentSchema,
   createCaseFieldsSchema,
   createCaseSchema,
   createMovementSchema,
@@ -42,7 +44,9 @@ import {
   creaSchema,
   createPartySchema,
   documentSchema,
+  emailSchema,
   oabSchema,
+  phoneSchema,
   updatePartySchema,
 } from './schemas/party.schema.js';
 import { permissionsSchema, updatePermissionsSchema } from './schemas/permission.schema.js';
@@ -100,6 +104,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createCaseSchema', schema: createCaseSchema },
   { name: 'createCaseFieldsSchema', schema: createCaseFieldsSchema },
   { name: 'caseInspectionSchema', schema: caseInspectionSchema },
+  { name: 'caseContractorSchema', schema: caseContractorSchema },
+  { name: 'casePaymentSchema', schema: casePaymentSchema },
   { name: 'updateCaseSchema', schema: updateCaseSchema },
   { name: 'createMovementSchema', schema: createMovementSchema },
   { name: 'documentTextStyleSchema', schema: documentTextStyleSchema },
@@ -109,6 +115,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'documentSchema', schema: documentSchema },
   { name: 'oabSchema', schema: oabSchema },
   { name: 'creaSchema', schema: creaSchema },
+  { name: 'emailSchema', schema: emailSchema },
+  { name: 'phoneSchema', schema: phoneSchema },
   { name: 'createPartySchema', schema: createPartySchema },
   { name: 'updatePartySchema', schema: updatePartySchema },
   { name: 'casePartyInputSchema', schema: casePartyInputSchema },

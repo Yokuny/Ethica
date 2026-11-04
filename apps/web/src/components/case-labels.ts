@@ -1,10 +1,10 @@
 import {
-  CASE_ROLES,
   CASE_STATUS,
   type CaseRole,
   type CaseStatus,
   COURTTYPES,
   type CourtType,
+  JUDICIAL_CASE_ROLES,
   JUDICIAL_COURT_TYPES,
 } from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
@@ -24,8 +24,11 @@ const CASE_STATUS_KEY: Record<CaseStatus, string> = {
   completed: 'service_completed',
   suspended: 'service_suspended',
   declined: 'declined_canceled',
+  custom: 'own_status',
 };
-export const caseStatusLabel = (status: CaseStatus): string => t(CASE_STATUS_KEY[status]);
+// A status typed in the office's own type (AD-176) shows its name.
+export const caseStatusLabel = (status: CaseStatus, statusName?: string): string =>
+  (status === 'custom' && statusName) || t(CASE_STATUS_KEY[status]);
 export const CASE_STATUS_VARIANT: Record<CaseStatus, IndicatorVariant> = {
   appointed: 'info',
   fees_proposed: 'info',
@@ -38,8 +41,13 @@ export const CASE_STATUS_VARIANT: Record<CaseStatus, IndicatorVariant> = {
   completed: 'success',
   suspended: 'neutral',
   declined: 'neutral',
+  custom: 'info',
 };
-export const CASE_STATUS_ITEMS = CASE_STATUS.map((value) => ({ value, label: caseStatusLabel(value) }));
+// Routine list of the judicial types; the typed status only exists in the office's own type (AD-176).
+export const CASE_STATUS_ITEMS = CASE_STATUS.filter((value) => value !== 'custom').map((value) => ({
+  value,
+  label: caseStatusLabel(value),
+}));
 // The court type key has a suffix (`civil` alone would be ambiguous in the dictionary).
 const COURT_TYPE_KEY: Record<CourtType, string> = {
   labor: 'labor_court',
@@ -81,4 +89,6 @@ export const serviceTypeItems = (officeTypes: readonly { name: string }[]) => [
   ...officeTypes.map(({ name }) => ({ value: `other:${name}`, label: name })),
   { value: NEW_SERVICE_TYPE, label: t('register_new') },
 ];
-export const ROLE_ITEMS = CASE_ROLES.map((value) => ({ value, label: t(value) }));
+export const ROLE_ITEMS = JUDICIAL_CASE_ROLES.map((value) => ({ value, label: t(value) }));
+// A role typed in the office's own type (AD-176) shows its name.
+export const caseRoleLabel = (role: CaseRole, roleName?: string): string => (role === 'other' && roleName) || t(role);

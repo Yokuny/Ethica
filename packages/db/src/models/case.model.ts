@@ -33,6 +33,14 @@ export interface CaseMovementDocument {
   notes?: string;
 }
 
+export interface CaseContractorDocument {
+  name: string;
+  document?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}
+
 export interface CaseDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
@@ -43,6 +51,10 @@ export interface CaseDocument {
   courtType: CourtType;
   serviceType?: string;
   role: CaseRole;
+  // Typed role and status of the office's own type (AD-176).
+  roleName?: string;
+  statusName?: string;
+  contractor?: CaseContractorDocument;
   court?: string;
   division?: string;
   district?: string;
@@ -77,6 +89,20 @@ const caseSchema = new Schema<CaseDocument>(
     courtType: { type: String, enum: COURTTYPES, required: true },
     serviceType: { type: String, trim: true },
     role: { type: String, enum: CASE_ROLES, required: true },
+    roleName: { type: String, trim: true },
+    statusName: { type: String, trim: true },
+    contractor: {
+      type: new Schema<CaseContractorDocument>(
+        {
+          name: { type: String, required: true, trim: true },
+          document: { type: String, trim: true },
+          phone: { type: String, trim: true },
+          email: { type: String, trim: true },
+          address: { type: String, trim: true },
+        },
+        { _id: false },
+      ),
+    },
     court: { type: String, trim: true },
     division: { type: String, trim: true },
     district: { type: String, trim: true },

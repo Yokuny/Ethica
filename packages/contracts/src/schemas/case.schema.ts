@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { calendarDateSchema, wallTimeSchema } from './date.schema.js';
-import { casePartyInputSchema } from './party.schema.js';
+import { casePartyInputSchema, documentSchema, emailSchema, phoneSchema } from './party.schema.js';
 
 export const JUDICIAL_COURT_TYPES = ['labor', 'civil', 'federal'] as const;
 export type JudicialCourtType = (typeof JUDICIAL_COURT_TYPES)[number];
@@ -8,8 +8,10 @@ export type JudicialCourtType = (typeof JUDICIAL_COURT_TYPES)[number];
 export const COURTTYPES = [...JUDICIAL_COURT_TYPES, 'other'] as const;
 export type CourtType = (typeof COURTTYPES)[number];
 
-export const CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
+// `other`: role typed by the office in its own service type (AD-176), named in `Case.roleName`.
+export const CASE_ROLES = ['court_expert', 'technical_assistant', 'other'] as const;
 export type CaseRole = (typeof CASE_ROLES)[number];
+export const JUDICIAL_CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
 
 // Service status (RSV-03), one list in the order of the expert's routine: it replaces the stage, the
 // detailed phase and the service status of AD-133/AD-158. `suspended` pauses (settlement, withdrawal,
@@ -26,8 +28,12 @@ export const CASE_STATUS = [
   'completed',
   'suspended',
   'declined',
+  // Status typed by the office in its own service type (AD-176), named in `Case.statusName`; counts as open.
+  'custom',
 ] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
+// The office's own type offers only these of the routine list (AD-176); the other statuses are typed.
+export const OWN_TYPE_STATUSES: readonly CaseStatus[] = ['completed', 'declined'];
 export const CASE_CLOSED_STATUSES: readonly CaseStatus[] = ['completed', 'declined'];
 // Not counted as stalled: closed or paused on purpose.
 export const CASE_IDLE_STATUSES: readonly CaseStatus[] = [...CASE_CLOSED_STATUSES, 'suspended'];
@@ -44,6 +50,20 @@ const centsSchema = z.number().int('valor deve ser inteiro').min(0, 'valor não 
 const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess((value) => (value === '' ? undefined : value), schema.optional());
 
+const nameText = (message: string) => z.string().trim().min(1, message).max(80, message);
+
+// Whoever hired a service of the office's own type (AD-176): a field of the service, not a registry party.
+export const caseContractorSchema = z
+  .object({
+    name: z.string().trim().min(1, 'nome do contratante é obrigatório').max(200, 'nome inválido'),
+    document: documentSchema.optional(),
+    phone: phoneSchema.optional(),
+    email: emailSchema.optional(),
+    address: optional(z.string().trim().max(300, 'endereço inválido')),
+  })
+  .strict();
+export type CaseContractor = z.infer<typeof caseContractorSchema>;
+
 const caseFields = z.object({
   processNumber: optional(processNumberSchema),
   // Service order control number (NLA-01): given by the office sequence when missing at registration.
@@ -51,7 +71,10 @@ const caseFields = z.object({
   courtType: z.enum(COURTTYPES),
   serviceType: z.string().trim().min(1, 'tipo de serviço é obrigatório').max(80, 'tipo de serviço inválido').optional(),
   role: z.enum(CASE_ROLES),
+  roleName: nameText('atuação inválida').optional(),
   status: z.enum(CASE_STATUS).optional(),
+  statusName: nameText('status inválido').optional(),
+  contractor: caseContractorSchema.optional(),
   court: optional(z.string().trim().min(1, 'tribunal é obrigatório').max(20, 'tribunal inválido')),
   division: z.string().trim().max(120, 'vara inválida').optional(),
   district: z.string().trim().max(120, 'comarca inválida').optional(),
@@ -72,16 +95,36 @@ const caseFields = z.object({
 });
 
 // Process number and court are required except in a service type created by the office, which is
-// the only one carrying a name (AD-158). Checked on the final result in the service when editing.
+// the only one carrying a name (AD-158), a typed role or status and a contractor (AD-176). Checked on the
+// final result in the service when editing.
 export const validServiceType = (data: {
   courtType?: CourtType;
   serviceType?: string;
   processNumber?: string;
   court?: string;
-}): boolean =>
-  data.courtType === 'other'
-    ? Boolean(data.serviceType)
-    : !data.serviceType && Boolean(data.processNumber && data.court);
+  role?: CaseRole;
+  roleName?: string;
+  status?: CaseStatus;
+  statusName?: string;
+  contractor?: CaseContractor;
+}): boolean => {
+  if (data.courtType !== 'other') {
+    return (
+      !data.serviceType &&
+      Boolean(data.processNumber && data.court) &&
+      data.role !== 'other' &&
+      data.status !== 'custom' &&
+      !data.roleName &&
+      !data.statusName &&
+      !data.contractor
+    );
+  }
+  return (
+    Boolean(data.serviceType) &&
+    (data.role === 'other') === Boolean(data.roleName) &&
+    (data.status === 'custom') === Boolean(data.statusName)
+  );
+};
 
 // How a case is named on screen, in e-mails and in file names: the process number or, in a service
 // without a process (AD-158), its object.
@@ -112,17 +155,42 @@ export const parseCoordinates = (text: string): { lat: number; lng: number } | u
 // `reportDeadline` and `inspection` only exist at registration: they become the "Entrega do laudo"
 // deadline (AD-109) and the perícia appointment (AD-160), not case fields.
 // The unrefined shape serves `.pick` (opportunity conversion); the API validates with the refined one.
+// Receipt given at registration (AD-176): it becomes a receipt of the fee income, on the payoff date.
+export const casePaymentSchema = z
+  .object({
+    amountCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
+    date: calendarDateSchema,
+  })
+  .strict();
+export type CasePayment = z.infer<typeof casePaymentSchema>;
+
 export const createCaseFieldsSchema = caseFields
   .extend({
     reportDeadline: calendarDateSchema.optional(),
     inspection: caseInspectionSchema.optional(),
+    // Fee contracted in the office's own type, and its payment, already at registration (AD-176).
+    fixedFeesCents: centsSchema.optional(),
+    payment: casePaymentSchema.optional(),
   })
   .strict();
-export const createCaseSchema = createCaseFieldsSchema.refine(validServiceType, {
-  message: 'número do processo e tribunal são obrigatórios',
-  path: ['processNumber'],
-});
+export const createCaseSchema = createCaseFieldsSchema
+  .refine((data) => data.courtType !== 'other' || validServiceType(data), {
+    message: 'tipo de serviço inválido',
+    path: ['serviceType'],
+  })
+  .refine((data) => data.courtType === 'other' || validServiceType(data), {
+    message: 'número do processo e tribunal são obrigatórios',
+    path: ['processNumber'],
+  })
+  .refine((data) => !data.payment || data.payment.amountCents <= (data.fixedFeesCents ?? 0), {
+    message: 'valor recebido acima do honorário',
+    path: ['payment', 'amountCents'],
+  });
 export type CreateCase = z.infer<typeof createCaseSchema>;
+// The registration form asks for the contractor in the office's own type (AD-176); imports (PDF, CSV)
+// create the type without one, so the API accepts it missing.
+export const validContractor = (data: { courtType?: CourtType; contractor?: CaseContractor }): boolean =>
+  data.courtType !== 'other' || Boolean(data.contractor?.name);
 
 // PATCH accepts any subset of the fields + the fee fixed by the court or, in an assistant case, the
 // contracted one (AD-135), and the perícia date, which moves the appointment on the agenda (AEV-04).

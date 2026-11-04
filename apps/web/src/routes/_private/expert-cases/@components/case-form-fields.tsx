@@ -1,17 +1,125 @@
+import { useQuery } from '@tanstack/react-query';
 import { type Control, useWatch } from 'react-hook-form';
-import { CASE_STATUS_ITEMS } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
-import { DateField, MoneyField, SelectField, TextareaField, TextField, TimeField } from '@/components/form-fields.js';
+import { DateField, MoneyField, TextareaField, TextField, TimeField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { can, sessionQuery } from '@/query/session.js';
 import type { CaseFormValues } from '../@interface/cases.interface.js';
 import { CasePartiesFields } from './case-parties-fields.js';
+import { CasePaymentFields } from './case-payment-fields.js';
+import { CaseStatusField } from './case-status-field.js';
 import { ServiceTypeField } from './service-type-field.js';
 
 // Case fields shared by `add` and `details` (edit). Editing also includes the fee fixed by the court;
 // the report deadline only at registration (afterwards it is edited in the deadlines panel).
+// The office's own type (AD-176) swaps the process for the contractor and drops the perícia date, the
+// parties and the proposed fee; the contracted fee and its payment come already at registration.
 export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
   const courtType = useWatch({ control, name: 'courtType' });
   const role = useWatch({ control, name: 'role' });
+  const session = useQuery(sessionQuery).data;
+  const own = courtType === 'other';
+  const serviceFields = (
+    <div key="service" className="grid gap-4 sm:grid-cols-2">
+      <ServiceTypeField />
+      <TextField
+        control={control}
+        name="serviceOrder"
+        label={t('service_order')}
+        placeholder={t('service_order_automatic')}
+      />
+      <CaseStatusField />
+    </div>
+  );
+  const contractedFee = (
+    <MoneyField
+      key="contracted"
+      control={control}
+      name="fixedFeesCents"
+      label={t('contracted_fees')}
+      placeholder={t('example_money')}
+    />
+  );
+  const notes = (
+    <TextareaField key="obs" control={control} name="notes" label={t('notes')} placeholder={t('notes_placeholder')} />
+  );
+  const dates = (
+    <div key="dates" className="grid gap-4 sm:grid-cols-2">
+      <DateField
+        control={control}
+        name="nominationDate"
+        label={own ? t('contracting_date') : t('appointment_date')}
+        placeholder={t('choose_day')}
+      />
+      {!editing && (
+        <DateField
+          control={control}
+          name="reportDeadline"
+          label={own ? t('delivery_date') : t('report_deadline')}
+          placeholder={t('choose_day')}
+        />
+      )}
+    </div>
+  );
+  const subject = (
+    <TextField key="subject" control={control} name="subject" label={t('object')} placeholder={t('example_object')} />
+  );
+
+  if (own) {
+    return (
+      <DefaultFormLayout
+        sections={[
+          { title: t('expert_case'), fields: [serviceFields] },
+          {
+            title: t('contractor_data'),
+            description: t('contractor_data_description'),
+            fields: [
+              <TextField
+                key="contractor-name"
+                control={control}
+                name="contractor.name"
+                label={t('name_or_company_name')}
+                placeholder={t('name_or_company_name')}
+              />,
+              <div key="contractor" className="grid gap-4 sm:grid-cols-2">
+                <TextField
+                  control={control}
+                  name="contractor.document"
+                  label={t('cpf_cnpj')}
+                  placeholder={t('cpf_cnpj')}
+                />
+                <TextField control={control} name="contractor.phone" label={t('phone')} placeholder="(11) 90000-0000" />
+                <TextField
+                  control={control}
+                  name="contractor.email"
+                  label={t('email')}
+                  placeholder={t('example_email')}
+                />
+                <TextField
+                  control={control}
+                  name="contractor.address"
+                  label={t('address')}
+                  placeholder={t('address')}
+                />
+              </div>,
+            ],
+          },
+          { title: t('expert_case'), description: t('object_and_deadlines'), fields: [subject, dates] },
+          {
+            title: t('fees'),
+            fields: [
+              contractedFee,
+              ...(!editing && session && can(session, 'finance', 'create')
+                ? [<CasePaymentFields key="payment" />]
+                : []),
+              notes,
+            ],
+          },
+        ]}
+      />
+    );
+  }
+
   return (
     <DefaultFormLayout
       sections={[
@@ -19,28 +127,13 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
           title: t('process'),
           description: t('process_identification_data'),
           fields: [
-            <div key="service" className="grid gap-4 sm:grid-cols-2">
-              <ServiceTypeField />
-              <TextField
-                control={control}
-                name="serviceOrder"
-                label={t('service_order')}
-                placeholder={t('service_order_automatic')}
-              />
-              <SelectField
-                control={control}
-                name="status"
-                label={t('service_status')}
-                placeholder={t('select')}
-                items={CASE_STATUS_ITEMS}
-              />
-            </div>,
+            serviceFields,
             <div key="process" className="grid gap-4 sm:grid-cols-2">
               <TextField
                 control={control}
                 name="processNumber"
                 label={t('process_number')}
-                placeholder={courtType === 'other' ? t('optional_without_process') : '0000000-00.0000.0.00.0000'}
+                placeholder="0000000-00.0000.0.00.0000"
               />
               <TextField control={control} name="court" label={t('court')} placeholder={t('example_court')} />
               <TextField
@@ -61,31 +154,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
         {
           title: t('expert_case'),
           description: t('object_and_deadlines'),
-          fields: [
-            <TextField
-              key="subject"
-              control={control}
-              name="subject"
-              label={t('object')}
-              placeholder={t('example_object')}
-            />,
-            <div key="dates" className="grid gap-4 sm:grid-cols-2">
-              <DateField
-                control={control}
-                name="nominationDate"
-                label={t('appointment_date')}
-                placeholder={t('choose_day')}
-              />
-              {!editing && (
-                <DateField
-                  control={control}
-                  name="reportDeadline"
-                  label={t('report_deadline')}
-                  placeholder={t('choose_day')}
-                />
-              )}
-            </div>,
-          ],
+          fields: [subject, dates],
         },
         {
           title: t('inspection_date_time'),
@@ -131,13 +200,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                 />
               )}
             </div>,
-            <TextareaField
-              key="obs"
-              control={control}
-              name="notes"
-              label={t('notes')}
-              placeholder={t('notes_placeholder')}
-            />,
+            notes,
           ],
         },
       ]}
