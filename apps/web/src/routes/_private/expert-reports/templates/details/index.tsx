@@ -23,9 +23,11 @@ import {
   setTemplateLayoutMutation,
   type TemplateSectionRecord,
   templateQuery,
+  updateTemplateMutation,
 } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { LayoutDialog } from '../../@components/layout-dialog.js';
+import { SaveTemplateDialog } from '../../@components/save-template-dialog.js';
 import { TemplateCreateForm } from '../@components/template-create-form.js';
 import { TemplateSectionForm } from './@components/template-section-form.js';
 import { TemplateSectionView } from './@components/template-section-view.js';
@@ -36,6 +38,7 @@ type PanelState =
   | { kind: 'ver'; section: TemplateSectionRecord }
   | { kind: 'remove-section'; section: TemplateSectionRecord }
   | { kind: 'duplicate' }
+  | { kind: 'edit' }
   | { kind: 'layout' }
   | { kind: 'removal' }
   | null;
@@ -51,6 +54,7 @@ export function TemplateDetailsPage() {
   const dropSection = useMutation(removeTemplateSectionMutation(queryClient));
   const removal = useMutation(deleteTemplateMutation(queryClient));
   const setLayout = useMutation(setTemplateLayoutMutation(queryClient));
+  const update = useMutation(updateTemplateMutation(queryClient));
   const [panel, setPanel] = useState<PanelState>(null);
   const template = query.data;
   const canEdit = Boolean(template && !template.isDefault && can(session, 'report_templates', 'update'));
@@ -69,6 +73,11 @@ export function TemplateDetailsPage() {
             )}
             {canEdit && <Button onClick={() => setPanel({ kind: 'section' })}>{t('new_section')}</Button>}
             <PageMenu>
+              {canEdit && (
+                <DropdownMenuItem onClick={() => setPanel({ kind: 'edit' })}>
+                  {t('edit_name_and_details')}
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicate' })}>
                 {t('duplicate_template')}
               </DropdownMenuItem>
@@ -92,7 +101,7 @@ export function TemplateDetailsPage() {
               label={t(template.type)}
               title={template.name}
               badge={template.isDefault && <Badge variant="info">{t('standard')}</Badge>}
-              description={template.isDefault ? t('standard_template_review_notice') : undefined}
+              description={template.isDefault ? t('standard_template_review_notice') : template.details}
             />
           </RecordHeader>
           <Panel title={t('sections')} description={`${template.sections.length} ${t('sections').toLowerCase()}`}>
@@ -198,6 +207,15 @@ export function TemplateDetailsPage() {
               },
             )
           }
+        />
+      )}
+      {template && panel?.kind === 'edit' && (
+        <SaveTemplateDialog
+          title={t('edit_name_and_details')}
+          values={{ name: template.name, details: template.details }}
+          pending={update.isPending}
+          onClose={() => setPanel(null)}
+          onConfirm={(data) => update.mutate({ id: template.id, data }, { onSuccess: () => setPanel(null), onError })}
         />
       )}
       {panel?.kind === 'ver' && <TemplateSectionView section={panel.section} onClose={() => setPanel(null)} />}

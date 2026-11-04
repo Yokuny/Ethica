@@ -18,6 +18,8 @@ export interface TemplateDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
   name: string;
+  // Specifics of the template (AD-181); missing or empty = none.
+  details?: string;
   type: ReportType;
   sections: TemplateSectionDocument[];
   // Missing = REPORT_LAYOUT_DEFAULT (NLA-06).
@@ -40,6 +42,7 @@ const templateSchema = new Schema<TemplateDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     name: { type: String, required: true, trim: true },
+    details: { type: String, trim: true },
     type: { type: String, enum: REPORT_TYPES, required: true },
     sections: { type: [sectionSchema], default: [] },
     layout: { type: Schema.Types.Mixed },

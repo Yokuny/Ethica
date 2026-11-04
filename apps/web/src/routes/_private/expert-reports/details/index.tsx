@@ -304,7 +304,9 @@ export function ReportDetailsPage() {
       )}
       {report && dialog?.kind === 'save-template' && (
         <SaveTemplateDialog
-          name={report.templateName}
+          title={t('save_as_template')}
+          description={t('save_as_template_description')}
+          values={{ name: report.templateName }}
           pending={saveTemplate.isPending}
           onClose={() => setDialog(null)}
           onConfirm={(data) =>

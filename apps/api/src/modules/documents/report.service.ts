@@ -314,10 +314,10 @@ export const saveAsTemplate = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
   id: string,
-  { name }: UpdateTemplate,
+  { name, details }: UpdateTemplate,
 ) => {
   const report = await getReport(ctx.tenantId, id);
-  if (report.file) return attachedAsTemplate(providers, ctx, report, name);
+  if (report.file) return attachedAsTemplate(providers, ctx, report, { name, details });
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
   const { values } = await currentData({}, ctx, legalCase, report.signatoryId);
   const original = report.templateId
@@ -338,7 +338,13 @@ export const saveAsTemplate = async (
         noText: section.variant === 'no' ? html : (base?.noText ?? ''),
       };
     });
-  return templateService.createFromReport(ctx.tenantId, { name, type: report.type, sections, layout: report.layout });
+  return templateService.createFromReport(ctx.tenantId, {
+    name,
+    details,
+    type: report.type,
+    sections,
+    layout: report.layout,
+  });
 };
 
 // ANL-04: the text of the attached PDF becomes an office template, a numbered heading per item.
@@ -346,13 +352,19 @@ const attachedAsTemplate = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
   report: ReportRecord,
-  name: string,
+  { name, details }: UpdateTemplate,
 ) => {
   const file = await reportRepository.fileOf(ctx.tenantId, report.id);
   const body = file && providers.storage ? await providers.storage.get(file.key) : null;
   if (!body) throw new ReportNotFoundError('not_found');
   const sections = templateSectionsFromText(await importService.extractPdfText(body), report.templateName);
-  return templateService.createFromReport(ctx.tenantId, { name, type: report.type, sections, layout: report.layout });
+  return templateService.createFromReport(ctx.tenantId, {
+    name,
+    details,
+    type: report.type,
+    sections,
+    layout: report.layout,
+  });
 };
 
 // NLA-05: blank item after `afterId` and its subitems (or at the start), out of the template. Right after the

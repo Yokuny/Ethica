@@ -67,6 +67,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-182** (2026-11-04, active) — Largura das colunas das listas por regra única nos blocos de célula (`apps/web/src/components/data-table.tsx`): o título da coluna principal
+- **AD-181** (2026-11-04, active) — O modelo do escritório tem detalhes (`Template.details`, texto livre de até 300 caracteres, opcional) para separar modelos do mesmo anexo da
 - **AD-180** (2026-11-04, active) — A fase inicial ganha `nomination_accepted`, `fee_proposal`, `document_request` (no começo), `inspection_scheduled` e `inspection_done` (no f
 - **AD-179** (2026-11-03, active) — Laudo feito fora do Ethica entra pelo PDF: `Report.file` (`key`, `name`, `bytes`) marca o laudo anexado, que nasce `completed`, sem itens, c
 - **AD-178** (2026-11-03, active (lista de fases ampliada por AD-180)) — O serviço tem fase e status separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento
@@ -75,8 +77,6 @@ _Nenhum._
 - **AD-175** (2026-11-03, active) — O laudo guarda quem gravou por último (`Report.UpdatedBy`), atualizado em toda escrita do rascunho e na conclusão; a lista devolve `updatedB
 - **AD-174** (2026-11-03, active) — O título de cada parte do laudo aparece do mesmo jeito na tela (laudo, modelo e escolha de itens), no PDF e no Word: item (nível 1) todo em
 - **AD-173** (2026-11-03, active) — O "Preencher com PDF ou ZIP" do cadastro do serviço aceita um ZIP com os PDFs do processo dividido em partes: o servidor abre o ZIP, lê só o
-- **AD-172** (2026-11-03, active) — Cabeçalho e rodapé do escritório têm fonte (Times, Arial), tamanho e alinhamento próprios (`headerStyle`/`footerStyle` no `Tenant`, sem eles
-- **AD-171** (2026-11-03, active) — No laudo, cada item tem na própria linha as setas de subir/descer, "Faz parte do laudo" e um "…" com Editar título, Adicionar item abaixo, A
 
 ## `.specs/` sem registro em `docs/features/`
 

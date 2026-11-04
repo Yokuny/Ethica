@@ -109,10 +109,10 @@ type TableIdentityProps = {
 
 function TableIdentity({ title, description, avatar, icon: Icon, link, size = 'default' }: TableIdentityProps) {
   return (
-    // Max width (the cell allows wrapping, `table.tsx`): long text is cut to one line with
-    // an ellipsis instead of pushing the other columns; the minimum keeps the name
-    // readable on the phone (the table scrolls sideways).
-    <div data-slot="table-identity" className="flex min-w-44 max-w-56 items-center gap-2.5 sm:max-w-72 lg:max-w-96">
+    // Column widths (AD-182): the title (process number, name) never wraps nor gets cut, so the column takes
+    // its width and the long texts of the other columns wrap; only a title past `max-w-md` ends in "…".
+    // The supporting line wraps.
+    <div data-slot="table-identity" className="flex items-center gap-2.5">
       {avatar !== undefined && (
         <Avatar size={size}>
           <AvatarFallback>{initials(avatar)}</AvatarFallback>
@@ -131,13 +131,13 @@ function TableIdentity({ title, description, avatar, icon: Icon, link, size = 'd
       )}
       <div className="min-w-0">
         {link ? (
-          <AppLink {...link} className="max-w-full" onClick={(event) => event.stopPropagation()}>
+          <AppLink {...link} className="max-w-md whitespace-nowrap" onClick={(event) => event.stopPropagation()}>
             {title}
           </AppLink>
         ) : (
-          <ItemTitle className="font-normal line-clamp-1 max-w-full text-left">{title}</ItemTitle>
+          <ItemTitle className="block max-w-md truncate font-normal text-left">{title}</ItemTitle>
         )}
-        {description && <ItemDescription className="text-xs line-clamp-1">{description}</ItemDescription>}
+        {description && <ItemDescription className="max-w-md text-xs text-pretty">{description}</ItemDescription>}
       </div>
     </div>
   );
@@ -151,18 +151,23 @@ type TableStackProps = {
   descriptionTone?: 'muted' | 'error';
 };
 
-// Value + supporting line (date and time, total and quantity, status and time).
+// Value + supporting line (date and time, total and quantity, status and time). Shown whole (AD-182): long
+// text (parties, court) wraps inside `max-w-md` instead of being cut; dates and amounts have no space to wrap at.
 function TableStack({ children, description, tone = 'default', descriptionTone = 'muted' }: TableStackProps) {
   return (
-    <div data-slot="table-stack">
+    <div data-slot="table-stack" className="max-w-md">
       <ItemDescription
-        className={cn('line-clamp-1', tone === 'default' && 'text-foreground', tone === 'error' && 'text-destructive')}
+        className={cn(
+          'line-clamp-none text-pretty',
+          tone === 'default' && 'text-foreground',
+          tone === 'error' && 'text-destructive',
+        )}
       >
         {children}
       </ItemDescription>
       {description && (
         <ItemDescription
-          className={cn('text-[0.8rem] line-clamp-none', descriptionTone === 'error' && 'text-destructive')}
+          className={cn('text-[0.8rem] line-clamp-none text-pretty', descriptionTone === 'error' && 'text-destructive')}
         >
           {description}
         </ItemDescription>

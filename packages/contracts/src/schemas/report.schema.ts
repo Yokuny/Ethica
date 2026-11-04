@@ -203,6 +203,8 @@ export const REPORT_LAYOUT_DEFAULT: ReportLayout = {
 export const createTemplateSchema = z
   .object({
     name: z.string().trim().min(1, 'nome é obrigatório').max(120, 'nome muito longo'),
+    // What sets the template apart from others of the same NR annex ("limpeza de banheiros", AD-181).
+    details: z.string().trim().max(300, 'detalhes muito longos').optional(),
     type: z.enum(REPORT_TYPES),
     // Without a base, the template starts blank; with a base, it clones the sections (default or office).
     baseId: templateIdSchema.optional(),
@@ -210,7 +212,7 @@ export const createTemplateSchema = z
   .strict();
 export type CreateTemplate = z.infer<typeof createTemplateSchema>;
 
-export const updateTemplateSchema = createTemplateSchema.pick({ name: true }).strict();
+export const updateTemplateSchema = createTemplateSchema.pick({ name: true, details: true }).strict();
 export type UpdateTemplate = z.infer<typeof updateTemplateSchema>;
 
 export const templateSectionSchema = z

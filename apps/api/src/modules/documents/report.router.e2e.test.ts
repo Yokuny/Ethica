@@ -652,9 +652,24 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(
       (await operator.as(request(app).post(`/expert-reports/${id}/template`)).send({ name: 'Meu modelo' })).status,
     ).toBe(403);
-    const saved = await admin.as(request(app).post(`/expert-reports/${id}/template`)).send({ name: 'Meu modelo' });
+    const saved = await admin
+      .as(request(app).post(`/expert-reports/${id}/template`))
+      .send({ name: 'Meu modelo', details: 'Limpeza de banheiros' });
     expect(saved.status).toBe(201);
-    expect(saved.body.data).toMatchObject({ name: 'Meu modelo', type: 'report', isDefault: false });
+    expect(saved.body.data).toMatchObject({
+      name: 'Meu modelo',
+      details: 'Limpeza de banheiros',
+      type: 'report',
+      isDefault: false,
+    });
+    // Details (AD-181): in the list, editable and removed when empty.
+    const listed = await admin.as(request(app).get('/expert-reports/templates'));
+    expect(listed.body.data).toContainEqual(expect.objectContaining({ details: 'Limpeza de banheiros' }));
+    const cleared = await admin
+      .as(request(app).patch(`/expert-reports/templates/${saved.body.data.id}`))
+      .send({ name: 'Meu modelo', details: '' });
+    expect(cleared.status).toBe(200);
+    expect(cleared.body.data.details).toBeUndefined();
     expect(saved.body.data.sections.map((section: Section) => section.title)).toEqual(['Objeto da perícia', 'Subitem']);
     expect(saved.body.data.sections[1].yesText).toBe('<p>Processo [NUMERO_PROCESSO]</p>');
 

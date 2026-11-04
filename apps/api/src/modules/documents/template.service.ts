@@ -2,7 +2,14 @@ import { isDefaultTemplate, REPORT_LAYOUT_DEFAULT, type ReportLayout, type Repor
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import { sanitizeReportHtml } from './report.html.js';
 import { DEFAULT_TEMPLATES } from './report.library.js';
-import type { CreateTemplate, MoveSection, TemplateRecord, TemplateSection, TemplateSummary } from './report.schema.js';
+import type {
+  CreateTemplate,
+  MoveSection,
+  TemplateRecord,
+  TemplateSection,
+  TemplateSummary,
+  UpdateTemplate,
+} from './report.schema.js';
 import * as templateRepository from './template.repository.js';
 
 export class TemplateNotFoundError extends KeyedError {}
@@ -44,6 +51,7 @@ export const createTemplate = async (tenantId: string, data: CreateTemplate): Pr
   if (base && base.type !== data.type) throw new CustomError('report_template_type_mismatch', 422);
   return templateRepository.create(tenantId, {
     name: data.name,
+    details: data.details || undefined,
     type: data.type,
     sections: (base?.sections ?? []).map(({ id: _id, ...section }) => section),
     layout: base?.layout ?? REPORT_LAYOUT_DEFAULT,
@@ -53,8 +61,13 @@ export const createTemplate = async (tenantId: string, data: CreateTemplate): Pr
 // Template saved from a report (AD-170): its items and texts, already chosen by the expert.
 export const createFromReport = (
   tenantId: string,
-  data: { name: string; type: ReportType; sections: TemplateSection[]; layout: ReportLayout },
-): Promise<TemplateRecord> => templateRepository.create(tenantId, { ...data, sections: data.sections.map(sanitized) });
+  data: { name: string; details?: string; type: ReportType; sections: TemplateSection[]; layout: ReportLayout },
+): Promise<TemplateRecord> =>
+  templateRepository.create(tenantId, {
+    ...data,
+    details: data.details || undefined,
+    sections: data.sections.map(sanitized),
+  });
 
 // Layout of the reports created from it (NLA-06).
 export const setLayout = async (tenantId: string, id: string, layout: ReportLayout): Promise<TemplateRecord> => {
@@ -62,9 +75,9 @@ export const setLayout = async (tenantId: string, id: string, layout: ReportLayo
   return found(await templateRepository.setLayout(tenantId, id, layout));
 };
 
-export const renameTemplate = async (tenantId: string, id: string, name: string): Promise<TemplateRecord> => {
+export const updateTemplate = async (tenantId: string, id: string, data: UpdateTemplate): Promise<TemplateRecord> => {
   ofOffice(id);
-  return found(await templateRepository.updateName(tenantId, id, name));
+  return found(await templateRepository.update(tenantId, id, data));
 };
 
 export const deleteTemplate = async (tenantId: string, id: string): Promise<void> => {

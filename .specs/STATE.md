@@ -959,6 +959,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-181
+- **Decision**: O modelo do escritório tem **detalhes** (`Template.details`, texto livre de até 300 caracteres, opcional) para separar modelos do mesmo anexo da NR por atividade. Entram ao salvar o laudo como modelo (`POST /expert-reports/:id/template`, também o anexado), ao criar e no `PATCH /expert-reports/templates/:id`, que passa de "renomear" a "nome e detalhes" (detalhe vazio é apagado). Aparecem na lista de modelos, no título do modelo e na escolha do modelo ao criar o laudo. O diálogo `SaveTemplateDialog` serve a salvar e a editar.
+- **Reason**: pedido da perita (2026-11-04): guardar modelos pré-preenchidos e pré-embasados por atividade ("Laudo de insalubridade Anexo 14" — "limpeza de banheiros").
+- **Trade-off**: os detalhes não entram na busca nem no laudo gerado; duplicar um modelo não copia os detalhes.
+- **Scope**: `packages/contracts/src/schemas/report.schema.ts`, `packages/db/src/models/template.model.ts`, `apps/api/src/modules/documents/{template.repository,template.service,report.service,report.controller,report.router}.ts`, `apps/web/src/routes/_private/expert-reports/`.
+- **Date**: 2026-11-04
+- **Status**: active
+
+### AD-182
+- **Decision**: Largura das colunas das listas por regra única nos blocos de célula (`apps/web/src/components/data-table.tsx`): o título da coluna principal (`TableIdentity`: número do processo, nome) não quebra nem é cortado até `max-w-md`, então a coluna ganha a largura dele; o texto de apoio e os valores de `TableStack` aparecem inteiros, quebrando em linhas (`line-clamp-none`, `text-pretty`) dentro de `max-w-md`. Saem a largura fixa da coluna principal (`max-w-56`/`72`/`96`) e o corte em uma linha com "…".
+- **Reason**: pedido da perita (2026-11-04), com foto da lista de laudos: o número do processo aparecia cortado enquanto sobrava espaço nas outras colunas; vale para todas as listas.
+- **Trade-off**: linhas com muitas partes ficam mais altas; um título acima de `max-w-md` (descrição longa de lançamento) ainda termina em "…".
+- **Scope**: `apps/web/src/components/data-table.tsx` (todas as listas que usam `TableIdentity`/`TableStack`).
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

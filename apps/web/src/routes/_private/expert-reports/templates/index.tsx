@@ -47,7 +47,13 @@ export function TemplatesPage() {
                 render={<Link to="/expert-reports/templates/details" search={{ id: template.id }} />}
                 title={template.name}
                 badges={template.isDefault && <Badge variant="info">{t('standard')}</Badge>}
-                description={[t(template.type), `${template.totalSections} ${t('sections').toLowerCase()}`].join(' · ')}
+                description={[
+                  template.details,
+                  t(template.type),
+                  `${template.totalSections} ${t('sections').toLowerCase()}`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
               />
             ))}
           </LinkList>

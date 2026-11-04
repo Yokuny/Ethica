@@ -63,7 +63,7 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     can('report_templates', 'update'),
     template,
     validBody(updateTemplateSchema),
-    reportController.renameTemplate,
+    reportController.updateTemplate,
   );
   router.delete(
     '/templates/:id',

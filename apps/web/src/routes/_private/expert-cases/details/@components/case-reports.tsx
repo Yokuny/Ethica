@@ -122,8 +122,9 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
       )}
       {attached && (
         <SaveTemplateDialog
-          attached
-          name={attached.templateName}
+          title={t('save_attached_as_template_question')}
+          description={t('save_attached_as_template_description')}
+          values={{ name: attached.templateName }}
           pending={saveTemplate.isPending}
           onClose={() => setAttached(null)}
           onConfirm={(data) =>

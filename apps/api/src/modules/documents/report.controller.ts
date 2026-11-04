@@ -87,7 +87,7 @@ export const listTemplates = json((req) =>
 );
 export const getTemplate = json((req) => templateService.getTemplate(tenantOf(req), id(req)));
 export const createTemplate = json((req) => templateService.createTemplate(tenantOf(req), req.body), 201);
-export const renameTemplate = json((req) => templateService.renameTemplate(tenantOf(req), id(req), req.body.name));
+export const updateTemplate = json((req) => templateService.updateTemplate(tenantOf(req), id(req), req.body));
 export const deleteTemplate = removed((req) => templateService.deleteTemplate(tenantOf(req), id(req)));
 export const addTemplateSection = json((req) => templateService.addSection(tenantOf(req), id(req), req.body), 201);
 export const updateTemplateSection = json((req) =>

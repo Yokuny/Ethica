@@ -579,7 +579,8 @@
         "AD-124",
         "AD-125",
         "AD-126",
-        "AD-127"
+        "AD-127",
+        "AD-181"
       ],
       "spec": [
         ".specs/features/laudos"
@@ -1370,6 +1371,18 @@
     {
       "id": "AD-180",
       "decisao": "A fase inicial ganha `nomination_accepted`, `fee_proposal`, `document_request` (no começo), `inspection_scheduled` e `inspection_done` (no f",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-181",
+      "decisao": "O modelo do escritório tem detalhes (`Template.details`, texto livre de até 300 caracteres, opcional) para separar modelos do mesmo anexo da",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-182",
+      "decisao": "Largura das colunas das listas por regra única nos blocos de célula (`apps/web/src/components/data-table.tsx`): o título da coluna principal",
       "data": "2026-11-04",
       "status": "active"
     }

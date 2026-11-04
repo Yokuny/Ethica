@@ -105,6 +105,7 @@ export type TemplateSectionRecord = TemplateSection & { id: string };
 export type TemplateRecord = {
   id: string;
   name: string;
+  details?: string;
   type: ReportType;
   // Default library template: read-only, clonable (AD-126).
   isDefault: boolean;

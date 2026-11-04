@@ -4,7 +4,7 @@ import { Form } from '@ethica/ui/components/form';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { FormDialog } from '@/components/form-dialog.js';
-import { SelectField, TextField } from '@/components/form-fields.js';
+import { SelectField, TextareaField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type TemplateRecord, templatesQuery } from '@/query/report.js';
 import { useTemplateCreateForm } from '../@hooks/use-template-create-form.js';
@@ -35,6 +35,12 @@ export function TemplateCreateForm({ base, onDone, onClose }: TemplateCreateForm
             name="name"
             label={t('name')}
             placeholder={t('template_name_placeholder')}
+          />
+          <TextareaField
+            control={form.control}
+            name="details"
+            label={t('template_details')}
+            placeholder={t('template_details_placeholder')}
           />
           <SelectField
             control={form.control}

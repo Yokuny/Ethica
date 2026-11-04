@@ -18,7 +18,8 @@ export function TemplateSelect({
   const templates = useQuery(templatesQuery(type));
   const items = (templates.data ?? []).map((item) => ({
     value: item.id,
-    label: type ? item.name : `${item.name} · ${t(item.type)}`,
+    // Details (AD-181) set apart templates of the same NR annex.
+    label: [item.name, item.details, !type && t(item.type)].filter(Boolean).join(' · '),
   }));
   return (
     <Select items={items} value={value} onValueChange={(next) => next && onChange(next)}>

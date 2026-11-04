@@ -25,6 +25,8 @@ export type TemplateSectionRecord = TemplateSection & { id: string };
 export type TemplateRecord = {
   id: string;
   name: string;
+  // Specifics of the template (AD-181).
+  details?: string;
   type: ReportType;
   isDefault: boolean;
   sections: TemplateSectionRecord[];
@@ -273,11 +275,12 @@ export const saveReportAsTemplateMutation = (
   onSuccess: (template) => updatedTemplate(queryClient, template),
 });
 
-export const renameTemplateMutation = (
+// Name and details (AD-181).
+export const updateTemplateMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<TemplateRecord, Error, { id: string; name: string }> => ({
-  mutationFn: async ({ id, name }) =>
-    unwrap(await patch<TemplateRecord>(`/expert-reports/templates/${id}`, { name }), 'save_error'),
+): UseMutationOptions<TemplateRecord, Error, { id: string; data: UpdateTemplate }> => ({
+  mutationFn: async ({ id, data }) =>
+    unwrap(await patch<TemplateRecord>(`/expert-reports/templates/${id}`, data), 'save_error'),
   onSuccess: (template) => updatedTemplate(queryClient, template),
 });
 
