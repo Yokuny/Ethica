@@ -3,19 +3,16 @@ import { Form } from '@ethica/ui/components/form';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { createFileRoute } from '@tanstack/react-router';
 import { FileUp } from 'lucide-react';
-import { useRef } from 'react';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { CaseFormFields } from '../@components/case-form-fields.js';
-import { PdfImportNotice } from './@components/pdf-import-notice.js';
-import { PDF_MAX_SIZE_TEXT } from './@consts/pdf-max-size.js';
+import { PdfFillDialog } from './@components/pdf-fill-dialog.js';
 import { useCaseForm } from './@hooks/use-case-form.js';
-import { usePdfImport } from './@hooks/use-pdf-import.js';
+import { usePdfFill } from './@hooks/use-pdf-fill.js';
 
 export function CaseAddPage() {
   const { form, onSubmit, isPending, errorMessage } = useCaseForm();
-  const pdf = usePdfImport(form);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const pdf = usePdfFill(form);
   const formActions = (
     <Button type="submit" disabled={isPending}>
       {t('save')}
@@ -28,37 +25,19 @@ export function CaseAddPage() {
         <form noValidate onSubmit={onSubmit} className="contents">
           <CardHeader title={t('new_expert_case')}>
             <CardAction>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={pdf.isPending}
-                onClick={() => pdfInputRef.current?.click()}
-              >
+              <Button type="button" variant="outline" onClick={pdf.start}>
                 <FileUp />
-                {pdf.isPending ? t('reading_pdf') : t('fill_from_pdf')}
+                {t('fill_from_pdf')}
               </Button>
               {formActions}
             </CardAction>
           </CardHeader>
           <CardContent>
-            <input
-              ref={pdfInputRef}
-              type="file"
-              accept=".pdf,.zip,application/pdf,application/zip"
-              className="sr-only"
-              tabIndex={-1}
-              aria-label={t('fill_from_pdf')}
-              onChange={pdf.handleFile}
-            />
-            <ItemDescription className="line-clamp-none">
-              {t('pdf_with_text')} · {PDF_MAX_SIZE_TEXT}
-            </ItemDescription>
-            {pdf.fileError && (
-              <ItemDescription role="alert" className="text-destructive line-clamp-none">
-                {pdf.fileError}
+            {pdf.filled && (
+              <ItemDescription role="status" className="line-clamp-none">
+                {t('pdf_filled_review_before_saving')}
               </ItemDescription>
             )}
-            {pdf.extraction && <PdfImportNotice extraction={pdf.extraction} />}
             <CaseFormFields control={form.control} />
             {errorMessage && (
               <ItemDescription role="alert" className="text-destructive line-clamp-none">
@@ -71,6 +50,7 @@ export function CaseAddPage() {
           </CardFooter>
         </form>
       </Form>
+      {pdf.open && <PdfFillDialog pdf={pdf} />}
     </Card>
   );
 }

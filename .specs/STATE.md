@@ -901,7 +901,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: só ZIP (RAR e 7z não). Parte escaneada sem texto não ajuda a preencher; o rascunho sai do texto das outras partes. O arquivo não fica guardado, como o PDF (AD-114).
 - **Scope**: `apps/api/src/modules/case/import.service.ts` (`extractPdfText`), `apps/api/src/modules/case/case.router.ts`, `apps/web/src/routes/_private/expert-cases/add/`.
 - **Date**: 2026-11-03
-- **Status**: active
+- **Status**: superseded by AD-183
 
 ### AD-174
 - **Decision**: O título de cada parte do laudo aparece do mesmo jeito na tela (laudo, modelo e escolha de itens), no PDF e no Word: item (nível 1) todo em maiúsculas; subitem com a primeira letra maiúscula e o resto como foi digitado (`sectionTitle` em `packages/contracts/src/schemas/report.schema.ts`). O título gravado não muda; a regra é aplicada ao mostrar. Substitui o `text-transform: uppercase` que só o título do item no corpo do PDF tinha (o sumário do PDF e o Word mostravam como digitado).
@@ -972,6 +972,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: pedido da perita (2026-11-04), com foto da lista de laudos: o número do processo aparecia cortado enquanto sobrava espaço nas outras colunas; vale para todas as listas.
 - **Trade-off**: linhas com muitas partes ficam mais altas; um título acima de `max-w-md` (descrição longa de lançamento) ainda termina em "…".
 - **Scope**: `apps/web/src/components/data-table.tsx` (todas as listas que usam `TableIdentity`/`TableStack`).
+- **Date**: 2026-11-04
+- **Status**: active
+
+### AD-183
+- **Decision**: O "Preencher com PDF" do cadastro do serviço aceita **vários PDFs** numa janela em três etapas (arquivos → escolher valores → preencher). Cada PDF é lido sozinho pela rota de sempre (`POST /expert-cases/import/pdf`) e, onde os arquivos trazem valores diferentes, a perita escolhe qual entra em cada campo; as partes achadas são marcadas uma a uma. O ZIP sai: supersede **AD-173** (`zip_without_pdf` removido).
+- **Reason**: pedido da perita (2026-11-04).
+- **Trade-off**: um campo só existe se algum PDF sozinho o trouxer (o texto dos arquivos não é juntado). Os arquivos são lidos um por vez.
+- **Scope**: `apps/api/src/modules/case/{import.service,case.router}.ts`, `packages/contracts/src/response/messages.ts`, `apps/web/src/routes/_private/expert-cases/add/`.
 - **Date**: 2026-11-04
 - **Status**: active
 

@@ -24,6 +24,26 @@
       "doc": "features/fase-servico/feature.md"
     },
     {
+      "slug": "preencher-pdfs",
+      "feature": "Preencher com vários PDFs",
+      "descricao": "Cadastro do serviço preenchido por vários PDFs numa janela em etapas, com a escolha do valor de cada campo",
+      "data": "2026-11-04",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts"
+      ],
+      "decisoes": [
+        "AD-183"
+      ],
+      "spec": [
+        ".specs/features/preencher-pdfs"
+      ],
+      "planos": [],
+      "doc": "features/preencher-pdfs/feature.md"
+    },
+    {
       "slug": "agenda-eventos",
       "feature": "Agenda por eventos",
       "descricao": "Perícia, prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento, com tipo, estado e filtro",
@@ -1330,7 +1350,7 @@
       "id": "AD-173",
       "decisao": "O \"Preencher com PDF ou ZIP\" do cadastro do serviço aceita um ZIP com os PDFs do processo dividido em partes: o servidor abre o ZIP, lê só o",
       "data": "2026-11-03",
-      "status": "active"
+      "status": "superseded by AD-183"
     },
     {
       "id": "AD-174",
@@ -1383,6 +1403,12 @@
     {
       "id": "AD-182",
       "decisao": "Largura das colunas das listas por regra única nos blocos de célula (`apps/web/src/components/data-table.tsx`): o título da coluna principal",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-183",
+      "decisao": "O \"Preencher com PDF\" do cadastro do serviço aceita vários PDFs numa janela em três etapas (arquivos → escolher valores → preencher). Cada P",
       "data": "2026-11-04",
       "status": "active"
     }

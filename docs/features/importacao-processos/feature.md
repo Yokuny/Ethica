@@ -42,7 +42,7 @@ Partes deixaram de ser texto livre (`plaintiff`/`defendant` foram removidos) e v
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/expert-cases/add/` — ação "Preencher com PDF" (`@hooks/use-pdf-import.ts`) e o aviso do que faltou (`@components/pdf-import-notice.tsx`).
+- `apps/web/src/routes/_private/expert-cases/add/` — ação "Preencher com PDF" (janela em etapas, feature `preencher-pdfs`).
 - `apps/web/src/routes/_private/expert-cases/import/` — página de importação por CSV; o modelo é gerado em `@utils/csv-template.ts` a partir de `CSV_IMPORT_COLUMNS`.
 - `apps/web/src/routes/_private/expert-cases/@components/case-parties-fields.tsx` e `labor-case-fields.tsx` — partes por polo (com sugestão do cadastro) e o grupo trabalhista, usados no cadastro e na edição.
 - `apps/web/src/routes/_private/expert-cases/@query/import.ts` — mutations de PDF e CSV (`sendFile` em `apps/web/src/lib/api/client.api.ts`, antes `postFile`).
@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/pericia packages/contracts packages/db/src/
 
 ## Histórico
 
+- 2026-11-04 — "Preencher com PDF" passa a aceitar vários PDFs numa janela em etapas, com a escolha do valor de cada campo; o ZIP saiu (AD-183, feature `preencher-pdfs`).
 - 2026-11-03 — "Preencher com PDF ou ZIP": processo dividido em partes vai num ZIP com os PDFs, lidos na ordem do nome e juntados num rascunho só (AD-173, `extractPdfText` em `apps/api/src/modules/case/import.service.ts`).
 
 - 2026-11-03 — Planilha de qualquer modelo com conferência das colunas (AD-167); PDF com partes do último despacho, última nomeação e sem prazo do laudo (AD-168) (`rotina-servico`).

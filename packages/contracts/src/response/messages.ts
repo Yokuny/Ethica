@@ -51,7 +51,6 @@ export const API_MESSAGE_KEYS = [
   'unsupported_file_type',
   'file_too_large',
   'pdf_without_text',
-  'zip_without_pdf',
   'csv_empty',
   'csv_invalid_header',
   'csv_missing_process_number',

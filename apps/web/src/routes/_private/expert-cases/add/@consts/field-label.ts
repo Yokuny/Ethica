@@ -1,13 +1,12 @@
-import type { CreateCase } from '@ethica/contracts';
+import type { ChoiceField } from '../@utils/pdf-choices.js';
 
-// Translation key of the label of each field the PDF may fail to bring.
-export const FIELD_LABEL: Partial<Record<keyof CreateCase, string>> = {
+// Translation key of the label of each field the PDF may fill.
+export const FIELD_LABEL: Record<ChoiceField | 'parties', string> = {
   processNumber: 'process_number',
   court: 'court',
   division: 'court_division',
   district: 'judicial_district',
   subject: 'object',
-  parties: 'parties',
   nominationDate: 'appointment_date',
-  reportDeadline: 'report_deadline',
+  parties: 'parties',
 };
