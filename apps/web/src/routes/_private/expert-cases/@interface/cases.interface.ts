@@ -11,6 +11,7 @@ export const casesSearchSchema = z.object({
   // "Tipo" filter (AD-177): Perícia, Assistência técnica or an own type by name.
   role: z.enum(['court_expert', 'technical_assistant']).optional(),
   serviceType: z.string().optional(),
+  serviceOrder: z.string().optional(),
   deliveryFrom: z.string().optional(),
   deliveryTo: z.string().optional(),
 });

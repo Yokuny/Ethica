@@ -239,7 +239,8 @@
       "decisoes": [
         "AD-158",
         "AD-159",
-        "AD-160"
+        "AD-160",
+        "AD-184"
       ],
       "spec": [
         ".specs/features/servicos"
@@ -1409,6 +1410,12 @@
     {
       "id": "AD-183",
       "decisao": "O \"Preencher com PDF\" do cadastro do serviço aceita vários PDFs numa janela em três etapas (arquivos → escolher valores → preencher). Cada P",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-184",
+      "decisao": "A lista de Serviços passa às colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente | Comarca, Fase do serviço, Próximo prazo",
       "data": "2026-11-04",
       "status": "active"
     }

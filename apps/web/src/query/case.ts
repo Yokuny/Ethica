@@ -67,6 +67,7 @@ export type CasesQueryParams = {
   courtType?: CourtType;
   role?: 'court_expert' | 'technical_assistant';
   serviceType?: string;
+  serviceOrder?: string;
   deliveryFrom?: string;
   deliveryTo?: string;
 };

@@ -202,7 +202,7 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(done.body.data.phaseName).toBeUndefined();
   });
 
-  it('filtros por fase, status, esfera, tipo e período de entrega e data apagada (AD-177, AD-178)', async () => {
+  it('filtros por fase, status, esfera, tipo, OS e período de entrega e data apagada (AD-177, AD-178)', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
@@ -217,7 +217,7 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     });
     expect(assistance.status).toBe(201);
     const judicial = await post({ ...JUDICIAL, reportDeadline: '2027-01-20', phase: 'awaiting_judge' });
-    const own = await post(PRIVATE_SERVICE);
+    const own = await post({ ...PRIVATE_SERVICE, serviceOrder: 'TS-2026-0007' });
     expect([judicial.status, own.status]).toEqual([201, 201]);
     expect((await Deadline.findOne({ Case: assistance.body.data.id }).lean())?.title).toBe('Entrega do laudo');
 
@@ -229,6 +229,7 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await ids('role=court_expert')).toEqual([judicial.body.data.id]);
     expect(await ids(`serviceType=${encodeURIComponent(PRIVATE_SERVICE.serviceType)}`)).toEqual([own.body.data.id]);
     expect(await ids('courtType=labor')).toEqual([judicial.body.data.id]);
+    expect(await ids('serviceOrder=TS-2026-0007')).toEqual([own.body.data.id]);
     expect(await ids('phase=awaiting_judge')).toEqual([judicial.body.data.id]);
     expect(await ids('status=suspended')).toEqual([assistance.body.data.id]);
     expect(await ids('deliveryFrom=2026-12-01&deliveryTo=2026-12-31')).toEqual([assistance.body.data.id]);

@@ -1113,6 +1113,9 @@ const translations: Record<string, string> = {
   personal_data: 'Dados pessoais',
   remove_technical_responsible_question: 'Remover este responsável técnico?',
   service_order: 'OS',
+  control: 'Controle',
+  control_number: 'Número de controle',
+  client_district: 'Cliente | Comarca',
   service_order_automatic: 'Automática pela sequência do escritório',
   service_order_control: 'Controle de OS',
   service_order_control_description:

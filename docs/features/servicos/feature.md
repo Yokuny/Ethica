@@ -5,7 +5,7 @@ descricao: Seção Perícias vira Serviços, com tipo de serviço (inclusive do 
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-158, AD-159, AD-160]
+decisoes: [AD-158, AD-159, AD-160, AD-184]
 spec: [.specs/features/servicos]
 branches: [main]
 ---
@@ -77,6 +77,8 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 - [ ] Banco de teste local criado antes de 2026-11-02 guarda o índice antigo do número do processo: apague `Tenant_1_processNumber_1` de `cases` (o servidor troca sozinho no banco da aplicação).
 
 ## Histórico
+
+- 2026-11-04 — Lista de Serviços com as colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente | Comarca (tribunal e vara na perícia; contatos do contratante nos outros tipos), Fase, Próximo prazo e Honorários, com largura parelha nas colunas de texto, e filtro por Número de controle (AD-184). Falta a conferência visual com dados.
 
 - 2026-11-03 — Tipo do escritório ganha contratante, atuação e status digitados, data de entrega e pagamento no cadastro: feature `tipo-servico-proprio` (AD-176).
 

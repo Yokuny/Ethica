@@ -149,13 +149,21 @@ type TableStackProps = {
   // `muted`: the value is secondary (date, code); `error`: delay, failure.
   tone?: 'default' | 'muted' | 'error';
   descriptionTone?: 'muted' | 'error';
+  // Width of a long-text column, so the wrapped columns of a list end at the same number of lines.
+  className?: string;
 };
 
 // Value + supporting line (date and time, total and quantity, status and time). Shown whole (AD-182): long
 // text (parties, court) wraps inside `max-w-md` instead of being cut; dates and amounts have no space to wrap at.
-function TableStack({ children, description, tone = 'default', descriptionTone = 'muted' }: TableStackProps) {
+function TableStack({
+  children,
+  description,
+  tone = 'default',
+  descriptionTone = 'muted',
+  className,
+}: TableStackProps) {
   return (
-    <div data-slot="table-stack" className="max-w-md">
+    <div data-slot="table-stack" className={cn('max-w-md', className)}>
       <ItemDescription
         className={cn(
           'line-clamp-none text-pretty',
@@ -191,18 +199,19 @@ type TableStatusProps = {
   variant?: IndicatorVariant;
   // Status color configurable by the tenant (`StatusOption` hex).
   color?: string;
+  className?: string;
 };
 
 // Soft badge with a dot. Domain statuses use `variant`; tenant statuses,
 // `color` — the background becomes the same color at 12%.
-function TableStatus({ children, variant = 'neutral', color }: TableStatusProps) {
+function TableStatus({ children, variant = 'neutral', color, className }: TableStatusProps) {
   const style = color
     ? ({
         backgroundColor: `color-mix(in oklab, ${color} 12%, transparent)`,
       } as React.CSSProperties)
     : undefined;
   return (
-    <Badge variant={color ? 'outline' : variant} style={style} className="gap-1.5 px-2 ring-0">
+    <Badge variant={color ? 'outline' : variant} style={style} className={cn('gap-1.5 px-2 ring-0', className)}>
       {children}
     </Badge>
   );

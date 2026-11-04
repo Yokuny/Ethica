@@ -983,6 +983,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-184
+- **Decision**: A lista de Serviços passa às colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente | Comarca, Fase do serviço, Próximo prazo e Honorários. Na perícia, Contratante mostra autor e réu e Cliente | Comarca mostra tribunal e vara; nos demais tipos (`usesContractor`), Contratante mostra o nome do contratante e Cliente | Comarca seus contatos (documento, telefone, e-mail, endereço). As colunas de texto longo têm a mesma faixa de largura (`min-w-48 max-w-60`, `className` novo em `TableStack`/`TableStatus`) e a fase quebra dentro do selo, para a linha terminar parelha; o dado continua inteiro (AD-182). O filtro "Número de controle" compara a OS exata (`serviceOrder` no `GET /expert-cases`), sem busca por trecho.
+- **Reason**: pedido da perita (2026-11-04), com foto da lista.
+- **Trade-off**: a OS precisa ser digitada inteira no filtro; buscar por trecho exigiria pôr a OS no índice de busca do Atlas (AD-054).
+- **Scope**: `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/data-table.tsx`, `apps/api/src/modules/case/{case.schema,case.repository}.ts`.
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

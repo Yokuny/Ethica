@@ -25,6 +25,7 @@ export function useCasesSearch() {
   }
 
   const activeFilters = [
+    search.serviceOrder,
     search.phase,
     search.status,
     search.courtType,
@@ -41,6 +42,7 @@ export function useCasesSearch() {
       courtType: undefined,
       role: undefined,
       serviceType: undefined,
+      serviceOrder: undefined,
       deliveryFrom: undefined,
       deliveryTo: undefined,
       page: 1,

@@ -1,4 +1,4 @@
-import { caseLabel, isOwnType, type Side } from '@ethica/contracts';
+import { caseLabel, isOwnType, type Side, usesContractor } from '@ethica/contracts';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
@@ -11,18 +11,29 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseListItem } from '@/query/case.js';
 
 const toDate = (day: string) => new Date(`${day}T12:00:00`);
-// Names of the parties (not the lawyers) of one side, for the "Partes" column.
+// Names of the parties (not the lawyers) of one side, for the "Contratante" column of a perícia.
 const names = (row: CaseListItem, side: Side) =>
   row.parties
     .filter((party) => party.side === side && party.type === 'party')
     .map((party) => party.name)
     .join(', ');
 
+// Long-text columns share one width, so the wrapped lines of a row end even (Contratante, Cliente | Comarca).
+const TEXT_COLUMN = 'min-w-48 max-w-60';
+
 // The server does not accept sort: no column is sortable.
 export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
   {
-    id: 'process',
-    header: t('process'),
+    // Service order control number (OS) given by the office.
+    id: 'serviceOrder',
+    header: t('control'),
+    cell: ({ row }) => (
+      <TableStack tone={row.original.serviceOrder ? 'default' : 'muted'}>{row.original.serviceOrder ?? '—'}</TableStack>
+    ),
+  },
+  {
+    id: 'service',
+    header: t('expert_case'),
     cell: ({ row }) => (
       <TableIdentity
         icon={Gavel}
@@ -32,36 +43,58 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     ),
   },
   {
-    // Plaintiff on the first line, defendant below.
-    id: 'parties',
-    header: t('parties'),
-    cell: ({ row }) => (
-      // The office's own type (AD-176) shows its contractor.
-      <TableStack description={names(row.original, 'defendant') || undefined}>
-        {names(row.original, 'plaintiff') || row.original.contractor?.name || '—'}
-      </TableStack>
-    ),
+    // Perícia: plaintiff on the first line, defendant below; the other types: whoever hired it (AD-176).
+    id: 'contractor',
+    header: t('contracting_party'),
+    cell: ({ row }) =>
+      usesContractor(row.original) ? (
+        <TableStack className={TEXT_COLUMN}>{row.original.contractor?.name ?? '—'}</TableStack>
+      ) : (
+        <TableStack className={TEXT_COLUMN} description={names(row.original, 'defendant') || undefined}>
+          {names(row.original, 'plaintiff') || '—'}
+        </TableStack>
+      ),
   },
   {
-    id: 'service',
+    id: 'serviceType',
     header: t('service_type'),
     cell: ({ row }) => serviceLabel(row.original),
   },
   {
-    id: 'juizo',
-    header: t('court_header'),
-    cell: ({ row }) => (
-      <TableStack description={[row.original.division, row.original.district].filter(Boolean).join(' · ') || undefined}>
-        {row.original.court ?? '—'}
-      </TableStack>
-    ),
+    // Perícia: court and division; the other types: the contractor's contacts.
+    id: 'clientDistrict',
+    header: t('client_district'),
+    cell: ({ row }) => {
+      const { contractor, court, division, district } = row.original;
+      if (usesContractor(row.original)) {
+        const contacts = [contractor?.document, contractor?.phone].filter(Boolean).join(' · ');
+        const more = [contractor?.email, contractor?.address].filter(Boolean).join(' · ');
+        return (
+          <TableStack
+            className={TEXT_COLUMN}
+            tone={contacts || more ? 'default' : 'muted'}
+            description={contacts ? more || undefined : undefined}
+          >
+            {contacts || more || '—'}
+          </TableStack>
+        );
+      }
+      return (
+        <TableStack className={TEXT_COLUMN} description={division || district || undefined}>
+          {court ?? '—'}
+        </TableStack>
+      );
+    },
   },
   {
     id: 'phase',
     header: t('service_phase'),
     // Phase in the tone of the status (AD-178); a status other than active is named after it.
     cell: ({ row }) => (
-      <TableStatus variant={CASE_STATUS_VARIANT[row.original.status]}>
+      <TableStatus
+        variant={CASE_STATUS_VARIANT[row.original.status]}
+        className="h-auto max-w-60 whitespace-normal text-left"
+      >
         {[
           casePhaseLabel(row.original.phase, row.original.phaseName),
           row.original.status !== 'active' && caseStatusLabel(row.original.status),

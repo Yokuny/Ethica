@@ -1,3 +1,4 @@
+import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import {
   serviceTypeItems,
 } from '@/components/case-labels.js';
 import { DatePicker } from '@/components/date-picker.js';
+import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { serviceTypesQuery } from '@/query/case.js';
 import type { CasesSearch } from '../@interface/cases.interface.js';
@@ -50,7 +52,7 @@ function FilterSelect({
   );
 }
 
-// Listing "Filtros" popover content: phase and status (AD-178), sphere, type (AD-177) and delivery period.
+// Listing "Filtros" popover content: control number (OS), phase and status (AD-178), sphere, type (AD-177) and delivery period.
 export function CasesFilters({
   search,
   onChange,
@@ -66,8 +68,15 @@ export function CasesFilters({
       serviceType: value?.startsWith(OWN_TYPE_PREFIX) ? value.slice(OWN_TYPE_PREFIX.length) : undefined,
       page: 1,
     });
+  const [serviceOrder, handleServiceOrder] = useDebouncedSearch(search.serviceOrder ?? '', (value) =>
+    onChange({ serviceOrder: value.trim() || undefined, page: 1 }),
+  );
   return (
     <>
+      <div className="grid gap-1.5">
+        <ItemDescription>{t('control_number')}</ItemDescription>
+        <Input value={serviceOrder} onChange={(event) => handleServiceOrder(event.target.value)} />
+      </div>
       <FilterSelect
         label={t('service_phase')}
         items={CASE_PHASE_ITEMS}

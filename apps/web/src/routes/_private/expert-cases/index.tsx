@@ -37,6 +37,7 @@ export function CasesIndexPage() {
       courtType: search.courtType,
       role: search.role,
       serviceType: search.serviceType,
+      serviceOrder: search.serviceOrder || undefined,
       deliveryFrom: search.deliveryFrom,
       deliveryTo: search.deliveryTo,
     }),

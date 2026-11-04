@@ -250,6 +250,7 @@ export const listCases = async (
       // Perícia and Assistência técnica have no own type name (AD-177).
       ...(query.role ? { role: query.role, serviceType: { $exists: false } } : {}),
       ...(query.serviceType ? { serviceType: query.serviceType } : {}),
+      ...(query.serviceOrder ? { serviceOrder: query.serviceOrder } : {}),
       ...(ids ? { _id: { $in: ids.map(toObjectId) } } : {}),
     };
     const skip = (query.page - 1) * query.limit;

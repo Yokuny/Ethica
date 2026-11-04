@@ -42,6 +42,8 @@ export const listCasesQuerySchema = z
     // "Tipo" filter (AD-177): Perícia or Assistência técnica by `role`, an own type by its name.
     role: z.enum(['court_expert', 'technical_assistant']).optional(),
     serviceType: z.string().trim().min(1).max(80).optional(),
+    // "Número de controle" filter: the service order (OS) exactly as registered.
+    serviceOrder: z.string().trim().min(1).max(30).optional(),
     // Delivery date of the service: the "Entrega do laudo" / "Entrega do serviço" deadline (AD-177).
     deliveryFrom: calendarDateSchema.optional(),
     deliveryTo: calendarDateSchema.optional(),
