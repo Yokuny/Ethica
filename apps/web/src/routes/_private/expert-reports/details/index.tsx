@@ -1,6 +1,7 @@
 import { PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem, DropdownMenuSeparator } from '@ethica/ui/components/dropdown-menu';
+import { ItemDescription } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { FileSignature } from 'lucide-react';
@@ -33,12 +34,12 @@ import {
 } from '@/query/report.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { LayoutDialog } from '../@components/layout-dialog.js';
+import { SaveTemplateDialog } from '../@components/save-template-dialog.js';
 import { CompleteReportDialog } from './@components/complete-report-dialog.js';
 import { ProcessFillDialog } from './@components/process-fill-dialog.js';
 import { ReportPreviewDialog } from './@components/report-preview-dialog.js';
 import { ReportSectionsDialog } from './@components/report-sections-dialog.js';
 import { ReportSectionsList } from './@components/report-sections-list.js';
-import { SaveTemplateDialog } from './@components/save-template-dialog.js';
 import { SectionTitleDialog } from './@components/section-title-dialog.js';
 import { type ReportDetailsSearch, reportDetailsSearchSchema } from './@interface/report-details.interface.js';
 
@@ -167,14 +168,16 @@ export function ReportDetailsPage() {
       <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('pdf')}>
         {t('export_pdf')}
       </DropdownMenuItem>
-      <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('docx')}>
-        {t('export_word')}
-      </DropdownMenuItem>
-      {openDraft && can(session, 'expert_reports', 'delete') && (
+      {!report.file && (
+        <DropdownMenuItem disabled={Boolean(pending)} onClick={() => runExport('docx')}>
+          {t('export_word')}
+        </DropdownMenuItem>
+      )}
+      {(openDraft || report.file) && can(session, 'expert_reports', 'delete') && (
         <>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" disabled={busy} onClick={() => setDialog({ kind: 'removal' })}>
-            {t('delete_draft')}
+            {t(report.file ? 'delete_report' : 'delete_draft')}
           </DropdownMenuItem>
         </>
       )}
@@ -242,20 +245,27 @@ export function ReportDetailsPage() {
               pulse={report.status === 'draft'}
             />
           </RecordHeader>
-          <ReportSectionsList
-            report={report}
-            drafts={drafts}
-            saving={busy}
-            onChange={(sectionId, html) => setDrafts((prev) => ({ ...prev, [sectionId]: html }))}
-            onSave={saveSection}
-            onToggleIncluded={toggleIncluded}
-            onMove={(sectionId, direction) => move.mutate({ id: report.id, sectionId, direction }, { onError })}
-            onRename={(sectionId) => setDialog({ kind: 'rename-section', sectionId })}
-            onAdd={(sectionId, level) => setDialog({ kind: 'add-section', sectionId, level })}
-            onRemove={(sectionId) => setDialog({ kind: 'remove-section', sectionId })}
-            photos={photos}
-            uploadPhoto={(photo) => uploadPhoto.mutateAsync({ id: report.id, photo })}
-          />
+          {report.file ? (
+            // Attached PDF (ANL-02): nothing to edit, the file is seen in "Visualizar PDF".
+            <ItemDescription className="line-clamp-none">
+              {t('attached_pdf')}: {report.file.name}
+            </ItemDescription>
+          ) : (
+            <ReportSectionsList
+              report={report}
+              drafts={drafts}
+              saving={busy}
+              onChange={(sectionId, html) => setDrafts((prev) => ({ ...prev, [sectionId]: html }))}
+              onSave={saveSection}
+              onToggleIncluded={toggleIncluded}
+              onMove={(sectionId, direction) => move.mutate({ id: report.id, sectionId, direction }, { onError })}
+              onRename={(sectionId) => setDialog({ kind: 'rename-section', sectionId })}
+              onAdd={(sectionId, level) => setDialog({ kind: 'add-section', sectionId, level })}
+              onRemove={(sectionId) => setDialog({ kind: 'remove-section', sectionId })}
+              photos={photos}
+              uploadPhoto={(photo) => uploadPhoto.mutateAsync({ id: report.id, photo })}
+            />
+          )}
         </CardContent>
       )}
       {report && processResult && (
@@ -264,6 +274,7 @@ export function ReportDetailsPage() {
       {report && dialog?.kind === 'preview' && (
         <ReportPreviewDialog
           reportId={report.id}
+          attached={Boolean(report.file)}
           downloading={Boolean(pending)}
           onDownload={runExport}
           onClose={() => setDialog(null)}
@@ -383,13 +394,22 @@ export function ReportDetailsPage() {
       )}
       {report && dialog?.kind === 'removal' && (
         <ConfirmDialog
-          title={t('delete_draft_question')}
+          title={t(report.file ? 'delete_report_question' : 'delete_draft_question')}
           description={t('action_cannot_be_undone')}
           confirmLabel={t('permission_delete')}
           pending={removal.isPending}
           onClose={() => setDialog(null)}
           onConfirm={() =>
-            removal.mutate({ id: report.id }, { onSuccess: () => navigate({ to: '/expert-reports/list' }), onError })
+            removal.mutate(
+              { id: report.id },
+              {
+                onSuccess: () =>
+                  report.file
+                    ? navigate({ to: '/expert-cases/details', search: { id: report.caseId } })
+                    : navigate({ to: '/expert-reports/list' }),
+                onError,
+              },
+            )
           }
         />
       )}

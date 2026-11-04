@@ -36,6 +36,13 @@ export interface ReportMediaDocument {
   createdAt: Date;
 }
 
+// PDF of a report made outside the Ethica (ANL-02): the report is born completed, without sections.
+export interface ReportFileDocument {
+  key: string;
+  name: string;
+  bytes: number;
+}
+
 export interface ReportDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
@@ -49,6 +56,7 @@ export interface ReportDocument {
   templateName: string;
   sections: ReportSectionDocument[];
   media: ReportMediaDocument[];
+  file?: ReportFileDocument;
   // Missing = REPORT_LAYOUT_DEFAULT (NLA-06).
   layout?: ReportLayout;
   CreatedBy: mongoose.Types.ObjectId;
@@ -83,6 +91,15 @@ const mediaSchema = new Schema<ReportMediaDocument>(
   { _id: false },
 );
 
+const fileSchema = new Schema<ReportFileDocument>(
+  {
+    key: { type: String, required: true },
+    name: { type: String, required: true, trim: true },
+    bytes: { type: Number, required: true, min: 0 },
+  },
+  { _id: false },
+);
+
 const reportSchema = new Schema<ReportDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
@@ -95,6 +112,7 @@ const reportSchema = new Schema<ReportDocument>(
     templateName: { type: String, required: true, trim: true },
     sections: { type: [sectionSchema], default: [] },
     media: { type: [mediaSchema], default: [] },
+    file: { type: fileSchema },
     layout: { type: Schema.Types.Mixed },
     CreatedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     CompletedBy: { type: Schema.Types.ObjectId, ref: 'User' },

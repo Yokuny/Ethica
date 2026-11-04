@@ -6,6 +6,7 @@ import { issuesOf } from './report.html.js';
 import type {
   ListReportsQuery,
   ReportCreateInput,
+  ReportFileWrite,
   ReportListItem,
   ReportMediaWrite,
   ReportRecord,
@@ -42,6 +43,7 @@ const toRecord = (doc: ReportDocument): ReportRecord => {
     sections,
     layout: { ...REPORT_LAYOUT_DEFAULT, ...doc.layout },
     issues: issuesOf(sections),
+    ...(doc.file ? { file: { name: doc.file.name, bytes: doc.file.bytes } } : {}),
     completedAt: doc.completedAt,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -55,6 +57,8 @@ export const create = async (input: ReportCreateInput): Promise<ReportRecord> =>
     return toRecord(
       await Report.create({
         ...rest,
+        // Attached PDF (ANL-02): born completed.
+        ...(rest.completedAt ? { status: 'completed', CompletedBy: userId } : {}),
         Tenant: tenantId,
         Case: caseId,
         Signatory: signatoryId,
@@ -107,6 +111,7 @@ export const list = async (
         title: doc.title,
         templateName: doc.templateName,
         totalSections: doc.totalSections,
+        ...(doc.file ? { file: { name: doc.file.name, bytes: doc.file.bytes } } : {}),
         completedAt: doc.completedAt,
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
@@ -293,9 +298,19 @@ export const listMedia = async (tenantId: string, id: string): Promise<ReportMed
     return doc?.media ?? [];
   });
 
-export const removeDraft = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>
-  withDbTiming('report.removeDraft', async () => {
-    const result = await Report.deleteOne(draft(tenantId, id));
+// Storage key of the attached PDF (ANL-02); it never leaves the server.
+export const fileOf = async (tenantId: string, id: string): Promise<ReportFileWrite | null> =>
+  withDbTiming('report.fileOf', async () => {
+    const doc = await Report.findOne(tenantScoped({ Tenant: tenantId, _id: id }), { file: 1 }).lean();
+    return doc?.file ? { key: doc.file.key, name: doc.file.name, bytes: doc.file.bytes } : null;
+  });
+
+// A draft or an attached PDF is removed; a report completed in the Ethica stays (AD-126).
+export const remove = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>
+  withDbTiming('report.remove', async () => {
+    const result = await Report.deleteOne(
+      tenantScoped({ Tenant: tenantId, _id: id, $or: [{ status: 'draft' as const }, { file: { $exists: true } }] }),
+    );
     return { deletedCount: result.deletedCount ?? 0 };
   });
 

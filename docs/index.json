@@ -23,6 +23,26 @@
       "doc": "features/agenda-eventos/feature.md"
     },
     {
+      "slug": "anexar-laudo",
+      "feature": "Anexar laudo",
+      "descricao": "Laudo feito fora do Ethica anexado em PDF no serviço, concluído com a entrega e salvável como modelo",
+      "data": "2026-11-03",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-179"
+      ],
+      "spec": [
+        ".specs/features/anexar-laudo"
+      ],
+      "planos": [],
+      "doc": "features/anexar-laudo/feature.md"
+    },
+    {
       "slug": "esfera-servico",
       "feature": "Esfera e tipo de serviço",
       "descricao": "Esfera separada do tipo de serviço (perícia, assistência técnica, parceria, tipos do escritório), filtros e data apagável",
@@ -1337,6 +1357,12 @@
     {
       "id": "AD-178",
       "decisao": "O serviço tem fase e status separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-179",
+      "decisao": "Laudo feito fora do Ethica entra pelo PDF: `Report.file` (`key`, `name`, `bytes`) marca o laudo anexado, que nasce `completed`, sem itens, c",
       "data": "2026-11-03",
       "status": "active"
     }

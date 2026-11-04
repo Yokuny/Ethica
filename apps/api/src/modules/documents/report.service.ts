@@ -1,10 +1,13 @@
+import { randomUUID } from 'node:crypto';
 import {
   CASE_PHASE_GROUPS,
   type CasePhase,
   caseLabel,
+  REPORT_LAYOUT_DEFAULT,
   REPORT_MEDIA_LIMIT,
   REPORT_VARIABLES,
   type ReportLayout,
+  reportRoleType,
   sectionFamily,
 } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
@@ -22,12 +25,14 @@ import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
 import { esc } from './document.layout.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
+import { templateSectionsFromText } from './report.attachment.js';
 import { reportDocx } from './report.docx.js';
 import { issuesOf, type ReportValues, resolveVariables, sanitizeReportHtml } from './report.html.js';
 import { applyProcess, extractProcess } from './report.process.js';
 import * as reportRepository from './report.repository.js';
 import type {
   AddReportSection,
+  AttachReportQuery,
   ChooseReportSections,
   CompleteReport,
   CreateReport,
@@ -60,6 +65,8 @@ const BEFORE_DELIVERY = new Set<CasePhase>([
   'awaiting_expert_report',
   'reviewing_report',
 ]);
+
+const titleOf = (type: string): string => (type === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial');
 
 const withNumber = async <T extends { caseId: string }>(tenantId: string, items: T[]): Promise<T[]> => {
   const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
@@ -214,7 +221,7 @@ export const createReport = async (
     signatoryId: data.signatoryId,
     layout: template.layout,
     type,
-    title: type === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial',
+    title: titleOf(type),
     templateId: template.id,
     templateName: template.name,
     sections: chosen.map(([section, variant]) => fromTemplate(section, variant, values)),
@@ -307,8 +314,14 @@ const toMarkers = (text: string, values: ReportValues, format: 'html' | 'text'):
 
 // AD-170: saves the items that are part of the report, with the written text, as an office template. The text
 // goes in the variant the item uses; the other variant comes from the original template, when it still exists.
-export const saveAsTemplate = async (ctx: DocumentContext, id: string, { name }: UpdateTemplate) => {
+export const saveAsTemplate = async (
+  providers: Pick<Providers, 'storage'>,
+  ctx: DocumentContext,
+  id: string,
+  { name }: UpdateTemplate,
+) => {
   const report = await getReport(ctx.tenantId, id);
+  if (report.file) return attachedAsTemplate(providers, ctx, report, name);
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
   const { values } = await currentData({}, ctx, legalCase, report.signatoryId);
   const original = report.templateId
@@ -329,6 +342,20 @@ export const saveAsTemplate = async (ctx: DocumentContext, id: string, { name }:
         noText: section.variant === 'no' ? html : (base?.noText ?? ''),
       };
     });
+  return templateService.createFromReport(ctx.tenantId, { name, type: report.type, sections, layout: report.layout });
+};
+
+// ANL-04: the text of the attached PDF becomes an office template, a numbered heading per item.
+const attachedAsTemplate = async (
+  providers: Pick<Providers, 'storage'>,
+  ctx: DocumentContext,
+  report: ReportRecord,
+  name: string,
+) => {
+  const file = await reportRepository.fileOf(ctx.tenantId, report.id);
+  const body = file && providers.storage ? await providers.storage.get(file.key) : null;
+  if (!body) throw new ReportNotFoundError('not_found');
+  const sections = templateSectionsFromText(await importService.extractPdfText(body), report.templateName);
   return templateService.createFromReport(ctx.tenantId, { name, type: report.type, sections, layout: report.layout });
 };
 
@@ -448,31 +475,79 @@ export const completeReport = async (
   const sections = resolveSections(report.sections, values);
   withoutIssues(sections);
   found(await reportRepository.complete(ctx, id, ctx.now, sections));
-  if (recordDelivery) {
-    await deadlineService.fileReportDelivery(ctx.tenantId, legalCase.id, ctx.now);
-    await caseService.addMovement(ctx.tenantId, legalCase.id, {
-      type: 'report_filed',
-      date: dateInDisplayTz(ctx.now),
-      notes: `${report.title} concluído no Ethica.`,
-    });
-    if (BEFORE_DELIVERY.has(legalCase.phase)) {
-      await caseService.updateCase(ctx.tenantId, legalCase.id, { phase: 'report_delivered' });
-    }
-  }
+  if (recordDelivery) await fileDelivery(ctx, legalCase, `${report.title} concluído no Ethica.`);
   return getReport(ctx.tenantId, id);
 };
 
-// The photos sent in the report leave with it and give the quota back (AD-120).
+// ANL-02/03: PDF made outside the Ethica, born completed, with the quota reserved first (AD-120). The type
+// follows the role on the case, like the title of the case panel (LAU-06).
+export const attachReport = async (
+  providers: Pick<Providers, 'storage'>,
+  ctx: DocumentContext,
+  { caseId, name, recordDelivery }: AttachReportQuery,
+  body: Buffer,
+): Promise<ReportRecord> => {
+  if (!providers.storage) throw new CustomError('storage_not_configured', 503);
+  if (Buffer.from(body.subarray(0, 5)).toString('latin1') !== '%PDF-') {
+    throw new CustomError('unsupported_file_type', 415);
+  }
+  const legalCase = await caseService.getCase(ctx.tenantId, caseId);
+  const type = reportRoleType(legalCase.role);
+  const file = { key: `tenants/${ctx.tenantId}/reports/files/${randomUUID()}.pdf`, name, bytes: body.length };
+  await officeService.reserveFile(ctx.tenantId, file.bytes);
+  let report: ReportRecord;
+  try {
+    await providers.storage.put(file.key, body, 'application/pdf');
+    report = await reportRepository.create({
+      tenantId: ctx.tenantId,
+      caseId: legalCase.id,
+      userId: ctx.userId,
+      type,
+      title: titleOf(type),
+      templateName: name.replace(/\.pdf$/i, ''),
+      sections: [],
+      layout: REPORT_LAYOUT_DEFAULT,
+      file,
+      completedAt: ctx.now,
+    });
+  } catch (error) {
+    await providers.storage.remove(file.key).catch(() => undefined);
+    await officeService.returnFile(ctx.tenantId, file.bytes);
+    throw error;
+  }
+  if (recordDelivery) await fileDelivery(ctx, legalCase, `${report.title} anexado no Ethica.`);
+  return { ...report, caseNumber: caseLabel(legalCase) };
+};
+
+// "Registrar a entrega" (AD-126): files the deadline, posts the movement and advances the phase.
+const fileDelivery = async (ctx: DocumentContext, legalCase: CaseRecord, notes: string): Promise<void> => {
+  await deadlineService.fileReportDelivery(ctx.tenantId, legalCase.id, ctx.now);
+  await caseService.addMovement(ctx.tenantId, legalCase.id, {
+    type: 'report_filed',
+    date: dateInDisplayTz(ctx.now),
+    notes,
+  });
+  if (BEFORE_DELIVERY.has(legalCase.phase)) {
+    await caseService.updateCase(ctx.tenantId, legalCase.id, { phase: 'report_delivered' });
+  }
+};
+
+// A draft or an attached PDF (ANL-02) is removed; the photos and the PDF leave with it and give the quota
+// back (AD-120). A report completed in the Ethica stays.
 export const deleteReport = async (
   providers: Pick<Providers, 'storage'>,
   tenantId: string,
   id: string,
 ): Promise<void> => {
-  await editable(tenantId, id);
-  const media = await reportRepository.listMedia(tenantId, id);
-  const { deletedCount } = await reportRepository.removeDraft(tenantId, id);
+  const report = found(await reportRepository.findById(tenantId, id));
+  if (report.status === 'completed' && !report.file) throw new CustomError('report_completed', 409);
+  const [media, file] = await Promise.all([
+    reportRepository.listMedia(tenantId, id),
+    reportRepository.fileOf(tenantId, id),
+  ]);
+  const { deletedCount } = await reportRepository.remove(tenantId, id);
   if (deletedCount === 0) throw new ReportNotFoundError('not_found');
-  for (const item of media) {
+  for (const item of file ? [...media, file] : media) {
     await providers.storage?.remove(item.key).catch(() => undefined);
     await officeService.returnFile(tenantId, item.bytes);
   }
@@ -563,12 +638,29 @@ const toExport = async (providers: Providers, ctx: DocumentContext, id: string, 
 const fileName = (report: ReportRecord, legalCase: CaseRecord, extension: string): string =>
   `${report.type === 'technical_opinion' ? 'technical-opinion' : 'report'}-${legalCase.processNumber ?? legalCase.id}.${extension}`;
 
+// Attached report (ANL-02): the PDF that was sent, with its name.
+const attachedPdf = async (
+  providers: Pick<Providers, 'storage'>,
+  tenantId: string,
+  id: string,
+): Promise<GeneratedFile | null> => {
+  const file = await reportRepository.fileOf(tenantId, id);
+  if (!file) return null;
+  const body = providers.storage ? await providers.storage.get(file.key) : null;
+  if (!body) throw new ReportNotFoundError('not_found');
+  // The name goes in the Content-Disposition header: only ASCII, without quotes.
+  const name = file.name.normalize('NFD').replace(/[^\x20-\x7e]|"/g, '');
+  return { name: /\.pdf$/i.test(name) ? name : `${name}.pdf`, type: 'application/pdf', conteudo: body };
+};
+
 export const generatePdf = async (
   providers: Providers,
   ctx: DocumentContext,
   id: string,
   { preview = false }: { preview?: boolean } = {},
 ): Promise<GeneratedFile> => {
+  const attached = await attachedPdf(providers, ctx.tenantId, id);
+  if (attached) return attached;
   const data = await toExport(providers, ctx, id, preview);
   return {
     name: fileName(data.report, data.legalCase, 'pdf'),
@@ -578,6 +670,8 @@ export const generatePdf = async (
 };
 
 export const generateDocx = async (providers: Providers, ctx: DocumentContext, id: string): Promise<GeneratedFile> => {
+  // The attached report only exists as the PDF that was sent (ANL-02).
+  if (await reportRepository.fileOf(ctx.tenantId, id)) throw new ReportNotFoundError('not_found');
   const data = await toExport(providers, ctx, id);
   return {
     name: fileName(data.report, data.legalCase, 'docx'),

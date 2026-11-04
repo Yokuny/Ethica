@@ -7,6 +7,7 @@ import { validBody, validParams, validParsedQuery } from '../../middlewares/vali
 import * as reportController from './report.controller.js';
 import {
   addReportSectionSchema,
+  attachReportQuerySchema,
   chooseReportSectionsSchema,
   completeReportSchema,
   createReportSchema,
@@ -173,6 +174,15 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     validBody(createReportSchema),
     reportController.createReport(providers),
   );
+  // Report made outside the Ethica (ANL-02): the PDF in the body, like the process (AD-118).
+  router.post(
+    '/file',
+    ...guard,
+    can('expert_reports', 'create'),
+    validParsedQuery(attachReportQuerySchema),
+    fileBody('application/pdf', PDF_IMPORT_MAX_BYTES),
+    reportController.attachReport(providers),
+  );
   router.get('/:id', ...guard, can('expert_reports', 'view'), report, reportController.getReport);
   router.delete('/:id', ...guard, can('expert_reports', 'delete'), report, reportController.deleteReport(providers));
   // Photos sent in the report (LMO-05); the id comes from the browser so a resend does not duplicate.
@@ -236,7 +246,7 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     can('report_templates', 'create'),
     report,
     validBody(updateTemplateSchema),
-    reportController.saveReportAsTemplate,
+    reportController.saveReportAsTemplate(providers),
   );
   router.post(
     '/:id/sections/:sectionId/move',

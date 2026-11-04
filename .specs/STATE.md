@@ -943,8 +943,17 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-03
 - **Status**: active
 
+### AD-179
+- **Decision**: Laudo feito fora do Ethica entra pelo PDF: `Report.file` (`key`, `name`, `bytes`) marca o laudo **anexado**, que nasce `completed`, sem itens, com o tipo pelo papel no serviço (`reportRoleType`) e o nome do arquivo em `templateName`. `POST /expert-reports/file` recebe o PDF no corpo (AD-118) e os dados na query; a cota é reservada antes (AD-120). "Registrar a entrega" é o mesmo trecho de concluir (`fileDelivery`). `GET /:id/pdf` devolve o arquivo enviado e o Word responde 404. Excluir aceita rascunho **ou** anexado (`report.repository.remove`); concluído no Ethica continua não saindo (AD-126). Salvar como modelo o anexado lê o texto do PDF e separa títulos numerados em itens pelo nível do número (`templateSectionsFromText`).
+- **Reason**: pedido da perita (2026-11-03): anexar ou importar laudo no serviço; ela escolheu importar = anexar PDF com a pergunta de salvar como modelo, concluído com a entrega e botões lado a lado.
+- **Trade-off**: o anexado não se edita nem exporta Word; títulos fora do padrão numerado viram texto; PDF escaneado não vira modelo; excluir não reabre o prazo cumprido.
+- **Scope**: `packages/db/src/models/report.model.ts`, `apps/api/src/modules/documents/report.{service,repository,schema,router,controller,attachment}.ts`, `apps/web/src/routes/_private/expert-cases/details/@components/`, `apps/web/src/routes/_private/expert-reports/`.
+- **Date**: 2026-11-03
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.
 - **Feature**: `fase-servico` — concluída: tipo Perícia/Assistência técnica/Cadastrar novo, esfera só na perícia, fase em grupos e status à parte (AD-178). Conferido no navegador; falta a perita conferir os textos das fases.
 
 - **Feature**: `agenda-eventos` — concluída: perícia (cadastro e edição), prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento (AD-169). Falta a conferência visual no navegador; financeiro no feed iCal fica de fora.

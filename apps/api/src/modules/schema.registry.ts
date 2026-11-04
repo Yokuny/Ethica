@@ -24,6 +24,7 @@ import { csvImportQuerySchema } from './case/import.schema.js';
 import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
 import { documentCaseParamSchema } from './documents/documents.schema.js';
 import {
+  attachReportQuerySchema,
   listReportsQuerySchema,
   listTemplatesQuerySchema,
   reportIdParamSchema,
@@ -75,6 +76,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'templateSectionParamSchema', schema: templateSectionParamSchema },
   { name: 'reportIdParamSchema', schema: reportIdParamSchema },
   { name: 'reportSectionParamSchema', schema: reportSectionParamSchema },
+  { name: 'attachReportQuerySchema', schema: attachReportQuerySchema },
   { name: 'reportPdfQuerySchema', schema: reportPdfQuerySchema },
   { name: 'reportMediaParamSchema', schema: reportMediaParamSchema },
   { name: 'listTemplatesQuerySchema', schema: listTemplatesQuerySchema },

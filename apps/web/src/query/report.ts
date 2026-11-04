@@ -65,6 +65,8 @@ export type ReportRecord = {
   sections: ReportSectionRecord[];
   layout: ReportLayout;
   issues: { sectionId: string; variables: ReportVariable[] }[];
+  // PDF made outside the Ethica (ANL-02): completed, without sections.
+  file?: { name: string; bytes: number };
   completedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -139,6 +141,26 @@ export const createReportMutation = (
 ): UseMutationOptions<ReportRecord, Error, CreateReport> => ({
   mutationFn: async (data) => unwrap(await post<ReportRecord>('/expert-reports', data), 'create_error'),
   onSuccess: (report) => updatedReport(queryClient, report),
+});
+
+// ANL-02/03: PDF made outside the Ethica; with delivery it touches the case deadline, movements and phase.
+export const attachReportMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<ReportRecord, Error, { caseId: string; file: File; recordDelivery: boolean }> => ({
+  mutationFn: async ({ caseId, file, recordDelivery }) =>
+    unwrap(
+      await sendFile<ReportRecord>(
+        `/expert-reports/file${qs({ caseId, name: file.name, recordDelivery: recordDelivery ? 'true' : undefined })}`,
+        file,
+        'application/pdf',
+      ),
+      'save_error',
+    ),
+  onSuccess: (report) => {
+    updatedReport(queryClient, report);
+    queryClient.invalidateQueries({ queryKey: caseKeys.all });
+    queryClient.invalidateQueries({ queryKey: deadlineKeys.all });
+  },
 });
 
 export const updateReportSectionMutation = (

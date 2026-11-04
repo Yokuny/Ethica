@@ -3,7 +3,13 @@ import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
-import type { ListReportsQuery, ListTemplatesQuery, ReportPdfQuery, ReportRouterDeps } from './report.schema.js';
+import type {
+  AttachReportQuery,
+  ListReportsQuery,
+  ListTemplatesQuery,
+  ReportPdfQuery,
+  ReportRouterDeps,
+} from './report.schema.js';
 import * as reportService from './report.service.js';
 import { ReportNotFoundError } from './report.service.js';
 import { SignatoryNotFoundError } from './signatory.service.js';
@@ -105,7 +111,19 @@ export const createReport = (providers: Providers) =>
 export const updateReportSection = json((req) =>
   reportService.updateSection(context(req), id(req), sectionId(req), req.body),
 );
-export const saveReportAsTemplate = json((req) => reportService.saveAsTemplate(context(req), id(req), req.body), 201);
+export const saveReportAsTemplate = (providers: Providers) =>
+  json((req) => reportService.saveAsTemplate(providers, context(req), id(req), req.body), 201);
+export const attachReport = (providers: Providers) =>
+  json(
+    (req) =>
+      reportService.attachReport(
+        providers,
+        context(req),
+        req.query as unknown as AttachReportQuery,
+        req.body as Buffer,
+      ),
+    201,
+  );
 export const moveReportSection = json((req) =>
   reportService.moveSection(context(req), id(req), sectionId(req), req.body),
 );

@@ -72,6 +72,16 @@ export const reportSectionParamSchema = z.object({ id: idSchema, sectionId: idSc
 export const reportMediaParamSchema = z.object({ id: idSchema, mediaId: mediaIdSchema }).strict();
 
 // Preview (LMO-04): the PDF also leaves with pending markers, which stay visible in the text.
+// Attached PDF (ANL-02): the file goes in the body, the rest in the query.
+export const attachReportQuerySchema = z
+  .object({
+    caseId: idSchema,
+    name: z.string().trim().min(1).max(200),
+    recordDelivery: z.enum(['true']).optional(),
+  })
+  .strict();
+export type AttachReportQuery = z.infer<typeof attachReportQuerySchema>;
+
 export const reportPdfQuerySchema = z.object({ preview: z.enum(['true']).optional() }).strict();
 export type ReportPdfQuery = z.infer<typeof reportPdfQuerySchema>;
 
@@ -123,6 +133,9 @@ export type ReportSectionWrite = Omit<ReportSectionRecord, 'id'>;
 // Photo sent in the report (LMO-05): the storage key stays on the server.
 export type ReportMediaWrite = { id: string; key: string; bytes: number; mime: string; createdAt: Date };
 
+// Attached PDF (ANL-02), with the storage key.
+export type ReportFileWrite = { key: string; name: string; bytes: number };
+
 // Markers without a value by section (AD-126): they block export and completion.
 export type ReportIssue = { sectionId: string; variables: ReportVariable[] };
 
@@ -148,6 +161,8 @@ export type ReportRecord = {
   sections: ReportSectionRecord[];
   layout: ReportLayout;
   issues: ReportIssue[];
+  // PDF made outside the Ethica (ANL-02); the storage key stays on the server.
+  file?: { name: string; bytes: number };
   completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -166,10 +181,13 @@ export type ReportCreateInput = {
   signatoryId?: string;
   type: ReportType;
   title: string;
-  templateId: string;
+  templateId?: string;
   templateName: string;
   sections: ReportSectionWrite[];
   layout: ReportLayout;
+  // Attached PDF (ANL-02): born completed at `completedAt`.
+  file?: ReportFileWrite;
+  completedAt?: Date;
 };
 
 // New list of sections (LMO-01): a kept section carries its `id`; a new one does not.

@@ -40,6 +40,30 @@ const JPEG = Buffer.from([
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x04, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0xf0, 0x01, 0x40, 0x03, 0x01,
   0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
 ]);
+// Minimal PDF with one text line per item (Helvetica, WinAnsi), no library.
+const pdfOf = (rows: string[]): Buffer => {
+  const esc = (s: string) => s.replace(/[\\()]/g, (c) => `\\${c}`);
+  const content = ['BT', '/F1 11 Tf', '14 TL', '50 780 Td', ...rows.map((l) => `(${esc(l)}) Tj T*`), 'ET'].join('\n');
+  const objs = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
+    `<< /Length ${Buffer.byteLength(content, 'latin1')} >>\nstream\n${content}\nendstream`,
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets: number[] = [];
+  objs.forEach((obj, i) => {
+    offsets.push(Buffer.byteLength(pdf, 'latin1'));
+    pdf += `${i + 1} 0 obj\n${obj}\nendobj\n`;
+  });
+  const xref = Buffer.byteLength(pdf, 'latin1');
+  pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n`;
+  pdf += offsets.map((o) => `${String(o).padStart(10, '0')} 00000 n \n`).join('');
+  pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return Buffer.from(pdf, 'latin1');
+};
+
 const app = buildApp({
   pdf: {
     render: async (document) => {
@@ -396,6 +420,75 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(objects.has(key)).toBe(true);
     await admin.as(request(app).delete(`/expert-reports/${id}`)).expect(200);
     expect(objects.has(key)).toBe(false);
+  });
+
+  it('laudo anexado: concluído com a entrega, devolve o PDF enviado, vira modelo e sai com o arquivo (ANL-01 a ANL-04)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const legalCase = await admin
+      .as(request(app).post('/expert-cases'))
+      .send({ ...CASE, reportDeadline: '2026-12-01' });
+    const caseId = legalCase.body.data.id;
+    const file = pdfOf([
+      'Laudo feito fora do Ethica.',
+      '1. OBJETIVO',
+      'Apurar a insalubridade alegada.',
+      '1.1 Metodologia',
+      'Inspecao no local de trabalho.',
+      '2. CONCLUSAO',
+      'Nao ha insalubridade.',
+    ]);
+    const attach = (query: string, body: Buffer = file) =>
+      admin
+        .as(request(app).post(`/expert-reports/file?caseId=${caseId}${query}`))
+        .set('Content-Type', 'application/pdf')
+        .send(body);
+
+    expect((await attach('&name=x.pdf', Buffer.from('not a pdf'))).status).toBe(415);
+    const created = await attach('&name=Laudo%20final.pdf&recordDelivery=true');
+    expect(created.status).toBe(201);
+    const report = created.body.data;
+    expect(report).toMatchObject({
+      type: 'report',
+      status: 'completed',
+      templateName: 'Laudo final',
+      sections: [],
+      file: { name: 'Laudo final.pdf', bytes: file.length },
+    });
+    const deadline = await Deadline.findOne({ Case: caseId }).lean();
+    expect(deadline).toMatchObject({ status: 'filed' });
+    const after = await admin.as(request(app).get(`/expert-cases/${caseId}`));
+    expect(after.body.data.phase).toBe('report_delivered');
+    const listed = await admin.as(request(app).get(`/expert-reports?caseId=${caseId}`));
+    expect(listed.body.data.items[0].file).toEqual({ name: 'Laudo final.pdf', bytes: file.length });
+
+    const pdf = await admin
+      .as(request(app).get(`/expert-reports/${report.id}/pdf`))
+      .buffer()
+      .parse(binary);
+    expect(pdf.status).toBe(200);
+    expect(pdf.headers['content-disposition']).toContain('Laudo final.pdf');
+    expect(Buffer.compare(pdf.body as Buffer, file)).toBe(0);
+    expect((await admin.as(request(app).get(`/expert-reports/${report.id}/docx`))).status).toBe(404);
+
+    const template = await admin
+      .as(request(app).post(`/expert-reports/${report.id}/template`))
+      .send({ name: 'Do PDF' });
+    expect(template.status).toBe(201);
+    expect(
+      template.body.data.sections.map((section: { title: string; level: number }) => [section.title, section.level]),
+    ).toEqual([
+      ['Laudo final', 1],
+      ['OBJETIVO', 1],
+      ['Metodologia', 2],
+      ['CONCLUSAO', 1],
+    ]);
+    expect(template.body.data.sections[1].yesText).toBe('<p>Apurar a insalubridade alegada.</p>');
+
+    const key = [...objects.keys()].find((item) => item.startsWith(`tenants/${tenant._id}/reports/files/`));
+    expect(key).toBeDefined();
+    await admin.as(request(app).delete(`/expert-reports/${report.id}`)).expect(200);
+    expect(objects.has(key as string)).toBe(false);
   });
 
   it('parecer técnico para assistente técnico; tipo errado 422; excluir a perícia leva os laudos; outro tenant 404', async () => {

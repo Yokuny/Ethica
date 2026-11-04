@@ -9,18 +9,20 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 type SaveTemplateDialogProps = {
   name: string;
+  // Attached report (ANL-04): asked right after attaching, with the PDF headings as the items.
+  attached?: boolean;
   pending: boolean;
   onClose: () => void;
   onConfirm: (data: UpdateTemplate) => void;
 };
 
 // AD-170: the report as it is (items that are part of it and their text) becomes an office template.
-export function SaveTemplateDialog({ name, pending, onClose, onConfirm }: SaveTemplateDialogProps) {
+export function SaveTemplateDialog({ name, attached, pending, onClose, onConfirm }: SaveTemplateDialogProps) {
   const form = useForm<UpdateTemplate>({ resolver: zodResolver(updateTemplateSchema), defaultValues: { name } });
   return (
     <FormDialog
-      title={t('save_as_template')}
-      description={t('save_as_template_description')}
+      title={t(attached ? 'save_attached_as_template_question' : 'save_as_template')}
+      description={t(attached ? 'save_attached_as_template_description' : 'save_as_template_description')}
       size="sm"
       onClose={onClose}
     >

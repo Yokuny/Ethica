@@ -8,13 +8,21 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 type ReportPreviewDialogProps = {
   reportId: string;
+  // Attached report (ANL-02): the PDF that was sent, without Word.
+  attached?: boolean;
   downloading: boolean;
   onDownload: (format: 'pdf' | 'docx') => void;
   onClose: () => void;
 };
 
 // LMO-04: the report PDF on screen before completing; variables without a value show as markers.
-export function ReportPreviewDialog({ reportId, downloading, onDownload, onClose }: ReportPreviewDialogProps) {
+export function ReportPreviewDialog({
+  reportId,
+  attached,
+  downloading,
+  onDownload,
+  onClose,
+}: ReportPreviewDialogProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +39,12 @@ export function ReportPreviewDialog({ reportId, downloading, onDownload, onClose
   }, [reportId]);
 
   return (
-    <FormDialog size="lg" title={t('preview_pdf')} description={t('preview_pdf_description')} onClose={onClose}>
+    <FormDialog
+      size="lg"
+      title={t('preview_pdf')}
+      description={attached ? undefined : t('preview_pdf_description')}
+      onClose={onClose}
+    >
       {error ? (
         <ItemDescription role="alert" className="text-destructive line-clamp-none">
           {error}
@@ -42,9 +55,11 @@ export function ReportPreviewDialog({ reportId, downloading, onDownload, onClose
         <DefaultLoading />
       )}
       <div className="flex flex-wrap justify-end gap-2">
-        <Button type="button" variant="outline" disabled={downloading} onClick={() => onDownload('docx')}>
-          {t('export_word')}
-        </Button>
+        {!attached && (
+          <Button type="button" variant="outline" disabled={downloading} onClick={() => onDownload('docx')}>
+            {t('export_word')}
+          </Button>
+        )}
         <Button type="button" disabled={downloading} onClick={() => onDownload('pdf')}>
           {t('export_pdf')}
         </Button>
