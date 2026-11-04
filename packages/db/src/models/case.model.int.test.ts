@@ -18,6 +18,7 @@ describe('migrateCases (AD-178)', () => {
       old('declined', { serviceStatus: 'canceled' }),
       old('custom', { statusName: 'Aguardando documentos', serviceType: 'Avaliação' }),
       old('active', { phase: 'awaiting_judge' }),
+      old('active', { phase: 'awaiting_expert_report' }),
     ]);
 
     await migrateCases();
@@ -26,13 +27,15 @@ describe('migrateCases (AD-178)', () => {
     const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
     expect(docs.map((doc) => [doc.phase, doc.status])).toEqual([
       ['awaiting_scheduling', 'active'],
-      ['awaiting_inspection', 'active'],
+      ['inspection_scheduled', 'active'],
       ['objection_reply_1', 'active'],
       ['fees_received', 'active'],
       ['awaiting_scheduling', 'suspended'],
       ['awaiting_scheduling', 'canceled'],
       ['custom', 'active'],
       ['awaiting_judge', 'active'],
+      // "Aguardando laudo pericial" → "Laudo em elaboração" (AD-180).
+      ['drafting_report', 'active'],
     ]);
     expect(docs[6]?.phaseName).toBe('Aguardando documentos');
     expect(docs.some((doc) => 'statusName' in doc || 'serviceStatus' in doc)).toBe(false);

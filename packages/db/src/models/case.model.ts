@@ -180,12 +180,12 @@ export const Case = mongoose.model<CaseDocument>('Case', caseSchema);
 // no sphere; "Parceria" → the office's own type of that name.
 const PHASE_OF_STATUS: Record<string, CasePhase> = {
   appointed: 'awaiting_scheduling',
-  fees_proposed: 'awaiting_scheduling',
+  fees_proposed: 'fee_proposal',
   fees_accepted: 'awaiting_scheduling',
-  accepted: 'awaiting_scheduling',
-  inspection_scheduled: 'awaiting_inspection',
+  accepted: 'nomination_accepted',
+  inspection_scheduled: 'inspection_scheduled',
   inspection: 'awaiting_inspection',
-  drafting_report: 'awaiting_expert_report',
+  drafting_report: 'drafting_report',
   report_delivered: 'report_delivered',
   clarifications: 'objection_reply_1',
   awaiting_payment: 'evidence_closed',
@@ -197,6 +197,8 @@ export const migrateCases = async (): Promise<void> => {
   for (const [status, phase] of Object.entries(PHASE_OF_STATUS)) {
     await cases.updateMany({ status }, { $set: { phase, status: status === 'declined' ? 'canceled' : 'active' } });
   }
+  // "Aguardando laudo pericial" became "Laudo em elaboração" in the intermediate phase (AD-180).
+  await cases.updateMany({ phase: 'awaiting_expert_report' }, { $set: { phase: 'drafting_report' } });
   await cases.updateMany(
     { status: 'suspended', phase: { $nin: [...CASE_PHASES] } },
     { $set: { phase: 'awaiting_scheduling' } },

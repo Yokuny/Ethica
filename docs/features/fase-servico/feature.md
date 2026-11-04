@@ -2,17 +2,17 @@
 feature: Fase e status do serviço
 slug: fase-servico
 descricao: Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado
-data: 2026-11-03
+data: 2026-11-04
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-178]
+decisoes: [AD-178, AD-180]
 spec: [.specs/features/fase-servico]
 branches: [main]
 ---
 
 # Fase e status do serviço
 
-**Status**: concluido · **Atualizado**: 2026-11-03 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-04 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fase-servico'`.
@@ -22,7 +22,7 @@ branches: [main]
 - **Tipo de serviço**: Perícia, Assistência técnica, os tipos já criados pelo escritório e Cadastrar novo. Parceria saiu da lista fixa; os serviços de parceria viraram o tipo do escritório "Parceria", que continua na lista.
 - **Esfera** (Trabalhista, Cível, Federal) só aparece, e é obrigatória, na perícia. Saiu a esfera Extrajudicial.
 - **Assistência técnica** usa o formulário de dados do contratante, como o tipo novo.
-- **Fase do serviço** (antes "Status do serviço"): a lista da perita em grupos (inicial, de perdas, final, de recebimento, auxiliares) na perícia e na assistência; no tipo novo, as fases digitadas nele, "Honorários recebidos" ou cadastrar nova.
+- **Fase do serviço** (antes "Status do serviço"): a lista da perita em grupos (inicial, intermediária, de perdas, final, de recebimento, auxiliares) na perícia e na assistência; no tipo novo, as fases digitadas nele, "Honorários recebidos" ou cadastrar nova.
 - **Status**: Ativo, Suspenso, Cancelado. Cancelado, as fases de perdas e "Honorários recebidos" encerram o serviço; Suspenso não conta como parado.
 - Obrigatórios com asterisco: tipo, esfera (perícia), fase, status, objeto, número do processo, tribunal e data da nomeação (perícia).
 - Lista com a coluna Fase (no tom do status), filtros por Fase e Status, detalhe com a fase e o status, ficha em PDF com Fase e Status, gráfico do início por grupo de fase.
@@ -68,4 +68,5 @@ pnpm vitest run apps/api/src/modules/case packages/db/src/models/case.model.int.
 
 ## Histórico
 
+- 2026-11-04 — Fase inicial ganha Nomeação aceita, Elaboração de proposta de honorários, Solicitação de documentos, Perícia agendada e Perícia realizada; nova **fase intermediária** com Laudo em elaboração, Documentos pendentes e Laudo em revisão, que substituem "Aguardando laudo pericial" e "Revisar laudo pericial" da fase final (serviços nelas convertidos na subida, AD-180). Vale para perícia e assistência técnica.
 - 2026-11-03 — Implementado FSV-01 a FSV-08 (AD-178). Conferido no navegador: tipos, esfera só na perícia, assistência com contratante, fases por grupo, tipo novo e obrigatórios. Corrigido junto: o detalhe mostrava a esfera duas vezes.

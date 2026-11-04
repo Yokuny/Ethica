@@ -2,6 +2,28 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "fase-servico",
+      "feature": "Fase e status do serviço",
+      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
+      "data": "2026-11-04",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-178",
+        "AD-180"
+      ],
+      "spec": [
+        ".specs/features/fase-servico"
+      ],
+      "planos": [],
+      "doc": "features/fase-servico/feature.md"
+    },
+    {
       "slug": "agenda-eventos",
       "feature": "Agenda por eventos",
       "descricao": "Perícia, prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento, com tipo, estado e filtro",
@@ -62,27 +84,6 @@
       ],
       "planos": [],
       "doc": "features/esfera-servico/feature.md"
-    },
-    {
-      "slug": "fase-servico",
-      "feature": "Fase e status do serviço",
-      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
-      "data": "2026-11-03",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-178"
-      ],
-      "spec": [
-        ".specs/features/fase-servico"
-      ],
-      "planos": [],
-      "doc": "features/fase-servico/feature.md"
     },
     {
       "slug": "novo-laudo",
@@ -1358,12 +1359,18 @@
       "id": "AD-178",
       "decisao": "O serviço tem fase e status separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento",
       "data": "2026-11-03",
-      "status": "active"
+      "status": "active (lista de fases ampliada por AD-180)"
     },
     {
       "id": "AD-179",
       "decisao": "Laudo feito fora do Ethica entra pelo PDF: `Report.file` (`key`, `name`, `bytes`) marca o laudo anexado, que nasce `completed`, sem itens, c",
       "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-180",
+      "decisao": "A fase inicial ganha `nomination_accepted`, `fee_proposal`, `document_request` (no começo), `inspection_scheduled` e `inspection_done` (no f",
+      "data": "2026-11-04",
       "status": "active"
     }
   ]

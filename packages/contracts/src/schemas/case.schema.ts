@@ -15,16 +15,20 @@ export const JUDICIAL_CASE_ROLES = ['court_expert', 'technical_assistant'] as co
 // office's own type, named in `Case.phaseName`.
 export const CASE_PHASE_GROUPS = {
   initial: [
+    'nomination_accepted',
+    'fee_proposal',
+    'document_request',
     'awaiting_scheduling',
     'awaiting_report_approval',
     'awaiting_pje_signature',
     'awaiting_site_info',
     'awaiting_inspection',
+    'inspection_scheduled',
+    'inspection_done',
   ],
+  intermediate: ['drafting_report', 'pending_documents', 'reviewing_report'],
   losses: ['withdrawal', 'removal', 'settlement'],
   final: [
-    'awaiting_expert_report',
-    'reviewing_report',
     'report_delivered',
     'objection_reply_1',
     'objection_return_1',

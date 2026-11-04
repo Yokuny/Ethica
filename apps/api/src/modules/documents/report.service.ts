@@ -59,12 +59,8 @@ export class ReportNotFoundError extends KeyedError {}
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
-// Phases before delivery: completing with delivery moves to `report_delivered` (AD-126, AD-178).
-const BEFORE_DELIVERY = new Set<CasePhase>([
-  ...CASE_PHASE_GROUPS.initial,
-  'awaiting_expert_report',
-  'reviewing_report',
-]);
+// Phases before delivery: completing with delivery moves to `report_delivered` (AD-126, AD-178, AD-180).
+const BEFORE_DELIVERY = new Set<CasePhase>([...CASE_PHASE_GROUPS.initial, ...CASE_PHASE_GROUPS.intermediate]);
 
 const titleOf = (type: string): string => (type === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial');
 

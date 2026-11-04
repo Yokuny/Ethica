@@ -15,16 +15,22 @@ import { t } from '@/lib/helpers/translate.helper.js';
 // Service phase (AD-178): labels shared by listing, detail, home and charts. The key is not the value:
 // several values read differently in other domains (`report_delivered`, `removal`).
 const CASE_PHASE_KEY: Record<CasePhase, string> = {
+  nomination_accepted: 'nomination_accepted',
+  fee_proposal: 'fee_proposal_drafting',
+  document_request: 'document_request',
   awaiting_scheduling: 'awaiting_inspection_scheduling_checklist',
   awaiting_report_approval: 'awaiting_report_approval',
   awaiting_pje_signature: 'awaiting_expert_pje_signature',
   awaiting_site_info: 'awaiting_inspection_site_info',
   awaiting_inspection: 'awaiting_inspection',
+  inspection_scheduled: 'inspection_scheduled',
+  inspection_done: 'inspection_done',
   withdrawal: 'process_withdrawal',
   removal: 'expert_removal',
   settlement: 'settlement_between_parties',
-  awaiting_expert_report: 'awaiting_expert_report',
-  reviewing_report: 'review_expert_report',
+  drafting_report: 'report_in_progress',
+  pending_documents: 'pending_documents',
+  reviewing_report: 'report_in_review',
   report_delivered: 'report_delivered_awaiting_objection',
   awaiting_clarification_approval: 'awaiting_clarification_approval',
   awaiting_clarification_response: 'awaiting_clarification_response',
@@ -50,6 +56,7 @@ export const casePhaseLabel = (phase: CasePhase, phaseName?: string): string =>
   (phase === 'custom' && phaseName) || t(CASE_PHASE_KEY[phase]);
 const PHASE_GROUP_KEY: Record<CasePhaseGroup, string> = {
   initial: 'initial_phase',
+  intermediate: 'intermediate_phase',
   losses: 'losses_phase',
   final: 'final_phase',
   receiving: 'receiving_phase',
