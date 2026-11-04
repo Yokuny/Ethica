@@ -11,13 +11,16 @@ const translations: Record<string, string> = {
   // Services (AD-158 to AD-160).
   service_type: 'Tipo de serviço',
   service_status: 'Status do serviço',
-  court_expert_civil: 'Perícia civil',
-  court_expert_labor: 'Perícia trabalhista',
-  court_expert_federal: 'Perícia federal',
-  technical_assistant_civil: 'Assistência técnica civil',
-  technical_assistant_labor: 'Assistência técnica trabalhista',
-  technical_assistant_federal: 'Assistência técnica federal',
-  other_service: 'Outro serviço',
+  // Sphere and service type (AD-177).
+  sphere: 'Esfera',
+  extrajudicial: 'Extrajudicial',
+  expert_examination: 'Perícia',
+  technical_assistance: 'Assistência técnica',
+  partnership: 'Parceria',
+  delivery_period: 'Período de entrega',
+  delivery_period_note:
+    'O período filtra pela data de entrega do serviço (prazo "Entrega do laudo" ou "Entrega do serviço").',
+  clear_date: 'Limpar data',
   register_new: 'Cadastrar novo',
   new_service_type_name: 'Nome do novo tipo',
   register_new_status: 'Cadastrar novo status',

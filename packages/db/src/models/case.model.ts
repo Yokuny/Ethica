@@ -169,10 +169,12 @@ caseSchema.index({ Tenant: 1, 'parties.Party': 1 });
 
 export const Case = mongoose.model<CaseDocument>('Case', caseSchema);
 
-// Old classification (stage + detailed phase + service status, AD-133/AD-158) → the single status
-// (RSV-03). Runs on API boot; idempotent: once `phase` and `serviceStatus` are gone nothing matches.
-export const migrateCaseStatus = async (): Promise<void> => {
+// Data conversions on API boot; idempotent: once converted nothing matches.
+// Old classification (stage + detailed phase + service status, AD-133/AD-158) → the single status (RSV-03);
+// the office's own type marked by `courtType: 'other'` → sphere "Extrajudicial" (AD-177).
+export const migrateCases = async (): Promise<void> => {
   const cases = Case.collection;
+  await cases.updateMany({ courtType: 'other' }, { $set: { courtType: 'extrajudicial' } });
   const open = { status: { $nin: ['completed', 'declined'] } };
   await cases.updateMany(
     { ...open, phase: { $in: ['withdrawal', 'removal', 'settlement'] } },

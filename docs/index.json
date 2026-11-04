@@ -23,6 +23,27 @@
       "doc": "features/agenda-eventos/feature.md"
     },
     {
+      "slug": "esfera-servico",
+      "feature": "Esfera e tipo de serviço",
+      "descricao": "Esfera separada do tipo de serviço (perícia, assistência técnica, parceria, tipos do escritório), filtros e data apagável",
+      "data": "2026-11-03",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-177"
+      ],
+      "spec": [
+        ".specs/features/esfera-servico"
+      ],
+      "planos": [],
+      "doc": "features/esfera-servico/feature.md"
+    },
+    {
       "slug": "novo-laudo",
       "feature": "Novo laudo",
       "descricao": "OS por serviço, responsável técnico do laudo, modelo trabalhista da perita, editor em rolagem com itens novos e layout do laudo",
@@ -1176,7 +1197,7 @@
       "id": "AD-158",
       "decisao": "A seção \"Perícias\" passa a \"Serviços\" só no texto da tela (o código segue `Case`). O tipo de serviço é uma lista única: os judiciais são `co",
       "data": "2026-11-02",
-      "status": "active (status do serviço superseded by AD-166)"
+      "status": "active (status do serviço superseded by AD-166; `courtType: 'other'` superseded by AD-177)"
     },
     {
       "id": "AD-159",
@@ -1283,6 +1304,12 @@
     {
       "id": "AD-176",
       "decisao": "No tipo de serviço do escritório (`courtType: 'other'`, AD-158) a atuação e o status podem ser digitados: `role: 'other'` + `Case.roleName`",
+      "data": "2026-11-03",
+      "status": "active"
+    },
+    {
+      "id": "AD-177",
+      "decisao": "O cadastro separa Esfera de Tipo de serviço. `Case.courtType` vira a esfera (`labor`, `civil`, `federal`, `extrajudicial`, obrigatória); sai",
       "data": "2026-11-03",
       "status": "active"
     }

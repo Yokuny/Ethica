@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { describe, expect, it } from 'vitest';
 import { useTestDb } from '../../tests/helpers/db.helper.js';
-import { Case, migrateCaseStatus } from './case.model.js';
+import { Case, migrateCases } from './case.model.js';
 
-describe('migrateCaseStatus (RSV-03)', () => {
+describe('migrateCases (RSV-03, AD-177)', () => {
   useTestDb();
 
   it('converts stage, phase and service status into the single status and is idempotent', async () => {
@@ -18,8 +18,8 @@ describe('migrateCaseStatus (RSV-03)', () => {
       old('inspection'),
     ]);
 
-    await migrateCaseStatus();
-    await migrateCaseStatus();
+    await migrateCases();
+    await migrateCases();
 
     const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
     expect(docs.map((doc) => doc.status)).toEqual([
@@ -31,5 +31,16 @@ describe('migrateCaseStatus (RSV-03)', () => {
       'inspection_scheduled',
     ]);
     expect(docs.some((doc) => 'phase' in doc || 'serviceStatus' in doc)).toBe(false);
+  });
+
+  it('turns the old office type marker into the sphere "Extrajudicial"', async () => {
+    const tenant = new mongoose.Types.ObjectId();
+    await Case.collection.insertMany([
+      { Tenant: tenant, status: 'appointed', subject: 'a', courtType: 'other', serviceType: 'Avaliação' },
+      { Tenant: tenant, status: 'appointed', subject: 'b', courtType: 'labor' },
+    ]);
+    await migrateCases();
+    const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
+    expect(docs.map((doc) => doc.courtType)).toEqual(['extrajudicial', 'labor']);
   });
 });

@@ -36,7 +36,7 @@ Não desfazer sem ler: o status único substitui três classificações (AD-166)
 ### `packages`
 
 - `packages/contracts/src/schemas/case.schema.ts` — `CASE_STATUS`, `CASE_CLOSED_STATUSES`, `CASE_IDLE_STATUSES`; `status` aceito no cadastro.
-- `packages/db/src/models/case.model.ts` — sem `phase`/`serviceStatus`; `migrateCaseStatus` (chamada em `apps/api/src/server.ts`).
+- `packages/db/src/models/case.model.ts` — sem `phase`/`serviceStatus`; `migrateCases` (chamada em `apps/api/src/server.ts`).
 - `packages/contracts/src/schemas/import.schema.ts` — `CSV_IMPORT_FIELDS`, sinônimos, `csvHeaderKey`, `suggestCsvField`, planilha de exemplo.
 
 ### `apps/api`

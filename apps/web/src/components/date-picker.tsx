@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@ethica/ui/components/p
 import { Calendar as IconCalendar } from 'lucide-react';
 import { useState } from 'react';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
+import { t } from '@/lib/helpers/translate.helper.js';
 
 type DatePickerProps = {
   // Calendar date `YYYY-MM-DD` (display time zone), as it travels in the API.
@@ -50,6 +51,23 @@ export function DatePicker({ value, onChange, placeholder, disabled, id }: DateP
             setOpen(false);
           }}
         />
+        {/* A filled date can go back to empty. */}
+        {value && (
+          <div className="border-t p-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full"
+              onClick={() => {
+                onChange(undefined);
+                setOpen(false);
+              }}
+            >
+              {t('clear_date')}
+            </Button>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

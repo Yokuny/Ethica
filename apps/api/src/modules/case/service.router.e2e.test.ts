@@ -61,7 +61,7 @@ const JUDICIAL = {
 } as const;
 
 const PRIVATE_SERVICE = {
-  courtType: 'other',
+  courtType: 'extrajudicial',
   serviceType: 'Avaliação de imóvel',
   role: 'technical_assistant',
   subject: 'Avaliação do apartamento da Rua A',
@@ -102,20 +102,23 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
 
     const { processNumber: _, ...withoutNumber } = JUDICIAL;
     expect((await admin.as(request(app).post('/expert-cases')).send(withoutNumber)).status).toBe(400);
+    // A judicial type is not "Extrajudicial" (AD-177).
     expect(
-      (await admin.as(request(app).post('/expert-cases')).send({ ...JUDICIAL, serviceType: 'Avaliação de imóvel' }))
-        .status,
+      (await admin.as(request(app).post('/expert-cases')).send({ ...JUDICIAL, courtType: 'extrajudicial' })).status,
     ).toBe(400);
 
     const types = await admin.as(request(app).get('/expert-cases/service-types'));
     expect(types.body.data).toEqual([{ name: 'Avaliação de imóvel', role: 'technical_assistant', statuses: [] }]);
 
-    // Becoming judicial drops the type name and requires the process.
+    // Becoming judicial (the type name cleared with null) drops the own type's fields and requires the process.
     const id = first.body.data.id;
-    expect((await admin.as(request(app).patch(`/expert-cases/${id}`)).send({ courtType: 'civil' })).status).toBe(422);
+    expect(
+      (await admin.as(request(app).patch(`/expert-cases/${id}`)).send({ serviceType: null, courtType: 'civil' }))
+        .status,
+    ).toBe(422);
     const judicial = await admin
       .as(request(app).patch(`/expert-cases/${id}`))
-      .send({ courtType: 'civil', processNumber: '0009999-11.2026.8.26.0100', court: 'TJSP' });
+      .send({ serviceType: null, courtType: 'civil', processNumber: '0009999-11.2026.8.26.0100', court: 'TJSP' });
     expect(judicial.status).toBe(200);
     expect(judicial.body.data.serviceType).toBeUndefined();
     expect(judicial.body.data.contractor).toBeUndefined();
@@ -183,6 +186,46 @@ describe('serviços — tipo, status, data da perícia e despesas (SRV-02/03/05/
     expect(completed.status).toBe(200);
     expect(completed.body.data).toMatchObject({ status: 'completed' });
     expect(completed.body.data.statusName).toBeUndefined();
+  });
+
+  it('Parceria, filtros por esfera, tipo e período de entrega e data apagada (AD-177)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
+
+    const partnership = await post({
+      courtType: 'labor',
+      role: 'partnership',
+      subject: 'Parceria com o perito X',
+      contractor: { name: 'Perito X' },
+      nominationDate: '2026-11-01',
+      reportDeadline: '2026-12-10',
+    });
+    expect(partnership.status).toBe(201);
+    // Parceria is a type of its own, not a name.
+    expect((await post({ ...PRIVATE_SERVICE, role: 'partnership' })).status).toBe(400);
+    const judicial = await post({ ...JUDICIAL, reportDeadline: '2027-01-20' });
+    const own = await post(PRIVATE_SERVICE);
+    expect([judicial.status, own.status]).toEqual([201, 201]);
+    expect((await Deadline.findOne({ Case: partnership.body.data.id }).lean())?.title).toBe('Entrega do serviço');
+
+    const ids = async (query: string) =>
+      ((await admin.as(request(app).get(`/expert-cases?${query}`))).body.data.items as { id: string }[]).map(
+        (item) => item.id,
+      );
+    expect(await ids('role=partnership')).toEqual([partnership.body.data.id]);
+    expect(await ids('role=court_expert')).toEqual([judicial.body.data.id]);
+    expect(await ids(`serviceType=${encodeURIComponent(PRIVATE_SERVICE.serviceType)}`)).toEqual([own.body.data.id]);
+    expect(await ids('courtType=extrajudicial')).toEqual([own.body.data.id]);
+    expect(await ids('deliveryFrom=2026-12-01&deliveryTo=2026-12-31')).toEqual([partnership.body.data.id]);
+    expect(await ids('deliveryFrom=2027-01-01')).toEqual([judicial.body.data.id]);
+
+    // A date erased on screen is cleared with null.
+    const cleared = await admin
+      .as(request(app).patch(`/expert-cases/${partnership.body.data.id}`))
+      .send({ nominationDate: null });
+    expect(cleared.status).toBe(200);
+    expect(cleared.body.data.nominationDate).toBeUndefined();
   });
 
   it('a data da perícia no cadastro vira compromisso de perícia na agenda (AD-160)', async () => {

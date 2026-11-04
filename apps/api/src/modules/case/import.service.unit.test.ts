@@ -183,7 +183,7 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
   it('tipo do escritório sem processo usa o tipo como objeto', () => {
     expect(rowToCase(cells({ 'Tipo de serviço': 'Avaliação de imóvel', Status: 'xyz' }))).toEqual({
       data: expect.objectContaining({
-        courtType: 'other',
+        courtType: 'extrajudicial',
         serviceType: 'Avaliação de imóvel',
         subject: 'Avaliação de imóvel',
         notes: 'Status: xyz (!)',

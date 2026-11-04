@@ -61,6 +61,10 @@ export type CasesQueryParams = {
   q?: string;
   status?: CaseStatus;
   courtType?: CourtType;
+  role?: 'court_expert' | 'technical_assistant' | 'partnership';
+  serviceType?: string;
+  deliveryFrom?: string;
+  deliveryTo?: string;
 };
 
 // Listing: each case with its nearest pending deadline (AD-109), missing if there is none.

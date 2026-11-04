@@ -1,3 +1,4 @@
+import { isOwnType } from '@ethica/contracts';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { type Control, useWatch } from 'react-hook-form';
@@ -16,11 +17,11 @@ import { ServiceTypeField } from './service-type-field.js';
 // The office's own type (AD-176) swaps the process for the contractor and drops the perícia date, the
 // parties and the proposed fee; the contracted fee and its payment come already at registration.
 export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
-  const courtType = useWatch({ control, name: 'courtType' });
   const role = useWatch({ control, name: 'role' });
   const session = useQuery(sessionQuery).data;
-  const own = courtType === 'other';
+  const serviceType = useWatch({ control, name: 'serviceType' });
   const [creatingType, setCreatingType] = useState(false);
+  const own = creatingType || isOwnType({ serviceType, role });
   const serviceFields = (
     <div key="service" className="grid gap-4 sm:grid-cols-2">
       <ServiceTypeField creating={creatingType} onCreating={setCreatingType} />
@@ -30,7 +31,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
         label={t('service_order')}
         placeholder={t('service_order_automatic')}
       />
-      <CaseStatusField />
+      <CaseStatusField creating={creatingType} />
     </div>
   );
   const contractedFee = (

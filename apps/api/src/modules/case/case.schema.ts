@@ -11,6 +11,7 @@ import type {
 import {
   CASE_STATUS,
   COURTTYPES,
+  calendarDateSchema,
   createCaseSchema,
   createMovementSchema,
   idSchema,
@@ -35,6 +36,12 @@ export const listCasesQuerySchema = z
     q: z.string().trim().max(120).optional(),
     status: z.enum(CASE_STATUS).optional(),
     courtType: z.enum(COURTTYPES).optional(),
+    // "Tipo" filter (AD-177): a judicial type or Parceria by `role`, an own type by its name.
+    role: z.enum(['court_expert', 'technical_assistant', 'partnership']).optional(),
+    serviceType: z.string().trim().min(1).max(80).optional(),
+    // Delivery date of the service: the "Entrega do laudo" / "Entrega do serviço" deadline (AD-177).
+    deliveryFrom: calendarDateSchema.optional(),
+    deliveryTo: calendarDateSchema.optional(),
   })
   .strict();
 export type ListCasesQuery = z.infer<typeof listCasesQuerySchema>;
@@ -104,17 +111,8 @@ export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties'
 // Service type created by the office (AD-158), with the role of the cases that use it and the
 // statuses typed in it (AD-176).
 export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; statuses: string[] };
-// `null` becomes `$unset` in the repository: fields of the office's own type (AD-158, AD-176).
-export type CaseUpdateWrite = Omit<
-  UpdateCase,
-  'parties' | 'serviceType' | 'roleName' | 'statusName' | 'contractor' | 'inspection'
-> & {
-  parties?: CasePartyWrite[];
-  serviceType?: string | null;
-  roleName?: string | null;
-  statusName?: string | null;
-  contractor?: CaseContractor | null;
-};
+// `null` becomes `$unset` in the repository: fields of the office's own type and erased dates (AD-177).
+export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'inspection'> & { parties?: CasePartyWrite[] };
 
 // Listing: each case with its nearest pending deadline (missing if there is none).
 export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };

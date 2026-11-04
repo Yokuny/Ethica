@@ -34,6 +34,10 @@ export function CasesIndexPage() {
       q: search.q || undefined,
       status: search.status,
       courtType: search.courtType,
+      role: search.role,
+      serviceType: search.serviceType,
+      deliveryFrom: search.deliveryFrom,
+      deliveryTo: search.deliveryTo,
     }),
   );
   const statsQuery = useQuery(listStatsQuery('/expert-cases/stats'));

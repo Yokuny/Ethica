@@ -781,7 +781,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: `processNumber` opcional em todo o sistema: quem mostra o serviço usa `caseLabel` (número ou, sem ele, o objeto). Tipo do escritório não é renomeado nem excluído; existe enquanto um serviço o usa. Laudo de tipo `other` usa Requerente/Requerido.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
 - **Date**: 2026-11-02
-- **Status**: active (status do serviço superseded by AD-166)
+- **Status**: active (status do serviço superseded by AD-166; `courtType: 'other'` superseded by AD-177)
 
 ### AD-159
 - **Decision**: Categorias de despesa: deslocamento, equipamentos, terceiros, materiais, taxas, alimentação e outras; categoria criada pelo escritório é `other_expenses` + `Transaction.categoryName`, com a lista dos nomes já usados (`GET /finance/expense-names`). Pagamento (Sim, Não, Parcial) e honorário líquido do serviço são calculados na tela pelos lançamentos do serviço, sem campo gravado: base = honorário fixado/contratado ou, sem ele, o proposto; líquido = base − despesas não canceladas; pago quando o recebido alcança a base (sem base, quando todo honorário lançado foi recebido).
@@ -924,6 +924,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: pedido da perita (2026-11-03): serviço contratado por cliente, sem processo nem rotina judicial; ela escolheu os campos, "escolher ou digitar" para atuação e status, Concluído/Cancelado fixos e a entrega como prazo com aviso.
 - **Trade-off**: contratante obrigatório só no formulário (a importação por PDF/planilha cria o tipo sem ele); serviços do tipo próprio já cadastrados mantêm o status da rotina judicial até serem trocados; o prazo "Entrega do serviço" não é protocolado sozinho ao concluir um laudo (só "Entrega do laudo" é); pagamento só no cadastro.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/finance/transaction.service.ts`, `apps/api/src/events/event-types.ts`, `apps/api/src/modules/documents/documents.templates.ts`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
+- **Date**: 2026-11-03
+- **Status**: active
+
+### AD-177
+- **Decision**: O cadastro separa **Esfera** de **Tipo de serviço**. `Case.courtType` vira a esfera (`labor`, `civil`, `federal`, `extrajudicial`, obrigatória); sai o `other` da AD-158, convertido para `extrajudicial` na subida (`migrateCases`). O tipo é Perícia (`role: court_expert`), Assistência técnica (`technical_assistant`), **Parceria** (`partnership`, novo papel) ou um tipo do escritório (`serviceType`). Tipo próprio = tem nome de tipo ou é parceria (`isOwnType`), e só ele usa o formulário de contratante, status e atuação abertos (AD-176). Perícia e assistência exigem processo, tribunal e esfera de tribunal. Na edição, `null` apaga: os campos do tipo próprio ao virar judicial e as datas apagadas ("Limpar data" no `DatePicker`). A lista filtra por esfera, tipo (`role` ou `serviceType`) e período de entrega (prazo "Entrega do laudo"/"Entrega do serviço", com aviso na tela). "Serviços em aberto" passa a contar o status digitado.
+- **Reason**: pedido da perita (2026-11-03): esfera e tipo à parte, parceria, filtros por todos os tipos e por período, e data que volta a ficar em branco. Ela escolheu a data de entrega no filtro, parceria como tipo novo, esfera também no tipo novo (com extrajudicial) e dois filtros.
+- **Trade-off**: tipos do escritório antigos ficam com esfera Extrajudicial até alguém trocar; perícia ou assistência não podem ser extrajudiciais; apagar a data da perícia na edição continua sem mover/remover o compromisso (só o cadastro e a troca de data movem).
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/`, `apps/web/src/components/{case-labels.ts,date-picker.tsx}`, `apps/web/src/routes/_private/expert-cases/`.
 - **Date**: 2026-11-03
 - **Status**: active
 

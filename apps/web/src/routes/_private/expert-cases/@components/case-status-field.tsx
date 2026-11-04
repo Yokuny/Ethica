@@ -1,4 +1,4 @@
-import type { CaseStatus } from '@ethica/contracts';
+import { type CaseStatus, isOwnType } from '@ethica/contracts';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
@@ -13,16 +13,16 @@ const TYPED = 'typed:';
 
 // Service status: the routine list in the judicial types; in the office's own type, the statuses
 // already typed in it, "Concluído", "Cancelado" or a new one (AD-176). A service saved before keeps its status.
-export function CaseStatusField() {
+export function CaseStatusField({ creating }: { creating: boolean }) {
   const { control, setValue } = useFormContext<CaseFormValues>();
-  const [courtType, serviceType, status, statusName] = useWatch({
+  const [role, serviceType, status, statusName] = useWatch({
     control,
-    name: ['courtType', 'serviceType', 'status', 'statusName'],
+    name: ['role', 'serviceType', 'status', 'statusName'],
   });
   const officeTypes = useQuery(serviceTypesQuery);
   const [typing, setTyping] = useState(false);
 
-  if (courtType !== 'other') {
+  if (!isOwnType({ serviceType, role }) && !creating) {
     return (
       <SelectField
         control={control}

@@ -121,3 +121,15 @@ export const listAll = async (tenantId: string): Promise<DeadlineRecord[]> =>
       .lean();
     return docs.map(toRecord);
   });
+
+// Cases whose delivery deadline falls in the period (services filter, AD-177).
+export const caseIdsDueBetween = async (
+  tenantId: string,
+  titles: string[],
+  range: { from?: string; to?: string },
+): Promise<string[]> =>
+  withDbTiming('deadline.caseIdsDueBetween', async () => {
+    const dueDate = { ...(range.from ? { $gte: range.from } : {}), ...(range.to ? { $lte: range.to } : {}) };
+    const ids = await Deadline.distinct('Case', tenantScoped({ Tenant: tenantId, title: { $in: titles }, dueDate }));
+    return ids.map(String);
+  });

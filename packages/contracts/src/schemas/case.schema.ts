@@ -4,12 +4,14 @@ import { casePartyInputSchema, documentSchema, emailSchema, phoneSchema } from '
 
 export const JUDICIAL_COURT_TYPES = ['labor', 'civil', 'federal'] as const;
 export type JudicialCourtType = (typeof JUDICIAL_COURT_TYPES)[number];
-// `other`: service type created by the office (AD-158), named in `Case.serviceType`; it may have no process.
-export const COURTTYPES = [...JUDICIAL_COURT_TYPES, 'other'] as const;
+// Sphere of the service ("Esfera", AD-177): the three courts or out of court. It no longer says whether
+// the type is the office's own: that is `isOwnType`.
+export const COURTTYPES = [...JUDICIAL_COURT_TYPES, 'extrajudicial'] as const;
 export type CourtType = (typeof COURTTYPES)[number];
 
+// `partnership`: "Parceria", a service type with the form of the office's own type (AD-177).
 // `other`: role typed by the office in its own service type (AD-176), named in `Case.roleName`.
-export const CASE_ROLES = ['court_expert', 'technical_assistant', 'other'] as const;
+export const CASE_ROLES = ['court_expert', 'technical_assistant', 'partnership', 'other'] as const;
 export type CaseRole = (typeof CASE_ROLES)[number];
 export const JUDICIAL_CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
 
@@ -68,7 +70,7 @@ const caseFields = z.object({
   processNumber: optional(processNumberSchema),
   // Service order control number (NLA-01): given by the office sequence when missing at registration.
   serviceOrder: optional(z.string().trim().max(30, 'OS inválida')),
-  courtType: z.enum(COURTTYPES),
+  courtType: z.enum(COURTTYPES, 'esfera é obrigatória'),
   serviceType: z.string().trim().min(1, 'tipo de serviço é obrigatório').max(80, 'tipo de serviço inválido').optional(),
   role: z.enum(CASE_ROLES),
   roleName: nameText('atuação inválida').optional(),
@@ -94,9 +96,14 @@ const caseFields = z.object({
   location: z.string().trim().max(300, 'endereço inválido').optional(),
 });
 
-// Process number and court are required except in a service type created by the office, which is
-// the only one carrying a name (AD-158), a typed role or status and a contractor (AD-176). Checked on the
-// final result in the service when editing.
+// The office's own type (AD-158, AD-176) and "Parceria" (AD-177) ask for the contractor instead of the
+// process; "Perícia" and "Assistência técnica" are the judicial types.
+export const isOwnType = (data: { serviceType?: string | null; role?: CaseRole }): boolean =>
+  Boolean(data.serviceType) || data.role === 'partnership';
+
+// Judicial types need the process number and the court, in one of the three courts, and take none of the
+// own type's fields; own types take an optional process and the typed role and status with their names.
+// Checked on the final result in the service when editing.
 export const validServiceType = (data: {
   courtType?: CourtType;
   serviceType?: string;
@@ -108,9 +115,9 @@ export const validServiceType = (data: {
   statusName?: string;
   contractor?: CaseContractor;
 }): boolean => {
-  if (data.courtType !== 'other') {
+  if (!isOwnType(data)) {
     return (
-      !data.serviceType &&
+      data.courtType !== 'extrajudicial' &&
       Boolean(data.processNumber && data.court) &&
       data.role !== 'other' &&
       data.status !== 'custom' &&
@@ -120,7 +127,7 @@ export const validServiceType = (data: {
     );
   }
   return (
-    Boolean(data.serviceType) &&
+    !(data.role === 'partnership' && data.serviceType) &&
     (data.role === 'other') === Boolean(data.roleName) &&
     (data.status === 'custom') === Boolean(data.statusName)
   );
@@ -174,11 +181,11 @@ export const createCaseFieldsSchema = caseFields
   })
   .strict();
 export const createCaseSchema = createCaseFieldsSchema
-  .refine((data) => data.courtType !== 'other' || validServiceType(data), {
+  .refine((data) => !isOwnType(data) || validServiceType(data), {
     message: 'tipo de serviço inválido',
     path: ['serviceType'],
   })
-  .refine((data) => data.courtType === 'other' || validServiceType(data), {
+  .refine((data) => isOwnType(data) || validServiceType(data), {
     message: 'número do processo e tribunal são obrigatórios',
     path: ['processNumber'],
   })
@@ -189,16 +196,31 @@ export const createCaseSchema = createCaseFieldsSchema
 export type CreateCase = z.infer<typeof createCaseSchema>;
 // The registration form asks for the contractor in the office's own type (AD-176); imports (PDF, CSV)
 // create the type without one, so the API accepts it missing.
-export const validContractor = (data: { courtType?: CourtType; contractor?: CaseContractor }): boolean =>
-  data.courtType !== 'other' || Boolean(data.contractor?.name);
+export const validContractor = (data: {
+  serviceType?: string;
+  role?: CaseRole;
+  contractor?: CaseContractor;
+}): boolean => !isOwnType(data) || Boolean(data.contractor?.name);
 
 // PATCH accepts any subset of the fields + the fee fixed by the court or, in an assistant case, the
 // contracted one (AD-135), and the perícia date, which moves the appointment on the agenda (AEV-04).
+// `null` clears (AD-177): the own type's fields when the service becomes judicial, and a date erased on screen.
+const clearable = <T extends z.ZodType>(schema: T) => schema.nullable().optional();
 export const updateCaseSchema = caseFields
   .partial()
   .extend({
     fixedFeesCents: centsSchema.optional(),
     inspection: caseInspectionSchema.optional(),
+    serviceType: clearable(caseFields.shape.serviceType.unwrap()),
+    roleName: clearable(caseFields.shape.roleName.unwrap()),
+    statusName: clearable(caseFields.shape.statusName.unwrap()),
+    contractor: clearable(caseContractorSchema),
+    nominationDate: clearable(calendarDateSchema),
+    docketingDate: clearable(calendarDateSchema),
+    hireDate: clearable(calendarDateSchema),
+    terminationDate: clearable(calendarDateSchema),
+    nonPrescribedPeriodStart: clearable(calendarDateSchema),
+    nonPrescribedPeriodEnd: clearable(calendarDateSchema),
   })
   .strict();
 export type UpdateCase = z.infer<typeof updateCaseSchema>;

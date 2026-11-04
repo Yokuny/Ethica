@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import { pathToFileURL } from 'node:url';
-import { backfillCalendarEntries, connect, migrateCaseStatus, syncIndexes } from '@ethica/db';
+import { backfillCalendarEntries, connect, migrateCases, syncIndexes } from '@ethica/db';
 import { buildApp, buildMailProvider } from './app.js';
 import { env } from './config/env.config.js';
 import { nextExecution, sendDeadlineNotices } from './modules/agenda/deadlineReminder.service.js';
@@ -37,7 +37,7 @@ export const start = async (opts: StartOptions = {}): Promise<StartHandle | unde
   try {
     await connect(env.MONGODB_URI);
     await syncIndexes();
-    await migrateCaseStatus();
+    await migrateCases();
     await backfillCalendarEntries();
 
     const port = opts.port ?? Number(env.API_PORT);

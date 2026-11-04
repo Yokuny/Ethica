@@ -12,7 +12,7 @@ export { Appointment } from './models/appointment.model.js';
 export type { CalendarEntryDocument } from './models/calendar-entry.model.js';
 export { backfillCalendarEntries, CalendarEntry } from './models/calendar-entry.model.js';
 export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './models/case.model.js';
-export { Case, migrateCaseStatus } from './models/case.model.js';
+export { Case, migrateCases } from './models/case.model.js';
 export type { CourtDivisionDocument } from './models/court-division.model.js';
 export { COURT_DIVISION_COLLATION, CourtDivision } from './models/court-division.model.js';
 export type { DeadlineDocument } from './models/deadline.model.js';

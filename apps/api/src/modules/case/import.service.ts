@@ -12,6 +12,7 @@ import {
   createCaseSchema,
   csvHeaderKey,
   documentSchema,
+  isOwnType,
   oabSchema,
   partyNameKey,
   processNumberSchema,
@@ -388,11 +389,17 @@ const STATUS_NAMES: [string, CaseStatus][] = [
   ['cancelada', 'declined'],
 ];
 
-// "Perícia trabalhista", "Assistência técnica cível"…; a name that says no court type is a service type
-// of the office (AD-158).
+// "Perícia trabalhista", "Assistência técnica cível", "Parceria"…; a name that says no court type is a
+// service type of the office (AD-158), in the sphere "Extrajudicial" (AD-177).
 const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: CaseRole; serviceType?: string } => {
   const key = csvHeaderKey(text);
-  const role = /assist/.test(key) ? 'technical_assistant' : /perit|pericia/.test(key) ? 'court_expert' : undefined;
+  const role = /assist/.test(key)
+    ? 'technical_assistant'
+    : /perit|pericia/.test(key)
+      ? 'court_expert'
+      : /parceri/.test(key)
+        ? 'partnership'
+        : undefined;
   const courtType = /trabalh/.test(key)
     ? 'labor'
     : /civel|civil/.test(key)
@@ -400,10 +407,11 @@ const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: Case
       : /federal/.test(key)
         ? 'federal'
         : undefined;
+  if (role === 'partnership') return { courtType: courtType ?? 'extrajudicial', role };
   if (courtType) return { courtType, role };
   return role && /^(pericia|pericia judicial|perito|assistencia tecnica|assistente tecnico)$/.test(key)
     ? { role }
-    : { courtType: 'other', serviceType: text.trim() };
+    : { courtType: 'extrajudicial', serviceType: text.trim() };
 };
 
 const TEXT_FIELDS = ['court', 'division', 'district', 'subject', 'claimantJob', 'location'] as const;
@@ -478,7 +486,7 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
   data.courtType = courtType;
   if (typed.serviceType) data.serviceType = typed.serviceType;
   data.role ??= typed.role ?? 'court_expert';
-  if (courtType !== 'other') data.court ??= unit?.court;
+  if (!isOwnType(data)) data.court ??= unit?.court;
   // Without an object column, the service type names the service.
   data.subject ??= typed.serviceType;
   if (!data.subject) return { reason: 'csv_missing_subject' };

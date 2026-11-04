@@ -68,6 +68,8 @@ Não desfazer sem ler: atuação e status digitados são `role: 'other'` + `role
 
 ## Histórico
 
+- 2026-11-03 — O tipo próprio deixa de ser `courtType: 'other'`: passa a ser nome de tipo ou Parceria (`isOwnType`), com esfera própria; ver `esfera-servico` (AD-177). "Serviços em aberto" passa a contar o status digitado.
+
 - 2026-11-03 — Correção: ao escolher "Cadastrar novo" o campo "Nome do novo tipo" sumia (a troca de layout do formulário remontava o campo e perdia o estado) e o serviço não salvava, com o erro escondido. O estado passa a viver em `case-form-fields.tsx`. Campos obrigatórios ganham asterisco vermelho (`required` em `FormLabel`, `packages/ui/src/components/form.tsx`, e nos campos de `apps/web/src/components/form-fields.tsx`): tipo de serviço, nome do novo tipo, atuação, status e os nomes digitados, nome/razão social, objeto, número do processo e tribunal (judiciais), valor recebido e data da quitação.
 
 - 2026-11-03 — Implementado TSP-01 a TSP-07 (AD-176). Divergência da spec: o contratante é obrigatório só no formulário de cadastro, não na API, porque a importação por PDF e planilha cria o tipo próprio sem ele.

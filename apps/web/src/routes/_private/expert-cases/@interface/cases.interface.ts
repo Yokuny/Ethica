@@ -7,6 +7,11 @@ export const casesSearchSchema = z.object({
   q: z.string().optional().default(''),
   status: z.enum(CASE_STATUS).optional(),
   courtType: z.enum(COURTTYPES).optional(),
+  // "Tipo" filter (AD-177): Perícia, Assistência técnica, Parceria or an own type by name.
+  role: z.enum(['court_expert', 'technical_assistant', 'partnership']).optional(),
+  serviceType: z.string().optional(),
+  deliveryFrom: z.string().optional(),
+  deliveryTo: z.string().optional(),
 });
 export type CasesSearch = z.infer<typeof casesSearchSchema>;
 

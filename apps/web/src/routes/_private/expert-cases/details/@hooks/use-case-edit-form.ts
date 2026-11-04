@@ -7,6 +7,19 @@ import { updateCaseMutation } from '@/query/case.js';
 import type { CaseFormValues } from '../../@interface/cases.interface.js';
 import type { CaseEditFormProps } from '../@interface/case-details.interface.js';
 
+const CLEARABLE = [
+  'serviceType',
+  'roleName',
+  'statusName',
+  'contractor',
+  'nominationDate',
+  'docketingDate',
+  'hireDate',
+  'terminationDate',
+  'nonPrescribedPeriodStart',
+  'nonPrescribedPeriodEnd',
+] as const;
+
 export function useCaseEditForm({ legalCase, onSaved }: Pick<CaseEditFormProps, 'legalCase' | 'onSaved'>) {
   const queryClient = useQueryClient();
   const { id: _id, createdAt: _c, updatedAt: _u, opportunityId: _o, movements: _m, ...defaultValues } = legalCase;
@@ -20,8 +33,13 @@ export function useCaseEditForm({ legalCase, onSaved }: Pick<CaseEditFormProps, 
   function onSubmit(data: UpdateCase) {
     if (mutation.isPending) return;
     setErrorMessage(null);
+    // A saved value left empty goes as null, which the API clears (AD-177): an erased date, or the own type's
+    // fields when the service becomes judicial. Missing would keep what was saved.
+    const cleared = Object.fromEntries(
+      CLEARABLE.filter((key) => legalCase[key] !== undefined && data[key] === undefined).map((key) => [key, null]),
+    );
     mutation.mutate(
-      { id: legalCase.id, data },
+      { id: legalCase.id, data: { ...data, ...cleared } },
       { onSuccess: onSaved, onError: (error: Error) => setErrorMessage(error.message) },
     );
   }

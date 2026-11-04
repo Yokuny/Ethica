@@ -1,7 +1,14 @@
-import { CASE_IDLE_STATUSES, caseLabel } from '@ethica/contracts';
+import { CASE_IDLE_STATUSES, caseLabel, isOwnType } from '@ethica/contracts';
 import { Building2, FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
-import { CASE_STATUS_VARIANT, caseRoleLabel, caseStatusLabel, serviceTypeLabel } from '@/components/case-labels.js';
+import {
+  CASE_STATUS_VARIANT,
+  caseRoleLabel,
+  caseStatusLabel,
+  courtTypeLabel,
+  serviceLabel,
+  serviceTypeLabel,
+} from '@/components/case-labels.js';
 import { sideLabel } from '@/components/party-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
@@ -17,7 +24,7 @@ const money = (value?: number) => (value ? formatMoney(value) : '-');
 // fees, and the read groups (court, parties, notes). The office's own type (AD-176) shows the contractor
 // in place of the court and the parties.
 export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseRecord; canSeeFinance: boolean }) {
-  const own = legalCase.courtType === 'other';
+  const own = isOwnType(legalCase);
   const client = legalCase.contractor?.name ?? legalCase.parties.find((party) => party.client)?.name;
   const { contractor } = legalCase;
   return (
@@ -25,7 +32,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
       <RecordHeader>
         <RecordHeading
           icon={<Scale />}
-          label={serviceTypeLabel(legalCase)}
+          label={serviceLabel(legalCase)}
           title={caseLabel(legalCase)}
           description={legalCase.subject}
         />
@@ -57,6 +64,8 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
                 icon: <Building2 />,
                 specs: [
                   { label: t('service_type'), value: serviceTypeLabel(legalCase) },
+                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
+                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
                   { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
                   { label: t('name_or_company_name'), value: contractor?.name || '-' },
                   { label: t('cpf_cnpj'), value: contractor?.document || '-' },
@@ -71,6 +80,8 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
                 icon: <Scale />,
                 specs: [
                   { label: t('service_type'), value: serviceTypeLabel(legalCase) },
+                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
+                  { label: t('sphere'), value: courtTypeLabel(legalCase.courtType) },
                   { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
                   { label: t('court'), value: legalCase.court || '-' },
                   { label: t('court_division'), value: legalCase.division || '-' },

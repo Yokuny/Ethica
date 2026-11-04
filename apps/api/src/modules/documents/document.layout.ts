@@ -17,8 +17,10 @@ const LABELS: Record<string, string> = {
   labor: 'Trabalhista',
   civil: 'Cível',
   federal: 'Federal',
+  extrajudicial: 'Extrajudicial',
   court_expert: 'Perito do juízo',
   technical_assistant: 'Assistente técnico',
+  partnership: 'Parceria',
   // Service status (RSV-03); `inspection` is the appointment type.
   appointed: 'Nomeado – aguardando aceite',
   fees_proposed: 'Proposta de honorários enviada',
@@ -41,7 +43,6 @@ const LABELS: Record<string, string> = {
   supplementary_report_summons: 'Intimação para laudo complementar',
   hearing: 'Audiência',
   meeting: 'Reunião',
-  other: 'Outro',
   scheduled: 'Agendado',
   done: 'Concluído',
   canceled: 'Cancelado',

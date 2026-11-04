@@ -83,7 +83,7 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
 const toPartiesDocs = (parties: CasePartyWrite[]) =>
   parties.map(({ partyId, ...party }) => ({ ...party, Party: partyId }));
 
-// Statuses in which the case still has work ahead for the expert.
+// Statuses in which the case still has work ahead for the expert; a typed status counts as open (AD-176).
 const OPEN: CaseStatus[] = [
   'appointed',
   'fees_proposed',
@@ -91,6 +91,7 @@ const OPEN: CaseStatus[] = [
   'inspection_scheduled',
   'drafting_report',
   'clarifications',
+  'custom',
 ];
 const DELIVERED: CaseStatus[] = ['report_delivered', 'awaiting_payment', 'completed'];
 
@@ -237,14 +238,20 @@ export const deleteCase = async (tenantId: string, id: string): Promise<{ delete
     return { deletedCount: result.deletedCount ?? 0 };
   });
 
+// `ids`: only these cases (delivery period, resolved by the service from the deadlines).
 export const listCases = async (
   tenantId: string,
   query: ListCasesQuery,
+  ids?: string[],
 ): Promise<{ items: CaseRecord[]; total: number }> =>
   withDbTiming('case.listCases', async () => {
     const filters = {
       ...(query.status ? { status: query.status } : {}),
       ...(query.courtType ? { courtType: query.courtType } : {}),
+      // A judicial type or Parceria has no own type name (AD-177).
+      ...(query.role ? { role: query.role, serviceType: { $exists: false } } : {}),
+      ...(query.serviceType ? { serviceType: query.serviceType } : {}),
+      ...(ids ? { _id: { $in: ids.map(toObjectId) } } : {}),
     };
     const skip = (query.page - 1) * query.limit;
 

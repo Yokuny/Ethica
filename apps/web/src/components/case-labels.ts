@@ -48,46 +48,41 @@ export const CASE_STATUS_ITEMS = CASE_STATUS.filter((value) => value !== 'custom
   value,
   label: caseStatusLabel(value),
 }));
-// The court type key has a suffix (`civil` alone would be ambiguous in the dictionary).
+// Sphere ("Esfera", AD-177). The key has a suffix (`civil` alone would be ambiguous in the dictionary).
 const COURT_TYPE_KEY: Record<CourtType, string> = {
   labor: 'labor_court',
   civil: 'civil_court',
   federal: 'federal_court',
-  other: 'other_service',
+  extrajudicial: 'extrajudicial',
 };
 export const courtTypeLabel = (courtType: CourtType): string => t(COURT_TYPE_KEY[courtType]);
 
 export const COURT_TYPE_ITEMS = COURTTYPES.map((value) => ({ value, label: courtTypeLabel(value) }));
-// Opportunities come from Datajud: only the judicial types.
+// Opportunities and court divisions come from the courts: only the judicial spheres.
 export const JUDICIAL_COURT_TYPE_ITEMS = JUDICIAL_COURT_TYPES.map((value) => ({ value, label: courtTypeLabel(value) }));
 
-// Service type (AD-158): a judicial one is court type × role, in the order the expert listed;
-// one created by the office carries its name. The select value encodes the pair.
-const JUDICIAL_SERVICE_TYPES = [
-  ['civil', 'court_expert', 'court_expert_civil'],
-  ['labor', 'court_expert', 'court_expert_labor'],
-  ['civil', 'technical_assistant', 'technical_assistant_civil'],
-  ['labor', 'technical_assistant', 'technical_assistant_labor'],
-  ['federal', 'court_expert', 'court_expert_federal'],
-  ['federal', 'technical_assistant', 'technical_assistant_federal'],
-] as const satisfies readonly (readonly [Exclude<CourtType, 'other'>, CaseRole, string])[];
+// "Tipo de serviço" (AD-177): Perícia, Assistência técnica, Parceria, the office's own types and "Cadastrar
+// novo". The select value is the role or `name:` + the own type's name.
+const SERVICE_KIND_KEY = {
+  court_expert: 'expert_examination',
+  technical_assistant: 'technical_assistance',
+  partnership: 'partnership',
+} as const;
+type ServiceKind = keyof typeof SERVICE_KIND_KEY;
+export const SERVICE_KINDS = Object.keys(SERVICE_KIND_KEY) as ServiceKind[];
 export const NEW_SERVICE_TYPE = 'new';
-type ServiceTypeFields = { courtType?: CourtType; role?: CaseRole; serviceType?: string | null };
-export const serviceTypeValue = ({ courtType, role, serviceType }: ServiceTypeFields): string | undefined =>
-  courtType === 'other'
-    ? serviceType
-      ? `other:${serviceType}`
-      : NEW_SERVICE_TYPE
-    : courtType && `${courtType}:${role}`;
-export const serviceTypeLabel = ({ courtType, role, serviceType }: ServiceTypeFields): string => {
-  if (courtType === 'other') return serviceType ?? t('other_service');
-  const found = JUDICIAL_SERVICE_TYPES.find(([type, typeRole]) => type === courtType && typeRole === role);
-  return found ? t(found[2]) : '';
-};
+export const OWN_TYPE_PREFIX = 'name:';
+type ServiceTypeFields = { role?: CaseRole; serviceType?: string | null };
+export const serviceTypeValue = ({ role, serviceType }: ServiceTypeFields): string | undefined =>
+  serviceType ? `${OWN_TYPE_PREFIX}${serviceType}` : role && role in SERVICE_KIND_KEY ? role : undefined;
+export const serviceTypeLabel = ({ role, serviceType }: ServiceTypeFields): string =>
+  serviceType || (role && role in SERVICE_KIND_KEY ? t(SERVICE_KIND_KEY[role as ServiceKind]) : '');
+// Type + sphere, as the list and the detail show it ("Perícia · Trabalhista").
+export const serviceLabel = (data: ServiceTypeFields & { courtType: CourtType }): string =>
+  [serviceTypeLabel(data), courtTypeLabel(data.courtType)].filter(Boolean).join(' · ');
 export const serviceTypeItems = (officeTypes: readonly { name: string }[]) => [
-  ...JUDICIAL_SERVICE_TYPES.map(([courtType, role, key]) => ({ value: `${courtType}:${role}`, label: t(key) })),
-  ...officeTypes.map(({ name }) => ({ value: `other:${name}`, label: name })),
-  { value: NEW_SERVICE_TYPE, label: t('register_new') },
+  ...SERVICE_KINDS.map((role) => ({ value: role, label: t(SERVICE_KIND_KEY[role]) })),
+  ...officeTypes.map(({ name }) => ({ value: `${OWN_TYPE_PREFIX}${name}`, label: name })),
 ];
 export const ROLE_ITEMS = JUDICIAL_CASE_ROLES.map((value) => ({ value, label: t(value) }));
 // A role typed in the office's own type (AD-176) shows its name.

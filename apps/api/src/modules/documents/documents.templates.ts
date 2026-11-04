@@ -1,4 +1,10 @@
-import { DEADLINE_DUE_SOON_DAYS, INSPECTION_AGENTS, INSPECTION_DOCUMENTS, STALLED_CASE_DAYS } from '@ethica/contracts';
+import {
+  DEADLINE_DUE_SOON_DAYS,
+  INSPECTION_AGENTS,
+  INSPECTION_DOCUMENTS,
+  isOwnType,
+  STALLED_CASE_DAYS,
+} from '@ethica/contracts';
 import type { PdfDocument } from '../../providers/pdfRenderer.js';
 import {
   buildDocument,
@@ -50,14 +56,14 @@ const document = (base: DocumentBase, title: string, subtitle: string | undefine
 const processData = (legalCase: Case) =>
   fields([
     ['Número do processo', legalCase.processNumber],
-    ['Justiça', label(legalCase.courtType)],
+    ['Esfera', label(legalCase.courtType)],
     ['Tribunal', legalCase.court],
     ['Vara', legalCase.division],
     ['Comarca', legalCase.district],
     ['Contratante', legalCase.contractor?.name],
     ['Atuação', legalCase.roleName ?? label(legalCase.role)],
     ['Status', legalCase.statusName ?? label(legalCase.status)],
-    [legalCase.courtType === 'other' ? 'Contratação' : 'Nomeação', day(legalCase.nominationDate)],
+    [isOwnType(legalCase) ? 'Contratação' : 'Nomeação', day(legalCase.nominationDate)],
     ['Objeto', legalCase.subject],
   ]);
 

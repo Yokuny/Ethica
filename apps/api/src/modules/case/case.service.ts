@@ -5,6 +5,7 @@ import {
   DEADLINE_DUE_SOON_DAYS,
   deadlineAgendaEntries,
   formatServiceOrder,
+  isOwnType,
   type ServiceOrderSettings,
   STALLED_CASE_DAYS,
   suggestNonPrescribedPeriod,
@@ -90,8 +91,7 @@ const postFees = (tenantId: string, legalCase: CaseRecord, received?: CasePaymen
     caseId: legalCase.id,
     caseLabel: caseLabel(legalCase),
     amountCents: legalCase.fixedFeesCents,
-    category:
-      legalCase.courtType === 'other' || legalCase.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
+    category: isOwnType(legalCase) || legalCase.role === 'technical_assistant' ? 'contracted_fees' : 'fixed_fees',
     received,
   });
 };
@@ -112,7 +112,7 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
     });
     if (reportDeadline) {
       // The office's own type delivers a service, not necessarily a report (AD-176).
-      const own = legalCase.courtType === 'other';
+      const own = isOwnType(legalCase);
       const deadline = await deadlineRepository.createDeadline(input.tenant, legalCase.id, {
         title: own ? SERVICE_DELIVERY_DEADLINE : REPORT_DELIVERY_DEADLINE,
         dueDate: reportDeadline,
@@ -149,19 +149,23 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
   if (!validClient({ role: rest.role ?? before.role, parties: parties ?? before.parties })) {
     throw new CustomError('invalid_contracting_party', 422);
   }
-  const courtType = rest.courtType ?? before.courtType;
-  const own = courtType === 'other';
-  // A judicial type drops the fields of the office's own type (AD-158, AD-176).
+  // `null` clears; missing keeps what was saved.
+  const next = <T>(value: T | null | undefined, previous: T | undefined) =>
+    value === null ? undefined : (value ?? previous);
+  const role = rest.role ?? before.role;
+  const serviceType = next(rest.serviceType, before.serviceType);
+  const own = isOwnType({ serviceType, role });
+  // A judicial type drops the fields of the office's own type (AD-158, AD-176, AD-177).
   const final = {
-    courtType,
-    serviceType: own ? (rest.serviceType ?? before.serviceType) : undefined,
+    courtType: rest.courtType ?? before.courtType,
+    serviceType: own ? serviceType : undefined,
     processNumber: rest.processNumber ?? before.processNumber,
     court: rest.court ?? before.court,
-    role: rest.role ?? before.role,
+    role,
     status: rest.status ?? before.status,
-    roleName: (rest.role ?? before.role) === 'other' ? (rest.roleName ?? before.roleName) : undefined,
-    statusName: (rest.status ?? before.status) === 'custom' ? (rest.statusName ?? before.statusName) : undefined,
-    contractor: own ? (rest.contractor ?? before.contractor) : undefined,
+    roleName: role === 'other' ? next(rest.roleName, before.roleName) : undefined,
+    statusName: (rest.status ?? before.status) === 'custom' ? next(rest.statusName, before.statusName) : undefined,
+    contractor: own ? next(rest.contractor, before.contractor) : undefined,
   };
   if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
   const unsetWhenGone = <T>(value: T | undefined, previous: unknown) => value ?? (previous ? null : undefined);
@@ -201,7 +205,15 @@ export const listCases = async (
   query: ListCasesQuery,
 ): Promise<{ items: CaseListItem[]; total: number }> => {
   try {
-    const result = await caseRepository.listCases(tenantId, query);
+    const { deliveryFrom: from, deliveryTo: to } = query;
+    const ids =
+      from || to
+        ? await deadlineRepository.caseIdsDueBetween(tenantId, [REPORT_DELIVERY_DEADLINE, SERVICE_DELIVERY_DEADLINE], {
+            from,
+            to,
+          })
+        : undefined;
+    const result = await caseRepository.listCases(tenantId, query, ids);
     const upcoming = await deadlineRepository.upcomingByCaseIds(
       tenantId,
       result.items.map((item) => item.id),

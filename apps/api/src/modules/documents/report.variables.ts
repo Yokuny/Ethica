@@ -33,7 +33,7 @@ const NAME = {
   labor: { plaintiff: 'Reclamante', defendant: 'Reclamada' },
   civil: { plaintiff: 'Autor', defendant: 'Réu' },
   federal: { plaintiff: 'Autor', defendant: 'Réu' },
-  other: { plaintiff: 'Requerente', defendant: 'Requerido' },
+  extrajudicial: { plaintiff: 'Requerente', defendant: 'Requerido' },
 } as const;
 
 const names = (legalCase: CaseRecord, side: Side, type: 'party' | 'lawyer'): string =>

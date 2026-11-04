@@ -1,7 +1,7 @@
-import { caseLabel, type Side } from '@ethica/contracts';
+import { caseLabel, isOwnType, type Side } from '@ethica/contracts';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
-import { CASE_STATUS_VARIANT, caseStatusLabel, serviceTypeLabel } from '@/components/case-labels.js';
+import { CASE_STATUS_VARIANT, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { deadlineAlert } from '@/components/deadline-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -45,7 +45,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
   {
     id: 'service',
     header: t('service_type'),
-    cell: ({ row }) => serviceTypeLabel(row.original),
+    cell: ({ row }) => serviceLabel(row.original),
   },
   {
     id: 'juizo',
@@ -90,8 +90,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       const { fixedFeesCents, proposedFeesCents, role } = row.original;
       const value = fixedFeesCents ?? proposedFeesCents;
       // In a technical assistant case (AD-135) and in the office's own type (AD-176) it is the contracted one.
-      const definido =
-        role === 'technical_assistant' || row.original.courtType === 'other' ? t('contracted') : t('fixed');
+      const definido = role === 'technical_assistant' || isOwnType(row.original) ? t('contracted') : t('fixed');
       return (
         <TableStack description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>
           {value ? formatMoney(value) : '—'}
