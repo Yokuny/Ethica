@@ -25,7 +25,7 @@ import { DEFAULT_TEMPLATES } from '../src/modules/documents/report.library.js';
 import type { TemplateRecord } from '../src/modules/documents/report.schema.js';
 
 // Dev tool: creates (or recreates) the "Perícias Demo" demo tenant
-// with a team, cases in several statuses, agenda, transactions and opportunities,
+// with a team, cases in several phases, agenda, transactions and opportunities,
 // with dates relative to today. Deletes only this tenant's data.
 //
 //   pnpm --filter api run seed:demo
@@ -46,7 +46,7 @@ const CASES = [
     court: 'TRT2',
     division: '1ª Vara do Trabalho de São Paulo',
     subject: 'Insalubridade por ruído',
-    status: 'inspection_scheduled',
+    phase: 'inspection_scheduled',
     deadline: 12,
     proposed: 450_000,
   },
@@ -56,7 +56,7 @@ const CASES = [
     court: 'TRT2',
     division: '11ª Vara do Trabalho de São Paulo',
     subject: 'Periculosidade — inflamáveis',
-    status: 'drafting_report',
+    phase: 'drafting_report',
     deadline: 3,
     proposed: 380_000,
     fixed: 350_000,
@@ -67,7 +67,7 @@ const CASES = [
     court: 'TJSP',
     division: '5ª Vara Cível do Foro Central',
     subject: 'Vícios construtivos em edifício',
-    status: 'appointed',
+    phase: 'assistance_hired',
     deadline: 30,
     proposed: 900_000,
     // Technical assistant hired by the plaintiff (AD-135): contracted fee.
@@ -79,7 +79,7 @@ const CASES = [
     court: 'TRF3',
     division: '2ª Vara Federal Previdenciária',
     subject: 'Aposentadoria especial — agentes químicos',
-    status: 'report_delivered',
+    phase: 'report_delivered',
     deadline: -5,
     proposed: 320_000,
     fixed: 300_000,
@@ -90,7 +90,7 @@ const CASES = [
     court: 'TRT15',
     division: 'Vara do Trabalho de Campinas',
     subject: 'Doença ocupacional — LER/DORT',
-    status: 'clarifications',
+    phase: 'objection_reply_1',
     deadline: -2,
     proposed: 400_000,
     fixed: 400_000,
@@ -101,7 +101,7 @@ const CASES = [
     court: 'TJSP',
     division: '3ª Vara Cível de Guarulhos',
     subject: 'Avaliação de imóvel',
-    status: 'awaiting_payment',
+    phase: 'evidence_closed',
     proposed: 250_000,
     fixed: 250_000,
   },
@@ -210,14 +210,14 @@ const run = async (): Promise<void> => {
             location: 'Av. Industrial, 1500 — São Paulo/SP',
           }
         : {}),
-      status: p.status,
+      phase: p.phase,
       // The civil one (index 2) was nominated 95 days ago and never moved: it shows up in stalled cases.
       nominationDate: index === 2 ? day(-95) : day(-40 + index * 3),
       // Movements (AD-121): report delivered 70 days ago (stalled) and a recent summons (active).
       movements:
-        p.status === 'report_delivered'
+        p.phase === 'report_delivered'
           ? [{ type: 'report_filed', date: day(-70) }]
-          : p.status === 'clarifications'
+          : p.phase === 'objection_reply_1'
             ? [
                 { type: 'report_filed', date: day(-30) },
                 { type: 'clarification_summons', date: day(-8), notes: 'Quesitos complementares da reclamada' },
@@ -235,15 +235,15 @@ const run = async (): Promise<void> => {
     ...CASES.flatMap((p, index) => {
       const legalCase = cases[index];
       if (!('deadline' in p) || !legalCase) return [];
-      const entregue = ['report_delivered', 'awaiting_payment'].includes(p.status);
+      const delivered = ['report_delivered', 'evidence_closed'].includes(p.phase);
       return [
         {
           Tenant: tenant._id,
           Case: legalCase._id,
           title: 'Entrega do laudo',
           dueDate: day(p.deadline),
-          status: entregue ? ('filed' as const) : ('pending' as const),
-          filedDate: entregue ? day(p.deadline - 1) : undefined,
+          status: delivered ? ('filed' as const) : ('pending' as const),
+          filedDate: delivered ? day(p.deadline - 1) : undefined,
         },
       ];
     }),

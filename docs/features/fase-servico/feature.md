@@ -68,6 +68,7 @@ pnpm vitest run apps/api/src/modules/case packages/db/src/models/case.model.int.
 
 ## Histórico
 
+- 2026-11-04 — `apps/api/scripts/seed-demo.ts` passa a gravar a fase (e status ativo) nos serviços de demonstração; o script ainda usava as etapas antigas e falhava ao rodar.
 - 2026-11-04 — Assistência técnica deixa a lista em grupos e ganha lista própria de fases: feature `fase-assistencia` (AD-186).
 - 2026-11-04 — Fase inicial ganha Nomeação aceita, Elaboração de proposta de honorários, Solicitação de documentos, Perícia agendada e Perícia realizada; nova **fase intermediária** com Laudo em elaboração, Documentos pendentes e Laudo em revisão, que substituem "Aguardando laudo pericial" e "Revisar laudo pericial" da fase final (serviços nelas convertidos na subida, AD-180). Vale para perícia e assistência técnica.
 - 2026-11-03 — Implementado FSV-01 a FSV-08 (AD-178). Conferido no navegador: tipos, esfera só na perícia, assistência com contratante, fases por grupo, tipo novo e obrigatórios. Corrigido junto: o detalhe mostrava a esfera duas vezes.

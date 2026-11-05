@@ -62,6 +62,8 @@ Conta criada pelo cadastro aberto em 2026-11-04 para testar o sistema pela tela,
 | CNPJ | `98765432000198` (fictício, dígitos válidos) |
 | Papel | admin |
 
+O escritório tem os mesmos dados de demonstração do `seed:demo` (seis serviços em fases diferentes, prazos, agenda com vistorias hoje, lançamentos de seis meses, um laudo em rascunho e oportunidades), gerados em 2026-11-04 com datas relativas àquele dia.
+
 Não há senha (AD-155): em `http://localhost:15173/auth`, informe o e-mail e use o código de 6 dígitos que sai no log da API (`mail.log_send`, com `MAIL_PROVIDER=log`). A sessão dura 30 dias.
 
 ## Primeiro acesso (tenant real)
