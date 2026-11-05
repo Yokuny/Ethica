@@ -1023,6 +1023,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-189
+- **Decision**: "Prazos e Alertas" reaproveita o `Deadline` (AD-109) com o campo `kind` (`deadline` | `alert`, padrão `deadline`, sem conversão dos existentes) e o status novo `done`, só do alerta; prazo segue `pending`/`filed`/`missed` (`validDeadlineStatus`, `invalid_deadline_status`). A seção lista de todos os serviços por situação (`GET /expert-cases/deadlines`, pendentes por vencimento crescente, os outros decrescente), com o acesso de Serviços. Alerta entra na agenda, no aviso diário e nos números de prazos; a entrega do laudo não protocola alerta. O formulário de prazo e a escolha do serviço passam a `apps/web/src/components/`.
+- **Reason**: pedido da perita (2026-11-04); escolhas dela: alerta é lembrete que só se conclui; lista abre só com pendentes.
+- **Trade-off**: prazo e alerta dividem a coleção e os números do topo; o tipo não muda depois de criado.
+- **Scope**: `packages/contracts/src/schemas/{deadline,calendar-entry}.schema.ts`, `packages/db/src/models/deadline.model.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/deadlines/`, `apps/web/src/components/`, menu e início.
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

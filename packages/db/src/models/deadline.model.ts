@@ -1,10 +1,12 @@
-import { DEADLINE_STATUS, type DeadlineStatus } from '@ethica/contracts';
+import { DEADLINE_KINDS, DEADLINE_STATUS, type DeadlineKind, type DeadlineStatus } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 export interface DeadlineDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
   Case: mongoose.Types.ObjectId;
+  // Deadline or alert (AD-189); the ones saved before are deadlines.
+  kind: DeadlineKind;
   title: string;
   // Calendar dates `YYYY-MM-DD` in the display time zone (AD-103): a deadline is a day, not an instant.
   dueDate: string;
@@ -19,6 +21,7 @@ const deadlineSchema = new Schema<DeadlineDocument>(
   {
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     Case: { type: Schema.Types.ObjectId, ref: 'Case', required: true },
+    kind: { type: String, enum: DEADLINE_KINDS, default: 'deadline', required: true },
     title: { type: String, required: true, trim: true },
     dueDate: { type: String, required: true, match: /^\d{4}-\d{2}-\d{2}$/ },
     status: { type: String, enum: DEADLINE_STATUS, default: 'pending', required: true },

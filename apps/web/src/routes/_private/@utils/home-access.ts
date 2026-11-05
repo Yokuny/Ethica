@@ -11,6 +11,8 @@ export function canAccessHomeSection(section: HomeSection, session: SessionView)
 // First URL segment → matrix module; `undefined` = screen without a module (home, account, admin).
 const MODULE_BY_SEGMENT: Record<string, PermissionModule> = {
   'expert-cases': 'expert_cases',
+  // Deadlines and alerts follow the cases (AD-189).
+  deadlines: 'expert_cases',
   parties: 'parties',
   'court-divisions': 'court_divisions',
   agenda: 'agenda',

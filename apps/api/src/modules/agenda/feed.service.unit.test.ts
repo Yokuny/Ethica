@@ -28,6 +28,7 @@ const inspection: AppointmentRecord = {
 const deadline: DeadlineRecord = {
   id: 'z1',
   caseId: 'p1',
+  kind: 'deadline',
   title: 'Entrega do laudo',
   dueDate: '2026-11-30',
   status: 'pending',

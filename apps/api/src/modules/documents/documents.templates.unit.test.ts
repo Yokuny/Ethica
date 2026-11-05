@@ -110,6 +110,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
       id: dueDate,
       caseId: 'p1',
       caseNumber: legalCase.processNumber,
+      kind: 'deadline' as const,
       title: 'Entrega do laudo',
       dueDate,
       status: 'pending' as const,

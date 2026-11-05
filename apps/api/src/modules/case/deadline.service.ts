@@ -1,13 +1,14 @@
-import { caseLabel, deadlineAgendaEntries } from '@ethica/contracts';
+import { caseLabel, deadlineAgendaEntries, validDeadlineStatus } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
-import { KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from './case.service.js';
 import * as deadlineRepository from './deadline.repository.js';
 import {
   type CreateDeadline,
   type DeadlineRecord,
   type DeadlineWrite,
+  type ListDeadlinesQuery,
   REPORT_DELIVERY_DEADLINE,
   type UpdateDeadline,
 } from './deadline.schema.js';
@@ -64,6 +65,12 @@ export const updateDeadline = async (
   data: UpdateDeadline,
   now: Date = new Date(),
 ): Promise<DeadlineRecord> => {
+  // A deadline is filed or missed, an alert is concluded (AD-189).
+  if (data.status) {
+    const before = await deadlineRepository.findById(tenantId, id);
+    if (!before) throw new DeadlineNotFoundError('not_found');
+    if (!validDeadlineStatus(before.kind, data.status)) throw new CustomError('invalid_deadline_status', 422);
+  }
   const updated = await deadlineRepository.updateDeadline(tenantId, id, toWrite(data, dateInDisplayTz(now)));
   if (!updated) throw new DeadlineNotFoundError('not_found');
   syncAgenda(tenantId, id, updated);
@@ -74,6 +81,11 @@ export const deleteDeadline = async (tenantId: string, id: string): Promise<void
   const { deletedCount } = await deadlineRepository.deleteDeadline(tenantId, id);
   if (deletedCount === 0) throw new DeadlineNotFoundError('not_found');
   syncAgenda(tenantId, id);
+};
+
+export const listDeadlines = async (tenantId: string, query: ListDeadlinesQuery) => {
+  const result = await deadlineRepository.listDeadlines(tenantId, query);
+  return { ...result, items: await withCaseNumber(tenantId, result.items) };
 };
 
 export const listPendingDeadlines = async (tenantId: string, range: { from?: string; to?: string } = {}) =>

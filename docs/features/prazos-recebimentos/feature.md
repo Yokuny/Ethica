@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-04 — Prazo ganha o tipo Alerta (lembrete concluível) e a seção Prazos e Alertas: feature `prazos-alertas` (AD-189).
 - 2026-11-03 — Prazos e recebimentos chegam à agenda por evento; sai a leitura direta dos prazos pela agenda (`agenda-eventos`, AD-169).
 - 2026-11-01 — Varredura agendada no lugar do timer, aviso financeiro e push especificados em `avisos-notificacoes` (AD-147).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).

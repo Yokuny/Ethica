@@ -3,6 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 export type HomeSection = {
   to:
     | '/expert-cases'
+    | '/deadlines'
     | '/field'
     | '/expert-reports'
     | '/parties'

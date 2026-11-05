@@ -27,7 +27,8 @@ type DeadlineDialogProps = {
 };
 
 // Deadline read view with the day-to-day actions (AD-109): file with the delivery
-// date, mark missed, reopen and remove. Used by the case and by the agenda.
+// date, mark missed, reopen and remove; an alert is only concluded (AD-189). Used by the case, by
+// "Prazos e Alertas" and by the agenda.
 export function DeadlineDialog({ deadline, onClose, onEdit, children }: DeadlineDialogProps) {
   const queryClient = useQueryClient();
   const updateMutation = useMutation(updateDeadlineMutation(queryClient));
@@ -37,6 +38,7 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const isPending = updateMutation.isPending || deleteMutation.isPending;
   const alert = deadlineAlert(deadline, today);
+  const isAlert = deadline.kind === 'alert';
   const onError = (error: Error) => toast.error(error.message);
 
   function setStatus(data: Parameters<typeof updateMutation.mutate>[0]['data']) {
@@ -50,6 +52,7 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
   return (
     <FormDialog title={deadline.title} onClose={onClose}>
       <div className="flex flex-wrap gap-2">
+        <Badge variant="secondary">{t(deadline.kind)}</Badge>
         <Badge variant={DEADLINE_STATUS_VARIANT[deadline.status]}>{t(deadline.status)}</Badge>
         {alert && <Badge variant={ALERT_VARIANT[alert]}>{t(alert)}</Badge>}
       </div>
@@ -57,10 +60,10 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
         groups={[
           {
             id: 'deadline',
-            name: t('deadline'),
+            name: t(deadline.kind),
             specs: [
               { label: t('due_date'), value: day(deadline.dueDate) },
-              { label: t('filed_on'), value: day(deadline.filedDate) },
+              ...(isAlert ? [] : [{ label: t('filed_on'), value: day(deadline.filedDate) }]),
               {
                 label: t('expert_case'),
                 value: deadline.caseNumber ? (
@@ -77,7 +80,7 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
         ]}
       />
       {children}
-      {deadline.status === 'pending' && (
+      {deadline.status === 'pending' && !isAlert && (
         <div className="grid gap-2">
           <ItemDescription className="line-clamp-none">{t('filing_date')}</ItemDescription>
           <div className="flex flex-wrap gap-2">
@@ -103,7 +106,11 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
           {t('remove')}
         </Button>
         <div className="flex flex-wrap gap-2">
-          {deadline.status === 'pending' ? (
+          {deadline.status === 'pending' && isAlert ? (
+            <Button disabled={isPending} onClick={() => setStatus({ status: 'done' })}>
+              {t('mark_as_done')}
+            </Button>
+          ) : deadline.status === 'pending' ? (
             <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'missed' })}>
               {t('mark_as_missed')}
             </Button>
@@ -121,7 +128,7 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
       </div>
       {isConfirmingDelete && (
         <ConfirmDialog
-          title={t('remove_deadline_question')}
+          title={t(isAlert ? 'remove_alert_question' : 'remove_deadline_question')}
           description={t('action_cannot_be_undone')}
           confirmLabel={t('remove')}
           pending={deleteMutation.isPending}

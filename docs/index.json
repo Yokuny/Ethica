@@ -45,6 +45,27 @@
       "doc": "features/fase-servico/feature.md"
     },
     {
+      "slug": "prazos-alertas",
+      "feature": "Prazos e Alertas",
+      "descricao": "Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui",
+      "data": "2026-11-04",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-189"
+      ],
+      "spec": [
+        ".specs/features/prazos-alertas"
+      ],
+      "planos": [],
+      "doc": "features/prazos-alertas/feature.md"
+    },
+    {
       "slug": "preencher-pdfs",
       "feature": "Preencher com vários PDFs",
       "descricao": "Cadastro do serviço preenchido por vários PDFs numa janela em etapas, com a escolha do valor de cada campo",
@@ -708,7 +729,6 @@
   ],
   "planos_nao_arquivados": [],
   "specs_sem_registro": [
-    "prazos-alertas",
     "prospeccao-datajud"
   ],
   "decisoes": [
@@ -1465,6 +1485,12 @@
     {
       "id": "AD-188",
       "decisao": "A lista de Serviços ordena por Data do cadastro (padrão, mais novo primeiro), Nome (número do processo ou, sem ele, o objeto), Tipo (perícia",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-189",
+      "decisao": "\"Prazos e Alertas\" reaproveita o `Deadline` (AD-109) com o campo `kind` (`deadline` | `alert`, padrão `deadline`, sem conversão dos existent",
       "data": "2026-11-04",
       "status": "active"
     }

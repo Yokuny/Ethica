@@ -66,6 +66,31 @@ describe('prazos da perícia (PRZ-01)', () => {
     await disconnect();
   });
 
+  it('Prazos e Alertas: pendentes por criticidade de todos os serviços; alerta só se conclui (AD-189)', async () => {
+    const { as } = await seedSession();
+    const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+    const add = async (body: object) =>
+      (await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send(body)).body.data;
+    const later = await add({ title: 'Esclarecimentos', dueDate: day(10) });
+    const overdue = await add({ title: 'Manifestação', dueDate: day(-2) });
+    const alert = await add({ title: 'Ligar para o assistente', dueDate: day(1), kind: 'alert' });
+    expect([later.kind, alert.kind]).toEqual(['deadline', 'alert']);
+
+    const list = async (query = '') => (await as(request(app).get(`/expert-cases/deadlines${query}`))).body.data;
+    const pending = await list();
+    expect(pending.total).toBe(3);
+    expect(pending.items.map((item: { id: string }) => item.id)).toEqual([overdue.id, alert.id, later.id]);
+    expect(pending.items[0].caseNumber).toBe(CASE.processNumber);
+
+    const patch = (id: string, body: object) => as(request(app).patch(`/expert-cases/deadlines/${id}`)).send(body);
+    expect((await patch(alert.id, { status: 'filed' })).status).toBe(422);
+    expect((await patch(later.id, { status: 'done' })).status).toBe(422);
+    expect((await patch(alert.id, { status: 'done' })).body.data).toMatchObject({ status: 'done' });
+    expect((await list('?status=done')).items.map((item: { id: string }) => item.id)).toEqual([alert.id]);
+    expect((await list()).total).toBe(2);
+    expect((await as(request(app).get('/expert-cases/deadlines?status=x'))).status).toBe(400);
+  });
+
   it('cadastrar a perícia com prazo do laudo cria "Entrega do laudo" pendente; a perícia não guarda o campo', async () => {
     const { as } = await seedSession();
     const created = await as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(20) });

@@ -16,6 +16,7 @@ const deadline = (id: string, tenantId: string, dueDate: string): NoticeDeadline
   id,
   tenantId,
   caseId: `per-${id}`,
+  kind: 'deadline',
   title: `Prazo ${id}`,
   dueDate,
   status: 'pending',

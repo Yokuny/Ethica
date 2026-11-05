@@ -15,7 +15,12 @@ import {
   updateCaseSchema,
 } from './case.schema.js';
 import * as deadlineController from './deadline.controller.js';
-import { createDeadlineSchema, deadlineIdParamSchema, updateDeadlineSchema } from './deadline.schema.js';
+import {
+  createDeadlineSchema,
+  deadlineIdParamSchema,
+  listDeadlinesQuerySchema,
+  updateDeadlineSchema,
+} from './deadline.schema.js';
 import { csvImportQuerySchema } from './import.schema.js';
 
 export const createCaseRouter = (deps: CaseRouterDeps): Router => {
@@ -61,6 +66,14 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
     caseController.setServiceOrder,
   );
   // Deadlines (AD-109) follow the cases permission (AD-137); the agenda gets them by event (AD-169).
+  // "Prazos e Alertas" (AD-189): every case's deadlines and alerts, by criticality.
+  router.get(
+    '/deadlines',
+    ...guard,
+    can('expert_cases', 'view'),
+    validParsedQuery(listDeadlinesQuerySchema),
+    deadlineController.listDeadlines,
+  );
   router.patch(
     '/deadlines/:deadlineId',
     ...guard,

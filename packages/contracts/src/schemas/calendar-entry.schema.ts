@@ -28,6 +28,7 @@ const DEADLINE_STATUS_ENTRY: Record<DeadlineStatus, CalendarEntryStatus> = {
   pending: 'open',
   filed: 'done',
   missed: 'missed',
+  done: 'done',
 };
 
 export const deadlineAgendaEntries = (deadline: {

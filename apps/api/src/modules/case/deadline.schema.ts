@@ -1,5 +1,5 @@
-import type { CreateDeadline, DeadlineStatus, UpdateDeadline } from '@ethica/contracts';
-import { createDeadlineSchema, idSchema, updateDeadlineSchema } from '@ethica/contracts';
+import type { CreateDeadline, DeadlineKind, DeadlineStatus, UpdateDeadline } from '@ethica/contracts';
+import { createDeadlineSchema, DEADLINE_STATUS, idSchema, updateDeadlineSchema } from '@ethica/contracts';
 import { z } from 'zod';
 
 export type { CreateDeadline, UpdateDeadline };
@@ -12,11 +12,22 @@ export const SERVICE_DELIVERY_DEADLINE = 'Entrega do serviço';
 
 export const deadlineIdParamSchema = z.object({ deadlineId: idSchema }).strict();
 
+// "Prazos e Alertas" (AD-189): one situation at a time, the pending ones by default.
+export const listDeadlinesQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    status: z.enum(DEADLINE_STATUS).default('pending'),
+  })
+  .strict();
+export type ListDeadlinesQuery = z.infer<typeof listDeadlinesQuerySchema>;
+
 export type DeadlineRecord = {
   id: string;
   caseId: string;
   // Enriched by the service; missing if the case no longer exists.
   caseNumber?: string;
+  kind: DeadlineKind;
   title: string;
   dueDate: string;
   status: DeadlineStatus;

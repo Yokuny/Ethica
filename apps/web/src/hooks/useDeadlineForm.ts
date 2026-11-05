@@ -19,6 +19,7 @@ export function useDeadlineForm({
   const form = useForm<CreateDeadline>({
     resolver: zodResolver(createDeadlineSchema),
     defaultValues: {
+      kind: deadline?.kind ?? 'deadline',
       title: deadline?.title ?? '',
       dueDate: deadline?.dueDate ?? '',
       notes: deadline?.notes ?? '',
@@ -33,7 +34,9 @@ export function useDeadlineForm({
     if (isPending) return;
     setErrorMessage(null);
     const options = { onSuccess: onDone, onError: (error: Error) => setErrorMessage(error.message) };
-    if (deadline) updateMutation.mutate({ id: deadline.id, data }, options);
+    // The kind is chosen only at creation (AD-189).
+    const { kind: _, ...fields } = data;
+    if (deadline) updateMutation.mutate({ id: deadline.id, data: fields }, options);
     else createMutation.mutate({ caseId, data }, options);
   }
 

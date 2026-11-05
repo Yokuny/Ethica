@@ -12,7 +12,8 @@ import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { casesQuery } from '@/query/case.js';
 
-// First step of LAU-02: find the case by number or by parties.
+// Find the case by number or by parties: first step of a new report (LAU-02) and of a deadline in
+// "Prazos e Alertas" (AD-189).
 export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
   const [q, setQ] = useState('');
   const [input, setInput] = useDebouncedSearch(q, setQ);

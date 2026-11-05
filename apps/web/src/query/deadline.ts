@@ -1,4 +1,4 @@
-import type { CreateDeadline, DeadlineStatus, UpdateDeadline } from '@ethica/contracts';
+import type { CreateDeadline, DeadlineKind, DeadlineStatus, UpdateDeadline } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
@@ -10,6 +10,7 @@ export type DeadlineRecord = {
   id: string;
   caseId: string;
   caseNumber?: string;
+  kind: DeadlineKind;
   title: string;
   dueDate: string;
   status: DeadlineStatus;
@@ -20,7 +21,10 @@ export type DeadlineRecord = {
 export const deadlineKeys = {
   all: ['deadline'] as const,
   ofCase: (caseId: string) => [...deadlineKeys.all, 'legalCase', caseId] as const,
+  list: (params: DeadlinesQueryParams) => [...deadlineKeys.all, 'list', params] as const,
 };
+
+export type DeadlinesQueryParams = { page: number; limit: number; status: DeadlineStatus };
 
 const fetchData = async <T>(path: string): Promise<T> => {
   const res = await get<T>(path);
@@ -32,6 +36,16 @@ export const caseDeadlinesQuery = (caseId: string) =>
   queryOptions({
     queryKey: deadlineKeys.ofCase(caseId),
     queryFn: () => fetchData<DeadlineRecord[]>(`/expert-cases/${encodeURIComponent(caseId)}/deadlines`),
+  });
+
+// "Prazos e Alertas" (AD-189): every case's, one situation at a time, by criticality.
+export const deadlinesQuery = (params: DeadlinesQueryParams) =>
+  queryOptions({
+    queryKey: deadlineKeys.list(params),
+    queryFn: () =>
+      fetchData<{ items: DeadlineRecord[]; total: number }>(
+        `/expert-cases/deadlines?page=${params.page}&limit=${params.limit}&status=${params.status}`,
+      ),
   });
 
 // A deadline changes the listing's "next deadline" and the cases indicator strip.

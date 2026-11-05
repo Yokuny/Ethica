@@ -2,6 +2,7 @@ import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from './case.service.js';
+import type { ListDeadlinesQuery } from './deadline.schema.js';
 import * as deadlineService from './deadline.service.js';
 import { DeadlineNotFoundError } from './deadline.service.js';
 
@@ -22,6 +23,15 @@ export const createDeadline = async (req: Request, res: Response, next: NextFunc
     res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
   } catch (e) {
     notFoundAs404(e, next);
+  }
+};
+
+export const listDeadlines = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const query = req.query as unknown as ListDeadlinesQuery;
+    res.json(respObj({ data: await deadlineService.listDeadlines(tenantOf(req), query) }));
+  } catch (e) {
+    next(e);
   }
 };
 

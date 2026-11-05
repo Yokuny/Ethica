@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CalendarClock } from 'lucide-react';
 import { useState } from 'react';
 import { DeadlineDialog } from '@/components/deadline-dialog.js';
+import { DeadlineForm } from '@/components/deadline-form.js';
 import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -13,7 +14,6 @@ import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseDeadlinesQuery, type DeadlineRecord } from '@/query/deadline.js';
-import { DeadlineForm } from './deadline-form.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
@@ -23,7 +23,7 @@ type DeadlinePanel =
   | { kind: 'detail'; deadline: DeadlineRecord }
   | null;
 
-// Every deadline of the process (PRZ-01), by due date: pending ones with an overdue/due soon
+// Every deadline and alert (AD-189) of the process (PRZ-01), by due date: pending ones with an overdue/due soon
 // alert, filed ones with the delivery date, missed ones in the history.
 export function CaseDeadlines({ caseId }: { caseId: string }) {
   const query = useQuery(caseDeadlinesQuery(caseId));
@@ -64,6 +64,7 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
                 title={deadline.title}
                 badges={
                   <>
+                    {deadline.kind === 'alert' && <Badge variant="secondary">{t('alert')}</Badge>}
                     <Badge variant={DEADLINE_STATUS_VARIANT[deadline.status]}>{t(deadline.status)}</Badge>
                     {alert && <Badge variant={ALERT_VARIANT[alert]}>{t(alert)}</Badge>}
                   </>

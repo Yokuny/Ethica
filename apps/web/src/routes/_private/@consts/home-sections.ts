@@ -1,5 +1,6 @@
 import {
   Building2,
+  CalendarClock,
   CalendarDays,
   Contact,
   FileSignature,
@@ -20,6 +21,13 @@ export const HOME_SECTIONS = [
     titleKey: 'expert_cases',
     descriptionKey: 'track_each_expert_case_from_appointment_to_report',
     icon: Gavel,
+    access: 'expert_cases',
+  },
+  {
+    to: '/deadlines',
+    titleKey: 'deadlines_and_alerts',
+    descriptionKey: 'deadlines_and_alerts_description',
+    icon: CalendarClock,
     access: 'expert_cases',
   },
   {

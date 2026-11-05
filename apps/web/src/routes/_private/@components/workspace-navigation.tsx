@@ -28,6 +28,7 @@ const groups: { key: string; destinations: HomeSection['to'][]; heading: string 
     key: 'work',
     destinations: [
       '/expert-cases',
+      '/deadlines',
       '/expert-reports',
       '/field',
       '/parties',
