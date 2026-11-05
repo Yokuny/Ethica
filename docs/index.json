@@ -40,6 +40,30 @@
       "doc": "features/fundacao-ethica/feature.md"
     },
     {
+      "slug": "prazos-alertas",
+      "feature": "Prazos e Alertas",
+      "descricao": "Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui",
+      "data": "2026-11-05",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-189",
+        "AD-190",
+        "AD-192",
+        "AD-193"
+      ],
+      "spec": [
+        ".specs/features/prazos-alertas"
+      ],
+      "planos": [],
+      "doc": "features/prazos-alertas/feature.md"
+    },
+    {
       "slug": "fase-assistencia",
       "feature": "Fases da Assistência técnica",
       "descricao": "Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência",
@@ -81,30 +105,6 @@
       ],
       "planos": [],
       "doc": "features/fase-servico/feature.md"
-    },
-    {
-      "slug": "prazos-alertas",
-      "feature": "Prazos e Alertas",
-      "descricao": "Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui",
-      "data": "2026-11-04",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-189",
-        "AD-190",
-        "AD-192",
-        "AD-193"
-      ],
-      "spec": [
-        ".specs/features/prazos-alertas"
-      ],
-      "planos": [],
-      "doc": "features/prazos-alertas/feature.md"
     },
     {
       "slug": "preencher-pdfs",

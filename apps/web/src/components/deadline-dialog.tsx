@@ -1,7 +1,7 @@
 import { Badge, BadgeIndicator } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
 import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
@@ -14,6 +14,7 @@ import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type DeadlineRecord, deleteDeadlineMutation, updateDeadlineMutation } from '@/query/deadline.js';
+import { can, sessionQuery } from '@/query/session.js';
 
 const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`)) : '-');
 
@@ -27,18 +28,22 @@ type DeadlineDialogProps = {
 };
 
 // Deadline read view with the day-to-day actions (AD-109): file with the delivery
-// date, mark missed, reopen and remove; an alert is only concluded (AD-189). Used by the case, by
+// date, mark missed, reopen, postpone and remove; an alert is only concluded (AD-189). Used by the case, by
 // "Prazos e Alertas" and by the agenda.
 export function DeadlineDialog({ deadline, onClose, onEdit, children }: DeadlineDialogProps) {
   const queryClient = useQueryClient();
+  const session = useQuery(sessionQuery).data;
   const updateMutation = useMutation(updateDeadlineMutation(queryClient));
   const deleteMutation = useMutation(deleteDeadlineMutation(queryClient));
   const today = formatDisplayDate(new Date());
   const [filedDate, setFiledDate] = useState(today);
+  const [newDueDate, setNewDueDate] = useState<string>();
+  const [isPostponing, setIsPostponing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const isPending = updateMutation.isPending || deleteMutation.isPending;
   const alert = deadlineAlert(deadline, today);
   const isAlert = deadline.kind === 'alert';
+  const canPostpone = deadline.status === 'pending' && Boolean(session && can(session, 'expert_cases', 'update'));
   const onError = (error: Error) => toast.error(error.message);
 
   function setStatus(data: Parameters<typeof updateMutation.mutate>[0]['data']) {
@@ -106,11 +111,33 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
           </div>
         </div>
       )}
+      {isPostponing && (
+        <div className="grid gap-2">
+          <ItemDescription className="line-clamp-none">{t('new_due_date')}</ItemDescription>
+          <div className="flex flex-wrap gap-2">
+            <div className="min-w-48 flex-1">
+              <DatePicker value={newDueDate} onChange={setNewDueDate} placeholder={t('choose_day')} />
+            </div>
+            <Button
+              size="field"
+              disabled={isPending || !newDueDate || newDueDate <= deadline.dueDate}
+              onClick={() => setStatus({ dueDate: newDueDate })}
+            >
+              {t('postpone')}
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap justify-between gap-2">
         <Button variant="destructive" disabled={isPending} onClick={() => setIsConfirmingDelete(true)}>
           {t('remove')}
         </Button>
         <div className="flex flex-wrap gap-2">
+          {canPostpone && !isPostponing && (
+            <Button variant="outline" disabled={isPending} onClick={() => setIsPostponing(true)}>
+              {t('postpone')}
+            </Button>
+          )}
           {deadline.status === 'pending' && isAlert ? (
             <Button disabled={isPending} onClick={() => setStatus({ status: 'done' })}>
               {t('mark_as_done')}

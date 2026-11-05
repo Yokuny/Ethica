@@ -134,7 +134,7 @@ export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };
 
 // Cross-module enrichment (agenda, finance, feed, reminder, reports): number, court and division, and the names of the
 // parties on each side (without lawyers), comma-separated.
-// `client`: name of whoever hired the technical assistant (AD-135).
+// `client`: name of whoever hired the service (AD-135, AD-176).
 export type CaseSummary = {
   processNumber?: string;
   subject: string;
@@ -143,6 +143,9 @@ export type CaseSummary = {
   plaintiff?: string;
   defendant?: string;
   client?: string;
+  role?: CaseRole;
+  serviceType?: string;
+  courtType?: CourtType;
 };
 
 export type CaseDistribution = {

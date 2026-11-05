@@ -1,6 +1,7 @@
 import { BadgeIndicator } from '@ethica/ui/components/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
 import { CalendarClock } from 'lucide-react';
+import { serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { TablePagination } from '@/components/table-pagination.js';
@@ -38,6 +39,8 @@ export function DeadlinesTable({
             <TableHead>{t('due_date')}</TableHead>
             <TableHead>{t('deadlines_and_alerts')}</TableHead>
             <TableHead>{t('expert_case')}</TableHead>
+            <TableHead>{t('contracting_party')}</TableHead>
+            <TableHead>{t('service_type')}</TableHead>
             <TableHead>{t('status')}</TableHead>
           </TableRow>
         </TableHeader>
@@ -60,6 +63,18 @@ export function DeadlinesTable({
                 </TableCell>
                 <TableCell>
                   <TableStack tone={deadline.caseNumber ? 'default' : 'muted'}>{deadline.caseNumber ?? '—'}</TableStack>
+                </TableCell>
+                <TableCell>
+                  {/* As in the services list: whoever hired it; in a perícia, plaintiff above the defendant. */}
+                  <TableStack
+                    className="min-w-40 max-w-60"
+                    description={deadline.client ? undefined : deadline.defendant}
+                  >
+                    {deadline.client ?? deadline.plaintiff ?? '—'}
+                  </TableStack>
+                </TableCell>
+                <TableCell>
+                  <TableStack tone={deadline.role ? 'default' : 'muted'}>{serviceLabel(deadline) || '—'}</TableStack>
                 </TableCell>
                 <TableCell>
                   <TableStatus variant={alert ? ALERT_VARIANT[alert] : DEADLINE_STATUS_VARIANT[deadline.status]}>

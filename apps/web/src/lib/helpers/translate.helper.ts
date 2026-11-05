@@ -862,6 +862,8 @@ const translations: Record<string, string> = {
   nothing_scheduled_this_day: 'Nada marcado neste dia',
   field_day_empty_description: 'As vistorias e compromissos da agenda aparecem aqui.',
   postponed: 'Adiada',
+  postpone: 'Adiar',
+  new_due_date: 'Novo vencimento (depois do atual)',
   absent: 'Ausente',
   record_started: 'Registro iniciado',
   status_updated: 'Situação atualizada.',

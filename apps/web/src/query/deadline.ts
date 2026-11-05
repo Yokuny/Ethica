@@ -1,4 +1,11 @@
-import type { CreateDeadline, DeadlineKind, DeadlineStatus, UpdateDeadline } from '@ethica/contracts';
+import type {
+  CaseRole,
+  CourtType,
+  CreateDeadline,
+  DeadlineKind,
+  DeadlineStatus,
+  UpdateDeadline,
+} from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
@@ -10,6 +17,12 @@ export type DeadlineRecord = {
   id: string;
   caseId: string;
   caseNumber?: string;
+  client?: string;
+  plaintiff?: string;
+  defendant?: string;
+  role?: CaseRole;
+  serviceType?: string;
+  courtType?: CourtType;
   kind: DeadlineKind;
   title: string;
   dueDate: string;
@@ -48,11 +61,12 @@ export const deadlinesQuery = (params: DeadlinesQueryParams) =>
       ),
   });
 
-// A deadline changes the listing's "next deadline" and the cases indicator strip.
+// A deadline changes the listing's "next deadline", the cases indicator strip and its agenda entry.
 const refreshDeadlines = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: deadlineKeys.all });
   queryClient.invalidateQueries({ queryKey: caseKeys.lists() });
   queryClient.invalidateQueries({ queryKey: ['list-stats', '/expert-cases/stats'] });
+  queryClient.invalidateQueries({ queryKey: ['calendar-entry'] });
 };
 
 export const createDeadlineMutation = (

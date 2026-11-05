@@ -1,4 +1,11 @@
-import type { CreateDeadline, DeadlineKind, DeadlineStatus, UpdateDeadline } from '@ethica/contracts';
+import type {
+  CaseRole,
+  CourtType,
+  CreateDeadline,
+  DeadlineKind,
+  DeadlineStatus,
+  UpdateDeadline,
+} from '@ethica/contracts';
 import { createDeadlineSchema, DEADLINE_STATUS, idSchema, updateDeadlineSchema } from '@ethica/contracts';
 import { z } from 'zod';
 
@@ -27,6 +34,12 @@ export type DeadlineRecord = {
   caseId: string;
   // Enriched by the service; missing if the case no longer exists.
   caseNumber?: string;
+  client?: string;
+  plaintiff?: string;
+  defendant?: string;
+  role?: CaseRole;
+  serviceType?: string;
+  courtType?: CourtType;
   kind: DeadlineKind;
   title: string;
   dueDate: string;

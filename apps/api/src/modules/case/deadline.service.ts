@@ -15,12 +15,14 @@ import {
 
 export class DeadlineNotFoundError extends KeyedError {}
 
-const withCaseNumber = async <T extends DeadlineRecord>(tenantId: string, items: T[]): Promise<T[]> => {
+const withCase = async <T extends DeadlineRecord>(tenantId: string, items: T[]): Promise<T[]> => {
   const ids = [...new Set(items.map((item) => item.caseId))];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
     const summary = summaries.get(item.caseId);
-    return summary ? { ...item, caseNumber: caseLabel(summary) } : item;
+    if (!summary) return item;
+    const { client, plaintiff, defendant, role, serviceType, courtType } = summary;
+    return { ...item, caseNumber: caseLabel(summary), client, plaintiff, defendant, role, serviceType, courtType };
   });
 };
 
@@ -85,11 +87,11 @@ export const deleteDeadline = async (tenantId: string, id: string): Promise<void
 
 export const listDeadlines = async (tenantId: string, query: ListDeadlinesQuery) => {
   const result = await deadlineRepository.listDeadlines(tenantId, query);
-  return { ...result, items: await withCaseNumber(tenantId, result.items) };
+  return { ...result, items: await withCase(tenantId, result.items) };
 };
 
 export const listPendingDeadlines = async (tenantId: string, range: { from?: string; to?: string } = {}) =>
-  withCaseNumber(tenantId, await deadlineRepository.listPending(tenantId, range));
+  withCase(tenantId, await deadlineRepository.listPending(tenantId, range));
 
 // Daily reminder (system): pending ones due on the requested days, across all tenants.
 export const listDeadlinesToNotice = (days: string[]) => deadlineRepository.listPendingInDays(days);

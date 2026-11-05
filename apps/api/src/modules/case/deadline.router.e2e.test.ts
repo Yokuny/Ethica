@@ -80,15 +80,38 @@ describe('prazos da perícia (PRZ-01)', () => {
     const pending = await list();
     expect(pending.total).toBe(3);
     expect(pending.items.map((item: { id: string }) => item.id)).toEqual([overdue.id, alert.id, later.id]);
-    expect(pending.items[0].caseNumber).toBe(CASE.processNumber);
+    expect(pending.items[0]).toMatchObject({
+      caseNumber: CASE.processNumber,
+      role: CASE.role,
+      courtType: CASE.courtType,
+    });
 
     const patch = (id: string, body: object) => as(request(app).patch(`/expert-cases/deadlines/${id}`)).send(body);
+    // Postponing moves it down the list.
+    expect((await patch(overdue.id, { dueDate: day(20) })).body.data).toMatchObject({ dueDate: day(20) });
+    expect((await list()).items.map((item: { id: string }) => item.id)).toEqual([alert.id, later.id, overdue.id]);
     expect((await patch(alert.id, { status: 'filed' })).status).toBe(422);
     expect((await patch(later.id, { status: 'done' })).status).toBe(422);
     expect((await patch(alert.id, { status: 'done' })).body.data).toMatchObject({ status: 'done' });
     expect((await list('?status=done')).items.map((item: { id: string }) => item.id)).toEqual([alert.id]);
     expect((await list()).total).toBe(2);
     expect((await as(request(app).get('/expert-cases/deadlines?status=x'))).status).toBe(400);
+  });
+
+  it('a lista traz o contratante e o tipo do serviço do escritório', async () => {
+    const { as } = await seedSession();
+    const legalCase = (
+      await as(request(app).post('/expert-cases')).send({
+        serviceType: 'Avaliação de imóvel',
+        role: 'technical_assistant',
+        subject: 'Avaliação de imóvel',
+        contractor: { name: 'Construtora Alfa' },
+      })
+    ).body.data;
+    await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({ title: 'Entrega', dueDate: day(3) });
+
+    const { items } = (await as(request(app).get('/expert-cases/deadlines'))).body.data;
+    expect(items[0]).toMatchObject({ client: 'Construtora Alfa', serviceType: 'Avaliação de imóvel' });
   });
 
   it('cadastrar a perícia com prazo do laudo cria "Entrega do laudo" pendente; a perícia não guarda o campo', async () => {
