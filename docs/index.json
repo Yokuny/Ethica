@@ -2,6 +2,44 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "fundacao-ethica",
+      "feature": "Fundação do Ethica",
+      "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
+      "data": "2026-11-05",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db",
+        "packages/ui",
+        "harness",
+        "docs",
+        "infra",
+        "tests"
+      ],
+      "decisoes": [
+        "AD-001",
+        "AD-038",
+        "AD-039",
+        "AD-036",
+        "AD-102",
+        "AD-103",
+        "AD-104",
+        "AD-105",
+        "AD-106",
+        "AD-107",
+        "AD-154"
+      ],
+      "spec": [
+        ".specs/features/fundacao-ethica"
+      ],
+      "planos": [
+        ".specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md"
+      ],
+      "doc": "features/fundacao-ethica/feature.md"
+    },
+    {
       "slug": "fase-assistencia",
       "feature": "Fases da Assistência técnica",
       "descricao": "Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência",
@@ -465,44 +503,6 @@
       ],
       "planos": [],
       "doc": "features/english-naming/feature.md"
-    },
-    {
-      "slug": "fundacao-ethica",
-      "feature": "Fundação do Ethica",
-      "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
-      "data": "2026-11-01",
-      "status": "parcial",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db",
-        "packages/ui",
-        "harness",
-        "docs",
-        "infra",
-        "tests"
-      ],
-      "decisoes": [
-        "AD-001",
-        "AD-038",
-        "AD-039",
-        "AD-036",
-        "AD-102",
-        "AD-103",
-        "AD-104",
-        "AD-105",
-        "AD-106",
-        "AD-107",
-        "AD-154"
-      ],
-      "spec": [
-        ".specs/features/fundacao-ethica"
-      ],
-      "planos": [
-        ".specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md"
-      ],
-      "doc": "features/fundacao-ethica/feature.md"
     },
     {
       "slug": "gestao-escritorio",

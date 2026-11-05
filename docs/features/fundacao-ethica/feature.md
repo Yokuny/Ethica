@@ -2,7 +2,7 @@
 feature: Fundação do Ethica
 slug: fundacao-ethica
 descricao: Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
-data: 2026-11-01
+data: 2026-11-05
 status: parcial
 areas: [apps/api, apps/web, packages/contracts, packages/db, packages/ui, harness, docs, infra, tests]
 decisoes: [AD-001, AD-038, AD-039, AD-036, AD-102, AD-103, AD-104, AD-105, AD-106, AD-107, AD-154]
@@ -11,7 +11,7 @@ spec: [.specs/features/fundacao-ethica]
 
 # Fundação do Ethica
 
-**Status**: parcial · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
+**Status**: parcial · **Atualizado**: 2026-11-05 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
 
 > Documento vivo. Onde divergir do plano (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fundacao-ethica'`.
@@ -60,7 +60,7 @@ Começar o produto de gestão de perícias já com a arquitetura, o harness e a 
 
 ### `harness`
 
-- `AGENTS.md` (fonte única), `CLAUDE.md`, `GEMINI.md` → `AGENTS.md`; skills `ethica-*` em `.agents/skills/` com symlink em `.claude/skills/`; skills de design, `tlc-spec-driven`, `playwright-skill`, `browser-harness`; hooks em `.claude/settings*.json`; `.mcp.json` e `.vscode/`.
+- `AGENTS.md` (fonte única), `CLAUDE.md`, `GEMINI.md` → `AGENTS.md`; skills `ethica-*` em `.agents/skills/` com symlink em `.claude/skills/` (entre elas `ethica-architecture`, o mapa da arquitetura e o roteiro para criar sistema, app, pacote e módulo nela); skills de design, `tlc-spec-driven`, `playwright-skill`, `browser-harness`; hooks em `.claude/settings*.json`; `.mcp.json` e `.vscode/`.
 
 ### `docs`
 
@@ -94,6 +94,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-05 — Skill `ethica-architecture`: mapa da arquitetura do monorepo (pacotes compartilhados, API em módulos com camada de service e eventos, web com camada global) e roteiro para criar nela um sistema novo, um app, um pacote ou um módulo, sempre com a intenção de reduzir complexidade (`.agents/skills/ethica-architecture/SKILL.md`). Junto: `docs/architecture.md` e `apps/api/CLAUDE.md` alinhados ao código (módulo `documents`, evento `agenda:entries_synced`, guarda de tela pela matriz de permissões) e a mensagem de início de sessão passa a citar a skill `ethica-docs` (trazia o nome do projeto anterior).
 - 2026-11-04 — Largura das colunas de todas as listas (serviços, laudos, financeiro, cadastro, prospecção, diário): o número do processo e o nome principal da linha aparecem inteiros, sem quebra nem "…", e os textos longos (partes, tribunal e vara, modelo) quebram em linhas e ocupam o espaço livre, em vez de serem cortados (`apps/web/src/components/data-table.tsx`, AD-182). Conferido no navegador com a lista de laudos.
 - 2026-11-02 — Harness enxuto: sem validação local nem endereço de teste no fim da entrega, contrato operacional fundido em "Com quem você trabalha", publicação fora da documentação (AD-154).
 - 2026-11-02 — Login por senha, troca de senha e senha do convite saem: acesso e cadastro pela chave enviada ao e-mail (`docs/features/acesso-email/feature.md`, AD-155).
