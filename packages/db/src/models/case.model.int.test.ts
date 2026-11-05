@@ -28,7 +28,7 @@ describe('migrateCases (AD-178)', () => {
     expect(docs.map((doc) => [doc.phase, doc.status])).toEqual([
       ['awaiting_scheduling', 'active'],
       ['inspection_scheduled', 'active'],
-      ['objection_reply_1', 'active'],
+      ['objection_reply', 'active'],
       ['fees_received', 'active'],
       ['awaiting_scheduling', 'suspended'],
       ['awaiting_scheduling', 'canceled'],
@@ -103,7 +103,24 @@ describe('migrateCases (AD-178)', () => {
       'assistance_hired',
       'fees_received',
       'technical_opinion_drafting',
-      'awaiting_inspection',
+      'inspection_scheduled',
     ]);
+  });
+
+  it('merged perícia phases go to the phase that took their place (AD-196)', async () => {
+    const tenant = new mongoose.Types.ObjectId();
+    const merged = [
+      ['objection_reply_3', 'objection_reply'],
+      ['objection_return_2', 'objection_return'],
+      ['awaiting_pje_signature', 'reviewing_report'],
+      ['awaiting_new_clarifications', 'clarifications'],
+      ['awaiting_inspection', 'inspection_scheduled'],
+    ];
+    await Case.collection.insertMany(
+      merged.map(([phase]) => ({ Tenant: tenant, role: 'court_expert', status: 'active', subject: 'x', phase })),
+    );
+    await migrateCases();
+    const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
+    expect(docs.map((doc) => doc.phase)).toEqual(merged.map(([, phase]) => phase));
   });
 });

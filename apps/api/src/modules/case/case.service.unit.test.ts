@@ -204,7 +204,7 @@ describe('case.service', () => {
     vi.mocked(caseRepository.findById).mockResolvedValue({ ...legalCase, fixedFeesCents: 100_000 });
     vi.mocked(caseRepository.updateCase).mockResolvedValue({ ...legalCase, fixedFeesCents: 100_000 });
 
-    await updateCase('t1', 'p1', { phase: 'awaiting_inspection' });
+    await updateCase('t1', 'p1', { phase: 'inspection_scheduled' });
     expect(emit).not.toHaveBeenCalled();
 
     vi.mocked(caseRepository.updateCase).mockResolvedValue({ ...legalCase, fixedFeesCents: 250_000 });
@@ -221,7 +221,7 @@ describe('case.service', () => {
   it('updatePericia de id inexistente (ou de outro tenant) é PericiaNotFoundError', async () => {
     vi.mocked(caseRepository.findById).mockResolvedValue(null);
 
-    await expect(updateCase('t1', 'nope', { phase: 'awaiting_inspection' })).rejects.toBeInstanceOf(CaseNotFoundError);
+    await expect(updateCase('t1', 'nope', { phase: 'inspection_scheduled' })).rejects.toBeInstanceOf(CaseNotFoundError);
   });
 });
 

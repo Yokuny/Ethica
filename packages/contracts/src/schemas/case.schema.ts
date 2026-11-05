@@ -11,7 +11,7 @@ export const CASE_ROLES = ['court_expert', 'technical_assistant', 'other'] as co
 export type CaseRole = (typeof CASE_ROLES)[number];
 export const JUDICIAL_CASE_ROLES = ['court_expert', 'technical_assistant'] as const;
 
-// Service phase (AD-178): the expert's routine list, in groups and in order. `custom`: phase typed in the
+// Service phase (AD-178, AD-196): the expert's routine list, in groups and in order. `custom`: phase typed in the
 // office's own type, named in `Case.phaseName`.
 export const CASE_PHASE_GROUPS = {
   initial: [
@@ -19,32 +19,14 @@ export const CASE_PHASE_GROUPS = {
     'fee_proposal',
     'document_request',
     'awaiting_scheduling',
-    'awaiting_report_approval',
-    'awaiting_pje_signature',
-    'awaiting_site_info',
-    'awaiting_inspection',
     'inspection_scheduled',
     'inspection_done',
   ],
-  intermediate: ['drafting_report', 'pending_documents', 'reviewing_report'],
+  intermediate: ['drafting_report', 'reviewing_report'],
   losses: ['withdrawal', 'removal', 'settlement'],
-  final: [
-    'report_delivered',
-    'objection_reply_1',
-    'objection_return_1',
-    'objection_reply_2',
-    'objection_return_2',
-    'objection_reply_3',
-    'objection_return_3',
-    'objection_reply_4',
-    'objection_return_4',
-    'awaiting_clarification_approval',
-    'awaiting_clarification_response',
-    'awaiting_new_clarifications',
-    'awaiting_judge',
-  ],
+  final: ['report_delivered', 'objection_reply', 'objection_return', 'clarifications', 'awaiting_judge'],
   receiving: ['evidence_closed', 'fees_received'],
-  auxiliary: ['environmental_assessment', 'supplement_inspection', 'petition'],
+  auxiliary: ['supplement_inspection', 'petition'],
 } as const;
 export type CasePhaseGroup = keyof typeof CASE_PHASE_GROUPS;
 // Technical assistance phases (AD-186): a list of its own, in order, without groups; "Honorários recebidos" is

@@ -91,11 +91,11 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     const admin = await seedSession(tenant._id, ['admin']);
     const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
 
-    const first = await post({ ...PRIVATE_SERVICE, phase: 'awaiting_inspection' });
+    const first = await post({ ...PRIVATE_SERVICE, phase: 'inspection_scheduled' });
     expect(first.status).toBe(201);
     expect(first.body.data).toMatchObject({
       serviceType: 'Avaliação de imóvel',
-      phase: 'awaiting_inspection',
+      phase: 'inspection_scheduled',
       status: 'active',
     });
     expect(first.body.data.processNumber).toBeUndefined();

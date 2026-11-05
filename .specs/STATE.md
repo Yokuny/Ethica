@@ -1079,6 +1079,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-05
 - **Status**: active
 
+### AD-196
+- **Decision**: Refina a **AD-178**. As fases da perícia passam de 34 para 20: juntam as redundantes (as 8 de impugnação viram Responder impugnação e Aguardando retorno das Partes, sem o número da rodada; as 3 de esclarecimentos viram Esclarecimentos; aprovação e assinatura entram em Laudo em revisão; Aguardando perícia entra em Perícia agendada) e os nomes ficam curtos. `migrateCases` leva cada serviço salvo à fase que ficou no lugar (`MERGED_PHASES`).
+- **Reason**: pedido da perita (2026-11-05): "juntar fases redundantes, resumir o comprimento da frase e apresentar as opções de forma mais objetiva".
+- **Trade-off**: a fase deixa de dizer em qual rodada de impugnação o serviço está.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/import.service.ts`, `apps/api/src/modules/documents/document.layout.ts`, `apps/web/src/components/case-labels.ts`.
+- **Date**: 2026-11-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

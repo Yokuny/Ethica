@@ -89,9 +89,9 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
   it('fase e status: cadastro e edição, encerrado nas perdas e valor fora da lista recusado (AD-178)', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['admin']);
-    const { body } = await as(request(app).post('/expert-cases')).send({ ...CASE, phase: 'awaiting_site_info' });
+    const { body } = await as(request(app).post('/expert-cases')).send({ ...CASE, phase: 'document_request' });
     const id = body.data.id as string;
-    expect(body.data).toMatchObject({ phase: 'awaiting_site_info', status: 'active' });
+    expect(body.data).toMatchObject({ phase: 'document_request', status: 'active' });
     const open = async () =>
       (await as(request(app).get('/expert-cases/stats'))).body.data.groups.find(
         (group: { key: string }) => group.key === 'open',
@@ -101,7 +101,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     const settled = await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'settlement' });
     expect(settled.body.data.phase).toBe('settlement');
     expect(await open()).toBe(0);
-    await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'awaiting_inspection', status: 'canceled' });
+    await as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'inspection_scheduled', status: 'canceled' });
     expect(await open()).toBe(0);
 
     expect((await as(request(app).patch(`/expert-cases/${id}`)).send({ status: 'appointed' })).status).toBe(400);

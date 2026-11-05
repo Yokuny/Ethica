@@ -185,14 +185,35 @@ const PHASE_OF_STATUS: Record<string, CasePhase> = {
   fees_accepted: 'awaiting_scheduling',
   accepted: 'nomination_accepted',
   inspection_scheduled: 'inspection_scheduled',
-  inspection: 'awaiting_inspection',
+  inspection: 'inspection_scheduled',
   drafting_report: 'drafting_report',
   report_delivered: 'report_delivered',
-  clarifications: 'objection_reply_1',
+  clarifications: 'objection_reply',
   awaiting_payment: 'evidence_closed',
   completed: 'fees_received',
   declined: 'awaiting_scheduling',
 };
+// Perícia phases merged into a shorter list (AD-196): each old phase and the one that took its place.
+const MERGED_PHASES: Record<string, CasePhase> = {
+  pending_documents: 'document_request',
+  awaiting_site_info: 'awaiting_scheduling',
+  awaiting_inspection: 'inspection_scheduled',
+  awaiting_report_approval: 'reviewing_report',
+  awaiting_pje_signature: 'reviewing_report',
+  objection_reply_1: 'objection_reply',
+  objection_reply_2: 'objection_reply',
+  objection_reply_3: 'objection_reply',
+  objection_reply_4: 'objection_reply',
+  objection_return_1: 'objection_return',
+  objection_return_2: 'objection_return',
+  objection_return_3: 'objection_return',
+  objection_return_4: 'objection_return',
+  awaiting_clarification_approval: 'clarifications',
+  awaiting_clarification_response: 'clarifications',
+  awaiting_new_clarifications: 'clarifications',
+  environmental_assessment: 'supplement_inspection',
+};
+
 export const migrateCases = async (): Promise<void> => {
   const cases = Case.collection;
   for (const [status, phase] of Object.entries(PHASE_OF_STATUS)) {
@@ -200,6 +221,9 @@ export const migrateCases = async (): Promise<void> => {
   }
   // "Aguardando laudo pericial" became "Laudo em elaboração" in the intermediate phase (AD-180).
   await cases.updateMany({ phase: 'awaiting_expert_report' }, { $set: { phase: 'drafting_report' } });
+  for (const [old, phase] of Object.entries(MERGED_PHASES)) {
+    await cases.updateMany({ phase: old }, { $set: { phase } });
+  }
   // Technical assistance got its own phase list (AD-186): a perícia phase goes back to "Contratado".
   await cases.updateMany(
     { role: 'technical_assistant', serviceType: { $exists: false }, phase: { $nin: [...TECHNICAL_ASSISTANCE_PHASES] } },

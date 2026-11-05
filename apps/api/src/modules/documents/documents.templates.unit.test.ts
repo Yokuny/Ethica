@@ -20,7 +20,7 @@ const legalCase: SheetData['legalCase'] = {
   subject: 'Insalubridade <script>',
   parties: [],
   movements: [],
-  phase: 'awaiting_inspection',
+  phase: 'inspection_scheduled',
   status: 'active',
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -134,7 +134,7 @@ describe('documentos (DOC-02, DOC-03)', () => {
         {
           id: 'p1',
           processNumber: legalCase.processNumber,
-          phase: 'awaiting_inspection',
+          phase: 'inspection_scheduled',
           court: 'TRT2',
           subject: 'x',
           reference: '2026-08-01',

@@ -2,17 +2,17 @@
 feature: Fase e status do serviço
 slug: fase-servico
 descricao: Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado
-data: 2026-11-04
+data: 2026-11-05
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-178, AD-180]
+decisoes: [AD-178, AD-180, AD-196]
 spec: [.specs/features/fase-servico]
 branches: [main]
 ---
 
 # Fase e status do serviço
 
-**Status**: concluido · **Atualizado**: 2026-11-04 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-05 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fase-servico'`.
@@ -68,6 +68,7 @@ pnpm vitest run apps/api/src/modules/case packages/db/src/models/case.model.int.
 
 ## Histórico
 
+- 2026-11-05 — Fases da perícia passam de 34 para 20, com nomes curtos: as redundantes se juntam e os serviços salvos vão para a fase equivalente ao subir o sistema (AD-196). As impugnações deixam de ter o número da rodada.
 - 2026-11-04 — `apps/api/scripts/seed-demo.ts` passa a gravar a fase (e status ativo) nos serviços de demonstração; o script ainda usava as etapas antigas e falhava ao rodar.
 - 2026-11-04 — Assistência técnica deixa a lista em grupos e ganha lista própria de fases: feature `fase-assistencia` (AD-186).
 - 2026-11-04 — Fase inicial ganha Nomeação aceita, Elaboração de proposta de honorários, Solicitação de documentos, Perícia agendada e Perícia realizada; nova **fase intermediária** com Laudo em elaboração, Documentos pendentes e Laudo em revisão, que substituem "Aguardando laudo pericial" e "Revisar laudo pericial" da fase final (serviços nelas convertidos na subida, AD-180). Vale para perícia e assistência técnica.

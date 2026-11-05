@@ -90,7 +90,7 @@ const CASES = [
     court: 'TRT15',
     division: 'Vara do Trabalho de Campinas',
     subject: 'Doença ocupacional — LER/DORT',
-    phase: 'objection_reply_1',
+    phase: 'objection_reply',
     deadline: -2,
     proposed: 400_000,
     fixed: 400_000,
@@ -217,7 +217,7 @@ const run = async (): Promise<void> => {
       movements:
         p.phase === 'report_delivered'
           ? [{ type: 'report_filed', date: day(-70) }]
-          : p.phase === 'objection_reply_1'
+          : p.phase === 'objection_reply'
             ? [
                 { type: 'report_filed', date: day(-30) },
                 { type: 'clarification_summons', date: day(-8), notes: 'Quesitos complementares da reclamada' },

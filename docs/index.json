@@ -2,6 +2,29 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "fase-servico",
+      "feature": "Fase e status do serviço",
+      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
+      "data": "2026-11-05",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-178",
+        "AD-180",
+        "AD-196"
+      ],
+      "spec": [
+        ".specs/features/fase-servico"
+      ],
+      "planos": [],
+      "doc": "features/fase-servico/feature.md"
+    },
+    {
       "slug": "fundacao-ethica",
       "feature": "Fundação do Ethica",
       "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
@@ -83,28 +106,6 @@
       ],
       "planos": [],
       "doc": "features/fase-assistencia/feature.md"
-    },
-    {
-      "slug": "fase-servico",
-      "feature": "Fase e status do serviço",
-      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
-      "data": "2026-11-04",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-178",
-        "AD-180"
-      ],
-      "spec": [
-        ".specs/features/fase-servico"
-      ],
-      "planos": [],
-      "doc": "features/fase-servico/feature.md"
     },
     {
       "slug": "preencher-pdfs",
@@ -1544,6 +1545,12 @@
     {
       "id": "AD-195",
       "decisao": "A Lista do Campo não vira tabela: fica em duas colunas a partir da tela grande, o dia à esquerda (data em destaque, quantidade de compromiss",
+      "data": "2026-11-05",
+      "status": "active"
+    },
+    {
+      "id": "AD-196",
+      "decisao": "Refina a AD-178. As fases da perícia passam de 34 para 20: juntam as redundantes (as 8 de impugnação viram Responder impugnação e Aguardando",
       "data": "2026-11-05",
       "status": "active"
     }
