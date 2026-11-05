@@ -250,16 +250,15 @@ export const listCases = async (
       // Perícia and Assistência técnica have no own type name (AD-177).
       ...(query.role ? { role: query.role, serviceType: { $exists: false } } : {}),
       ...(query.serviceType ? { serviceType: query.serviceType } : {}),
-      ...(query.serviceOrder ? { serviceOrder: query.serviceOrder } : {}),
       ...(ids ? { _id: { $in: ids.map(toObjectId) } } : {}),
     };
     const skip = (query.page - 1) * query.limit;
 
-    // Text search on Atlas Search (AD-054): word fragments, accent-insensitive, never regex.
-    if (query.q) {
+    // Text search and the OS filter on Atlas Search (AD-054): word fragments, accent-insensitive, never regex.
+    if (query.q || query.serviceOrder) {
       const [result] = await withSearch(() =>
         Case.aggregate<{ items: CaseDocument[]; total: { n: number }[] }>([
-          ...caseSearchStages(tenantId, { q: query.q as string }),
+          ...caseSearchStages(tenantId, { q: query.q, serviceOrder: query.serviceOrder }),
           { $match: { Tenant: toObjectId(tenantId), ...filters } },
           {
             $facet: {

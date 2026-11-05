@@ -17,8 +17,9 @@ import mongoose from 'mongoose';
 // Aggregate stage ready for `Model.aggregate` (Mongoose does not type `$search` separately).
 export type SearchStage = mongoose.PipelineStage;
 
-// Free text of the search box: all the words, in any of the case text fields.
-export type CaseSearchSpec = { q: string };
+// Free text of the search box: all the words, in any of the case text fields. `serviceOrder`: the
+// "Número de controle" filter, every piece typed inside the OS (the number alone finds it).
+export type CaseSearchSpec = { q?: string; serviceOrder?: string };
 // Search box of the party registry: name, CPF/CNPJ or OAB.
 export type PartySearchSpec = { q: string };
 
@@ -76,7 +77,7 @@ const autocomplete = {
 
 // Fields the case listing search box covers. `parties.name` is the copy of the
 // party registry name kept on the case (AD-117).
-const CASE_SEARCH_PATHS = ['processNumber', 'subject', 'division', 'district', 'parties.name'] as const;
+const CASE_SEARCH_PATHS = ['serviceOrder', 'processNumber', 'subject', 'division', 'district', 'parties.name'] as const;
 export const PARTY_SEARCH_INDEX = 'party_text';
 const PARTY_SEARCH_PATHS = ['name', 'document', 'oab'] as const;
 
@@ -89,6 +90,7 @@ export const SEARCH_INDEXES = [
         dynamic: false,
         fields: {
           Tenant: { type: 'objectId' },
+          serviceOrder: autocomplete,
           processNumber: autocomplete,
           subject: autocomplete,
           division: autocomplete,
@@ -114,9 +116,9 @@ export const SEARCH_INDEXES = [
 ] as const;
 
 // --- Atlas implementation -----------------------------------------------------
-const words = (q: string): string[] =>
+const words = (q: string, separator = /\s+/): string[] =>
   q
-    .split(/\s+/)
+    .split(separator)
     .map((word) => word.slice(0, MAX_GRAMS))
     .filter(Boolean);
 
@@ -124,18 +126,24 @@ const tenantFilter = (tenantId: string) => ({ equals: { path: 'Tenant', value: t
 
 const searchStage = (spec: Record<string, unknown>): SearchStage => ({ $search: spec }) as unknown as SearchStage;
 
-// Each word has to show up in one of the fields (AND between words, OR between fields).
+// Each word has to show up in one of the fields (AND between words, OR between fields); each piece of the
+// OS between "-", "/" or spaces has to show up in the OS.
 export const caseSearchStages = (tenantId: string, spec: CaseSearchSpec): SearchStage[] => [
   searchStage({
     index: CASE_SEARCH_INDEX,
     compound: {
       filter: [tenantFilter(tenantId)],
-      must: words(spec.q).map((word) => ({
-        compound: {
-          should: CASE_SEARCH_PATHS.map((path) => ({ autocomplete: { query: word, path } })),
-          minimumShouldMatch: 1,
-        },
-      })),
+      must: [
+        ...words(spec.q ?? '').map((word) => ({
+          compound: {
+            should: CASE_SEARCH_PATHS.map((path) => ({ autocomplete: { query: word, path } })),
+            minimumShouldMatch: 1,
+          },
+        })),
+        ...words(spec.serviceOrder ?? '', /[^\p{L}\p{N}]+/u).map((word) => ({
+          autocomplete: { query: word, path: 'serviceOrder' },
+        })),
+      ],
     },
   }),
 ];

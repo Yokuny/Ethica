@@ -68,7 +68,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-184** (2026-11-04, active) — A lista de Serviços passa às colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente \| Comarca, Fase do serviço, Próximo prazo
+- **AD-185** (2026-11-04, active) — O filtro "Número de controle" acha a OS por qualquer pedaço (só o `[NUMERO]`, como `7` ou `0007`, ou parte da OS) pelo Atlas Search: `servic
+- **AD-184** (2026-11-04, active; o filtro exato e os contatos na coluna Cliente | Comarca foram superseded pela AD-185) — A lista de Serviços passa às colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente \| Comarca, Fase do serviço, Próximo prazo
 - **AD-183** (2026-11-04, active) — O "Preencher com PDF" do cadastro do serviço aceita vários PDFs numa janela em três etapas (arquivos → escolher valores → preencher). Cada P
 - **AD-182** (2026-11-04, active) — Largura das colunas das listas por regra única nos blocos de célula (`apps/web/src/components/data-table.tsx`): o título da coluna principal
 - **AD-181** (2026-11-04, active) — O modelo do escritório tem detalhes (`Template.details`, texto livre de até 300 caracteres, opcional) para separar modelos do mesmo anexo da
@@ -77,7 +78,6 @@ _Nenhum._
 - **AD-178** (2026-11-03, active (lista de fases ampliada por AD-180)) — O serviço tem fase e status separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento
 - **AD-177** (2026-11-03, active (esfera Extrajudicial, esfera fora da perícia e Parceria superseded by AD-178)) — O cadastro separa Esfera de Tipo de serviço. `Case.courtType` vira a esfera (`labor`, `civil`, `federal`, `extrajudicial`, obrigatória); sai
 - **AD-176** (2026-11-03, active (`status: 'custom'`/`statusName` superseded by AD-178: `phase: 'custom'`/`phaseName`)) — No tipo de serviço do escritório (`courtType: 'other'`, AD-158) a atuação e o status podem ser digitados: `role: 'other'` + `Case.roleName`
-- **AD-175** (2026-11-03, active) — O laudo guarda quem gravou por último (`Report.UpdatedBy`), atualizado em toda escrita do rascunho e na conclusão; a lista devolve `updatedB
 
 ## `.specs/` sem registro em `docs/features/`
 

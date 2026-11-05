@@ -28,6 +28,7 @@ describe('periciaSearchStages (montagem do $search)', () => {
     }[];
     expect(must).toHaveLength(2);
     expect(must[0]?.compound.should.map((c) => c.autocomplete.path)).toEqual([
+      'serviceOrder',
       'processNumber',
       'subject',
       'division',
@@ -36,6 +37,17 @@ describe('periciaSearchStages (montagem do $search)', () => {
     ]);
     expect(must[0]?.compound.minimumShouldMatch).toBe(1);
     expect(must[1]?.compound.should[0]?.autocomplete.query).toBe('metalúrgica');
+  });
+
+  it('filtro de OS: cada pedaço entre separadores é um must só no campo da OS', () => {
+    const must = stageOf(caseSearchStages(ID, { serviceOrder: 'TS-2026/07' })).compound.must as {
+      autocomplete: { query: string; path: string };
+    }[];
+    expect(must.map((clause) => clause.autocomplete)).toEqual([
+      { query: 'TS', path: 'serviceOrder' },
+      { query: '2026', path: 'serviceOrder' },
+      { query: '07', path: 'serviceOrder' },
+    ]);
   });
 
   it('palavra acima do máximo do índice é cortada para não sumir do resultado', () => {
@@ -67,6 +79,7 @@ describe('searchDefinitionMatches (definição normalizada pelo Atlas)', () => {
         division: { ...ac },
         parties: { fields: { name: { ...ac } }, type: 'document', dynamic: false },
         subject: { ...ac },
+        serviceOrder: { ...ac },
         processNumber: { ...ac },
         Tenant: { type: 'objectId' },
       },

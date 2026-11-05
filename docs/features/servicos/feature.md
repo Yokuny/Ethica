@@ -5,7 +5,7 @@ descricao: Seção Perícias vira Serviços, com tipo de serviço (inclusive do 
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-158, AD-159, AD-160, AD-184]
+decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185]
 spec: [.specs/features/servicos]
 branches: [main]
 ---
@@ -71,12 +71,15 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Pendências
 
+- [ ] Rodar `pnpm --filter api run search:provision` no banco de produção (índice `case_text` ganhou `serviceOrder`, AD-185).
 - [ ] Conferência visual das telas no navegador (o navegador interno recusou abrir a página local em 2026-11-02).
 - [ ] Relatório financeiro por categoria soma as categorias novas em "Outras despesas".
 - [ ] Excluir ou renomear tipo de serviço e categoria criados pelo escritório.
 - [ ] Banco de teste local criado antes de 2026-11-02 guarda o índice antigo do número do processo: apague `Tenant_1_processNumber_1` de `cases` (o servidor troca sozinho no banco da aplicação).
 
 ## Histórico
+
+- 2026-11-04 — Filtro Número de controle acha a OS por qualquer pedaço (o número sozinho basta), também pela busca da lista; Cliente | Comarca mostra só o nome do contratante fora da perícia (AD-185). Índice de busca mudou: rodar `pnpm --filter api run search:provision` em cada banco.
 
 - 2026-11-04 — Lista de Serviços com as colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente | Comarca (tribunal e vara na perícia; contatos do contratante nos outros tipos), Fase, Próximo prazo e Honorários, com largura parelha nas colunas de texto, e filtro por Número de controle (AD-184). Falta a conferência visual com dados.
 

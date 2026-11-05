@@ -989,6 +989,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: a OS precisa ser digitada inteira no filtro; buscar por trecho exigiria pôr a OS no índice de busca do Atlas (AD-054).
 - **Scope**: `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/data-table.tsx`, `apps/api/src/modules/case/{case.schema,case.repository}.ts`.
 - **Date**: 2026-11-04
+- **Status**: active; o filtro exato e os contatos na coluna Cliente | Comarca foram superseded pela AD-185
+
+### AD-185
+- **Decision**: O filtro "Número de controle" acha a OS por qualquer pedaço (só o `[NUMERO]`, como `7` ou `0007`, ou parte da OS) pelo Atlas Search: `serviceOrder` entra no índice `case_text` (também na busca da lista) e cada pedaço digitado entre "-", "/" ou espaço precisa aparecer na OS. Supersede a parte "OS exata" da **AD-184**. Na coluna Cliente | Comarca, os tipos que não são perícia mostram só o nome do contratante (sai a lista de contatos da AD-184).
+- **Reason**: pedido da perita (2026-11-04).
+- **Trade-off**: o índice de busca muda: cada banco precisa rodar `pnpm --filter api run search:provision` (produção inclusive); até lá o filtro por OS volta vazio. `7` também acha `TS-2026-0017`.
+- **Scope**: `packages/db/src/textSearch.ts`, `apps/api/src/modules/case/{case.schema,case.repository}.ts`, `apps/web/src/routes/_private/expert-cases/@utils/case-columns.tsx`.
+- **Date**: 2026-11-04
 - **Status**: active
 
 ## Handoff

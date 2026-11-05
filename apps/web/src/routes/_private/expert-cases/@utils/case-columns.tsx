@@ -61,30 +61,17 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     cell: ({ row }) => serviceLabel(row.original),
   },
   {
-    // Perícia: court and division; the other types: the contractor's contacts.
+    // Perícia: court and division; the other types: who hired it (AD-176).
     id: 'clientDistrict',
     header: t('client_district'),
-    cell: ({ row }) => {
-      const { contractor, court, division, district } = row.original;
-      if (usesContractor(row.original)) {
-        const contacts = [contractor?.document, contractor?.phone].filter(Boolean).join(' · ');
-        const more = [contractor?.email, contractor?.address].filter(Boolean).join(' · ');
-        return (
-          <TableStack
-            className={TEXT_COLUMN}
-            tone={contacts || more ? 'default' : 'muted'}
-            description={contacts ? more || undefined : undefined}
-          >
-            {contacts || more || '—'}
-          </TableStack>
-        );
-      }
-      return (
-        <TableStack className={TEXT_COLUMN} description={division || district || undefined}>
-          {court ?? '—'}
+    cell: ({ row }) =>
+      usesContractor(row.original) ? (
+        <TableStack className={TEXT_COLUMN}>{row.original.contractor?.name ?? '—'}</TableStack>
+      ) : (
+        <TableStack className={TEXT_COLUMN} description={row.original.division || row.original.district || undefined}>
+          {row.original.court ?? '—'}
         </TableStack>
-      );
-    },
+      ),
   },
   {
     id: 'phase',

@@ -240,7 +240,8 @@
         "AD-158",
         "AD-159",
         "AD-160",
-        "AD-184"
+        "AD-184",
+        "AD-185"
       ],
       "spec": [
         ".specs/features/servicos"
@@ -1416,6 +1417,12 @@
     {
       "id": "AD-184",
       "decisao": "A lista de Serviços passa às colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente | Comarca, Fase do serviço, Próximo prazo",
+      "data": "2026-11-04",
+      "status": "active; o filtro exato e os contatos na coluna Cliente | Comarca foram superseded pela AD-185"
+    },
+    {
+      "id": "AD-185",
+      "decisao": "O filtro \"Número de controle\" acha a OS por qualquer pedaço (só o `[NUMERO]`, como `7` ou `0007`, ou parte da OS) pelo Atlas Search: `servic",
       "data": "2026-11-04",
       "status": "active"
     }
