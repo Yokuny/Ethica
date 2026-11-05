@@ -57,7 +57,7 @@ Conta criada pelo cadastro aberto em 2026-11-04 para testar o sistema pela tela,
 
 | Campo | Valor |
 | --- | --- |
-| E-mail (login) | `perita.teste@ethica.test` |
+| E-mail (login) | `a@a.com` |
 | Nome | Perita Teste |
 | Escritório | Escritório Teste |
 | CNPJ | `98765432000198` (fictício, dígitos válidos) |
