@@ -1,6 +1,6 @@
 # Arquitetura
 
-Visão de uma página; regras de código ficam nos `CLAUDE.md` de cada app e nas skills.
+Visão de uma página; regras de código ficam nos `CLAUDE.md` de cada app e nas skills. Mapa completo e roteiro para criar nela (sistema, app, pacote, módulo): skill `ethica-architecture`.
 
 ```
 apps/web (React 19 + Vite 7)  ──HTTP + cookie de sessão──▶  apps/api (Express 5)  ──▶  MongoDB Atlas
@@ -12,9 +12,9 @@ apps/web (React 19 + Vite 7)  ──HTTP + cookie de sessão──▶  apps/api 
 
 ## Back-end (`apps/api`)
 
-- **Módulos contidos** (AD-038): `identity`, `case`, `agenda`, `finance`, `prospecting`, cada um com router → controller → service → repository → schema. Um módulo só consome o *service* de outro; dono único de cada model (`tests/structural/module-boundary.structural.test.ts`).
-- **Grafo**: `agenda`, `finance`, `prospecting` → `case`. Sem ciclos.
-- **Eventos in-process** (AD-039, AD-106, AD-111, AD-126): `case:fixed_fees` → financeiro lança a receita ou atualiza o honorário fixado já lançado; `case:deleted` → documentos exclui os laudos da perícia. Fire-and-forget; falha só no log. O prazo do laudo vira `Deadline` no próprio módulo `case` (AD-109).
+- **Módulos contidos** (AD-038): `identity`, `case`, `agenda`, `finance`, `prospecting`, `documents`, cada um com router → controller → service → repository → schema. Um módulo só consome o *service* de outro; dono único de cada model (`tests/structural/module-boundary.structural.test.ts`).
+- **Grafo**: `agenda`, `finance`, `prospecting` → `case`; `agenda` → `identity`; `documents` → todos, e ninguém depende dele. Sem ciclos (detalhe em `apps/api/CLAUDE.md`).
+- **Eventos in-process** (AD-039, AD-106, AD-111, AD-126): `case:fixed_fees` → financeiro lança a receita ou atualiza o honorário fixado já lançado; `case:deleted` → documentos exclui os laudos da perícia; `agenda:entries_synced` → a agenda recebe prazos, lançamentos e a data da perícia (AD-169). Lista viva em `apps/api/src/events/event-types.ts`. Fire-and-forget; falha só no log. O prazo do laudo vira `Deadline` no próprio módulo `case` (AD-109).
 - **Tenant** sempre de `req.tenantUser` (AD-010); todo filtro de repository passa por `tenantScoped`.
 - **Sessão** de token único em cookie httpOnly, verificada no banco a cada request (AD-014).
 - **Tempo**: instante em UTC; data de calendário como `YYYY-MM-DD` (AD-036, AD-103).
@@ -27,7 +27,7 @@ apps/web (React 19 + Vite 7)  ──HTTP + cookie de sessão──▶  apps/api 
 - TanStack Query é a única fonte de dados; filtro e paginação na URL (AD-028).
 - Página = `Card asPage` com loading/vazio/erro dentro do `CardContent`; tabelas server-driven no `DataTable` (AD-077, AD-078); criar/editar por página `/add` ou `FormDialog` (AD-070).
 - Gráficos pelo `chart` do `packages/ui` (recharts 3, AD-104).
-- Guardas: `_private/route.tsx` (sessão), `_private/_admin/route.tsx` (admin), `finance/route.tsx` (admin/manager, AD-107).
+- Guardas: `_private/route.tsx` (sessão e módulo pela matriz de permissões, AD-137) e `_private/_admin/route.tsx` (admin).
 
 ## Testes e gate
 

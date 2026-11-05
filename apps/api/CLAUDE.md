@@ -114,7 +114,7 @@ domainEventBus.on('case:fixed_fees', async (payload) => {
 });
 ```
 
-Eventos atuais: `case:fixed_fees` → financeiro lança a receita a receber (`fixed_fees` ou, na perícia de assistente técnico, `contracted_fees`, AD-135) ou atualiza o valor do honorário já lançado (AD-106, AD-111); `case:deleted` → documentos exclui os laudos da perícia (AD-126). `case:inspection_scheduled` → agenda cria o compromisso de perícia com a data informada no cadastro (AD-160). O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `case.service` (AD-109), sem evento.
+Eventos atuais: `case:fixed_fees` → financeiro lança a receita a receber (`fixed_fees` ou, na perícia de assistente técnico, `contracted_fees`, AD-135) ou atualiza o valor do honorário já lançado (AD-106, AD-111); `case:deleted` → documentos exclui os laudos da perícia (AD-126) e a agenda apaga os prazos dela; `agenda:entries_synced` → a agenda troca os itens de dia inteiro da origem (prazo, lançamento) e guarda a data da perícia do serviço como compromisso (AD-169). A lista viva é o `DomainEventMap` de `events/event-types.ts`. O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `case.service` (AD-109), sem evento.
 
 - Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"case:fixed_fees","message":"…"}`.
 - `off(event, handler)` remove de fato (o bus guarda o wrapper por `(event, handler)` internamente).

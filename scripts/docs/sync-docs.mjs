@@ -289,7 +289,7 @@ function renderContext({ features, inbox, specsSemDoc, errors }) {
   if (specsSemDoc.length) out.push(`[docs] .specs sem feature.md: ${specsSemDoc.join(', ')}`);
   if (errors.length) out.push(`[docs] ${errors.length} erro(s) de validação — rode pnpm docs:check.`);
   out.push(
-    '[docs] Antes de implementar: leia o feature.md e os planos/specs das features relacionadas. Ao concluir: skill crm-docs.',
+    '[docs] Antes de implementar: leia o feature.md e os planos/specs das features relacionadas. Ao concluir: skill ethica-docs.',
   );
   return out.join('\n');
 }
