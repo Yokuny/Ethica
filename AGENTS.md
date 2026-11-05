@@ -37,7 +37,7 @@ Vale para **toda** tarefa, em qualquer área. Não é uma tarefa de "simplificar
 | `packages/db` | Models Mongoose — único lugar que importa `mongoose` | — |
 | `packages/ui` | Componentes de UI compartilhados (primitivos shadcn/Base UI + `chart`) | `packages/ui/README.md` |
 
-Os `CLAUDE.md` dentro de cada app são regras de código daquele app e valem para qualquer agente — leia o do app que você vai tocar antes de editar. Mapa completo da arquitetura e roteiro para criar nela (sistema, app, pacote, módulo): skill `ethica-architecture`.
+Os `CLAUDE.md` dentro de cada app são regras de código daquele app e valem para qualquer agente — leia o do app que você vai tocar antes de editar.
 
 Comandos: `pnpm run check` (tsc + biome + vitest, é o gate do CI), `pnpm docs:sync`, `pnpm docs:check`, `pnpm docs:context`. Banco dos testes: `RUN_BOOK.md`.
 
@@ -112,7 +112,7 @@ Canônicas em `.agents/skills/` (symlink em `.claude/skills/`); sem suporte a sk
 | `ethica-docs` | Início de toda tarefa (descoberta) e ao concluir (registro, planos, ajustes) |
 | `ethica-spec-driven` | Escrever/revisar `spec.md`, `design.md`, `tasks.md`, decisões `AD-NNN` |
 | `ethica-commit-standards` | Mensagem de commit e envio para a `main` |
-| `ethica-architecture` | Criar sistema novo nesta arquitetura, app em `apps/`, pacote em `packages/`, módulo, entidade ou evento na API, módulo de tela; decidir em que camada um código mora; entender ou revisar a arquitetura do monorepo |
+| `monorepo-architecture` | Levar esta arquitetura para **outro** projeto (sistema novo ou MVP existente). Documento portátil e autossuficiente, sem vínculo com o Ethica nem com este harness: copie a pasta. Para código deste repo valem `apps/api/CLAUDE.md` e `ethica-web-standards` |
 | `ethica-web-standards` | Qualquer código em `apps/web`: nova página/módulo/rota, componente, form, query, ou entender a arquitetura do front |
 | `ethica-item-typography` | Qualquer texto em `apps/web` (todo texto é `ItemTitle`/`ItemDescription`, AD-087) e a migração em lote do projeto para esse padrão |
 | `ethica-permissions` | Qualquer rota, tela, botão ou ação que dependa de papel (`admin`/`manager`/`operator`), revisão de acesso, "quem pode fazer X", papel novo |

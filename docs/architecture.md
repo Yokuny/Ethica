@@ -1,6 +1,6 @@
 # Arquitetura
 
-Visão de uma página; regras de código ficam nos `CLAUDE.md` de cada app e nas skills. Mapa completo e roteiro para criar nela (sistema, app, pacote, módulo): skill `ethica-architecture`.
+Visão de uma página; regras de código ficam nos `CLAUDE.md` de cada app e nas skills.
 
 ```
 apps/web (React 19 + Vite 7)  ──HTTP + cookie de sessão──▶  apps/api (Express 5)  ──▶  MongoDB Atlas
