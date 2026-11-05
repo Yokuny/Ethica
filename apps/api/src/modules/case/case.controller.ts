@@ -80,6 +80,14 @@ export const getServiceOrder = async (req: Request, res: Response, next: NextFun
   }
 };
 
+export const serviceOrderPreview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await caseService.serviceOrderPreview(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const setServiceOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await caseService.setServiceOrder(tenantOf(req), req.body) }));

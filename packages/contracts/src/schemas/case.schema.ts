@@ -79,8 +79,9 @@ export type CasePhase = (typeof CASE_PHASES)[number];
 // The office's own type offers its typed phases and this one of the routine list (AD-178).
 export const OWN_TYPE_PHASES: readonly CasePhase[] = ['fees_received'];
 
-// Order of the services listing (AD-188): registration date (default), name, type or last change.
-export const CASE_LIST_SORTS = ['createdAt', 'name', 'type', 'updatedAt'] as const;
+// Order of the services listing (AD-188): registration date (default), name, type, last change or the service
+// order number (AD-190).
+export const CASE_LIST_SORTS = ['createdAt', 'name', 'type', 'updatedAt', 'serviceOrder'] as const;
 export type CaseListSort = (typeof CASE_LIST_SORTS)[number];
 export const SORT_ORDERS = ['asc', 'desc'] as const;
 export type SortOrder = (typeof SORT_ORDERS)[number];

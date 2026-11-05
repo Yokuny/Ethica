@@ -4,4 +4,4 @@
 - [x] T2 API: listagem geral, validação de status, testes.
 - [x] T3 Web: seção, menu, formulário (serviço, Prazo/Alerta), diálogo com Concluir.
 - [x] T4 Gate, `feature.md`, AD, commit.
-- [ ] T5 (após aprovação) Tipos aprovados na lista suspensa do título, com texto livre.
+- [x] T5 (após aprovação) Tipos aprovados na lista suspensa do título, com texto livre.

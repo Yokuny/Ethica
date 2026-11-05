@@ -1031,6 +1031,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-190
+- **Decision**: (1) Selos de criticidade dos prazos e alertas pendentes pelos dias até o vencimento: **Atrasado** (venceu, vermelho), **Urgente** (hoje até 5 dias, laranja), **Vence em breve** (6 a 10, amarelo), **Atenção** (11 a 30, azul), sem selo depois de 30 (`deadlineAlert` em `apps/web/src/components/deadline-labels.ts`); o número "Vencem em até 15 dias" e o aviso diário por e-mail seguem com os 15 dias da AD-109. (2) Títulos aprovados por tipo de serviço na lista suspensa do novo prazo ou alerta (perícia, assistência técnica e o tipo do escritório "Parceria"; os outros tipos do escritório só escrevem à mão), cada um já marca Prazo ou Alerta; "Escrever outro" volta ao tipo e título digitados. O título gravado é o texto em pt-BR. (3) Indicador da OS na seção Serviços com a próxima OS (prévia da sequência, sem consumir o número, pulando o já usado) e a última usada (`GET /expert-cases/service-order/preview`). (4) Ordenar a lista por número de controle, com os serviços sem OS no fim nas duas direções. (5) A escolha do serviço no novo prazo/alerta mostra e busca a OS (a busca já cobria a OS, AD-185).
+- **Reason**: pedido da perita (2026-11-04); escolhas dela: escala 0/5/10/30 dias e nenhuma lista para os outros tipos do escritório.
+- **Trade-off**: "Vence em breve" (6 a 10 dias) e o número "Vencem em até 15 dias" usam faixas diferentes; os títulos sugeridos ficam no front.
+- **Scope**: `apps/web/src/components/{deadline-labels,deadline-form,case-picker}.tsx`, `apps/web/src/routes/_private/expert-cases/@components/{cases-service-order,cases-sort}.tsx`, `apps/api/src/modules/case/{case.service,case.repository,case.controller,case.router,case.schema}.ts`, `packages/contracts/src/schemas/case.schema.ts`.
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

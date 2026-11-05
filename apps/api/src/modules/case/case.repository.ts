@@ -133,6 +133,16 @@ export const findIdByNumber = async (tenantId: string, processNumber: string): P
     return doc?._id.toString();
   });
 
+// Number of the service registered last (AD-190), for the indicator of the services screen.
+export const lastServiceOrder = async (tenantId: string): Promise<string | undefined> =>
+  withDbTiming('case.lastServiceOrder', async () => {
+    const doc = await Case.findOne(tenantScoped({ Tenant: tenantId, serviceOrder: { $type: 'string' as const } }))
+      .sort({ createdAt: -1, _id: -1 })
+      .select('serviceOrder')
+      .lean();
+    return doc?.serviceOrder;
+  });
+
 // Number already given to a service of the tenant, open or closed (AD-187).
 export const hasServiceOrder = async (tenantId: string, serviceOrder: string): Promise<boolean> =>
   withDbTiming('case.hasServiceOrder', async () =>
@@ -258,7 +268,8 @@ export const deleteCase = async (tenantId: string, id: string): Promise<{ delete
   });
 
 // Listing order (AD-188): the name is the process number or, without one, the object; the type puts the
-// perícia first, then the assistance, then the office's own types by name. Dates sort by the field itself.
+// perícia first, then the assistance, then the office's own types by name. Dates and the service order
+// (AD-190) sort by the field itself.
 const SORT_KEY: Partial<Record<ListCasesQuery['sort'], unknown>> = {
   name: { $toLower: { $ifNull: ['$processNumber', '$subject'] } },
   type: {
@@ -290,16 +301,18 @@ export const listCases = async (
     const direction: 1 | -1 = query.order === 'asc' ? 1 : -1;
     const tie: Record<string, 1 | -1> = query.sort === 'createdAt' ? { _id: direction } : { createdAt: -1, _id: 1 };
     const search = query.q || query.serviceOrder;
+    const sortKey = SORT_KEY[query.sort] ?? `$${query.sort}`;
     const pipeline: SearchStage[] = [
       // Text search and the OS filter on Atlas Search (AD-054): word fragments, accent-insensitive, never regex.
       ...(search ? caseSearchStages(tenantId, { q: query.q, serviceOrder: query.serviceOrder }) : []),
       { $match: { Tenant: toObjectId(tenantId), ...filters } },
-      ...(SORT_KEY[query.sort] ? [{ $addFields: { sortKey: SORT_KEY[query.sort] } }] : []),
+      // A service without the value (no OS) goes to the end in both directions.
+      { $addFields: { sortKey, sortMissing: { $cond: [{ $ifNull: [sortKey, false] }, 0, 1] } } },
       {
         $facet: {
           items: [
             // Ties: the newest registration first.
-            { $sort: { [SORT_KEY[query.sort] ? 'sortKey' : query.sort]: direction, ...tie } },
+            { $sort: { sortMissing: 1, sortKey: direction, ...tie } },
             { $skip: skip },
             { $limit: query.limit },
           ],

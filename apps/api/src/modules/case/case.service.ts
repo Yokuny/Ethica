@@ -24,6 +24,7 @@ import type {
   CreateCaseInput,
   CreateMovement,
   ListCasesQuery,
+  ServiceOrderPreview,
   StalledCase,
   UpdateCase,
 } from './case.schema.js';
@@ -66,6 +67,23 @@ const nextServiceOrder = async (tenantId: string): Promise<string | undefined> =
     if (!(await serviceOrderTaken(tenantId, serviceOrder))) return serviceOrder;
   }
   throw new CustomError('service_order_taken', 409);
+};
+
+// Last number used and the one the next registration gets (AD-190), without taking it: the same rule of
+// `take` (another year starts again at 1 with "[ANO]") skipping the used ones. Without a sequence, only the last.
+export const serviceOrderPreview = async (tenantId: string): Promise<ServiceOrderPreview> => {
+  const [last, settings] = await Promise.all([
+    caseRepository.lastServiceOrder(tenantId),
+    serviceOrderRepository.find(tenantId),
+  ]);
+  if (!settings) return { last };
+  const year = Number(dateInDisplayTz(new Date()).slice(0, 4));
+  let number = settings.year === year || !settings.pattern.includes('[ANO]') ? settings.last + 1 : 1;
+  for (let attempt = 0; attempt < 100; attempt++, number++) {
+    const next = formatServiceOrder({ ...settings, year, last: number }).toUpperCase();
+    if (!(await serviceOrderTaken(tenantId, next))) return { last, next };
+  }
+  return { last };
 };
 
 // With no non-prescribed period given, saves the one suggested by the contract dates (AD-115).

@@ -8,7 +8,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Em andamento
 
-- [`prazos-alertas`](features/prazos-alertas/feature.md) — **parcial** — Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui
 - [`rotina-servico`](features/rotina-servico/feature.md) — **parcial** — Status único do serviço, partes do último despacho no PDF, planilha de qualquer modelo e nomes das seções; falta a base de varas dos TRTs
 - [`avisos-notificacoes`](features/avisos-notificacoes/feature.md) — **planejado** — Varredura agendada dos avisos sem perda nem duplicidade, aviso de vencimento financeiro e notificação push no aparelho
 - [`fundacao-ethica`](features/fundacao-ethica/feature.md) — **parcial** — Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
@@ -27,7 +26,7 @@ _Nenhum._
 | --- | --- | --- | --- | --- | --- | --- |
 | [Fases da Assistência técnica](features/fase-assistencia/feature.md) | Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência | concluido | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/fase-assistencia) | — |
 | [Fase e status do serviço](features/fase-servico/feature.md) | Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado | concluido | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/fase-servico) | — |
-| [Prazos e Alertas](features/prazos-alertas/feature.md) | Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui | parcial | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-alertas) | — |
+| [Prazos e Alertas](features/prazos-alertas/feature.md) | Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui | concluido | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-alertas) | — |
 | [Preencher com vários PDFs](features/preencher-pdfs/feature.md) | Cadastro do serviço preenchido por vários PDFs numa janela em etapas, com a escolha do valor de cada campo | concluido | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` | [spec](../.specs/features/preencher-pdfs) | — |
 | [Agenda por eventos](features/agenda-eventos/feature.md) | Perícia, prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento, com tipo, estado e filtro | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/agenda-eventos) | — |
 | [Anexar laudo](features/anexar-laudo/feature.md) | Laudo feito fora do Ethica anexado em PDF no serviço, concluído com a entrega e salvável como modelo | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/db` | [spec](../.specs/features/anexar-laudo) | — |
@@ -71,6 +70,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-190** (2026-11-04, active) — (1) Selos de criticidade dos prazos e alertas pendentes pelos dias até o vencimento: Atrasado (venceu, vermelho), Urgente (hoje até 5 dias,
 - **AD-189** (2026-11-04, active) — "Prazos e Alertas" reaproveita o `Deadline` (AD-109) com o campo `kind` (`deadline` \| `alert`, padrão `deadline`, sem conversão dos existent
 - **AD-188** (2026-11-04, active) — A lista de Serviços ordena por Data do cadastro (padrão, mais novo primeiro), Nome (número do processo ou, sem ele, o objeto), Tipo (perícia
 - **AD-187** (2026-11-04, active) — O número de controle (OS) nunca se repete no escritório: além do índice único que já valia para serviço aberto ou encerrado, a OS é gravada
@@ -80,7 +80,6 @@ _Nenhum._
 - **AD-183** (2026-11-04, active) — O "Preencher com PDF" do cadastro do serviço aceita vários PDFs numa janela em três etapas (arquivos → escolher valores → preencher). Cada P
 - **AD-182** (2026-11-04, active) — Largura das colunas das listas por regra única nos blocos de célula (`apps/web/src/components/data-table.tsx`): o título da coluna principal
 - **AD-181** (2026-11-04, active) — O modelo do escritório tem detalhes (`Template.details`, texto livre de até 300 caracteres, opcional) para separar modelos do mesmo anexo da
-- **AD-180** (2026-11-04, active) — A fase inicial ganha `nomination_accepted`, `fee_proposal`, `document_request` (no começo), `inspection_scheduled` e `inspection_done` (no f
 
 ## `.specs/` sem registro em `docs/features/`
 

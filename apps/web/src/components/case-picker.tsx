@@ -34,7 +34,7 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
                 key={legalCase.id}
                 icon={Gavel}
                 render={<button type="button" className="w-full text-left" onClick={() => onPick(legalCase.id)} />}
-                title={caseLabel(legalCase)}
+                title={[legalCase.serviceOrder, caseLabel(legalCase)].filter(Boolean).join(' · ')}
                 description={[
                   caseRoleLabel(legalCase.role, legalCase.roleName),
                   legalCase.division ?? legalCase.court,

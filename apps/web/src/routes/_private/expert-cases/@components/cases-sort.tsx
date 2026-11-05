@@ -11,6 +11,7 @@ const SORT_ITEMS: { value: CaseListSort; label: string }[] = [
   { value: 'name', label: t('name') },
   { value: 'type', label: t('type') },
   { value: 'updatedAt', label: t('last_change_date') },
+  { value: 'serviceOrder', label: t('control_number') },
 ];
 
 // "Ordenar por" of the services listing (AD-188): the field and the direction, kept in the URL. Without a

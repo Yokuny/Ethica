@@ -11,6 +11,7 @@ import { listStatsQuery } from '@/query/listStats.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { CasesFilters } from './@components/cases-filters.js';
 import { CasesOverview } from './@components/cases-overview.js';
+import { CasesServiceOrder } from './@components/cases-service-order.js';
 import { CasesSort } from './@components/cases-sort.js';
 import { CasesTable } from './@components/cases-table.js';
 import { useCasesSearch } from './@hooks/use-cases-search.js';
@@ -54,17 +55,20 @@ export function CasesIndexPage() {
   return (
     <Card asPage>
       <CardHeader title={t('expert_cases')} description={t('track_each_expert_case_from_appointment_to_report')}>
-        {canCreate && (
-          <CardAction>
-            <Button
-              variant="outline"
-              nativeButton={false}
-              role="link"
-              render={<Link to="/expert-cases/import">{t('import_spreadsheet')}</Link>}
-            />
-            <Button nativeButton={false} role="link" render={<Link to="/expert-cases/add">{t('add')}</Link>} />
-          </CardAction>
-        )}
+        <CardAction>
+          <CasesServiceOrder />
+          {canCreate && (
+            <>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                role="link"
+                render={<Link to="/expert-cases/import">{t('import_spreadsheet')}</Link>}
+              />
+              <Button nativeButton={false} role="link" render={<Link to="/expert-cases/add">{t('add')}</Link>} />
+            </>
+          )}
+        </CardAction>
       </CardHeader>
       <CasesOverview stats={statsQuery.data} />
       <CardContent>

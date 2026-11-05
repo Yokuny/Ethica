@@ -57,6 +57,9 @@ export type ListCasesQuery = z.infer<typeof listCasesQuerySchema>;
 
 export type CaseRouterDeps = { validToken: RequestHandler };
 
+// Service order indicator of the services screen (AD-190): the last number used and the next one.
+export type ServiceOrderPreview = { last?: string; next?: string };
+
 export type CaseRecord = {
   id: string;
   // Missing only in a service type created by the office (AD-158).

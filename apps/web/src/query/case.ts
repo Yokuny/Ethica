@@ -117,6 +117,16 @@ export const casesQuery = (params: CasesQueryParams = {}) =>
     },
   });
 
+// Service order indicator (AD-190): the last number used and the next one; a registration refreshes it.
+export const serviceOrderPreviewQuery = queryOptions({
+  queryKey: [...caseKeys.all, 'service-order-preview'] as const,
+  queryFn: async (): Promise<{ last?: string; next?: string }> => {
+    const res = await get<{ last?: string; next?: string }>('/expert-cases/service-order/preview');
+    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+    return res.data;
+  },
+});
+
 export const caseQuery = (id: string) =>
   queryOptions({
     queryKey: caseKeys.detail(id),

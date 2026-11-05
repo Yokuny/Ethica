@@ -58,6 +58,7 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
   router.get('/service-types', ...guard, can('expert_cases', 'view'), caseController.listServiceTypes);
   // Service order sequence of the office (NLA-01): set up by the admin on the office screen.
   router.get('/service-order', ...guard, can('expert_cases', 'view'), caseController.getServiceOrder);
+  router.get('/service-order/preview', ...guard, can('expert_cases', 'view'), caseController.serviceOrderPreview);
   router.put(
     '/service-order',
     ...guard,

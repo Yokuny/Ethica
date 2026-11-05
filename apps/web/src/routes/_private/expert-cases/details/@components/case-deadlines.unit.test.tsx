@@ -22,7 +22,7 @@ const renderDeadlines = (deadlines: DeadlineRecord[]) => {
 describe('PericiaPrazos (PRZ-01)', () => {
   afterEach(cleanup);
 
-  it('lista cada prazo com status; vencido pendente ganha o selo "Vencido"; protocolado mostra a data', () => {
+  it('lista cada prazo com status; vencido pendente ganha o selo "Atrasado"; protocolado mostra a data', () => {
     renderDeadlines([
       { id: 'a', caseId: 'p1', kind: 'deadline', title: 'Entrega do laudo', dueDate: '2000-01-10', status: 'pending' },
       {
@@ -39,12 +39,12 @@ describe('PericiaPrazos (PRZ-01)', () => {
 
     const report = screen.getByText('Entrega do laudo').closest('li') as HTMLElement;
     expect(within(report).getByText('Pendente')).toBeInTheDocument();
-    expect(within(report).getByText('Vencido')).toBeInTheDocument();
+    expect(within(report).getByText('Atrasado')).toBeInTheDocument();
 
     const clarifications = screen.getByText('Esclarecimentos').closest('li') as HTMLElement;
     expect(within(clarifications).getByText('Protocolado')).toBeInTheDocument();
     expect(within(clarifications).getByText(/Protocolado em 4 jan 2000/)).toBeInTheDocument();
-    expect(within(clarifications).queryByText('Vencido')).not.toBeInTheDocument();
+    expect(within(clarifications).queryByText('Atrasado')).not.toBeInTheDocument();
 
     const objection = screen.getByText('Impugnação').closest('li') as HTMLElement;
     expect(within(objection).getByText('Perdido')).toBeInTheDocument();

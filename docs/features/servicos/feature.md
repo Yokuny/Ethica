@@ -5,7 +5,7 @@ descricao: Seção Perícias vira Serviços, com tipo de serviço (inclusive do 
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188]
+decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188, AD-190]
 spec: [.specs/features/servicos]
 branches: [main]
 ---
@@ -78,6 +78,8 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 - [ ] Banco de teste local criado antes de 2026-11-02 guarda o índice antigo do número do processo: apague `Tenant_1_processNumber_1` de `cases` (o servidor troca sozinho no banco da aplicação).
 
 ## Histórico
+
+- 2026-11-04 — Indicador com a próxima OS e a última usada no topo da lista; ordenar por número de controle, sem OS no fim (AD-190).
 
 - 2026-11-04 — Número de controle (OS) nunca se repete: maiúsculas iguais, número de serviço excluído guardado e sequência que pula o já usado (AD-187). Lista com "Ordenar por" Data do cadastro, Nome, Tipo e Data da modificação, crescente ou decrescente (AD-188).
 

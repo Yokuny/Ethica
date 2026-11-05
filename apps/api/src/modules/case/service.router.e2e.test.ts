@@ -260,6 +260,29 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await ids('sort=type&order=desc')).toEqual([own, assistance, judicial]);
     expect(await ids('sort=updatedAt&order=desc')).toEqual([own, judicial, assistance]);
     expect((await admin.as(request(app).get('/expert-cases?sort=phase'))).status).toBe(400);
+    // Service order (AD-190): the ones without an OS at the end, in both directions.
+    await admin.as(request(app).patch(`/expert-cases/${assistance}`)).send({ serviceOrder: 'TS-0002' });
+    await admin.as(request(app).patch(`/expert-cases/${judicial}`)).send({ serviceOrder: 'TS-0001' });
+    expect(await ids('sort=serviceOrder&order=asc')).toEqual([judicial, assistance, own]);
+    expect(await ids('sort=serviceOrder&order=desc')).toEqual([assistance, judicial, own]);
+  });
+
+  it('indicador da OS: a última usada e a próxima, pulando a já usada (AD-190)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const preview = async () => (await admin.as(request(app).get('/expert-cases/service-order/preview'))).body.data;
+    expect(await preview()).toEqual({});
+    await admin.as(request(app).post('/expert-cases')).send({ ...PRIVATE_SERVICE, serviceOrder: 'OS-9' });
+    expect(await preview()).toEqual({ last: 'OS-9' });
+
+    const year = Number(new Date().toISOString().slice(0, 4));
+    await admin
+      .as(request(app).put('/expert-cases/service-order'))
+      .send({ pattern: '[SIGLA]-[NUMERO]', prefix: 'TS', digits: 3, year, last: 4 });
+    await admin.as(request(app).post('/expert-cases')).send({ ...PRIVATE_SERVICE, serviceOrder: 'TS-005' });
+    expect(await preview()).toEqual({ last: 'TS-005', next: 'TS-006' });
+    const created = await admin.as(request(app).post('/expert-cases')).send(PRIVATE_SERVICE);
+    expect(created.body.data.serviceOrder).toBe('TS-006');
   });
 
   it('número de controle nunca se repete: maiúsculas iguais, encerrado ou excluído (AD-187)', async () => {

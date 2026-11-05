@@ -49,7 +49,7 @@
       "feature": "Prazos e Alertas",
       "descricao": "Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui",
       "data": "2026-11-04",
-      "status": "parcial",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -57,7 +57,8 @@
         "packages/db"
       ],
       "decisoes": [
-        "AD-189"
+        "AD-189",
+        "AD-190"
       ],
       "spec": [
         ".specs/features/prazos-alertas"
@@ -285,7 +286,8 @@
         "AD-184",
         "AD-185",
         "AD-187",
-        "AD-188"
+        "AD-188",
+        "AD-190"
       ],
       "spec": [
         ".specs/features/servicos"
@@ -1491,6 +1493,12 @@
     {
       "id": "AD-189",
       "decisao": "\"Prazos e Alertas\" reaproveita o `Deadline` (AD-109) com o campo `kind` (`deadline` | `alert`, padrão `deadline`, sem conversão dos existent",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-190",
+      "decisao": "(1) Selos de criticidade dos prazos e alertas pendentes pelos dias até o vencimento: Atrasado (venceu, vermelho), Urgente (hoje até 5 dias,",
       "data": "2026-11-04",
       "status": "active"
     }
