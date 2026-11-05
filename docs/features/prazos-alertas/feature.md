@@ -20,10 +20,10 @@ branches: [main]
 ## O que foi feito
 
 - Item **Prazos e Alertas** no menu, logo abaixo de Serviços (mesmo acesso de Serviços), também no início.
-- Lista dos prazos e alertas de todos os serviços: abre com os **pendentes**, o vencimento mais próximo no topo (os vencidos primeiro), com o serviço, Prazo/Alerta e os selos Vencido / Vence em breve; o filtro de situação mostra Protocolado, Perdido e Concluído (do mais recente ao mais antigo).
+- Lista dos prazos e alertas de todos os serviços: abre com os **pendentes**, o vencimento mais próximo no topo (os vencidos primeiro), com o serviço, Prazo/Alerta e o selo de criticidade; o filtro de situação mostra Protocolado, Perdido e Concluído (do mais recente ao mais antigo).
 - **Alerta** é um lembrete com data que se marca como concluído; **prazo** continua protocolado ou perdido. O servidor recusa a situação do outro tipo (`invalid_deadline_status`). Os prazos já cadastrados ficaram prazos.
 - "Adicionar" escolhe o serviço e abre o mesmo formulário do detalhe do serviço, que agora pergunta Prazo ou Alerta.
-- Selos de criticidade: Atrasado, Urgente (até 5 dias), Vence em breve (6 a 10), Atenção (11 a 30); depois de 30 dias, sem selo. Valem na seção, no detalhe do serviço e na coluna Próximo prazo.
+- Selos de criticidade: Atrasado, Urgente (até 5 dias), Vence em breve (6 a 10), Atenção (11 a 30); depois de 30 dias, sem selo. Valem na seção (o selo traz o nome da criticidade; sem ela, a situação), no detalhe do serviço e na coluna Próximo prazo (selo colorido acima da data).
 - Novo prazo ou alerta: lista suspensa com os títulos aprovados do tipo do serviço (perícia, assistência técnica, Parceria), que já marca Prazo ou Alerta, e "Escrever outro". A escolha do serviço busca e mostra o número de controle.
 - Alertas aparecem na agenda, no aviso diário por e-mail e nos números de prazos vencidos / que vencem em até 15 dias, como os prazos. A entrega do laudo nunca protocola um alerta.
 
@@ -52,5 +52,6 @@ pnpm vitest run apps/api/src/modules/case/deadline.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-04 — Selo da seção passa a escrever a criticidade (Urgente, Atenção…) em vez de "Pendente"; coluna Próximo prazo mostra a criticidade como selo colorido.
 - 2026-11-04 — Selos de criticidade, títulos aprovados por tipo de serviço e busca pela OS na escolha do serviço (AD-190).
 - 2026-11-04 — Seção, lista por criticidade e alerta concluível entregues (AD-189); tipos sugeridos enviados para aprovação.

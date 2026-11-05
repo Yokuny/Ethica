@@ -3,7 +3,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
-import { deadlineAlert } from '@/components/deadline-labels.js';
+import { ALERT_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -99,13 +99,10 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       if (!deadline) return <TableStack tone="muted">—</TableStack>;
       const alert = deadlineAlert(deadline, formatDisplayDate(new Date()));
       return (
-        <TableStack
-          tone={alert === 'deadline_overdue' ? 'error' : 'default'}
-          description={alert ? `${t(alert)} · ${deadline.title}` : deadline.title}
-          descriptionTone={alert === 'deadline_overdue' ? 'error' : 'muted'}
-        >
-          {formatDate(toDate(deadline.dueDate))}
-        </TableStack>
+        <div className="flex flex-col items-start gap-1">
+          {alert && <TableStatus variant={ALERT_VARIANT[alert]}>{t(alert)}</TableStatus>}
+          <TableStack description={deadline.title}>{formatDate(toDate(deadline.dueDate))}</TableStack>
+        </div>
       );
     },
   },

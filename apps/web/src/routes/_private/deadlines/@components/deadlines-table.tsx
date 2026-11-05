@@ -62,7 +62,7 @@ export function DeadlinesTable({
                 </TableCell>
                 <TableCell>
                   <TableStatus variant={alert ? ALERT_VARIANT[alert] : DEADLINE_STATUS_VARIANT[deadline.status]}>
-                    {t(deadline.status)}
+                    {t(alert ?? deadline.status)}
                   </TableStatus>
                 </TableCell>
               </TableRow>
