@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import { pathToFileURL } from 'node:url';
-import { backfillCalendarEntries, connect, migrateCases, syncIndexes } from '@ethica/db';
+import { backfillCalendarEntries, connect, migrateCases, provisionSearchIndexes, syncIndexes } from '@ethica/db';
 import { buildApp, buildMailProvider } from './app.js';
 import { env } from './config/env.config.js';
 import { nextExecution, sendDeadlineNotices } from './modules/agenda/deadlineReminder.service.js';
@@ -31,6 +31,22 @@ export type StartOptions = { port?: number };
 
 export type StartHandle = { httpServer: Server };
 
+// Atlas Search indexes (AD-054) follow `SEARCH_INDEXES` on every boot (AD-191): a field added to the search
+// (the OS, AD-185) works without a manual step. In the background, so the boot does not wait for the index to
+// be ready; a database without Atlas Search only logs.
+const provisionSearch = (): void => {
+  provisionSearchIndexes()
+    .then((indexes) => console.log(JSON.stringify({ event: 'search_indexes.provisioned', indexes })))
+    .catch((error: unknown) =>
+      console.error(
+        JSON.stringify({
+          event: 'search_indexes.failed',
+          message: error instanceof Error ? error.message : String(error),
+        }),
+      ),
+    );
+};
+
 // env → connect → syncIndexes → data conversion (RSV-03, AEV-05) → listen, with an explicit catch: Mongo
 // unavailable never leaves the process up accepting traffic.
 export const start = async (opts: StartOptions = {}): Promise<StartHandle | undefined> => {
@@ -39,6 +55,7 @@ export const start = async (opts: StartOptions = {}): Promise<StartHandle | unde
     await syncIndexes();
     await migrateCases();
     await backfillCalendarEntries();
+    provisionSearch();
 
     const port = opts.port ?? Number(env.API_PORT);
     const httpServer = buildApp().listen(port, () => {

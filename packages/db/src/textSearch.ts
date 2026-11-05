@@ -63,7 +63,7 @@ export const withSearch = async <T>(run: () => Promise<T>): Promise<T> => {
 export const toObjectId = (id: string): mongoose.Types.ObjectId => new mongoose.Types.ObjectId(id);
 export const newObjectId = (): mongoose.Types.ObjectId => new mongoose.Types.ObjectId();
 
-// --- Indexes (versioned here, provisioned by script) -------------------------
+// --- Indexes (versioned here, provisioned on every API boot, AD-191) ----------
 export const CASE_SEARCH_INDEX = 'case_text';
 const MAX_GRAMS = 15;
 
@@ -176,8 +176,7 @@ type ListedSearchIndex = {
   queryable?: boolean;
   latestDefinition?: unknown;
 };
-// Native driver (no models): provisioning also runs in the test setup and in
-// scripts, where loading the models just to find the collection name would be pointless coupling.
+// Native driver (no models): provisioning also runs in the test setup, where loading the models just to find the collection name would be pointless coupling.
 const collectionOf = (name: string) => {
   const db = mongoose.connection.db;
   if (!db) throw new Error('provisionSearchIndexes: sem conexão com o banco.');

@@ -22,7 +22,6 @@ docker compose logs -f api web
 ```bash
 docker compose up -d mongo
 pnpm install
-pnpm --filter api run search:provision   # índices do Atlas Search (idempotente)
 pnpm dev:api                             # http://localhost:18080
 pnpm dev:web                             # http://localhost:15173
 ```
@@ -99,7 +98,7 @@ O caminho normal é o **cadastro aberto** (AD-155): a pessoa informa um e-mail n
 | Testes (local e CI) | o mesmo servidor do dev | `ethica_test` |
 | Produção | cluster hospedado no MongoDB Atlas (`mongodb+srv://...`) | `ethica` |
 
-- Índices do Atlas Search (busca de perícias e de partes) não são índices Mongoose: rode `search:provision` em cada banco novo (ou depois de `docker compose down -v`). Sem eles a busca devolve lista vazia. Logo após subir o container o `mongot` pode levar alguns segundos: se falhar com `SearchIndexManagementHostUnreachable`, rode de novo.
+- Índices do Atlas Search (busca de serviços e de partes) não são índices Mongoose: a API cria ou atualiza os dois a cada subida, em segundo plano (AD-191). Logo após subir o container o `mongot` pode levar alguns segundos: se o log mostrar `search_indexes.failed` com `SearchIndexManagementHostUnreachable`, reinicie a API.
 - `docker compose down -v` apaga o banco local.
 
 ### Testes

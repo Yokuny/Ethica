@@ -287,7 +287,8 @@
         "AD-185",
         "AD-187",
         "AD-188",
-        "AD-190"
+        "AD-190",
+        "AD-191"
       ],
       "spec": [
         ".specs/features/servicos"
@@ -1499,6 +1500,12 @@
     {
       "id": "AD-190",
       "decisao": "(1) Selos de criticidade dos prazos e alertas pendentes pelos dias até o vencimento: Atrasado (venceu, vermelho), Urgente (hoje até 5 dias,",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-191",
+      "decisao": "Os índices do Atlas Search (`SEARCH_INDEXES`, AD-054) são criados ou atualizados pela própria API a cada subida (`provisionSearch` em `apps/",
       "data": "2026-11-04",
       "status": "active"
     }

@@ -8,6 +8,7 @@ vi.mock('@ethica/db', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@ethica/db')>()),
   connect: vi.fn().mockRejectedValue(new Error('Mongo indisponível')),
   syncIndexes: vi.fn(),
+  provisionSearchIndexes: vi.fn().mockResolvedValue([]),
   migrateCases: vi.fn(),
   backfillCalendarEntries: vi.fn(),
 }));

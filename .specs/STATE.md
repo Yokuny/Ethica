@@ -1039,6 +1039,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-191
+- **Decision**: Os índices do Atlas Search (`SEARCH_INDEXES`, AD-054) são criados ou atualizados pela própria API a cada subida (`provisionSearch` em `apps/api/src/server.ts`), em segundo plano, logo depois do `syncIndexes`; um banco sem Atlas Search só registra `search_indexes.failed`. Sai o script manual `search:provision` (`apps/api/scripts/provision-search-indexes.ts`). Supersede a parte "provisionados por script" da **AD-054** e o passo manual citado na **AD-185**.
+- **Reason**: apontado pelo usuário (2026-11-04): a busca pela OS na escolha do serviço não funcionava no sistema publicado porque a mudança do índice (AD-185) dependia de alguém rodar o script no banco de produção; buscar é processo do sistema, não passo de infraestrutura.
+- **Trade-off**: logo depois de um campo novo entrar na busca, o índice leva alguns segundos para ficar pronto e a busca por esse campo volta vazia nesse intervalo.
+- **Scope**: `apps/api/src/server.ts`, `apps/api/src/server.int.test.ts`, `apps/api/package.json`, `apps/api/scripts/provision-search-indexes.ts` (removido), `packages/db/src/textSearch.ts`, `RUN_BOOK.md`.
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

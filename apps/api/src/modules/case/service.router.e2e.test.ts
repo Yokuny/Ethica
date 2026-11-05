@@ -344,6 +344,8 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await ids('serviceOrder=0007')).toEqual([own.body.data.id]);
     expect(await ids('serviceOrder=2026-0017')).toEqual([judicial.body.data.id]);
     expect(await ids('serviceOrder=0008')).toEqual([]);
+    // The search box (listing and the service choice of a new deadline) finds the OS too.
+    expect(await ids('q=0007')).toEqual([own.body.data.id]);
     expect(await ids('phase=awaiting_judge')).toEqual([judicial.body.data.id]);
     expect(await ids('status=suspended')).toEqual([assistance.body.data.id]);
     expect(await ids('deliveryFrom=2026-12-01&deliveryTo=2026-12-31')).toEqual([assistance.body.data.id]);
