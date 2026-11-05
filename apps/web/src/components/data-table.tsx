@@ -4,7 +4,11 @@ import { Button } from '@ethica/ui/components/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@ethica/ui/components/dropdown-menu';
 import { InputGroup, InputGroupInput } from '@ethica/ui/components/input-group';
@@ -23,32 +27,68 @@ type DataTableProps = React.ComponentProps<'div'> & {
   // Free search: frameless field at the top of the table, as in the reference.
   search?: { value: string; onChange: (value: string) => void };
   // Advanced filters: they live in a popover opened by "Filtros"; `active` is the
-  // number of applied filters.
-  filters?: { content: React.ReactNode; active?: number };
+  // number of applied filters. A single filter goes in `options` (one click shows its values).
+  filters?: TableFiltersProps;
   // Extra controls on the same line (e.g. the queue quick filters).
   toolbar?: React.ReactNode;
 };
 
-type TableFiltersProps = { content: React.ReactNode; active?: number };
+const ALL = '__all__';
 
-// "Filtros" button that opens the controls in a popover. Used by `DataTable` and
-// by screens without a table (kanban, reports) to keep the same gesture.
-function TableFilters({ content, active }: TableFiltersProps) {
+type TableFilterOptions = {
+  label: string;
+  items: { value: string; label: string }[];
+  value?: string;
+  onChange: (value: string | undefined) => void;
+};
+
+type TableFiltersProps =
+  | { content: React.ReactNode; active?: number; options?: never }
+  | { options: TableFilterOptions; content?: never; active?: never };
+
+// "Filtros" button. Several filters (`content`) open in a popover; a single one (`options`, AD-193) opens its
+// values right away, "Todos" first, the chosen one checked. Used by `DataTable` and by screens without a table
+// (kanban, reports) to keep the same gesture.
+function TableFilters({ content, options, active }: TableFiltersProps) {
+  const count = options ? (options.value ? 1 : 0) : active;
+  const label = (
+    <>
+      <ListFilter />
+      {t('filters')}
+      {Boolean(count) && <Badge variant="secondary">{count}</Badge>}
+    </>
+  );
+  if (options) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="ghost" />}>{label}</DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-auto min-w-48">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>{options.label}</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={options.value ?? ALL}
+              onValueChange={(next) => options.onChange(next === ALL ? undefined : String(next))}
+            >
+              {[{ value: ALL, label: t('all') }, ...options.items].map((item) => (
+                <DropdownMenuRadioItem key={item.value} value={item.value}>
+                  {item.label}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
   return (
     <Popover>
-      <PopoverTrigger render={<Button variant="ghost" />}>
-        <ListFilter />
-        {t('filters')}
-        {Boolean(active) && <Badge variant="secondary">{active}</Badge>}
-      </PopoverTrigger>
+      <PopoverTrigger render={<Button variant="ghost" />}>{label}</PopoverTrigger>
       <PopoverContent align="start" className="flex w-96 max-w-[calc(100vw-2rem)] flex-col gap-3">
         {content}
       </PopoverContent>
     </Popover>
   );
 }
-
-const ALL = '__all__';
 
 type TableFilterSelectProps = {
   label: string;
@@ -57,10 +97,11 @@ type TableFilterSelectProps = {
   onChange: (value: string | undefined) => void;
   // "Todos" first, which clears the filter; `false` when the filter always has a value.
   all?: boolean;
+  disabled?: boolean;
 };
 
 // One labeled select of the "Filtros" popover.
-function TableFilterSelect({ label, items, value, onChange, all = true }: TableFilterSelectProps) {
+function TableFilterSelect({ label, items, value, onChange, all = true, disabled }: TableFilterSelectProps) {
   const options = all ? [{ value: ALL, label: t('all') }, ...items] : items;
   return (
     <div className="grid gap-1.5">
@@ -68,9 +109,10 @@ function TableFilterSelect({ label, items, value, onChange, all = true }: TableF
       <Select
         items={options}
         value={value ?? ALL}
+        disabled={disabled}
         onValueChange={(next) => onChange(!next || next === ALL ? undefined : next)}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full" aria-label={label}>
           <SelectValue placeholder={label} />
         </SelectTrigger>
         <SelectContent>

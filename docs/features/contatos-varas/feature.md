@@ -5,7 +5,7 @@ descricao: Agenda de contatos das varas do trabalho e cíveis do escritório, fi
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-054, AD-118, AD-134, AD-137, AD-151]
+decisoes: [AD-054, AD-118, AD-134, AD-137, AD-151, AD-193]
 spec: [.specs/features/contatos-varas]
 ---
 
@@ -61,6 +61,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-05 — Varas no padrão de lista: busca pelo nome e "Filtros" (UF, cidade, esfera) na barra do `DataTable` (AD-193).
 - 2026-11-03 — A seção passa a "Varas e comarcas"; base pronta dos 24 TRTs pedida pela perita e pendente em `rotina-servico` (RSV-05).
 - 2026-11-01 — Implementado VAR-01 a VAR-03; validação em `.specs/features/contatos-varas/validation.md`. A justiça reaproveita a da perícia (trabalho, cível e federal) em vez de um tipo novo.
 - 2026-11-01 — Spec criada (`.specs/features/contatos-varas/spec.md`).

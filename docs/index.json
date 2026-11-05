@@ -59,7 +59,8 @@
       "decisoes": [
         "AD-189",
         "AD-190",
-        "AD-192"
+        "AD-192",
+        "AD-193"
       ],
       "spec": [
         ".specs/features/prazos-alertas"
@@ -101,7 +102,8 @@
       ],
       "decisoes": [
         "AD-169",
-        "AD-192"
+        "AD-192",
+        "AD-193"
       ],
       "spec": [
         ".specs/features/agenda-eventos"
@@ -394,7 +396,8 @@
         "AD-118",
         "AD-134",
         "AD-137",
-        "AD-151"
+        "AD-151",
+        "AD-193"
       ],
       "spec": [
         ".specs/features/contatos-varas"
@@ -573,7 +576,8 @@
         "AD-117",
         "AD-118",
         "AD-173",
-        "AD-192"
+        "AD-192",
+        "AD-193"
       ],
       "spec": [
         ".specs/features/importacao-processos"
@@ -654,7 +658,8 @@
         "AD-126",
         "AD-127",
         "AD-181",
-        "AD-192"
+        "AD-192",
+        "AD-193"
       ],
       "spec": [
         ".specs/features/laudos"
@@ -1518,6 +1523,12 @@
     {
       "id": "AD-192",
       "decisao": "(1) As listas de Serviços, Laudos, Partes e Lançamentos ordenam pelo clique no título da coluna (crescente → decrescente → volta à ordem pad",
+      "data": "2026-11-05",
+      "status": "active"
+    },
+    {
+      "id": "AD-193",
+      "decisao": "Ajusta a parte (2) e (4) da AD-192. (1) Situação dos Laudos e situação de Prazos e Alertas voltam a ser abas acima da lista (Prazos sem \"Tod",
       "data": "2026-11-05",
       "status": "active"
     }

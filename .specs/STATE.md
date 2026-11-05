@@ -1055,6 +1055,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-05
 - **Status**: active
 
+### AD-193
+- **Decision**: Ajusta a parte (2) e (4) da **AD-192**. (1) Situação dos Laudos e situação de Prazos e Alertas voltam a ser **abas** acima da lista (Prazos sem "Todos": abre em Pendentes). (2) Lista com um filtro só abre os valores com **um clique** em "Filtros" (`TableFilters options`: menu com "Todos" e as opções, a escolhida marcada) — Partes por tipo; com vários filtros segue o popover de seletores (`content`). (3) Varas segue o padrão de lista: busca pelo nome e "Filtros" (UF, cidade, esfera) na barra do `DataTable`, cartões dentro dele. (4) Agenda montada direto na página (sai `calendar-toolbar.tsx`): no cabeçalho, seletor de tipo, seletor Dia/Semana/Mês e Novo compromisso; acima do calendário, o mês/ano e, à direita dele, a navegação (anterior, hoje, próximo).
+- **Reason**: pedido do usuário (2026-11-05), revendo a AD-192 na tela.
+- **Trade-off**: a situação de Laudos e Prazos fica nas abas e não conta no número do botão "Filtros"; o tipo da Agenda é seletor no cabeçalho, não "Filtros".
+- **Scope**: `apps/web/src/components/data-table.tsx`, `apps/web/src/routes/_private/{expert-reports/list,deadlines,parties,court-divisions,agenda}/`, `apps/web/src/lib/helpers/translate.helper.ts`.
+- **Date**: 2026-11-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

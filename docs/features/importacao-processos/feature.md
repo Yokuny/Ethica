@@ -5,7 +5,7 @@ descricao: Cadastro de perícia a partir do PDF da ata, importação em lote por
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-107, AD-113, AD-114, AD-115, AD-116, AD-117, AD-118, AD-173, AD-192]
+decisoes: [AD-103, AD-107, AD-113, AD-114, AD-115, AD-116, AD-117, AD-118, AD-173, AD-192, AD-193]
 spec: [.specs/features/importacao-processos]
 branches: [feat/importacao-processos]
 ---
@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/pericia packages/contracts packages/db/src/
 
 ## Histórico
 
+- 2026-11-05 — Cadastro de partes: "Filtros" abre o tipo com um clique, sem seletor (AD-193).
 - 2026-11-05 — Cadastro de partes: o tipo sai das abas e vai para "Filtros"; nome ordena pelo clique na coluna (A-Z padrão, Z-A) (AD-192).
 - 2026-11-04 — "Preencher com PDF" passa a aceitar vários PDFs numa janela em etapas, com a escolha do valor de cada campo; o ZIP saiu (AD-183, feature `preencher-pdfs`).
 - 2026-11-03 — "Preencher com PDF ou ZIP": processo dividido em partes vai num ZIP com os PDFs, lidos na ordem do nome e juntados num rascunho só (AD-173, `extractPdfText` em `apps/api/src/modules/case/import.service.ts`).

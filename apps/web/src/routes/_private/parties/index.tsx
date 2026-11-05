@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { DataTable, TableFilterSelect } from '@/components/data-table.js';
+import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
@@ -73,15 +73,12 @@ export function PartiesIndexPage() {
         <DataTable
           search={{ value: searchInput, onChange: handleSearchInput }}
           filters={{
-            active: search.type ? 1 : 0,
-            content: (
-              <TableFilterSelect
-                label={t('type')}
-                items={PARTY_TYPE_ITEMS}
-                value={search.type}
-                onChange={(type) => update({ type: type as PartiesSearch['type'], page: 1 })}
-              />
-            ),
+            options: {
+              label: t('type'),
+              items: PARTY_TYPE_ITEMS,
+              value: search.type,
+              onChange: (type) => update({ type: type as PartiesSearch['type'], page: 1 }),
+            },
           }}
         >
           {query.isLoading ? (

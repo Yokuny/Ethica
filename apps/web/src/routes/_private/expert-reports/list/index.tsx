@@ -1,12 +1,13 @@
 import { REPORT_STATUS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
+import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router';
 import type { PaginationState, SortingState, Updater } from '@tanstack/react-table';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
-import { DataTable, TableFilterSelect } from '@/components/data-table.js';
+import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
@@ -18,8 +19,7 @@ import { can, sessionQuery } from '@/query/session.js';
 import { ReportsTable } from './@components/reports-table.js';
 import { type ReportsSearch, reportsSearchSchema } from './@interface/reports.interface.js';
 
-// Status options of the "Filtros" popover.
-const STATUS_ITEMS = REPORT_STATUS.map((value) => ({ value, label: reportStatusLabel(value) }));
+const ALL = 'all';
 
 export function ReportsListPage() {
   const search = useSearch({ strict: false }) as ReportsSearch;
@@ -67,20 +67,24 @@ export function ReportsListPage() {
           </CardAction>
         )}
       </CardHeader>
+      <Tabs
+        value={search.status ?? ALL}
+        onValueChange={(value) =>
+          updateSearch({ status: value === ALL ? undefined : (value as ReportsSearch['status']), page: 1 })
+        }
+        className="px-(--card-spacing)"
+      >
+        <TabsList variant="line">
+          <TabsTrigger value={ALL}>{t('all')}</TabsTrigger>
+          {REPORT_STATUS.map((status) => (
+            <TabsTrigger key={status} value={status}>
+              {reportStatusLabel(status)}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <CardContent>
-        <DataTable
-          filters={{
-            active: search.status ? 1 : 0,
-            content: (
-              <TableFilterSelect
-                label={t('status')}
-                items={STATUS_ITEMS}
-                value={search.status}
-                onChange={(status) => updateSearch({ status: status as ReportsSearch['status'], page: 1 })}
-              />
-            ),
-          }}
-        >
+        <DataTable>
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (
@@ -89,16 +93,7 @@ export function ReportsListPage() {
               action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
             />
           ) : !items.length ? (
-            search.status ? (
-              <DefaultEmptyData
-                title={t('no_records_match_filters')}
-                action={
-                  <Button onClick={() => updateSearch({ status: undefined, page: 1 })}>{t('clear_filters')}</Button>
-                }
-              />
-            ) : (
-              <DefaultEmptyData title={t('no_reports_yet')} description={t('start_report_from_expert_case')} />
-            )
+            <DefaultEmptyData title={t('no_reports_yet')} description={t('start_report_from_expert_case')} />
           ) : (
             <ReportsTable
               data={items}

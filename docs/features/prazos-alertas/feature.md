@@ -5,7 +5,7 @@ descricao: Seção com os prazos e alertas de todos os serviços por criticidade
 data: 2026-11-04
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-189, AD-190, AD-192]
+decisoes: [AD-189, AD-190, AD-192, AD-193]
 spec: [.specs/features/prazos-alertas]
 branches: [main]
 ---
@@ -52,6 +52,7 @@ pnpm vitest run apps/api/src/modules/case/deadline.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-05 — A situação volta às abas acima da lista, abrindo em Pendentes (AD-193).
 - 2026-11-05 — A situação sai do seletor solto e vai para o botão "Filtros" da lista (AD-192).
 - 2026-11-04 — Selos de criticidade ganham o ponto colorido (`BadgeIndicator`) para a cor ficar mais forte, nas quatro telas.
 - 2026-11-04 — Selo da seção passa a escrever a criticidade (Urgente, Atenção…) em vez de "Pendente"; coluna Próximo prazo mostra a criticidade como selo colorido.

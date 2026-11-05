@@ -1,9 +1,10 @@
 import type { DeadlineStatus } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
+import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
-import { DataTable, TableFilterSelect } from '@/components/data-table.js';
+import { DataTable } from '@/components/data-table.js';
 import { DeadlineDialog } from '@/components/deadline-dialog.js';
 import { DEADLINE_STATUS_ITEMS } from '@/components/deadline-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -42,22 +43,22 @@ export function DeadlinesPage() {
           </CardAction>
         )}
       </CardHeader>
+      {/* Situation tabs (AD-193): the pending ones open by default. */}
+      <Tabs
+        value={search.status}
+        onValueChange={(status) => update({ status: status as DeadlineStatus, page: 1 })}
+        className="px-(--card-spacing)"
+      >
+        <TabsList variant="line">
+          {DEADLINE_STATUS_ITEMS.map((item) => (
+            <TabsTrigger key={item.value} value={item.value}>
+              {item.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <CardContent>
-        <DataTable
-          filters={{
-            // The pending ones open by default; another situation counts as a filter.
-            active: search.status === 'pending' ? 0 : 1,
-            content: (
-              <TableFilterSelect
-                label={t('status')}
-                items={DEADLINE_STATUS_ITEMS}
-                value={search.status}
-                all={false}
-                onChange={(status) => status && update({ status: status as DeadlineStatus, page: 1 })}
-              />
-            ),
-          }}
-        >
+        <DataTable>
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (
