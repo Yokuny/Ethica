@@ -1063,6 +1063,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-05
 - **Status**: active
 
+### AD-194
+- **Decision**: (1) Navegação de período (anterior, hoje, próximo) num só contorno, sem divisórias internas, em `apps/web/src/components/period-nav.tsx`, usada pela Agenda e pelo Campo (no Campo, o botão do meio mostra o dia e volta para hoje). (2) Campo com duas visualizações na mesma tela (`view` na URL, `map` | `list`, seletor no cabeçalho): **Mapa** é a padrão e sempre aparece, mesmo sem vistoria no dia, centrado na próxima vistoria agendada do dia com endereço localizado (ou na primeira parada); sem nenhuma, no local padrão. Sai a rota `/field/map`; o mapa vira `field/@components/field-map.tsx`. (3) Local padrão: a cidade do escritório; como o escritório ainda não tem cidade no cadastro, São Paulo.
+- **Reason**: pedido do usuário (2026-11-05); escolhas dele: abrir no mapa e, sem vistoria, a cidade do escritório.
+- **Trade-off**: o mapa centra na próxima vistoria em vez de enquadrar todas as paradas; as outras ficam fora da tela até arrastar ou afastar.
+- **Scope**: `apps/web/src/components/period-nav.tsx`, `apps/web/src/routes/_private/{agenda,field}/`.
+- **Date**: 2026-11-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

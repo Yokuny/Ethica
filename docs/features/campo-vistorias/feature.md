@@ -5,7 +5,7 @@ descricao: Rota de campo no celular com registro de vistoria, fotos, áudio e as
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-107, AD-113, AD-118, AD-120, AD-123, AD-124, AD-126, AD-128, AD-129, AD-130, AD-131, AD-132]
+decisoes: [AD-103, AD-107, AD-113, AD-118, AD-120, AD-123, AD-124, AD-126, AD-128, AD-129, AD-130, AD-131, AD-132, AD-194]
 spec: [.specs/features/campo-vistorias]
 branches: [feat/campo-vistorias]
 ---
@@ -79,6 +79,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-05 — Campo com duas visualizações: Mapa (padrão, sempre aberto, centrado na próxima vistoria ou em São Paulo) e Lista; sai a rota `/field/map`; navegação do dia sem divisórias (AD-194).
 - 2026-11-01 — Ponto de partida e rota própria especificados em `rotas-vistoria` (AD-150); chaves do storage por perícia em `producao-api` (AD-146).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).
 - 2026-10-31 — Implementado CAM-01 a CAM-09, menos a transcrição (AD-128 a AD-132). Divergências do design: o ponto de partida do mapa é só a localização do aparelho; "Campo" substituiu "Prospecção" na barra inferior do celular (prospecção segue no Menu); a sessão passou a ser guardada no aparelho para o app abrir sem rede, e sair apaga os dados locais; `postFile` virou `sendFile`; o modelo padrão do laudo passou a usar as variáveis de campo; a sincronização tenta de novo a cada 15 s com pendência e quando a tela volta a aparecer (na UAT o evento `online` não chegou depois de recarregar sem rede); data e hora da vistoria no laudo vêm da vistoria feita com registro, quando há.

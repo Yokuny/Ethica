@@ -29,22 +29,27 @@ const stopNumber = (number: number): HTMLElement => {
   return marker;
 };
 
+// Without a stop to center on: the office city (AD-194). The office has no city yet, so São Paulo.
+const DEFAULT_CENTER: Point = { lat: -23.55, lng: -46.63 };
+
 type MapLeafletProps = {
   stops: Array<{ id: string; number: number; point: Point; title: string }>;
   origin?: Point;
   row: Point[];
+  // The next inspection; missing, the default place.
+  center?: Point;
 };
 
 // Day map (AD-131): OpenStreetMap tiles, numbered stops and the route. Leaflet is imperative,
 // so the map lives in an effect bound to the element; markers without an image (divIcon).
-export function MapLeaflet({ stops, origin, row }: MapLeafletProps) {
+export function MapLeaflet({ stops, origin, row, center }: MapLeafletProps) {
   const element = useRef<HTMLElement>(null);
   const map = useRef<L.Map | null>(null);
   const camada = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     if (!element.current || map.current) return;
-    map.current = L.map(element.current, { zoomControl: true }).setView([-23.55, -46.63], 11);
+    map.current = L.map(element.current, { zoomControl: true }).setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], 11);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: assignment() }).addTo(
       map.current,
     );
@@ -59,12 +64,10 @@ export function MapLeaflet({ stops, origin, row }: MapLeafletProps) {
     const group = camada.current;
     if (!group || !map.current) return;
     group.clearLayers();
-    const points: L.LatLngExpression[] = [];
     if (origin) {
       L.circleMarker([origin.lat, origin.lng], { radius: 7, color: '#1d1c20', fillOpacity: 1 })
         .bindTooltip(t('starting_point'))
         .addTo(group);
-      points.push([origin.lat, origin.lng]);
     }
     for (const stop of stops) {
       L.marker([stop.point.lat, stop.point.lng], {
@@ -76,15 +79,16 @@ export function MapLeaflet({ stops, origin, row }: MapLeafletProps) {
         }),
         title: stop.title,
       }).addTo(group);
-      points.push([stop.point.lat, stop.point.lng]);
     }
     if (row.length > 1)
       L.polyline(
         row.map((p) => [p.lat, p.lng]),
         { color: '#2563eb', weight: 4 },
       ).addTo(group);
-    if (points.length) map.current.fitBounds(L.latLngBounds(points), { padding: [32, 32], maxZoom: 15 });
-  }, [stops, origin, row]);
+    // Always open on the next inspection (AD-194); without one, on the default place.
+    const focus = center ?? DEFAULT_CENTER;
+    map.current.setView([focus.lat, focus.lng], center ? 15 : 11);
+  }, [stops, origin, row, center]);
 
   return <section ref={element} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('day_map')} />;
 }

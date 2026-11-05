@@ -1,15 +1,14 @@
 import { Button } from '@ethica/ui/components/button';
-import { ButtonGroup } from '@ethica/ui/components/button-group';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { APPOINTMENT_TYPE_ITEMS } from '@/components/appointment-labels.js';
 import { calendarEntryTypeItems } from '@/components/calendar-entry-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { PeriodNav } from '@/components/period-nav.js';
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
@@ -101,31 +100,14 @@ export function AgendaIndexPage() {
             </ItemTitle>
             <ItemDescription className="text-base">{yearName.format(day)}</ItemDescription>
           </div>
-          <ButtonGroup>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label={t('previous')}
-              title={t('previous')}
-              onClick={handlePrevious}
-            >
-              <ChevronLeft />
-            </Button>
-            <Button type="button" variant="outline" onClick={handleToday}>
-              {t('today')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label={t('next')}
-              title={t('next')}
-              onClick={handleNext}
-            >
-              <ChevronRight />
-            </Button>
-          </ButtonGroup>
+          <PeriodNav
+            label={t('today')}
+            previousLabel={t('previous')}
+            nextLabel={t('next')}
+            onPrevious={handlePrevious}
+            onToday={handleToday}
+            onNext={handleNext}
+          />
         </div>
         {query.isLoading ? (
           <DefaultLoading />

@@ -103,7 +103,8 @@
       "decisoes": [
         "AD-169",
         "AD-192",
-        "AD-193"
+        "AD-193",
+        "AD-194"
       ],
       "spec": [
         ".specs/features/agenda-eventos"
@@ -371,7 +372,8 @@
         "AD-129",
         "AD-130",
         "AD-131",
-        "AD-132"
+        "AD-132",
+        "AD-194"
       ],
       "spec": [
         ".specs/features/campo-vistorias"
@@ -1529,6 +1531,12 @@
     {
       "id": "AD-193",
       "decisao": "Ajusta a parte (2) e (4) da AD-192. (1) Situação dos Laudos e situação de Prazos e Alertas voltam a ser abas acima da lista (Prazos sem \"Tod",
+      "data": "2026-11-05",
+      "status": "active"
+    },
+    {
+      "id": "AD-194",
+      "decisao": "(1) Navegação de período (anterior, hoje, próximo) num só contorno, sem divisórias internas, em `apps/web/src/components/period-nav.tsx`, us",
       "data": "2026-11-05",
       "status": "active"
     }
