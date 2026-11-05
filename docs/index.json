@@ -2,6 +2,27 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "fase-assistencia",
+      "feature": "Fases da Assistência técnica",
+      "descricao": "Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência",
+      "data": "2026-11-04",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-186"
+      ],
+      "spec": [
+        ".specs/features/fase-assistencia"
+      ],
+      "planos": [],
+      "doc": "features/fase-assistencia/feature.md"
+    },
+    {
       "slug": "fase-servico",
       "feature": "Fase e status do serviço",
       "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
@@ -1423,6 +1444,12 @@
     {
       "id": "AD-185",
       "decisao": "O filtro \"Número de controle\" acha a OS por qualquer pedaço (só o `[NUMERO]`, como `7` ou `0007`, ou parte da OS) pelo Atlas Search: `servic",
+      "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-186",
+      "decisao": "A Assistência técnica (sem tipo do escritório) tem lista própria de fases, sem grupos (`TECHNICAL_ASSISTANCE_PHASES`), que reusa `fees_recei",
       "data": "2026-11-04",
       "status": "active"
     }

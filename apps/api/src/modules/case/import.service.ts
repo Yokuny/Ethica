@@ -8,11 +8,13 @@ import {
   type CreateCase,
   CSV_IMPORT_MAX_ROWS,
   type CsvImportField,
+  casePhases,
   creaSchema,
   createCaseFieldsSchema,
   createCaseSchema,
   csvHeaderKey,
   documentSchema,
+  isOwnType,
   oabSchema,
   partyNameKey,
   processNumberSchema,
@@ -361,6 +363,23 @@ const PHASE_NAMES: [string, PhaseAndStatus][] = [
   ['encerrado', { phase: 'fees_received' }],
   ['pago', { phase: 'fees_received' }],
   ['acordo', { phase: 'settlement' }],
+  // Technical assistance (AD-186).
+  ['proposta enviada', { phase: 'assistance_fee_proposal' }],
+  ['contratado', { phase: 'assistance_hired' }],
+  ['contratada', { phase: 'assistance_hired' }],
+  ['estudo dos autos', { phase: 'case_file_study' }],
+  ['reuniao de alinhamento', { phase: 'alignment_meeting' }],
+  ['pericia in loco', { phase: 'on_site_inspection' }],
+  ['parecer em elaboracao', { phase: 'technical_opinion_drafting' }],
+  ['parecer tecnico em elaboracao', { phase: 'technical_opinion_drafting' }],
+  ['parecer entregue', { phase: 'technical_opinion_delivered' }],
+  ['parecer tecnico entregue', { phase: 'technical_opinion_delivered' }],
+  ['quesitos suplementares', { phase: 'supplementary_questions' }],
+  ['impugnacao de laudo', { phase: 'report_objection' }],
+  ['quesitos complementares', { phase: 'complementary_questions' }],
+  ['pericia complementar', { phase: 'complementary_inspection' }],
+  ['etapa extra', { phase: 'extra_stage' }],
+  ['assistencia finalizada', { phase: 'assistance_finished' }],
   ['desistencia', { phase: 'withdrawal' }],
   ['destituicao', { phase: 'removal' }],
   ['destituido', { phase: 'removal' }],
@@ -409,6 +428,7 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
   const sides = { plaintiff: {} as Record<string, string>, defendant: {} as Record<string, string> };
   let typed: ReturnType<typeof serviceTypeFromText> = {};
   const doubt = (cell: CsvCell) => notes.push(`${cell.header}: ${cell.value} (!)`);
+  let phaseCell: CsvCell | undefined;
 
   for (const cell of cells) {
     const { field, value } = cell;
@@ -435,6 +455,7 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
     } else if (field === 'status') {
       const found = longestMatch(value, PHASE_NAMES);
       if (found) Object.assign(data, found);
+      if (found?.phase) phaseCell = cell;
       else doubt(cell);
     } else if (field === 'proposedFees') {
       const cents = parseCentavos(value);
@@ -453,6 +474,11 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
 
   if (typed.serviceType) data.serviceType = typed.serviceType;
   data.role ??= typed.role ?? 'court_expert';
+  // A phase of the other list (perícia × assistance, AD-186) stays blank and goes to the notes.
+  if (phaseCell && !isOwnType(data) && !casePhases(data.role as CaseRole).includes(data.phase as CasePhase)) {
+    delete data.phase;
+    doubt(phaseCell);
+  }
   const unit = typeof data.processNumber === 'string' ? courtUnitFromNumber(data.processNumber) : undefined;
   // Only a perícia has a sphere and needs the process (AD-178).
   if (!usesContractor(data)) {

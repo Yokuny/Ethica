@@ -1,5 +1,11 @@
 import type { CreateMovement, ListStats } from '@ethica/contracts';
-import { CASE_CLOSED_PHASES, CASE_PHASE_GROUPS, type CasePhase, DISPLAY_TIMEZONE } from '@ethica/contracts';
+import {
+  CASE_CLOSED_PHASES,
+  CASE_PHASE_GROUPS,
+  type CasePhase,
+  DISPLAY_TIMEZONE,
+  TECHNICAL_ASSISTANCE_PHASES,
+} from '@ethica/contracts';
 import type { CaseDocument } from '@ethica/db';
 import {
   Case,
@@ -86,9 +92,18 @@ const toPartiesDocs = (parties: CasePartyWrite[]) =>
 
 // Still with work ahead for the expert (AD-178): not canceled nor in a closing phase.
 const OPEN = { status: { $ne: 'canceled' }, phase: { $nin: CASE_CLOSED_PHASES } };
-// Report already delivered: from "Laudo entregue" on, up to the fees received.
+// Report already delivered: from "Laudo entregue" on, up to the fees received; in the assistance, from
+// "Parecer técnico entregue" on (AD-186).
 const { final, receiving } = CASE_PHASE_GROUPS;
-const DELIVERED: CasePhase[] = [...final.slice(final.indexOf('report_delivered')), ...receiving];
+const ASSISTANCE_DELIVERED = TECHNICAL_ASSISTANCE_PHASES.slice(
+  TECHNICAL_ASSISTANCE_PHASES.indexOf('technical_opinion_delivered'),
+  TECHNICAL_ASSISTANCE_PHASES.indexOf('fees_received'),
+);
+const DELIVERED: CasePhase[] = [
+  ...final.slice(final.indexOf('report_delivered')),
+  ...receiving,
+  ...ASSISTANCE_DELIVERED,
+];
 
 export const createCase = async ({ tenant, opportunityId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
   withDbTiming('case.createCase', async () => {

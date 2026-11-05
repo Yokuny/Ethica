@@ -47,7 +47,34 @@ export const CASE_PHASE_GROUPS = {
   auxiliary: ['environmental_assessment', 'supplement_inspection', 'petition'],
 } as const;
 export type CasePhaseGroup = keyof typeof CASE_PHASE_GROUPS;
-export const CASE_PHASES = [...Object.values(CASE_PHASE_GROUPS).flat(), 'custom'] as const;
+// Technical assistance phases (AD-186): a list of its own, in order, without groups; "Honorários recebidos" is
+// the same phase of the perícia.
+const ASSISTANCE_ONLY_PHASES = [
+  'assistance_fee_proposal',
+  'assistance_hired',
+  'case_file_study',
+  'alignment_meeting',
+  'on_site_inspection',
+  'technical_opinion_drafting',
+  'technical_opinion_delivered',
+  'supplementary_questions',
+  'report_objection',
+  'complementary_questions',
+  'complementary_inspection',
+  'extra_stage',
+  'assistance_finished',
+] as const;
+export const TECHNICAL_ASSISTANCE_PHASES = [
+  ...ASSISTANCE_ONLY_PHASES,
+  'fees_received',
+  'assistance_settlement',
+] as const;
+export const CASE_PHASES = [
+  ...Object.values(CASE_PHASE_GROUPS).flat(),
+  ...ASSISTANCE_ONLY_PHASES,
+  'assistance_settlement',
+  'custom',
+] as const;
 export type CasePhase = (typeof CASE_PHASES)[number];
 // The office's own type offers its typed phases and this one of the routine list (AD-178).
 export const OWN_TYPE_PHASES: readonly CasePhase[] = ['fees_received'];
@@ -56,7 +83,11 @@ export const OWN_TYPE_PHASES: readonly CasePhase[] = ['fees_received'];
 export const CASE_STATUS = ['active', 'suspended', 'canceled'] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
 // Closed (AD-178): canceled, or a loss phase, or fees received. Suspended is open but not stalled.
-export const CASE_CLOSED_PHASES: readonly CasePhase[] = [...CASE_PHASE_GROUPS.losses, 'fees_received'];
+export const CASE_CLOSED_PHASES: readonly CasePhase[] = [
+  ...CASE_PHASE_GROUPS.losses,
+  'fees_received',
+  'assistance_settlement',
+];
 export const isCaseClosed = (data: { status: CaseStatus; phase: CasePhase }): boolean =>
   data.status === 'canceled' || CASE_CLOSED_PHASES.includes(data.phase);
 
@@ -123,8 +154,18 @@ export const isOwnType = (data: { serviceType?: string | null }): boolean => Boo
 export const usesContractor = (data: { serviceType?: string | null; role?: CaseRole }): boolean =>
   isOwnType(data) || data.role === 'technical_assistant';
 
+const PERICIA_PHASES: readonly CasePhase[] = Object.values(CASE_PHASE_GROUPS).flat();
+// Phases of the routine lists: the perícia one in groups or the technical assistance one (AD-186). The own
+// type has its typed phases instead.
+export const casePhases = (role?: CaseRole): readonly CasePhase[] =>
+  role === 'technical_assistant' ? TECHNICAL_ASSISTANCE_PHASES : PERICIA_PHASES;
+// Phase of a new service without one: "Contratado" in the assistance (AD-186), the model default otherwise.
+export const defaultPhase = (data: { serviceType?: string | null; role?: CaseRole }): CasePhase | undefined =>
+  !isOwnType(data) && data.role === 'technical_assistant' ? 'assistance_hired' : undefined;
+
 // Perícia needs the sphere, the process number and the court; the other types take the contractor. Only the
-// own type takes a typed role and a typed phase, with their names. Checked on the final result when editing.
+// own type takes a typed role and a typed phase, with their names; the others, a phase of their list
+// (`casePhases`). Checked on the final result when editing.
 export const validServiceType = (data: {
   courtType?: CourtType;
   serviceType?: string;
@@ -139,6 +180,7 @@ export const validServiceType = (data: {
   if ((data.phase === 'custom') !== Boolean(data.phaseName)) return false;
   if (isOwnType(data)) return (data.role === 'other') === Boolean(data.roleName);
   if (data.role === 'other' || data.roleName || data.phase === 'custom') return false;
+  if (data.phase && !casePhases(data.role).includes(data.phase)) return false;
   if (data.role === 'technical_assistant') return true;
   return Boolean(data.courtType && data.processNumber && data.court) && !data.contractor;
 };

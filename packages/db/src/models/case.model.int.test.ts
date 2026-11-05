@@ -66,4 +66,30 @@ describe('migrateCases (AD-178)', () => {
     expect(docs.map((doc) => doc.courtType)).toEqual([undefined, 'labor']);
     expect(docs[0]).toMatchObject({ role: 'other', roleName: 'Parceria', serviceType: 'Parceria' });
   });
+
+  it('technical assistance with a perícia phase goes to "Contratado" (AD-186)', async () => {
+    const tenant = new mongoose.Types.ObjectId();
+    const assistance = (phase: string, extra: object = {}) => ({
+      Tenant: tenant,
+      status: 'active',
+      subject: phase,
+      role: 'technical_assistant',
+      phase,
+      ...extra,
+    });
+    await Case.collection.insertMany([
+      assistance('drafting_report'),
+      assistance('fees_received'),
+      assistance('technical_opinion_drafting'),
+      assistance('awaiting_inspection', { serviceType: 'Avaliação' }),
+    ]);
+    await migrateCases();
+    const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
+    expect(docs.map((doc) => doc.phase)).toEqual([
+      'assistance_hired',
+      'fees_received',
+      'technical_opinion_drafting',
+      'awaiting_inspection',
+    ]);
+  });
 });

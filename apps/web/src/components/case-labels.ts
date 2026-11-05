@@ -8,6 +8,7 @@ import {
   COURTTYPES,
   type CourtType,
   JUDICIAL_CASE_ROLES,
+  TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -49,6 +50,20 @@ const CASE_PHASE_KEY: Record<CasePhase, string> = {
   objection_return_3: 'awaiting_objection_3_return',
   objection_reply_4: 'reply_objection_4',
   objection_return_4: 'awaiting_objection_4_return',
+  assistance_fee_proposal: 'fee_proposal_sent',
+  assistance_hired: 'contracted',
+  case_file_study: 'case_file_study_initial_questions',
+  alignment_meeting: 'alignment_meeting',
+  on_site_inspection: 'on_site_inspection',
+  technical_opinion_drafting: 'technical_opinion_in_progress',
+  technical_opinion_delivered: 'technical_opinion_delivered',
+  supplementary_questions: 'supplementary_questions',
+  report_objection: 'expert_report_objection',
+  complementary_questions: 'complementary_questions',
+  complementary_inspection: 'complementary_inspection',
+  extra_stage: 'extra_stage',
+  assistance_finished: 'assistance_finished',
+  assistance_settlement: 'settlement_or_withdrawal',
   custom: 'own_phase',
 };
 // A phase typed in the office's own type (AD-176) shows its name.
@@ -68,7 +83,16 @@ export const CASE_PHASE_GROUP_ITEMS = (Object.keys(CASE_PHASE_GROUPS) as CasePha
   label: t(PHASE_GROUP_KEY[group]),
   items: CASE_PHASE_GROUPS[group].map((value) => ({ value, label: casePhaseLabel(value) })),
 }));
-export const CASE_PHASE_ITEMS = CASE_PHASE_GROUP_ITEMS.flatMap((group) => group.items);
+// Technical assistance list (AD-186), without groups.
+export const TECHNICAL_ASSISTANCE_PHASE_ITEMS = TECHNICAL_ASSISTANCE_PHASES.map((value) => ({
+  value,
+  label: casePhaseLabel(value),
+}));
+// Every routine phase once (listing filter): the perícia groups, then the assistance-only ones.
+export const CASE_PHASE_ITEMS = [
+  ...CASE_PHASE_GROUP_ITEMS.flatMap((group) => group.items),
+  ...TECHNICAL_ASSISTANCE_PHASE_ITEMS.filter((item) => item.value !== 'fees_received'),
+];
 export const casePhaseGroupLabel = (group: CasePhaseGroup): string => t(PHASE_GROUP_KEY[group]);
 
 // Service status (AD-178).

@@ -133,7 +133,7 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(judicial.body.data.serviceType).toBeUndefined();
     expect(judicial.body.data.contractor).toBeUndefined();
     // Back to assistance: the sphere goes away.
-    const back = await patch({ role: 'technical_assistant', contractor: { name: 'Maria' } });
+    const back = await patch({ role: 'technical_assistant', contractor: { name: 'Maria' }, phase: 'assistance_hired' });
     expect(back.status).toBe(200);
     expect(back.body.data.courtType).toBeUndefined();
   });
@@ -200,6 +200,42 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(done.status).toBe(200);
     expect(done.body.data).toMatchObject({ phase: 'fees_received' });
     expect(done.body.data.phaseName).toBeUndefined();
+  });
+
+  it('assistência técnica tem a lista de fases própria e só encerra com honorários ou acordo (AD-186)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
+    const assistance = {
+      role: 'technical_assistant',
+      subject: 'Assistência ao reclamante',
+      contractor: { name: 'Maria' },
+    };
+
+    const created = await post(assistance);
+    expect(created.status).toBe(201);
+    expect(created.body.data.phase).toBe('assistance_hired');
+    // Each type only takes a phase of its own list.
+    expect((await post({ ...assistance, phase: 'drafting_report' })).status).toBe(400);
+    expect((await post({ ...JUDICIAL, phase: 'technical_opinion_drafting' })).status).toBe(400);
+    expect((await post({ ...JUDICIAL, phase: 'fees_received' })).status).toBe(201);
+
+    const id = created.body.data.id;
+    const patch = (body: object) => admin.as(request(app).patch(`/expert-cases/${id}`)).send(body);
+    const stats = async () =>
+      Object.fromEntries(
+        (
+          (await admin.as(request(app).get('/expert-cases/stats'))).body.data.groups as { key: string; count: number }[]
+        ).map((group) => [group.key, group.count]),
+      );
+    expect(await stats()).toMatchObject({ open: 1, reports_delivered: 1 });
+    expect((await patch({ phase: 'technical_opinion_delivered' })).status).toBe(200);
+    expect(await stats()).toMatchObject({ open: 1, reports_delivered: 2 });
+    // "Assistência finalizada" stays open; fees received or settlement close it.
+    await patch({ phase: 'assistance_finished' });
+    expect(await stats()).toMatchObject({ open: 1 });
+    await patch({ phase: 'assistance_settlement' });
+    expect(await stats()).toMatchObject({ open: 0, reports_delivered: 1 });
   });
 
   it('filtros por fase, status, esfera, tipo, OS e período de entrega e data apagada (AD-177, AD-178)', async () => {

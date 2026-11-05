@@ -999,6 +999,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-186
+- **Decision**: A Assistência técnica (sem tipo do escritório) tem lista própria de fases, sem grupos (`TECHNICAL_ASSISTANCE_PHASES`), que reusa `fees_received` da perícia; `casePhases(role)` dá a lista de cada tipo e `validServiceType` recusa fase da outra. Assistência nova começa em `assistance_hired`. Encerram a assistência `fees_received` e `assistance_settlement` (`CASE_CLOSED_PHASES`); "Assistência finalizada" fica em aberto. Entregue a partir de `technical_opinion_delivered`; concluir o parecer com a entrega leva a ela. Na subida, assistência com fase fora da lista vai para `assistance_hired`. O tipo do escritório segue sem restrição de fase (pode guardar fase antiga, AD-178).
+- **Reason**: pedido da perita (2026-11-04); escolhas dela: já cadastradas para "Contratado", três sugestões aceitas, encerramento só com honorários recebidos (ou acordo).
+- **Trade-off**: assistências antigas perdem a fase da perícia em que estavam; planilha com fase da perícia numa assistência deixa a fase em branco.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/{report.service,document.layout}.ts`, `apps/web/src/components/case-labels.ts`, `apps/web/src/routes/_private/expert-cases/@components/`, `apps/web/src/routes/_private/@components/cases-phase-chart.tsx`.
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

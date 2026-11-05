@@ -4,6 +4,7 @@ import {
   caseLabel,
   DEADLINE_DUE_SOON_DAYS,
   deadlineAgendaEntries,
+  defaultPhase,
   formatServiceOrder,
   isOwnType,
   type ServiceOrderSettings,
@@ -106,8 +107,9 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
   try {
     const legalCase = await caseRepository.createCase({
       ...input,
-      // Only a perícia has a sphere (AD-178).
+      // Only a perícia has a sphere (AD-178); a new assistance starts at "Contratado" (AD-186).
       courtType: usesContractor(input) ? undefined : input.courtType,
+      phase: input.phase ?? defaultPhase(input),
       // Without the labor block (PSV-02), the perícia location is the case location ([LOCAL_PERICIA]).
       location: input.location ?? inspection?.location,
       serviceOrder: input.serviceOrder ?? (await nextServiceOrder(input.tenant)),

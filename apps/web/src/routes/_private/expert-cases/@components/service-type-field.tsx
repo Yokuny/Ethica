@@ -1,4 +1,4 @@
-import type { CaseRole } from '@ethica/contracts';
+import { type CaseRole, casePhases, defaultPhase } from '@ethica/contracts';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ethica/ui/components/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
@@ -62,7 +62,11 @@ export function ServiceTypeField({
     setValue('roleName', undefined);
     setValue('role', chosen as CaseRole, { shouldValidate: true });
     if (chosen === 'court_expert') setValue('contractor', undefined);
-    if (getValues('phase') === 'custom') setValue('phase', 'awaiting_scheduling');
+    // Perícia and assistance have different lists (AD-186): a phase of the other one goes to the first of this one.
+    const phase = getValues('phase');
+    if (!phase || !casePhases(chosen as CaseRole).includes(phase)) {
+      setValue('phase', defaultPhase({ role: chosen as CaseRole }) ?? 'awaiting_scheduling');
+    }
     setValue('phaseName', undefined);
   };
 

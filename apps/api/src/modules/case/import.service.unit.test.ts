@@ -186,6 +186,19 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
     expect(result).not.toHaveProperty('data.courtType');
   });
 
+  it('assistência técnica lê a fase da sua lista; fase da perícia fica em branco com "(!)" (AD-186)', () => {
+    expect(
+      rowToCase(cells({ 'Tipo de serviço': 'Assistência técnica', Objeto: 'x', Situação: 'Parecer entregue' })),
+    ).toEqual({
+      data: expect.objectContaining({ phase: 'technical_opinion_delivered' }),
+    });
+    const result = rowToCase(
+      cells({ 'Tipo de serviço': 'Assistência técnica', Objeto: 'x', Situação: 'Laudo entregue' }),
+    );
+    expect(result).toEqual({ data: expect.objectContaining({ notes: 'Situação: Laudo entregue (!)' }) });
+    expect(result).not.toHaveProperty('data.phase');
+  });
+
   it('tipo do escritório sem processo usa o tipo como objeto', () => {
     expect(rowToCase(cells({ 'Tipo de serviço': 'Avaliação de imóvel', Status: 'xyz' }))).toEqual({
       data: expect.objectContaining({

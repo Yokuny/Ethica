@@ -459,6 +459,24 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(deadline).toMatchObject({ status: 'filed' });
     const after = await admin.as(request(app).get(`/expert-cases/${caseId}`));
     expect(after.body.data.phase).toBe('report_delivered');
+    // In the technical assistance the delivery leads to "Parecer técnico entregue" (AD-186).
+    const assistance = await admin.as(request(app).post('/expert-cases')).send({
+      role: 'technical_assistant',
+      subject: 'Assistência ao reclamante',
+      contractor: { name: 'Maria' },
+      reportDeadline: '2026-12-01',
+    });
+    const opinion = await admin
+      .as(
+        request(app).post(
+          `/expert-reports/file?caseId=${assistance.body.data.id}&name=Parecer.pdf&recordDelivery=true`,
+        ),
+      )
+      .set('Content-Type', 'application/pdf')
+      .send(file);
+    expect(opinion.status).toBe(201);
+    const assisted = await admin.as(request(app).get(`/expert-cases/${assistance.body.data.id}`));
+    expect(assisted.body.data.phase).toBe('technical_opinion_delivered');
     const listed = await admin.as(request(app).get(`/expert-reports?caseId=${caseId}`));
     expect(listed.body.data.items[0].file).toEqual({ name: 'Laudo final.pdf', bytes: file.length });
 

@@ -12,7 +12,12 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { CASE_PHASE_GROUP_ITEMS, CASE_PHASE_ITEMS, casePhaseLabel } from '@/components/case-labels.js';
+import {
+  CASE_PHASE_GROUP_ITEMS,
+  CASE_PHASE_ITEMS,
+  casePhaseLabel,
+  TECHNICAL_ASSISTANCE_PHASE_ITEMS,
+} from '@/components/case-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { serviceTypesQuery } from '@/query/case.js';
 import type { CaseFormValues } from '../@interface/cases.interface.js';
@@ -20,15 +25,20 @@ import { NEW_CHOICE, OpenChoiceField } from './open-choice-field.js';
 
 const TYPED = 'typed:';
 
-// "Fase do serviço" (AD-178): the routine list in groups in Perícia and Assistência técnica; in the office's
-// own type, the phases already typed in it, "Honorários recebidos" or a new one. A saved phase stays listed.
+// "Fase do serviço" (AD-178): the routine list in groups in Perícia, the assistance list in Assistência técnica
+// (AD-186); in the office's own type, the phases already typed in it, "Honorários recebidos" or a new one. A
+// saved phase stays listed.
 export function CasePhaseField({ creating }: { creating: boolean }) {
   const { control, setValue } = useFormContext<CaseFormValues>();
-  const [serviceType, phase, phaseName] = useWatch({ control, name: ['serviceType', 'phase', 'phaseName'] });
+  const [serviceType, role, phase, phaseName] = useWatch({
+    control,
+    name: ['serviceType', 'role', 'phase', 'phaseName'],
+  });
   const officeTypes = useQuery(serviceTypesQuery);
   const [typing, setTyping] = useState(false);
 
   if (!isOwnType({ serviceType }) && !creating) {
+    const assistance = role === 'technical_assistant';
     return (
       <FormField
         control={control}
@@ -37,7 +47,7 @@ export function CasePhaseField({ creating }: { creating: boolean }) {
           <FormItem>
             <FormLabel required>{t('service_phase')}</FormLabel>
             <Select
-              items={CASE_PHASE_ITEMS}
+              items={assistance ? TECHNICAL_ASSISTANCE_PHASE_ITEMS : CASE_PHASE_ITEMS}
               value={field.value ?? null}
               onValueChange={(value) => field.onChange(value ?? undefined)}
             >
@@ -47,7 +57,10 @@ export function CasePhaseField({ creating }: { creating: boolean }) {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {CASE_PHASE_GROUP_ITEMS.map((group) => (
+                {(assistance
+                  ? [{ group: 'assistance', label: t('technical_assistance'), items: TECHNICAL_ASSISTANCE_PHASE_ITEMS }]
+                  : CASE_PHASE_GROUP_ITEMS
+                ).map((group) => (
                   <SelectGroup key={group.group}>
                     <SelectLabel>{group.label}</SelectLabel>
                     {group.items.map((item) => (

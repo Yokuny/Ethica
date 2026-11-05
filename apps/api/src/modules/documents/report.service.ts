@@ -9,6 +9,7 @@ import {
   type ReportLayout,
   reportRoleType,
   sectionFamily,
+  TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
@@ -59,8 +60,13 @@ export class ReportNotFoundError extends KeyedError {}
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
-// Phases before delivery: completing with delivery moves to `report_delivered` (AD-126, AD-178, AD-180).
-const BEFORE_DELIVERY = new Set<CasePhase>([...CASE_PHASE_GROUPS.initial, ...CASE_PHASE_GROUPS.intermediate]);
+// Phases before delivery: completing with delivery moves to `report_delivered` (AD-126, AD-178, AD-180) or,
+// in the assistance, to `technical_opinion_delivered` (AD-186).
+const BEFORE_DELIVERY = new Set<CasePhase>([
+  ...CASE_PHASE_GROUPS.initial,
+  ...CASE_PHASE_GROUPS.intermediate,
+  ...TECHNICAL_ASSISTANCE_PHASES.slice(0, TECHNICAL_ASSISTANCE_PHASES.indexOf('technical_opinion_delivered')),
+]);
 
 const titleOf = (type: string): string => (type === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial');
 
@@ -536,7 +542,9 @@ const fileDelivery = async (ctx: DocumentContext, legalCase: CaseRecord, notes: 
     notes,
   });
   if (BEFORE_DELIVERY.has(legalCase.phase)) {
-    await caseService.updateCase(ctx.tenantId, legalCase.id, { phase: 'report_delivered' });
+    await caseService.updateCase(ctx.tenantId, legalCase.id, {
+      phase: legalCase.role === 'technical_assistant' ? 'technical_opinion_delivered' : 'report_delivered',
+    });
   }
 };
 

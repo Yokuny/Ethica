@@ -13,6 +13,7 @@ import {
   type PartyType,
   SIDES,
   type Side,
+  TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
@@ -199,6 +200,11 @@ export const migrateCases = async (): Promise<void> => {
   }
   // "Aguardando laudo pericial" became "Laudo em elaboração" in the intermediate phase (AD-180).
   await cases.updateMany({ phase: 'awaiting_expert_report' }, { $set: { phase: 'drafting_report' } });
+  // Technical assistance got its own phase list (AD-186): a perícia phase goes back to "Contratado".
+  await cases.updateMany(
+    { role: 'technical_assistant', serviceType: { $exists: false }, phase: { $nin: [...TECHNICAL_ASSISTANCE_PHASES] } },
+    { $set: { phase: 'assistance_hired' } },
+  );
   await cases.updateMany(
     { status: 'suspended', phase: { $nin: [...CASE_PHASES] } },
     { $set: { phase: 'awaiting_scheduling' } },
