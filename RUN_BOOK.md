@@ -51,6 +51,20 @@ pnpm --filter api run seed:demo
 
 Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis meses de lançamentos e oportunidades (datas relativas a hoje). Logins sem senha (AD-155): `admin@pericias.example.com`, `manager@pericias.example.com`, `operator@pericias.example.com`. Em `http://localhost:15173/auth`, informe o e-mail; com `MAIL_PROVIDER=log` o código de 6 dígitos e o link saem no log da API (`docker compose logs api | grep mail.log_send`). Rodar de novo apaga e recria só esse tenant.
 
+## Conta de teste em tela
+
+Conta criada pelo cadastro aberto em 2026-11-04 para testar o sistema pela tela, sem os dados do `seed:demo`. Vive só no banco local (`ethica` em `localhost:37017`); `docker compose down -v` a apaga e basta refazer o cadastro com os mesmos dados.
+
+| Campo | Valor |
+| --- | --- |
+| E-mail (login) | `perita.teste@ethica.test` |
+| Nome | Perita Teste |
+| Escritório | Escritório Teste |
+| CNPJ | `98765432000198` (fictício, dígitos válidos) |
+| Papel | admin |
+
+Não há senha (AD-155): em `http://localhost:15173/auth`, informe o e-mail e use o código de 6 dígitos que sai no log da API (`mail.log_send`, com `MAIL_PROVIDER=log`). A sessão dura 30 dias.
+
 ## Primeiro acesso (tenant real)
 
 O caminho normal é o **cadastro aberto** (AD-155): a pessoa informa um e-mail novo em `/auth`, confirma com a chave enviada e cria o próprio escritório (vira admin). O roteiro abaixo é o da plataforma, para criar um escritório e convidar o admin dele.
