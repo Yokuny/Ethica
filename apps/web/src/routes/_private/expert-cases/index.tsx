@@ -6,12 +6,11 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { casesQuery } from '@/query/case.js';
+import { casesQuery, serviceOrderPreviewQuery } from '@/query/case.js';
 import { listStatsQuery } from '@/query/listStats.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { CasesFilters } from './@components/cases-filters.js';
 import { CasesOverview } from './@components/cases-overview.js';
-import { CasesServiceOrder } from './@components/cases-service-order.js';
 import { CasesSort } from './@components/cases-sort.js';
 import { CasesTable } from './@components/cases-table.js';
 import { useCasesSearch } from './@hooks/use-cases-search.js';
@@ -47,6 +46,7 @@ export function CasesIndexPage() {
     }),
   );
   const statsQuery = useQuery(listStatsQuery('/expert-cases/stats'));
+  const serviceOrder = useQuery(serviceOrderPreviewQuery).data;
   const session = useQuery(sessionQuery).data;
   const canCreate = Boolean(session && can(session, 'expert_cases', 'create'));
   const items = query.data?.items ?? [];
@@ -56,7 +56,6 @@ export function CasesIndexPage() {
     <Card asPage>
       <CardHeader title={t('expert_cases')} description={t('track_each_expert_case_from_appointment_to_report')}>
         <CardAction>
-          <CasesServiceOrder />
           {canCreate && (
             <>
               <Button
@@ -70,7 +69,7 @@ export function CasesIndexPage() {
           )}
         </CardAction>
       </CardHeader>
-      <CasesOverview stats={statsQuery.data} />
+      <CasesOverview stats={statsQuery.data} serviceOrder={serviceOrder} />
       <CardContent>
         <DataTable
           search={{ value: searchInput, onChange: handleSearchInput }}

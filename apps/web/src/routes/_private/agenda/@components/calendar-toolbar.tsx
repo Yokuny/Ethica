@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { APPOINTMENT_TYPE_ITEMS } from '@/components/appointment-labels.js';
 import { calendarEntryTypeItems } from '@/components/calendar-entry-labels.js';
+import { CardAction } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { ALL_FILTER_VALUE, CALENDAR_VIEWS } from '../@consts/calendar.js';
@@ -14,30 +15,13 @@ import type { useAgendaPage } from '../@hooks/use-agenda-page.js';
 
 const monthTitle = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-export function CalendarToolbar({ state }: { state: ReturnType<typeof useAgendaPage> }) {
-  const { view, date, search, setPanel, handleViewChange, handlePrevious, handleNext, handleToday, handleTypeChange } =
-    state;
-  const { data: session } = useQuery(sessionQuery);
-  // Appointment types and the all-day entry types; finance only for whoever sees finance (AD-137).
-  const typeItems = [
-    { value: ALL_FILTER_VALUE, label: t('all_types') },
-    ...APPOINTMENT_TYPE_ITEMS,
-    ...calendarEntryTypeItems(Boolean(session && can(session, 'finance'))),
-  ];
+type AgendaState = { state: ReturnType<typeof useAgendaPage> };
 
+// Header actions: period navigation and the new commitment (the page's primary action).
+export function CalendarActions({ state }: AgendaState) {
+  const { date, setPanel, handlePrevious, handleNext, handleToday } = state;
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <ToggleGroup
-        aria-label={t('view')}
-        value={view}
-        onValueChange={(value) => handleViewChange(value as typeof view)}
-      >
-        {CALENDAR_VIEWS.map((viewOption) => (
-          <ToggleGroupItem key={viewOption} value={viewOption}>
-            {t(viewOption)}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+    <CardAction>
       <ButtonGroup>
         <Button
           type="button"
@@ -63,6 +47,40 @@ export function CalendarToolbar({ state }: { state: ReturnType<typeof useAgendaP
           <ChevronRight />
         </Button>
       </ButtonGroup>
+      <Button type="button" onClick={() => setPanel({ kind: 'create', date })}>
+        {t('new_commitment')}
+      </Button>
+    </CardAction>
+  );
+}
+
+// View switch (day/week/month): a direct child of CardHeader, full width below the title.
+export function CalendarViewToggle({ state }: AgendaState) {
+  const { view, handleViewChange } = state;
+  return (
+    <ToggleGroup aria-label={t('view')} value={view} onValueChange={(value) => handleViewChange(value as typeof view)}>
+      {CALENDAR_VIEWS.map((viewOption) => (
+        <ToggleGroupItem key={viewOption} value={viewOption}>
+          {t(viewOption)}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  );
+}
+
+// Above the calendar: the period being shown and the type filter.
+export function CalendarToolbar({ state }: AgendaState) {
+  const { date, search, handleTypeChange } = state;
+  const { data: session } = useQuery(sessionQuery);
+  // Appointment types and the all-day entry types; finance only for whoever sees finance (AD-137).
+  const typeItems = [
+    { value: ALL_FILTER_VALUE, label: t('all_types') },
+    ...APPOINTMENT_TYPE_ITEMS,
+    ...calendarEntryTypeItems(Boolean(session && can(session, 'finance'))),
+  ];
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
       <ItemTitle className="first-letter:uppercase">{monthTitle.format(new Date(`${date}T12:00:00Z`))}</ItemTitle>
       <Select items={typeItems} value={search.type ?? ALL_FILTER_VALUE} onValueChange={handleTypeChange}>
         <SelectTrigger size="compact">
@@ -76,11 +94,6 @@ export function CalendarToolbar({ state }: { state: ReturnType<typeof useAgendaP
           ))}
         </SelectContent>
       </Select>
-      <div className="ml-auto">
-        <Button type="button" onClick={() => setPanel({ kind: 'create', date })}>
-          {t('new_commitment')}
-        </Button>
-      </div>
     </div>
   );
 }

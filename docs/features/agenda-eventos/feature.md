@@ -63,5 +63,6 @@ pnpm vitest run apps/api/src/modules/agenda packages/db/src/models/calendar-entr
 
 ## Histórico
 
+- 2026-11-04 — Botões de operação da agenda no topo, como no resto do sistema: anterior/Hoje/próximo e Novo compromisso à direita do título, Dia/Semana/Mês logo abaixo; sobre o calendário ficam o mês e o filtro de tipo (`apps/web/src/routes/_private/agenda/@components/calendar-toolbar.tsx`).
 - 2026-11-03 — Implementado AEV-01 a AEV-05 (AD-169).
 - 2026-11-03 — Spec criada (`.specs/features/agenda-eventos/spec.md`).

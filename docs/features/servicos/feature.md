@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-04 — Próxima OS e Última OS saem do topo (onde ficam só os botões) e entram como números na faixa de indicadores da lista (`cases-overview.tsx`); sai `cases-service-order.tsx`.
 - 2026-11-04 — A busca pela OS (lista, filtro Número de controle e escolha do serviço no novo prazo/alerta) passa a valer sem passo manual: a API atualiza o índice de busca a cada subida (AD-191).
 
 - 2026-11-04 — Indicador com a próxima OS e a última usada no topo da lista; ordenar por número de controle, sem OS no fim (AD-190).

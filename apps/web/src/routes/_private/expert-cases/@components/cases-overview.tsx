@@ -1,6 +1,6 @@
 import type { ListStats } from '@ethica/contracts';
 import { ListTrendStat } from '@/components/list-trend-stat.js';
-import { RecordStats } from '@/components/record.js';
+import { RecordStat, RecordStats } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { statCount } from '@/query/listStats.js';
 
@@ -13,8 +13,15 @@ const LABELS: Record<(typeof GROUPS)[number], string> = {
   reports_delivered: 'reports_delivered',
 };
 
-// Listing indicator strip, from GET /expert-cases/stats.
-export function CasesOverview({ stats }: { stats?: ListStats }) {
+// Listing indicator strip, from GET /expert-cases/stats, plus the next service order (a preview of the
+// sequence, AD-190) and the last one used — each only once the office has one.
+export function CasesOverview({
+  stats,
+  serviceOrder,
+}: {
+  stats?: ListStats;
+  serviceOrder?: { last?: string; next?: string };
+}) {
   return (
     <RecordStats variant="band" role="group" aria-label={t('expert_cases')}>
       <ListTrendStat
@@ -38,6 +45,8 @@ export function CasesOverview({ stats }: { stats?: ListStats }) {
           />
         );
       })}
+      {serviceOrder?.next && <RecordStat label={t('next_service_order')} value={serviceOrder.next} />}
+      {serviceOrder?.last && <RecordStat label={t('last_service_order')} value={serviceOrder.last} />}
     </RecordStats>
   );
 }
