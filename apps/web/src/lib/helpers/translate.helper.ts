@@ -123,6 +123,7 @@ const translations: Record<string, string> = {
   columns: 'Colunas',
   judicial_district: 'Comarca',
   commitment: 'Compromisso',
+  commitments: 'Compromissos',
   commitments_appear_here: 'Vistorias, audiências e prazos aparecem aqui.',
   company_link_required: 'Conclua o vínculo com uma empresa antes de continuar.',
   compared_to_previous_30_day_average: 'Hoje vs. média diária dos 30 dias anteriores',

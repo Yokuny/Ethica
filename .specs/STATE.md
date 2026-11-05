@@ -1071,6 +1071,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-05
 - **Status**: active
 
+### AD-195
+- **Decision**: A Lista do Campo **não vira tabela**: fica em duas colunas a partir da tela grande, o dia à esquerda (data em destaque, quantidade de compromissos, navegação e estado da conexão, fixos ao rolar) e os compromissos à direita como linhas separadas por um traço, sem moldura de cartão: número do processo, título grande, partes e local, selos, horário em pílula e os botões (Google Maps, Waze, feita, adiada, ausente, registro). No celular tudo empilha, com o horário no topo de cada compromisso. O Mapa segue igual (AD-194).
+- **Reason**: pedido do usuário (2026-11-05), com o layout de referência colado por ele. Tabela foi descartada: a tela é usada no celular, cada compromisso tem seis botões de toque e a lista é de um dia só, sem busca, filtros nem páginas.
+- **Trade-off**: a Lista do Campo tem visual próprio, diferente das listagens em tabela; a data aparece no título e na navegação.
+- **Scope**: `apps/web/src/routes/_private/field/{index.tsx,@components/field-card.tsx}`.
+- **Date**: 2026-11-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

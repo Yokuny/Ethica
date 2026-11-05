@@ -70,6 +70,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-195** (2026-11-05, active) — A Lista do Campo não vira tabela: fica em duas colunas a partir da tela grande, o dia à esquerda (data em destaque, quantidade de compromiss
 - **AD-194** (2026-11-05, active) — (1) Navegação de período (anterior, hoje, próximo) num só contorno, sem divisórias internas, em `apps/web/src/components/period-nav.tsx`, us
 - **AD-193** (2026-11-05, active) — Ajusta a parte (2) e (4) da AD-192. (1) Situação dos Laudos e situação de Prazos e Alertas voltam a ser abas acima da lista (Prazos sem "Tod
 - **AD-192** (2026-11-05, active) — (1) As listas de Serviços, Laudos, Partes e Lançamentos ordenam pelo clique no título da coluna (crescente → decrescente → volta à ordem pad
@@ -79,7 +80,6 @@ _Nenhum._
 - **AD-188** (2026-11-04, active) — A lista de Serviços ordena por Data do cadastro (padrão, mais novo primeiro), Nome (número do processo ou, sem ele, o objeto), Tipo (perícia
 - **AD-187** (2026-11-04, active) — O número de controle (OS) nunca se repete no escritório: além do índice único que já valia para serviço aberto ou encerrado, a OS é gravada
 - **AD-186** (2026-11-04, active) — A Assistência técnica (sem tipo do escritório) tem lista própria de fases, sem grupos (`TECHNICAL_ASSISTANCE_PHASES`), que reusa `fees_recei
-- **AD-185** (2026-11-04, active) — O filtro "Número de controle" acha a OS por qualquer pedaço (só o `[NUMERO]`, como `7` ou `0007`, ou parte da OS) pelo Atlas Search: `servic
 
 ## `.specs/` sem registro em `docs/features/`
 

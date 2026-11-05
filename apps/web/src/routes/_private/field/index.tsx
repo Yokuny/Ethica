@@ -1,5 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
-import { ItemGroup } from '@ethica/ui/components/item';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
@@ -22,7 +22,7 @@ import { FIELD_VIEWS, type FieldSearch, type FieldView, fieldSearchSchema } from
 const VIEW_ITEMS = FIELD_VIEWS.map((value) => ({ value, label: t(value) }));
 
 // Field route of the day (CAM-01), designed for the phone and to work without a connection (AD-128). Two views
-// (AD-194): the day map, open by default, and the list.
+// (AD-194): the day map, open by default, and the list (AD-195).
 export function FieldPage() {
   const search = useSearch({ strict: false }) as FieldSearch;
   const navigate = useNavigate({ from: '/field/' });
@@ -39,6 +39,27 @@ export function FieldPage() {
   function update(patch: Partial<FieldSearch>) {
     navigate({ search: (prev: FieldSearch) => ({ ...prev, ...patch }), replace: true });
   }
+
+  const day = new Date(`${date}T12:00:00`);
+  const nav = (
+    <PeriodNav
+      label={formatDate(day)}
+      previousLabel={t('previous_day')}
+      nextLabel={t('next_day')}
+      onPrevious={() => update({ date: addDaysToDisplayDate(date, -1) })}
+      onToday={() => update({ date: undefined })}
+      onNext={() => update({ date: addDaysToDisplayDate(date, 1) })}
+    />
+  );
+  const connection = <FieldConnection ofDevice={query.data?.ofDevice} />;
+  const state = query.isLoading ? (
+    <DefaultLoading />
+  ) : query.isError ? (
+    <DefaultEmptyData
+      title={t('load_error')}
+      action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
+    />
+  ) : null;
 
   return (
     <Card asPage>
@@ -58,37 +79,52 @@ export function FieldPage() {
           </Select>
         </CardAction>
       </CardHeader>
-      <CardContent className={view === 'list' ? 'max-w-3xl gap-4' : 'gap-4'}>
-        <PeriodNav
-          label={formatDate(new Date(`${date}T12:00:00`))}
-          previousLabel={t('previous_day')}
-          nextLabel={t('next_day')}
-          onPrevious={() => update({ date: addDaysToDisplayDate(date, -1) })}
-          onToday={() => update({ date: undefined })}
-          onNext={() => update({ date: addDaysToDisplayDate(date, 1) })}
-        />
-        <FieldConnection ofDevice={query.data?.ofDevice} />
-        {query.isLoading ? (
-          <DefaultLoading />
-        ) : query.isError ? (
-          <DefaultEmptyData
-            title={t('load_error')}
-            action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
-          />
-        ) : view === 'map' ? (
-          <FieldMap data={items} />
-        ) : !items.length ? (
-          <DefaultEmptyData title={t('nothing_scheduled_this_day')} description={t('field_day_empty_description')} />
+      <CardContent className="gap-4">
+        {view === 'map' ? (
+          <>
+            {nav}
+            {connection}
+            {state ?? <FieldMap data={items} />}
+          </>
         ) : (
-          <ItemGroup variant="list">
-            {items.map((item) => (
-              <FieldCard
-                key={item.appointment.id}
-                item={item}
-                onStatus={(status, reason) => void mark(item.appointment.id, status, reason)}
-              />
-            ))}
-          </ItemGroup>
+          // List (AD-195): the day on the left, fixed on large screens, and the appointments as rows on the right.
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-6 lg:gap-16">
+            <div className="flex h-fit flex-col gap-5 lg:sticky lg:top-6 lg:col-span-2">
+              <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
+                <ItemTitle
+                  // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
+                  render={<h2 />}
+                  className="whitespace-nowrap font-medium text-4xl tracking-tight lg:text-5xl"
+                >
+                  {formatDate(day)}
+                </ItemTitle>
+                <ItemDescription className="pt-1 text-sm">
+                  {`${items.length} ${t(items.length === 1 ? 'commitment' : 'commitments').toLowerCase()}`}
+                </ItemDescription>
+              </div>
+              <ItemDescription className="line-clamp-none text-base">
+                {t('field_day_empty_description')}
+              </ItemDescription>
+              {nav}
+              {connection}
+            </div>
+            <div className="min-w-0 lg:col-span-4">
+              {state ??
+                (items.length ? (
+                  <ul>
+                    {items.map((item) => (
+                      <FieldCard
+                        key={item.appointment.id}
+                        item={item}
+                        onStatus={(status, reason) => void mark(item.appointment.id, status, reason)}
+                      />
+                    ))}
+                  </ul>
+                ) : (
+                  <DefaultEmptyData title={t('nothing_scheduled_this_day')} />
+                ))}
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

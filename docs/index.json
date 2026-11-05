@@ -373,7 +373,8 @@
         "AD-130",
         "AD-131",
         "AD-132",
-        "AD-194"
+        "AD-194",
+        "AD-195"
       ],
       "spec": [
         ".specs/features/campo-vistorias"
@@ -1537,6 +1538,12 @@
     {
       "id": "AD-194",
       "decisao": "(1) Navegação de período (anterior, hoje, próximo) num só contorno, sem divisórias internas, em `apps/web/src/components/period-nav.tsx`, us",
+      "data": "2026-11-05",
+      "status": "active"
+    },
+    {
+      "id": "AD-195",
+      "decisao": "A Lista do Campo não vira tabela: fica em duas colunas a partir da tela grande, o dia à esquerda (data em destaque, quantidade de compromiss",
       "data": "2026-11-05",
       "status": "active"
     }
