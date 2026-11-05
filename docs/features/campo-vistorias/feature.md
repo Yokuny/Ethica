@@ -79,6 +79,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-05 — Botões Google Maps e Waze do cartão do Campo ganham o logotipo de cada app, no mesmo tamanho dos demais ícones (`apps/web/src/routes/_private/field/@components/navigation-icons.tsx`).
 - 2026-11-05 — Lista do Campo em duas colunas: o dia à esquerda, fixo, e os compromissos em linhas separadas por traço, com o horário em pílula; tabela descartada por ser tela de celular com botões de toque (AD-195).
 - 2026-11-05 — Campo com duas visualizações: Mapa (padrão, sempre aberto, centrado na próxima vistoria ou em São Paulo) e Lista; sai a rota `/field/map`; navegação do dia sem divisórias (AD-194).
 - 2026-11-01 — Ponto de partida e rota própria especificados em `rotas-vistoria` (AD-150); chaves do storage por perícia em `producao-api` (AD-146).

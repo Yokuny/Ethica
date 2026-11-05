@@ -8,6 +8,7 @@ import { APPOINTMENT_TYPE_VARIANT } from '@/components/appointment-labels.js';
 import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { DayInspection } from '@/query/inspection.js';
+import { GoogleMapsIcon, WazeIcon } from './navigation-icons.js';
 
 type FieldCardProps = {
   item: DayInspection;
@@ -65,6 +66,7 @@ export function FieldCard({ item, onStatus }: FieldCardProps) {
               nativeButton={false}
               render={
                 <a href={mapsUrl(appointment.location)} target="_blank" rel="noreferrer">
+                  <GoogleMapsIcon />
                   Google Maps
                 </a>
               }
@@ -74,6 +76,7 @@ export function FieldCard({ item, onStatus }: FieldCardProps) {
               nativeButton={false}
               render={
                 <a href={wazeUrl(appointment.location)} target="_blank" rel="noreferrer">
+                  <WazeIcon />
                   Waze
                 </a>
               }
