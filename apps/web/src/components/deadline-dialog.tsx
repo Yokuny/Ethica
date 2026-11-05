@@ -1,4 +1,4 @@
-import { Badge } from '@ethica/ui/components/badge';
+import { Badge, BadgeIndicator } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -54,7 +54,12 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
       <div className="flex flex-wrap gap-2">
         <Badge variant="secondary">{t(deadline.kind)}</Badge>
         <Badge variant={DEADLINE_STATUS_VARIANT[deadline.status]}>{t(deadline.status)}</Badge>
-        {alert && <Badge variant={ALERT_VARIANT[alert]}>{t(alert)}</Badge>}
+        {alert && (
+          <Badge variant={ALERT_VARIANT[alert]}>
+            <BadgeIndicator variant={ALERT_VARIANT[alert]} />
+            {t(alert)}
+          </Badge>
+        )}
       </div>
       <ProductSpecs
         groups={[

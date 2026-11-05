@@ -1,4 +1,4 @@
-import { Badge } from '@ethica/ui/components/badge';
+import { Badge, BadgeIndicator } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarClock } from 'lucide-react';
@@ -66,7 +66,12 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
                   <>
                     {deadline.kind === 'alert' && <Badge variant="secondary">{t('alert')}</Badge>}
                     <Badge variant={DEADLINE_STATUS_VARIANT[deadline.status]}>{t(deadline.status)}</Badge>
-                    {alert && <Badge variant={ALERT_VARIANT[alert]}>{t(alert)}</Badge>}
+                    {alert && (
+                      <Badge variant={ALERT_VARIANT[alert]}>
+                        <BadgeIndicator variant={ALERT_VARIANT[alert]} />
+                        {t(alert)}
+                      </Badge>
+                    )}
                   </>
                 }
                 description={[

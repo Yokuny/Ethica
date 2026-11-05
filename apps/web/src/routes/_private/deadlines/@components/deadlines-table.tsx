@@ -1,3 +1,4 @@
+import { BadgeIndicator } from '@ethica/ui/components/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
 import { CalendarClock } from 'lucide-react';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
@@ -62,6 +63,7 @@ export function DeadlinesTable({
                 </TableCell>
                 <TableCell>
                   <TableStatus variant={alert ? ALERT_VARIANT[alert] : DEADLINE_STATUS_VARIANT[deadline.status]}>
+                    {alert && <BadgeIndicator variant={ALERT_VARIANT[alert]} />}
                     {t(alert ?? deadline.status)}
                   </TableStatus>
                 </TableCell>

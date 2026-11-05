@@ -52,6 +52,7 @@ pnpm vitest run apps/api/src/modules/case/deadline.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-04 — Selos de criticidade ganham o ponto colorido (`BadgeIndicator`) para a cor ficar mais forte, nas quatro telas.
 - 2026-11-04 — Selo da seção passa a escrever a criticidade (Urgente, Atenção…) em vez de "Pendente"; coluna Próximo prazo mostra a criticidade como selo colorido.
 - 2026-11-04 — Selos de criticidade, títulos aprovados por tipo de serviço e busca pela OS na escolha do serviço (AD-190).
 - 2026-11-04 — Seção, lista por criticidade e alerta concluível entregues (AD-189); tipos sugeridos enviados para aprovação.

@@ -1,4 +1,5 @@
 import { caseLabel, isOwnType, type Side, usesContractor } from '@ethica/contracts';
+import { BadgeIndicator } from '@ethica/ui/components/badge';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Gavel } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
@@ -100,7 +101,12 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       const alert = deadlineAlert(deadline, formatDisplayDate(new Date()));
       return (
         <div className="flex flex-col items-start gap-1">
-          {alert && <TableStatus variant={ALERT_VARIANT[alert]}>{t(alert)}</TableStatus>}
+          {alert && (
+            <TableStatus variant={ALERT_VARIANT[alert]}>
+              <BadgeIndicator variant={ALERT_VARIANT[alert]} />
+              {t(alert)}
+            </TableStatus>
+          )}
           <TableStack description={deadline.title}>{formatDate(toDate(deadline.dueDate))}</TableStack>
         </div>
       );
