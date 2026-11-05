@@ -136,6 +136,25 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect((await as(request(app).delete(`/finance/entries/${expense.id}`))).status).toBe(200);
   });
 
+  it('ordena pelo clique na coluna: descrição sem acento, valor e vencimento (AD-192)', async () => {
+    const as = await seedSession();
+    const post = async (body: object) =>
+      (await as(request(app).post('/finance/entries')).send({ ...FEE, ...body })).body.data.id as string;
+    const a = await post({ description: 'Ávila', amountCents: 300, dueDate: '2026-12-03' });
+    const b = await post({ description: 'banco', amountCents: 100, dueDate: '2026-12-01' });
+    const c = await post({ description: 'Custas', amountCents: 200, dueDate: '2026-12-02' });
+    const ids = async (query: string) =>
+      ((await as(request(app).get(`/finance/entries?${query}`))).body.data.items as { id: string }[]).map(
+        (item) => item.id,
+      );
+    // Without a click, the latest due date first.
+    expect(await ids('')).toEqual([a, c, b]);
+    expect(await ids('sort=description&order=asc')).toEqual([a, b, c]);
+    expect(await ids('sort=amountCents&order=asc')).toEqual([b, c, a]);
+    expect(await ids('sort=dueDate&order=asc')).toEqual([b, c, a]);
+    expect((await as(request(app).get('/finance/entries?sort=kind'))).status).toBe(400);
+  });
+
   it('resumo e fluxo contam o recebido pela data de cada parcela e o saldo como a receber (PRZ-02.5)', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, dueDate: '2020-01-10' })).body.data;

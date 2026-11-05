@@ -66,6 +66,8 @@ export const listParties = async (
   withDbTiming('party.listParties', async () => {
     const filters = query.type ? { type: query.type } : {};
     const skip = (query.page - 1) * query.limit;
+    // Column click (AD-192); the name is the only sortable column.
+    const sort = { [query.sort]: query.order === 'asc' ? 1 : -1, _id: 1 } as const;
 
     // Text search on Atlas Search (AD-054), never regex.
     if (query.q) {
@@ -75,7 +77,7 @@ export const listParties = async (
           { $match: { Tenant: toObjectId(tenantId), ...filters } },
           {
             $facet: {
-              items: [{ $sort: { name: 1, _id: 1 } }, { $skip: skip }, { $limit: query.limit }],
+              items: [{ $sort: sort }, { $skip: skip }, { $limit: query.limit }],
               total: [{ $count: 'n' }],
             },
           },
@@ -86,7 +88,7 @@ export const listParties = async (
 
     const filter = tenantScoped({ Tenant: tenantId, ...filters });
     const [docs, total] = await Promise.all([
-      Party.find(filter).sort({ name: 1, _id: 1 }).skip(skip).limit(query.limit).lean(),
+      Party.find(filter).sort(sort).skip(skip).limit(query.limit).lean(),
       Party.countDocuments(filter),
     ]);
     return { items: docs.map(toRecord), total };

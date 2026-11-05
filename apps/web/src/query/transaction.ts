@@ -1,8 +1,10 @@
 import type {
   CreateInstallment,
   CreateTransaction,
+  SortOrder,
   TransactionCategory,
   TransactionKind,
+  TransactionListSort,
   TransactionStatus,
   UpdateTransaction,
 } from '@ethica/contracts';
@@ -43,6 +45,8 @@ export type TransactionsQueryParams = {
   kind?: TransactionKind;
   state?: TransactionState;
   caseId?: string;
+  sort?: TransactionListSort;
+  order?: SortOrder;
 };
 
 export type TransactionsListResult = { items: TransactionRecord[]; total: number };

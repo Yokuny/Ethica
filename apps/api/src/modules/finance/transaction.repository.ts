@@ -210,8 +210,10 @@ export const listTransactions = async (
       ...stateFilter(query.state, today),
     });
     const [docs, total] = await Promise.all([
+      // Column click (AD-192): the description ignores upper case and accents.
       Transaction.find(filter)
-        .sort({ dueDate: -1, _id: 1 })
+        .collation({ locale: 'pt', strength: 1 })
+        .sort({ [query.sort]: query.order === 'asc' ? 1 : -1, _id: 1 })
         .skip((query.page - 1) * query.limit)
         .limit(query.limit)
         .lean(),

@@ -147,6 +147,16 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     await disconnect();
   });
 
+  it('lista ordena pelo clique na coluna: modelo, situação e alteração; outra coluna é 400 (AD-192)', async () => {
+    const tenant = await seedTenant();
+    const operator = await seedSession(tenant._id, ['operator']);
+    for (const sort of ['templateName', 'status', 'updatedAt']) {
+      const res = await operator.as(request(app).get(`/expert-reports?sort=${sort}&order=asc`));
+      expect(res.status).toBe(200);
+    }
+    expect((await operator.as(request(app).get('/expert-reports?sort=caseNumber'))).status).toBe(400);
+  });
+
   it('modelos: padrão para todos e só leitura; admin/manager clonam e editam seções saneadas; operador 403', async () => {
     const tenant = await seedTenant();
     const operator = await seedSession(tenant._id, ['operator']);

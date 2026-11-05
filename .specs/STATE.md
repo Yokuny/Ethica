@@ -1047,6 +1047,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-192
+- **Decision**: (1) As listas de Serviços, Laudos, Partes e Lançamentos ordenam pelo **clique no título da coluna** (crescente → decrescente → volta à ordem padrão), sempre no servidor (`sort`/`order` no `GET` de cada lista, valores em `CASE_LIST_SORTS`, `REPORT_LIST_SORTS`, `PARTY_LIST_SORTS`, `TRANSACTION_LIST_SORTS` de `@ethica/contracts`) e guardado na URL. Na tabela, coluna ordenável é a que tem `accessorFn` e o `id` igual ao valor do servidor; o estado de ordenação do TanStack Table vira `sort`/`order` da URL, e o `TableHead sort` desenha a seta. Sai o "Ordenar por" de Serviços (`cases-sort.tsx`) e, com ele, a ordem por Data da modificação (sem coluna na lista); a Data do cadastro segue como padrão sem coluna. Supersede a parte de controle da **AD-188** (o seletor) e mantém os critérios dela. (2) Filtros de lista ficam no botão "Filtros" (`TableFilters` + `TableFilterSelect` de `apps/web/src/components/data-table.tsx`): situação dos Laudos e tipo das Partes saem das abas, situação de Prazos e Alertas sai do seletor solto, tipo da Agenda sai do seletor solto. Os filtros rápidos de Lançamentos ficam na barra, como botões colados. (3) `ToggleGroup` (`packages/ui`) vira barra de botões colados em todo o app; os filtros de Lançamentos levam a cor do selo da tabela (ponto colorido e fundo quando marcado). (4) Agenda: visualização Dia/Semana/Mês vira lista suspensa ao lado da navegação; o período mostra o mês abreviado grande e o ano menor ("Nov 2026").
+- **Reason**: pedido do usuário (2026-11-05): ordenar pela coluna e um só jeito de filtrar em todas as listas.
+- **Trade-off**: ordem por Data da modificação deixa de existir em Serviços; o nome das partes ordena com acento como gravado (a busca do Atlas não combina com collation).
+- **Scope**: `packages/contracts/src/schemas/{case,party,report,transaction}.schema.ts`, `packages/ui/src/components/toggle-group.tsx`, `apps/api/src/modules/{case,documents,finance}/`, `apps/web/src/components/{data-table.tsx,transaction-labels.ts}`, `apps/web/src/routes/_private/{expert-cases,expert-reports/list,parties,finance/entries,deadlines,agenda}/`.
+- **Date**: 2026-11-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

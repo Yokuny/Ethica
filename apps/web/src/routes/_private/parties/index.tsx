@@ -1,10 +1,9 @@
 import { Button } from '@ethica/ui/components/button';
-import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { DataTable } from '@/components/data-table.js';
+import { DataTable, TableFilterSelect } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
@@ -17,13 +16,27 @@ import { PartyForm } from './@components/party-form.js';
 import { usePartiesSearch } from './@hooks/use-parties-search.js';
 import { type PartiesSearch, partiesSearchSchema } from './@interface/parties.interface.js';
 
-const ALL = 'all';
-
 // Registry of parties and lawyers reusable across cases (IMP-03, AD-117).
 export function PartiesIndexPage() {
-  const { search, update, searchInput, handleSearchInput, handlePaginationChange, openParty } = usePartiesSearch();
+  const {
+    search,
+    update,
+    searchInput,
+    handleSearchInput,
+    handlePaginationChange,
+    sorting,
+    handleSortingChange,
+    openParty,
+  } = usePartiesSearch();
   const query = useQuery(
-    partiesQuery({ page: search.page, limit: search.limit, q: search.q || undefined, type: search.type }),
+    partiesQuery({
+      page: search.page,
+      limit: search.limit,
+      q: search.q || undefined,
+      type: search.type,
+      sort: search.sort,
+      order: search.order,
+    }),
   );
   const [creating, setCreating] = useState(false);
   const session = useQuery(sessionQuery).data;
@@ -56,24 +69,21 @@ export function PartiesIndexPage() {
           </CardAction>
         )}
       </CardHeader>
-      <Tabs
-        value={search.type ?? ALL}
-        onValueChange={(value) =>
-          update({ type: value === ALL ? undefined : (value as PartiesSearch['type']), page: 1 })
-        }
-        className="px-(--card-spacing)"
-      >
-        <TabsList variant="line">
-          <TabsTrigger value={ALL}>{t('all')}</TabsTrigger>
-          {PARTY_TYPE_ITEMS.map((item) => (
-            <TabsTrigger key={item.value} value={item.value}>
-              {item.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
       <CardContent>
-        <DataTable search={{ value: searchInput, onChange: handleSearchInput }}>
+        <DataTable
+          search={{ value: searchInput, onChange: handleSearchInput }}
+          filters={{
+            active: search.type ? 1 : 0,
+            content: (
+              <TableFilterSelect
+                label={t('type')}
+                items={PARTY_TYPE_ITEMS}
+                value={search.type}
+                onChange={(type) => update({ type: type as PartiesSearch['type'], page: 1 })}
+              />
+            ),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (
@@ -83,8 +93,8 @@ export function PartiesIndexPage() {
             />
           ) : !items.length ? (
             <DefaultEmptyData
-              title={search.q ? t('no_records_match_filters') : t('no_parties_yet')}
-              description={search.q ? undefined : t('parties_are_created_with_expert_cases')}
+              title={search.q || search.type ? t('no_records_match_filters') : t('no_parties_yet')}
+              description={search.q || search.type ? undefined : t('parties_are_created_with_expert_cases')}
             />
           ) : (
             <PartiesTable
@@ -93,6 +103,8 @@ export function PartiesIndexPage() {
               pageIndex={search.page - 1}
               pageSize={search.limit}
               onPaginationChange={handlePaginationChange}
+              sorting={sorting}
+              onSortingChange={handleSortingChange}
               onRowClick={openParty}
             />
           )}

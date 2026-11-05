@@ -5,7 +5,7 @@ descricao: Perícia, prazos, vencimentos e recebimentos do financeiro chegam à 
 data: 2026-11-03
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-169]
+decisoes: [AD-169, AD-192]
 spec: [.specs/features/agenda-eventos]
 branches: [main]
 ---
@@ -63,6 +63,7 @@ pnpm vitest run apps/api/src/modules/agenda packages/db/src/models/calendar-entr
 
 ## Histórico
 
+- 2026-11-05 — Dia/Semana/Mês vira lista suspensa ao lado da navegação; período com o mês abreviado grande e o ano menor; o tipo vai para o botão "Filtros" (AD-192).
 - 2026-11-04 — Botões de operação da agenda no topo, como no resto do sistema: anterior/Hoje/próximo e Novo compromisso à direita do título, Dia/Semana/Mês logo abaixo; sobre o calendário ficam o mês e o filtro de tipo (`apps/web/src/routes/_private/agenda/@components/calendar-toolbar.tsx`).
 - 2026-11-03 — Implementado AEV-01 a AEV-05 (AD-169).
 - 2026-11-03 — Spec criada (`.specs/features/agenda-eventos/spec.md`).

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import type { PaginationState, Updater } from '@tanstack/react-table';
+import type { PaginationState, SortingState, Updater } from '@tanstack/react-table';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { type TransactionRecord, updateTransactionMutation } from '@/query/transaction.js';
@@ -15,6 +15,13 @@ export function useTransactionsPage() {
 
   function update(patch: Partial<TransactionsSearch>) {
     navigate({ search: (prev: TransactionsSearch) => ({ ...prev, ...patch }), replace: true });
+  }
+
+  // Column click (AD-192): ascending, descending, then back to the latest due date first.
+  const sorting: SortingState = search.sort ? [{ id: search.sort, desc: search.order === 'desc' }] : [];
+  function handleSortingChange(updater: Updater<SortingState>) {
+    const [next] = typeof updater === 'function' ? updater(sorting) : updater;
+    update({ sort: next?.id as TransactionsSearch['sort'], order: next && (next.desc ? 'desc' : 'asc'), page: 1 });
   }
 
   function handlePaginationChange(updater: Updater<PaginationState>) {
@@ -39,6 +46,8 @@ export function useTransactionsPage() {
     panel,
     setPanel,
     handlePaginationChange,
+    sorting,
+    handleSortingChange,
     setStatus,
     activeFilters,
     clearFilters: () => update({ kind: undefined, state: undefined, caseId: undefined, page: 1 }),

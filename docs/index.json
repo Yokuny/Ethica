@@ -58,7 +58,8 @@
       ],
       "decisoes": [
         "AD-189",
-        "AD-190"
+        "AD-190",
+        "AD-192"
       ],
       "spec": [
         ".specs/features/prazos-alertas"
@@ -99,7 +100,8 @@
         "packages/db"
       ],
       "decisoes": [
-        "AD-169"
+        "AD-169",
+        "AD-192"
       ],
       "spec": [
         ".specs/features/agenda-eventos"
@@ -288,7 +290,8 @@
         "AD-187",
         "AD-188",
         "AD-190",
-        "AD-191"
+        "AD-191",
+        "AD-192"
       ],
       "spec": [
         ".specs/features/servicos"
@@ -569,7 +572,8 @@
         "AD-116",
         "AD-117",
         "AD-118",
-        "AD-173"
+        "AD-173",
+        "AD-192"
       ],
       "spec": [
         ".specs/features/importacao-processos"
@@ -649,7 +653,8 @@
         "AD-125",
         "AD-126",
         "AD-127",
-        "AD-181"
+        "AD-181",
+        "AD-192"
       ],
       "spec": [
         ".specs/features/laudos"
@@ -677,7 +682,8 @@
         "AD-110",
         "AD-111",
         "AD-112",
-        "AD-113"
+        "AD-113",
+        "AD-192"
       ],
       "spec": [
         ".specs/features/prazos-recebimentos"
@@ -1507,6 +1513,12 @@
       "id": "AD-191",
       "decisao": "Os índices do Atlas Search (`SEARCH_INDEXES`, AD-054) são criados ou atualizados pela própria API a cada subida (`provisionSearch` em `apps/",
       "data": "2026-11-04",
+      "status": "active"
+    },
+    {
+      "id": "AD-192",
+      "decisao": "(1) As listas de Serviços, Laudos, Partes e Lançamentos ordenam pelo clique no título da coluna (crescente → decrescente → volta à ordem pad",
+      "data": "2026-11-05",
       "status": "active"
     }
   ]

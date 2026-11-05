@@ -16,11 +16,13 @@ type Actions = {
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
+// Sortable columns (AD-192) have an `accessorFn` and the `id` of the server sort (`TRANSACTION_LIST_SORTS`).
 export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<TransactionRecord, unknown>[] => {
   const today = formatDisplayDate(new Date());
   return [
     {
       id: 'description',
+      accessorFn: (row) => row.description,
       header: t('entry'),
       cell: ({ row }) => (
         <TableIdentity
@@ -34,7 +36,8 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
       ),
     },
     {
-      id: 'amount',
+      id: 'amountCents',
+      accessorFn: (row) => row.amountCents,
       header: t('amount'),
       cell: ({ row }) => (
         <TableStack
@@ -51,6 +54,7 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
     },
     {
       id: 'dueDate',
+      accessorFn: (row) => row.dueDate,
       header: t('due_date'),
       cell: ({ row }) => (
         <TableStack

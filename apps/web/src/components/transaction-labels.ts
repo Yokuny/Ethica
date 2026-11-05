@@ -14,13 +14,20 @@ export const transactionState = (transaction: TransactionRecord, today: string):
     ? 'overdue'
     : transaction.status;
 
-export const STATE_VARIANT: Record<TransactionState, IndicatorVariant> = {
+// Literal tones: the same color in the table badge and in the filter button (`ToggleTone`).
+export const STATE_VARIANT = {
   expected: 'info',
   partial: 'warning',
   settled: 'success',
   canceled: 'neutral',
   overdue: 'error',
-};
+} as const satisfies Record<TransactionState, IndicatorVariant>;
+
+// Income green, expense red: badge, filter button and amount speak the same color.
+export const KIND_VARIANT = { income: 'success', expense: 'error' } as const satisfies Record<
+  TransactionKind,
+  IndicatorVariant
+>;
 
 export const STATE_ITEMS = (['expected', 'partial', 'overdue', 'settled', 'canceled'] as const).map((value) => ({
   value,

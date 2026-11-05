@@ -5,7 +5,7 @@ descricao: Modelos de laudo por seções sim/não com variáveis do processo, pa
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-107, AD-113, AD-119, AD-121, AD-123, AD-124, AD-125, AD-126, AD-127, AD-181]
+decisoes: [AD-103, AD-107, AD-113, AD-119, AD-121, AD-123, AD-124, AD-125, AD-126, AD-127, AD-181, AD-192]
 spec: [.specs/features/laudos]
 branches: [feat/laudos]
 ---
@@ -75,6 +75,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-05 — Lista ordena pelo clique nas colunas Modelo, Situação e Atualizado em; a situação sai das abas e vai para "Filtros"; a tabela passa ao molde de colunas (`@utils/report-columns.tsx`) (AD-192).
 - 2026-11-04 — **Detalhes do modelo** (ex.: "limpeza de banheiros") ao salvar o laudo como modelo, ao criar e em "Editar nome e detalhes" no "…" do modelo; aparecem na lista de modelos e na escolha do modelo do laudo (AD-181). `Template.details`; `PATCH /expert-reports/templates/:id` passa a gravar nome e detalhes.
 - 2026-11-03 — Laudo feito fora do Ethica anexado em PDF, concluído com a entrega e salvável como modelo, em `anexar-laudo` (AD-179).
 - 2026-11-03 — Iniciar laudo aceita qualquer modelo; o tipo do documento vem do modelo (`partes-servico`, AD-165).

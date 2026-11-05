@@ -5,7 +5,7 @@ descricao: Seção Perícias vira Serviços, com tipo de serviço (inclusive do 
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188, AD-190, AD-191]
+decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188, AD-190, AD-191, AD-192]
 spec: [.specs/features/servicos]
 branches: [main]
 ---
@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-05 — Ordenar pelo clique no título das colunas Controle, Serviço e Tipo de serviço (crescente, decrescente, volta ao cadastro mais novo); sai o "Ordenar por" e a ordem por Data da modificação (AD-192).
 - 2026-11-04 — Próxima OS e Última OS saem do topo (onde ficam só os botões) e entram como números na faixa de indicadores da lista (`cases-overview.tsx`); sai `cases-service-order.tsx`.
 - 2026-11-04 — A busca pela OS (lista, filtro Número de controle e escolha do serviço no novo prazo/alerta) passa a valer sem passo manual: a API atualiza o índice de busca a cada subida (AD-191).
 

@@ -5,6 +5,9 @@ import { idSchema } from './id.schema.js';
 // `lawyer` guarda a OAB.
 export const PARTY_TYPES = ['party', 'lawyer'] as const;
 export type PartyType = (typeof PARTY_TYPES)[number];
+// Order of the parties listing by column click (AD-192); the default is the name A-Z.
+export const PARTY_LIST_SORTS = ['name'] as const;
+export type PartyListSort = (typeof PARTY_LIST_SORTS)[number];
 
 export const SIDES = ['plaintiff', 'defendant'] as const;
 export type Side = (typeof SIDES)[number];

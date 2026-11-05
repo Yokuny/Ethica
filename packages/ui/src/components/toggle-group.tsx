@@ -33,14 +33,18 @@ type ToggleGroupProps = Omit<ToggleGroupPrimitive.Props, 'value' | 'defaultValue
   onValueChange: (value: string) => void;
 };
 
-// Single value API: clicking the item already pressed does not clear the selection.
+// Single value API: clicking the item already pressed does not clear the selection. The items are glued in one
+// segmented bar (ButtonGroup look): inner corners square, borders shared, the pressed one drawn on top.
 function ToggleGroup({ value, onValueChange, className, ...props }: ToggleGroupProps) {
   return (
     <ToggleGroupPrimitive
       data-slot="toggle-group"
       value={[value]}
       onValueChange={([next]) => next && onValueChange(next)}
-      className={cn('flex w-fit flex-wrap items-center gap-1', className)}
+      className={cn(
+        'flex w-fit items-center rounded-md shadow-xs [&>*:not(:first-child)]:-ms-px [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none [&>*]:shadow-none [&>[data-pressed]]:z-10',
+        className,
+      )}
       {...props}
     />
   );

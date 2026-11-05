@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { type AppointmentRecord, appointmentsQuery } from '@/query/appointment.js';
 import { type CalendarEntryRecord, calendarEntriesQuery } from '@/query/calendar-entry.js';
-import { ALL_FILTER_VALUE, DEFAULT_VIEW } from '../@consts/calendar.js';
+import { DEFAULT_VIEW } from '../@consts/calendar.js';
 import type { CalendarSearch, CalendarView, PanelState } from '../@interface/calendar.interface.js';
 import { rangeForView, shiftDate } from '../@utils/calendar-navigation.js';
 
@@ -45,11 +45,8 @@ export function useAgendaPage() {
     handlePrevious: () => updateSearch((prev) => ({ ...prev, date: shiftDate(view, date, -1) })),
     handleNext: () => updateSearch((prev) => ({ ...prev, date: shiftDate(view, date, 1) })),
     handleToday: () => updateSearch((prev) => ({ ...prev, date: formatDisplayDate(new Date()) })),
-    handleTypeChange: (value: string | null) =>
-      updateSearch((prev) => ({
-        ...prev,
-        type: !value || value === ALL_FILTER_VALUE ? undefined : (value as CalendarSearch['type']),
-      })),
+    handleTypeChange: (value: string | undefined) =>
+      updateSearch((prev) => ({ ...prev, type: value as CalendarSearch['type'] })),
     handleSelectItem: (appointment: AppointmentRecord) => setPanel({ kind: 'detail', appointment }),
     // A deadline opens the deadline; a finance entry opens the transactions of its case.
     handleSelectEntry: (entry: CalendarEntryRecord) =>

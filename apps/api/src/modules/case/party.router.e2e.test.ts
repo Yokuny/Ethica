@@ -159,6 +159,22 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
     );
     const lawyers = await as(request(app).get('/parties').query({ type: 'lawyer' }));
     expect(lawyers.body.data.items.map((p: { name: string }) => p.name)).toEqual(['Ana Souza']);
+    // Column click (AD-192): the name A-Z by default, Z-A when asked.
+    const names = async (order?: string) =>
+      (
+        (
+          await as(
+            request(app)
+              .get('/parties')
+              .query(order ? { sort: 'name', order } : {}),
+          )
+        ).body.data.items as {
+          name: string;
+        }[]
+      ).map((p) => p.name);
+    const ascending = await names();
+    expect(ascending).toEqual([...ascending].sort());
+    expect(await names('desc')).toEqual([...ascending].reverse());
 
     await expect
       .poll(async () => (await as(request(app).get('/parties').query({ q: 'metalurg' }))).body.data.total, {

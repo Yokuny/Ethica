@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
-import type { OnChangeFn, PaginationState } from '@tanstack/react-table';
+import type { OnChangeFn, PaginationState, SortingState } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { TablePagination } from '@/components/table-pagination.js';
 import type { PartyRecord } from '@/query/party.js';
@@ -11,26 +11,33 @@ type PartiesTableProps = {
   pageIndex: number;
   pageSize: number;
   onPaginationChange: OnChangeFn<PaginationState>;
+  sorting: SortingState;
+  onSortingChange: OnChangeFn<SortingState>;
   onRowClick: (row: PartyRecord) => void;
 };
 
-// Server-driven table (pagination/filters come from the URL), the row opens the detail.
+// Server-driven table (pagination, sort and filters come from the URL), the row opens the detail.
 export function PartiesTable({
   data,
   pageCount,
   pageIndex,
   pageSize,
   onPaginationChange,
+  sorting,
+  onSortingChange,
   onRowClick,
 }: PartiesTableProps) {
   const table = useReactTable({
     data,
     columns: partyColumns,
     pageCount,
-    state: { pagination: { pageIndex, pageSize } },
+    state: { pagination: { pageIndex, pageSize }, sorting },
     onPaginationChange,
+    onSortingChange,
     manualPagination: true,
     manualSorting: true,
+    enableMultiSort: false,
+    sortDescFirst: false,
     manualFiltering: true,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -42,7 +49,14 @@ export function PartiesTable({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  sort={
+                    header.column.getCanSort()
+                      ? { direction: header.column.getIsSorted(), onToggle: header.column.getToggleSortingHandler() }
+                      : undefined
+                  }
+                >
                   {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
               ))}

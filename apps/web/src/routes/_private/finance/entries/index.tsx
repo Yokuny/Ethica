@@ -17,8 +17,18 @@ import { useTransactionsPage } from './@hooks/use-transactions-page.js';
 import { type TransactionsSearch, transactionsSearchSchema } from './@interface/transactions.interface.js';
 
 export function TransactionsIndexPage() {
-  const { search, update, panel, setPanel, handlePaginationChange, setStatus, activeFilters, clearFilters } =
-    useTransactionsPage();
+  const {
+    search,
+    update,
+    panel,
+    setPanel,
+    handlePaginationChange,
+    sorting,
+    handleSortingChange,
+    setStatus,
+    activeFilters,
+    clearFilters,
+  } = useTransactionsPage();
   const query = useQuery(transactionsQuery(search));
   const summary = useQuery(financeSummaryQuery);
   const session = useQuery(sessionQuery).data;
@@ -60,6 +70,8 @@ export function TransactionsIndexPage() {
               pageIndex={search.page - 1}
               pageSize={search.limit}
               onPaginationChange={handlePaginationChange}
+              sorting={sorting}
+              onSortingChange={handleSortingChange}
               onRowClick={(transaction) => setPanel({ kind: 'edit', transaction })}
               onStatus={setStatus}
               onReceive={(transaction) => setPanel({ kind: 'receive', transaction })}

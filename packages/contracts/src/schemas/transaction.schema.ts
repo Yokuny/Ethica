@@ -22,6 +22,9 @@ export const ALL_TRANSACTION_CATEGORIES = [
 // and never canceled. Expense: expected, settled or canceled, without partial.
 export const TRANSACTION_STATUS = ['expected', 'partial', 'settled', 'canceled'] as const;
 export type TransactionStatus = (typeof TRANSACTION_STATUS)[number];
+// Order of the entries listing by column click (AD-192); the default is the latest due date first.
+export const TRANSACTION_LIST_SORTS = ['description', 'amountCents', 'dueDate'] as const;
+export type TransactionListSort = (typeof TRANSACTION_LIST_SORTS)[number];
 
 const transactionFields = z.object({
   kind: z.enum(TRANSACTION_KINDS),

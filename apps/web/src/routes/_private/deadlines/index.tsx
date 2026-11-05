@@ -1,10 +1,9 @@
 import type { DeadlineStatus } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
-import { DataTable } from '@/components/data-table.js';
+import { DataTable, TableFilterSelect } from '@/components/data-table.js';
 import { DeadlineDialog } from '@/components/deadline-dialog.js';
 import { DEADLINE_STATUS_ITEMS } from '@/components/deadline-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -45,24 +44,19 @@ export function DeadlinesPage() {
       </CardHeader>
       <CardContent>
         <DataTable
-          toolbar={
-            <Select
-              items={DEADLINE_STATUS_ITEMS}
-              value={search.status}
-              onValueChange={(status) => status && update({ status: status as DeadlineStatus, page: 1 })}
-            >
-              <SelectTrigger aria-label={t('status')} className="w-48">
-                <SelectValue placeholder={t('status')} />
-              </SelectTrigger>
-              <SelectContent>
-                {DEADLINE_STATUS_ITEMS.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          }
+          filters={{
+            // The pending ones open by default; another situation counts as a filter.
+            active: search.status === 'pending' ? 0 : 1,
+            content: (
+              <TableFilterSelect
+                label={t('status')}
+                items={DEADLINE_STATUS_ITEMS}
+                value={search.status}
+                all={false}
+                onChange={(status) => status && update({ status: status as DeadlineStatus, page: 1 })}
+              />
+            ),
+          }}
         >
           {query.isLoading ? (
             <DefaultLoading />

@@ -1,5 +1,12 @@
 import type { CasePartyInput, CreateParty, PartyType, Side, UpdateParty } from '@ethica/contracts';
-import { createPartySchema, idSchema, PARTY_TYPES, updatePartySchema } from '@ethica/contracts';
+import {
+  createPartySchema,
+  idSchema,
+  PARTY_LIST_SORTS,
+  PARTY_TYPES,
+  SORT_ORDERS,
+  updatePartySchema,
+} from '@ethica/contracts';
 import { z } from 'zod';
 
 export type { CasePartyInput, CreateParty, UpdateParty };
@@ -13,6 +20,9 @@ export const listPartiesQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(20),
     q: z.string().trim().max(120).optional(),
     type: z.enum(PARTY_TYPES).optional(),
+    // Column click (AD-192); without it, the name A-Z.
+    sort: z.enum(PARTY_LIST_SORTS).default('name'),
+    order: z.enum(SORT_ORDERS).default('asc'),
   })
   .strict();
 export type ListPartiesQuery = z.infer<typeof listPartiesQuerySchema>;

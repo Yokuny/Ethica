@@ -70,6 +70,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-192** (2026-11-05, active) — (1) As listas de Serviços, Laudos, Partes e Lançamentos ordenam pelo clique no título da coluna (crescente → decrescente → volta à ordem pad
 - **AD-191** (2026-11-04, active) — Os índices do Atlas Search (`SEARCH_INDEXES`, AD-054) são criados ou atualizados pela própria API a cada subida (`provisionSearch` em `apps/
 - **AD-190** (2026-11-04, active) — (1) Selos de criticidade dos prazos e alertas pendentes pelos dias até o vencimento: Atrasado (venceu, vermelho), Urgente (hoje até 5 dias,
 - **AD-189** (2026-11-04, active) — "Prazos e Alertas" reaproveita o `Deadline` (AD-109) com o campo `kind` (`deadline` \| `alert`, padrão `deadline`, sem conversão dos existent
@@ -79,7 +80,6 @@ _Nenhum._
 - **AD-185** (2026-11-04, active) — O filtro "Número de controle" acha a OS por qualquer pedaço (só o `[NUMERO]`, como `7` ou `0007`, ou parte da OS) pelo Atlas Search: `servic
 - **AD-184** (2026-11-04, active; o filtro exato e os contatos na coluna Cliente | Comarca foram superseded pela AD-185) — A lista de Serviços passa às colunas Controle (OS), Serviço, Contratante, Tipo de serviço, Cliente \| Comarca, Fase do serviço, Próximo prazo
 - **AD-183** (2026-11-04, active) — O "Preencher com PDF" do cadastro do serviço aceita vários PDFs numa janela em três etapas (arquivos → escolher valores → preencher). Cada P
-- **AD-182** (2026-11-04, active) — Largura das colunas das listas por regra única nos blocos de célula (`apps/web/src/components/data-table.tsx`): o título da coluna principal
 
 ## `.specs/` sem registro em `docs/features/`
 

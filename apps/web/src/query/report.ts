@@ -5,10 +5,12 @@ import type {
   CreateReport,
   CreateTemplate,
   ReportLayout,
+  ReportListSort,
   ReportStatus,
   ReportType,
   ReportVariable,
   ReportVariant,
+  SortOrder,
   TemplateSection,
   UpdateReportSection,
   UpdateTemplate,
@@ -83,7 +85,14 @@ export type ProcessFill = {
   labor: { hireDate?: string; terminationDate?: string; claimantJob?: string; location?: string };
   missing: string[];
 };
-export type ReportsQueryParams = { page?: number; limit?: number; status?: ReportStatus; caseId?: string };
+export type ReportsQueryParams = {
+  page?: number;
+  limit?: number;
+  status?: ReportStatus;
+  caseId?: string;
+  sort?: ReportListSort;
+  order?: SortOrder;
+};
 
 export const reportKeys = {
   all: ['report'] as const,

@@ -238,7 +238,7 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await stats()).toMatchObject({ open: 0, reports_delivered: 1 });
   });
 
-  it('ordena por nome, data do cadastro, tipo e data da modificação, crescente e decrescente (AD-188)', async () => {
+  it('ordena por nome, data do cadastro e tipo, crescente e decrescente (AD-188, AD-192)', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const post = async (body: object) =>
@@ -246,7 +246,6 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     const own = await post({ ...PRIVATE_SERVICE, subject: 'Avaliação B' });
     const assistance = await post({ role: 'technical_assistant', subject: 'assistência A', contractor: { name: 'M' } });
     const judicial = await post(JUDICIAL);
-    await admin.as(request(app).patch(`/expert-cases/${own}`)).send({ notes: 'mexido por último' });
 
     const ids = async (query: string) =>
       ((await admin.as(request(app).get(`/expert-cases?${query}`))).body.data.items as { id: string }[]).map(
@@ -258,8 +257,8 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await ids('sort=name&order=asc')).toEqual([judicial, assistance, own]);
     expect(await ids('sort=type&order=asc')).toEqual([judicial, assistance, own]);
     expect(await ids('sort=type&order=desc')).toEqual([own, assistance, judicial]);
-    expect(await ids('sort=updatedAt&order=desc')).toEqual([own, judicial, assistance]);
-    expect((await admin.as(request(app).get('/expert-cases?sort=phase'))).status).toBe(400);
+    // The last change left with the sort by column click (AD-192).
+    expect((await admin.as(request(app).get('/expert-cases?sort=updatedAt'))).status).toBe(400);
     // Service order (AD-190): the ones without an OS at the end, in both directions.
     await admin.as(request(app).patch(`/expert-cases/${assistance}`)).send({ serviceOrder: 'TS-0002' });
     await admin.as(request(app).patch(`/expert-cases/${judicial}`)).send({ serviceOrder: 'TS-0001' });

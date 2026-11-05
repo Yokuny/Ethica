@@ -7,7 +7,9 @@ import type { PartyRecord } from '@/query/party.js';
 
 export const partyColumns: ColumnDef<PartyRecord, unknown>[] = [
   {
+    // Sortable (AD-192): `accessorFn` and the `id` of the server sort (`PARTY_LIST_SORTS`).
     id: 'name',
+    accessorFn: (row) => row.name,
     header: t('name'),
     cell: ({ row }) => (
       <TableIdentity

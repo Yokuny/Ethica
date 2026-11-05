@@ -1,13 +1,12 @@
 import { REPORT_STATUS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router';
-import type { PaginationState, Updater } from '@tanstack/react-table';
+import type { PaginationState, SortingState, Updater } from '@tanstack/react-table';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
-import { DataTable } from '@/components/data-table.js';
+import { DataTable, TableFilterSelect } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
@@ -19,12 +18,21 @@ import { can, sessionQuery } from '@/query/session.js';
 import { ReportsTable } from './@components/reports-table.js';
 import { type ReportsSearch, reportsSearchSchema } from './@interface/reports.interface.js';
 
-const ALL = 'all';
+// Status options of the "Filtros" popover.
+const STATUS_ITEMS = REPORT_STATUS.map((value) => ({ value, label: reportStatusLabel(value) }));
 
 export function ReportsListPage() {
   const search = useSearch({ strict: false }) as ReportsSearch;
   const navigate = useNavigate({ from: '/expert-reports/list/' });
-  const query = useQuery(reportsQuery({ page: search.page, limit: search.limit, status: search.status }));
+  const query = useQuery(
+    reportsQuery({
+      page: search.page,
+      limit: search.limit,
+      status: search.status,
+      sort: search.sort,
+      order: search.order,
+    }),
+  );
   const session = useQuery(sessionQuery).data;
   const queryClient = useQueryClient();
   const removal = useMutation(deleteReportMutation(queryClient));
@@ -35,6 +43,13 @@ export function ReportsListPage() {
 
   function updateSearch(patch: Partial<ReportsSearch>) {
     navigate({ search: (prev: ReportsSearch) => ({ ...prev, ...patch }), replace: true });
+  }
+
+  // Column click (AD-192): ascending, descending, then back to the last change first.
+  const sorting: SortingState = search.sort ? [{ id: search.sort, desc: search.order === 'desc' }] : [];
+  function handleSortingChange(updater: Updater<SortingState>) {
+    const [next] = typeof updater === 'function' ? updater(sorting) : updater;
+    updateSearch({ sort: next?.id as ReportsSearch['sort'], order: next && (next.desc ? 'desc' : 'asc'), page: 1 });
   }
 
   function handlePaginationChange(updater: Updater<PaginationState>) {
@@ -52,24 +67,20 @@ export function ReportsListPage() {
           </CardAction>
         )}
       </CardHeader>
-      <Tabs
-        value={search.status ?? ALL}
-        onValueChange={(value) =>
-          updateSearch({ status: value === ALL ? undefined : (value as ReportsSearch['status']), page: 1 })
-        }
-        className="px-(--card-spacing)"
-      >
-        <TabsList variant="line">
-          <TabsTrigger value={ALL}>{t('all')}</TabsTrigger>
-          {REPORT_STATUS.map((status) => (
-            <TabsTrigger key={status} value={status}>
-              {reportStatusLabel(status)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
       <CardContent>
-        <DataTable>
+        <DataTable
+          filters={{
+            active: search.status ? 1 : 0,
+            content: (
+              <TableFilterSelect
+                label={t('status')}
+                items={STATUS_ITEMS}
+                value={search.status}
+                onChange={(status) => updateSearch({ status: status as ReportsSearch['status'], page: 1 })}
+              />
+            ),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (
@@ -78,7 +89,16 @@ export function ReportsListPage() {
               action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
             />
           ) : !items.length ? (
-            <DefaultEmptyData title={t('no_reports_yet')} description={t('start_report_from_expert_case')} />
+            search.status ? (
+              <DefaultEmptyData
+                title={t('no_records_match_filters')}
+                action={
+                  <Button onClick={() => updateSearch({ status: undefined, page: 1 })}>{t('clear_filters')}</Button>
+                }
+              />
+            ) : (
+              <DefaultEmptyData title={t('no_reports_yet')} description={t('start_report_from_expert_case')} />
+            )
           ) : (
             <ReportsTable
               data={items}
@@ -86,6 +106,8 @@ export function ReportsListPage() {
               pageIndex={search.page - 1}
               pageSize={search.limit}
               onPaginationChange={handlePaginationChange}
+              sorting={sorting}
+              onSortingChange={handleSortingChange}
               onRowClick={(row) => navigate({ to: '/expert-reports/details', search: { id: row.id } })}
               onDownload={(row) => void download(`/expert-reports/${row.id}/pdf`)}
               downloading={Boolean(pending)}

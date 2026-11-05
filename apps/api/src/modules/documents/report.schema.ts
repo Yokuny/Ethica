@@ -23,9 +23,11 @@ import {
   idSchema,
   mediaIdSchema,
   moveSectionSchema,
+  REPORT_LIST_SORTS,
   REPORT_STATUS,
   REPORT_TYPES,
   reportLayoutSchema,
+  SORT_ORDERS,
   templateIdSchema,
   templateSectionSchema,
   updateReportSectionSchema,
@@ -94,6 +96,9 @@ export const listReportsQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(20),
     status: z.enum(REPORT_STATUS).optional(),
     caseId: idSchema.optional(),
+    // Column click (AD-192); without it, the last change first.
+    sort: z.enum(REPORT_LIST_SORTS).default('updatedAt'),
+    order: z.enum(SORT_ORDERS).default('desc'),
   })
   .strict();
 export type ListReportsQuery = z.infer<typeof listReportsQuerySchema>;

@@ -74,6 +74,12 @@ export const findById = async (tenantId: string, id: string): Promise<ReportReco
     return doc ? toRecord(doc) : null;
   });
 
+const SORT_KEY: Record<ListReportsQuery['sort'], unknown> = {
+  templateName: { $toLower: '$templateName' },
+  status: '$status',
+  updatedAt: '$updatedAt',
+};
+
 export const list = async (
   tenantId: string,
   query: ListReportsQuery,
@@ -92,11 +98,13 @@ export const list = async (
       {
         $facet: {
           items: [
-            { $sort: { updatedAt: -1, _id: 1 } },
+            // Column click (AD-192): the template by name ignoring upper case; ties, the last change first.
+            { $addFields: { sortKey: SORT_KEY[query.sort] } },
+            { $sort: { sortKey: query.order === 'asc' ? 1 : -1, updatedAt: -1, _id: 1 } },
             { $skip: (query.page - 1) * query.limit },
             { $limit: query.limit },
             { $addFields: { totalSections: { $size: '$sections' } } },
-            { $project: { sections: 0 } },
+            { $project: { sections: 0, sortKey: 0 } },
           ],
           total: [{ $count: 'n' }],
         },

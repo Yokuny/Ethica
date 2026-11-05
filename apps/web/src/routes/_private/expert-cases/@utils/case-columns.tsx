@@ -22,18 +22,21 @@ const names = (row: CaseListItem, side: Side) =>
 // Long-text columns share one width, so the wrapped lines of a row end even (Contratante, Cliente | Comarca).
 const TEXT_COLUMN = 'min-w-48 max-w-60';
 
-// The server does not accept sort: no column is sortable.
+// Sortable columns (AD-192) have an `accessorFn` and the `id` of the server sort (`CASE_LIST_SORTS`); the sort
+// itself is on the server, the value only enables the header click.
 export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
   {
     // Service order control number (OS) given by the office.
     id: 'serviceOrder',
+    accessorFn: (row) => row.serviceOrder,
     header: t('control'),
     cell: ({ row }) => (
       <TableStack tone={row.original.serviceOrder ? 'default' : 'muted'}>{row.original.serviceOrder ?? '—'}</TableStack>
     ),
   },
   {
-    id: 'service',
+    id: 'name',
+    accessorFn: (row) => caseLabel(row),
     header: t('expert_case'),
     cell: ({ row }) => (
       <TableIdentity
@@ -57,7 +60,8 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       ),
   },
   {
-    id: 'serviceType',
+    id: 'type',
+    accessorFn: (row) => serviceLabel(row),
     header: t('service_type'),
     cell: ({ row }) => serviceLabel(row.original),
   },

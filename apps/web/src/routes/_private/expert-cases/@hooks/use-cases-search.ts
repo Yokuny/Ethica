@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import type { PaginationState, Updater } from '@tanstack/react-table';
+import type { PaginationState, SortingState, Updater } from '@tanstack/react-table';
 import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
 import type { CaseListItem } from '@/query/case.js';
 import type { CasesSearch } from '../@interface/cases.interface.js';
@@ -16,6 +16,13 @@ export function useCasesSearch() {
     const current: PaginationState = { pageIndex: search.page - 1, pageSize: search.limit };
     const next = typeof updater === 'function' ? updater(current) : updater;
     update({ page: next.pageIndex + 1, limit: next.pageSize });
+  }
+
+  // Column click (AD-192): ascending, descending, then back to the newest registration first.
+  const sorting: SortingState = search.sort ? [{ id: search.sort, desc: search.order === 'desc' }] : [];
+  function handleSortingChange(updater: Updater<SortingState>) {
+    const [next] = typeof updater === 'function' ? updater(sorting) : updater;
+    update({ sort: next?.id as CasesSearch['sort'], order: next && (next.desc ? 'desc' : 'asc'), page: 1 });
   }
 
   const [searchInput, handleSearchInput] = useDebouncedSearch(search.q, (q: string) => update({ q, page: 1 }));
@@ -54,6 +61,8 @@ export function useCasesSearch() {
     searchInput,
     handleSearchInput,
     handlePaginationChange,
+    sorting,
+    handleSortingChange,
     handleRowClick,
     update,
     activeFilters,

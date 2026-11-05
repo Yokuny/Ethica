@@ -1,6 +1,5 @@
 import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
 import {
   CASE_PHASE_ITEMS,
@@ -9,48 +8,12 @@ import {
   OWN_TYPE_PREFIX,
   serviceTypeItems,
 } from '@/components/case-labels.js';
+import { TableFilterSelect } from '@/components/data-table.js';
 import { DatePicker } from '@/components/date-picker.js';
 import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { serviceTypesQuery } from '@/query/case.js';
 import type { CasesSearch } from '../@interface/cases.interface.js';
-
-const ALL = '__all__';
-
-function FilterSelect({
-  label,
-  items,
-  value,
-  onChange,
-}: {
-  label: string;
-  items: { value: string; label: string }[];
-  value?: string;
-  onChange: (value: string | undefined) => void;
-}) {
-  const withAll = [{ value: ALL, label: t('all') }, ...items];
-  return (
-    <div className="grid gap-1.5">
-      <ItemDescription>{label}</ItemDescription>
-      <Select
-        items={withAll}
-        value={value ?? ALL}
-        onValueChange={(next) => onChange(!next || next === ALL ? undefined : next)}
-      >
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder={label} />
-        </SelectTrigger>
-        <SelectContent>
-          {withAll.map((item) => (
-            <SelectItem key={item.value} value={item.value}>
-              {item.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
-}
 
 // Listing "Filtros" popover content: control number (OS), phase and status (AD-178), sphere, type (AD-177) and delivery period.
 export function CasesFilters({
@@ -77,25 +40,25 @@ export function CasesFilters({
         <ItemDescription>{t('control_number')}</ItemDescription>
         <Input value={serviceOrder} onChange={(event) => handleServiceOrder(event.target.value)} />
       </div>
-      <FilterSelect
+      <TableFilterSelect
         label={t('service_phase')}
         items={CASE_PHASE_ITEMS}
         value={search.phase}
         onChange={(phase) => onChange({ phase: phase as CasesSearch['phase'], page: 1 })}
       />
-      <FilterSelect
+      <TableFilterSelect
         label={t('status')}
         items={CASE_STATUS_ITEMS}
         value={search.status}
         onChange={(status) => onChange({ status: status as CasesSearch['status'], page: 1 })}
       />
-      <FilterSelect
+      <TableFilterSelect
         label={t('sphere')}
         items={COURT_TYPE_ITEMS}
         value={search.courtType}
         onChange={(courtType) => onChange({ courtType: courtType as CasesSearch['courtType'], page: 1 })}
       />
-      <FilterSelect
+      <TableFilterSelect
         label={t('service_type')}
         items={serviceTypeItems(officeTypes.data ?? [])}
         value={type}

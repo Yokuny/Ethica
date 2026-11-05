@@ -10,6 +10,7 @@ import {
 import { InputGroup, InputGroupInput } from '@ethica/ui/components/input-group';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Popover, PopoverContent, PopoverTrigger } from '@ethica/ui/components/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { Separator } from '@ethica/ui/components/separator';
 import type { LinkProps } from '@tanstack/react-router';
 import { cn } from 'cn';
@@ -44,6 +45,43 @@ function TableFilters({ content, active }: TableFiltersProps) {
         {content}
       </PopoverContent>
     </Popover>
+  );
+}
+
+const ALL = '__all__';
+
+type TableFilterSelectProps = {
+  label: string;
+  items: { value: string; label: string }[];
+  value?: string;
+  onChange: (value: string | undefined) => void;
+  // "Todos" first, which clears the filter; `false` when the filter always has a value.
+  all?: boolean;
+};
+
+// One labeled select of the "Filtros" popover.
+function TableFilterSelect({ label, items, value, onChange, all = true }: TableFilterSelectProps) {
+  const options = all ? [{ value: ALL, label: t('all') }, ...items] : items;
+  return (
+    <div className="grid gap-1.5">
+      <ItemDescription>{label}</ItemDescription>
+      <Select
+        items={options}
+        value={value ?? ALL}
+        onValueChange={(next) => onChange(!next || next === ALL ? undefined : next)}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={label} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
 
@@ -242,6 +280,7 @@ const TableRowAction = (props: React.ComponentProps<typeof DropdownMenuItem>) =>
 
 export {
   DataTable,
+  TableFilterSelect,
   TableFilters,
   TableIconText,
   TableIdentity,

@@ -7,7 +7,7 @@ import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTi
 import { t } from '@/lib/helpers/translate.helper.js';
 import { AppointmentDetail } from './@components/appointment-detail.js';
 import { AppointmentForm } from './@components/appointment-form.js';
-import { CalendarActions, CalendarToolbar, CalendarViewToggle } from './@components/calendar-toolbar.js';
+import { CalendarActions, CalendarToolbar } from './@components/calendar-toolbar.js';
 import { DeadlineEntryDialog } from './@components/deadline-entry-dialog.js';
 import { MonthView } from './@components/month-view.js';
 import { TimeGridView } from './@components/time-grid-view.js';
@@ -37,7 +37,6 @@ export function AgendaIndexPage() {
     <Card asPage>
       <CardHeader title={t('agenda')} description={t('inspections_hearings_and_deadlines_in_one_calendar')}>
         <CalendarActions state={state} />
-        <CalendarViewToggle state={state} />
       </CardHeader>
       <CardContent>
         <CalendarToolbar state={state} />

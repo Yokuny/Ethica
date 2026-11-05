@@ -11,7 +11,9 @@ import {
   createInstallmentSchema,
   createTransactionSchema,
   idSchema,
+  SORT_ORDERS,
   TRANSACTION_KINDS,
+  TRANSACTION_LIST_SORTS,
   TRANSACTION_STATUS,
   updateTransactionSchema,
 } from '@ethica/contracts';
@@ -34,6 +36,9 @@ export const listTransactionsQuerySchema = z
     caseId: idSchema.optional(),
     from: calendarDateSchema.optional(),
     to: calendarDateSchema.optional(),
+    // Column click (AD-192); without it, the latest due date first.
+    sort: z.enum(TRANSACTION_LIST_SORTS).default('dueDate'),
+    order: z.enum(SORT_ORDERS).default('desc'),
   })
   .strict();
 export type ListTransactionsQuery = z.infer<typeof listTransactionsQuerySchema>;

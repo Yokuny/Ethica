@@ -12,6 +12,9 @@ export const reportRoleType = (role: CaseRole): ReportType =>
 // Editable draft → completed, read-only on the server (AD-126).
 export const REPORT_STATUS = ['draft', 'completed'] as const;
 export type ReportStatus = (typeof REPORT_STATUS)[number];
+// Order of the reports listing by column click (AD-192); the default is the last change first.
+export const REPORT_LIST_SORTS = ['templateName', 'status', 'updatedAt'] as const;
+export type ReportListSort = (typeof REPORT_LIST_SORTS)[number];
 
 // "Yes" text (present/positive) or "no" text (absent/negative) of each section.
 export const REPORT_VARIANTS = ['yes', 'no'] as const;

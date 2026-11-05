@@ -1,4 +1,4 @@
-import type { CreateParty, PartyType, UpdateParty } from '@ethica/contracts';
+import type { CreateParty, PartyListSort, PartyType, SortOrder, UpdateParty } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { get, patch, post } from '../lib/api/client.api.js';
@@ -19,7 +19,14 @@ export type PartyRecord = {
   updatedAt: string;
 };
 
-export type PartiesQueryParams = { page?: number; limit?: number; q?: string; type?: PartyType };
+export type PartiesQueryParams = {
+  page?: number;
+  limit?: number;
+  q?: string;
+  type?: PartyType;
+  sort?: PartyListSort;
+  order?: SortOrder;
+};
 export type PartiesListResult = { items: PartyRecord[]; total: number };
 
 export const partyKeys = {
