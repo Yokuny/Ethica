@@ -6,7 +6,7 @@ import {
   DISPLAY_TIMEZONE,
   TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
-import type { CaseDocument } from '@ethica/db';
+import type { CaseDocument, SearchStage } from '@ethica/db';
 import {
   Case,
   caseSearchStages,
@@ -133,6 +133,12 @@ export const findIdByNumber = async (tenantId: string, processNumber: string): P
     return doc?._id.toString();
   });
 
+// Number already given to a service of the tenant, open or closed (AD-187).
+export const hasServiceOrder = async (tenantId: string, serviceOrder: string): Promise<boolean> =>
+  withDbTiming('case.hasServiceOrder', async () =>
+    Boolean(await Case.exists(tenantScoped({ Tenant: tenantId, serviceOrder }))),
+  );
+
 // Only the given fields go into $set — an omitted field never becomes undefined.
 export const updateCase = async (
   tenantId: string,
@@ -251,6 +257,19 @@ export const deleteCase = async (tenantId: string, id: string): Promise<{ delete
     return { deletedCount: result.deletedCount ?? 0 };
   });
 
+// Listing order (AD-188): the name is the process number or, without one, the object; the type puts the
+// perícia first, then the assistance, then the office's own types by name. Dates sort by the field itself.
+const SORT_KEY: Partial<Record<ListCasesQuery['sort'], unknown>> = {
+  name: { $toLower: { $ifNull: ['$processNumber', '$subject'] } },
+  type: {
+    $cond: [
+      { $ifNull: ['$serviceType', false] },
+      { $concat: ['2', { $toLower: '$serviceType' }] },
+      { $cond: [{ $eq: ['$role', 'court_expert'] }, '0', '1'] },
+    ],
+  },
+};
+
 // `ids`: only these cases (delivery period, resolved by the service from the deadlines).
 export const listCases = async (
   tenantId: string,
@@ -268,30 +287,29 @@ export const listCases = async (
       ...(ids ? { _id: { $in: ids.map(toObjectId) } } : {}),
     };
     const skip = (query.page - 1) * query.limit;
-
-    // Text search and the OS filter on Atlas Search (AD-054): word fragments, accent-insensitive, never regex.
-    if (query.q || query.serviceOrder) {
-      const [result] = await withSearch(() =>
-        Case.aggregate<{ items: CaseDocument[]; total: { n: number }[] }>([
-          ...caseSearchStages(tenantId, { q: query.q, serviceOrder: query.serviceOrder }),
-          { $match: { Tenant: toObjectId(tenantId), ...filters } },
-          {
-            $facet: {
-              items: [{ $sort: { createdAt: -1, _id: 1 } }, { $skip: skip }, { $limit: query.limit }],
-              total: [{ $count: 'n' }],
-            },
-          },
-        ]),
-      );
-      return { items: (result?.items ?? []).map(toRecord), total: result?.total[0]?.n ?? 0 };
-    }
-
-    const filter = tenantScoped({ Tenant: tenantId, ...filters });
-    const [docs, total] = await Promise.all([
-      Case.find(filter).sort({ createdAt: -1, _id: 1 }).skip(skip).limit(query.limit).lean(),
-      Case.countDocuments(filter),
-    ]);
-    return { items: docs.map(toRecord), total };
+    const direction: 1 | -1 = query.order === 'asc' ? 1 : -1;
+    const tie: Record<string, 1 | -1> = query.sort === 'createdAt' ? { _id: direction } : { createdAt: -1, _id: 1 };
+    const search = query.q || query.serviceOrder;
+    const pipeline: SearchStage[] = [
+      // Text search and the OS filter on Atlas Search (AD-054): word fragments, accent-insensitive, never regex.
+      ...(search ? caseSearchStages(tenantId, { q: query.q, serviceOrder: query.serviceOrder }) : []),
+      { $match: { Tenant: toObjectId(tenantId), ...filters } },
+      ...(SORT_KEY[query.sort] ? [{ $addFields: { sortKey: SORT_KEY[query.sort] } }] : []),
+      {
+        $facet: {
+          items: [
+            // Ties: the newest registration first.
+            { $sort: { [SORT_KEY[query.sort] ? 'sortKey' : query.sort]: direction, ...tie } },
+            { $skip: skip },
+            { $limit: query.limit },
+          ],
+          total: [{ $count: 'n' }],
+        },
+      },
+    ];
+    const run = () => Case.aggregate<{ items: CaseDocument[]; total: { n: number }[] }>(pipeline);
+    const [result] = search ? await withSearch(run) : await run();
+    return { items: (result?.items ?? []).map(toRecord), total: result?.total[0]?.n ?? 0 };
   });
 
 // Cross-module enrichment: one `$in` query per batch, never one per item.

@@ -56,7 +56,7 @@ Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `ident
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Invite AccessKey Activity transitionTenantStatus` (inclui identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
-| `case` | `Case Deadline Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) |
+| `case` | `Case Deadline Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) `RetiredServiceOrder` (OS de serviço excluído, AD-187) |
 | `agenda` | `Appointment Inspection` (AD-130) `CalendarEntry` (itens de dia inteiro vindos de outros módulos, AD-169) |
 | `finance` | `Transaction` |
 | `prospecting` | `Opportunity` |

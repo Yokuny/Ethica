@@ -217,6 +217,18 @@ export const migrateCases = async (): Promise<void> => {
     { $unset: { statusName: '', serviceStatus: '' } },
   );
   await cases.updateMany({ courtType: { $in: ['extrajudicial', 'other'] } }, { $unset: { courtType: '' } });
+  // The service order is upper case (AD-187); a number that would repeat another stays as typed.
+  const lower = await cases
+    .find({ serviceOrder: { $type: 'string' }, $expr: { $ne: ['$serviceOrder', { $toUpper: '$serviceOrder' }] } })
+    .project<{ _id: mongoose.Types.ObjectId; serviceOrder: string }>({ serviceOrder: 1 })
+    .toArray();
+  for (const doc of lower) {
+    await cases
+      .updateOne({ _id: doc._id }, { $set: { serviceOrder: doc.serviceOrder.toUpperCase() } })
+      .catch((error: { code?: number }) => {
+        if (error.code !== 11000) throw error;
+      });
+  }
   await cases.updateMany(
     { role: 'partnership' },
     { $set: { role: 'other', roleName: 'Parceria', serviceType: 'Parceria' } },

@@ -11,6 +11,7 @@ import { listStatsQuery } from '@/query/listStats.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { CasesFilters } from './@components/cases-filters.js';
 import { CasesOverview } from './@components/cases-overview.js';
+import { CasesSort } from './@components/cases-sort.js';
 import { CasesTable } from './@components/cases-table.js';
 import { useCasesSearch } from './@hooks/use-cases-search.js';
 import { type CasesSearch, casesSearchSchema } from './@interface/cases.interface.js';
@@ -38,6 +39,8 @@ export function CasesIndexPage() {
       role: search.role,
       serviceType: search.serviceType,
       serviceOrder: search.serviceOrder || undefined,
+      sort: search.sort,
+      order: search.order,
       deliveryFrom: search.deliveryFrom,
       deliveryTo: search.deliveryTo,
     }),
@@ -68,6 +71,7 @@ export function CasesIndexPage() {
         <DataTable
           search={{ value: searchInput, onChange: handleSearchInput }}
           filters={{ content: <CasesFilters search={search} onChange={update} />, active: activeFilters }}
+          toolbar={<CasesSort search={search} onChange={update} />}
         >
           {query.isLoading ? (
             <DefaultLoading />

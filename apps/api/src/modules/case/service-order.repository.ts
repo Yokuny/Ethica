@@ -1,5 +1,5 @@
 import { SERVICE_ORDER_PATTERN_DEFAULT, type ServiceOrderSettings } from '@ethica/contracts';
-import { ServiceOrderSequence, tenantScoped } from '@ethica/db';
+import { RetiredServiceOrder, ServiceOrderSequence, tenantScoped } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 
 // A sequence saved before the custom pattern (AD-172) reads as the suggested pattern.
@@ -62,3 +62,18 @@ export const take = async (tenantId: string, year: number): Promise<ServiceOrder
     ).lean();
     return doc ? toSettings(doc) : null;
   });
+
+// The number of a deleted service is kept for good (AD-187).
+export const retire = async (tenantId: string, serviceOrder: string): Promise<void> =>
+  withDbTiming('serviceOrder.retire', async () => {
+    await RetiredServiceOrder.updateOne(
+      tenantScoped({ Tenant: tenantId, serviceOrder }),
+      { $setOnInsert: { Tenant: tenantId, serviceOrder } },
+      { upsert: true },
+    );
+  });
+
+export const isRetired = async (tenantId: string, serviceOrder: string): Promise<boolean> =>
+  withDbTiming('serviceOrder.isRetired', async () =>
+    Boolean(await RetiredServiceOrder.exists(tenantScoped({ Tenant: tenantId, serviceOrder }))),
+  );

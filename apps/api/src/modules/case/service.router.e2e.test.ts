@@ -238,6 +238,52 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await stats()).toMatchObject({ open: 0, reports_delivered: 1 });
   });
 
+  it('ordena por nome, data do cadastro, tipo e data da modificação, crescente e decrescente (AD-188)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const post = async (body: object) =>
+      (await admin.as(request(app).post('/expert-cases')).send(body)).body.data.id as string;
+    const own = await post({ ...PRIVATE_SERVICE, subject: 'Avaliação B' });
+    const assistance = await post({ role: 'technical_assistant', subject: 'assistência A', contractor: { name: 'M' } });
+    const judicial = await post(JUDICIAL);
+    await admin.as(request(app).patch(`/expert-cases/${own}`)).send({ notes: 'mexido por último' });
+
+    const ids = async (query: string) =>
+      ((await admin.as(request(app).get(`/expert-cases?${query}`))).body.data.items as { id: string }[]).map(
+        (item) => item.id,
+      );
+    expect(await ids('')).toEqual([judicial, assistance, own]);
+    expect(await ids('sort=createdAt&order=asc')).toEqual([own, assistance, judicial]);
+    // Name: the process number (digits) before the objects, ignoring upper case.
+    expect(await ids('sort=name&order=asc')).toEqual([judicial, assistance, own]);
+    expect(await ids('sort=type&order=asc')).toEqual([judicial, assistance, own]);
+    expect(await ids('sort=type&order=desc')).toEqual([own, assistance, judicial]);
+    expect(await ids('sort=updatedAt&order=desc')).toEqual([own, judicial, assistance]);
+    expect((await admin.as(request(app).get('/expert-cases?sort=phase'))).status).toBe(400);
+  });
+
+  it('número de controle nunca se repete: maiúsculas iguais, encerrado ou excluído (AD-187)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
+
+    const first = await post({ ...PRIVATE_SERVICE, serviceOrder: 'ts-2026-0001', phase: 'fees_received' });
+    expect(first.status).toBe(201);
+    expect(first.body.data.serviceOrder).toBe('TS-2026-0001');
+    // Closed (fees received) still holds the number.
+    expect((await post({ ...PRIVATE_SERVICE, serviceOrder: 'TS-2026-0001' })).status).toBe(409);
+    // Deleted: the number stays used for good.
+    expect((await admin.as(request(app).delete(`/expert-cases/${first.body.data.id}`))).status).toBe(200);
+    const again = await post({ ...PRIVATE_SERVICE, serviceOrder: 'TS-2026-0001' });
+    expect(again.status).toBe(409);
+    expect(again.body.message).toBe('service_order_taken');
+    const other = await post({ ...PRIVATE_SERVICE, serviceOrder: 'TS-2026-0002' });
+    expect(
+      (await admin.as(request(app).patch(`/expert-cases/${other.body.data.id}`)).send({ serviceOrder: 'ts-2026-0001' }))
+        .status,
+    ).toBe(409);
+  });
+
   it('filtros por fase, status, esfera, tipo, OS e período de entrega e data apagada (AD-177, AD-178)', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);

@@ -1,5 +1,6 @@
 import type {
   CaseContractor,
+  CaseListSort,
   CasePhase,
   CaseRole,
   CaseStatus,
@@ -9,6 +10,7 @@ import type {
   MovementType,
   PartyType,
   Side,
+  SortOrder,
   UpdateCase,
 } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
@@ -68,6 +70,8 @@ export type CasesQueryParams = {
   role?: 'court_expert' | 'technical_assistant';
   serviceType?: string;
   serviceOrder?: string;
+  sort?: CaseListSort;
+  order?: SortOrder;
   deliveryFrom?: string;
   deliveryTo?: string;
 };

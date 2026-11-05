@@ -1007,6 +1007,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-04
 - **Status**: active
 
+### AD-187
+- **Decision**: O número de controle (OS) nunca se repete no escritório: além do índice único que já valia para serviço aberto ou encerrado, a OS é gravada em maiúsculas (`ts-1` = `TS-1`; as já gravadas são convertidas na subida, menos a que repetiria outra), o número de um serviço **excluído** fica guardado em `RetiredServiceOrder` (`retired_service_orders`, dono `case`) e é recusado digitado ou na edição (`service_order_taken`), e a sequência do escritório pula o número já usado.
+- **Reason**: pedido da perita (2026-11-04); escolha dela: número de serviço excluído nunca mais é usado.
+- **Trade-off**: coleção nova só para os números excluídos; uma OS minúscula que repetiria outra na conversão fica como estava (o índice único impede a troca).
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/{service-order,case}.model.ts`, `apps/api/src/modules/case/{case.service,case.repository,service-order.repository}.ts`, `tests/structural/module-boundary.structural.test.ts`, `apps/api/CLAUDE.md`.
+- **Date**: 2026-11-04
+- **Status**: active
+
+### AD-188
+- **Decision**: A lista de Serviços ordena por Data do cadastro (padrão, mais novo primeiro), Nome (número do processo ou, sem ele, o objeto), Tipo (perícia, assistência técnica, depois os tipos do escritório por nome) e Data da modificação, crescente ou decrescente (`sort`/`order` no `GET /expert-cases`, guardados na URL). A listagem passa a ser uma agregação só, com ou sem busca; empate vai pelo cadastro mais novo.
+- **Reason**: pedido da perita (2026-11-04); "Data" é a do cadastro (escolha dela).
+- **Trade-off**: o nome ordena em minúsculas mas não ignora acento (o `$search` não combina com collation).
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `apps/api/src/modules/case/{case.schema,case.repository}.ts`, `apps/web/src/routes/_private/expert-cases/`.
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

@@ -27,8 +27,8 @@ export type { PartyDocument } from './models/party.model.js';
 export { Party } from './models/party.model.js';
 export type { ReportDocument, ReportMediaDocument, ReportSectionDocument } from './models/report.model.js';
 export { Report } from './models/report.model.js';
-export type { ServiceOrderSequenceDocument } from './models/service-order.model.js';
-export { ServiceOrderSequence } from './models/service-order.model.js';
+export type { RetiredServiceOrderDocument, ServiceOrderSequenceDocument } from './models/service-order.model.js';
+export { RetiredServiceOrder, ServiceOrderSequence } from './models/service-order.model.js';
 export type { SessionDocument } from './models/session.model.js';
 export { Session } from './models/session.model.js';
 export type { SignatoryDocument } from './models/signatory.model.js';
@@ -69,7 +69,7 @@ import { Invite } from './models/invite.model.js';
 import { Opportunity } from './models/opportunity.model.js';
 import { Party } from './models/party.model.js';
 import { Report } from './models/report.model.js';
-import { ServiceOrderSequence } from './models/service-order.model.js';
+import { RetiredServiceOrder, ServiceOrderSequence } from './models/service-order.model.js';
 import { Session } from './models/session.model.js';
 import { Signatory } from './models/signatory.model.js';
 import { Template } from './models/template.model.js';
@@ -88,6 +88,7 @@ export const syncIndexes = async (): Promise<void> => {
     Case.syncIndexes(),
     Signatory.createIndexes(),
     ServiceOrderSequence.createIndexes(),
+    RetiredServiceOrder.createIndexes(),
     Party.createIndexes(),
     CourtDivision.createIndexes(),
     Deadline.createIndexes(),

@@ -33,3 +33,26 @@ export const ServiceOrderSequence = mongoose.model<ServiceOrderSequenceDocument>
   'ServiceOrderSequence',
   serviceOrderSequenceSchema,
 );
+
+// Number of a deleted service (AD-187): never given again, typed or by the sequence. One per number.
+export interface RetiredServiceOrderDocument {
+  _id: mongoose.Types.ObjectId;
+  Tenant: mongoose.Types.ObjectId;
+  serviceOrder: string;
+  createdAt: Date;
+}
+
+const retiredServiceOrderSchema = new Schema<RetiredServiceOrderDocument>(
+  {
+    Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
+    serviceOrder: { type: String, required: true, trim: true },
+  },
+  { timestamps: { createdAt: true, updatedAt: false }, collection: 'retired_service_orders' },
+);
+
+retiredServiceOrderSchema.index({ Tenant: 1, serviceOrder: 1 }, { unique: true });
+
+export const RetiredServiceOrder = mongoose.model<RetiredServiceOrderDocument>(
+  'RetiredServiceOrder',
+  retiredServiceOrderSchema,
+);

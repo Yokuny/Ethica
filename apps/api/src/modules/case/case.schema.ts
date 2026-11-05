@@ -10,6 +10,7 @@ import type {
   UpdateCase,
 } from '@ethica/contracts';
 import {
+  CASE_LIST_SORTS,
   CASE_PHASES,
   CASE_STATUS,
   COURTTYPES,
@@ -17,6 +18,7 @@ import {
   createCaseSchema,
   createMovementSchema,
   idSchema,
+  SORT_ORDERS,
   updateCaseSchema,
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
@@ -44,6 +46,8 @@ export const listCasesQuerySchema = z
     serviceType: z.string().trim().min(1).max(80).optional(),
     // "Número de controle" filter: any piece of the service order (OS), the number alone included.
     serviceOrder: z.string().trim().min(1).max(30).optional(),
+    sort: z.enum(CASE_LIST_SORTS).default('createdAt'),
+    order: z.enum(SORT_ORDERS).default('desc'),
     // Delivery date of the service: the "Entrega do laudo" / "Entrega do serviço" deadline (AD-177).
     deliveryFrom: calendarDateSchema.optional(),
     deliveryTo: calendarDateSchema.optional(),

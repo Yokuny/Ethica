@@ -67,6 +67,20 @@ describe('migrateCases (AD-178)', () => {
     expect(docs[0]).toMatchObject({ role: 'other', roleName: 'Parceria', serviceType: 'Parceria' });
   });
 
+  it('service order becomes upper case unless it would repeat another (AD-187)', async () => {
+    await Case.syncIndexes();
+    const tenant = new mongoose.Types.ObjectId();
+    const base = { Tenant: tenant, status: 'active', phase: 'awaiting_scheduling', role: 'court_expert' };
+    await Case.collection.insertMany([
+      { ...base, subject: 'a', serviceOrder: 'ts-1' },
+      { ...base, subject: 'b', serviceOrder: 'TS-2' },
+      { ...base, subject: 'c', serviceOrder: 'ts-2' },
+    ]);
+    await migrateCases();
+    const docs = await Case.collection.find({}, { sort: { _id: 1 } }).toArray();
+    expect(docs.map((doc) => doc.serviceOrder)).toEqual(['TS-1', 'TS-2', 'ts-2']);
+  });
+
   it('technical assistance with a perícia phase goes to "Contratado" (AD-186)', async () => {
     const tenant = new mongoose.Types.ObjectId();
     const assistance = (phase: string, extra: object = {}) => ({

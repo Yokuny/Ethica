@@ -79,6 +79,12 @@ export type CasePhase = (typeof CASE_PHASES)[number];
 // The office's own type offers its typed phases and this one of the routine list (AD-178).
 export const OWN_TYPE_PHASES: readonly CasePhase[] = ['fees_received'];
 
+// Order of the services listing (AD-188): registration date (default), name, type or last change.
+export const CASE_LIST_SORTS = ['createdAt', 'name', 'type', 'updatedAt'] as const;
+export type CaseListSort = (typeof CASE_LIST_SORTS)[number];
+export const SORT_ORDERS = ['asc', 'desc'] as const;
+export type SortOrder = (typeof SORT_ORDERS)[number];
+
 // Service status (AD-178), apart from the phase.
 export const CASE_STATUS = ['active', 'suspended', 'canceled'] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
@@ -119,8 +125,9 @@ export type CaseContractor = z.infer<typeof caseContractorSchema>;
 
 const caseFields = z.object({
   processNumber: optional(processNumberSchema),
-  // Service order control number (NLA-01): given by the office sequence when missing at registration.
-  serviceOrder: optional(z.string().trim().max(30, 'OS inválida')),
+  // Service order control number (NLA-01): given by the office sequence when missing at registration. Upper
+  // case, so "ts-1" and "TS-1" are the same number (AD-187).
+  serviceOrder: optional(z.string().trim().toUpperCase().max(30, 'OS inválida')),
   courtType: z.enum(COURTTYPES, 'esfera é obrigatória').optional(),
   serviceType: z.string().trim().min(1, 'tipo de serviço é obrigatório').max(80, 'tipo de serviço inválido').optional(),
   role: z.enum(CASE_ROLES),

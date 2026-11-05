@@ -13,9 +13,14 @@ vi.mock('./case.repository.js', () => ({
   updateCase: vi.fn(),
   deleteCase: vi.fn(),
   listCases: vi.fn(),
+  hasServiceOrder: vi.fn().mockResolvedValue(false),
 }));
 // Without an office sequence by default: the service is registered without a service order (NLA-01).
-vi.mock('./service-order.repository.js', () => ({ take: vi.fn().mockResolvedValue(null) }));
+vi.mock('./service-order.repository.js', () => ({
+  take: vi.fn().mockResolvedValue(null),
+  isRetired: vi.fn().mockResolvedValue(false),
+  retire: vi.fn(),
+}));
 vi.mock('./deadline.repository.js', () => ({
   createDeadline: vi.fn(async (_tenant: string, caseId: string, data: { title: string; dueDate: string }) => ({
     id: 'd1',
@@ -105,13 +110,15 @@ describe('case.service', () => {
     );
   });
 
-  it('deletePericia exclui os prazos da perícia; perícia inexistente não toca nos prazos', async () => {
+  it('deletePericia exclui os prazos e guarda a OS como usada; perícia inexistente não toca nos prazos', async () => {
+    vi.mocked(caseRepository.findById).mockResolvedValueOnce({ ...legalCase, serviceOrder: 'ETH-2026-001' });
     vi.mocked(caseRepository.deleteCase).mockResolvedValue({ deletedCount: 1 });
     await deleteCase('t1', 'p1');
     expect(deadlineRepository.deleteByCase).toHaveBeenCalledWith('t1', 'p1');
+    expect(serviceOrderRepository.retire).toHaveBeenCalledWith('t1', 'ETH-2026-001');
 
     vi.mocked(deadlineRepository.deleteByCase).mockClear();
-    vi.mocked(caseRepository.deleteCase).mockResolvedValue({ deletedCount: 0 });
+    vi.mocked(caseRepository.findById).mockResolvedValueOnce(null);
     await expect(deleteCase('t1', 'nope')).rejects.toBeInstanceOf(CaseNotFoundError);
     expect(deadlineRepository.deleteByCase).not.toHaveBeenCalled();
   });
@@ -125,7 +132,7 @@ describe('case.service', () => {
       new Map([['p2', { title: 'Esclarecimentos', dueDate: '2026-11-10' }]]),
     );
 
-    const result = await listCases('t1', { page: 1, limit: 20 });
+    const result = await listCases('t1', { page: 1, limit: 20, sort: 'createdAt', order: 'desc' });
 
     expect(deadlineRepository.upcomingByCaseIds).toHaveBeenCalledWith('t1', ['p1', 'p2']);
     expect(result.items[0]).not.toHaveProperty('nextDeadline');
@@ -159,6 +166,26 @@ describe('case.service', () => {
     await createCase({ ...input, serviceOrder: 'OS-77' });
     expect(serviceOrderRepository.take).toHaveBeenCalledTimes(1);
     expect(caseRepository.createCase).toHaveBeenLastCalledWith(expect.objectContaining({ serviceOrder: 'OS-77' }));
+  });
+
+  it('a sequência pula o número já usado e a OS de serviço excluído é recusada (AD-187)', async () => {
+    vi.mocked(caseRepository.createCase).mockResolvedValue(legalCase);
+    const settings = { pattern: '[SIGLA]-[ANO]-[NUMERO]', prefix: 'ETH', digits: 3, year: 2026 };
+    vi.mocked(serviceOrderRepository.take)
+      .mockResolvedValueOnce({ ...settings, last: 9 })
+      .mockResolvedValueOnce({ ...settings, last: 10 });
+    vi.mocked(caseRepository.hasServiceOrder).mockResolvedValueOnce(true);
+
+    await createCase(input);
+    expect(caseRepository.createCase).toHaveBeenLastCalledWith(
+      expect.objectContaining({ serviceOrder: 'ETH-2026-010' }),
+    );
+
+    vi.mocked(serviceOrderRepository.isRetired).mockResolvedValueOnce(true);
+    await expect(createCase({ ...input, serviceOrder: 'ETH-2026-001' })).rejects.toMatchObject({
+      message: 'service_order_taken',
+      status: 409,
+    });
   });
 
   it('createCase traduz OS repetida em 409 service_order_taken', async () => {

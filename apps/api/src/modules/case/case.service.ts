@@ -50,10 +50,22 @@ export const getServiceOrder = (tenantId: string) => serviceOrderRepository.find
 export const setServiceOrder = (tenantId: string, data: ServiceOrderSettings) =>
   serviceOrderRepository.save(tenantId, data);
 
-// Next number of the office sequence (NLA-01), e.g. "ETH-2026-009"; `undefined` without a sequence.
+// A number is never repeated (AD-187): not by another service, open or closed, nor by a deleted one.
+const serviceOrderTaken = async (tenantId: string, serviceOrder: string): Promise<boolean> =>
+  (await caseRepository.hasServiceOrder(tenantId, serviceOrder)) ||
+  (await serviceOrderRepository.isRetired(tenantId, serviceOrder));
+
+// Next free number of the office sequence (NLA-01), e.g. "ETH-2026-009"; `undefined` without a sequence. A
+// number already used (typed by hand or after the counter went back) is skipped.
 const nextServiceOrder = async (tenantId: string): Promise<string | undefined> => {
-  const sequence = await serviceOrderRepository.take(tenantId, Number(dateInDisplayTz(new Date()).slice(0, 4)));
-  return sequence ? formatServiceOrder(sequence) : undefined;
+  const year = Number(dateInDisplayTz(new Date()).slice(0, 4));
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const sequence = await serviceOrderRepository.take(tenantId, year);
+    if (!sequence) return undefined;
+    const serviceOrder = formatServiceOrder(sequence).toUpperCase();
+    if (!(await serviceOrderTaken(tenantId, serviceOrder))) return serviceOrder;
+  }
+  throw new CustomError('service_order_taken', 409);
 };
 
 // With no non-prescribed period given, saves the one suggested by the contract dates (AD-115).
@@ -104,6 +116,9 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
   const { reportDeadline, parties, inspection, payment, ...input } = withSuggestedPeriod(data);
   if (!validClient({ role: input.role, parties })) throw new CustomError('invalid_contracting_party', 422);
   if (!validServiceType(input)) throw new CustomError('invalid_service_type', 422);
+  if (input.serviceOrder && (await serviceOrderRepository.isRetired(input.tenant, input.serviceOrder))) {
+    throw new CustomError('service_order_taken', 409);
+  }
   try {
     const legalCase = await caseRepository.createCase({
       ...input,
@@ -176,6 +191,13 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
     contractor: contracted ? next(rest.contractor, before.contractor) : undefined,
   };
   if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
+  if (
+    rest.serviceOrder &&
+    rest.serviceOrder !== before.serviceOrder &&
+    (await serviceOrderRepository.isRetired(tenantId, rest.serviceOrder))
+  ) {
+    throw new CustomError('service_order_taken', 409);
+  }
   const unsetWhenGone = <T>(value: T | undefined, previous: unknown) => value ?? (previous ? null : undefined);
   const updated = await caseRepository
     .updateCase(tenantId, id, {
@@ -198,10 +220,13 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
   return updated;
 };
 
-// Deleting is an admin action (case.router.ts) and takes the deadlines along; the reports and the agenda
+// Deleting is an admin action (case.router.ts), keeps its service order number used and takes the deadlines along; the reports and the agenda
 // entries of those deadlines leave through `case:deleted` (AD-126, AD-169). Appointments and transactions
 // that point to it lose the link: a missing reference becomes a missing field.
 export const deleteCase = async (tenantId: string, id: string): Promise<void> => {
+  const legalCase = await getCase(tenantId, id);
+  // Its number stays used for good (AD-187).
+  if (legalCase.serviceOrder) await serviceOrderRepository.retire(tenantId, legalCase.serviceOrder);
   const { deletedCount } = await caseRepository.deleteCase(tenantId, id);
   if (deletedCount === 0) throw new CaseNotFoundError('not_found');
   await deadlineRepository.deleteByCase(tenantId, id);

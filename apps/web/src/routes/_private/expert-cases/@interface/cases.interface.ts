@@ -1,4 +1,12 @@
-import { CASE_PHASES, CASE_STATUS, COURTTYPES, type CreateCase, type UpdateCase } from '@ethica/contracts';
+import {
+  CASE_LIST_SORTS,
+  CASE_PHASES,
+  CASE_STATUS,
+  COURTTYPES,
+  type CreateCase,
+  SORT_ORDERS,
+  type UpdateCase,
+} from '@ethica/contracts';
 import { z } from 'zod';
 
 export const casesSearchSchema = z.object({
@@ -12,6 +20,8 @@ export const casesSearchSchema = z.object({
   role: z.enum(['court_expert', 'technical_assistant']).optional(),
   serviceType: z.string().optional(),
   serviceOrder: z.string().optional(),
+  sort: z.enum(CASE_LIST_SORTS).optional(),
+  order: z.enum(SORT_ORDERS).optional(),
   deliveryFrom: z.string().optional(),
   deliveryTo: z.string().optional(),
 });
