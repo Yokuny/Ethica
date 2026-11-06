@@ -20,6 +20,7 @@ export const createFinanceRouter = (deps: FinanceRouterDeps): Router => {
   const guard = [deps.validToken, tenantAssignmentCheck];
 
   router.get('/summary', ...guard, can('finance', 'view'), transactionController.summary);
+  router.get('/dashboard', ...guard, can('finance', 'view'), transactionController.feesDashboard);
   router.get(
     '/flow',
     ...guard,

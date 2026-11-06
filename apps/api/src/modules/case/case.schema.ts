@@ -156,6 +156,14 @@ export type CaseSummary = {
   courtType?: CourtType;
 };
 
+// Dashboard (DSH-02 to 04): `closed` follows `isCaseClosed`; the perícias by the nomination year.
+export type CaseDashboard = {
+  total: number;
+  closed: number;
+  byType: { role: CaseRole; serviceType?: string; count: number }[];
+  courtExpertByYear: { year: string; count: number }[];
+};
+
 export type CaseDistribution = {
   phase: { key: string; count: number }[];
   courtType: { key: string; count: number }[];

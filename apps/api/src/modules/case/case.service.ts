@@ -384,4 +384,5 @@ export const listServiceTypes = (tenantId: string) => caseRepository.listService
 
 export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DEADLINE_DUE_SOON_DAYS);
 export const caseDistribution = (tenantId: string) => caseRepository.distribution(tenantId);
+export const caseDashboard = (tenantId: string) => caseRepository.dashboard(tenantId);
 export const findSummariesByIds = (tenantId: string, ids: string[]) => caseRepository.findSummariesByIds(tenantId, ids);

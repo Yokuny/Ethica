@@ -2,6 +2,23 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "dashboard",
+      "feature": "Dashboard",
+      "descricao": "Seção com os totais de serviços e honorários e os gráficos de perícias e honorários recebidos por ano",
+      "data": "2026-11-06",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web"
+      ],
+      "decisoes": [],
+      "spec": [
+        ".specs/features/dashboard"
+      ],
+      "planos": [],
+      "doc": "features/dashboard/feature.md"
+    },
+    {
       "slug": "fase-servico",
       "feature": "Fase e status do serviço",
       "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",

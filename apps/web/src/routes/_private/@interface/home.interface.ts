@@ -9,6 +9,7 @@ export type HomeSection = {
     | '/parties'
     | '/court-divisions'
     | '/agenda'
+    | '/dashboard'
     | '/finance'
     | '/prospecting'
     | '/reports'

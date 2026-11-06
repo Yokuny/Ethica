@@ -38,7 +38,7 @@ const groups: { key: string; destinations: HomeSection['to'][]; heading: string 
     ],
     heading: 'work',
   },
-  { key: 'management', destinations: ['/finance', '/reports'], heading: 'management' },
+  { key: 'management', destinations: ['/dashboard', '/finance', '/reports'], heading: 'management' },
   { key: 'admin', destinations: ['/users', '/office', '/activity-log'], heading: 'settings' },
 ];
 

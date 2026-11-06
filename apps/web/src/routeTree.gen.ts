@@ -24,6 +24,7 @@ import { Route as PrivateFieldIndexRouteImport } from './routes/_private/field/i
 import { Route as PrivateExpertReportsIndexRouteImport } from './routes/_private/expert-reports/index';
 import { Route as PrivateExpertCasesIndexRouteImport } from './routes/_private/expert-cases/index';
 import { Route as PrivateDeadlinesIndexRouteImport } from './routes/_private/deadlines/index';
+import { Route as PrivateDashboardIndexRouteImport } from './routes/_private/dashboard/index';
 import { Route as PrivateCourtDivisionsIndexRouteImport } from './routes/_private/court-divisions/index';
 import { Route as PrivateAgendaIndexRouteImport } from './routes/_private/agenda/index';
 import { Route as PrivateAccountIndexRouteImport } from './routes/_private/account/index';
@@ -117,6 +118,11 @@ const PrivateExpertCasesIndexRoute = PrivateExpertCasesIndexRouteImport.update({
 const PrivateDeadlinesIndexRoute = PrivateDeadlinesIndexRouteImport.update({
   id: '/deadlines/',
   path: '/deadlines/',
+  getParentRoute: () => PrivateRouteRoute,
+} as any);
+const PrivateDashboardIndexRoute = PrivateDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => PrivateRouteRoute,
 } as any);
 const PrivateCourtDivisionsIndexRoute =
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/account/': typeof PrivateAccountIndexRoute;
   '/agenda/': typeof PrivateAgendaIndexRoute;
   '/court-divisions/': typeof PrivateCourtDivisionsIndexRoute;
+  '/dashboard/': typeof PrivateDashboardIndexRoute;
   '/deadlines/': typeof PrivateDeadlinesIndexRoute;
   '/expert-cases/': typeof PrivateExpertCasesIndexRoute;
   '/expert-reports/': typeof PrivateExpertReportsIndexRoute;
@@ -282,6 +289,7 @@ export interface FileRoutesByTo {
   '/account': typeof PrivateAccountIndexRoute;
   '/agenda': typeof PrivateAgendaIndexRoute;
   '/court-divisions': typeof PrivateCourtDivisionsIndexRoute;
+  '/dashboard': typeof PrivateDashboardIndexRoute;
   '/deadlines': typeof PrivateDeadlinesIndexRoute;
   '/expert-cases': typeof PrivateExpertCasesIndexRoute;
   '/expert-reports': typeof PrivateExpertReportsIndexRoute;
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/_private/account/': typeof PrivateAccountIndexRoute;
   '/_private/agenda/': typeof PrivateAgendaIndexRoute;
   '/_private/court-divisions/': typeof PrivateCourtDivisionsIndexRoute;
+  '/_private/dashboard/': typeof PrivateDashboardIndexRoute;
   '/_private/deadlines/': typeof PrivateDeadlinesIndexRoute;
   '/_private/expert-cases/': typeof PrivateExpertCasesIndexRoute;
   '/_private/expert-reports/': typeof PrivateExpertReportsIndexRoute;
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/account/'
     | '/agenda/'
     | '/court-divisions/'
+    | '/dashboard/'
     | '/deadlines/'
     | '/expert-cases/'
     | '/expert-reports/'
@@ -393,6 +403,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/agenda'
     | '/court-divisions'
+    | '/dashboard'
     | '/deadlines'
     | '/expert-cases'
     | '/expert-reports'
@@ -431,6 +442,7 @@ export interface FileRouteTypes {
     | '/_private/account/'
     | '/_private/agenda/'
     | '/_private/court-divisions/'
+    | '/_private/dashboard/'
     | '/_private/deadlines/'
     | '/_private/expert-cases/'
     | '/_private/expert-reports/'
@@ -572,6 +584,13 @@ declare module '@tanstack/react-router' {
       path: '/deadlines';
       fullPath: '/deadlines/';
       preLoaderRoute: typeof PrivateDeadlinesIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
+    '/_private/dashboard/': {
+      id: '/_private/dashboard/';
+      path: '/dashboard';
+      fullPath: '/dashboard/';
+      preLoaderRoute: typeof PrivateDashboardIndexRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
     '/_private/court-divisions/': {
@@ -747,6 +766,7 @@ interface PrivateRouteRouteChildren {
   PrivateAccountIndexRoute: typeof PrivateAccountIndexRoute;
   PrivateAgendaIndexRoute: typeof PrivateAgendaIndexRoute;
   PrivateCourtDivisionsIndexRoute: typeof PrivateCourtDivisionsIndexRoute;
+  PrivateDashboardIndexRoute: typeof PrivateDashboardIndexRoute;
   PrivateDeadlinesIndexRoute: typeof PrivateDeadlinesIndexRoute;
   PrivateExpertCasesIndexRoute: typeof PrivateExpertCasesIndexRoute;
   PrivateExpertReportsIndexRoute: typeof PrivateExpertReportsIndexRoute;
@@ -777,6 +797,7 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateAccountIndexRoute: PrivateAccountIndexRoute,
   PrivateAgendaIndexRoute: PrivateAgendaIndexRoute,
   PrivateCourtDivisionsIndexRoute: PrivateCourtDivisionsIndexRoute,
+  PrivateDashboardIndexRoute: PrivateDashboardIndexRoute,
   PrivateDeadlinesIndexRoute: PrivateDeadlinesIndexRoute,
   PrivateExpertCasesIndexRoute: PrivateExpertCasesIndexRoute,
   PrivateExpertReportsIndexRoute: PrivateExpertReportsIndexRoute,

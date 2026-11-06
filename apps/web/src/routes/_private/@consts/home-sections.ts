@@ -2,6 +2,7 @@ import {
   Building2,
   CalendarClock,
   CalendarDays,
+  ChartColumn,
   Contact,
   FileSignature,
   FileText,
@@ -78,6 +79,13 @@ export const HOME_SECTIONS = [
     descriptionKey: 'find_possible_appointments_in_datajud',
     icon: Radar,
     access: 'prospecting',
+  },
+  {
+    to: '/dashboard',
+    titleKey: 'dashboard',
+    descriptionKey: 'dashboard_page_description',
+    icon: ChartColumn,
+    access: 'expert_cases',
   },
   {
     to: '/reports',

@@ -157,6 +157,8 @@ export const summary = (tenantId: string, now: Date = new Date()) => {
 };
 
 // The last `months` months up to the current one, from oldest to newest.
+export const feesDashboard = (tenantId: string) => transactionRepository.feesDashboard(tenantId);
+
 export const monthlyFlow = (tenantId: string, months: number, now: Date = new Date()) => {
   const month = dateInDisplayTz(now).slice(0, 7);
   return transactionRepository.monthlyFlow(

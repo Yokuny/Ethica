@@ -82,6 +82,12 @@ export type FinanceSummary = {
   expensesMonthCents: number;
 };
 
+// Dashboard (DSH-02, DSH-05): received by each installment's date, as in the cash flow.
+export type FeesDashboard = {
+  receivableCents: number;
+  receivedByYear: { year: string; cents: number }[];
+};
+
 export type MonthlyFlow = {
   month: string;
   receivedCents: number;

@@ -3,6 +3,7 @@ import {
   CASE_CLOSED_PHASES,
   CASE_PHASE_GROUPS,
   type CasePhase,
+  type CaseRole,
   DISPLAY_TIMEZONE,
   TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
@@ -22,6 +23,7 @@ import {
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type {
   CaseCreateWrite,
+  CaseDashboard,
   CaseDistribution,
   CaseRecord,
   CaseSummary,
@@ -458,6 +460,50 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
         { key: 'deadlines_due_soon', count: proximas },
         { key: 'reports_delivered', count: entregues },
       ],
+    };
+  });
+
+export const dashboard = async (tenantId: string): Promise<CaseDashboard> =>
+  withDbTiming('case.dashboard', async () => {
+    const Tenant = toObjectId(tenantId);
+    const count = (extra: object) => Case.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
+    const [total, open, byType, byYear] = await Promise.all([
+      count({}),
+      count(OPEN),
+      Case.aggregate<{ role: CaseRole; serviceType: string | null; count: number }>([
+        { $match: { Tenant } },
+        {
+          $group: {
+            _id: { $ifNull: ['$serviceType', '$role'] },
+            role: { $first: '$role' },
+            serviceType: { $first: '$serviceType' },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1, _id: 1 } },
+      ]),
+      // Without a nomination date, the registration date in the display time zone.
+      Case.aggregate<{ _id: string; count: number }>([
+        { $match: { Tenant, role: 'court_expert', serviceType: { $exists: false } } },
+        {
+          $project: {
+            day: {
+              $ifNull: [
+                '$nominationDate',
+                { $dateToString: { date: '$createdAt', format: '%Y-%m-%d', timezone: DISPLAY_TIMEZONE } },
+              ],
+            },
+          },
+        },
+        { $group: { _id: { $substrBytes: ['$day', 0, 4] }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]),
+    ]);
+    return {
+      total,
+      closed: total - open,
+      byType: byType.map(({ role, serviceType, count }) => ({ role, serviceType: serviceType ?? undefined, count })),
+      courtExpertByYear: byYear.map(({ _id, count }) => ({ year: _id, count })),
     };
   });
 

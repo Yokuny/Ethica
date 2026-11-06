@@ -160,6 +160,14 @@ export const listServiceTypes = async (req: Request, res: Response, next: NextFu
   }
 };
 
+export const caseDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await caseService.caseDashboard(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const caseDistribution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await caseService.caseDistribution(tenantOf(req)) }));
