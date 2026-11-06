@@ -22,7 +22,7 @@ import { useAgendaPage } from './@hooks/use-agenda-page.js';
 import { type CalendarSearch, calendarSearchSchema } from './@interface/calendar.interface.js';
 
 // "Nov" and "2026" apart: the month big, the year smaller beside it.
-const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'short', timeZone: 'UTC' });
+const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', timeZone: 'UTC' });
 const yearName = new Intl.DateTimeFormat('pt-BR', { year: 'numeric', timeZone: 'UTC' });
 const VIEW_ITEMS = CALENDAR_VIEWS.map((value) => ({ value, label: t(value) }));
 
@@ -94,12 +94,6 @@ export function AgendaIndexPage() {
       <CardContent>
         {/* The period shown and, on its right, the period navigation. */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-baseline gap-1.5">
-            <ItemTitle className="text-2xl font-semibold first-letter:uppercase">
-              {monthName.format(day).replace('.', '')}
-            </ItemTitle>
-            <ItemDescription className="text-base">{yearName.format(day)}</ItemDescription>
-          </div>
           <PeriodNav
             label={t('today')}
             previousLabel={t('previous')}
@@ -108,6 +102,10 @@ export function AgendaIndexPage() {
             onToday={handleToday}
             onNext={handleNext}
           />
+          <div className="flex items-baseline gap-1.5">
+            <ItemTitle className="text-2xl font-semibold first-letter:uppercase">{monthName.format(day)}</ItemTitle>
+            <ItemDescription className="text-base">{yearName.format(day)}</ItemDescription>
+          </div>
         </div>
         {query.isLoading ? (
           <DefaultLoading />
