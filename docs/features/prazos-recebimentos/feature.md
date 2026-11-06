@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-06 — Relatório financeiro na ordem pedida pela perita: Data, OS, Descrição, Contratante, Honorário fixado e Valor recebido (em A receber, Valor a receber). Pago e A pagar ficam sem o honorário; saem as colunas Serviço e Categoria.
 - 2026-11-06 — Receita e despesa podem ser anuladas e reativadas: ficam na lista com R$ 0,00 e não contam em nenhum total. O relatório financeiro passa a trazer contratante, serviço e OS (AD-200).
 - 2026-11-05 — Lançamentos: ordenar pelo clique nas colunas Lançamento, Valor e Vencimento; filtros de natureza e situação em botões colados com a cor do selo (AD-192).
 - 2026-11-04 — Prazo ganha o tipo Alerta (lembrete concluível) e a seção Prazos e Alertas: feature `prazos-alertas` (AD-189).

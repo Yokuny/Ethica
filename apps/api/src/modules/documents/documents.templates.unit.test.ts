@@ -59,16 +59,15 @@ describe('documentos (DOC-02, DOC-03)', () => {
     expect(doc.footerTemplate).toContain('Página <span class="pageNumber"></span> de <span class="totalPages"></span>');
   });
 
-  it('relatório financeiro traz data, descrição, contratante, serviço, OS e valor', () => {
+  it('relatório financeiro traz data, OS, descrição, contratante, honorário fixado e valor recebido', () => {
     const row = {
       date: '2026-10-12',
       description: 'Insalubridade',
       client: 'Maria da Silva',
-      caseNumber: '0001234-56.2026.5.02.0001',
       serviceOrder: 'ETH-2026-001',
-      category: 'fixed_fees',
-      amountCents: 350_000,
-    } as const;
+      amountCents: 278_700,
+      feeCents: 350_000,
+    };
     const totals = {
       receivedCents: 350_000,
       paidCents: 0,
@@ -82,7 +81,9 @@ describe('documentos (DOC-02, DOC-03)', () => {
       period: { from: '2026-10-01', to: '2026-10-31' },
       report: { received: [row], paid: [], receivable: [], payable: [], totals },
     });
-    for (const text of ['Contratante', 'Serviço', 'OS', 'Maria da Silva', 'ETH-2026-001', 'Insalubridade']) {
+    const headers = ['Data', 'OS', 'Descrição', 'Contratante', 'Honorário fixado', 'Valor recebido'];
+    expect(html).toContain(headers.map((header) => `<th>${header}</th>`).join(''));
+    for (const text of ['ETH-2026-001', 'Insalubridade', 'Maria da Silva', '3.500,00', '2.787,00']) {
       expect(html).toContain(text);
     }
   });

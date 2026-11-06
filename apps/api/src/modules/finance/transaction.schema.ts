@@ -104,10 +104,10 @@ export type MonthlyFlow = {
 export type FinanceReportRow = {
   date: string;
   description: string;
-  category: TransactionCategory;
+  // What moved in the row; `feeCents` is the whole entry it belongs to.
   amountCents: number;
+  feeCents: number;
   client?: string;
-  caseNumber?: string;
   serviceOrder?: string;
   account?: string;
 };

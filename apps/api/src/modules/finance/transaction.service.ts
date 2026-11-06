@@ -196,11 +196,10 @@ export const reportPeriod = async (tenantId: string, period: { from: string; to:
     date,
     // A fee is described by the service; an expense, by what was paid.
     description: (item.kind === 'income' && item.caseSubject) || item.description,
-    category: item.category,
     amountCents,
+    feeCents: item.amountCents,
     client: item.client ?? item.plaintiff,
     serviceOrder: item.serviceOrder,
-    ...(item.caseNumber ? { caseNumber: item.caseNumber } : {}),
     ...(account ? { account } : {}),
   });
   const income = items.filter((item) => item.kind === 'income');

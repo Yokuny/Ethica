@@ -273,19 +273,25 @@ export const scheduleHtml = (data: ScheduleData): PdfDocument =>
       : empty('Nenhum prazo pendente.'),
   );
 
-const financeRows = (title: string, rows: FinanceData['report']['received'], labelData: string) =>
+// Fee sections also show the fixed fee beside what moved in the row.
+const financeRows = (
+  title: string,
+  rows: FinanceData['report']['received'],
+  labelData: string,
+  labelAmount: string,
+  withFee = false,
+) =>
   section(
     title,
     rows.length
       ? table(
-          [labelData, 'Descrição', 'Contratante', 'Serviço', 'OS', 'Categoria', 'Valor'],
+          [labelData, 'OS', 'Descrição', 'Contratante', ...(withFee ? ['Honorário fixado'] : []), labelAmount],
           rows.map((row) => [
             esc(day(row.date)),
+            esc(row.serviceOrder),
             esc(row.account ? `${row.description} (${row.account})` : row.description),
             esc(row.client),
-            esc(row.caseNumber),
-            esc(row.serviceOrder),
-            esc(label(row.category)),
+            ...(withFee ? [`<span class="num">${esc(dinheiro(row.feeCents))}</span>`] : []),
             `<span class="num">${esc(dinheiro(row.amountCents))}</span>`,
           ]),
         )
@@ -313,10 +319,10 @@ export const financeHtml = (data: FinanceData): PdfDocument => {
           total('Saldo previsto', totals.expectedBalanceCents),
         ].join('')}</dl>`,
       ),
-      financeRows('Recebido', report.received, 'Data'),
-      financeRows('Pago', report.paid, 'Data'),
-      financeRows('A receber', report.receivable, 'Vencimento'),
-      financeRows('A pagar', report.payable, 'Vencimento'),
+      financeRows('Recebido', report.received, 'Data', 'Valor recebido', true),
+      financeRows('Pago', report.paid, 'Data', 'Valor'),
+      financeRows('A receber', report.receivable, 'Vencimento', 'Valor a receber', true),
+      financeRows('A pagar', report.payable, 'Vencimento', 'Valor'),
     ].join(''),
   );
 };
