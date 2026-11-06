@@ -44,6 +44,7 @@ export default defineConfig({
           ],
           passWithNoTests: true,
           globalSetup: ['packages/db/tests/setup/globalSetup.ts'],
+          setupFiles: ['packages/db/tests/setup/loopback.ts'],
           // No MONGODB_URI on purpose: globalSetup injects the test database one.
           env: apiBaseEnv,
           // All integration and e2e files share ONE test database.
@@ -62,6 +63,7 @@ export default defineConfig({
           include: ['apps/*/src/**/*.e2e.test.ts'],
           passWithNoTests: true,
           globalSetup: ['packages/db/tests/setup/globalSetup.ts'],
+          setupFiles: ['packages/db/tests/setup/loopback.ts'],
           // No MONGODB_URI on purpose (see "integration").
           env: apiBaseEnv,
           // Same reason as the "integration" project: there is a single test database.
