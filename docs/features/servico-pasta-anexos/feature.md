@@ -2,7 +2,7 @@
 feature: Link da pasta e anexos do serviço
 slug: servico-pasta-anexos
 descricao: Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço
-data: 2026-11-05
+data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
 decisoes: [AD-197]
@@ -12,7 +12,7 @@ branches: [main]
 
 # Link da pasta e anexos do serviço
 
-**Status**: concluido · **Atualizado**: 2026-11-05 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-06 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='servico-pasta-anexos'`.
@@ -44,8 +44,10 @@ pnpm vitest run apps/api/src/modules/case/case-attachment.router.e2e.test.ts
 
 ## Pendências
 
-- [ ] Envio real de arquivo pela tela: o `.env` local não tem `S3_BUCKET`, então foi conferido só com armazenamento simulado nos testes e com o aviso de falha na tela.
+- [x] Envio real de arquivo pela tela: conferido com o RustFS do compose (2026-11-06).
+- [ ] Confirmar se o ambiente publicado tem as variáveis `S3_*`: sem elas, a tela mostra "Armazenamento de arquivos não configurado". Não dá para ver de fora; depende do painel da Railway.
 
 ## Histórico
 
+- 2026-11-06 — Conferido com armazenamento real: criar com dois anexos, baixar com o nome acentuado intacto, trocar anexo na edição, excluir o serviço (arquivos saem e a cota volta ao valor anterior) e limites de tipo, tamanho e quantidade. A escolha do arquivo foi simulada na página, porque o navegador da verificação não abre a janela do sistema.
 - 2026-11-05 — Link da pasta e anexos entregues (AD-197).

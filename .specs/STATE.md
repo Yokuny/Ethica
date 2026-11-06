@@ -1095,6 +1095,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-05
 - **Status**: active
 
+### AD-198
+- **Decision**: Nos projetos `integration` e `e2e`, o servidor que o supertest abre com `listen(0)` escuta só em `127.0.0.1` (`packages/db/tests/setup/loopback.ts`, por `setupFiles`), usando `_listen2`.
+- **Reason**: a falha intermitente da suíte não era defeito do sistema. O supertest escuta em todos os endereços e chama `127.0.0.1`; no macOS, a porta sorteada pode ser a de outro programa que já escuta em `127.0.0.1`, e esse programa responde no lugar da API (404, sem `body.data`, sem nada no log da API). Reproduzido com 410 portas ocupadas: 18 falhas por rodada antes; 0 depois, em 10 rodadas de `pnpm run check`.
+- **Trade-off**: `_listen2` é interno do Node (o `listen()` público com endereço só abre a porta no tick seguinte, e o supertest lê `address()` na hora). Se o Node o remover, todo teste com supertest quebra de forma visível.
+- **Scope**: `packages/db/tests/setup/loopback.ts`, `vitest.config.ts`.
+- **Date**: 2026-11-06
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

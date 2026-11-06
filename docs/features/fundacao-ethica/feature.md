@@ -2,16 +2,16 @@
 feature: Fundação do Ethica
 slug: fundacao-ethica
 descricao: Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
-data: 2026-11-05
+data: 2026-11-06
 status: parcial
 areas: [apps/api, apps/web, packages/contracts, packages/db, packages/ui, harness, docs, infra, tests]
-decisoes: [AD-001, AD-038, AD-039, AD-036, AD-102, AD-103, AD-104, AD-105, AD-106, AD-107, AD-154]
+decisoes: [AD-001, AD-038, AD-039, AD-036, AD-102, AD-103, AD-104, AD-105, AD-106, AD-107, AD-154, AD-198]
 spec: [.specs/features/fundacao-ethica]
 ---
 
 # Fundação do Ethica
 
-**Status**: parcial · **Atualizado**: 2026-11-05 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
+**Status**: parcial · **Atualizado**: 2026-11-06 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
 
 > Documento vivo. Onde divergir do plano (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fundacao-ethica'`.
@@ -91,9 +91,11 @@ pnpm run check && (cd apps/web && pnpm run build)
 - [ ] Validar a consulta ao Datajud com a chave real (AD-105) — adiado para depois das frentes atuais (AD-145).
 - [ ] UAT visual de todas as telas com o seed de demonstração.
 - [x] Tenant com CPF: não será suportado, o escritório é só CNPJ (AD-144).
+- [ ] Testes de tela (`apps/web`) estouraram o tempo uma vez, com a máquina muito carregada (2026-11-06, 7 testes em 3 arquivos). Não voltou em 18 rodadas seguintes; causa não investigada.
 
 ## Histórico
 
+- 2026-11-06 — Falha intermitente da suíte resolvida (AD-198): os testes falavam com outro programa da máquina na mesma porta, não com a API. Não era defeito do sistema; a sequência da OS e o `service_order_taken` não tinham relação. Qual programa ocupava a porta nas rodadas antigas não foi identificado.
 - 2026-11-05 — Skill `monorepo-architecture`: a arquitetura deste monorepo (pacotes compartilhados, API em módulos com camada de service e eventos, web com camada global) escrita como documento portátil, para levar a outro projeto e chegar no mesmo resultado. É autossuficiente: traz o código-base, os testes que travam as fronteiras e o roteiro para aplicar do zero ou num MVP existente, sem citar o Ethica nem este harness (`.agents/skills/monorepo-architecture/SKILL.md`). Substitui no mesmo dia a primeira versão (`ethica-architecture`), que apontava para arquivos e skills daqui e não servia fora do repo. Junto: `docs/architecture.md` e `apps/api/CLAUDE.md` alinhados ao código (módulo `documents`, evento `agenda:entries_synced`, guarda de tela pela matriz de permissões) e a mensagem de início de sessão passa a citar a skill `ethica-docs` (trazia o nome do projeto anterior).
 - 2026-11-04 — Largura das colunas de todas as listas (serviços, laudos, financeiro, cadastro, prospecção, diário): o número do processo e o nome principal da linha aparecem inteiros, sem quebra nem "…", e os textos longos (partes, tribunal e vara, modelo) quebram em linhas e ocupam o espaço livre, em vez de serem cortados (`apps/web/src/components/data-table.tsx`, AD-182). Conferido no navegador com a lista de laudos.
 - 2026-11-02 — Harness enxuto: sem validação local nem endereço de teste no fim da entrega, contrato operacional fundido em "Com quem você trabalha", publicação fora da documentação (AD-154).

@@ -19,33 +19,10 @@
       "doc": "features/dashboard/feature.md"
     },
     {
-      "slug": "fase-servico",
-      "feature": "Fase e status do serviço",
-      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
-      "data": "2026-11-05",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-178",
-        "AD-180",
-        "AD-196"
-      ],
-      "spec": [
-        ".specs/features/fase-servico"
-      ],
-      "planos": [],
-      "doc": "features/fase-servico/feature.md"
-    },
-    {
       "slug": "fundacao-ethica",
       "feature": "Fundação do Ethica",
       "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
-      "data": "2026-11-05",
+      "data": "2026-11-06",
       "status": "parcial",
       "areas": [
         "apps/api",
@@ -69,7 +46,8 @@
         "AD-105",
         "AD-106",
         "AD-107",
-        "AD-154"
+        "AD-154",
+        "AD-198"
       ],
       "spec": [
         ".specs/features/fundacao-ethica"
@@ -78,6 +56,50 @@
         ".specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md"
       ],
       "doc": "features/fundacao-ethica/feature.md"
+    },
+    {
+      "slug": "servico-pasta-anexos",
+      "feature": "Link da pasta e anexos do serviço",
+      "descricao": "Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço",
+      "data": "2026-11-06",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-197"
+      ],
+      "spec": [
+        ".specs/features/servico-pasta-anexos"
+      ],
+      "planos": [],
+      "doc": "features/servico-pasta-anexos/feature.md"
+    },
+    {
+      "slug": "fase-servico",
+      "feature": "Fase e status do serviço",
+      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
+      "data": "2026-11-05",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-178",
+        "AD-180",
+        "AD-196"
+      ],
+      "spec": [
+        ".specs/features/fase-servico"
+      ],
+      "planos": [],
+      "doc": "features/fase-servico/feature.md"
     },
     {
       "slug": "prazos-alertas",
@@ -102,27 +124,6 @@
       ],
       "planos": [],
       "doc": "features/prazos-alertas/feature.md"
-    },
-    {
-      "slug": "servico-pasta-anexos",
-      "feature": "Link da pasta e anexos do serviço",
-      "descricao": "Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço",
-      "data": "2026-11-05",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-197"
-      ],
-      "spec": [
-        ".specs/features/servico-pasta-anexos"
-      ],
-      "planos": [],
-      "doc": "features/servico-pasta-anexos/feature.md"
     },
     {
       "slug": "fase-assistencia",
@@ -1596,6 +1597,12 @@
       "id": "AD-197",
       "decisao": "Anexos do serviço ficam no próprio `Case` (`attachments`, com `key`, `name`, `mime`, `bytes`) e no storage do tenant (AD-120), em `/expert-c",
       "data": "2026-11-05",
+      "status": "active"
+    },
+    {
+      "id": "AD-198",
+      "decisao": "Nos projetos `integration` e `e2e`, o servidor que o supertest abre com `listen(0)` escuta só em `127.0.0.1` (`packages/db/tests/setup/loopb",
+      "data": "2026-11-06",
       "status": "active"
     }
   ]

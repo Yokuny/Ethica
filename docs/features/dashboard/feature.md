@@ -46,8 +46,9 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Pendências
 
-Nenhuma.
+- [ ] Celular com muitos anos: com 4 anos os rótulos em dinheiro cabem; com 8 eles se sobrepõem e o primeiro é cortado. A perita decide como deve ficar.
 
 ## Histórico
 
+- 2026-11-06 — Conferido com perícias e honorários de vários anos: colunas e somas batem, o operador não vê valor em dinheiro e ano sem dados não vira coluna (o gráfico pula do ano anterior para o seguinte). O sistema não tem tema escuro (`apps/web/src/main.tsx` fixa o claro), então esse item não se aplica.
 - 2026-11-06 — Dashboard entregue.
