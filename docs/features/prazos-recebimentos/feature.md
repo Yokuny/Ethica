@@ -5,7 +5,7 @@ descricao: Vários prazos por perícia com protocolo, recebimento parcial de hon
 data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112, AD-113, AD-192, AD-200]
+decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112, AD-113, AD-192, AD-200, AD-201]
 spec: [.specs/features/prazos-recebimentos]
 branches: [feat/prazos-recebimentos]
 ---
@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-06 — Campo "Data do pagamento" em despesas e receitas; quitar e receber pedem a data em vez de assumir hoje (AD-201). A lista de recebimentos volta a mostrar a data de cada um.
 - 2026-11-06 — Relatório financeiro na ordem pedida pela perita: Data, OS, Descrição, Contratante, Honorário fixado e Valor recebido (em A receber, Valor a receber). Pago e A pagar ficam sem o honorário; saem as colunas Serviço e Categoria.
 - 2026-11-06 — Receita e despesa podem ser anuladas e reativadas: ficam na lista com R$ 0,00 e não contam em nenhum total. O relatório financeiro passa a trazer contratante, serviço e OS (AD-200).
 - 2026-11-05 — Lançamentos: ordenar pelo clique nas colunas Lançamento, Valor e Vencimento; filtros de natureza e situação em botões colados com a cor do selo (AD-192).

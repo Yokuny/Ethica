@@ -17,4 +17,5 @@ export type TransactionPanel =
   | { kind: 'create' }
   | { kind: 'edit'; transaction: TransactionRecord }
   | { kind: 'receive'; transaction: TransactionRecord }
+  | { kind: 'pay'; transaction: TransactionRecord }
   | null;

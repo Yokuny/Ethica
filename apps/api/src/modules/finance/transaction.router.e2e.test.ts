@@ -136,6 +136,44 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect((await as(request(app).delete(`/finance/entries/${expense.id}`))).status).toBe(200);
   });
 
+  it('data do pagamento: o lançamento nasce pago nesse dia e a despesa em aberto é quitada com ela (AD-201)', async () => {
+    const as = await seedSession();
+    const post = async (body: object) => (await as(request(app).post('/finance/entries')).send(body)).body.data;
+    const expense = {
+      kind: 'expense',
+      category: 'travel',
+      description: 'Viagem',
+      amountCents: 5_000,
+      dueDate: '2026-11-20',
+    };
+    expect(await post({ ...expense, settledDate: '2026-10-15' })).toMatchObject({
+      status: 'settled',
+      settledDate: '2026-10-15',
+    });
+
+    const fee = await post({
+      kind: 'income',
+      category: 'advance_fees',
+      description: 'Adiantamento',
+      amountCents: 80_000,
+      dueDate: '2026-11-20',
+      settledDate: '2026-10-20',
+    });
+    expect(fee).toMatchObject({ status: 'settled', receivedCents: 80_000 });
+    expect(fee.installments[0]).toMatchObject({ amountCents: 80_000, date: '2026-10-20' });
+
+    const open = await post(expense);
+    const patch = (body: object) => as(request(app).patch(`/finance/entries/${open.id}`)).send(body);
+    expect((await patch({ settledDate: '2026-10-25' })).body.data).toMatchObject({
+      status: 'settled',
+      settledDate: '2026-10-25',
+    });
+    expect((await patch({ settledDate: '2026-10-26' })).body.data.settledDate).toBe('2026-10-26');
+    const reopened = (await patch({ status: 'expected' })).body.data;
+    expect(reopened.status).toBe('expected');
+    expect(reopened.settledDate).toBeUndefined();
+  });
+
   it('anular tira o lançamento de todos os totais; reativar devolve valor e recebimentos (AD-200)', async () => {
     const as = await seedSession();
     const post = async (body: object) => (await as(request(app).post('/finance/entries')).send(body)).body.data;

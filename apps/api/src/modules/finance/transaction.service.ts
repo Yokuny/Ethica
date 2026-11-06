@@ -68,9 +68,22 @@ const withLiquidacao = (data: UpdateTransaction, today: string): UpdateTransacti
 
 export const createTransaction = async (tenantId: string, data: CreateTransaction): Promise<TransactionRecord> => {
   if (data.caseId) await caseService.getCase(tenantId, data.caseId);
-  const created = await transactionRepository.createTransaction(tenantId, data);
-  syncAgenda(tenantId, created.id, created);
-  return created;
+  const { settledDate, ...fields } = data;
+  const paidExpense = data.kind === 'expense' && settledDate;
+  const created = await transactionRepository.createTransaction(
+    tenantId,
+    paidExpense ? { ...fields, settledDate, status: 'settled' } : fields,
+  );
+  // A fee born paid gets the whole amount as a receipt on that day (AD-201).
+  const paidFee =
+    data.kind === 'income' && settledDate
+      ? await transactionRepository.addInstallment(tenantId, created.id, {
+          amountCents: created.amountCents,
+          date: settledDate,
+        })
+      : null;
+  syncAgenda(tenantId, created.id, paidFee ?? created);
+  return paidFee ?? created;
 };
 
 const findOrThrow = async (tenantId: string, id: string): Promise<TransactionRecord> => {
@@ -112,7 +125,13 @@ export const updateTransaction = async (
   const updated = await transactionRepository.updateTransaction(
     tenantId,
     id,
-    withLiquidacao(reactivating && current.settledDate ? { ...data, status: 'settled' } : data, dateInDisplayTz(now)),
+    withLiquidacao(
+      // A payment date on an open expense settles it; reactivating brings back a paid one.
+      (reactivating && current.settledDate) || (data.settledDate && !data.status && current.status === 'expected')
+        ? { ...data, status: 'settled' }
+        : data,
+      dateInDisplayTz(now),
+    ),
   );
   if (!updated) throw new TransactionNotFoundError('not_found');
   syncAgenda(tenantId, id, updated);

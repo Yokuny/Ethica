@@ -35,7 +35,7 @@ export type TransactionRecord = {
   client?: string;
 };
 
-export type InstallmentRecord = { id: string; amountCents: number; data: string; account?: string };
+export type InstallmentRecord = { id: string; amountCents: number; date: string; account?: string };
 
 export type TransactionState = TransactionStatus | 'overdue';
 

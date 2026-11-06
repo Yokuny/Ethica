@@ -48,7 +48,7 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
               >
                 {fee.installments.map((installment) => (
                   <ItemDescription key={installment.id} className="line-clamp-none">
-                    {[day(installment.data), formatMoney(installment.amountCents), installment.account]
+                    {[day(installment.date), formatMoney(installment.amountCents), installment.account]
                       .filter(Boolean)
                       .join(' · ')}
                   </ItemDescription>

@@ -45,9 +45,12 @@ const toDocumentFields = ({ caseId, ...data }: UpdateTransaction) => {
     Object.entries(data).filter(([, value]) => value !== undefined),
   );
   if (caseId !== undefined) fields.Case = caseId;
-  // Another category drops the name of the office's category (AD-159).
-  if (data.category && data.category !== 'other_expenses') return { ...fields, $unset: { categoryName: 1 } };
-  return fields;
+  // Another category drops the name of the office's category (AD-159); reopening drops the payment date.
+  const unset = {
+    ...(data.category && data.category !== 'other_expenses' ? { categoryName: 1 } : {}),
+    ...(data.status === 'expected' ? { settledDate: 1 } : {}),
+  };
+  return Object.keys(unset).length ? { ...fields, $unset: unset } : fields;
 };
 
 // Fee status (AD-111) calculated in the update itself, from the installments:
@@ -59,7 +62,10 @@ const STATUS_FROM_INSTALLMENTS = {
 // An annulled fee stays annulled until it is reactivated (AD-200).
 const INCOME_STATUS = { $cond: [{ $eq: ['$status', 'canceled'] }, 'canceled', STATUS_FROM_INSTALLMENTS] };
 
-export const createTransaction = async (tenantId: string, data: CreateTransaction): Promise<TransactionRecord> =>
+export const createTransaction = async (
+  tenantId: string,
+  data: CreateTransaction & Pick<UpdateTransaction, 'status'>,
+): Promise<TransactionRecord> =>
   withDbTiming('finance.createTransaction', async () => {
     const doc = await Transaction.create({ Tenant: tenantId, ...toDocumentFields(data) });
     return toRecord(doc);

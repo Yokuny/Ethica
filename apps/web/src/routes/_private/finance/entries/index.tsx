@@ -9,6 +9,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { financeSummaryQuery, transactionsQuery } from '@/query/transaction.js';
 import { FinanceOverview } from './@components/finance-overview.js';
+import { PaymentForm } from './@components/payment-form.js';
 import { ReceiptForm } from './@components/receipt-form.js';
 import { TransactionForm } from './@components/transaction-form.js';
 import { TransactionsFilters } from './@components/transactions-filters.js';
@@ -75,6 +76,7 @@ export function TransactionsIndexPage() {
               onRowClick={(transaction) => setPanel({ kind: 'edit', transaction })}
               onStatus={setStatus}
               onReceive={(transaction) => setPanel({ kind: 'receive', transaction })}
+              onPay={(transaction) => setPanel({ kind: 'pay', transaction })}
             />
           )}
         </DataTable>
@@ -82,6 +84,7 @@ export function TransactionsIndexPage() {
       {panel?.kind === 'create' && <TransactionForm onClose={() => setPanel(null)} />}
       {panel?.kind === 'edit' && <TransactionForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
       {panel?.kind === 'receive' && <ReceiptForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'pay' && <PaymentForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
     </Card>
   );
 }

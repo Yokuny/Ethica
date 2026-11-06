@@ -3,17 +3,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { addInstallmentMutation, type TransactionRecord } from '@/query/transaction.js';
 
-// Registrar recebimento (PRZ-02): valor sugerido = saldo, data = hoje.
+// Registrar recebimento (PRZ-02): valor sugerido = saldo; a data é a do pagamento real, sempre informada (AD-201).
 export function useReceiptForm({ transaction, onDone }: { transaction: TransactionRecord; onDone: () => void }) {
   const queryClient = useQueryClient();
   const form = useForm<CreateInstallment>({
     resolver: zodResolver(createInstallmentSchema),
     defaultValues: {
       amountCents: transaction.balanceCents ?? transaction.amountCents,
-      date: formatDisplayDate(new Date()),
+      date: '',
       account: '',
     },
   });

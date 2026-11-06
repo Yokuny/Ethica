@@ -81,7 +81,8 @@
         "AD-112",
         "AD-113",
         "AD-192",
-        "AD-200"
+        "AD-200",
+        "AD-201"
       ],
       "spec": [
         ".specs/features/prazos-recebimentos"
@@ -1619,6 +1620,12 @@
     {
       "id": "AD-200",
       "decisao": "Refina a AD-111: receita também pode ser anulada. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o",
+      "data": "2026-11-06",
+      "status": "active"
+    },
+    {
+      "id": "AD-201",
+      "decisao": "O dia em que o dinheiro entrou ou saiu é sempre informado, nunca presumido: \"Data do pagamento\" no cadastro e na edição da despesa, no novo",
       "data": "2026-11-06",
       "status": "active"
     }

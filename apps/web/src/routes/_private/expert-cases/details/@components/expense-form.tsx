@@ -18,6 +18,7 @@ export function ExpenseForm({ caseId, onClose }: { caseId: string; onClose: () =
           <ExpenseCategoryField />
           <MoneyField control={control} name="amountCents" label={t('amount')} placeholder={t('example_money')} />
           <DateField control={control} name="dueDate" label={t('date')} placeholder={t('choose_day')} />
+          <DateField control={control} name="settledDate" label={t('payment_date')} placeholder={t('choose_day')} />
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">
               {errorMessage}

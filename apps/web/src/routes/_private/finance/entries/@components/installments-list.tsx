@@ -49,7 +49,7 @@ export function InstallmentsList({
               key={installment.id}
               icon={Banknote}
               title={formatMoney(installment.amountCents)}
-              description={[day(installment.data), installment.account].filter(Boolean).join(' · ')}
+              description={[day(installment.date), installment.account].filter(Boolean).join(' · ')}
             >
               <div>
                 <Button variant="outline" disabled={mutation.isPending} onClick={() => setReversing(installment)}>
@@ -63,7 +63,7 @@ export function InstallmentsList({
       {reversing && (
         <ConfirmDialog
           title={t('reverse_receipt_question')}
-          description={`${formatMoney(reversing.amountCents)} · ${day(reversing.data)}`}
+          description={`${formatMoney(reversing.amountCents)} · ${day(reversing.date)}`}
           confirmLabel={t('reverse_receipt')}
           pending={mutation.isPending}
           onConfirm={handleEstorno}

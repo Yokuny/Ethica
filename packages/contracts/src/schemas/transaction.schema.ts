@@ -40,7 +40,9 @@ const kindCategory = (data: { kind?: TransactionKind; category?: TransactionCate
   (!data.kind || !data.category || (TRANSACTION_CATEGORIES[data.kind] as readonly string[]).includes(data.category)) &&
   (!data.categoryName || data.category === 'other_expenses');
 
+// With `settledDate`, the entry is born paid on that day (AD-201): the expense settled, the fee with a full receipt.
 export const createTransactionSchema = transactionFields
+  .extend({ settledDate: calendarDateSchema.optional() })
   .strict()
   .refine(kindCategory, { message: 'categoria não pertence à natureza', path: ['category'] });
 export type CreateTransaction = z.infer<typeof createTransactionSchema>;

@@ -72,6 +72,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-201** (2026-11-06, active) — O dia em que o dinheiro entrou ou saiu é sempre informado, nunca presumido: "Data do pagamento" no cadastro e na edição da despesa, no novo
 - **AD-200** (2026-11-06, active) — Refina a AD-111: receita também pode ser anulada. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o
 - **AD-199** (2026-11-06, active) — Refina a AD-178. "Parceria" e "Serviço particular" são tipos do escritório sempre oferecidos, mesmo antes do primeiro serviço (`FIXED_OWN_TY
 - **AD-198** (2026-11-06, active) — Nos projetos `integration` e `e2e`, o servidor que o supertest abre com `listen(0)` escuta só em `127.0.0.1` (`packages/db/tests/setup/loopb
@@ -81,7 +82,6 @@ _Nenhum._
 - **AD-194** (2026-11-05, active) — (1) Navegação de período (anterior, hoje, próximo) num só contorno, sem divisórias internas, em `apps/web/src/components/period-nav.tsx`, us
 - **AD-193** (2026-11-05, active) — Ajusta a parte (2) e (4) da AD-192. (1) Situação dos Laudos e situação de Prazos e Alertas voltam a ser abas acima da lista (Prazos sem "Tod
 - **AD-192** (2026-11-05, active) — (1) As listas de Serviços, Laudos, Partes e Lançamentos ordenam pelo clique no título da coluna (crescente → decrescente → volta à ordem pad
-- **AD-191** (2026-11-04, active) — Os índices do Atlas Search (`SEARCH_INDEXES`, AD-054) são criados ou atualizados pela própria API a cada subida (`provisionSearch` em `apps/
 
 ## `.specs/` sem registro em `docs/features/`
 

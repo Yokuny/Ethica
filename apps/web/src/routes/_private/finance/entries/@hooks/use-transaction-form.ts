@@ -23,6 +23,7 @@ export function useTransactionForm({ transaction, onDone }: { transaction?: Tran
           description: transaction.description,
           amountCents: transaction.amountCents,
           dueDate: transaction.dueDate,
+          settledDate: transaction.settledDate,
           caseId: transaction.caseId,
         }
       : {

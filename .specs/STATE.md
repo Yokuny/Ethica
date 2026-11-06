@@ -1119,6 +1119,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-06
 - **Status**: active
 
+### AD-201
+- **Decision**: O dia em que o dinheiro entrou ou saiu é sempre informado, nunca presumido: "Data do pagamento" no cadastro e na edição da despesa, no novo lançamento de receita e na despesa do serviço (`settledDate`, opcional; preenchida, a despesa nasce paga e a receita nasce com um recebimento do valor inteiro). "Marcar como pago" e "Registrar recebimento" pedem a data e não vêm mais preenchidos com hoje. Reabrir uma despesa apaga a data de pagamento.
+- **Reason**: pedido da perita (2026-11-06): a data da atualização pode ser posterior ao pagamento real, o que levou um recebimento de outubro a contar em novembro.
+- **Trade-off**: um passo a mais ao quitar. Recebimento já salvo continua sendo corrigido por estorno e novo registro.
+- **Scope**: `packages/contracts/src/schemas/transaction.schema.ts`, `apps/api/src/modules/finance/`, `apps/web/src/routes/_private/finance/entries/`, `apps/web/src/routes/_private/expert-cases/details/@components/expense-form.tsx`.
+- **Date**: 2026-11-06
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

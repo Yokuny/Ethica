@@ -66,6 +66,15 @@ export function TransactionForm({ transaction, onClose }: { transaction?: Transa
                       placeholder={t('example_money')}
                     />
                     <DateField control={control} name="dueDate" label={t('due_date')} placeholder={t('choose_day')} />
+                    {/* A fee already saved gets its dates in the receipts below. */}
+                    {(!transaction || (kind === 'expense' && transaction.status !== 'canceled')) && (
+                      <DateField
+                        control={control}
+                        name="settledDate"
+                        label={t('payment_date')}
+                        placeholder={t('choose_day')}
+                      />
+                    )}
                   </div>,
                   <SelectField
                     key="legalCase"

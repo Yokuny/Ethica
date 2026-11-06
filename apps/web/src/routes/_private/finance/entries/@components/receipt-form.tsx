@@ -22,7 +22,7 @@ export function ReceiptForm({ transaction, onClose }: { transaction: Transaction
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <MoneyField control={control} name="amountCents" label={t('amount')} placeholder={t('example_money')} />
-          <DateField control={control} name="date" label={t('received_on')} placeholder={t('choose_day')} />
+          <DateField control={control} name="date" label={t('payment_date')} placeholder={t('choose_day')} required />
           <TextField
             control={control}
             name="account"

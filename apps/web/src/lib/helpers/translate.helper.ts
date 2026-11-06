@@ -543,6 +543,7 @@ const translations: Record<string, string> = {
   receipt: 'Recebimento',
   paid: 'Pago',
   received_on: 'Recebido em',
+  payment_date: 'Data do pagamento',
   register_receipt: 'Registrar recebimento',
   reverse_receipt: 'Estornar',
   reverse_receipt_question: 'Estornar este recebimento?',

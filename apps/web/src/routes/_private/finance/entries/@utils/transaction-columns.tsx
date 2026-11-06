@@ -10,14 +10,19 @@ import type { TransactionRecord } from '@/query/transaction.js';
 
 type Actions = {
   // Annul and reactivate (AD-200); an expense also settles and reopens by hand, a fee gets installments (AD-111).
-  onStatus: (transaction: TransactionRecord, status: 'settled' | 'canceled' | 'expected') => void;
+  onStatus: (transaction: TransactionRecord, status: 'canceled' | 'expected') => void;
   onReceive: (transaction: TransactionRecord) => void;
+  onPay: (transaction: TransactionRecord) => void;
 };
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
 // Sortable columns (AD-192) have an `accessorFn` and the `id` of the server sort (`TRANSACTION_LIST_SORTS`).
-export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<TransactionRecord, unknown>[] => {
+export const transactionColumns = ({
+  onStatus,
+  onReceive,
+  onPay,
+}: Actions): ColumnDef<TransactionRecord, unknown>[] => {
   const today = formatDisplayDate(new Date());
   return [
     {
@@ -92,7 +97,7 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
                   <TableRowAction onClick={() => onReceive(row.original)}>{t('register_receipt')}</TableRowAction>
                 )}
                 {kind === 'expense' && status !== 'settled' && (
-                  <TableRowAction onClick={() => onStatus(row.original, 'settled')}>{t('mark_as_paid')}</TableRowAction>
+                  <TableRowAction onClick={() => onPay(row.original)}>{t('mark_as_paid')}</TableRowAction>
                 )}
                 {kind === 'expense' && status === 'settled' && (
                   <TableRowAction onClick={() => onStatus(row.original, 'expected')}>{t('reopen')}</TableRowAction>

@@ -33,7 +33,7 @@ const renderReceipts = (role: Role[]) => {
         amountCents: 480_000,
         dueDate: '2999-01-01',
         status: 'partial',
-        installments: [{ id: 'x1', amountCents: 150_000, data: '2026-10-13', account: 'Banco do Brasil' }],
+        installments: [{ id: 'x1', amountCents: 150_000, date: '2026-10-13', account: 'Banco do Brasil' }],
         receivedCents: 150_000,
         balanceCents: 330_000,
       },

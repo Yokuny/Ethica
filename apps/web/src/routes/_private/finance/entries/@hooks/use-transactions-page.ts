@@ -30,8 +30,8 @@ export function useTransactionsPage() {
     update({ page: next.pageIndex + 1, limit: next.pageSize });
   }
 
-  // Quick row actions: settle (today) and cancel.
-  function setStatus(transaction: TransactionRecord, status: 'settled' | 'canceled' | 'expected') {
+  // Quick row actions: annul, reactivate and reopen.
+  function setStatus(transaction: TransactionRecord, status: 'canceled' | 'expected') {
     updateMutation.mutate(
       { id: transaction.id, data: { status } },
       { onError: (error: Error) => toast.error(error.message) },

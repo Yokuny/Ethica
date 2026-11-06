@@ -14,8 +14,9 @@ type TransactionsTableProps = {
   sorting: SortingState;
   onSortingChange: OnChangeFn<SortingState>;
   onRowClick: (row: TransactionRecord) => void;
-  onStatus: (transaction: TransactionRecord, status: 'settled' | 'canceled' | 'expected') => void;
+  onStatus: (transaction: TransactionRecord, status: 'canceled' | 'expected') => void;
   onReceive: (transaction: TransactionRecord) => void;
+  onPay: (transaction: TransactionRecord) => void;
 };
 
 export function TransactionsTable({
@@ -29,8 +30,9 @@ export function TransactionsTable({
   onRowClick,
   onStatus,
   onReceive,
+  onPay,
 }: TransactionsTableProps) {
-  const columns = transactionColumns({ onStatus, onReceive });
+  const columns = transactionColumns({ onStatus, onReceive, onPay });
   const table = useReactTable({
     data,
     columns,
