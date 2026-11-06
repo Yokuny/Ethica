@@ -1103,6 +1103,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-06
 - **Status**: active
 
+### AD-199
+- **Decision**: Refina a **AD-178**. "Parceria" e "Serviço particular" são tipos do escritório sempre oferecidos, mesmo antes do primeiro serviço (`FIXED_OWN_TYPES` em `apps/web/src/components/case-labels.ts`); os demais continuam vindo dos nomes já usados. Seguem como tipo do escritório: contratante, atuação e fases digitadas, sem nova categoria no banco.
+- **Reason**: pedido da perita (2026-11-06): opção fixa para serviço particular, sem regime de parceria; ela escolheu o nome "Serviço particular", que não se confunde com a seção Serviços.
+- **Trade-off**: o nome fica gravado em cada serviço; trocá-lo depois exige atualizar os salvos. Sem títulos sugeridos de prazo e alerta, que continuam digitados nesse tipo.
+- **Scope**: `apps/web/src/components/{case-labels,deadline-labels}.ts`.
+- **Date**: 2026-11-06
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

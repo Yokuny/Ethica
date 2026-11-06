@@ -119,9 +119,15 @@ export const serviceTypeLabel = ({ role, serviceType }: ServiceTypeFields): stri
 // Type + sphere, as the list and the detail show it ("Perícia · Trabalhista").
 export const serviceLabel = (data: ServiceTypeFields & { courtType?: CourtType }): string =>
   [serviceTypeLabel(data), data.courtType && courtTypeLabel(data.courtType)].filter(Boolean).join(' · ');
+// Own types always offered (AD-199), even before the first service; the name saved on the service is the label.
+export const PARTNERSHIP_SERVICE_TYPE = 'Parceria';
+const FIXED_OWN_TYPES = [PARTNERSHIP_SERVICE_TYPE, 'Serviço particular'];
 export const serviceTypeItems = (officeTypes: readonly { name: string }[]) => [
   ...SERVICE_KINDS.map((role) => ({ value: role, label: t(SERVICE_KIND_KEY[role]) })),
-  ...officeTypes.map(({ name }) => ({ value: `${OWN_TYPE_PREFIX}${name}`, label: name })),
+  ...[...new Set([...FIXED_OWN_TYPES, ...officeTypes.map(({ name }) => name)])].map((name) => ({
+    value: `${OWN_TYPE_PREFIX}${name}`,
+    label: name,
+  })),
 ];
 export const ROLE_ITEMS = JUDICIAL_CASE_ROLES.map((value) => ({ value, label: t(value) }));
 // A role typed in the office's own type (AD-176) shows its name.

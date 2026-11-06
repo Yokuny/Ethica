@@ -79,6 +79,28 @@
       "doc": "features/servico-pasta-anexos/feature.md"
     },
     {
+      "slug": "tipo-servico-proprio",
+      "feature": "Tipo de serviço próprio",
+      "descricao": "Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro",
+      "data": "2026-11-06",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-176",
+        "AD-199"
+      ],
+      "spec": [
+        ".specs/features/tipo-servico-proprio"
+      ],
+      "planos": [],
+      "doc": "features/tipo-servico-proprio/feature.md"
+    },
+    {
       "slug": "fase-servico",
       "feature": "Fase e status do serviço",
       "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
@@ -304,27 +326,6 @@
       ],
       "planos": [],
       "doc": "features/rotina-servico/feature.md"
-    },
-    {
-      "slug": "tipo-servico-proprio",
-      "feature": "Tipo de serviço próprio",
-      "descricao": "Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro",
-      "data": "2026-11-03",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-176"
-      ],
-      "spec": [
-        ".specs/features/tipo-servico-proprio"
-      ],
-      "planos": [],
-      "doc": "features/tipo-servico-proprio/feature.md"
     },
     {
       "slug": "acesso-email",
@@ -1602,6 +1603,12 @@
     {
       "id": "AD-198",
       "decisao": "Nos projetos `integration` e `e2e`, o servidor que o supertest abre com `listen(0)` escuta só em `127.0.0.1` (`packages/db/tests/setup/loopb",
+      "data": "2026-11-06",
+      "status": "active"
+    },
+    {
+      "id": "AD-199",
+      "decisao": "Refina a AD-178. \"Parceria\" e \"Serviço particular\" são tipos do escritório sempre oferecidos, mesmo antes do primeiro serviço (`FIXED_OWN_TY",
       "data": "2026-11-06",
       "status": "active"
     }

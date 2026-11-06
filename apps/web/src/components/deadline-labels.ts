@@ -1,5 +1,6 @@
 import { DEADLINE_KINDS, DEADLINE_STATUS, type DeadlineKind, type DeadlineStatus } from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
+import { PARTNERSHIP_SERVICE_TYPE } from '@/components/case-labels.js';
 import { addDaysToDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
@@ -84,7 +85,6 @@ const SUGGESTIONS: Record<'court_expert' | 'technical_assistant' | 'partnership'
     alert: ['partner_meeting', 'send_documents_to_partner', 'collect_payment', 'check_progress'],
   },
 };
-const PARTNERSHIP_SERVICE_TYPE = 'Parceria';
 
 export const deadlineSuggestions = (legalCase: { role: string; serviceType?: string }) => {
   const list = legalCase.serviceType
