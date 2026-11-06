@@ -145,6 +145,10 @@ th, td { border: 0.3mm solid #d0d7de; padding: 1.8mm 2mm; text-align: left; vert
 th { background: #f6f8fa; font-weight: 600; }
 tr { break-inside: avoid; }
 td.num, th.num { text-align: right; white-space: nowrap; }
+.fios th, .fios td { border-width: 0 0 0.3mm; }
+.fios th { background: none; }
+.fios th:last-child, .fios td:last-child, .fios.data th:first-child, .fios.data td:first-child,
+.fios.honorario th:nth-last-child(2), .fios.honorario td:nth-last-child(2) { text-align: center; white-space: nowrap; }
 .vazio { color: #57606a; font-style: italic; margin: 0; }
 .alerta { font-weight: 600; color: #9a6700; }
 .vencido { font-weight: 600; color: #cf222e; }

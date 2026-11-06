@@ -713,7 +713,7 @@ const translations: Record<string, string> = {
   stalled_cases: 'Serviços parados',
   stalled_cases_description: 'Abertas sem movimentação há mais de 60 dias.',
   financial_report: 'Relatório financeiro',
-  financial_report_description: 'Recebido, pago, a receber e a pagar no período.',
+  financial_report_description: 'Receita, despesa, saldo líquido, a receber e a pagar no período.',
   from_date: 'De',
   to_date: 'Até',
   generate_pdf: 'Gerar PDF',

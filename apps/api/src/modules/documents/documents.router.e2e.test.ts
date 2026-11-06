@@ -174,8 +174,8 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(res.status).toBe(200);
     expect(rendered?.html).toContain('Honorários do processo (Banco X)');
     expect(rendered?.html).toContain('Combustível');
-    expect(rendered?.html).toMatch(/Saldo realizado<\/dt><dd>R\$\s850,00/);
-    expect(rendered?.html).toMatch(/Saldo previsto<\/dt><dd>R\$\s2\.850,00/);
+    expect(rendered?.html).toMatch(/Saldo líquido<\/td><td>R\$\s850,00/);
+    expect(rendered?.html).toMatch(/Saldo previsto<\/td><td>R\$\s2\.850,00/);
   });
 
   it('movimentações entram e saem da perícia; parada = aberta sem movimentação há mais de 60 dias', async () => {

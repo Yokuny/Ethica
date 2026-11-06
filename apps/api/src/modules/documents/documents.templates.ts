@@ -291,9 +291,10 @@ const financeRows = (
             esc(row.serviceOrder),
             esc(row.account ? `${row.description} (${row.account})` : row.description),
             esc(row.client),
-            ...(withFee ? [`<span class="num">${esc(dinheiro(row.feeCents))}</span>`] : []),
-            `<span class="num">${esc(dinheiro(row.amountCents))}</span>`,
+            ...(withFee ? [esc(dinheiro(row.feeCents))] : []),
+            esc(dinheiro(row.amountCents)),
           ]),
+          `fios data${withFee ? ' honorario' : ''}`,
         )
       : empty('Nada no período.'),
   );
@@ -301,8 +302,7 @@ const financeRows = (
 export const financeHtml = (data: FinanceData): PdfDocument => {
   const { report, period } = data;
   const { totals } = report;
-  const total = (labelTotal: string, cents: number) =>
-    `<div><dt>${esc(labelTotal)}</dt><dd>${esc(dinheiro(cents))}</dd></div>`;
+  const total = (labelTotal: string, cents: number) => [esc(labelTotal), esc(dinheiro(cents))];
   return document(
     data,
     'Relatório financeiro',
@@ -310,17 +310,21 @@ export const financeHtml = (data: FinanceData): PdfDocument => {
     [
       section(
         'Totais',
-        `<dl class="totais">${[
-          total('Recebido', totals.receivedCents),
-          total('Pago', totals.paidCents),
-          total('Saldo realizado', totals.actualBalanceCents),
-          total('A receber', totals.receivableCents),
-          total('A pagar', totals.payableCents),
-          total('Saldo previsto', totals.expectedBalanceCents),
-        ].join('')}</dl>`,
+        table(
+          ['Item', 'Valor'],
+          [
+            total('Receita', totals.receivedCents),
+            total('Despesa', totals.paidCents),
+            total('Saldo líquido', totals.actualBalanceCents),
+            total('A receber', totals.receivableCents),
+            total('A pagar', totals.payableCents),
+            total('Saldo previsto', totals.expectedBalanceCents),
+          ],
+          'fios',
+        ),
       ),
-      financeRows('Recebido', report.received, 'Data', 'Valor recebido', true),
-      financeRows('Pago', report.paid, 'Data', 'Valor'),
+      financeRows('Receita', report.received, 'Data', 'Valor recebido', true),
+      financeRows('Despesa', report.paid, 'Data', 'Valor'),
       financeRows('A receber', report.receivable, 'Vencimento', 'Valor a receber', true),
       financeRows('A pagar', report.payable, 'Vencimento', 'Valor'),
     ].join(''),
