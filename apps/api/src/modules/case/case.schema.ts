@@ -145,6 +145,7 @@ export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };
 // `client`: name of whoever hired the service (AD-135, AD-176).
 export type CaseSummary = {
   processNumber?: string;
+  serviceOrder?: string;
   subject: string;
   court?: string;
   division?: string;

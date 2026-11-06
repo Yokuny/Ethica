@@ -55,7 +55,8 @@ export const transactionAgendaEntries = (transaction: {
     status: transaction.status === 'settled' ? 'done' : transaction.status === 'canceled' ? 'canceled' : 'open',
     amountCents: transaction.amountCents,
   },
-  ...(transaction.installments ?? []).map((installment) => ({
+  // An annulled entry (AD-200) keeps its installments, but they count nowhere.
+  ...(transaction.status === 'canceled' ? [] : (transaction.installments ?? [])).map((installment) => ({
     type: 'receipt' as const,
     title: transaction.description,
     date: installment.date,

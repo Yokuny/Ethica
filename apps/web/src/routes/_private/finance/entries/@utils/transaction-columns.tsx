@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { TableIdentity, TableRowAction, TableRowActions, TableStack, TableStatus } from '@/components/data-table.js';
-import { categoryLabel, STATE_VARIANT, transactionState } from '@/components/transaction-labels.js';
+import { categoryLabel, STATE_VARIANT, stateLabel, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -9,7 +9,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import type { TransactionRecord } from '@/query/transaction.js';
 
 type Actions = {
-  // Expense only: settle, reopen and cancel by hand. A fee gets installments (AD-111).
+  // Annul and reactivate (AD-200); an expense also settles and reopens by hand, a fee gets installments (AD-111).
   onStatus: (transaction: TransactionRecord, status: 'settled' | 'canceled' | 'expected') => void;
   onReceive: (transaction: TransactionRecord) => void;
 };
@@ -43,12 +43,16 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
         <TableStack
           tone={row.original.kind === 'expense' ? 'error' : 'default'}
           description={
-            row.original.status === 'partial'
-              ? `${t('received')} ${formatMoney(row.original.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(row.original.balanceCents ?? 0)}`
-              : t(row.original.kind)
+            row.original.status === 'canceled'
+              ? `${t('annulled_amount')} ${formatMoney(row.original.amountCents)}`
+              : row.original.status === 'partial'
+                ? `${t('received')} ${formatMoney(row.original.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(row.original.balanceCents ?? 0)}`
+                : t(row.original.kind)
           }
         >
-          {`${row.original.kind === 'expense' ? '−' : ''}${formatMoney(row.original.amountCents)}`}
+          {row.original.status === 'canceled'
+            ? formatMoney(0)
+            : `${row.original.kind === 'expense' ? '−' : ''}${formatMoney(row.original.amountCents)}`}
         </TableStack>
       ),
     },
@@ -70,34 +74,37 @@ export const transactionColumns = ({ onStatus, onReceive }: Actions): ColumnDef<
       header: t('status'),
       cell: ({ row }) => {
         const state = transactionState(row.original, today);
-        return <TableStatus variant={STATE_VARIANT[state]}>{t(state)}</TableStatus>;
+        return <TableStatus variant={STATE_VARIANT[state]}>{stateLabel(state)}</TableStatus>;
       },
     },
     {
       id: 'actions',
       header: '',
-      cell: ({ row }) =>
-        row.original.kind === 'income' ? (
-          row.original.status !== 'settled' && (
-            <TableRowActions label={t('actions')}>
-              <TableRowAction onClick={() => onReceive(row.original)}>{t('register_receipt')}</TableRowAction>
-            </TableRowActions>
-          )
-        ) : (
+      cell: ({ row }) => {
+        const { kind, status } = row.original;
+        return (
           <TableRowActions label={t('actions')}>
-            {row.original.status !== 'settled' && (
-              <TableRowAction onClick={() => onStatus(row.original, 'settled')}>{t('mark_as_paid')}</TableRowAction>
-            )}
-            {row.original.status !== 'expected' && (
-              <TableRowAction onClick={() => onStatus(row.original, 'expected')}>{t('reopen')}</TableRowAction>
-            )}
-            {row.original.status !== 'canceled' && (
-              <TableRowAction variant="destructive" onClick={() => onStatus(row.original, 'canceled')}>
-                {t('cancel_entry')}
-              </TableRowAction>
+            {status === 'canceled' ? (
+              <TableRowAction onClick={() => onStatus(row.original, 'expected')}>{t('reactivate')}</TableRowAction>
+            ) : (
+              <>
+                {kind === 'income' && status !== 'settled' && (
+                  <TableRowAction onClick={() => onReceive(row.original)}>{t('register_receipt')}</TableRowAction>
+                )}
+                {kind === 'expense' && status !== 'settled' && (
+                  <TableRowAction onClick={() => onStatus(row.original, 'settled')}>{t('mark_as_paid')}</TableRowAction>
+                )}
+                {kind === 'expense' && status === 'settled' && (
+                  <TableRowAction onClick={() => onStatus(row.original, 'expected')}>{t('reopen')}</TableRowAction>
+                )}
+                <TableRowAction variant="destructive" onClick={() => onStatus(row.original, 'canceled')}>
+                  {t('cancel_entry')}
+                </TableRowAction>
+              </>
             )}
           </TableRowActions>
-        ),
+        );
+      },
     },
   ];
 };

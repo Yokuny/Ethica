@@ -41,6 +41,9 @@ const withCaseNumber = async (tenantId: string, items: TransactionRecord[]): Pro
     return {
       ...item,
       caseNumber: caseLabel(summary),
+      caseSubject: summary.subject,
+      serviceOrder: summary.serviceOrder,
+      plaintiff: summary.plaintiff,
       ...(summary.client ? { client: summary.client } : {}),
     };
   });
@@ -89,7 +92,15 @@ export const updateTransaction = async (
   if (data.kind && data.kind !== current.kind) throw new CustomError('invalid_data', 422);
   if (data.caseId) await caseService.getCase(tenantId, data.caseId);
 
+  // Annul or reactivate (AD-200): it keeps the amount and the installments, but counts nowhere while annulled.
+  const reactivating = data.status === 'expected' && current.status === 'canceled';
   if (current.kind === 'income') {
+    if (data.status === 'canceled' || reactivating) {
+      const updated = await transactionRepository.setIncomeCanceled(tenantId, id, !reactivating);
+      if (!updated) throw new TransactionNotFoundError('not_found');
+      syncAgenda(tenantId, id, updated);
+      return updated;
+    }
     if (data.status || data.settledDate) throw new CustomError('fee_status_comes_from_parcels', 422);
     const updated = await transactionRepository.updateIncome(tenantId, id, data);
     if (!updated) throw new CustomError('amount_below_received', 422);
@@ -101,7 +112,7 @@ export const updateTransaction = async (
   const updated = await transactionRepository.updateTransaction(
     tenantId,
     id,
-    withLiquidacao(data, dateInDisplayTz(now)),
+    withLiquidacao(reactivating && current.settledDate ? { ...data, status: 'settled' } : data, dateInDisplayTz(now)),
   );
   if (!updated) throw new TransactionNotFoundError('not_found');
   syncAgenda(tenantId, id, updated);
@@ -123,7 +134,7 @@ export const addInstallment = async (
   installment: CreateInstallment,
 ): Promise<TransactionRecord> => {
   const current = await findOrThrow(tenantId, id);
-  if (current.kind !== 'income') throw new CustomError('invalid_data', 422);
+  if (current.kind !== 'income' || current.status === 'canceled') throw new CustomError('invalid_data', 422);
   const updated = await transactionRepository.addInstallment(tenantId, id, installment);
   if (!updated) throw new CustomError('parcel_exceeds_balance', 422);
   syncAgenda(tenantId, id, updated);
@@ -183,9 +194,12 @@ export const reportPeriod = async (tenantId: string, period: { from: string; to:
   );
   const row = (item: TransactionRecord, date: string, amountCents: number, account?: string) => ({
     date,
-    description: item.client ? `${item.description} · contratante: ${item.client}` : item.description,
+    // A fee is described by the service; an expense, by what was paid.
+    description: (item.kind === 'income' && item.caseSubject) || item.description,
     category: item.category,
     amountCents,
+    client: item.client ?? item.plaintiff,
+    serviceOrder: item.serviceOrder,
     ...(item.caseNumber ? { caseNumber: item.caseNumber } : {}),
     ...(account ? { account } : {}),
   });

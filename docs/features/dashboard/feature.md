@@ -5,7 +5,7 @@ descricao: Seção com os totais de serviços e honorários e os gráficos de pe
 data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web]
-decisoes: []
+decisoes: [AD-200]
 spec: [.specs/features/dashboard]
 branches: [main]
 ---
@@ -22,7 +22,7 @@ branches: [main]
 - Item **Dashboard** no menu, em Gestão, com o acesso de Serviços.
 - Faixa com os totais: serviços, serviços finalizados (todos os encerrados), honorários recebidos e honorários a receber.
 - Total de serviços por tipo: Perícia, Assistência técnica e cada tipo do escritório.
-- Gráfico de colunas de perícias por ano (só o tipo Perícia, pelo ano da nomeação; sem essa data, o ano do cadastro).
+- Gráfico de colunas de perícias por ano (só o tipo Perícia, sem as canceladas, pelo ano da nomeação; sem essa data, o ano do cadastro).
 - Gráfico de colunas de honorários recebidos por ano, pela data em que cada parcela entrou.
 - Valores em dinheiro só para quem vê o Financeiro.
 
@@ -50,5 +50,6 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-06 — Perícias canceladas saem do gráfico de perícias por ano; lançamentos anulados não contam nos honorários (AD-200).
 - 2026-11-06 — Conferido com perícias e honorários de vários anos: colunas e somas batem, o operador não vê valor em dinheiro e ano sem dados não vira coluna (o gráfico pula do ano anterior para o seguinte). O sistema não tem tema escuro (`apps/web/src/main.tsx` fixa o claro), então esse item não se aplica.
 - 2026-11-06 — Dashboard entregue.

@@ -29,9 +29,12 @@ export const KIND_VARIANT = { income: 'success', expense: 'error' } as const sat
   IndicatorVariant
 >;
 
+// A canceled entry reads "Anulado" (AD-200).
+export const stateLabel = (state: TransactionState) => t(state === 'canceled' ? 'annulled' : state);
+
 export const STATE_ITEMS = (['expected', 'partial', 'overdue', 'settled', 'canceled'] as const).map((value) => ({
   value,
-  label: t(value),
+  label: stateLabel(value),
 }));
 
 export const KIND_ITEMS = TRANSACTION_KINDS.map((value) => ({ value, label: t(value) }));

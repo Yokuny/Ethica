@@ -68,6 +68,10 @@ export type TransactionRecord = {
   caseNumber?: string;
   // Whoever hired the case's technical assistant (AD-135).
   client?: string;
+  // Only in the period report: the service object and order, and the perícia plaintiff.
+  caseSubject?: string;
+  serviceOrder?: string;
+  plaintiff?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -102,7 +106,9 @@ export type FinanceReportRow = {
   description: string;
   category: TransactionCategory;
   amountCents: number;
+  client?: string;
   caseNumber?: string;
+  serviceOrder?: string;
   account?: string;
 };
 

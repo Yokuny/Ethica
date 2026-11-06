@@ -53,9 +53,11 @@ const toDocumentFields = ({ caseId, ...data }: UpdateTransaction) => {
 // Fee status (AD-111) calculated in the update itself, from the installments:
 // none → expected; less than the amount → partial; the whole amount → settled.
 const RECEIVED = { $sum: '$installments.amountCents' };
-const INCOME_STATUS = {
+const STATUS_FROM_INSTALLMENTS = {
   $cond: [{ $eq: [RECEIVED, 0] }, 'expected', { $cond: [{ $lt: [RECEIVED, '$amountCents'] }, 'partial', 'settled'] }],
 };
+// An annulled fee stays annulled until it is reactivated (AD-200).
+const INCOME_STATUS = { $cond: [{ $eq: ['$status', 'canceled'] }, 'canceled', STATUS_FROM_INSTALLMENTS] };
 
 export const createTransaction = async (tenantId: string, data: CreateTransaction): Promise<TransactionRecord> =>
   withDbTiming('finance.createTransaction', async () => {
@@ -123,6 +125,21 @@ export const updateIncome = async (
         ...(data.amountCents !== undefined ? { $expr: { $lte: [RECEIVED, data.amountCents] } } : {}),
       },
       [{ $set: fields }, { $set: { status: INCOME_STATUS } }],
+      { returnDocument: 'after', updatePipeline: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+// Annul a fee or reactivate it (AD-200): the installments stay saved and the status comes back from them.
+export const setIncomeCanceled = async (
+  tenantId: string,
+  id: string,
+  canceled: boolean,
+): Promise<TransactionRecord | null> =>
+  withDbTiming('finance.setIncomeCanceled', async () => {
+    const doc = await Transaction.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, _id: id, kind: 'income' as const }),
+      [{ $set: { status: canceled ? 'canceled' : STATUS_FROM_INSTALLMENTS } }],
       { returnDocument: 'after', updatePipeline: true },
     ).lean();
     return doc ? toRecord(doc) : null;
@@ -248,7 +265,7 @@ export const summary = async (
       sum([{ $match: { ...open, dueDate: { $lt: range.today } } }, { $project: { amount: BALANCE } }]),
       // Received in the month = installments by the date they hit the account (PRZ-02.5).
       sum([
-        { $match: { Tenant, kind: 'income' } },
+        { $match: { Tenant, kind: 'income', status: { $ne: 'canceled' } } },
         { $unwind: '$installments' },
         { $match: { 'installments.date': month } },
         { $project: { amount: '$installments.amountCents' } },

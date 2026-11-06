@@ -5,7 +5,7 @@ descricao: Tipo de serviço criado pelo escritório com contratante, atuação e
 data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-176, AD-199]
+decisoes: [AD-176, AD-199, AD-200]
 spec: [.specs/features/tipo-servico-proprio]
 branches: [main]
 ---
@@ -68,6 +68,7 @@ Não desfazer sem ler: atuação e status digitados são `role: 'other'` + `role
 
 ## Histórico
 
+- 2026-11-06 — "Serviço particular" começa com a Atuação vazia e obrigatória (AD-200).
 - 2026-11-06 — "Parceria" e a nova opção "Serviço particular" aparecem sempre na lista de tipos, mesmo sem serviço cadastrado (AD-199).
 - 2026-11-03 — Revisto pela `fase-servico` (AD-178): o status digitado virou fase digitada (`phase: 'custom'` + `phaseName`) e Concluído/Cancelado viraram "Honorários recebidos" e o status Cancelado; assistência técnica também usa o formulário de contratante.
 - 2026-11-03 — O tipo próprio deixa de ser `courtType: 'other'`: passa a ser nome de tipo ou Parceria (`isOwnType`), com esfera própria; ver `esfera-servico` (AD-177). "Serviços em aberto" passa a contar o status digitado.

@@ -2,17 +2,17 @@
 feature: Prazos e recebimentos
 slug: prazos-recebimentos
 descricao: Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail
-data: 2026-11-01
+data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112, AD-113, AD-192]
+decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112, AD-113, AD-192, AD-200]
 spec: [.specs/features/prazos-recebimentos]
 branches: [feat/prazos-recebimentos]
 ---
 
 # Prazos e recebimentos
 
-**Status**: concluido · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-06 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='prazos-recebimentos'`.
@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-06 — Receita e despesa podem ser anuladas e reativadas: ficam na lista com R$ 0,00 e não contam em nenhum total. O relatório financeiro passa a trazer contratante, serviço e OS (AD-200).
 - 2026-11-05 — Lançamentos: ordenar pelo clique nas colunas Lançamento, Valor e Vencimento; filtros de natureza e situação em botões colados com a cor do selo (AD-192).
 - 2026-11-04 — Prazo ganha o tipo Alerta (lembrete concluível) e a seção Prazos e Alertas: feature `prazos-alertas` (AD-189).
 - 2026-11-03 — Prazos e recebimentos chegam à agenda por evento; sai a leitura direta dos prazos pela agenda (`agenda-eventos`, AD-169).

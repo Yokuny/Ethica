@@ -19,7 +19,7 @@ export const ALL_TRANSACTION_CATEGORIES = [
 
 // An overdue `expected` shows as overdue on screen; it is not a stored status.
 // Income (fee, AD-111): status derived from the installments — expected, partial or settled —
-// and never canceled. Expense: expected, settled or canceled, without partial.
+// or canceled (annulled, AD-200). Expense: expected, settled or canceled, without partial.
 export const TRANSACTION_STATUS = ['expected', 'partial', 'settled', 'canceled'] as const;
 export type TransactionStatus = (typeof TRANSACTION_STATUS)[number];
 // Order of the entries listing by column click (AD-192); the default is the latest due date first.

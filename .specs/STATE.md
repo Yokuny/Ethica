@@ -1111,6 +1111,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-06
 - **Status**: active
 
+### AD-200
+- **Decision**: Refina a **AD-111**: receita também pode ser **anulada**. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o lançamento de todos os totais, da agenda e do relatório; a tela mostra R$ 0,00, "Anulado" e o valor anulado. Reativar devolve o status pelas parcelas (receita) ou pela data de pagamento (despesa). Enquanto anulada, a receita não recebe parcela e, mesmo editada, continua anulada. "Serviço particular" começa com a Atuação vazia e obrigatória (`role: 'other'` sem `roleName`). O relatório financeiro traz data, descrição (na receita, o objeto do serviço), contratante, serviço, OS, categoria e valor.
+- **Reason**: pedido da perita (2026-11-06); ela escolheu poder reativar e tirar as perícias canceladas do gráfico do Dashboard.
+- **Trade-off**: o honorário no cadastro do serviço não muda ao anular o lançamento; só o Financeiro deixa de contar.
+- **Scope**: `apps/api/src/modules/finance/`, `apps/api/src/modules/documents/documents.templates.ts`, `apps/api/src/modules/case/case.repository.ts`, `packages/contracts/src/schemas/{case,transaction,calendar-entry}.schema.ts`, `apps/web/src/routes/_private/finance/entries/`, `apps/web/src/components/transaction-labels.ts`, `apps/web/src/routes/_private/expert-cases/`.
+- **Date**: 2026-11-06
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

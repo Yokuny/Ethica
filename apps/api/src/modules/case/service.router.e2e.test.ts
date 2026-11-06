@@ -91,6 +91,8 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     const admin = await seedSession(tenant._id, ['admin']);
     const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
 
+    const blankRole = await post({ ...PRIVATE_SERVICE, role: 'other', phase: 'custom', phaseName: 'Início' });
+    expect(blankRole.status).toBe(400);
     const first = await post({ ...PRIVATE_SERVICE, phase: 'inspection_scheduled' });
     expect(first.status).toBe(201);
     expect(first.body.data).toMatchObject({

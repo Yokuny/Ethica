@@ -11,7 +11,9 @@
         "apps/api",
         "apps/web"
       ],
-      "decisoes": [],
+      "decisoes": [
+        "AD-200"
+      ],
       "spec": [
         ".specs/features/dashboard"
       ],
@@ -58,6 +60,36 @@
       "doc": "features/fundacao-ethica/feature.md"
     },
     {
+      "slug": "prazos-recebimentos",
+      "feature": "Prazos e recebimentos",
+      "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
+      "data": "2026-11-06",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-106",
+        "AD-107",
+        "AD-109",
+        "AD-110",
+        "AD-111",
+        "AD-112",
+        "AD-113",
+        "AD-192",
+        "AD-200"
+      ],
+      "spec": [
+        ".specs/features/prazos-recebimentos"
+      ],
+      "planos": [],
+      "doc": "features/prazos-recebimentos/feature.md"
+    },
+    {
       "slug": "servico-pasta-anexos",
       "feature": "Link da pasta e anexos do serviço",
       "descricao": "Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço",
@@ -92,7 +124,8 @@
       ],
       "decisoes": [
         "AD-176",
-        "AD-199"
+        "AD-199",
+        "AD-200"
       ],
       "spec": [
         ".specs/features/tipo-servico-proprio"
@@ -710,35 +743,6 @@
       ],
       "planos": [],
       "doc": "features/laudos/feature.md"
-    },
-    {
-      "slug": "prazos-recebimentos",
-      "feature": "Prazos e recebimentos",
-      "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
-      "data": "2026-11-01",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-103",
-        "AD-106",
-        "AD-107",
-        "AD-109",
-        "AD-110",
-        "AD-111",
-        "AD-112",
-        "AD-113",
-        "AD-192"
-      ],
-      "spec": [
-        ".specs/features/prazos-recebimentos"
-      ],
-      "planos": [],
-      "doc": "features/prazos-recebimentos/feature.md"
     },
     {
       "slug": "producao-api",
@@ -1609,6 +1613,12 @@
     {
       "id": "AD-199",
       "decisao": "Refina a AD-178. \"Parceria\" e \"Serviço particular\" são tipos do escritório sempre oferecidos, mesmo antes do primeiro serviço (`FIXED_OWN_TY",
+      "data": "2026-11-06",
+      "status": "active"
+    },
+    {
+      "id": "AD-200",
+      "decisao": "Refina a AD-111: receita também pode ser anulada. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o",
       "data": "2026-11-06",
       "status": "active"
     }

@@ -7,7 +7,7 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
-import { STATE_VARIANT, transactionState } from '@/components/transaction-labels.js';
+import { STATE_VARIANT, stateLabel, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -43,7 +43,7 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
                 icon={Wallet}
                 render={<Link to="/finance/entries" search={{ caseId }} />}
                 title={formatMoney(fee.amountCents)}
-                badges={<Badge variant={STATE_VARIANT[state]}>{t(state)}</Badge>}
+                badges={<Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>}
                 description={`${fee.description} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}
               >
                 {fee.installments.map((installment) => (

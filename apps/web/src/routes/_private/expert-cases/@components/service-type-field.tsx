@@ -8,6 +8,7 @@ import {
   COURT_TYPE_ITEMS,
   NEW_SERVICE_TYPE,
   OWN_TYPE_PREFIX,
+  PRIVATE_SERVICE_TYPE,
   ROLE_ITEMS,
   serviceTypeItems,
   serviceTypeValue,
@@ -49,8 +50,10 @@ export function ServiceTypeField({
       const name = chosen === NEW_SERVICE_TYPE ? '' : chosen.slice(OWN_TYPE_PREFIX.length);
       const found = officeTypes.data?.find((item) => item.name === name);
       setValue('serviceType', name, { shouldValidate: Boolean(name) });
-      setValue('role', found?.role ?? getValues('role'));
-      setValue('roleName', found?.roleName);
+      // "Serviço particular" starts with the role blank, to be chosen (AD-200).
+      const blankRole = name === PRIVATE_SERVICE_TYPE;
+      setValue('role', blankRole ? 'other' : (found?.role ?? getValues('role')));
+      setValue('roleName', blankRole ? undefined : found?.roleName);
       // Own types offer only "Honorários recebidos" and the typed phases (AD-178).
       if (getValues('phase') !== 'fees_received' && getValues('phase') !== 'custom') {
         setValue('phase', 'custom');

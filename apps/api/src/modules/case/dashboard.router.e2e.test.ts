@@ -63,16 +63,17 @@ describe('Dashboard (DSH)', () => {
     await Case.collection.insertMany([
       { ...base(tenant._id, 'a', { nominationDate: '2024-03-01' }), createdAt: new Date() },
       { ...base(tenant._id, 'b', { nominationDate: '2024-06-01', phase: 'fees_received' }), createdAt: new Date() },
-      { ...base(tenant._id, 'c', { status: 'canceled' }), createdAt: new Date() },
+      { ...base(tenant._id, 'c', { status: 'canceled', nominationDate: '2023-01-01' }), createdAt: new Date() },
+      { ...base(tenant._id, 'g', {}), createdAt: new Date() },
       { ...base(tenant._id, 'd', { role: 'technical_assistant', phase: 'assistance_hired' }), createdAt: new Date() },
       { ...base(tenant._id, 'e', { role: 'other', serviceType: 'Parceria', phase: 'custom' }), createdAt: new Date() },
       { ...base(other.tenant._id, 'f', {}), createdAt: new Date() },
     ]);
 
     const { body } = await as(request(app).get('/expert-cases/dashboard'));
-    expect(body.data).toMatchObject({ total: 5, closed: 2 });
+    expect(body.data).toMatchObject({ total: 6, closed: 2 });
     expect(body.data.byType).toEqual([
-      { role: 'court_expert', count: 3 },
+      { role: 'court_expert', count: 4 },
       { role: 'other', serviceType: 'Parceria', count: 1 },
       { role: 'technical_assistant', count: 1 },
     ]);

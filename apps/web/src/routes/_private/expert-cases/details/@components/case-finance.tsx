@@ -10,7 +10,7 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
-import { categoryLabel, STATE_VARIANT, transactionState } from '@/components/transaction-labels.js';
+import { categoryLabel, STATE_VARIANT, stateLabel, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -76,8 +76,12 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
                     key={item.id}
                     icon={Wallet}
                     render={<Link to="/finance/entries" search={{ caseId: legalCase.id }} />}
-                    title={`${item.kind === 'expense' ? '−' : ''}${formatMoney(item.amountCents)}`}
-                    badges={<Badge variant={STATE_VARIANT[state]}>{t(state)}</Badge>}
+                    title={
+                      item.status === 'canceled'
+                        ? formatMoney(0)
+                        : `${item.kind === 'expense' ? '−' : ''}${formatMoney(item.amountCents)}`
+                    }
+                    badges={<Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>}
                     description={`${categoryLabel(item)} · ${formatDate(new Date(`${item.dueDate}T12:00:00`))}`}
                   />
                 );

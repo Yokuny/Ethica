@@ -1,7 +1,7 @@
 import { DOCUMENT_TEXT_STYLE_DEFAULT } from '@ethica/contracts';
 import { describe, expect, it } from 'vitest';
 import type { SheetData } from './documents.schema.js';
-import { checklistHtml, scheduleHtml, sheetHtml, stalledHtml } from './documents.templates.js';
+import { checklistHtml, financeHtml, scheduleHtml, sheetHtml, stalledHtml } from './documents.templates.js';
 
 const STYLES = { headerStyle: DOCUMENT_TEXT_STYLE_DEFAULT, footerStyle: DOCUMENT_TEXT_STYLE_DEFAULT };
 
@@ -57,6 +57,34 @@ describe('documentos (DOC-02, DOC-03)', () => {
     expect(doc.headerTemplate).toContain('<img src="data:image/png;base64,AAAA"');
     expect(doc.headerTemplate).toContain('Escritório Ribeiro');
     expect(doc.footerTemplate).toContain('Página <span class="pageNumber"></span> de <span class="totalPages"></span>');
+  });
+
+  it('relatório financeiro traz data, descrição, contratante, serviço, OS e valor', () => {
+    const row = {
+      date: '2026-10-12',
+      description: 'Insalubridade',
+      client: 'Maria da Silva',
+      caseNumber: '0001234-56.2026.5.02.0001',
+      serviceOrder: 'ETH-2026-001',
+      category: 'fixed_fees',
+      amountCents: 350_000,
+    } as const;
+    const totals = {
+      receivedCents: 350_000,
+      paidCents: 0,
+      actualBalanceCents: 350_000,
+      receivableCents: 0,
+      payableCents: 0,
+      expectedBalanceCents: 350_000,
+    };
+    const { html } = financeHtml({
+      ...base,
+      period: { from: '2026-10-01', to: '2026-10-31' },
+      report: { received: [row], paid: [], receivable: [], payable: [], totals },
+    });
+    for (const text of ['Contratante', 'Serviço', 'OS', 'Maria da Silva', 'ETH-2026-001', 'Insalubridade']) {
+      expect(html).toContain(text);
+    }
   });
 
   it('ficha sem partes, prazos e compromissos identifica as seções vazias e escapa o conteúdo', () => {

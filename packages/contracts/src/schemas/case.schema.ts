@@ -123,7 +123,11 @@ const nameText = (message: string) => z.string().trim().min(1, message).max(80, 
 // Whoever hired a service of the office's own type (AD-176): a field of the service, not a registry party.
 export const caseContractorSchema = z
   .object({
-    name: z.string().trim().min(1, 'nome do contratante é obrigatório').max(200, 'nome inválido'),
+    name: z
+      .string('nome do contratante é obrigatório')
+      .trim()
+      .min(1, 'nome do contratante é obrigatório')
+      .max(200, 'nome inválido'),
     document: documentSchema.optional(),
     phone: phoneSchema.optional(),
     email: emailSchema.optional(),
@@ -249,8 +253,13 @@ export const createCaseFieldsSchema = caseFields
     payment: casePaymentSchema.optional(),
   })
   .strict();
+// The role of an own type left blank, as "Serviço particular" starts (AD-200).
+const missingRole = (data: { serviceType?: string; role?: CaseRole; roleName?: string }): boolean =>
+  isOwnType(data) && data.role === 'other' && !data.roleName;
+
 export const createCaseSchema = createCaseFieldsSchema
-  .refine((data) => !usesContractor(data) || validServiceType(data), {
+  .refine((data) => !missingRole(data), { message: 'atuação é obrigatória', path: ['role'] })
+  .refine((data) => missingRole(data) || !usesContractor(data) || validServiceType(data), {
     message: 'tipo de serviço inválido',
     path: ['serviceType'],
   })

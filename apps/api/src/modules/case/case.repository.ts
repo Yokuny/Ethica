@@ -364,7 +364,7 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
   withDbTiming('case.findSummariesByIds', async () => {
     if (ids.length === 0) return new Map();
     const docs = await Case.find(tenantScoped({ Tenant: tenantId, _id: { $in: ids } }))
-      .select('processNumber subject court division parties contractor role serviceType courtType')
+      .select('processNumber serviceOrder subject court division parties contractor role serviceType courtType')
       .lean();
     const names = (parties: CaseDocument['parties'], side: string) =>
       (parties ?? [])
@@ -376,6 +376,7 @@ export const findSummariesByIds = async (tenantId: string, ids: string[]): Promi
         doc._id.toString(),
         {
           processNumber: doc.processNumber,
+          serviceOrder: doc.serviceOrder,
           subject: doc.subject,
           court: doc.court,
           division: doc.division,
@@ -484,7 +485,7 @@ export const dashboard = async (tenantId: string): Promise<CaseDashboard> =>
       ]),
       // Without a nomination date, the registration date in the display time zone.
       Case.aggregate<{ _id: string; count: number }>([
-        { $match: { Tenant, role: 'court_expert', serviceType: { $exists: false } } },
+        { $match: { Tenant, role: 'court_expert', serviceType: { $exists: false }, status: { $ne: 'canceled' } } },
         {
           $project: {
             day: {

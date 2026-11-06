@@ -113,9 +113,9 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect(removal.status).toBe(409);
     expect(removal.body.message).toBe('fee_cannot_be_removed');
 
-    const cancelar = await as(request(app).patch(`/finance/entries/${id}`)).send({ status: 'canceled' });
-    expect(cancelar.status).toBe(422);
-    expect(cancelar.body.message).toBe('fee_status_comes_from_parcels');
+    const manual = await as(request(app).patch(`/finance/entries/${id}`)).send({ status: 'settled' });
+    expect(manual.status).toBe(422);
+    expect(manual.body.message).toBe('fee_status_comes_from_parcels');
 
     const abaixo = await as(request(app).patch(`/finance/entries/${id}`)).send({ amountCents: 199_999 });
     expect(abaixo.status).toBe(422);
@@ -134,6 +134,55 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       })
     ).body.data;
     expect((await as(request(app).delete(`/finance/entries/${expense.id}`))).status).toBe(200);
+  });
+
+  it('anular tira o lançamento de todos os totais; reativar devolve valor e recebimentos (AD-200)', async () => {
+    const as = await seedSession();
+    const post = async (body: object) => (await as(request(app).post('/finance/entries')).send(body)).body.data;
+    const fee = await post({
+      kind: 'income',
+      category: 'fixed_fees',
+      description: 'Honorários',
+      amountCents: 100_000,
+      dueDate: today,
+    });
+    await as(request(app).post(`/finance/entries/${fee.id}/installments`)).send({ amountCents: 30_000, date: today });
+    const expense = await post({
+      kind: 'expense',
+      category: 'travel',
+      description: 'Viagem',
+      amountCents: 5_000,
+      dueDate: today,
+    });
+    const patch = (id: string, body: object) => as(request(app).patch(`/finance/entries/${id}`)).send(body);
+    await patch(expense.id, { status: 'settled' });
+    const totals = async () => ({
+      summary: (await as(request(app).get('/finance/summary'))).body.data,
+      dashboard: (await as(request(app).get('/finance/dashboard'))).body.data,
+    });
+    expect((await totals()).summary).toMatchObject({ receivableCents: 70_000, receivedMonthCents: 30_000 });
+
+    expect((await patch(fee.id, { status: 'canceled' })).body.data).toMatchObject({
+      status: 'canceled',
+      amountCents: 100_000,
+    });
+    await patch(expense.id, { status: 'canceled' });
+    const annulled = await totals();
+    expect(annulled.summary).toMatchObject({ receivableCents: 0, receivedMonthCents: 0, expensesMonthCents: 0 });
+    expect(annulled.dashboard).toEqual({ receivableCents: 0, receivedByYear: [] });
+    const receipt = await as(request(app).post(`/finance/entries/${fee.id}/installments`)).send({
+      amountCents: 1_000,
+      date: today,
+    });
+    expect(receipt.status).toBe(422);
+    expect((await patch(fee.id, { amountCents: 120_000 })).body.data.status).toBe('canceled');
+
+    expect((await patch(fee.id, { status: 'expected' })).body.data).toMatchObject({
+      status: 'partial',
+      amountCents: 120_000,
+      receivedCents: 30_000,
+    });
+    expect((await patch(expense.id, { status: 'expected' })).body.data.status).toBe('settled');
   });
 
   it('ordena pelo clique na coluna: descrição sem acento, valor e vencimento (AD-192)', async () => {

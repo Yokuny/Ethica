@@ -278,12 +278,14 @@ const financeRows = (title: string, rows: FinanceData['report']['received'], lab
     title,
     rows.length
       ? table(
-          [labelData, 'Descrição', 'Categoria', 'Processo', 'Valor'],
+          [labelData, 'Descrição', 'Contratante', 'Serviço', 'OS', 'Categoria', 'Valor'],
           rows.map((row) => [
             esc(day(row.date)),
             esc(row.account ? `${row.description} (${row.account})` : row.description),
-            esc(label(row.category)),
+            esc(row.client),
             esc(row.caseNumber),
+            esc(row.serviceOrder),
+            esc(label(row.category)),
             `<span class="num">${esc(dinheiro(row.amountCents))}</span>`,
           ]),
         )

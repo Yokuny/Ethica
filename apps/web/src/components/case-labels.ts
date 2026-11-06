@@ -121,7 +121,8 @@ export const serviceLabel = (data: ServiceTypeFields & { courtType?: CourtType }
   [serviceTypeLabel(data), data.courtType && courtTypeLabel(data.courtType)].filter(Boolean).join(' · ');
 // Own types always offered (AD-199), even before the first service; the name saved on the service is the label.
 export const PARTNERSHIP_SERVICE_TYPE = 'Parceria';
-const FIXED_OWN_TYPES = [PARTNERSHIP_SERVICE_TYPE, 'Serviço particular'];
+export const PRIVATE_SERVICE_TYPE = 'Serviço particular';
+const FIXED_OWN_TYPES = [PARTNERSHIP_SERVICE_TYPE, PRIVATE_SERVICE_TYPE];
 export const serviceTypeItems = (officeTypes: readonly { name: string }[]) => [
   ...SERVICE_KINDS.map((role) => ({ value: role, label: t(SERVICE_KIND_KEY[role]) })),
   ...[...new Set([...FIXED_OWN_TYPES, ...officeTypes.map(({ name }) => name)])].map((name) => ({
