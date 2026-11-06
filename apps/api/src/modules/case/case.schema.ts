@@ -23,6 +23,7 @@ import {
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
+import type { FileStorage } from '../../providers/fileStorage.js';
 import type { NextDeadline } from './deadline.schema.js';
 import type { CasePartyWrite } from './party.schema.js';
 
@@ -31,6 +32,9 @@ export { createCaseSchema, createMovementSchema, updateCaseSchema };
 
 export const caseIdParamSchema = z.object({ id: idSchema }).strict();
 export const movementIdParamSchema = z.object({ id: idSchema, movementId: idSchema }).strict();
+export const attachmentIdParamSchema = z.object({ id: idSchema, attachmentId: idSchema }).strict();
+export const attachmentUploadQuerySchema = z.object({ name: z.string().trim().min(1).max(200) }).strict();
+export type AttachmentUploadQuery = z.infer<typeof attachmentUploadQuerySchema>;
 
 // Pagination validated at the edge (never a silent clamp in the service).
 export const listCasesQuerySchema = z
@@ -55,10 +59,12 @@ export const listCasesQuerySchema = z
   .strict();
 export type ListCasesQuery = z.infer<typeof listCasesQuerySchema>;
 
-export type CaseRouterDeps = { validToken: RequestHandler };
+export type CaseRouterDeps = { validToken: RequestHandler; storage?: FileStorage };
 
 // Service order indicator of the services screen (AD-190): the last number used and the next one.
 export type ServiceOrderPreview = { last?: string; next?: string };
+
+export type CaseAttachment = { id: string; name: string; mime: string; bytes: number };
 
 export type CaseRecord = {
   id: string;
@@ -84,6 +90,8 @@ export type CaseRecord = {
   proposedFeesCents?: number;
   fixedFeesCents?: number;
   notes?: string;
+  folderUrl?: string;
+  attachments: CaseAttachment[];
   docketingDate?: string;
   hireDate?: string;
   terminationDate?: string;

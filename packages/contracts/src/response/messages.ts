@@ -51,6 +51,7 @@ export const API_MESSAGE_KEYS = [
   // Case import (AD-114, AD-115, AD-118): file, CSV row and PDF warnings
   'unsupported_file_type',
   'file_too_large',
+  'attachment_limit_reached',
   'pdf_without_text',
   'csv_empty',
   'csv_invalid_header',

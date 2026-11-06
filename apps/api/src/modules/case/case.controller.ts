@@ -1,7 +1,8 @@
 import { hasPermission, respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { ListCasesQuery } from './case.schema.js';
+import type { FileStorage } from '../../providers/fileStorage.js';
+import type { AttachmentUploadQuery, ListCasesQuery } from './case.schema.js';
 import * as caseService from './case.service.js';
 import { CaseNotFoundError } from './case.service.js';
 import type { CsvImportQuery } from './import.schema.js';
@@ -55,14 +56,69 @@ export const updateCase = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-export const deleteCase = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    await caseService.deleteCase(tenantOf(req), req.params.id as string);
-    res.json(respObj({ message: 'removed_successfully' }));
-  } catch (e) {
-    notFoundAs404(e, next);
-  }
-};
+export const addAttachment =
+  (storage: FileStorage | undefined) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { name } = req.query as unknown as AttachmentUploadQuery;
+      const mime = req.get('content-type')?.split(';')[0] ?? '';
+      const result = await caseService.addAttachment(
+        storage,
+        tenantOf(req),
+        req.params.id as string,
+        name,
+        mime,
+        req.body as Buffer,
+      );
+      res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };
+
+// Always a download (SPA-04): an uploaded HTML never runs on the API domain.
+export const getAttachment =
+  (storage: FileStorage | undefined) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { body, name, mime } = await caseService.getAttachment(
+        storage,
+        tenantOf(req),
+        req.params.id as string,
+        req.params.attachmentId as string,
+      );
+      res.attachment(name).type(mime).set('X-Content-Type-Options', 'nosniff').end(body);
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };
+
+export const deleteAttachment =
+  (storage: FileStorage | undefined) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await caseService.deleteAttachment(
+        storage,
+        tenantOf(req),
+        req.params.id as string,
+        req.params.attachmentId as string,
+      );
+      res.json(respObj({ message: 'removed_successfully' }));
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };
+
+export const deleteCase =
+  (storage: FileStorage | undefined) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await caseService.deleteCase(tenantOf(req), req.params.id as string, storage);
+      res.json(respObj({ message: 'removed_successfully' }));
+    } catch (e) {
+      notFoundAs404(e, next);
+    }
+  };
 
 export const caseStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

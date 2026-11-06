@@ -67,6 +67,8 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
   proposedFeesCents: doc.proposedFeesCents,
   fixedFeesCents: doc.fixedFeesCents,
   notes: doc.notes,
+  folderUrl: doc.folderUrl,
+  attachments: (doc.attachments ?? []).map(({ _id, name, mime, bytes }) => ({ id: _id.toString(), name, mime, bytes })),
   docketingDate: doc.docketingDate,
   hireDate: doc.hireDate,
   terminationDate: doc.terminationDate,
@@ -323,6 +325,36 @@ export const listCases = async (
     const run = () => Case.aggregate<{ items: CaseDocument[]; total: { n: number }[] }>(pipeline);
     const [result] = search ? await withSearch(run) : await run();
     return { items: (result?.items ?? []).map(toRecord), total: result?.total[0]?.n ?? 0 };
+  });
+
+// Service files (SPA-03), with the storage key that stays out of the record.
+export const listAttachments = async (tenantId: string, id: string): Promise<CaseDocument['attachments']> =>
+  withDbTiming('case.listAttachments', async () => {
+    const doc = await Case.findOne(tenantScoped({ Tenant: tenantId, _id: id }))
+      .select('attachments')
+      .lean();
+    return doc?.attachments ?? [];
+  });
+
+export const addAttachment = async (
+  tenantId: string,
+  id: string,
+  attachment: Omit<CaseDocument['attachments'][number], '_id'>,
+): Promise<CaseRecord | null> =>
+  withDbTiming('case.addAttachment', async () => {
+    const doc = await Case.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, _id: id }),
+      { $push: { attachments: attachment } },
+      { returnDocument: 'after', runValidators: true },
+    ).lean();
+    return doc ? toRecord(doc) : null;
+  });
+
+export const removeAttachment = async (tenantId: string, id: string, attachmentId: string): Promise<void> =>
+  withDbTiming('case.removeAttachment', async () => {
+    await Case.updateOne(tenantScoped({ Tenant: tenantId, _id: id }), {
+      $pull: { attachments: { _id: toObjectId(attachmentId) } },
+    });
   });
 
 // Cross-module enrichment: one `$in` query per batch, never one per item.

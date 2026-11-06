@@ -92,6 +92,32 @@ const centsSchema = z.number().int('valor deve ser inteiro').min(0, 'valor não 
 const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess((value) => (value === '' ? undefined : value), schema.optional());
 
+// Link of the service folder in OneDrive, Google Drive, Dropbox or another (SPA-01).
+const folderUrlSchema = z
+  .url({ protocol: /^https?$/, error: 'link inválido' })
+  .trim()
+  .max(500, 'link inválido');
+
+// Files attached to the service (SPA-03): they count in the tenant quota (AD-120).
+export const CASE_ATTACHMENT_LIMIT = {
+  maxBytes: 20 * 1024 * 1024,
+  maxByCase: 30,
+  mimes: [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain',
+    'text/csv',
+    'application/zip',
+    'application/x-zip-compressed',
+  ],
+};
+
 const nameText = (message: string) => z.string().trim().min(1, message).max(80, message);
 
 // Whoever hired a service of the office's own type (AD-176): a field of the service, not a registry party.
@@ -128,6 +154,7 @@ const caseFields = z.object({
   nominationDate: calendarDateSchema.optional(),
   proposedFeesCents: centsSchema.optional(),
   notes: z.string().trim().max(2000, 'observações inválidas').optional(),
+  folderUrl: optional(folderUrlSchema),
   // Labor report auxiliary data (IMP-04).
   docketingDate: calendarDateSchema.optional(),
   hireDate: calendarDateSchema.optional(),
@@ -263,6 +290,7 @@ export const updateCaseSchema = caseFields
     courtType: clearable(caseFields.shape.courtType.unwrap()),
     phaseName: clearable(caseFields.shape.phaseName.unwrap()),
     contractor: clearable(caseContractorSchema),
+    folderUrl: optional(folderUrlSchema.nullable()),
     nominationDate: clearable(calendarDateSchema),
     docketingDate: clearable(calendarDateSchema),
     hireDate: clearable(calendarDateSchema),

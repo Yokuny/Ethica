@@ -15,8 +15,10 @@ import type {
 } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
-import { del, get, patch, post } from '../lib/api/client.api.js';
+import { del, get, patch, post, sendFile } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
+
+export type CaseAttachment = { id: string; name: string; mime: string; bytes: number };
 
 // Mirrors CaseRecord of apps/api/src/modules/case/case.schema.ts — the
 // truth lives in the back-end. Calendar dates arrive as `YYYY-MM-DD`; instants, ISO.
@@ -46,6 +48,8 @@ export type CaseRecord = {
   proposedFeesCents?: number;
   fixedFeesCents?: number;
   notes?: string;
+  folderUrl?: string;
+  attachments: CaseAttachment[];
   docketingDate?: string;
   hireDate?: string;
   terminationDate?: string;
@@ -166,6 +170,35 @@ export const createCaseMutation = (queryClient: QueryClient): UseMutationOptions
     queryClient.invalidateQueries({ queryKey: ['list-stats', '/expert-cases/stats'] });
   },
 });
+
+// SPA-03: one file at a time, after the service is saved.
+export const uploadCaseAttachmentMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<CaseRecord, Error, { caseId: string; file: File }> => ({
+  mutationFn: async ({ caseId, file }) => {
+    const res = await sendFile<CaseRecord>(
+      `/expert-cases/${encodeURIComponent(caseId)}/attachments?name=${encodeURIComponent(file.name)}`,
+      file,
+      file.type,
+    );
+    if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
+    return res.data;
+  },
+  onSuccess: (_data, { caseId }) => queryClient.invalidateQueries({ queryKey: caseKeys.detail(caseId) }),
+});
+
+export const deleteCaseAttachmentMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<void, Error, { caseId: string; attachmentId: string }> => ({
+  mutationFn: async ({ caseId, attachmentId }) => {
+    const res = await del<never>(attachmentPath(caseId, attachmentId));
+    if (!res.success) throw new Error(res.message ?? t('remove_error'));
+  },
+  onSuccess: (_data, { caseId }) => queryClient.invalidateQueries({ queryKey: caseKeys.detail(caseId) }),
+});
+
+export const attachmentPath = (caseId: string, attachmentId: string) =>
+  `/expert-cases/${encodeURIComponent(caseId)}/attachments/${encodeURIComponent(attachmentId)}`;
 
 export const updateCaseMutation = (
   queryClient: QueryClient,

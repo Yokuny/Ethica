@@ -19,6 +19,7 @@ const legalCase: SheetData['legalCase'] = {
   court: 'TRT2',
   subject: 'Insalubridade <script>',
   parties: [],
+  attachments: [],
   movements: [],
   phase: 'inspection_scheduled',
   status: 'active',

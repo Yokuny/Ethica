@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import {
+  CASE_ATTACHMENT_LIMIT,
   type CaseInspection,
   type CasePayment,
   caseLabel,
@@ -17,6 +19,8 @@ import {
 import { dateInDisplayTz, TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import type { FileStorage } from '../../providers/fileStorage.js';
+import * as officeService from '../identity/office.service.js';
 import * as caseRepository from './case.repository.js';
 import type {
   CaseListItem,
@@ -241,14 +245,81 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
 // Deleting is an admin action (case.router.ts), keeps its service order number used and takes the deadlines along; the reports and the agenda
 // entries of those deadlines leave through `case:deleted` (AD-126, AD-169). Appointments and transactions
 // that point to it lose the link: a missing reference becomes a missing field.
-export const deleteCase = async (tenantId: string, id: string): Promise<void> => {
+export const deleteCase = async (tenantId: string, id: string, storage?: FileStorage): Promise<void> => {
   const legalCase = await getCase(tenantId, id);
+  const attachments = await caseRepository.listAttachments(tenantId, id);
   // Its number stays used for good (AD-187).
   if (legalCase.serviceOrder) await serviceOrderRepository.retire(tenantId, legalCase.serviceOrder);
   const { deletedCount } = await caseRepository.deleteCase(tenantId, id);
   if (deletedCount === 0) throw new CaseNotFoundError('not_found');
   await deadlineRepository.deleteByCase(tenantId, id);
+  await Promise.all(attachments.map((attachment) => releaseAttachment(storage, tenantId, attachment)));
   domainEventBus.emit('case:deleted', { tenantId, caseId: id });
+};
+
+// The file leaves the storage and its space goes back to the tenant quota (AD-120).
+const releaseAttachment = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  { key, bytes }: { key: string; bytes: number },
+): Promise<void> => {
+  await storage?.remove(key);
+  await officeService.returnFile(tenantId, bytes);
+};
+
+// SPA-03: file in the storage with the quota reserved first (AD-120).
+export const addAttachment = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  id: string,
+  name: string,
+  mime: string,
+  body: Buffer,
+): Promise<CaseRecord> => {
+  if (!storage) throw new CustomError('storage_not_configured', 503);
+  const { attachments } = await getCase(tenantId, id);
+  if (attachments.length >= CASE_ATTACHMENT_LIMIT.maxByCase) throw new CustomError('attachment_limit_reached', 422);
+  const key = `tenants/${tenantId}/expert-cases/${id}/${randomUUID()}`;
+  await officeService.reserveFile(tenantId, body.length);
+  try {
+    await storage.put(key, body, mime);
+    const updated = await caseRepository.addAttachment(tenantId, id, { key, name, mime, bytes: body.length });
+    if (!updated) throw new CaseNotFoundError('not_found');
+    return updated;
+  } catch (error) {
+    await releaseAttachment(storage, tenantId, { key, bytes: body.length });
+    throw error;
+  }
+};
+
+const findAttachment = async (tenantId: string, id: string, attachmentId: string) => {
+  const attachments = await caseRepository.listAttachments(tenantId, id);
+  const attachment = attachments.find((item) => item._id.toString() === attachmentId);
+  if (!attachment) throw new CaseNotFoundError('not_found');
+  return attachment;
+};
+
+export const getAttachment = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  id: string,
+  attachmentId: string,
+) => {
+  const { key, name, mime } = await findAttachment(tenantId, id, attachmentId);
+  const body = await storage?.get(key);
+  if (!body) throw new CaseNotFoundError('not_found');
+  return { body, name, mime };
+};
+
+export const deleteAttachment = async (
+  storage: FileStorage | undefined,
+  tenantId: string,
+  id: string,
+  attachmentId: string,
+): Promise<void> => {
+  const attachment = await findAttachment(tenantId, id, attachmentId);
+  await caseRepository.removeAttachment(tenantId, id, attachmentId);
+  await releaseAttachment(storage, tenantId, attachment);
 };
 
 export const listCases = async (

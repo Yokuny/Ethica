@@ -1,4 +1,9 @@
-import { CSV_IMPORT_MAX_BYTES, PDF_IMPORT_MAX_BYTES, serviceOrderSettingsSchema } from '@ethica/contracts';
+import {
+  CASE_ATTACHMENT_LIMIT,
+  CSV_IMPORT_MAX_BYTES,
+  PDF_IMPORT_MAX_BYTES,
+  serviceOrderSettingsSchema,
+} from '@ethica/contracts';
 import { Router } from 'express';
 import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
 import { fileBody } from '../../middlewares/fileBody.middleware.js';
@@ -7,6 +12,8 @@ import { validBody, validParams, validParsedQuery } from '../../middlewares/vali
 import * as caseController from './case.controller.js';
 import type { CaseRouterDeps } from './case.schema.js';
 import {
+  attachmentIdParamSchema,
+  attachmentUploadQuerySchema,
   caseIdParamSchema,
   createCaseSchema,
   createMovementSchema,
@@ -113,6 +120,30 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
     validBody(createDeadlineSchema),
     deadlineController.createDeadline,
   );
+  // Files of the service (SPA-03), with the permission of the service (AD-137).
+  router.post(
+    '/:id/attachments',
+    ...guard,
+    can('expert_cases', 'update'),
+    validParams(caseIdParamSchema),
+    validParsedQuery(attachmentUploadQuerySchema),
+    fileBody(CASE_ATTACHMENT_LIMIT.mimes, CASE_ATTACHMENT_LIMIT.maxBytes),
+    caseController.addAttachment(deps.storage),
+  );
+  router.get(
+    '/:id/attachments/:attachmentId',
+    ...guard,
+    can('expert_cases', 'view'),
+    validParams(attachmentIdParamSchema),
+    caseController.getAttachment(deps.storage),
+  );
+  router.delete(
+    '/:id/attachments/:attachmentId',
+    ...guard,
+    can('expert_cases', 'update'),
+    validParams(attachmentIdParamSchema),
+    caseController.deleteAttachment(deps.storage),
+  );
   // Movements that count for the stalled case (AD-121).
   router.post(
     '/:id/movements',
@@ -142,7 +173,7 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
     ...guard,
     can('expert_cases', 'delete'),
     validParams(caseIdParamSchema),
-    caseController.deleteCase,
+    caseController.deleteCase(deps.storage),
   );
 
   return router;

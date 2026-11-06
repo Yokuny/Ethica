@@ -1,6 +1,6 @@
 import { usesContractor } from '@ethica/contracts';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { type Control, useWatch } from 'react-hook-form';
 import { CASE_STATUS_ITEMS } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
@@ -18,7 +18,16 @@ import { ServiceTypeField } from './service-type-field.js';
 // The office's own type (AD-176) and the technical assistance (AD-178) swap the process for the contractor and
 // drop the perícia date, the parties and the proposed fee; the contracted fee and its payment come already at
 // registration.
-export function CaseFormFields({ control, editing = false }: { control: Control<CaseFormValues>; editing?: boolean }) {
+export function CaseFormFields({
+  control,
+  attachments,
+  editing = false,
+}: {
+  control: Control<CaseFormValues>;
+  // The attachments field, right below the notes (SPA-03).
+  attachments: ReactNode;
+  editing?: boolean;
+}) {
   const role = useWatch({ control, name: 'role' });
   const session = useQuery(sessionQuery).data;
   const serviceType = useWatch({ control, name: 'serviceType' });
@@ -42,6 +51,14 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
         items={CASE_STATUS_ITEMS}
         required
       />
+      <div className="sm:col-span-2">
+        <TextField
+          control={control}
+          name="folderUrl"
+          label={t('folder_link')}
+          placeholder={t('folder_link_placeholder')}
+        />
+      </div>
     </div>
   );
   const contractedFee = (
@@ -135,6 +152,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
                 ? [<CasePaymentFields key="payment" />]
                 : []),
               notes,
+              attachments,
             ],
           },
         ]}
@@ -223,6 +241,7 @@ export function CaseFormFields({ control, editing = false }: { control: Control<
               )}
             </div>,
             notes,
+            attachments,
           ],
         },
       ]}

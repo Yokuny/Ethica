@@ -1,5 +1,6 @@
 import { caseLabel, isCaseClosed, usesContractor } from '@ethica/contracts';
-import { Building2, FileText, Scale, Users } from 'lucide-react';
+import { ItemTitle } from '@ethica/ui/components/item';
+import { ArrowUpRight, Building2, FileText, Scale, Users } from 'lucide-react';
 import { AppLink } from '@/components/app-link.js';
 import {
   CASE_STATUS_VARIANT,
@@ -13,10 +14,11 @@ import {
 import { sideLabel } from '@/components/party-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
+import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { CaseRecord } from '@/query/case.js';
+import { attachmentPath, type CaseRecord } from '@/query/case.js';
 
 const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`)) : '-');
 const money = (value?: number) => (value ? formatMoney(value) : '-');
@@ -28,6 +30,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
   const own = usesContractor(legalCase);
   const client = legalCase.contractor?.name ?? legalCase.parties.find((party) => party.client)?.name;
   const { contractor } = legalCase;
+  const { download } = useFileDownload();
   return (
     <div className="grid gap-6">
       <RecordHeader>
@@ -113,7 +116,52 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             id: 'notes',
             name: t('notes'),
             icon: <FileText />,
-            specs: [{ label: t('notes'), value: legalCase.notes || '-' }],
+            specs: [
+              { label: t('notes'), value: legalCase.notes || '-' },
+              ...(legalCase.folderUrl
+                ? [
+                    {
+                      label: t('folder_link'),
+                      value: (
+                        <ItemTitle
+                          render={<a href={legalCase.folderUrl} target="_blank" rel="noreferrer" />}
+                          className="link inline-flex w-fit items-center gap-2 font-normal"
+                        >
+                          {t('open_folder')}
+                          <ArrowUpRight aria-hidden className="size-3.5 shrink-0" />
+                        </ItemTitle>
+                      ),
+                    },
+                  ]
+                : []),
+              ...(legalCase.attachments.length
+                ? [
+                    {
+                      label: t('attachments'),
+                      value: (
+                        <div className="grid gap-1">
+                          {legalCase.attachments.map((attachment) => (
+                            <ItemTitle
+                              key={attachment.id}
+                              render={
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    void download(attachmentPath(legalCase.id, attachment.id), attachment.name)
+                                  }
+                                />
+                              }
+                              className="link w-fit text-left font-normal"
+                            >
+                              {attachment.name}
+                            </ItemTitle>
+                          ))}
+                        </div>
+                      ),
+                    },
+                  ]
+                : []),
+            ],
           },
         ]}
       />

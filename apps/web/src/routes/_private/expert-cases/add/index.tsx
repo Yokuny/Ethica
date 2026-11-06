@@ -5,13 +5,14 @@ import { createFileRoute } from '@tanstack/react-router';
 import { FileUp } from 'lucide-react';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { CaseAttachmentsField } from '../@components/case-attachments-field.js';
 import { CaseFormFields } from '../@components/case-form-fields.js';
 import { PdfFillDialog } from './@components/pdf-fill-dialog.js';
 import { useCaseForm } from './@hooks/use-case-form.js';
 import { usePdfFill } from './@hooks/use-pdf-fill.js';
 
 export function CaseAddPage() {
-  const { form, onSubmit, isPending, errorMessage } = useCaseForm();
+  const { form, onSubmit, isPending, errorMessage, attachments } = useCaseForm();
   const pdf = usePdfFill(form);
   const formActions = (
     <Button type="submit" disabled={isPending}>
@@ -38,7 +39,10 @@ export function CaseAddPage() {
                 {t('pdf_filled_review_before_saving')}
               </ItemDescription>
             )}
-            <CaseFormFields control={form.control} />
+            <CaseFormFields
+              control={form.control}
+              attachments={<CaseAttachmentsField key="attachments" form={attachments} />}
+            />
             {errorMessage && (
               <ItemDescription role="alert" className="text-destructive line-clamp-none">
                 {errorMessage}

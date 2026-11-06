@@ -87,6 +87,27 @@
       "doc": "features/prazos-alertas/feature.md"
     },
     {
+      "slug": "servico-pasta-anexos",
+      "feature": "Link da pasta e anexos do serviço",
+      "descricao": "Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço",
+      "data": "2026-11-05",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-197"
+      ],
+      "spec": [
+        ".specs/features/servico-pasta-anexos"
+      ],
+      "planos": [],
+      "doc": "features/servico-pasta-anexos/feature.md"
+    },
+    {
       "slug": "fase-assistencia",
       "feature": "Fases da Assistência técnica",
       "descricao": "Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência",
@@ -1551,6 +1572,12 @@
     {
       "id": "AD-196",
       "decisao": "Refina a AD-178. As fases da perícia passam de 34 para 20: juntam as redundantes (as 8 de impugnação viram Responder impugnação e Aguardando",
+      "data": "2026-11-05",
+      "status": "active"
+    },
+    {
+      "id": "AD-197",
+      "decisao": "Anexos do serviço ficam no próprio `Case` (`attachments`, com `key`, `name`, `mime`, `bytes`) e no storage do tenant (AD-120), em `/expert-c",
       "data": "2026-11-05",
       "status": "active"
     }

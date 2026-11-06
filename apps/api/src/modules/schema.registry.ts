@@ -13,7 +13,13 @@ import {
   inspectionParamSchema,
   mediaUploadQuerySchema,
 } from './agenda/inspection.schema.js';
-import { caseIdParamSchema, listCasesQuerySchema, movementIdParamSchema } from './case/case.schema.js';
+import {
+  attachmentIdParamSchema,
+  attachmentUploadQuerySchema,
+  caseIdParamSchema,
+  listCasesQuerySchema,
+  movementIdParamSchema,
+} from './case/case.schema.js';
 import {
   courtDivisionCitiesQuerySchema,
   courtDivisionIdParamSchema,
@@ -66,6 +72,8 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'csvImportQuerySchema', schema: csvImportQuerySchema },
   { name: 'listCalendarEntriesQuerySchema', schema: listCalendarEntriesQuerySchema },
   { name: 'movementIdParamSchema', schema: movementIdParamSchema },
+  { name: 'attachmentIdParamSchema', schema: attachmentIdParamSchema },
+  { name: 'attachmentUploadQuerySchema', schema: attachmentUploadQuerySchema },
   { name: 'documentCaseParamSchema', schema: documentCaseParamSchema },
   { name: 'inspectionParamSchema', schema: inspectionParamSchema },
   { name: 'inspectionMediaParamSchema', schema: inspectionMediaParamSchema },

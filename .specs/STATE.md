@@ -1087,6 +1087,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-05
 - **Status**: active
 
+### AD-197
+- **Decision**: Anexos do serviço ficam no próprio `Case` (`attachments`, com `key`, `name`, `mime`, `bytes`) e no storage do tenant (AD-120), em `/expert-cases/:id/attachments`, com a permissão do serviço. O arquivo sempre sai como download. No cadastro os arquivos esperam na tela e sobem depois de salvar; a falha de um deles avisa e não desfaz o serviço. Excluir o serviço apaga os arquivos e devolve a cota. `folderUrl` só aceita `http`/`https`.
+- **Reason**: pedido da perita (2026-11-05); vários arquivos por serviço foi escolha dela. Sem coleção nova: o anexo só existe dentro do serviço.
+- **Trade-off**: um arquivo que falha ao subir exige anexar de novo na edição; o limite de 20 MB e 30 por serviço protege a cota de 1 GB.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/query/case.ts`.
+- **Date**: 2026-11-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

@@ -35,6 +35,8 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Modelo de laudo | `Template` (`documents`) | Seções sim/não reutilizáveis; os padrões vêm do código e são só leitura (AD-126), um ou mais por tipo (AD-163). |
 | Responsável técnico | `Signatory` (`documents`); no laudo, `Report.Signatory` | Quem assina o laudo quando não é a dona da conta: dados, logo, cabeçalho e rodapé próprios, sem acesso ao Ethica (AD-162). |
 | OS (ordem de serviço) | `Case.serviceOrder`; sequência `ServiceOrderSequence` (`case`) | Número de controle do serviço, `SIGLA-AAAA-NNN`, dado pela sequência do escritório no cadastro (AD-161). |
+| Anexo | `Case.attachments` (`case`) | Arquivo guardado no serviço, na cota do escritório (AD-197). |
+| Link da pasta | `Case.folderUrl` | Endereço da pasta do serviço no OneDrive, Google Drive, Dropbox ou outro (AD-197). |
 | Faz parte do laudo | `sections[].included` | Item que sai no PDF e no Word; desmarcado fica no rascunho com o texto (AD-163). |
 | Layout do laudo | `layout` (`reportLayoutSchema`) | Fonte, tamanho, espaçamento, margens, cor dos títulos e páginas (capa, sumário, abertura) do laudo (AD-163). |
 | Histórico de auditoria (antes "Diário de bordo") | `Activity` (`identity`) | Registro de quem fez o quê: toda escrita, exportação e entrada no sistema, guardado por 1 ano (AD-134). |

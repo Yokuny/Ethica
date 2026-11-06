@@ -131,7 +131,7 @@ export const buildApp = (
   app.use('/auth', createAuthRouter({ validToken, mailProvider, accessUrl: `${env.CORS_ORIGIN}/auth` }));
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
-  app.use('/expert-cases', createCaseRouter({ validToken }));
+  app.use('/expert-cases', createCaseRouter({ validToken, storage }));
   app.use('/parties', createPartyRouter({ validToken }));
   app.use('/court-divisions', createCourtDivisionRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));

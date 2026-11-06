@@ -44,6 +44,15 @@ export interface CaseContractorDocument {
   address?: string;
 }
 
+// File attached to the service (SPA-03), in the tenant storage (AD-120).
+export interface CaseAttachmentDocument {
+  _id: mongoose.Types.ObjectId;
+  key: string;
+  name: string;
+  mime: string;
+  bytes: number;
+}
+
 export interface CaseDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
@@ -71,6 +80,8 @@ export interface CaseDocument {
   proposedFeesCents?: number;
   fixedFeesCents?: number;
   notes?: string;
+  folderUrl?: string;
+  attachments: CaseAttachmentDocument[];
   // Labor report auxiliary data (IMP-04); dates `YYYY-MM-DD` (AD-103).
   docketingDate?: string;
   hireDate?: string;
@@ -133,6 +144,18 @@ const caseSchema = new Schema<CaseDocument>(
     proposedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     fixedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
     notes: { type: String },
+    folderUrl: { type: String, trim: true },
+    attachments: {
+      type: [
+        new Schema<CaseAttachmentDocument>({
+          key: { type: String, required: true },
+          name: { type: String, required: true, trim: true },
+          mime: { type: String, required: true },
+          bytes: { type: Number, required: true },
+        }),
+      ],
+      default: [],
+    },
     docketingDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     hireDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     terminationDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },

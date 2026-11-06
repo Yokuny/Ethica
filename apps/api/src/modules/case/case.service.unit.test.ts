@@ -12,6 +12,7 @@ vi.mock('./case.repository.js', () => ({
   findById: vi.fn(),
   updateCase: vi.fn(),
   deleteCase: vi.fn(),
+  listAttachments: vi.fn().mockResolvedValue([]),
   listCases: vi.fn(),
   hasServiceOrder: vi.fn().mockResolvedValue(false),
 }));
@@ -40,6 +41,7 @@ const legalCase: CaseRecord = {
   court: 'TRT2',
   subject: 'Insalubridade',
   parties: [],
+  attachments: [],
   movements: [],
   phase: 'awaiting_scheduling',
   status: 'active',
