@@ -1,9 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
-import { ItemDescription } from '@ethica/ui/components/item';
-import { useEffect, useState } from 'react';
-import { DefaultLoading } from '@/components/default-loading.js';
-import { FormDialog } from '@/components/form-dialog.js';
-import { getFile } from '@/lib/api/client.api.js';
+import { PdfPreviewDialog } from '@/components/pdf-preview-dialog.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 type ReportPreviewDialogProps = {
@@ -23,47 +19,20 @@ export function ReportPreviewDialog({
   onDownload,
   onClose,
 }: ReportPreviewDialogProps) {
-  const [url, setUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let objectUrl: string | null = null;
-    void getFile(`/expert-reports/${reportId}/pdf?preview=true`).then((res) => {
-      if (!res.success) return setError(res.message);
-      objectUrl = URL.createObjectURL(res.blob);
-      setUrl(objectUrl);
-    });
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [reportId]);
-
   return (
-    <FormDialog
-      size="lg"
-      title={t('preview_pdf')}
+    <PdfPreviewDialog
+      path={`/expert-reports/${reportId}/pdf?preview=true`}
       description={attached ? undefined : t('preview_pdf_description')}
       onClose={onClose}
     >
-      {error ? (
-        <ItemDescription role="alert" className="text-destructive line-clamp-none">
-          {error}
-        </ItemDescription>
-      ) : url ? (
-        <iframe title={t('preview_pdf')} src={url} className="h-[70dvh] w-full rounded-md border" />
-      ) : (
-        <DefaultLoading />
-      )}
-      <div className="flex flex-wrap justify-end gap-2">
-        {!attached && (
-          <Button type="button" variant="outline" disabled={downloading} onClick={() => onDownload('docx')}>
-            {t('export_word')}
-          </Button>
-        )}
-        <Button type="button" disabled={downloading} onClick={() => onDownload('pdf')}>
-          {t('export_pdf')}
+      {!attached && (
+        <Button type="button" variant="outline" disabled={downloading} onClick={() => onDownload('docx')}>
+          {t('export_word')}
         </Button>
-      </div>
-    </FormDialog>
+      )}
+      <Button type="button" disabled={downloading} onClick={() => onDownload('pdf')}>
+        {t('export_pdf')}
+      </Button>
+    </PdfPreviewDialog>
   );
 }

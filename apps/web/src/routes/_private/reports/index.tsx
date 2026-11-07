@@ -1,8 +1,10 @@
 import { Button } from '@ethica/ui/components/button';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
+import { PdfPreviewDialog } from '@/components/pdf-preview-dialog.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
@@ -17,6 +19,7 @@ const REPORTS = [
 export function ReportsPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const { download, pending } = useFileDownload();
+  const [previewing, setPreviewing] = useState<string | null>(null);
   return (
     <Card asPage>
       <CardHeader title={t('reports')} description={t('reports_page_description')} />
@@ -28,9 +31,14 @@ export function ReportsPage() {
             title={t(report.title)}
             description={t(report.description)}
             actions={
-              <Button variant="outline" disabled={pending === report.path} onClick={() => download(report.path)}>
-                {t('generate_pdf')}
-              </Button>
+              <>
+                <Button variant="outline" onClick={() => setPreviewing(report.path)}>
+                  {t('preview_pdf')}
+                </Button>
+                <Button disabled={pending === report.path} onClick={() => download(report.path)}>
+                  {t('generate_pdf')}
+                </Button>
+              </>
             }
           />
         ))}
@@ -40,6 +48,13 @@ export function ReportsPage() {
           </Panel>
         )}
       </CardContent>
+      {previewing && (
+        <PdfPreviewDialog path={previewing} onClose={() => setPreviewing(null)}>
+          <Button disabled={pending === previewing} onClick={() => download(previewing)}>
+            {t('generate_pdf')}
+          </Button>
+        </PdfPreviewDialog>
+      )}
     </Card>
   );
 }

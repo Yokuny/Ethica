@@ -1,5 +1,6 @@
 import { type FinanceReportQuery, financeReportQuerySchema } from '@ethica/contracts';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -12,10 +13,16 @@ export function useFinanceReportForm() {
     defaultValues: { from: `${today.slice(0, 8)}01`, to: today },
   });
   const { download, pending } = useFileDownload();
+  const [previewPath, setPreviewPath] = useState<string | null>(null);
+  const pathOf = ({ from, to }: FinanceReportQuery) => `/documents/finance?from=${from}&to=${to}`;
 
-  function onSubmit({ from, to }: FinanceReportQuery) {
-    download(`/documents/finance?from=${from}&to=${to}`);
-  }
-
-  return { form, onSubmit: form.handleSubmit(onSubmit), isPending: Boolean(pending) };
+  return {
+    form,
+    onSubmit: form.handleSubmit((period) => download(pathOf(period))),
+    onPreview: form.handleSubmit((period) => setPreviewPath(pathOf(period))),
+    previewPath,
+    closePreview: () => setPreviewPath(null),
+    download,
+    isPending: Boolean(pending),
+  };
 }

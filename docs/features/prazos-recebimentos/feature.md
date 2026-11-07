@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-06 — Tela Relatórios ganha "Visualizar PDF" em cada relatório, com o download dentro da visualização; a janela é a mesma do laudo (`apps/web/src/components/pdf-preview-dialog.tsx`).
 - 2026-11-06 — Relatório financeiro usa Receita, Despesa e Saldo líquido; tabelas só com linhas horizontais, texto à esquerda e datas e valores centralizados.
 - 2026-11-06 — Campo "Data do pagamento" em despesas e receitas; quitar e receber pedem a data em vez de assumir hoje (AD-201). A lista de recebimentos volta a mostrar a data de cada um.
 - 2026-11-06 — Relatório financeiro na ordem pedida pela perita: Data, OS, Descrição, Contratante, Honorário fixado e Valor recebido (em A receber, Valor a receber). Pago e A pagar ficam sem o honorário; saem as colunas Serviço e Categoria.
