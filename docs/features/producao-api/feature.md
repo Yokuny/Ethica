@@ -45,7 +45,7 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 - [ ] `design.md` e `tasks.md` (skill `ethica-spec-driven`).
 - [ ] Implementação, validação e UAT das pastas por perícia (PRD-01).
 - [ ] Criar os projetos na Railway e na Vercel e o cluster no Atlas; conferir se o domínio gerado pela Railway bate com o `vercel.json`.
-- [ ] Plano de implementação do S3 (AD-202): provider assume `ethica-files-tenant` com a etiqueta `tenantId`, variáveis novas, `RUN_BOOK.md`, chave de acesso de `ethica-files-api` na Railway.
+- [ ] Plano de implementação do S3 (AD-202): provider assume o papel de `S3_ROLE_ARN` com a etiqueta `tenantId`, `RUN_BOOK.md`. Na Railway (2026-11-09) entram `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` (chave de `ethica-files-api`) e `S3_ROLE_ARN`; `S3_BUCKET` só entra quando o código novo estiver no ar, porque é ele que liga o envio (sem ele a tela segue "Armazenamento não configurado" em vez de dar erro).
 
 ## Histórico
 
