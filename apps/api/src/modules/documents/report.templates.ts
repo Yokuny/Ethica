@@ -68,7 +68,45 @@ const withPhotos = (html: string, photos: ReportExportData['photos']): string =>
 
 const cm = (value: number): string => `${value * 10}mm`;
 
-export const reportHtml = ({ report, legalCase, identity, expert, values, photos }: ReportExportData): PdfDocument => {
+// Report header and footer in the expert's layout (AD-206), with the data of whoever signs and the office logo:
+// only where the office (or the technical responsible) did not write its own text in Escritório.
+const reportHeaderFooter = ({
+  report,
+  legalCase,
+  identity,
+  expert,
+}: ReportExportData): Pick<PdfDocument, 'headerTemplate' | 'footerTemplate'> => {
+  const { layout } = report;
+  const office = headerFooter(identity, expert.name);
+  // Chromium draws these apart from the page CSS: everything inline, aligned with the page margins.
+  const frame = (inner: string, style: string): string =>
+    `<div style="width:100%;box-sizing:border-box;padding:0 ${cm(layout.marginRight)} 0 ${cm(layout.marginLeft)};font-family:${PDF_FONTS[layout.font]};color:#444;line-height:1.3;-webkit-print-color-adjust:exact;"><div style="display:flex;justify-content:space-between;${style}">${inner}</div></div>`;
+  const credentials = [expert.education, expert.professionalRegistration && `(${expert.professionalRegistration})`]
+    .filter(Boolean)
+    .join(' ');
+  const header = frame(
+    `<div><div style="font-weight:700;text-transform:uppercase;color:${layout.titleColor};">${esc(expert.name)}</div><div>${ROLE[report.type]}</div>${credentials ? `<div>${esc(credentials)}</div>` : ''}</div>${
+      identity.logoDataUrl ? `<img src="${identity.logoDataUrl}" style="max-height:14mm;max-width:40mm;">` : ''
+    }`,
+    `align-items:flex-end;font-size:8pt;padding-bottom:2mm;border-bottom:0.4mm solid ${layout.titleColor};`,
+  );
+  const contact = [expert.education, expert.professionalRegistration, expert.phone && `Tel. ${expert.phone}`]
+    .filter(Boolean)
+    .join(' · ');
+  const footer = frame(
+    `<div>${
+      legalCase.processNumber ? `<div>Processo nº ${esc(legalCase.processNumber)}</div>` : ''
+    }<div>${esc(expert.name)}</div>${contact ? `<div>${esc(contact)}</div>` : ''}</div><div style="font-weight:700;font-size:8pt;"><span class="pageNumber"></span></div>`,
+    'align-items:flex-start;font-size:7pt;padding-top:1.5mm;border-top:0.3mm solid #999;',
+  );
+  return {
+    headerTemplate: identity.header === undefined ? header : office.headerTemplate,
+    footerTemplate: identity.footer === undefined ? footer : office.footerTemplate,
+  };
+};
+
+export const reportHtml = (data: ReportExportData): PdfDocument => {
+  const { report, legalCase, identity, expert, values, photos } = data;
   const { layout } = report;
   const numbers = numberSections(report.sections);
   const numbered = (i: number, section: { title: string; level: number }) =>
@@ -141,7 +179,7 @@ export const reportHtml = ({ report, legalCase, identity, expert, values, photos
   ].join('');
   return {
     html: `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(TYPE[report.type])} ${esc(legalCase.processNumber)}</title><style>${css(layout)}</style></head><body>${body}</body></html>`,
-    ...headerFooter(identity, expert.name),
+    ...reportHeaderFooter(data),
     margin: {
       top: cm(layout.marginTop),
       bottom: cm(layout.marginBottom),

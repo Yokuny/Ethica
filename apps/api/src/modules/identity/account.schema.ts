@@ -15,6 +15,8 @@ export type AccountView = {
   cpf?: string;
   professionalRegistration?: string;
   education?: string;
+  // Only the technical responsible has one (AD-162); goes in the report footer (AD-206).
+  phone?: string;
 };
 
 // PRZ-03: owner of the iCal feed link — active user, with a role, from a non-suspended tenant.

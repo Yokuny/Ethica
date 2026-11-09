@@ -376,6 +376,81 @@ export const reportDocx = async ({
     ...signature,
   ];
   const rule = { bottom: { style: BorderStyle.SINGLE, size: 8, color, space: 4 } };
+  // Header and footer in the expert's layout (AD-206), where the office did not write its own text: who signs
+  // on the left, the office logo or the page number on the right, as a table without lines but the rule.
+  const none = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+  const small = (text: string, run: { bold?: boolean; color?: string; allCaps?: boolean } = {}, size = 16) =>
+    new Paragraph({
+      spacing: { after: 0, line: 240 },
+      children: [new TextRun({ text, size, color: '444444', ...run })],
+    });
+  const band = (left: Paragraph[], right: Paragraph, edge: 'top' | 'bottom', edgeColor: string) =>
+    new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: edge === 'top' ? { style: BorderStyle.SINGLE, size: 4, color: edgeColor } : none,
+        bottom: edge === 'bottom' ? { style: BorderStyle.SINGLE, size: 8, color: edgeColor } : none,
+        left: none,
+        right: none,
+        insideHorizontal: none,
+        insideVertical: none,
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({ width: { size: 75, type: WidthType.PERCENTAGE }, children: left }),
+            new TableCell({ width: { size: 25, type: WidthType.PERCENTAGE }, children: [right] }),
+          ],
+        }),
+      ],
+    });
+  const headerCredentials = [
+    expert.education,
+    expert.professionalRegistration && `(${expert.professionalRegistration})`,
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const expertHeader = band(
+    [
+      small(expert.name, { bold: true, color, allCaps: true }),
+      small(ROLE[report.type]),
+      ...(headerCredentials ? [small(headerCredentials)] : []),
+    ],
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children:
+        logo && logoSize
+          ? [
+              new ImageRun({
+                type: 'png',
+                data: logo,
+                transformation: {
+                  width: Math.round(logoSize.width * Math.min(50 / logoSize.height, 150 / logoSize.width, 1)),
+                  height: Math.round(logoSize.height * Math.min(50 / logoSize.height, 150 / logoSize.width, 1)),
+                },
+              }),
+            ]
+          : [],
+    }),
+    'bottom',
+    color,
+  );
+  const contact = [expert.education, expert.professionalRegistration, expert.phone && `Tel. ${expert.phone}`]
+    .filter(Boolean)
+    .join(' · ');
+  const expertFooter = band(
+    [
+      ...(legalCase.processNumber ? [small(`Processo nº ${legalCase.processNumber}`, {}, 14)] : []),
+      small(expert.name, {}, 14),
+      ...(contact ? [small(contact, {}, 14)] : []),
+    ],
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children: [new TextRun({ bold: true, size: 16, children: [PageNumber.CURRENT] })],
+    }),
+    'top',
+    '999999',
+  );
   const summary = [
     new Paragraph({
       border: rule,
@@ -457,8 +532,22 @@ export const reportDocx = async ({
             },
           },
         },
-        headers: { default: new Header({ children: templateRows(header, identity.headerStyle, logo, expert.name) }) },
-        footers: { default: new Footer({ children: templateRows(footer, identity.footerStyle, logo, expert.name) }) },
+        headers: {
+          default: new Header({
+            children:
+              identity.header === undefined
+                ? [expertHeader]
+                : templateRows(header, identity.headerStyle, logo, expert.name),
+          }),
+        },
+        footers: {
+          default: new Footer({
+            children:
+              identity.footer === undefined
+                ? [expertFooter]
+                : templateRows(footer, identity.footerStyle, logo, expert.name),
+          }),
+        },
         children: [
           ...(layout.cover ? cover : []),
           ...(layout.summary ? summary : []),

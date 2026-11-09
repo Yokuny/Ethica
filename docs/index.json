@@ -16,7 +16,8 @@
       "decisoes": [
         "AD-203",
         "AD-204",
-        "AD-205"
+        "AD-205",
+        "AD-206"
       ],
       "spec": [
         ".specs/features/biblioteca-modelos"
@@ -1676,6 +1677,12 @@
     {
       "id": "AD-205",
       "decisao": "\"Importar modelo\" (`POST /expert-reports/templates/file?name=&type=&area=`, arquivo no corpo, permissão `report_templates:create`) aceita PD",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-206",
+      "decisao": "No laudo e no parecer (PDF e Word), quando o escritório (ou o responsável técnico do laudo) não escreveu cabeçalho ou rodapé próprio em Escr",
       "data": "2026-11-09",
       "status": "active"
     }

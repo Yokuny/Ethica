@@ -287,6 +287,31 @@ const data = (): ReportExportData => ({
 });
 
 describe('exportação (LAU-03.2)', () => {
+  it('PDF: sem cabeçalho do escritório sai o de quem assina com a logo; com texto próprio, vale o do Escritório (AD-206)', () => {
+    const base = data();
+    const own = reportHtml({
+      ...base,
+      identity: { ...base.identity, logoDataUrl: 'data:image/png;base64,AAAA' },
+      expert: { ...base.expert, education: 'Engenheira', phone: '(47) 9999-0000' },
+    });
+    expect(own.headerTemplate).toContain('Eng. Paula');
+    expect(own.headerTemplate).toContain('Perito(a) do Juízo');
+    expect(own.headerTemplate).toContain('Engenheira (CREA 1)');
+    expect(own.headerTemplate).toContain('data:image/png;base64,AAAA');
+    // The fixture office wrote its own footer: it stays.
+    expect(own.footerTemplate).toContain('totalPages');
+
+    const office = reportHtml({
+      ...base,
+      identity: { ...base.identity, header: 'Laudos [NOME_PERITO]', footer: undefined },
+      expert: { ...base.expert, phone: '(47) 9999-0000' },
+    });
+    expect(office.headerTemplate).toContain('Laudos Eng. Paula');
+    expect(office.headerTemplate).not.toContain('Perito(a) do Juízo');
+    expect(office.footerTemplate).toContain('Processo nº');
+    expect(office.footerTemplate).toContain('CREA 1 · Tel. (47) 9999-0000');
+  });
+
   it('PDF: capa, sumário numerado, seções e quebra de página', () => {
     const { html, footerTemplate } = reportHtml(data());
     expect(html).toContain('LAUDO PERICIAL');

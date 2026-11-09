@@ -1159,6 +1159,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-206
+- **Decision**: No laudo e no parecer (PDF e Word), quando o escritório (ou o responsável técnico do laudo) não escreveu cabeçalho ou rodapé próprio em Escritório, sai o desenho do laudo da perita montado com os dados de **quem assina** e a logo do escritório (ou do responsável): cabeçalho com nome em maiúsculas na cor dos títulos, papel (Perito(a) do Juízo/Assistente Técnico(a)) e formação (registro) à esquerda, logo à direita e traço embaixo; rodapé com nº do processo, nome e formação · registro · telefone à esquerda e o número da página à direita, com traço em cima. Cabeçalho e rodapé são independentes: o que o escritório escreveu continua valendo. Os outros PDFs (ficha, relatórios) seguem o padrão antigo (AD-121). `AccountView` ganha `phone`, preenchido só pelo responsável técnico (o usuário não tem telefone).
+- **Reason**: pedido da perita (2026-11-09): o anexo é só modelo; cabeçalho, rodapé e logo vêm das informações do usuário e do escritório. Ela escolheu o desenho do anexo com os dados do usuário, valendo o texto de Escritório quando personalizado.
+- **Trade-off**: escritório que quer o desenho novo e já tinha texto próprio precisa apagar o texto em Escritório. O telefone só aparece com responsável técnico.
+- **Scope**: `apps/api/src/modules/documents/{report.templates,report.docx,signatory.service}.ts`, `apps/api/src/modules/identity/account.schema.ts`.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

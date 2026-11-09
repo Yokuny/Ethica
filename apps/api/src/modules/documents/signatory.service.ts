@@ -94,6 +94,7 @@ export const documentSigner = async (
       cpf: signatory.cpf,
       professionalRegistration: signatory.professionalRegistration,
       education: signatory.education,
+      phone: signatory.phone,
     },
     identity: {
       ...office,
