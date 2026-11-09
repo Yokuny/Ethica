@@ -2,6 +2,39 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "laudos",
+      "feature": "Laudo automatizado",
+      "descricao": "Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word",
+      "data": "2026-11-09",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-103",
+        "AD-107",
+        "AD-113",
+        "AD-119",
+        "AD-121",
+        "AD-123",
+        "AD-124",
+        "AD-125",
+        "AD-126",
+        "AD-127",
+        "AD-181",
+        "AD-192",
+        "AD-193"
+      ],
+      "spec": [
+        ".specs/features/laudos"
+      ],
+      "planos": [],
+      "doc": "features/laudos/feature.md"
+    },
+    {
       "slug": "producao-api",
       "feature": "Imagem de produção da API e arquivos por perícia",
       "descricao": "API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia",
@@ -737,39 +770,6 @@
       ],
       "planos": [],
       "doc": "features/laudo-vistoria/feature.md"
-    },
-    {
-      "slug": "laudos",
-      "feature": "Laudo automatizado",
-      "descricao": "Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word",
-      "data": "2026-11-01",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-103",
-        "AD-107",
-        "AD-113",
-        "AD-119",
-        "AD-121",
-        "AD-123",
-        "AD-124",
-        "AD-125",
-        "AD-126",
-        "AD-127",
-        "AD-181",
-        "AD-192",
-        "AD-193"
-      ],
-      "spec": [
-        ".specs/features/laudos"
-      ],
-      "planos": [],
-      "doc": "features/laudos/feature.md"
     },
     {
       "slug": "rotas-vistoria",

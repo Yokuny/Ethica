@@ -26,6 +26,7 @@ export const REPORT_DEFAULT_TEMPLATES = {
   'standard-labor-report': 'report',
   'standard-report': 'report',
   'standard-technical_opinion': 'technical_opinion',
+  'standard-technical-objection': 'technical_opinion',
 } as const satisfies Record<string, ReportType>;
 export type DefaultTemplateId = keyof typeof REPORT_DEFAULT_TEMPLATES;
 const DEFAULT_TEMPLATE_IDS = Object.keys(REPORT_DEFAULT_TEMPLATES) as [DefaultTemplateId, ...DefaultTemplateId[]];

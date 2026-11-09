@@ -206,6 +206,18 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
         'Quesitos complementares',
         'Quesitos suplementares',
         'Impugnação do laudo pericial',
+        'Dados preliminares',
+        'Documentos dos autos considerados',
+        'Parecer técnico e conclusão',
+        'Considerações finais',
+      ]),
+    );
+    expect(byId('standard-technical-objection').map((section) => section.title)).toEqual(
+      expect.arrayContaining([
+        'Síntese da impugnação técnica',
+        'Da exposição eventual × intermitente',
+        'Do requerimento de esclarecimentos complementares',
+        'Referências',
       ]),
     );
   });

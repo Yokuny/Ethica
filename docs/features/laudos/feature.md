@@ -2,7 +2,7 @@
 feature: Laudo automatizado
 slug: laudos
 descricao: Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word
-data: 2026-11-01
+data: 2026-11-09
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
 decisoes: [AD-103, AD-107, AD-113, AD-119, AD-121, AD-123, AD-124, AD-125, AD-126, AD-127, AD-181, AD-192, AD-193]
@@ -24,7 +24,7 @@ branches: [feat/laudos]
 - **Redigir** (`/expert-reports/details`): uma seção por vez, com as variáveis sem valor destacadas e apontadas; remover seção renumera.
 - **Exportar** PDF e Word com capa, sumário, seções, cabeçalho e rodapé do escritório; variável sem valor bloqueia exportar e concluir.
 - **Concluir**: o laudo fica só para leitura (também na API) e, com "Registrar a entrega", protocola o prazo "Entrega do laudo", lança a movimentação de entrega e avança a etapa da perícia.
-- **Parecer técnico** para a perícia em que o escritório é assistente técnico, com modelo próprio (medições com o perito, quesitos complementares e suplementares, impugnação); as partes saem como reclamante/reclamada ou autor/réu pela justiça.
+- **Parecer técnico** para a perícia em que o escritório é assistente técnico, com dois modelos padrão: o parecer da diligência (dados preliminares, documentos dos autos, funções pelo PPP, dispositivos de proteção, medições com o perito, quesitos complementares e suplementares, parecer e conclusão, considerações finais) e o parecer técnico de impugnação (síntese, pontos contestados do laudo, pedido de esclarecimentos pelo art. 477 do CPC e referências); as partes saem como reclamante/reclamada ou autor/réu pela justiça.
 
 ## Por que
 
@@ -38,7 +38,7 @@ O laudo era escrito fora do Ethica, redigitando número, partes e datas e repeti
   - `report.router.ts` (`/expert-reports/*`, montado em `apps/api/src/app.ts` com `express.json` de 1 MB só nesse prefixo), `report.controller.ts`, `report.schema.ts`.
   - `template.service.ts` / `template.repository.ts` — modelos do escritório, padrão só leitura, clonar, seções e reordenação.
   - `report.service.ts` / `report.repository.ts` — criar, abrir (resolve de novo), editar e remover seção, concluir (o bloqueio de rascunho é o filtro `status: 'draft'` no repository), exportar.
-  - `report.library.ts` — os dois modelos padrão; `report.html.ts` — saneamento, resolução e pendências; `report.variables.ts` — valor de cada variável; `report.templates.ts` — HTML do PDF; `report.docx.ts` — Word com `docx` + `htmlparser2`.
+  - `report.library.ts` — os modelos padrão; `report.html.ts` — saneamento, resolução e pendências; `report.variables.ts` — valor de cada variável; `report.templates.ts` — HTML do PDF; `report.docx.ts` — Word com `docx` + `htmlparser2`.
   - `document.layout.ts` ganhou `headerFooter` e `textsHeaderFooter`, usados pelos PDFs antigos, pelo laudo e pelo Word.
 - `apps/api/src/modules/case/deadline.service.ts` — `fileReportDelivery`; o título "Entrega do laudo" é `REPORT_DELIVERY_DEADLINE` em `deadline.schema.ts`.
 - `apps/api/src/modules/case/case.service.ts` emite `case:deleted`; `apps/api/src/events/subscribers/documents.subscriber.ts` exclui os laudos.
@@ -75,6 +75,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — Modelos de parecer técnico completados com os modelos da perita: o "Parecer técnico" ganha dados preliminares, documentos dos autos considerados, funções exercidas, dispositivos de proteção, parecer técnico e conclusão e considerações finais; novo modelo padrão "Parecer técnico de impugnação" (`standard-technical-objection`, texto-base de periculosidade por eletricidade, NR-16 Anexo 4 e NR-10). Dados do caso de origem viraram variáveis ou campos entre parênteses.
 - 2026-11-05 — A situação volta às abas acima da lista (AD-193).
 - 2026-11-05 — Lista ordena pelo clique nas colunas Modelo, Situação e Atualizado em; a situação sai das abas e vai para "Filtros"; a tabela passa ao molde de colunas (`@utils/report-columns.tsx`) (AD-192).
 - 2026-11-04 — **Detalhes do modelo** (ex.: "limpeza de banheiros") ao salvar o laudo como modelo, ao criar e em "Editar nome e detalhes" no "…" do modelo; aparecem na lista de modelos e na escolha do modelo do laudo (AD-181). `Template.details`; `PATCH /expert-reports/templates/:id` passa a gravar nome e detalhes.
