@@ -4,13 +4,15 @@ import { Form } from '@ethica/ui/components/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { FormDialog } from '@/components/form-dialog.js';
-import { TextareaField, TextField } from '@/components/form-fields.js';
+import { SelectField, TextareaField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 type SaveTemplateDialogProps = {
   title: string;
   description?: string;
   values: UpdateTemplate;
+  // Area of practice (AD-204): only when editing; a report saved as a template takes its service's area.
+  areas?: readonly { value: string; label: string }[];
   pending: boolean;
   onClose: () => void;
   onConfirm: (data: UpdateTemplate) => void;
@@ -21,6 +23,7 @@ export function SaveTemplateDialog({
   title,
   description,
   values,
+  areas,
   pending,
   onClose,
   onConfirm,
@@ -42,6 +45,15 @@ export function SaveTemplateDialog({
             label={t('template_details')}
             placeholder={t('template_details_placeholder')}
           />
+          {areas && (
+            <SelectField
+              control={form.control}
+              name="area"
+              label={t('practice_area')}
+              placeholder={t('no_area')}
+              items={areas}
+            />
+          )}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
               {t('cancel')}

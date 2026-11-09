@@ -15,6 +15,7 @@ import type {
   UpdateReportSection,
   UpdateTemplate,
 } from '@ethica/contracts';
+import { DOCX_MIME } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post, put, sendFile } from '../lib/api/client.api.js';
@@ -29,6 +30,8 @@ export type TemplateRecord = {
   name: string;
   // Specifics of the template (AD-181).
   details?: string;
+  // Area of practice (AD-204).
+  area?: string;
   type: ReportType;
   isDefault: boolean;
   sections: TemplateSectionRecord[];
@@ -267,6 +270,22 @@ const updatedTemplate = (queryClient: QueryClient, template: TemplateRecord) => 
   queryClient.setQueryData(reportKeys.template(template.id), template);
   queryClient.invalidateQueries({ queryKey: [...reportKeys.all, 'templates'] });
 };
+
+// BIB-04: PDF or Word turned into an office template.
+export const importTemplateMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<TemplateRecord, Error, { name: string; type: ReportType; area?: string; file: File }> => ({
+  mutationFn: async ({ name, type, area, file }) =>
+    unwrap(
+      await sendFile<TemplateRecord>(
+        `/expert-reports/templates/file${qs({ name, type, area })}`,
+        file,
+        file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : DOCX_MIME),
+      ),
+      'create_error',
+    ),
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: [...reportKeys.all, 'templates'] }),
+});
 
 export const createTemplateMutation = (
   queryClient: QueryClient,

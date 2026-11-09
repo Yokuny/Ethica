@@ -1,4 +1,4 @@
-import { caseLabel, defaultTemplateOf, reportRoleType } from '@ethica/contracts';
+import { caseArea, caseLabel, defaultTemplateOf, reportRoleType } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useBlocker, useNavigate, useSearch } from '@tanstack/react-router';
@@ -136,7 +136,11 @@ export function ReportAddPage() {
               <SignatoryPicker value={signatory} onChange={setSignatory} />
             </Panel>
             <Panel title={t('template')} description={t('choose_template_description')}>
-              <TemplateSelect value={templateId} onChange={(value) => updateSearch({ templateId: value })} />
+              <TemplateSelect
+                area={legalCase.data && caseArea(legalCase.data)}
+                value={templateId}
+                onChange={(value) => updateSearch({ templateId: value })}
+              />
             </Panel>
             {template.isLoading ? (
               <DefaultLoading />

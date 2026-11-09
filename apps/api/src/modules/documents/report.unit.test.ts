@@ -290,7 +290,8 @@ describe('exportação (LAU-03.2)', () => {
   it('PDF: capa, sumário numerado, seções e quebra de página', () => {
     const { html, footerTemplate } = reportHtml(data());
     expect(html).toContain('LAUDO PERICIAL');
-    expect(html).toContain('<dt>Reclamante:</dt><dd>Ana</dd>');
+    expect(html).toContain('<tr><th>Reclamante</th><td>Ana</td></tr>');
+    expect(html).toContain('<p class="fim">É o laudo.</p>');
     expect(html).toContain('<li class="n2">2.1. Anexo 1</li>');
     expect(html).toContain('1. OBJETIVO &lt;X&gt;');
     expect(html).toContain('<section class="secao quebra">');

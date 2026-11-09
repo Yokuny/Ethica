@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   CASE_PHASE_GROUPS,
   type CasePhase,
+  caseArea,
   caseLabel,
   REPORT_LAYOUT_DEFAULT,
   REPORT_MEDIA_LIMIT,
@@ -320,11 +321,13 @@ export const saveAsTemplate = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
   id: string,
-  { name, details }: UpdateTemplate,
+  { name, details, area }: UpdateTemplate,
 ) => {
   const report = await getReport(ctx.tenantId, id);
-  if (report.file) return attachedAsTemplate(providers, ctx, report, { name, details });
   const legalCase = await caseService.getCase(ctx.tenantId, report.caseId);
+  // Without an area chosen, the template goes to the area of the report's service (AD-204).
+  const template = { name, details, area: area || caseArea(legalCase) };
+  if (report.file) return attachedAsTemplate(providers, ctx, report, template);
   const { values } = await currentData({}, ctx, legalCase, report.signatoryId);
   const original = report.templateId
     ? await templateService.getTemplate(ctx.tenantId, report.templateId).catch(() => undefined)
@@ -345,8 +348,7 @@ export const saveAsTemplate = async (
       };
     });
   return templateService.createFromReport(ctx.tenantId, {
-    name,
-    details,
+    ...template,
     type: report.type,
     sections,
     layout: report.layout,
@@ -358,15 +360,14 @@ const attachedAsTemplate = async (
   providers: Pick<Providers, 'storage'>,
   ctx: DocumentContext,
   report: ReportRecord,
-  { name, details }: UpdateTemplate,
+  template: UpdateTemplate,
 ) => {
   const file = await reportRepository.fileOf(ctx.tenantId, report.id);
   const body = file && providers.storage ? await providers.storage.get(file.key) : null;
   if (!body) throw new ReportNotFoundError('not_found');
   const sections = templateSectionsFromText(await importService.extractPdfText(body), report.templateName);
   return templateService.createFromReport(ctx.tenantId, {
-    name,
-    details,
+    ...template,
     type: report.type,
     sections,
     layout: report.layout,

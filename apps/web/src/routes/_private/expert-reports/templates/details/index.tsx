@@ -15,7 +15,9 @@ import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/compone
 import { PageMenu } from '@/components/page-menu.js';
 import { Panel } from '@/components/panel.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
+import { templateAreaItems, templateAreaLabel } from '@/components/report-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { serviceTypesQuery } from '@/query/case.js';
 import {
   deleteTemplateMutation,
   moveTemplateSectionMutation,
@@ -57,6 +59,7 @@ export function TemplateDetailsPage() {
   const update = useMutation(updateTemplateMutation(queryClient));
   const [panel, setPanel] = useState<PanelState>(null);
   const template = query.data;
+  const serviceTypes = useQuery(serviceTypesQuery);
   const canEdit = Boolean(template && !template.isDefault && can(session, 'report_templates', 'update'));
   const numbers = numberSections(template?.sections ?? []);
   const onError = (error: Error) => toast.error(error.message);
@@ -64,7 +67,12 @@ export function TemplateDetailsPage() {
   return (
     <Card asPage>
       <CardHeader title={t('details')}>
-        {template && can(session, 'report_templates', 'update') && (
+        {template?.isDefault && can(session, 'report_templates', 'create') && (
+          <CardAction>
+            <Button onClick={() => setPanel({ kind: 'duplicate' })}>{t('use_in_office')}</Button>
+          </CardAction>
+        )}
+        {template && !template.isDefault && can(session, 'report_templates', 'update') && (
           <CardAction>
             {canEdit && (
               <Button variant="outline" onClick={() => setPanel({ kind: 'layout' })}>
@@ -101,7 +109,11 @@ export function TemplateDetailsPage() {
               label={t(template.type)}
               title={template.name}
               badge={template.isDefault && <Badge variant="info">{t('standard')}</Badge>}
-              description={template.isDefault ? t('standard_template_review_notice') : template.details}
+              description={
+                template.isDefault
+                  ? t('standard_template_review_notice')
+                  : [templateAreaLabel(template.area), template.details].filter(Boolean).join(' · ')
+              }
             />
           </RecordHeader>
           <Panel title={t('sections')} description={`${template.sections.length} ${t('sections').toLowerCase()}`}>
@@ -212,7 +224,8 @@ export function TemplateDetailsPage() {
       {template && panel?.kind === 'edit' && (
         <SaveTemplateDialog
           title={t('edit_name_and_details')}
-          values={{ name: template.name, details: template.details }}
+          values={{ name: template.name, details: template.details, area: template.area }}
+          areas={templateAreaItems(serviceTypes.data ?? [])}
           pending={update.isPending}
           onClose={() => setPanel(null)}
           onConfirm={(data) => update.mutate({ id: template.id, data }, { onSuccess: () => setPanel(null), onError })}

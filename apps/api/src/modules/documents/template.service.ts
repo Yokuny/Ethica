@@ -1,10 +1,14 @@
 import { isDefaultTemplate, REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType } from '@ethica/contracts';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import * as importService from '../case/import.service.js';
+import { templateSectionsFromDocx, templateSectionsFromText } from './report.attachment.js';
 import { sanitizeReportHtml } from './report.html.js';
 import { DEFAULT_TEMPLATES } from './report.library.js';
 import type {
   CreateTemplate,
+  ImportTemplateQuery,
   MoveSection,
+  TemplateInput,
   TemplateRecord,
   TemplateSection,
   TemplateSummary,
@@ -52,20 +56,39 @@ export const createTemplate = async (tenantId: string, data: CreateTemplate): Pr
   return templateRepository.create(tenantId, {
     name: data.name,
     details: data.details || undefined,
+    area: data.area || undefined,
     type: data.type,
     sections: (base?.sections ?? []).map(({ id: _id, ...section }) => section),
     layout: base?.layout ?? REPORT_LAYOUT_DEFAULT,
   });
 };
 
-// Template saved from a report (AD-170): its items and texts, already chosen by the expert.
-export const createFromReport = (
+// BIB-04: a PDF (by its text) or a Word file becomes an office template with the expert's layout (AD-203).
+const isPdf = (file: Buffer): boolean => file.subarray(0, 5).toString('latin1') === '%PDF-';
+export const importTemplate = async (
   tenantId: string,
-  data: { name: string; details?: string; type: ReportType; sections: TemplateSection[]; layout: ReportLayout },
-): Promise<TemplateRecord> =>
+  { name, type, area }: ImportTemplateQuery,
+  file: Buffer,
+): Promise<TemplateRecord> => {
+  const sections = isPdf(file)
+    ? templateSectionsFromText(await importService.extractPdfText(file), name)
+    : templateSectionsFromDocx(file, name);
+  if (!sections.length) throw new CustomError('pdf_without_text', 422);
+  return templateRepository.create(tenantId, {
+    name,
+    area: area || undefined,
+    type,
+    sections: sections.map(sanitized),
+    layout: REPORT_LAYOUT_DEFAULT,
+  });
+};
+
+// Template saved from a report (AD-170): its items and texts, already chosen by the expert.
+export const createFromReport = (tenantId: string, data: TemplateInput): Promise<TemplateRecord> =>
   templateRepository.create(tenantId, {
     ...data,
     details: data.details || undefined,
+    area: data.area || undefined,
     sections: data.sections.map(sanitized),
   });
 

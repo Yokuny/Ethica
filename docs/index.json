@@ -2,6 +2,29 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "biblioteca-modelos",
+      "feature": "Biblioteca de modelos",
+      "descricao": "Modelos de laudo em Biblioteca padrão e Biblioteca do escritório por área de atuação, importar PDF ou Word e layout da perita como padrão",
+      "data": "2026-11-09",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-203",
+        "AD-204",
+        "AD-205"
+      ],
+      "spec": [
+        ".specs/features/biblioteca-modelos"
+      ],
+      "planos": [],
+      "doc": "features/biblioteca-modelos/feature.md"
+    },
+    {
       "slug": "laudos",
       "feature": "Laudo automatizado",
       "descricao": "Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word",
@@ -1635,6 +1658,24 @@
     {
       "id": "AD-202",
       "decisao": "O storage de produção é o bucket S3 privado `ethica-files-677296948879` na região us-east-2 (projeto da AWS na nova experiência), criado pel",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-203",
+      "decisao": "O layout do laudo da perita (anexo de 2026-11-09, laudo `ETH-2026-001`) vira o `REPORT_LAYOUT_DEFAULT`: Source Sans, entrelinha 1,15, 6 pt e",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-204",
+      "decisao": "Modelo do escritório tem área de atuação (`Template.area`, texto opcional): as chaves `labor`, `civil`, `federal` (esfera da perícia), `tech",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-205",
+      "decisao": "\"Importar modelo\" (`POST /expert-reports/templates/file?name=&type=&area=`, arquivo no corpo, permissão `report_templates:create`) aceita PD",
       "data": "2026-11-09",
       "status": "active"
     }

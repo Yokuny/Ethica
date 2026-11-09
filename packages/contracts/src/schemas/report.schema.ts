@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { CaseRole } from './case.schema.js';
+import type { CaseRole, CourtType } from './case.schema.js';
 import { idSchema } from './id.schema.js';
 
 // Expert report (court expert) or technical opinion (technical assistant, LAU-06).
@@ -33,6 +33,16 @@ const DEFAULT_TEMPLATE_IDS = Object.keys(REPORT_DEFAULT_TEMPLATES) as [DefaultTe
 export const isDefaultTemplate = (id: string): id is DefaultTemplateId => id in REPORT_DEFAULT_TEMPLATES;
 export const defaultTemplateOf = (type: ReportType): DefaultTemplateId =>
   DEFAULT_TEMPLATE_IDS.find((id) => REPORT_DEFAULT_TEMPLATES[id] === type) as DefaultTemplateId;
+
+// Area of practice of an office template (AD-204): the sphere of the perícia, technical assistance, or the name of
+// the office's own service type (typed in pt-BR, never one of these keys).
+export const TEMPLATE_AREAS = ['labor', 'civil', 'federal', 'technical_assistance'] as const;
+export const caseArea = (data: {
+  serviceType?: string | null;
+  role?: CaseRole;
+  courtType?: CourtType | null;
+}): string | undefined =>
+  data.serviceType || (data.role === 'technical_assistant' ? 'technical_assistance' : data.courtType || undefined);
 
 // Markers replaced by the case, expert and office data (AD-126).
 export const REPORT_VARIABLES = [
@@ -106,6 +116,10 @@ export const REPORT_IMG_SRC = /^\/(inspections|expert-reports)\/[0-9a-f]{24}\/me
 
 // Photo sent in the report (LMO-05): JPEG shrunk in the browser, like the inspection one.
 export const REPORT_MEDIA_LIMIT = { maxBytes: 2 * 1024 * 1024, maxByReport: 60, mimes: ['image/jpeg'] };
+
+// Files accepted by "Importar modelo" (BIB-04): PDF with text and Word (.docx).
+export const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+export const TEMPLATE_IMPORT_MIMES = ['application/pdf', DOCX_MIME];
 
 export const REPORT_LEVEL_MAX = 3;
 
@@ -189,19 +203,20 @@ export const reportLayoutSchema = z
   .strict();
 export type ReportLayout = z.infer<typeof reportLayoutSchema>;
 
+// The expert's layout (AD-203): every default template and every new office template start with it.
 export const REPORT_LAYOUT_DEFAULT: ReportLayout = {
-  font: 'times',
+  font: 'source_sans',
   fontSize: 12,
-  lineHeight: 1.5,
-  paragraphSpacing: 8,
+  lineHeight: 1.15,
+  paragraphSpacing: 6,
   marginTop: 3.4,
   marginBottom: 2.2,
   marginLeft: 3,
   marginRight: 2,
-  titleColor: '#111111',
+  titleColor: '#1b2a4a',
   cover: true,
   summary: true,
-  opening: false,
+  opening: true,
 };
 
 export const createTemplateSchema = z
@@ -210,13 +225,14 @@ export const createTemplateSchema = z
     // What sets the template apart from others of the same NR annex ("limpeza de banheiros", AD-181).
     details: z.string().trim().max(300, 'detalhes muito longos').optional(),
     type: z.enum(REPORT_TYPES),
+    area: z.string().trim().max(80, 'área inválida').optional(),
     // Without a base, the template starts blank; with a base, it clones the sections (default or office).
     baseId: templateIdSchema.optional(),
   })
   .strict();
 export type CreateTemplate = z.infer<typeof createTemplateSchema>;
 
-export const updateTemplateSchema = createTemplateSchema.pick({ name: true, details: true }).strict();
+export const updateTemplateSchema = createTemplateSchema.pick({ name: true, details: true, area: true }).strict();
 export type UpdateTemplate = z.infer<typeof updateTemplateSchema>;
 
 export const templateSectionSchema = z

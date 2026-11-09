@@ -1135,8 +1135,33 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-203
+- **Decision**: O layout do laudo da perita (anexo de 2026-11-09, laudo `ETH-2026-001`) vira o `REPORT_LAYOUT_DEFAULT`: Source Sans, entrelinha 1,15, 6 pt entre parágrafos, títulos `#1b2a4a`, capa, sumário e abertura ao juiz ligados. A capa passa a ter logo do escritório, título grande ("LAUDO TÉCNICO PERICIAL"/"PARECER TÉCNICO"), "Diligência pericial de [data da vistoria]" e o local, quadro Processo/OS/Juízo/partes/papel → nome, data por extenso e assinatura à direita; abertura com "Processo:" em negrito e título centralizado; fecho "É o laudo."/"É o parecer." em negrito; item de nível 1 em maiúsculas com traço embaixo; sumário com título à esquerda e traço. Vale no PDF e no Word. Os quatro modelos padrão e todo modelo novo do escritório (em branco ou importado) nascem com ele; quem quiser outro muda no "Layout".
+- **Reason**: pedido da perita (BIB-06): "use o layout padrão personalizável em anexo"; ela escolheu o mesmo layout para os modelos importados.
+- **Trade-off**: modelo ou laudo sem layout gravado (anteriores a NLA-06) passa a sair no layout novo. A cidade antes da data ("Itajaí/SC, ...") do anexo não existe no cadastro, então sai só a data por extenso. Cabeçalho e rodapé continuam os do Escritório.
+- **Scope**: `packages/contracts/src/schemas/report.schema.ts`, `apps/api/src/modules/documents/{report.templates,report.docx,report.library}.ts`.
+- **Date**: 2026-11-09
+- **Status**: active
+
+### AD-204
+- **Decision**: Modelo do escritório tem **área de atuação** (`Template.area`, texto opcional): as chaves `labor`, `civil`, `federal` (esfera da perícia), `technical_assistance`, ou o nome do tipo próprio de serviço (texto em pt-BR, inclusive "Parceria" e "Serviço particular"). `caseArea(case)` dá a área de um serviço (tipo próprio > assistência técnica > esfera). A tela Modelos tem as abas Biblioteca padrão e Biblioteca do escritório; a do escritório agrupa por área (chaves na ordem, tipos próprios em ordem alfabética, "Sem área"). Salvar laudo como modelo grava a área do serviço; ao escolher o modelo do laudo, os da área do serviço vêm primeiro. A Biblioteca padrão tem Laudo pericial trabalhista, Parecer técnico, Impugnação de laudo pericial trabalhista e Laudo pericial (NR-15 e NR-16), com área fixa; "Usar no escritório" é o duplicar, com o nome do modelo padrão.
+- **Reason**: pedido da perita (BIB-01 a BIB-03, BIB-05); ela escolheu a área pelos tipos de serviço e manter o modelo NR-15/NR-16.
+- **Trade-off**: guardar o nome do tipo próprio liga o modelo pelo texto: renomear um tipo próprio não move os modelos. Uma coleção de áreas seria mais um cadastro para manter.
+- **Scope**: `packages/db/src/models/template.model.ts`, `packages/contracts/src/schemas/report.schema.ts`, `apps/api/src/modules/documents/`, `apps/web/src/routes/_private/expert-reports/templates/`, `apps/web/src/components/report-labels.ts`.
+- **Date**: 2026-11-09
+- **Status**: active
+
+### AD-205
+- **Decision**: "Importar modelo" (`POST /expert-reports/templates/file?name=&type=&area=`, arquivo no corpo, permissão `report_templates:create`) aceita PDF com texto e Word `.docx`. O PDF segue as regras do anexar laudo (ANL-04); o `.docx` é lido sem biblioteca nova, com o `fflate` (zip) e o `htmlparser2` (XML) já instalados: estilo de título do Word (`heading N` ou nível de tópico) ou título numerado abre item; negrito, itálico, sublinhado, listas (numerada ou com marcador) e tabelas viram o HTML do item. Nos dois, o sumário é ignorado (linhas com pontilhado, estilo de sumário do Word e título sem texto que se repete depois).
+- **Reason**: pedido da perita (BIB-04); ela escolheu PDF e Word. O anexo mostrou um modelo em que linhas do sumário viraram itens.
+- **Trade-off**: imagens do Word ficam de fora (as fotos vêm da vistoria ou do laudo); `.doc` antigo e PDF escaneado não importam.
+- **Scope**: `apps/api/src/modules/documents/{report.attachment,template.service,report.router}.ts`.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
+- **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.
 - **Feature**: `fase-servico` — concluída: tipo Perícia/Assistência técnica/Cadastrar novo, esfera só na perícia, fase em grupos e status à parte (AD-178). Conferido no navegador; falta a perita conferir os textos das fases.
 

@@ -44,7 +44,7 @@ export function ReportsIndexPage() {
           <LinkCard
             icon={ListTree}
             title={t('report_templates')}
-            meta={[t('standard_library'), t('office_templates')]}
+            meta={[t('standard_library'), t('office_library')]}
             render={<Link to="/expert-reports/templates" />}
           />
         </LinkCardList>

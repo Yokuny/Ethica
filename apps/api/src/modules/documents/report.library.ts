@@ -763,27 +763,22 @@ const withIds = (prefix: string, sections: Section[]): TemplateSectionRecord[] =
     id: `${prefix}-${String(index + 1).padStart(2, '0')}`,
   }));
 
-// The first of each type is the one "Novo laudo" suggests (REPORT_DEFAULT_TEMPLATES).
+// The first of each type is the one "Novo laudo" suggests (REPORT_DEFAULT_TEMPLATES). All of them leave with the
+// expert's layout (AD-203); the area places the copy in the office library (AD-204).
 export const DEFAULT_TEMPLATES: TemplateRecord[] = [
   {
     id: 'standard-labor-report',
     name: 'Laudo pericial trabalhista',
+    area: 'labor',
     type: 'report',
     isDefault: true,
     sections: withIds('trabalhista', LABOR_REPORT),
-    layout: { ...REPORT_LAYOUT_DEFAULT, opening: true },
-  },
-  {
-    id: 'standard-report',
-    name: 'Laudo pericial (NR-15 e NR-16)',
-    type: 'report',
-    isDefault: true,
-    sections: withIds('laudo', EXPERT_REPORT),
     layout: REPORT_LAYOUT_DEFAULT,
   },
   {
     id: 'standard-technical_opinion',
     name: 'Parecer técnico',
+    area: 'technical_assistance',
     type: 'technical_opinion',
     isDefault: true,
     sections: withIds('parecer', TECHNICAL_OPINION),
@@ -791,10 +786,20 @@ export const DEFAULT_TEMPLATES: TemplateRecord[] = [
   },
   {
     id: 'standard-technical-objection',
-    name: 'Parecer técnico de impugnação',
+    name: 'Impugnação de laudo pericial trabalhista',
+    area: 'technical_assistance',
     type: 'technical_opinion',
     isDefault: true,
     sections: withIds('impugnacao', TECHNICAL_OBJECTION),
+    layout: REPORT_LAYOUT_DEFAULT,
+  },
+  {
+    id: 'standard-report',
+    name: 'Laudo pericial (NR-15 e NR-16)',
+    area: 'labor',
+    type: 'report',
+    isDefault: true,
+    sections: withIds('laudo', EXPERT_REPORT),
     layout: REPORT_LAYOUT_DEFAULT,
   },
 ];

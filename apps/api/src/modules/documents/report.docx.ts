@@ -1,6 +1,7 @@
 import { type DocumentTextStyle, numberSections, type ReportFont, sectionTitle } from '@ethica/contracts';
 import {
   AlignmentType,
+  BorderStyle,
   Document,
   Footer,
   Header,
@@ -214,7 +215,6 @@ const templateRows = (text: string, style: DocumentTextStyle, logo: Buffer | und
     );
 };
 
-const TYPE = { report: 'LAUDO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 const OPENING_TYPE = { report: 'LAUDO TÉCNICO PERICIAL', technical_opinion: 'PARECER TÉCNICO' } as const;
 const ROLE = { report: 'Perito(a) do Juízo', technical_opinion: 'Assistente Técnico(a)' } as const;
 // 1 cm = 567 twips.
@@ -233,41 +233,87 @@ export const reportDocx = async ({
   const numbers = numberSections(report.sections);
   const numbered = (i: number, section: { title: string; level: number }) =>
     `${numbers[i] ? `${numbers[i]}. ` : ''}${sectionTitle(section.title, section.level)}`;
-  const centered = (text: string, bold = false, before = 0) =>
-    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before }, children: [new TextRun({ text, bold })] });
+  // The expert's layout (AD-203): date and signature on the right, name in the title color.
+  const right = (text: string, run: { bold?: boolean; color?: string } = {}, before = 0) =>
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      spacing: { before, after: 0 },
+      children: [new TextRun({ text, color: '444444', ...run })],
+    });
+  const date = right(values['[DATA_EXTENSO]'] ?? '', {}, 600);
   const signature = [
-    centered(expert.name, true, 600),
-    centered(ROLE[report.type]),
-    ...[expert.education, expert.professionalRegistration].flatMap((row) => (row ? [centered(row)] : [])),
+    right(expert.name, { bold: true, color }, 720),
+    right(ROLE[report.type]),
+    ...[expert.education, expert.professionalRegistration].flatMap((row) => (row ? [right(row)] : [])),
   ];
   const pageBreak = () => new Paragraph({ children: [new PageBreak()] });
   const logo = identity.logoDataUrl
     ? Buffer.from(identity.logoDataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
     : undefined;
   const { header, footer } = textsHeaderFooter(identity);
-  const coverRow = (label: string | undefined, amount: string | undefined): Paragraph[] =>
-    label && amount
+  const coverRows = [
+    ['Processo', legalCase.processNumber],
+    ['OS', legalCase.serviceOrder],
+    ['Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined],
+    [values['[DENOMINACAO_AUTOR]'], values['[NOME_AUTOR]']],
+    [values['[DENOMINACAO_REU]'], values['[NOME_REU]']],
+    [ROLE[report.type], expert.name],
+  ].filter((row): row is [string, string] => Boolean(row[0] && row[1]));
+  const subtitle = [
+    values['[DATA_VISTORIA]'] && `Diligência pericial de ${values['[DATA_VISTORIA]']}`,
+    legalCase.location,
+  ].filter((row): row is string => Boolean(row));
+  const logoSize = logo ? (imageDimensions(logo) ?? { width: 1, height: 1 }) : undefined;
+  const cover = [
+    ...(logo && logoSize
       ? [
           new Paragraph({
-            spacing: { after: 120 },
-            children: [new TextRun({ text: `${label}: `, bold: true }), new TextRun(amount)],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 400 },
+            children: [
+              new ImageRun({
+                type: 'png',
+                data: logo,
+                transformation: {
+                  width: Math.round(logoSize.width * Math.min(140 / logoSize.height, 220 / logoSize.width, 1)),
+                  height: Math.round(logoSize.height * Math.min(140 / logoSize.height, 220 / logoSize.width, 1)),
+                },
+              }),
+            ],
           }),
         ]
-      : [];
-  const cover = [
+      : []),
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 1800, after: 900 },
-      children: [new TextRun({ text: TYPE[report.type], bold: true, size: 40 })],
+      spacing: { before: 1200, after: 240 },
+      children: [new TextRun({ text: OPENING_TYPE[report.type], bold: true, size: 52, color })],
     }),
-    ...coverRow('Processo nº', legalCase.processNumber),
-    ...coverRow('OS', legalCase.serviceOrder),
-    ...coverRow('Juízo', [legalCase.division, legalCase.district].filter(Boolean).join(' — ') || undefined),
-    ...coverRow('Tribunal', legalCase.court),
-    ...coverRow(values['[DENOMINACAO_AUTOR]'], values['[NOME_AUTOR]']),
-    ...coverRow(values['[DENOMINACAO_REU]'], values['[NOME_REU]']),
-    ...coverRow('Objeto', legalCase.subject),
-    centered(values['[DATA_EXTENSO]'] ?? '', false, 2400),
+    ...subtitle.map(
+      (row) =>
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 0 },
+          children: [new TextRun({ text: row, italics: true, color: '555555' })],
+        }),
+    ),
+    new Paragraph({ spacing: { before: 600 }, children: [] }),
+    new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: coverRows.map(
+        ([label, amount]) =>
+          new TableRow({
+            children: [
+              new TableCell({
+                width: { size: 30, type: WidthType.PERCENTAGE },
+                children: [new Paragraph({ children: [new TextRun({ text: label.toUpperCase(), bold: true })] })],
+              }),
+              new TableCell({ children: [new Paragraph(amount)] }),
+            ],
+          }),
+      ),
+    }),
+    new Paragraph({ spacing: { before: 2400 }, children: [] }),
+    date,
     ...signature,
     pageBreak(),
   ];
@@ -279,34 +325,63 @@ export const reportDocx = async ({
     .filter(Boolean)
     .map((row) => `, ${row}`)
     .join('');
+  const inspection = [
+    values['[DATA_VISTORIA]'] && ` referente à diligência realizada em ${values['[DATA_VISTORIA]']}`,
+    legalCase.location && `, ${legalCase.location}`,
+  ]
+    .filter(Boolean)
+    .join('');
   const opening = [
-    centered(`EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A) DA ${(legalCase.division ?? 'VARA').toUpperCase()}`, true),
+    new Paragraph({
+      spacing: { after: 360 },
+      children: [
+        new TextRun({
+          text: `EXCELENTÍSSIMO(A) SENHOR(A) JUIZ(A) DA ${(legalCase.division ?? 'VARA').toUpperCase()}`,
+          bold: true,
+        }),
+      ],
+    }),
     ...(legalCase.processNumber
-      ? [new Paragraph({ spacing: { before: 240 }, text: `Processo: ${legalCase.processNumber}` })]
+      ? [
+          new Paragraph({
+            children: [new TextRun({ text: 'Processo: ', bold: true }), new TextRun(legalCase.processNumber)],
+          }),
+        ]
       : []),
-    centered(OPENING_TYPE[report.type], true, 240),
-    centered(legalCase.subject.toUpperCase(), true),
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 480, after: 120 },
+      children: [new TextRun({ text: OPENING_TYPE[report.type], bold: true, size: layout.fontSize * 2 + 4, color })],
+    }),
     new Paragraph({
       alignment: AlignmentType.JUSTIFIED,
-      spacing: { before: 240 },
+      indent: { firstLine: twips(1.5) },
       children: [
         new TextRun({ text: expert.name.toUpperCase(), bold: true }),
         new TextRun(
-          `${credentials}, ${ROLE[report.type]} nos autos do processo em epígrafe, vem, respeitosamente, à presença de Vossa Excelência, apresentar o ${OPENING_TYPE[report.type]}, nos termos dos arts. 473 e 477 do CPC, pelas razões técnicas a seguir expostas.`,
+          `${credentials}, ${ROLE[report.type]} nos autos do processo em epígrafe, vem, respeitosamente, à presença de Vossa Excelência, apresentar o ${OPENING_TYPE[report.type]}${inspection}, nos termos dos arts. 473 e 477 do CPC, pelas razões técnicas a seguir expostas.`,
         ),
       ],
     }),
-    new Paragraph({ text: values['[DATA_EXTENSO]'] ?? '' }),
+    date,
     ...signature,
     pageBreak(),
   ];
   const closing = [
-    new Paragraph({ spacing: { before: 480 }, text: report.type === 'report' ? 'É o laudo.' : 'É o parecer.' }),
-    new Paragraph({ text: values['[DATA_EXTENSO]'] ?? '' }),
+    new Paragraph({
+      spacing: { before: 480 },
+      children: [new TextRun({ text: report.type === 'report' ? 'É o laudo.' : 'É o parecer.', bold: true })],
+    }),
+    date,
     ...signature,
   ];
+  const rule = { bottom: { style: BorderStyle.SINGLE, size: 8, color, space: 4 } };
   const summary = [
-    new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'SUMÁRIO', bold: true, color })] }),
+    new Paragraph({
+      border: rule,
+      spacing: { after: 240 },
+      children: [new TextRun({ text: 'SUMÁRIO', bold: true, size: layout.fontSize * 2 + 6, color })],
+    }),
     new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-3' }),
     pageBreak(),
   ];
@@ -333,8 +408,8 @@ export const reportDocx = async ({
           name: 'Heading 1',
           basedOn: 'Normal',
           next: 'Normal',
-          run: { bold: true, size: layout.fontSize * 2 + 2, allCaps: true, color },
-          paragraph: { spacing: { before: 360, after: 120 } },
+          run: { bold: true, size: layout.fontSize * 2 + 4, allCaps: true, color },
+          paragraph: { spacing: { before: 360, after: 120 }, border: rule },
         },
         {
           id: 'Heading2',

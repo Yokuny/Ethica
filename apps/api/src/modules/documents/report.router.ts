@@ -1,4 +1,9 @@
-import { PDF_IMPORT_MAX_BYTES, REPORT_MEDIA_LIMIT, TENANT_LOGO_MAX_BYTES } from '@ethica/contracts';
+import {
+  PDF_IMPORT_MAX_BYTES,
+  REPORT_MEDIA_LIMIT,
+  TEMPLATE_IMPORT_MIMES,
+  TENANT_LOGO_MAX_BYTES,
+} from '@ethica/contracts';
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
 import { fileBody } from '../../middlewares/fileBody.middleware.js';
@@ -12,6 +17,7 @@ import {
   completeReportSchema,
   createReportSchema,
   createTemplateSchema,
+  importTemplateQuerySchema,
   listReportsQuerySchema,
   listTemplatesQuerySchema,
   moveSectionSchema,
@@ -55,6 +61,15 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     can('report_templates', 'create'),
     validBody(createTemplateSchema),
     reportController.createTemplate,
+  );
+  // PDF or Word in the body (BIB-04), like the attached report (ANL-02).
+  router.post(
+    '/templates/file',
+    ...guard,
+    can('report_templates', 'create'),
+    validParsedQuery(importTemplateQuerySchema),
+    fileBody(TEMPLATE_IMPORT_MIMES, PDF_IMPORT_MAX_BYTES),
+    reportController.importTemplate,
   );
   router.get('/templates/:id', ...guard, can('report_templates', 'view'), template, reportController.getTemplate);
   router.patch(

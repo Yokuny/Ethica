@@ -33,6 +33,7 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Datajud | `providers/datajudClient.ts` | API Pública do CNJ com metadados e movimentos dos processos dos tribunais. |
 | Laudo / parecer técnico | `Report` (`documents`), `type` `report`/`technical_opinion` | Documento técnico redigido por seções a partir de um modelo, com variáveis da perícia (AD-126). |
 | Modelo de laudo | `Template` (`documents`) | Seções sim/não reutilizáveis; os padrões vêm do código e são só leitura (AD-126), um ou mais por tipo (AD-163). |
+| Área de atuação (do modelo) | `Template.area` | Tipo de serviço a que o modelo serve: esfera da perícia, assistência técnica ou tipo próprio (AD-204). |
 | Responsável técnico | `Signatory` (`documents`); no laudo, `Report.Signatory` | Quem assina o laudo quando não é a dona da conta: dados, logo, cabeçalho e rodapé próprios, sem acesso ao Ethica (AD-162). |
 | OS (ordem de serviço) | `Case.serviceOrder`; sequência `ServiceOrderSequence` (`case`) | Número de controle do serviço, `SIGLA-AAAA-NNN`, dado pela sequência do escritório no cadastro (AD-161). |
 | Anexo | `Case.attachments` (`case`) | Arquivo guardado no serviço, na cota do escritório (AD-197). |

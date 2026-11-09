@@ -20,6 +20,8 @@ export interface TemplateDocument {
   name: string;
   // Specifics of the template (AD-181); missing or empty = none.
   details?: string;
+  // Area of practice (AD-204): sphere key, `technical_assistance` or the office's own service type; missing = none.
+  area?: string;
   type: ReportType;
   sections: TemplateSectionDocument[];
   // Missing = REPORT_LAYOUT_DEFAULT (NLA-06).
@@ -43,6 +45,7 @@ const templateSchema = new Schema<TemplateDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     name: { type: String, required: true, trim: true },
     details: { type: String, trim: true },
+    area: { type: String, trim: true },
     type: { type: String, enum: REPORT_TYPES, required: true },
     sections: { type: [sectionSchema], default: [] },
     layout: { type: Schema.Types.Mixed },

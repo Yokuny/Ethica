@@ -31,6 +31,7 @@ import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.
 import { documentCaseParamSchema } from './documents/documents.schema.js';
 import {
   attachReportQuerySchema,
+  importTemplateQuerySchema,
   listReportsQuerySchema,
   listTemplatesQuerySchema,
   reportIdParamSchema,
@@ -85,6 +86,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'reportIdParamSchema', schema: reportIdParamSchema },
   { name: 'reportSectionParamSchema', schema: reportSectionParamSchema },
   { name: 'attachReportQuerySchema', schema: attachReportQuerySchema },
+  { name: 'importTemplateQuerySchema', schema: importTemplateQuerySchema },
   { name: 'reportPdfQuerySchema', schema: reportPdfQuerySchema },
   { name: 'reportMediaParamSchema', schema: reportMediaParamSchema },
   { name: 'listTemplatesQuerySchema', schema: listTemplatesQuerySchema },

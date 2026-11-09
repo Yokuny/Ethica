@@ -3,6 +3,7 @@ import type { TemplateDocument, TemplateSectionDocument } from '@ethica/db';
 import { Template, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type {
+  TemplateInput,
   TemplateRecord,
   TemplateSection,
   TemplateSectionRecord,
@@ -25,6 +26,7 @@ const toRecord = (doc: TemplateDocument): TemplateRecord => ({
   id: doc._id.toString(),
   name: doc.name,
   ...(doc.details ? { details: doc.details } : {}),
+  ...(doc.area ? { area: doc.area } : {}),
   type: doc.type,
   isDefault: false,
   sections: doc.sections.map(sectionToRecord),
@@ -38,13 +40,14 @@ export const list = async (tenantId: string, type?: ReportType): Promise<Templat
       _id: unknown;
       name: string;
       details?: string;
+      area?: string;
       type: ReportType;
       totalSections: number;
       updatedAt: Date;
     }>([
       { $match: { Tenant: toObjectId(tenantId), ...(type ? { type } : {}) } },
       { $sort: { name: 1, _id: 1 } },
-      { $project: { name: 1, details: 1, type: 1, updatedAt: 1, totalSections: { $size: '$sections' } } },
+      { $project: { name: 1, details: 1, area: 1, type: 1, updatedAt: 1, totalSections: { $size: '$sections' } } },
     ]);
     return rows.map(({ _id, ...row }) => ({ ...row, id: String(_id), isDefault: false }));
   });
@@ -55,22 +58,22 @@ export const findById = async (tenantId: string, id: string): Promise<TemplateRe
     return doc ? toRecord(doc) : null;
   });
 
-export const create = async (
-  tenantId: string,
-  data: { name: string; details?: string; type: ReportType; sections: TemplateSection[]; layout: ReportLayout },
-): Promise<TemplateRecord> =>
+export const create = async (tenantId: string, data: TemplateInput): Promise<TemplateRecord> =>
   withDbTiming('template.create', async () => toRecord(await Template.create({ ...data, Tenant: tenantId })));
 
-// Empty details are removed.
+// Empty details and area are removed.
 export const update = async (
   tenantId: string,
   id: string,
-  { name, details }: UpdateTemplate,
+  { name, details, area }: UpdateTemplate,
 ): Promise<TemplateRecord | null> =>
   withDbTiming('template.update', async () => {
     const doc = await Template.findOneAndUpdate(
       tenantScoped({ Tenant: tenantId, _id: id }),
-      details ? { $set: { name, details } } : { $set: { name }, $unset: { details: '' } },
+      {
+        $set: { name, ...(details ? { details } : {}), ...(area ? { area } : {}) },
+        ...(details && area ? {} : { $unset: { ...(details ? {} : { details: '' }), ...(area ? {} : { area: '' }) } }),
+      },
       { returnDocument: 'after', runValidators: true },
     ).lean();
     return doc ? toRecord(doc) : null;

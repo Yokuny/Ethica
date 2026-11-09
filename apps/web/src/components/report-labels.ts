@@ -1,6 +1,7 @@
-import { REPORT_VARIABLES, type ReportStatus, type ReportVariable } from '@ethica/contracts';
+import { REPORT_VARIABLES, type ReportStatus, type ReportVariable, TEMPLATE_AREAS } from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { PARTNERSHIP_SERVICE_TYPE, PRIVATE_SERVICE_TYPE } from './case-labels.js';
 
 // Label of each report variable with a sample value (LAU-01.3).
 const VARIABLE_KEY: Record<ReportVariable, string> = {
@@ -69,3 +70,21 @@ export const REPORT_STATUS_VARIANT: Record<ReportStatus, IndicatorVariant> = {
   draft: 'warning',
   completed: 'success',
 };
+
+// Area of practice of a template (AD-204): the four keys have a label; an own service type is its own name.
+const TEMPLATE_AREA_KEY: Record<(typeof TEMPLATE_AREAS)[number], string> = {
+  labor: 'labor_expert_examination',
+  civil: 'civil_expert_examination',
+  federal: 'federal_expert_examination',
+  technical_assistance: 'technical_assistance',
+};
+const isAreaKey = (area: string): area is (typeof TEMPLATE_AREAS)[number] => area in TEMPLATE_AREA_KEY;
+export const templateAreaLabel = (area?: string): string =>
+  !area ? t('no_area') : isAreaKey(area) ? t(TEMPLATE_AREA_KEY[area]) : area;
+// The four keys, then the own service types (the fixed ones and the office's) in alphabetical order.
+export const templateAreaItems = (officeTypes: readonly { name: string }[]) => [
+  ...TEMPLATE_AREAS.map((value) => ({ value, label: templateAreaLabel(value) })),
+  ...[...new Set([PARTNERSHIP_SERVICE_TYPE, PRIVATE_SERVICE_TYPE, ...officeTypes.map(({ name }) => name)])]
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    .map((name) => ({ value: name, label: name })),
+];

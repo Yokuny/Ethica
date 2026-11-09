@@ -5,18 +5,23 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { templatesQuery } from '@/query/report.js';
 
 // Templates of the office: every one when starting the report (PSV-04); only the draft's type when
-// changing it (LMO-01).
+// changing it (LMO-01). Those of the service's area come first (BIB-05).
 export function TemplateSelect({
   type,
+  area,
   value,
   onChange,
 }: {
   type?: ReportType;
+  area?: string;
   value: string;
   onChange: (templateId: string) => void;
 }) {
   const templates = useQuery(templatesQuery(type));
-  const items = (templates.data ?? []).map((item) => ({
+  const sorted = [...(templates.data ?? [])].sort(
+    (a, b) => Number(Boolean(area) && b.area === area) - Number(Boolean(area) && a.area === area),
+  );
+  const items = sorted.map((item) => ({
     value: item.id,
     // Details (AD-181) set apart templates of the same NR annex.
     label: [item.name, item.details, !type && t(item.type)].filter(Boolean).join(' · '),

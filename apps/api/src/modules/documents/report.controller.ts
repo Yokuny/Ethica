@@ -5,6 +5,7 @@ import { CaseNotFoundError } from '../case/case.service.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
 import type {
   AttachReportQuery,
+  ImportTemplateQuery,
   ListReportsQuery,
   ListTemplatesQuery,
   ReportPdfQuery,
@@ -87,6 +88,11 @@ export const listTemplates = json((req) =>
 );
 export const getTemplate = json((req) => templateService.getTemplate(tenantOf(req), id(req)));
 export const createTemplate = json((req) => templateService.createTemplate(tenantOf(req), req.body), 201);
+export const importTemplate = json(
+  (req) =>
+    templateService.importTemplate(tenantOf(req), req.query as unknown as ImportTemplateQuery, req.body as Buffer),
+  201,
+);
 export const updateTemplate = json((req) => templateService.updateTemplate(tenantOf(req), id(req), req.body));
 export const deleteTemplate = removed((req) => templateService.deleteTemplate(tenantOf(req), id(req)));
 export const addTemplateSection = json((req) => templateService.addSection(tenantOf(req), id(req), req.body), 201);

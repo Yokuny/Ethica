@@ -10,13 +10,19 @@ export function useTemplateCreateForm({
   base,
   onDone,
 }: {
-  base?: Pick<TemplateRecord, 'id' | 'name' | 'type'>;
+  base?: Pick<TemplateRecord, 'id' | 'name' | 'type' | 'area' | 'isDefault'>;
   onDone: (template: TemplateRecord) => void;
 }) {
   const queryClient = useQueryClient();
   const form = useForm<CreateTemplate>({
     resolver: zodResolver(createTemplateSchema),
-    defaultValues: { name: base ? `${base.name} (cópia)` : '', type: base?.type ?? 'report', baseId: base?.id },
+    defaultValues: {
+      // A default template goes to the office library with its own name (BIB-02).
+      name: base ? (base.isDefault ? base.name : `${base.name} (cópia)`) : '',
+      type: base?.type ?? 'report',
+      area: base?.area,
+      baseId: base?.id,
+    },
   });
   const mutation = useMutation(createTemplateMutation(queryClient));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

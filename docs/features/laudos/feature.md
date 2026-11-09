@@ -75,6 +75,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — Modelos em Biblioteca padrão e Biblioteca do escritório por área, importar PDF/Word e layout da perita como padrão em `biblioteca-modelos` (AD-203 a AD-205); o modelo de impugnação passa a se chamar "Impugnação de laudo pericial trabalhista".
 - 2026-11-09 — Modelos de parecer técnico completados com os modelos da perita: o "Parecer técnico" ganha dados preliminares, documentos dos autos considerados, funções exercidas, dispositivos de proteção, parecer técnico e conclusão e considerações finais; novo modelo padrão "Parecer técnico de impugnação" (`standard-technical-objection`, texto-base de periculosidade por eletricidade, NR-16 Anexo 4 e NR-10). Dados do caso de origem viraram variáveis ou campos entre parênteses.
 - 2026-11-05 — A situação volta às abas acima da lista (AD-193).
 - 2026-11-05 — Lista ordena pelo clique nas colunas Modelo, Situação e Atualizado em; a situação sai das abas e vai para "Filtros"; a tabela passa ao molde de colunas (`@utils/report-columns.tsx`) (AD-192).

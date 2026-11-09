@@ -15,6 +15,7 @@ import {
   Tenant,
   User,
 } from '@ethica/db';
+import { Document, HeadingLevel, Packer, Paragraph } from 'docx';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -517,6 +518,47 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(key).toBeDefined();
     await admin.as(request(app).delete(`/expert-reports/${report.id}`)).expect(200);
     expect(objects.has(key as string)).toBe(false);
+  });
+
+  it('biblioteca do escritório: importa Word com área, muda a área e o operador não importa (BIB-03, BIB-04)', async () => {
+    const tenant = await seedTenant();
+    const manager = await seedSession(tenant._id, ['manager']);
+    const operator = await seedSession(tenant._id, ['operator']);
+    const docx = await Packer.toBuffer(
+      new Document({
+        sections: [
+          {
+            children: [
+              new Paragraph({ text: 'Objetivo', heading: HeadingLevel.HEADING_1 }),
+              new Paragraph('Avaliar o imóvel.'),
+            ],
+          },
+        ],
+      }),
+    );
+    const docxType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const url = '/expert-reports/templates/file?name=Avalia%C3%A7%C3%A3o&type=report&area=Servi%C3%A7o%20particular';
+
+    const denied = await operator.as(request(app).post(url)).set('Content-Type', docxType).send(docx);
+    expect(denied.status).toBe(403);
+
+    const imported = await manager.as(request(app).post(url)).set('Content-Type', docxType).send(docx);
+    expect(imported.status).toBe(201);
+    expect(imported.body.data).toMatchObject({ name: 'Avaliação', area: 'Serviço particular', isDefault: false });
+    expect(imported.body.data.sections).toEqual([
+      expect.objectContaining({ title: 'Objetivo', yesText: '<p>Avaliar o imóvel.</p>' }),
+    ]);
+    expect(imported.body.data.layout.font).toBe('source_sans');
+
+    const moved = await manager
+      .as(request(app).patch(`/expert-reports/templates/${imported.body.data.id}`))
+      .send({ name: 'Avaliação', area: 'civil' });
+    expect(moved.body.data.area).toBe('civil');
+    const list = await operator.as(request(app).get('/expert-reports/templates?type=report'));
+    expect(list.body.data).toContainEqual(expect.objectContaining({ id: imported.body.data.id, area: 'civil' }));
+
+    const wrong = await manager.as(request(app).post(url)).set('Content-Type', 'text/plain').send('oi');
+    expect(wrong.status).toBe(415);
   });
 
   it('parecer técnico para assistente técnico; tipo errado 422; excluir a perícia leva os laudos; outro tenant 404', async () => {

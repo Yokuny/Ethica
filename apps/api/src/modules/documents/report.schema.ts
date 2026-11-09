@@ -84,6 +84,10 @@ export const attachReportQuerySchema = z
   .strict();
 export type AttachReportQuery = z.infer<typeof attachReportQuerySchema>;
 
+// Template imported from a PDF or Word file sent in the body (BIB-04).
+export const importTemplateQuerySchema = createTemplateSchema.pick({ name: true, type: true, area: true }).strict();
+export type ImportTemplateQuery = z.infer<typeof importTemplateQuerySchema>;
+
 export const reportPdfQuerySchema = z.object({ preview: z.enum(['true']).optional() }).strict();
 export type ReportPdfQuery = z.infer<typeof reportPdfQuerySchema>;
 
@@ -111,12 +115,19 @@ export type TemplateRecord = {
   id: string;
   name: string;
   details?: string;
+  // Area of practice (AD-204).
+  area?: string;
   type: ReportType;
   // Default library template: read-only, clonable (AD-126).
   isDefault: boolean;
   sections: TemplateSectionRecord[];
   layout: ReportLayout;
   updatedAt?: Date;
+};
+
+// New office template: blank, cloned, imported (BIB-04) or saved from a report (AD-170).
+export type TemplateInput = Pick<TemplateRecord, 'name' | 'details' | 'area' | 'type' | 'layout'> & {
+  sections: TemplateSection[];
 };
 
 export type TemplateSummary = Omit<TemplateRecord, 'sections' | 'layout'> & { totalSections: number };
