@@ -24,7 +24,7 @@ _Nenhum._
 
 | Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia | parcial | 2026-11-09 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | — |
+| [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia | parcial | 2026-11-09 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | 1 |
 | [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários e os gráficos de perícias e honorários recebidos por ano | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | — |
 | [Fundação do Ethica](features/fundacao-ethica/feature.md) | Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção | parcial | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` `packages/ui` `harness` `docs` `infra` `tests` | [spec](../.specs/features/fundacao-ethica) | 1 |
 | [Prazos e recebimentos](features/prazos-recebimentos/feature.md) | Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-recebimentos) | — |

@@ -116,6 +116,16 @@ pnpm docs:check                # gateway de documentação em dia
 - O nome do banco de testes contém `test`; a suíte recusa a URI do app e recusa apagar banco sem `test` no nome.
 - `integration` e `e2e` rodam em sequência no mesmo banco: não rode duas suítes ao mesmo tempo.
 
+## Arquivos em produção (S3, AD-202)
+
+Infra em `infra/aws/file-storage.yml` (stack `ethica-files`, us-east-2): bucket privado, usuário `ethica-files-api` sem acesso direto e papel `ethica-files-tenant`, que a API assume por escritório com a etiqueta `tenantId` e só alcança `tenants/<tenantId>/`.
+
+- Publicar ou atualizar a infra: `aws cloudformation deploy --stack-name ethica-files --template-file infra/aws/file-storage.yml --capabilities CAPABILITY_NAMED_IAM --region us-east-2 --profile <perfil>`.
+- Variáveis na Railway: `S3_REGION=us-east-2`, `S3_BUCKET` (saída `BucketName` da stack), `S3_ROLE_ARN` (saída `TenantRoleArn`), `S3_ACCESS_KEY_ID` e `S3_SECRET_ACCESS_KEY` (chave de `ethica-files-api`). Sem `S3_ENDPOINT`. Sem `S3_BUCKET` o envio fica desligado.
+- Trocar a chave: `aws iam create-access-key --user-name ethica-files-api`, atualizar as duas variáveis, publicar e só então `aws iam delete-access-key` da antiga. O usuário aceita no máximo duas chaves.
+- Conferir uso: `aws iam list-access-keys --user-name ethica-files-api` e `aws iam get-access-key-last-used --access-key-id <id>`.
+- Dev e testes não assumem papel: sem `S3_ROLE_ARN`, a API usa a chave do RustFS direto.
+
 ## Comandos úteis
 
 ```bash
@@ -127,5 +137,5 @@ docker compose down          # os dados ficam no volume mongo-atlas-data
 ## Limitações conhecidas
 
 - `/auth/signin` tem rate limit de 5 tentativas/15 min por e-mail+IP; a busca no Datajud, 60/15 min por tenant+IP.
-- As imagens públicas do MinIO saíram do Docker Hub; o storage local é o RustFS (S3 compatível). Em produção, configure `S3_*` para S3 ou R2.
+- As imagens públicas do MinIO saíram do Docker Hub; o storage local é o RustFS (S3 compatível). Em produção, o S3 da AWS (seção "Arquivos em produção").
 - A consulta ao Datajud segue a documentação pública; validar com a chave real (AD-105).

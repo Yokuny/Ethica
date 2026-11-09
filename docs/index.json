@@ -22,7 +22,9 @@
       "spec": [
         ".specs/features/producao-api"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/producao-api/plans/2026-11-09-s3-acesso-por-escritorio.md"
+      ],
       "doc": "features/producao-api/feature.md"
     },
     {

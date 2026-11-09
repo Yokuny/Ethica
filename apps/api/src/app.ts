@@ -102,6 +102,7 @@ export const buildApp = (
               bucket: env.S3_BUCKET,
               accessKeyId: env.S3_ACCESS_KEY_ID,
               secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+              roleArn: env.S3_ROLE_ARN,
             })
           : undefined));
 

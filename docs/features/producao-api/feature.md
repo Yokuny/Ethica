@@ -21,7 +21,7 @@ spec: [.specs/features/producao-api]
 
 - Imagem de produção da API em `Dockerfile` (Node 24, Chromium, só a API e os pacotes de que ela depende, usuário sem root), publicada na Railway por `railway.json` com health check em `/health`.
 - Web na Vercel por `vercel.json`: volta para `index.html` em qualquer rota e repassa `/api/*` para a API da Railway (cookie de sessão do mesmo site, AD-153).
-- Bucket S3 de produção em us-east-2, com acesso separado por escritório garantido pela AWS (AD-202): `infra/aws/file-storage.yml`, publicado como stack `ethica-files`. A API ainda não usa: falta o provider assumir o papel por escritório.
+- Bucket S3 de produção em us-east-2, com acesso separado por escritório garantido pela AWS (AD-202): `infra/aws/file-storage.yml`, publicado como stack `ethica-files`. Com `S3_ROLE_ARN`, `apps/api/src/providers/fileStorage.ts` tira o escritório da chave (`tenants/<tenantId>/…`) e usa uma sessão do papel por escritório; chave fora desse formato é recusada. Passo a passo em `RUN_BOOK.md` ("Arquivos em produção").
 
 ## Por que
 
@@ -45,10 +45,11 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 - [ ] `design.md` e `tasks.md` (skill `ethica-spec-driven`).
 - [ ] Implementação, validação e UAT das pastas por perícia (PRD-01).
 - [ ] Criar os projetos na Railway e na Vercel e o cluster no Atlas; conferir se o domínio gerado pela Railway bate com o `vercel.json`.
-- [ ] Plano de implementação do S3 (AD-202): provider assume o papel de `S3_ROLE_ARN` com a etiqueta `tenantId`, `RUN_BOOK.md`. Na Railway (2026-11-09) entram `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` (chave de `ethica-files-api`) e `S3_ROLE_ARN`; `S3_BUCKET` só entra quando o código novo estiver no ar, porque é ele que liga o envio (sem ele a tela segue "Armazenamento não configurado" em vez de dar erro).
+- [ ] Ligar o envio na Railway (`S3_BUCKET=ethica-files-677296948879`), trocar a chave de `ethica-files-api` (a atual apareceu em conversas) e conferir logo e anexo em produção.
 
 ## Histórico
 
+- 2026-11-09 — Provider assume o papel por escritório quando há `S3_ROLE_ARN` (`@aws-sdk/credential-providers`); conferido contra o bucket real (gravar, ler e apagar em `tenants/live-check/`). Railway já tem `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` e `S3_ROLE_ARN`; falta `S3_BUCKET`. Plano: `.specs/features/producao-api/plans/2026-11-09-s3-acesso-por-escritorio.md`.
 - 2026-11-09 — Bucket `ethica-files-677296948879`, usuário `ethica-files-api` e papel `ethica-files-tenant` criados na AWS (us-east-2) por `infra/aws/file-storage.yml` (AD-202). Divergência da AD-146: a troca para o S3 deixa de ser só configuração, porque o acesso por escritório passa pela AWS.
 
 - 2026-11-02 — SMTP passa a ser obrigatório em produção (AD-156): com o acesso só por e-mail (`docs/features/acesso-email/feature.md`), a API não sobe sem `MAIL_PROVIDER=nodemailer`, `SMTP_HOST` e `SMTP_FROM`. Divergência da spec, que tratava o SMTP como opcional.

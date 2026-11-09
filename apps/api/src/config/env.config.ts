@@ -33,6 +33,8 @@ export const envSchema = z.object({
   S3_BUCKET: optionalSecret,
   S3_ACCESS_KEY_ID: optionalSecret,
   S3_SECRET_ACCESS_KEY: optionalSecret,
+  // Production (AD-202): role assumed per tenant with the session tag tenantId. Empty in dev (RustFS has no STS).
+  S3_ROLE_ARN: optionalSecret,
 });
 
 export type Env = z.infer<typeof envSchema>;
