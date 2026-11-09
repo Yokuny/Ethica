@@ -2,6 +2,30 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "producao-api",
+      "feature": "Imagem de produção da API e arquivos por perícia",
+      "descricao": "API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia",
+      "data": "2026-11-09",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "infra"
+      ],
+      "decisoes": [
+        "AD-119",
+        "AD-120",
+        "AD-129",
+        "AD-146",
+        "AD-153",
+        "AD-202"
+      ],
+      "spec": [
+        ".specs/features/producao-api"
+      ],
+      "planos": [],
+      "doc": "features/producao-api/feature.md"
+    },
+    {
       "slug": "dashboard",
       "feature": "Dashboard",
       "descricao": "Seção com os totais de serviços e honorários e os gráficos de perícias e honorários recebidos por ano",
@@ -744,29 +768,6 @@
       ],
       "planos": [],
       "doc": "features/laudos/feature.md"
-    },
-    {
-      "slug": "producao-api",
-      "feature": "Imagem de produção da API e arquivos por perícia",
-      "descricao": "API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia",
-      "data": "2026-11-01",
-      "status": "parcial",
-      "areas": [
-        "apps/api",
-        "infra"
-      ],
-      "decisoes": [
-        "AD-119",
-        "AD-120",
-        "AD-129",
-        "AD-146",
-        "AD-153"
-      ],
-      "spec": [
-        ".specs/features/producao-api"
-      ],
-      "planos": [],
-      "doc": "features/producao-api/feature.md"
     },
     {
       "slug": "rotas-vistoria",
@@ -1627,6 +1628,12 @@
       "id": "AD-201",
       "decisao": "O dia em que o dinheiro entrou ou saiu é sempre informado, nunca presumido: \"Data do pagamento\" no cadastro e na edição da despesa, no novo",
       "data": "2026-11-06",
+      "status": "active"
+    },
+    {
+      "id": "AD-202",
+      "decisao": "O storage de produção é o bucket S3 privado `ethica-files-677296948879` na região us-east-2 (projeto da AWS na nova experiência), criado pel",
+      "data": "2026-11-09",
       "status": "active"
     }
   ]

@@ -1127,6 +1127,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-06
 - **Status**: active
 
+### AD-202
+- **Decision**: O storage de produção é o bucket S3 privado `ethica-files-677296948879` na região **us-east-2** (projeto da AWS na nova experiência), criado pelo modelo `infra/aws/file-storage.yml` (stack `ethica-files`). A separação por escritório é garantida **pela própria AWS**, não só pelo código: o usuário IAM `ethica-files-api` (chave de acesso na Railway) não tem acesso ao bucket e só pode assumir o papel `ethica-files-tenant` com uma única etiqueta de sessão, `tenantId`; o papel só lê, grava, apaga e lista em `tenants/<tenantId da etiqueta>/`. Bucket sem acesso público, criptografado, só HTTPS, com versões: versão sobrescrita ou apagada fica 30 dias e depois some.
+- **Reason**: pedido do usuário em 2026-11-09 ("bucket S3, IAM e regras ... separados no mínimo por tenant"). Um erro de código que montasse a chave com o escritório errado passa a ser barrado pela AWS. A API fica na Railway, fora da AWS, por isso a identidade é um usuário com chave e não um papel de máquina.
+- **Trade-off**: supersede da **AD-146** só a frase "a troca para o S3 de produção é só configuração": o provider (`apps/api/src/providers/fileStorage.ts`) precisa assumir o papel por escritório (credencial temporária de até 1 hora, guardada por escritório) antes de ler ou gravar; isso entra no plano de implementação. A forma das chaves da AD-146 continua igual. A etiqueta protege contra erro de código, não contra a chave vazada, que pode assumir o papel com qualquer escritório. A chave de acesso não está no modelo (o segredo não passa pelo CloudFormation) e só é criada ao configurar a Railway. Versões antigas ocupam espaço por 30 dias além da cota lógica do escritório.
+- **Scope**: `infra/aws/file-storage.yml`, `docs/features/producao-api/feature.md`; a seguir `apps/api/src/providers/fileStorage.ts`, `apps/api/src/config/env.config.ts`, `RUN_BOOK.md`.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.

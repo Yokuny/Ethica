@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Ethica tenant file storage (AD-120, AD-146, AD-202). Private S3 bucket whose keys start with
+  tenants/<tenantId>/, an IAM user for the API hosted outside AWS (Railway) and a role that only
+  reaches the prefix of the tenant named in the session tag tenantId (ABAC). The user itself has
+  no S3 access: every request goes through a session assumed for one tenant.
+
+Metadata:
+  AWSToolsMetrics:
+    AWSAgentToolkit: aws-cloudformation@3
+
+Resources:
+  FilesBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Holds every tenant file (logo, case attachments, inspection media, reports).
+        must:
+          - Never public; the API reads the bytes and returns them to the user.
+          - Keys always start with tenants/<tenantId>/ (AD-146); TenantFilesRole depends on it.
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-old-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 30
+            ExpiredObjectDeleteMarker: true
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+
+  FilesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FilesBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt FilesBucket.Arn
+              - !Sub '${FilesBucket.Arn}/*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+
+  ApiUser:
+    Type: AWS::IAM::User
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: The API runs on Railway, outside AWS, so it needs an access key. The key is created outside this template so the secret never lands in CloudFormation.
+        must:
+          - No S3 permission here; only assuming TenantFilesRole with a tenantId tag.
+    Properties:
+      UserName: !Sub '${AWS::StackName}-api'
+      Policies:
+        - PolicyName: assume-tenant-files-role
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'sts:AssumeRole'
+                  - 'sts:TagSession'
+                Resource: !GetAtt TenantFilesRole.Arn
+
+  TenantFilesRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: Per-tenant isolation enforced by AWS, not only by the API code. A session tagged tenantId=X only reaches tenants/X/.
+        must:
+          - The session must carry exactly one tag, tenantId, and nothing else.
+          - Resource and prefix conditions use aws:PrincipalTag/tenantId; do not widen to tenants/*.
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-tenant'
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:root'
+            Action:
+              - 'sts:AssumeRole'
+              - 'sts:TagSession'
+            Condition:
+              # ApiUser references this role, so the trust names the user by ARN condition, not as principal.
+              ArnEquals:
+                'aws:PrincipalArn': !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:user/${AWS::StackName}-api'
+              StringLike:
+                'aws:RequestTag/tenantId': '?*'
+              'ForAllValues:StringEquals':
+                'aws:TagKeys':
+                  - tenantId
+              'Null':
+                'aws:TagKeys': 'false'
+      Policies:
+        - PolicyName: tenant-prefix-only
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: TenantObjects
+                Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  - 's3:DeleteObject'
+                Resource: !Sub '${FilesBucket.Arn}/tenants/${!aws:PrincipalTag/tenantId}/*'
+              - Sid: ListTenantPrefix
+                Effect: Allow
+                Action: 's3:ListBucket'
+                Resource: !GetAtt FilesBucket.Arn
+                Condition:
+                  StringLike:
+                    's3:prefix': !Sub 'tenants/${!aws:PrincipalTag/tenantId}/*'
+
+Outputs:
+  BucketName:
+    Description: S3_BUCKET
+    Value: !Ref FilesBucket
+  TenantRoleArn:
+    Description: Role the API assumes with the tag tenantId
+    Value: !GetAtt TenantFilesRole.Arn
+  ApiUserName:
+    Description: IAM user whose access key goes to the API host
+    Value: !Ref ApiUser
