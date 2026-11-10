@@ -6,21 +6,34 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowDown, ArrowUp, LocateFixed, Mail, MapPinned, Route as RouteIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { Checkbox } from '@/components/checkbox.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type DayInspection, geocodeMutation, sendNoticeMutation } from '@/query/inspection.js';
 import { conflictingStops, type Point, sortByProximity } from '../@utils/itinerary.js';
+import { findPlaces, type PlaceKind } from '../@utils/route-places.js';
 import { MapLeaflet } from './map-leaflet.js';
+import { RoutePlaces } from './route-places.js';
+import { TravelCost } from './travel-cost.js';
 
-// Street route on the public OSRM (AD-131); without a route, the map joins the stops in a straight line.
-const itineraryOsrm = async (points: Point[]): Promise<Point[]> => {
+// Street route on the public OSRM (AD-131) and its length in km (CDE-01); without a route, the map joins the
+// stops in a straight line.
+const itineraryOsrm = async (points: Point[]): Promise<{ path: Point[]; km?: number }> => {
   const path = points.map((p) => `${p.lng},${p.lat}`).join(';');
   const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${path}?overview=full&geometries=geojson`);
   if (!res.ok) throw new Error('osrm');
-  const body = (await res.json()) as { routes?: Array<{ geometry: { coordinates: [number, number][] } }> };
-  return body.routes?.[0]?.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) ?? points;
+  const body = (await res.json()) as {
+    routes?: Array<{ distance: number; geometry: { coordinates: [number, number][] } }>;
+  };
+  const route = body.routes?.[0];
+  return route
+    ? {
+        path: route.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })),
+        km: Math.round(route.distance / 100) / 10,
+      }
+    : { path: points };
 };
 
 // "Mapa" view of the field (CAM-08, CAM-09, AD-194): suggested order, time conflict, route and notice to the
@@ -49,9 +62,13 @@ export function FieldMap({
   }, [items, order]);
   const conflicts = conflictingStops(sorted.map((item) => item.appointment.start));
   const withoutPoint = items.filter((item) => item.appointment.location && !item.appointment.coordinates);
+  const [returnTrip, setReturnTrip] = useState(false);
+  const [placeKind, setPlaceKind] = useState<PlaceKind>();
   const points = [
     ...(origin ? [origin] : []),
     ...sorted.flatMap((item) => (item.appointment.coordinates ? [item.appointment.coordinates] : [])),
+    // Back to the starting point (CDE-01).
+    ...(origin && returnTrip ? [origin] : []),
   ];
   const itinerary = useQuery({
     queryKey: ['itinerary-osrm', points],
@@ -60,6 +77,22 @@ export function FieldMap({
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
   });
+  const path = itinerary.data?.path ?? points;
+  const places = useQuery({
+    queryKey: ['route-places', placeKind, path],
+    queryFn: () => findPlaces(placeKind as PlaceKind, path),
+    enabled: Boolean(placeKind) && path.length > 0,
+    retry: false,
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+  // The service orders of the route, for the travel expense (CDE-03).
+  const routeCases = [
+    ...new Map(
+      sorted.flatMap((item) =>
+        item.legalCase ? [[item.legalCase.id, { id: item.legalCase.id, label: caseLabel(item.legalCase) }]] : [],
+      ),
+    ).values(),
+  ];
 
   async function locateAddresses() {
     for (const item of withoutPoint) {
@@ -131,9 +164,26 @@ export function FieldMap({
             {t('locate_addresses')} ({withoutPoint.length})
           </Button>
         )}
+        {origin && (
+          <Checkbox
+            checked={returnTrip}
+            onCheckedChange={(checked) => setReturnTrip(Boolean(checked))}
+            label={t('include_return_trip')}
+            labelClassName="normal-case tracking-normal"
+          />
+        )}
       </div>
-      <MapLeaflet stops={stops} origin={origin} row={itinerary.data ?? points} center={center} />
+      <MapLeaflet stops={stops} origin={origin} row={path} center={center} places={places.data} />
       {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
+      {items.length > 0 && (
+        <RoutePlaces
+          kind={placeKind}
+          onKind={setPlaceKind}
+          places={places.data}
+          isLoading={places.isLoading}
+          isError={places.isError}
+        />
+      )}
       {!items.length && <DefaultEmptyData title={emptyTitle} />}
       <ItemGroup variant="list">
         {sorted.map((item, index) => {
@@ -202,6 +252,7 @@ export function FieldMap({
           {t('route_by_osrm')}
         </ItemDescription>
       )}
+      {items.length > 0 && <TravelCost routeKm={itinerary.data?.km} cases={routeCases} />}
     </>
   );
 }

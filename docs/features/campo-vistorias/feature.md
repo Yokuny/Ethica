@@ -80,6 +80,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — Custo de deslocamento e lugares no trajeto no mapa em `custo-deslocamento` (AD-212, AD-213).
 - 2026-11-09 — Período no Campo: Dia, Semana, Mês e Ano (estes só com vistorias), lista abaixo do mapa em ordem de data e hora; `/inspections/day` vira `/inspections/period` (AD-208).
 - 2026-11-05 — Botões Google Maps e Waze do cartão do Campo ganham o logotipo de cada app, no mesmo tamanho dos demais ícones (`apps/web/src/routes/_private/field/@components/navigation-icons.tsx`).
 - 2026-11-05 — Lista do Campo em duas colunas: o dia à esquerda, fixo, e os compromissos em linhas separadas por traço, com o horário em pílula; tabela descartada por ser tela de celular com botões de toque (AD-195).

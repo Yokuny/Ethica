@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { useEffect, useRef } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { Point } from '../@utils/itinerary.js';
+import type { Place } from '../@utils/route-places.js';
 
 // Attribution required by OpenStreetMap, with the link to the copyright.
 const assignment = (): string => {
@@ -38,11 +39,13 @@ type MapLeafletProps = {
   row: Point[];
   // The next inspection; missing, the default place.
   center?: Point;
+  // Places on the route (CDE-04), as small markers with the name.
+  places?: Place[];
 };
 
 // Day map (AD-131): OpenStreetMap tiles, numbered stops and the route. Leaflet is imperative,
 // so the map lives in an effect bound to the element; markers without an image (divIcon).
-export function MapLeaflet({ stops, origin, row, center }: MapLeafletProps) {
+export function MapLeaflet({ stops, origin, row, center, places }: MapLeafletProps) {
   const element = useRef<HTMLElement>(null);
   const map = useRef<L.Map | null>(null);
   const camada = useRef<L.LayerGroup | null>(null);
@@ -80,6 +83,11 @@ export function MapLeaflet({ stops, origin, row, center }: MapLeafletProps) {
         title: stop.title,
       }).addTo(group);
     }
+    for (const place of places ?? []) {
+      L.circleMarker([place.point.lat, place.point.lng], { radius: 6, color: '#ea580c', fillOpacity: 0.9 })
+        .bindTooltip(place.name)
+        .addTo(group);
+    }
     if (row.length > 1)
       L.polyline(
         row.map((p) => [p.lat, p.lng]),
@@ -88,7 +96,7 @@ export function MapLeaflet({ stops, origin, row, center }: MapLeafletProps) {
     // Always open on the next inspection (AD-194); without one, on the default place.
     const focus = center ?? DEFAULT_CENTER;
     map.current.setView([focus.lat, focus.lng], center ? 15 : 11);
-  }, [stops, origin, row, center]);
+  }, [stops, origin, row, center, places]);
 
   return <section ref={element} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('day_map')} />;
 }

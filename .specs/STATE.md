@@ -1207,6 +1207,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-212
+- **Decision**: O mapa do Campo ganha o bloco **Custo de deslocamento**, todo no web: quilometragem total (preenchida com a distância da rota do OSRM, que agora também devolve os km; editável e mantida se a perita digitar), média km/L, preço do combustível e pedágios; combustível = km ÷ km/L × preço, total = combustível + pedágios e custo por km. "Incluir a volta ao ponto de partida" fecha a rota no ponto de partida (só com "Partir da minha localização"). "Lançar como despesa" (permissão `finance:create`) cria, pela rota já existente `POST /finance/entries`, uma despesa `travel` a pagar com vencimento hoje: em uma OS escolhida ou dividida em partes iguais entre as OS marcadas da rota (o centavo que sobra fica na primeira), descrição "Deslocamento — N km (i/n)". Primitivo `RadioGroup` do shadcn entra em `packages/ui`.
+- **Reason**: pedido da perita (2026-11-09, CDE-01 a CDE-03); ela escolheu os km da rota editáveis e a despesa numa OS ou dividida entre OS da mesma rota.
+- **Trade-off**: um lançamento por OS, feitos em sequência pela tela: se um falhar no meio, os anteriores ficam (o aviso mostra o erro e eles aparecem no Financeiro). Pedágio é digitado (não há fonte aberta de tarifas). Os dados do veículo não ficam guardados.
+- **Scope**: `apps/web/src/routes/_private/field/` (`@components/travel-cost.tsx`, `@hooks/use-travel-cost.ts`, `@utils/travel-cost.ts`, `field-map.tsx`), `packages/ui/src/components/radio-group.tsx`.
+- **Date**: 2026-11-09
+- **Status**: active
+
+### AD-213
+- **Decision**: "Lugares no trajeto" no mapa do Campo: restaurante, hotel, pousada, borracharia e oficina mecânica até 2 km da rota, consultados direto do navegador na Overpass API pública do OpenStreetMap (sem chave, como o OSRM e o Nominatim da AD-131), com a rota amostrada em até 20 pontos; marcados em laranja no mapa e listados com nome, endereço e atalhos para Google Maps e Waze.
+- **Reason**: pedido da perita (2026-11-09, CDE-04); ela escolheu os lugares no mapa do Campo.
+- **Trade-off**: o servidor público pode demorar (na conferência levou de 30 a 60 s); a consulta espera até 60 s e mostra "Não foi possível buscar os lugares agora" se falhar. Lugares sem nome no OpenStreetMap não aparecem.
+- **Scope**: `apps/web/src/routes/_private/field/@utils/route-places.ts`, `@components/route-places.tsx`, `map-leaflet.tsx`.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.
