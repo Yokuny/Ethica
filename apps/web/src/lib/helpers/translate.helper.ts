@@ -456,6 +456,7 @@ const translations: Record<string, string> = {
   wednesday: 'Quarta-feira',
   week: 'Semana',
   work: 'Trabalho',
+  records: 'Cadastros',
   workspace: 'Área de trabalho',
   your_data: 'Seus dados',
   // Prazos processuais (AD-109)
@@ -884,9 +885,8 @@ const translations: Record<string, string> = {
   field_page_description: 'Vistorias do dia no celular, registro, fotos e mapa, mesmo sem conexão.',
   inspection_record: 'Registro da vistoria',
   day_map: 'Mapa do dia',
-  previous_day: 'Dia anterior',
-  next_day: 'Próximo dia',
   nothing_scheduled_this_day: 'Nada marcado neste dia',
+  no_inspections_in_period: 'Nenhuma vistoria agendada neste período',
   field_day_empty_description: 'As vistorias e compromissos da agenda aparecem aqui.',
   postponed: 'Adiada',
   postpone: 'Adiar',

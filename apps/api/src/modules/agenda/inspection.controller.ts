@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import { AppointmentNotFoundError } from './appointment.service.js';
-import type { InspectionDayQuery, MediaUploadQuery } from './inspection.schema.js';
+import type { InspectionPeriodQuery, MediaUploadQuery } from './inspection.schema.js';
 import * as inspectionService from './inspection.service.js';
 import { InspectionConflictError } from './inspection.service.js';
 
@@ -26,8 +26,8 @@ const json =
     }
   };
 
-export const listDay = json((req) =>
-  inspectionService.listDay(tenantOf(req), (req.query as unknown as InspectionDayQuery).date),
+export const listPeriod = json((req) =>
+  inspectionService.listPeriod(tenantOf(req), req.query as unknown as InspectionPeriodQuery),
 );
 export const listByCase = json((req) => inspectionService.listByCase(tenantOf(req), req.params.caseId as string));
 export const getInspection = json((req) => inspectionService.getInspection(tenantOf(req), appointmentId(req)));

@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
+import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type DayInspection, geocodeMutation, sendNoticeMutation } from '@/query/inspection.js';
 import { conflictingStops, type Point, sortByProximity } from '../@utils/itinerary.js';
@@ -24,7 +25,16 @@ const itineraryOsrm = async (points: Point[]): Promise<Point[]> => {
 
 // "Mapa" view of the field (CAM-08, CAM-09, AD-194): suggested order, time conflict, route and notice to the
 // parties. The map is always open, on the next inspection of the day or, without one, on the default place.
-export function FieldMap({ data }: { data: DayInspection[] }) {
+// `withDate` (week, month, year, CPE-01): each stop shows its day besides the time.
+export function FieldMap({
+  data,
+  withDate,
+  emptyTitle,
+}: {
+  data: DayInspection[];
+  withDate: boolean;
+  emptyTitle: string;
+}) {
   const queryClient = useQueryClient();
   const geocode = useMutation(geocodeMutation(queryClient));
   const notice = useMutation(sendNoticeMutation(queryClient));
@@ -124,7 +134,7 @@ export function FieldMap({ data }: { data: DayInspection[] }) {
       </div>
       <MapLeaflet stops={stops} origin={origin} row={itinerary.data ?? points} center={center} />
       {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
-      {!items.length && <DefaultEmptyData title={t('nothing_scheduled_this_day')} />}
+      {!items.length && <DefaultEmptyData title={emptyTitle} />}
       <ItemGroup variant="list">
         {sorted.map((item, index) => {
           const { appointment } = item;
@@ -133,7 +143,7 @@ export function FieldMap({ data }: { data: DayInspection[] }) {
               <ItemContent>
                 <div className="flex flex-wrap items-center gap-2">
                   <ItemTitle className="tabular-nums">
-                    {index + 1}. {formatDisplayTime(appointment.start)}
+                    {index + 1}. {(withDate ? formatDateTime : formatDisplayTime)(appointment.start)}
                   </ItemTitle>
                   {conflicts.has(index) && <Badge variant="error">{t('time_conflict')}</Badge>}
                   {!appointment.coordinates && <Badge variant="warning">{t('address_not_located')}</Badge>}

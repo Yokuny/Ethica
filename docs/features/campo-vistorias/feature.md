@@ -5,7 +5,7 @@ descricao: Rota de campo no celular com registro de vistoria, fotos, áudio e as
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-103, AD-107, AD-113, AD-118, AD-120, AD-123, AD-124, AD-126, AD-128, AD-129, AD-130, AD-131, AD-132, AD-194, AD-195]
+decisoes: [AD-208, AD-103, AD-107, AD-113, AD-118, AD-120, AD-123, AD-124, AD-126, AD-128, AD-129, AD-130, AD-131, AD-132, AD-194, AD-195]
 spec: [.specs/features/campo-vistorias]
 branches: [feat/campo-vistorias]
 ---
@@ -22,6 +22,7 @@ branches: [feat/campo-vistorias]
 - **Rota do dia** (`/field`, também na barra inferior do celular): compromissos do dia com processo, partes, local, atalhos para Google Maps e Waze e o resultado com um toque (feita, adiada, ausente).
 - **Registro da vistoria** (`/field/inspection`): presentes com qualidade, e-mail e assinatura na tela; paradigmas por parte; funções com a versão do reclamante e a da reclamada; agentes Sim/Não com EPI; documentos solicitados; observações internas; fotos com legenda (reduzidas e carimbadas com endereço, data e hora) e áudio.
 - **Sem conexão**: o app abre e recarrega sem rede (PWA instalável), o que é feito fica no aparelho e sobe sozinho quando a conexão volta; se alguém salvou antes, o perito escolhe qual versão fica.
+- **Período** (Dia, Semana, Mês, Ano): no dia, todos os compromissos; na semana, mês e ano, só as vistorias, com a data junto da hora (AD-208).
 - **Mapa do dia** (`/field`, visualização padrão; a Lista é a outra): paradas no mapa do OpenStreetMap, ordem pela proximidade a partir da localização do aparelho, reordenação, conflito de horário, rota pelas ruas e aviso às partes.
 - **Aviso de agendamento** por e-mail às partes e advogados da perícia, pelo modelo do escritório (`/office`), registrado no compromisso; também no detalhe do compromisso da agenda.
 - **No laudo**: variáveis da última vistoria feita (presentes, paradigmas, funções por parte, agentes, documentos, hora) e "Inserir foto" com as fotos da perícia, que saem no PDF e no Word. O modelo padrão já usa essas variáveis em "Metodologia e vistoria" e "Atividades exercidas".
@@ -79,6 +80,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — Período no Campo: Dia, Semana, Mês e Ano (estes só com vistorias), lista abaixo do mapa em ordem de data e hora; `/inspections/day` vira `/inspections/period` (AD-208).
 - 2026-11-05 — Botões Google Maps e Waze do cartão do Campo ganham o logotipo de cada app, no mesmo tamanho dos demais ícones (`apps/web/src/routes/_private/field/@components/navigation-icons.tsx`).
 - 2026-11-05 — Lista do Campo em duas colunas: o dia à esquerda, fixo, e os compromissos em linhas separadas por traço, com o horário em pílula; tabela descartada por ser tela de celular com botões de toque (AD-195).
 - 2026-11-05 — Campo com duas visualizações: Mapa (padrão, sempre aberto, centrado na próxima vistoria ou em São Paulo) e Lista; sai a rota `/field/map`; navegação do dia sem divisórias (AD-194).

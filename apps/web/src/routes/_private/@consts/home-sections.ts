@@ -1,4 +1,5 @@
 import {
+  BriefcaseBusiness,
   Building2,
   CalendarClock,
   CalendarDays,
@@ -6,7 +7,6 @@ import {
   Contact,
   FileSignature,
   FileText,
-  Gavel,
   History,
   Landmark,
   MapPinned,
@@ -21,7 +21,7 @@ export const HOME_SECTIONS = [
     to: '/expert-cases',
     titleKey: 'expert_cases',
     descriptionKey: 'track_each_expert_case_from_appointment_to_report',
-    icon: Gavel,
+    icon: BriefcaseBusiness,
     access: 'expert_cases',
   },
   {
@@ -32,11 +32,11 @@ export const HOME_SECTIONS = [
     access: 'expert_cases',
   },
   {
-    to: '/expert-reports',
-    titleKey: 'reports_and_opinions',
-    descriptionKey: 'reports_page_hub_description',
-    icon: FileSignature,
-    access: 'expert_reports',
+    to: '/agenda',
+    titleKey: 'agenda',
+    descriptionKey: 'inspections_hearings_and_deadlines_in_one_calendar',
+    icon: CalendarDays,
+    access: 'agenda',
   },
   {
     to: '/field',
@@ -44,6 +44,13 @@ export const HOME_SECTIONS = [
     descriptionKey: 'field_page_description',
     icon: MapPinned,
     access: 'agenda',
+  },
+  {
+    to: '/expert-reports',
+    titleKey: 'reports_and_opinions',
+    descriptionKey: 'reports_page_hub_description',
+    icon: FileSignature,
+    access: 'expert_reports',
   },
   {
     to: '/parties',
@@ -60,11 +67,11 @@ export const HOME_SECTIONS = [
     access: 'court_divisions',
   },
   {
-    to: '/agenda',
-    titleKey: 'agenda',
-    descriptionKey: 'inspections_hearings_and_deadlines_in_one_calendar',
-    icon: CalendarDays,
-    access: 'agenda',
+    to: '/prospecting',
+    titleKey: 'prospecting',
+    descriptionKey: 'find_possible_appointments_in_datajud',
+    icon: Radar,
+    access: 'prospecting',
   },
   {
     to: '/finance',
@@ -72,13 +79,6 @@ export const HOME_SECTIONS = [
     descriptionKey: 'fees_receivable_and_operating_expenses',
     icon: Wallet,
     access: 'finance',
-  },
-  {
-    to: '/prospecting',
-    titleKey: 'prospecting',
-    descriptionKey: 'find_possible_appointments_in_datajud',
-    icon: Radar,
-    access: 'prospecting',
   },
   {
     to: '/dashboard',

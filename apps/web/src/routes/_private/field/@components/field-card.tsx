@@ -6,12 +6,15 @@ import { Link } from '@tanstack/react-router';
 import { ClipboardList, MapPin } from 'lucide-react';
 import { APPOINTMENT_TYPE_VARIANT } from '@/components/appointment-labels.js';
 import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
+import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { DayInspection } from '@/query/inspection.js';
 import { GoogleMapsIcon, WazeIcon } from './navigation-icons.js';
 
 type FieldCardProps = {
   item: DayInspection;
+  // Week, month or year (CPE-01): the day goes with the time.
+  withDate?: boolean;
   onStatus: (status: 'done' | 'canceled', reason?: 'postponed' | 'absent') => void;
 };
 
@@ -21,7 +24,7 @@ const wazeUrl = (location: string) => `https://waze.com/ul?q=${encodeURIComponen
 
 // One appointment of the day on the phone (CAM-01), as a row split by a rule (AD-195): get there, mark the
 // result and open the record.
-export function FieldCard({ item, onStatus }: FieldCardProps) {
+export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
   const { appointment, legalCase, inspection } = item;
   const status = appointment.reason ?? appointment.status;
   const recorded = inspection.version > 0 || inspection.media.length > 0;
@@ -55,7 +58,7 @@ export function FieldCard({ item, onStatus }: FieldCardProps) {
           </div>
         </div>
         <ItemTitle className="order-first w-fit shrink-0 rounded-full md:order-last bg-muted px-4 py-1 font-medium text-base tabular-nums tracking-tight">
-          {formatDisplayTime(appointment.start)}
+          {(withDate ? formatDateTime : formatDisplayTime)(appointment.start)}
         </ItemTitle>
       </div>
       <div className="flex flex-wrap gap-2">

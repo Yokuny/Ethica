@@ -1,5 +1,6 @@
 import type { InspectionData, MediaType, SaveInspection, UpdateMedia } from '@ethica/contracts';
 import {
+  APPOINTMENT_TYPES,
   calendarDateSchema,
   idSchema,
   MEDIA_TYPES,
@@ -18,8 +19,17 @@ export { saveInspectionSchema, updateMediaSchema };
 export const inspectionParamSchema = z.object({ appointmentId: idSchema }).strict();
 export const inspectionMediaParamSchema = z.object({ appointmentId: idSchema, mediaId: mediaIdSchema }).strict();
 export const inspectionCaseParamSchema = z.object({ caseId: idSchema }).strict();
-export const inspectionDayQuerySchema = z.object({ date: calendarDateSchema }).strict();
-export type InspectionDayQuery = z.infer<typeof inspectionDayQuerySchema>;
+// Field route of a period (CAM-01, CPE-01): the day (`from` = `to`), the week, the month or the year, both ends
+// included; `type` keeps only one kind of appointment (the period shows only the inspections).
+const PERIOD_MAX_DAYS = 366;
+export const inspectionPeriodQuerySchema = z
+  .object({ from: calendarDateSchema, to: calendarDateSchema, type: z.enum(APPOINTMENT_TYPES).optional() })
+  .strict()
+  .refine(({ from, to }) => from <= to && (Date.parse(to) - Date.parse(from)) / 86_400_000 < PERIOD_MAX_DAYS, {
+    message: 'período inválido',
+    path: ['to'],
+  });
+export type InspectionPeriodQuery = z.infer<typeof inspectionPeriodQuerySchema>;
 export const mediaUploadQuerySchema = z
   .object({ type: z.enum(MEDIA_TYPES), caption: z.string().trim().max(200).optional() })
   .strict();

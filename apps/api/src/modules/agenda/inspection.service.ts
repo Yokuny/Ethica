@@ -9,6 +9,7 @@ import * as inspectionRepository from './inspection.repository.js';
 import type {
   DayInspection,
   FieldCase,
+  InspectionPeriodQuery,
   InspectionRecord,
   MediaRecord,
   MediaUploadQuery,
@@ -46,9 +47,12 @@ const fieldCases = async (tenantId: string, ids: string[]): Promise<Map<string, 
   return new Map([...summaries].map(([id, summary]) => [id, { id, ...summary }]));
 };
 
-// CAM-01: everything of the day (by time) with each appointment's record, for the phone to keep.
-export const listDay = async (tenantId: string, date: string): Promise<DayInspection[]> => {
-  const appointments = await appointmentService.listAppointments(tenantId, { from: date, to: nextDay(date) });
+// CAM-01, CPE-01: everything of the period (by date and time) with each appointment's record, for the phone to keep.
+export const listPeriod = async (
+  tenantId: string,
+  { from, to, type }: InspectionPeriodQuery,
+): Promise<DayInspection[]> => {
+  const appointments = await appointmentService.listAppointments(tenantId, { from, to: nextDay(to), type });
   const [inspections, cases] = await Promise.all([
     inspectionRepository.findByAppointments(
       tenantId,

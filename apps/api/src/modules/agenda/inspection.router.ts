@@ -8,9 +8,9 @@ import * as inspectionController from './inspection.controller.js';
 import {
   type InspectionRouterDeps,
   inspectionCaseParamSchema,
-  inspectionDayQuerySchema,
   inspectionMediaParamSchema,
   inspectionParamSchema,
+  inspectionPeriodQuerySchema,
   mediaUploadQuerySchema,
   saveInspectionSchema,
   updateMediaSchema,
@@ -27,11 +27,11 @@ export const createInspectionRouter = (deps: InspectionRouterDeps): Router => {
   const media = validParams(inspectionMediaParamSchema);
 
   router.get(
-    '/day',
+    '/period',
     ...guard,
     can('agenda', 'view'),
-    validParsedQuery(inspectionDayQuerySchema),
-    inspectionController.listDay,
+    validParsedQuery(inspectionPeriodQuerySchema),
+    inspectionController.listPeriod,
   );
   router.get(
     '/expert-case/:caseId',

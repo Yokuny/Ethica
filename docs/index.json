@@ -557,6 +557,7 @@
         "packages/db"
       ],
       "decisoes": [
+        "AD-208",
         "AD-103",
         "AD-107",
         "AD-113",
@@ -1690,6 +1691,18 @@
     {
       "id": "AD-207",
       "decisao": "Supersede, na AD-204, a lista da Biblioteca padrão: sai o modelo \"Impugnação de laudo pericial trabalhista\" (`standard-technical-objection`)",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-208",
+      "decisao": "O Campo (`/field`) ganha o período: Dia (padrão, todos os compromissos, como antes), Semana (segunda a domingo), Mês ou Ano, estes só com as",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-209",
+      "decisao": "Menu lateral em quatro grupos além de Visão geral: Trabalho (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), Cadastros (Partes, Varas e",
       "data": "2026-11-09",
       "status": "active"
     }

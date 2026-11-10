@@ -8,9 +8,9 @@ import { listCalendarEntriesQuerySchema } from './agenda/calendar-entry.schema.j
 import { feedTokenParamSchema } from './agenda/feed.schema.js';
 import {
   inspectionCaseParamSchema,
-  inspectionDayQuerySchema,
   inspectionMediaParamSchema,
   inspectionParamSchema,
+  inspectionPeriodQuerySchema,
   mediaUploadQuerySchema,
 } from './agenda/inspection.schema.js';
 import {
@@ -79,7 +79,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'inspectionParamSchema', schema: inspectionParamSchema },
   { name: 'inspectionMediaParamSchema', schema: inspectionMediaParamSchema },
   { name: 'inspectionCaseParamSchema', schema: inspectionCaseParamSchema },
-  { name: 'inspectionDayQuerySchema', schema: inspectionDayQuerySchema },
+  { name: 'inspectionPeriodQuerySchema', schema: inspectionPeriodQuerySchema },
   { name: 'mediaUploadQuerySchema', schema: mediaUploadQuerySchema },
   { name: 'templateIdParamSchema', schema: templateIdParamSchema },
   { name: 'templateSectionParamSchema', schema: templateSectionParamSchema },

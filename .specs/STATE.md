@@ -1175,6 +1175,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-208
+- **Decision**: O Campo (`/field`) ganha o **período**: Dia (padrão, todos os compromissos, como antes), Semana (segunda a domingo), Mês ou Ano, estes só com as **vistorias**. A navegação anda um período por vez; o mapa mostra as vistorias do período e a lista abaixo dele vai na ordem de data e hora, com a data junto da hora fora do dia (também na Listagem). A rota `/inspections/day?date=` vira `/inspections/period?from=&to=&type=` (ambas as pontas incluídas, até 366 dias); a cópia no aparelho para usar sem conexão passa a ser por período (`period:<de>_<até>_<tipo>`).
+- **Reason**: pedido da perita (2026-11-09, CPE-01): filtrar por semana, mês e ano e ver as perícias agendadas em lista abaixo do mapa; ela escolheu só as vistorias no período.
+- **Trade-off**: a cópia antiga do dia guardada no aparelho (`day:<data>`) deixa de ser lida; o Campo só abre sem conexão um período já aberto depois desta versão. Ordem por proximidade e rota no mapa continuam valendo, mesmo misturando dias.
+- **Scope**: `apps/api/src/modules/agenda/inspection.{router,controller,service,schema}.ts`, `apps/web/src/routes/_private/field/`, `apps/web/src/query/inspection.ts`, `apps/web/src/lib/offline/store.ts`.
+- **Date**: 2026-11-09
+- **Status**: active
+
+### AD-209
+- **Decision**: Menu lateral em quatro grupos além de Visão geral: **Trabalho** (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), **Cadastros** (Partes, Varas e comarcas), **Gestão** (Prospecção, Financeiro, Dashboard, Relatórios) e Configurações. A ordem dos cartões do Início segue a mesma (`HOME_SECTIONS`). O ícone de Serviços passa do martelo (`Gavel`) para a maleta (`BriefcaseBusiness`) em todo lugar que representa um serviço (menu, barra do celular, listas e escolha de serviço).
+- **Reason**: pedido da perita (2026-11-09): Partes, Varas e comarcas e Prospecção não eram rotina de trabalho; ela escolheu "Cadastros" para as fichas de consulta e Prospecção em Gestão, como captação de serviços.
+- **Trade-off**: nenhum além da mudança de lugar dos itens.
+- **Scope**: `apps/web/src/routes/_private/@components/workspace-navigation.tsx`, `apps/web/src/routes/_private/@consts/home-sections.ts`, ícones em `apps/web/src/components/` e nas listas de serviço.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

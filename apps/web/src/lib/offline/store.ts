@@ -32,11 +32,12 @@ const withPrefix = async <T>(prefix: string): Promise<T[]> => {
   return (await Promise.all(all.map((key) => get<T>(key)))).filter((item): item is Awaited<T> => Boolean(item)) as T[];
 };
 
-export const saveDay = async (date: string, items: DayInspection[]) => {
-  await set(`day:${date}`, items);
+// Field period (CPE-01) kept by its key (`from_to_type`), for the field to open without a connection.
+export const savePeriod = async (key: string, items: DayInspection[]) => {
+  await set(`period:${key}`, items);
   await Promise.all(items.map((item) => set(`record:${item.appointment.id}`, item)));
 };
-export const readDay = (date: string) => get<DayInspection[]>(`day:${date}`);
+export const readPeriod = (key: string) => get<DayInspection[]>(`period:${key}`);
 export const readRecord = (appointmentId: string) => get<DayInspection>(`record:${appointmentId}`);
 export const saveRecord = async (item: DayInspection) => set(`record:${item.appointment.id}`, item);
 

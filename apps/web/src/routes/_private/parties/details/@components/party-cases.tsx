@@ -2,7 +2,7 @@ import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Gavel } from 'lucide-react';
+import { BriefcaseBusiness } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -28,7 +28,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
             return (
               <LinkListItem
                 key={legalCase.id}
-                icon={Gavel}
+                icon={BriefcaseBusiness}
                 render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}
                 title={caseLabel(legalCase)}
                 badges={

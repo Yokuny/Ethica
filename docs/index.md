@@ -73,6 +73,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-209** (2026-11-09, active) — Menu lateral em quatro grupos além de Visão geral: Trabalho (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), Cadastros (Partes, Varas e
+- **AD-208** (2026-11-09, active) — O Campo (`/field`) ganha o período: Dia (padrão, todos os compromissos, como antes), Semana (segunda a domingo), Mês ou Ano, estes só com as
 - **AD-207** (2026-11-09, active) — Supersede, na AD-204, a lista da Biblioteca padrão: sai o modelo "Impugnação de laudo pericial trabalhista" (`standard-technical-objection`)
 - **AD-206** (2026-11-09, active) — No laudo e no parecer (PDF e Word), quando o escritório (ou o responsável técnico do laudo) não escreveu cabeçalho ou rodapé próprio em Escr
 - **AD-205** (2026-11-09, active) — "Importar modelo" (`POST /expert-reports/templates/file?name=&type=&area=`, arquivo no corpo, permissão `report_templates:create`) aceita PD
@@ -81,8 +83,6 @@ _Nenhum._
 - **AD-202** (2026-11-09, active) — O storage de produção é o bucket S3 privado `ethica-files-677296948879` na região us-east-2 (projeto da AWS na nova experiência), criado pel
 - **AD-201** (2026-11-06, active) — O dia em que o dinheiro entrou ou saiu é sempre informado, nunca presumido: "Data do pagamento" no cadastro e na edição da despesa, no novo
 - **AD-200** (2026-11-06, active) — Refina a AD-111: receita também pode ser anulada. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o
-- **AD-199** (2026-11-06, active) — Refina a AD-178. "Parceria" e "Serviço particular" são tipos do escritório sempre oferecidos, mesmo antes do primeiro serviço (`FIXED_OWN_TY
-- **AD-198** (2026-11-06, active) — Nos projetos `integration` e `e2e`, o servidor que o supertest abre com `listen(0)` escuta só em `127.0.0.1` (`packages/db/tests/setup/loopb
 
 ## `.specs/` sem registro em `docs/features/`
 

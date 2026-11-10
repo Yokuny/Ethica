@@ -176,7 +176,7 @@ describe('campo e vistorias (CAM-01..09)', () => {
 
   it('rota do dia, registro com versão (409 no conflito) e status rápido com motivo', async () => {
     const { operator, id } = await prepare();
-    const day = await operator.as(request(app).get('/inspections/day?date=2026-11-10'));
+    const day = await operator.as(request(app).get('/inspections/period?from=2026-11-10&to=2026-11-10'));
     expect(day.status).toBe(200);
     expect(day.body.data).toEqual([
       expect.objectContaining({
@@ -185,6 +185,18 @@ describe('campo e vistorias (CAM-01..09)', () => {
         inspection: expect.objectContaining({ version: 0 }),
       }),
     ]);
+
+    // Period of the month with only the inspections (CPE-01); a period backwards or over a year is refused.
+    const month = await operator.as(
+      request(app).get('/inspections/period?from=2026-11-01&to=2026-11-30&type=inspection'),
+    );
+    expect(month.body.data.map((item: { appointment: { id: string } }) => item.appointment.id)).toEqual([id]);
+    const hearings = await operator.as(
+      request(app).get('/inspections/period?from=2026-11-01&to=2026-11-30&type=hearing'),
+    );
+    expect(hearings.body.data).toEqual([]);
+    expect((await operator.as(request(app).get('/inspections/period?from=2026-11-30&to=2026-11-01'))).status).toBe(400);
+    expect((await operator.as(request(app).get('/inspections/period?from=2026-01-01&to=2027-06-01'))).status).toBe(400);
 
     const first = await operator.as(request(app).put(`/inspections/${id}`)).send({ version: 0, data: DATA });
     expect(first.status).toBe(200);

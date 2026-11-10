@@ -1,7 +1,7 @@
 import { caseLabel, isOwnType, type Side, usesContractor } from '@ethica/contracts';
 import { BadgeIndicator } from '@ethica/ui/components/badge';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Gavel } from 'lucide-react';
+import { BriefcaseBusiness } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { ALERT_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
@@ -40,7 +40,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     header: t('expert_case'),
     cell: ({ row }) => (
       <TableIdentity
-        icon={Gavel}
+        icon={BriefcaseBusiness}
         title={caseLabel(row.original)}
         description={row.original.processNumber ? row.original.subject : undefined}
       />

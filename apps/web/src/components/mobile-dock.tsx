@@ -1,6 +1,6 @@
 import { useSidebar } from '@ethica/ui/components/sidebar';
 import { Link, useLocation } from '@tanstack/react-router';
-import { CalendarDays, Gavel, Home, MapPinned, Menu } from 'lucide-react';
+import { BriefcaseBusiness, CalendarDays, Home, MapPinned, Menu } from 'lucide-react';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { cn } from '@/lib/utils.js';
 
@@ -26,7 +26,7 @@ export function MobileDock() {
         {t('home')}
       </Link>
       <Link to="/expert-cases" className={cn(tileClassName, pathname.startsWith('/expert-cases') && 'text-primary')}>
-        <Gavel className="size-5" />
+        <BriefcaseBusiness className="size-5" />
         {t('expert_cases')}
       </Link>
       <Link to="/agenda" className={tileClassName}>

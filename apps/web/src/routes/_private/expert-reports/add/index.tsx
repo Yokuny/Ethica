@@ -2,7 +2,7 @@ import { caseArea, caseLabel, defaultTemplateOf, reportRoleType } from '@ethica/
 import { Button } from '@ethica/ui/components/button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useBlocker, useNavigate, useSearch } from '@tanstack/react-router';
-import { Gavel } from 'lucide-react';
+import { BriefcaseBusiness } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { CasePicker } from '@/components/case-picker.js';
@@ -117,7 +117,7 @@ export function ReportAddPage() {
           <CardContent className="max-w-4xl gap-8">
             <RecordHeader>
               <RecordHeading
-                icon={<Gavel />}
+                icon={<BriefcaseBusiness />}
                 label={t(template.data?.type ?? type)}
                 title={caseLabel(legalCase.data)}
                 description={[

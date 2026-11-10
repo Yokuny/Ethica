@@ -1,9 +1,9 @@
-import type { InspectionData, MediaType } from '@ethica/contracts';
+import type { AppointmentType, InspectionData, MediaType } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { get, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
-import { readDay, readRecord, saveDay } from '../lib/offline/store.js';
+import { readPeriod, readRecord, savePeriod } from '../lib/offline/store.js';
 import { type AppointmentRecord, appointmentKeys } from './appointment.js';
 
 // Mirrors the records of apps/api/src/modules/agenda/inspection.schema.ts.
@@ -28,28 +28,32 @@ export type DayInspection = { appointment: AppointmentRecord; legalCase?: FieldC
 
 export const inspectionKeys = {
   all: ['inspection'] as const,
-  day: (date: string) => [...inspectionKeys.all, 'day', date] as const,
+  period: (key: string) => [...inspectionKeys.all, 'period', key] as const,
   detail: (appointmentId: string) => [...inspectionKeys.all, 'detail', appointmentId] as const,
   legalCase: (caseId: string) => [...inspectionKeys.all, 'legalCase', caseId] as const,
   // Media still only on the device: inside `all`, the sync reloads it too (AD-128).
   pending: (appointmentId: string) => [...inspectionKeys.all, 'pending', appointmentId] as const,
 };
 
-// Day route (CAM-01): with a connection, keeps the copy on the device; without it, uses the copy (AD-128).
-export const inspectionDayQuery = (date: string) =>
-  queryOptions({
-    queryKey: inspectionKeys.day(date),
+// Field route of a period (CAM-01, CPE-01): with a connection, keeps the copy on the device; without it, uses the
+// copy (AD-128).
+export const inspectionPeriodQuery = ({ from, to, type }: { from: string; to: string; type?: AppointmentType }) => {
+  const key = [from, to, type ?? 'all'].join('_');
+  return queryOptions({
+    queryKey: inspectionKeys.period(key),
     queryFn: async (): Promise<{ items: DayInspection[]; ofDevice: boolean }> => {
-      const res = await get<DayInspection[]>(`/inspections/day?date=${date}`);
+      const params = new URLSearchParams({ from, to, ...(type ? { type } : {}) });
+      const res = await get<DayInspection[]>(`/inspections/period?${params}`);
       if (res.success && res.data) {
-        await saveDay(date, res.data);
+        await savePeriod(key, res.data);
         return { items: res.data, ofDevice: false };
       }
-      const guardado = await readDay(date);
-      if (guardado) return { items: guardado, ofDevice: true };
+      const kept = await readPeriod(key);
+      if (kept) return { items: kept, ofDevice: true };
       throw new Error(res.message ?? t('load_error'));
     },
   });
+};
 
 export const inspectionQuery = (appointmentId: string) =>
   queryOptions({
