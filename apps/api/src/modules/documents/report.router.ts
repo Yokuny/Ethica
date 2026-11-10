@@ -72,6 +72,14 @@ export const createReportRouter = (deps: ReportRouterDeps): Router => {
     reportController.importTemplate,
   );
   router.get('/templates/:id', ...guard, can('report_templates', 'view'), template, reportController.getTemplate);
+  // Layout of the template as PDF (BIB-07).
+  router.get(
+    '/templates/:id/pdf',
+    ...guard,
+    can('report_templates', 'view'),
+    template,
+    reportController.templatePdf(providers),
+  );
   router.patch(
     '/templates/:id',
     ...guard,

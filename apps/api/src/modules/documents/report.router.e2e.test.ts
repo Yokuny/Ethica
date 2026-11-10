@@ -520,6 +520,24 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(objects.has(key as string)).toBe(false);
   });
 
+  it('PDF do layout do modelo: dados do serviço como marcadores; modelo de outro escritório 404 (BIB-07)', async () => {
+    const tenant = await seedTenant();
+    const operator = await seedSession(tenant._id, ['operator']);
+    const pdf = await operator.as(request(app).get('/expert-reports/templates/standard-technical_opinion/pdf'));
+    expect(pdf.status).toBe(200);
+    expect(pdf.headers['content-type']).toContain('application/pdf');
+    expect(rendered?.html).toContain('PARECER TÉCNICO');
+    expect(rendered?.html).toContain('[NUMERO_PROCESSO]');
+    expect(rendered?.html).toContain('DADOS PRELIMINARES');
+
+    const other = await seedSession((await seedTenant())._id, ['admin']);
+    const own = await Template.create({ Tenant: tenant._id, name: 'Meu', type: 'report', sections: [] });
+    expect((await other.as(request(app).get(`/expert-reports/templates/${own._id}/pdf`))).status).toBe(404);
+    expect(
+      (await operator.as(request(app).get('/expert-reports/templates/standard-technical-objection/pdf'))).status,
+    ).toBe(400);
+  });
+
   it('biblioteca do escritório: importa Word com área, muda a área e o operador não importa (BIB-03, BIB-04)', async () => {
     const tenant = await seedTenant();
     const manager = await seedSession(tenant._id, ['manager']);

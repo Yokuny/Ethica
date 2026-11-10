@@ -1167,6 +1167,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-207
+- **Decision**: Supersede, na **AD-204**, a lista da Biblioteca padrão: sai o modelo "Impugnação de laudo pericial trabalhista" (`standard-technical-objection`); ficam Laudo pericial trabalhista, Parecer técnico e Laudo pericial (NR-15 e NR-16). O modelo aberto (padrão ou do escritório) ganha **Visualizar PDF** (`GET /expert-reports/templates/:id/pdf`, permissão `report_templates:view`): o mesmo PDF do laudo, no layout do modelo, com a identidade do escritório e o usuário logado assinando; sem serviço, os dados do serviço e as variáveis do texto saem como marcadores (`[NUMERO_PROCESSO]`), mostrando onde entram. Cada item sai no texto "sim" (ou no "não", quando só ele tem texto).
+- **Reason**: pedido da perita (2026-11-09).
+- **Trade-off**: laudo já criado do modelo de impugnação continua abrindo e exportando (as seções ficam no laudo), mas não troca mais de seções pelo modelo, que não existe. A visualização mostra todos os itens do modelo, inclusive os que num laudo ficariam de fora.
+- **Scope**: `apps/api/src/modules/documents/{report.library,report.service,report.router,report.controller}.ts`, `packages/contracts/src/schemas/report.schema.ts`, `apps/web/src/routes/_private/expert-reports/templates/details/index.tsx`, `apps/web/src/components/pdf-preview-dialog.tsx`.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

@@ -17,7 +17,8 @@
         "AD-203",
         "AD-204",
         "AD-205",
-        "AD-206"
+        "AD-206",
+        "AD-207"
       ],
       "spec": [
         ".specs/features/biblioteca-modelos"
@@ -1683,6 +1684,12 @@
     {
       "id": "AD-206",
       "decisao": "No laudo e no parecer (PDF e Word), quando o escritório (ou o responsável técnico do laudo) não escreveu cabeçalho ou rodapé próprio em Escr",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-207",
+      "decisao": "Supersede, na AD-204, a lista da Biblioteca padrão: sai o modelo \"Impugnação de laudo pericial trabalhista\" (`standard-technical-objection`)",
       "data": "2026-11-09",
       "status": "active"
     }

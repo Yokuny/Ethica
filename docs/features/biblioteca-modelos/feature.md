@@ -5,7 +5,7 @@ descricao: Modelos de laudo em Biblioteca padrão e Biblioteca do escritório po
 data: 2026-11-09
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-203, AD-204, AD-205, AD-206]
+decisoes: [AD-203, AD-204, AD-205, AD-206, AD-207]
 spec: [.specs/features/biblioteca-modelos]
 branches: [main]
 ---
@@ -19,8 +19,9 @@ branches: [main]
 
 ## O que foi feito
 
-- **Modelos** (`/expert-reports/templates`) em duas abas: **Biblioteca padrão** (Laudo pericial trabalhista, Parecer técnico, Impugnação de laudo pericial trabalhista e Laudo pericial NR-15/NR-16, só leitura) e **Biblioteca do escritório**, agrupada por área de atuação.
+- **Modelos** (`/expert-reports/templates`) em duas abas: **Biblioteca padrão** (Laudo pericial trabalhista, Parecer técnico e Laudo pericial NR-15/NR-16, só leitura) e **Biblioteca do escritório**, agrupada por área de atuação.
 - **Área de atuação** = tipo de serviço: Perícia trabalhista, cível, federal, Assistência técnica, Parceria, Serviço particular e os tipos próprios. Escolhida ao criar, importar ou "Usar no escritório"; muda em "Editar nome e detalhes". Salvar um laudo como modelo usa a área do serviço. No "Novo laudo", os modelos da área do serviço aparecem primeiro.
+- **Visualizar PDF** no modelo aberto (padrão ou do escritório): o PDF no layout do modelo, com os dados do escritório e de quem está logado; os dados do serviço aparecem como marcadores (AD-207).
 - **Usar no escritório** (detalhe do modelo padrão): copia o modelo para a Biblioteca do escritório, com o mesmo nome e a área dele.
 - **Importar modelo** (PDF ou Word): títulos numerados ou de estilo Título viram itens e subitens; o sumário é ignorado; no Word ficam negrito, itálico, sublinhado, listas e tabelas. Abre o modelo para editar e reorganizar.
 - **Cabeçalho e rodapé** do laudo vêm de quem assina e da logo do escritório no desenho da perita, quando o escritório não escreveu os seus em Escritório; o anexo é só o desenho, nenhum dado dele fica no sistema (AD-206).
@@ -71,5 +72,6 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — Sai da Biblioteca padrão o modelo de impugnação de laudo pericial trabalhista; "Visualizar PDF" no modelo aberto (AD-207, `GET /expert-reports/templates/:id/pdf`, `report.service.templatePdf`).
 - 2026-11-09 — Cabeçalho e rodapé do laudo no desenho da perita com os dados de quem assina e a logo do escritório, quando não personalizados em Escritório (AD-206).
 - 2026-11-09 — Implementado BIB-01 a BIB-06 (AD-203 a AD-205); conferido na tela local (abas, importar Word com sumário, PDF do laudo padrão).

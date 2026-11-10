@@ -9,8 +9,8 @@ type PdfPreviewDialogProps = {
   path: string;
   description?: string;
   onClose: () => void;
-  // The download buttons, below the document.
-  children: ReactNode;
+  // The download buttons, below the document; none when there is nothing to download (template, BIB-07).
+  children?: ReactNode;
 };
 
 // A PDF of the API on screen before downloading it (LMO-04, reports).
@@ -41,7 +41,7 @@ export function PdfPreviewDialog({ path, description, onClose, children }: PdfPr
       ) : (
         <DefaultLoading />
       )}
-      <div className="flex flex-wrap justify-end gap-2">{children}</div>
+      {children && <div className="flex flex-wrap justify-end gap-2">{children}</div>}
     </FormDialog>
   );
 }

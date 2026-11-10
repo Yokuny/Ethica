@@ -14,6 +14,7 @@ import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
 import { Panel } from '@/components/panel.js';
+import { PdfPreviewDialog } from '@/components/pdf-preview-dialog.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
 import { templateAreaItems, templateAreaLabel } from '@/components/report-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -42,6 +43,7 @@ type PanelState =
   | { kind: 'duplicate' }
   | { kind: 'edit' }
   | { kind: 'layout' }
+  | { kind: 'pdf' }
   | { kind: 'removal' }
   | null;
 
@@ -67,29 +69,30 @@ export function TemplateDetailsPage() {
   return (
     <Card asPage>
       <CardHeader title={t('details')}>
-        {template?.isDefault && can(session, 'report_templates', 'create') && (
+        {template && (
           <CardAction>
-            <Button onClick={() => setPanel({ kind: 'duplicate' })}>{t('use_in_office')}</Button>
-          </CardAction>
-        )}
-        {template && !template.isDefault && can(session, 'report_templates', 'update') && (
-          <CardAction>
+            <Button variant="outline" onClick={() => setPanel({ kind: 'pdf' })}>
+              {t('preview_pdf')}
+            </Button>
+            {template.isDefault && can(session, 'report_templates', 'create') && (
+              <Button onClick={() => setPanel({ kind: 'duplicate' })}>{t('use_in_office')}</Button>
+            )}
             {canEdit && (
               <Button variant="outline" onClick={() => setPanel({ kind: 'layout' })}>
                 {t('report_layout')}
               </Button>
             )}
             {canEdit && <Button onClick={() => setPanel({ kind: 'section' })}>{t('new_section')}</Button>}
-            <PageMenu>
-              {canEdit && (
+            {canEdit && (
+              <PageMenu>
                 <DropdownMenuItem onClick={() => setPanel({ kind: 'edit' })}>
                   {t('edit_name_and_details')}
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicate' })}>
-                {t('duplicate_template')}
-              </DropdownMenuItem>
-            </PageMenu>
+                <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicate' })}>
+                  {t('duplicate_template')}
+                </DropdownMenuItem>
+              </PageMenu>
+            )}
           </CardAction>
         )}
       </CardHeader>
@@ -229,6 +232,13 @@ export function TemplateDetailsPage() {
           pending={update.isPending}
           onClose={() => setPanel(null)}
           onConfirm={(data) => update.mutate({ id: template.id, data }, { onSuccess: () => setPanel(null), onError })}
+        />
+      )}
+      {template && panel?.kind === 'pdf' && (
+        <PdfPreviewDialog
+          path={`/expert-reports/templates/${encodeURIComponent(template.id)}/pdf`}
+          description={t('template_pdf_description')}
+          onClose={() => setPanel(null)}
         />
       )}
       {panel?.kind === 'ver' && <TemplateSectionView section={panel.section} onClose={() => setPanel(null)} />}

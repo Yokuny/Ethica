@@ -212,14 +212,6 @@ describe('biblioteca padrão (LAU-05, LAU-06)', () => {
         'Considerações finais',
       ]),
     );
-    expect(byId('standard-technical-objection').map((section) => section.title)).toEqual(
-      expect.arrayContaining([
-        'Síntese da impugnação técnica',
-        'Da exposição eventual × intermitente',
-        'Do requerimento de esclarecimentos complementares',
-        'Referências',
-      ]),
-    );
   });
 });
 

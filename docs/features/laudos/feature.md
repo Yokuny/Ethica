@@ -24,7 +24,7 @@ branches: [feat/laudos]
 - **Redigir** (`/expert-reports/details`): uma seção por vez, com as variáveis sem valor destacadas e apontadas; remover seção renumera.
 - **Exportar** PDF e Word com capa, sumário, seções, cabeçalho e rodapé do escritório; variável sem valor bloqueia exportar e concluir.
 - **Concluir**: o laudo fica só para leitura (também na API) e, com "Registrar a entrega", protocola o prazo "Entrega do laudo", lança a movimentação de entrega e avança a etapa da perícia.
-- **Parecer técnico** para a perícia em que o escritório é assistente técnico, com dois modelos padrão: o parecer da diligência (dados preliminares, documentos dos autos, funções pelo PPP, dispositivos de proteção, medições com o perito, quesitos complementares e suplementares, parecer e conclusão, considerações finais) e o parecer técnico de impugnação (síntese, pontos contestados do laudo, pedido de esclarecimentos pelo art. 477 do CPC e referências); as partes saem como reclamante/reclamada ou autor/réu pela justiça.
+- **Parecer técnico** para a perícia em que o escritório é assistente técnico, com o modelo padrão do parecer da diligência (dados preliminares, documentos dos autos, funções pelo PPP, dispositivos de proteção, medições com o perito, impugnação, quesitos complementares e suplementares, parecer e conclusão, considerações finais); as partes saem como reclamante/reclamada ou autor/réu pela justiça.
 
 ## Por que
 
@@ -75,6 +75,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — O modelo padrão de impugnação sai da biblioteca (AD-207, `biblioteca-modelos`).
 - 2026-11-09 — Modelos em Biblioteca padrão e Biblioteca do escritório por área, importar PDF/Word e layout da perita como padrão em `biblioteca-modelos` (AD-203 a AD-205); o modelo de impugnação passa a se chamar "Impugnação de laudo pericial trabalhista".
 - 2026-11-09 — Modelos de parecer técnico completados com os modelos da perita: o "Parecer técnico" ganha dados preliminares, documentos dos autos considerados, funções exercidas, dispositivos de proteção, parecer técnico e conclusão e considerações finais; novo modelo padrão "Parecer técnico de impugnação" (`standard-technical-objection`, texto-base de periculosidade por eletricidade, NR-16 Anexo 4 e NR-10). Dados do caso de origem viraram variáveis ou campos entre parênteses.
 - 2026-11-05 — A situação volta às abas acima da lista (AD-193).

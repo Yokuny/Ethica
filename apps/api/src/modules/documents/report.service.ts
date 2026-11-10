@@ -686,6 +686,66 @@ export const generatePdf = async (
   };
 };
 
+// Layout of a template on screen (BIB-07): its sections in the "yes" text (or "no", when only that one has text),
+// with the office identity and the signed-in user signing. With no case, every case data stays as its marker,
+// showing where it goes.
+export const templatePdf = async (providers: Providers, ctx: DocumentContext, id: string): Promise<GeneratedFile> => {
+  const template = await templateService.getTemplate(ctx.tenantId, id);
+  const [identity, expert] = await Promise.all([
+    officeService.getDocumentIdentity(providers.storage, ctx.tenantId),
+    accountService.getProfile(ctx.tenantId, ctx.userId),
+  ]);
+  const markers = Object.fromEntries(REPORT_VARIABLES.map((variable) => [variable, variable]));
+  const legalCase: CaseRecord = {
+    id: template.id,
+    role: template.type === 'technical_opinion' ? 'technical_assistant' : 'court_expert',
+    processNumber: '[NUMERO_PROCESSO]',
+    serviceOrder: '[NUMERO_OS]',
+    division: '[VARA]',
+    district: '[COMARCA]',
+    location: '[LOCAL_PERICIA]',
+    subject: '[OBJETO]',
+    parties: [],
+    phase: 'drafting_report',
+    status: 'active',
+    attachments: [],
+    movements: [],
+    createdAt: ctx.now,
+    updatedAt: ctx.now,
+  };
+  const report: ReportRecord = {
+    id: template.id,
+    caseId: template.id,
+    type: template.type,
+    status: 'draft',
+    title: template.name,
+    templateId: template.id,
+    templateName: template.name,
+    sections: template.sections.map((section) => ({
+      id: section.id,
+      templateSectionId: section.id,
+      title: section.title,
+      level: section.level,
+      titleOnly: section.titleOnly,
+      pageBreak: section.pageBreak,
+      unnumbered: section.unnumbered,
+      included: true,
+      variant: section.yesText || !section.noText ? 'yes' : 'no',
+      html: section.yesText || section.noText,
+    })),
+    layout: template.layout,
+    issues: [],
+    createdAt: ctx.now,
+    updatedAt: ctx.now,
+  };
+  const data = { report, legalCase, identity, expert: expert ?? { name: identity.name }, values: markers };
+  return {
+    name: 'template.pdf',
+    type: 'application/pdf',
+    conteudo: await providers.pdf.render(reportHtml({ ...data, photos: {}, generatedAt: ctx.now })),
+  };
+};
+
 export const generateDocx = async (providers: Providers, ctx: DocumentContext, id: string): Promise<GeneratedFile> => {
   // The attached report only exists as the PDF that was sent (ANL-02).
   if (await reportRepository.fileOf(ctx.tenantId, id)) throw new ReportNotFoundError('not_found');

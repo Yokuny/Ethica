@@ -767,6 +767,8 @@ const translations: Record<string, string> = {
   initial_claims: 'Pedidos da inicial',
   questions_section: 'Seção de quesitos no laudo (marque em Seções do modelo)',
   preview_pdf: 'Visualizar PDF',
+  template_pdf_description:
+    'Layout do modelo com os dados do escritório e de quem assina; os dados do serviço aparecem como marcadores.',
   preview_pdf_description:
     'Como o laudo vai sair. Dados ainda sem valor aparecem entre colchetes e impedem baixar e concluir.',
   template_sections_description:

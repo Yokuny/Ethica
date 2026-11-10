@@ -73,6 +73,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-207** (2026-11-09, active) — Supersede, na AD-204, a lista da Biblioteca padrão: sai o modelo "Impugnação de laudo pericial trabalhista" (`standard-technical-objection`)
 - **AD-206** (2026-11-09, active) — No laudo e no parecer (PDF e Word), quando o escritório (ou o responsável técnico do laudo) não escreveu cabeçalho ou rodapé próprio em Escr
 - **AD-205** (2026-11-09, active) — "Importar modelo" (`POST /expert-reports/templates/file?name=&type=&area=`, arquivo no corpo, permissão `report_templates:create`) aceita PD
 - **AD-204** (2026-11-09, active) — Modelo do escritório tem área de atuação (`Template.area`, texto opcional): as chaves `labor`, `civil`, `federal` (esfera da perícia), `tech
@@ -82,7 +83,6 @@ _Nenhum._
 - **AD-200** (2026-11-06, active) — Refina a AD-111: receita também pode ser anulada. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o
 - **AD-199** (2026-11-06, active) — Refina a AD-178. "Parceria" e "Serviço particular" são tipos do escritório sempre oferecidos, mesmo antes do primeiro serviço (`FIXED_OWN_TY
 - **AD-198** (2026-11-06, active) — Nos projetos `integration` e `e2e`, o servidor que o supertest abre com `listen(0)` escuta só em `127.0.0.1` (`packages/db/tests/setup/loopb
-- **AD-197** (2026-11-05, active) — Anexos do serviço ficam no próprio `Case` (`attachments`, com `key`, `name`, `mime`, `bytes`) e no storage do tenant (AD-120), em `/expert-c
 
 ## `.specs/` sem registro em `docs/features/`
 

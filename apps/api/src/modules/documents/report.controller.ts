@@ -168,5 +168,7 @@ export const reportPdf = (providers: Providers) =>
       preview: (req.query as unknown as ReportPdfQuery).preview === 'true',
     }),
   );
+export const templatePdf = (providers: Providers) =>
+  file((req) => reportService.templatePdf(providers, context(req), id(req)));
 export const reportDocx = (providers: Providers) =>
   file((req) => reportService.generateDocx(providers, context(req), id(req)));
