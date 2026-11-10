@@ -50,6 +50,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-10 — Recebe do Financeiro o resumo do dinheiro, o fluxo de caixa (6 ou 12 meses) e os totais por categoria, só para quem vê o Financeiro; sai "Honorários a receber" da faixa, já coberto pelo resumo (AD-215).
 - 2026-11-06 — Perícias canceladas saem do gráfico de perícias por ano; lançamentos anulados não contam nos honorários (AD-200).
 - 2026-11-06 — Conferido com perícias e honorários de vários anos: colunas e somas batem, o operador não vê valor em dinheiro e ano sem dados não vira coluna (o gráfico pula do ano anterior para o seguinte). O sistema não tem tema escuro (`apps/web/src/main.tsx` fixa o claro), então esse item não se aplica.
 - 2026-11-06 — Dashboard entregue.

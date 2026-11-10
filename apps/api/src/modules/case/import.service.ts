@@ -73,16 +73,6 @@ const CREA = /CREA\s*[-/:]?\s*([A-Z]{2})?\s*(?:n[ºo°.]*\s*)?([\d.-]{4,})/i;
 const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/;
 const PHONE = /\(?\b\d{2}\)?\s*9?\d{4}-?\d{4}\b/;
 
-const OBJETOS: [RegExp, string][] = [
-  [/insalubridade/i, 'insalubridade'],
-  [/periculosidade/i, 'periculosidade'],
-  [/ergon[ôo]mic/i, 'ergonomia'],
-  [/(per[íi]cia|perito)\s+m[ée]dic|doen[çc]a ocupacional|acidente de trabalho/i, 'médica'],
-  [/cont[áa]bil/i, 'contábil'],
-  [/grafot[ée]cnic/i, 'grafotécnica'],
-  [/engenharia/i, 'engenharia'],
-];
-
 const clearName = (raw: string): string =>
   raw
     .replace(CPF_CNPJ, '')
@@ -166,7 +156,9 @@ const extractParties = (rows: string[]): CasePartyInput[] => {
 // "Juízo da", the district or the court around it.
 const extractDivision = (rows: string[], text: string): Pick<PdfDraft, 'division' | 'district'> => {
   const labeledDistrict = text.match(/\b(?:Comarca|Foro)\s+(?:de|da|do)\s+([A-ZÀ-Ú][^\n,–-]*)/)?.[1]?.trim();
-  const row = rows.find((l) => /\bVara\b/i.test(l) && l.length <= 120);
+  const vara = rows.filter((l) => /\bVara\b/i.test(l) && l.length <= 120);
+  // The division that judges the case is the "Órgão Julgador" of the cover page; otherwise the first one cited.
+  const row = vara.find((l) => /[ÓO]rg[ãa]o\s+Julgador/i.test(l)) ?? vara[0];
   if (!row) return { district: labeledDistrict };
   const ordinal = row.match(/(\d+)\s*[ªº°a]?\s*(Vara\b.*)$/i);
   const division = (ordinal ? `${ordinal[1]}ª ${ordinal[2]}` : row.slice(row.search(/\bVara\b/i)))
@@ -180,11 +172,19 @@ const extractDivision = (rows: string[], text: string): Pick<PdfDraft, 'division
     : { division, district: labeledDistrict };
 };
 
+// What the judge asked of the expert, from the last order that sets the expert evidence:
+// "Defiro a prova pericial para apuração de insalubridade." → "Apuração de insalubridade".
+const ORDERED_SUBJECT =
+  /(?:prova\s+pericial|per[íi]cia\b)[^.;]{0,80}?\s(?:para\s+(?:fins\s+de\s+)?|a\s+fim\s+de\s+|com\s+o\s+objetivo\s+de\s+|visando\s+(?:[àa]\s+)?)([^.;]{5,})/gi;
+
+// Without the purpose, the kind of expert evidence ordered: "Defiro a perícia de insalubridade." → "Perícia de insalubridade".
+const ORDERED_KIND = /\b(per[íi]cia\s+(?:de|m[ée]dica|cont[áa]bil|t[ée]cnica|grafot[ée]cnica|ambiental)\b[^.;]{3,})/gi;
+
 const extractSubject = (text: string): string | undefined => {
-  const rotulado = text.match(/\b(?:Objeto|Assunto)s?(?:\s+da\s+per[íi]cia)?\s*:\s*([^\n]+)/i)?.[1]?.trim();
-  if (rotulado) return rotulado.slice(0, 500);
-  const types = OBJETOS.filter(([regex]) => regex.test(text)).map(([, name]) => name);
-  return types.length ? `Perícia de ${types.join(' e ')}` : undefined;
+  const labeled = text.match(/\bObjeto(?:\s+da\s+per[íi]cia)?\s*:\s*([^\n]+)/i)?.[1]?.trim();
+  const ordered = [...text.matchAll(ORDERED_SUBJECT)].at(-1)?.[1] ?? [...text.matchAll(ORDERED_KIND)].at(-1)?.[1];
+  const subject = (labeled ?? ordered)?.replace(/\s+/g, ' ').trim().slice(0, 500);
+  return subject ? subject.charAt(0).toUpperCase() + subject.slice(1) : undefined;
 };
 
 // Date of the last nomination of an expert in the text (RSV-02): a case may be renominated. Only

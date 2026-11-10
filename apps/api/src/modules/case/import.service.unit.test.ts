@@ -47,7 +47,7 @@ describe('extrairAta (AD-114)', () => {
       role: 'court_expert',
       division: '1ª Vara do Trabalho',
       district: 'São Paulo',
-      subject: 'Perícia de insalubridade',
+      subject: 'Apuração de insalubridade',
       nominationDate: '2026-10-15',
     });
     expect(draft).not.toHaveProperty('reportDeadline');
@@ -93,6 +93,22 @@ Destituo o perito anterior e nomeio o engenheiro Paulo Reis em 03/02/2027.`;
     const { draft } = extractMinutes(MINUTES.replace('1ª Vara do Trabalho de São Paulo', row));
     expect(draft.division).toBe(division);
     if (district) expect(draft.district).toBe(district);
+  });
+
+  it('a vara é a do Órgão Julgador, mesmo com outra vara citada antes', () => {
+    const text = MINUTES.replace(
+      '1ª Vara do Trabalho de São Paulo',
+      'Redistribuído da 3ª Vara Cível de Canoas\nÓrgão Julgador: Juízo da 1ª Vara Cível da Comarca de Sapiranga',
+    );
+    expect(extractMinutes(text).draft.division).toBe('1ª Vara Cível');
+  });
+
+  it('o objeto é o que o juiz pediu na perícia, do último despacho', () => {
+    const text = `${MINUTES}\nDetermino a realização de perícia técnica de engenharia para verificar a existência de
+vícios construtivos no imóvel dos autores; intimem-se.`;
+    expect(extractMinutes(text).draft.subject).toBe(
+      'Verificar a existência de vícios construtivos no imóvel dos autores',
+    );
   });
 
   it('campo não achado fica vazio e entra em "missing"; vários números geram aviso (IMP-01.2)', () => {

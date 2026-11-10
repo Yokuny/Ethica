@@ -55,7 +55,7 @@ export function useAgendaPage() {
     handleSelectEntry: (entry: CalendarEntryRecord) =>
       entry.source === 'deadline'
         ? setPanel({ kind: 'deadline', entry })
-        : navigate({ to: '/finance/entries', search: entry.caseId ? { caseId: entry.caseId } : {} }),
+        : navigate({ to: '/finance', search: entry.caseId ? { caseId: entry.caseId } : {} }),
     closePanel: () => {
       setPanel(null);
       if (search.caseId) updateSearch((prev) => ({ ...prev, caseId: undefined }));

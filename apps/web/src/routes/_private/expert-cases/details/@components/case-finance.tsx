@@ -40,7 +40,7 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
       description={t('service_finance_description')}
       actions={
         <>
-          <AppLink to="/finance/entries" search={{ caseId: legalCase.id }}>
+          <AppLink to="/finance" search={{ caseId: legalCase.id }}>
             {t('financial_entries')}
           </AppLink>
           {canCreate && (
@@ -75,7 +75,7 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
                   <LinkListItem
                     key={item.id}
                     icon={Wallet}
-                    render={<Link to="/finance/entries" search={{ caseId: legalCase.id }} />}
+                    render={<Link to="/finance" search={{ caseId: legalCase.id }} />}
                     title={
                       item.status === 'canceled'
                         ? formatMoney(0)

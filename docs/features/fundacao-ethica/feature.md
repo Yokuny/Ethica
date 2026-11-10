@@ -95,6 +95,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-10 — Relatórios compacto e alinhado à esquerda: nome do relatório, o que ele traz logo abaixo e os botões em seguida.
 - 2026-11-10 — Relatórios ocupa toda a largura da página, sem a coluna estreita centralizada.
 - 2026-11-09 — Gestão na ordem Financeiro, Relatórios, Dashboard, Prospecção (AD-211).
 - 2026-11-09 — Menu lateral com o grupo Cadastros (Partes, Varas e comarcas), Prospecção em Gestão e maleta como ícone de Serviços (AD-209).

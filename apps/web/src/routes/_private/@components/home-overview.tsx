@@ -31,7 +31,7 @@ export function HomeOverview({ stats, summary }: { stats?: ListStats; summary?: 
           label={t('receivable')}
           value={formatMoney(summary.receivableCents)}
           hint={summary.lateCents ? `${formatMoney(summary.lateCents)} ${t('overdue')}` : undefined}
-          render={<Link to="/finance/entries" search={{ state: 'expected' }} />}
+          render={<Link to="/finance" search={{ state: 'expected' }} />}
         />
       )}
     </RecordStats>

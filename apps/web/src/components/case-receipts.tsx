@@ -41,7 +41,7 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
               <LinkListItem
                 key={fee.id}
                 icon={Wallet}
-                render={<Link to="/finance/entries" search={{ caseId }} />}
+                render={<Link to="/finance" search={{ caseId }} />}
                 title={formatMoney(fee.amountCents)}
                 badges={<Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>}
                 description={`${fee.description} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}

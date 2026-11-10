@@ -8,7 +8,7 @@ import type { TransactionPanel, TransactionsSearch } from '../@interface/transac
 
 export function useTransactionsPage() {
   const search = useSearch({ strict: false }) as TransactionsSearch;
-  const navigate = useNavigate({ from: '/finance/entries/' });
+  const navigate = useNavigate({ from: '/finance/' });
   const queryClient = useQueryClient();
   const updateMutation = useMutation(updateTransactionMutation(queryClient));
   const [panel, setPanel] = useState<TransactionPanel>(null);

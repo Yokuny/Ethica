@@ -1756,6 +1756,12 @@
       "decisao": "Abaixo do mapa do Campo, duas colunas (empilhadas no celular): à esquerda o Custo de deslocamento num cartão com título pequeno e ícone, mes",
       "data": "2026-11-09",
       "status": "active"
+    },
+    {
+      "id": "AD-215",
+      "decisao": "O Financeiro passa a ser só a lista de lançamentos (receitas e despesas), aberta direto em `/finance`, sem a página de entrada com dois cart",
+      "data": "2026-11-10",
+      "status": "active"
     }
   ]
 }

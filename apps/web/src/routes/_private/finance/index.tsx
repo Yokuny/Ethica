@@ -1,49 +1,94 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { BarChart3, FileText, ListChecks, Receipt, Wallet } from 'lucide-react';
-import { HubIllustration } from '@/components/hub-illustration.js';
-import { LinkCard, LinkCardList } from '@/components/link-card.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
-import { PageIntro } from '@/components/page-intro.js';
+import { Button } from '@ethica/ui/components/button';
+import { useQuery } from '@tanstack/react-query';
+import { createFileRoute } from '@tanstack/react-router';
+import { DataTable } from '@/components/data-table.js';
+import { DefaultEmptyData } from '@/components/default-empty-data.js';
+import { DefaultLoading } from '@/components/default-loading.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { can, sessionQuery } from '@/query/session.js';
+import { transactionsQuery } from '@/query/transaction.js';
+import { PaymentForm } from './@components/payment-form.js';
+import { ReceiptForm } from './@components/receipt-form.js';
+import { TransactionForm } from './@components/transaction-form.js';
+import { TransactionsFilters } from './@components/transactions-filters.js';
+import { TransactionsTable } from './@components/transactions-table.js';
+import { useTransactionsPage } from './@hooks/use-transactions-page.js';
+import { type TransactionsSearch, transactionsSearchSchema } from './@interface/transactions.interface.js';
 
-// Module hub: intro + one card per destination.
-export function FinanceIndexPage() {
+// Finance is the list of income and expense entries; the totals and charts live in the Dashboard.
+export function TransactionsIndexPage() {
+  const {
+    search,
+    update,
+    panel,
+    setPanel,
+    handlePaginationChange,
+    sorting,
+    handleSortingChange,
+    setStatus,
+    activeFilters,
+    clearFilters,
+  } = useTransactionsPage();
+  const query = useQuery(transactionsQuery(search));
+  const session = useQuery(sessionQuery).data;
+  const items = query.data?.items ?? [];
+  const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
+
   return (
     <Card asPage>
-      <CardHeader title={t('finance')} />
-      <CardContent className="max-w-4xl gap-8">
-        <PageIntro
-          title={t('finance')}
-          description={t('fees_receivable_and_operating_expenses')}
-          illustration={<HubIllustration icon={Wallet} />}
-          heading={t('know_what_to_pay_and_receive')}
-          text={t('finance_hub_text')}
-          features={[
-            { icon: Receipt, label: t('fees') },
-            { icon: ListChecks, label: t('partial_payments') },
-            { icon: BarChart3, label: t('cash_flow') },
-          ]}
-        />
-        <LinkCardList>
-          <LinkCard
-            icon={FileText}
-            title={t('entries')}
-            meta={[t('receivable_and_expenses')]}
-            render={<Link to="/finance/entries" />}
-          />
-          <LinkCard
-            icon={BarChart3}
-            title={t('reports')}
-            meta={[t('cash_flow'), t('by_category')]}
-            render={<Link to="/finance/reports" />}
-          />
-        </LinkCardList>
+      <CardHeader title={t('finance')} description={t('receivable_and_expenses')}>
+        {session && can(session, 'finance', 'create') && (
+          <CardAction>
+            <Button onClick={() => setPanel({ kind: 'create' })}>{t('add')}</Button>
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardContent>
+        <DataTable toolbar={<TransactionsFilters search={search} onChange={update} />}>
+          {query.isLoading ? (
+            <DefaultLoading />
+          ) : query.isError ? (
+            <DefaultEmptyData
+              title={t('load_error')}
+              action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
+            />
+          ) : !items.length ? (
+            activeFilters ? (
+              <DefaultEmptyData
+                title={t('no_records_match_filters')}
+                action={<Button onClick={clearFilters}>{t('clear_filters')}</Button>}
+              />
+            ) : (
+              <DefaultEmptyData title={t('no_entries_yet')} description={t('use_add_to_create_first')} />
+            )
+          ) : (
+            <TransactionsTable
+              data={items}
+              pageCount={pageCount}
+              pageIndex={search.page - 1}
+              pageSize={search.limit}
+              onPaginationChange={handlePaginationChange}
+              sorting={sorting}
+              onSortingChange={handleSortingChange}
+              onRowClick={(transaction) => setPanel({ kind: 'edit', transaction })}
+              onStatus={setStatus}
+              onReceive={(transaction) => setPanel({ kind: 'receive', transaction })}
+              onPay={(transaction) => setPanel({ kind: 'pay', transaction })}
+            />
+          )}
+        </DataTable>
       </CardContent>
+      {panel?.kind === 'create' && <TransactionForm onClose={() => setPanel(null)} />}
+      {panel?.kind === 'edit' && <TransactionForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'receive' && <ReceiptForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'pay' && <PaymentForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
     </Card>
   );
 }
 
 export const Route = createFileRoute('/_private/finance/')({
-  component: FinanceIndexPage,
+  component: TransactionsIndexPage,
   staticData: { title: t('finance') },
+  validateSearch: (search: Record<string, unknown>): TransactionsSearch => transactionsSearchSchema.parse(search),
 });

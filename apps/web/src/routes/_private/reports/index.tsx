@@ -28,7 +28,7 @@ const REPORTS = [
 
 const FINANCE_CONTENTS = ['income_expense_and_net_balance', 'receivable_and_payable', 'expected_balance_of_period'];
 
-// One report per row (AD-211): icon and name, what the PDF brings, and the actions on the right.
+// One report per block, left aligned (AD-211): icon and name, what the PDF brings below it, then the actions.
 function ReportRow({
   icon: Icon,
   title,
@@ -43,8 +43,8 @@ function ReportRow({
   children?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-4 border-border border-b pb-6 md:grid-cols-3">
-      <div className="flex items-center gap-4">
+    <div className="grid gap-2 border-border border-b pb-5">
+      <div className="flex items-center gap-3">
         <Icon className="size-5 shrink-0" aria-hidden />
         <ItemTitle
           // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
@@ -54,15 +54,15 @@ function ReportRow({
           {t(title)}
         </ItemTitle>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-0.5 pl-8">
         {contents.map((key) => (
           <ItemDescription key={key} className="line-clamp-none text-sm">
             {t(key)}
           </ItemDescription>
         ))}
       </div>
-      {actions && <div className="flex flex-wrap items-start gap-2 md:justify-end">{actions}</div>}
-      {children && <div className="md:col-span-3">{children}</div>}
+      {actions && <div className="flex flex-wrap gap-2 pt-2 pl-8">{actions}</div>}
+      {children && <div className="pt-2 pl-8">{children}</div>}
     </div>
   );
 }
@@ -76,7 +76,7 @@ export function ReportsPage() {
     <Card asPage>
       <CardHeader title={t('reports')} />
       <CardContent>
-        <div className="space-y-12">
+        <div className="space-y-8">
           <div className="space-y-4">
             <ItemTitle
               // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
@@ -89,7 +89,7 @@ export function ReportsPage() {
               {t('reports_page_description')}
             </ItemDescription>
           </div>
-          <div className="space-y-10">
+          <div className="space-y-5">
             {REPORTS.map((report) => (
               <ReportRow
                 key={report.path}

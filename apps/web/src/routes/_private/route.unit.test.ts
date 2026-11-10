@@ -66,7 +66,7 @@ describe('_private beforeLoad guard (FND-10/AC3)', () => {
     await expect(
       beforeLoad({ context: { queryClient }, location: { pathname: '/expert-cases/details' } }),
     ).resolves.toBeUndefined();
-    await expect(beforeLoad({ context: { queryClient }, location: { pathname: '/finance/entries' } })).rejects.toEqual({
+    await expect(beforeLoad({ context: { queryClient }, location: { pathname: '/finance' } })).rejects.toEqual({
       isRedirect: true,
       to: '/',
     });

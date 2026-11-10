@@ -14,6 +14,8 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     ...actual,
     useLocation: () => ({ pathname: '/dashboard' }),
     useMatches: () => [],
+    useSearch: () => ({ months: '6' }),
+    useNavigate: () => vi.fn(),
     useRouter: () => ({ history: { back: vi.fn() } }),
     Link: ({ to, children }: { to: string; children?: ReactNode }) => <a href={to}>{children}</a>,
   };

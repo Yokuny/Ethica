@@ -1231,6 +1231,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-215
+- **Decision**: O **Financeiro** passa a ser só a lista de lançamentos (receitas e despesas), aberta direto em `/finance`, sem a página de entrada com dois cartões. O resumo do dinheiro (a receber, atrasado, recebido e despesas do mês), o fluxo de caixa (6 ou 12 meses) e os totais por categoria saem do Financeiro e da sub-página `/finance/reports` (excluída) e vão para o **Dashboard**, visíveis só para quem vê o Financeiro (AD-137). O "Honorários a receber" da faixa do Dashboard sai, porque o resumo já mostra "A receber".
+- **Reason**: pedido da perita (2026-11-10): "a seção Financeiro será apenas a relação de lançamento de despesas e receitas".
+- **Trade-off**: links antigos para `/finance/entries` e `/finance/reports` deixam de existir; os atalhos internos (perícia, agenda, início) já apontam para `/finance`. A API continua em `/finance/entries`.
+- **Scope**: `apps/web/src/routes/_private/finance/`, `apps/web/src/routes/_private/dashboard/`.
+- **Date**: 2026-11-10
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

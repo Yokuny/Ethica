@@ -49,7 +49,7 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 - `apps/web/src/components/deadline-dialog.tsx` e `deadline-labels.ts` — leitura/ações do prazo e selos, usados por perícias e agenda.
 - `apps/web/src/routes/_private/expert-cases/@utils/case-columns.tsx` — coluna "Próximo prazo".
 - `apps/web/src/routes/_private/agenda/@components/{calendar-event,month-view,time-grid-view}.tsx` — prazos no calendário.
-- `apps/web/src/routes/_private/finance/entries/@components/{receipt-form,installments-list}.tsx` — registrar e estornar recebimentos.
+- `apps/web/src/routes/_private/finance/@components/{receipt-form,installments-list}.tsx` — registrar e estornar recebimentos.
 - `apps/web/src/routes/_private/account/@components/{account-deadline-reminder,account-calendar-feed}.tsx` — seções da conta.
 - `apps/web/src/components/case-receipts.tsx` — recebimentos da perícia nos diálogos da agenda; `canSeeFinance` em `apps/web/src/query/session.ts`.
 - `apps/web/src/query/deadline.ts` — dados de prazo.
@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-10 — Financeiro vira só a lista de lançamentos em `/finance`, sem a página de entrada nem `/finance/reports`; resumo e gráficos foram para o Dashboard (AD-215).
 - 2026-11-06 — Tela Relatórios ganha "Visualizar PDF" em cada relatório, com o download dentro da visualização; a janela é a mesma do laudo (`apps/web/src/components/pdf-preview-dialog.tsx`).
 - 2026-11-06 — Relatório financeiro usa Receita, Despesa e Saldo líquido; tabelas só com linhas horizontais, texto à esquerda e datas e valores centralizados.
 - 2026-11-06 — Campo "Data do pagamento" em despesas e receitas; quitar e receber pedem a data em vez de assumir hoje (AD-201). A lista de recebimentos volta a mostrar a data de cada um.
