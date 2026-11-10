@@ -34,7 +34,7 @@ const groups: { key: string; destinations: HomeSection['to'][]; heading: string 
   { key: 'records', destinations: ['/parties', '/court-divisions'], heading: 'records' },
   {
     key: 'management',
-    destinations: ['/prospecting', '/finance', '/dashboard', '/reports'],
+    destinations: ['/finance', '/reports', '/dashboard', '/prospecting'],
     heading: 'management',
   },
   { key: 'admin', destinations: ['/users', '/office', '/activity-log'], heading: 'settings' },

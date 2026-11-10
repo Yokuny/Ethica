@@ -73,6 +73,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-211** (2026-11-09, active) — A tela Relatórios segue o bloco de serviços que a perita enviou: título e descrição grandes numa coluna central (`max-w-2xl`) e uma linha po
+- **AD-210** (2026-11-09, active) — No Controle de OS (Escritório), os campos aparecem na ordem do padrão escolhido, numa linha, com o separador do padrão entre eles: `[SIGLA]-
 - **AD-209** (2026-11-09, active) — Menu lateral em quatro grupos além de Visão geral: Trabalho (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), Cadastros (Partes, Varas e
 - **AD-208** (2026-11-09, active) — O Campo (`/field`) ganha o período: Dia (padrão, todos os compromissos, como antes), Semana (segunda a domingo), Mês ou Ano, estes só com as
 - **AD-207** (2026-11-09, active) — Supersede, na AD-204, a lista da Biblioteca padrão: sai o modelo "Impugnação de laudo pericial trabalhista" (`standard-technical-objection`)
@@ -81,8 +83,6 @@ _Nenhum._
 - **AD-204** (2026-11-09, active) — Modelo do escritório tem área de atuação (`Template.area`, texto opcional): as chaves `labor`, `civil`, `federal` (esfera da perícia), `tech
 - **AD-203** (2026-11-09, active) — O layout do laudo da perita (anexo de 2026-11-09, laudo `ETH-2026-001`) vira o `REPORT_LAYOUT_DEFAULT`: Source Sans, entrelinha 1,15, 6 pt e
 - **AD-202** (2026-11-09, active) — O storage de produção é o bucket S3 privado `ethica-files-677296948879` na região us-east-2 (projeto da AWS na nova experiência), criado pel
-- **AD-201** (2026-11-06, active) — O dia em que o dinheiro entrou ou saiu é sempre informado, nunca presumido: "Data do pagamento" no cadastro e na edição da despesa, no novo
-- **AD-200** (2026-11-06, active) — Refina a AD-111: receita também pode ser anulada. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o
 
 ## `.specs/` sem registro em `docs/features/`
 

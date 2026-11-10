@@ -19,6 +19,10 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { serviceOrderQuery, setServiceOrderMutation } from '../@query/office.js';
 
 const thisYear = (): number => new Date().getFullYear();
+// Splits the pattern keeping each marker as its own part.
+// Ready patterns (AD-210): the suggested one (ETH-2026-001) and the number first (001-2026-ETH).
+const PATTERN_CHOICES = [SERVICE_ORDER_PATTERN_DEFAULT, '[NUMERO]-[ANO]-[SIGLA]'];
+const MARKER = /(\[SIGLA\]|\[ANO\]|\[NUMERO\])/;
 
 // NLA-01: "O escritório já tem número de controle de OS?" Yes → prefix, year and the last number used;
 // no → creates the sequence starting at 001. The next service registered gets the following number.
@@ -62,8 +66,8 @@ function ServiceOrderForm({ current }: { current: ServiceOrderSettings | null })
         })
       : undefined;
 
-  function applySuggested() {
-    form.setValue('pattern', SERVICE_ORDER_PATTERN_DEFAULT, { shouldDirty: true });
+  function applyPattern(choice: string) {
+    form.setValue('pattern', choice, { shouldDirty: true });
     form.setValue('digits', 3, { shouldDirty: true });
   }
 
@@ -96,16 +100,46 @@ function ServiceOrderForm({ current }: { current: ServiceOrderSettings | null })
   return (
     <Form {...form}>
       <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-start gap-4">
-        <div className="grid w-full gap-4 sm:grid-cols-3">
-          {withPrefix && (
-            <TextField control={control} name="prefix" label={t('service_order_prefix')} placeholder="ETH" />
-          )}
-          {withYear && (
-            <NumberField control={control} name="year" label={t('year')} placeholder={String(thisYear())} min={2000} />
-          )}
-          {hasControl && (
-            <NumberField control={control} name="last" label={t('last_service_order_number')} placeholder="0" min={0} />
-          )}
+        {/* The fields in the order of the pattern (AD-210): [SIGLA]-[ANO]-[NUMERO] or [NUMERO]-[ANO]-[SIGLA]. */}
+        <div className="flex w-full items-end gap-2">
+          {pattern.split(MARKER).map((part, index) => {
+            const key = `${index}${part}`;
+            if (part === '[SIGLA]')
+              return (
+                <div key={key} className="min-w-0 flex-1">
+                  <TextField control={control} name="prefix" label={t('service_order_prefix')} placeholder="ETH" />
+                </div>
+              );
+            if (part === '[ANO]')
+              return (
+                <div key={key} className="min-w-0 flex-1">
+                  <NumberField
+                    control={control}
+                    name="year"
+                    label={t('year')}
+                    placeholder={String(thisYear())}
+                    min={2000}
+                  />
+                </div>
+              );
+            if (part === '[NUMERO]')
+              return hasControl ? (
+                <div key={key} className="min-w-0 flex-1">
+                  <NumberField
+                    control={control}
+                    name="last"
+                    label={t('last_service_order_number')}
+                    placeholder="0"
+                    min={0}
+                  />
+                </div>
+              ) : null;
+            return part.trim() ? (
+              <ItemTitle key={key} className="shrink-0 pb-2.5 text-muted-foreground">
+                {part.trim()}
+              </ItemTitle>
+            ) : null;
+          })}
         </div>
         {customizing && (
           <div className="grid w-full gap-4 rounded-lg border p-4">
@@ -126,10 +160,13 @@ function ServiceOrderForm({ current }: { current: ServiceOrderSettings | null })
             {!withYear && (
               <ItemDescription className="line-clamp-none">{t('service_order_without_year_hint')}</ItemDescription>
             )}
-            <div>
-              <Button type="button" variant="outline" onClick={applySuggested}>
-                {t('use_suggested_pattern')}
-              </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <ItemDescription>{t('service_order_ready_patterns')}</ItemDescription>
+              {PATTERN_CHOICES.map((choice) => (
+                <Button key={choice} type="button" variant="outline" onClick={() => applyPattern(choice)}>
+                  {choice}
+                </Button>
+              ))}
             </div>
           </div>
         )}

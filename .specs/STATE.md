@@ -1191,6 +1191,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-210
+- **Decision**: No Controle de OS (Escritório), os campos aparecem na **ordem do padrão** escolhido, numa linha, com o separador do padrão entre eles: `[SIGLA]-[ANO]-[NUMERO]` mostra Sigla – Ano – Último número usado; `[NUMERO]-[ANO]-[SIGLA]` mostra Último número – Ano – Sigla. Marcador fora do padrão some, como antes. Em "Personalizar padrão da OS", "Padrões prontos" troca o antigo "Usar o padrão sugerido" por um botão para cada um dos dois padrões; o texto livre do padrão continua.
+- **Reason**: pedido da perita (2026-11-09).
+- **Trade-off**: nenhum; o número salvo e a sequência não mudam.
+- **Scope**: `apps/web/src/routes/_private/_admin/office/@components/office-service-order.tsx`.
+- **Date**: 2026-11-09
+- **Status**: active
+
+### AD-211
+- **Decision**: A tela Relatórios segue o bloco de serviços que a perita enviou: título e descrição grandes numa coluna central (`max-w-2xl`) e uma linha por relatório, separada por traço, com ícone e nome, o que o PDF traz (três linhas curtas) e os botões Visualizar PDF e Gerar PDF à direita; o financeiro mostra as datas De/Até e os botões embaixo da linha. Supersede, na AD-209, a ordem de Gestão: Financeiro, Relatórios, Dashboard, Prospecção (menu e cartões do Início).
+- **Reason**: pedido da perita (2026-11-09).
+- **Trade-off**: nenhum; os PDFs são os mesmos.
+- **Scope**: `apps/web/src/routes/_private/reports/index.tsx`, `apps/web/src/routes/_private/@components/workspace-navigation.tsx`, `apps/web/src/routes/_private/@consts/home-sections.ts`.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

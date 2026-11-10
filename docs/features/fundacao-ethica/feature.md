@@ -95,6 +95,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — Gestão na ordem Financeiro, Relatórios, Dashboard, Prospecção (AD-211).
 - 2026-11-09 — Menu lateral com o grupo Cadastros (Partes, Varas e comarcas), Prospecção em Gestão e maleta como ícone de Serviços (AD-209).
 - 2026-11-06 — Falha intermitente da suíte resolvida (AD-198): os testes falavam com outro programa da máquina na mesma porta, não com a API. Não era defeito do sistema; a sequência da OS e o `service_order_taken` não tinham relação. Qual programa ocupava a porta nas rodadas antigas não foi identificado.
 - 2026-11-05 — Skill `monorepo-architecture`: a arquitetura deste monorepo (pacotes compartilhados, API em módulos com camada de service e eventos, web com camada global) escrita como documento portátil, para levar a outro projeto e chegar no mesmo resultado. É autossuficiente: traz o código-base, os testes que travam as fronteiras e o roteiro para aplicar do zero ou num MVP existente, sem citar o Ethica nem este harness (`.agents/skills/monorepo-architecture/SKILL.md`). Substitui no mesmo dia a primeira versão (`ethica-architecture`), que apontava para arquivos e skills daqui e não servia fora do repo. Junto: `docs/architecture.md` e `apps/api/CLAUDE.md` alinhados ao código (módulo `documents`, evento `agenda:entries_synced`, guarda de tela pela matriz de permissões) e a mensagem de início de sessão passa a citar a skill `ethica-docs` (trazia o nome do projeto anterior).

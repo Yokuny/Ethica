@@ -79,6 +79,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-09 — Campos do Controle de OS na ordem do padrão escolhido e botões para os padrões [SIGLA]-[ANO]-[NUMERO] e [NUMERO]-[ANO]-[SIGLA] (AD-210).
 - 2026-11-03 — Lista de laudos: no rascunho, lápis (abrir), baixar PDF e lixeira lado a lado na última coluna (substitui a lixeira no início da linha); colunas Tribunal e vara; "Atualizado em" com o nome de quem gravou por último (AD-175).
 
 - 2026-11-03 — Lista de laudos: a lixeira do rascunho passa para o início da linha (à esquerda do ícone do laudo, acinzentada e vermelha ao passar o mouse) e entra a coluna Partes, igual à da lista de serviços (autor em cima, réu embaixo). A API devolve `plaintiff`/`defendant` do resumo da perícia junto com o número (`apps/api/src/modules/documents/report.service.ts`).
