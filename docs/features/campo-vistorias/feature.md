@@ -80,6 +80,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-10 — A seção "Campo" passa a se chamar "Logística" no menu, na barra do celular e no título da tela (chave `logistics`; a rota `/field` continua). A chave `field` ("Campo") segue no mapeamento de colunas do CSV.
 - 2026-11-09 — Custo de deslocamento e lugares no trajeto no mapa em `custo-deslocamento` (AD-212, AD-213).
 - 2026-11-09 — Período no Campo: Dia, Semana, Mês e Ano (estes só com vistorias), lista abaixo do mapa em ordem de data e hora; `/inspections/day` vira `/inspections/period` (AD-208).
 - 2026-11-05 — Botões Google Maps e Waze do cartão do Campo ganham o logotipo de cada app, no mesmo tamanho dos demais ícones (`apps/web/src/routes/_private/field/@components/navigation-icons.tsx`).

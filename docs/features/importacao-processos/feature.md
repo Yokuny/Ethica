@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/pericia packages/contracts packages/db/src/
 
 ## Histórico
 
+- 2026-11-10 — A vara lida do PDF fica só com a classificação ("1ª Vara Cível", "2ª Vara do Trabalho"), sem "Órgão Julgador:", "Juízo da", comarca ou foro; "1º"/"1" viram "1ª" (`extractDivision` em `apps/api/src/modules/case/import.service.ts`).
 - 2026-11-05 — Cadastro de partes: "Filtros" abre o tipo com um clique, sem seletor (AD-193).
 - 2026-11-05 — Cadastro de partes: o tipo sai das abas e vai para "Filtros"; nome ordena pelo clique na coluna (A-Z padrão, Z-A) (AD-192).
 - 2026-11-04 — "Preencher com PDF" passa a aceitar vários PDFs numa janela em etapas, com a escolha do valor de cada campo; o ZIP saiu (AD-183, feature `preencher-pdfs`).

@@ -95,6 +95,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-10 — Relatórios ocupa toda a largura da página, sem a coluna estreita centralizada.
 - 2026-11-09 — Gestão na ordem Financeiro, Relatórios, Dashboard, Prospecção (AD-211).
 - 2026-11-09 — Menu lateral com o grupo Cadastros (Partes, Varas e comarcas), Prospecção em Gestão e maleta como ícone de Serviços (AD-209).
 - 2026-11-06 — Falha intermitente da suíte resolvida (AD-198): os testes falavam com outro programa da máquina na mesma porta, não com a API. Não era defeito do sistema; a sequência da OS e o `service_order_taken` não tinham relação. Qual programa ocupava a porta nas rodadas antigas não foi identificado.

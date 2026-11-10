@@ -19,7 +19,7 @@ export function PdfValuesStep({ pdf }: { pdf: PdfFill }) {
   ];
 
   return (
-    <div className="grid gap-4">
+    <div className="grid min-w-0 gap-4">
       <ItemDescription className="line-clamp-none">{t('choose_values_description')}</ItemDescription>
       {fields
         .filter(({ options }) => options.length)
@@ -33,15 +33,15 @@ export function PdfValuesStep({ pdf }: { pdf: PdfFill }) {
           ];
           const index = pdf.choices[field];
           return (
-            <div key={field} className="grid gap-1">
+            <div key={field} className="grid min-w-0 gap-1">
               <ItemTitle>{t(FIELD_LABEL[field])}</ItemTitle>
               <Select
                 items={items}
                 value={index === undefined ? NONE : String(index)}
                 onValueChange={(next) => pdf.choose(field, !next || next === NONE ? undefined : Number(next))}
               >
-                <SelectTrigger className="w-full" aria-label={t(FIELD_LABEL[field])}>
-                  <SelectValue />
+                <SelectTrigger className="w-full min-w-0" aria-label={t(FIELD_LABEL[field])}>
+                  <SelectValue className="min-w-0 truncate" />
                 </SelectTrigger>
                 <SelectContent>
                   {items.map((item) => (

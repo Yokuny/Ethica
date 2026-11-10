@@ -886,7 +886,8 @@ const translations: Record<string, string> = {
   report_completed: 'Laudo concluído não pode ser alterado.',
   report_needs_section: 'O laudo precisa de ao menos uma seção.',
   report_unresolved_variables: 'Há variáveis sem valor. Preencha ou remova antes de continuar.',
-  // Campo e vistorias (AD-128 a AD-132)
+  // Logística e vistorias (AD-128 a AD-132)
+  logistics: 'Logística',
   map: 'Mapa',
   field_page_description: 'Vistorias do dia no celular, registro, fotos e mapa, mesmo sem conexão.',
   inspection_record: 'Registro da vistoria',

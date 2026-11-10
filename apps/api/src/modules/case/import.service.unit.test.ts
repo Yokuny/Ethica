@@ -83,6 +83,18 @@ Destituo o perito anterior e nomeio o engenheiro Paulo Reis em 03/02/2027.`;
     expect(draft.parties).toHaveLength(4);
   });
 
+  it.each([
+    ['Órgão Julgador: Juízo da 1ª Vara Cível da Comarca de Sapiranga', '1ª Vara Cível', 'Sapiranga'],
+    ['Juízo de Direito da 3º Vara Civel - Foro Central', '3ª Vara Civel', undefined],
+    ['2ª Vara do Trabalho de Novo Hamburgo', '2ª Vara do Trabalho', 'Novo Hamburgo'],
+    ['Juízo Substituto da 5 Vara Federal de Porto Alegre', '5ª Vara Federal', 'Porto Alegre'],
+    ['Vara de Família da Comarca de Canoas', 'Vara de Família', 'Canoas'],
+  ])('a vara fica só com a classificação: %s', (row, division, district) => {
+    const { draft } = extractMinutes(MINUTES.replace('1ª Vara do Trabalho de São Paulo', row));
+    expect(draft.division).toBe(division);
+    if (district) expect(draft.district).toBe(district);
+  });
+
   it('campo não achado fica vazio e entra em "missing"; vários números geram aviso (IMP-01.2)', () => {
     const { draft, missing, warnings } = extractMinutes(
       'Processos 0001234-56.2026.5.02.0001 e 0009999-11.2025.5.02.0002 em pauta.',

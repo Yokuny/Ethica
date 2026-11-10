@@ -36,7 +36,7 @@ export function MobileDock() {
       {/* Field (AD-128): the phone screen during the inspection; prospecting stays in the Menu. */}
       <Link to="/field" className={cn(tileClassName, pathname.startsWith('/field') && 'text-primary')}>
         <MapPinned className="size-5" />
-        {t('field')}
+        {t('logistics')}
       </Link>
       <button type="button" onClick={toggleSidebar} className={tileClassName}>
         <Menu className="size-5" />

@@ -79,7 +79,7 @@ export function FieldPage() {
 
   return (
     <Card asPage>
-      <CardHeader title={t('field')}>
+      <CardHeader title={t('logistics')}>
         <CardAction>
           <Select
             items={PERIOD_ITEMS}
@@ -166,6 +166,6 @@ export function FieldPage() {
 
 export const Route = createFileRoute('/_private/field/')({
   component: FieldPage,
-  staticData: { title: t('field') },
+  staticData: { title: t('logistics') },
   validateSearch: (search: Record<string, unknown>): FieldSearch => fieldSearchSchema.parse(search),
 });

@@ -76,7 +76,7 @@ export function ReportsPage() {
     <Card asPage>
       <CardHeader title={t('reports')} />
       <CardContent>
-        <div className="mx-auto w-full max-w-2xl space-y-12">
+        <div className="space-y-12">
           <div className="space-y-4">
             <ItemTitle
               // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children

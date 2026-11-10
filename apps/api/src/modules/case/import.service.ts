@@ -162,15 +162,22 @@ const extractParties = (rows: string[]): CasePartyInput[] => {
   return complete.at(-1) ?? headers[0] ?? [];
 };
 
+// The division is only its classification ("1ª Vara Cível", "2ª Vara do Trabalho"): without "Órgão Julgador:",
+// "Juízo da", the district or the court around it.
 const extractDivision = (rows: string[], text: string): Pick<PdfDraft, 'division' | 'district'> => {
   const labeledDistrict = text.match(/\b(?:Comarca|Foro)\s+(?:de|da|do)\s+([A-ZÀ-Ú][^\n,–-]*)/)?.[1]?.trim();
   const row = rows.find((l) => /\bVara\b/i.test(l) && l.length <= 120);
   if (!row) return { district: labeledDistrict };
+  const ordinal = row.match(/(\d+)\s*[ªº°a]?\s*(Vara\b.*)$/i);
+  const division = (ordinal ? `${ordinal[1]}ª ${ordinal[2]}` : row.slice(row.search(/\bVara\b/i)))
+    .replace(/\s+(?:da\s+Comarca|do\s+Foro|da\s+Subse[çc][ãa]o|da\s+Circunscri[çc][ãa]o)\b.*$/i, '')
+    .replace(/\s+[-–].*$/, '')
+    .trim();
   // "1ª Vara do Trabalho de São Paulo" → division "1ª Vara do Trabalho", district "São Paulo".
-  const separada = row.match(/^(.*\bVara\b.*?(?:Trabalho|Federal|C[íi]vel|Criminal)[^\n]*?)\s+de\s+([A-ZÀ-Ú][^\n]*)$/);
-  return separada
-    ? { division: separada[1]?.trim(), district: labeledDistrict ?? separada[2]?.trim() }
-    : { division: row.replace(/\s+da\s+Comarca\s+de\s+.*$/i, '').trim(), district: labeledDistrict };
+  const separated = division.match(/^(.*?\bVara\b.*?(?:Trabalho|Federal|C[íi]vel|Criminal))\s+de\s+([A-ZÀ-Ú].*)$/);
+  return separated
+    ? { division: separated[1]?.trim(), district: labeledDistrict ?? separated[2]?.trim() }
+    : { division, district: labeledDistrict };
 };
 
 const extractSubject = (text: string): string | undefined => {

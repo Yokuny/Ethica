@@ -40,7 +40,7 @@ export const HOME_SECTIONS = [
   },
   {
     to: '/field',
-    titleKey: 'field',
+    titleKey: 'logistics',
     descriptionKey: 'field_page_description',
     icon: MapPinned,
     access: 'agenda',

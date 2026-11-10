@@ -50,4 +50,5 @@ pnpm vitest run apps/web/src/routes/_private/expert-cases/add apps/api/src/modul
 
 ## Histórico
 
+- 2026-11-10 — Escolher valores sem rolagem lateral: o valor longo (com o nome do arquivo) é cortado com reticências dentro do seletor, e os botões ficam à vista.
 - 2026-11-04 — Criada (AD-183); substitui o "Preencher com PDF ou ZIP" de `importacao-processos`.
