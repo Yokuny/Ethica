@@ -5,7 +5,7 @@ descricao: Custo de deslocamento da rota do Campo lançado como despesa numa OS 
 data: 2026-11-09
 status: concluido
 areas: [apps/web, packages/ui]
-decisoes: [AD-212, AD-213]
+decisoes: [AD-212, AD-213, AD-214]
 spec: [.specs/features/custo-deslocamento]
 branches: [main]
 ---
@@ -21,7 +21,8 @@ branches: [main]
 
 - **Custo de deslocamento** abaixo do mapa do Campo: quilometragem total (vem da rota do mapa, editável), média km/L, combustível (R$/L) e pedágios; mostra litros, combustível, pedágios, total e custo por km. "Incluir a volta ao ponto de partida" aparece depois de "Partir da minha localização".
 - **Lançar como despesa** (quem lança no Financeiro): "Em uma OS" (escolhe o serviço) ou "Dividir entre OS" (partes iguais entre os serviços marcados da rota). Cada OS recebe uma despesa "Deslocamento" a pagar, vencendo hoje.
-- **Lugares no trajeto**: restaurante, hotel, pousada, borracharia ou oficina mecânica até 2 km da rota, marcados no mapa e listados com Google Maps e Waze.
+- **Duas colunas** abaixo do mapa: Custo de deslocamento à esquerda e **Apoio no trajeto** à direita (AD-214).
+- **Apoio no trajeto**: etiquetas de restaurante, hotel, pousada, borracharia, oficina mecânica e posto de combustível, distância de 1, 2 ou 5 km da rota e "Buscar no trajeto"; os lugares saem no mapa e na lista com Google Maps e Waze. "Procurar também no Google Maps" abre a busca de cada tipo no meio do caminho ou perto do destino.
 
 ## Por que
 
@@ -45,8 +46,10 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Pendências
 
+- [ ] Confirmar a busca ao vivo do formato novo quando o servidor público do OpenStreetMap voltar a aceitar (AD-214).
 - [ ] Guardar os dados do veículo no aparelho, se a perita pedir.
 
 ## Histórico
 
+- 2026-11-09 — Custo à esquerda e Apoio no trajeto à direita, com tipos em etiquetas, posto de combustível, distância, busca no clique e links do Google Maps; consulta mais leve com espelho (AD-214).
 - 2026-11-09 — Implementado CDE-01 a CDE-04 (AD-212, AD-213); conferido na tela local (km da rota, cálculo, lançamento numa OS, restaurantes no trajeto). Achado na conferência: a lista de lugares vazia recriada a cada desenho fazia o mapa recarregar sem parar; corrigido.

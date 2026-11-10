@@ -1223,6 +1223,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-09
 - **Status**: active
 
+### AD-214
+- **Decision**: Abaixo do mapa do Campo, duas colunas (empilhadas no celular): à esquerda o **Custo de deslocamento** num cartão com título pequeno e ícone, mesmos campos (em duas colunas), resultado e lançamento; à direita o **Apoio no trajeto**: tipos como etiquetas que ligam e desligam (restaurante, hotel, pousada, borracharia, oficina mecânica e posto de combustível; os cinco primeiros ligados), distância da rota (1, 2 ou 5 km) e "Buscar no trajeto" (a busca só corre no clique); resultados com ícone do tipo, endereço e atalhos para Google Maps e Waze, também marcados no mapa; e "Procurar também no Google Maps" com os links "meio do caminho" e "perto do destino" para cada tipo. Supersede, na AD-213, a forma da consulta: uma busca ao longo da linha da rota (até 40 pontos) por chave de etiqueta do OpenStreetMap, no máximo três, em vez de uma por ponto e tipo; cada servidor tem 45 s e, se o principal falhar, tenta o espelho `overpass.kumi.systems`.
+- **Reason**: pedido da perita (2026-11-09), com uma imagem de referência: manter o custo à esquerda e incluir o apoio no trajeto à direita.
+- **Trade-off**: os servidores públicos do OpenStreetMap limitam o uso por endereço; na conferência o principal passou a recusar depois de buscas pesadas e o espelho demorou além de 45 s, então a busca ao vivo do formato novo não foi confirmada (o formato da consulta é coberto por teste). Os links do Google Maps funcionam sempre.
+- **Scope**: `apps/web/src/routes/_private/field/@components/{route-places,travel-cost,field-map}.tsx`, `apps/web/src/routes/_private/field/@utils/route-places.ts`.
+- **Date**: 2026-11-09
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

@@ -38,7 +38,8 @@
       ],
       "decisoes": [
         "AD-212",
-        "AD-213"
+        "AD-213",
+        "AD-214"
       ],
       "spec": [
         ".specs/features/custo-deslocamento"
@@ -1747,6 +1748,12 @@
     {
       "id": "AD-213",
       "decisao": "\"Lugares no trajeto\" no mapa do Campo: restaurante, hotel, pousada, borracharia e oficina mecânica até 2 km da rota, consultados direto do n",
+      "data": "2026-11-09",
+      "status": "active"
+    },
+    {
+      "id": "AD-214",
+      "decisao": "Abaixo do mapa do Campo, duas colunas (empilhadas no celular): à esquerda o Custo de deslocamento num cartão com título pequeno e ícone, mes",
       "data": "2026-11-09",
       "status": "active"
     }

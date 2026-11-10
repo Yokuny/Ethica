@@ -13,9 +13,9 @@ import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type DayInspection, geocodeMutation, sendNoticeMutation } from '@/query/inspection.js';
 import { conflictingStops, type Point, sortByProximity } from '../@utils/itinerary.js';
-import { findPlaces, type PlaceKind } from '../@utils/route-places.js';
+import { findPlaces } from '../@utils/route-places.js';
 import { MapLeaflet } from './map-leaflet.js';
-import { RoutePlaces } from './route-places.js';
+import { type PlaceSearch, RoutePlaces } from './route-places.js';
 import { TravelCost } from './travel-cost.js';
 
 // Street route on the public OSRM (AD-131) and its length in km (CDE-01); without a route, the map joins the
@@ -63,7 +63,7 @@ export function FieldMap({
   const conflicts = conflictingStops(sorted.map((item) => item.appointment.start));
   const withoutPoint = items.filter((item) => item.appointment.location && !item.appointment.coordinates);
   const [returnTrip, setReturnTrip] = useState(false);
-  const [placeKind, setPlaceKind] = useState<PlaceKind>();
+  const [placeSearch, setPlaceSearch] = useState<PlaceSearch>();
   const points = [
     ...(origin ? [origin] : []),
     ...sorted.flatMap((item) => (item.appointment.coordinates ? [item.appointment.coordinates] : [])),
@@ -79,9 +79,9 @@ export function FieldMap({
   });
   const path = itinerary.data?.path ?? points;
   const places = useQuery({
-    queryKey: ['route-places', placeKind, path],
-    queryFn: () => findPlaces(placeKind as PlaceKind, path),
-    enabled: Boolean(placeKind) && path.length > 0,
+    queryKey: ['route-places', placeSearch, path],
+    queryFn: () => findPlaces(placeSearch?.kinds ?? [], placeSearch?.radiusKm ?? 2, path),
+    enabled: Boolean(placeSearch?.kinds.length) && path.length > 0,
     retry: false,
     staleTime: Number.POSITIVE_INFINITY,
   });
@@ -175,15 +175,7 @@ export function FieldMap({
       </div>
       <MapLeaflet stops={stops} origin={origin} row={path} center={center} places={places.data} />
       {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
-      {items.length > 0 && (
-        <RoutePlaces
-          kind={placeKind}
-          onKind={setPlaceKind}
-          places={places.data}
-          isLoading={places.isLoading}
-          isError={places.isError}
-        />
-      )}
+
       {!items.length && <DefaultEmptyData title={emptyTitle} />}
       <ItemGroup variant="list">
         {sorted.map((item, index) => {
@@ -252,7 +244,20 @@ export function FieldMap({
           {t('route_by_osrm')}
         </ItemDescription>
       )}
-      {items.length > 0 && <TravelCost routeKm={itinerary.data?.km} cases={routeCases} />}
+      {items.length > 0 && (
+        // Travel cost on the left and support on the route on the right (AD-214); stacked on the phone.
+        <div className="grid items-start gap-6 pt-6 lg:grid-cols-2">
+          <TravelCost routeKm={itinerary.data?.km} cases={routeCases} />
+          <RoutePlaces
+            path={path}
+            onSearch={setPlaceSearch}
+            places={places.data}
+            searched={Boolean(placeSearch)}
+            isLoading={places.isFetching}
+            isError={places.isError}
+          />
+        </div>
+      )}
     </>
   );
 }
