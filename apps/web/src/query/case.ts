@@ -68,11 +68,11 @@ export type CasesQueryParams = {
   page?: number;
   limit?: number;
   q?: string;
-  phase?: CasePhase;
-  status?: CaseStatus;
-  courtType?: CourtType;
-  role?: 'court_expert' | 'technical_assistant';
-  serviceType?: string;
+  phase?: CasePhase[];
+  status?: CaseStatus[];
+  courtType?: CourtType[];
+  role?: ('court_expert' | 'technical_assistant')[];
+  serviceType?: string[];
   serviceOrder?: string;
   sort?: CaseListSort;
   order?: SortOrder;
@@ -102,10 +102,11 @@ export const caseKeys = {
 // Service types created by the office (AD-158), with their typed role and phases (AD-176, AD-178).
 export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; phases: string[] };
 
-const toQueryString = (params: Record<string, string | number | undefined>): string => {
+// A list filter repeats the key (`phase=a&phase=b`, FIL-03).
+const toQueryString = (params: Record<string, string | number | string[] | undefined>): string => {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params))
-    if (value !== undefined && value !== '') search.set(key, String(value));
+    for (const item of [value ?? []].flat()) if (item !== '') search.append(key, String(item));
   const qs = search.toString();
   return qs ? `?${qs}` : '';
 };

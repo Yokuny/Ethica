@@ -14,8 +14,8 @@ import { type CourtDivisionRecord, courtDivisionsQuery, deleteCourtDivisionMutat
 import { can, sessionQuery } from '@/query/session.js';
 import { CourtDivisionCard } from './@components/court-division-card.js';
 import { CourtDivisionForm } from './@components/court-division-form.js';
-import { CourtDivisionsFilters } from './@components/court-divisions-filters.js';
 import { CourtDivisionsImportDialog } from './@components/court-divisions-import-dialog.js';
+import { useCourtDivisionsFilters } from './@hooks/use-court-divisions-filters.js';
 import { type CourtDivisionsSearch, courtDivisionsSearchSchema } from './@interface/court-divisions.interface.js';
 
 // Name compared without case and accents, on the list already filtered by state and city (AD-151).
@@ -42,13 +42,14 @@ export function CourtDivisionsPage() {
   const canCreate = Boolean(session && can(session, 'court_divisions', 'create'));
   const canUpdate = Boolean(session && can(session, 'court_divisions', 'update'));
   const canDelete = Boolean(session && can(session, 'court_divisions', 'delete'));
-  const activeFilters = [search.state, search.city, search.courtType].filter(Boolean).length;
-  const filtering = activeFilters > 0 || Boolean(search.q);
+  const filtering = [search.q, search.state, search.city, search.courtType].some(Boolean);
   const items = (query.data ?? []).filter((item) => !search.q || normalize(item.name).includes(normalize(search.q)));
 
   function update(patch: Partial<CourtDivisionsSearch>) {
     navigate({ search: (prev: CourtDivisionsSearch) => ({ ...prev, ...patch }), replace: true });
   }
+
+  const filters = useCourtDivisionsFilters(search, update);
 
   return (
     <Card asPage>
@@ -64,10 +65,7 @@ export function CourtDivisionsPage() {
         )}
       </CardHeader>
       <CardContent>
-        <DataTable
-          search={{ value: search.q, onChange: (q) => update({ q }) }}
-          filters={{ content: <CourtDivisionsFilters search={search} onChange={update} />, active: activeFilters }}
-        >
+        <DataTable search={{ value: search.q, onChange: (q) => update({ q }) }} filters={{ items: filters }}>
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

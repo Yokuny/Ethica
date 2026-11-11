@@ -38,7 +38,7 @@ export const createCourtDivision = async (
 export const listCourtDivisions = (tenantId: string, query: ListCourtDivisionsQuery) =>
   courtDivisionRepository.list(tenantId, query);
 
-export const listCities = (tenantId: string, state: string) => courtDivisionRepository.cities(tenantId, state);
+export const listCities = (tenantId: string, states: string[]) => courtDivisionRepository.cities(tenantId, states);
 
 export const updateCourtDivision = async (
   tenantId: string,

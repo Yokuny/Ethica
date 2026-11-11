@@ -1255,6 +1255,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-11
 - **Status**: active
 
+### AD-218
+- **Decision**: Nas listas com vários filtros (Serviços, Varas, Diário de bordo), "Filtros" abre uma **lista com o nome de cada filtro** (e o valor aplicado ao lado); um clique mostra as opções daquele filtro no desenho enviado pela perita (busca quando há 8 ou mais, caixa de marcar, "Limpar") ou os campos dele (número de controle, período), com seta para voltar. Cada filtro de opções aceita **várias opções** (qualquer uma serve): na API a chave repete na URL (`queryListSchema`) e o banco filtra com `$in`. Supersede a parte (2) da AD-193 só no caso de vários filtros (sai o popover de seletores); filtro único segue igual.
+- **Reason**: pedido da perita (2026-11-11): o popover de seletores "está muito feio"; escolheu a lista de filtros e várias opções por filtro.
+- **Trade-off**: um clique a mais para chegar às opções; endereços antigos com um filtro em texto (`?status=x`) deixam de valer na tela.
+- **Scope**: `apps/web/src/components/data-table.tsx`, `apps/web/src/routes/_private/{expert-cases,court-divisions,_admin/activity-log}/`, `apps/api/src/modules/{case,identity}/`, `packages/contracts/src/schemas/{query-list,activityLog}.schema.ts`.
+- **Date**: 2026-11-11
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

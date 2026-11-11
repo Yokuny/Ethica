@@ -6,8 +6,8 @@ export const activityLogSearchSchema = z.object({
   limit: z.number().int().min(1).optional().default(20),
   from: z.string().optional(),
   to: z.string().optional(),
-  userId: z.string().optional(),
-  module: z.enum(ACTIVITY_LOG_MODULES).optional(),
-  action: z.enum(ACTIVITY_LOG_ACTIONS).optional(),
+  userId: z.array(z.string()).optional(),
+  module: z.array(z.enum(ACTIVITY_LOG_MODULES)).optional(),
+  action: z.array(z.enum(ACTIVITY_LOG_ACTIONS)).optional(),
 });
 export type ActivityLogSearch = z.infer<typeof activityLogSearchSchema>;

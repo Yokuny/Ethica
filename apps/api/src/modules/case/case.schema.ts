@@ -18,6 +18,7 @@ import {
   createCaseSchema,
   createMovementSchema,
   idSchema,
+  queryListSchema,
   SORT_ORDERS,
   updateCaseSchema,
 } from '@ethica/contracts';
@@ -42,12 +43,13 @@ export const listCasesQuerySchema = z
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     q: z.string().trim().max(120).optional(),
-    phase: z.enum(CASE_PHASES).optional(),
-    status: z.enum(CASE_STATUS).optional(),
-    courtType: z.enum(COURTTYPES).optional(),
+    // Option filters take several values (FIL-03): a case matching any of them.
+    phase: queryListSchema(z.enum(CASE_PHASES)),
+    status: queryListSchema(z.enum(CASE_STATUS)),
+    courtType: queryListSchema(z.enum(COURTTYPES)),
     // "Tipo" filter (AD-177): Perícia or Assistência técnica by `role`, an own type by its name.
-    role: z.enum(['court_expert', 'technical_assistant']).optional(),
-    serviceType: z.string().trim().min(1).max(80).optional(),
+    role: queryListSchema(z.enum(['court_expert', 'technical_assistant'])),
+    serviceType: queryListSchema(z.string().trim().min(1).max(80)),
     // "Número de controle" filter: any piece of the service order (OS), the number alone included.
     serviceOrder: z.string().trim().min(1).max(30).optional(),
     sort: z.enum(CASE_LIST_SORTS).default('createdAt'),

@@ -32,9 +32,9 @@ export const listActivities = async (
   withDbTiming('activityLog.listActivities', async () => {
     const filter = tenantScoped({
       Tenant: tenantId,
-      ...(query.userId ? { User: toObjectId(query.userId) } : {}),
-      ...(query.module ? { module: query.module } : {}),
-      ...(query.action ? { action: query.action } : {}),
+      ...(query.userId ? { User: { $in: query.userId.map(toObjectId) } } : {}),
+      ...(query.module ? { module: { $in: query.module } } : {}),
+      ...(query.action ? { action: { $in: query.action } } : {}),
       ...(period.from || period.to
         ? { createdAt: { ...(period.from ? { $gte: period.from } : {}), ...(period.to ? { $lt: period.to } : {}) } }
         : {}),

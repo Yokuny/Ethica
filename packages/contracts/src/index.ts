@@ -22,6 +22,7 @@ export * from './schemas/party.schema.js';
 export * from './schemas/permission.schema.js';
 export * from './schemas/prospecting.schema.js';
 export * from './schemas/provisionTenant.schema.js';
+export * from './schemas/query-list.schema.js';
 export * from './schemas/report.schema.js';
 export * from './schemas/transaction.schema.js';
 export * from './types.js';

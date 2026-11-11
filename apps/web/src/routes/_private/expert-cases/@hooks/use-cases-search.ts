@@ -31,15 +31,17 @@ export function useCasesSearch() {
     navigate({ to: '/expert-cases/details', search: { id: row.id } });
   }
 
-  const activeFilters = [
+  const hasFilters = [
+    search.q,
     search.serviceOrder,
     search.phase,
     search.status,
     search.courtType,
-    search.role ?? search.serviceType,
-    search.deliveryFrom ?? search.deliveryTo,
-  ].filter(Boolean).length;
-  const hasFilters = Boolean(search.q) || activeFilters > 0;
+    search.role,
+    search.serviceType,
+    search.deliveryFrom,
+    search.deliveryTo,
+  ].some(Boolean);
 
   function clearFilters() {
     update({
@@ -65,7 +67,6 @@ export function useCasesSearch() {
     handleSortingChange,
     handleRowClick,
     update,
-    activeFilters,
     hasFilters,
     clearFilters,
   };

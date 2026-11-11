@@ -21,9 +21,10 @@ export const activityLogQuery = (search: ActivityLogSearch) =>
   queryOptions({
     queryKey: ['activityLog', search] as const,
     queryFn: async (): Promise<{ items: Activity[]; total: number }> => {
+      // A list filter repeats the key (`module=a&module=b`, FIL-03).
       const params = new URLSearchParams(
         Object.entries(search).flatMap(([key, value]) =>
-          value === undefined || value === '' ? [] : [[key, String(value)]],
+          [value ?? []].flat().flatMap((item) => (item === '' ? [] : [[key, String(item)]])),
         ),
       );
       const res = await get<{ items: Activity[]; total: number }>(`/tenant/activity-log?${params}`);

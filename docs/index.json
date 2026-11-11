@@ -2,6 +2,27 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "filtros-lista",
+      "feature": "Filtros das listas",
+      "descricao": "Botão \"Filtros\" das listas com vários filtros vira lista de filtros com opções marcáveis, várias por filtro",
+      "data": "2026-11-11",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts"
+      ],
+      "decisoes": [
+        "AD-193",
+        "AD-218"
+      ],
+      "spec": [
+        ".specs/features/filtros-lista"
+      ],
+      "planos": [],
+      "doc": "features/filtros-lista/feature.md"
+    },
+    {
       "slug": "biblioteca-modelos",
       "feature": "Biblioteca de modelos",
       "descricao": "Modelos de laudo em Biblioteca padrão e Biblioteca do escritório por área de atuação, importar PDF ou Word e layout da perita como padrão",
@@ -1774,6 +1795,12 @@
     {
       "id": "AD-217",
       "decisao": "Escritório (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada",
+      "data": "2026-11-11",
+      "status": "active"
+    },
+    {
+      "id": "AD-218",
+      "decisao": "Nas listas com vários filtros (Serviços, Varas, Diário de bordo), \"Filtros\" abre uma lista com o nome de cada filtro (e o valor aplicado ao",
       "data": "2026-11-11",
       "status": "active"
     }

@@ -6,8 +6,8 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { ActivityLogFilters } from './@components/activity-log-filters.js';
 import { ActivityLogTable } from './@components/activity-log-table.js';
+import { useActivityLogFilters } from './@hooks/use-activity-log-filters.js';
 import { useActivityLogSearch } from './@hooks/use-activity-log-search.js';
 import { type ActivityLogSearch, activityLogSearchSchema } from './@interface/activityLog.interface.js';
 import { activityLogQuery } from './@query/activityLog.js';
@@ -15,6 +15,7 @@ import { activityLogQuery } from './@query/activityLog.js';
 // Activity log (GES-01, AD-134): who did what, admin only.
 export function ActivityLogPage() {
   const { search, update, handlePaginationChange, active } = useActivityLogSearch();
+  const filters = useActivityLogFilters(search, update);
   const query = useQuery(activityLogQuery(search));
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
@@ -23,7 +24,7 @@ export function ActivityLogPage() {
     <Card asPage>
       <CardHeader title={t('activity_log')} description={t('activity_log_page_description')} />
       <CardContent>
-        <DataTable filters={{ content: <ActivityLogFilters search={search} onChange={update} />, active }}>
+        <DataTable filters={{ items: filters }}>
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

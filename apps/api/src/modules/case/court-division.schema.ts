@@ -11,6 +11,7 @@ import {
   COURTTYPES,
   createCourtDivisionSchema,
   idSchema,
+  queryListSchema,
   updateCourtDivisionSchema,
 } from '@ethica/contracts';
 import { z } from 'zod';
@@ -23,14 +24,16 @@ export const courtDivisionIdParamSchema = z.object({ id: idSchema }).strict();
 // Without pagination: the state and city filters already narrow it down (AD-151); 500 at most.
 export const listCourtDivisionsQuerySchema = z
   .object({
-    state: z.enum(BRAZILIAN_STATES).optional(),
-    city: z.string().trim().max(120).optional(),
-    courtType: z.enum(COURTTYPES).optional(),
+    state: queryListSchema(z.enum(BRAZILIAN_STATES)),
+    city: queryListSchema(z.string().trim().min(1).max(120)),
+    courtType: queryListSchema(z.enum(COURTTYPES)),
   })
   .strict();
 export type ListCourtDivisionsQuery = z.infer<typeof listCourtDivisionsQuerySchema>;
 
-export const courtDivisionCitiesQuerySchema = z.object({ state: z.enum(BRAZILIAN_STATES) }).strict();
+export const courtDivisionCitiesQuerySchema = z
+  .object({ state: z.preprocess((value) => [value].flat(), z.array(z.enum(BRAZILIAN_STATES)).min(1)) })
+  .strict();
 
 export type CourtDivisionRecord = {
   id: string;

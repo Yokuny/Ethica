@@ -35,9 +35,9 @@ export const list = async (tenantId: string, query: ListCourtDivisionsQuery): Pr
     const docs = await CourtDivision.find(
       tenantScoped({
         Tenant: tenantId,
-        ...(query.state ? { state: query.state } : {}),
-        ...(query.city ? { city: query.city } : {}),
-        ...(query.courtType ? { courtType: query.courtType } : {}),
+        ...(query.state ? { state: { $in: query.state } } : {}),
+        ...(query.city ? { city: { $in: query.city } } : {}),
+        ...(query.courtType ? { courtType: { $in: query.courtType } } : {}),
       }),
     )
       .collation(COURT_DIVISION_COLLATION)
@@ -47,10 +47,14 @@ export const list = async (tenantId: string, query: ListCourtDivisionsQuery): Pr
     return docs.map(toRecord);
   });
 
-export const cities = async (tenantId: string, state: string): Promise<string[]> =>
+export const cities = async (tenantId: string, states: string[]): Promise<string[]> =>
   withDbTiming('courtDivision.cities', async () => {
     const result = await CourtDivision.aggregate<{ _id: string }>(
-      [{ $match: { Tenant: toObjectId(tenantId), state } }, { $group: { _id: '$city' } }, { $sort: { _id: 1 } }],
+      [
+        { $match: { Tenant: toObjectId(tenantId), state: { $in: states } } },
+        { $group: { _id: '$city' } },
+        { $sort: { _id: 1 } },
+      ],
       { collation: COURT_DIVISION_COLLATION },
     );
     return result.map((item) => item._id);

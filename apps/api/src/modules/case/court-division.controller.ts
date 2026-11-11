@@ -22,7 +22,9 @@ const json =
 export const listCourtDivisions = json((req) =>
   courtDivisionService.listCourtDivisions(tenantOf(req), req.query as unknown as ListCourtDivisionsQuery),
 );
-export const listCities = json((req) => courtDivisionService.listCities(tenantOf(req), req.query.state as string));
+export const listCities = json((req) =>
+  courtDivisionService.listCities(tenantOf(req), req.query.state as unknown as string[]),
+);
 export const createCourtDivision = json(
   (req) => courtDivisionService.createCourtDivision(tenantOf(req), req.body),
   201,

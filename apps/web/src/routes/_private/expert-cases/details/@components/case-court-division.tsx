@@ -19,7 +19,10 @@ const normalize = (text: string) =>
 // contains the case division ("1ª Vara do Trabalho" finds "1ª Vara do Trabalho de Campinas", not the 11ª).
 export function CaseCourtDivision({ legalCase }: { legalCase: CaseRecord }) {
   const { division, district } = legalCase;
-  const query = useQuery({ ...courtDivisionsQuery({ city: district }), enabled: Boolean(division && district) });
+  const query = useQuery({
+    ...courtDivisionsQuery({ city: district ? [district] : undefined }),
+    enabled: Boolean(division && district),
+  });
   const found = division && query.data?.find((item) => normalize(item.name).includes(normalize(division)));
   if (!found) return null;
 
@@ -31,7 +34,7 @@ export function CaseCourtDivision({ legalCase }: { legalCase: CaseRecord }) {
       title={t('court_division_contact')}
       description={`${found.name} · ${found.city}/${found.state}`}
       actions={
-        <AppLink to="/court-divisions" search={{ state: found.state, city: found.city }}>
+        <AppLink to="/court-divisions" search={{ state: [found.state], city: [found.city] }}>
           {t('court_divisions')}
         </AppLink>
       }

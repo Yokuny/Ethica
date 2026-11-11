@@ -9,9 +9,9 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { casesQuery, serviceOrderPreviewQuery } from '@/query/case.js';
 import { listStatsQuery } from '@/query/listStats.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { CasesFilters } from './@components/cases-filters.js';
 import { CasesOverview } from './@components/cases-overview.js';
 import { CasesTable } from './@components/cases-table.js';
+import { useCasesFilters } from './@hooks/use-cases-filters.js';
 import { useCasesSearch } from './@hooks/use-cases-search.js';
 import { type CasesSearch, casesSearchSchema } from './@interface/cases.interface.js';
 
@@ -25,7 +25,6 @@ export function CasesIndexPage() {
     handleSortingChange,
     handleRowClick,
     update,
-    activeFilters,
     hasFilters,
     clearFilters,
   } = useCasesSearch();
@@ -46,6 +45,7 @@ export function CasesIndexPage() {
       deliveryTo: search.deliveryTo,
     }),
   );
+  const filters = useCasesFilters(search, update);
   const statsQuery = useQuery(listStatsQuery('/expert-cases/stats'));
   const serviceOrder = useQuery(serviceOrderPreviewQuery).data;
   const session = useQuery(sessionQuery).data;
@@ -72,10 +72,7 @@ export function CasesIndexPage() {
       </CardHeader>
       <CasesOverview stats={statsQuery.data} serviceOrder={serviceOrder} />
       <CardContent>
-        <DataTable
-          search={{ value: searchInput, onChange: handleSearchInput }}
-          filters={{ content: <CasesFilters search={search} onChange={update} />, active: activeFilters }}
-        >
+        <DataTable filters={{ items: filters }} search={{ value: searchInput, onChange: handleSearchInput }}>
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

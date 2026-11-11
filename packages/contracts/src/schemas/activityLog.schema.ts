@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { calendarDateSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
+import { queryListSchema } from './query-list.schema.js';
 
 // Activity log (AD-134): recorded modules and actions. English keys, translated on the web (AD-113).
 export const ACTIVITY_LOG_MODULES = [
@@ -37,9 +38,9 @@ export const listActivityLogQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(20),
     from: calendarDateSchema.optional(),
     to: calendarDateSchema.optional(),
-    userId: idSchema.optional(),
-    module: z.enum(ACTIVITY_LOG_MODULES).optional(),
-    action: z.enum(ACTIVITY_LOG_ACTIONS).optional(),
+    userId: queryListSchema(idSchema),
+    module: queryListSchema(z.enum(ACTIVITY_LOG_MODULES)),
+    action: queryListSchema(z.enum(ACTIVITY_LOG_ACTIONS)),
   })
   .strict();
 export type ListActivityLogQuery = z.infer<typeof listActivityLogQuerySchema>;

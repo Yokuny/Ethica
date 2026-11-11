@@ -961,6 +961,7 @@ const translations: Record<string, string> = {
   signature_area: 'Área de assinatura',
   sign_with_finger: 'Assine com o dedo ou a caneta dentro do quadro.',
   clear: 'Limpar',
+  back: 'Voltar',
   save_signature: 'Salvar assinatura',
   paradigms: 'Paradigmas',
   no_paradigms_yet: 'Nenhum paradigma indicado.',

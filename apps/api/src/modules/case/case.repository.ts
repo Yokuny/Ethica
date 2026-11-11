@@ -293,12 +293,18 @@ export const listCases = async (
 ): Promise<{ items: CaseRecord[]; total: number }> =>
   withDbTiming('case.listCases', async () => {
     const filters = {
-      ...(query.phase ? { phase: query.phase } : {}),
-      ...(query.status ? { status: query.status } : {}),
-      ...(query.courtType ? { courtType: query.courtType } : {}),
-      // Perícia and Assistência técnica have no own type name (AD-177).
-      ...(query.role ? { role: query.role, serviceType: { $exists: false } } : {}),
-      ...(query.serviceType ? { serviceType: query.serviceType } : {}),
+      ...(query.phase ? { phase: { $in: query.phase } } : {}),
+      ...(query.status ? { status: { $in: query.status } } : {}),
+      ...(query.courtType ? { courtType: { $in: query.courtType } } : {}),
+      // "Tipo" with several values (FIL-03): Perícia and Assistência técnica have no own type name (AD-177).
+      ...(query.role || query.serviceType
+        ? {
+            $or: [
+              ...(query.role ? [{ role: { $in: query.role }, serviceType: { $exists: false } }] : []),
+              ...(query.serviceType ? [{ serviceType: { $in: query.serviceType } }] : []),
+            ],
+          }
+        : {}),
       ...(ids ? { _id: { $in: ids.map(toObjectId) } } : {}),
     };
     const skip = (query.page - 1) * query.limit;

@@ -27,7 +27,7 @@ export type CourtDivisionRecord = {
   updatedAt: string;
 };
 
-export type CourtDivisionsQueryParams = { state?: BrazilianState; city?: string; courtType?: CourtType };
+export type CourtDivisionsQueryParams = { state?: BrazilianState[]; city?: string[]; courtType?: CourtType[] };
 
 export type CourtDivisionImportResult = {
   created: number;
@@ -39,7 +39,7 @@ export const courtDivisionKeys = {
   all: ['courtDivision'] as const,
   lists: () => [...courtDivisionKeys.all, 'list'] as const,
   list: (params: CourtDivisionsQueryParams) => [...courtDivisionKeys.lists(), params] as const,
-  cities: (state: string) => [...courtDivisionKeys.all, 'cities', state] as const,
+  cities: (states: BrazilianState[]) => [...courtDivisionKeys.all, 'cities', states] as const,
 };
 
 const unwrap = <T>(res: { success: boolean; data?: T; message?: string }, fallback: string): T => {
@@ -51,17 +51,23 @@ export const courtDivisionsQuery = (params: CourtDivisionsQueryParams = {}) =>
   queryOptions({
     queryKey: courtDivisionKeys.list(params),
     queryFn: async () => {
+      // A list filter repeats the key (`state=SP&state=RJ`, FIL-03).
       const search = new URLSearchParams(
-        Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1])),
+        Object.entries(params).flatMap(([key, values]) => (values ?? []).map((value) => [key, value])),
       ).toString();
       return unwrap(await get<CourtDivisionRecord[]>(`/court-divisions${search ? `?${search}` : ''}`), 'load_error');
     },
   });
 
-export const courtDivisionCitiesQuery = (state: BrazilianState) =>
+// Cities registered in the chosen states.
+export const courtDivisionCitiesQuery = (states: BrazilianState[]) =>
   queryOptions({
-    queryKey: courtDivisionKeys.cities(state),
-    queryFn: async () => unwrap(await get<string[]>(`/court-divisions/cities?state=${state}`), 'load_error'),
+    queryKey: courtDivisionKeys.cities(states),
+    queryFn: async () =>
+      unwrap(
+        await get<string[]>(`/court-divisions/cities?${new URLSearchParams(states.map((state) => ['state', state]))}`),
+        'load_error',
+      ),
   });
 
 const refresh = (queryClient: QueryClient) => queryClient.invalidateQueries({ queryKey: courtDivisionKeys.all });
