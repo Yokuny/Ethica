@@ -503,7 +503,8 @@
         "AD-155",
         "AD-156",
         "AD-157",
-        "AD-144"
+        "AD-144",
+        "AD-219"
       ],
       "spec": [
         ".specs/features/acesso-email"
@@ -1801,6 +1802,12 @@
     {
       "id": "AD-218",
       "decisao": "Nas listas com vários filtros (Serviços, Varas, Diário de bordo), \"Filtros\" abre uma lista com o nome de cada filtro (e o valor aplicado ao",
+      "data": "2026-11-11",
+      "status": "active"
+    },
+    {
+      "id": "AD-219",
+      "decisao": "Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide",
       "data": "2026-11-11",
       "status": "active"
     }

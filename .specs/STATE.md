@@ -1263,6 +1263,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-11
 - **Status**: active
 
+### AD-219
+- **Decision**: Novo provedor de e-mail **Resend** (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvider.ts`, `fetch` direto, sem SDK). O remetente passa a ser `MAIL_FROM`, comum ao Resend e ao SMTP (sai `SMTP_FROM`). Produção exige `MAIL_FROM` e, conforme o provedor, `RESEND_API_KEY` (resend) ou `SMTP_HOST` (nodemailer). Supersede a AD-156 só na exigência de SMTP: segue obrigatório um provedor real em produção.
+- **Reason**: a Railway bloqueia SMTP no plano atual, e o acesso é só pela chave enviada ao e-mail (AD-155); HTTPS passa.
+- **Trade-off**: depende de domínio verificado no Resend; uma variável renomeada (`SMTP_FROM` → `MAIL_FROM`).
+- **Scope**: `apps/api/src/providers/mail/`, `apps/api/src/app.ts`, `apps/api/src/config/env.config.ts`, `.env.example`.
+- **Date**: 2026-11-11
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

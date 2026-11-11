@@ -75,6 +75,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-219** (2026-11-11, active) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
 - **AD-218** (2026-11-11, active) — Nas listas com vários filtros (Serviços, Varas, Diário de bordo), "Filtros" abre uma lista com o nome de cada filtro (e o valor aplicado ao
 - **AD-217** (2026-11-11, active) — Escritório (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada
 - **AD-216** (2026-11-11, active) — Relatórios vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página
@@ -84,7 +85,6 @@ _Nenhum._
 - **AD-212** (2026-11-09, active) — O mapa do Campo ganha o bloco Custo de deslocamento, todo no web: quilometragem total (preenchida com a distância da rota do OSRM, que agora
 - **AD-211** (2026-11-09, superseded by AD-216) — A tela Relatórios segue o bloco de serviços que a perita enviou: título e descrição grandes numa coluna central (`max-w-2xl`) e uma linha po
 - **AD-210** (2026-11-09, active) — No Controle de OS (Escritório), os campos aparecem na ordem do padrão escolhido, numa linha, com o separador do padrão entre eles: `[SIGLA]-
-- **AD-209** (2026-11-09, active) — Menu lateral em quatro grupos além de Visão geral: Trabalho (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), Cadastros (Partes, Varas e
 
 ## `.specs/` sem registro em `docs/features/`
 

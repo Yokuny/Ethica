@@ -63,3 +63,4 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 ## Referências
 
 - Spec (congelada): `.specs/features/producao-api/`
+- 2026-11-11 — Produção aceita o Resend como provedor de e-mail (AD-219): `MAIL_PROVIDER=resend` + `RESEND_API_KEY` + `MAIL_FROM` (ou SMTP com `SMTP_HOST` + `MAIL_FROM`).
