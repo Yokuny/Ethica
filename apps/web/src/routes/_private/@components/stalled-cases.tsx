@@ -21,7 +21,7 @@ export function StalledCasesList({ stalled }: { stalled: StalledCases }) {
           />
         ))}
       </LinkList>
-      <AppLink to="/reports" as="description">
+      <AppLink to="/reports/stalled" as="description">
         {`${stalled.total} ${t('stalled_more_than')} ${STALLED_CASE_DAYS} ${t('days')} · ${t('stalled_report_pdf')}`}
       </AppLink>
     </div>

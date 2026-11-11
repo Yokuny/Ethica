@@ -1205,7 +1205,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: nenhum; os PDFs são os mesmos.
 - **Scope**: `apps/web/src/routes/_private/reports/index.tsx`, `apps/web/src/routes/_private/@components/workspace-navigation.tsx`, `apps/web/src/routes/_private/@consts/home-sections.ts`.
 - **Date**: 2026-11-09
-- **Status**: active
+- **Status**: superseded by AD-216
 
 ### AD-212
 - **Decision**: O mapa do Campo ganha o bloco **Custo de deslocamento**, todo no web: quilometragem total (preenchida com a distância da rota do OSRM, que agora também devolve os km; editável e mantida se a perita digitar), média km/L, preço do combustível e pedágios; combustível = km ÷ km/L × preço, total = combustível + pedágios e custo por km. "Incluir a volta ao ponto de partida" fecha a rota no ponto de partida (só com "Partir da minha localização"). "Lançar como despesa" (permissão `finance:create`) cria, pela rota já existente `POST /finance/entries`, uma despesa `travel` a pagar com vencimento hoje: em uma OS escolhida ou dividida em partes iguais entre as OS marcadas da rota (o centavo que sobra fica na primeira), descrição "Deslocamento — N km (i/n)". Primitivo `RadioGroup` do shadcn entra em `packages/ui`.
@@ -1237,6 +1237,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: links antigos para `/finance/entries` e `/finance/reports` deixam de existir; os atalhos internos (perícia, agenda, início) já apontam para `/finance`. A API continua em `/finance/entries`.
 - **Scope**: `apps/web/src/routes/_private/finance/`, `apps/web/src/routes/_private/dashboard/`.
 - **Date**: 2026-11-10
+- **Status**: active
+
+### AD-216
+- **Decision**: **Relatórios** vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página própria: `/reports/deadlines` (cronograma de prazos), `/reports/stalled` (serviços parados) e `/reports/finance` (relatório financeiro, De/Até). Cada página tem o nome grande, a lista do que o PDF traz e, embaixo, Visualizar PDF e Gerar PDF (lado a lado no celular). O cartão e a página do financeiro só para quem vê o Financeiro (AD-107, AD-137): a guarda única mapeia `/reports/finance` para o módulo `finance`. Supersede a AD-211 (todas as linhas numa tela só).
+- **Reason**: pedido da perita (2026-11-11): a tela em linhas não ficava boa no celular.
+- **Trade-off**: um clique a mais até o PDF; os PDFs são os mesmos.
+- **Scope**: `apps/web/src/routes/_private/reports/`, `apps/web/src/routes/_private/@utils/home-access.ts`, `apps/web/src/routes/_private/@components/stalled-cases.tsx`.
+- **Date**: 2026-11-11
 - **Status**: active
 
 ## Handoff

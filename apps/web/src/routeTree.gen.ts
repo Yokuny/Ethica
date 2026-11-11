@@ -28,6 +28,9 @@ import { Route as PrivateDashboardIndexRouteImport } from './routes/_private/das
 import { Route as PrivateCourtDivisionsIndexRouteImport } from './routes/_private/court-divisions/index';
 import { Route as PrivateAgendaIndexRouteImport } from './routes/_private/agenda/index';
 import { Route as PrivateAccountIndexRouteImport } from './routes/_private/account/index';
+import { Route as PrivateReportsStalledIndexRouteImport } from './routes/_private/reports/stalled/index';
+import { Route as PrivateReportsFinanceIndexRouteImport } from './routes/_private/reports/finance/index';
+import { Route as PrivateReportsDeadlinesIndexRouteImport } from './routes/_private/reports/deadlines/index';
 import { Route as PrivateProspectingSearchIndexRouteImport } from './routes/_private/prospecting/search/index';
 import { Route as PrivateProspectingOpportunitiesIndexRouteImport } from './routes/_private/prospecting/opportunities/index';
 import { Route as PrivatePartiesDetailsIndexRouteImport } from './routes/_private/parties/details/index';
@@ -139,6 +142,24 @@ const PrivateAccountIndexRoute = PrivateAccountIndexRouteImport.update({
   path: '/account/',
   getParentRoute: () => PrivateRouteRoute,
 } as any);
+const PrivateReportsStalledIndexRoute =
+  PrivateReportsStalledIndexRouteImport.update({
+    id: '/reports/stalled/',
+    path: '/reports/stalled/',
+    getParentRoute: () => PrivateRouteRoute,
+  } as any);
+const PrivateReportsFinanceIndexRoute =
+  PrivateReportsFinanceIndexRouteImport.update({
+    id: '/reports/finance/',
+    path: '/reports/finance/',
+    getParentRoute: () => PrivateRouteRoute,
+  } as any);
+const PrivateReportsDeadlinesIndexRoute =
+  PrivateReportsDeadlinesIndexRouteImport.update({
+    id: '/reports/deadlines/',
+    path: '/reports/deadlines/',
+    getParentRoute: () => PrivateRouteRoute,
+  } as any);
 const PrivateProspectingSearchIndexRoute =
   PrivateProspectingSearchIndexRouteImport.update({
     id: '/prospecting/search/',
@@ -265,6 +286,9 @@ export interface FileRoutesByFullPath {
   '/parties/details/': typeof PrivatePartiesDetailsIndexRoute;
   '/prospecting/opportunities/': typeof PrivateProspectingOpportunitiesIndexRoute;
   '/prospecting/search/': typeof PrivateProspectingSearchIndexRoute;
+  '/reports/deadlines/': typeof PrivateReportsDeadlinesIndexRoute;
+  '/reports/finance/': typeof PrivateReportsFinanceIndexRoute;
+  '/reports/stalled/': typeof PrivateReportsStalledIndexRoute;
   '/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
 }
@@ -299,6 +323,9 @@ export interface FileRoutesByTo {
   '/parties/details': typeof PrivatePartiesDetailsIndexRoute;
   '/prospecting/opportunities': typeof PrivateProspectingOpportunitiesIndexRoute;
   '/prospecting/search': typeof PrivateProspectingSearchIndexRoute;
+  '/reports/deadlines': typeof PrivateReportsDeadlinesIndexRoute;
+  '/reports/finance': typeof PrivateReportsFinanceIndexRoute;
+  '/reports/stalled': typeof PrivateReportsStalledIndexRoute;
   '/users/add': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
 }
@@ -337,6 +364,9 @@ export interface FileRoutesById {
   '/_private/parties/details/': typeof PrivatePartiesDetailsIndexRoute;
   '/_private/prospecting/opportunities/': typeof PrivateProspectingOpportunitiesIndexRoute;
   '/_private/prospecting/search/': typeof PrivateProspectingSearchIndexRoute;
+  '/_private/reports/deadlines/': typeof PrivateReportsDeadlinesIndexRoute;
+  '/_private/reports/finance/': typeof PrivateReportsFinanceIndexRoute;
+  '/_private/reports/stalled/': typeof PrivateReportsStalledIndexRoute;
   '/_private/_admin/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/_private/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
 }
@@ -373,6 +403,9 @@ export interface FileRouteTypes {
     | '/parties/details/'
     | '/prospecting/opportunities/'
     | '/prospecting/search/'
+    | '/reports/deadlines/'
+    | '/reports/finance/'
+    | '/reports/stalled/'
     | '/users/add/'
     | '/expert-reports/templates/details/';
   fileRoutesByTo: FileRoutesByTo;
@@ -407,6 +440,9 @@ export interface FileRouteTypes {
     | '/parties/details'
     | '/prospecting/opportunities'
     | '/prospecting/search'
+    | '/reports/deadlines'
+    | '/reports/finance'
+    | '/reports/stalled'
     | '/users/add'
     | '/expert-reports/templates/details';
   id:
@@ -444,6 +480,9 @@ export interface FileRouteTypes {
     | '/_private/parties/details/'
     | '/_private/prospecting/opportunities/'
     | '/_private/prospecting/search/'
+    | '/_private/reports/deadlines/'
+    | '/_private/reports/finance/'
+    | '/_private/reports/stalled/'
     | '/_private/_admin/users/add/'
     | '/_private/expert-reports/templates/details/';
   fileRoutesById: FileRoutesById;
@@ -586,6 +625,27 @@ declare module '@tanstack/react-router' {
       path: '/account';
       fullPath: '/account/';
       preLoaderRoute: typeof PrivateAccountIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
+    '/_private/reports/stalled/': {
+      id: '/_private/reports/stalled/';
+      path: '/reports/stalled';
+      fullPath: '/reports/stalled/';
+      preLoaderRoute: typeof PrivateReportsStalledIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
+    '/_private/reports/finance/': {
+      id: '/_private/reports/finance/';
+      path: '/reports/finance';
+      fullPath: '/reports/finance/';
+      preLoaderRoute: typeof PrivateReportsFinanceIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
+    '/_private/reports/deadlines/': {
+      id: '/_private/reports/deadlines/';
+      path: '/reports/deadlines';
+      fullPath: '/reports/deadlines/';
+      preLoaderRoute: typeof PrivateReportsDeadlinesIndexRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
     '/_private/prospecting/search/': {
@@ -746,6 +806,9 @@ interface PrivateRouteRouteChildren {
   PrivatePartiesDetailsIndexRoute: typeof PrivatePartiesDetailsIndexRoute;
   PrivateProspectingOpportunitiesIndexRoute: typeof PrivateProspectingOpportunitiesIndexRoute;
   PrivateProspectingSearchIndexRoute: typeof PrivateProspectingSearchIndexRoute;
+  PrivateReportsDeadlinesIndexRoute: typeof PrivateReportsDeadlinesIndexRoute;
+  PrivateReportsFinanceIndexRoute: typeof PrivateReportsFinanceIndexRoute;
+  PrivateReportsStalledIndexRoute: typeof PrivateReportsStalledIndexRoute;
   PrivateExpertReportsTemplatesDetailsIndexRoute: typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
 }
 
@@ -777,6 +840,9 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateProspectingOpportunitiesIndexRoute:
     PrivateProspectingOpportunitiesIndexRoute,
   PrivateProspectingSearchIndexRoute: PrivateProspectingSearchIndexRoute,
+  PrivateReportsDeadlinesIndexRoute: PrivateReportsDeadlinesIndexRoute,
+  PrivateReportsFinanceIndexRoute: PrivateReportsFinanceIndexRoute,
+  PrivateReportsStalledIndexRoute: PrivateReportsStalledIndexRoute,
   PrivateExpertReportsTemplatesDetailsIndexRoute:
     PrivateExpertReportsTemplatesDetailsIndexRoute,
 };

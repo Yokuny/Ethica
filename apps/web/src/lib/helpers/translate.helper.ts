@@ -705,6 +705,9 @@ const translations: Record<string, string> = {
   deadline_schedule: 'Cronograma de prazos',
   stalled_cases: 'Serviços parados',
   financial_report: 'Relatório financeiro',
+  office_numbers_on_paper: 'Os números do escritório no papel',
+  management_reports_hub_text:
+    'Escolha o relatório, confira na prévia e gere o PDF com a identidade do escritório: prazos por vencimento, serviços parados e o resultado financeiro do período.',
   pending_deadlines_by_due_date: 'Prazos pendentes por vencimento',
   status_and_days_left: 'Situação e dias que faltam',
   process_of_each_deadline: 'Processo de cada prazo',

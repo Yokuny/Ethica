@@ -27,5 +27,6 @@ const MODULE_BY_SEGMENT: Record<string, PermissionModule> = {
 export function moduleFromRoute(pathname: string): PermissionModule | undefined {
   const [first, second] = pathname.split('/').filter(Boolean);
   if (first === 'expert-reports' && second === 'templates') return 'report_templates';
+  if (first === 'reports' && second === 'finance') return 'finance';
   return first ? MODULE_BY_SEGMENT[first] : undefined;
 }

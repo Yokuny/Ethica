@@ -1,128 +1,54 @@
-import { Button } from '@ethica/ui/components/button';
-import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
-import { CalendarClock, Hourglass, type LucideIcon, Wallet } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { CalendarClock, Eye, FileDown, FileText, Hourglass, Wallet } from 'lucide-react';
+import { HubIllustration } from '@/components/hub-illustration.js';
+import { LinkCard, LinkCardList } from '@/components/link-card.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
-import { PdfPreviewDialog } from '@/components/pdf-preview-dialog.js';
-import { useFileDownload } from '@/hooks/useFileDownload.js';
+import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { FinanceReportForm } from './@components/finance-report-form.js';
 
-const REPORTS = [
-  {
-    path: '/documents/deadlines',
-    title: 'deadline_schedule',
-    icon: CalendarClock,
-    contents: ['pending_deadlines_by_due_date', 'status_and_days_left', 'process_of_each_deadline'],
-  },
-  {
-    path: '/documents/stalled',
-    title: 'stalled_cases',
-    icon: Hourglass,
-    contents: ['open_over_60_days', 'phase_court_and_division', 'since_and_days_stalled'],
-  },
-] as const;
-
-const FINANCE_CONTENTS = ['income_expense_and_net_balance', 'receivable_and_payable', 'expected_balance_of_period'];
-
-// One report per block, left aligned (AD-211): icon and name, what the PDF brings below it, then the actions.
-function ReportRow({
-  icon: Icon,
-  title,
-  contents,
-  actions,
-  children,
-}: {
-  icon: LucideIcon;
-  title: string;
-  contents: readonly string[];
-  actions?: ReactNode;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="grid gap-2 border-border border-b pb-5">
-      <div className="flex items-center gap-3">
-        <Icon className="size-5 shrink-0" aria-hidden />
-        <ItemTitle
-          // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
-          render={<h3 />}
-          className="font-medium text-base"
-        >
-          {t(title)}
-        </ItemTitle>
-      </div>
-      <div className="flex flex-col gap-0.5 pl-8">
-        {contents.map((key) => (
-          <ItemDescription key={key} className="line-clamp-none text-sm">
-            {t(key)}
-          </ItemDescription>
-        ))}
-      </div>
-      {actions && <div className="flex flex-wrap gap-2 pt-2 pl-8">{actions}</div>}
-      {children && <div className="pt-2 pl-8">{children}</div>}
-    </div>
-  );
-}
-
-// DOC-03: management reports as PDF. Finance only shows up for admin/manager (AD-107).
+// DOC-03 hub: one page per management report. Finance only for who sees finance (AD-107).
 export function ReportsPage() {
-  const { data: session } = useSuspenseQuery(sessionQuery);
-  const { download, pending } = useFileDownload();
-  const [previewing, setPreviewing] = useState<string | null>(null);
+  const session = useQuery(sessionQuery).data;
   return (
     <Card asPage>
       <CardHeader title={t('reports')} />
-      <CardContent>
-        <div className="space-y-8">
-          <div className="space-y-4">
-            <ItemTitle
-              // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
-              render={<h2 />}
-              className="font-semibold text-xl tracking-tight md:text-3xl"
-            >
-              {t('reports')}
-            </ItemTitle>
-            <ItemDescription className="line-clamp-none text-lg tracking-tight md:text-xl">
-              {t('reports_page_description')}
-            </ItemDescription>
-          </div>
-          <div className="space-y-5">
-            {REPORTS.map((report) => (
-              <ReportRow
-                key={report.path}
-                icon={report.icon}
-                title={report.title}
-                contents={report.contents}
-                actions={
-                  <>
-                    <Button variant="outline" onClick={() => setPreviewing(report.path)}>
-                      {t('preview_pdf')}
-                    </Button>
-                    <Button disabled={pending === report.path} onClick={() => download(report.path)}>
-                      {t('generate_pdf')}
-                    </Button>
-                  </>
-                }
-              />
-            ))}
-            {can(session, 'finance') && (
-              <ReportRow icon={Wallet} title="financial_report" contents={FINANCE_CONTENTS}>
-                <FinanceReportForm />
-              </ReportRow>
-            )}
-          </div>
-        </div>
+      <CardContent className="max-w-4xl gap-8">
+        <PageIntro
+          title={t('reports')}
+          description={t('reports_page_description')}
+          illustration={<HubIllustration icon={FileText} />}
+          heading={t('office_numbers_on_paper')}
+          text={t('management_reports_hub_text')}
+          features={[
+            { icon: Eye, label: t('preview_pdf') },
+            { icon: FileDown, label: t('generate_pdf') },
+          ]}
+        />
+        <LinkCardList>
+          <LinkCard
+            icon={CalendarClock}
+            title={t('deadline_schedule')}
+            meta={[t('pending_deadlines_by_due_date')]}
+            render={<Link to="/reports/deadlines" />}
+          />
+          <LinkCard
+            icon={Hourglass}
+            title={t('stalled_cases')}
+            meta={[t('open_over_60_days')]}
+            render={<Link to="/reports/stalled" />}
+          />
+          {session && can(session, 'finance') && (
+            <LinkCard
+              icon={Wallet}
+              title={t('financial_report')}
+              meta={[t('income_expense_and_net_balance')]}
+              render={<Link to="/reports/finance" />}
+            />
+          )}
+        </LinkCardList>
       </CardContent>
-      {previewing && (
-        <PdfPreviewDialog path={previewing} onClose={() => setPreviewing(null)}>
-          <Button disabled={pending === previewing} onClick={() => download(previewing)}>
-            {t('generate_pdf')}
-          </Button>
-        </PdfPreviewDialog>
-      )}
     </Card>
   );
 }

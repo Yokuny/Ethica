@@ -649,7 +649,8 @@
         "AD-120",
         "AD-121",
         "AD-122",
-        "AD-172"
+        "AD-172",
+        "AD-216"
       ],
       "spec": [
         ".specs/features/documentos-pdf"
@@ -1737,7 +1738,7 @@
       "id": "AD-211",
       "decisao": "A tela Relatórios segue o bloco de serviços que a perita enviou: título e descrição grandes numa coluna central (`max-w-2xl`) e uma linha po",
       "data": "2026-11-09",
-      "status": "active"
+      "status": "superseded by AD-216"
     },
     {
       "id": "AD-212",
@@ -1761,6 +1762,12 @@
       "id": "AD-215",
       "decisao": "O Financeiro passa a ser só a lista de lançamentos (receitas e despesas), aberta direto em `/finance`, sem a página de entrada com dois cart",
       "data": "2026-11-10",
+      "status": "active"
+    },
+    {
+      "id": "AD-216",
+      "decisao": "Relatórios vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página",
+      "data": "2026-11-11",
       "status": "active"
     }
   ]

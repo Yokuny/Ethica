@@ -74,16 +74,16 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-216** (2026-11-11, active) — Relatórios vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página
 - **AD-215** (2026-11-10, active) — O Financeiro passa a ser só a lista de lançamentos (receitas e despesas), aberta direto em `/finance`, sem a página de entrada com dois cart
 - **AD-214** (2026-11-09, active) — Abaixo do mapa do Campo, duas colunas (empilhadas no celular): à esquerda o Custo de deslocamento num cartão com título pequeno e ícone, mes
 - **AD-213** (2026-11-09, active) — "Lugares no trajeto" no mapa do Campo: restaurante, hotel, pousada, borracharia e oficina mecânica até 2 km da rota, consultados direto do n
 - **AD-212** (2026-11-09, active) — O mapa do Campo ganha o bloco Custo de deslocamento, todo no web: quilometragem total (preenchida com a distância da rota do OSRM, que agora
-- **AD-211** (2026-11-09, active) — A tela Relatórios segue o bloco de serviços que a perita enviou: título e descrição grandes numa coluna central (`max-w-2xl`) e uma linha po
+- **AD-211** (2026-11-09, superseded by AD-216) — A tela Relatórios segue o bloco de serviços que a perita enviou: título e descrição grandes numa coluna central (`max-w-2xl`) e uma linha po
 - **AD-210** (2026-11-09, active) — No Controle de OS (Escritório), os campos aparecem na ordem do padrão escolhido, numa linha, com o separador do padrão entre eles: `[SIGLA]-
 - **AD-209** (2026-11-09, active) — Menu lateral em quatro grupos além de Visão geral: Trabalho (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), Cadastros (Partes, Varas e
 - **AD-208** (2026-11-09, active) — O Campo (`/field`) ganha o período: Dia (padrão, todos os compromissos, como antes), Semana (segunda a domingo), Mês ou Ano, estes só com as
 - **AD-207** (2026-11-09, active) — Supersede, na AD-204, a lista da Biblioteca padrão: sai o modelo "Impugnação de laudo pericial trabalhista" (`standard-technical-objection`)
-- **AD-206** (2026-11-09, active) — No laudo e no parecer (PDF e Word), quando o escritório (ou o responsável técnico do laudo) não escreveu cabeçalho ou rodapé próprio em Escr
 
 ## `.specs/` sem registro em `docs/features/`
 
