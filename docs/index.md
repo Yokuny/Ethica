@@ -74,6 +74,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-217** (2026-11-11, active) — Escritório (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada
 - **AD-216** (2026-11-11, active) — Relatórios vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página
 - **AD-215** (2026-11-10, active) — O Financeiro passa a ser só a lista de lançamentos (receitas e despesas), aberta direto em `/finance`, sem a página de entrada com dois cart
 - **AD-214** (2026-11-09, active) — Abaixo do mapa do Campo, duas colunas (empilhadas no celular): à esquerda o Custo de deslocamento num cartão com título pequeno e ícone, mes
@@ -83,7 +84,6 @@ _Nenhum._
 - **AD-210** (2026-11-09, active) — No Controle de OS (Escritório), os campos aparecem na ordem do padrão escolhido, numa linha, com o separador do padrão entre eles: `[SIGLA]-
 - **AD-209** (2026-11-09, active) — Menu lateral em quatro grupos além de Visão geral: Trabalho (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), Cadastros (Partes, Varas e
 - **AD-208** (2026-11-09, active) — O Campo (`/field`) ganha o período: Dia (padrão, todos os compromissos, como antes), Semana (segunda a domingo), Mês ou Ano, estes só com as
-- **AD-207** (2026-11-09, active) — Supersede, na AD-204, a lista da Biblioteca padrão: sai o modelo "Impugnação de laudo pericial trabalhista" (`standard-technical-objection`)
 
 ## `.specs/` sem registro em `docs/features/`
 

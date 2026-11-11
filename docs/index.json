@@ -650,7 +650,8 @@
         "AD-121",
         "AD-122",
         "AD-172",
-        "AD-216"
+        "AD-216",
+        "AD-217"
       ],
       "spec": [
         ".specs/features/documentos-pdf"
@@ -1767,6 +1768,12 @@
     {
       "id": "AD-216",
       "decisao": "Relatórios vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página",
+      "data": "2026-11-11",
+      "status": "active"
+    },
+    {
+      "id": "AD-217",
+      "decisao": "Escritório (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada",
       "data": "2026-11-11",
       "status": "active"
     }

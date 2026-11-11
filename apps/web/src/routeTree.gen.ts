@@ -47,6 +47,11 @@ import { Route as PrivateAdminOfficeIndexRouteImport } from './routes/_private/_
 import { Route as PrivateAdminActivityLogIndexRouteImport } from './routes/_private/_admin/activity-log/index';
 import { Route as PrivateExpertReportsTemplatesDetailsIndexRouteImport } from './routes/_private/expert-reports/templates/details/index';
 import { Route as PrivateAdminUsersAddIndexRouteImport } from './routes/_private/_admin/users/add/index';
+import { Route as PrivateAdminOfficeSignatoriesIndexRouteImport } from './routes/_private/_admin/office/signatories/index';
+import { Route as PrivateAdminOfficeServiceOrderIndexRouteImport } from './routes/_private/_admin/office/service-order/index';
+import { Route as PrivateAdminOfficeSchedulingNoticeIndexRouteImport } from './routes/_private/_admin/office/scheduling-notice/index';
+import { Route as PrivateAdminOfficeDocumentsIndexRouteImport } from './routes/_private/_admin/office/documents/index';
+import { Route as PrivateAdminOfficeDataIndexRouteImport } from './routes/_private/_admin/office/data/index';
 
 const PublicRouteRoute = PublicRouteRouteImport.update({
   id: '/_public',
@@ -254,6 +259,36 @@ const PrivateAdminUsersAddIndexRoute =
     path: '/users/add/',
     getParentRoute: () => PrivateAdminRouteRoute,
   } as any);
+const PrivateAdminOfficeSignatoriesIndexRoute =
+  PrivateAdminOfficeSignatoriesIndexRouteImport.update({
+    id: '/office/signatories/',
+    path: '/office/signatories/',
+    getParentRoute: () => PrivateAdminRouteRoute,
+  } as any);
+const PrivateAdminOfficeServiceOrderIndexRoute =
+  PrivateAdminOfficeServiceOrderIndexRouteImport.update({
+    id: '/office/service-order/',
+    path: '/office/service-order/',
+    getParentRoute: () => PrivateAdminRouteRoute,
+  } as any);
+const PrivateAdminOfficeSchedulingNoticeIndexRoute =
+  PrivateAdminOfficeSchedulingNoticeIndexRouteImport.update({
+    id: '/office/scheduling-notice/',
+    path: '/office/scheduling-notice/',
+    getParentRoute: () => PrivateAdminRouteRoute,
+  } as any);
+const PrivateAdminOfficeDocumentsIndexRoute =
+  PrivateAdminOfficeDocumentsIndexRouteImport.update({
+    id: '/office/documents/',
+    path: '/office/documents/',
+    getParentRoute: () => PrivateAdminRouteRoute,
+  } as any);
+const PrivateAdminOfficeDataIndexRoute =
+  PrivateAdminOfficeDataIndexRouteImport.update({
+    id: '/office/data/',
+    path: '/office/data/',
+    getParentRoute: () => PrivateAdminRouteRoute,
+  } as any);
 
 export interface FileRoutesByFullPath {
   '/': typeof PrivateIndexRoute;
@@ -289,6 +324,11 @@ export interface FileRoutesByFullPath {
   '/reports/deadlines/': typeof PrivateReportsDeadlinesIndexRoute;
   '/reports/finance/': typeof PrivateReportsFinanceIndexRoute;
   '/reports/stalled/': typeof PrivateReportsStalledIndexRoute;
+  '/office/data/': typeof PrivateAdminOfficeDataIndexRoute;
+  '/office/documents/': typeof PrivateAdminOfficeDocumentsIndexRoute;
+  '/office/scheduling-notice/': typeof PrivateAdminOfficeSchedulingNoticeIndexRoute;
+  '/office/service-order/': typeof PrivateAdminOfficeServiceOrderIndexRoute;
+  '/office/signatories/': typeof PrivateAdminOfficeSignatoriesIndexRoute;
   '/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
 }
@@ -326,6 +366,11 @@ export interface FileRoutesByTo {
   '/reports/deadlines': typeof PrivateReportsDeadlinesIndexRoute;
   '/reports/finance': typeof PrivateReportsFinanceIndexRoute;
   '/reports/stalled': typeof PrivateReportsStalledIndexRoute;
+  '/office/data': typeof PrivateAdminOfficeDataIndexRoute;
+  '/office/documents': typeof PrivateAdminOfficeDocumentsIndexRoute;
+  '/office/scheduling-notice': typeof PrivateAdminOfficeSchedulingNoticeIndexRoute;
+  '/office/service-order': typeof PrivateAdminOfficeServiceOrderIndexRoute;
+  '/office/signatories': typeof PrivateAdminOfficeSignatoriesIndexRoute;
   '/users/add': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
 }
@@ -367,6 +412,11 @@ export interface FileRoutesById {
   '/_private/reports/deadlines/': typeof PrivateReportsDeadlinesIndexRoute;
   '/_private/reports/finance/': typeof PrivateReportsFinanceIndexRoute;
   '/_private/reports/stalled/': typeof PrivateReportsStalledIndexRoute;
+  '/_private/_admin/office/data/': typeof PrivateAdminOfficeDataIndexRoute;
+  '/_private/_admin/office/documents/': typeof PrivateAdminOfficeDocumentsIndexRoute;
+  '/_private/_admin/office/scheduling-notice/': typeof PrivateAdminOfficeSchedulingNoticeIndexRoute;
+  '/_private/_admin/office/service-order/': typeof PrivateAdminOfficeServiceOrderIndexRoute;
+  '/_private/_admin/office/signatories/': typeof PrivateAdminOfficeSignatoriesIndexRoute;
   '/_private/_admin/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/_private/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
 }
@@ -406,6 +456,11 @@ export interface FileRouteTypes {
     | '/reports/deadlines/'
     | '/reports/finance/'
     | '/reports/stalled/'
+    | '/office/data/'
+    | '/office/documents/'
+    | '/office/scheduling-notice/'
+    | '/office/service-order/'
+    | '/office/signatories/'
     | '/users/add/'
     | '/expert-reports/templates/details/';
   fileRoutesByTo: FileRoutesByTo;
@@ -443,6 +498,11 @@ export interface FileRouteTypes {
     | '/reports/deadlines'
     | '/reports/finance'
     | '/reports/stalled'
+    | '/office/data'
+    | '/office/documents'
+    | '/office/scheduling-notice'
+    | '/office/service-order'
+    | '/office/signatories'
     | '/users/add'
     | '/expert-reports/templates/details';
   id:
@@ -483,6 +543,11 @@ export interface FileRouteTypes {
     | '/_private/reports/deadlines/'
     | '/_private/reports/finance/'
     | '/_private/reports/stalled/'
+    | '/_private/_admin/office/data/'
+    | '/_private/_admin/office/documents/'
+    | '/_private/_admin/office/scheduling-notice/'
+    | '/_private/_admin/office/service-order/'
+    | '/_private/_admin/office/signatories/'
     | '/_private/_admin/users/add/'
     | '/_private/expert-reports/templates/details/';
   fileRoutesById: FileRoutesById;
@@ -760,6 +825,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateAdminUsersAddIndexRouteImport;
       parentRoute: typeof PrivateAdminRouteRoute;
     };
+    '/_private/_admin/office/signatories/': {
+      id: '/_private/_admin/office/signatories/';
+      path: '/office/signatories';
+      fullPath: '/office/signatories/';
+      preLoaderRoute: typeof PrivateAdminOfficeSignatoriesIndexRouteImport;
+      parentRoute: typeof PrivateAdminRouteRoute;
+    };
+    '/_private/_admin/office/service-order/': {
+      id: '/_private/_admin/office/service-order/';
+      path: '/office/service-order';
+      fullPath: '/office/service-order/';
+      preLoaderRoute: typeof PrivateAdminOfficeServiceOrderIndexRouteImport;
+      parentRoute: typeof PrivateAdminRouteRoute;
+    };
+    '/_private/_admin/office/scheduling-notice/': {
+      id: '/_private/_admin/office/scheduling-notice/';
+      path: '/office/scheduling-notice';
+      fullPath: '/office/scheduling-notice/';
+      preLoaderRoute: typeof PrivateAdminOfficeSchedulingNoticeIndexRouteImport;
+      parentRoute: typeof PrivateAdminRouteRoute;
+    };
+    '/_private/_admin/office/documents/': {
+      id: '/_private/_admin/office/documents/';
+      path: '/office/documents';
+      fullPath: '/office/documents/';
+      preLoaderRoute: typeof PrivateAdminOfficeDocumentsIndexRouteImport;
+      parentRoute: typeof PrivateAdminRouteRoute;
+    };
+    '/_private/_admin/office/data/': {
+      id: '/_private/_admin/office/data/';
+      path: '/office/data';
+      fullPath: '/office/data/';
+      preLoaderRoute: typeof PrivateAdminOfficeDataIndexRouteImport;
+      parentRoute: typeof PrivateAdminRouteRoute;
+    };
   }
 }
 
@@ -767,6 +867,11 @@ interface PrivateAdminRouteRouteChildren {
   PrivateAdminActivityLogIndexRoute: typeof PrivateAdminActivityLogIndexRoute;
   PrivateAdminOfficeIndexRoute: typeof PrivateAdminOfficeIndexRoute;
   PrivateAdminUsersIndexRoute: typeof PrivateAdminUsersIndexRoute;
+  PrivateAdminOfficeDataIndexRoute: typeof PrivateAdminOfficeDataIndexRoute;
+  PrivateAdminOfficeDocumentsIndexRoute: typeof PrivateAdminOfficeDocumentsIndexRoute;
+  PrivateAdminOfficeSchedulingNoticeIndexRoute: typeof PrivateAdminOfficeSchedulingNoticeIndexRoute;
+  PrivateAdminOfficeServiceOrderIndexRoute: typeof PrivateAdminOfficeServiceOrderIndexRoute;
+  PrivateAdminOfficeSignatoriesIndexRoute: typeof PrivateAdminOfficeSignatoriesIndexRoute;
   PrivateAdminUsersAddIndexRoute: typeof PrivateAdminUsersAddIndexRoute;
 }
 
@@ -774,6 +879,14 @@ const PrivateAdminRouteRouteChildren: PrivateAdminRouteRouteChildren = {
   PrivateAdminActivityLogIndexRoute: PrivateAdminActivityLogIndexRoute,
   PrivateAdminOfficeIndexRoute: PrivateAdminOfficeIndexRoute,
   PrivateAdminUsersIndexRoute: PrivateAdminUsersIndexRoute,
+  PrivateAdminOfficeDataIndexRoute: PrivateAdminOfficeDataIndexRoute,
+  PrivateAdminOfficeDocumentsIndexRoute: PrivateAdminOfficeDocumentsIndexRoute,
+  PrivateAdminOfficeSchedulingNoticeIndexRoute:
+    PrivateAdminOfficeSchedulingNoticeIndexRoute,
+  PrivateAdminOfficeServiceOrderIndexRoute:
+    PrivateAdminOfficeServiceOrderIndexRoute,
+  PrivateAdminOfficeSignatoriesIndexRoute:
+    PrivateAdminOfficeSignatoriesIndexRoute,
   PrivateAdminUsersAddIndexRoute: PrivateAdminUsersAddIndexRoute,
 };
 

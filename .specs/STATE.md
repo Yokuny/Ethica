@@ -1247,6 +1247,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-11
 - **Status**: active
 
+### AD-217
+- **Decision**: **Escritório** (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada assunto ganha página própria: `/office/documents` (logo, cabeçalho e rodapé), `/office/service-order` (controle de OS), `/office/signatories` (responsáveis técnicos), `/office/scheduling-notice` (aviso de agendamento) e `/office/data` (armazenamento e exportação). As páginas herdam a guarda de admin do `_admin`.
+- **Reason**: pedido da perita (2026-11-11): "faça o mesmo" de Relatórios (AD-216) para o Escritório.
+- **Trade-off**: um clique a mais até cada ajuste; logo e cabeçalho/rodapé ficam juntos, e armazenamento com exportação, por serem o mesmo assunto.
+- **Scope**: `apps/web/src/routes/_private/_admin/office/`.
+- **Date**: 2026-11-11
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.
