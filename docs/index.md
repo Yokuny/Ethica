@@ -8,7 +8,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Em andamento
 
-- [`acesso-aparelho`](features/acesso-aparelho/feature.md) — **planejado** — Entrada pelo e-mail termina criando a passkey do aparelho (um computador + um celular) e tela de entrada nova
 - [`producao-api`](features/producao-api/feature.md) — **parcial** — API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia
 - [`fundacao-ethica`](features/fundacao-ethica/feature.md) — **parcial** — Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
 - [`rotina-servico`](features/rotina-servico/feature.md) — **parcial** — Status único do serviço, partes do último despacho no PDF, planilha de qualquer modelo e nomes das seções; falta a base de varas dos TRTs
@@ -25,7 +24,7 @@ _Nenhum._
 
 | Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Acesso preso ao aparelho (passkey)](features/acesso-aparelho/feature.md) | Entrada pelo e-mail termina criando a passkey do aparelho (um computador + um celular) e tela de entrada nova | planejado | 2026-11-12 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/acesso-aparelho) | — |
+| [Acesso preso ao aparelho (passkey)](features/acesso-aparelho/feature.md) | Entrada pelo e-mail termina criando a passkey do aparelho (um computador + um celular) e tela de entrada nova | concluido | 2026-11-12 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/acesso-aparelho) | — |
 | [Filtros das listas](features/filtros-lista/feature.md) | Botão "Filtros" das listas com vários filtros vira lista de filtros com opções marcáveis, várias por filtro | concluido | 2026-11-11 | `apps/api` `apps/web` `packages/contracts` | [spec](../.specs/features/filtros-lista) | — |
 | [Biblioteca de modelos](features/biblioteca-modelos/feature.md) | Modelos de laudo em Biblioteca padrão e Biblioteca do escritório por área de atuação, importar PDF ou Word e layout da perita como padrão | concluido | 2026-11-09 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/biblioteca-modelos) | — |
 | [Custo de deslocamento](features/custo-deslocamento/feature.md) | Custo de deslocamento da rota do Campo lançado como despesa numa OS ou dividido entre OS, e lugares no trajeto | concluido | 2026-11-09 | `apps/web` `packages/ui` | [spec](../.specs/features/custo-deslocamento) | — |
@@ -77,7 +76,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-220** (2026-11-12, proposed) — Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s
+- **AD-220** (2026-11-12, active) — Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s
 - **AD-219** (2026-11-11, active) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
 - **AD-218** (2026-11-11, active) — Nas listas com vários filtros (Serviços, Varas, Diário de bordo), "Filtros" abre uma lista com o nome de cada filtro (e o valor aplicado ao
 - **AD-217** (2026-11-11, active) — Escritório (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada

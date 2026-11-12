@@ -3,7 +3,8 @@ import { acceptInviteSchema } from './schemas/acceptInvite.schema.js';
 import {
   accessKeyRequestSchema,
   accessKeyVerifySchema,
-  passwordAccessSchema,
+  passkeyRegisterOptionsSchema,
+  passkeyResponseSchema,
   signupSchema,
 } from './schemas/access.schema.js';
 import { updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
@@ -93,7 +94,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'updateAvatarSchema', schema: updateAvatarSchema },
   { name: 'accessKeyRequestSchema', schema: accessKeyRequestSchema },
   { name: 'accessKeyVerifySchema', schema: accessKeyVerifySchema },
-  { name: 'passwordAccessSchema', schema: passwordAccessSchema },
+  { name: 'passkeyRegisterOptionsSchema', schema: passkeyRegisterOptionsSchema },
+  { name: 'passkeyResponseSchema', schema: passkeyResponseSchema },
   { name: 'signupSchema', schema: signupSchema },
   { name: 'idSchema', schema: idSchema },
   { name: 'inviteTokenParamSchema', schema: inviteTokenParamSchema },

@@ -773,7 +773,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: a rota é pública: qualquer pessoa cria conta de teste com qualquer e-mail, sem provar que é dona dele, e esse e-mail fica ocupado para o cadastro pela chave. Conta criada pela chave não tem senha e nunca entra por aqui. Hash com `crypto.scrypt` (sem dependência nova), `select: false`. Remover a tela e `User.passwordHash` quando o envio de e-mail funcionar.
 - **Scope**: `packages/db/src/models/user.model.ts`, `packages/contracts/src/schemas/access.schema.ts`, `apps/api/src/modules/identity/auth.*`, `apps/web/src/routes/_public/auth/`.
 - **Date**: 2026-11-02
-- **Status**: active
+- **Status**: superseded by AD-220
 
 ### AD-158
 - **Decision**: A seção "Perícias" passa a "Serviços" só no texto da tela (o código segue `Case`). O tipo de serviço é uma lista única: os judiciais são `courtType` × `role`; o tipo criado pelo escritório é `courtType: 'other'` + `Case.serviceType` (nome), sem coleção própria — a lista vem dos nomes já usados (`GET /expert-cases/service-types`). No tipo do escritório, número do processo e tribunal são opcionais; o índice único do número vira parcial (só quando existe) e o `Case` passa a `syncIndexes()` na subida. Status do serviço (`serviceStatus`: proposta enviada, em andamento, entregue, com pendência, cancelado) é campo próprio, ao lado de etapa e fase (AD-133), que continuam.
@@ -1277,7 +1277,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: aparelho sem biometria nem PIN não entra. A passkey fica presa ao domínio do front: trocar o domínio (hoje o provisório da Vercel) invalida todas e cada pessoa entra de novo pelo e-mail. Passkey sincronizada prende à conta Apple/Google, não ao chip do aparelho; sem prova de TPM. Dependência nova: `@simplewebauthn/server` e `@simplewebauthn/browser`.
 - **Scope**: `packages/db/src/models/{passkey,session,user}.model.ts`, `packages/contracts/src/schemas/access.schema.ts`, `apps/api/src/modules/identity/{auth,invite,account}.*`, `apps/api/src/config/env.config.ts`, `apps/web/src/routes/_public/{auth,invite}/`, `apps/web/src/routes/_private/account/`.
 - **Date**: 2026-11-12
-- **Status**: proposed
+- **Status**: active
 
 ## Handoff
 

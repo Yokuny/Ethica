@@ -18,11 +18,7 @@ export const peekInvite = async (token: string): Promise<InvitePeek> => {
   return { tenantName: invite.tenantName, email: invite.email };
 };
 
-export const acceptInvite = async (
-  token: string,
-  data: AcceptInvite,
-  deviceInfo: string,
-): Promise<{ sessionToken: string }> => {
+export const acceptInvite = async (token: string, data: AcceptInvite): Promise<{ passkeyToken: string }> => {
   const invite = await inviteRepository.acceptInviteAtomic(hashToken(token));
   if (!invite) throw new CustomError('invalid_link', 410, 'convite inválido ou expirado');
 
@@ -45,5 +41,6 @@ export const acceptInvite = async (
   // if the tenant is already active (e.g. a second admin invited later).
   await inviteRepository.activateTenant(invite.tenant);
 
-  return { sessionToken: await authService.startSession({ id: user.id, tenant: invite.tenant }, deviceInfo) };
+  // APA-04 (AD-220): the session only opens with the passkey of this device.
+  return { passkeyToken: authService.passkeyTicket(user.id) };
 };

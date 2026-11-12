@@ -14,5 +14,6 @@ export type AccessCodeForm = z.infer<typeof accessCodeFormSchema>;
 export const officeFormSchema = signupSchema.omit({ signupToken: true });
 export type OfficeForm = z.infer<typeof officeFormSchema>;
 
-export type AccessStep = 'email' | 'code' | 'password' | 'office' | 'checking';
-export type AccessVerifyResult = { signedIn?: true; signupToken?: string };
+export type AccessStep = 'email' | 'code' | 'office' | 'passkey' | 'checking';
+// AD-220: an account goes to the passkey of this device; a new e-mail to the office creation.
+export type AccessVerifyResult = { passkeyToken: string } | { signupToken: string };

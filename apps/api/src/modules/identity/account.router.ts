@@ -1,9 +1,14 @@
 import { Router } from 'express';
 import { checkRole } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
-import { validBody } from '../../middlewares/validation.middleware.js';
+import { validBody, validParams } from '../../middlewares/validation.middleware.js';
 import * as accountController from './account.controller.js';
-import { type AccountRouterDeps, updateAvatarSchema, updateProfileSchema } from './account.schema.js';
+import {
+  type AccountRouterDeps,
+  passkeyIdParamSchema,
+  updateAvatarSchema,
+  updateProfileSchema,
+} from './account.schema.js';
 
 // ACC-05: every tenant role edits only its own account; there is no user id in the route.
 const canOperate = checkRole(['admin', 'manager', 'operator']);
@@ -20,5 +25,8 @@ export const createAccountRouter = (deps: AccountRouterDeps): Router => {
   router.get('/calendar-feed', ...own, accountController.calendarFeedStatus);
   router.post('/calendar-feed', ...own, accountController.generateCalendarFeed);
   router.delete('/calendar-feed', ...own, accountController.revokeCalendarFeed);
+  // APA-08 (AD-220): devices with access (passkeys) of the person.
+  router.get('/passkeys', ...own, accountController.listPasskeys);
+  router.delete('/passkeys/:id', ...own, validParams(passkeyIdParamSchema), accountController.removePasskey);
   return router;
 };

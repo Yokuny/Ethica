@@ -22,7 +22,6 @@ spec: [.specs/features/acesso-email]
 - Convite pede só o nome. Minha conta perde o bloco Senha.
 - Sessão de 30 dias por aparelho.
 - A senha sai do banco, da API, dos scripts de carga e do bcrypt.
-- "Cadastro de teste" na tela `/auth` (AD-157), provisório enquanto a Railway bloqueia o envio de e-mail: e-mail + senha; e-mail novo cria o escritório, e-mail com senha entra. Só contas criadas por ali têm senha.
 
 ## Por que
 
@@ -44,7 +43,6 @@ A perita pediu que a segurança do login ficasse com o provedor de e-mail de cad
 ## Pendências
 
 - [ ] Na Railway: `MAIL_PROVIDER=resend`, `RESEND_API_KEY` e `MAIL_FROM` com domínio verificado no Resend (AD-219).
-- [ ] Com o e-mail no ar, retirar o cadastro de teste com senha (AD-157).
 - [ ] Trocar o e-mail da conta (fora de escopo).
 
 ## Histórico
@@ -52,4 +50,4 @@ A perita pediu que a segurança do login ficasse com o provedor de e-mail de cad
 - 2026-11-02 — Feature criada: acesso e cadastro pela chave enviada ao e-mail, cadastro aberto, sessão de 30 dias (AD-155); SMTP obrigatório em produção (AD-156). Escritório do cadastro aberto só com CNPJ, seguindo a AD-144.
 - 2026-11-02 — Cadastro de teste por e-mail + senha (AD-157), porque a Railway bloqueia SMTP no plano atual. Sessões passam a ter `jwtid` aleatório: duas entradas da mesma pessoa no mesmo segundo geravam o mesmo token.
 - 2026-11-11 — Envio pelo Resend (AD-219): API HTTPS em vez de SMTP, que a Railway bloqueia. Remetente vira `MAIL_FROM`, comum aos provedores.
-- 2026-11-12 — Evolução planejada em `acesso-aparelho` (AD-220): passkey do aparelho obrigatória após a chave do e-mail e saída do cadastro de teste com senha.
+- 2026-11-12 — Evolução em `acesso-aparelho` (AD-220): a chave do e-mail não abre mais a sessão sozinha, leva à passkey do aparelho; saiu o cadastro de teste com senha (AD-157).

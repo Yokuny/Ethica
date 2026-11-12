@@ -1,13 +1,18 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const getMock = vi.fn();
 const postMock = vi.fn();
 vi.mock('@/lib/api/client.api.js', () => ({ get: getMock, post: postMock }));
+
+vi.mock('@simplewebauthn/browser', () => ({
+  browserSupportsWebAuthn: () => true,
+  startRegistration: async () => ({ id: 'cred', rawId: 'cred', type: 'public-key', response: {} }),
+}));
 
 const navigateMock = vi.fn();
 const searchMock = vi.fn();
@@ -98,5 +103,26 @@ describe('InvitePage', () => {
     expect(await screen.findByText(/Empresa X/)).toBeInTheDocument();
     expect(screen.getByText('convidado@empresa.com')).toBeInTheDocument();
     expect(screen.getByLabelText('Nome')).toBeInTheDocument();
+  });
+
+  it('after accepting, creates the passkey of this device and only then enters (APA-04)', async () => {
+    searchMock.mockReturnValue({ token: 'valid-token' });
+    getMock.mockResolvedValue({ success: true, data: { tenantName: 'Empresa X', email: 'convidado@empresa.com' } });
+    postMock
+      .mockResolvedValueOnce({ success: true, data: { passkeyToken: 'passkey-ticket' } })
+      .mockResolvedValueOnce({ success: true, data: { options: { challenge: 'c' }, challengeToken: 'challenge' } })
+      .mockResolvedValueOnce({ success: true, data: { signedIn: true } });
+    const user = userEvent.setup();
+
+    renderInvitePage();
+    await user.type(await screen.findByLabelText('Nome'), 'Fulano Novo');
+    await user.click(screen.getByRole('button', { name: 'Criar conta' }));
+    expect(navigateMock).not.toHaveBeenCalled();
+
+    await user.click(await screen.findByRole('button', { name: 'Ativar neste aparelho' }));
+    await waitFor(() =>
+      expect(postMock).toHaveBeenCalledWith('/auth/passkey/register/options', { passkeyToken: 'passkey-ticket' }),
+    );
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
   });
 });

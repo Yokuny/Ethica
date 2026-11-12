@@ -1,16 +1,45 @@
 import crypto from 'node:crypto';
 import { ALL_PERMISSIONS, PROFILE_PERMISSIONS, type Role } from '@ethica/contracts';
-import { AccessKey, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
+import { AccessKey, connect, disconnect, hashToken, Passkey, Session, Tenant, User } from '@ethica/db';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { env } from '../../config/env.config.js';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
 import { createAuthRouter } from './auth.router.js';
+
+// The WebAuthn ceremony needs a real authenticator: the library is replaced by a stand-in that
+// accepts any credential id except 'forged' and echoes it back.
+vi.mock('@simplewebauthn/server', () => ({
+  generateRegistrationOptions: async () => ({ challenge: 'register-challenge' }),
+  generateAuthenticationOptions: async () => ({ challenge: 'signin-challenge' }),
+  verifyRegistrationResponse: async ({ response }: { response: { id: string } }) =>
+    response.id === 'forged'
+      ? { verified: false }
+      : {
+          verified: true,
+          registrationInfo: {
+            credential: { id: response.id, publicKey: new Uint8Array([1, 2, 3]), counter: 0, transports: ['internal'] },
+            credentialBackedUp: true,
+          },
+        },
+  verifyAuthenticationResponse: async ({ response }: { response: { id: string } }) => ({
+    verified: response.id !== 'forged',
+    authenticationInfo: { newCounter: 1 },
+  }),
+}));
+
+const credential = (id: string) => ({
+  id,
+  rawId: id,
+  type: 'public-key',
+  authenticatorAttachment: 'platform',
+  response: {},
+});
 
 const buildAuthDeps = (): AuthDeps => ({
   findSessionByHash: async (tokenHash) => {
@@ -74,7 +103,13 @@ describe('auth routes', () => {
 
   afterEach(async () => {
     sentMails.length = 0;
-    await Promise.all([Session.deleteMany({}), User.deleteMany({}), Tenant.deleteMany({}), AccessKey.deleteMany({})]);
+    await Promise.all([
+      Session.deleteMany({}),
+      User.deleteMany({}),
+      Tenant.deleteMany({}),
+      AccessKey.deleteMany({}),
+      Passkey.deleteMany({}),
+    ]);
   });
 
   afterAll(async () => {
@@ -108,8 +143,26 @@ describe('auth routes', () => {
     return `refreshToken=${rawToken}`;
   };
 
-  describe('access by e-mail key (AD-155)', () => {
-    it('sends link and code; the link signs in once, with an httpOnly cookie and a matching Session (ACE-01/03)', async () => {
+  // APA-03 (AD-220): the key (or the new office) hands over the passkey ticket; the passkey of this
+  // device opens the session.
+  const createPasskey = async (
+    app: ReturnType<typeof buildTestApp>,
+    passkeyToken: string,
+    id = 'cred-1',
+    agent = DEVICE,
+  ) => {
+    const options = await request(app).post('/auth/passkey/register/options').send({ passkeyToken });
+    expect(options.status).toBe(200);
+    expect(options.body.data.options.challenge).toBe('register-challenge');
+    return request(app)
+      .post('/auth/passkey/register')
+      .set('User-Agent', agent)
+      .send({ challengeToken: options.body.data.challengeToken, response: credential(id) });
+  };
+  const cookieOf = (res: request.Response) => (res.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+
+  describe('access by e-mail key (AD-155) and passkey of the device (AD-220)', () => {
+    it('the link leads to the passkey, which opens the session once (ACE-01/03, APA-03)', async () => {
       const { user } = await seedUser();
       const app = buildTestApp();
 
@@ -120,35 +173,120 @@ describe('auth routes', () => {
       expect(sentMails[0]?.body).toContain('http://web.test/auth?token=');
 
       const { token } = lastKey();
-      const res = await request(app).post('/auth/access-key/verify').set('User-Agent', DEVICE).send({ token });
+      const res = await request(app).post('/auth/access-key/verify').send({ token });
       expect(res.status).toBe(200);
-      expect(res.body.data).toEqual({ signedIn: true });
+      expect(res.headers['set-cookie']).toBeUndefined();
+      expect(await Session.countDocuments({})).toBe(0);
 
-      const setCookie = res.headers['set-cookie'] as unknown as string[];
+      const registered = await createPasskey(app, res.body.data.passkeyToken);
+      expect(registered.status).toBe(200);
+      const setCookie = registered.headers['set-cookie'] as unknown as string[];
       expect(setCookie?.[0]).toMatch(/HttpOnly/i);
       const rawToken = setCookie[0].split(';')[0].split('=')[1];
       const session = await Session.findOne({ tokenHash: hashToken(rawToken) }).lean();
+      const passkey = await Passkey.findOne({ credentialId: 'cred-1' }).lean();
       expect(session?.user.toString()).toBe(user.id);
       expect(session?.deviceInfo).toBe(DEVICE);
+      expect(session?.passkey?.toString()).toBe(passkey?._id.toString());
+      expect(passkey).toMatchObject({ kind: 'desktop', backedUp: true });
 
       const again = await request(app).post('/auth/access-key/verify').send({ token });
       expect(again.status).toBe(401);
       expect(again.body.message).toBe('invalid_access_key');
     });
 
-    it('signs in with the 6-digit code and GET /auth/session right after never 401s (Risk 5)', async () => {
+    it('the code works too, and GET /auth/session right after never 401s (Risk 5)', async () => {
       await seedUser();
       const app = buildTestApp();
 
       await request(app).post('/auth/access-key').send({ email: 'login@empresa.com' });
       const res = await request(app)
         .post('/auth/access-key/verify')
-        .set('User-Agent', DEVICE)
         .send({ email: 'login@empresa.com', code: lastKey().code });
-      const cookie = (res.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+      const registered = await createPasskey(app, res.body.data.passkeyToken);
 
-      const sessionRes = await request(app).get('/auth/session').set('Cookie', cookie).set('User-Agent', DEVICE);
+      const sessionRes = await request(app)
+        .get('/auth/session')
+        .set('Cookie', cookieOf(registered))
+        .set('User-Agent', DEVICE);
       expect(sessionRes.status).toBe(200);
+    });
+
+    it('rejects a forged passkey ticket, a forged credential and a security key (APA-06)', async () => {
+      const { user } = await seedUser();
+      const app = buildTestApp();
+
+      const forgedTicket = await request(app)
+        .post('/auth/passkey/register/options')
+        .send({ passkeyToken: jwt.sign({ user: user.id, purpose: 'passkey' }, 'outro') });
+      expect(forgedTicket.status).toBe(401);
+      expect(forgedTicket.body.message).toBe('invalid_passkey');
+
+      const passkeyToken = jwt.sign({ user: user.id, purpose: 'passkey' }, env.SESSION_JWT_SECRET);
+      const forged = await createPasskey(app, passkeyToken, 'forged');
+      expect(forged.status).toBe(401);
+
+      const options = await request(app).post('/auth/passkey/register/options').send({ passkeyToken });
+      const usbKey = await request(app)
+        .post('/auth/passkey/register')
+        .send({
+          challengeToken: options.body.data.challengeToken,
+          response: { ...credential('usb'), authenticatorAttachment: 'cross-platform' },
+        });
+      expect(usbKey.status).toBe(401);
+      expect(await Passkey.countDocuments({})).toBe(0);
+    });
+
+    it('one computer + one phone: a new computer replaces the old one and ends its sessions (APA-05)', async () => {
+      const { user } = await seedUser();
+      const app = buildTestApp();
+      const passkeyToken = jwt.sign({ user: user.id, purpose: 'passkey' }, env.SESSION_JWT_SECRET);
+      const PHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit Mobile Safari';
+
+      const oldComputer = cookieOf(await createPasskey(app, passkeyToken, 'cred-old'));
+      const phone = cookieOf(await createPasskey(app, passkeyToken, 'cred-phone', PHONE));
+      const newComputer = cookieOf(await createPasskey(app, passkeyToken, 'cred-new'));
+
+      const kinds = await Passkey.find({ user: user.id }).sort({ kind: 1 }).lean();
+      expect(kinds.map((passkey) => [passkey.kind, passkey.credentialId])).toEqual([
+        ['desktop', 'cred-new'],
+        ['mobile', 'cred-phone'],
+      ]);
+      expect(
+        (await request(app).get('/auth/session').set('Cookie', oldComputer).set('User-Agent', DEVICE)).status,
+      ).toBe(401);
+      expect((await request(app).get('/auth/session').set('Cookie', phone).set('User-Agent', PHONE)).status).toBe(200);
+      expect(
+        (await request(app).get('/auth/session').set('Cookie', newComputer).set('User-Agent', DEVICE)).status,
+      ).toBe(200);
+    });
+
+    it('signs in with the passkey alone, without e-mail (APA-02); deactivated or unknown gets 401', async () => {
+      const { user } = await seedUser();
+      const app = buildTestApp();
+      const passkeyToken = jwt.sign({ user: user.id, purpose: 'passkey' }, env.SESSION_JWT_SECRET);
+      await createPasskey(app, passkeyToken);
+      await Session.deleteMany({});
+
+      const signin = async (id: string) => {
+        const options = await request(app).post('/auth/passkey/options');
+        expect(options.body.data.options.challenge).toBe('signin-challenge');
+        return request(app)
+          .post('/auth/passkey')
+          .set('User-Agent', DEVICE)
+          .send({ challengeToken: options.body.data.challengeToken, response: credential(id) });
+      };
+
+      const res = await signin('cred-1');
+      expect(res.status).toBe(200);
+      expect(
+        (await request(app).get('/auth/session').set('Cookie', cookieOf(res)).set('User-Agent', DEVICE)).status,
+      ).toBe(200);
+      expect((await Passkey.findOne({ credentialId: 'cred-1' }).lean())?.counter).toBe(1);
+
+      expect((await signin('unknown')).status).toBe(401);
+      await User.updateOne({ _id: user.id }, { $set: { active: false } });
+      expect((await signin('cred-1')).status).toBe(401);
     });
 
     it('discards the key after 5 wrong codes, even if the right one comes next (ACE-02)', async () => {
@@ -166,7 +304,6 @@ describe('auth routes', () => {
       }
       const right = await request(app).post('/auth/access-key/verify').send({ email: 'login@empresa.com', code });
       expect(right.status).toBe(401);
-      expect(await Session.countDocuments({})).toBe(0);
     });
 
     it('answers the same for a deactivated account but sends nothing (ACE-01)', async () => {
@@ -179,7 +316,7 @@ describe('auth routes', () => {
       expect(sentMails).toHaveLength(0);
     });
 
-    it('a new e-mail confirms and creates its own active office as admin (ACE-04)', async () => {
+    it('a new e-mail creates its own active office as admin, then the passkey (ACE-04, APA-04)', async () => {
       const app = buildTestApp();
 
       await request(app).post('/auth/access-key').send({ email: 'nova@perita.com' });
@@ -187,17 +324,19 @@ describe('auth routes', () => {
         .post('/auth/access-key/verify')
         .send({ email: 'nova@perita.com', code: lastKey().code });
       expect(verified.status).toBe(200);
-      expect(verified.headers['set-cookie']).toBeUndefined();
       const { signupToken } = verified.body.data as { signupToken: string };
 
       const res = await request(app)
         .post('/auth/signup')
-        .set('User-Agent', DEVICE)
         .send({ signupToken, name: 'Nova Perita', officeName: 'Perícias Nova', document: '11.222.333/0001-81' });
       expect(res.status).toBe(201);
-      const cookie = (res.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
+      expect(res.headers['set-cookie']).toBeUndefined();
+      const registered = await createPasskey(app, res.body.data.passkeyToken);
 
-      const session = await request(app).get('/auth/session').set('Cookie', cookie).set('User-Agent', DEVICE);
+      const session = await request(app)
+        .get('/auth/session')
+        .set('Cookie', cookieOf(registered))
+        .set('User-Agent', DEVICE);
       expect(session.body.data.tenant).toMatchObject({ name: 'Perícias Nova', status: 'active' });
       expect(session.body.data.user).toMatchObject({ name: 'Nova Perita', email: 'nova@perita.com' });
       expect(session.body.data.role).toEqual(['admin']);
@@ -229,48 +368,6 @@ describe('auth routes', () => {
         .send({ ...base, signupToken, document: '55555555000155' });
       expect(taken.status).toBe(409);
       expect(taken.body.message).toBe('document_already_registered');
-    });
-  });
-
-  describe('test sign-up by e-mail + password (AD-157)', () => {
-    it('a new e-mail creates its office with the password, then signs in with it; a wrong one gets 401', async () => {
-      const app = buildTestApp();
-      const credentials = { email: 'teste@perita.com', password: 'senha-de-teste' };
-
-      const first = await request(app).post('/auth/password').send(credentials);
-      expect(first.status).toBe(200);
-      expect(first.headers['set-cookie']).toBeUndefined();
-      const { signupToken } = first.body.data as { signupToken: string };
-
-      const created = await request(app)
-        .post('/auth/signup')
-        .send({ signupToken, name: 'Perita Teste', officeName: 'Perícias Teste', document: '11.222.333/0001-81' });
-      expect(created.status).toBe(201);
-      const stored = await User.findOne({ email: credentials.email }).select('+passwordHash').lean();
-      expect(stored?.passwordHash).toMatch(/^[a-f0-9]{32}:[a-f0-9]{128}$/);
-
-      const again = await request(app).post('/auth/password').set('User-Agent', DEVICE).send(credentials);
-      expect(again.status).toBe(200);
-      expect(again.body.data).toEqual({ signedIn: true });
-      const cookie = (again.headers['set-cookie'] as unknown as string[])[0].split(';')[0];
-      const session = await request(app).get('/auth/session').set('Cookie', cookie).set('User-Agent', DEVICE);
-      expect(session.body.data.role).toEqual(['admin']);
-
-      const wrong = await request(app)
-        .post('/auth/password')
-        .send({ ...credentials, password: 'outra-senha' });
-      expect(wrong.status).toBe(401);
-      expect(wrong.body.message).toBe('invalid_credentials');
-    });
-
-    it('never signs in an account created by the e-mail key, which has no password', async () => {
-      await seedUser();
-      const app = buildTestApp();
-      const user = await User.findOne().lean();
-
-      const res = await request(app).post('/auth/password').send({ email: user?.email, password: 'qualquer-senha' });
-      expect(res.status).toBe(401);
-      expect(res.body.message).toBe('invalid_credentials');
     });
   });
 

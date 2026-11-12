@@ -1,58 +1,69 @@
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { createFileRoute, useSearch } from '@tanstack/react-router';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { PasskeySetup } from '@/components/passkey-setup.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { AccessCodeForm } from './@components/access-code-form.js';
 import { AccessEmailForm } from './@components/access-email-form.js';
 import { AccessOfficeForm } from './@components/access-office-form.js';
-import { AccessPasswordForm } from './@components/access-password-form.js';
+import { AuthShowcase } from './@components/auth-showcase.js';
 import { useAccess } from './@hooks/use-access.js';
 import { authSearchSchema } from './@interface/auth.interface.js';
 
 // AD-155: no password — access and sign-up by the key sent to the person's e-mail.
+// AD-220: the session is born from the passkey of this device; two columns with the product beside.
 export function AuthPage() {
   const { token } = useSearch({ strict: false }) as { token?: string };
   const access = useAccess(token);
 
   return (
     <Card asPage="public">
-      <CardHeader className="mx-auto w-full max-w-sm" title={t('sign_in')} />
-      <CardContent className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center">
-        {access.step === 'checking' && <DefaultLoading />}
-        {access.step === 'email' && (
-          <AccessEmailForm
-            form={access.emailForm}
-            errorMessage={access.errorMessage}
-            onSubmit={access.onSubmitEmail}
-            onTestSignup={access.openTestSignup}
-          />
-        )}
-        {access.step === 'password' && (
-          <AccessPasswordForm
-            form={access.passwordForm}
-            errorMessage={access.errorMessage}
-            onSubmit={access.onSubmitPassword}
-            onBack={access.changeEmail}
-          />
-        )}
-        {access.step === 'code' && (
-          <AccessCodeForm
-            form={access.codeForm}
-            email={access.email}
-            errorMessage={access.errorMessage}
-            onSubmit={access.onSubmitCode}
-            onResend={access.resend}
-            onChangeEmail={access.changeEmail}
-          />
-        )}
-        {access.step === 'office' && (
-          <AccessOfficeForm
-            form={access.officeForm}
-            email={access.email}
-            errorMessage={access.errorMessage}
-            onSubmit={access.onSubmitOffice}
-          />
-        )}
+      <CardHeader className="mx-auto w-full max-w-6xl" title={t('sign_in')} />
+      <CardContent className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 lg:grid-cols-2 lg:gap-24">
+        <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-4">
+            <ItemTitle
+              // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
+              render={<h1 />}
+              className="text-4xl leading-tight font-medium lg:text-5xl"
+            >
+              {t('auth_headline')}
+            </ItemTitle>
+            <ItemDescription className="line-clamp-none text-lg">{t('auth_subheadline')}</ItemDescription>
+          </div>
+          <div className="w-full max-w-sm">
+            {access.step === 'checking' && <DefaultLoading />}
+            {access.step === 'email' && (
+              <AccessEmailForm
+                form={access.emailForm}
+                errorMessage={access.errorMessage}
+                onSubmit={access.onSubmitEmail}
+                onSigninWithDevice={access.signinWithDevice}
+              />
+            )}
+            {access.step === 'code' && (
+              <AccessCodeForm
+                form={access.codeForm}
+                email={access.email}
+                errorMessage={access.errorMessage}
+                onSubmit={access.onSubmitCode}
+                onResend={access.resend}
+                onChangeEmail={access.changeEmail}
+              />
+            )}
+            {access.step === 'office' && (
+              <AccessOfficeForm
+                form={access.officeForm}
+                email={access.email}
+                errorMessage={access.errorMessage}
+                onSubmit={access.onSubmitOffice}
+              />
+            )}
+            {access.step === 'passkey' && <PasskeySetup passkeyToken={access.passkeyToken} />}
+          </div>
+        </div>
+        <AuthShowcase />
       </CardContent>
     </Card>
   );

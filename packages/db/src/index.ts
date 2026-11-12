@@ -25,6 +25,8 @@ export type { OpportunityDocument } from './models/opportunity.model.js';
 export { Opportunity } from './models/opportunity.model.js';
 export type { PartyDocument } from './models/party.model.js';
 export { Party } from './models/party.model.js';
+export type { PasskeyDocument } from './models/passkey.model.js';
+export { Passkey } from './models/passkey.model.js';
 export type { ReportDocument, ReportMediaDocument, ReportSectionDocument } from './models/report.model.js';
 export { Report } from './models/report.model.js';
 export type { RetiredServiceOrderDocument, ServiceOrderSequenceDocument } from './models/service-order.model.js';
@@ -68,6 +70,7 @@ import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
 import { Opportunity } from './models/opportunity.model.js';
 import { Party } from './models/party.model.js';
+import { Passkey } from './models/passkey.model.js';
 import { Report } from './models/report.model.js';
 import { RetiredServiceOrder, ServiceOrderSequence } from './models/service-order.model.js';
 import { Session } from './models/session.model.js';
@@ -83,6 +86,7 @@ export const syncIndexes = async (): Promise<void> => {
     User.createIndexes(),
     Invite.createIndexes(),
     Session.createIndexes(),
+    Passkey.createIndexes(),
     AccessKey.createIndexes(),
     // syncIndexes replaces the old unique process number index by the partial one (AD-158).
     Case.syncIndexes(),

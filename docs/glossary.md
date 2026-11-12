@@ -44,4 +44,5 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Oportunidade | `Opportunity` (`prospecting`) | Processo encontrado no Datajud e salvo para análise; pode ser convertido em perícia. |
 | Valor de domínio | enums em `packages/contracts/src/schemas/` | Gravado e devolvido pela API em inglês (AD-113); o web traduz com `t()` antes de mostrar. |
 | Chave de acesso | `AccessKey` (`identity`) | Link de uso único e código de 6 dígitos enviados ao e-mail da pessoa para entrar ou criar o escritório; vale 15 minutos. Não há senha (AD-155). |
+| Acesso do aparelho (passkey) | `Passkey` (`identity`) | Chave guardada no próprio aparelho (digital, rosto, PIN ou Windows Hello) que abre toda sessão; no máximo um computador e um celular por pessoa (AD-220). |
 | Tenant | `Tenant` | O escritório/perito cliente da plataforma; todo dado é isolado por tenant. |

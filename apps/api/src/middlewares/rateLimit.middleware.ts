@@ -36,6 +36,8 @@ export const accessKeyRateLimit = rejectWithTooManyRequests('access_key');
 // Checking the key and creating the office: a body with the link has no e-mail, so the key is
 // mostly the IP — more room than asking for keys. The code itself dies after 5 wrong tries.
 export const accessVerifyRateLimit = rejectWithTooManyRequests('access_verify', emailAndIpKeyGenerator, 20);
+// APA-02/03: passkey ceremonies have no e-mail in the body — the key is the IP.
+export const passkeyRateLimit = rejectWithTooManyRequests('passkey', emailAndIpKeyGenerator, 30);
 export const inviteRateLimit = rejectWithTooManyRequests('invite');
 
 // Datajud search (CNJ public API, with a quota): by tenant + IP. 60 searches

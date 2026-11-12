@@ -8,6 +8,7 @@ import { profileQuery } from '@/query/account.js';
 import { sessionQuery } from '@/query/session.js';
 import { AccountCalendarFeed } from './@components/account-calendar-feed.js';
 import { AccountDeadlineReminder } from './@components/account-deadline-reminder.js';
+import { AccountDevices } from './@components/account-devices.js';
 import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
 
@@ -38,6 +39,11 @@ export function AccountPage() {
                   <DefaultLoading key="profile" />
                 ),
               ],
+            },
+            {
+              title: t('devices_with_access'),
+              description: t('devices_with_access_description'),
+              fields: [<AccountDevices key="devices" />],
             },
             {
               title: t('deadline_alerts'),

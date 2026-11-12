@@ -70,3 +70,20 @@ export const revokeCalendarFeed = async (req: Request, res: Response, next: Next
     next(e);
   }
 };
+
+export const listPasskeys = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await accountService.listPasskeys(req.tenantUser.user) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const removePasskey = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await accountService.removePasskey(req.tenantUser.user, req.params.id as string);
+    res.json(respObj({ message: 'removed_successfully' }));
+  } catch (e) {
+    next(e);
+  }
+};

@@ -112,16 +112,15 @@ describe('invite routes (public)', () => {
   });
 
   describe('POST /invites/:token/accept', () => {
-    it('creates the User with the invite role/tenant, marks the invite accepted, activates the tenant and opens a session (FND-03/AC2)', async () => {
+    it('creates the User with the invite role/tenant, marks the invite accepted, activates the tenant and hands over the passkey ticket (FND-03/AC2, APA-04)', async () => {
       const tenant = await seedTenant('Empresa Aceite');
       await seedInvite({ tenant: tenant.id, token: 'accept-1', email: 'novo@empresa.com' });
 
       const res = await request(buildTestApp()).post('/invites/accept-1/accept').send({ name: 'Fulano Novo' });
 
       expect(res.status).toBe(201);
-      const setCookie = res.headers['set-cookie'] as unknown as string[];
-      expect(setCookie?.[0]).toMatch(/refreshToken=/);
-      expect(setCookie?.[0]).toMatch(/HttpOnly/i);
+      expect(res.headers['set-cookie']).toBeUndefined();
+      expect(res.body.data.passkeyToken).toEqual(expect.any(String));
 
       const user = await User.findOne({ email: 'novo@empresa.com' }).lean();
       expect(user).not.toBeNull();
@@ -135,9 +134,8 @@ describe('invite routes (public)', () => {
       const reloadedTenant = await Tenant.findById(tenant.id).lean();
       expect(reloadedTenant?.status).toBe('active');
 
-      const session = await Session.findOne({ user: user?._id }).lean();
-      expect(session).not.toBeNull();
-      expect(session?.Tenant?.toString()).toBe(tenant.id);
+      // The session only opens with the passkey of the device (AD-220).
+      expect(await Session.countDocuments({ user: user?._id })).toBe(0);
     });
 
     it('responds 400 and creates no user when a password is still sent (AD-155)', async () => {
@@ -178,7 +176,7 @@ describe('invite routes (public)', () => {
       const statuses = [res1.status, res2.status].sort();
       expect(statuses).toEqual([201, 410]);
       expect(await User.countDocuments({ email: 'corrida@empresa.com' })).toBe(1);
-      expect(await Session.countDocuments({})).toBe(1);
+      expect(await Session.countDocuments({})).toBe(0);
     });
   });
 });

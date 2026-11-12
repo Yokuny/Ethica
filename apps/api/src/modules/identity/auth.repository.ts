@@ -1,7 +1,8 @@
 import { effectivePermissions } from '@ethica/contracts';
-import { AccessKey, Session, Tenant, tenantScoped, User } from '@ethica/db';
+import { AccessKey, Passkey, Session, Tenant, tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type {
+  DeviceKind,
   Permissions,
   TenantUser,
   TenantView,
@@ -27,18 +28,11 @@ export const findUserByEmail = async (email: string): Promise<UserForSignin | nu
     return user ? { id: user._id.toString(), tenant: user.Tenant?.toString(), active: user.active } : null;
   });
 
-// AD-157: the test sign-up compares the password; no other read carries the hash.
-export const findUserWithPasswordHash = async (email: string) =>
-  withDbTiming('auth.findUserWithPasswordHash', async () => {
-    const user = await User.findOne({ email }).select('+passwordHash Tenant active').lean();
-    return user
-      ? {
-          id: user._id.toString(),
-          tenant: user.Tenant?.toString(),
-          active: user.active,
-          passwordHash: user.passwordHash,
-        }
-      : null;
+// AD-220: who a passkey ticket or a passkey points to.
+export const findUserById = async (userId: string): Promise<UserForSignin | null> =>
+  withDbTiming('auth.findUserById', async () => {
+    const user = await User.findById(userId).select('Tenant active').lean();
+    return user ? { id: user._id.toString(), tenant: user.Tenant?.toString(), active: user.active } : null;
   });
 
 export const findUserView = async (userId: string): Promise<UserView | null> =>
@@ -142,6 +136,7 @@ export const userExists = async (tenantId: string, id: string): Promise<boolean>
 export const createSession = async (data: {
   user: string;
   tenant?: string;
+  passkey: string;
   tokenHash: string;
   deviceInfo: string;
   expiresAt: Date;
@@ -150,6 +145,7 @@ export const createSession = async (data: {
     await Session.create({
       user: data.user,
       Tenant: data.tenant,
+      passkey: data.passkey,
       tokenHash: data.tokenHash,
       deviceInfo: data.deviceInfo,
       expiresAt: data.expiresAt,
@@ -210,16 +206,59 @@ export const createOfficeWithAdmin = async (data: {
   name: string;
   officeName: string;
   document: string;
-  passwordHash?: string;
 }): Promise<{ id: string; tenant: string }> =>
   withDbTiming('auth.createOfficeWithAdmin', async () => {
     const tenant = await Tenant.create({ name: data.officeName, document: data.document, status: 'active' });
     const user = await User.create({
       name: data.name,
       email: data.email,
-      passwordHash: data.passwordHash,
       Tenant: tenant._id,
       role: ['admin'],
     });
     return { id: user.id, tenant: tenant.id };
+  });
+
+// APA-05 (AD-220): one passkey per kind — the previous one of the same kind (or the same credential
+// created again) goes away together with the sessions it opened.
+export const replacePasskey = async (data: {
+  user: string;
+  kind: DeviceKind;
+  credentialId: string;
+  publicKey: Buffer;
+  counter: number;
+  transports?: string[];
+  backedUp: boolean;
+  label: string;
+}): Promise<string> =>
+  withDbTiming('auth.replacePasskey', async () => {
+    const previous = await Passkey.find({
+      $or: [{ user: data.user, kind: data.kind }, { credentialId: data.credentialId }],
+    })
+      .select('_id')
+      .lean();
+    const ids = previous.map((passkey) => passkey._id);
+    await Session.deleteMany({ passkey: { $in: ids } });
+    await Passkey.deleteMany({ _id: { $in: ids } });
+    const passkey = await Passkey.create(data);
+    return passkey.id;
+  });
+
+export const findPasskey = async (credentialId: string) =>
+  withDbTiming('auth.findPasskey', async () => {
+    const passkey = await Passkey.findOne({ credentialId }).lean();
+    return passkey
+      ? {
+          id: passkey._id.toString(),
+          user: passkey.user.toString(),
+          credentialId: passkey.credentialId,
+          publicKey: passkey.publicKey,
+          counter: passkey.counter,
+          transports: passkey.transports,
+        }
+      : null;
+  });
+
+export const touchPasskey = async (id: string, counter: number): Promise<void> =>
+  withDbTiming('auth.touchPasskey', async () => {
+    await Passkey.updateOne({ _id: id }, { $set: { counter, lastUsedAt: new Date() } });
   });

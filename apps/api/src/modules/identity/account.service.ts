@@ -37,3 +37,9 @@ export const findFeedOwner = (token: string) => accountRepository.findFeedOwner(
 
 export const listDeadlineReminderRecipients = (tenantIds: string[]) =>
   accountRepository.listDeadlineReminderRecipients(tenantIds);
+
+export const listPasskeys = (userId: string) => accountRepository.listPasskeys(userId);
+
+export const removePasskey = async (userId: string, passkeyId: string): Promise<void> => {
+  if (!(await accountRepository.deletePasskey(userId, passkeyId))) throw new CustomError('not_found', 404);
+};

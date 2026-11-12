@@ -1,6 +1,6 @@
-import { Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
+import { Passkey, Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { AccountView, FeedOwner, NoticeRecipient, UpdateProfile } from './account.schema.js';
+import type { AccountView, FeedOwner, NoticeRecipient, PasskeyView, UpdateProfile } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
 
 // Tenant and user always come from the session (AD-010): every filter is the person themselves.
@@ -113,4 +113,26 @@ export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promi
       .select('Tenant name email')
       .lean();
     return users.map((user) => ({ tenantId: String(user.Tenant), name: user.name, email: user.email }));
+  });
+
+// APA-08 (AD-220): the person's devices — Passkey has no tenant, the user id is the filter.
+export const listPasskeys = async (userId: string): Promise<PasskeyView[]> =>
+  withDbTiming('account.listPasskeys', async () => {
+    const passkeys = await Passkey.find({ user: userId }).sort({ kind: 1 }).lean();
+    return passkeys.map((passkey) => ({
+      id: passkey._id.toString(),
+      kind: passkey.kind,
+      label: passkey.label,
+      createdAt: passkey.createdAt.toISOString(),
+      lastUsedAt: passkey.lastUsedAt?.toISOString(),
+    }));
+  });
+
+// APA-07: removing a device ends the sessions it opened. false = not one of the person's devices.
+export const deletePasskey = async (userId: string, passkeyId: string): Promise<boolean> =>
+  withDbTiming('account.deletePasskey', async () => {
+    const { deletedCount } = await Passkey.deleteOne({ _id: passkeyId, user: userId });
+    if (deletedCount === 0) return false;
+    await Session.deleteMany({ passkey: passkeyId });
+    return true;
   });

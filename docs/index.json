@@ -6,7 +6,7 @@
       "feature": "Acesso preso ao aparelho (passkey)",
       "descricao": "Entrada pelo e-mail termina criando a passkey do aparelho (um computador + um celular) e tela de entrada nova",
       "data": "2026-11-12",
-      "status": "planejado",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -1460,7 +1460,7 @@
       "id": "AD-157",
       "decisao": "Enquanto o envio de e-mail estiver bloqueado na Railway (plano Hobby não libera SMTP), a tela `/auth` ganha o \"Cadastro de teste\": e-mail +",
       "data": "2026-11-02",
-      "status": "active"
+      "status": "superseded by AD-220"
     },
     {
       "id": "AD-158",
@@ -1838,7 +1838,7 @@
       "id": "AD-220",
       "decisao": "Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s",
       "data": "2026-11-12",
-      "status": "proposed"
+      "status": "active"
     }
   ]
 }

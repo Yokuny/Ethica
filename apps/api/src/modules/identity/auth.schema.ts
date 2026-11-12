@@ -1,6 +1,7 @@
 import type {
   AccessKeyVerify,
-  PasswordAccess,
+  DeviceKind,
+  PasskeyResponse,
   Permissions,
   Signup,
   TenantUser,
@@ -10,7 +11,8 @@ import {
   accessKeyRequestSchema,
   accessKeyVerifySchema,
   idSchema,
-  passwordAccessSchema,
+  passkeyRegisterOptionsSchema,
+  passkeyResponseSchema,
   signupSchema,
   updatePermissionsSchema,
 } from '@ethica/contracts';
@@ -18,9 +20,16 @@ import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { MailProvider } from '../../providers/mail/index.js';
 
-export type { AccessKeyVerify, PasswordAccess, Permissions, Signup, TenantUser, UpdatePermissions };
+export type { AccessKeyVerify, DeviceKind, PasskeyResponse, Permissions, Signup, TenantUser, UpdatePermissions };
 // MOD-08: input schemas and module types in a single place.
-export { accessKeyRequestSchema, accessKeyVerifySchema, passwordAccessSchema, signupSchema, updatePermissionsSchema };
+export {
+  accessKeyRequestSchema,
+  accessKeyVerifySchema,
+  passkeyRegisterOptionsSchema,
+  passkeyResponseSchema,
+  signupSchema,
+  updatePermissionsSchema,
+};
 
 // Tenant directory. `active=true` returns only who can get new work
 // (assignee selector); without it the list also brings the inactive ones, which still

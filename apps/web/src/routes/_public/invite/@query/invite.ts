@@ -15,5 +15,5 @@ export const invitePeekQuery = (token: string) =>
   });
 
 export function acceptInvite(token: string, data: AcceptInvite) {
-  return post(`/invites/${encodeURIComponent(token)}/accept`, data);
+  return post<{ passkeyToken: string }>(`/invites/${encodeURIComponent(token)}/accept`, data);
 }

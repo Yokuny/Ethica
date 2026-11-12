@@ -3,6 +3,7 @@ import { Button } from '@ethica/ui/components/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ethica/ui/components/form';
 import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
+import { Fingerprint } from 'lucide-react';
 import type { UseFormReturn } from 'react-hook-form';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -11,13 +12,19 @@ type AccessEmailFormProps = {
   form: UseFormReturn<AccessKeyRequest>;
   errorMessage?: string;
   onSubmit: (data: AccessKeyRequest) => Promise<void>;
-  onTestSignup: () => void;
+  onSigninWithDevice: () => Promise<void>;
 };
 
-export function AccessEmailForm({ form, errorMessage, onSubmit, onTestSignup }: AccessEmailFormProps) {
+// APA-02: a device with passkey signs in right away; otherwise the e-mail key.
+export function AccessEmailForm({ form, errorMessage, onSubmit, onSigninWithDevice }: AccessEmailFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+        <Button type="button" size="field" onClick={() => void onSigninWithDevice()}>
+          <Fingerprint />
+          {t('sign_in_with_device')}
+        </Button>
+        <ItemDescription className="text-center">{t('or_by_email')}</ItemDescription>
         <DefaultFormLayout
           sections={[
             {
@@ -33,7 +40,7 @@ export function AccessEmailForm({ form, errorMessage, onSubmit, onTestSignup }: 
                     <FormItem>
                       <FormLabel>{t('email')}</FormLabel>
                       <FormControl>
-                        <Input type="email" autoComplete="email" placeholder={t('email')} {...field} />
+                        <Input type="email" autoComplete="username webauthn" placeholder={t('email')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -43,12 +50,13 @@ export function AccessEmailForm({ form, errorMessage, onSubmit, onTestSignup }: 
             },
           ]}
         />
-        {errorMessage && <ItemDescription role="alert">{errorMessage}</ItemDescription>}
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        {errorMessage && (
+          <ItemDescription role="alert" className="line-clamp-none text-destructive">
+            {errorMessage}
+          </ItemDescription>
+        )}
+        <Button type="submit" variant="outline" size="field" disabled={form.formState.isSubmitting}>
           {t('send_access_key')}
-        </Button>
-        <Button type="button" variant="ghost" onClick={onTestSignup}>
-          {t('test_signup')}
         </Button>
       </form>
     </Form>

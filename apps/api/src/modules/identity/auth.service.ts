@@ -1,5 +1,13 @@
 import crypto from 'node:crypto';
 import { hashToken } from '@ethica/db';
+import {
+  type AuthenticationResponseJSON,
+  generateAuthenticationOptions,
+  generateRegistrationOptions,
+  type RegistrationResponseJSON,
+  verifyAuthenticationResponse,
+  verifyRegistrationResponse,
+} from '@simplewebauthn/server';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.config.js';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
@@ -8,7 +16,8 @@ import * as activityLogService from './activityLog.service.js';
 import * as authRepository from './auth.repository.js';
 import type {
   AccessKeyVerify,
-  PasswordAccess,
+  DeviceKind,
+  PasskeyResponse,
   SessionView,
   Signup,
   TenantUser,
@@ -16,16 +25,44 @@ import type {
 } from './auth.schema.js';
 
 // AD-155: no password — the person's mailbox proves who they are.
+// AD-220: every session is born from the passkey of the device (WebAuthn).
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const ACCESS_KEY_TTL_MS = 15 * 60 * 1000;
 const MAX_CODE_ATTEMPTS = 5;
+// The passkey belongs to the site of the web app: the page that runs the WebAuthn ceremony.
+const RP_ID = new URL(env.CORS_ORIGIN).hostname;
 
 // The code is hashed with the e-mail: the same 6 digits never produce the same hash for two people.
 const hashCode = (email: string, code: string) => hashToken(`${email}:${code}`);
 
-// The single place that opens a session (sign-in, sign-up and invite acceptance). AWAITED
-// before the controller builds the cookie (Risk 5): the first /auth/session never gets a 401.
-export const startSession = async (user: { id: string; tenant?: string }, deviceInfo: string): Promise<string> => {
+type Ticket = { user?: string; email?: string; challenge?: string; purpose?: string };
+
+// Short signed tickets carry one step to the next (office creation, passkey creation, WebAuthn
+// challenge) without a collection of their own.
+const signTicket = (payload: Ticket, expiresIn: '10m' | '30m') =>
+  jwt.sign(payload, env.SESSION_JWT_SECRET, { expiresIn });
+
+const readTicket = (token: string, purpose: string, error: 'invalid_access_key' | 'invalid_passkey'): Ticket => {
+  try {
+    const decoded = jwt.verify(token, env.SESSION_JWT_SECRET) as Ticket;
+    if (decoded.purpose === purpose) return decoded;
+  } catch {
+    // expired or forged — same answer below
+  }
+  throw new CustomError(error, 401);
+};
+
+// APA-03: the confirmed e-mail (or the accepted invite, APA-04) only allows creating the passkey
+// of this device.
+export const passkeyTicket = (userId: string) => signTicket({ user: userId, purpose: 'passkey' }, '10m');
+
+// The single place that opens a session, always from a passkey (APA-07). AWAITED before the
+// controller builds the cookie (Risk 5): the first /auth/session never gets a 401.
+const startSession = async (
+  user: { id: string; tenant?: string },
+  deviceInfo: string,
+  passkeyId: string,
+): Promise<string> => {
   // jwtid: two sessions of the same person in the same second would otherwise share the token.
   const sessionToken = jwt.sign({ user: user.id }, env.SESSION_JWT_SECRET, {
     expiresIn: '30d',
@@ -34,10 +71,14 @@ export const startSession = async (user: { id: string; tenant?: string }, device
   await authRepository.createSession({
     user: user.id,
     tenant: user.tenant,
+    passkey: passkeyId,
     tokenHash: hashToken(sessionToken),
     deviceInfo,
     expiresAt: new Date(Date.now() + SESSION_TTL_MS),
   });
+  // Signing in goes to the activity log (AD-134); whoever has no tenant (platform) does not.
+  if (user.tenant)
+    void activityLogService.record({ tenantId: user.tenant, userId: user.id, module: 'account', action: 'signin' });
   return sessionToken;
 };
 
@@ -63,30 +104,23 @@ export const requestAccessKey = async (email: string, mailProvider: MailProvider
     `<p>Use o botão abaixo para entrar no Ethica:</p>
 <p><a href="${link}">Entrar no Ethica</a></p>
 <p>Ou digite este código na tela de acesso: <strong>${code}</strong></p>
+<p>Ao entrar, o Ethica pede para ativar o acesso no aparelho (digital, rosto ou PIN).</p>
 <p>A chave vale por 15 minutos e só pode ser usada uma vez. Se não foi você quem pediu, ignore este e-mail.</p>`,
   );
   if (!sent) throw new CustomError('email_send_failed', 502);
 };
 
-// ACE-02/03: consumes the key (link or code). With an account it opens the session; without
-// one it returns a short ticket (30 min) for the office creation step (ACE-04).
+// ACE-02/03: consumes the key (link or code). With an account it leads to the passkey of this
+// device (APA-03); without one it returns a short ticket (30 min) for the office creation (ACE-04).
 export const verifyAccessKey = async (
   data: AccessKeyVerify,
-  deviceInfo: string,
-): Promise<{ sessionToken: string } | { signupToken: string }> => {
+): Promise<{ passkeyToken: string } | { signupToken: string }> => {
   const email = 'token' in data ? await consumeByToken(data.token) : await consumeByCode(data.email, data.code);
 
   const user = await authRepository.findUserByEmail(email);
-  if (!user) {
-    return { signupToken: jwt.sign({ email, purpose: 'signup' }, env.SESSION_JWT_SECRET, { expiresIn: '30m' }) };
-  }
+  if (!user) return { signupToken: signTicket({ email, purpose: 'signup' }, '30m') };
   if (!user.active) throw new CustomError('invalid_access_key', 401);
-
-  const sessionToken = await startSession(user, deviceInfo);
-  // Signing in goes to the activity log (AD-134); whoever has no tenant (platform) does not.
-  if (user.tenant)
-    void activityLogService.record({ tenantId: user.tenant, userId: user.id, module: 'account', action: 'signin' });
-  return { sessionToken };
+  return { passkeyToken: passkeyTicket(user.id) };
 };
 
 const consumeByToken = async (token: string): Promise<string> => {
@@ -104,39 +138,11 @@ const consumeByCode = async (email: string, code: string): Promise<string> => {
   return email;
 };
 
-// AD-157: test sign-up while sending e-mail is blocked. A known e-mail with a password signs in;
-// a new e-mail gets the same office creation ticket as the key, carrying the password hash.
-export const passwordAccess = async (
-  data: PasswordAccess,
-  deviceInfo: string,
-): Promise<{ sessionToken: string } | { signupToken: string }> => {
-  const user = await authRepository.findUserWithPasswordHash(data.email);
-  if (!user) {
-    const passwordHash = hashPassword(data.password);
-    const signupToken = jwt.sign({ email: data.email, passwordHash, purpose: 'signup' }, env.SESSION_JWT_SECRET, {
-      expiresIn: '30m',
-    });
-    return { signupToken };
-  }
-  if (!user.active || !user.passwordHash || !passwordMatches(data.password, user.passwordHash)) {
-    throw new CustomError('invalid_credentials', 401);
-  }
-  return { sessionToken: await startSession(user, deviceInfo) };
-};
-
-const hashPassword = (password: string): string => {
-  const salt = crypto.randomBytes(16).toString('hex');
-  return `${salt}:${crypto.scryptSync(password, salt, 64).toString('hex')}`;
-};
-
-const passwordMatches = (password: string, stored: string): boolean => {
-  const [salt, hash] = stored.split(':');
-  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), crypto.scryptSync(password, salt, 64));
-};
-
 // ACE-04: open sign-up — the confirmed e-mail creates an active office and becomes its admin.
-export const signup = async (data: Signup, deviceInfo: string): Promise<string> => {
-  const { email, passwordHash } = readSignupToken(data.signupToken);
+// The session only opens with the passkey (APA-04).
+export const signup = async (data: Signup): Promise<{ passkeyToken: string }> => {
+  const { email } = readTicket(data.signupToken, 'signup', 'invalid_access_key');
+  if (!email) throw new CustomError('invalid_access_key', 401);
   if (await authRepository.findUserByEmail(email)) throw new CustomError('email_already_registered', 409);
   if (await authRepository.tenantDocumentExists(data.document))
     throw new CustomError('document_already_registered', 409);
@@ -146,28 +152,132 @@ export const signup = async (data: Signup, deviceInfo: string): Promise<string> 
     name: data.name,
     officeName: data.officeName,
     document: data.document,
-    passwordHash,
   });
-  return startSession(user, deviceInfo);
+  return { passkeyToken: passkeyTicket(user.id) };
 };
 
-const readSignupToken = (signupToken: string): { email: string; passwordHash?: string } => {
-  try {
-    const decoded = jwt.verify(signupToken, env.SESSION_JWT_SECRET) as {
-      email?: unknown;
-      passwordHash?: unknown;
-      purpose?: unknown;
-    };
-    if (decoded.purpose === 'signup' && typeof decoded.email === 'string') {
-      return {
-        email: decoded.email,
-        passwordHash: typeof decoded.passwordHash === 'string' ? decoded.passwordHash : undefined,
-      };
-    }
-  } catch {
-    // expired or forged — same answer below
-  }
-  throw new CustomError('invalid_access_key', 401);
+// APA-05: the kind comes from the browser that creates the passkey — the same one the session
+// is bound to (deviceInfo). iPadOS reports itself as a Mac and counts as a computer.
+const deviceKind = (userAgent: string): DeviceKind =>
+  /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent) ? 'mobile' : 'desktop';
+
+const deviceLabel = (userAgent: string): string => {
+  const system =
+    [
+      ['iPhone', /iPhone/],
+      ['iPad', /iPad/],
+      ['Android', /Android/],
+      ['Windows', /Windows/],
+      ['macOS', /Macintosh|Mac OS X/],
+      ['Linux', /Linux/],
+    ].find(([, pattern]) => (pattern as RegExp).test(userAgent))?.[0] ?? '';
+  const browser =
+    [
+      ['Edge', /Edg\//],
+      ['Opera', /OPR\//],
+      ['Firefox', /Firefox|FxiOS/],
+      ['Chrome', /Chrome|CriOS/],
+      ['Safari', /Safari/],
+    ].find(([, pattern]) => (pattern as RegExp).test(userAgent))?.[0] ?? '';
+  return [browser, system].filter(Boolean).join(' · ') || 'Web';
+};
+
+const activeUser = async (userId: string | undefined) => {
+  const user = userId ? await authRepository.findUserById(userId) : null;
+  if (!user?.active) throw new CustomError('invalid_passkey', 401);
+  return user;
+};
+
+// APA-03/06: options to create the passkey of this device — the device's own authenticator
+// (fingerprint, face, PIN or Windows Hello), discoverable, with user verification.
+export const passkeyRegistrationOptions = async (passkeyToken: string) => {
+  const ticket = readTicket(passkeyToken, 'passkey', 'invalid_passkey');
+  const user = await activeUser(ticket.user);
+  const view = await authRepository.findUserView(user.id);
+  if (!view) throw new CustomError('invalid_passkey', 401);
+
+  const options = await generateRegistrationOptions({
+    rpName: 'Ethica',
+    rpID: RP_ID,
+    userName: view.email,
+    userDisplayName: view.name,
+    // The same id on every device: the browser hands it back when signing in.
+    userID: new TextEncoder().encode(user.id),
+    attestationType: 'none',
+    authenticatorSelection: {
+      authenticatorAttachment: 'platform',
+      residentKey: 'required',
+      userVerification: 'required',
+    },
+  });
+  const challengeToken = signTicket(
+    { user: user.id, challenge: options.challenge, purpose: 'passkey-register' },
+    '10m',
+  );
+  return { options, challengeToken };
+};
+
+// APA-05: the new passkey replaces the previous one of the same kind (and ends its sessions).
+export const registerPasskey = async (data: PasskeyResponse, userAgent: string): Promise<string> => {
+  const ticket = readTicket(data.challengeToken, 'passkey-register', 'invalid_passkey');
+  const user = await activeUser(ticket.user);
+  const response = data.response as unknown as RegistrationResponseJSON;
+  // APA-06: a security key or "use your phone" (cross-platform) is not this device.
+  if (response.authenticatorAttachment === 'cross-platform') throw new CustomError('invalid_passkey', 401);
+
+  const verification = await verifyRegistrationResponse({
+    response,
+    expectedChallenge: ticket.challenge as string,
+    expectedOrigin: env.CORS_ORIGIN,
+    expectedRPID: RP_ID,
+    requireUserVerification: true,
+  }).catch(() => null);
+  if (!verification?.verified) throw new CustomError('invalid_passkey', 401);
+
+  const { credential, credentialBackedUp } = verification.registrationInfo;
+  const passkeyId = await authRepository.replacePasskey({
+    user: user.id,
+    kind: deviceKind(userAgent),
+    credentialId: credential.id,
+    publicKey: Buffer.from(credential.publicKey),
+    counter: credential.counter,
+    transports: credential.transports,
+    backedUp: credentialBackedUp,
+    label: deviceLabel(userAgent),
+  });
+  return startSession(user, userAgent, passkeyId);
+};
+
+// APA-02: sign-in without e-mail — the browser offers the passkeys it has for the site.
+export const passkeySigninOptions = async () => {
+  const options = await generateAuthenticationOptions({ rpID: RP_ID, userVerification: 'required' });
+  return { options, challengeToken: signTicket({ challenge: options.challenge, purpose: 'passkey-signin' }, '10m') };
+};
+
+export const signinWithPasskey = async (data: PasskeyResponse, userAgent: string): Promise<string> => {
+  const ticket = readTicket(data.challengeToken, 'passkey-signin', 'invalid_passkey');
+  const response = data.response as unknown as AuthenticationResponseJSON;
+  const passkey = await authRepository.findPasskey(response.id);
+  if (!passkey) throw new CustomError('invalid_passkey', 401);
+  const user = await activeUser(passkey.user);
+
+  const verification = await verifyAuthenticationResponse({
+    response,
+    expectedChallenge: ticket.challenge as string,
+    expectedOrigin: env.CORS_ORIGIN,
+    expectedRPID: RP_ID,
+    credential: {
+      id: passkey.credentialId,
+      publicKey: new Uint8Array(passkey.publicKey),
+      counter: passkey.counter,
+      transports: passkey.transports,
+    },
+    requireUserVerification: true,
+  }).catch(() => null);
+  if (!verification?.verified) throw new CustomError('invalid_passkey', 401);
+
+  await authRepository.touchPasskey(passkey.id, verification.authenticationInfo.newCounter);
+  return startSession(user, userAgent, passkey.id);
 };
 
 // No token validation on purpose: logout has to work even with the

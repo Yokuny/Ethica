@@ -19,27 +19,10 @@ export const requestAccessKey =
     }
   };
 
-// The key (ACE-03) and the test password (AD-157) answer the same way: session or office ticket.
-const respondAccess = (res: Response, result: { sessionToken: string } | { signupToken: string }) => {
-  if ('signupToken' in result) {
-    res.json(respObj({ data: { signupToken: result.signupToken } }));
-    return;
-  }
-  res.cookie('refreshToken', result.sessionToken, cookieOptions);
-  res.json(respObj({ data: { signedIn: true }, message: 'signed_in_successfully' }));
-};
-
+// ACE-03/APA-03: the key leads to the passkey of this device (or to the office creation).
 export const verifyAccessKey = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    respondAccess(res, await authService.verifyAccessKey(req.body, deviceOf(req)));
-  } catch (e) {
-    next(e);
-  }
-};
-
-export const passwordAccess = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    respondAccess(res, await authService.passwordAccess(req.body, deviceOf(req)));
+    res.json(respObj({ data: await authService.verifyAccessKey(req.body) }));
   } catch (e) {
     next(e);
   }
@@ -47,13 +30,41 @@ export const passwordAccess = async (req: Request, res: Response, next: NextFunc
 
 export const signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const sessionToken = await authService.signup(req.body, deviceOf(req));
-    res.cookie('refreshToken', sessionToken, cookieOptions);
-    res.status(201).json(respObj({ message: 'created_successfully' }));
+    res.status(201).json(respObj({ data: await authService.signup(req.body), message: 'created_successfully' }));
   } catch (e) {
     next(e);
   }
 };
+
+export const passkeyRegistrationOptions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await authService.passkeyRegistrationOptions(req.body.passkeyToken) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const passkeySigninOptions = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await authService.passkeySigninOptions() }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+// APA-02/03: both end with the session cookie, bound to this browser (deviceInfo).
+const openSession =
+  (open: typeof authService.registerPasskey) => async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.cookie('refreshToken', await open(req.body, deviceOf(req)), cookieOptions);
+      res.json(respObj({ data: { signedIn: true }, message: 'signed_in_successfully' }));
+    } catch (e) {
+      next(e);
+    }
+  };
+
+export const registerPasskey = openSession(authService.registerPasskey);
+export const signinWithPasskey = openSession(authService.signinWithPasskey);
 
 export const signout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

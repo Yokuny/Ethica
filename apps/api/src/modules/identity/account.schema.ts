@@ -1,8 +1,9 @@
-import type { UpdateAvatar, UpdateProfile } from '@ethica/contracts';
-import { updateAvatarSchema, updateProfileSchema } from '@ethica/contracts';
+import type { PasskeyView, UpdateAvatar, UpdateProfile } from '@ethica/contracts';
+import { idSchema, updateAvatarSchema, updateProfileSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
+import { z } from 'zod';
 
-export type { UpdateAvatar, UpdateProfile };
+export type { PasskeyView, UpdateAvatar, UpdateProfile };
 export { updateAvatarSchema, updateProfileSchema };
 
 export type AccountRouterDeps = { validToken: RequestHandler };
@@ -24,3 +25,6 @@ export type FeedOwner = { userId: string; tenantId: string };
 
 // AD-110: who gets the daily deadline reminder.
 export type NoticeRecipient = { tenantId: string; name: string; email: string };
+
+// APA-08: one of the person's own devices.
+export const passkeyIdParamSchema = z.object({ id: idSchema }).strict();

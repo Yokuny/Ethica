@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { checkRole } from '../../middlewares/authorization.middleware.js';
-import { accessKeyRateLimit, accessVerifyRateLimit } from '../../middlewares/rateLimit.middleware.js';
+import { accessKeyRateLimit, accessVerifyRateLimit, passkeyRateLimit } from '../../middlewares/rateLimit.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as authController from './auth.controller.js';
@@ -9,7 +9,8 @@ import {
   accessKeyRequestSchema,
   accessKeyVerifySchema,
   listUsersQuerySchema,
-  passwordAccessSchema,
+  passkeyRegisterOptionsSchema,
+  passkeyResponseSchema,
   signupSchema,
   updatePermissionsSchema,
   userDirectoryQuerySchema,
@@ -41,9 +42,17 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     validBody(accessKeyVerifySchema),
     authController.verifyAccessKey,
   );
-  // AD-157: test sign-up by e-mail + password, same limit as checking the key.
-  router.post('/password', accessVerifyRateLimit, validBody(passwordAccessSchema), authController.passwordAccess);
   router.post('/signup', accessVerifyRateLimit, validBody(signupSchema), authController.signup);
+  // APA-02/03 (AD-220): every session is born from the passkey of the device.
+  router.post(
+    '/passkey/register/options',
+    passkeyRateLimit,
+    validBody(passkeyRegisterOptionsSchema),
+    authController.passkeyRegistrationOptions,
+  );
+  router.post('/passkey/register', passkeyRateLimit, validBody(passkeyResponseSchema), authController.registerPasskey);
+  router.post('/passkey/options', passkeyRateLimit, authController.passkeySigninOptions);
+  router.post('/passkey', passkeyRateLimit, validBody(passkeyResponseSchema), authController.signinWithPasskey);
   // No validToken: signing out has to work (and clear the cookie) even with the
   // session already invalid.
   router.post('/signout', authController.signout);
