@@ -32,6 +32,15 @@ describe('errorHandler', () => {
     expect(res.json).toHaveBeenCalledWith({ success: false, message: 'invalid_data' });
   });
 
+  it('keeps the contract key of a failed outside service (502) instead of internal_error', () => {
+    const res = buildRes();
+
+    errorHandler(new CustomError('email_send_failed', 502), buildReq(), res, vi.fn() as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(502);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'email_send_failed' });
+  });
+
   it('never sends raw text: a 4xx whose message is not a contract key falls back to invalid_data', () => {
     const res = buildRes();
     const err = Object.assign(new Error('Unexpected token } in JSON at position 1'), { status: 400 });

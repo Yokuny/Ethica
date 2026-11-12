@@ -35,11 +35,11 @@ const hasStatus = (err: unknown): err is { status: number } =>
 // body — only in the structured log, with a requestId for correlation. The body
 // always carries a contract key: the error's own key when it already is one
 // (CustomError/KeyedError), `invalid_data` for a third-party 4xx without a key
-// (e.g. malformed JSON from express.json) and `internal_error` for any 5xx.
+// (e.g. malformed JSON from express.json) and `internal_error` for any other 5xx.
 const resolveMessageKey = (err: unknown, status: number): ApiMessageKey => {
-  // 503 with a contract key (e.g. `search_unavailable`, Atlas Search missing)
-  // is an unavailability the client should see as such, not a bug.
-  if (status === 503 && err instanceof KeyedError) return err.message;
+  // 502/503 with a contract key (e.g. `email_send_failed`, `search_unavailable`) is a
+  // failure of an outside service the client should see as such, not a bug.
+  if ((status === 502 || status === 503) && err instanceof KeyedError) return err.message;
   if (status >= 500) return 'internal_error';
   if (err instanceof Error && isApiMessageKey(err.message)) return err.message;
   return 'invalid_data';
