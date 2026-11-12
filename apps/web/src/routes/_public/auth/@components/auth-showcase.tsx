@@ -1,4 +1,5 @@
-import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { Item, ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { Separator } from '@ethica/ui/components/separator';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -60,8 +61,8 @@ export function AuthShowcase() {
           <span
             key={key}
             className={cn(
-              'h-1 flex-1 rounded-full transition-colors duration-700',
-              index === current ? 'bg-foreground' : 'bg-border',
+              'h-0.5 flex-1 rounded-full transition-colors duration-700',
+              index === current ? 'bg-foreground/60' : 'bg-border',
             )}
           />
         ))}
@@ -72,20 +73,26 @@ export function AuthShowcase() {
           <div
             key={key}
             className={cn(
-              'col-start-1 row-start-1 flex flex-col gap-4 transition-[opacity,translate] duration-700 ease-out motion-reduce:transition-none',
+              'col-start-1 row-start-1 flex flex-col gap-4 transition-[opacity,translate] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
               index === current ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0',
             )}
           >
             <div className="flex flex-col gap-1">
-              <ItemTitle className="text-lg">{title}</ItemTitle>
+              <ItemTitle className="font-medium text-base">{title}</ItemTitle>
               <ItemDescription className="line-clamp-none">{description}</ItemDescription>
             </div>
-            {/* One frame for every piece: same height, and its edges fade the piece inside. */}
-            <div className="h-130 overflow-hidden mask-x-from-95% mask-y-from-90%">
-              <div className="h-full p-2 [&>*]:min-h-full">
+            {/* One window for every piece: same height; only the bottom edge fades, where the piece goes on. */}
+            <Item className="flex-col flex-nowrap items-stretch gap-0 overflow-hidden p-0 shadow-none">
+              <div className="flex gap-1.5 px-3 py-2.5">
+                {['close', 'minimize', 'zoom'].map((dot) => (
+                  <span key={dot} className="size-2 rounded-full bg-border" />
+                ))}
+              </div>
+              <Separator />
+              <div className="h-104 overflow-hidden mask-b-from-85%">
                 <Piece />
               </div>
-            </div>
+            </Item>
           </div>
         ))}
       </div>

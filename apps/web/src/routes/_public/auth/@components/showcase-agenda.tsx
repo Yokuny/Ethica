@@ -1,98 +1,102 @@
-import { ItemDescription } from '@ethica/ui/components/item';
-import { CalendarEntryChip, CalendarEventChip } from '@/components/calendar-event.js';
-import { CalendarMonthCell, CalendarMonthGrid } from '@/components/calendar-grid.js';
-import {
-  addDaysToDisplayDate,
-  currentDisplayWeekStart,
-  displayWallClockToUtcIso,
-  formatDisplayDate,
-  weekdayIndexOfDisplayDate,
-} from '@/lib/helpers/displayTime.helper.js';
+import { Badge } from '@ethica/ui/components/badge';
+import { Item, ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { Separator } from '@ethica/ui/components/separator';
+import { cn } from 'cn';
+import { addDaysToDisplayDate, currentDisplayWeekStart } from '@/lib/helpers/displayTime.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
-import type { AppointmentRecord } from '@/query/appointment.js';
-import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
 
-// APA-10: two weeks of the agenda month view, with the same grid and chips of the real calendar.
+// APA-10: the week view from Sunday to Thursday. Monday to Wednesday whole; Sunday and Thursday fade at
+// the edges, as if the week went on beyond the frame.
 
-const WEEK_START = currentDisplayWeekStart();
-const DAYS = Array.from({ length: 14 }, (_, index) => addDaysToDisplayDate(WEEK_START, index));
-const TODAY = formatDisplayDate(new Date());
-const noop = () => {};
+const FIRST_HOUR = 8;
+const HOURS = 8;
+const HOUR_PX = 44;
+const HOUR_LIST = Array.from({ length: HOURS }, (_, index) => FIRST_HOUR + index);
+const MONDAY = currentDisplayWeekStart();
+// Sunday before the week, Monday to Thursday: the two ends are the faded halves.
+const DAYS = [-1, 0, 1, 2, 3].map((offset) => addDaysToDisplayDate(MONDAY, offset));
 
-const appointment = (
-  id: string,
-  dayOffset: number,
-  from: string,
-  to: string,
-  type: AppointmentRecord['type'],
-  title: string,
-): AppointmentRecord => {
-  const day = addDaysToDisplayDate(WEEK_START, dayOffset);
-  return {
-    id,
-    type,
-    title,
-    start: displayWallClockToUtcIso(day, from),
-    end: displayWallClockToUtcIso(day, to),
-    status: 'scheduled',
-    origin: 'manual',
-  };
+type Tone = 'done' | 'scheduled' | 'deadline';
+// Washed-out tones: done green, scheduled neutral, deadline yellow.
+const TONE: Record<Tone, string> = {
+  done: 'border-emerald-200/70 bg-emerald-50/70',
+  scheduled: 'border-border bg-muted/50',
+  deadline: 'border-amber-200/70 bg-amber-50/70',
 };
+const BADGE: Record<Tone, string> = {
+  done: 'bg-emerald-100/70 text-emerald-800',
+  scheduled: 'bg-background text-muted-foreground',
+  deadline: 'bg-amber-100/70 text-amber-800',
+};
+const LABEL: Record<Tone, string> = { done: t('done'), scheduled: t('scheduled'), deadline: t('deadline') };
 
-const APPOINTMENTS = [
-  appointment('a1', 0, '09:00', '11:00', 'inspection', t('sample_inspection_title')),
-  appointment('a2', 1, '14:00', '15:00', 'hearing', t('sample_hearing_title')),
-  appointment('a3', 3, '08:30', '10:00', 'inspection', t('sample_stop_factory')),
-  appointment('a4', 3, '16:30', '17:30', 'meeting', t('sample_meeting_title')),
-  appointment('a5', 7, '10:00', '12:00', 'inspection', t('sample_stop_building')),
-  appointment('a6', 9, '13:30', '14:30', 'hearing', t('sample_hearing_title')),
-  appointment('a7', 11, '09:00', '10:30', 'inspection', t('sample_stop_warehouse')),
+const EVENTS: { day: number; start: number; hours: number; what: string; tone: Tone }[] = [
+  { day: 0, start: 9, hours: 1.5, what: t('inspection'), tone: 'done' },
+  { day: 1, start: 8.5, hours: 1.5, what: t('inspection'), tone: 'done' },
+  { day: 1, start: 13, hours: 1.5, what: t('hearing'), tone: 'scheduled' },
+  { day: 2, start: 10, hours: 2, what: t('inspection'), tone: 'scheduled' },
+  { day: 2, start: 14, hours: 1, what: t('deadline'), tone: 'deadline' },
+  { day: 3, start: 9, hours: 1, what: t('meeting'), tone: 'scheduled' },
+  { day: 3, start: 11, hours: 2, what: t('inspection'), tone: 'scheduled' },
+  { day: 4, start: 9.5, hours: 1.5, what: t('inspection'), tone: 'scheduled' },
 ];
 
-// All-day entries from today on, so none shows as overdue (red).
-const entry = (
-  id: string,
-  daysFromToday: number,
-  type: CalendarEntryRecord['type'],
-  title: string,
-  extra: Pick<CalendarEntryRecord, 'amountCents' | 'caseNumber'>,
-): CalendarEntryRecord => ({
-  id,
-  source: type === 'deadline' ? 'deadline' : 'transaction',
-  originId: id,
-  type,
-  title,
-  date: addDaysToDisplayDate(TODAY, daysFromToday),
-  status: 'open',
-  ...extra,
-});
+const clock = (hour: number) => `${Math.floor(hour)}:${hour % 1 ? '30' : '00'}`;
 
-const ENTRIES = [
-  entry('e1', 1, 'deadline', t('report_deadline'), {}),
-  entry('e2', 2, 'income', t('fees'), { amountCents: 480_000 }),
-  entry('e3', 5, 'deadline', t('report_deadline'), {}),
-  entry('e4', 7, 'expense', t('fuel'), { amountCents: 8_290 }),
-];
+// Fade of the half columns: Sunday toward the left edge, Thursday toward the right one.
+const EDGE: Record<number, string> = { 0: 'mask-l-from-30%', 4: 'mask-r-from-30%' };
 
 export function ShowcaseAgenda() {
   return (
-    <CalendarMonthGrid>
-      {DAYS.slice(0, 7).map((day) => (
-        <ItemDescription key={day} className="line-clamp-none p-1 text-center text-[10px]">
-          {t(WEEKDAY_KEYS[weekdayIndexOfDisplayDate(day)])}
-        </ItemDescription>
-      ))}
-      {DAYS.map((day) => (
-        <CalendarMonthCell key={day} className="min-h-28">
-          <ItemDescription className="line-clamp-none text-right text-[10px]">{day.slice(-2)}</ItemDescription>
-          {ENTRIES.filter((item) => item.date === day).map((item) => (
-            <CalendarEntryChip key={item.id} entry={item} today={TODAY} onSelect={noop} />
-          ))}
-          {APPOINTMENTS.filter((item) => formatDisplayDate(item.start) === day).map((item) => (
-            <CalendarEventChip key={item.id} item={item} onSelect={noop} variant="compact" />
-          ))}
-        </CalendarMonthCell>
-      ))}
-    </CalendarMonthGrid>
+    <div className="flex h-full">
+      <div className="w-8 shrink-0 pt-6">
+        {HOUR_LIST.map((hour) => (
+          <ItemDescription key={hour} style={{ height: HOUR_PX }} className="pr-1.5 text-right text-[9px]">
+            {hour}h
+          </ItemDescription>
+        ))}
+      </div>
+      <div className="grid flex-1 grid-cols-[0.4fr_1fr_1fr_1fr_0.4fr]">
+        {DAYS.map((day, column) => (
+          <div key={day} className={cn('relative', EDGE[column])}>
+            <Separator orientation="vertical" className="absolute inset-y-0 left-0" />
+            <ItemDescription className="h-6 truncate whitespace-nowrap px-2 pt-1 text-[10px]">
+              {t(WEEKDAY_KEYS[column])} · {day.slice(-2)}
+            </ItemDescription>
+            {HOUR_LIST.map((hour) => (
+              <Separator
+                key={hour}
+                className="absolute inset-x-0"
+                style={{ top: 24 + (hour - FIRST_HOUR) * HOUR_PX }}
+              />
+            ))}
+            {EVENTS.filter((event) => event.day === column).map((event) => (
+              <Item
+                key={`${event.day}-${event.start}`}
+                size="xs"
+                className={cn(
+                  'absolute inset-x-1 flex-col flex-nowrap items-start gap-0.5 overflow-hidden px-2 py-1.5 shadow-none',
+                  TONE[event.tone],
+                )}
+                style={{
+                  top: 24 + (event.start - FIRST_HOUR) * HOUR_PX + 2,
+                  height: event.hours * HOUR_PX - 4,
+                }}
+              >
+                <ItemTitle className="w-full truncate font-medium text-[11px]">{event.what}</ItemTitle>
+                <ItemDescription className="w-full truncate whitespace-nowrap text-[10px] tabular-nums">
+                  {clock(event.start)} – {clock(event.start + event.hours)}
+                </ItemDescription>
+                {event.hours > 1 && (
+                  <Badge className={cn('h-4 px-1.5 text-[9px] uppercase tracking-wide ring-0', BADGE[event.tone])}>
+                    {LABEL[event.tone]}
+                  </Badge>
+                )}
+              </Item>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

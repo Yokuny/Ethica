@@ -1,110 +1,86 @@
-import { Item, ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { type ChartConfig, ChartContainer } from '@ethica/ui/components/chart';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
+import { Bar, BarChart } from 'recharts';
 import { courtTypeLabel } from '@/components/case-labels.js';
-import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
-import { RecordStat, RecordStats } from '@/components/record.js';
-import { addMonthsToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { MonthlyFlow } from '@/query/transaction.js';
 
-// APA-10: a made-up finance dashboard, receivable first — indicators, fees by sphere (shaded by amount) and the
-// cash flow chart of the real finance screens.
+// APA-10: a made-up finance dashboard with the receivable first — figures, amounts by sphere (shaded by
+// amount) and the receivable of the last six months.
 
-const THIS_MONTH = formatDisplayDate(new Date());
-const FLOW: MonthlyFlow[] = [
-  [920_000, 540_000, 110_000],
-  [1_240_000, 610_000, 135_000],
-  [980_000, 720_000, 98_000],
-  [1_580_000, 650_000, 142_000],
-  [1_310_000, 830_000, 120_000],
-  [1_890_000, 760_000, 156_000],
-].map(([receivedCents, receivableCents, expensesCents], index) => ({
-  month: addMonthsToDisplayDate(THIS_MONTH, index - 5).slice(0, 7),
-  receivedCents: receivedCents as number,
-  receivableCents: receivableCents as number,
-  expensesCents: expensesCents as number,
+const RECEIVABLE = [540_000, 610_000, 720_000, 650_000, 830_000, 760_000].map((receivableCents, month) => ({
+  month,
+  receivableCents,
 }));
+const chartConfig = { receivableCents: { label: t('receivable'), color: 'var(--chart-1)' } } satisfies ChartConfig;
+
+const FIGURES = [
+  { label: t('receivable'), value: formatMoney(760_000), note: '+18%' },
+  { label: t('overdue'), value: formatMoney(276_000), note: '-12%' },
+  { label: t('received_this_month'), value: formatMoney(1_890_000) },
+];
 
 const COLUMNS = [t('receivable'), t('overdue'), t('received')];
 const SPHERES = [
-  {
-    court: 'labor' as const,
-    cells: [
-      [1_120_000, 12],
-      [480_000, -4],
-      [96_000, -8],
-    ],
-  },
-  {
-    court: 'civil' as const,
-    cells: [
-      [540_000, 6],
-      [210_000, 3],
-      [180_000, 15],
-    ],
-  },
-  {
-    court: 'federal' as const,
-    cells: [
-      [230_000, -2],
-      [70_000, 0],
-      [0, 0],
-    ],
-  },
+  { court: 'labor' as const, cells: [480_000, 96_000, 1_120_000] },
+  { court: 'civil' as const, cells: [210_000, 180_000, 540_000] },
+  { court: 'federal' as const, cells: [70_000, 0, 230_000] },
 ];
 const MAX_CENTS = 1_120_000;
 
-// The higher the amount, the stronger the shade of the cell.
+// The higher the amount, the stronger the (still faint) shade of the cell.
 const shade = (cents: number) => ({
-  backgroundColor: `color-mix(in oklab, var(--chart-1) ${Math.round((cents / MAX_CENTS) * 28) + 4}%, transparent)`,
+  backgroundColor: `color-mix(in oklab, var(--chart-1) ${Math.round((cents / MAX_CENTS) * 10) + 2}%, transparent)`,
 });
-const signed = (delta: number) => (delta > 0 ? `+${delta}%` : `${delta}%`);
 
 export function ShowcaseFinance() {
   return (
-    <Item className="flex-col flex-nowrap items-stretch gap-4 p-4">
-      <RecordStats columns={3} className="py-3">
-        <RecordStat
-          label={t('receivable')}
-          value={formatMoney(760_000)}
-          sparkline={FLOW.map((month) => month.receivableCents)}
-          trend="up"
-          trendLabel="+18%"
-        />
-        <RecordStat label={t('overdue')} value={formatMoney(276_000)} trend="down" trendLabel="-12%" />
-        <RecordStat label={t('received_this_month')} value={formatMoney(1_890_000)} />
-      </RecordStats>
-      <div className="flex flex-col gap-1">
-        <ItemTitle>{t('by_sphere')}</ItemTitle>
-        <ItemDescription>{t('compared_to_last_month')}</ItemDescription>
+    <div className="flex h-full flex-col gap-5 p-5">
+      <div className="grid grid-cols-3 gap-6">
+        {FIGURES.map((figure) => (
+          <div key={figure.label} className="flex flex-col gap-1">
+            <ItemDescription className="text-[10px] uppercase tracking-wide">{figure.label}</ItemDescription>
+            <ItemTitle className="font-medium text-base tabular-nums">{figure.value}</ItemTitle>
+            {figure.note && <ItemDescription className="text-[10px] tabular-nums">{figure.note}</ItemDescription>}
+          </div>
+        ))}
       </div>
-      <Table>
+      <Table className="text-[11px]">
         <TableHeader>
           <TableRow>
-            <TableHead>{t('sphere')}</TableHead>
+            <TableHead className="text-[10px]">{t('sphere')}</TableHead>
             {COLUMNS.map((column) => (
-              <TableHead key={column}>{column}</TableHead>
+              <TableHead key={column} className="text-[10px]">
+                {column}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {SPHERES.map((sphere) => (
             <TableRow key={sphere.court}>
-              <TableCell>{courtTypeLabel(sphere.court)}</TableCell>
-              {sphere.cells.map(([cents, delta], index) => (
-                <TableCell key={COLUMNS[index]} style={shade(cents as number)}>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <ItemTitle className="tabular-nums">{formatMoney(cents)}</ItemTitle>
-                    <ItemDescription className="tabular-nums">{signed(delta as number)}</ItemDescription>
-                  </div>
+              <TableCell className="text-muted-foreground">{courtTypeLabel(sphere.court)}</TableCell>
+              {sphere.cells.map((cents, index) => (
+                <TableCell key={COLUMNS[index]} style={shade(cents)} className="tabular-nums">
+                  {formatMoney(cents)}
                 </TableCell>
               ))}
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      <FinanceFlowChart data={FLOW} />
-    </Item>
+      <ChartContainer config={chartConfig} className="aspect-auto h-28 w-full">
+        <BarChart data={RECEIVABLE} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
+          <Bar
+            dataKey="receivableCents"
+            fill="var(--color-receivableCents)"
+            fillOpacity={0.18}
+            radius={[2, 2, 0, 0]}
+            isAnimationActive={false}
+          />
+        </BarChart>
+      </ChartContainer>
+    </div>
   );
 }

@@ -1,10 +1,7 @@
 import type { TransactionCategory } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
-import { Button } from '@ethica/ui/components/button';
-import { Wallet } from 'lucide-react';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
-import { Panel } from '@/components/panel.js';
-import { RecordStat, RecordStats } from '@/components/record.js';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { Separator } from '@ethica/ui/components/separator';
 import { categoryLabel, STATE_VARIANT, stateLabel } from '@/components/transaction-labels.js';
 import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -27,40 +24,51 @@ const ENTRIES: {
   { kind: 'expense', category: 'travel', cents: 8_290, state: 'settled', days: -6 },
   { kind: 'expense', category: 'equipment', cents: 38_000, state: 'settled', days: -4 },
   { kind: 'expense', category: 'fees_and_taxes', cents: 14_950, state: 'expected', days: 3 },
+  { kind: 'expense', category: 'third_parties', cents: 22_000, state: 'expected', days: 9 },
 ];
 const EXPENSES_CENTS = ENTRIES.filter((entry) => entry.kind === 'expense').reduce(
   (total, entry) => total + entry.cents,
   0,
 );
+const FIGURES = [
+  { label: t('base_fees'), value: formatMoney(BASE_CENTS) },
+  { label: t('received'), value: formatMoney(325_000) },
+  { label: t('expenses'), value: formatMoney(EXPENSES_CENTS) },
+  { label: t('net_fees'), value: formatMoney(BASE_CENTS - EXPENSES_CENTS) },
+];
 
 export function ShowcaseExpenses() {
   return (
-    <Panel
-      icon={<Wallet />}
-      size="sm"
-      title={t('service_finance')}
-      description={t('service_finance_description')}
-      actions={<Button variant="outline">{t('add_expense')}</Button>}
-    >
-      <RecordStats columns={2}>
-        <RecordStat label={t('base_fees')} value={formatMoney(BASE_CENTS)} />
-        <RecordStat label={t('payment')} value={t('partial')} hint={`${t('received')}: ${formatMoney(325_000)}`} />
-        <RecordStat label={t('expenses')} value={formatMoney(EXPENSES_CENTS)} />
-        <RecordStat label={t('net_fees')} value={formatMoney(BASE_CENTS - EXPENSES_CENTS)} />
-      </RecordStats>
-      <LinkList>
-        {ENTRIES.map((entry) => (
-          <LinkListItem
-            key={entry.category}
-            icon={Wallet}
-            title={`${entry.kind === 'expense' ? '−' : ''}${formatMoney(entry.cents)}`}
-            badges={<Badge variant={STATE_VARIANT[entry.state]}>{stateLabel(entry.state)}</Badge>}
-            description={`${categoryLabel({ category: entry.category })} · ${formatDate(
-              new Date(`${addDaysToDisplayDate(TODAY, entry.days)}T12:00:00`),
-            )}`}
-          />
+    <div className="flex h-full flex-col gap-5 p-5">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+        {FIGURES.map((figure) => (
+          <div key={figure.label} className="flex flex-col gap-1">
+            <ItemDescription className="text-[10px] uppercase tracking-wide">{figure.label}</ItemDescription>
+            <ItemTitle className="font-medium text-base tabular-nums">{figure.value}</ItemTitle>
+          </div>
         ))}
-      </LinkList>
-    </Panel>
+      </div>
+      <div className="flex flex-col">
+        {ENTRIES.map((entry) => (
+          <div key={entry.category} className="flex flex-col">
+            <Separator />
+            <div className="flex items-center gap-3 py-2.5">
+              <div className="min-w-0 flex-1">
+                <ItemTitle className="font-normal text-xs">{categoryLabel({ category: entry.category })}</ItemTitle>
+                <ItemDescription className="text-[10px]">
+                  {formatDate(new Date(`${addDaysToDisplayDate(TODAY, entry.days)}T12:00:00`))}
+                </ItemDescription>
+              </div>
+              <Badge variant={STATE_VARIANT[entry.state]} className="text-[9px] uppercase tracking-wide">
+                {stateLabel(entry.state)}
+              </Badge>
+              <ItemTitle className="w-24 justify-end font-normal text-xs tabular-nums">
+                {`${entry.kind === 'expense' ? '−' : ''}${formatMoney(entry.cents)}`}
+              </ItemTitle>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

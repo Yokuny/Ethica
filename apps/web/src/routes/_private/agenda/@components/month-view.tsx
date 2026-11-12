@@ -1,7 +1,5 @@
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Popover, PopoverContent, PopoverTrigger } from '@ethica/ui/components/popover';
-import { CalendarEntryChip, CalendarEventChip } from '@/components/calendar-event.js';
-import { CalendarMonthCell, CalendarMonthGrid } from '@/components/calendar-grid.js';
 import {
   addDaysToDisplayDate,
   displayWeekStartOf,
@@ -12,6 +10,8 @@ import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
 import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
 import { itemOverlapsDay } from '../@utils/calendar-grid.utils.js';
+import { CalendarEntryChip, CalendarEventChip } from './calendar-event.js';
+import { CalendarMonthCell, CalendarMonthGrid } from './calendar-grid.js';
 
 export type MonthViewProps = {
   // Any wall-clock date inside the displayed month (YYYY-MM-DD).

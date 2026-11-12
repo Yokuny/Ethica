@@ -1,18 +1,18 @@
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { ScrollArea } from '@ethica/ui/components/scroll-area';
-import { CalendarEntryChip, CalendarEventChip } from '@/components/calendar-event.js';
-import {
-  CalendarTimeGrid,
-  CalendarTimeGridColumns,
-  CalendarTimeGridHeader,
-  CalendarTimeGridHourLine,
-} from '@/components/calendar-grid.js';
 import { weekdayIndexOfDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
 import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
 import { computePositionedItems, HOUR_HEIGHT_PX, HOURS_IN_DAY } from '../@utils/calendar-grid.utils.js';
+import { CalendarEntryChip, CalendarEventChip } from './calendar-event.js';
+import {
+  CalendarTimeGrid,
+  CalendarTimeGridColumns,
+  CalendarTimeGridHeader,
+  CalendarTimeGridHourLine,
+} from './calendar-grid.js';
 
 export type TimeGridViewProps = {
   // Wall-clock dates (YYYY-MM-DD, display time zone) of the columns — 1 element
