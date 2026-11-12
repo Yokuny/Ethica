@@ -75,12 +75,6 @@ export function ShowcaseRoute() {
     <Item className="flex-col flex-nowrap items-stretch gap-0 overflow-hidden p-0">
       <RouteMap />
       <div className="flex flex-col gap-4 p-4">
-        <RecordStats columns={4} className="py-3">
-          <RecordStat label={t('total_km')} value="86 km" />
-          <RecordStat label={t('driving_time')} value="1h52" />
-          <RecordStat label={t('fuel')} value={formatMoney(FUEL_CENTS)} />
-          <RecordStat label={t('tolls_on_route')} value={formatMoney(TOLLS_CENTS)} />
-        </RecordStats>
         <ItemTitle className="font-semibold">{t('launch_as_expense')}</ItemTitle>
         <RadioGroup value="split" className="gap-2">
           <Item>
@@ -111,6 +105,12 @@ export function ShowcaseRoute() {
           <Fuel />
           {t('launch_as_expense')}
         </Button>
+        <RecordStats columns={4} className="py-3">
+          <RecordStat label={t('total_km')} value="86 km" />
+          <RecordStat label={t('driving_time')} value="1h52" />
+          <RecordStat label={t('fuel')} value={formatMoney(FUEL_CENTS)} />
+          <RecordStat label={t('tolls_on_route')} value={formatMoney(TOLLS_CENTS)} />
+        </RecordStats>
       </div>
     </Item>
   );

@@ -24,6 +24,7 @@ const FILTERS = [
 
 const CASES: {
   control: string;
+  // Empty for the office's own service type, which has no court case (AD-158).
   number: string;
   subject: string;
   phase: CasePhase;
@@ -66,6 +67,23 @@ const CASES: {
     alert: 'deadline_attention',
     deadline: t('deadline'),
   },
+  {
+    control: 'OS-0124',
+    number: '0010877-31.2025.5.02.0047',
+    subject: t('sample_subject_assistance'),
+    phase: 'case_file_study',
+    status: 'active',
+    deadline: t('deadline'),
+  },
+  {
+    control: 'OS-0120',
+    number: '',
+    subject: t('sample_subject_property'),
+    phase: 'document_request',
+    status: 'active',
+    alert: 'due_soon',
+    deadline: t('deadline'),
+  },
 ];
 
 export function ShowcaseCases() {
@@ -97,8 +115,8 @@ export function ShowcaseCases() {
               <TableCell>
                 <TableIdentity
                   icon={BriefcaseBusiness}
-                  title={row.number}
-                  description={`${row.control} · ${row.subject}`}
+                  title={row.number || row.subject}
+                  description={row.number ? `${row.control} · ${row.subject}` : row.control}
                 />
               </TableCell>
               <TableCell>

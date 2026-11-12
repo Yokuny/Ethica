@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { ShowcaseAgenda } from './showcase-agenda.js';
 import { ShowcaseCases } from './showcase-cases.js';
+import { ShowcaseExpenses } from './showcase-expenses.js';
 import { ShowcaseFinance } from './showcase-finance.js';
 import { ShowcaseRoute } from './showcase-route.js';
 
@@ -29,6 +30,12 @@ const SLIDES = [
     title: t('showcase_route_title'),
     description: t('showcase_route_description'),
     Piece: ShowcaseRoute,
+  },
+  {
+    key: 'expenses',
+    title: t('showcase_expenses_title'),
+    description: t('showcase_expenses_description'),
+    Piece: ShowcaseExpenses,
   },
   {
     key: 'finance',
@@ -73,7 +80,12 @@ export function AuthShowcase() {
               <ItemTitle className="text-lg">{title}</ItemTitle>
               <ItemDescription className="line-clamp-none">{description}</ItemDescription>
             </div>
-            <Piece />
+            {/* One frame for every piece: same height, and its edges fade the piece inside. */}
+            <div className="h-130 overflow-hidden mask-x-from-95% mask-y-from-90%">
+              <div className="h-full p-2 [&>*]:min-h-full">
+                <Piece />
+              </div>
+            </div>
           </div>
         ))}
       </div>

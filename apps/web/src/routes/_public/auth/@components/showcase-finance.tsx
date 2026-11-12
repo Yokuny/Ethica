@@ -8,7 +8,7 @@ import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { MonthlyFlow } from '@/query/transaction.js';
 
-// APA-10: a made-up finance dashboard — indicators, fees by sphere (shaded by amount) and the
+// APA-10: a made-up finance dashboard, receivable first — indicators, fees by sphere (shaded by amount) and the
 // cash flow chart of the real finance screens.
 
 const THIS_MONTH = formatDisplayDate(new Date());
@@ -26,7 +26,7 @@ const FLOW: MonthlyFlow[] = [
   expensesCents: expensesCents as number,
 }));
 
-const COLUMNS = [t('received'), t('receivable'), t('overdue')];
+const COLUMNS = [t('receivable'), t('overdue'), t('received')];
 const SPHERES = [
   {
     court: 'labor' as const,
@@ -66,14 +66,14 @@ export function ShowcaseFinance() {
     <Item className="flex-col flex-nowrap items-stretch gap-4 p-4">
       <RecordStats columns={3} className="py-3">
         <RecordStat
-          label={t('received_this_month')}
-          value={formatMoney(1_890_000)}
-          sparkline={FLOW.map((month) => month.receivedCents)}
+          label={t('receivable')}
+          value={formatMoney(760_000)}
+          sparkline={FLOW.map((month) => month.receivableCents)}
           trend="up"
-          trendLabel="+44%"
+          trendLabel="+18%"
         />
-        <RecordStat label={t('receivable')} value={formatMoney(760_000)} sparkline={[540, 610, 720, 650, 830, 760]} />
         <RecordStat label={t('overdue')} value={formatMoney(276_000)} trend="down" trendLabel="-12%" />
+        <RecordStat label={t('received_this_month')} value={formatMoney(1_890_000)} />
       </RecordStats>
       <div className="flex flex-col gap-1">
         <ItemTitle>{t('by_sphere')}</ItemTitle>
