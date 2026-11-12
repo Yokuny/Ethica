@@ -1,9 +1,12 @@
+import type { CasePhase } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Item, ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
 import { ChevronRight, ListFilter, Search } from 'lucide-react';
 import { casePhaseLabel } from '@/components/case-labels.js';
+import { addDaysToDisplayDate, formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
+import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 // APA-10: the Filters menu open, the subject of the piece; the list behind it stays faint.
@@ -17,14 +20,31 @@ const FILTERS = [
   { label: t('delivery_period') },
 ];
 
-const ROWS = [
-  { title: t('sample_subject_noise'), phase: casePhaseLabel('inspection_scheduled') },
-  { title: t('sample_subject_ergonomics'), phase: casePhaseLabel('drafting_report') },
-  { title: t('sample_subject_electric'), phase: casePhaseLabel('objection_reply') },
-  { title: t('sample_subject_building'), phase: casePhaseLabel('fee_proposal') },
-  { title: t('sample_subject_assistance'), phase: casePhaseLabel('case_file_study') },
-  { title: t('sample_subject_property'), phase: casePhaseLabel('document_request') },
-  { title: t('sample_subject_noise'), phase: casePhaseLabel('report_delivered') },
+// A real-looking list, kept faint: process (or service name) with the subject, phase and next deadline.
+const TODAY = formatDisplayDate(new Date());
+const ROWS: { title: string; subject: string; phase: CasePhase; due?: number }[] = [
+  {
+    title: '0010234-55.2025.5.02.0011',
+    subject: t('sample_subject_noise'),
+    phase: 'inspection_scheduled',
+    due: 4,
+  },
+  {
+    title: '1002871-12.2025.5.02.0384',
+    subject: t('sample_subject_ergonomics'),
+    phase: 'drafting_report',
+    due: 7,
+  },
+  { title: '0011456-08.2024.5.02.0062', subject: t('sample_subject_electric'), phase: 'objection_reply', due: 11 },
+  { title: '1004418-73.2024.8.26.0100', subject: t('sample_subject_building'), phase: 'fee_proposal', due: 14 },
+  {
+    title: '0010877-31.2025.5.02.0047',
+    subject: t('sample_subject_assistance'),
+    phase: 'case_file_study',
+    due: 18,
+  },
+  { title: t('sample_subject_property'), subject: 'OS-0120', phase: 'document_request', due: 21 },
+  { title: '0012019-44.2024.5.02.0021', subject: t('sample_subject_noise'), phase: 'report_delivered', due: undefined },
 ];
 
 export function ShowcaseCases() {
@@ -39,18 +59,25 @@ export function ShowcaseCases() {
         <Search aria-hidden className="size-3.5 text-muted-foreground/60" />
         <ItemDescription className="text-xs text-muted-foreground/60">{t('search')}</ItemDescription>
       </div>
-      <Table className="text-[11px] opacity-40">
+      <Table className="text-xs opacity-45">
         <TableHeader>
           <TableRow>
             <TableHead>{t('expert_case')}</TableHead>
             <TableHead>{t('service_phase')}</TableHead>
+            <TableHead>{t('next_deadline')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {ROWS.map((row) => (
-            <TableRow key={row.phase}>
-              <TableCell>{row.title}</TableCell>
-              <TableCell className="text-muted-foreground">{row.phase}</TableCell>
+            <TableRow key={row.title}>
+              <TableCell className="py-3">
+                <ItemTitle className="font-normal text-xs">{row.title}</ItemTitle>
+                <ItemDescription className="text-[11px]">{row.subject}</ItemDescription>
+              </TableCell>
+              <TableCell className="py-3 text-muted-foreground">{casePhaseLabel(row.phase)}</TableCell>
+              <TableCell className="py-3 text-muted-foreground tabular-nums">
+                {row.due === undefined ? '—' : formatDate(new Date(`${addDaysToDisplayDate(TODAY, row.due)}T12:00:00`))}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
