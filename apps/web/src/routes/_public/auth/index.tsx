@@ -1,7 +1,7 @@
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { createFileRoute, useSearch } from '@tanstack/react-router';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardContent } from '@/components/page-card.js';
 import { PasskeySetup } from '@/components/passkey-setup.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { AccessCodeForm } from './@components/access-code-form.js';
@@ -19,8 +19,7 @@ export function AuthPage() {
 
   return (
     <Card asPage="public">
-      <CardHeader className="mx-auto w-full max-w-6xl" title={t('sign_in')} />
-      <CardContent className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 lg:grid-cols-2 lg:gap-24">
+      <CardContent className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-4">
             <ItemTitle

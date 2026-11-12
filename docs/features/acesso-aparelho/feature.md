@@ -22,7 +22,7 @@ spec: [.specs/features/acesso-aparelho]
 - Aparelho que já tem passkey entra por "Entrar com este aparelho" ou pela sugestão do navegador no campo de e-mail, sem esperar e-mail.
 - Um computador e um celular por pessoa: a passkey nova substitui a anterior do mesmo tipo e encerra as sessões dela. Passkey sincronizada (iCloud/Google) é aceita.
 - Minha conta ganhou "Aparelhos com acesso", com Remover (o aparelho removido sai do sistema).
-- Tela de entrada em duas colunas: título, texto e formulário à esquerda; à direita uma vitrine com dados de exemplo (rota de vistorias no mapa, painel de Filtros aberto, agenda do dia e gráfico de honorários). No celular, só o formulário.
+- Tela de entrada em duas colunas: título, texto e formulário à esquerda (sem o bloco de seção, só os campos); à direita uma vitrine que passa uma peça por vez, com dados de exemplo: lista de serviços com o menu Filtros aberto, duas semanas da agenda como no calendário do sistema, rota do dia com o custo do deslocamento lançado dividido entre as OS, e painel de honorários (indicadores, valores por esfera e fluxo de caixa). No celular, só o formulário.
 - Saiu o cadastro de teste com senha (AD-157): campo, rota, tela e textos.
 
 ## Por que
@@ -35,7 +35,8 @@ A entrada pelo e-mail (AD-155) passa a valer só no aparelho em que a pessoa cri
 - API: `apps/api/src/modules/identity/auth.service.ts` (`passkeyRegistrationOptions`, `registerPasskey`, `passkeySigninOptions`, `signinWithPasskey`; `startSession` só abre sessão com passkey), rotas `/auth/passkey*` em `auth.router.ts`; aparelhos em `account.*` (`GET`/`DELETE /me/passkeys`). Biblioteca `@simplewebauthn/server`.
 - O site da passkey (`rpID`) é o domínio de `CORS_ORIGIN` (`apps/api/src/config/env.config.ts`): trocar o domínio do front invalida todas as passkeys.
 - Contratos: `packages/contracts/src/schemas/access.schema.ts`.
-- Web: `apps/web/src/query/passkey.ts` (cerimônias com `@simplewebauthn/browser` e lista de aparelhos), `apps/web/src/components/passkey-setup.tsx` (passo comum à entrada e ao convite), `apps/web/src/routes/_public/auth/` (`@components/auth-showcase.tsx` é a vitrine) e `apps/web/src/routes/_private/account/@components/account-devices.tsx`.
+- A grade e as etiquetas do calendário moram em `apps/web/src/components/calendar-grid.tsx` e `calendar-event.tsx`, usadas pela agenda e pela vitrine.
+- Web: `apps/web/src/query/passkey.ts` (cerimônias com `@simplewebauthn/browser` e lista de aparelhos), `apps/web/src/components/passkey-setup.tsx` (passo comum à entrada e ao convite), `apps/web/src/routes/_public/auth/` (`@components/auth-showcase.tsx` passa as peças `showcase-*.tsx`) e `apps/web/src/routes/_private/account/@components/account-devices.tsx`.
 
 ## Como testar
 
@@ -51,3 +52,4 @@ A entrada pelo e-mail (AD-155) passa a valer só no aparelho em que a pessoa cri
 
 - 2026-11-12 — Feature planejada: passkey obrigatória após o e-mail, um computador + um celular, passkey sincronizada aceita, cadastro de teste com senha sai, tela nova com vitrine do produto (AD-220).
 - 2026-11-12 — Implementada. Divergências do design da spec: o desafio do WebAuthn volta no corpo da resposta (`challengeToken`, JWT de 10 min) em vez de cookie; o `rpID` sai de `CORS_ORIGIN`, sem variável `WEBAUTHN_RP_ID`; o tipo do aparelho (computador ou celular) é decidido só pelo servidor, pelo navegador da requisição, sem vir da tela; o registro da passkey troca o `passkeyToken` pelo `challengeToken` e não precisa reenviá-lo. O mapa da vitrine é desenho próprio (SVG), sem Leaflet nem mapa da internet.
+- 2026-11-12 — Vitrine refeita a pedido: uma peça por vez (troca a cada 6 s), cada uma como trecho do sistema real; texto da tela reescrito para falar do ganho (menos burocracia, nenhum prazo ou honorário esquecido) e não de "sem senha"; formulários de entrada e do convite sem o `DefaultFormLayout`. A grade e as etiquetas do calendário saíram da agenda para `apps/web/src/components/`. O gráfico de fluxo de caixa (`finance-flow-chart.tsx`) pintava as barras com nomes de cor antigos que não existiam; corrigido.

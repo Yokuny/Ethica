@@ -44,7 +44,6 @@ describe('AuthPage', () => {
   it('renders the public page frame without a private home link, account menu, or back action', () => {
     render(<AuthPage />);
 
-    expect(screen.getByText('Entrar')).toBeInTheDocument();
     expect(document.querySelector('a[href="/"]')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Conta' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(3); // Text size, sign in with this device and send the key; fixed light theme.

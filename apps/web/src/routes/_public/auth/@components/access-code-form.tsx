@@ -3,7 +3,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
 import type { UseFormReturn } from 'react-hook-form';
-import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { AccessCodeForm as AccessCodeValues } from '../@interface/auth.interface.js';
 
@@ -20,37 +19,21 @@ export function AccessCodeForm({ form, email, errorMessage, onSubmit, onResend, 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-        <DefaultFormLayout
-          sections={[
-            {
-              title: t('access_key_sent'),
-              description: `${email} · ${t('access_code_description')}`,
-              layout: 'vertical',
-              fields: [
-                <FormField
-                  key="code"
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('access_code')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          maxLength={6}
-                          placeholder="000000"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />,
-              ],
-            },
-          ]}
+        <ItemDescription className="line-clamp-none">{`${email} · ${t('access_code_description')}`}</ItemDescription>
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('access_code')}</FormLabel>
+              <FormControl>
+                <Input inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="000000" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
+
         {errorMessage && <ItemDescription role="alert">{errorMessage}</ItemDescription>}
         <Button type="submit" disabled={form.formState.isSubmitting}>
           {t('sign_in')}

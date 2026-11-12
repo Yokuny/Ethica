@@ -42,9 +42,9 @@ export function FinanceFlowChart({ data }: { data: MonthlyFlow[] }) {
           }
         />
         <ChartLegend content={<ChartLegendContent />} />
-        <Bar dataKey="receivedCents" fill="var(--color-recebidoCents)" radius={[3, 3, 0, 0]} />
-        <Bar dataKey="receivableCents" fill="var(--color-aReceberCents)" radius={[3, 3, 0, 0]} />
-        <Bar dataKey="expensesCents" fill="var(--color-despesasCents)" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="receivedCents" fill="var(--color-receivedCents)" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="receivableCents" fill="var(--color-receivableCents)" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="expensesCents" fill="var(--color-expensesCents)" radius={[3, 3, 0, 0]} />
       </BarChart>
     </ChartContainer>
   );
