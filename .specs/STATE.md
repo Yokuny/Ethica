@@ -1271,6 +1271,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-11
 - **Status**: active
 
+### AD-220
+- **Decision**: Toda sessão nasce de uma **passkey do aparelho** (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) segue provando a identidade, mas a chave confirmada não abre mais sessão: leva ao registro obrigatório da passkey. Cada pessoa tem no máximo uma passkey de computador e uma de celular; criar outra do mesmo tipo apaga a anterior e encerra as sessões dela. Passkey sincronizada (iCloud/Google) é aceita. Sai o cadastro de teste com senha (AD-157). Supersede da AD-155 o trecho "Passkey biométrica (WebAuthn) fica fora" e substitui por completo a AD-157. Detalhe em `.specs/features/acesso-aparelho/spec.md`.
+- **Reason**: pedido em 2026-11-12: acesso só pelo e-mail, mas preso ao aparelho em que a pessoa entrou; escolhidos passkey obrigatória, um computador + um celular e aceitar passkey sincronizada (recusar deixaria iPhone e Mac de fora).
+- **Trade-off**: aparelho sem biometria nem PIN não entra. A passkey fica presa ao domínio do front: trocar o domínio (hoje o provisório da Vercel) invalida todas e cada pessoa entra de novo pelo e-mail. Passkey sincronizada prende à conta Apple/Google, não ao chip do aparelho; sem prova de TPM. Dependência nova: `@simplewebauthn/server` e `@simplewebauthn/browser`.
+- **Scope**: `packages/db/src/models/{passkey,session,user}.model.ts`, `packages/contracts/src/schemas/access.schema.ts`, `apps/api/src/modules/identity/{auth,invite,account}.*`, `apps/api/src/config/env.config.ts`, `apps/web/src/routes/_public/{auth,invite}/`, `apps/web/src/routes/_private/account/`.
+- **Date**: 2026-11-12
+- **Status**: proposed
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

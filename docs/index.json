@@ -2,6 +2,28 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "acesso-aparelho",
+      "feature": "Acesso preso ao aparelho (passkey)",
+      "descricao": "Entrada pelo e-mail termina criando a passkey do aparelho (um computador + um celular) e tela de entrada nova",
+      "data": "2026-11-12",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-220",
+        "AD-155"
+      ],
+      "spec": [
+        ".specs/features/acesso-aparelho"
+      ],
+      "planos": [],
+      "doc": "features/acesso-aparelho/feature.md"
+    },
+    {
       "slug": "filtros-lista",
       "feature": "Filtros das listas",
       "descricao": "Botão \"Filtros\" das listas com vários filtros vira lista de filtros com opções marcáveis, várias por filtro",
@@ -504,7 +526,8 @@
         "AD-156",
         "AD-157",
         "AD-144",
-        "AD-219"
+        "AD-219",
+        "AD-220"
       ],
       "spec": [
         ".specs/features/acesso-email"
@@ -1810,6 +1833,12 @@
       "decisao": "Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide",
       "data": "2026-11-11",
       "status": "active"
+    },
+    {
+      "id": "AD-220",
+      "decisao": "Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s",
+      "data": "2026-11-12",
+      "status": "proposed"
     }
   ]
 }

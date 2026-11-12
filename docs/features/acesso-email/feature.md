@@ -5,7 +5,7 @@ descricao: Entrar e criar o escritório só com o e-mail, pela chave de acesso (
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-155, AD-156, AD-157, AD-144, AD-219]
+decisoes: [AD-155, AD-156, AD-157, AD-144, AD-219, AD-220]
 spec: [.specs/features/acesso-email]
 ---
 
@@ -52,3 +52,4 @@ A perita pediu que a segurança do login ficasse com o provedor de e-mail de cad
 - 2026-11-02 — Feature criada: acesso e cadastro pela chave enviada ao e-mail, cadastro aberto, sessão de 30 dias (AD-155); SMTP obrigatório em produção (AD-156). Escritório do cadastro aberto só com CNPJ, seguindo a AD-144.
 - 2026-11-02 — Cadastro de teste por e-mail + senha (AD-157), porque a Railway bloqueia SMTP no plano atual. Sessões passam a ter `jwtid` aleatório: duas entradas da mesma pessoa no mesmo segundo geravam o mesmo token.
 - 2026-11-11 — Envio pelo Resend (AD-219): API HTTPS em vez de SMTP, que a Railway bloqueia. Remetente vira `MAIL_FROM`, comum aos provedores.
+- 2026-11-12 — Evolução planejada em `acesso-aparelho` (AD-220): passkey do aparelho obrigatória após a chave do e-mail e saída do cadastro de teste com senha.
