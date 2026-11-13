@@ -1,6 +1,6 @@
 import type { AccessKeyRequest } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@ethica/ui/components/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@ethica/ui/components/form';
 import { Input } from '@ethica/ui/components/input';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { Fingerprint } from 'lucide-react';
@@ -29,9 +29,14 @@ export function AccessEmailForm({ form, errorMessage, onSubmit, onSigninWithDevi
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('email')}</FormLabel>
               <FormControl>
-                <Input type="email" autoComplete="username webauthn" placeholder={t('email')} {...field} />
+                <Input
+                  type="email"
+                  aria-label={t('email')}
+                  autoComplete="username webauthn"
+                  placeholder={t('email')}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

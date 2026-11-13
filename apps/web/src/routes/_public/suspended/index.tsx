@@ -22,7 +22,7 @@ export function SuspendedPage() {
   };
 
   return (
-    <Card asPage="public">
+    <Card>
       <CardHeader className="mx-auto w-full max-w-sm" title={t('tenant_suspended')} />
       <CardContent className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center">
         <DefaultEmptyData

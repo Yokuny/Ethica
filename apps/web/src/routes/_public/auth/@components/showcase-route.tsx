@@ -1,6 +1,5 @@
 import { Item, ItemContent, ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { RadioGroup, RadioGroupItem } from '@ethica/ui/components/radio-group';
-import { cn } from 'cn';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
@@ -57,28 +56,6 @@ function RouteMap() {
   );
 }
 
-function Choice({
-  value,
-  title,
-  amount,
-  selected,
-}: {
-  value: string;
-  title: string;
-  amount: string;
-  selected?: boolean;
-}) {
-  return (
-    <Item size="xs" className={cn('shadow-none', selected && 'border-foreground/30')}>
-      <RadioGroupItem value={value} />
-      <ItemContent>
-        <ItemTitle className="font-normal text-xs">{title}</ItemTitle>
-      </ItemContent>
-      <ItemDescription className="text-xs tabular-nums">{amount}</ItemDescription>
-    </Item>
-  );
-}
-
 export function ShowcaseRoute() {
   return (
     <div className="flex h-full flex-col gap-4">
@@ -88,13 +65,23 @@ export function ShowcaseRoute() {
           86 km · 1h52 · {t('fuel')} {formatMoney(FUEL_CENTS)} · {t('tolls_on_route')} {formatMoney(TOLLS_CENTS)}
         </ItemDescription>
         <RadioGroup value="split" className="gap-2">
-          <Choice value="one" title={t('in_one_service_order')} amount={formatMoney(TOTAL_CENTS)} />
-          <Choice
-            value="split"
-            selected
-            title={`${t('split_among_service_orders')} · ${ORDERS.join(', ')}`}
-            amount={`${formatMoney(Math.round(TOTAL_CENTS / ORDERS.length))} ${t('per_service_order')}`}
-          />
+          <Item size="xs" className="shadow-none">
+            <RadioGroupItem value="one" />
+            <ItemContent>
+              <ItemTitle className="font-normal text-xs">{t('in_one_service_order')}</ItemTitle>
+            </ItemContent>
+            <ItemDescription className="text-xs tabular-nums">{formatMoney(TOTAL_CENTS)}</ItemDescription>
+          </Item>
+          <Item size="xs" className="shadow-none border-foreground/30">
+            <RadioGroupItem value="split" />
+            <ItemContent>
+              <ItemTitle className="font-normal text-xs">{t('split_among_service_orders')}</ItemTitle>
+              <ItemDescription className="text-[11px] font-mono">{ORDERS.join(', ')}</ItemDescription>
+            </ItemContent>
+            <ItemDescription className="text-xs tabular-nums">
+              {formatMoney(Math.round(TOTAL_CENTS / ORDERS.length))} {t('per_service_order')}
+            </ItemDescription>
+          </Item>
         </RadioGroup>
       </div>
     </div>

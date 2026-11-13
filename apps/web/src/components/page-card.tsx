@@ -12,7 +12,6 @@ import { Link, useLocation, useMatches } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { HouseIcon, type LucideIcon } from 'lucide-react';
 import * as React from 'react';
-import { TextSizeMenu } from '@/components/user-menu.text-size.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { HOME_SECTIONS } from '@/routes/_private/@consts/home-sections.js';
 
@@ -21,9 +20,6 @@ function routeTitle(staticData: { getTitle?: () => string; title?: string } | un
   if (typeof staticData?.title === 'string') return staticData.title;
   return undefined;
 }
-
-// Public page: the breadcrumb does not lead to the house (home is a private area).
-const PublicPage = React.createContext(false);
 
 // Only the first level gets an icon: the module one, same as the sidebar.
 const crumbIcon = (segment: string, index: number): LucideIcon | undefined =>
@@ -35,7 +31,7 @@ function Card({
   asPage,
   children,
   ...props
-}: React.ComponentProps<'div'> & { size?: 'default' | 'sm'; asPage?: boolean | 'public' }) {
+}: React.ComponentProps<'div'> & { size?: 'default' | 'sm'; asPage?: boolean }) {
   return (
     <SharedCard
       data-slot="card"
@@ -47,12 +43,7 @@ function Card({
       )}
       {...props}
     >
-      {asPage === 'public' && (
-        <div className="flex justify-end px-(--card-spacing)">
-          <TextSizeMenu />
-        </div>
-      )}
-      <PublicPage.Provider value={asPage === 'public'}>{children}</PublicPage.Provider>
+      {children}
     </SharedCard>
   );
 }
@@ -72,7 +63,6 @@ function CardHeader({
 }) {
   const location = useLocation();
   const matches = useMatches();
-  const isPublic = React.useContext(PublicPage);
   const pathnames = location.pathname.split('/').filter(Boolean);
 
   // Route folders are kebab-case (AD-138); dictionary keys are snake_case.
@@ -102,8 +92,8 @@ function CardHeader({
     >
       <Breadcrumb className="col-start-1 flex min-h-8 items-center">
         <BreadcrumbList>
-          {/* The first step is the house leading home — except on home itself and on a public page. */}
-          {pathnames.length > 0 && !isPublic && (
+          {/* The first step is the house leading home — except on home itself. */}
+          {pathnames.length > 0 && (
             <>
               <BreadcrumbItem>
                 <BreadcrumbLink

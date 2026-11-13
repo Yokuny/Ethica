@@ -15,10 +15,16 @@ import { ShowcaseRoute } from './showcase-route.js';
 const SLIDE_MS = 6000;
 const SLIDES = [
   {
-    key: 'cases',
-    title: t('showcase_cases_title'),
-    description: t('showcase_cases_description'),
-    Piece: ShowcaseCases,
+    key: 'route',
+    title: t('showcase_route_title'),
+    description: t('showcase_route_description'),
+    Piece: ShowcaseRoute,
+  },
+  {
+    key: 'finance',
+    title: t('showcase_finance_title'),
+    description: t('showcase_finance_description'),
+    Piece: ShowcaseFinance,
   },
   {
     key: 'agenda',
@@ -27,22 +33,16 @@ const SLIDES = [
     Piece: ShowcaseAgenda,
   },
   {
-    key: 'route',
-    title: t('showcase_route_title'),
-    description: t('showcase_route_description'),
-    Piece: ShowcaseRoute,
+    key: 'cases',
+    title: t('showcase_cases_title'),
+    description: t('showcase_cases_description'),
+    Piece: ShowcaseCases,
   },
   {
     key: 'expenses',
     title: t('showcase_expenses_title'),
     description: t('showcase_expenses_description'),
     Piece: ShowcaseExpenses,
-  },
-  {
-    key: 'finance',
-    title: t('showcase_finance_title'),
-    description: t('showcase_finance_description'),
-    Piece: ShowcaseFinance,
   },
 ];
 

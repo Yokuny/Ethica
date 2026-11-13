@@ -94,7 +94,7 @@ const translations: Record<string, string> = {
   last_used: 'Último uso',
   added_on: 'Adicionado em',
   remove_device_description: 'O aparelho sai do sistema e só volta a entrar pelo e-mail.',
-  auth_headline: 'Otimize seus serviços, SEM BUROCRACIA.',
+  auth_headline: 'Otimize seus serviços, sem burocracia.',
   auth_subheadline:
     'Prazos, vistorias, laudos e honorários de cada serviço em um mesmo lugar. Você sabe o que vence, onde precisa estar e quanto tem a receber antes que vire problema.',
   showcase_cases_title: 'Encontre qualquer serviço em segundos',

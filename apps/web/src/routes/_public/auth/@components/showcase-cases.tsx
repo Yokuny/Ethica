@@ -54,7 +54,9 @@ export function ShowcaseCases() {
         <Button variant="outline" size="sm">
           <ListFilter />
           {t('filters')}
-          <Badge variant="secondary">3</Badge>
+          <Badge variant="secondary" className="h-5">
+            3
+          </Badge>
         </Button>
         <Search aria-hidden className="size-3.5 text-muted-foreground/60" />
         <ItemDescription className="text-xs text-muted-foreground/60">{t('search')}</ItemDescription>

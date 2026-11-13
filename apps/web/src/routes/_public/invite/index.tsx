@@ -17,7 +17,7 @@ export function InvitePage() {
   const { form, submitError, passkeyToken, onSubmit } = useInviteForm(token ?? '');
 
   return (
-    <Card asPage="public">
+    <Card>
       <CardHeader className="mx-auto w-full max-w-sm" title={t('accept_invite')} />
       <CardContent className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center">
         {passkeyToken ? (

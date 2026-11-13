@@ -46,7 +46,7 @@ describe('AuthPage', () => {
 
     expect(document.querySelector('a[href="/"]')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Conta' })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('button')).toHaveLength(3); // Text size, sign in with this device and send the key; fixed light theme.
+    expect(screen.getAllByRole('button')).toHaveLength(2); // Sign in with this device and send the key; fixed light theme.
   });
 
   // APA-03: the confirmed key leads to the passkey of this device, which opens the session.

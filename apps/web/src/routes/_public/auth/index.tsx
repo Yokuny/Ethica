@@ -18,18 +18,18 @@ export function AuthPage() {
   const access = useAccess(token);
 
   return (
-    <Card asPage="public">
+    <Card>
       <CardContent className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-4">
             <ItemTitle
               // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
               render={<h1 />}
-              className="text-4xl leading-tight font-medium lg:text-5xl"
+              className="text-4xl leading-12 font-medium lg:text-5xl"
             >
               {t('auth_headline')}
             </ItemTitle>
-            <ItemDescription className="line-clamp-none text-lg">{t('auth_subheadline')}</ItemDescription>
+            <ItemDescription className="line-clamp-none leading-tight text-lg">{t('auth_subheadline')}</ItemDescription>
           </div>
           <div className="w-full max-w-sm">
             {access.step === 'checking' && <DefaultLoading />}
