@@ -43,7 +43,7 @@ Comandos: `pnpm run check` (tsc + biome + vitest, é o gate do CI), `pnpm docs:s
 
 ## Protocolo de documentação — obrigatório em toda tarefa
 
-O repositório é a memória do projeto. Toda alteração, decisão e ajuste fica registrado aqui dentro, para que qualquer sessão (de qualquer LLM) retome de onde a anterior parou.
+O repositório é a memória do projeto. Toda alteração, decisão e ajuste fica registrado aqui dentro, para que qualquer sessão (de qualquer LLM) retome de onde a anterior parou. A memória própria do agente (fora do repo) não conta como registro.
 
 ### Onde cada coisa vive
 
