@@ -55,7 +55,7 @@ export function AuthShowcase() {
   }, []);
 
   return (
-    <div aria-hidden inert className="hidden w-full min-w-0 select-none flex-col gap-6 lg:flex">
+    <div aria-hidden inert className="flex w-full min-w-0 select-none flex-col gap-6">
       <div className="flex gap-2">
         {SLIDES.map(({ key }, index) => (
           <span
@@ -68,7 +68,7 @@ export function AuthShowcase() {
         ))}
       </div>
       {/* All pieces share one grid cell: the area takes the tallest one and never jumps. */}
-      <div className="grid">
+      <div className="grid grid-cols-[minmax(0,1fr)]">
         {SLIDES.map(({ key, title, description, Piece }, index) => (
           <div
             key={key}
@@ -77,7 +77,7 @@ export function AuthShowcase() {
               index === current ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0',
             )}
           >
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col items-center gap-1 text-center lg:items-start lg:text-left">
               <ItemTitle className="font-medium text-base">{title}</ItemTitle>
               <ItemDescription className="line-clamp-none">{description}</ItemDescription>
             </div>

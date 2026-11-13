@@ -54,7 +54,9 @@ export function ShowcaseExpenses() {
             <Separator />
             <div className="flex items-center gap-3 py-2.5">
               <div className="min-w-0 flex-1">
-                <ItemTitle className="font-normal text-xs">{categoryLabel({ category: entry.category })}</ItemTitle>
+                <ItemTitle className="block w-full truncate font-normal text-xs">
+                  {categoryLabel({ category: entry.category })}
+                </ItemTitle>
                 <ItemDescription className="text-[10px]">
                   {formatDate(new Date(`${addDaysToDisplayDate(TODAY, entry.days)}T12:00:00`))}
                 </ItemDescription>
@@ -62,7 +64,7 @@ export function ShowcaseExpenses() {
               <Badge variant={STATE_VARIANT[entry.state]} className="text-[9px] uppercase tracking-wide">
                 {stateLabel(entry.state)}
               </Badge>
-              <ItemTitle className="w-24 justify-end font-normal text-xs tabular-nums">
+              <ItemTitle className="w-20 justify-end font-normal sm:w-24 text-xs tabular-nums">
                 {`${entry.kind === 'expense' ? '−' : ''}${formatMoney(entry.cents)}`}
               </ItemTitle>
             </div>

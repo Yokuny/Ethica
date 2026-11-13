@@ -48,11 +48,11 @@ const shade = (cents: number, column: number) => ({
 
 export function ShowcaseFinance() {
   return (
-    <div className="flex h-full flex-col gap-5 p-5">
-      <div className="grid grid-cols-3 gap-6">
+    <div className="flex h-full flex-col gap-5 p-4 sm:p-5">
+      <div className="grid grid-cols-3 gap-3 sm:gap-6">
         {FIGURES.map((figure) => (
           <div key={figure.label} className="flex flex-col gap-1">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-4">
               <ItemDescription className="text-[10px] uppercase tracking-wide">{figure.label}</ItemDescription>
               {figure.note && (
                 <ItemDescription
@@ -62,11 +62,11 @@ export function ShowcaseFinance() {
                 </ItemDescription>
               )}
             </div>
-            <ItemTitle className="font-medium text-base tabular-nums">{figure.value}</ItemTitle>
+            <ItemTitle className="font-medium text-sm tabular-nums sm:text-base">{figure.value}</ItemTitle>
           </div>
         ))}
       </div>
-      <Table className="border-separate border-spacing-1 text-[11px]">
+      <Table className="border-separate border-spacing-1 text-[10px] sm:text-[11px] max-sm:[&_tr>*:last-child]:hidden">
         <TableHeader>
           <TableRow className="border-0 hover:bg-transparent">
             <TableHead className="text-[10px]">{t('sphere')}</TableHead>

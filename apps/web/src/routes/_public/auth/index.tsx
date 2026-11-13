@@ -13,19 +13,20 @@ import { authSearchSchema } from './@interface/auth.interface.js';
 
 // AD-155: no password — access and sign-up by the key sent to the person's e-mail.
 // AD-220: the session is born from the passkey of this device; two columns with the product beside.
+// On the phone: one centered column, the showcase below the form.
 export function AuthPage() {
   const { token } = useSearch({ strict: false }) as { token?: string };
   const access = useAccess(token);
 
   return (
     <Card>
-      <CardContent className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
-        <div className="flex flex-col gap-10">
+      <CardContent className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+        <div className="flex flex-col items-center gap-10 text-center lg:items-start lg:text-left">
           <div className="flex flex-col gap-4">
             <ItemTitle
               // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
               render={<h1 />}
-              className="text-4xl leading-12 font-medium lg:text-5xl"
+              className="text-3xl leading-10 font-medium sm:text-4xl sm:leading-12 lg:text-5xl"
             >
               {t('auth_headline')}
             </ItemTitle>
