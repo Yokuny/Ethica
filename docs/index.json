@@ -139,7 +139,8 @@
         "AD-129",
         "AD-146",
         "AD-153",
-        "AD-202"
+        "AD-202",
+        "AD-221"
       ],
       "spec": [
         ".specs/features/producao-api"
@@ -527,7 +528,8 @@
         "AD-157",
         "AD-144",
         "AD-219",
-        "AD-220"
+        "AD-220",
+        "AD-221"
       ],
       "spec": [
         ".specs/features/acesso-email"
@@ -1832,12 +1834,18 @@
       "id": "AD-219",
       "decisao": "Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide",
       "data": "2026-11-11",
-      "status": "active"
+      "status": "superseded by AD-221"
     },
     {
       "id": "AD-220",
       "decisao": "Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s",
       "data": "2026-11-12",
+      "status": "active"
+    },
+    {
+      "id": "AD-221",
+      "decisao": "O envio de e-mail volta a ser só por SMTP, pelo Zoho Mail (`MAIL_PROVIDER=nodemailer`). Sai o provedor Resend (`resend.mailProvider.ts`, `RE",
+      "data": "2026-11-14",
       "status": "active"
     }
   ]

@@ -42,18 +42,15 @@ describe('parseEnv', () => {
     expect(parseEnv({ ...fromExample, PORT: '8080' }).API_PORT).toBe('8080');
   });
 
-  it('refuses production without a real mail provider, since access is by e-mail key (AD-156, AD-219)', () => {
+  it('refuses production without a real mail provider, since access is by e-mail key (AD-156, AD-221)', () => {
     const production = { ...parseDotEnvExample(), NODE_ENV: 'production' };
     expect(() => parseEnv(production)).toThrowError(/MAIL_PROVIDER, MAIL_FROM/);
     expect(() => parseEnv({ ...production, MAIL_PROVIDER: 'resend', MAIL_FROM: 'a@b.com' })).toThrowError(
-      /RESEND_API_KEY/,
+      /MAIL_PROVIDER/,
     );
     expect(() => parseEnv({ ...production, MAIL_PROVIDER: 'nodemailer', MAIL_FROM: 'a@b.com' })).toThrowError(
       /SMTP_HOST/,
     );
-    expect(() =>
-      parseEnv({ ...production, MAIL_PROVIDER: 'resend', RESEND_API_KEY: 're_key', MAIL_FROM: 'a@b.com' }),
-    ).not.toThrow();
     expect(() =>
       parseEnv({ ...production, MAIL_PROVIDER: 'nodemailer', SMTP_HOST: 'smtp.example.com', MAIL_FROM: 'a@b.com' }),
     ).not.toThrow();

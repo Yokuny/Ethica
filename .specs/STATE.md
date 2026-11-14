@@ -1269,7 +1269,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: depende de domínio verificado no Resend; uma variável renomeada (`SMTP_FROM` → `MAIL_FROM`).
 - **Scope**: `apps/api/src/providers/mail/`, `apps/api/src/app.ts`, `apps/api/src/config/env.config.ts`, `.env.example`.
 - **Date**: 2026-11-11
-- **Status**: active
+- **Status**: superseded by AD-221
 
 ### AD-220
 - **Decision**: Toda sessão nasce de uma **passkey do aparelho** (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) segue provando a identidade, mas a chave confirmada não abre mais sessão: leva ao registro obrigatório da passkey. Cada pessoa tem no máximo uma passkey de computador e uma de celular; criar outra do mesmo tipo apaga a anterior e encerra as sessões dela. Passkey sincronizada (iCloud/Google) é aceita. Sai o cadastro de teste com senha (AD-157). Supersede da AD-155 o trecho "Passkey biométrica (WebAuthn) fica fora" e substitui por completo a AD-157. Detalhe em `.specs/features/acesso-aparelho/spec.md`.
@@ -1277,6 +1277,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: aparelho sem biometria nem PIN não entra. A passkey fica presa ao domínio do front: trocar o domínio (hoje o provisório da Vercel) invalida todas e cada pessoa entra de novo pelo e-mail. Passkey sincronizada prende à conta Apple/Google, não ao chip do aparelho; sem prova de TPM. Dependência nova: `@simplewebauthn/server` e `@simplewebauthn/browser`.
 - **Scope**: `packages/db/src/models/{passkey,session,user}.model.ts`, `packages/contracts/src/schemas/access.schema.ts`, `apps/api/src/modules/identity/{auth,invite,account}.*`, `apps/api/src/config/env.config.ts`, `apps/web/src/routes/_public/{auth,invite}/`, `apps/web/src/routes/_private/account/`.
 - **Date**: 2026-11-12
+- **Status**: active
+
+### AD-221
+- **Decision**: O envio de e-mail volta a ser só por **SMTP**, pelo Zoho Mail (`MAIL_PROVIDER=nodemailer`). Sai o provedor Resend (`resend.mailProvider.ts`, `RESEND_API_KEY` e a opção `resend` de `MAIL_PROVIDER`). Fica `MAIL_FROM` como remetente; produção exige `MAIL_PROVIDER=nodemailer`, `SMTP_HOST` e `MAIL_FROM` (como na AD-156). Porta 465 abre a conexão já com TLS (`secure`), as demais usam STARTTLS. Supersede a AD-219.
+- **Reason**: pedido em 2026-11-14: o sistema passou a usar apenas o SMTP do Zoho Mail; o Resend ficou sem uso.
+- **Trade-off**: o envio volta a depender de a hospedagem liberar a saída SMTP.
+- **Scope**: `apps/api/src/providers/mail/`, `apps/api/src/app.ts`, `apps/api/src/config/env.config.ts`, `.env.example`.
+- **Date**: 2026-11-14
 - **Status**: active
 
 ## Handoff
