@@ -245,13 +245,14 @@ export const replacePasskey = async (data: {
 
 export const findPasskey = async (credentialId: string) =>
   withDbTiming('auth.findPasskey', async () => {
-    const passkey = await Passkey.findOne({ credentialId }).lean();
+    // Not lean: a lean read brings the key as a BSON Binary, which turns into an empty Uint8Array.
+    const passkey = await Passkey.findOne({ credentialId });
     return passkey
       ? {
-          id: passkey._id.toString(),
+          id: passkey.id,
           user: passkey.user.toString(),
           credentialId: passkey.credentialId,
-          publicKey: passkey.publicKey,
+          publicKey: new Uint8Array(passkey.publicKey),
           counter: passkey.counter,
           transports: passkey.transports,
         }

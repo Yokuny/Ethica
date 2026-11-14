@@ -268,7 +268,7 @@ export const signinWithPasskey = async (data: PasskeyResponse, userAgent: string
     expectedRPID: RP_ID,
     credential: {
       id: passkey.credentialId,
-      publicKey: new Uint8Array(passkey.publicKey),
+      publicKey: passkey.publicKey,
       counter: passkey.counter,
       transports: passkey.transports,
     },

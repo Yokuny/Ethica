@@ -27,8 +27,15 @@ vi.mock('@simplewebauthn/server', () => ({
             credentialBackedUp: true,
           },
         },
-  verifyAuthenticationResponse: async ({ response }: { response: { id: string } }) => ({
-    verified: response.id !== 'forged',
+  // The stored public key has to reach the check intact (an empty key never verifies).
+  verifyAuthenticationResponse: async ({
+    response,
+    credential,
+  }: {
+    response: { id: string };
+    credential: { publicKey: Uint8Array };
+  }) => ({
+    verified: response.id !== 'forged' && credential.publicKey.join() === '1,2,3',
     authenticationInfo: { newCounter: 1 },
   }),
 }));
