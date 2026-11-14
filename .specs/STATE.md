@@ -1287,6 +1287,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-14
 - **Status**: active
 
+### AD-222
+- **Decision**: As variáveis do provedor de e-mail escolhido são exigidas em **qualquer** ambiente, não só em produção: `MAIL_PROVIDER=resend` sem `RESEND_API_KEY`/`MAIL_FROM` ou `nodemailer` sem `SMTP_HOST`/`MAIL_FROM` derruba a subida da API. Só a produção recusa `log`. Os nomes são os mesmos no `.env` local e na Railway; muda só o valor de `MAIL_PROVIDER` (local `nodemailer` pelo Zoho, produção `resend`). Complementa a AD-219.
+- **Reason**: o `.env` local seguia com `SMTP_FROM` (renomeada para `MAIL_FROM` na AD-219); fora de produção a API subia com remetente vazio e o Zoho recusava cada envio (`550 Sender is not allowed to relay`), só descoberto na hora do login.
+- **Trade-off**: quem roda local com provedor real precisa do conjunto completo de variáveis; o padrão `log` segue sem exigir nada.
+- **Scope**: `apps/api/src/config/env.config.ts`, `.env.example`.
+- **Date**: 2026-11-14
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

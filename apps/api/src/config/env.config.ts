@@ -41,13 +41,13 @@ export const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-// AD-156/AD-219: access is by e-mail key only (AD-155) — in production, without a real provider nobody gets in.
-const productionMailIssues = (env: Env): string[] => {
-  if (env.NODE_ENV !== 'production') return [];
+// AD-222: a real provider needs its own keys in every environment. Production also refuses `log`, since
+// access is by e-mail key only (AD-155) — without a real provider nobody gets in.
+const mailIssues = (env: Env): string[] => {
   const from = env.MAIL_FROM ? [] : ['MAIL_FROM'];
   if (env.MAIL_PROVIDER === 'resend') return [...(env.RESEND_API_KEY ? [] : ['RESEND_API_KEY']), ...from];
   if (env.MAIL_PROVIDER === 'nodemailer') return [...(env.SMTP_HOST ? [] : ['SMTP_HOST']), ...from];
-  return ['MAIL_PROVIDER', ...from];
+  return env.NODE_ENV === 'production' ? ['MAIL_PROVIDER', ...from] : [];
 };
 
 // safeParse (not parse): controls the failure message to NAME the missing
@@ -55,9 +55,7 @@ const productionMailIssues = (env: Env): string[] => {
 // PORT (injected by Railway, AD-153) wins over API_PORT, whatever start command runs the API.
 export const parseEnv = (source: NodeJS.ProcessEnv): Env => {
   const result = envSchema.safeParse({ ...source, API_PORT: source.PORT ?? source.API_PORT });
-  const missing = result.success
-    ? productionMailIssues(result.data)
-    : result.error.issues.map((issue) => issue.path.join('.'));
+  const missing = result.success ? mailIssues(result.data) : result.error.issues.map((issue) => issue.path.join('.'));
   if (!result.success || missing.length > 0) {
     throw new Error(`Variável(is) de ambiente ausente(s) ou inválida(s): ${missing.join(', ')}`);
   }

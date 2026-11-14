@@ -527,7 +527,8 @@
         "AD-157",
         "AD-144",
         "AD-219",
-        "AD-220"
+        "AD-220",
+        "AD-222"
       ],
       "spec": [
         ".specs/features/acesso-email"
@@ -1843,6 +1844,12 @@
     {
       "id": "AD-221",
       "decisao": "Sai a skill `tlc-spec-driven` (`.claude/skills/tlc-spec-driven/`) e, com ela, a camada de lições do Verifier (`.specs/LESSONS.md`, `.specs/l",
+      "data": "2026-11-14",
+      "status": "active"
+    },
+    {
+      "id": "AD-222",
+      "decisao": "As variáveis do provedor de e-mail escolhido são exigidas em qualquer ambiente, não só em produção: `MAIL_PROVIDER=resend` sem `RESEND_API_K",
       "data": "2026-11-14",
       "status": "active"
     }

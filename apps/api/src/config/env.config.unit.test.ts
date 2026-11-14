@@ -58,4 +58,15 @@ describe('parseEnv', () => {
       parseEnv({ ...production, MAIL_PROVIDER: 'nodemailer', SMTP_HOST: 'smtp.example.com', MAIL_FROM: 'a@b.com' }),
     ).not.toThrow();
   });
+
+  it('refuses a real mail provider without its keys outside production too (AD-222)', () => {
+    const development = { ...parseDotEnvExample(), NODE_ENV: 'development' };
+    expect(() => parseEnv(development)).not.toThrow();
+    expect(() => parseEnv({ ...development, MAIL_PROVIDER: 'nodemailer', SMTP_HOST: 'smtp.example.com' })).toThrowError(
+      /MAIL_FROM/,
+    );
+    expect(() => parseEnv({ ...development, MAIL_PROVIDER: 'resend', MAIL_FROM: 'a@b.com' })).toThrowError(
+      /RESEND_API_KEY/,
+    );
+  });
 });

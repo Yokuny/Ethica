@@ -76,6 +76,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-222** (2026-11-14, active) — As variáveis do provedor de e-mail escolhido são exigidas em qualquer ambiente, não só em produção: `MAIL_PROVIDER=resend` sem `RESEND_API_K
 - **AD-221** (2026-11-14, active) — Sai a skill `tlc-spec-driven` (`.claude/skills/tlc-spec-driven/`) e, com ela, a camada de lições do Verifier (`.specs/LESSONS.md`, `.specs/l
 - **AD-220** (2026-11-12, active) — Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s
 - **AD-219** (2026-11-11, active) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
@@ -85,7 +86,6 @@ _Nenhum._
 - **AD-215** (2026-11-10, active) — O Financeiro passa a ser só a lista de lançamentos (receitas e despesas), aberta direto em `/finance`, sem a página de entrada com dois cart
 - **AD-214** (2026-11-09, active) — Abaixo do mapa do Campo, duas colunas (empilhadas no celular): à esquerda o Custo de deslocamento num cartão com título pequeno e ícone, mes
 - **AD-213** (2026-11-09, active) — "Lugares no trajeto" no mapa do Campo: restaurante, hotel, pousada, borracharia e oficina mecânica até 2 km da rota, consultados direto do n
-- **AD-212** (2026-11-09, active) — O mapa do Campo ganha o bloco Custo de deslocamento, todo no web: quilometragem total (preenchida com a distância da rota do OSRM, que agora
 
 ## `.specs/` sem registro em `docs/features/`
 
