@@ -1,4 +1,4 @@
-// E-mail sending port — two implementations (nodemailer, log). Never
+// E-mail sending port — three implementations (resend, nodemailer, log). Never
 // throws: a delivery failure cannot bring down the operation that triggered the e-mail
 // (FND-12/18).
 export type MailProvider = {

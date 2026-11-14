@@ -76,9 +76,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-221** (2026-11-14, active) — O envio de e-mail volta a ser só por SMTP, pelo Zoho Mail (`MAIL_PROVIDER=nodemailer`). Sai o provedor Resend (`resend.mailProvider.ts`, `RE
 - **AD-220** (2026-11-12, active) — Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s
-- **AD-219** (2026-11-11, superseded by AD-221) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
+- **AD-219** (2026-11-11, active) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
 - **AD-218** (2026-11-11, active) — Nas listas com vários filtros (Serviços, Varas, Diário de bordo), "Filtros" abre uma lista com o nome de cada filtro (e o valor aplicado ao
 - **AD-217** (2026-11-11, active) — Escritório (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada
 - **AD-216** (2026-11-11, active) — Relatórios vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página
@@ -86,6 +85,7 @@ _Nenhum._
 - **AD-214** (2026-11-09, active) — Abaixo do mapa do Campo, duas colunas (empilhadas no celular): à esquerda o Custo de deslocamento num cartão com título pequeno e ícone, mes
 - **AD-213** (2026-11-09, active) — "Lugares no trajeto" no mapa do Campo: restaurante, hotel, pousada, borracharia e oficina mecânica até 2 km da rota, consultados direto do n
 - **AD-212** (2026-11-09, active) — O mapa do Campo ganha o bloco Custo de deslocamento, todo no web: quilometragem total (preenchida com a distância da rota do OSRM, que agora
+- **AD-211** (2026-11-09, superseded by AD-216) — A tela Relatórios segue o bloco de serviços que a perita enviou: título e descrição grandes numa coluna central (`max-w-2xl`) e uma linha po
 
 ## `.specs/` sem registro em `docs/features/`
 

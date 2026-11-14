@@ -5,7 +5,7 @@ descricao: API na Railway (Dockerfile com Chromium) e web na Vercel com deploy p
 data: 2026-11-09
 status: parcial
 areas: [apps/api, infra]
-decisoes: [AD-119, AD-120, AD-129, AD-146, AD-153, AD-202, AD-221]
+decisoes: [AD-119, AD-120, AD-129, AD-146, AD-153, AD-202]
 spec: [.specs/features/producao-api]
 ---
 
@@ -64,4 +64,3 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 
 - Spec (congelada): `.specs/features/producao-api/`
 - 2026-11-11 — Produção aceita o Resend como provedor de e-mail (AD-219): `MAIL_PROVIDER=resend` + `RESEND_API_KEY` + `MAIL_FROM` (ou SMTP com `SMTP_HOST` + `MAIL_FROM`).
-- 2026-11-14 — Produção volta a exigir SMTP (AD-221, Zoho Mail): `MAIL_PROVIDER=nodemailer` + `SMTP_HOST` + `MAIL_FROM`; o Resend sai.

@@ -11,9 +11,10 @@ export const envSchema = z.object({
   API_PORT: z.string().min(1, 'API_PORT é obrigatória'),
   SESSION_JWT_SECRET: z.string().min(1, 'SESSION_JWT_SECRET é obrigatória'),
   CORS_ORIGIN: z.string().min(1, 'CORS_ORIGIN é obrigatória'),
-  // Production sends over SMTP (Zoho Mail, AD-221); `log` only writes the e-mail to the log.
-  MAIL_PROVIDER: z.enum(['log', 'nodemailer']).default('log'),
+  // `resend` (AD-219) sends over HTTPS — Railway blocks SMTP. MAIL_FROM is the sender for both real providers.
+  MAIL_PROVIDER: z.enum(['log', 'nodemailer', 'resend']).default('log'),
   MAIL_FROM: z.string().optional(),
+  RESEND_API_KEY: optionalSecret,
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.string().optional(),
   SMTP_USER: z.string().optional(),
@@ -40,10 +41,11 @@ export const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-// AD-156/AD-221: access is by e-mail key only (AD-155) — in production, without a real provider nobody gets in.
+// AD-156/AD-219: access is by e-mail key only (AD-155) — in production, without a real provider nobody gets in.
 const productionMailIssues = (env: Env): string[] => {
   if (env.NODE_ENV !== 'production') return [];
   const from = env.MAIL_FROM ? [] : ['MAIL_FROM'];
+  if (env.MAIL_PROVIDER === 'resend') return [...(env.RESEND_API_KEY ? [] : ['RESEND_API_KEY']), ...from];
   if (env.MAIL_PROVIDER === 'nodemailer') return [...(env.SMTP_HOST ? [] : ['SMTP_HOST']), ...from];
   return ['MAIL_PROVIDER', ...from];
 };
