@@ -1,5 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -11,12 +11,14 @@ import { useActivityLogFilters } from './@hooks/use-activity-log-filters.js';
 import { useActivityLogSearch } from './@hooks/use-activity-log-search.js';
 import { type ActivityLogSearch, activityLogSearchSchema } from './@interface/activityLog.interface.js';
 import { activityLogQuery } from './@query/activityLog.js';
+import { activityLogExportColumns } from './@utils/activity-log-columns.js';
 
 // Activity log (GES-01, AD-134): who did what, admin only.
 export function ActivityLogPage() {
   const { search, update, handlePaginationChange, active } = useActivityLogSearch();
   const filters = useActivityLogFilters(search, update);
   const query = useQuery(activityLogQuery(search));
+  const queryClient = useQueryClient();
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -24,7 +26,15 @@ export function ActivityLogPage() {
     <Card asPage>
       <CardHeader title={t('activity_log')} description={t('activity_log_page_description')} />
       <CardContent>
-        <DataTable filters={{ items: filters }}>
+        <DataTable
+          filters={{ items: filters }}
+          export={{
+            title: t('activity_log'),
+            columns: activityLogExportColumns,
+            rows: items,
+            fetchPage: (page, limit) => queryClient.fetchQuery(activityLogQuery({ ...search, page, limit })),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

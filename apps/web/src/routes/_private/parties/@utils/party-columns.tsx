@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Briefcase, User } from 'lucide-react';
 import { TableIdentity, TableStack } from '@/components/data-table.js';
 import { partyIdentification } from '@/components/party-labels.js';
+import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { PartyRecord } from '@/query/party.js';
 
@@ -33,4 +34,13 @@ export const partyColumns: ColumnDef<PartyRecord, unknown>[] = [
       </TableStack>
     ),
   },
+];
+
+// Columns of the exported file (CSV, Excel, PDF): the table with e-mail and phone in columns of their own.
+export const partyExportColumns: TableExportColumn<PartyRecord>[] = [
+  { header: t('name'), value: (row) => row.name },
+  { header: t('type'), value: (row) => t(row.type) },
+  { header: t('registration'), value: (row) => partyIdentification(row) },
+  { header: t('email'), value: (row) => row.email },
+  { header: t('phone'), value: (row) => row.phone },
 ];

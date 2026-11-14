@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { SearchForm } from './@components/search-form.js';
-import { SearchResults } from './@components/search-results.js';
+import { datajudExportColumns, SearchResults } from './@components/search-results.js';
 import { useSearchDatajud } from './@hooks/use-search-datajud.js';
 
 export function SearchDatajudPage() {
@@ -21,7 +21,8 @@ export function SearchDatajudPage() {
         <Panel>
           <SearchForm state={state} />
         </Panel>
-        <DataTable>
+        {/* The results loaded so far ("Carregar mais" brings the next ones): no "all filtered" option. */}
+        <DataTable export={{ title: t('datajud_search'), columns: datajudExportColumns, rows: items }}>
           {isSearching && !items.length ? (
             <DefaultLoading />
           ) : searchError ? (

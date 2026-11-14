@@ -16,6 +16,7 @@ overrides:
 
 allowBuilds:
   bcrypt: true
+  core-js: false
   esbuild: true
 
 minimumReleaseAgeExclude:

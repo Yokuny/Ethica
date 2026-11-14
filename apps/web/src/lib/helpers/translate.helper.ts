@@ -739,6 +739,8 @@ const translations: Record<string, string> = {
   storage_used: 'Armazenamento usado',
   of: 'de',
   export_data: 'Exportar dados',
+  on_screen: 'Em tela',
+  all_filtered: 'Todos os filtrados',
   export_data_description: 'Baixa um ZIP com um CSV por cadastro (LGPD). Fica registrado quem exportou.',
   removed_user: 'Usuário removido',
   no_exports_yet: 'Nenhuma exportação feita.',
@@ -1149,6 +1151,8 @@ const translations: Record<string, string> = {
   section: 'Seção',
   spreadsheet: 'Planilha',
   pdf_file: 'PDF',
+  csv_file: 'CSV',
+  excel_file: 'Excel',
   // Service phase, by group, and status (AD-178).
   initial_phase: 'Fase inicial',
   intermediate_phase: 'Fase intermediária',

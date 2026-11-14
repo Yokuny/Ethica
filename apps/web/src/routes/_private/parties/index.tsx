@@ -15,6 +15,7 @@ import { PartiesTable } from './@components/parties-table.js';
 import { PartyForm } from './@components/party-form.js';
 import { usePartiesSearch } from './@hooks/use-parties-search.js';
 import { type PartiesSearch, partiesSearchSchema } from './@interface/parties.interface.js';
+import { partyExportColumns } from './@utils/party-columns.js';
 
 // Registry of parties and lawyers reusable across cases (IMP-03, AD-117).
 export function PartiesIndexPage() {
@@ -28,16 +29,8 @@ export function PartiesIndexPage() {
     handleSortingChange,
     openParty,
   } = usePartiesSearch();
-  const query = useQuery(
-    partiesQuery({
-      page: search.page,
-      limit: search.limit,
-      q: search.q || undefined,
-      type: search.type,
-      sort: search.sort,
-      order: search.order,
-    }),
-  );
+  const params = { q: search.q || undefined, type: search.type, sort: search.sort, order: search.order };
+  const query = useQuery(partiesQuery({ ...params, page: search.page, limit: search.limit }));
   const [creating, setCreating] = useState(false);
   const session = useQuery(sessionQuery).data;
   const queryClient = useQueryClient();
@@ -79,6 +72,12 @@ export function PartiesIndexPage() {
               value: search.type,
               onChange: (type) => update({ type: type as PartiesSearch['type'], page: 1 }),
             },
+          }}
+          export={{
+            title: t('parties'),
+            columns: partyExportColumns,
+            rows: items,
+            fetchPage: (page, limit) => queryClient.fetchQuery(partiesQuery({ ...params, page, limit })),
           }}
         >
           {query.isLoading ? (

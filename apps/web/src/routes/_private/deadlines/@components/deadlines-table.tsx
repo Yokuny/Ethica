@@ -7,10 +7,27 @@ import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/compone
 import { TablePagination } from '@/components/table-pagination.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
+import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { DeadlineRecord } from '@/query/deadline.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
+
+// Columns of the exported file (CSV, Excel, PDF): the same as the table, one text per cell.
+export const deadlineExportColumns: TableExportColumn<DeadlineRecord>[] = [
+  { header: t('due_date'), value: (deadline) => day(deadline.dueDate) },
+  { header: t('deadlines_and_alerts'), value: (deadline) => `${deadline.title} · ${t(deadline.kind)}` },
+  { header: t('expert_case'), value: (deadline) => deadline.caseNumber },
+  {
+    header: t('contracting_party'),
+    value: (deadline) => deadline.client ?? [deadline.plaintiff, deadline.defendant].filter(Boolean).join(' x '),
+  },
+  { header: t('service_type'), value: (deadline) => serviceLabel(deadline) },
+  {
+    header: t('status'),
+    value: (deadline) => t(deadlineAlert(deadline, formatDisplayDate(new Date())) ?? deadline.status),
+  },
+];
 
 type DeadlinesTableProps = {
   items: DeadlineRecord[];

@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { AppLink } from '@/components/app-link.js';
 import { TableStack } from '@/components/data-table.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
+import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import {
   ACTIVITY_LOG_ACTION_KEY,
@@ -52,4 +53,24 @@ export const activityLogColumns: ColumnDef<Activity, unknown>[] = [
     ),
   },
   { id: 'record', header: t('record'), cell: ({ row }) => <FieldRecord activity={row.original} /> },
+];
+
+// Columns of the exported file (CSV, Excel, PDF): the same as the table, one text per cell.
+export const activityLogExportColumns: TableExportColumn<Activity>[] = [
+  { header: t('when'), value: (activity) => formatDateTime(activity.createdAt) },
+  { header: t('user'), value: (activity) => activity.userName },
+  {
+    header: t('action'),
+    value: (activity) =>
+      [
+        t(ACTIVITY_LOG_MODULE_KEY[activity.module]),
+        t(ACTIVITY_LOG_ACTION_KEY[activity.action]),
+        activity.resource &&
+          ACTIVITY_LOG_RESOURCE_KEY[activity.resource] &&
+          t(ACTIVITY_LOG_RESOURCE_KEY[activity.resource]),
+      ]
+        .filter(Boolean)
+        .join(' · '),
+  },
+  { header: t('record'), value: (activity) => activity.label ?? (activity.recordId ? t('record') : undefined) },
 ];

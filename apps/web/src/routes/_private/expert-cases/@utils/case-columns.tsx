@@ -8,6 +8,7 @@ import { ALERT_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
+import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseListItem } from '@/query/case.js';
 
@@ -131,4 +132,48 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       );
     },
   },
+];
+
+// Same columns in the exported file (CSV, Excel, PDF), one text per cell; amounts only for whoever sees finance.
+export const caseExportColumns = (canSeeFinance: boolean): TableExportColumn<CaseListItem>[] => [
+  { header: t('control'), value: (row) => row.serviceOrder },
+  { header: t('expert_case'), value: (row) => caseLabel(row) },
+  { header: t('object'), value: (row) => row.subject },
+  {
+    header: t('contracting_party'),
+    value: (row) =>
+      usesContractor(row)
+        ? row.contractor?.name
+        : [names(row, 'plaintiff'), names(row, 'defendant')].filter(Boolean).join(' x '),
+  },
+  { header: t('service_type'), value: (row) => serviceLabel(row) },
+  {
+    header: t('client_district'),
+    value: (row) =>
+      usesContractor(row)
+        ? row.contractor?.name
+        : [row.court, row.division || row.district].filter(Boolean).join(' · '),
+  },
+  {
+    header: t('service_phase'),
+    value: (row) =>
+      [casePhaseLabel(row.phase, row.phaseName), row.status !== 'active' && caseStatusLabel(row.status)]
+        .filter(Boolean)
+        .join(' · '),
+  },
+  {
+    header: t('next_deadline'),
+    value: (row) => row.nextDeadline && `${formatDate(toDate(row.nextDeadline.dueDate))} · ${row.nextDeadline.title}`,
+  },
+  ...(canSeeFinance
+    ? [
+        {
+          header: t('fees'),
+          value: (row: CaseListItem) => {
+            const value = row.fixedFeesCents ?? row.proposedFeesCents;
+            return value ? formatMoney(value) : undefined;
+          },
+        },
+      ]
+    : []),
 ];

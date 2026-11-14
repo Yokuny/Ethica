@@ -1,6 +1,6 @@
 import { Button } from '@ethica/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -9,7 +9,7 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { t } from '@/lib/helpers/translate.helper.js';
 import { opportunitiesQuery } from '../@query/opportunity.js';
 import { ConvertForm } from './@components/convert-form.js';
-import { OpportunitiesTable } from './@components/opportunities-table.js';
+import { OpportunitiesTable, opportunityExportColumns } from './@components/opportunities-table.js';
 import { useOpportunitiesPage } from './@hooks/use-opportunities-page.js';
 import { type OpportunitiesSearch, opportunitiesSearchSchema } from './@interface/opportunities.interface.js';
 import { OPPORTUNITY_STATUS_ITEMS } from './@utils/opportunity-status.js';
@@ -20,6 +20,7 @@ export function OpportunitiesPage() {
   const { search, updateSearch, handlePaginationChange, converting, setConverting, setStatus, remove, openCase } =
     useOpportunitiesPage();
   const query = useQuery(opportunitiesQuery({ page: search.page, limit: search.limit, status: search.status }));
+  const queryClient = useQueryClient();
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -51,7 +52,15 @@ export function OpportunitiesPage() {
         </TabsList>
       </Tabs>
       <CardContent>
-        <DataTable>
+        <DataTable
+          export={{
+            title: t('opportunities'),
+            columns: opportunityExportColumns,
+            rows: items,
+            fetchPage: (page, limit) =>
+              queryClient.fetchQuery(opportunitiesQuery({ page, limit, status: search.status })),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

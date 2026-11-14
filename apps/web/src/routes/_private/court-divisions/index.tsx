@@ -17,6 +17,7 @@ import { CourtDivisionForm } from './@components/court-division-form.js';
 import { CourtDivisionsImportDialog } from './@components/court-divisions-import-dialog.js';
 import { useCourtDivisionsFilters } from './@hooks/use-court-divisions-filters.js';
 import { type CourtDivisionsSearch, courtDivisionsSearchSchema } from './@interface/court-divisions.interface.js';
+import { courtDivisionExportColumns } from './@utils/court-division-export-columns.js';
 
 // Name compared without case and accents, on the list already filtered by state and city (AD-151).
 const normalize = (text: string) =>
@@ -65,7 +66,12 @@ export function CourtDivisionsPage() {
         )}
       </CardHeader>
       <CardContent>
-        <DataTable search={{ value: search.q, onChange: (q) => update({ q }) }} filters={{ items: filters }}>
+        {/* The whole filtered list is on screen: no "all filtered" option. */}
+        <DataTable
+          search={{ value: search.q, onChange: (q) => update({ q }) }}
+          filters={{ items: filters }}
+          export={{ title: t('court_divisions'), columns: courtDivisionExportColumns, rows: items }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

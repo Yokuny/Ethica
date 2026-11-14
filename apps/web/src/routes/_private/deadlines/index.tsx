@@ -1,7 +1,7 @@
 import type { DeadlineStatus } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table.js';
@@ -13,7 +13,7 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type DeadlineRecord, deadlinesQuery } from '@/query/deadline.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { DeadlinesTable } from './@components/deadlines-table.js';
+import { DeadlinesTable, deadlineExportColumns } from './@components/deadlines-table.js';
 import { NewDeadlineDialog } from './@components/new-deadline-dialog.js';
 import { type DeadlinesSearch, deadlinesSearchSchema } from './@interface/deadlines.interface.js';
 
@@ -26,6 +26,7 @@ export function DeadlinesPage() {
   const session = useQuery(sessionQuery).data;
   const canUpdate = Boolean(session && can(session, 'expert_cases', 'update'));
   const query = useQuery(deadlinesQuery({ page: search.page, limit: search.limit, status: search.status }));
+  const queryClient = useQueryClient();
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
@@ -58,7 +59,14 @@ export function DeadlinesPage() {
         </TabsList>
       </Tabs>
       <CardContent>
-        <DataTable>
+        <DataTable
+          export={{
+            title: t('deadlines_and_alerts'),
+            columns: deadlineExportColumns,
+            rows: items,
+            fetchPage: (page, limit) => queryClient.fetchQuery(deadlinesQuery({ page, limit, status: search.status })),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

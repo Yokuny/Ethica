@@ -1,5 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -15,6 +15,7 @@ import { TransactionsFilters } from './@components/transactions-filters.js';
 import { TransactionsTable } from './@components/transactions-table.js';
 import { useTransactionsPage } from './@hooks/use-transactions-page.js';
 import { type TransactionsSearch, transactionsSearchSchema } from './@interface/transactions.interface.js';
+import { transactionExportColumns } from './@utils/transaction-columns.js';
 
 // Finance is the list of income and expense entries; the totals and charts live in the Dashboard.
 export function TransactionsIndexPage() {
@@ -31,6 +32,7 @@ export function TransactionsIndexPage() {
     clearFilters,
   } = useTransactionsPage();
   const query = useQuery(transactionsQuery(search));
+  const queryClient = useQueryClient();
   const session = useQuery(sessionQuery).data;
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
@@ -45,7 +47,15 @@ export function TransactionsIndexPage() {
         )}
       </CardHeader>
       <CardContent>
-        <DataTable toolbar={<TransactionsFilters search={search} onChange={update} />}>
+        <DataTable
+          toolbar={<TransactionsFilters search={search} onChange={update} />}
+          export={{
+            title: t('finance'),
+            columns: transactionExportColumns,
+            rows: items,
+            fetchPage: (page, limit) => queryClient.fetchQuery(transactionsQuery({ ...search, page, limit })),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

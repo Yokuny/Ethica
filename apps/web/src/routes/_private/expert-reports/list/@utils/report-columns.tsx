@@ -5,6 +5,7 @@ import type * as React from 'react';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import { REPORT_STATUS_VARIANT, reportStatusLabel } from '@/components/report-labels.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
+import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { ReportListItem } from '@/query/report.js';
 
@@ -121,5 +122,18 @@ export const reportColumns = ({
           )}
         </div>
       ),
+  },
+];
+
+// Columns of the exported file (CSV, Excel, PDF): the same as the table, one text per cell.
+export const reportExportColumns: TableExportColumn<ReportListItem>[] = [
+  { header: t('process'), value: (row) => `${row.caseNumber ?? t('expert_case_removed')} · ${t(row.type)}` },
+  { header: t('parties'), value: (row) => [row.plaintiff, row.defendant].filter(Boolean).join(' x ') },
+  { header: t('court_and_division'), value: (row) => [row.court, row.division].filter(Boolean).join(' · ') },
+  { header: t('template'), value: (row) => row.templateName },
+  { header: t('status'), value: (row) => reportStatusLabel(row.status) },
+  {
+    header: t('updated_on'),
+    value: (row) => [formatDate(row.updatedAt), row.updatedByName].filter(Boolean).join(' · '),
   },
 ];

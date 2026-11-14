@@ -1,5 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -14,6 +14,7 @@ import { CasesTable } from './@components/cases-table.js';
 import { useCasesFilters } from './@hooks/use-cases-filters.js';
 import { useCasesSearch } from './@hooks/use-cases-search.js';
 import { type CasesSearch, casesSearchSchema } from './@interface/cases.interface.js';
+import { caseExportColumns } from './@utils/case-columns.js';
 
 export function CasesIndexPage() {
   const {
@@ -28,28 +29,27 @@ export function CasesIndexPage() {
     hasFilters,
     clearFilters,
   } = useCasesSearch();
-  const query = useQuery(
-    casesQuery({
-      page: search.page,
-      limit: search.limit,
-      q: search.q || undefined,
-      phase: search.phase,
-      status: search.status,
-      courtType: search.courtType,
-      role: search.role,
-      serviceType: search.serviceType,
-      serviceOrder: search.serviceOrder || undefined,
-      sort: search.sort,
-      order: search.order,
-      deliveryFrom: search.deliveryFrom,
-      deliveryTo: search.deliveryTo,
-    }),
-  );
+  const params = {
+    q: search.q || undefined,
+    phase: search.phase,
+    status: search.status,
+    courtType: search.courtType,
+    role: search.role,
+    serviceType: search.serviceType,
+    serviceOrder: search.serviceOrder || undefined,
+    sort: search.sort,
+    order: search.order,
+    deliveryFrom: search.deliveryFrom,
+    deliveryTo: search.deliveryTo,
+  };
+  const query = useQuery(casesQuery({ ...params, page: search.page, limit: search.limit }));
+  const queryClient = useQueryClient();
   const filters = useCasesFilters(search, update);
   const statsQuery = useQuery(listStatsQuery('/expert-cases/stats'));
   const serviceOrder = useQuery(serviceOrderPreviewQuery).data;
   const session = useQuery(sessionQuery).data;
   const canCreate = Boolean(session && can(session, 'expert_cases', 'create'));
+  const canSeeFinance = Boolean(session && can(session, 'finance'));
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -72,7 +72,16 @@ export function CasesIndexPage() {
       </CardHeader>
       <CasesOverview stats={statsQuery.data} serviceOrder={serviceOrder} />
       <CardContent>
-        <DataTable filters={{ items: filters }} search={{ value: searchInput, onChange: handleSearchInput }}>
+        <DataTable
+          filters={{ items: filters }}
+          search={{ value: searchInput, onChange: handleSearchInput }}
+          export={{
+            title: t('expert_cases'),
+            columns: caseExportColumns(canSeeFinance),
+            rows: items,
+            fetchPage: (page, limit) => queryClient.fetchQuery(casesQuery({ ...params, page, limit })),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (
@@ -91,7 +100,7 @@ export function CasesIndexPage() {
             )
           ) : (
             <CasesTable
-              canSeeFinance={Boolean(session && can(session, 'finance'))}
+              canSeeFinance={canSeeFinance}
               data={items}
               pageCount={pageCount}
               pageIndex={search.page - 1}

@@ -9,27 +9,42 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@ethica/ui/components/dropdown-menu';
 import { InputGroup, InputGroupInput } from '@ethica/ui/components/input-group';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Popover, PopoverContent, PopoverTrigger } from '@ethica/ui/components/popover';
 import { Separator } from '@ethica/ui/components/separator';
+import { Spinner } from '@ethica/ui/components/spinner';
 import type { LinkProps } from '@tanstack/react-router';
 import { cn } from 'cn';
-import { Check, ChevronLeft, ChevronRight, EllipsisVertical, ListFilter, type LucideIcon, Search } from 'lucide-react';
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  EllipsisVertical,
+  ListFilter,
+  type LucideIcon,
+  Search,
+} from 'lucide-react';
 import type * as React from 'react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
+import { exportTable, type TableExportColumn, type TableExportFormat } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-type DataTableProps = React.ComponentProps<'div'> & {
+type DataTableProps<T> = React.ComponentProps<'div'> & {
   // Free search: frameless field at the top of the table, as in the reference.
   search?: { value: string; onChange: (value: string) => void };
   // "Filtros" button: several filters (`items`) or a single one (`options`).
   filters?: TableFiltersProps;
   // Extra controls on the same line (e.g. the queue quick filters).
   toolbar?: React.ReactNode;
+  // Export button at the end of the line: the rows on screen or every row of the current filters.
+  export?: TableExport<T>;
 };
 
 const ALL = '__all__';
@@ -236,12 +251,94 @@ function TableFilters({ items, options }: TableFiltersProps) {
   );
 }
 
-// Default listing panel: one toolbar line (Filters + search), a rule, and the
+type TableExport<T> = {
+  // Name of the file and title of the PDF.
+  title: string;
+  columns: TableExportColumn<T>[];
+  rows: T[];
+  // Pages of the current filters, read one after the other for "all filtered"; without it only the screen.
+  fetchPage?: (page: number, limit: number) => Promise<{ items: T[]; total: number }>;
+};
+
+// The list APIs serve at most 100 rows per page.
+const EXPORT_PAGE_SIZE = 100;
+
+const EXPORT_FORMATS: { value: TableExportFormat; label: string }[] = [
+  { value: 'csv', label: t('csv_file') },
+  { value: 'xlsx', label: t('excel_file') },
+  { value: 'pdf', label: t('pdf_file') },
+];
+
+async function fetchAllPages<T>(fetchPage: NonNullable<TableExport<T>['fetchPage']>): Promise<T[]> {
+  const rows: T[] = [];
+  for (let page = 1; ; page++) {
+    const { items, total } = await fetchPage(page, EXPORT_PAGE_SIZE);
+    rows.push(...items);
+    if (!items.length || rows.length >= total) return rows;
+  }
+}
+
+// Export icon: the menu picks the data (on screen or all filtered) and the click on a format downloads it.
+function TableExportMenu<T>({ title, columns, rows, fetchPage }: TableExport<T>) {
+  const [scope, setScope] = useState<'on_screen' | 'all_filtered'>('on_screen');
+  const [pending, setPending] = useState(false);
+  async function run(format: TableExportFormat) {
+    setPending(true);
+    try {
+      const data = fetchPage && scope === 'all_filtered' ? await fetchAllPages(fetchPage) : rows;
+      await exportTable(format, title, columns, data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t('action_error'));
+    } finally {
+      setPending(false);
+    }
+  }
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={<Button variant="ghost" size="icon" aria-label={t('export_data')} disabled={pending || !rows.length} />}
+      >
+        {pending ? <Spinner /> : <Download />}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-auto min-w-48">
+        {fetchPage && (
+          <>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>{t('export_data')}</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={scope} onValueChange={(next) => setScope(next as typeof scope)}>
+                <DropdownMenuRadioItem value="on_screen">{t('on_screen')}</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="all_filtered">{t('all_filtered')}</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        <DropdownMenuGroup>
+          {EXPORT_FORMATS.map((item) => (
+            <DropdownMenuItem key={item.value} onClick={() => void run(item.value)}>
+              {item.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// Default listing panel: one toolbar line (Filters + search, export at the end), a rule, and the
 // table flush with the edges. The `Table*` of `@ethica/ui` and `TablePagination`
 // lose their own frame in here (`in-data-[slot=data-table]`). Loading
 // and empty state get breathing room; the table does not.
-function DataTable({ search, filters, toolbar, className, children, ...props }: DataTableProps) {
-  const hasToolbar = Boolean(search || filters || toolbar);
+function DataTable<T>({
+  search,
+  filters,
+  toolbar,
+  export: exportOptions,
+  className,
+  children,
+  ...props
+}: DataTableProps<T>) {
+  const hasToolbar = Boolean(search || filters || toolbar || exportOptions);
   return (
     <div data-slot="data-table" className={cn('min-w-0 overflow-hidden', className)} {...props}>
       {hasToolbar && (
@@ -260,6 +357,11 @@ function DataTable({ search, filters, toolbar, className, children, ...props }: 
               </InputGroup>
             )}
             {toolbar}
+            {exportOptions && (
+              <div className="ml-auto">
+                <TableExportMenu {...exportOptions} />
+              </div>
+            )}
           </div>
           <Separator />
         </>

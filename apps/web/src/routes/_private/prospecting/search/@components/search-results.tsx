@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { FileSearch } from 'lucide-react';
 import { TableIdentity, TableStack } from '@/components/data-table.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
+import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { DatajudResult } from '../../@query/opportunity.js';
 
@@ -14,6 +15,16 @@ type SearchResultsProps = {
 };
 
 const maybeDate = (value?: string) => (value && !Number.isNaN(Date.parse(value)) ? formatDate(value) : undefined);
+
+// Columns of the exported file (CSV, Excel, PDF): the same as the table, one text per cell.
+export const datajudExportColumns: TableExportColumn<DatajudResult>[] = [
+  { header: t('process'), value: (item) => [item.processNumber, item.courtUnit].filter(Boolean).join(' · ') },
+  { header: t('subjects'), value: (item) => [item.caseClass, ...item.subjects].filter(Boolean).join(' · ') },
+  {
+    header: t('last_movement'),
+    value: (item) => [item.lastMovement, maybeDate(item.lastMovementAt)].filter(Boolean).join(' · '),
+  },
+];
 
 // Datajud search result: process, class/subjects, last movement and "Salvar".
 export function SearchResults({ items, onSave, saving }: SearchResultsProps) {

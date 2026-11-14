@@ -1295,6 +1295,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-14
 - **Status**: active
 
+### AD-223
+- **Decision**: As listas exportam o que está em tela ou todos os registros dos filtros atuais em CSV, Excel (.xlsx) ou PDF, gerados **no navegador**: ícone no fim da linha de filtros do `DataTable` (prop `export`), um menu com "Em tela"/"Todos os filtrados" e o formato. "Todos os filtrados" lê as páginas da própria API de listagem de 100 em 100 (o limite delas); listas que já trazem tudo (Varas, busca no Datajud) só têm "Em tela". Excel por `write-excel-file` e PDF por `jspdf` + `jspdf-autotable`, carregados só no clique. Cada tela define as colunas do arquivo (texto por célula) ao lado das colunas da tabela; valores só para quem vê o financeiro (AD-137).
+- **Reason**: pedido da perita; a perita escolheu gerar no navegador em vez de um endpoint de PDF no `documents` (AD-119), sem endpoint novo por lista.
+- **Trade-off**: o PDF da lista é simples (título, data e tabela), sem cabeçalho/logo do escritório; "Todos os filtrados" faz uma chamada por 100 registros; duas dependências novas no web (fora do bundle inicial).
+- **Scope**: `apps/web/src/components/data-table.tsx`, `apps/web/src/lib/helpers/tableExport.helper.ts`, colunas de exportação em cada lista (`apps/web/src/routes/_private/**`).
+- **Date**: 2026-11-14
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

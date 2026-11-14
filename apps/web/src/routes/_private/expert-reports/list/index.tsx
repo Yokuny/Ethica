@@ -18,21 +18,15 @@ import { deleteReportMutation, type ReportListItem, reportsQuery } from '@/query
 import { can, sessionQuery } from '@/query/session.js';
 import { ReportsTable } from './@components/reports-table.js';
 import { type ReportsSearch, reportsSearchSchema } from './@interface/reports.interface.js';
+import { reportExportColumns } from './@utils/report-columns.js';
 
 const ALL = 'all';
 
 export function ReportsListPage() {
   const search = useSearch({ strict: false }) as ReportsSearch;
   const navigate = useNavigate({ from: '/expert-reports/list/' });
-  const query = useQuery(
-    reportsQuery({
-      page: search.page,
-      limit: search.limit,
-      status: search.status,
-      sort: search.sort,
-      order: search.order,
-    }),
-  );
+  const params = { status: search.status, sort: search.sort, order: search.order };
+  const query = useQuery(reportsQuery({ ...params, page: search.page, limit: search.limit }));
   const session = useQuery(sessionQuery).data;
   const queryClient = useQueryClient();
   const removal = useMutation(deleteReportMutation(queryClient));
@@ -84,7 +78,14 @@ export function ReportsListPage() {
         </TabsList>
       </Tabs>
       <CardContent>
-        <DataTable>
+        <DataTable
+          export={{
+            title: t('reports_and_opinions'),
+            columns: reportExportColumns,
+            rows: items,
+            fetchPage: (page, limit) => queryClient.fetchQuery(reportsQuery({ ...params, page, limit })),
+          }}
+        >
           {query.isLoading ? (
             <DefaultLoading />
           ) : query.isError ? (

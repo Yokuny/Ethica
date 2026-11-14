@@ -5,6 +5,7 @@ import { categoryLabel, STATE_VARIANT, stateLabel, transactionState } from '@/co
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
+import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { TransactionRecord } from '@/query/transaction.js';
 
@@ -113,3 +114,22 @@ export const transactionColumns = ({
     },
   ];
 };
+
+// Columns of the exported file (CSV, Excel, PDF): the table with the entry's details in columns of their own.
+export const transactionExportColumns: TableExportColumn<TransactionRecord>[] = [
+  { header: t('entry'), value: (row) => row.description },
+  { header: t('type'), value: (row) => t(row.kind) },
+  { header: t('category'), value: (row) => categoryLabel(row) },
+  { header: t('expert_case'), value: (row) => row.caseNumber },
+  { header: t('contracting_party'), value: (row) => row.client },
+  {
+    header: t('amount'),
+    value: (row) =>
+      row.status === 'canceled'
+        ? formatMoney(0)
+        : `${row.kind === 'expense' ? '-' : ''}${formatMoney(row.amountCents)}`,
+  },
+  { header: t('due_date'), value: (row) => day(row.dueDate) },
+  { header: t('settled_on'), value: (row) => row.settledDate && day(row.settledDate) },
+  { header: t('status'), value: (row) => stateLabel(transactionState(row, formatDisplayDate(new Date()))) },
+];
