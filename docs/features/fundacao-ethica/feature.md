@@ -60,7 +60,7 @@ Começar o produto de gestão de perícias já com a arquitetura, o harness e a 
 
 ### `harness`
 
-- `AGENTS.md` (fonte única), `CLAUDE.md`, `GEMINI.md` → `AGENTS.md`; skills `ethica-*` em `.agents/skills/` com symlink em `.claude/skills/`; `monorepo-architecture`, a arquitetura deste monorepo escrita como documento portátil para outros projetos, sem vínculo com o Ethica; skills de design, `tlc-spec-driven`, `playwright-skill`, `browser-harness`; hooks em `.claude/settings*.json`; `.mcp.json` e `.vscode/`.
+- `AGENTS.md` (fonte única), `CLAUDE.md`, `GEMINI.md` → `AGENTS.md`; skills `ethica-*` em `.agents/skills/` com symlink em `.claude/skills/`; `monorepo-architecture`, a arquitetura deste monorepo escrita como documento portátil para outros projetos, sem vínculo com o Ethica; skills de design, `playwright-skill`, `browser-harness`; hooks em `.claude/settings*.json`; `.mcp.json` e `.vscode/`.
 
 ### `docs`
 
@@ -95,6 +95,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-14 — Sai a skill `tlc-spec-driven` e as lições geradas pelo script dela (`.specs/LESSONS.md`, `.specs/lessons.json`); o fluxo spec → design → tasks fica só na `ethica-spec-driven` (AD-221).
 - 2026-11-10 — Relatórios compacto e alinhado à esquerda: nome do relatório, o que ele traz logo abaixo e os botões em seguida.
 - 2026-11-10 — Relatórios ocupa toda a largura da página, sem a coluna estreita centralizada.
 - 2026-11-09 — Gestão na ordem Financeiro, Relatórios, Dashboard, Prospecção (AD-211).

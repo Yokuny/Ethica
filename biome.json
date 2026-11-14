@@ -31,12 +31,6 @@
       "assist": { "enabled": false }
     },
     {
-      "includes": [".specs/lessons.json"],
-      "linter": { "enabled": false },
-      "formatter": { "enabled": false },
-      "assist": { "enabled": false }
-    },
-    {
       "includes": ["docs/double-check-design/**", ".specs/features/*/references/**"],
       "linter": { "enabled": false },
       "formatter": { "enabled": false },

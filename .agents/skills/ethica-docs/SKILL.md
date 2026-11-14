@@ -31,7 +31,7 @@ O `slug` (kebab-case, curto) é a identidade da feature: pasta em `docs/features
 ## Durante
 
 - Plano sempre em arquivo: o plan mode do Claude já grava em `.specs/plans/`; outros agentes salvam em `.specs/plans/<YYYY-MM-DD>-<assunto>.md` com `# Título` na primeira linha.
-- Execução divergiu do plano? Não reescreva o plano: anote no "Histórico" do `feature.md` (ou no `tasks.md`, se a feature roda pelo `tlc-spec-driven`).
+- Execução divergiu do plano? Não reescreva o plano: anote no "Histórico" do `feature.md`.
 
 ## Registro
 

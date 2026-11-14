@@ -1839,6 +1839,12 @@
       "decisao": "Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s",
       "data": "2026-11-12",
       "status": "active"
+    },
+    {
+      "id": "AD-221",
+      "decisao": "Sai a skill `tlc-spec-driven` (`.claude/skills/tlc-spec-driven/`) e, com ela, a camada de lições do Verifier (`.specs/LESSONS.md`, `.specs/l",
+      "data": "2026-11-14",
+      "status": "active"
     }
   ]
 }

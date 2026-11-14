@@ -1,18 +1,8 @@
 # Ethica
 
-Plataforma multi-tenant de **gestão de perícias** judiciais (trabalhistas, cíveis e federais) — processos, prazos, vistorias, honorários e laudos — com **prospecção** de nomeações pela API Pública do Datajud (CNJ). Produto e público: `PRODUCT.md`.
+Plataforma multi-tenant de **gestão de serviços técnicos** — perícias judiciais (trabalhistas, cíveis e federais), assistências técnicas e serviços próprios do escritório — da nomeação ou contratação até a entrega do laudo e o recebimento dos honorários. Produto e público: `PRODUCT.md`.
 
-Fonte única das regras para qualquer agente: `CLAUDE.md` importa este arquivo e `GEMINI.md` é symlink dele — edite **só aqui**. Você é um desenvolvedor sênior Full Stack (TypeScript, React, Node/Express), rigoroso com o padrão arquitetural do projeto.
-
-## Com quem você trabalha (AD-143)
-
-Quem pede os ajustes é a **perita**: engenheira, usuária do Ethica no dia a dia e dona do produto. Ela conhece a fundo o processo de perícia (nomeação, prazos, vistoria, laudo, honorários) e é quem diz se o sistema faz o que deve. Ela **não programa**.
-
-- Fale em pt-BR, com as palavras da rotina dela (perícia, prazo, vistoria, laudo, honorário, tela, botão), nunca com termo de código (rota, schema, componente, endpoint, commit). Se precisar citar algo técnico, diga o efeito ("o aviso passa a sair mesmo se o sistema reiniciar de madrugada").
-- **Decisão técnica é sua**, pelos padrões do projeto; não peça a ela para escolher biblioteca, estrutura ou nome. Pergunte só sobre **comportamento**: o que deve aparecer, quem pode fazer, o que acontece em cada caso da rotina dela. Junte as dúvidas numa rodada só, com opções concretas.
-- Pedido vago ou que dá para entender de dois jeitos: descreva em uma ou duas frases o que vai mudar na tela e confirme antes. Faltou dado essencial: até três perguntas objetivas.
-- Não invente fatos: o que não está no repositório ou na conversa, diga que não sabe.
-- Se o pedido só der para atender quebrando a arquitetura ou uma decisão ativa (`.specs/STATE.md`), **não quebre**: explique em linguagem simples o que conflita e ofereça o caminho dentro do padrão. A arquitetura e os padrões documentados valem mais do que a velocidade do ajuste.
+`CLAUDE.md` e `GEMINI.md` apontam para este arquivo: edite **só aqui**. Você é um desenvolvedor sênior Full Stack (TypeScript, React, Node/Express), rigoroso com o padrão arquitetural do projeto.
 
 ## Princípio fundamental — programar com a intenção de reduzir a complexidade
 
@@ -54,7 +44,6 @@ O repositório é a memória do projeto. Toda alteração, decisão e ajuste fic
 | Spec, design, tasks, validação, contexto | `.specs/features/<slug>/{spec,design,tasks,validation,context}.md` | snapshot congelado do dia em que foi feito |
 | Planos de execução | `.specs/features/<slug>/plans/<YYYY-MM-DD>-<assunto>.md` | congelado; caixa de entrada em `.specs/plans/` |
 | Decisões (`AD-NNN`) | `.specs/STATE.md` (log) e `docs/adr/` (ADR longo, quando a decisão tem alternativas que valem registro) | append-only; decisão nova **supersede**, não edita |
-| Lições do Verifier | `.specs/LESSONS.md` / `.specs/lessons.json` | mantido pela skill `tlc-spec-driven` |
 | Contexto de produto | `PRODUCT.md`, `docs/{architecture,glossary,roadmap,positioning}.md` | vivo |
 
 ### 1. Antes de qualquer tarefa — descoberta
@@ -69,7 +58,7 @@ O repositório é a memória do projeto. Toda alteração, decisão e ajuste fic
 Todo trabalho é feito **direto na `main`**, sem branch nem Pull Request (AD-143). Antes de mexer, atualize: `git checkout main && git pull --ff-only`.
 
 - **Ajuste pequeno** (correção, texto, campo, regra de uma tela; ≤3 passos óbvios, uma área): siga direto e registre no fim (seção 3).
-- **Feature média/grande** (mais de 3 passos, várias áreas, decisão não-óbvia): `spec.md` → `design.md` → `tasks.md` em `.specs/features/<slug>/` **antes** do código (formato: skill `ethica-spec-driven`; execução: skill `tlc-spec-driven`). Se a feature já tem `spec.md`, confirme com a perita a tabela "Assumptions & Open Questions" antes do design (em linguagem de rotina, não de código).
+- **Feature média/grande** (mais de 3 passos, várias áreas, decisão não-óbvia): `spec.md` → `design.md` → `tasks.md` em `.specs/features/<slug>/` **antes** do código (formato: skill `ethica-spec-driven`). Se a feature já tem `spec.md`, confirme com a perita a tabela "Assumptions & Open Questions" antes do design (em linguagem de rotina, não de código).
 - Todo plano produzido (plan mode do Claude, plano do Codex/Gemini, plano pedido) é salvo em arquivo no repo: caixa de entrada `.specs/plans/` durante o trabalho, arquivado em `.specs/features/<slug>/plans/` ao concluir. Plano que só existe no chat não existe.
 - Decisão não-óbvia tomada durante o trabalho → nova entrada `AD-NNN` em `.specs/STATE.md` (próximo número livre), no formato das existentes.
 - Mudou de ideia em relação ao plano/design? Anote a divergência no "Histórico" do `feature.md`; não reescreva o plano/spec congelado.
@@ -117,4 +106,3 @@ Canônicas em `.agents/skills/` (symlink em `.claude/skills/`); sem suporte a sk
 | `ethica-item-typography` | Qualquer texto em `apps/web` (todo texto é `ItemTitle`/`ItemDescription`, AD-087) e a migração em lote do projeto para esse padrão |
 | `ethica-permissions` | Qualquer rota, tela, botão ou ação que dependa de papel (`admin`/`manager`/`operator`), revisão de acesso, "quem pode fazer X", papel novo |
 | `ethica-mcp` | MCP Context7 ausente ou falhando: onde criar a key e como inseri-la (VS Code e Claude Code); chave do Datajud |
-| `tlc-spec-driven` (`.claude/skills/`) | Execução por fases Specify → Design → Tasks → Execute com Verifier |

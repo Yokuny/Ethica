@@ -1279,6 +1279,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-12
 - **Status**: active
 
+### AD-221
+- **Decision**: Sai a skill `tlc-spec-driven` (`.claude/skills/tlc-spec-driven/`) e, com ela, a camada de lições do Verifier (`.specs/LESSONS.md`, `.specs/lessons.json`, mantidas só pelo script da skill) e o override do Biome para `lessons.json`. O fluxo spec → design → tasks → `validation.md` segue descrito só na skill `ethica-spec-driven`. Snapshots congelados em `.specs/features/` que citam a skill ficam como estão.
+- **Reason**: skill sem uso; manter referência a ela e arquivos gerados por um script que não existe mais só confunde quem retoma o trabalho.
+- **Trade-off**: a única lição registrada (L-001, candidata: teste de agregação por período precisa de um registro fora do período) deixa de ter arquivo próprio; continua citada em `.specs/features/prazos-recebimentos/validation.md`.
+- **Scope**: `AGENTS.md`, `.agents/skills/ethica-spec-driven/SKILL.md`, `.agents/skills/ethica-docs/SKILL.md`, `biome.json`, `.specs/`.
+- **Date**: 2026-11-14
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.
