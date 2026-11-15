@@ -63,6 +63,7 @@ pnpm vitest run apps/api/src/modules/agenda packages/db/src/models/calendar-entr
 
 ## Histórico
 
+- 2026-11-15 — Trocar o filtro de tipo mostra o carregamento até a busca terminar (antes, com prazo ou financeiro, caía em "Nada agendado"); bolinha de cor alinhada ao texto nas opções de seletor (`packages/ui/src/components/select.tsx`).
 - 2026-11-15 — Item do calendário sempre em duas linhas: título (`ItemTitle`) sobre o horário ou os detalhes (`ItemDescription`, mais suave); bloco curto da grade de horas com altura mínima para as duas linhas; menos espaço interno nas células.
 - 2026-11-15 — Calendário no visual da agenda do DentalEase, com a cor só pelo tipo e a legenda no filtro de tipo; dia em destaque acima do calendário; clicar num dia vazio abre Novo compromisso (AD-229, plano `.specs/features/agenda-eventos/plans/2026-11-15-agenda-visual-calendario.md`).
 - 2026-11-05 — Navegação anterior/hoje/próximo num só contorno, sem divisórias internas (AD-194).

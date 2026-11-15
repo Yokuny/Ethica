@@ -33,7 +33,9 @@ export function AgendaIndexPage() {
     setPanel,
     search,
     closePanel,
-    query,
+    isLoading,
+    isError,
+    refetch,
     items,
     entries,
     view,
@@ -122,13 +124,10 @@ export function AgendaIndexPage() {
             </Select>
           </div>
         </div>
-        {query.isLoading ? (
+        {isLoading ? (
           <DefaultLoading />
-        ) : query.isError ? (
-          <DefaultEmptyData
-            title={t('load_error')}
-            action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
-          />
+        ) : isError ? (
+          <DefaultEmptyData title={t('load_error')} action={<Button onClick={refetch}>{t('try_again')}</Button>} />
         ) : !items.length && !entries.length && search.type ? (
           <DefaultEmptyData
             title={t('nothing_scheduled_in_period')}

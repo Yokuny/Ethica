@@ -38,7 +38,13 @@ export function useAgendaPage() {
     view,
     date,
     from,
-    query,
+    // Both queries count: with an entry type the appointments one is off, and the other way around.
+    isLoading: query.isLoading || entriesQuery.isLoading,
+    isError: query.isError || entriesQuery.isError,
+    refetch: () => {
+      if (query.isError) void query.refetch();
+      if (entriesQuery.isError) void entriesQuery.refetch();
+    },
     items,
     entries,
     handleViewChange: (nextView: CalendarView) => updateSearch((prev) => ({ ...prev, view: nextView })),
