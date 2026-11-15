@@ -717,6 +717,7 @@ const translations: Record<string, string> = {
   office_page_description:
     'Identidade dos documentos, numeração de OS, responsáveis técnicos, aviso de agendamento e dados do escritório.',
   your_office_in_every_document: 'O escritório em cada documento',
+  you_in_every_routine: 'Você em cada rotina',
   office_hub_text:
     'Defina o logo, o cabeçalho e o rodapé que saem nos PDFs e no Word, a sigla da OS, quem assina os laudos e o e-mail do aviso de vistoria. Acompanhe o espaço usado e exporte os dados quando precisar.',
   logo: 'Logo',

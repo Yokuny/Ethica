@@ -1,8 +1,8 @@
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { DefaultFormLayout } from '@/components/default-form-layout.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { StepItem, StepList } from '@/components/step-list.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { profileQuery } from '@/query/account.js';
 import { sessionQuery } from '@/query/session.js';
@@ -12,7 +12,7 @@ import { AccountDevices } from './@components/account-devices.js';
 import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
 
-// ACC-01: the signed-in person's account. Each block saves on its own; the session
+// ACC-01: the signed-in person's account, in steps like the office page (AD-224). Each step saves on its own; the session
 // (guaranteed by the _private guard) gives the current name and photo.
 export function AccountPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
@@ -20,43 +20,29 @@ export function AccountPage() {
   const profile = useQuery(profileQuery);
   return (
     <Card asPage>
-      <CardHeader title={t('my_account')} description={t('account_description')} />
+      <CardHeader title={t('my_account')} />
       <CardContent>
-        <DefaultFormLayout
-          sections={[
-            {
-              title: t('photo'),
-              description: t('photo_description'),
-              fields: [<AccountPhoto key="photo" name={name} avatar={avatar} />],
-            },
-            {
-              title: t('profile'),
-              description: t('profile_description'),
-              fields: [
-                profile.data ? (
-                  <AccountProfileForm key={profile.dataUpdatedAt} profile={profile.data} />
-                ) : (
-                  <DefaultLoading key="profile" />
-                ),
-              ],
-            },
-            {
-              title: t('devices_with_access'),
-              description: t('devices_with_access_description'),
-              fields: [<AccountDevices key="devices" />],
-            },
-            {
-              title: t('deadline_alerts'),
-              description: t('deadline_alerts_description'),
-              fields: [<AccountDeadlineReminder key="notice" />],
-            },
-            {
-              title: t('calendar_sync'),
-              description: t('calendar_sync_description'),
-              fields: [<AccountCalendarFeed key="feed" />],
-            },
-          ]}
-        />
+        <StepList title={t('you_in_every_routine')} description={t('account_description')}>
+          <StepItem title={t('photo')} description={t('photo_description')}>
+            <AccountPhoto name={name} avatar={avatar} />
+          </StepItem>
+          <StepItem title={t('profile')} description={t('profile_description')}>
+            {profile.data ? (
+              <AccountProfileForm key={profile.dataUpdatedAt} profile={profile.data} />
+            ) : (
+              <DefaultLoading />
+            )}
+          </StepItem>
+          <StepItem title={t('devices_with_access')} description={t('devices_with_access_description')}>
+            <AccountDevices />
+          </StepItem>
+          <StepItem title={t('deadline_alerts')} description={t('deadline_alerts_description')}>
+            <AccountDeadlineReminder />
+          </StepItem>
+          <StepItem title={t('calendar_sync')} description={t('calendar_sync_description')}>
+            <AccountCalendarFeed />
+          </StepItem>
+        </StepList>
       </CardContent>
     </Card>
   );
