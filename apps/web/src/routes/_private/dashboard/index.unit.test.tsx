@@ -38,14 +38,14 @@ const renderPage = (role: Role[]) => {
       { role: 'court_expert', count: 9 },
       { role: 'other', serviceType: 'Parceria', count: 3 },
     ],
-    courtExpertByYear: [{ year: '2026', count: 9 }],
+    byMonth: [
+      { month: '2026-10', count: 4 },
+      { month: '2026-11', count: 5 },
+    ],
   });
   queryClient.setQueryData(feesDashboardQuery.queryKey, {
     receivableCents: 50_000,
-    receivedByYear: [
-      { year: '2025', cents: 100_000 },
-      { year: '2026', cents: 200_000 },
-    ],
+    receivedCents: 300_000,
   });
   render(
     <QueryClientProvider client={queryClient}>
@@ -63,13 +63,11 @@ describe('Dashboard (DSH)', () => {
     expect(screen.getByText('Perícia')).toBeInTheDocument();
     expect(screen.getByText('Parceria')).toBeInTheDocument();
     expect(screen.getByText(/3\.000,00/)).toBeInTheDocument();
-    expect(screen.getByText('Honorários recebidos por ano')).toBeInTheDocument();
   });
 
   it('sem o Financeiro, nenhum valor em dinheiro aparece (DSH-06)', () => {
     renderPage(['operator']);
-    expect(screen.getByText('Perícias por ano')).toBeInTheDocument();
+    expect(screen.getByText('Serviços por mês')).toBeInTheDocument();
     expect(screen.queryByText('Honorários recebidos')).not.toBeInTheDocument();
-    expect(screen.queryByText('Honorários recebidos por ano')).not.toBeInTheDocument();
   });
 });

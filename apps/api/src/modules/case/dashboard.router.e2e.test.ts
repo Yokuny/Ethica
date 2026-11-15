@@ -1,6 +1,17 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import { Case, connect, disconnect, hashToken, Session, Tenant, Transaction, User } from '@ethica/db';
+import {
+  Case,
+  connect,
+  dateInDisplayTz,
+  disconnect,
+  hashToken,
+  Session,
+  shiftMonth,
+  Tenant,
+  Transaction,
+  User,
+} from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -56,14 +67,15 @@ describe('Dashboard (DSH)', () => {
     await disconnect();
   });
 
-  it('conta por tipo, encerrados e perícias pelo ano da nomeação ou do cadastro (DSH-02 a 04)', async () => {
+  it('conta por tipo, encerrados e serviços dos últimos 12 meses pela nomeação ou pelo cadastro (DSH-02 a 04)', async () => {
     const { tenant, as } = await seedSession();
     const other = await seedSession();
-    const year = String(new Date().getFullYear());
+    const month = dateInDisplayTz(new Date()).slice(0, 7);
+    const nominated = `${shiftMonth(month, -2)}-10`;
     await Case.collection.insertMany([
-      { ...base(tenant._id, 'a', { nominationDate: '2024-03-01' }), createdAt: new Date() },
+      { ...base(tenant._id, 'a', { nominationDate: nominated }), createdAt: new Date() },
       { ...base(tenant._id, 'b', { nominationDate: '2024-06-01', phase: 'fees_received' }), createdAt: new Date() },
-      { ...base(tenant._id, 'c', { status: 'canceled', nominationDate: '2023-01-01' }), createdAt: new Date() },
+      { ...base(tenant._id, 'c', { status: 'canceled', nominationDate: nominated }), createdAt: new Date() },
       { ...base(tenant._id, 'g', {}), createdAt: new Date() },
       { ...base(tenant._id, 'd', { role: 'technical_assistant', phase: 'assistance_hired' }), createdAt: new Date() },
       { ...base(tenant._id, 'e', { role: 'other', serviceType: 'Parceria', phase: 'custom' }), createdAt: new Date() },
@@ -77,13 +89,14 @@ describe('Dashboard (DSH)', () => {
       { role: 'other', serviceType: 'Parceria', count: 1 },
       { role: 'technical_assistant', count: 1 },
     ]);
-    expect(body.data.courtExpertByYear).toEqual([
-      { year: '2024', count: 2 },
-      { year, count: 1 },
-    ]);
+    // 'b' is older than 12 months, 'c' is canceled, 'f' is from another office.
+    expect(body.data.byMonth).toHaveLength(12);
+    expect(body.data.byMonth.at(-1)).toEqual({ month, count: 3 });
+    expect(body.data.byMonth.at(-3)).toEqual({ month: shiftMonth(month, -2), count: 1 });
+    expect(body.data.byMonth.reduce((total: number, row: { count: number }) => total + row.count, 0)).toBe(4);
   });
 
-  it('honorários: recebido pelo ano da parcela, saldo a receber, sem cancelados; só com o Financeiro (DSH-05, 06)', async () => {
+  it('honorários: recebido somado das parcelas, saldo a receber, sem cancelados; só com o Financeiro (DSH-05, 06)', async () => {
     const { tenant, as } = await seedSession();
     const income = {
       Tenant: tenant._id,
@@ -113,10 +126,7 @@ describe('Dashboard (DSH)', () => {
     const { body } = await as(request(app).get('/finance/dashboard'));
     expect(body.data).toEqual({
       receivableCents: 50_000,
-      receivedByYear: [
-        { year: '2024', cents: 30_000 },
-        { year: '2025', cents: 20_000 },
-      ],
+      receivedCents: 50_000,
     });
 
     const operator = await seedSession(['operator']);

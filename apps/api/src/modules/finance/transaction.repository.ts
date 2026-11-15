@@ -284,29 +284,23 @@ export const summary = async (
     return { receivableCents, lateCents, receivedMonthCents, expensesMonthCents };
   });
 
-// One row per month (`YYYY-MM`): received by each installment's date; receivable by the balance of the
-// open income in the due month; paid expense by the settlement month and expected by the
-// due month. Months without movement come in as zero.
 export const feesDashboard = async (tenantId: string): Promise<FeesDashboard> =>
   withDbTiming('finance.feesDashboard', async () => {
     const Tenant = toObjectId(tenantId);
-    const [receivableCents, byYear] = await Promise.all([
+    const [receivableCents, receivedCents] = await Promise.all([
       sum([{ $match: { Tenant, kind: 'income', status: { $in: OPEN } } }, { $project: { amount: BALANCE } }]),
-      Transaction.aggregate<{ _id: string; cents: number }>([
+      sum([
         { $match: { Tenant, kind: 'income', status: { $ne: 'canceled' } } },
         { $unwind: '$installments' },
-        {
-          $group: {
-            _id: { $substrBytes: ['$installments.date', 0, 4] },
-            cents: { $sum: '$installments.amountCents' },
-          },
-        },
-        { $sort: { _id: 1 } },
+        { $project: { amount: '$installments.amountCents' } },
       ]),
     ]);
-    return { receivableCents, receivedByYear: byYear.map(({ _id, cents }) => ({ year: _id, cents })) };
+    return { receivableCents, receivedCents };
   });
 
+// One row per month (`YYYY-MM`): received by each installment's date; receivable by the balance of the
+// open income in the due month; paid expense by the settlement month and expected by the
+// due month. Months without movement come in as zero.
 export const monthlyFlow = async (tenantId: string, months: string[]): Promise<MonthlyFlow[]> =>
   withDbTiming('finance.monthlyFlow', async () => {
     const Tenant = toObjectId(tenantId);

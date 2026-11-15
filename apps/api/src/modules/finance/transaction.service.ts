@@ -1,5 +1,5 @@
 import { caseLabel, transactionAgendaEntries } from '@ethica/contracts';
-import { dateInDisplayTz } from '@ethica/db';
+import { dateInDisplayTz, shiftMonth } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from '../case/case.service.js';
@@ -19,12 +19,6 @@ export class TransactionNotFoundError extends KeyedError {}
 
 // Default term to receive fixed fees when the court does not set a date.
 const DAYS_TO_RECEIVE_FEES = 30;
-
-const shiftMonth = (month: string, offset: number): string => {
-  const [year, m] = month.split('-').map(Number) as [number, number];
-  const date = new Date(Date.UTC(year, m - 1 + offset, 1));
-  return date.toISOString().slice(0, 7);
-};
 
 const addDays = (day: string, days: number): string => {
   const date = new Date(`${day}T12:00:00.000Z`);
@@ -186,9 +180,9 @@ export const summary = (tenantId: string, now: Date = new Date()) => {
   });
 };
 
-// The last `months` months up to the current one, from oldest to newest.
 export const feesDashboard = (tenantId: string) => transactionRepository.feesDashboard(tenantId);
 
+// The last `months` months up to the current one, from oldest to newest.
 export const monthlyFlow = (tenantId: string, months: number, now: Date = new Date()) => {
   const month = dateInDisplayTz(now).slice(0, 7);
   return transactionRepository.monthlyFlow(

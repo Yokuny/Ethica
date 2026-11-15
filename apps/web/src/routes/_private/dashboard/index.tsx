@@ -16,7 +16,7 @@ import { can, sessionQuery } from '@/query/session.js';
 import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CategoriesChart } from './@components/categories-chart.js';
 import { FinanceOverview } from './@components/finance-overview.js';
-import { YearColumnsChart } from './@components/year-columns-chart.js';
+import { MonthColumnsChart } from './@components/month-columns-chart.js';
 import {
   type DashboardSearch,
   dashboardSearchSchema,
@@ -26,9 +26,7 @@ import {
 import { caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
 
 const number = new Intl.NumberFormat('pt-BR');
-const compactMoney = new Intl.NumberFormat('pt-BR', { notation: 'compact', style: 'currency', currency: 'BRL' });
 const formatNumber = (value: number) => number.format(value);
-const formatCompactMoney = (cents: number) => compactMoney.format(cents / 100);
 
 // Totals of the office (DSH): the amounts, the cash flow and the categories only for whoever sees finance (AD-137).
 export function DashboardPage() {
@@ -42,8 +40,6 @@ export function DashboardPage() {
   const flow = useQuery({ ...monthlyFlowQuery(Number(search.months)), enabled: canSeeFinance });
   const income = useQuery({ ...categoriesQuery('income'), enabled: canSeeFinance });
   const expenses = useQuery({ ...categoriesQuery('expense'), enabled: canSeeFinance });
-  const receivedByYear = fees.data?.receivedByYear ?? [];
-  const receivedCents = receivedByYear.reduce((total, row) => total + row.cents, 0);
 
   return (
     <Card asPage>
@@ -52,7 +48,9 @@ export function DashboardPage() {
         <RecordStats variant="band" role="group" aria-label={t('overview')}>
           <RecordStat label={t('expert_cases')} value={formatNumber(cases.data.total)} />
           <RecordStat label={t('closed_expert_cases')} value={formatNumber(cases.data.closed)} />
-          {canSeeFinance && fees.data && <RecordStat label={t('fees_received')} value={formatMoney(receivedCents)} />}
+          {canSeeFinance && fees.data && (
+            <RecordStat label={t('fees_received')} value={formatMoney(fees.data.receivedCents)} />
+          )}
         </RecordStats>
       )}
       <CardContent className="gap-10 pb-16">
@@ -78,36 +76,13 @@ export function DashboardPage() {
                 <DefaultEmptyData title={t('no_data_yet')} />
               )}
             </Panel>
-            <div className="grid gap-10 lg:grid-cols-2">
-              <Panel size="lg" title={t('court_cases_by_year')}>
-                {cases.data.courtExpertByYear.length ? (
-                  <YearColumnsChart
-                    label={t('expert_cases')}
-                    data={cases.data.courtExpertByYear.map(({ year, count }) => ({ year, value: count }))}
-                    format={formatNumber}
-                    columnLabel={formatNumber}
-                  />
-                ) : (
-                  <DefaultEmptyData title={t('no_data_yet')} />
-                )}
-              </Panel>
-              {canSeeFinance && (
-                <Panel size="lg" title={t('fees_received_by_year')}>
-                  {fees.isLoading ? (
-                    <DefaultLoading />
-                  ) : receivedByYear.length ? (
-                    <YearColumnsChart
-                      label={t('fees_received')}
-                      data={receivedByYear.map(({ year, cents }) => ({ year, value: cents }))}
-                      format={formatMoney}
-                      columnLabel={formatCompactMoney}
-                    />
-                  ) : (
-                    <DefaultEmptyData title={t(fees.isError ? 'load_error' : 'no_data_yet')} />
-                  )}
-                </Panel>
+            <Panel size="lg" title={t('expert_cases_by_month')}>
+              {cases.data.byMonth.some((row) => row.count) ? (
+                <MonthColumnsChart label={t('expert_cases')} data={cases.data.byMonth} />
+              ) : (
+                <DefaultEmptyData title={t('no_data_yet')} />
               )}
-            </div>
+            </Panel>
             {canSeeFinance && (
               <>
                 <Panel size="lg" title={t('finance')}>

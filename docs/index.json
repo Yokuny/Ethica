@@ -153,7 +153,7 @@
     {
       "slug": "dashboard",
       "feature": "Dashboard",
-      "descricao": "Seção com os totais de serviços e honorários e os gráficos de perícias e honorários recebidos por ano",
+      "descricao": "Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório",
       "data": "2026-11-06",
       "status": "concluido",
       "areas": [
@@ -161,7 +161,8 @@
         "apps/web"
       ],
       "decisoes": [
-        "AD-200"
+        "AD-200",
+        "AD-228"
       ],
       "spec": [
         ".specs/features/dashboard"
@@ -1882,6 +1883,12 @@
     {
       "id": "AD-227",
       "decisao": "Relatórios (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fi",
+      "data": "2026-11-15",
+      "status": "active"
+    },
+    {
+      "id": "AD-228",
+      "decisao": "no Dashboard, o gráfico de colunas por ano dá lugar a Serviços por mês: os últimos 12 meses até o atual (mês sem serviço é coluna zero), con",
       "data": "2026-11-15",
       "status": "active"
     }

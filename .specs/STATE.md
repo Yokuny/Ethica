@@ -1335,6 +1335,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-15
 - **Status**: active
 
+### AD-228
+- **Decision**: no Dashboard, o gráfico de colunas por ano dá lugar a **Serviços por mês**: os últimos 12 meses até o atual (mês sem serviço é coluna zero), contando **todos os serviços** (perícia, assistência técnica e tipos do escritório), sem os cancelados, pelo mês da nomeação ou, sem ela, do cadastro. Sai o gráfico **Honorários recebidos por ano**: o recebido mês a mês já é a série "Recebido" do Fluxo de caixa. `GET /expert-cases/dashboard` devolve `byMonth` no lugar de `courtExpertByYear`; `GET /finance/dashboard` devolve `receivedCents` (total recebido, para a faixa) no lugar de `receivedByYear`. `shiftMonth` passa a viver em `packages/db/src/time.ts`. Refina DSH-04 e DSH-05 de `.specs/features/dashboard/spec.md`.
+- **Reason**: pedido da perita (2026-11-15): visão anual não faz sentido, no máximo mensal; e o gráfico é de serviços, não de perícias.
+- **Trade-off**: some a comparação entre anos; serviço nomeado há mais de 12 meses só conta nos totais.
+- **Scope**: `apps/api/src/modules/case/case.{repository,schema,service}.ts`, `apps/api/src/modules/finance/transaction.{repository,schema,service}.ts`, `packages/db/src/time.ts`, `apps/web/src/routes/_private/dashboard/`.
+- **Date**: 2026-11-15
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

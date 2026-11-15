@@ -207,7 +207,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     await patch(expense.id, { status: 'canceled' });
     const annulled = await totals();
     expect(annulled.summary).toMatchObject({ receivableCents: 0, receivedMonthCents: 0, expensesMonthCents: 0 });
-    expect(annulled.dashboard).toEqual({ receivableCents: 0, receivedByYear: [] });
+    expect(annulled.dashboard).toEqual({ receivableCents: 0, receivedCents: 0 });
     const receipt = await as(request(app).post(`/finance/entries/${fee.id}/installments`)).send({
       amountCents: 1_000,
       date: today,

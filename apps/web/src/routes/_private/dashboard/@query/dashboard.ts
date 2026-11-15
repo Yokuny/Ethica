@@ -10,12 +10,12 @@ export type CaseDashboard = {
   total: number;
   closed: number;
   byType: { role: CaseRole; serviceType?: string; count: number }[];
-  courtExpertByYear: { year: string; count: number }[];
+  byMonth: { month: string; count: number }[];
 };
 
 export type FeesDashboard = {
   receivableCents: number;
-  receivedByYear: { year: string; cents: number }[];
+  receivedCents: number;
 };
 
 const fetchData = async <T>(path: string): Promise<T> => {

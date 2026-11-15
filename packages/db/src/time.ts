@@ -51,3 +51,9 @@ export const timeInDisplayTz = (instant: Date): string =>
     minute: '2-digit',
     hourCycle: 'h23',
   }).format(instant);
+
+// `YYYY-MM` shifted by `offset` months.
+export const shiftMonth = (month: string, offset: number): string => {
+  const [year, m] = month.split('-').map(Number) as [number, number];
+  return new Date(Date.UTC(year, m - 1 + offset, 1)).toISOString().slice(0, 7);
+};

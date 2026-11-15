@@ -30,7 +30,7 @@ _Nenhum._
 | [Custo de deslocamento](features/custo-deslocamento/feature.md) | Custo de deslocamento da rota do Campo lançado como despesa numa OS ou dividido entre OS, e lugares no trajeto | concluido | 2026-11-09 | `apps/web` `packages/ui` | [spec](../.specs/features/custo-deslocamento) | — |
 | [Laudo automatizado](features/laudos/feature.md) | Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word | concluido | 2026-11-09 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/laudos) | — |
 | [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia | parcial | 2026-11-09 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | 1 |
-| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários e os gráficos de perícias e honorários recebidos por ano | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | — |
+| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | — |
 | [Fundação do Ethica](features/fundacao-ethica/feature.md) | Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção | parcial | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` `packages/ui` `harness` `docs` `infra` `tests` | [spec](../.specs/features/fundacao-ethica) | 1 |
 | [Prazos e recebimentos](features/prazos-recebimentos/feature.md) | Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-recebimentos) | — |
 | [Link da pasta e anexos do serviço](features/servico-pasta-anexos/feature.md) | Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/servico-pasta-anexos) | — |
@@ -76,6 +76,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-228** (2026-11-15, active) — no Dashboard, o gráfico de colunas por ano dá lugar a Serviços por mês: os últimos 12 meses até o atual (mês sem serviço é coluna zero), con
 - **AD-227** (2026-11-15, active) — Relatórios (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fi
 - **AD-226** (2026-11-15, active) — o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que c
 - **AD-225** (2026-11-15, superseded by AD-226 (layout)) — lista de registros pequenos dentro de uma etapa ou bloco (aparelhos com acesso, responsáveis técnicos, recebimentos do lançamento) usa `Info
@@ -85,7 +86,6 @@ _Nenhum._
 - **AD-221** (2026-11-14, active) — Sai a skill `tlc-spec-driven` (`.claude/skills/tlc-spec-driven/`) e, com ela, a camada de lições do Verifier (`.specs/LESSONS.md`, `.specs/l
 - **AD-220** (2026-11-12, active) — Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s
 - **AD-219** (2026-11-11, active) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
-- **AD-218** (2026-11-11, active) — Nas listas com vários filtros (Serviços, Varas, Diário de bordo), "Filtros" abre uma lista com o nome de cada filtro (e o valor aplicado ao
 
 ## `.specs/` sem registro em `docs/features/`
 

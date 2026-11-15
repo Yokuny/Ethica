@@ -16,7 +16,7 @@ import {
   validClient,
   validServiceType,
 } from '@ethica/contracts';
-import { dateInDisplayTz, TextSearchUnavailableError } from '@ethica/db';
+import { dateInDisplayTz, shiftMonth, TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -384,5 +384,12 @@ export const listServiceTypes = (tenantId: string) => caseRepository.listService
 
 export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DEADLINE_DUE_SOON_DAYS);
 export const caseDistribution = (tenantId: string) => caseRepository.distribution(tenantId);
-export const caseDashboard = (tenantId: string) => caseRepository.dashboard(tenantId);
+// Services of the last 12 months up to the current one (DSH-04).
+export const caseDashboard = (tenantId: string, now: Date = new Date()) => {
+  const month = dateInDisplayTz(now).slice(0, 7);
+  return caseRepository.dashboard(
+    tenantId,
+    Array.from({ length: 12 }, (_, index) => shiftMonth(month, index - 11)),
+  );
+};
 export const findSummariesByIds = (tenantId: string, ids: string[]) => caseRepository.findSummariesByIds(tenantId, ids);

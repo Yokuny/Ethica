@@ -58,7 +58,7 @@ export {
   toObjectId,
   withSearch,
 } from './textSearch.js';
-export { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from './time.js';
+export { dateInDisplayTz, shiftMonth, timeInDisplayTz, wallClockToUtc } from './time.js';
 
 import { AccessKey } from './models/access-key.model.js';
 import { Appointment } from './models/appointment.model.js';

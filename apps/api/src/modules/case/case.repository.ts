@@ -470,11 +470,12 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
     };
   });
 
-export const dashboard = async (tenantId: string): Promise<CaseDashboard> =>
+// `months` are `YYYY-MM`, from oldest to newest, calculated by the service; months without services come in as zero.
+export const dashboard = async (tenantId: string, months: string[]): Promise<CaseDashboard> =>
   withDbTiming('case.dashboard', async () => {
     const Tenant = toObjectId(tenantId);
     const count = (extra: object) => Case.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
-    const [total, open, byType, byYear] = await Promise.all([
+    const [total, open, byType, byMonth] = await Promise.all([
       count({}),
       count(OPEN),
       Case.aggregate<{ role: CaseRole; serviceType: string | null; count: number }>([
@@ -489,9 +490,9 @@ export const dashboard = async (tenantId: string): Promise<CaseDashboard> =>
         },
         { $sort: { count: -1, _id: 1 } },
       ]),
-      // Without a nomination date, the registration date in the display time zone.
+      // Every service but the canceled, by the nomination month; without it, the registration month in the display time zone.
       Case.aggregate<{ _id: string; count: number }>([
-        { $match: { Tenant, role: 'court_expert', serviceType: { $exists: false }, status: { $ne: 'canceled' } } },
+        { $match: { Tenant, status: { $ne: 'canceled' } } },
         {
           $project: {
             day: {
@@ -502,15 +503,16 @@ export const dashboard = async (tenantId: string): Promise<CaseDashboard> =>
             },
           },
         },
-        { $group: { _id: { $substrBytes: ['$day', 0, 4] }, count: { $sum: 1 } } },
-        { $sort: { _id: 1 } },
+        { $match: { day: { $gte: `${months[0]}-01` } } },
+        { $group: { _id: { $substrBytes: ['$day', 0, 7] }, count: { $sum: 1 } } },
       ]),
     ]);
+    const counts = new Map(byMonth.map(({ _id, count }) => [_id, count]));
     return {
       total,
       closed: total - open,
       byType: byType.map(({ role, serviceType, count }) => ({ role, serviceType: serviceType ?? undefined, count })),
-      courtExpertByYear: byYear.map(({ _id, count }) => ({ year: _id, count })),
+      byMonth: months.map((month) => ({ month, count: counts.get(month) ?? 0 })),
     };
   });
 
