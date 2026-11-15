@@ -70,5 +70,6 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-15 — "Mesclar duplicadas" (só admin) sai do cabeçalho de Partes e vai para o menu "…" (`PageMenu`); "Adicionar" continua fora.
 - 2026-11-03 — Implementado PSV-01 a PSV-06 (AD-164, AD-165). Divergência da spec: sem achar pelo documento, a parte também é reaproveitada pelo nome quando o cadastro existente não tem outro documento (antes, documento novo criava outro cadastro).
 - 2026-11-03 — Spec criada (`.specs/features/partes-servico/spec.md`).

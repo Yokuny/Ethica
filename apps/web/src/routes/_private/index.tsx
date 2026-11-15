@@ -1,5 +1,6 @@
 import { HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
+import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -7,6 +8,7 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { PageMenu } from '@/components/page-menu.js';
 import { Panel } from '@/components/panel.js';
 import { UpcomingAppointments } from '@/components/upcoming-appointments.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -54,9 +56,6 @@ export function PrivateIndexPage() {
     <Card asPage>
       <CardHeader title={t('home')}>
         <CardAction>
-          <Button variant="outline" onClick={() => setCustomizing(true)}>
-            {t('customize')}
-          </Button>
           {canCreate && (
             <Button
               nativeButton={false}
@@ -64,6 +63,9 @@ export function PrivateIndexPage() {
               render={<Link to="/expert-cases/add">{t('new_expert_case')}</Link>}
             />
           )}
+          <PageMenu>
+            <DropdownMenuItem onClick={() => setCustomizing(true)}>{t('customize')}</DropdownMenuItem>
+          </PageMenu>
         </CardAction>
       </CardHeader>
       {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}

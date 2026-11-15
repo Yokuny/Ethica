@@ -1,4 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
+import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -7,6 +8,7 @@ import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { PageMenu } from '@/components/page-menu.js';
 import { PARTY_TYPE_ITEMS } from '@/components/party-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { mergeDuplicatePartiesMutation, partiesQuery } from '@/query/party.js';
@@ -43,22 +45,23 @@ export function PartiesIndexPage() {
       <CardHeader title={t('parties')} description={t('parties_page_description')}>
         {session && (isAdminSession(session) || can(session, 'parties', 'create')) && (
           <CardAction>
-            {isAdminSession(session) && (
-              <Button
-                variant="outline"
-                disabled={merge.isPending}
-                onClick={() =>
-                  merge.mutate(undefined, {
-                    onSuccess: ({ merged }) =>
-                      toast.success(merged ? `${merged} ${t('duplicates_merged')}` : t('no_duplicates_found')),
-                    onError: (error) => toast.error(error.message),
-                  })
-                }
-              >
-                {t('merge_duplicates')}
-              </Button>
-            )}
             {can(session, 'parties', 'create') && <Button onClick={() => setCreating(true)}>{t('add')}</Button>}
+            {isAdminSession(session) && (
+              <PageMenu>
+                <DropdownMenuItem
+                  disabled={merge.isPending}
+                  onClick={() =>
+                    merge.mutate(undefined, {
+                      onSuccess: ({ merged }) =>
+                        toast.success(merged ? `${merged} ${t('duplicates_merged')}` : t('no_duplicates_found')),
+                      onError: (error) => toast.error(error.message),
+                    })
+                  }
+                >
+                  {t('merge_duplicates')}
+                </DropdownMenuItem>
+              </PageMenu>
+            )}
           </CardAction>
         )}
       </CardHeader>
