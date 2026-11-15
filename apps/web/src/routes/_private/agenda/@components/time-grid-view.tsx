@@ -42,8 +42,8 @@ const zoneLabel =
 // Time overlap stacks in a cascade (see computePositionedItems): the first item of a cluster
 // takes the whole column, each one after it shifts a bit to the right — never 1/N slivers.
 const overlapStyle = (column: number) => ({
-  left: `calc(${column * 10}% + 2px)`,
-  width: `calc(${column === 0 ? 100 : 90}% - 4px)`,
+  left: `calc(${column * 10}% + 1px)`,
+  width: `calc(${column === 0 ? 100 : 90}% - 2px)`,
   zIndex: 10 + column,
 });
 
@@ -108,7 +108,7 @@ export function TimeGridView({
           </ItemDescription>
           <CalendarTimeGridColumns style={columns}>
             {days.map((day) => (
-              <div key={day} className="grid min-w-0 content-start gap-1 p-1">
+              <div key={day} className="grid min-w-0 content-start gap-0.5 p-0.5">
                 {entries
                   .filter((entry) => entry.date === day)
                   .map((entry) => (

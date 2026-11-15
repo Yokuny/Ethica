@@ -82,7 +82,7 @@ function CalendarMonthCell({ className, outside, ...props }: React.ComponentProp
     <div
       data-slot="calendar-month-cell"
       className={cn(
-        'flex min-h-30 min-w-0 cursor-pointer flex-col gap-1 p-1.5 transition-colors hover:bg-muted/30',
+        'flex min-h-30 min-w-0 cursor-pointer flex-col gap-0.5 p-0.5 transition-colors hover:bg-muted/30',
         outside && 'bg-muted/50 text-muted-foreground',
         className,
       )}

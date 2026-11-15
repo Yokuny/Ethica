@@ -5,7 +5,7 @@ export const HOUR_HEIGHT_PX = 64;
 export const HOURS_IN_DAY = 24;
 const MINUTES_IN_DAY = HOURS_IN_DAY * 60;
 const COLUMN_HEIGHT_PX = HOURS_IN_DAY * HOUR_HEIGHT_PX;
-const MIN_ITEM_HEIGHT_PX = 24;
+const MIN_ITEM_HEIGHT_PX = 36;
 
 // "seg", "ter"… of a wall-clock date (YYYY-MM-DD): the column and month headers.
 const weekdayFormat = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', timeZone: 'UTC' });
