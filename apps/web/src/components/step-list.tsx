@@ -18,7 +18,7 @@ export function StepList({
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-6 lg:gap-20">
       <div className="col-span-2 flex h-fit flex-col gap-7 py-8 lg:sticky lg:top-10">
         <div className="relative w-fit">
-          <ItemTitle className="block text-5xl leading-none font-semibold tracking-tight text-foreground">
+          <ItemTitle className="block text-6xl leading-none font-semibold tracking-tight text-foreground">
             {title}
           </ItemTitle>
           <Asterisk aria-hidden className="absolute -top-2 -right-2 size-5 text-orange-500 md:size-10 lg:-right-14" />
