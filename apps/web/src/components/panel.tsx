@@ -8,7 +8,6 @@ import { type ReactNode, useId, useState } from 'react';
 
 // Block wrapper without background or border: visual grouping belongs to what is
 // inside (Item, Table, form). `size` only sets the spacing between children; a collapsible block is boxed.
-// `card`: white rounded surface for dashboard blocks, title in sentence case.
 const panelVariants = cva('flex w-full min-w-0 flex-col', {
   variants: {
     size: {
@@ -16,14 +15,9 @@ const panelVariants = cva('flex w-full min-w-0 flex-col', {
       sm: 'gap-2',
       xs: 'gap-1',
     },
-    variant: {
-      plain: '',
-      card: 'gap-5 rounded-xl border bg-surface-raised p-5 shadow-2xs md:p-6',
-    },
   },
   defaultVariants: {
     size: 'default',
-    variant: 'plain',
   },
 });
 
@@ -43,7 +37,6 @@ type PanelProps = Omit<useRender.ComponentProps<'section'>, 'title'> &
 function Panel({
   className,
   size = 'default',
-  variant = 'plain',
   render,
   title,
   description,
@@ -64,7 +57,7 @@ function Panel({
       {
         className: collapsible
           ? cn('w-full min-w-0 rounded-lg border', className)
-          : cn(panelVariants({ size, variant, className })),
+          : cn(panelVariants({ size, className })),
         ...labelled,
         children: collapsible ? (
           // Same box as the ProductSpecs groups (Juízo, Partes): rounded border, icon and title on the left,
@@ -105,12 +98,7 @@ function Panel({
                 {(title || description) && (
                   <div className="grid gap-1">
                     {title && (
-                      <ItemTitle
-                        className={variant === 'card' ? 'text-base font-medium text-impact' : 'uppercase text-xs'}
-                        id={headingId}
-                        role="heading"
-                        aria-level={2}
-                      >
+                      <ItemTitle className="uppercase text-xs" id={headingId} role="heading" aria-level={2}>
                         {title}
                       </ItemTitle>
                     )}
@@ -127,7 +115,7 @@ function Panel({
       props,
     ),
     render,
-    state: { slot: 'panel', size, variant },
+    state: { slot: 'panel', size },
   });
 }
 

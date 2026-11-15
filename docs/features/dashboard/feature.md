@@ -50,7 +50,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
-- 2026-11-14 — Visual em cartões (referência de painel analítico enviada pela perita): totais e resumo do Financeiro em cartão de indicadores com números maiores (`RecordStats variant="card"`), serviços por tipo em blocos com tom pastel proporcional à quantidade e a parcela do total, gráficos em cartões brancos (`Panel variant="card"`) e paleta dos gráficos em tons pastéis dessaturados (`apps/web/src/theme.css`, `--chart-1..5`); despesas usam `--status-error-indicator`.
+- 2026-11-14 — Serviços por tipo viram blocos de tom pastel proporcional à quantidade, com a parcela do total; paleta dos gráficos em tons pastéis dessaturados (`apps/web/src/theme.css`, `--chart-1..5`) e despesas em `--status-error-indicator`. A faixa de totais e o resumo do Financeiro continuam como estavam; uma primeira versão com cartões brancos e bordas foi desfeita no mesmo dia por fugir da identidade do sistema.
 - 2026-11-10 — Recebe do Financeiro o resumo do dinheiro, o fluxo de caixa (6 ou 12 meses) e os totais por categoria, só para quem vê o Financeiro; sai "Honorários a receber" da faixa, já coberto pelo resumo (AD-215).
 - 2026-11-06 — Perícias canceladas saem do gráfico de perícias por ano; lançamentos anulados não contam nos honorários (AD-200).
 - 2026-11-06 — Conferido com perícias e honorários de vários anos: colunas e somas batem, o operador não vê valor em dinheiro e ano sem dados não vira coluna (o gráfico pula do ano anterior para o seguinte). O sistema não tem tema escuro (`apps/web/src/main.tsx` fixa o claro), então esse item não se aplica.

@@ -47,7 +47,14 @@ export function DashboardPage() {
   return (
     <Card asPage>
       <CardHeader title={t('dashboard')} description={t('dashboard_page_description')} />
-      <CardContent className="gap-6 pb-16">
+      {cases.data && (
+        <RecordStats variant="band" role="group" aria-label={t('overview')}>
+          <RecordStat label={t('expert_cases')} value={formatNumber(cases.data.total)} />
+          <RecordStat label={t('closed_expert_cases')} value={formatNumber(cases.data.closed)} />
+          {canSeeFinance && fees.data && <RecordStat label={t('fees_received')} value={formatMoney(receivedCents)} />}
+        </RecordStats>
+      )}
+      <CardContent className="gap-10 pb-16">
         {cases.isLoading ? (
           <DefaultLoading />
         ) : !cases.data ? (
@@ -57,26 +64,15 @@ export function DashboardPage() {
           />
         ) : (
           <>
-            <RecordStats variant="card" role="group" aria-label={t('overview')}>
-              <RecordStat label={t('expert_cases')} value={formatNumber(cases.data.total)} />
-              <RecordStat
-                label={t('closed_expert_cases')}
-                value={formatNumber(cases.data.closed)}
-                hint={cases.data.total ? `${Math.round((cases.data.closed / cases.data.total) * 100)}%` : undefined}
-              />
-              {canSeeFinance && fees.data && (
-                <RecordStat label={t('fees_received')} value={formatMoney(receivedCents)} />
-              )}
-            </RecordStats>
-            <Panel variant="card" title={t('expert_cases_by_type')}>
+            <Panel size="sm" title={t('expert_cases_by_type')}>
               {cases.data.byType.length ? (
                 <ServiceTypeTiles rows={cases.data.byType} total={cases.data.total} />
               ) : (
                 <DefaultEmptyData title={t('no_data_yet')} />
               )}
             </Panel>
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Panel variant="card" title={t('court_cases_by_year')}>
+            <div className="grid gap-10 lg:grid-cols-2">
+              <Panel size="sm" title={t('court_cases_by_year')}>
                 {cases.data.courtExpertByYear.length ? (
                   <YearColumnsChart
                     label={t('expert_cases')}
@@ -89,7 +85,7 @@ export function DashboardPage() {
                 )}
               </Panel>
               {canSeeFinance && (
-                <Panel variant="card" title={t('fees_received_by_year')}>
+                <Panel size="sm" title={t('fees_received_by_year')}>
                   {fees.isLoading ? (
                     <DefaultLoading />
                   ) : receivedByYear.length ? (
@@ -107,9 +103,11 @@ export function DashboardPage() {
             </div>
             {canSeeFinance && (
               <>
-                <FinanceOverview summary={summary.data} />
+                <Panel size="sm" title={t('finance')}>
+                  <FinanceOverview summary={summary.data} />
+                </Panel>
                 <Panel
-                  variant="card"
+                  size="sm"
                   title={t('cash_flow')}
                   actions={
                     <ToggleGroup
@@ -129,8 +127,8 @@ export function DashboardPage() {
                 >
                   {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
                 </Panel>
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <Panel variant="card" title={t('income_by_category')}>
+                <div className="grid gap-10 lg:grid-cols-2">
+                  <Panel size="sm" title={t('income_by_category')}>
                     {income.isLoading ? (
                       <DefaultLoading />
                     ) : !income.data?.length ? (
@@ -139,7 +137,7 @@ export function DashboardPage() {
                       <CategoriesChart kind="income" data={income.data} />
                     )}
                   </Panel>
-                  <Panel variant="card" title={t('expenses_by_category')}>
+                  <Panel size="sm" title={t('expenses_by_category')}>
                     {expenses.isLoading ? (
                       <DefaultLoading />
                     ) : !expenses.data?.length ? (

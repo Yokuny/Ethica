@@ -66,16 +66,12 @@ export function PrivateIndexPage() {
           )}
         </CardAction>
       </CardHeader>
-      <CardContent className="gap-6 pb-16">
-        {show('overview') && (
-          <div className="overflow-hidden rounded-xl">
-            <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />
-          </div>
-        )}
+      {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
+      <CardContent className="gap-10 pb-16">
         {(show('upcoming') || show('stalled')) && (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-10 lg:grid-cols-2">
             {show('upcoming') && (
-              <Panel variant="card" title={t('upcoming_commitments')}>
+              <Panel size="sm" title={t('upcoming_commitments')}>
                 {upcoming.isLoading ? (
                   <DefaultLoading />
                 ) : !upcoming.data?.length ? (
@@ -86,7 +82,7 @@ export function PrivateIndexPage() {
               </Panel>
             )}
             {show('stalled') && (
-              <Panel variant="card" title={t('stalled_expert_cases')}>
+              <Panel size="sm" title={t('stalled_expert_cases')}>
                 {stalled.isLoading ? (
                   <DefaultLoading />
                 ) : !stalled.data?.total ? (
@@ -99,14 +95,14 @@ export function PrivateIndexPage() {
           </div>
         )}
         {show('cash_flow') && (
-          <Panel variant="card" title={t('cash_flow')} description={t('last_6_months')}>
+          <Panel size="sm" title={t('cash_flow')} description={t('last_6_months')}>
             {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
           </Panel>
         )}
         {(show('by_stage') || show('by_court')) && (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-10 lg:grid-cols-2">
             {show('by_stage') && (
-              <Panel variant="card" title={t('expert_cases_by_stage')}>
+              <Panel size="sm" title={t('expert_cases_by_stage')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
                 ) : (
@@ -115,7 +111,7 @@ export function PrivateIndexPage() {
               </Panel>
             )}
             {show('by_court') && (
-              <Panel variant="card" title={t('expert_cases_by_court')}>
+              <Panel size="sm" title={t('expert_cases_by_court')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
                 ) : !distribution.data?.courtType.length ? (

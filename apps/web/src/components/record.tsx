@@ -116,8 +116,7 @@ const statsColumns: Record<1 | 2 | 3 | 4 | 5, string> = {
 // bottom, vertical divider between cells, uppercase label, value at 24px.
 // `band`: listing indicator strip (gray surface, sparkline,
 // ruler and trend), without dividers.
-// `card`: dashboard indicator card (white rounded surface, divider between cells, value at 30px).
-type RecordStatsVariant = 'ruled' | 'band' | 'card';
+type RecordStatsVariant = 'ruled' | 'band';
 
 const StatsVariantContext = createContext<RecordStatsVariant>('ruled');
 
@@ -125,13 +124,6 @@ const statsVariantClass: Record<RecordStatsVariant, string> = {
   ruled:
     'grid-cols-1 gap-y-5 border-y py-6 sm:grid-cols-2 sm:gap-x-8 md:gap-x-0 md:[&>*]:px-8 md:[&>*:first-child]:pl-0 md:[&>*:last-child]:pr-0 md:[&>*+*]:border-l',
   band: 'grid-cols-2 gap-x-6 gap-y-6 bg-surface-secondary px-4 py-5 md:gap-x-10',
-  card: 'grid-cols-2 gap-x-6 gap-y-6 rounded-xl border bg-surface-raised p-6 shadow-2xs md:gap-x-0 md:[&>*]:px-6 md:[&>*:first-child]:pl-0 md:[&>*:last-child]:pr-0 md:[&>*+*]:border-l',
-};
-
-const statValueClass: Record<RecordStatsVariant, string> = {
-  ruled: 'text-2xl leading-tight',
-  band: 'text-[1.4rem] leading-none font-normal tracking-tight',
-  card: 'text-3xl leading-tight font-medium tracking-tight',
 };
 
 type RecordStatsProps = ComponentProps<'div'> & {
@@ -288,7 +280,12 @@ export function RecordStat({
               {headerAction}
             </div>
             <div className="flex items-baseline gap-2">
-              <ItemTitle className={cn(statValueClass[variant], isLink ? 'link' : 'text-impact')}>
+              <ItemTitle
+                className={cn(
+                  ruled ? 'text-2xl leading-tight' : 'text-[1.4rem] leading-none font-normal tracking-tight',
+                  isLink ? 'link' : 'text-impact',
+                )}
+              >
                 {dot && <BadgeIndicator {...dot} />}
                 {value}
                 {isLink && <ArrowUpRight aria-hidden className="size-3.5 shrink-0" />}

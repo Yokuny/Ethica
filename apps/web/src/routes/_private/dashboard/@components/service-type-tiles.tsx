@@ -7,13 +7,7 @@ const number = new Intl.NumberFormat('pt-BR');
 
 // Pastel heat scale: the larger the type's share of the biggest one, the deeper the tint.
 const tint = (ratio: number) =>
-  ratio > 0.75
-    ? 'bg-status-info-border'
-    : ratio > 0.5
-      ? 'bg-status-info'
-      : ratio > 0.25
-        ? 'bg-status-info/60'
-        : 'bg-status-info/30';
+  ratio > 2 / 3 ? 'bg-status-info-border' : ratio > 1 / 3 ? 'bg-status-info' : 'bg-status-info/50';
 
 // Total of services per type, one tinted tile each, with its share of the total.
 export function ServiceTypeTiles({ rows, total }: { rows: CaseDashboard['byType']; total: number }) {
