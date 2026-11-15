@@ -1245,7 +1245,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: um clique a mais até o PDF; os PDFs são os mesmos.
 - **Scope**: `apps/web/src/routes/_private/reports/`, `apps/web/src/routes/_private/@utils/home-access.ts`, `apps/web/src/routes/_private/@components/stalled-cases.tsx`.
 - **Date**: 2026-11-11
-- **Status**: active
+- **Status**: superseded by AD-227
 
 ### AD-217
 - **Decision**: **Escritório** (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada assunto ganha página própria: `/office/documents` (logo, cabeçalho e rodapé), `/office/service-order` (controle de OS), `/office/signatories` (responsáveis técnicos), `/office/scheduling-notice` (aviso de agendamento) e `/office/data` (armazenamento e exportação). As páginas herdam a guarda de admin do `_admin`.
@@ -1324,6 +1324,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: a perita (2026-11-15) conferiu os responsáveis técnicos em `/office` e eles dividiam a linha em vez de ocupar toda a horizontal.
 - **Trade-off**: lista mais alta quando há muitos registros.
 - **Scope**: `apps/web/src/components/info-card.tsx`.
+- **Date**: 2026-11-15
+- **Status**: active
+
+### AD-227
+- **Decision**: **Relatórios** (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fixo, à direita uma etapa por relatório (cronograma de prazos, serviços parados e, para quem vê o Financeiro, relatório financeiro com De/Até), cada uma com o que o PDF traz e os botões Visualizar PDF e Gerar PDF. Saem a apresentação com ilustração, os cartões e as páginas `/reports/deadlines`, `/reports/stalled` e `/reports/finance` (com o `report-page.tsx`); a guarda deixa de mapear `/reports/finance`, e a etapa do financeiro só aparece para quem tem o módulo `finance` (a API já barra o PDF). Supersede a AD-216.
+- **Reason**: pedido da perita (2026-11-15): Relatórios no mesmo padrão do Escritório.
+- **Trade-off**: página mais longa; nenhum endereço próprio por relatório.
+- **Scope**: `apps/web/src/routes/_private/reports/`, `apps/web/src/routes/_private/@utils/home-access.ts`, `apps/web/src/routes/_private/@components/stalled-cases.tsx`.
 - **Date**: 2026-11-15
 - **Status**: active
 

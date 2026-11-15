@@ -41,7 +41,7 @@ O perito precisava de papel para a vistoria, relatórios para o escritório e o 
 ### `apps/web`
 
 - `apps/web/src/routes/_private/_admin/office/index.tsx` — página única do escritório em etapas numeradas (`apps/web/src/components/step-list.tsx`), cada etapa com o próprio salvar; os formulários de cada etapa em `@components/`.
-- `apps/web/src/routes/_private/reports/` — página de entrada com um cartão por relatório e uma página para cada um (`deadlines/`, `stalled/`, `finance/`), montadas por `@components/report-page.tsx`; o financeiro só para quem vê o Financeiro (guarda em `apps/web/src/routes/_private/@utils/home-access.ts`).
+- `apps/web/src/routes/_private/reports/index.tsx` — uma página só em etapas (`StepList`/`StepItem`): uma etapa por relatório com Visualizar PDF e Gerar PDF (`@components/pdf-actions.tsx`) e, para quem vê o Financeiro, o período De/Até (`@components/finance-report-form.tsx`) (AD-227).
 - `apps/web/src/routes/_private/expert-cases/details/` — menu de PDFs e `@components/case-movements.tsx`.
 - `apps/web/src/routes/_private/account/` — dados profissionais no formulário de perfil.
 - `apps/web/src/lib/api/client.api.ts` (`getFile`) e `apps/web/src/hooks/useFileDownload.ts` — download dos arquivos gerados.
@@ -72,6 +72,7 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 
 ## Histórico
 
+- 2026-11-15 — Relatórios vira uma página só em etapas, no desenho do Escritório: cronograma de prazos, serviços parados e relatório financeiro (só para quem vê o Financeiro), cada um com prévia e PDF; saem os cartões e as páginas `/reports/*`, e o link de serviços parados no Início leva a `/reports` (AD-227, supersede AD-216).
 - 2026-11-14 — Etapas do escritório seguem o bloco `@shadcnblocks/process1` (título grande, estrela laranja, quinas vermelhas, recuo da lista); o bloco foi lido e não ficou no projeto (AD-224).
 - 2026-11-14 — Escritório volta a ser uma página só, um formulário em etapas numeradas (logo, cabeçalho e rodapé, OS, responsáveis técnicos, aviso de agendamento, armazenamento, exportação), cada uma com o próprio salvar; as páginas por assunto saem (AD-224, supersede AD-217).
 - 2026-11-11 — Escritório vira página de entrada com cartões (como Prospecção) e cada assunto ganha página própria: identidade dos documentos, controle de OS, responsáveis técnicos, aviso de agendamento e dados do escritório (AD-217).

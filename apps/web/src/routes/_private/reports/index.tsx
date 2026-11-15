@@ -1,53 +1,46 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { CalendarClock, Eye, FileDown, FileText, Hourglass, Wallet } from 'lucide-react';
-import { HubIllustration } from '@/components/hub-illustration.js';
-import { LinkCard, LinkCardList } from '@/components/link-card.js';
+import { createFileRoute } from '@tanstack/react-router';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
-import { PageIntro } from '@/components/page-intro.js';
+import { StepItem, StepList } from '@/components/step-list.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
+import { FinanceReportForm } from './@components/finance-report-form.js';
+import { PdfActions } from './@components/pdf-actions.js';
 
-// DOC-03 hub: one page per management report. Finance only for who sees finance (AD-107).
+// DOC-03: every management report on one page, in steps like the office page (AD-224, AD-227).
+// Finance only for who sees finance (AD-107).
 export function ReportsPage() {
   const session = useQuery(sessionQuery).data;
   return (
     <Card asPage>
       <CardHeader title={t('reports')} />
-      <CardContent className="max-w-4xl gap-8">
-        <PageIntro
-          title={t('reports')}
-          description={t('reports_page_description')}
-          illustration={<HubIllustration icon={FileText} />}
-          heading={t('office_numbers_on_paper')}
-          text={t('management_reports_hub_text')}
-          features={[
-            { icon: Eye, label: t('preview_pdf') },
-            { icon: FileDown, label: t('generate_pdf') },
-          ]}
-        />
-        <LinkCardList>
-          <LinkCard
-            icon={CalendarClock}
+      <CardContent>
+        <StepList title={t('office_numbers_on_paper')} description={t('management_reports_hub_text')}>
+          <StepItem
             title={t('deadline_schedule')}
-            meta={[t('pending_deadlines_by_due_date')]}
-            render={<Link to="/reports/deadlines" />}
-          />
-          <LinkCard
-            icon={Hourglass}
+            description={['pending_deadlines_by_due_date', 'status_and_days_left', 'process_of_each_deadline']
+              .map(t)
+              .join(' · ')}
+          >
+            <PdfActions path="/documents/deadlines" />
+          </StepItem>
+          <StepItem
             title={t('stalled_cases')}
-            meta={[t('open_over_60_days')]}
-            render={<Link to="/reports/stalled" />}
-          />
+            description={['open_over_60_days', 'phase_court_and_division', 'since_and_days_stalled'].map(t).join(' · ')}
+          >
+            <PdfActions path="/documents/stalled" />
+          </StepItem>
           {session && can(session, 'finance') && (
-            <LinkCard
-              icon={Wallet}
+            <StepItem
               title={t('financial_report')}
-              meta={[t('income_expense_and_net_balance')]}
-              render={<Link to="/reports/finance" />}
-            />
+              description={['income_expense_and_net_balance', 'receivable_and_payable', 'expected_balance_of_period']
+                .map(t)
+                .join(' · ')}
+            >
+              <FinanceReportForm />
+            </StepItem>
           )}
-        </LinkCardList>
+        </StepList>
       </CardContent>
     </Card>
   );

@@ -1817,7 +1817,7 @@
       "id": "AD-216",
       "decisao": "Relatórios vira página de entrada no molde de Laudos (apresentação com ilustração e um cartão por relatório), e cada relatório ganha página",
       "data": "2026-11-11",
-      "status": "active"
+      "status": "superseded by AD-227"
     },
     {
       "id": "AD-217",
@@ -1876,6 +1876,12 @@
     {
       "id": "AD-226",
       "decisao": "o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que c",
+      "data": "2026-11-15",
+      "status": "active"
+    },
+    {
+      "id": "AD-227",
+      "decisao": "Relatórios (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fi",
       "data": "2026-11-15",
       "status": "active"
     }

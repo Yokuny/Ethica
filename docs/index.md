@@ -76,6 +76,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-227** (2026-11-15, active) — Relatórios (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fi
 - **AD-226** (2026-11-15, active) — o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que c
 - **AD-225** (2026-11-15, superseded by AD-226 (layout)) — lista de registros pequenos dentro de uma etapa ou bloco (aparelhos com acesso, responsáveis técnicos, recebimentos do lançamento) usa `Info
 - **AD-224** (2026-11-14, active) — Escritório (`/office`, só admin) volta a ser uma página só, um formulário em etapas numeradas: logo, cabeçalho e rodapé, controle de OS, res
@@ -85,7 +86,6 @@ _Nenhum._
 - **AD-220** (2026-11-12, active) — Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s
 - **AD-219** (2026-11-11, active) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
 - **AD-218** (2026-11-11, active) — Nas listas com vários filtros (Serviços, Varas, Diário de bordo), "Filtros" abre uma lista com o nome de cada filtro (e o valor aplicado ao
-- **AD-217** (2026-11-11, superseded by AD-224) — Escritório (`/office`, só admin) vira página de entrada no molde de Prospecção (apresentação com ilustração e um cartão por assunto), e cada
 
 ## `.specs/` sem registro em `docs/features/`
 
