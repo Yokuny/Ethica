@@ -718,8 +718,6 @@ const translations: Record<string, string> = {
   your_office_in_every_document: 'O escritório em cada documento',
   office_hub_text:
     'Defina o logo, o cabeçalho e o rodapé que saem nos PDFs e no Word, a sigla da OS, quem assina os laudos e o e-mail do aviso de vistoria. Acompanhe o espaço usado e exporte os dados quando precisar.',
-  document_identity: 'Identidade dos documentos',
-  office_data: 'Dados do escritório',
   logo: 'Logo',
   logo_description: 'PNG ou JPG; reduzido para até 600 px. Entra no lugar de [LOGO].',
   no_logo_yet: 'Nenhum logo enviado.',

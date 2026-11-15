@@ -1253,7 +1253,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: um clique a mais até cada ajuste; logo e cabeçalho/rodapé ficam juntos, e armazenamento com exportação, por serem o mesmo assunto.
 - **Scope**: `apps/web/src/routes/_private/_admin/office/`.
 - **Date**: 2026-11-11
-- **Status**: active
+- **Status**: superseded by AD-224
 
 ### AD-218
 - **Decision**: Nas listas com vários filtros (Serviços, Varas, Diário de bordo), "Filtros" abre uma **lista com o nome de cada filtro** (e o valor aplicado ao lado); um clique mostra as opções daquele filtro no desenho enviado pela perita (busca quando há 8 ou mais, caixa de marcar, "Limpar") ou os campos dele (número de controle, período), com seta para voltar. Cada filtro de opções aceita **várias opções** (qualquer uma serve): na API a chave repete na URL (`queryListSchema`) e o banco filtra com `$in`. Supersede a parte (2) da AD-193 só no caso de vários filtros (sai o popover de seletores); filtro único segue igual.
@@ -1300,6 +1300,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: pedido da perita; a perita escolheu gerar no navegador em vez de um endpoint de PDF no `documents` (AD-119), sem endpoint novo por lista.
 - **Trade-off**: o PDF da lista é simples (título, data e tabela), sem cabeçalho/logo do escritório; "Todos os filtrados" faz uma chamada por 100 registros; duas dependências novas no web (fora do bundle inicial).
 - **Scope**: `apps/web/src/components/data-table.tsx`, `apps/web/src/lib/helpers/tableExport.helper.ts`, colunas de exportação em cada lista (`apps/web/src/routes/_private/**`).
+- **Date**: 2026-11-14
+- **Status**: active
+
+### AD-224
+- **Decision**: **Escritório** (`/office`, só admin) volta a ser uma página só, um formulário em etapas numeradas: logo, cabeçalho e rodapé, controle de OS, responsáveis técnicos, aviso de agendamento, armazenamento e exportação. O título fica fixo à esquerda a partir de `lg` e as etapas correm à direita separadas por fio, pelo primitivo `StepList`/`StepItem` (`apps/web/src/components/step-list.tsx`). Cada etapa salva pela própria rota da API (`/tenant/office`, `/tenant/office/logo`, `/tenant/office/schedule-notice`, `/expert-cases/service-order`, responsáveis técnicos e `/documents/export`), por isso o botão de salvar fica em cada etapa e não no cabeçalho. As sub-rotas `/office/*` e o `office-section-page.tsx` saem.
+- **Reason**: pedido da perita (2026-11-14), com o desenho de referência de etapas numeradas.
+- **Trade-off**: página longa em vez de uma por assunto; salvar não é único, cada etapa grava sozinha.
+- **Scope**: `apps/web/src/routes/_private/_admin/office/`, `apps/web/src/components/step-list.tsx`.
 - **Date**: 2026-11-14
 - **Status**: active
 

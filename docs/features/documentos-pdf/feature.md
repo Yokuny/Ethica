@@ -5,14 +5,14 @@ descricao: Identidade do escritório, dados profissionais, PDFs (ficha, checklis
 data: 2026-11-01
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db, infra]
-decisoes: [AD-103, AD-107, AD-113, AD-118, AD-119, AD-120, AD-121, AD-122, AD-172, AD-216, AD-217]
+decisoes: [AD-103, AD-107, AD-113, AD-118, AD-119, AD-120, AD-121, AD-122, AD-172, AD-216, AD-217, AD-224]
 spec: [.specs/features/documentos-pdf]
 branches: [feat/documentos-pdf]
 ---
 
 # Base de documentos
 
-**Status**: concluido · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `infra`
+**Status**: concluido · **Atualizado**: 2026-11-14 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `infra`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), o código é a fonte da
 > verdade. Correlação com o git: `git log --oneline -i --grep='documentos-pdf'`.
@@ -40,7 +40,7 @@ O perito precisava de papel para a vistoria, relatórios para o escritório e o 
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/_admin/office/` — página de entrada do escritório com um cartão por assunto e uma página para cada um (`documents/`, `service-order/`, `signatories/`, `scheduling-notice/`, `data/`), montadas por `@components/office-section-page.tsx`.
+- `apps/web/src/routes/_private/_admin/office/index.tsx` — página única do escritório em etapas numeradas (`apps/web/src/components/step-list.tsx`), cada etapa com o próprio salvar; os formulários de cada etapa em `@components/`.
 - `apps/web/src/routes/_private/reports/` — página de entrada com um cartão por relatório e uma página para cada um (`deadlines/`, `stalled/`, `finance/`), montadas por `@components/report-page.tsx`; o financeiro só para quem vê o Financeiro (guarda em `apps/web/src/routes/_private/@utils/home-access.ts`).
 - `apps/web/src/routes/_private/expert-cases/details/` — menu de PDFs e `@components/case-movements.tsx`.
 - `apps/web/src/routes/_private/account/` — dados profissionais no formulário de perfil.
@@ -72,6 +72,7 @@ pnpm vitest run apps/api/src/modules/documentos apps/api/src/modules/identity pa
 
 ## Histórico
 
+- 2026-11-14 — Escritório volta a ser uma página só, um formulário em etapas numeradas (logo, cabeçalho e rodapé, OS, responsáveis técnicos, aviso de agendamento, armazenamento, exportação), cada uma com o próprio salvar; as páginas por assunto saem (AD-224, supersede AD-217).
 - 2026-11-11 — Escritório vira página de entrada com cartões (como Prospecção) e cada assunto ganha página própria: identidade dos documentos, controle de OS, responsáveis técnicos, aviso de agendamento e dados do escritório (AD-217).
 - 2026-11-11 — Relatórios vira página de entrada com cartões (como Laudos) e cada relatório ganha página própria, melhor no celular; o atalho de serviços parados do Início abre direto o relatório deles (AD-216, supersede AD-211).
 - 2026-11-09 — Tela Relatórios em linhas (ícone e nome, conteúdo do PDF e botões), no desenho enviado pela perita (AD-211).
