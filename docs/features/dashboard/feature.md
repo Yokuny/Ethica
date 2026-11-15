@@ -50,6 +50,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-15 — A legenda Menos/Mais sai de baixo dos blocos e vai para o cabeçalho de Serviços por tipo, oposta ao título (`HeatTilesLegend` em `apps/web/src/components/heat-tiles.tsx`).
 - 2026-11-15 — Sai a visão anual (AD-228): "Perícias por ano" vira **Serviços por mês** (últimos 12 meses, todos os tipos) e sai "Honorários recebidos por ano", que repetia o recebido do Fluxo de caixa; a faixa segue com o total recebido (`receivedCents`). Resolve a pendência dos rótulos em dinheiro com muitos anos.
 - 2026-11-14 — Painel minimalista: a faixa padrão de totais fica como está; serviços por tipo viram blocos em tom pastel proporcional à quantidade, com a parcela do total e a legenda Menos/Mais (`apps/web/src/components/heat-tiles.tsx`); seções com título maior em caixa normal (`Panel size="lg"`); paleta dos gráficos em tons pastéis dessaturados (`apps/web/src/theme.css`, `--chart-1..5`) e despesas em `--status-error-indicator`. Uma primeira versão com cartões brancos e bordas foi desfeita no mesmo dia.
 - 2026-11-10 — Recebe do Financeiro o resumo do dinheiro, o fluxo de caixa (6 ou 12 meses) e os totais por categoria, só para quem vê o Financeiro; sai "Honorários a receber" da faixa, já coberto pelo resumo (AD-215).

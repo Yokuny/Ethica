@@ -26,13 +26,17 @@ export function TemplateImportForm({ onDone, onClose }: TemplateImportFormProps)
         <form noValidate onSubmit={onSubmit} className="grid gap-4">
           <div className="grid gap-2">
             <ItemTitle>{t('template_file')}</ItemTitle>
-            <div className="flex items-center gap-3">
-              <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
-                <FileUp />
-                {t('choose_file')}
-              </Button>
-              {file && <ItemDescription className="truncate">{file.name}</ItemDescription>}
-            </div>
+            {/* One full-width picker: before choosing it invites, after it shows the file name (cut with "…"). */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full min-w-0 justify-start"
+              title={file?.name}
+              onClick={() => inputRef.current?.click()}
+            >
+              <FileUp />
+              <span className="min-w-0 truncate">{file?.name ?? t('choose_file')}</span>
+            </Button>
             <input
               ref={inputRef}
               type="file"

@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-15 — Lista do Financeiro: receita com seta para cima em verde, despesa com seta para baixo em vermelho (estavam invertidas e cinza; `iconTone` no `TableIdentity`).
 - 2026-11-15 — Recebimentos do lançamento (`apps/web/src/routes/_private/finance/@components/installments-list.tsx`), com os centavos esmaecidos passa ao `InfoCard`/`InfoCardList` (`apps/web/src/components/info-card.tsx`, AD-225): moldura cinza com cartões que crescem até ocupar toda a largura da linha, valor em destaque, linha de apoio e ações no rodapé; o `LinkList` sai dessa lista. Ajuste (AD-226): um cartão por linha, cada um com toda a largura; antes os cartões dividiam a linha.
 - 2026-11-10 — Financeiro vira só a lista de lançamentos em `/finance`, sem a página de entrada nem `/finance/reports`; resumo e gráficos foram para o Dashboard (AD-215).
 - 2026-11-06 — Tela Relatórios ganha "Visualizar PDF" em cada relatório, com o download dentro da visualização; a janela é a mesma do laudo (`apps/web/src/components/pdf-preview-dialog.tsx`).

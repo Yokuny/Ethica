@@ -32,7 +32,8 @@ export const transactionColumns = ({
       header: t('entry'),
       cell: ({ row }) => (
         <TableIdentity
-          icon={row.original.kind === 'income' ? ArrowDownLeft : ArrowUpRight}
+          icon={row.original.kind === 'income' ? ArrowUpRight : ArrowDownLeft}
+          iconTone={row.original.kind === 'income' ? 'success' : 'error'}
           title={row.original.description}
           description={[categoryLabel(row.original), row.original.caseNumber, row.original.client]
             .filter(Boolean)

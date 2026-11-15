@@ -6,8 +6,9 @@ import type { ReactNode } from 'react';
 // REG-11 (AD-070): create/edit/act on a record without pushing the page.
 // Mounted = open: the user renders it conditionally from its own state
 // (`panel`) and gets `onClose` on Esc, on click outside and on ✕. The body scrolls
-// inside the dialog when it goes past the screen height.
-const formDialogVariants = cva('max-h-[calc(100dvh-2rem)] overflow-y-auto', {
+// inside the dialog when it goes past the screen height; the single column never grows past the dialog
+// (`grid-cols-1` = minmax(0, 1fr)), so a long value wraps or truncates instead of pushing it sideways.
+const formDialogVariants = cva('max-h-[calc(100dvh-2rem)] grid-cols-1 overflow-y-auto', {
   variants: {
     size: {
       sm: 'sm:max-w-md',

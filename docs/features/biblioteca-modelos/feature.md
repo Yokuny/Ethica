@@ -72,6 +72,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-15 — Importar modelo: o seletor de arquivo ocupa a largura toda e mostra o nome cortado com "…"; o `FormDialog` fixa uma coluna `grid-cols-1`, então texto longo não alarga mais o diálogo para os lados.
 - 2026-11-09 — Sai da Biblioteca padrão o modelo de impugnação de laudo pericial trabalhista; "Visualizar PDF" no modelo aberto (AD-207, `GET /expert-reports/templates/:id/pdf`, `report.service.templatePdf`).
 - 2026-11-09 — Cabeçalho e rodapé do laudo no desenho da perita com os dados de quem assina e a logo do escritório, quando não personalizados em Escritório (AD-206).
 - 2026-11-09 — Implementado BIB-01 a BIB-06 (AD-203 a AD-205); conferido na tela local (abas, importar Word com sumário, PDF do laudo padrão).

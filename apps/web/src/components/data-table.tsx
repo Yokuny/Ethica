@@ -392,13 +392,23 @@ type TableIdentityProps = {
   avatar?: string;
   // Thing (task, process, product): gray tile with the icon.
   icon?: LucideIcon;
+  // Tints the icon tile (e.g. income green, expense red); gray when absent.
+  iconTone?: 'success' | 'error';
   // Extra destination (e.g. the order's customer): the title becomes a `<Link/>` and the click
   // on it does not reach the row, which opens its own record.
   link?: LinkProps;
   size?: 'default' | 'sm';
 };
 
-function TableIdentity({ title, description, avatar, icon: Icon, link, size = 'default' }: TableIdentityProps) {
+function TableIdentity({
+  title,
+  description,
+  avatar,
+  icon: Icon,
+  iconTone,
+  link,
+  size = 'default',
+}: TableIdentityProps) {
   return (
     // Column widths (AD-182): the title (process number, name) never wraps nor gets cut, so the column takes
     // its width and the long texts of the other columns wrap; only a title past `max-w-md` ends in "…".
@@ -414,6 +424,8 @@ function TableIdentity({ title, description, avatar, icon: Icon, link, size = 'd
           aria-hidden
           className={cn(
             'flex shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
+            iconTone === 'success' && 'bg-status-success text-status-success-foreground',
+            iconTone === 'error' && 'bg-status-error text-status-error-foreground',
             size === 'sm' ? 'size-6 [&>svg]:size-3.5' : 'size-8 [&>svg]:size-4',
           )}
         >

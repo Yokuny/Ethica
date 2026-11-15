@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-15 — Início: Próximos compromissos e Serviços parados só aparecem quando há o que listar (saem os estados vazios e as chaves `commitments_appear_here`/`no_stalled_expert_cases`); a legenda Menos/Mais de Serviços por etapa vai para o cabeçalho do bloco, oposta ao título (`HeatTilesLegend`).
 - 2026-11-15 — Menu "…" (`PageMenu`) no cabeçalho do Início, com "Personalizar" dentro, e em Usuários, com "Minha conta" levando a `/account`.
 - 2026-11-14 — Início no visual do Dashboard: a faixa padrão (`HomeOverview`) fica igual; serviços por fase viram blocos pastel (`HeatTiles`, sai o gráfico de barras), compromissos e serviços parados lado a lado, fluxo de caixa ao lado do gráfico por justiça; o bloco "Áreas" saiu da tela.
 - 2026-11-03 — Fase detalhada e situação saem: o serviço tem um status único (`rotina-servico`, AD-166); "Diário de bordo" passa a "Histórico de auditoria" na tela.

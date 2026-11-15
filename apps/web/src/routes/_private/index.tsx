@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
+import { HeatTilesLegend } from '@/components/heat-tiles.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
 import { Panel } from '@/components/panel.js';
@@ -51,6 +52,9 @@ export function PrivateIndexPage() {
   const upcoming = useQuery({ ...upcomingAppointmentsQuery({ limit: 5 }), enabled: show('upcoming') });
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance && show('overview') });
   const flow = useQuery({ ...monthlyFlowQuery(FLOW_MONTHS), enabled: show('cash_flow') });
+  // Commitments and stalled cases only take room on the home when there is something to list.
+  const showUpcoming = show('upcoming') && (upcoming.isLoading || Boolean(upcoming.data?.length));
+  const showStalled = show('stalled') && (stalled.isLoading || Boolean(stalled.data?.total));
 
   return (
     <Card asPage>
@@ -71,32 +75,20 @@ export function PrivateIndexPage() {
       {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
       <CardContent className="gap-10 pb-16">
         {show('by_stage') && (
-          <Panel size="lg" title={t('expert_cases_by_stage')}>
+          <Panel size="lg" title={t('expert_cases_by_stage')} actions={<HeatTilesLegend />}>
             {distribution.isLoading ? <DefaultLoading /> : <CasesPhaseTiles groups={distribution.data?.phase ?? []} />}
           </Panel>
         )}
-        {(show('upcoming') || show('stalled')) && (
+        {(showUpcoming || showStalled) && (
           <div className="grid gap-10 lg:grid-cols-2">
-            {show('upcoming') && (
+            {showUpcoming && (
               <Panel size="lg" title={t('upcoming_commitments')}>
-                {upcoming.isLoading ? (
-                  <DefaultLoading />
-                ) : !upcoming.data?.length ? (
-                  <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
-                ) : (
-                  <UpcomingAppointments items={upcoming.data} />
-                )}
+                {upcoming.data ? <UpcomingAppointments items={upcoming.data} /> : <DefaultLoading />}
               </Panel>
             )}
-            {show('stalled') && (
+            {showStalled && (
               <Panel size="lg" title={t('stalled_expert_cases')}>
-                {stalled.isLoading ? (
-                  <DefaultLoading />
-                ) : !stalled.data?.total ? (
-                  <DefaultEmptyData title={t('no_stalled_expert_cases')} />
-                ) : (
-                  <StalledCasesList stalled={stalled.data} />
-                )}
+                {stalled.data ? <StalledCasesList stalled={stalled.data} /> : <DefaultLoading />}
               </Panel>
             )}
           </div>

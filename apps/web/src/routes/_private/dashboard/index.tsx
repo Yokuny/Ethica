@@ -6,7 +6,7 @@ import { serviceTypeLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
-import { HeatTiles } from '@/components/heat-tiles.js';
+import { HeatTiles, HeatTilesLegend } from '@/components/heat-tiles.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
@@ -63,7 +63,11 @@ export function DashboardPage() {
           />
         ) : (
           <>
-            <Panel size="lg" title={t('expert_cases_by_type')}>
+            <Panel
+              size="lg"
+              title={t('expert_cases_by_type')}
+              actions={cases.data.byType.length > 0 && <HeatTilesLegend />}
+            >
               {cases.data.byType.length ? (
                 <HeatTiles
                   items={cases.data.byType.map((row) => ({
