@@ -68,20 +68,15 @@ export function AgendaIndexPage() {
   return (
     <Card asPage>
       <CardHeader title={t('agenda')} description={t('inspections_hearings_and_deadlines_in_one_calendar')}>
-        {/* Type filter (its dots are the color legend) and the new commitment, the page's primary action. */}
+        {/* The view (day/week/month) and the new commitment, the page's primary action. */}
         <CardAction>
-          <Select items={typeItems} value={search.type ?? ALL_FILTER_VALUE} onValueChange={handleTypeChange}>
-            <SelectTrigger size="compact" aria-label={t('type')}>
-              <SelectValue placeholder={t('type')} />
+          <Select items={VIEW_ITEMS} value={view} onValueChange={(next) => next && handleViewChange(next)}>
+            <SelectTrigger size="compact" aria-label={t('view')} className="w-28">
+              <SelectValue placeholder={t('view')} />
             </SelectTrigger>
             <SelectContent>
-              {typeItems.map((item) => (
+              {VIEW_ITEMS.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
-                  {item.value !== ALL_FILTER_VALUE && (
-                    <span
-                      className={cn('size-2 rounded-full', TYPE_COLORS[item.value as keyof typeof TYPE_COLORS].dot)}
-                    />
-                  )}
                   {item.label}
                 </SelectItem>
               ))}
@@ -93,7 +88,7 @@ export function AgendaIndexPage() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        {/* The day shown, big, and on its right the period navigation and the view (day/week/month). */}
+        {/* The day shown, big, and on its right the type filter (its dots are the color legend) and the period navigation. */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-baseline gap-2">
             <ItemTitle className="text-2xl text-impact">
@@ -102,6 +97,23 @@ export function AgendaIndexPage() {
             <ItemDescription className="line-clamp-none text-base">{monthYearName.format(day)}</ItemDescription>
           </div>
           <div className="flex items-center gap-2">
+            <Select items={typeItems} value={search.type ?? ALL_FILTER_VALUE} onValueChange={handleTypeChange}>
+              <SelectTrigger size="compact" aria-label={t('type')}>
+                <SelectValue placeholder={t('type')} />
+              </SelectTrigger>
+              <SelectContent>
+                {typeItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.value !== ALL_FILTER_VALUE && (
+                      <span
+                        className={cn('size-2 rounded-full', TYPE_COLORS[item.value as keyof typeof TYPE_COLORS].dot)}
+                      />
+                    )}
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <PeriodNav
               label={t('today')}
               previousLabel={t('previous')}
@@ -110,18 +122,6 @@ export function AgendaIndexPage() {
               onToday={handleToday}
               onNext={handleNext}
             />
-            <Select items={VIEW_ITEMS} value={view} onValueChange={(next) => next && handleViewChange(next)}>
-              <SelectTrigger size="compact" aria-label={t('view')} className="w-28">
-                <SelectValue placeholder={t('view')} />
-              </SelectTrigger>
-              <SelectContent>
-                {VIEW_ITEMS.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
         {isLoading ? (
