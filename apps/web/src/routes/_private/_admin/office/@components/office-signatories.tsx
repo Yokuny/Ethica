@@ -21,7 +21,7 @@ export function OfficeSignatories() {
   const signatories = query.data ?? [];
 
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div className="flex w-full flex-col items-start gap-3">
       {signatories.length ? (
         <InfoCardList>
           {signatories.map((signatory) => (

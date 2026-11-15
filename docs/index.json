@@ -1871,6 +1871,12 @@
       "id": "AD-225",
       "decisao": "lista de registros pequenos dentro de uma etapa ou bloco (aparelhos com acesso, responsáveis técnicos, recebimentos do lançamento) usa `Info",
       "data": "2026-11-15",
+      "status": "superseded by AD-226 (layout)"
+    },
+    {
+      "id": "AD-226",
+      "decisao": "o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que c",
+      "data": "2026-11-15",
       "status": "active"
     }
   ]

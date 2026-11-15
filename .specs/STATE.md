@@ -1317,6 +1317,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: mais um primitivo de lista; fica restrito a registro com ação no próprio cartão, sem destino.
 - **Scope**: `apps/web/src/components/info-card.tsx`, `account-devices.tsx`, `office-signatories.tsx`, `installments-list.tsx`.
 - **Date**: 2026-11-15
+- **Status**: superseded by AD-226 (layout)
+
+### AD-226
+- **Decision**: o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que cresciam a partir de 240px e dividiam a linha). O resto da AD-225 continua.
+- **Reason**: a perita (2026-11-15) conferiu os responsáveis técnicos em `/office` e eles dividiam a linha em vez de ocupar toda a horizontal.
+- **Trade-off**: lista mais alta quando há muitos registros.
+- **Scope**: `apps/web/src/components/info-card.tsx`.
+- **Date**: 2026-11-15
 - **Status**: active
 
 ## Handoff

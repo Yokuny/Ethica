@@ -79,7 +79,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
-- 2026-11-15 — Responsáveis técnicos do Escritório (`apps/web/src/routes/_private/_admin/office/@components/office-signatories.tsx`) passa ao `InfoCard`/`InfoCardList` (`apps/web/src/components/info-card.tsx`, AD-225): moldura cinza com cartões que crescem até ocupar toda a largura da linha, valor em destaque, linha de apoio e ações no rodapé; o `LinkList` sai dessa lista.
+- 2026-11-15 — Responsáveis técnicos do Escritório (`apps/web/src/routes/_private/_admin/office/@components/office-signatories.tsx`) passa ao `InfoCard`/`InfoCardList` (`apps/web/src/components/info-card.tsx`, AD-225): moldura cinza com cartões que crescem até ocupar toda a largura da linha, valor em destaque, linha de apoio e ações no rodapé; o `LinkList` sai dessa lista. Ajuste (AD-226): um cartão por linha, cada um com toda a largura; antes os cartões dividiam a linha.
 - 2026-11-09 — Campos do Controle de OS na ordem do padrão escolhido e botões para os padrões [SIGLA]-[ANO]-[NUMERO] e [NUMERO]-[ANO]-[SIGLA] (AD-210).
 - 2026-11-03 — Lista de laudos: no rascunho, lápis (abrir), baixar PDF e lixeira lado a lado na última coluna (substitui a lixeira no início da linha); colunas Tribunal e vara; "Atualizado em" com o nome de quem gravou por último (AD-175).
 
