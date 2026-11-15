@@ -1311,6 +1311,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-14
 - **Status**: active
 
+### AD-225
+- **Decision**: lista de registros pequenos dentro de uma etapa ou bloco (aparelhos com acesso, responsáveis técnicos, recebimentos do lançamento) usa `InfoCardList` + `InfoCard` (`apps/web/src/components/info-card.tsx`), extraído do bloco de indicadores de referência da perita (moldura cinza com painéis brancos): valor em destaque com cauda esmaecida opcional (centavos), linha de apoio, selo à esquerda e ações à direita no rodapé. Os cartões crescem (`grow`) e quebram linha, então sempre ocupam toda a largura, última linha inclusive. Substitui `ItemGroup`/`Item` e `LinkList` estático nesses três lugares; `LinkList` segue para cartões que levam a outra tela (AD-075).
+- **Reason**: pedido da perita (2026-11-15): as listas estavam com desenho ruim e os cartões devem ocupar toda a horizontal.
+- **Trade-off**: mais um primitivo de lista; fica restrito a registro com ação no próprio cartão, sem destino.
+- **Scope**: `apps/web/src/components/info-card.tsx`, `account-devices.tsx`, `office-signatories.tsx`, `installments-list.tsx`.
+- **Date**: 2026-11-15
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

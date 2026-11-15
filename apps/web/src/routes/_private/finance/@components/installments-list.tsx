@@ -1,11 +1,10 @@
 import { Button } from '@ethica/ui/components/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Banknote } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
+import { InfoCard, InfoCardList } from '@/components/info-card.js';
 import { Panel } from '@/components/panel.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -43,22 +42,30 @@ export function InstallmentsList({
       {!transaction.installments.length ? (
         <DefaultEmptyData title={t('no_receipts_yet')} />
       ) : (
-        <LinkList>
-          {transaction.installments.map((installment) => (
-            <LinkListItem
-              key={installment.id}
-              icon={Banknote}
-              title={formatMoney(installment.amountCents)}
-              description={[day(installment.date), installment.account].filter(Boolean).join(' · ')}
-            >
-              <div>
-                <Button variant="outline" disabled={mutation.isPending} onClick={() => setReversing(installment)}>
-                  {t('reverse_receipt')}
-                </Button>
-              </div>
-            </LinkListItem>
-          ))}
-        </LinkList>
+        <InfoCardList>
+          {transaction.installments.map((installment) => {
+            // "R$ 1.234,56": the cents go muted, as the card's tail.
+            const [amount, cents] = formatMoney(installment.amountCents).split(',');
+            return (
+              <InfoCard
+                key={installment.id}
+                title={amount}
+                titleSuffix={cents && `,${cents}`}
+                description={[day(installment.date), installment.account].filter(Boolean).join(' · ')}
+                actions={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={mutation.isPending}
+                    onClick={() => setReversing(installment)}
+                  >
+                    {t('reverse_receipt')}
+                  </Button>
+                }
+              />
+            );
+          })}
+        </InfoCardList>
       )}
       {reversing && (
         <ConfirmDialog

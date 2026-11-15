@@ -1866,6 +1866,12 @@
       "decisao": "Escritório (`/office`, só admin) volta a ser uma página só, um formulário em etapas numeradas: logo, cabeçalho e rodapé, controle de OS, res",
       "data": "2026-11-14",
       "status": "active"
+    },
+    {
+      "id": "AD-225",
+      "decisao": "lista de registros pequenos dentro de uma etapa ou bloco (aparelhos com acesso, responsáveis técnicos, recebimentos do lançamento) usa `Info",
+      "data": "2026-11-15",
+      "status": "active"
     }
   ]
 }
