@@ -76,7 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
-- 2026-11-14 — O bloco "Áreas" saiu do Início; o resto da tela segue o layout anterior.
+- 2026-11-14 — Início no visual do Dashboard: a faixa padrão (`HomeOverview`) fica igual; serviços por fase viram blocos pastel (`HeatTiles`, sai o gráfico de barras), compromissos e serviços parados lado a lado, fluxo de caixa ao lado do gráfico por justiça; o bloco "Áreas" saiu da tela.
 - 2026-11-03 — Fase detalhada e situação saem: o serviço tem um status único (`rotina-servico`, AD-166); "Diário de bordo" passa a "Histórico de auditoria" na tela.
 - 2026-11-01 — CRUD de membros só do admin especificado em `gestao-membros` (AD-148).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).

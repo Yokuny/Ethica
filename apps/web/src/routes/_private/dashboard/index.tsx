@@ -6,6 +6,7 @@ import { serviceTypeLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
+import { HeatTiles } from '@/components/heat-tiles.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
@@ -64,23 +65,21 @@ export function DashboardPage() {
           />
         ) : (
           <>
-            <Panel size="sm" title={t('expert_cases_by_type')}>
+            <Panel size="lg" title={t('expert_cases_by_type')}>
               {cases.data.byType.length ? (
-                <RecordStats>
-                  {cases.data.byType.map((row) => (
-                    <RecordStat
-                      key={row.serviceType ?? row.role}
-                      label={serviceTypeLabel(row)}
-                      value={formatNumber(row.count)}
-                    />
-                  ))}
-                </RecordStats>
+                <HeatTiles
+                  items={cases.data.byType.map((row) => ({
+                    key: row.serviceType ?? row.role,
+                    label: serviceTypeLabel(row),
+                    count: row.count,
+                  }))}
+                />
               ) : (
                 <DefaultEmptyData title={t('no_data_yet')} />
               )}
             </Panel>
             <div className="grid gap-10 lg:grid-cols-2">
-              <Panel size="sm" title={t('court_cases_by_year')}>
+              <Panel size="lg" title={t('court_cases_by_year')}>
                 {cases.data.courtExpertByYear.length ? (
                   <YearColumnsChart
                     label={t('expert_cases')}
@@ -93,7 +92,7 @@ export function DashboardPage() {
                 )}
               </Panel>
               {canSeeFinance && (
-                <Panel size="sm" title={t('fees_received_by_year')}>
+                <Panel size="lg" title={t('fees_received_by_year')}>
                   {fees.isLoading ? (
                     <DefaultLoading />
                   ) : receivedByYear.length ? (
@@ -111,11 +110,11 @@ export function DashboardPage() {
             </div>
             {canSeeFinance && (
               <>
-                <Panel size="sm" title={t('finance')}>
+                <Panel size="lg" title={t('finance')}>
                   <FinanceOverview summary={summary.data} />
                 </Panel>
                 <Panel
-                  size="sm"
+                  size="lg"
                   title={t('cash_flow')}
                   actions={
                     <ToggleGroup
@@ -136,7 +135,7 @@ export function DashboardPage() {
                   {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
                 </Panel>
                 <div className="grid gap-10 lg:grid-cols-2">
-                  <Panel size="sm" title={t('income_by_category')}>
+                  <Panel size="lg" title={t('income_by_category')}>
                     {income.isLoading ? (
                       <DefaultLoading />
                     ) : !income.data?.length ? (
@@ -145,7 +144,7 @@ export function DashboardPage() {
                       <CategoriesChart kind="income" data={income.data} />
                     )}
                   </Panel>
-                  <Panel size="sm" title={t('expenses_by_category')}>
+                  <Panel size="lg" title={t('expenses_by_category')}>
                     {expenses.isLoading ? (
                       <DefaultLoading />
                     ) : !expenses.data?.length ? (

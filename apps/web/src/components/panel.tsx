@@ -7,10 +7,12 @@ import { ChevronDown } from 'lucide-react';
 import { type ReactNode, useId, useState } from 'react';
 
 // Block wrapper without background or border: visual grouping belongs to what is
-// inside (Item, Table, form). `size` only sets the spacing between children; a collapsible block is boxed.
+// inside (Item, Table, form). `size` sets the spacing between children; `lg` is the dashboard section, with a
+// larger sentence-case title. A collapsible block is boxed.
 const panelVariants = cva('flex w-full min-w-0 flex-col', {
   variants: {
     size: {
+      lg: 'gap-5',
       default: 'gap-4',
       sm: 'gap-2',
       xs: 'gap-1',
@@ -98,7 +100,12 @@ function Panel({
                 {(title || description) && (
                   <div className="grid gap-1">
                     {title && (
-                      <ItemTitle className="uppercase text-xs" id={headingId} role="heading" aria-level={2}>
+                      <ItemTitle
+                        className={size === 'lg' ? 'text-base font-medium text-impact' : 'uppercase text-xs'}
+                        id={headingId}
+                        role="heading"
+                        aria-level={2}
+                      >
                         {title}
                       </ItemTitle>
                     )}

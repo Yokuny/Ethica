@@ -17,7 +17,7 @@ import { preferencesQuery } from '@/query/preferences.js';
 import { can } from '@/query/session.js';
 import { financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CasesCourtTypeChart } from './@components/cases-court-type-chart.js';
-import { CasesPhaseChart } from './@components/cases-phase-chart.js';
+import { CasesPhaseTiles } from './@components/cases-phase-tiles.js';
 import { HomeCustomize } from './@components/home-customize.js';
 import { HomeOverview } from './@components/home-overview.js';
 import { StalledCasesList } from './@components/stalled-cases.js';
@@ -68,46 +68,46 @@ export function PrivateIndexPage() {
       </CardHeader>
       {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
       <CardContent className="gap-10 pb-16">
-        {show('upcoming') && (
-          <Panel size="sm" title={t('upcoming_commitments')}>
-            {upcoming.isLoading ? (
-              <DefaultLoading />
-            ) : !upcoming.data?.length ? (
-              <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
-            ) : (
-              <UpcomingAppointments items={upcoming.data} />
-            )}
+        {show('by_stage') && (
+          <Panel size="lg" title={t('expert_cases_by_stage')}>
+            {distribution.isLoading ? <DefaultLoading /> : <CasesPhaseTiles groups={distribution.data?.phase ?? []} />}
           </Panel>
         )}
-        {show('stalled') && (
-          <Panel size="sm" title={t('stalled_expert_cases')}>
-            {stalled.isLoading ? (
-              <DefaultLoading />
-            ) : !stalled.data?.total ? (
-              <DefaultEmptyData title={t('no_stalled_expert_cases')} />
-            ) : (
-              <StalledCasesList stalled={stalled.data} />
-            )}
-          </Panel>
-        )}
-        {show('cash_flow') && (
-          <Panel size="sm" title={t('cash_flow')} description={t('last_6_months')}>
-            {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
-          </Panel>
-        )}
-        {(show('by_stage') || show('by_court')) && (
+        {(show('upcoming') || show('stalled')) && (
           <div className="grid gap-10 lg:grid-cols-2">
-            {show('by_stage') && (
-              <Panel size="sm" title={t('expert_cases_by_stage')}>
-                {distribution.isLoading ? (
+            {show('upcoming') && (
+              <Panel size="lg" title={t('upcoming_commitments')}>
+                {upcoming.isLoading ? (
                   <DefaultLoading />
+                ) : !upcoming.data?.length ? (
+                  <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
                 ) : (
-                  <CasesPhaseChart groups={distribution.data?.phase ?? []} />
+                  <UpcomingAppointments items={upcoming.data} />
                 )}
               </Panel>
             )}
+            {show('stalled') && (
+              <Panel size="lg" title={t('stalled_expert_cases')}>
+                {stalled.isLoading ? (
+                  <DefaultLoading />
+                ) : !stalled.data?.total ? (
+                  <DefaultEmptyData title={t('no_stalled_expert_cases')} />
+                ) : (
+                  <StalledCasesList stalled={stalled.data} />
+                )}
+              </Panel>
+            )}
+          </div>
+        )}
+        {(show('cash_flow') || show('by_court')) && (
+          <div className="grid gap-10 lg:grid-cols-3">
+            {show('cash_flow') && (
+              <Panel size="lg" className="lg:col-span-2" title={t('cash_flow')} description={t('last_6_months')}>
+                {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
+              </Panel>
+            )}
             {show('by_court') && (
-              <Panel size="sm" title={t('expert_cases_by_court')}>
+              <Panel size="lg" title={t('expert_cases_by_court')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
                 ) : !distribution.data?.courtType.length ? (

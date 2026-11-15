@@ -286,6 +286,7 @@ const translations: Record<string, string> = {
   large: 'Grande',
   last_12_months: 'Últimos 12 meses',
   last_6_months: 'Últimos 6 meses',
+  less: 'Menos',
   last_movement: 'Último movimento',
   report_delivered: 'Laudo entregue',
   settled: 'Liquidado',
