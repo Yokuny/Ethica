@@ -7,19 +7,16 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { cn } from '@/lib/utils.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
 import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
+import { TYPE_COLORS } from '../@consts/calendar.js';
 
-// Color by appointment type; canceled fades and completed stays faded.
-const typeClasses: Record<AppointmentRecord['type'], string> = {
-  inspection: 'border-violet-500/30 bg-violet-50 text-violet-900',
-  hearing: 'border-sky-500/30 bg-sky-50 text-sky-900',
-  meeting: 'border-cyan-500/30 bg-cyan-50 text-cyan-900',
-  other: 'bg-background',
-};
+// Soft block without a border, color only from the type (TYPE_COLORS); one line by default.
+const chipClasses =
+  'w-full rounded-md px-1.5 py-1 text-left text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/50';
 
 export type CalendarEventChipProps = {
   item: AppointmentRecord;
   onSelect: (item: AppointmentRecord) => void;
-  // 'timed': full time range (day/week). 'compact': one line (month and "+N").
+  // 'timed': title over the time range, fills the block height (day/week). 'compact': one line (month and "+N").
   variant?: 'timed' | 'compact';
   className?: string;
   style?: CSSProperties;
@@ -30,27 +27,34 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
     <button
       type="button"
       data-testid={`calendar-event-${item.id}`}
-      onClick={() => onSelect(item)}
+      title={item.title}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect(item);
+      }}
       style={style}
       className={cn(
-        'rounded-sm border text-left text-xs',
-        variant === 'compact' ? 'w-full truncate px-1.5 py-0.5' : 'overflow-hidden p-1.5',
-        typeClasses[item.type],
-        item.status === 'canceled' && 'border-muted-foreground/30 bg-muted text-muted-foreground line-through',
+        chipClasses,
+        variant === 'timed' && 'flex flex-col gap-0.5 overflow-hidden',
+        TYPE_COLORS[item.type].chip,
+        item.status === 'canceled' && 'line-through opacity-60',
         item.status === 'done' && 'opacity-60',
         className,
       )}
     >
       {variant === 'timed' ? (
         <>
-          <ItemTitle>
-            <Time12h value={item.start} /> · <Time12h value={item.end} />
-          </ItemTitle>
-          <ItemDescription className="text-inherit line-clamp-1">{item.title}</ItemDescription>
+          <ItemTitle className="line-clamp-2 block w-full text-xs text-inherit leading-tight">{item.title}</ItemTitle>
+          <ItemDescription className="line-clamp-1 text-xs text-inherit opacity-70">
+            <Time12h value={item.start} /> – <Time12h value={item.end} />
+          </ItemDescription>
         </>
       ) : (
-        <ItemDescription className="text-inherit line-clamp-none">
-          <Time12h value={item.start} /> {item.title}
+        <ItemDescription className="line-clamp-1 text-xs text-inherit">
+          <span className="opacity-70">
+            <Time12h value={item.start} />
+          </span>{' '}
+          <span className="font-medium">{item.title}</span>
         </ItemDescription>
       )}
     </button>
@@ -59,13 +63,6 @@ export function CalendarEventChip({ item, onSelect, variant = 'timed', className
 
 // All-day entry (AD-169): deadline or finance, without a time. An open one past its day shows in red;
 // paid, filed, missed and canceled stay on the day with the mark beside the title (AEV-03).
-const entryClasses: Record<CalendarEntryRecord['type'], string> = {
-  deadline: 'border-amber-500/40 bg-amber-50 text-amber-900',
-  income: 'border-emerald-500/40 bg-emerald-50 text-emerald-900',
-  receipt: 'border-emerald-500/20 bg-emerald-50/60 text-emerald-900',
-  expense: 'border-rose-500/30 bg-rose-50 text-rose-900',
-};
-
 export function CalendarEntryChip({
   entry,
   today,
@@ -76,25 +73,32 @@ export function CalendarEntryChip({
   onSelect: (entry: CalendarEntryRecord) => void;
 }) {
   const mark = calendarEntryStatusLabel(entry.type, entry.status);
+  const text = [
+    `${t(entry.type)}: ${entry.title}`,
+    entry.amountCents ? formatMoney(entry.amountCents) : '',
+    entry.caseNumber ?? '',
+    mark ?? '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
   return (
     <button
       type="button"
       data-testid={`calendar-entry-${entry.id}`}
-      onClick={() => onSelect(entry)}
+      title={text}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect(entry);
+      }}
       className={cn(
-        'w-full truncate rounded-sm border px-1.5 py-0.5 text-left text-xs',
-        entryClasses[entry.type],
-        entry.status === 'open' && entry.date < today && 'border-destructive bg-destructive/10 text-destructive',
+        chipClasses,
+        TYPE_COLORS[entry.type].chip,
+        entry.status === 'open' && entry.date < today && 'bg-destructive/15 text-destructive hover:bg-destructive/20',
         entry.status !== 'open' && entry.type !== 'receipt' && 'opacity-60',
         entry.status === 'canceled' && 'line-through',
       )}
     >
-      <ItemDescription className="text-inherit line-clamp-none">
-        {`${t(entry.type)}: ${entry.title}`}
-        {entry.amountCents ? ` · ${formatMoney(entry.amountCents)}` : ''}
-        {entry.caseNumber ? ` · ${entry.caseNumber}` : ''}
-        {mark ? ` · ${mark}` : ''}
-      </ItemDescription>
+      <ItemDescription className="line-clamp-1 text-xs font-medium text-inherit">{text}</ItemDescription>
     </button>
   );
 }

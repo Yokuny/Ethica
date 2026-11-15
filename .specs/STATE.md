@@ -1343,6 +1343,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-15
 - **Status**: active
 
+### AD-229
+- **Decision**: o calendário da Agenda segue o visual da agenda do DentalEase: blocos em tom pastel sem borda, **cor só pelo tipo** do item (mapa `TYPE_COLORS` em `apps/web/src/routes/_private/agenda/@consts/calendar.ts`; ninguém escolhe cor), e a bolinha da cor ao lado de cada tipo no filtro faz de legenda. Dia/Semana: cabeçalho "seg 16" com hoje em círculo grafite, hora escrita sobre a linha, grade a partir das 6h (antes se houver compromisso mais cedo) na altura da tela, linha do agora, fim de semana esmaecido. Mês: até 3 itens por dia somando prazos/financeiro e compromissos, cada um em uma linha, o resto em "+N Mais". Clicar no vazio de um dia abre Novo compromisso nesse dia. Acima do calendário fica o dia em destaque ("15 domingo", mês e ano menores) e, à direita, a navegação e Dia/Semana/Mês; no cabeçalho da página ficam o tipo e Novo compromisso. Supersede a parte (4) da **AD-193**.
+- **Reason**: pedido do usuário (2026-11-15), com a agenda do DentalEase como referência e a cor presa ao tipo.
+- **Trade-off**: sem cor por pessoa nem arrastar para remarcar (o DentalEase tem os dois); hoje em grafite, não em azul, pela identidade do Ethica (AD-082).
+- **Scope**: `apps/web/src/routes/_private/agenda/` (`index.tsx`, `@consts/calendar.ts`, `@components/{calendar-event,calendar-grid,month-view,time-grid-view}.tsx`, `@utils/calendar-grid.utils.ts`).
+- **Date**: 2026-11-15
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

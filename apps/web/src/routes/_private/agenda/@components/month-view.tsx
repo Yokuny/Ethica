@@ -1,15 +1,12 @@
-import { ItemDescription } from '@ethica/ui/components/item';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Popover, PopoverContent, PopoverTrigger } from '@ethica/ui/components/popover';
-import {
-  addDaysToDisplayDate,
-  displayWeekStartOf,
-  startOfDisplayMonth,
-  weekdayIndexOfDisplayDate,
-} from '@/lib/helpers/displayTime.helper.js';
-import { t, WEEKDAY_KEYS } from '@/lib/helpers/translate.helper.js';
+import { addDaysToDisplayDate, displayWeekStartOf, startOfDisplayMonth } from '@/lib/helpers/displayTime.helper.js';
+import { formatDate } from '@/lib/helpers/formatDate.helper.js';
+import { t } from '@/lib/helpers/translate.helper.js';
+import { cn } from '@/lib/utils.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
 import type { CalendarEntryRecord } from '@/query/calendar-entry.js';
-import { itemOverlapsDay } from '../@utils/calendar-grid.utils.js';
+import { itemOverlapsDay, shortWeekday } from '../@utils/calendar-grid.utils.js';
 import { CalendarEntryChip, CalendarEventChip } from './calendar-event.js';
 import { CalendarMonthCell, CalendarMonthGrid } from './calendar-grid.js';
 
@@ -18,9 +15,11 @@ export type MonthViewProps = {
   month: string;
   items: AppointmentRecord[];
   onSelect: (item: AppointmentRecord) => void;
-  // All-day entries (deadlines, finance): they come first on the day, without counting against the appointments limit.
+  // All-day entries (deadlines, finance): they come first on the day.
   entries?: CalendarEntryRecord[];
   onSelectEntry?: (entry: CalendarEntryRecord) => void;
+  // A click on the empty part of a day opens "new appointment" on it.
+  onCreate?: (day: string) => void;
   today?: string;
 };
 
@@ -36,6 +35,7 @@ export function MonthView({
   onSelect,
   entries = [],
   onSelectEntry = () => {},
+  onCreate = () => {},
   today = '',
 }: MonthViewProps) {
   const monthPrefix = startOfDisplayMonth(month).slice(0, 7);
@@ -43,47 +43,55 @@ export function MonthView({
   const days = Array.from({ length: WEEKS_IN_GRID * DAYS_IN_WEEK }, (_, index) =>
     addDaysToDisplayDate(gridStart, index),
   );
-  // Labels taken from the grid's own first row: WEEKDAY_KEYS starts
-  // on Sunday, the grid starts on Monday.
-  const weekdayKeys = days.slice(0, DAYS_IN_WEEK).map((day) => WEEKDAY_KEYS[weekdayIndexOfDisplayDate(day)]);
 
-  // Header and cells in the SAME CalendarMonthGrid: the dashed lines
-  // (frame, between columns, under the header, between weeks) all come from the
-  // primitive, with no border here.
+  // Header and cells in the SAME CalendarMonthGrid: the lines all come from the primitive.
   return (
     <CalendarMonthGrid data-testid="month-view">
-      {weekdayKeys.map((key) => (
-        <ItemDescription key={key} className="line-clamp-none p-1 text-center text-[10px]">
-          {t(key)}
+      {days.slice(0, DAYS_IN_WEEK).map((day) => (
+        <ItemDescription key={day} className="line-clamp-none py-2.5 text-center text-xs">
+          {shortWeekday(day)}
         </ItemDescription>
       ))}
       {days.map((day) => {
-        const dayItems = items
-          .filter((item) => itemOverlapsDay(item, day))
-          .sort((a, b) => a.start.localeCompare(b.start));
-        const visible = dayItems.slice(0, MAX_VISIBLE_PER_DAY);
-        const overflow = dayItems.slice(MAX_VISIBLE_PER_DAY);
+        // Deadlines and finance first, then the appointments by time; together they share the limit.
+        const chips = [
+          ...entries
+            .filter((entry) => entry.date === day)
+            .map((entry) => <CalendarEntryChip key={entry.id} entry={entry} today={today} onSelect={onSelectEntry} />),
+          ...items
+            .filter((item) => itemOverlapsDay(item, day))
+            .sort((a, b) => a.start.localeCompare(b.start))
+            .map((item) => <CalendarEventChip key={item.id} item={item} onSelect={onSelect} variant="compact" />),
+        ];
+        const overflow = chips.length - MAX_VISIBLE_PER_DAY;
 
         return (
-          <CalendarMonthCell key={day} data-testid={`month-view-day-${day}`} outside={!day.startsWith(monthPrefix)}>
-            <div className="text-right text-[10px]">{day.slice(-2)}</div>
-            {entries
-              .filter((entry) => entry.date === day)
-              .map((entry) => (
-                <CalendarEntryChip key={entry.id} entry={entry} today={today} onSelect={onSelectEntry} />
-              ))}
-            {visible.map((item) => (
-              <CalendarEventChip key={item.id} item={item} onSelect={onSelect} variant="compact" />
-            ))}
-            {overflow.length > 0 && (
+          <CalendarMonthCell
+            key={day}
+            data-testid={`month-view-day-${day}`}
+            outside={!day.startsWith(monthPrefix)}
+            onClick={() => onCreate(day)}
+          >
+            <ItemDescription
+              className={cn(
+                'line-clamp-none inline-flex size-6 items-center justify-center rounded-full text-xs',
+                day === today && 'bg-primary font-semibold text-primary-foreground',
+              )}
+            >
+              {Number(day.slice(-2))}
+            </ItemDescription>
+            {chips.slice(0, MAX_VISIBLE_PER_DAY)}
+            {overflow > 0 && (
               <Popover>
-                <PopoverTrigger className="text-left text-[10px] text-muted-foreground hover:underline">
-                  +{overflow.length} {t('more')}
+                <PopoverTrigger
+                  onClick={(event) => event.stopPropagation()}
+                  className="rounded-md px-1.5 py-0.5 text-left text-xs text-muted-foreground hover:bg-muted"
+                >
+                  +{overflow} {t('more')}
                 </PopoverTrigger>
-                <PopoverContent className="w-56">
-                  {overflow.map((item) => (
-                    <CalendarEventChip key={item.id} item={item} onSelect={onSelect} variant="compact" />
-                  ))}
+                <PopoverContent className="grid w-60 gap-1" onClick={(event) => event.stopPropagation()}>
+                  <ItemTitle className="mb-1 text-xs">{formatDate(day)}</ItemTitle>
+                  {chips}
                 </PopoverContent>
               </Popover>
             )}

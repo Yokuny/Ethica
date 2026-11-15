@@ -5,14 +5,14 @@ descricao: Perícia, prazos, vencimentos e recebimentos do financeiro chegam à 
 data: 2026-11-03
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-169, AD-192, AD-193, AD-194]
+decisoes: [AD-169, AD-192, AD-193, AD-194, AD-229]
 spec: [.specs/features/agenda-eventos]
 branches: [main]
 ---
 
 # Agenda por eventos
 
-**Status**: concluido · **Atualizado**: 2026-11-03 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-15 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='agenda-eventos'`.
@@ -46,7 +46,7 @@ Não desfazer sem ler: a agenda guarda uma cópia que só a origem muda, pelo ev
 ### `apps/web`
 
 - `apps/web/src/query/calendar-entry.ts`, `apps/web/src/components/calendar-entry-labels.ts`.
-- `apps/web/src/routes/_private/agenda/` — `CalendarEntryChip`, `@components/deadline-entry-dialog.tsx`, filtro por tipo; edição do serviço com a data da perícia (`expert-cases/@components/case-form-fields.tsx`).
+- `apps/web/src/routes/_private/agenda/` — `CalendarEntryChip`, `@components/deadline-entry-dialog.tsx`, filtro por tipo; cor de cada tipo em `@consts/calendar.ts` (`TYPE_COLORS`, AD-229); edição do serviço com a data da perícia (`expert-cases/@components/case-form-fields.tsx`).
 
 ## Como testar
 
@@ -63,6 +63,7 @@ pnpm vitest run apps/api/src/modules/agenda packages/db/src/models/calendar-entr
 
 ## Histórico
 
+- 2026-11-15 — Calendário no visual da agenda do DentalEase, com a cor só pelo tipo e a legenda no filtro de tipo; dia em destaque acima do calendário; clicar num dia vazio abre Novo compromisso (AD-229, plano `.specs/features/agenda-eventos/plans/2026-11-15-agenda-visual-calendario.md`).
 - 2026-11-05 — Navegação anterior/hoje/próximo num só contorno, sem divisórias internas (AD-194).
 - 2026-11-05 — Página montada direto no `index.tsx`: tipo e Dia/Semana/Mês como seletores no cabeçalho; navegação à direita do mês/ano (AD-193).
 - 2026-11-05 — Dia/Semana/Mês vira lista suspensa ao lado da navegação; período com o mês abreviado grande e o ano menor; o tipo vai para o botão "Filtros" (AD-192).

@@ -388,12 +388,15 @@
         "AD-169",
         "AD-192",
         "AD-193",
-        "AD-194"
+        "AD-194",
+        "AD-229"
       ],
       "spec": [
         ".specs/features/agenda-eventos"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/agenda-eventos/plans/2026-11-15-agenda-visual-calendario.md"
+      ],
       "doc": "features/agenda-eventos/feature.md"
     },
     {
@@ -1889,6 +1892,12 @@
     {
       "id": "AD-228",
       "decisao": "no Dashboard, o gráfico de colunas por ano dá lugar a Serviços por mês: os últimos 12 meses até o atual (mês sem serviço é coluna zero), con",
+      "data": "2026-11-15",
+      "status": "active"
+    },
+    {
+      "id": "AD-229",
+      "decisao": "o calendário da Agenda segue o visual da agenda do DentalEase: blocos em tom pastel sem borda, cor só pelo tipo do item (mapa `TYPE_COLORS`",
       "data": "2026-11-15",
       "status": "active"
     }

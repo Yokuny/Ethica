@@ -27,7 +27,7 @@ function CalendarTimeGridColumns({ className, ...props }: React.ComponentProps<'
   return (
     <div
       data-slot="calendar-time-grid-columns"
-      className={cn('grid flex-1 [&>*]:border-l [&>*]:border-border', className)}
+      className={cn('grid flex-1 [&>*]:border-l [&>*]:border-border/70', className)}
       {...props}
     />
   );
@@ -39,7 +39,7 @@ function CalendarTimeGridHeader({ className, ...props }: React.ComponentProps<'d
   return (
     <div
       data-slot="calendar-time-grid-header"
-      className={cn('flex h-10 flex-col items-center justify-center border-b border-border text-center', className)}
+      className={cn('flex h-12 items-center justify-center gap-1 border-b border-border/70 text-center', className)}
       {...props}
     />
   );
@@ -52,7 +52,7 @@ function CalendarTimeGridHourLine({ className, ...props }: React.ComponentProps<
     <div
       data-slot="calendar-time-grid-hour-line"
       aria-hidden
-      className={cn('pointer-events-none absolute inset-x-0 border-t border-border', className)}
+      className={cn('pointer-events-none absolute inset-x-0 border-t border-border/70', className)}
       {...props}
     />
   );
@@ -67,7 +67,7 @@ function CalendarMonthGrid({ className, ...props }: React.ComponentProps<'div'>)
       data-slot="calendar-month-grid"
       className={cn(
         'grid w-full grid-cols-7 overflow-hidden rounded-lg border bg-card shadow-xs',
-        '[&>*:not(:nth-child(7n))]:border-r [&>*:nth-child(n+8)]:border-t [&>*]:border-border',
+        '[&>*:not(:nth-child(7n))]:border-r [&>*:nth-child(n+8)]:border-t [&>*]:border-border/70',
         className,
       )}
       {...props}
@@ -75,13 +75,17 @@ function CalendarMonthGrid({ className, ...props }: React.ComponentProps<'div'>)
   );
 }
 
-// Cell of a day in the month grid; `outside` fades the days of the
-// previous/next month that complete the first/last week.
+// Cell of a day in the month grid (a click on the empty part creates on that day); `outside` fades
+// the days of the previous/next month that complete the first/last week.
 function CalendarMonthCell({ className, outside, ...props }: React.ComponentProps<'div'> & { outside?: boolean }) {
   return (
     <div
       data-slot="calendar-month-cell"
-      className={cn('flex min-h-24 flex-col gap-1 p-1', outside && 'bg-muted/40 text-muted-foreground', className)}
+      className={cn(
+        'flex min-h-30 min-w-0 cursor-pointer flex-col gap-1 p-1.5 transition-colors hover:bg-muted/30',
+        outside && 'bg-muted/50 text-muted-foreground',
+        className,
+      )}
       {...props}
     />
   );

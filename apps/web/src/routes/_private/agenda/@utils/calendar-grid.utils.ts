@@ -1,11 +1,16 @@
 import { formatDisplayDate, formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import type { AppointmentRecord } from '@/query/appointment.js';
 
-export const HOUR_HEIGHT_PX = 48;
+export const HOUR_HEIGHT_PX = 64;
 export const HOURS_IN_DAY = 24;
 const MINUTES_IN_DAY = HOURS_IN_DAY * 60;
 const COLUMN_HEIGHT_PX = HOURS_IN_DAY * HOUR_HEIGHT_PX;
-const MIN_ITEM_HEIGHT_PX = 20;
+const MIN_ITEM_HEIGHT_PX = 24;
+
+// "seg", "ter"… of a wall-clock date (YYYY-MM-DD): the column and month headers.
+const weekdayFormat = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', timeZone: 'UTC' });
+export const shortWeekday = (day: string): string =>
+  weekdayFormat.format(new Date(`${day}T12:00:00Z`)).replace('.', '');
 
 export type PositionedItem = {
   item: AppointmentRecord;

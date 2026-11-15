@@ -39,7 +39,7 @@ _Nenhum._
 | [Prazos e Alertas](features/prazos-alertas/feature.md) | Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui | concluido | 2026-11-05 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-alertas) | — |
 | [Fases da Assistência técnica](features/fase-assistencia/feature.md) | Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência | concluido | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/fase-assistencia) | — |
 | [Preencher com vários PDFs](features/preencher-pdfs/feature.md) | Cadastro do serviço preenchido por vários PDFs numa janela em etapas, com a escolha do valor de cada campo | concluido | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` | [spec](../.specs/features/preencher-pdfs) | — |
-| [Agenda por eventos](features/agenda-eventos/feature.md) | Perícia, prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento, com tipo, estado e filtro | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/agenda-eventos) | — |
+| [Agenda por eventos](features/agenda-eventos/feature.md) | Perícia, prazos, vencimentos e recebimentos do financeiro chegam à agenda por evento, com tipo, estado e filtro | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/agenda-eventos) | 1 |
 | [Anexar laudo](features/anexar-laudo/feature.md) | Laudo feito fora do Ethica anexado em PDF no serviço, concluído com a entrega e salvável como modelo | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/db` | [spec](../.specs/features/anexar-laudo) | — |
 | [Esfera e tipo de serviço](features/esfera-servico/feature.md) | Esfera separada do tipo de serviço (perícia, assistência técnica, parceria, tipos do escritório), filtros e data apagável | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/esfera-servico) | — |
 | [Novo laudo](features/novo-laudo/feature.md) | OS por serviço, responsável técnico do laudo, modelo trabalhista da perita, editor em rolagem com itens novos e layout do laudo | concluido | 2026-11-03 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/novo-laudo) | 2 |
@@ -76,6 +76,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-229** (2026-11-15, active) — o calendário da Agenda segue o visual da agenda do DentalEase: blocos em tom pastel sem borda, cor só pelo tipo do item (mapa `TYPE_COLORS`
 - **AD-228** (2026-11-15, active) — no Dashboard, o gráfico de colunas por ano dá lugar a Serviços por mês: os últimos 12 meses até o atual (mês sem serviço é coluna zero), con
 - **AD-227** (2026-11-15, active) — Relatórios (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fi
 - **AD-226** (2026-11-15, active) — o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que c
@@ -85,7 +86,6 @@ _Nenhum._
 - **AD-222** (2026-11-14, active) — As variáveis do provedor de e-mail escolhido são exigidas em qualquer ambiente, não só em produção: `MAIL_PROVIDER=resend` sem `RESEND_API_K
 - **AD-221** (2026-11-14, active) — Sai a skill `tlc-spec-driven` (`.claude/skills/tlc-spec-driven/`) e, com ela, a camada de lições do Verifier (`.specs/LESSONS.md`, `.specs/l
 - **AD-220** (2026-11-12, active) — Toda sessão nasce de uma passkey do aparelho (WebAuthn, autenticador da plataforma, verificação do usuário obrigatória). O e-mail (AD-155) s
-- **AD-219** (2026-11-11, active) — Novo provedor de e-mail Resend (`MAIL_PROVIDER=resend`), que envia pela API HTTPS do Resend (`apps/api/src/providers/mail/resend.mailProvide
 
 ## `.specs/` sem registro em `docs/features/`
 
