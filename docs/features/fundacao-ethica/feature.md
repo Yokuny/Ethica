@@ -2,7 +2,7 @@
 feature: Fundação do Ethica
 slug: fundacao-ethica
 descricao: Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção
-data: 2026-11-06
+data: 2026-11-15
 status: parcial
 areas: [apps/api, apps/web, packages/contracts, packages/db, packages/ui, harness, docs, infra, tests]
 decisoes: [AD-001, AD-038, AD-039, AD-036, AD-102, AD-103, AD-104, AD-105, AD-106, AD-107, AD-154, AD-198]
@@ -11,7 +11,7 @@ spec: [.specs/features/fundacao-ethica]
 
 # Fundação do Ethica
 
-**Status**: parcial · **Atualizado**: 2026-11-06 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
+**Status**: parcial · **Atualizado**: 2026-11-15 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
 
 > Documento vivo. Onde divergir do plano (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fundacao-ethica'`.
@@ -110,6 +110,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 - 2026-11-01 — Papéis fixos de domínio (AD-107) viraram a matriz de permissões por membro; `finance/route.tsx` saiu para a guarda central (`docs/features/gestao-escritorio/feature.md`, AD-137).
 - 2026-10-31 — Prazo do laudo vira `Deadline` da perícia, `case:created` sai e honorário ganha parcelas (`docs/features/prazos-recebimentos/feature.md`, AD-109, AD-111).
 - 2026-10-29 — Fundação criada a partir do repo `CRM` (checkduplo) (`.specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md`, AD-102).
+- 2026-11-15 — `Select` e `DropdownMenu` (`packages/ui`) com respiro interno padrão: popup `p-1.5`, itens empilhados com `gap-0.5`, `px-2.5` e cantos `rounded-md`, separador com `my-1`; telas não ajustam mais o espaçamento das opções.
 
 ## Referências
 

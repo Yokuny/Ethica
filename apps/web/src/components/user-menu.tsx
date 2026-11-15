@@ -51,7 +51,7 @@ function UserMenuContent() {
       {session && (
         <>
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="flex flex-col items-start gap-0.5 py-2">
+            <DropdownMenuLabel className="flex flex-col items-start gap-0.5">
               <ItemTitle>{session.user.name}</ItemTitle>
               <ItemDescription className="line-clamp-none">{session.user.email}</ItemDescription>
             </DropdownMenuLabel>
