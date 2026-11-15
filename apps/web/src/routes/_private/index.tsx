@@ -68,31 +68,27 @@ export function PrivateIndexPage() {
       </CardHeader>
       {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
       <CardContent className="gap-10 pb-16">
-        {(show('upcoming') || show('stalled')) && (
-          <div className="grid gap-10 lg:grid-cols-2">
-            {show('upcoming') && (
-              <Panel size="sm" title={t('upcoming_commitments')}>
-                {upcoming.isLoading ? (
-                  <DefaultLoading />
-                ) : !upcoming.data?.length ? (
-                  <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
-                ) : (
-                  <UpcomingAppointments items={upcoming.data} />
-                )}
-              </Panel>
+        {show('upcoming') && (
+          <Panel size="sm" title={t('upcoming_commitments')}>
+            {upcoming.isLoading ? (
+              <DefaultLoading />
+            ) : !upcoming.data?.length ? (
+              <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
+            ) : (
+              <UpcomingAppointments items={upcoming.data} />
             )}
-            {show('stalled') && (
-              <Panel size="sm" title={t('stalled_expert_cases')}>
-                {stalled.isLoading ? (
-                  <DefaultLoading />
-                ) : !stalled.data?.total ? (
-                  <DefaultEmptyData title={t('no_stalled_expert_cases')} />
-                ) : (
-                  <StalledCasesList stalled={stalled.data} />
-                )}
-              </Panel>
+          </Panel>
+        )}
+        {show('stalled') && (
+          <Panel size="sm" title={t('stalled_expert_cases')}>
+            {stalled.isLoading ? (
+              <DefaultLoading />
+            ) : !stalled.data?.total ? (
+              <DefaultEmptyData title={t('no_stalled_expert_cases')} />
+            ) : (
+              <StalledCasesList stalled={stalled.data} />
             )}
-          </div>
+          </Panel>
         )}
         {show('cash_flow') && (
           <Panel size="sm" title={t('cash_flow')} description={t('last_6_months')}>

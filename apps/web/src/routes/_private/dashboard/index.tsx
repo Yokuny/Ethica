@@ -2,6 +2,7 @@ import { Button } from '@ethica/ui/components/button';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
+import { serviceTypeLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
@@ -14,7 +15,6 @@ import { can, sessionQuery } from '@/query/session.js';
 import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CategoriesChart } from './@components/categories-chart.js';
 import { FinanceOverview } from './@components/finance-overview.js';
-import { ServiceTypeTiles } from './@components/service-type-tiles.js';
 import { YearColumnsChart } from './@components/year-columns-chart.js';
 import {
   type DashboardSearch,
@@ -66,7 +66,15 @@ export function DashboardPage() {
           <>
             <Panel size="sm" title={t('expert_cases_by_type')}>
               {cases.data.byType.length ? (
-                <ServiceTypeTiles rows={cases.data.byType} total={cases.data.total} />
+                <RecordStats>
+                  {cases.data.byType.map((row) => (
+                    <RecordStat
+                      key={row.serviceType ?? row.role}
+                      label={serviceTypeLabel(row)}
+                      value={formatNumber(row.count)}
+                    />
+                  ))}
+                </RecordStats>
               ) : (
                 <DefaultEmptyData title={t('no_data_yet')} />
               )}
