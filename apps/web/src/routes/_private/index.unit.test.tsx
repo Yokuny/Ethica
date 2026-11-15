@@ -60,14 +60,11 @@ const renderHome = (role: Role[]) => {
 describe('PrivateIndexPage', () => {
   afterEach(() => cleanup());
 
-  it('mostra os indicadores de perícias e as áreas do workspace', () => {
+  it('mostra os indicadores de perícias', () => {
     renderHome(['admin']);
 
     expect(screen.getByText('Início')).toBeInTheDocument();
     expect(screen.getByText('7')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Serviços/ })).toHaveAttribute('href', '/expert-cases');
-    expect(screen.getByRole('link', { name: /Agenda/ })).toHaveAttribute('href', '/agenda');
-    expect(screen.getByRole('link', { name: /Usuários/ })).toHaveAttribute('href', '/users');
   });
 
   it('valores financeiros só aparecem para admin/manager', () => {

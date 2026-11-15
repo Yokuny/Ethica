@@ -8,7 +8,7 @@ import type { CategoryTotal } from '@/query/transaction.js';
 // Total per category of a kind (income or expenses), largest first.
 export function CategoriesChart({ kind, data }: { kind: TransactionKind; data: CategoryTotal[] }) {
   const config = {
-    totalCents: { label: t('total'), color: kind === 'income' ? 'var(--chart-1)' : 'var(--destructive)' },
+    totalCents: { label: t('total'), color: kind === 'income' ? 'var(--chart-1)' : 'var(--status-error-indicator)' },
   } satisfies ChartConfig;
   const rows = data.map((row) => ({ category: t(row.category), totalCents: row.totalCents }));
   return (

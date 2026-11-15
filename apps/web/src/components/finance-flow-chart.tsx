@@ -14,7 +14,7 @@ import type { MonthlyFlow } from '@/query/transaction.js';
 const config = {
   receivedCents: { label: t('received'), color: 'var(--chart-1)' },
   receivableCents: { label: t('receivable'), color: 'var(--chart-4)' },
-  expensesCents: { label: t('expenses'), color: 'var(--destructive)' },
+  expensesCents: { label: t('expenses'), color: 'var(--status-error-indicator)' },
 } satisfies ChartConfig;
 
 const monthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'short', year: '2-digit', timeZone: 'UTC' });

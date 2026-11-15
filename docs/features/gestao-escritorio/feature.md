@@ -12,7 +12,7 @@ branches: [feat/gestao-escritorio]
 
 # Gestão do escritório
 
-**Status**: concluido · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `harness`
+**Status**: concluido · **Atualizado**: 2026-11-14 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `harness`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), o código é a fonte da
 > verdade. Correlação com o git: `git log --oneline -i --grep='gestao-escritorio'`.
@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-14 — Início em cartões, no visual do Dashboard: faixa de indicadores com cantos arredondados, compromissos e perícias paradas lado a lado, fluxo de caixa e gráficos em cartões brancos (`Panel variant="card"`); o bloco "Áreas" saiu da tela.
 - 2026-11-03 — Fase detalhada e situação saem: o serviço tem um status único (`rotina-servico`, AD-166); "Diário de bordo" passa a "Histórico de auditoria" na tela.
 - 2026-11-01 — CRUD de membros só do admin especificado em `gestao-membros` (AD-148).
 - 2026-11-01 — Caminhos e nomes de código citados aqui passam ao inglês (feature `english-naming`, AD-139/AD-140).

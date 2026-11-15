@@ -87,12 +87,12 @@
   --font-fallback-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --font-fallback-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Discreet series for future visualizations; real data decides its use. */
-  --chart-1: #1d1c20;
-  --chart-2: #4b4b54;
-  --chart-3: #777680;
-  --chart-4: #a6a5af;
-  --chart-5: #d0cfd6;
+  /* Light, desaturated pastel series (blue, sage, sand, pale blue, lilac); real data decides its use. */
+  --chart-1: #8eaacb;
+  --chart-2: #9fbfa6;
+  --chart-3: #d6c38f;
+  --chart-4: #c9d7e6;
+  --chart-5: #cbbfdc;
 
   --sidebar: #f1f1f3;
   --sidebar-foreground: var(--foreground);

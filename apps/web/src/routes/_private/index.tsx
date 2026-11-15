@@ -20,7 +20,6 @@ import { CasesCourtTypeChart } from './@components/cases-court-type-chart.js';
 import { CasesPhaseChart } from './@components/cases-phase-chart.js';
 import { HomeCustomize } from './@components/home-customize.js';
 import { HomeOverview } from './@components/home-overview.js';
-import { HomeSections } from './@components/home-sections.js';
 import { StalledCasesList } from './@components/stalled-cases.js';
 import { HOME_BLOCK_MODULE } from './@consts/home-blocks.js';
 import { useHomePage } from './@hooks/use-home-page.js';
@@ -30,7 +29,7 @@ const FLOW_MONTHS = 6;
 // Home configurable per user (AD-136): only the blocks the matrix allows viewing (AD-137),
 // minus those the person hid.
 export function PrivateIndexPage() {
-  const { session, canSeeFinance, sections } = useHomePage();
+  const { session, canSeeFinance } = useHomePage();
   const preferences = useQuery(preferencesQuery);
   const [customizing, setCustomizing] = useState(false);
   const allowed = HOME_BLOCKS.filter((block) => {
@@ -67,39 +66,47 @@ export function PrivateIndexPage() {
           )}
         </CardAction>
       </CardHeader>
-      {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
-      <CardContent className="gap-10 pb-16">
-        {show('upcoming') && (
-          <Panel size="sm" title={t('upcoming_commitments')}>
-            {upcoming.isLoading ? (
-              <DefaultLoading />
-            ) : !upcoming.data?.length ? (
-              <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
-            ) : (
-              <UpcomingAppointments items={upcoming.data} />
-            )}
-          </Panel>
+      <CardContent className="gap-6 pb-16">
+        {show('overview') && (
+          <div className="overflow-hidden rounded-xl">
+            <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />
+          </div>
         )}
-        {show('stalled') && (
-          <Panel size="sm" title={t('stalled_expert_cases')}>
-            {stalled.isLoading ? (
-              <DefaultLoading />
-            ) : !stalled.data?.total ? (
-              <DefaultEmptyData title={t('no_stalled_expert_cases')} />
-            ) : (
-              <StalledCasesList stalled={stalled.data} />
+        {(show('upcoming') || show('stalled')) && (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {show('upcoming') && (
+              <Panel variant="card" title={t('upcoming_commitments')}>
+                {upcoming.isLoading ? (
+                  <DefaultLoading />
+                ) : !upcoming.data?.length ? (
+                  <DefaultEmptyData title={t('nothing_scheduled')} description={t('commitments_appear_here')} />
+                ) : (
+                  <UpcomingAppointments items={upcoming.data} />
+                )}
+              </Panel>
             )}
-          </Panel>
+            {show('stalled') && (
+              <Panel variant="card" title={t('stalled_expert_cases')}>
+                {stalled.isLoading ? (
+                  <DefaultLoading />
+                ) : !stalled.data?.total ? (
+                  <DefaultEmptyData title={t('no_stalled_expert_cases')} />
+                ) : (
+                  <StalledCasesList stalled={stalled.data} />
+                )}
+              </Panel>
+            )}
+          </div>
         )}
         {show('cash_flow') && (
-          <Panel size="sm" title={t('cash_flow')} description={t('last_6_months')}>
+          <Panel variant="card" title={t('cash_flow')} description={t('last_6_months')}>
             {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
           </Panel>
         )}
         {(show('by_stage') || show('by_court')) && (
-          <div className="grid gap-10 lg:grid-cols-2">
+          <div className="grid gap-6 lg:grid-cols-2">
             {show('by_stage') && (
-              <Panel size="sm" title={t('expert_cases_by_stage')}>
+              <Panel variant="card" title={t('expert_cases_by_stage')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
                 ) : (
@@ -108,7 +115,7 @@ export function PrivateIndexPage() {
               </Panel>
             )}
             {show('by_court') && (
-              <Panel size="sm" title={t('expert_cases_by_court')}>
+              <Panel variant="card" title={t('expert_cases_by_court')}>
                 {distribution.isLoading ? (
                   <DefaultLoading />
                 ) : !distribution.data?.courtType.length ? (
@@ -120,7 +127,6 @@ export function PrivateIndexPage() {
             )}
           </div>
         )}
-        {show('sections') && <HomeSections sections={sections} />}
       </CardContent>
       {customizing && <HomeCustomize blocks={allowed} hidden={hidden} onClose={() => setCustomizing(false)} />}
     </Card>

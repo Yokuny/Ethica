@@ -21,6 +21,8 @@ Detalhe e integração seguem um modelo só, o das telas do `iotlog-frontend-v2`
 
 A faixa das listagens é outro visual: `RecordStats variant="band"` (superfície cinza, sem divisórias, com sparkline/régua/tendência de `ListTrendStat`).
 
+Painéis (Início e Dashboard) usam cartões: `RecordStats variant="card"` (superfície branca arredondada, divisória entre células, valor a 30px) para indicadores e `Panel variant="card"` (superfície branca arredondada, título sem caixa alta) para cada gráfico ou lista. A paleta dos gráficos (`--chart-1..5`) é pastel e dessaturada.
+
 ## Altura dos controles (AD-093)
 
 Há duas alturas de controle, e o contexto escolhe qual, não o componente:
