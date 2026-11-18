@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // AD-230: the office pays the Ethica subscription in Asaas. Each confirmed payment extends the
-// office access; `trial` once, without renewal and without grace.
+// office access; `trial` once, without renewal.
 export const BILLING_PLANS = ['trial', 'monthly', 'yearly', 'single_month'] as const;
 export type BillingPlan = (typeof BILLING_PLANS)[number];
 
@@ -14,7 +14,7 @@ export const BILLING_PLAN_CENTS: Record<BillingPlan, number> = {
 };
 
 export const BILLING_TRIAL_DAYS = 7;
-// Days of access after the due date of a monthly, yearly or single month payment.
+// Days of access after the paid period of every plan, the trial included (AD-231).
 export const BILLING_GRACE_DAYS = 5;
 
 export const billingPaySchema = z.object({ plan: z.enum(BILLING_PLANS) }).strict();

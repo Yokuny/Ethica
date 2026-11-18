@@ -16,6 +16,7 @@
       ],
       "decisoes": [
         "AD-230",
+        "AD-231",
         "AD-155",
         "AD-220",
         "AD-098"
@@ -1929,6 +1930,12 @@
     {
       "id": "AD-230",
       "decisao": "O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no Asaas, com o e-mail confirmado antes. O acesso",
+      "data": "2026-11-18",
+      "status": "active (teste sem carência superseded by AD-231)"
+    },
+    {
+      "id": "AD-231",
+      "decisao": "O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte \"teste = 7 dia",
       "data": "2026-11-18",
       "status": "active"
     }

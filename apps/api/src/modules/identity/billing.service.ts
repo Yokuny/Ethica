@@ -21,12 +21,12 @@ const shiftDate = (date: string, { months = 0, days = 0 }) => {
   return new Date(Date.UTC(year, month - 1 + months, day + days)).toISOString().slice(0, 10);
 };
 
-// Start of the day (display time zone, AD-036) the access ends: paid period plus the grace of the
-// monthly payment; the trial has no grace.
+// Start of the day (display time zone, AD-036) the access ends: paid period plus the grace, the trial
+// included (AD-231).
 export const accessUntilFor = (plan: BillingPlan, from: string): Date => {
   const end =
     plan === 'trial'
-      ? shiftDate(from, { days: BILLING_TRIAL_DAYS })
+      ? shiftDate(from, { days: BILLING_TRIAL_DAYS + BILLING_GRACE_DAYS })
       : shiftDate(from, { months: plan === 'yearly' ? 12 : 1, days: BILLING_GRACE_DAYS });
   return wallClockToUtc(end, '00:00');
 };

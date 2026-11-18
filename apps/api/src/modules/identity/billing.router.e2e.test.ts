@@ -137,7 +137,7 @@ describe('billing routes (AD-230)', () => {
     expect(off.body.message).toBe('billing_not_configured');
   });
 
-  it('trial: one invoice per office, 7 days without grace, then unavailable (CHK-04, CHK-05)', async () => {
+  it('trial: one invoice per office, 7 days plus the 5 of grace, then unavailable (CHK-04, CHK-05)', async () => {
     const { tenant, cookie } = await seed();
     const asaas = fakeAsaas();
     const app = buildTestApp(asaas);
@@ -153,7 +153,7 @@ describe('billing routes (AD-230)', () => {
     const paid = await webhook(app, { id: 'pay_1', dueDate: '2026-11-18', confirmedDate: '2026-11-20' });
     expect(paid.status).toBe(200);
     const saved = await Tenant.findById(tenant._id).lean();
-    expect(saved?.accessUntil).toEqual(dayStart('2026-11-27'));
+    expect(saved?.accessUntil).toEqual(dayStart('2026-12-02'));
 
     const again = await pay('trial');
     expect(again.status).toBe(409);

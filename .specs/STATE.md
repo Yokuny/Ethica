@@ -1357,6 +1357,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o acesso só volta quando o webhook chega (o retorno do navegador não confirma pagamento; a tela de planos reconsulta a cada 10 s); o e-mail e o CNPJ de um cadastro não pago ficam presos a esse escritório até ele pagar; avulsa paga antes do fim conta a partir do dia do pagamento (não soma ao que resta); estorno e chargeback não tiram o acesso; cancelar a assinatura é pelo suporte. Escritório suspenso pela plataforma não chega nem a `/billing`. O retorno automático da fatura (`ASAAS_RETURN_URL`) só funciona com o domínio cadastrado na conta Asaas, que recusa toda cobrança com retorno sem ele; o cadastro passa a conferir o dígito do CNPJ, que o Asaas exige.
 - **Scope**: `packages/db/src/models/tenant.model.ts`, `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/{billing,auth,account}.*`, `apps/api/src/middlewares/authentication.middleware.ts`, `apps/api/src/providers/asaasClient.ts`, `apps/web/src/routes/_public/{auth,suspended}/`.
 - **Date**: 2026-11-18
+- **Status**: active (teste sem carência superseded by AD-231)
+
+### AD-231
+- **Decision**: O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte "teste = 7 dias sem carência" da **AD-230**.
+- **Reason**: escolha do usuário em 2026-11-18 ("7 dias e com carência no teste").
+- **Trade-off**: o teste dá 12 dias de uso antes de pedir o plano.
+- **Scope**: `apps/api/src/modules/identity/billing.service.ts` (`accessUntilFor`), `packages/contracts/src/schemas/billing.schema.ts`.
+- **Date**: 2026-11-18
 - **Status**: active
 
 ## Handoff
