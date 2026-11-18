@@ -30,6 +30,7 @@ import { type SessionView, sessionKeys } from '@/query/session.js';
 // never open the menu.
 function UserMenuContent() {
   const queryClient = useQueryClient();
+  const { setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const session = queryClient.getQueryData<SessionView>(sessionKeys.detail());
 
@@ -69,7 +70,13 @@ function UserMenuContent() {
         <UserRound />
         {t('my_account')}
       </DropdownMenuItem>
-      <DropdownMenuItem onClick={() => tourMutation.mutate({ onboardingDismissed: false })}>
+      <DropdownMenuItem
+        onClick={() => {
+          // On the phone the menu is a drawer: close it so the tour shows over the page.
+          setOpenMobile(false);
+          tourMutation.mutate({ onboardingDismissed: false });
+        }}
+      >
         <Compass />
         {t('view_tour')}
       </DropdownMenuItem>

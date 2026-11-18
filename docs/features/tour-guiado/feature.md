@@ -64,7 +64,12 @@ preferência `onboardingDismissed` que a API já guardava por pessoa (AD-233).
 
 - 2026-11-18 — Spec criada (`.specs/features/tour-guiado/spec.md`) e implementada (AD-233). Divergência da spec: as
   paradas das seções usam o título e o texto que o menu já tem (`HOME_SECTIONS`), em vez de textos próprios; por
-  isso Campo aparece como "Logística" e Serviços sem a dica do PDF.
+  isso Campo aparece como "Logística" e Serviços sem a dica do PDF. O destaque é só o contorno do item, sem
+  escurecer o resto da tela, e o passo sem item no menu (boas-vindas, celular) usa o `Dialog` no centro. As tasks
+  1–4 saíram num commit só.
+- 2026-11-18 — Revisão: a âncora é gravada antes da pintura (`useLayoutEffect`), para o balão não piscar no centro
+  ao trocar de passo; o contorno fica para dentro do item (o menu corta o que passa da borda); "Ver tour" no celular
+  fecha a gaveta do menu antes de abrir o tour; teste cobre o destaque do item.
 
 ## Referências
 

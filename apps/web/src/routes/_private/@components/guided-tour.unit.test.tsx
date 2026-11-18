@@ -76,6 +76,22 @@ describe('GuidedTour', () => {
     expect(titles.at(-1)).toBe('Sua conta');
   });
 
+  it('destaca o item do menu do passo e tira o destaque ao avançar', () => {
+    const menuItem = document.createElement('li');
+    menuItem.setAttribute('data-tour', '/expert-cases');
+    document.body.append(menuItem);
+    renderTour(['admin']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo' }));
+    expect(screen.getByText('Serviços')).toBeInTheDocument();
+    expect(menuItem).toHaveAttribute('data-tour-active');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo' }));
+    expect(screen.getByText('Prazos e Alertas')).toBeInTheDocument();
+    expect(menuItem).not.toHaveAttribute('data-tour-active');
+    menuItem.remove();
+  });
+
   it('Pular grava que a pessoa já viu o tour e fecha', async () => {
     patch.mockResolvedValue({
       success: true,

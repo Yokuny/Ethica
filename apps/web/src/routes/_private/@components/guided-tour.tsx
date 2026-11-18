@@ -4,7 +4,7 @@ import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Popover, PopoverContent } from '@ethica/ui/components/popover';
 import { useSidebar } from '@ethica/ui/components/sidebar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { preferencesQuery, updatePreferencesMutation } from '@/query/preferences.js';
@@ -47,8 +47,9 @@ export function GuidedTour() {
     dismissMutation.mutate({ onboardingDismissed: true });
   };
 
-  // Highlights the menu element of the step; the drawer menu on the phone has none, so the step shows centered.
-  useEffect(() => {
+  // Highlights the menu element of the step before paint, so the balloon never flashes at the previous place; the
+  // drawer menu on the phone has none, so the step shows centered.
+  useLayoutEffect(() => {
     const element = target ? document.querySelector(`[data-tour="${target}"]`) : null;
     element?.setAttribute('data-tour-active', '');
     setAnchor(element);
