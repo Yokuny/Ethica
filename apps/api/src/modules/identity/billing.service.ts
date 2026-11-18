@@ -132,12 +132,15 @@ export const validWebhookToken = (expected: string | undefined, received: unknow
 };
 
 const PAID_EVENTS = ['PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED'];
+// AD-232: refund and chargeback take back the period the payment paid. A partial refund does not.
+const REVOKED_EVENTS = ['PAYMENT_REFUNDED', 'PAYMENT_CHARGEBACK_REQUESTED'];
 
-// Plan and starting date of a payment of this office, or nothing when it is not an Ethica charge.
+// Plan and starting date of a payment of this office, or the reason it is not an Ethica charge.
 // The date is fixed in the payment, so the same event twice gives the same access.
 const periodOf = (
   payment: NonNullable<AsaasWebhook['payment']>,
   billing: NonNullable<BillingTenant['billing']>,
+  granting: boolean,
 ): { plan: BillingPlan; from?: string | null } | string => {
   const paidOn = payment.confirmedDate ?? payment.paymentDate;
   if (payment.subscription) {
@@ -146,35 +149,45 @@ const periodOf = (
   }
   if (payment.id === billing.trialPaymentId) {
     // An old trial invoice paid after another payment grants nothing.
-    if (billing.paidAt) return 'trial_after_payment';
+    if (granting && billing.paidAt) return 'trial_after_payment';
     return { plan: 'trial', from: paidOn };
   }
   if (payment.externalReference === 'single_month') return { plan: 'single_month', from: paidOn };
   return 'unknown_charge';
 };
 
-// A paid event that grants nothing is logged: it may be money without access.
-const ignorePaid = (reason: string, body: unknown) => {
-  const payment = (body as { payment?: { id?: unknown; customer?: unknown } }).payment;
+// A paid or revoked event that changes nothing is logged: it may be money without access, or access
+// without money.
+const ignore = (reason: string, body: unknown) => {
+  const { event, payment } = body as { event?: unknown; payment?: { id?: unknown; customer?: unknown } };
   console.error(
-    JSON.stringify({ event: 'billing.paid_ignored', reason, payment: payment?.id, customer: payment?.customer }),
+    JSON.stringify({
+      event: 'billing.payment_ignored',
+      reason,
+      type: event,
+      payment: payment?.id,
+      customer: payment?.customer,
+    }),
   );
 };
 
 // CHK-09: unknown event, customer or charge is ignored without error (Asaas stops the queue on errors).
 export const receiveWebhook = async (body: unknown): Promise<void> => {
-  const paid = PAID_EVENTS.includes((body as { event?: string } | null)?.event ?? '');
+  const event = (body as { event?: string } | null)?.event ?? '';
+  const granting = PAID_EVENTS.includes(event);
+  if (!granting && !REVOKED_EVENTS.includes(event)) return;
   const parsed = asaasWebhookSchema.safeParse(body);
-  if (!parsed.success || !parsed.data.payment) {
-    if (paid) ignorePaid('invalid_payload', body);
-    return;
-  }
-  if (!paid) return;
+  if (!parsed.success || !parsed.data.payment) return ignore('invalid_payload', body);
   const { payment } = parsed.data;
   const tenant = await billingRepository.findTenantByCustomer(payment.customer);
-  if (!tenant?.billing) return ignorePaid('unknown_customer', body);
-  const period = periodOf(payment, tenant.billing);
-  if (typeof period === 'string') return ignorePaid(period, body);
-  if (!period.from) return ignorePaid('no_payment_date', body);
-  await billingRepository.extendAccess(tenant.id, accessUntilFor(period.plan, period.from));
+  if (!tenant?.billing) return ignore('unknown_customer', body);
+  const period = periodOf(payment, tenant.billing, granting);
+  if (typeof period === 'string') return ignore(period, body);
+  if (!period.from) return ignore('no_payment_date', body);
+  if (granting) {
+    await billingRepository.extendAccess(tenant.id, accessUntilFor(period.plan, period.from));
+    return;
+  }
+  // Back to the start of the period this payment paid; a won chargeback dispute is paid again.
+  await billingRepository.revokeAccess(tenant.id, wallClockToUtc(period.from, '00:00'));
 };

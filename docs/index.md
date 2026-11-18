@@ -78,6 +78,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-232** (2026-11-18, active) — Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao início do período
 - **AD-231** (2026-11-18, active) — O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte "teste = 7 dia
 - **AD-230** (2026-11-18, active (teste sem carência superseded by AD-231)) — O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no Asaas, com o e-mail confirmado antes. O acesso
 - **AD-229** (2026-11-15, active) — o calendário da Agenda segue o visual da agenda do DentalEase: blocos em tom pastel sem borda, cor só pelo tipo do item (mapa `TYPE_COLORS`
@@ -87,7 +88,6 @@ _Nenhum._
 - **AD-225** (2026-11-15, superseded by AD-226 (layout)) — lista de registros pequenos dentro de uma etapa ou bloco (aparelhos com acesso, responsáveis técnicos, recebimentos do lançamento) usa `Info
 - **AD-224** (2026-11-14, active) — Escritório (`/office`, só admin) volta a ser uma página só, um formulário em etapas numeradas: logo, cabeçalho e rodapé, controle de OS, res
 - **AD-223** (2026-11-14, active) — As listas exportam o que está em tela ou todos os registros dos filtros atuais em CSV, Excel (.xlsx) ou PDF, gerados no navegador: ícone no
-- **AD-222** (2026-11-14, active) — As variáveis do provedor de e-mail escolhido são exigidas em qualquer ambiente, não só em produção: `MAIL_PROVIDER=resend` sem `RESEND_API_K
 
 ## `.specs/` sem registro em `docs/features/`
 

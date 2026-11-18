@@ -17,6 +17,7 @@
       "decisoes": [
         "AD-230",
         "AD-231",
+        "AD-232",
         "AD-155",
         "AD-220",
         "AD-098"
@@ -1936,6 +1937,12 @@
     {
       "id": "AD-231",
       "decisao": "O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte \"teste = 7 dia",
+      "data": "2026-11-18",
+      "status": "active"
+    },
+    {
+      "id": "AD-232",
+      "decisao": "Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao início do período",
       "data": "2026-11-18",
       "status": "active"
     }

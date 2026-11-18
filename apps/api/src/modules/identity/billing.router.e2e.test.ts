@@ -59,7 +59,7 @@ describe('billing routes (AD-230)', () => {
     await connect(process.env.MONGODB_URI as string);
   });
 
-  // Ignored paid events are logged (billing.paid_ignored).
+  // Ignored paid events are logged (billing.payment_ignored).
   let logged: ReturnType<typeof vi.spyOn>;
   beforeEach(() => {
     logged = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -220,6 +220,42 @@ describe('billing routes (AD-230)', () => {
     });
     await webhook(app, { id: 'pay_1', dueDate: '2026-11-18', paymentDate: '2027-02-01' });
     expect((await Tenant.findById(tenant._id).lean())?.accessUntil).toEqual(dayStart('2026-12-23'));
+  });
+
+  it('refund or chargeback takes back the paid period; a won dispute gives it back; partial refund keeps it (AD-232)', async () => {
+    const { tenant, cookie } = await seed();
+    const app = buildTestApp(fakeAsaas());
+    const accessOf = async () => (await Tenant.findById(tenant._id).lean())?.accessUntil;
+    await request(app).post('/billing/pay').set('Cookie', cookie).set('User-Agent', DEVICE).send({ plan: 'monthly' });
+
+    const first = { id: 'pay_a', subscription: 'sub_1', dueDate: '2026-11-18', confirmedDate: '2026-11-18' };
+    const second = { id: 'pay_b', subscription: 'sub_1', dueDate: '2026-12-18', confirmedDate: '2026-12-18' };
+    await webhook(app, first);
+    await webhook(app, second);
+    expect(await accessOf()).toEqual(dayStart('2027-01-23'));
+
+    await webhook(app, second, 'PAYMENT_PARTIALLY_REFUNDED');
+    expect(await accessOf()).toEqual(dayStart('2027-01-23'));
+
+    // Renewal refunded: the access ends at its due date.
+    await webhook(app, second, 'PAYMENT_REFUNDED');
+    expect(await accessOf()).toEqual(dayStart('2026-12-18'));
+
+    // Chargeback of the first payment: back to its start (closed); the dispute won pays it again.
+    await webhook(app, first, 'PAYMENT_CHARGEBACK_REQUESTED');
+    expect(await accessOf()).toEqual(dayStart('2026-11-18'));
+    await webhook(app, first, 'PAYMENT_CONFIRMED');
+    expect(await accessOf()).toEqual(dayStart('2026-12-23'));
+  });
+
+  it('refund of the trial closes the office, even with paidAt already set by the trial itself', async () => {
+    const { tenant, cookie } = await seed();
+    const app = buildTestApp(fakeAsaas());
+    await request(app).post('/billing/pay').set('Cookie', cookie).set('User-Agent', DEVICE).send({ plan: 'trial' });
+    const trial = { id: 'pay_1', dueDate: '2026-11-18', paymentDate: '2026-11-18' };
+    await webhook(app, trial, 'PAYMENT_RECEIVED');
+    await webhook(app, trial, 'PAYMENT_REFUNDED');
+    expect((await Tenant.findById(tenant._id).lean())?.accessUntil).toEqual(dayStart('2026-11-18'));
   });
 
   it('webhook: wrong token is 401; unknown event, customer or body is 200 without effect (CHK-09)', async () => {

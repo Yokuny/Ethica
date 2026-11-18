@@ -1367,6 +1367,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-18
 - **Status**: active
 
+### AD-232
+- **Decision**: Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao **início do período que ela pagou**, com `$min` em `Tenant.accessUntil`: vencimento, na renovação da assinatura; dia do pagamento, no teste e na avulsa. Disputa de chargeback vencida volta como pagamento confirmado e devolve o acesso pela regra da AD-230. Estorno parcial não muda nada. Evento sem efeito vai ao log `billing.payment_ignored`.
+- **Reason**: pedido do usuário em 2026-11-18; segue a data única de acesso da AD-230, sem guardar cada pagamento.
+- **Trade-off**: com dois pagamentos valendo ao mesmo tempo (avulsa + assinatura), estornar um fecha o acesso mesmo com o outro pago; resolver exigiria guardar os pagamentos no banco.
+- **Scope**: `apps/api/src/modules/identity/billing.{service,repository}.ts`.
+- **Date**: 2026-11-18
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

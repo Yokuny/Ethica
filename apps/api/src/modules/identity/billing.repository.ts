@@ -42,3 +42,9 @@ export const extendAccess = async (tenantId: string, accessUntil: Date) =>
   withDbTiming('billing.extendAccess', async () => {
     await Tenant.updateOne({ _id: tenantId }, { $max: { accessUntil }, $set: { 'billing.paidAt': new Date() } });
   });
+
+// AD-232: $min — refund or chargeback brings the access back to the start of the period it had paid.
+export const revokeAccess = async (tenantId: string, accessUntil: Date) =>
+  withDbTiming('billing.revokeAccess', async () => {
+    await Tenant.updateOne({ _id: tenantId }, { $min: { accessUntil } });
+  });

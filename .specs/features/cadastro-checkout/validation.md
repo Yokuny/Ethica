@@ -11,6 +11,7 @@ Data: 2026-11-18. Gate: `pnpm run check` (121 arquivos, 640 testes) e `(cd apps/
 | CHK-07 | `billing.router.e2e.test.ts` (só admin paga, sem Asaas = `billing_not_configured`) e `apps/web/src/routes/_public/suspended/index.unit.test.tsx` (planos, Pagar abre a fatura, membro só lê o aviso) |
 | CHK-08 | `billing.router.e2e.test.ts` — assinar de novo apaga a anterior; cobrança da anterior não libera nada |
 | CHK-09 | `billing.router.e2e.test.ts` — token errado 401; evento, cliente ou corpo desconhecido 200 sem efeito; CONFIRMED + RECEIVED = mesma data |
+| AD-232 | `billing.router.e2e.test.ts` — estorno da renovação volta ao vencimento dela; chargeback volta ao início e a disputa vencida devolve; estorno parcial não muda; estorno do teste fecha o escritório |
 | CHK-10 | `apps/api/src/providers/asaasClient.unit.test.ts` com `fetch` simulado; e2e com o cliente falso |
 
 ## Sandbox do Asaas (MCP, dados inventados, apagados depois)
