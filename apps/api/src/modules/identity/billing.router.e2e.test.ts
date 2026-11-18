@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { env } from '../../config/env.config.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
@@ -26,8 +26,9 @@ const fakeAsaas = () => {
     }),
     createSubscription: vi.fn(async () => {
       n += 1;
-      return { id: `sub_${n}`, invoiceUrl: `https://asaas/i/sub_${n}` };
+      return `sub_${n}`;
     }),
+    firstInvoiceUrl: vi.fn(async (id: string) => `https://asaas/i/${id}`),
     deleteSubscription: vi.fn(async () => undefined),
   } satisfies AsaasClient;
 };
@@ -37,7 +38,7 @@ const buildTestApp = (asaas?: AsaasClient) => {
   app.use(cookieParser());
   app.use(express.json());
   const { validToken, validSession } = createAuthMiddleware(buildAuthDeps());
-  app.use('/billing', createBillingRouter({ validSession, asaas, appUrl: 'https://app', webhookToken: TOKEN }));
+  app.use('/billing', createBillingRouter({ validSession, asaas, returnUrl: 'https://app/', webhookToken: TOKEN }));
   app.get('/closed-check', validToken, (_req, res) => {
     res.json({ ok: true });
   });
@@ -58,7 +59,14 @@ describe('billing routes (AD-230)', () => {
     await connect(process.env.MONGODB_URI as string);
   });
 
+  // Ignored paid events are logged (billing.paid_ignored).
+  let logged: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => {
+    logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   afterEach(async () => {
+    logged.mockRestore();
     await Promise.all([Session.deleteMany({}), User.deleteMany({}), Tenant.deleteMany({})]);
   });
 
@@ -97,6 +105,17 @@ describe('billing routes (AD-230)', () => {
     const view = await request(app).get('/billing').set('Cookie', cookie).set('User-Agent', DEVICE);
     expect(view.status).toBe(200);
     expect(view.body.data).toMatchObject({ firstPayment: true, trialAvailable: true, canPay: true });
+  });
+
+  it('office suspended by the platform (AD-098) cannot reach /billing either', async () => {
+    const { tenant, cookie } = await seed();
+    await Tenant.updateOne({ _id: tenant._id }, { status: 'suspended' });
+    const res = await request(buildTestApp(fakeAsaas()))
+      .get('/billing')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE);
+    expect(res.status).toBe(403);
+    expect(res.body.message).toBe('tenant_suspended');
   });
 
   it('only the admin pays; without Asaas the answer is billing_not_configured', async () => {
@@ -153,9 +172,10 @@ describe('billing routes (AD-230)', () => {
     expect(yearly.body.data).toEqual({ url: 'https://asaas/i/sub_2' });
     expect(asaas.deleteSubscription).toHaveBeenCalledWith('sub_1');
 
-    // A charge of the replaced subscription grants nothing.
+    // A charge of the replaced subscription grants nothing, and is logged.
     await webhook(app, { id: 'pay_9', subscription: 'sub_1', dueDate: '2026-11-18' });
     expect((await Tenant.findById(tenant._id).lean())?.billing?.paidAt).toBeUndefined();
+    expect(String(logged.mock.calls.at(-1)?.[0])).toContain('replaced_subscription');
 
     await webhook(app, { id: 'pay_10', subscription: 'sub_2', dueDate: '2026-11-18' });
     // CONFIRMED then RECEIVED of the same charge: same date (idempotent).
@@ -182,6 +202,24 @@ describe('billing routes (AD-230)', () => {
       'PAYMENT_RECEIVED',
     );
     expect((await Tenant.findById(tenant._id).lean())?.accessUntil).toEqual(dayStart('2026-12-24'));
+  });
+
+  it('an old trial invoice paid after another payment grants nothing', async () => {
+    const { tenant, cookie } = await seed();
+    const app = buildTestApp(fakeAsaas());
+    const pay = (plan: string) =>
+      request(app).post('/billing/pay').set('Cookie', cookie).set('User-Agent', DEVICE).send({ plan });
+    await pay('trial');
+    await pay('single_month');
+
+    await webhook(app, {
+      id: 'pay_2',
+      externalReference: 'single_month',
+      dueDate: '2026-11-18',
+      paymentDate: '2026-11-18',
+    });
+    await webhook(app, { id: 'pay_1', dueDate: '2026-11-18', paymentDate: '2027-02-01' });
+    expect((await Tenant.findById(tenant._id).lean())?.accessUntil).toEqual(dayStart('2026-12-23'));
   });
 
   it('webhook: wrong token is 401; unknown event, customer or body is 200 without effect (CHK-09)', async () => {

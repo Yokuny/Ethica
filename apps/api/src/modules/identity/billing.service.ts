@@ -66,23 +66,24 @@ const charge = async (
   tenant: BillingTenant,
   customer: string,
   plan: BillingPlan,
-  successUrl: string,
+  successUrl: string | undefined,
 ): Promise<AsaasCharge> => {
   const today = dateInDisplayTz(new Date());
   const valueCents = BILLING_PLAN_CENTS[plan];
   if (plan === 'monthly' || plan === 'yearly') {
     // CHK-08: one live subscription — the previous one (failed card, abandoned invoice) goes away.
     const previous = tenant.billing?.subscriptionId;
-    if (previous) await asaas.deleteSubscription(previous).catch(() => undefined);
-    const subscription = await asaas.createSubscription({
+    if (previous) await asaas.deleteSubscription(previous);
+    const id = await asaas.createSubscription({
       customer,
       valueCents,
       cycle: plan === 'yearly' ? 'YEARLY' : 'MONTHLY',
       nextDueDate: today,
       successUrl,
     });
-    await billingRepository.updateBilling(tenant.id, { subscriptionId: subscription.id, subscriptionPlan: plan });
-    return subscription;
+    // Saved before the invoice is fetched: a failure there still leaves the live subscription known.
+    await billingRepository.updateBilling(tenant.id, { subscriptionId: id, subscriptionPlan: plan });
+    return { id, invoiceUrl: await asaas.firstInvoiceUrl(id) };
   }
   const payment = await asaas.createPayment({
     customer,
@@ -102,7 +103,7 @@ const charge = async (
 
 // Returns the Asaas invoice the person pays on; the access comes later, by webhook.
 export const pay = async (
-  deps: { asaas?: AsaasClient; appUrl: string },
+  deps: { asaas?: AsaasClient; returnUrl?: string },
   tenantUser: TenantUser,
   plan: BillingPlan,
 ): Promise<{ url: string }> => {
@@ -115,7 +116,7 @@ export const pay = async (
   }
   try {
     const customer = await customerOf(deps.asaas, tenant, tenantUser.user);
-    const { invoiceUrl } = await charge(deps.asaas, tenant, customer, plan, `${deps.appUrl}/`);
+    const { invoiceUrl } = await charge(deps.asaas, tenant, customer, plan, deps.returnUrl);
     return { url: invoiceUrl };
   } catch (e) {
     if (e instanceof AsaasUnavailableError) throw new CustomError('billing_unavailable', 502);
@@ -137,26 +138,43 @@ const PAID_EVENTS = ['PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED'];
 const periodOf = (
   payment: NonNullable<AsaasWebhook['payment']>,
   billing: NonNullable<BillingTenant['billing']>,
-): { plan: BillingPlan; from?: string | null } | undefined => {
+): { plan: BillingPlan; from?: string | null } | string => {
   const paidOn = payment.confirmedDate ?? payment.paymentDate;
   if (payment.subscription) {
-    if (payment.subscription !== billing.subscriptionId || !billing.subscriptionPlan) return undefined;
+    if (payment.subscription !== billing.subscriptionId || !billing.subscriptionPlan) return 'replaced_subscription';
     return { plan: billing.subscriptionPlan, from: payment.dueDate };
   }
-  if (payment.id === billing.trialPaymentId) return { plan: 'trial', from: paidOn };
+  if (payment.id === billing.trialPaymentId) {
+    // An old trial invoice paid after another payment grants nothing.
+    if (billing.paidAt) return 'trial_after_payment';
+    return { plan: 'trial', from: paidOn };
+  }
   if (payment.externalReference === 'single_month') return { plan: 'single_month', from: paidOn };
-  return undefined;
+  return 'unknown_charge';
+};
+
+// A paid event that grants nothing is logged: it may be money without access.
+const ignorePaid = (reason: string, body: unknown) => {
+  const payment = (body as { payment?: { id?: unknown; customer?: unknown } }).payment;
+  console.error(
+    JSON.stringify({ event: 'billing.paid_ignored', reason, payment: payment?.id, customer: payment?.customer }),
+  );
 };
 
 // CHK-09: unknown event, customer or charge is ignored without error (Asaas stops the queue on errors).
 export const receiveWebhook = async (body: unknown): Promise<void> => {
+  const paid = PAID_EVENTS.includes((body as { event?: string } | null)?.event ?? '');
   const parsed = asaasWebhookSchema.safeParse(body);
-  if (!parsed.success) return;
-  const { event, payment } = parsed.data;
-  if (!payment || !PAID_EVENTS.includes(event)) return;
+  if (!parsed.success || !parsed.data.payment) {
+    if (paid) ignorePaid('invalid_payload', body);
+    return;
+  }
+  if (!paid) return;
+  const { payment } = parsed.data;
   const tenant = await billingRepository.findTenantByCustomer(payment.customer);
-  if (!tenant?.billing) return;
+  if (!tenant?.billing) return ignorePaid('unknown_customer', body);
   const period = periodOf(payment, tenant.billing);
-  if (!period?.from) return;
+  if (typeof period === 'string') return ignorePaid(period, body);
+  if (!period.from) return ignorePaid('no_payment_date', body);
   await billingRepository.extendAccess(tenant.id, accessUntilFor(period.plan, period.from));
 };

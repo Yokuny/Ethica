@@ -6,10 +6,11 @@ export type { BillingPay, BillingPlan, BillingView } from '@ethica/contracts';
 export { billingPaySchema } from '@ethica/contracts';
 
 // `asaas` absent = Asaas not configured (no key): paying answers `billing_not_configured`.
+// `returnUrl` absent = the invoice does not send the person back (domain not registered in Asaas).
 export type BillingRouterDeps = {
   validSession: RequestHandler;
   asaas?: AsaasClient;
-  appUrl: string;
+  returnUrl?: string;
   webhookToken?: string;
 };
 

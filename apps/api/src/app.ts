@@ -148,7 +148,12 @@ export const buildApp = (
   app.use('/auth', createAuthRouter({ validToken, mailProvider, accessUrl: `${env.CORS_ORIGIN}/auth` }));
   app.use(
     '/billing',
-    createBillingRouter({ validSession, asaas, appUrl: env.CORS_ORIGIN, webhookToken: env.ASAAS_WEBHOOK_TOKEN }),
+    createBillingRouter({
+      validSession,
+      asaas,
+      returnUrl: env.ASAAS_RETURN_URL,
+      webhookToken: env.ASAAS_WEBHOOK_TOKEN,
+    }),
   );
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));

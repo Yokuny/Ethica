@@ -3,13 +3,14 @@ import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { clearDevice } from '@/lib/offline/store.js';
+import { sessionKeys } from '@/query/session.js';
 import { BillingPlans } from './@components/billing-plans.js';
 import { billingQuery, payPlan } from './@query/billing.js';
 
@@ -24,6 +25,7 @@ export function SuspendedPage() {
   const [paying, setPaying] = useState<BillingPlan>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const view = billing.data;
+  const open = Boolean(view?.accessUntil && new Date(view.accessUntil) > new Date());
 
   const signOut = async () => {
     await post('/auth/signout');
@@ -43,6 +45,13 @@ export function SuspendedPage() {
     }
     window.location.assign(response.data.url);
   };
+
+  // CHK-05: confirmed payment — the office is open again, enter it (the session is read anew).
+  useEffect(() => {
+    if (!open) return;
+    void queryClient.invalidateQueries({ queryKey: sessionKeys.all });
+    navigate({ to: '/' });
+  }, [open, queryClient, navigate]);
 
   const signOutButton = (
     <Button variant="outline" onClick={() => void signOut()}>

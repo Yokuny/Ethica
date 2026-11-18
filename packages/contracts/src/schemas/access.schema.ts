@@ -38,6 +38,18 @@ export type DeviceKind = (typeof DEVICE_KINDS)[number];
 // APA-08: "devices with access" in the account screen. Dates in ISO 8601 (UTC).
 export type PasskeyView = { id: string; kind: DeviceKind; label: string; createdAt: string; lastUsedAt?: string };
 
+// CNPJ check digits: the office pays in Asaas (AD-230), which refuses an invalid CNPJ.
+const validCnpj = (digits: string): boolean => {
+  if (!/^\d{14}$/.test(digits) || /^(\d)\1+$/.test(digits)) return false;
+  const check = (length: number) => {
+    const weights = length === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    const sum = weights.reduce((total, weight, index) => total + weight * Number(digits[index]), 0);
+    const rest = sum % 11;
+    return rest < 2 ? 0 : 11 - rest;
+  };
+  return check(12) === Number(digits[12]) && check(13) === Number(digits[13]);
+};
+
 // ACE-04: e-mail confirmed without an account creates its own office, with the person as admin.
 // Office only with CNPJ, like provisionTenantSchema (AD-144).
 export const signupSchema = z
@@ -56,7 +68,8 @@ export const signupSchema = z
     document: z
       .string()
       .transform((value) => value.replace(/\D/g, ''))
-      .refine((value) => value.length === 14, 'documento deve ter 14 dígitos (CNPJ)'),
+      .refine((value) => value.length === 14, 'documento deve ter 14 dígitos (CNPJ)')
+      .refine(validCnpj, 'CNPJ inválido'),
   })
   .strict();
 

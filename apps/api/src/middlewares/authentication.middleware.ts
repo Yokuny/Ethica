@@ -70,7 +70,7 @@ export const extractToken = (req: Request): string | undefined => {
 // Express pipeline so it can be reused (e.g. WebSocket handshake).
 // `token` accepts `undefined` because `extractToken` can already return it
 // when the credential did not come — the 401 is resolved here.
-// `allowClosed`: the subscription routes (AD-230) work with the office closed, so it can pay.
+// `allowClosed`: the subscription routes (AD-230) work with the office closed for lack of payment.
 export const authenticateSession = async (
   token: string | undefined,
   deviceInfo: string,
@@ -105,6 +105,9 @@ export const authenticateSession = async (
   if (!user?.active) throw new CustomError('invalid_session', 401);
 
   const tenant = user.tenant ? await deps.getTenantById(user.tenant) : undefined;
+  // Suspended by the platform (AD-098): no route, not even paying. Closed for lack of payment (AD-230):
+  // only the subscription routes (`allowClosed`).
+  if (tenant?.status === 'suspended') throw new CustomError('tenant_suspended', 403);
   if (tenant && !allowClosed && !isTenantOpen(tenant)) throw new CustomError('tenant_suspended', 403);
 
   return {

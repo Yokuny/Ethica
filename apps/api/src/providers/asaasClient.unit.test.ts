@@ -23,14 +23,14 @@ describe('createAsaasClient', () => {
     expect(JSON.parse(init.body as string)).toMatchObject({ billingType: 'UNDEFINED', value: 60 });
   });
 
-  it('assinatura no cartão devolve a fatura da primeira cobrança', async () => {
+  it('assinatura no cartão devolve o id; a fatura vem da primeira cobrança dela', async () => {
     const fetchImpl = vi
       .fn()
       .mockResolvedValueOnce(json({ id: 'sub_1' }))
       .mockResolvedValueOnce(json({ data: [{ invoiceUrl: 'https://asaas/i/2' }] }));
     const client = createAsaasClient({ baseUrl: 'https://asaas/v3', apiKey: 'key', fetchImpl });
 
-    const charge = await client.createSubscription({
+    const id = await client.createSubscription({
       customer: 'cus_1',
       valueCents: 61200,
       cycle: 'YEARLY',
@@ -38,13 +38,24 @@ describe('createAsaasClient', () => {
       successUrl: 'https://app',
     });
 
-    expect(charge).toEqual({ id: 'sub_1', invoiceUrl: 'https://asaas/i/2' });
+    expect(id).toBe('sub_1');
     expect(JSON.parse((fetchImpl.mock.calls[0] as [string, RequestInit])[1].body as string)).toMatchObject({
       billingType: 'CREDIT_CARD',
       value: 612,
       cycle: 'YEARLY',
     });
+    expect(await client.firstInvoiceUrl('sub_1')).toBe('https://asaas/i/2');
     expect(fetchImpl.mock.calls[1]?.[0]).toBe('https://asaas/v3/subscriptions/sub_1/payments');
+  });
+
+  it('apagar assinatura que já não existe (404) não é erro', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const client = createAsaasClient({
+      baseUrl: 'https://asaas/v3',
+      apiKey: 'key',
+      fetchImpl: vi.fn().mockResolvedValue(json({ errors: [] }, 404)),
+    });
+    await expect(client.deleteSubscription('sub_1')).resolves.toBeUndefined();
   });
 
   it('resposta de erro ou falha de rede vira AsaasUnavailableError', async () => {

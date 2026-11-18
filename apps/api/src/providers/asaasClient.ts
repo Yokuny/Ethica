@@ -15,16 +15,19 @@ export type AsaasClient = {
     valueCents: number;
     dueDate: string;
     externalReference: string;
-    successUrl: string;
+    successUrl?: string;
   }) => Promise<AsaasCharge>;
-  // Card subscription: the first invoice takes the card, Asaas charges the next ones on it.
+  // Card subscription: the first invoice takes the card, Asaas charges the next ones on it. Returns
+  // the id alone, so the caller saves it before asking for the invoice.
   createSubscription: (data: {
     customer: string;
     valueCents: number;
     cycle: 'MONTHLY' | 'YEARLY';
     nextDueDate: string;
-    successUrl: string;
-  }) => Promise<AsaasCharge>;
+    successUrl?: string;
+  }) => Promise<string>;
+  firstInvoiceUrl: (subscriptionId: string) => Promise<string>;
+  // A subscription already gone (404) counts as deleted.
   deleteSubscription: (id: string) => Promise<void>;
 };
 
@@ -78,30 +81,37 @@ export const createAsaasClient = (options: {
         value: value(data.valueCents),
         dueDate: data.dueDate,
         externalReference: data.externalReference,
-        callback: { successUrl: data.successUrl },
+        ...(data.successUrl ? { callback: { successUrl: data.successUrl } } : {}),
       });
       return { id: payment.id, invoiceUrl: payment.invoiceUrl };
     },
-    createSubscription: async (data) => {
-      const subscription = await call<{ id: string }>('POST', '/subscriptions', {
-        customer: data.customer,
-        billingType: 'CREDIT_CARD',
-        value: value(data.valueCents),
-        cycle: data.cycle,
-        nextDueDate: data.nextDueDate,
-        description: 'Assinatura do Ethica',
-        callback: { successUrl: data.successUrl },
-      });
+    createSubscription: async (data) =>
+      (
+        await call<{ id: string }>('POST', '/subscriptions', {
+          customer: data.customer,
+          billingType: 'CREDIT_CARD',
+          value: value(data.valueCents),
+          cycle: data.cycle,
+          nextDueDate: data.nextDueDate,
+          description: 'Assinatura do Ethica',
+          ...(data.successUrl ? { callback: { successUrl: data.successUrl } } : {}),
+        })
+      ).id,
+    firstInvoiceUrl: async (subscriptionId) => {
       const payments = await call<{ data: { invoiceUrl: string }[] }>(
         'GET',
-        `/subscriptions/${subscription.id}/payments`,
+        `/subscriptions/${subscriptionId}/payments`,
       );
       const invoiceUrl = payments.data[0]?.invoiceUrl;
       if (!invoiceUrl) throw new AsaasUnavailableError();
-      return { id: subscription.id, invoiceUrl };
+      return invoiceUrl;
     },
     deleteSubscription: async (id) => {
-      await call('DELETE', `/subscriptions/${id}`);
+      try {
+        await call('DELETE', `/subscriptions/${id}`);
+      } catch (e) {
+        if (!(e instanceof AsaasUnavailableError && e.status === 404)) throw e;
+      }
     },
   };
 };

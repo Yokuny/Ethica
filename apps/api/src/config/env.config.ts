@@ -42,6 +42,9 @@ export const envSchema = z.object({
   ASAAS_API_URL: z.string().default('https://api.asaas.com/v3'),
   ASAAS_API_KEY: optionalSecret,
   ASAAS_WEBHOOK_TOKEN: optionalSecret,
+  // Where the paid invoice sends the person back (the web URL). Asaas refuses every charge with a
+  // return URL until the domain is registered in the account, so it stays empty until then.
+  ASAAS_RETURN_URL: optionalSecret,
 });
 
 export type Env = z.infer<typeof envSchema>;

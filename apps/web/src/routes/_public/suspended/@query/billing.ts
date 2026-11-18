@@ -11,6 +11,8 @@ export const billingQuery = queryOptions({
     return res.data;
   },
   retry: false,
+  // Back from the invoice the webhook may not have arrived yet: keep asking until the access opens.
+  refetchInterval: 10_000,
 });
 
 export function payPlan(plan: BillingPlan) {

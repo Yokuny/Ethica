@@ -127,7 +127,11 @@ describe('feed iCal (PRZ-03)', () => {
     await Tenant.updateOne({ _id: tenant._id }, { status: 'suspended' });
     expect((await request(app).get(`/agenda/feed/${token}.ics`)).status).toBe(404);
 
-    await Tenant.updateOne({ _id: tenant._id }, { status: 'active' });
+    // AD-230: paid access over closes the feed too.
+    await Tenant.updateOne({ _id: tenant._id }, { status: 'active', accessUntil: new Date(Date.now() - 1000) });
+    expect((await request(app).get(`/agenda/feed/${token}.ics`)).status).toBe(404);
+
+    await Tenant.updateOne({ _id: tenant._id }, { $unset: { accessUntil: 1 } });
     await User.updateOne({ _id: user._id }, { active: false });
     expect((await request(app).get(`/agenda/feed/${token}.ics`)).status).toBe(404);
 
@@ -151,6 +155,10 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
     const bia = await seed(['admin']);
     const suspenso = await seed(['admin']);
     await Tenant.updateOne({ _id: suspenso.tenant._id }, { status: 'suspended' });
+    // AD-230: paid access over does not receive either; still inside it does.
+    const vencido = await seed(['admin']);
+    await Tenant.updateOne({ _id: vencido.tenant._id }, { accessUntil: new Date(Date.now() - 1000) });
+    await Tenant.updateOne({ _id: ana.tenant._id }, { accessUntil: new Date(Date.now() + 86_400_000) });
 
     expect((await ana.as(request(app).get('/me/preferences'))).body.data).toEqual({
       onboardingDismissed: false,
@@ -164,7 +172,12 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
       hiddenBlocks: [],
     });
 
-    const recipients = await listDeadlineReminderRecipients([ana.tenant.id, bia.tenant.id, suspenso.tenant.id]);
+    const recipients = await listDeadlineReminderRecipients([
+      ana.tenant.id,
+      bia.tenant.id,
+      suspenso.tenant.id,
+      vencido.tenant.id,
+    ]);
     expect(recipients.map((person) => person.email)).toEqual([ana.user.email]);
   });
 });

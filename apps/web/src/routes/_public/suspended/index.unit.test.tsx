@@ -6,6 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const getMock = vi.fn();
+const navigateMock = vi.fn();
 const postMock = vi.fn();
 vi.mock('@/lib/api/client.api.js', () => ({ get: getMock, post: postMock }));
 
@@ -13,7 +14,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
-    useNavigate: () => vi.fn(),
+    useNavigate: () => navigateMock,
     useLocation: () => ({ pathname: '/suspended' }),
     useMatches: () => [],
     useRouter: () => ({ history: { back: vi.fn() } }),
@@ -36,6 +37,16 @@ describe('SuspendedPage (AD-230)', () => {
     cleanup();
     getMock.mockReset();
     postMock.mockReset();
+    navigateMock.mockReset();
+  });
+
+  it('payment confirmed while on the page: enters the app (CHK-05)', async () => {
+    getMock.mockResolvedValue({
+      success: true,
+      data: { firstPayment: false, trialAvailable: false, canPay: true, accessUntil: '2999-01-01T03:00:00.000Z' },
+    });
+    renderPage();
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
   });
 
   it('new office: shows the four plans and paying opens the Asaas invoice (CHK-04, CHK-07)', async () => {

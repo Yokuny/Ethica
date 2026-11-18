@@ -126,7 +126,7 @@ describe('auth routes', () => {
   });
 
   const seedUser = async (overrides: { active?: boolean; role?: Role[] } = {}) => {
-    const tenant = await Tenant.create({ name: 'Empresa Login', document: '55555555000155', status: 'active' });
+    const tenant = await Tenant.create({ name: 'Empresa Login', document: '55555555000191', status: 'active' });
     const user = await User.create({
       name: 'Usuária Login',
       email: 'login@empresa.com',
@@ -361,7 +361,7 @@ describe('auth routes', () => {
 
       const twice = await request(app)
         .post('/auth/signup')
-        .send({ signupToken, name: 'Nova Perita', officeName: 'Outro', document: '44555666000177' });
+        .send({ signupToken, name: 'Nova Perita', officeName: 'Outro', document: '44555666000181' });
       expect(twice.status).toBe(409);
       expect(twice.body.message).toBe('email_already_registered');
     });
@@ -376,14 +376,14 @@ describe('auth routes', () => {
         .send({
           ...base,
           signupToken: jwt.sign({ email: 'x@y.com', purpose: 'signup' }, 'outro'),
-          document: '44555666000177',
+          document: '44555666000181',
         });
       expect(forged.status).toBe(401);
 
       const signupToken = jwt.sign({ email: 'x@y.com', purpose: 'signup' }, env.SESSION_JWT_SECRET);
       const taken = await request(app)
         .post('/auth/signup')
-        .send({ ...base, signupToken, document: '55555555000155' });
+        .send({ ...base, signupToken, document: '55555555000191' });
       expect(taken.status).toBe(409);
       expect(taken.body.message).toBe('document_already_registered');
     });
