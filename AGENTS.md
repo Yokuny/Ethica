@@ -44,7 +44,8 @@ O repositório é a memória do projeto. Toda alteração, decisão e ajuste fic
 | Spec, design, tasks, validação, contexto | `.specs/features/<slug>/{spec,design,tasks,validation,context}.md` | snapshot congelado do dia em que foi feito |
 | Planos de execução | `.specs/features/<slug>/plans/<YYYY-MM-DD>-<assunto>.md` | congelado; caixa de entrada em `.specs/plans/` |
 | Decisões (`AD-NNN`) | `.specs/STATE.md` (log) e `docs/adr/` (ADR longo, quando a decisão tem alternativas que valem registro) | append-only; decisão nova **supersede**, não edita |
-| Contexto de produto | `PRODUCT.md`, `docs/{architecture,glossary,roadmap,positioning}.md` | vivo |
+| Próximos passos e checklist do que ficou para trás | `docs/roadmap.md` ("A fazer" por dono, "Resolvidos" com data) | vivo |
+| Contexto de produto | `PRODUCT.md`, `docs/{architecture,glossary,positioning}.md` | vivo |
 
 ### 1. Antes de qualquer tarefa — descoberta
 
@@ -69,7 +70,7 @@ Com tudo abaixo verde, commite e envie **sem pedir autorização**.
 
 1. **Gate técnico**: `pnpm run check` (tipos + Biome + testes) sem erro; `(cd apps/web && pnpm run build)` quando o web mudou. Falhou? Corrija; nunca commite vermelho nem pule teste.
 2. **Conferência de padrão**: releia o diff contra as regras deste arquivo, o `CLAUDE.md` do app tocado e as skills da área (`ethica-web-standards`, `ethica-item-typography`, `ethica-permissions`, idioma e tradução abaixo). Itens que mais escapam: nome em português no código, texto de tela sem `t()` ou chave nova sem consultar o dicionário, erro da API como texto pronto, abstração ou helper novo sem necessidade, estrutura antiga deixada ao lado da nova, permissão checada só no web.
-3. **Registro** (skill `ethica-docs`): `feature.md` novo ou atualizado com linha no "Histórico", planos arquivados, `pnpm docs:sync` sem erro.
+3. **Registro** (skill `ethica-docs`): `feature.md` novo ou atualizado com linha no "Histórico", planos arquivados, `docs/roadmap.md` com toda ação que ficou para trás (sua ou do usuário) em "A fazer" e o que a tarefa resolveu marcado em "Resolvidos", `pnpm docs:sync` sem erro.
 4. **Commit e envio**: código e documentação no mesmo push (formato: skill `ethica-commit-standards`), `git push origin main`. Nunca `--force`, nunca reescrever histórico; se o CI da `main` falhar, corrija no commit seguinte.
 
 ## Idioma do código e tradução

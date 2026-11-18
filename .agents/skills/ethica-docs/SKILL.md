@@ -16,6 +16,7 @@ O resumo normativo está em `AGENTS.md` ("Protocolo de documentação"). Aqui es
 | `.specs/features/<slug>/plans/*.md` | como planejamos executar naquele dia | Não |
 | `.specs/STATE.md` (`AD-NNN`) | que restrição vale para o projeto todo | Append-only; supersede, não edita |
 | `docs/index.md` / `docs/index.json` | gateway | Só via `pnpm docs:sync` |
+| `docs/roadmap.md` | o que vem a seguir e o checklist de tudo que ficou para trás | **Sim**, a cada tarefa |
 
 O `slug` (kebab-case, curto) é a identidade da feature: pasta em `docs/features/` e em `.specs/features/`, e scope do commit.
 
@@ -65,11 +66,23 @@ git mv .specs/plans/<auto-nome>.md .specs/features/<slug>/plans/<YYYY-MM-DD>-<as
 
 Decisão não-óbvia → `AD-NNN` no `.specs/STATE.md` (próximo número, formato Decision / Reason / Trade-off / Scope / Date / Status). Direção de produto com alternativas que valem registro longo → também `docs/adr/<NNNN>-<slug>.md` + linha em `docs/adr/README.md`. Contradiz AD ativa → a nova declara "Supersede AD-XXX" e a antiga vira `Status: superseded by AD-NNN` (única edição permitida).
 
-### 5. Docs afetados
+### 5. Roadmap: checklist do que ficou para trás
 
-Em `docs/index.json`, abra os `features[]` cujas `areas` cruzam com as tocadas e confirme que nada descrito mudou. Revise também `docs/architecture.md`, `docs/glossary.md`, `docs/roadmap.md`, `PRODUCT.md`, `RUN_BOOK.md` e o `CLAUDE.md` do app quando a mudança os afetar.
+`docs/roadmap.md` é o planejamento dos próximos passos **e** o checklist de pendências que pedem ação. Ao concluir qualquer tarefa:
 
-### 6. Gerar e validar
+- **Ficou algo para trás?** Toda ação que não foi feita entra em "A fazer" como `- [ ] <ação> — <slug>`, uma linha, na seção do dono:
+  - **Ir ao ar — você**: configuração externa que só o usuário faz (variáveis da Railway, painéis de terceiros, contas, domínios, chaves);
+  - **Validar e confirmar — você (e a perita)**: conferir no navegador ou no aparelho, testar com dados reais, responder perguntas das specs;
+  - **Código que ficou para trás — agente**: correção ou complemento que o agente pode fazer depois.
+- **Resolveu algo da lista?** Marque `- [x] <data> — <ação> — <slug>` e mova para "Resolvidos". No `feature.md` dono, marque a pendência e registre no "Histórico".
+- O detalhe continua na seção "Pendências" do `feature.md`; o roadmap só tem a ação, o dono e a feature. Limitação conhecida que não pede ação (comportamento aceito) fica só no `feature.md`.
+- Funcionalidade nova planejada (com spec) vai em "Agora"; ideia sem spec, em "Depois".
+
+### 6. Docs afetados
+
+Em `docs/index.json`, abra os `features[]` cujas `areas` cruzam com as tocadas e confirme que nada descrito mudou. Revise também `docs/architecture.md`, `docs/glossary.md`, `PRODUCT.md`, `RUN_BOOK.md` e o `CLAUDE.md` do app quando a mudança os afetar.
+
+### 7. Gerar e validar
 
 ```
 pnpm docs:sync    # regrava docs/index.md e docs/index.json; falha com erro de validação

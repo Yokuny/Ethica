@@ -61,6 +61,8 @@ pnpm vitest run <padrão>
 - [ ] ... (obrigatório se `status: parcial` ou `em-andamento`)
 - [x] ... (itens resolvidos ficam marcados — viram histórico)
 
+Pendência que pede ação (sua ou do usuário) também entra no checklist de `docs/roadmap.md` ("A fazer", com o dono); ao resolver, marque nos dois.
+
 ## Histórico
 
 Uma linha por mudança relevante, mais recente no topo. Ajustes pequenos posteriores à entrega

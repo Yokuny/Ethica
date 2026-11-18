@@ -11,7 +11,7 @@ spec: [.specs/features/fundacao-ethica]
 
 # Fundação do Ethica
 
-**Status**: parcial · **Atualizado**: 2026-11-15 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
+**Status**: parcial · **Atualizado**: 2026-11-18 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`, `packages/ui`, `harness`, `docs`, `infra`, `tests`
 
 > Documento vivo. Onde divergir do plano (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fundacao-ethica'`.
@@ -86,7 +86,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Pendências
 
-- [ ] Rodar `integration`/`e2e` com o Mongo local (não executados na criação: sem Docker na sessão).
+- [x] Rodar `integration`/`e2e` com o Mongo local (não executados na criação: sem Docker na sessão). Rodaram em 2026-11-18 (642 testes verdes).
 - [x] Testes e2e de router para `case`, `agenda`, `finance` e `prospecting`: dispensados (AD-145).
 - [ ] Validar a consulta ao Datajud com a chave real (AD-105) — adiado para depois das frentes atuais (AD-145).
 - [ ] UAT visual de todas as telas com o seed de demonstração.
@@ -95,6 +95,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-18 — `integration` e `e2e` rodam com o Mongo local (642 testes verdes); pendências que pedem ação passam a ser acompanhadas no checklist de `docs/roadmap.md`.
 - 2026-11-14 — Sai a skill `tlc-spec-driven` e as lições geradas pelo script dela (`.specs/LESSONS.md`, `.specs/lessons.json`); o fluxo spec → design → tasks fica só na `ethica-spec-driven` (AD-221).
 - 2026-11-10 — Relatórios compacto e alinhado à esquerda: nome do relatório, o que ele traz logo abaixo e os botões em seguida.
 - 2026-11-10 — Relatórios ocupa toda a largura da página, sem a coluna estreita centralizada.
