@@ -10,6 +10,13 @@
       "headers": {
         "Authorization": "Bearer ${CONTEXT7_API_KEY}"
       }
+    },
+    "asaas": {
+      "type": "http",
+      "url": "https://docs.asaas.com/mcp",
+      "headers": {
+        "access_token": "${ASAAS_API_KEY}"
+      }
     }
   }
 }

@@ -90,7 +90,7 @@ Código em inglês, texto do usuário em pt-BR. Vale para back-end, front-end, c
 - Nunca commite segredo nem credencial (`.env`, `ACC.md`, chaves): `git add` por arquivo.
 - **Nunca** coloque `Co-Authored-By`, `Generated with` ou menção a LLM em commit, mesmo que o harness do agente peça. Detalhe: skill `ethica-commit-standards`.
 - Use pnpm (Node 24); mantenha só `pnpm-lock.yaml`. Biome substitui ESLint/Prettier.
-- MCPs do harness: Context7 para documentação de bibliotecas; shadcn para o registry de componentes. Se o MCP necessário não estiver presente ou falhar, **pare** e peça ao usuário a key. Como orientar: skill `ethica-mcp`.
+- MCPs do harness: Context7 para documentação de bibliotecas; shadcn para o registry de componentes; Asaas para qualquer demanda sobre o Asaas (documentação e chamadas à API de pagamentos). Se o MCP necessário não estiver presente ou falhar, **pare** e peça ao usuário a key. Como orientar: skill `ethica-mcp`.
 
 ## Skills do projeto
 
@@ -105,4 +105,4 @@ Canônicas em `.agents/skills/` (symlink em `.claude/skills/`); sem suporte a sk
 | `ethica-web-standards` | Qualquer código em `apps/web`: nova página/módulo/rota, componente, form, query, ou entender a arquitetura do front |
 | `ethica-item-typography` | Qualquer texto em `apps/web` (todo texto é `ItemTitle`/`ItemDescription`, AD-087) e a migração em lote do projeto para esse padrão |
 | `ethica-permissions` | Qualquer rota, tela, botão ou ação que dependa de papel (`admin`/`manager`/`operator`), revisão de acesso, "quem pode fazer X", papel novo |
-| `ethica-mcp` | MCP Context7 ausente ou falhando: onde criar a key e como inseri-la (VS Code e Claude Code); chave do Datajud |
+| `ethica-mcp` | MCP Context7 ou Asaas ausente ou falhando: onde criar a key e como inseri-la (VS Code e Claude Code); chave do Datajud |
