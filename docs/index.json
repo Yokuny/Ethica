@@ -29,6 +29,27 @@
       "doc": "features/cadastro-checkout/feature.md"
     },
     {
+      "slug": "tour-guiado",
+      "feature": "Tour guiado",
+      "descricao": "Tour no primeiro acesso que destaca as seções do menu conforme as permissões da pessoa, reaberto por \"Ver tour\"",
+      "data": "2026-11-18",
+      "status": "concluido",
+      "areas": [
+        "apps/web",
+        "packages/ui"
+      ],
+      "decisoes": [
+        "AD-233",
+        "AD-137",
+        "AD-087"
+      ],
+      "spec": [
+        ".specs/features/tour-guiado"
+      ],
+      "planos": [],
+      "doc": "features/tour-guiado/feature.md"
+    },
+    {
       "slug": "fundacao-ethica",
       "feature": "Fundação do Ethica",
       "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
@@ -1943,6 +1964,12 @@
     {
       "id": "AD-232",
       "decisao": "Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao início do período",
+      "data": "2026-11-18",
+      "status": "active"
+    },
+    {
+      "id": "AD-233",
+      "decisao": "O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI",
       "data": "2026-11-18",
       "status": "active"
     }

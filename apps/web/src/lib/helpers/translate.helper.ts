@@ -8,6 +8,18 @@
 // key before creating a new one; a new key only 1:1 with the
 // text, no template/concat to build a dynamic key.
 const translations: Record<string, string> = {
+  // Guided tour (AD-233).
+  welcome_to_ethica: 'Boas-vindas ao Ethica',
+  see_where_each_part_of_your_work_is:
+    'Em um minuto, veja onde fica cada parte do seu trabalho. Você pode pular e rever depois no seu menu.',
+  your_office: 'Seu escritório',
+  set_up_office_documents_and_invite_team:
+    'Coloque logo e dados profissionais nos documentos e convide a equipe, escolhendo o que cada pessoa pode ver e fazer.',
+  your_account: 'Sua conta',
+  account_devices_tour_and_go_to_shortcut:
+    'Sua conta e seus aparelhos ficam aqui, junto com "Ver tour". Para ir a qualquer tela, use "Ir para" (⌘K).',
+  view_tour: 'Ver tour',
+  skip: 'Pular',
   // Services (AD-158 to AD-160).
   service_type: 'Tipo de serviço',
   service_phase: 'Fase do serviço',

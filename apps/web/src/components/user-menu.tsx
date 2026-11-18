@@ -14,7 +14,7 @@ import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@ethica/ui/components/sidebar';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { ChevronsUpDown, LogOut, Type, UserRound } from 'lucide-react';
+import { ChevronsUpDown, Compass, LogOut, Type, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { UserAvatar } from '@/components/user-chip.js';
@@ -22,6 +22,7 @@ import { TextSizeOptions } from '@/components/user-menu.text-size.js';
 import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { clearDevice } from '@/lib/offline/store.js';
+import { updatePreferencesMutation } from '@/query/preferences.js';
 import { type SessionView, sessionKeys } from '@/query/session.js';
 
 // The content (session from the cache, logout mutation) only mounts with the menu
@@ -45,6 +46,11 @@ function UserMenuContent() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  // Reopens the guided tour (AD-233): it shows while `onboardingDismissed` is false.
+  const tourMutation = useMutation({
+    ...updatePreferencesMutation(queryClient),
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   return (
     <>
@@ -63,6 +69,10 @@ function UserMenuContent() {
         <UserRound />
         {t('my_account')}
       </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => tourMutation.mutate({ onboardingDismissed: false })}>
+        <Compass />
+        {t('view_tour')}
+      </DropdownMenuItem>
       <DropdownMenuSub>
         <DropdownMenuSubTrigger>
           <Type />
@@ -80,13 +90,13 @@ function UserMenuContent() {
   );
 }
 
-// User in the sidebar footer: account, text size and sign out.
+// User in the sidebar footer: account, guided tour, text size and sign out.
 export function UserMenu({ name, avatar }: { name: string; avatar?: string }) {
   const [open, setOpen] = useState(false);
   const { isMobile, state } = useSidebar();
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
+      <SidebarMenuItem data-tour="account">
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger
             render={

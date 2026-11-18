@@ -1375,6 +1375,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-18
 - **Status**: active
 
+### AD-233
+- **Decision**: O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI) e o `Dialog` quando não há item para destacar (boas-vindas e celular); o destaque é um atributo `data-tour-active` no alvo com uma regra de CSS global. Sem biblioteca de tour. O tour só aponta para o menu, sem trocar de página, e os passos saem das mesmas seções que montam o menu (AD-137). O estado é a preferência `onboardingDismissed` que a API já guardava por pessoa: `false` abre o tour, concluir ou pular grava `true`, "Ver tour" no menu do usuário volta a `false`.
+- **Reason**: pedido da perita em 2026-11-18 (tutorial breve para novos usuários, tour com destaques, por papel). Uma biblioteca de tour injeta o próprio balão, textos e CSS, fora do `ItemTitle`/`ItemDescription` (AD-087), do `t()` e do tema; com alvos só no menu, o destaque próprio é pequeno.
+- **Trade-off**: sem escurecer o resto da tela nem apontar para elementos dentro das páginas; um tour dentro das telas exigiria esperar o elemento e reposicionar na rolagem.
+- **Scope**: `packages/ui/src/components/popover.tsx`, `apps/web/src/routes/_private/` (`route.tsx`, `@components/guided-tour.tsx`, `@consts/tour-steps.ts`, `@components/workspace-navigation.tsx`), `apps/web/src/components/user-menu.tsx`, `apps/web/src/index.css`.
+- **Date**: 2026-11-18
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

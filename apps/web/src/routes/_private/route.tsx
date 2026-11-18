@@ -4,6 +4,7 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { MobileDock } from '../../components/mobile-dock.js';
 import { t } from '../../lib/helpers/translate.helper.js';
 import { can, type SessionView, sessionQuery } from '../../query/session.js';
+import { GuidedTour } from './@components/guided-tour.js';
 import { WorkspaceNavigation } from './@components/workspace-navigation.js';
 import { moduleFromRoute } from './@utils/home-access.js';
 
@@ -34,7 +35,8 @@ export const beforeLoad = async ({
 };
 
 // The session is guaranteed by beforeLoad. The shell shares the side navigation
-// on desktop and keeps the dock for smaller screens.
+// on desktop and keeps the dock for smaller screens; the guided tour (AD-233) lives
+// here so it opens on whatever route the first access lands.
 export const Route = createFileRoute('/_private')({
   beforeLoad,
   component: () => (
@@ -44,6 +46,7 @@ export const Route = createFileRoute('/_private')({
         <Outlet />
       </SidebarInset>
       <MobileDock />
+      <GuidedTour />
     </SidebarProvider>
   ),
 });

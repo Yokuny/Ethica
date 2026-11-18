@@ -45,7 +45,7 @@ function NavigationLink({ to, titleKey, icon: Icon }: Pick<HomeSection, 'to' | '
   const sectionPath = `/${to.split('/')[1]}`;
   const label = t(titleKey);
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem data-tour={to}>
       <SidebarMenuButton
         render={<Link to={to} activeOptions={{ exact: false }} />}
         isActive={pathname === sectionPath || pathname.startsWith(`${sectionPath}/`)}
@@ -128,7 +128,7 @@ export function WorkspaceNavigation() {
             const items = sections.filter((section) => destinations.includes(section.to));
             if (!items.length) return null;
             return (
-              <SidebarGroup key={key}>
+              <SidebarGroup key={key} data-tour={key}>
                 <SidebarGroupLabel>{t(heading)}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>

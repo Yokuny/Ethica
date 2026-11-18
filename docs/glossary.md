@@ -30,6 +30,7 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Parcela (recebimento) | `installments` do lançamento de receita | Valor que caiu na conta contra um honorário, com data e conta; estornável. Honorário não é excluído nem cancelado (AD-111). |
 | Previsto / parcial / liquidado / cancelado | `status` do lançamento (`expected`, `partial`, `settled`, `canceled`) | A receber/pagar, recebido em parte (só receita), já recebido/pago, desconsiderado (só despesa). No honorário, vem das parcelas. **Atrasado** é derivado: previsto ou parcial com vencimento antes de hoje. |
 | Feed iCal | `GET /agenda/feed/:token.ics` | Link secreto, só leitura, para assinar compromissos e prazos no Google/Outlook/Apple. |
+| Tour guiado | `GuidedTour` (`apps/web`), preferência `onboardingDismissed` | Sequência curta de balões no primeiro acesso que apresenta as seções do menu conforme as permissões da pessoa; reaberto por "Ver tour" no menu do usuário (AD-233). |
 | Datajud | `providers/datajudClient.ts` | API Pública do CNJ com metadados e movimentos dos processos dos tribunais. |
 | Laudo / parecer técnico | `Report` (`documents`), `type` `report`/`technical_opinion` | Documento técnico redigido por seções a partir de um modelo, com variáveis da perícia (AD-126). |
 | Modelo de laudo | `Template` (`documents`) | Seções sim/não reutilizáveis; os padrões vêm do código e são só leitura (AD-126), um ou mais por tipo (AD-163). |

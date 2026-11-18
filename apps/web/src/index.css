@@ -4,3 +4,10 @@
 @import "shadcn/tailwind.css";
 @import "./theme.css";
 @source "../../../packages/ui/src";
+
+/* Guided tour (AD-233): the menu item the current step points to. */
+[data-tour-active] {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}

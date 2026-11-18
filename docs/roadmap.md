@@ -57,6 +57,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 - [ ] Testar a leitura com atas e processos reais de outros tribunais — `importacao-processos`, `laudo-montagem`
 - [ ] Assinar o feed num Google Agenda de verdade — `prazos-recebimentos`
 - [ ] Planilha com a base de varas e comarcas (24 TRTs) — `contatos-varas`, `partes-servico`, `rotina-servico`
+- [ ] Conferir o tour guiado no navegador (menu aberto e recolhido, celular, operador) e revisar os textos — `tour-guiado`
 
 ### Código que ficou para trás — agente
 
@@ -79,6 +80,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-18 — Tutorial de uso para novos usuários: tour guiado do primeiro acesso, por permissão (AD-233) — `tour-guiado`
 - [x] 2026-11-18 — Rodar `integration`/`e2e` com o Mongo local (642 testes verdes) — `fundacao-ethica`
 - [x] 2026-11-18 — Estorno e chargeback tiram o período pago (AD-232) — `cadastro-checkout`
 - [x] 2026-11-18 — Teste com os 5 dias de carência (AD-231) — `cadastro-checkout`

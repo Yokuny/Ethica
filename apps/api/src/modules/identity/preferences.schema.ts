@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export type PreferencesRouterDeps = { validToken: RequestHandler };
 
-// ENR-03: the person's own choices — dismissing the getting started guide and (AD-110)
+// ENR-03: the person's own choices — having seen the guided tour (AD-233) and (AD-110)
 // getting the daily deadline reminder by e-mail. Checklist progress is never saved here.
 // Strict: any other key (including Tenant, AD-010) is rejected; empty too.
 export const updatePreferencesSchema = z
