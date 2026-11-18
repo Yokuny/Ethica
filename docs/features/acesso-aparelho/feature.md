@@ -11,7 +11,7 @@ spec: [.specs/features/acesso-aparelho]
 
 # Acesso preso ao aparelho (passkey)
 
-**Status**: concluído · **Atualizado**: 2026-11-12 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluído · **Atualizado**: 2026-11-18 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Requisitos e design em `.specs/features/acesso-aparelho/spec.md`.
 > Correlação com o git: `git log --oneline -i --grep='acesso-aparelho'`.
@@ -61,3 +61,4 @@ A entrada pelo e-mail (AD-155) passa a valer só no aparelho em que a pessoa cri
 - 2026-11-14 — Corrigido: "Entrar com este aparelho" sempre falhava ("Não foi possível confirmar o acesso neste aparelho"). A leitura da passkey no banco vinha em modo `lean`, que entrega a chave pública como `Binary` do BSON; convertida em `Uint8Array`, virava chave vazia e a assinatura nunca conferia. `findPasskey` (`apps/api/src/modules/identity/auth.repository.ts`) passou a ler o documento completo e já devolve a chave em bytes. O teste e2e agora exige que a chave gravada chegue intacta à verificação.
 - 2026-11-14 — Minha conta (`apps/web/src/routes/_private/account/index.tsx`) passa ao mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): foto, perfil, aparelhos com acesso, avisos de prazo e agenda; o `DefaultFormLayout` sai da tela.
 - 2026-11-15 — Aparelhos com acesso (`apps/web/src/routes/_private/account/@components/account-devices.tsx`), com o tipo do aparelho em selo passa ao `InfoCard`/`InfoCardList` (`apps/web/src/components/info-card.tsx`, AD-225): moldura cinza com cartões que crescem até ocupar toda a largura da linha, valor em destaque, linha de apoio e ações no rodapé; o `ItemGroup` sai dessa lista. Ajuste (AD-226): um cartão por linha, cada um com toda a largura; antes os cartões dividiam a linha.
+- 2026-11-18 — A tela de entrada ganha **Criar conta**, e a tela de conta suspensa vira a de planos com Pagar (feature `cadastro-checkout`, AD-230).

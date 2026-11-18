@@ -11,7 +11,7 @@ spec: [.specs/features/acesso-email]
 
 # Acesso por e-mail (sem senha)
 
-**Status**: concluído · **Atualizado**: 2026-11-11 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluído · **Atualizado**: 2026-11-18 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Requisitos em `.specs/features/acesso-email/spec.md`.
 > Correlação com o git: `git log --oneline -i --grep='acesso-email'`.
@@ -52,3 +52,4 @@ A perita pediu que a segurança do login ficasse com o provedor de e-mail de cad
 - 2026-11-11 — Envio pelo Resend (AD-219): API HTTPS em vez de SMTP, que a Railway bloqueia. Remetente vira `MAIL_FROM`, comum aos provedores.
 - 2026-11-12 — Evolução em `acesso-aparelho` (AD-220): a chave do e-mail não abre mais a sessão sozinha, leva à passkey do aparelho; saiu o cadastro de teste com senha (AD-157).
 - 2026-11-14 — As variáveis do provedor de e-mail escolhido passam a ser exigidas também fora de produção (AD-222): o `.env` local com `SMTP_FROM` no lugar de `MAIL_FROM` subia com remetente vazio e o Zoho recusava o envio da chave. Mesmos nomes no local (Zoho por SMTP) e na Railway (Resend).
+- 2026-11-18 — Cadastro aberto e gratuito sai: criar o escritório termina na assinatura paga no Asaas e o escritório nasce sem acesso até o primeiro pagamento (feature `cadastro-checkout`, AD-230). O CNPJ do cadastro passa a ter o dígito conferido.

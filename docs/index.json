@@ -1480,7 +1480,7 @@
       "id": "AD-155",
       "decisao": "O Ethica deixa de ter senha. Entrar e se cadastrar é pela chave de acesso enviada ao e-mail (`AccessKey` em `packages/db`, dono `identity`):",
       "data": "2026-11-02",
-      "status": "active"
+      "status": "active (cadastro aberto e gratuito superseded by AD-230)"
     },
     {
       "id": "AD-156",

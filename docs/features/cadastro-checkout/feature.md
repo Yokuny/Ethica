@@ -37,12 +37,20 @@ O cadastro aberto e gratuito (AD-155) passa a acontecer junto do pagamento (AD-2
 ## Como testar
 
 - Automático: `pnpm vitest run apps/api/src/modules/identity/billing apps/api/src/providers/asaasClient apps/web/src/routes/_public`.
-- Manual (sandbox): `ASAAS_API_URL=https://api-sandbox.asaas.com/v3`, `ASAAS_API_KEY` do sandbox e `ASAAS_WEBHOOK_TOKEN`; no painel do Asaas, webhook para `<API>/billing/webhook` com os eventos de cobrança, envio sequencial e o mesmo token. Crie uma conta em `/auth`, pague a fatura com cartão de teste e confira que o Ethica abre.
+- Manual (sandbox): `ASAAS_API_URL=https://api-sandbox.asaas.com/v3`, `ASAAS_API_KEY` do sandbox e `ASAAS_WEBHOOK_TOKEN`; no painel do Asaas, webhook para `<API>/billing/webhook` com os eventos de cobrança, envio sequencial e o mesmo token. Crie uma conta em `/auth` (CNPJ válido), pague a fatura com cartão de teste e confira que a tela de planos entra no sistema sozinha.
+
+## Antes de ir ao ar
+
+Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "indisponível":
+
+- Railway: `ASAAS_API_URL`, `ASAAS_API_KEY` e `ASAAS_WEBHOOK_TOKEN` (`.env.example`).
+- Painel do Asaas: webhook para `<API>/billing/webhook` com os eventos de cobrança, envio sequencial e o mesmo token.
+- Opcional: domínio do Ethica em Minha Conta > Informações no Asaas e então `ASAAS_RETURN_URL` (volta automática da fatura).
 
 ## Pendências
 
-- [ ] Configurar o Asaas (sandbox e produção): chave, webhook com token e domínio do Ethica cadastrado (retorno da fatura).
-- [ ] Validar no sandbox o fluxo de ponta a ponta e a segunda cobrança da assinatura no cartão salvo (`.specs/features/cadastro-checkout/validation.md`).
+- [ ] Conferir o webhook real chegando e liberando o acesso (`.specs/features/cadastro-checkout/validation.md`).
+- [ ] Estorno e chargeback não tiram o acesso.
 - [ ] Confirmar com a perita: teste de 7 dias e sem carência no teste.
 - [ ] Trocar de plano, cancelar a assinatura e ver faturas pelo Ethica (fora desta entrega).
 
@@ -50,6 +58,7 @@ O cadastro aberto e gratuito (AD-155) passa a acontecer junto do pagamento (AD-2
 
 - 2026-11-18 — Spec criada (`.specs/features/cadastro-checkout/spec.md`), AD-230 proposta.
 - 2026-11-18 — Implementado (AD-230 ativa). Divergências da spec: o plano é escolhido na tela de planos (`/suspended`), depois da passkey, e não no formulário do escritório; o pagamento usa a fatura do Asaas, não o checkout (`/v3/checkouts` não aceita boleto nem o cliente já cadastrado). A cobrança fica no módulo `identity`, dono do `Tenant`.
+- 2026-11-18 — Revisão: escritório suspenso pela plataforma não chega à tela de planos; a tela de planos reconsulta a cada 10 s e entra no sistema quando o pagamento é confirmado; o id da assinatura é gravado antes de buscar a fatura e apagar assinatura que não existe mais não é erro; pagamento ignorado pelo webhook vai ao log (`billing.paid_ignored`); fatura velha do teste paga depois de outro pagamento não vale. Pelo sandbox: retorno da fatura opcional (`ASAAS_RETURN_URL`, o Asaas recusa sem domínio cadastrado) e dígito do CNPJ conferido no cadastro.
 
 ## Referências
 
