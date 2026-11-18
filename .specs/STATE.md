@@ -1351,6 +1351,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-15
 - **Status**: active
 
+### AD-230
+- **Decision**: O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa **assinatura** paga no checkout do Asaas (mensal, anual ou teste com valor simbólico), com o e-mail confirmado antes de pagar. O escritório e o admin são gravados **suspensos** antes do checkout e só o webhook do Asaas (`CHECKOUT_PAID`, pagamento confirmado) os ativa; pagamento que falha, checkout abandonado e mensalidade vencida (`PAYMENT_OVERDUE`) deixam ou põem o escritório em `suspended` (AD-098), e `/suspended` ganha o botão Pagar. Supersede a parte de **cadastro aberto** da AD-155. Detalhe em `.specs/features/cadastro-checkout/spec.md`.
+- **Reason**: pedido de 2026-11-18: o cadastro acontece junto do checkout, e falha no pagamento leva à mesma tela da mensalidade vencida.
+- **Trade-off**: depende do webhook chegar para liberar o acesso (o retorno do navegador não confirma pagamento); só cartão de crédito; o e-mail e o CNPJ de um cadastro não pago ficam presos ao escritório suspenso até ele pagar.
+- **Scope**: `packages/db/src/models/tenant.model.ts`, `apps/api/src/modules/billing/`, `apps/api/src/modules/identity/auth.*`, `apps/api/src/providers/`, `apps/web/src/routes/_public/{auth,suspended}/`.
+- **Date**: 2026-11-18
+- **Status**: proposed
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

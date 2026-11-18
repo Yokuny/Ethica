@@ -46,3 +46,6 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Chave de acesso | `AccessKey` (`identity`) | Link de uso único e código de 6 dígitos enviados ao e-mail da pessoa para entrar ou criar o escritório; vale 15 minutos. Não há senha (AD-155). |
 | Acesso do aparelho (passkey) | `Passkey` (`identity`) | Chave guardada no próprio aparelho (digital, rosto, PIN ou Windows Hello) que abre toda sessão; no máximo um computador e um celular por pessoa (AD-220). |
 | Tenant | `Tenant` | O escritório/perito cliente da plataforma; todo dado é isolado por tenant. |
+| Assinatura | `Tenant.billing` (`billing` module) | Pagamento recorrente do escritório no Asaas (cartão de crédito). Sem pagamento confirmado ou com mensalidade vencida, o escritório fica suspenso (AD-230). |
+| Plano | `plan` (`BILLING_PLANS`) | Mensal, anual ou teste com valor simbólico, escolhido no cadastro ou ao pagar (AD-230). |
+| Checkout | `checkout` (Asaas) | Página de pagamento do Asaas aberta pelo Ethica no cadastro e em "Pagar" (AD-230). |

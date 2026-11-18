@@ -2,6 +2,30 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "cadastro-checkout",
+      "feature": "Cadastro com checkout",
+      "descricao": "Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso",
+      "data": "2026-11-18",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-230",
+        "AD-155",
+        "AD-220",
+        "AD-098"
+      ],
+      "spec": [
+        ".specs/features/cadastro-checkout"
+      ],
+      "planos": [],
+      "doc": "features/cadastro-checkout/feature.md"
+    },
+    {
       "slug": "fundacao-ethica",
       "feature": "Fundação do Ethica",
       "descricao": "Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção",
@@ -1900,6 +1924,12 @@
       "decisao": "o calendário da Agenda segue o visual da agenda do DentalEase: blocos em tom pastel sem borda, cor só pelo tipo do item (mapa `TYPE_COLORS`",
       "data": "2026-11-15",
       "status": "active"
+    },
+    {
+      "id": "AD-230",
+      "decisao": "O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no checkout do Asaas (mensal, anual ou teste com",
+      "data": "2026-11-18",
+      "status": "proposed"
     }
   ]
 }
