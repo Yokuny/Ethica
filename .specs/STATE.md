@@ -1352,12 +1352,12 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Status**: active
 
 ### AD-230
-- **Decision**: O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa **assinatura** paga no checkout do Asaas (mensal, anual ou teste com valor simbólico), com o e-mail confirmado antes de pagar. O escritório e o admin são gravados **suspensos** antes do checkout e só o webhook do Asaas (`CHECKOUT_PAID`, pagamento confirmado) os ativa; pagamento que falha, checkout abandonado e mensalidade vencida (`PAYMENT_OVERDUE`) deixam ou põem o escritório em `suspended` (AD-098), e `/suspended` ganha o botão Pagar. Supersede a parte de **cadastro aberto** da AD-155. Detalhe em `.specs/features/cadastro-checkout/spec.md`.
-- **Reason**: pedido de 2026-11-18: o cadastro acontece junto do checkout, e falha no pagamento leva à mesma tela da mensalidade vencida.
-- **Trade-off**: depende do webhook chegar para liberar o acesso (o retorno do navegador não confirma pagamento); só cartão de crédito; o e-mail e o CNPJ de um cadastro não pago ficam presos ao escritório suspenso até ele pagar.
-- **Scope**: `packages/db/src/models/tenant.model.ts`, `apps/api/src/modules/billing/`, `apps/api/src/modules/identity/auth.*`, `apps/api/src/providers/`, `apps/web/src/routes/_public/{auth,suspended}/`.
+- **Decision**: O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa **assinatura** paga no Asaas, com o e-mail confirmado antes. O acesso é uma data só, `Tenant.accessUntil`: o cadastro grava "agora" (sem acesso) e cada pagamento confirmado pelo webhook do Asaas a estende com `$max` (teste R$ 6 = 7 dias sem carência; mensal R$ 60, anual R$ 612 e mensalidade avulsa R$ 60 = período + 5 dias de carência). Sem a data, nada muda (escritórios de teste, seed, plataforma). Fechado = o mesmo 403 `tenant_suspended` e a tela `/suspended`, agora com os planos e Pagar; a regra única é `isTenantOpen`/`openTenantFilter` (`packages/db/src/models/tenant.model.ts`), lida pela sessão, pelo feed iCal e pelo aviso diário. Tudo é pago na **fatura do Asaas** (`invoiceUrl`): assinatura no cartão (`/v3/subscriptions`, uma viva por escritório), teste e avulsa por boleto, PIX ou cartão (`/v3/payments`, `UNDEFINED`). O checkout do Asaas (`/v3/checkouts`) ficou de fora: não aceita boleto nem o cliente já cadastrado. `/billing` usa `validSession`, a sessão sem a barreira do acesso. Supersede a parte de **cadastro aberto** da AD-155. Detalhe em `.specs/features/cadastro-checkout/design.md`.
+- **Reason**: pedido de 2026-11-18: cadastro junto do pagamento, falha no pagamento leva à mesma tela da mensalidade vencida; planos, carência e formas de pagamento escolhidos no mesmo dia. Uma data em vez de status novo: teste que acaba, carência e cadastro não pago terminam sem evento do Asaas, então não precisam de rotina diária.
+- **Trade-off**: o acesso só volta quando o webhook chega (o retorno do navegador não confirma pagamento); o e-mail e o CNPJ de um cadastro não pago ficam presos a esse escritório até ele pagar; avulsa paga antes do fim conta a partir do dia do pagamento (não soma ao que resta); cancelar a assinatura é pelo suporte.
+- **Scope**: `packages/db/src/models/tenant.model.ts`, `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/{billing,auth,account}.*`, `apps/api/src/middlewares/authentication.middleware.ts`, `apps/api/src/providers/asaasClient.ts`, `apps/web/src/routes/_public/{auth,suspended}/`.
 - **Date**: 2026-11-18
-- **Status**: proposed
+- **Status**: active
 
 ## Handoff
 

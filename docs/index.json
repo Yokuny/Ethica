@@ -6,12 +6,13 @@
       "feature": "Cadastro com checkout",
       "descricao": "Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso",
       "data": "2026-11-18",
-      "status": "planejado",
+      "status": "parcial",
       "areas": [
         "apps/api",
         "apps/web",
         "packages/contracts",
-        "packages/db"
+        "packages/db",
+        "harness"
       ],
       "decisoes": [
         "AD-230",
@@ -1927,9 +1928,9 @@
     },
     {
       "id": "AD-230",
-      "decisao": "O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no checkout do Asaas (mensal, anual ou teste com",
+      "decisao": "O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no Asaas, com o e-mail confirmado antes. O acesso",
       "data": "2026-11-18",
-      "status": "proposed"
+      "status": "active"
     }
   ]
 }

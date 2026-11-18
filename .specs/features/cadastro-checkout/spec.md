@@ -18,59 +18,50 @@ continua provando quem é a pessoa, e a passkey continua abrindo toda sessão.
 
 | Pergunta | Resposta |
 | --- | --- |
-| Planos | Mensal, anual e um "teste" pago com valor simbólico (ex.: R$ 6) |
-| Ordem do cadastro | **Confirmar o e-mail antes de pagar**: e-mail → código → dados do escritório e plano → checkout |
-| Tela `/suspended` | **Pagar** (abre um novo checkout) e **Sair** |
+| Planos | Mensal R$ 60, anual com 15% de desconto sobre 12 mensalidades (R$ 612) e um teste pago de valor simbólico (R$ 6) |
+| Teste | Alguns dias por R$ 6, **sem renovação**; ao fim, a pessoa escolhe mensal, anual ou avulsa |
+| Forma de pagamento | Assinatura (mensal e anual) só no cartão de crédito; **mensalidade avulsa** por boleto, PIX ou cartão |
+| Ordem do cadastro | **Confirmar o e-mail antes de pagar** |
+| Mensalidade vencida | **5 dias de carência** depois do vencimento, depois suspende |
+| "Entrar" com e-mail sem conta | Leva ao mesmo cadastro com pagamento |
+| Tela `/suspended` | **Pagar** e **Sair** |
 | Escritórios que já existem | Nada a fazer: o sistema é MVP e tudo o que existe é teste |
 
 ## Assumptions & Open Questions
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --- | --- | --- | --- |
-| Planos | Mensal, anual e teste com valor simbólico | Pedido, 2026-11-18 | Yes |
-| Ordem | E-mail confirmado (código) antes do checkout | Pedido, 2026-11-18 | Yes |
+| Planos e valores | Mensal R$ 60, anual R$ 612, teste R$ 6, mensalidade avulsa R$ 60 | Pedido, 2026-11-18 | Yes |
+| Teste | N dias por R$ 6, sem renovar, uma vez por escritório | Pedido, 2026-11-18 | Yes |
+| Forma de pagamento | Assinatura no cartão; avulsa e teste por boleto, PIX ou cartão | Pedido, 2026-11-18 | Yes |
+| Ordem | E-mail confirmado (código) antes do pagamento | Pedido, 2026-11-18 | Yes |
+| Carência | 5 dias depois do vencimento da mensalidade | Pedido, 2026-11-18 | Yes |
+| "Entrar" com e-mail sem conta | Mesmo cadastro com pagamento | Pedido, 2026-11-18 | Yes |
 | `/suspended` | Pagar + Sair | Pedido, 2026-11-18 | Yes |
 | Escritórios atuais | Sem migração nem cobrança | Pedido, 2026-11-18 | Yes |
-| Como funciona o teste de R$ 6 | O primeiro mês da assinatura mensal custa R$ 6; da segunda cobrança em diante, o valor cheio do mensal (o servidor muda o valor da assinatura no Asaas depois que o primeiro pagamento é confirmado). Alternativa: teste de N dias por R$ 6 sem renovação, e depois a pessoa escolhe mensal ou anual em `/suspended` | Converte sozinho, sem rotina diária de expiração | No |
-| Valores | Mensal R$ ?, anual R$ ?, teste R$ 6, numa constante do contrato (mudar o preço = novo deploy) | Front mostra e API cobra o mesmo valor | No |
-| Forma de pagamento | Só cartão de crédito | O checkout recorrente do Asaas só aceita cartão | No |
-| Mensalidade vencida | Cobrança da assinatura vencida (`PAYMENT_OVERDUE`) suspende no mesmo dia; pagamento confirmado reativa | Pedido ("da mesma forma quando a mensalidade estiver vencida") | No |
-| "Entrar" com e-mail sem conta | Leva ao mesmo cadastro com checkout (não existe mais o "Criar escritório" gratuito) | Um caminho só | No |
-| Cancelar a assinatura | Fora desta entrega: a pessoa cancela pelo suporte | Escopo | No |
+| Dias do teste | 7 dias | Comum em teste de SaaS | No |
+| Carência no teste | Não: o teste acaba no 7º dia | A carência é da mensalidade | No |
+| Cancelar a assinatura | Fora desta entrega: pelo suporte | Escopo | No |
 
 ## Requirements
 
 | ID | Requisito |
 | --- | --- |
 | CHK-01 | A tela `/auth` ganha o botão **Criar conta** abaixo de "Entrar". Ele leva ao mesmo passo do e-mail, com título de cadastro. |
-| CHK-02 | Cadastro: e-mail (obrigatório) → chave de acesso (link ou código, AD-155) → nome, nome do escritório, CNPJ e **plano** → checkout do Asaas com nome, CNPJ e e-mail já preenchidos. |
-| CHK-03 | Ao ir para o checkout, o escritório e a pessoa (admin) já ficam gravados com o escritório **suspenso**. O e-mail e o CNPJ ficam reservados a esse escritório. |
-| CHK-04 | Antes de sair para o checkout, a pessoa cria a passkey do aparelho (AD-220), para poder voltar e pagar depois sem refazer o cadastro. |
-| CHK-05 | Pagamento confirmado pelo Asaas (webhook, nunca o retorno do navegador) → escritório **ativo**. A pessoa volta ao Ethica e entra direto. |
-| CHK-06 | Pagamento recusado, checkout cancelado, expirado ou abandonado → o escritório segue suspenso. Toda entrada leva a `/suspended`. |
-| CHK-07 | `/suspended` explica a situação (cadastro sem pagamento ou mensalidade vencida) e oferece **Pagar** (escolhe o plano e abre um novo checkout) e **Sair**. Só o admin paga; os demais veem que o acesso volta quando o admin regularizar. |
-| CHK-08 | Cobrança da assinatura vencida suspende o escritório; o pagamento dela reativa. |
-| CHK-09 | O webhook do Asaas é público, conferido pelo token do header `asaas-access-token` e idempotente: o mesmo evento recebido duas vezes não muda nada. |
+| CHK-02 | Cadastro: e-mail (obrigatório) → chave de acesso (link ou código, AD-155) → nome, nome do escritório e CNPJ → passkey do aparelho (AD-220) → escolha do plano → pagamento no Asaas. E-mail sem conta em "Entrar" segue o mesmo caminho. |
+| CHK-03 | O escritório e a pessoa (admin) ficam gravados já no cadastro, **sem acesso** até o primeiro pagamento confirmado. O e-mail e o CNPJ ficam reservados a esse escritório. |
+| CHK-04 | Planos: **teste** (R$ 6, 7 dias, uma vez por escritório, sem renovar), **mensal** (R$ 60, assinatura no cartão), **anual** (R$ 612, assinatura no cartão) e **mensalidade avulsa** (R$ 60, boleto, PIX ou cartão). |
+| CHK-05 | Pagamento confirmado pelo Asaas (webhook, nunca o retorno do navegador) libera o acesso até o fim do período pago, mais 5 dias de carência nos planos mensal, anual e avulso. A pessoa volta ao Ethica e entra direto. |
+| CHK-06 | Pagamento recusado, abandonado ou ainda não confirmado, teste encerrado ou mensalidade vencida há mais de 5 dias → toda entrada leva a `/suspended`. |
+| CHK-07 | `/suspended` mostra a situação (primeiro pagamento ou acesso vencido), os planos e **Pagar** (abre a página de pagamento do Asaas), além de **Sair**. Só o admin paga; os demais veem que o acesso volta quando o admin pagar. |
+| CHK-08 | O escritório tem no máximo uma assinatura viva: assinar de novo encerra a anterior no Asaas. |
+| CHK-09 | O webhook do Asaas é público, conferido pelo token do header `asaas-access-token`, idempotente (o mesmo evento duas vezes não muda nada) e nunca recusa evento desconhecido. |
 | CHK-10 | Nenhum teste automático chama o Asaas: o cliente do Asaas fica em `apps/api/src/providers/` e é injetado como o provedor de e-mail. |
 
 ## Out of scope
 
 - Trocar de plano, cancelar a assinatura e ver faturas pelo Ethica.
-- Boleto e PIX (o checkout recorrente do Asaas é só cartão).
 - Cobrar os escritórios criados antes desta feature.
 - Nota fiscal.
 
-## Design direction (detalhe no `design.md`, depois das perguntas)
-
-- **Banco** (`packages/db`): `Tenant` ganha `billing` (cliente, assinatura e último checkout do Asaas,
-  plano). Sem status novo: cadastro sem pagamento e mensalidade vencida são o mesmo `suspended`
-  (AD-098), e o webhook faz `suspended ↔ active` por `transitionTenantStatus`.
-- **API**: módulo `billing` (AD-038). `POST /billing/checkout` (admin, liberado para escritório
-  suspenso, como o `signout`) cria o checkout `RECURRENT` no Asaas e devolve o link;
-  `POST /billing/webhook` recebe `CHECKOUT_PAID`, `PAYMENT_CONFIRMED`/`PAYMENT_RECEIVED` e
-  `PAYMENT_OVERDUE`. O `signup` passa a criar o escritório suspenso com o plano escolhido.
-- **Web**: `/auth` com "Criar conta" e plano no formulário do escritório; `/suspended` com Pagar.
-- **Config**: `ASAAS_API_KEY`, `ASAAS_API_URL` (sandbox ou produção) e `ASAAS_WEBHOOK_TOKEN` em
-  `apps/api/src/config/env.config.ts`.
-
-Decisão: AD-230 em `.specs/STATE.md` (proposta até as perguntas acima serem confirmadas).
+Desenho em `design.md`. Decisão: AD-230 em `.specs/STATE.md`.

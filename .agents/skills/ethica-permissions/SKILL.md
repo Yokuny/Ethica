@@ -29,6 +29,7 @@ Rode antes de responder "quem pode fazer X" ou de mexer em acesso. Os caminhos a
 | `invites` (`invite.model.ts`) | `role: string`, `permissions` | Papel **único** e a matriz conferida no convite; viram `role: [invite.role]` e `permissions` no aceite. |
 | `sessions` (`session.model.ts`) | `tokenHash`, `deviceInfo`, `expiresAt` | Sessão de token único (AD-014). Guarda só o hash do token; TTL índice apaga sozinho. Não guarda papel. |
 | `tenants` (`tenant.model.ts`) | `status` | `provisioned`/`active`/`suspended`. `suspended` derruba o acesso no request seguinte com 403 `tenant_suspended` (AD-098). |
+| `tenants` (`tenant.model.ts`) | `accessUntil` | Acesso pago (AD-230): com a data, só vale antes dela; a regra única é `isTenantOpen`/`openTenantFilter`. Fechado ⇒ o mesmo 403 `tenant_suspended`. |
 
 Tipos compartilhados: `Role` e `TenantUser` em `packages/contracts/src/types.ts`. O enum de papéis **está repetido** em `user.model.ts`, `invite.model.ts`, `packages/contracts/src/schemas/createInvite.schema.ts`, `apps/web/src/routes/_private/_admin/users/add/@consts/roles.ts` e no tipo de `apps/web/src/routes/_private/_admin/users/@query/user-directory.ts`.
 
@@ -43,7 +44,7 @@ Tipos compartilhados: `Role` e `TenantUser` em `packages/contracts/src/types.ts`
 ## 2. Transporte back → front
 
 1. `POST /auth/signin` (`identity/auth.service.ts`): valida senha, assina um JWT só com `{ user }` (4 dias), grava `Session { tokenHash, deviceInfo = User-Agent }` e devolve o token no cookie httpOnly `refreshToken` (`apps/api/src/config/cookie.config.ts`). **O papel não vai no token.**
-2. Todo request autenticado passa por `authenticateSession` (`apps/api/src/middlewares/authentication.middleware.ts`): verifica o JWT, busca a `Session` pelo hash, confere o User-Agent (diferente ⇒ revoga **todas** as sessões do usuário), relê `User` e `Tenant` do banco (tenant `suspended` ⇒ 403 `tenant_suspended`) e monta `req.tenantUser = { tenant, user, role, isPlatformAdmin, permissions }` (FND-05; `permissions` já efetivas, AD-137). Trocar o papel no banco vale no request seguinte.
+2. Todo request autenticado passa por `authenticateSession` (`apps/api/src/middlewares/authentication.middleware.ts`): verifica o JWT, busca a `Session` pelo hash, confere o User-Agent (diferente ⇒ revoga **todas** as sessões do usuário), relê `User` e `Tenant` do banco (tenant `suspended` ou fora do acesso pago, AD-230 ⇒ 403 `tenant_suspended`) e monta `req.tenantUser = { tenant, user, role, isPlatformAdmin, permissions }` (FND-05; `permissions` já efetivas, AD-137). Trocar o papel no banco vale no request seguinte.
 3. `GET /auth/session` devolve `SessionView = { tenant?, user, role, permissions }` (`identity/auth.service.ts`, `getSessionView`). `isPlatformAdmin` **não** vai para o front.
 4. O web lê isso em `sessionQuery` (`apps/web/src/query/session.ts`, `staleTime` 60s, `retry: false`). Não há Zustand nem access token (AD-014): o cookie vai sozinho com `credentials: 'include'` (`apps/web/src/lib/api/client.api.ts`).
 5. `authenticateSession` é função pura: um futuro WebSocket reusa a mesma validação no handshake.
@@ -59,6 +60,7 @@ router.post('/', deps.validToken, tenantAssignmentCheck, isAdmin, validBody(sche
 | Etapa | Arquivo | Falha |
 | --- | --- | --- |
 | `validToken` (via `createAuthMiddleware`) | `middlewares/authentication.middleware.ts` | 401 `invalid_session`; 403 `tenant_suspended` |
+| `validSession` (via `createAuthMiddleware`) | `middlewares/authentication.middleware.ts` | 401 `invalid_session`; sem a barreira do acesso do escritório — só `/billing` (AD-230), para o escritório fechado poder pagar |
 | `tenantAssignmentCheck` | `middlewares/tenantAssign.middleware.ts` | 424 `company_link_required` (usuário sem tenant, ex. admin da plataforma) |
 | `can(module, ...actions)` (domínio, AD-137), `checkRole([...])`, `isAdmin`, `platformAdminOnly` | `middlewares/authorization.middleware.ts` | 403 `no_permission` |
 | Regra por recurso/dono no service | `modules/<m>/<m>.service.ts` | 403 `no_permission` ou 404 |
