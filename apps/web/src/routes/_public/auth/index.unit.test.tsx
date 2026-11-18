@@ -46,7 +46,21 @@ describe('AuthPage', () => {
 
     expect(document.querySelector('a[href="/"]')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Conta' })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('button')).toHaveLength(2); // Sign in with this device and send the key; fixed light theme.
+    expect(screen.getAllByRole('button')).toHaveLength(3); // Sign in with this device, send the key and create account.
+  });
+
+  it('"Criar conta" asks only the e-mail and sends the same access key (CHK-01)', async () => {
+    const user = userEvent.setup();
+    postMock.mockResolvedValueOnce({ success: true });
+    render(<AuthPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Criar conta' }));
+    expect(screen.queryByRole('button', { name: 'Entrar com este aparelho' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Já tenho conta' })).toBeInTheDocument();
+
+    await user.type(screen.getByRole('textbox', { name: 'E-mail' }), 'nova@perita.com');
+    await user.click(screen.getByRole('button', { name: 'Enviar chave de acesso' }));
+    await waitFor(() => expect(postMock).toHaveBeenCalledWith('/auth/access-key', { email: 'nova@perita.com' }));
   });
 
   // APA-03: the confirmed key leads to the passkey of this device, which opens the session.

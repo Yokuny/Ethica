@@ -10,6 +10,7 @@ import {
 import { updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
 import { listActivityLogQuerySchema } from './schemas/activityLog.schema.js';
 import { createAppointmentSchema, updateAppointmentSchema } from './schemas/appointment.schema.js';
+import { billingPaySchema } from './schemas/billing.schema.js';
 import {
   caseContractorSchema,
   caseInspectionSchema,
@@ -97,6 +98,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'passkeyRegisterOptionsSchema', schema: passkeyRegisterOptionsSchema },
   { name: 'passkeyResponseSchema', schema: passkeyResponseSchema },
   { name: 'signupSchema', schema: signupSchema },
+  { name: 'billingPaySchema', schema: billingPaySchema },
   { name: 'idSchema', schema: idSchema },
   { name: 'inviteTokenParamSchema', schema: inviteTokenParamSchema },
   { name: 'listStatsSchema', schema: listStatsSchema },

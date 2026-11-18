@@ -23,12 +23,14 @@ import { createActivityLogRouter } from './modules/identity/activityLog.router.j
 import * as activityLogService from './modules/identity/activityLog.service.js';
 import { buildAuthDeps } from './modules/identity/auth.deps.js';
 import { createAuthRouter } from './modules/identity/auth.router.js';
+import { createBillingRouter } from './modules/identity/billing.router.js';
 import { inviteRouter } from './modules/identity/invite.router.js';
 import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
 import { createPreferencesRouter } from './modules/identity/preferences.router.js';
 import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
 import { createProspectingRouter } from './modules/prospecting/opportunity.router.js';
+import { type AsaasClient, createAsaasClient } from './providers/asaasClient.js';
 import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
 import { createS3FileStorage, type FileStorage } from './providers/fileStorage.js';
 import { createNominatimGeocoder, type Geocoder } from './providers/geocoder.js';
@@ -65,6 +67,7 @@ export const buildApp = (
     storage?: FileStorage | null;
     mail?: MailProvider;
     geocoder?: Geocoder;
+    asaas?: AsaasClient | null;
   } = {},
 ): Express => {
   // Idempotent — several buildApp() calls in the same process (tests) do not duplicate handlers.
@@ -85,7 +88,7 @@ export const buildApp = (
   // Activity log (AD-134): records every successful tenant write when the response ends.
   app.use(createActivityLogMiddleware(activityLogService.record));
 
-  const { validToken } = createAuthMiddleware(buildAuthDeps());
+  const { validToken, validSession } = createAuthMiddleware(buildAuthDeps());
   const mailProvider = options.mail ?? buildMailProvider();
   const inviteBaseUrl = `${env.CORS_ORIGIN}/invite`;
   const datajud =
@@ -116,6 +119,13 @@ export const buildApp = (
   const geocoder =
     options.geocoder ?? createNominatimGeocoder({ baseUrl: env.GEOCODER_URL, userAgent: env.GEOCODER_USER_AGENT });
 
+  // Office subscription (AD-230). `null` turns it off in tests.
+  const asaas =
+    options.asaas === null
+      ? undefined
+      : (options.asaas ??
+        (env.ASAAS_API_KEY ? createAsaasClient({ baseUrl: env.ASAAS_API_URL, apiKey: env.ASAAS_API_KEY }) : undefined));
+
   app.get('/health', (_req, res) => {
     res.json(respObj({ data: { service: 'api' } }));
   });
@@ -136,6 +146,10 @@ export const buildApp = (
   app.use('/tenant', createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/invites', inviteRouter);
   app.use('/auth', createAuthRouter({ validToken, mailProvider, accessUrl: `${env.CORS_ORIGIN}/auth` }));
+  app.use(
+    '/billing',
+    createBillingRouter({ validSession, asaas, appUrl: env.CORS_ORIGIN, webhookToken: env.ASAAS_WEBHOOK_TOKEN }),
+  );
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/expert-cases', createCaseRouter({ validToken, storage }));

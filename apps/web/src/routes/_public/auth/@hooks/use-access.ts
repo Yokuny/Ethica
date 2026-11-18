@@ -21,6 +21,8 @@ import { requestAccessKey, signup, verifyAccessKey } from '../@query/access.js';
 export function useAccess(token?: string) {
   const navigate = useNavigate();
   const [step, setStep] = useState<AccessStep>(token ? 'checking' : 'email');
+  // CHK-01: "Criar conta" starts the same e-mail key; the office and the payment come after it.
+  const [signingUp, setSigningUp] = useState(false);
   const [email, setEmail] = useState('');
   const [signupToken, setSignupToken] = useState('');
   const [passkeyToken, setPasskeyToken] = useState('');
@@ -109,6 +111,11 @@ export function useAccess(token?: string) {
 
   const resend = () => onSubmitEmail({ email });
 
+  const toggleSignup = () => {
+    setErrorMessage(undefined);
+    setSigningUp((current) => !current);
+  };
+
   const changeEmail = () => {
     setErrorMessage(undefined);
     setStep('email');
@@ -116,6 +123,7 @@ export function useAccess(token?: string) {
 
   return {
     step,
+    signingUp,
     email,
     passkeyToken,
     errorMessage,
@@ -128,5 +136,6 @@ export function useAccess(token?: string) {
     onSubmitOffice,
     resend,
     changeEmail,
+    toggleSignup,
   };
 }

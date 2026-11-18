@@ -29,6 +29,8 @@ export const buildAuthDeps = (): AuthDeps => ({
   },
   getTenantById: async (tenantId) => {
     const tenant = await Tenant.findById(tenantId).lean();
-    return tenant ? { id: tenant._id.toString(), name: tenant.name, status: tenant.status } : null;
+    return tenant
+      ? { id: tenant._id.toString(), name: tenant.name, status: tenant.status, accessUntil: tenant.accessUntil }
+      : null;
   },
 });

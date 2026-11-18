@@ -3,11 +3,24 @@ import mongoose, { Schema } from 'mongoose';
 
 export type TenantStatus = 'provisioned' | 'active' | 'suspended';
 
+// AD-230: Asaas data the payment reconciliation needs.
+export type TenantBilling = {
+  customerId?: string;
+  subscriptionId?: string;
+  subscriptionPlan?: 'monthly' | 'yearly';
+  trialPaymentId?: string;
+  trialInvoiceUrl?: string;
+  paidAt?: Date;
+};
+
 export interface TenantDocument {
   _id: mongoose.Types.ObjectId;
   name: string;
   document: string;
   status: TenantStatus;
+  // AD-230: access only before this instant; absent = no subscription control (test and platform offices).
+  accessUntil?: Date;
+  billing?: TenantBilling;
   // Document identity (AD-121): text with markers, replaced when the PDF is generated.
   header?: string;
   footer?: string;
@@ -46,6 +59,21 @@ const tenantSchema = new Schema<TenantDocument>(
       default: 'provisioned',
       required: true,
     },
+    accessUntil: Date,
+    billing: {
+      type: new Schema(
+        {
+          customerId: String,
+          subscriptionId: String,
+          subscriptionPlan: { type: String, enum: ['monthly', 'yearly'] },
+          trialPaymentId: String,
+          trialInvoiceUrl: String,
+          paidAt: Date,
+        },
+        { _id: false },
+      ),
+      required: false,
+    },
     header: { type: String, maxlength: 1000 },
     footer: { type: String, maxlength: 1000 },
     headerStyle: textStyleSchema,
@@ -63,6 +91,9 @@ const tenantSchema = new Schema<TenantDocument>(
   { timestamps: true },
 );
 
+// The Asaas webhook finds the office by its customer.
+tenantSchema.index({ 'billing.customerId': 1 }, { unique: true, sparse: true });
+
 export const Tenant = mongoose.model<TenantDocument>('Tenant', tenantSchema);
 
 // The transition guard is the query itself: it only updates if the current status is
@@ -75,3 +106,13 @@ export const transitionTenantStatus = async (
 ): Promise<TenantDocument | null> => {
   return Tenant.findOneAndUpdate({ _id: id, status: from }, { status: to }, { returnDocument: 'after' }).lean();
 };
+
+// AD-230: the single rule of an office that can be used — not suspended by the platform (AD-098) and,
+// with a subscription, inside the paid access. Session, iCal feed and daily reminder read it.
+export const isTenantOpen = (tenant: { status: string; accessUntil?: Date }, now = new Date()): boolean =>
+  tenant.status !== 'suspended' && (!tenant.accessUntil || tenant.accessUntil > now);
+
+export const openTenantFilter = (now = new Date()) => ({
+  status: { $ne: 'suspended' as const },
+  $or: [{ accessUntil: { $exists: false } }, { accessUntil: { $gt: now } }],
+});

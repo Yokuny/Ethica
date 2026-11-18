@@ -71,7 +71,9 @@ const buildAuthDeps = (): AuthDeps => ({
   },
   getTenantById: async (tenantId) => {
     const tenant = await Tenant.findById(tenantId).lean();
-    return tenant ? { id: tenant._id.toString(), name: tenant.name, status: tenant.status } : null;
+    return tenant
+      ? { id: tenant._id.toString(), name: tenant.name, status: tenant.status, accessUntil: tenant.accessUntil }
+      : null;
   },
 });
 
@@ -323,7 +325,7 @@ describe('auth routes', () => {
       expect(sentMails).toHaveLength(0);
     });
 
-    it('a new e-mail creates its own active office as admin, then the passkey (ACE-04, APA-04)', async () => {
+    it('a new e-mail creates its own office as admin, closed until the first payment, then the passkey (ACE-04, APA-04, CHK-03)', async () => {
       const app = buildTestApp();
 
       await request(app).post('/auth/access-key').send({ email: 'nova@perita.com' });
@@ -339,6 +341,15 @@ describe('auth routes', () => {
       expect(res.status).toBe(201);
       expect(res.headers['set-cookie']).toBeUndefined();
       const registered = await createPasskey(app, res.body.data.passkeyToken);
+
+      // AD-230: the session opens, but the office has no access until Asaas confirms a payment.
+      const closed = await request(app)
+        .get('/auth/session')
+        .set('Cookie', cookieOf(registered))
+        .set('User-Agent', DEVICE);
+      expect(closed.status).toBe(403);
+      expect(closed.body.message).toBe('tenant_suspended');
+      await Tenant.updateOne({ name: 'Perícias Nova' }, { $unset: { accessUntil: 1 } });
 
       const session = await request(app)
         .get('/auth/session')

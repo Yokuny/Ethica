@@ -34,6 +34,10 @@ export const API_MESSAGE_KEYS = [
   'invalid_passkey',
   'document_already_registered',
   'email_send_failed',
+  // Subscription (AD-230)
+  'trial_unavailable',
+  'billing_not_configured',
+  'billing_unavailable',
   // Convites e links
   'invalid_link',
   'expired_link',

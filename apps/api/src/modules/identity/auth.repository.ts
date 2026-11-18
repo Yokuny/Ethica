@@ -208,7 +208,13 @@ export const createOfficeWithAdmin = async (data: {
   document: string;
 }): Promise<{ id: string; tenant: string }> =>
   withDbTiming('auth.createOfficeWithAdmin', async () => {
-    const tenant = await Tenant.create({ name: data.officeName, document: data.document, status: 'active' });
+    // AD-230: no access until the first payment confirmed by Asaas.
+    const tenant = await Tenant.create({
+      name: data.officeName,
+      document: data.document,
+      status: 'active',
+      accessUntil: new Date(),
+    });
     const user = await User.create({
       name: data.name,
       email: data.email,

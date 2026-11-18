@@ -37,9 +37,11 @@ export function AuthPage() {
             {access.step === 'email' && (
               <AccessEmailForm
                 form={access.emailForm}
+                signingUp={access.signingUp}
                 errorMessage={access.errorMessage}
                 onSubmit={access.onSubmitEmail}
                 onSigninWithDevice={access.signinWithDevice}
+                onToggleSignup={access.toggleSignup}
               />
             )}
             {access.step === 'code' && (

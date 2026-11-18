@@ -1,4 +1,4 @@
-import { Passkey, Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
+import { isTenantOpen, openTenantFilter, Passkey, Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { AccountView, FeedOwner, NoticeRecipient, PasskeyView, UpdateProfile } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
@@ -85,23 +85,23 @@ export const hasCalendarFeed = async (tenantId: string, userId: string): Promise
   });
 
 // Public feed route: the token is the only credential. An inactive user, one without a role or from a
-// suspended tenant (AD-098) has no owner — the feed answers 404.
+// closed tenant (suspended, AD-098, or without paid access, AD-230) has no owner — the feed answers 404.
 export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null> =>
   withDbTiming('account.findFeedOwner', async () => {
     const user = await User.findOne({ calendarFeedTokenHash: tokenHash, active: true, 'role.0': { $exists: true } })
       .select('Tenant')
       .lean();
     if (!user?.Tenant) return null;
-    const tenant = await Tenant.findById(user.Tenant).select('status').lean();
-    if (!tenant || tenant.status === 'suspended') return null;
+    const tenant = await Tenant.findById(user.Tenant).select('status accessUntil').lean();
+    if (!tenant || !isTenantOpen(tenant)) return null;
     return { userId: user._id.toString(), tenantId: user.Tenant.toString() };
   });
 
-// AD-110: active users with a role and the reminder on (missing = on), from non-suspended tenants.
+// AD-110: active users with a role and the reminder on (missing = on), from open tenants (AD-230).
 export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promise<NoticeRecipient[]> =>
   withDbTiming('account.listDeadlineReminderRecipients', async () => {
     if (tenantIds.length === 0) return [];
-    const active = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, status: { $ne: 'suspended' } })
+    const active = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, ...openTenantFilter() })
       .select('_id')
       .lean();
     const users = await User.find({

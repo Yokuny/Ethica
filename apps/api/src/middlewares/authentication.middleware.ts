@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { effectivePermissions, type Permissions, type Role, type TenantUser } from '@ethica/contracts';
+import { isTenantOpen } from '@ethica/db';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.config.js';
@@ -33,6 +34,7 @@ export type TenantRecord = {
   id: string;
   name: string;
   status: string;
+  accessUntil?: Date;
 };
 
 // Injected — the four database touch points the factory needs.
@@ -68,10 +70,12 @@ export const extractToken = (req: Request): string | undefined => {
 // Express pipeline so it can be reused (e.g. WebSocket handshake).
 // `token` accepts `undefined` because `extractToken` can already return it
 // when the credential did not come — the 401 is resolved here.
+// `allowClosed`: the subscription routes (AD-230) work with the office closed, so it can pay.
 export const authenticateSession = async (
   token: string | undefined,
   deviceInfo: string,
   deps: AuthDeps,
+  { allowClosed = false } = {},
 ): Promise<TenantUser> => {
   if (!token) throw new CustomError('invalid_session', 401);
 
@@ -101,7 +105,7 @@ export const authenticateSession = async (
   if (!user?.active) throw new CustomError('invalid_session', 401);
 
   const tenant = user.tenant ? await deps.getTenantById(user.tenant) : undefined;
-  if (tenant?.status === 'suspended') throw new CustomError('tenant_suspended', 403);
+  if (tenant && !allowClosed && !isTenantOpen(tenant)) throw new CustomError('tenant_suspended', 403);
 
   return {
     tenant: tenant?.id,
@@ -113,16 +117,19 @@ export const authenticateSession = async (
 };
 
 export const createAuthMiddleware = (deps: AuthDeps) => {
-  const validToken = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const token = extractToken(req);
-      const deviceInfo = req.headers['user-agent'] ?? 'unknown';
-      req.tenantUser = await authenticateSession(token, deviceInfo, deps);
-      next();
-    } catch (e) {
-      next(e);
-    }
-  };
+  const middleware =
+    (allowClosed: boolean) =>
+    async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+      try {
+        const token = extractToken(req);
+        const deviceInfo = req.headers['user-agent'] ?? 'unknown';
+        req.tenantUser = await authenticateSession(token, deviceInfo, deps, { allowClosed });
+        next();
+      } catch (e) {
+        next(e);
+      }
+    };
 
-  return { validToken };
+  // validSession: the same session without the office access barrier — only the subscription routes.
+  return { validToken: middleware(false), validSession: middleware(true) };
 };

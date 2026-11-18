@@ -37,6 +37,11 @@ export const envSchema = z.object({
   S3_SECRET_ACCESS_KEY: optionalSecret,
   // Production (AD-202): role assumed per tenant with the session tag tenantId. Empty in dev (RustFS has no STS).
   S3_ROLE_ARN: optionalSecret,
+  // Office subscription (AD-230). Sandbox: https://api-sandbox.asaas.com/v3. Without the key, paying
+  // answers `billing_not_configured`; without the token, every webhook is refused.
+  ASAAS_API_URL: z.string().default('https://api.asaas.com/v3'),
+  ASAAS_API_KEY: optionalSecret,
+  ASAAS_WEBHOOK_TOKEN: optionalSecret,
 });
 
 export type Env = z.infer<typeof envSchema>;
