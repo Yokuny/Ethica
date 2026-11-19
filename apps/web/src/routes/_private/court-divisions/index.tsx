@@ -1,7 +1,7 @@
 import { Button } from '@ethica/ui/components/button';
+import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
-import { FileUp } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
@@ -9,6 +9,7 @@ import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { PageMenu } from '@/components/page-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type CourtDivisionRecord, courtDivisionsQuery, deleteCourtDivisionMutation } from '@/query/court-division.js';
 import { can, sessionQuery } from '@/query/session.js';
@@ -57,11 +58,12 @@ export function CourtDivisionsPage() {
       <CardHeader title={t('court_divisions')} description={t('court_divisions_page_description')}>
         {canCreate && (
           <CardAction>
-            <Button variant="outline" onClick={() => setDialog({ kind: 'import' })}>
-              <FileUp />
-              {t('import_spreadsheet')}
-            </Button>
             <Button onClick={() => setDialog({ kind: 'form' })}>{t('add')}</Button>
+            <PageMenu>
+              <DropdownMenuItem onClick={() => setDialog({ kind: 'import' })}>
+                {t('import_spreadsheet')}
+              </DropdownMenuItem>
+            </PageMenu>
           </CardAction>
         )}
       </CardHeader>

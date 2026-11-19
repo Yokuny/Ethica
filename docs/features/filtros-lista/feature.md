@@ -68,5 +68,6 @@ pnpm vitest run packages/contracts/src/schemas/query-list.schema.unit.test.ts ap
 
 ## Histórico
 
+- 2026-11-19 — `ToggleGroup` sem divisores entre os itens: uma borda só na barra e a caixa tingida só no marcado (AD-235).
 - 2026-11-14 — Exportar lista em CSV, Excel ou PDF, em tela ou todos os filtrados (AD-223).
 - 2026-11-11 — Criada: lista de filtros com opções marcáveis, várias por filtro (AD-218).

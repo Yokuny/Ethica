@@ -7,7 +7,7 @@ import { cn } from '../lib/utils.js';
 // Single selection (tabs/filters): the pressed item gets the Badge pastel tone; the icon already
 // carries the tone color when released.
 const toggleGroupItemVariants = cva(
-  'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-input bg-card px-2.5 shadow-xs font-sans text-xs font-medium whitespace-nowrap text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
+  'inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 -my-px rounded-md border border-transparent px-2.5 font-sans text-xs font-medium whitespace-nowrap text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
       tone: {
@@ -33,8 +33,8 @@ type ToggleGroupProps = Omit<ToggleGroupPrimitive.Props, 'value' | 'defaultValue
   onValueChange: (value: string) => void;
 };
 
-// Single value API: clicking the item already pressed does not clear the selection. The items are glued in one
-// segmented bar (ButtonGroup look): inner corners square, borders shared, the pressed one drawn on top.
+// Single value API: clicking the item already pressed does not clear the selection. One bar with a single outline and
+// no dividers between the items: only the pressed one shows its own tinted box, laid over the bar's outline.
 function ToggleGroup({ value, onValueChange, className, ...props }: ToggleGroupProps) {
   return (
     <ToggleGroupPrimitive
@@ -42,7 +42,7 @@ function ToggleGroup({ value, onValueChange, className, ...props }: ToggleGroupP
       value={[value]}
       onValueChange={([next]) => next && onValueChange(next)}
       className={cn(
-        'flex w-fit items-center rounded-md shadow-xs [&>*:not(:first-child)]:-ms-px [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none [&>*]:shadow-none [&>[data-pressed]]:z-10',
+        'flex w-fit items-center rounded-md border border-input bg-card shadow-xs [&>*:first-child]:-ms-px [&>*:last-child]:-me-px [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
         className,
       )}
       {...props}

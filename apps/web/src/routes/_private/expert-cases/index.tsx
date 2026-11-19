@@ -1,10 +1,12 @@
 import { Button } from '@ethica/ui/components/button';
+import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { PageMenu } from '@/components/page-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { casesQuery, serviceOrderPreviewQuery } from '@/query/case.js';
 import { listStatsQuery } from '@/query/listStats.js';
@@ -44,6 +46,7 @@ export function CasesIndexPage() {
   };
   const query = useQuery(casesQuery({ ...params, page: search.page, limit: search.limit }));
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const filters = useCasesFilters(search, update);
   const statsQuery = useQuery(listStatsQuery('/expert-cases/stats'));
   const serviceOrder = useQuery(serviceOrderPreviewQuery).data;
@@ -59,13 +62,12 @@ export function CasesIndexPage() {
         <CardAction>
           {canCreate && (
             <>
-              <Button
-                variant="outline"
-                nativeButton={false}
-                role="link"
-                render={<Link to="/expert-cases/import">{t('import_spreadsheet')}</Link>}
-              />
               <Button nativeButton={false} role="link" render={<Link to="/expert-cases/add">{t('add')}</Link>} />
+              <PageMenu>
+                <DropdownMenuItem onClick={() => navigate({ to: '/expert-cases/import' })}>
+                  {t('import_spreadsheet')}
+                </DropdownMenuItem>
+              </PageMenu>
             </>
           )}
         </CardAction>
