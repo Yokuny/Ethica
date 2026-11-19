@@ -79,6 +79,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-236** (2026-11-19, active) — A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: Serv
 - **AD-235** (2026-11-19, active) — Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) Fluxo de caixa vira tabela de calor: uma linha por mês
 - **AD-234** (2026-11-19, active) — No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo (`MobileDock`), e o que só existe de
 - **AD-233** (2026-11-18, active (celular centralizado superseded by AD-234)) — O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI
@@ -88,7 +89,6 @@ _Nenhum._
 - **AD-229** (2026-11-15, active) — o calendário da Agenda segue o visual da agenda do DentalEase: blocos em tom pastel sem borda, cor só pelo tipo do item (mapa `TYPE_COLORS`
 - **AD-228** (2026-11-15, active) — no Dashboard, o gráfico de colunas por ano dá lugar a Serviços por mês: os últimos 12 meses até o atual (mês sem serviço é coluna zero), con
 - **AD-227** (2026-11-15, active) — Relatórios (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fi
-- **AD-226** (2026-11-15, active) — o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que c
 
 ## `.specs/` sem registro em `docs/features/`
 

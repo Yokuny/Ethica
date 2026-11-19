@@ -52,7 +52,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`; UAT geral com o seed — `fundacao-ethica`
 - [ ] Conferir no celular: gráfico de serviços (`dashboard`), telas e exportação das listas (`filtros-lista`)
-- [ ] Conferir no navegador o fluxo de caixa em tabela, as categorias em ranking e o menu "…" com Importar planilha em Serviços e Varas — `dashboard`
+- [ ] Conferir no navegador as tabelas por mês e os rankings do Dashboard e do Início, e o menu "…" com Importar planilha em Serviços e Varas — `dashboard`
 - [ ] PDF com a fonte Source Sans em produção — `biblioteca-modelos`
 - [ ] Revisar os textos das fases (`fase-servico`) e os textos-base do laudo e da biblioteca NR-15/NR-16 (`laudo-montagem`, `laudos`, `novo-laudo`)
 - [ ] Testar a leitura com atas e processos reais de outros tribunais — `importacao-processos`, `laudo-montagem`
@@ -81,6 +81,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-19 — Serviços por mês/tipo e Início com número escrito: tabela por mês e rankings (AD-236) — `dashboard`
 - [x] 2026-11-19 — Dashboard com valores escritos: fluxo de caixa em tabela de calor e categorias em ranking (AD-235) — `dashboard`
 - [x] 2026-11-18 — Tutorial de uso para novos usuários: tour guiado do primeiro acesso, por permissão (AD-233) — `tour-guiado`
 - [x] 2026-11-18 — Rodar `integration`/`e2e` com o Mongo local (642 testes verdes) — `fundacao-ethica`

@@ -1,8 +1,8 @@
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { cn } from 'cn';
 
-// Same identity colors as the cash flow: income in the chart blue, expenses in the error tone.
-const TONE = { income: 'bg-chart-1', expense: 'bg-status-error-indicator' } as const;
+// Identity color, fixed across panels: the chart blue for counts and income, the error tone for expenses.
+const TONE = { info: 'bg-chart-1', error: 'bg-status-error-indicator' } as const;
 
 type ShareListProps = {
   tone: keyof typeof TONE;

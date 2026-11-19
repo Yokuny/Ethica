@@ -91,8 +91,22 @@ describe('Dashboard (DSH)', () => {
     ]);
     // 'b' is older than 12 months, 'c' is canceled, 'f' is from another office.
     expect(body.data.byMonth).toHaveLength(12);
-    expect(body.data.byMonth.at(-1)).toEqual({ month, count: 3 });
-    expect(body.data.byMonth.at(-3)).toEqual({ month: shiftMonth(month, -2), count: 1 });
+    expect(body.data.byMonth.at(-1)).toEqual({
+      month,
+      count: 3,
+      // Same count: by the type name.
+      byType: [
+        { role: 'other', serviceType: 'Parceria', count: 1 },
+        { role: 'court_expert', count: 1 },
+        { role: 'technical_assistant', count: 1 },
+      ],
+    });
+    expect(body.data.byMonth.at(-3)).toEqual({
+      month: shiftMonth(month, -2),
+      count: 1,
+      byType: [{ role: 'court_expert', count: 1 }],
+    });
+    expect(body.data.byMonth.at(-2)).toEqual({ month: shiftMonth(month, -1), count: 0, byType: [] });
     expect(body.data.byMonth.reduce((total: number, row: { count: number }) => total + row.count, 0)).toBe(4);
   });
 

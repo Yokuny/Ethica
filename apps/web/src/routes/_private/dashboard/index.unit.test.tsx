@@ -39,8 +39,15 @@ const renderPage = (role: Role[]) => {
       { role: 'other', serviceType: 'Parceria', count: 3 },
     ],
     byMonth: [
-      { month: '2026-10', count: 4 },
-      { month: '2026-11', count: 5 },
+      { month: '2026-10', count: 4, byType: [{ role: 'court_expert', count: 4 }] },
+      {
+        month: '2026-11',
+        count: 5,
+        byType: [
+          { role: 'court_expert', count: 3 },
+          { role: 'other', serviceType: 'Parceria', count: 2 },
+        ],
+      },
     ],
   });
   queryClient.setQueryData(feesDashboardQuery.queryKey, {
@@ -60,9 +67,18 @@ describe('Dashboard (DSH)', () => {
   it('mostra os totais, os tipos e o recebido somado', () => {
     renderPage(['admin']);
     expect(screen.getByText('Serviços finalizados')).toBeInTheDocument();
-    expect(screen.getByText('Perícia')).toBeInTheDocument();
-    expect(screen.getByText('Parceria')).toBeInTheDocument();
+    // In the ranking by type and as a column of the table by month.
+    expect(screen.getAllByText('Perícia')).toHaveLength(2);
+    expect(screen.getAllByText('Parceria')).toHaveLength(2);
     expect(screen.getByText(/3\.000,00/)).toBeInTheDocument();
+  });
+
+  it('serviços por mês: total e cada tipo com a variação contra o mês anterior', () => {
+    renderPage(['operator']);
+    const november = screen.getByRole('rowheader', { name: /novembro de 2026/i }).closest('tr') as HTMLElement;
+    expect(november).toHaveTextContent('Em andamento');
+    // Total 5 (+1), Perícia 3 (-1), Parceria 2 (+2).
+    expect(november).toHaveTextContent(/5\s*\+1.*3\s*-1.*2\s*\+2/);
   });
 
   it('sem o Financeiro, nenhum valor em dinheiro aparece (DSH-06)', () => {

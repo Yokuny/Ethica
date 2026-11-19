@@ -4,9 +4,9 @@ import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { serviceTypeLabel } from '@/components/case-labels.js';
+import { CashFlowTable } from '@/components/cash-flow-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { HeatTiles, HeatTilesLegend } from '@/components/heat-tiles.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
@@ -15,9 +15,8 @@ import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { type CategoryTotal, categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
-import { CashFlowTable } from './@components/cash-flow-table.js';
+import { CasesMonthTable } from './@components/cases-month-table.js';
 import { FinanceOverview } from './@components/finance-overview.js';
-import { MonthColumnsChart } from './@components/month-columns-chart.js';
 import {
   type DashboardSearch,
   dashboardSearchSchema,
@@ -76,23 +75,30 @@ export function DashboardPage() {
             <Panel
               size="lg"
               title={t('expert_cases_by_type')}
-              actions={cases.data.byType.length > 0 && <HeatTilesLegend />}
+              description={t('all_services_since_start')}
+              actions={
+                cases.data.byType.length > 0 && (
+                  <ItemTitle className="font-medium tabular-nums">{formatNumber(cases.data.total)}</ItemTitle>
+                )
+              }
             >
               {cases.data.byType.length ? (
-                <HeatTiles
+                <ShareList
+                  tone="info"
                   items={cases.data.byType.map((row) => ({
                     key: row.serviceType ?? row.role,
                     label: serviceTypeLabel(row),
-                    count: row.count,
+                    amount: row.count,
+                    value: formatNumber(row.count),
                   }))}
                 />
               ) : (
                 <DefaultEmptyData title={t('no_data_yet')} />
               )}
             </Panel>
-            <Panel size="lg" title={t('expert_cases_by_month')}>
+            <Panel size="lg" title={t('expert_cases_by_month')} description={t('services_by_month_scope')}>
               {cases.data.byMonth.some((row) => row.count) ? (
-                <MonthColumnsChart label={t('expert_cases')} data={cases.data.byMonth} />
+                <CasesMonthTable byMonth={cases.data.byMonth} />
               ) : (
                 <DefaultEmptyData title={t('no_data_yet')} />
               )}
@@ -145,7 +151,7 @@ export function DashboardPage() {
                     ) : !income.data?.length ? (
                       <DefaultEmptyData title={t('no_entries_yet')} />
                     ) : (
-                      <ShareList tone="income" items={shares(income.data)} />
+                      <ShareList tone="info" items={shares(income.data)} />
                     )}
                   </Panel>
                   <Panel
@@ -163,7 +169,7 @@ export function DashboardPage() {
                     ) : !expenses.data?.length ? (
                       <DefaultEmptyData title={t('no_entries_yet')} />
                     ) : (
-                      <ShareList tone="expense" items={shares(expenses.data)} />
+                      <ShareList tone="error" items={shares(expenses.data)} />
                     )}
                   </Panel>
                 </div>

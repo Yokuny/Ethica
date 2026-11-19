@@ -251,7 +251,8 @@
       "decisoes": [
         "AD-200",
         "AD-228",
-        "AD-235"
+        "AD-235",
+        "AD-236"
       ],
       "spec": [
         ".specs/features/dashboard"
@@ -1986,6 +1987,12 @@
     {
       "id": "AD-235",
       "decisao": "Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) Fluxo de caixa vira tabela de calor: uma linha por mês",
+      "data": "2026-11-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-236",
+      "decisao": "A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: Serv",
       "data": "2026-11-19",
       "status": "active"
     }

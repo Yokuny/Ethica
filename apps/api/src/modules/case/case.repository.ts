@@ -491,10 +491,17 @@ export const dashboard = async (tenantId: string, months: string[]): Promise<Cas
         { $sort: { count: -1, _id: 1 } },
       ]),
       // Every service but the canceled, by the nomination month; without it, the registration month in the display time zone.
-      Case.aggregate<{ _id: string; count: number }>([
+      Case.aggregate<{
+        _id: { month: string; type: string };
+        role: CaseRole;
+        serviceType: string | null;
+        count: number;
+      }>([
         { $match: { Tenant, status: { $ne: 'canceled' } } },
         {
           $project: {
+            role: 1,
+            serviceType: 1,
             day: {
               $ifNull: [
                 '$nominationDate',
@@ -504,15 +511,27 @@ export const dashboard = async (tenantId: string, months: string[]): Promise<Cas
           },
         },
         { $match: { day: { $gte: `${months[0]}-01` } } },
-        { $group: { _id: { $substrBytes: ['$day', 0, 7] }, count: { $sum: 1 } } },
+        {
+          $group: {
+            _id: { month: { $substrBytes: ['$day', 0, 7] }, type: { $ifNull: ['$serviceType', '$role'] } },
+            role: { $first: '$role' },
+            serviceType: { $first: '$serviceType' },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1, '_id.type': 1 } },
       ]),
     ]);
-    const counts = new Map(byMonth.map(({ _id, count }) => [_id, count]));
     return {
       total,
       closed: total - open,
       byType: byType.map(({ role, serviceType, count }) => ({ role, serviceType: serviceType ?? undefined, count })),
-      byMonth: months.map((month) => ({ month, count: counts.get(month) ?? 0 })),
+      byMonth: months.map((month) => {
+        const types = byMonth
+          .filter(({ _id }) => _id.month === month)
+          .map(({ role, serviceType, count }) => ({ role, serviceType: serviceType ?? undefined, count }));
+        return { month, count: types.reduce((total, type) => total + type.count, 0), byType: types };
+      }),
     };
   });
 

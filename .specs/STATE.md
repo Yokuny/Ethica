@@ -1399,6 +1399,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-19
 - **Status**: active
 
+### AD-236
+- **Decision**: A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: **Serviços por mês** vira tabela por mês com o total e uma coluna por tipo que teve serviço no período (o tipo com mais serviços primeiro), cada contagem com a variação; o mês mais antigo fica sem variação. **Serviços por tipo** vira ranking (`ShareList`) com quantidade e parcela, total no cabeçalho. (2) Início: o **Fluxo de caixa** usa a mesma tabela do Dashboard (6 meses, com o mês base) e ocupa a largura toda; **Serviços por justiça** vira ranking em vez do gráfico de rosca. (3) `GET /expert-cases/dashboard` passa a mandar, em cada mês de `byMonth`, a mesma contagem separada por tipo (`byType`), sem mudar `count`. (4) Uma só tabela por mês (`MonthHeatTable`) serve o fluxo de caixa e os serviços; saem `FinanceFlowChart`, `MonthColumnsChart`, `CasesCourtTypeChart` e `CategoriesChart`. Estende a AD-235.
+- **Reason**: pedido do usuário em 2026-11-19 ("aplique a mesma ideia em serviços por mês e por tipo", e no Início).
+- **Trade-off**: com muitos tipos do escritório a tabela de serviços ganha colunas e rola de lado; o Início perde a disposição lado a lado de fluxo de caixa e justiça. Gráfico recharts no app logado só fica na vitrine pública do login.
+- **Scope**: `apps/api/src/modules/case/{case.repository,case.schema,dashboard.router.e2e.test}.ts`, `apps/web/src/components/{month-heat-table,cash-flow-table,share-list}.tsx`, `apps/web/src/routes/_private/dashboard/`, `apps/web/src/routes/_private/index.tsx`, `.agents/skills/ethica-web-standards/SKILL.md`.
+- **Date**: 2026-11-19
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

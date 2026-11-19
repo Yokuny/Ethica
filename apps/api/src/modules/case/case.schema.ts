@@ -164,7 +164,8 @@ export type CaseDashboard = {
   total: number;
   closed: number;
   byType: { role: CaseRole; serviceType?: string; count: number }[];
-  byMonth: { month: string; count: number }[];
+  // Each month with its total and the same count split by type.
+  byMonth: { month: string; count: number; byType: { role: CaseRole; serviceType?: string; count: number }[] }[];
 };
 
 export type CaseDistribution = {

@@ -183,6 +183,8 @@ const translations: Record<string, string> = {
   change_from_previous_month_note: 'Os números menores mostram a variação em relação ao mês anterior.',
   entries_since_start: 'Lançamentos desde o início, sem os anulados',
   in_progress: 'Em andamento',
+  all_services_since_start: 'Todos os serviços desde o início',
+  services_by_month_scope: 'Últimos 12 meses, pela nomeação ou pelo cadastro, sem os cancelados',
   category: 'Categoria',
   change_filters_or_add_data: 'Altere a filtragem ou adicione novos dados.',
   changes_saved: 'Alterações salvas.',

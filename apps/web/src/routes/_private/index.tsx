@@ -1,16 +1,18 @@
-import { HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
+import { COURTTYPES, type CourtType, HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
+import { courtTypeLabel } from '@/components/case-labels.js';
+import { CashFlowTable } from '@/components/cash-flow-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
 import { HeatTilesLegend } from '@/components/heat-tiles.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
 import { Panel } from '@/components/panel.js';
+import { ShareList } from '@/components/share-list.js';
 import { UpcomingAppointments } from '@/components/upcoming-appointments.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { upcomingAppointmentsQuery } from '@/query/appointment.js';
@@ -19,7 +21,6 @@ import { listStatsQuery } from '@/query/listStats.js';
 import { preferencesQuery } from '@/query/preferences.js';
 import { can } from '@/query/session.js';
 import { financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
-import { CasesCourtTypeChart } from './@components/cases-court-type-chart.js';
 import { CasesPhaseTiles } from './@components/cases-phase-tiles.js';
 import { HomeCustomize } from './@components/home-customize.js';
 import { HomeOverview } from './@components/home-overview.js';
@@ -28,6 +29,7 @@ import { HOME_BLOCK_MODULE } from './@consts/home-blocks.js';
 import { useHomePage } from './@hooks/use-home-page.js';
 
 const FLOW_MONTHS = 6;
+const number = new Intl.NumberFormat('pt-BR');
 
 // Home configurable per user (AD-136): only the blocks the matrix allows viewing (AD-137),
 // minus those the person hid.
@@ -51,7 +53,13 @@ export function PrivateIndexPage() {
   const stalled = useQuery({ ...stalledCasesQuery, enabled: show('stalled') });
   const upcoming = useQuery({ ...upcomingAppointmentsQuery({ limit: 5 }), enabled: show('upcoming') });
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance && show('overview') });
-  const flow = useQuery({ ...monthlyFlowQuery(FLOW_MONTHS), enabled: show('cash_flow') });
+  // One month more than shown: the base of the first month's change.
+  const flow = useQuery({ ...monthlyFlowQuery(FLOW_MONTHS + 1), enabled: show('cash_flow') });
+  // Known court types only, the largest first.
+  const courtTypes = (distribution.data?.courtType ?? [])
+    .filter((group): group is { key: CourtType; count: number } => COURTTYPES.includes(group.key as CourtType))
+    .filter((group) => group.count)
+    .sort((a, b) => b.count - a.count);
   // Commitments and stalled cases only take room on the home when there is something to list.
   const showUpcoming = show('upcoming') && (upcoming.isLoading || Boolean(upcoming.data?.length));
   const showStalled = show('stalled') && (stalled.isLoading || Boolean(stalled.data?.total));
@@ -93,25 +101,35 @@ export function PrivateIndexPage() {
             )}
           </div>
         )}
-        {(show('cash_flow') || show('by_court')) && (
-          <div className="grid gap-10 lg:grid-cols-3">
-            {show('cash_flow') && (
-              <Panel size="lg" className="lg:col-span-2" title={t('cash_flow')} description={t('last_6_months')}>
-                {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
-              </Panel>
+        {show('cash_flow') && (
+          <Panel size="lg" title={t('cash_flow')} description={t('last_6_months')}>
+            {flow.isLoading ? (
+              <DefaultLoading />
+            ) : !flow.data?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents) ? (
+              <DefaultEmptyData title={t('no_entries_yet')} />
+            ) : (
+              <CashFlowTable data={flow.data} />
             )}
-            {show('by_court') && (
-              <Panel size="lg" title={t('expert_cases_by_court')}>
-                {distribution.isLoading ? (
-                  <DefaultLoading />
-                ) : !distribution.data?.courtType.length ? (
-                  <DefaultEmptyData title={t('no_expert_cases_yet')} />
-                ) : (
-                  <CasesCourtTypeChart groups={distribution.data.courtType} />
-                )}
-              </Panel>
+          </Panel>
+        )}
+        {show('by_court') && (
+          <Panel size="lg" title={t('expert_cases_by_court')}>
+            {distribution.isLoading ? (
+              <DefaultLoading />
+            ) : !courtTypes.length ? (
+              <DefaultEmptyData title={t('no_expert_cases_yet')} />
+            ) : (
+              <ShareList
+                tone="info"
+                items={courtTypes.map((group) => ({
+                  key: group.key,
+                  label: courtTypeLabel(group.key),
+                  amount: group.count,
+                  value: number.format(group.count),
+                }))}
+              />
             )}
-          </div>
+          </Panel>
         )}
       </CardContent>
       {customizing && <HomeCustomize blocks={allowed} hidden={hidden} onClose={() => setCustomizing(false)} />}
