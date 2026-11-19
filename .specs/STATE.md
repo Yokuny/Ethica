@@ -1381,6 +1381,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: sem escurecer o resto da tela nem apontar para elementos dentro das páginas; um tour dentro das telas exigiria esperar o elemento e reposicionar na rolagem.
 - **Scope**: `packages/ui/src/components/popover.tsx`, `apps/web/src/routes/_private/` (`route.tsx`, `@components/guided-tour.tsx`, `@consts/tour-steps.ts`, `@components/workspace-navigation.tsx`), `apps/web/src/components/user-menu.tsx`, `apps/web/src/index.css`.
 - **Date**: 2026-11-18
+- **Status**: active (celular centralizado superseded by AD-234)
+
+### AD-234
+- **Decision**: No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo (`MobileDock`), e o que só existe dentro do menu (Prazos, Laudos, Financeiro, escritório, conta) aponta para o botão **Menu** da barra. O alvo é o primeiro elemento visível com o `data-tour` do passo, e o "Menu" é a reserva; no computador a barra fica escondida e vale o item do menu lateral. Só o passo de boas-vindas fica no centro. Supersede a parte "celular em balões centralizados" da AD-233.
+- **Reason**: pedido do usuário em 2026-11-19: o tour precisa funcionar da mesma forma no celular. Abrir a gaveta do menu durante o tour poria o balão fora de um diálogo modal.
+- **Trade-off**: no celular, várias paradas destacam o mesmo botão Menu; o nome da seção fica no título do balão.
+- **Scope**: `apps/web/src/components/mobile-dock.tsx`, `apps/web/src/routes/_private/@components/guided-tour.tsx`.
+- **Date**: 2026-11-19
 - **Status**: active
 
 ## Handoff

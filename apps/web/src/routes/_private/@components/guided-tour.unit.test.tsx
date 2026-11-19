@@ -6,7 +6,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '../../../query/session.js';
 
-// Without the shell, the menu is absent: every step shows centered (as on the phone).
+// Without the shell, the menu is absent: every step shows centered.
 vi.mock('@ethica/ui/components/sidebar', () => ({ useSidebar: () => ({ isMobile: false }) }));
 const patch = vi.fn();
 vi.mock('../../../lib/api/client.api.js', () => ({ get: vi.fn(), patch: (...args: unknown[]) => patch(...args) }));
@@ -77,8 +77,10 @@ describe('GuidedTour', () => {
   });
 
   it('destaca o item do menu do passo e tira o destaque ao avançar', () => {
+    // jsdom has no layout: the item reports a box, as a visible menu item does.
     const menuItem = document.createElement('li');
     menuItem.setAttribute('data-tour', '/expert-cases');
+    menuItem.getClientRects = () => [new DOMRect(0, 0, 10, 10)] as unknown as DOMRectList;
     document.body.append(menuItem);
     renderTour(['admin']);
 
@@ -90,6 +92,20 @@ describe('GuidedTour', () => {
     expect(screen.getByText('Prazos e Alertas')).toBeInTheDocument();
     expect(menuItem).not.toHaveAttribute('data-tour-active');
     menuItem.remove();
+  });
+
+  it('no celular, seção sem botão na barra de baixo destaca o Menu', () => {
+    const dockMenu = document.createElement('button');
+    dockMenu.setAttribute('data-tour', 'menu');
+    dockMenu.getClientRects = () => [new DOMRect(0, 0, 10, 10)] as unknown as DOMRectList;
+    document.body.append(dockMenu);
+    renderTour(['admin']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo' }));
+    expect(screen.getByText('Prazos e Alertas')).toBeInTheDocument();
+    expect(dockMenu).toHaveAttribute('data-tour-active');
+    dockMenu.remove();
   });
 
   it('Pular grava que a pessoa já viu o tour e fecha', async () => {

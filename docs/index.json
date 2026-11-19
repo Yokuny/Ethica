@@ -2,6 +2,28 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "tour-guiado",
+      "feature": "Tour guiado",
+      "descricao": "Tour no primeiro acesso que destaca as seções do menu conforme as permissões da pessoa, reaberto por \"Ver tour\"",
+      "data": "2026-11-19",
+      "status": "concluido",
+      "areas": [
+        "apps/web",
+        "packages/ui"
+      ],
+      "decisoes": [
+        "AD-233",
+        "AD-234",
+        "AD-137",
+        "AD-087"
+      ],
+      "spec": [
+        ".specs/features/tour-guiado"
+      ],
+      "planos": [],
+      "doc": "features/tour-guiado/feature.md"
+    },
+    {
       "slug": "cadastro-checkout",
       "feature": "Cadastro com checkout",
       "descricao": "Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso",
@@ -27,27 +49,6 @@
       ],
       "planos": [],
       "doc": "features/cadastro-checkout/feature.md"
-    },
-    {
-      "slug": "tour-guiado",
-      "feature": "Tour guiado",
-      "descricao": "Tour no primeiro acesso que destaca as seções do menu conforme as permissões da pessoa, reaberto por \"Ver tour\"",
-      "data": "2026-11-18",
-      "status": "concluido",
-      "areas": [
-        "apps/web",
-        "packages/ui"
-      ],
-      "decisoes": [
-        "AD-233",
-        "AD-137",
-        "AD-087"
-      ],
-      "spec": [
-        ".specs/features/tour-guiado"
-      ],
-      "planos": [],
-      "doc": "features/tour-guiado/feature.md"
     },
     {
       "slug": "fundacao-ethica",
@@ -1971,6 +1972,12 @@
       "id": "AD-233",
       "decisao": "O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI",
       "data": "2026-11-18",
+      "status": "active (celular centralizado superseded by AD-234)"
+    },
+    {
+      "id": "AD-234",
+      "decisao": "No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo (`MobileDock`), e o que só existe de",
+      "data": "2026-11-19",
       "status": "active"
     }
   ]

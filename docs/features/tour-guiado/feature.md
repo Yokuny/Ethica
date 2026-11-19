@@ -2,16 +2,16 @@
 feature: Tour guiado
 slug: tour-guiado
 descricao: Tour no primeiro acesso que destaca as seções do menu conforme as permissões da pessoa, reaberto por "Ver tour"
-data: 2026-11-18
+data: 2026-11-19
 status: concluido
 areas: [apps/web, packages/ui]
-decisoes: [AD-233, AD-137, AD-087]
+decisoes: [AD-233, AD-234, AD-137, AD-087]
 spec: [.specs/features/tour-guiado]
 ---
 
 # Tour guiado
 
-**Status**: concluido · **Atualizado**: 2026-11-18 · **Áreas**: `apps/web`, `packages/ui`
+**Status**: concluido · **Atualizado**: 2026-11-19 · **Áreas**: `apps/web`, `packages/ui`
 
 > Documento vivo. Requisitos e desenho em `.specs/features/tour-guiado/spec.md` (congelado).
 > Correlação com o git: `git log --oneline -i --grep='tour-guiado'`.
@@ -25,7 +25,8 @@ spec: [.specs/features/tour-guiado]
 - Só aparecem as seções que a pessoa vê no menu (matriz de permissões): o operador sem financeiro não vê o Financeiro.
 - Concluir ou pular grava que a pessoa já viu o tour, em qualquer aparelho. **"Ver tour"** no menu do usuário
   (rodapé do menu lateral) reabre o tour a qualquer momento.
-- No celular, onde o menu é uma gaveta fechada, os mesmos passos aparecem em balões no centro da tela.
+- No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo, e o que
+  fica dentro do menu (Prazos, Laudos, Financeiro, escritório, conta) aponta para o botão **Menu** (AD-234).
 
 ## Por que
 
@@ -44,6 +45,7 @@ preferência `onboardingDismissed` que a API já guardava por pessoa (AD-233).
 - `apps/web/src/routes/_private/route.tsx` — monta o tour no shell, valendo para qualquer rota.
 - `apps/web/src/routes/_private/@components/workspace-navigation.tsx` e `apps/web/src/components/user-menu.tsx` —
   alvos `data-tour` (item = rota, grupo Configurações = `admin`, menu do usuário = `account`) e o item "Ver tour".
+- `apps/web/src/components/mobile-dock.tsx` — alvos `data-tour` da barra de baixo do celular (`menu` é a reserva).
 - `apps/web/src/index.css` — contorno do alvo (`[data-tour-active]`).
 
 ### `packages/ui`
@@ -70,6 +72,8 @@ preferência `onboardingDismissed` que a API já guardava por pessoa (AD-233).
 - 2026-11-18 — Revisão: a âncora é gravada antes da pintura (`useLayoutEffect`), para o balão não piscar no centro
   ao trocar de passo; o contorno fica para dentro do item (o menu corta o que passa da borda); "Ver tour" no celular
   fecha a gaveta do menu antes de abrir o tour; teste cobre o destaque do item.
+- 2026-11-19 — Celular com destaque, como no computador (AD-234): barra de baixo e botão Menu como alvos, no lugar
+  dos balões centralizados.
 
 ## Referências
 

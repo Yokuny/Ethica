@@ -25,20 +25,28 @@ export function MobileDock() {
         <Home className="size-5" />
         {t('home')}
       </Link>
-      <Link to="/expert-cases" className={cn(tileClassName, pathname.startsWith('/expert-cases') && 'text-primary')}>
+      <Link
+        to="/expert-cases"
+        data-tour="/expert-cases"
+        className={cn(tileClassName, pathname.startsWith('/expert-cases') && 'text-primary')}
+      >
         <BriefcaseBusiness className="size-5" />
         {t('expert_cases')}
       </Link>
-      <Link to="/agenda" className={tileClassName}>
+      <Link to="/agenda" data-tour="/agenda" className={tileClassName}>
         <CalendarDays className="size-5" />
         {t('agenda')}
       </Link>
       {/* Field (AD-128): the phone screen during the inspection; prospecting stays in the Menu. */}
-      <Link to="/field" className={cn(tileClassName, pathname.startsWith('/field') && 'text-primary')}>
+      <Link
+        to="/field"
+        data-tour="/field"
+        className={cn(tileClassName, pathname.startsWith('/field') && 'text-primary')}
+      >
         <MapPinned className="size-5" />
         {t('logistics')}
       </Link>
-      <button type="button" onClick={toggleSidebar} className={tileClassName}>
+      <button type="button" data-tour="menu" onClick={toggleSidebar} className={tileClassName}>
         <Menu className="size-5" />
         {t('menu')}
       </button>

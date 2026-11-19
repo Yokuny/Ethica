@@ -12,6 +12,13 @@ import { isAdminSession } from '@/query/session.js';
 import { TOUR_ACCOUNT, TOUR_OFFICE, TOUR_SECTIONS, TOUR_WELCOME, type TourStep } from '../@consts/tour-steps.js';
 import { useHomePage } from '../@hooks/use-home-page.js';
 
+// First visible element of the step: the side menu item on the computer, the dock item on the phone; what only lives
+// inside the closed phone menu points to the dock's "Menu". None (welcome step) → the step shows centered.
+const findTarget = (target: string): Element | null =>
+  [...document.querySelectorAll(`[data-tour="${target}"]`), ...document.querySelectorAll('[data-tour="menu"]')].find(
+    (element) => element.getClientRects().length > 0,
+  ) ?? null;
+
 // Guided tour of the first access (AD-233): opens while `onboardingDismissed` is false, points to the menu items
 // the person can see and records the dismissal when completed or skipped. "Ver tour" in the user menu reopens it.
 export function GuidedTour() {
@@ -39,7 +46,7 @@ export function GuidedTour() {
   );
   const open = preferences.data?.onboardingDismissed === false && !dismissMutation.isPending;
   const step = steps[index];
-  const target = open && !isMobile ? step?.target : undefined;
+  const target = open ? step?.target : undefined;
   const last = index === steps.length - 1;
 
   const finish = () => {
@@ -47,10 +54,9 @@ export function GuidedTour() {
     dismissMutation.mutate({ onboardingDismissed: true });
   };
 
-  // Highlights the menu element of the step before paint, so the balloon never flashes at the previous place; the
-  // drawer menu on the phone has none, so the step shows centered.
+  // Highlights the element of the step before paint, so the balloon never flashes at the previous place.
   useLayoutEffect(() => {
-    const element = target ? document.querySelector(`[data-tour="${target}"]`) : null;
+    const element = target ? findTarget(target) : null;
     element?.setAttribute('data-tour-active', '');
     setAnchor(element);
     return () => element?.removeAttribute('data-tour-active');
@@ -86,7 +92,7 @@ export function GuidedTour() {
 
   return anchor ? (
     <Popover open onOpenChange={onOpenChange}>
-      <PopoverContent anchor={anchor} side="right" sideOffset={12} className="w-80 gap-3 p-4">
+      <PopoverContent anchor={anchor} side={isMobile ? 'top' : 'right'} sideOffset={12} className="w-80 gap-3 p-4">
         {content}
       </PopoverContent>
     </Popover>

@@ -1,7 +1,7 @@
 import type { HomeSection } from '../@interface/home.interface.js';
 
-// Guided tour (AD-233): `target` is the `data-tour` of the menu element the step points to; without it (or on the
-// phone, where the menu is a closed drawer) the step shows centered.
+// Guided tour (AD-233): `target` is the `data-tour` of the element the step points to (side menu, or the phone dock,
+// falling back to its "Menu"); without it the step shows centered.
 export type TourStep = { target?: string; titleKey: string; descriptionKey: string };
 
 // Menu sections the tour presents, in menu order; each one only shows when the person sees it in the menu.
