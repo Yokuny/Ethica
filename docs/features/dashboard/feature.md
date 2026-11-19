@@ -5,14 +5,14 @@ descricao: Seção com os totais de serviços e honorários, serviços por tipo 
 data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web]
-decisoes: [AD-200, AD-228]
+decisoes: [AD-200, AD-228, AD-235]
 spec: [.specs/features/dashboard]
 branches: [main]
 ---
 
 # Dashboard
 
-**Status**: concluido · **Atualizado**: 2026-11-15 · **Áreas**: `apps/api`, `apps/web`
+**Status**: concluido · **Atualizado**: 2026-11-19 · **Áreas**: `apps/api`, `apps/web`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='dashboard'`.
@@ -23,7 +23,7 @@ branches: [main]
 - Faixa com os totais: serviços, serviços finalizados (todos os encerrados), honorários recebidos e honorários a receber.
 - Total de serviços por tipo: Perícia, Assistência técnica e cada tipo do escritório.
 - Gráfico de colunas de serviços por mês: os últimos 12 meses, todos os tipos, sem os cancelados, pelo mês da nomeação; sem essa data, o mês do cadastro.
-- Para quem vê o Financeiro: resumo do dinheiro, fluxo de caixa (6 ou 12 meses, onde fica o recebido mês a mês) e totais por categoria.
+- Para quem vê o Financeiro: resumo do dinheiro, fluxo de caixa em tabela de calor (6 ou 12 meses: recebido, a receber, despesas e saldo por mês, cada um com a variação contra o mês anterior, e o saldo do período) e ranking por categoria com valor e parcela do total.
 - Valores em dinheiro só para quem vê o Financeiro.
 
 ## Por que
@@ -47,9 +47,11 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 ## Pendências
 
 - [ ] Conferir no celular os 12 rótulos de mês do gráfico de serviços.
+- [ ] Conferir no navegador a tabela do fluxo de caixa (6 e 12 meses, celular) e as listas por categoria.
 
 ## Histórico
 
+- 2026-11-19 — Fluxo de caixa vira tabela de calor por mês com saldo e variação contra o mês anterior, e as categorias viram ranking com valor e parcela escritos (AD-235; `apps/web/src/routes/_private/dashboard/@components/cash-flow-table.tsx`, `apps/web/src/components/share-list.tsx`). Sai `categories-chart.tsx`. Não conferido no navegador nesta sessão.
 - 2026-11-15 — A legenda Menos/Mais sai de baixo dos blocos e vai para o cabeçalho de Serviços por tipo, oposta ao título (`HeatTilesLegend` em `apps/web/src/components/heat-tiles.tsx`).
 - 2026-11-15 — Sai a visão anual (AD-228): "Perícias por ano" vira **Serviços por mês** (últimos 12 meses, todos os tipos) e sai "Honorários recebidos por ano", que repetia o recebido do Fluxo de caixa; a faixa segue com o total recebido (`receivedCents`). Resolve a pendência dos rótulos em dinheiro com muitos anos.
 - 2026-11-14 — Painel minimalista: a faixa padrão de totais fica como está; serviços por tipo viram blocos em tom pastel proporcional à quantidade, com a parcela do total e a legenda Menos/Mais (`apps/web/src/components/heat-tiles.tsx`); seções com título maior em caixa normal (`Panel size="lg"`); paleta dos gráficos em tons pastéis dessaturados (`apps/web/src/theme.css`, `--chart-1..5`) e despesas em `--status-error-indicator`. Uma primeira versão com cartões brancos e bordas foi desfeita no mesmo dia.

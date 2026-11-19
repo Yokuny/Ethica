@@ -1391,6 +1391,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-19
 - **Status**: active
 
+### AD-235
+- **Decision**: Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) **Fluxo de caixa** vira tabela de calor: uma linha por mês (o mais novo em cima, o mês corrente marcado "Em andamento"), colunas Recebido, A receber, Despesas e **Saldo** (recebido menos despesas); cada célula traz o valor e, ao lado, a variação em reais contra o mês anterior. Recebido, a receber e despesas são tingidos pela escala Menos/Mais dos blocos de Serviços por tipo (parcela do maior mês da coluna, mesmo tom neutro, então mais despesa não fica "mais verde"); o saldo é tingido por regra, pelo sinal (positivo verde, negativo vermelho, zero sem cor). Acima, o saldo do período com o recebido e as despesas somados. O web pede um mês a mais (`months + 1`, o `flowQuerySchema` aceita até 24) para que o mês mais antigo também tenha variação; sem mudança na API. (2) **Receitas/Despesas por categoria** viram ranking com valor, parcela do total e barra do tamanho da parcela (`ShareList`), com o total no cabeçalho e o alcance escrito ("desde o início, sem os anulados"). (3) `ToggleGroup` perde os divisores entre os itens: uma só borda na barra, e só o item marcado mostra a própria caixa tingida. Refina a parte (3) da AD-192, que segue valendo como barra única. (4) Importar planilha de Serviços e de Varas e comarcas sai do cabeçalho e vai para o menu "…" (`PageMenu`), ficando só "Adicionar" como ação principal.
+- **Reason**: pedido do usuário em 2026-11-19 com referências visuais; o gráfico de barras com uma barra só e o de colunas com quase tudo zero não diziam valor nenhum. Segue o estudo de design de dados dele: magnitude antes da variação, cor de estado só por regra, identidade de cor fixa entre painéis.
+- **Trade-off**: a tabela tem largura mínima e rola de lado no celular. O gráfico de colunas (`FinanceFlowChart`) continua no Início, que não foi alterado. Categorias seguem somando o valor lançado de todo o período, como a API já fazia.
+- **Scope**: `packages/ui/src/components/toggle-group.tsx`, `apps/web/src/components/{heat-tiles,share-list}.tsx`, `apps/web/src/routes/_private/dashboard/`, `apps/web/src/routes/_private/{expert-cases,court-divisions}/index.tsx`.
+- **Date**: 2026-11-19
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

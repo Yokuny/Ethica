@@ -1,20 +1,21 @@
 import { Button } from '@ethica/ui/components/button';
+import { ItemTitle } from '@ethica/ui/components/item';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { serviceTypeLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { FinanceFlowChart } from '@/components/finance-flow-chart.js';
 import { HeatTiles, HeatTilesLegend } from '@/components/heat-tiles.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
+import { ShareList } from '@/components/share-list.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
-import { CategoriesChart } from './@components/categories-chart.js';
+import { type CategoryTotal, categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
+import { CashFlowTable } from './@components/cash-flow-table.js';
 import { FinanceOverview } from './@components/finance-overview.js';
 import { MonthColumnsChart } from './@components/month-columns-chart.js';
 import {
@@ -27,6 +28,14 @@ import { caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
 
 const number = new Intl.NumberFormat('pt-BR');
 const formatNumber = (value: number) => number.format(value);
+const sumOf = (rows: CategoryTotal[] = []) => rows.reduce((total, row) => total + row.totalCents, 0);
+const shares = (rows: CategoryTotal[]) =>
+  rows.map((row) => ({
+    key: row.category,
+    label: t(row.category),
+    amount: row.totalCents,
+    value: formatMoney(row.totalCents),
+  }));
 
 // Totals of the office (DSH): the amounts, the cash flow and the categories only for whoever sees finance (AD-137).
 export function DashboardPage() {
@@ -37,7 +46,8 @@ export function DashboardPage() {
   const search = useSearch({ strict: false }) as DashboardSearch;
   const navigate = useNavigate({ from: '/dashboard/' });
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance });
-  const flow = useQuery({ ...monthlyFlowQuery(Number(search.months)), enabled: canSeeFinance });
+  // One month more than the period: the base of the first month's change.
+  const flow = useQuery({ ...monthlyFlowQuery(Number(search.months) + 1), enabled: canSeeFinance });
   const income = useQuery({ ...categoriesQuery('income'), enabled: canSeeFinance });
   const expenses = useQuery({ ...categoriesQuery('expense'), enabled: canSeeFinance });
 
@@ -111,25 +121,49 @@ export function DashboardPage() {
                     </ToggleGroup>
                   }
                 >
-                  {flow.isLoading ? <DefaultLoading /> : flow.data && <FinanceFlowChart data={flow.data} />}
+                  {flow.isLoading ? (
+                    <DefaultLoading />
+                  ) : !flow.data?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents) ? (
+                    <DefaultEmptyData title={t('no_entries_yet')} />
+                  ) : (
+                    <CashFlowTable data={flow.data} />
+                  )}
                 </Panel>
                 <div className="grid gap-10 lg:grid-cols-2">
-                  <Panel size="lg" title={t('income_by_category')}>
+                  <Panel
+                    size="lg"
+                    title={t('income_by_category')}
+                    description={t('entries_since_start')}
+                    actions={
+                      income.data?.length ? (
+                        <ItemTitle className="font-medium tabular-nums">{formatMoney(sumOf(income.data))}</ItemTitle>
+                      ) : undefined
+                    }
+                  >
                     {income.isLoading ? (
                       <DefaultLoading />
                     ) : !income.data?.length ? (
                       <DefaultEmptyData title={t('no_entries_yet')} />
                     ) : (
-                      <CategoriesChart kind="income" data={income.data} />
+                      <ShareList tone="income" items={shares(income.data)} />
                     )}
                   </Panel>
-                  <Panel size="lg" title={t('expenses_by_category')}>
+                  <Panel
+                    size="lg"
+                    title={t('expenses_by_category')}
+                    description={t('entries_since_start')}
+                    actions={
+                      expenses.data?.length ? (
+                        <ItemTitle className="font-medium tabular-nums">{formatMoney(sumOf(expenses.data))}</ItemTitle>
+                      ) : undefined
+                    }
+                  >
                     {expenses.isLoading ? (
                       <DefaultLoading />
                     ) : !expenses.data?.length ? (
                       <DefaultEmptyData title={t('no_entries_yet')} />
                     ) : (
-                      <CategoriesChart kind="expense" data={expenses.data} />
+                      <ShareList tone="expense" items={shares(expenses.data)} />
                     )}
                   </Panel>
                 </div>

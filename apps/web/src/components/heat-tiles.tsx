@@ -32,6 +32,26 @@ export function HeatTiles({ items }: HeatTilesProps) {
   );
 }
 
+// Balance is read by a rule (its sign), not by the scale: positive, negative or zero.
+const BALANCE = { positive: 'bg-status-success/70', negative: 'bg-status-error', zero: 'bg-muted/60' } as const;
+
+type HeatCellProps = { value: string; change?: string } & (
+  | { ratio: number; balance?: never }
+  | { balance: keyof typeof BALANCE; ratio?: never }
+);
+
+// One cell of a heat table: the value with its change beside it, tinted by the scale (`ratio` of the column's
+// largest) or by the balance rule. Zero stays without tint.
+export function HeatCell({ value, change, ratio, balance }: HeatCellProps) {
+  const tone = balance ? BALANCE[balance] : ratio ? step(ratio) : BALANCE.zero;
+  return (
+    <div className={cn('flex min-w-0 items-baseline justify-between gap-3 rounded-md px-3 py-2.5', tone)}>
+      <ItemTitle className="font-medium whitespace-nowrap tabular-nums text-impact">{value}</ItemTitle>
+      {change && <ItemDescription className="text-xs whitespace-nowrap tabular-nums">{change}</ItemDescription>}
+    </div>
+  );
+}
+
 export function HeatTilesLegend() {
   return (
     <div aria-hidden className="flex items-center gap-2">

@@ -34,7 +34,7 @@ _Nenhum._
 | [Custo de deslocamento](features/custo-deslocamento/feature.md) | Custo de deslocamento da rota do Campo lançado como despesa numa OS ou dividido entre OS, e lugares no trajeto | concluido | 2026-11-09 | `apps/web` `packages/ui` | [spec](../.specs/features/custo-deslocamento) | — |
 | [Laudo automatizado](features/laudos/feature.md) | Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word | concluido | 2026-11-09 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/laudos) | — |
 | [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia | parcial | 2026-11-09 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | 1 |
-| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | — |
+| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | 1 |
 | [Prazos e recebimentos](features/prazos-recebimentos/feature.md) | Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-recebimentos) | — |
 | [Link da pasta e anexos do serviço](features/servico-pasta-anexos/feature.md) | Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/servico-pasta-anexos) | — |
 | [Tipo de serviço próprio](features/tipo-servico-proprio/feature.md) | Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/tipo-servico-proprio) | — |
@@ -79,6 +79,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-235** (2026-11-19, active) — Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) Fluxo de caixa vira tabela de calor: uma linha por mês
 - **AD-234** (2026-11-19, active) — No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo (`MobileDock`), e o que só existe de
 - **AD-233** (2026-11-18, active (celular centralizado superseded by AD-234)) — O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI
 - **AD-232** (2026-11-18, active) — Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao início do período
@@ -88,7 +89,6 @@ _Nenhum._
 - **AD-228** (2026-11-15, active) — no Dashboard, o gráfico de colunas por ano dá lugar a Serviços por mês: os últimos 12 meses até o atual (mês sem serviço é coluna zero), con
 - **AD-227** (2026-11-15, active) — Relatórios (`/reports`) vira uma página só, no mesmo desenho em etapas do Escritório (`StepList`/`StepItem`, AD-224): à esquerda o título fi
 - **AD-226** (2026-11-15, active) — o `InfoCardList` passa a ter um cartão por linha, cada cartão com toda a largura do bloco; sai a quebra lado a lado da AD-225 (cartões que c
-- **AD-225** (2026-11-15, superseded by AD-226 (layout)) — lista de registros pequenos dentro de uma etapa ou bloco (aparelhos com acesso, responsáveis técnicos, recebimentos do lançamento) usa `Info
 
 ## `.specs/` sem registro em `docs/features/`
 

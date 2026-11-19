@@ -250,12 +250,15 @@
       ],
       "decisoes": [
         "AD-200",
-        "AD-228"
+        "AD-228",
+        "AD-235"
       ],
       "spec": [
         ".specs/features/dashboard"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/dashboard/plans/2026-11-19-valores-escritos.md"
+      ],
       "doc": "features/dashboard/feature.md"
     },
     {
@@ -1977,6 +1980,12 @@
     {
       "id": "AD-234",
       "decisao": "No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo (`MobileDock`), e o que só existe de",
+      "data": "2026-11-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-235",
+      "decisao": "Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) Fluxo de caixa vira tabela de calor: uma linha por mês",
       "data": "2026-11-19",
       "status": "active"
     }
