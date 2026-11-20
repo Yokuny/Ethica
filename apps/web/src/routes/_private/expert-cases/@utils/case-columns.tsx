@@ -1,5 +1,6 @@
 import { caseLabel, isOwnType, type Side, usesContractor } from '@ethica/contracts';
 import { BadgeIndicator } from '@ethica/ui/components/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import type { ColumnDef } from '@tanstack/react-table';
 import { BriefcaseBusiness } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
@@ -15,10 +16,43 @@ import type { CaseListItem } from '@/query/case.js';
 const toDate = (day: string) => new Date(`${day}T12:00:00`);
 // Names of the parties (not the lawyers) of one side, for the "Contratante" column of a perícia.
 const names = (row: CaseListItem, side: Side) =>
-  row.parties
-    .filter((party) => party.side === side && party.type === 'party')
-    .map((party) => party.name)
-    .join(', ');
+  row.parties.filter((party) => party.side === side && party.type === 'party').map((party) => party.name);
+// One line per side: the first name, cut to one line, and how many more; the whole list is in the tooltip.
+const firstName = (list: string[]) => (
+  <span className="block truncate">
+    {list[0]}
+    {list.length > 1 && ` +${list.length - 1}`}
+  </span>
+);
+
+function PartiesCell({ row }: { row: CaseListItem }) {
+  const sides = (['plaintiff', 'defendant'] as const).map((side) => ({ side, list: names(row, side) }));
+  const [plaintiffs, defendants] = sides.map(({ list }) => list);
+  if (!plaintiffs.length && !defendants.length) return <TableStack tone="muted">—</TableStack>;
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<div />} className="cursor-default">
+        <TableStack width="text" description={defendants.length ? firstName(defendants) : undefined}>
+          {plaintiffs.length ? firstName(plaintiffs) : '—'}
+        </TableStack>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="flex max-w-80 flex-col gap-2">
+          {sides
+            .filter(({ list }) => list.length)
+            .map(({ side, list }) => (
+              <div key={side} className="flex flex-col gap-0.5">
+                <span className="font-medium">{t(side)}</span>
+                {list.map((name) => (
+                  <span key={name}>{name}</span>
+                ))}
+              </div>
+            ))}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 // Sortable columns (AD-192) have an `accessorFn` and the `id` of the server sort (`CASE_LIST_SORTS`); the sort
 // itself is on the server, the value only enables the header click.
@@ -54,9 +88,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       usesContractor(row.original) ? (
         <TableStack width="text">{row.original.contractor?.name ?? '—'}</TableStack>
       ) : (
-        <TableStack width="text" description={names(row.original, 'defendant') || undefined}>
-          {names(row.original, 'plaintiff') || '—'}
-        </TableStack>
+        <PartiesCell row={row.original} />
       ),
   },
   {
@@ -100,14 +132,24 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       const deadline = row.original.nextDeadline;
       if (!deadline) return <TableStack tone="muted">—</TableStack>;
       const alert = deadlineAlert(deadline, formatDisplayDate(new Date()));
-      // Date and alert on the first line, the deadline title below: the same two lines as the other columns.
+      const date = formatDate(toDate(deadline.dueDate));
+      // Alert dot before the date, its meaning in the tooltip of the dot and the date; the deadline title below.
       return (
         <TableStack width="text" description={deadline.title}>
-          <span className="whitespace-nowrap">{formatDate(toDate(deadline.dueDate))}</span>
-          {alert && (
-            <BadgeIndicator variant={ALERT_VARIANT[alert]} className="ml-2 align-middle">
-              {t(alert)}
-            </BadgeIndicator>
+          {alert ? (
+            <Tooltip>
+              <TooltipTrigger
+                render={<span />}
+                aria-label={`${date} · ${t(alert)}`}
+                className="inline-flex items-center gap-2 whitespace-nowrap"
+              >
+                <BadgeIndicator variant={ALERT_VARIANT[alert]} />
+                {date}
+              </TooltipTrigger>
+              <TooltipContent>{t(alert)}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <span className="whitespace-nowrap">{date}</span>
           )}
         </TableStack>
       );
@@ -140,7 +182,7 @@ export const caseExportColumns = (canSeeFinance: boolean): TableExportColumn<Cas
     value: (row) =>
       usesContractor(row)
         ? row.contractor?.name
-        : [names(row, 'plaintiff'), names(row, 'defendant')].filter(Boolean).join(' x '),
+        : [names(row, 'plaintiff').join(', '), names(row, 'defendant').join(', ')].filter(Boolean).join(' x '),
   },
   { header: t('service_type'), value: (row) => serviceLabel(row) },
   {
