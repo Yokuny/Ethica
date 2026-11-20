@@ -90,7 +90,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 - [x] Testes e2e de router para `case`, `agenda`, `finance` e `prospecting`: dispensados (AD-145).
 - [ ] Validar a consulta ao Datajud com a chave real (AD-105) — adiado para depois das frentes atuais (AD-145).
 - [ ] UAT visual de todas as telas com o seed de demonstração.
-- [x] Tenant com CPF: não será suportado, o escritório é só CNPJ (AD-144).
+- [x] Tenant com CPF: não será suportado, o escritório é só CNPJ (AD-144). Revisto em 2026-11-20: CPF ou CNPJ (AD-244).
 - [ ] Testes de tela (`apps/web`) estouraram o tempo uma vez, com a máquina muito carregada (2026-11-06, 7 testes em 3 arquivos). Não voltou em 18 rodadas seguintes; causa não investigada.
 
 ## Histórico

@@ -669,7 +669,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: perito sem empresa aberta não usa o Ethica como escritório próprio.
 - **Scope**: `packages/contracts/src/schemas/provisionTenant.schema.ts`, `docs/features/fundacao-ethica/feature.md`.
 - **Date**: 2026-11-01
-- **Status**: active
+- **Status**: superseded by AD-244 (CPF ou CNPJ)
 
 ### AD-145
 - **Decision**: Não serão escritos testes e2e de router para `case`, `agenda`, `finance` e `prospecting` além dos que já existem; a cobertura atual (unit de service e provider, e2e já presentes) é suficiente. IA (redação do laudo, transcrição do áudio, leitura do PDF da ata — AD-124, AD-114) e a validação do Datajud com a chave real (AD-105) ficam para uma rodada posterior.
@@ -1460,6 +1460,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: pedido do usuário em 2026-11-20 ("no header da página dentro de CardAction coloque um datePicker para facilitar a seleção de anos, meses e semanas, já que o day strip só renderiza alguns dias").
 - **Trade-off**: o intervalo aparece duas vezes (seletor e faixa); em Serviços agendados, três (com o título).
 - **Scope**: `apps/web/src/routes/_private/field/{@components/range-picker.tsx,@components/day-strip.tsx,@utils/range.ts,map/index.tsx,route/index.tsx,inspections/index.tsx}`.
+- **Date**: 2026-11-20
+- **Status**: active
+
+### AD-244
+- **Decision**: O escritório (tenant) pode ser cadastrado com **CPF ou CNPJ**, no cadastro pela tela de acesso e pela plataforma. Uma validação só, `tenantDocumentSchema` (`packages/contracts/src/schemas/access.schema.ts`), confere tamanho (11 ou 14 dígitos) e dígitos verificadores dos dois; o documento continua único por escritório e vai ao Asaas no mesmo `cpfCnpj`. Supersede a AD-144.
+- **Reason**: pedido do usuário em 2026-11-20: o Asaas cobra também de CPF, e perito sem empresa aberta passa a poder usar o Ethica.
+- **Trade-off**: o escritório não guarda se é pessoa física ou jurídica; quem precisar saber lê pelo tamanho do documento.
+- **Scope**: `packages/contracts/src/schemas/{access,provisionTenant}.schema.ts`, `packages/contracts/src/registry.ts`, `apps/web/src/routes/_public/auth/@components/access-office-form.tsx`, `apps/web/src/lib/helpers/translate.helper.ts`.
 - **Date**: 2026-11-20
 - **Status**: active
 

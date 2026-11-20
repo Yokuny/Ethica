@@ -38,20 +38,33 @@ export type DeviceKind = (typeof DEVICE_KINDS)[number];
 // APA-08: "devices with access" in the account screen. Dates in ISO 8601 (UTC).
 export type PasskeyView = { id: string; kind: DeviceKind; label: string; createdAt: string; lastUsedAt?: string };
 
-// CNPJ check digits: the office pays in Asaas (AD-230), which refuses an invalid CNPJ.
-const validCnpj = (digits: string): boolean => {
-  if (!/^\d{14}$/.test(digits) || /^(\d)\1+$/.test(digits)) return false;
-  const check = (length: number) => {
-    const weights = length === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-    const sum = weights.reduce((total, weight, index) => total + weight * Number(digits[index]), 0);
-    const rest = sum % 11;
-    return rest < 2 ? 0 : 11 - rest;
-  };
-  return check(12) === Number(digits[12]) && check(13) === Number(digits[13]);
+// Office document: CPF (11 digits) or CNPJ (14), with the check digits that Asaas requires
+// to bill the office (AD-230, AD-244).
+const CHECK_WEIGHTS = {
+  11: [
+    [10, 9, 8, 7, 6, 5, 4, 3, 2],
+    [11, 10, 9, 8, 7, 6, 5, 4, 3, 2],
+  ],
+  14: [
+    [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2],
+    [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2],
+  ],
+} as const;
+
+const validDocument = (digits: string): boolean => {
+  if (!/^(\d{11}|\d{14})$/.test(digits) || /^(\d)\1+$/.test(digits)) return false;
+  return CHECK_WEIGHTS[digits.length as 11 | 14].every((weights) => {
+    const rest = weights.reduce<number>((total, weight, index) => total + weight * Number(digits[index]), 0) % 11;
+    return (rest < 2 ? 0 : 11 - rest) === Number(digits[weights.length]);
+  });
 };
 
+export const tenantDocumentSchema = z
+  .string()
+  .transform((value) => value.replace(/\D/g, ''))
+  .refine(validDocument, 'CPF ou CNPJ inválido');
+
 // ACE-04: e-mail confirmed without an account creates its own office, with the person as admin.
-// Office only with CNPJ, like provisionTenantSchema (AD-144).
 export const signupSchema = z
   .object({
     signupToken: z.string().min(1),
@@ -65,11 +78,7 @@ export const signupSchema = z
       .trim()
       .min(3, 'nome deve ter entre 3 e 120 caracteres')
       .max(120, 'nome deve ter entre 3 e 120 caracteres'),
-    document: z
-      .string()
-      .transform((value) => value.replace(/\D/g, ''))
-      .refine((value) => value.length === 14, 'documento deve ter 14 dígitos (CNPJ)')
-      .refine(validCnpj, 'CNPJ inválido'),
+    document: tenantDocumentSchema,
   })
   .strict();
 

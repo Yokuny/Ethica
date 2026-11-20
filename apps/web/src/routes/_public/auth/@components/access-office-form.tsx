@@ -52,9 +52,9 @@ export function AccessOfficeForm({ form, email, errorMessage, onSubmit }: Access
           name="document"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('cnpj')}</FormLabel>
+              <FormLabel>{t('cpf_cnpj')}</FormLabel>
               <FormControl>
-                <Input inputMode="numeric" placeholder={t('cnpj')} {...field} />
+                <Input inputMode="numeric" placeholder={t('cpf_cnpj')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -13,6 +13,11 @@ describe('provisionTenantSchema', () => {
     }
   });
 
+  it('accepts a valid CPF and refuses wrong check digits (AD-244)', () => {
+    expect(provisionTenantSchema.safeParse({ name: 'Ana Perita', document: '529.982.247-25' }).success).toBe(true);
+    expect(provisionTenantSchema.safeParse({ name: 'Ana Perita', document: '529.982.247-24' }).success).toBe(false);
+  });
+
   it('rejects a forged Tenant field instead of silently dropping it', () => {
     const result = provisionTenantSchema.safeParse({
       name: 'Empresa Exemplo',

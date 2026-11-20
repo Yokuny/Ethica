@@ -84,6 +84,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-20 — Escritório com CPF ou CNPJ no cadastro e no Asaas, com os dígitos conferidos (AD-244) — `cadastro-checkout`
 - [x] 2026-11-20 — Seletor de intervalo no cabeçalho da Logística com mês, ano, semana e mês inteiro (AD-243) — `logistica-paginas`
 - [x] 2026-11-20 — Faixa de dias na horizontal (dia, intervalo, dia da semana e fim de semana) nas três páginas da Logística, botões do mapa flutuando sobre ele e ações do cartão agrupadas (AD-242) — `logistica-paginas`
 - [x] 2026-11-20 — Logística em páginas por intenção, intervalo de datas e termo da vistoria assinado em PDF (AD-239) — `logistica-paginas`

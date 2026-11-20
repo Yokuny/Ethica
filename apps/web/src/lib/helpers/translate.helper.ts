@@ -80,7 +80,7 @@ const translations: Record<string, string> = {
   access_key_sent: 'Enviamos a chave de acesso para o seu e-mail.',
   create_office: 'Criar escritório',
   create_office_description: 'Este e-mail ainda não tem conta. Informe seus dados para criar o seu escritório.',
-  document_already_registered: 'Este CNPJ já está cadastrado.',
+  document_already_registered: 'Este CPF/CNPJ já está cadastrado.',
   email_send_failed: 'Não foi possível enviar o e-mail. Tente novamente em instantes.',
   // Subscription (AD-230).
   trial_unavailable: 'O teste já foi usado por este escritório.',
@@ -627,7 +627,6 @@ const translations: Record<string, string> = {
   party: 'Parte',
   lawyer: 'Advogado(a)',
   cpf_cnpj: 'CPF/CNPJ',
-  cnpj: 'CNPJ',
   no_parties_yet: 'Nenhuma parte cadastrada.',
   add_party: 'Adicionar parte',
   add_lawyer: 'Adicionar advogado',

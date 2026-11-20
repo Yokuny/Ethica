@@ -2,6 +2,34 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "cadastro-checkout",
+      "feature": "Cadastro com checkout",
+      "descricao": "Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso",
+      "data": "2026-11-20",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db",
+        "harness"
+      ],
+      "decisoes": [
+        "AD-230",
+        "AD-231",
+        "AD-232",
+        "AD-244",
+        "AD-155",
+        "AD-220",
+        "AD-098"
+      ],
+      "spec": [
+        ".specs/features/cadastro-checkout"
+      ],
+      "planos": [],
+      "doc": "features/cadastro-checkout/feature.md"
+    },
+    {
       "slug": "logistica-paginas",
       "feature": "Logística em páginas por intenção e termo de vistoria assinado",
       "descricao": "Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas",
@@ -64,33 +92,6 @@
       ],
       "planos": [],
       "doc": "features/tour-guiado/feature.md"
-    },
-    {
-      "slug": "cadastro-checkout",
-      "feature": "Cadastro com checkout",
-      "descricao": "Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso",
-      "data": "2026-11-18",
-      "status": "parcial",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db",
-        "harness"
-      ],
-      "decisoes": [
-        "AD-230",
-        "AD-231",
-        "AD-232",
-        "AD-155",
-        "AD-220",
-        "AD-098"
-      ],
-      "spec": [
-        ".specs/features/cadastro-checkout"
-      ],
-      "planos": [],
-      "doc": "features/cadastro-checkout/feature.md"
     },
     {
       "slug": "fundacao-ethica",
@@ -1487,7 +1488,7 @@
       "id": "AD-144",
       "decisao": "O escritório (tenant) é cadastrado só com CNPJ; perito pessoa física (CPF) não é suportado. `provisionTenantSchema` continua exigindo 14 díg",
       "data": "2026-11-01",
-      "status": "active"
+      "status": "superseded by AD-244 (CPF ou CNPJ)"
     },
     {
       "id": "AD-145",
@@ -2080,6 +2081,12 @@
     {
       "id": "AD-243",
       "decisao": "As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242)",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-244",
+      "decisao": "O escritório (tenant) pode ser cadastrado com CPF ou CNPJ, no cadastro pela tela de acesso e pela plataforma. Uma validação só, `tenantDocum",
       "data": "2026-11-20",
       "status": "active"
     }

@@ -24,6 +24,7 @@ describe('schemaRegistry', () => {
         'passkeyRegisterOptionsSchema',
         'passkeyResponseSchema',
         'signupSchema',
+        'tenantDocumentSchema',
         'billingPaySchema',
         'idSchema',
         'inviteTokenParamSchema',

@@ -6,6 +6,7 @@ import {
   passkeyRegisterOptionsSchema,
   passkeyResponseSchema,
   signupSchema,
+  tenantDocumentSchema,
 } from './schemas/access.schema.js';
 import { updateAvatarSchema, updateProfileSchema } from './schemas/account.schema.js';
 import { listActivityLogQuerySchema } from './schemas/activityLog.schema.js';
@@ -98,6 +99,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'passkeyRegisterOptionsSchema', schema: passkeyRegisterOptionsSchema },
   { name: 'passkeyResponseSchema', schema: passkeyResponseSchema },
   { name: 'signupSchema', schema: signupSchema },
+  { name: 'tenantDocumentSchema', schema: tenantDocumentSchema },
   { name: 'billingPaySchema', schema: billingPaySchema },
   { name: 'idSchema', schema: idSchema },
   { name: 'inviteTokenParamSchema', schema: inviteTokenParamSchema },

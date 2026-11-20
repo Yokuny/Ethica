@@ -132,7 +132,7 @@ describe('AuthPage', () => {
 
     await user.type(await screen.findByLabelText('Seu nome'), 'Nova Perita');
     await user.type(screen.getByLabelText('Nome do escritório'), 'Perícias Nova');
-    await user.type(screen.getByLabelText('CNPJ'), '11.222.333/0001-81');
+    await user.type(screen.getByLabelText('CPF/CNPJ'), '11.222.333/0001-81');
     await user.click(screen.getByRole('button', { name: 'Criar escritório' }));
 
     await waitFor(() =>
