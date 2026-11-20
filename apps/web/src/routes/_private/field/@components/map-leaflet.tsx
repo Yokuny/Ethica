@@ -98,5 +98,5 @@ export function MapLeaflet({ stops, origin, row, center, places }: MapLeafletPro
     map.current.setView([focus.lat, focus.lng], center ? 15 : 11);
   }, [stops, origin, row, center, places]);
 
-  return <section ref={element} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('day_map')} />;
+  return <section ref={element} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('map')} />;
 }

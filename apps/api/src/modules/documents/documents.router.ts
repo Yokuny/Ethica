@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
+import { inspectionParamSchema } from '../agenda/inspection.schema.js';
 import * as documentsController from './documents.controller.js';
 import { type DocumentsRouterDeps, documentCaseParamSchema, financeReportQuerySchema } from './documents.schema.js';
 
@@ -27,6 +28,14 @@ export const createDocumentsRouter = (deps: DocumentsRouterDeps): Router => {
     can('expert_cases', 'view'),
     byId,
     documentsController.checklist(providers),
+  );
+  // Inspection term (AD-239): the same permission as the inspection record.
+  router.get(
+    '/inspections/:appointmentId',
+    ...guard,
+    can('agenda', 'view'),
+    validParams(inspectionParamSchema),
+    documentsController.inspection(providers),
   );
   router.get('/deadlines', ...guard, can('reports', 'view'), documentsController.schedule(providers));
   router.get('/stalled', ...guard, can('reports', 'view'), documentsController.stalled(providers));

@@ -7,7 +7,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { Checkbox } from '@/components/checkbox.js';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { AGENT_KEY, DOCUMENT_KEY } from '../../@consts/field-labels.js';
+import { AGENT_KEY, DOCUMENT_KEY } from '../../../@consts/field-labels.js';
 
 const NONE = 'none';
 const DEFAULT: readonly string[] = INSPECTION_DOCUMENTS;

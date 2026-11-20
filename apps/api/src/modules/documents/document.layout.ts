@@ -160,6 +160,15 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .totais dd { font-size: 12pt; font-weight: 600; }
 .anotacoes { border: 0.3mm solid #d0d7de; height: 60mm; break-inside: avoid; }
 .gerado { margin-top: 8mm; font-size: 8.5pt; color: #57606a; }
+.fotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+.fotos figure { margin: 0; break-inside: avoid; }
+.fotos img { width: 100%; height: 45mm; object-fit: cover; border: 0.3mm solid #d0d7de; }
+.fotos figcaption { font-size: 8.5pt; color: #57606a; margin-top: 1mm; }
+.assinaturas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8mm 10mm; }
+.assinatura { break-inside: avoid; }
+.assinatura img { display: block; height: 20mm; max-width: 100%; object-fit: contain; }
+.assinatura .linha { height: 20mm; border-bottom: 0.3mm solid #1f2328; }
+.assinatura p { margin: 1.5mm 0 0; font-size: 9pt; }
 `;
 
 // Fonts of the PDF: Chromium in the server has Liberation, Carlito and Caladea (metric-compatible with Times,

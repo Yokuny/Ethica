@@ -66,6 +66,12 @@ const JPEG = Buffer.from([
   0x22, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xff, 0xd9,
 ]);
 
+// 1×1 PNG.
+const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+  'base64',
+);
+
 let counter = 0;
 const seedTenant = async () => {
   counter += 1;
@@ -366,5 +372,46 @@ describe('campo e vistorias (CAM-01..09)', () => {
     expect(rendered?.html).toContain(`data:image/jpeg;base64,${JPEG.toString('base64')}`);
     const docx = await operator.as(request(app).get(`/expert-reports/${report.body.data.id}/docx`));
     expect(docx.status).toBe(200);
+  });
+
+  it('termo da vistoria (AD-239): PDF com o registro e as assinaturas, sem as observações internas; outro tenant é 404', async () => {
+    const { operator, id } = await prepare();
+    const signatureId = media();
+    const missingId = media();
+    await operator
+      .as(request(app).put(`/inspections/${id}`))
+      .send({
+        version: 0,
+        data: {
+          ...DATA,
+          attendees: [
+            { ...DATA.attendees[0], signatureId },
+            { id: 'b', name: 'Bruno Testemunha', capacity: 'witness', signatureId: missingId },
+          ],
+          notes: 'nota interna sigilosa',
+        },
+      })
+      .expect(200);
+    await operator
+      .as(request(app).put(`/inspections/${id}/media/${signatureId}?type=signature`))
+      .set('Content-Type', 'image/png')
+      .send(PNG)
+      .expect(200);
+
+    const term = await operator.as(request(app).get(`/documents/inspections/${id}`));
+    expect(term.status).toBe(200);
+    expect(term.headers['content-type']).toBe('application/pdf');
+    expect(term.headers['content-disposition']).toContain(`vistoria-${CASE.processNumber}.pdf`);
+    expect(rendered?.html).toContain('Termo de vistoria');
+    expect(rendered?.html).toContain('Ana Reclamante');
+    expect(rendered?.html).toContain('Reclamante / autor');
+    expect(rendered?.html).toContain('Ruído');
+    expect(rendered?.html).toContain(`data:image/png;base64,${PNG.toString('base64')}`);
+    // The signature whose file is gone becomes a blank line to sign on paper.
+    expect(rendered?.html).toContain('<div class="linha"></div><p><strong>Bruno Testemunha</strong>');
+    expect(rendered?.html).not.toContain('nota interna sigilosa');
+
+    const other = await seedSession((await seedTenant())._id, ['admin']);
+    expect((await other.as(request(app).get(`/documents/inspections/${id}`))).status).toBe(404);
   });
 });

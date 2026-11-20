@@ -15,7 +15,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { readDraft } from '@/lib/offline/store.js';
 import { startSync } from '@/lib/offline/sync.js';
 import { inspectionQuery } from '@/query/inspection.js';
-import { FieldConnection } from '../@components/field-connection.js';
+import { FieldConnection } from '../../@components/field-connection.js';
 import { RecordForm } from './@components/record-form.js';
 import { type InspectionSearch, inspectionSearchSchema } from './@interface/inspection.interface.js';
 
@@ -75,7 +75,7 @@ export function InspectionPage() {
   );
 }
 
-export const Route = createFileRoute('/_private/field/inspection/')({
+export const Route = createFileRoute('/_private/field/inspections/details/')({
   component: InspectionPage,
   staticData: { title: t('inspection_record') },
   validateSearch: (search: Record<string, unknown>): InspectionSearch => inspectionSearchSchema.parse(search),

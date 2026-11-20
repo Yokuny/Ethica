@@ -3,13 +3,14 @@ import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Link } from '@tanstack/react-router';
-import { ClipboardList, MapPin } from 'lucide-react';
+import { ClipboardList, Crosshair, MapPin } from 'lucide-react';
+import { AppLink } from '@/components/app-link.js';
 import { APPOINTMENT_TYPE_VARIANT } from '@/components/appointment-labels.js';
-import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
+import { formatDisplayDate, formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { DayInspection } from '@/query/inspection.js';
-import { GoogleMapsIcon, WazeIcon } from './navigation-icons.js';
+import { GoogleMapsIcon, WazeIcon } from '../../@components/navigation-icons.js';
 
 type FieldCardProps = {
   item: DayInspection;
@@ -22,12 +23,13 @@ const mapsUrl = (location: string) =>
   `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
 const wazeUrl = (location: string) => `https://waze.com/ul?q=${encodeURIComponent(location)}&navigate=yes`;
 
-// One appointment of the day on the phone (CAM-01), as a row split by a rule (AD-195): get there, mark the
-// result and open the record.
+// One scheduled appointment on the phone (CAM-01, LOG-05), as a row split by a rule (AD-195): get there, see it on
+// the map, open the service, mark the result and perform the inspection (the record).
 export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
   const { appointment, legalCase, inspection } = item;
   const status = appointment.reason ?? appointment.status;
   const recorded = inspection.version > 0 || inspection.media.length > 0;
+  const day = formatDisplayDate(appointment.start);
   const parties = legalCase && [legalCase.plaintiff, legalCase.defendant].filter(Boolean).join(' × ');
 
   return (
@@ -35,7 +37,9 @@ export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
         <div className="flex min-w-0 flex-col gap-2 lg:w-2/3">
           {legalCase && (
-            <ItemTitle className="font-medium text-base tracking-tight lg:text-lg">{caseLabel(legalCase)}</ItemTitle>
+            <AppLink to="/expert-cases/details" search={{ id: legalCase.id }}>
+              {caseLabel(legalCase)}
+            </AppLink>
           )}
           <ItemTitle
             // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
@@ -86,6 +90,18 @@ export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
             />
           </>
         )}
+        {appointment.coordinates && (
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={
+              <Link to="/field/map" search={{ from: day, to: day, focus: appointment.id }}>
+                <Crosshair />
+                {t('show_on_map')}
+              </Link>
+            }
+          />
+        )}
         <div className="flex flex-wrap gap-2 md:ml-auto">
           <Button variant="outline" onClick={() => onStatus('done')} disabled={appointment.status === 'done'}>
             {t('done')}
@@ -96,9 +112,12 @@ export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
           <Button variant="outline" onClick={() => onStatus('canceled', 'absent')}>
             {t('absent')}
           </Button>
-          <Button nativeButton={false} render={<Link to="/field/inspection" search={{ id: appointment.id }} />}>
+          <Button
+            nativeButton={false}
+            render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}
+          >
             <ClipboardList />
-            {t('inspection_record')}
+            {t('perform_inspection')}
           </Button>
         </div>
       </div>

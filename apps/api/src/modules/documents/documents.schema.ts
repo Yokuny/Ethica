@@ -5,6 +5,7 @@ import { z } from 'zod';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import type { AppointmentRecord } from '../agenda/appointment.schema.js';
+import type { DayInspection } from '../agenda/inspection.schema.js';
 import type { CaseRecord, StalledCase } from '../case/case.schema.js';
 import type { DeadlineRecord } from '../case/deadline.schema.js';
 import type { CaseFinanceSummary, FinanceReport } from '../finance/transaction.schema.js';
@@ -43,5 +44,12 @@ export type ScheduleData = DocumentBase & { deadlines: DeadlineRecord[]; today: 
 export type FinanceData = DocumentBase & { period: FinanceReportQuery; report: FinanceReport };
 
 export type StalledData = DocumentBase & { stalled: StalledCase[] };
+
+// Inspection term (AD-239): photos and signatures already as data URLs; a file that is gone is `undefined`.
+export type InspectionTermData = DocumentBase & {
+  item: DayInspection;
+  photos: Array<{ src?: string; caption?: string }>;
+  signatures: Map<string, string | undefined>;
+};
 
 export type GeneratedFile = { name: string; type: string; conteudo: Buffer };

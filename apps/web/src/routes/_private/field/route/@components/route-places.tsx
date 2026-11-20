@@ -7,7 +7,8 @@ import { useState } from 'react';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { cn } from '@/lib/utils.js';
-import type { Point } from '../@utils/itinerary.js';
+import { GoogleMapsIcon, WazeIcon } from '../../@components/navigation-icons.js';
+import type { Point } from '../../@utils/itinerary.js';
 import {
   googleMapsSearch,
   PLACE_KIND_LIST,
@@ -15,8 +16,7 @@ import {
   type Place,
   type PlaceKind,
   routeMarks,
-} from '../@utils/route-places.js';
-import { GoogleMapsIcon, WazeIcon } from './navigation-icons.js';
+} from '../../@utils/route-places.js';
 
 const KIND_ICON: Record<PlaceKind, LucideIcon> = {
   restaurant: Utensils,

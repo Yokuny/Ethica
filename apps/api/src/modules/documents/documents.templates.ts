@@ -22,6 +22,7 @@ import type {
   ChecklistData,
   DocumentBase,
   FinanceData,
+  InspectionTermData,
   ScheduleData,
   SheetData,
   StalledData,
@@ -349,3 +350,144 @@ export const stalledHtml = (data: StalledData): PdfDocument =>
         )
       : empty('Nenhuma perícia parada.'),
   );
+
+// Inspection term (AD-239). The case of the field has no justice type: the sides use both names, as on the screen.
+const ATTENDEE_CAPACITY: Record<string, string> = {
+  plaintiff: 'Reclamante / autor',
+  defendant: 'Reclamada / réu',
+  plaintiff_lawyer: 'Advogado(a) do reclamante / autor',
+  defendant_lawyer: 'Advogado(a) da reclamada / réu',
+  technical_assistant: 'Assistente técnico',
+  witness: 'Testemunha',
+  other: 'Outro',
+};
+const SIDE = { plaintiff: 'Reclamante / autor', defendant: 'Reclamada / réu' };
+const yesNo = (value: boolean | undefined) => (value ? 'Sim' : 'Não');
+const years = (start?: number, end?: number) => [start, end].filter(Boolean).join(' a ');
+const version = (job: { activities?: string; frequency?: string; timeExposure?: string }) =>
+  [
+    job.activities,
+    job.frequency && `Frequência: ${job.frequency}`,
+    job.timeExposure && `Exposição: ${job.timeExposure}`,
+  ]
+    .filter(Boolean)
+    .map((text) => esc(text))
+    .join('<br>');
+const signatureBox = (name: string, role: string, src?: string) =>
+  `<div class="assinatura">${src ? `<img src="${src}" alt="">` : '<div class="linha"></div>'}<p><strong>${esc(name)}</strong><br>${esc(role)}</p></div>`;
+
+// Everything collected at the inspection, except the internal notes, which never leave the record (AD-130).
+export const inspectionHtml = (data: InspectionTermData): PdfDocument => {
+  const { item, photos, signatures, expert } = data;
+  const { appointment, legalCase, inspection } = item;
+  const record = inspection.data;
+  const audios = inspection.media.filter((media) => media.type === 'audio').length;
+
+  return document(
+    data,
+    'Termo de vistoria',
+    legalCase?.processNumber ?? legalCase?.subject,
+    [
+      section(
+        'Vistoria',
+        fields([
+          ['Compromisso', appointment.title],
+          ['Data e hora', dateTime(appointment.start)],
+          ['Local', appointment.location],
+          ['Processo', legalCase?.processNumber],
+          ['Objeto', legalCase?.subject],
+          [SIDE.plaintiff, legalCase?.plaintiff],
+          [SIDE.defendant, legalCase?.defendant],
+        ]),
+      ),
+      section(
+        'Presentes',
+        record.attendees.length
+          ? table(
+              ['Nome', 'Qualidade', 'E-mail'],
+              record.attendees.map((attendee) => [
+                esc(attendee.name),
+                esc(ATTENDEE_CAPACITY[attendee.capacity]),
+                esc(attendee.email),
+              ]),
+            )
+          : empty('Ninguém registrado.'),
+      ),
+      section(
+        'Paradigmas',
+        record.comparators.length
+          ? table(
+              ['Indicado por', 'Nome', 'Função', 'Período', 'Trabalhou junto'],
+              record.comparators.map((comparator) => [
+                esc(SIDE[comparator.side]),
+                esc(comparator.name),
+                esc(comparator.job),
+                esc(comparator.period),
+                yesNo(comparator.workedTogether),
+              ]),
+            )
+          : empty('Nenhum paradigma indicado.'),
+      ),
+      section(
+        'Funções e atividades',
+        record.jobs.length
+          ? table(
+              ['Função', 'Período', 'Local', `Versão: ${SIDE.plaintiff}`, `Versão: ${SIDE.defendant}`],
+              record.jobs.map((job) => [
+                esc(job.title),
+                esc(years(job.yearStart, job.yearEnd)),
+                esc(job.location),
+                version(job.plaintiff),
+                version(job.defendant),
+              ]),
+            )
+          : empty('Nenhuma função registrada.'),
+      ),
+      section(
+        'Agentes',
+        record.agents.length
+          ? table(
+              ['Agente', 'Presente', 'EPI', 'Observações'],
+              record.agents.map((agent) => [
+                esc(label(agent.agent)),
+                agent.present === 'yes' ? 'Sim' : 'Não',
+                esc(agent.ppe),
+                esc(agent.notes),
+              ]),
+            )
+          : empty('Nenhum agente registrado.'),
+      ),
+      section(
+        'Documentos solicitados',
+        record.documents.length
+          ? table(
+              ['Documento', 'Solicitado', 'Observações'],
+              record.documents.map((item) => [esc(label(item.document)), yesNo(item.requested), esc(item.notes)]),
+            )
+          : empty('Nenhum documento registrado.'),
+      ),
+      section(
+        'Fotos',
+        `${
+          photos.length
+            ? `<div class="fotos">${photos
+                .map(
+                  (photo) =>
+                    `<figure>${photo.src ? `<img src="${photo.src}" alt="">` : ''}${photo.caption ? `<figcaption>${esc(photo.caption)}</figcaption>` : ''}</figure>`,
+                )
+                .join('')}</div>`
+            : empty('Nenhuma foto.')
+        }${audios ? `<p>${audios} ${audios === 1 ? 'áudio gravado' : 'áudios gravados'} no registro.</p>` : ''}`,
+      ),
+      section(
+        'Assinaturas',
+        `<div class="assinaturas">${[
+          ...record.attendees.map((attendee) =>
+            signatureBox(attendee.name, ATTENDEE_CAPACITY[attendee.capacity] ?? '', signatures.get(attendee.id)),
+          ),
+          signatureBox(expert.name, 'Perito'),
+        ].join('')}</div>`,
+      ),
+    ].join(''),
+  );
+};

@@ -60,6 +60,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 - [ ] Planilha com a base de varas e comarcas (24 TRTs) — `contatos-varas`, `partes-servico`, `rotina-servico`
 - [ ] Conferir no navegador a lista e o detalhe de Serviços após a AD-238 (linha da OS, tabela em uma linha, "Não preenchido") — `servicos`
 - [ ] Conferir as telas logadas nos temas Escuro e Azul (lista, serviço, agenda, dashboard, Conta/Escritório, celular) — `temas`
+- [ ] Conferir a Logística no navegador e no celular (hub, Mapa, Planejamento de rota, Serviços agendados, intervalo de datas, assinaturas e termo em PDF) e confirmar observações internas fora do PDF — `logistica-paginas`
 - [ ] Conferir o tour guiado no navegador (menu aberto e recolhido, celular, operador) e revisar os textos — `tour-guiado`
 
 ### Código que ficou para trás — agente
@@ -83,6 +84,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-20 — Logística em páginas por intenção, intervalo de datas e termo da vistoria assinado em PDF (AD-239) — `logistica-paginas`
 - [x] 2026-11-20 — `seed:volume`: dados em volume no escritório de um login para a conferência visual (`RUN_BOOK.md`) — `fundacao-ethica`
 - [x] 2026-11-20 — Serviços: OS discreta abaixo da faixa, tabela normalizada e detalhe compacto com "Não preenchido" no fim (AD-238) — `servicos`
 - [x] 2026-11-20 — Temas Claro, Escuro e Azul (dourado) e cor de ação única nos botões e detalhes (AD-237) — `temas`

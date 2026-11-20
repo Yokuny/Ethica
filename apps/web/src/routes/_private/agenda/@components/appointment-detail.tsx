@@ -71,7 +71,7 @@ export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentD
         <Button
           variant="outline"
           nativeButton={false}
-          render={<Link to="/field/inspection" search={{ id: appointment.id }} />}
+          render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}
         >
           <ClipboardList />
           {t('inspection_record')}

@@ -1,164 +1,49 @@
-import { Button } from '@ethica/ui/components/button';
-import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
-import { useEffect } from 'react';
-import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { DefaultLoading } from '@/components/default-loading.js';
-import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
-import { PeriodNav } from '@/components/period-nav.js';
-import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { CalendarCheck, ClipboardList, Map as MapIcon, Route as RouteIcon, Truck } from 'lucide-react';
+import { HubIllustration } from '@/components/hub-illustration.js';
+import { LinkCard, LinkCardList } from '@/components/link-card.js';
+import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { startSync } from '@/lib/offline/sync.js';
-import { inspectionPeriodQuery } from '@/query/inspection.js';
-import { FieldCard } from './@components/field-card.js';
-import { FieldConnection } from './@components/field-connection.js';
-import { FieldMap } from './@components/field-map.js';
-import { useQuickStatus } from './@hooks/use-quick-status.js';
-import {
-  FIELD_PERIODS,
-  FIELD_VIEWS,
-  type FieldPeriod,
-  type FieldSearch,
-  type FieldView,
-  fieldSearchSchema,
-} from './@interface/field.interface.js';
-import { periodLabel, periodRange, shiftPeriod } from './@utils/period.js';
 
-const VIEW_ITEMS = FIELD_VIEWS.map((value) => ({ value, label: t(value) }));
-const PERIOD_ITEMS = FIELD_PERIODS.map((value) => ({ value, label: t(value) }));
-
-// Field route (CAM-01), designed for the phone and to work without a connection (AD-128). Two views (AD-194): the
-// map, open by default, with the stops listed below it in the order they happen, and the list (AD-195). The period
-// is the day (every appointment) or the week, month or year (only the inspections, CPE-01).
+// Logistics hub (AD-239): one page per intention — see the map, plan the route, follow the scheduled services.
 export function FieldPage() {
-  const search = useSearch({ strict: false }) as FieldSearch;
-  const navigate = useNavigate({ from: '/field/' });
-  const queryClient = useQueryClient();
-  const date = search.date ?? formatDisplayDate(new Date());
-  const view = search.view ?? 'map';
-  const period = search.period ?? 'day';
-  const ofDay = period === 'day';
-  const query = useQuery({
-    ...inspectionPeriodQuery({ ...periodRange(period, date), type: ofDay ? undefined : 'inspection' }),
-    networkMode: 'always',
-  });
-  const { mark } = useQuickStatus();
-  const items = query.data?.items ?? [];
-
-  // The sync listens for the connection coming back: it starts once when the field opens.
-  useEffect(() => startSync(queryClient), [queryClient]);
-
-  function update(patch: Partial<FieldSearch>) {
-    navigate({ search: (prev: FieldSearch) => ({ ...prev, ...patch }), replace: true });
-  }
-
-  const label = periodLabel(period, date);
-  const empty = t(ofDay ? 'nothing_scheduled_this_day' : 'no_inspections_in_period');
-  const counted = ofDay ? ['commitment', 'commitments'] : ['inspection', 'inspections'];
-  const nav = (
-    <PeriodNav
-      label={label}
-      previousLabel={t('previous')}
-      nextLabel={t('next')}
-      onPrevious={() => update({ date: shiftPeriod(period, date, -1) })}
-      onToday={() => update({ date: undefined })}
-      onNext={() => update({ date: shiftPeriod(period, date, 1) })}
-    />
-  );
-  const connection = <FieldConnection ofDevice={query.data?.ofDevice} />;
-  const state = query.isLoading ? (
-    <DefaultLoading />
-  ) : query.isError ? (
-    <DefaultEmptyData
-      title={t('load_error')}
-      action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
-    />
-  ) : null;
-
   return (
     <Card asPage>
-      <CardHeader title={t('logistics')}>
-        <CardAction>
-          <Select
-            items={PERIOD_ITEMS}
-            value={period}
-            onValueChange={(next) => next && update({ period: next === 'day' ? undefined : (next as FieldPeriod) })}
-          >
-            <SelectTrigger size="compact" aria-label={t('period')} className="w-32">
-              <SelectValue placeholder={t('period')} />
-            </SelectTrigger>
-            <SelectContent>
-              {PERIOD_ITEMS.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select items={VIEW_ITEMS} value={view} onValueChange={(next) => next && update({ view: next as FieldView })}>
-            <SelectTrigger size="compact" aria-label={t('view')} className="w-32">
-              <SelectValue placeholder={t('view')} />
-            </SelectTrigger>
-            <SelectContent>
-              {VIEW_ITEMS.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardAction>
-      </CardHeader>
-      <CardContent className="gap-4">
-        {view === 'map' ? (
-          <>
-            {nav}
-            {connection}
-            {state ?? <FieldMap data={items} withDate={!ofDay} emptyTitle={empty} />}
-          </>
-        ) : (
-          // List (AD-195): the day on the left, fixed on large screens, and the appointments as rows on the right.
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-6 lg:gap-16">
-            <div className="flex h-fit flex-col gap-5 lg:sticky lg:top-6 lg:col-span-2">
-              <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
-                <ItemTitle
-                  // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
-                  render={<h2 />}
-                  className="font-medium text-4xl tracking-tight first-letter:uppercase lg:text-5xl"
-                >
-                  {label}
-                </ItemTitle>
-                <ItemDescription className="pt-1 text-sm">
-                  {`${items.length} ${t(counted[items.length === 1 ? 0 : 1]).toLowerCase()}`}
-                </ItemDescription>
-              </div>
-              <ItemDescription className="line-clamp-none text-base">
-                {t('field_day_empty_description')}
-              </ItemDescription>
-              {nav}
-              {connection}
-            </div>
-            <div className="min-w-0 lg:col-span-4">
-              {state ??
-                (items.length ? (
-                  <ul>
-                    {items.map((item) => (
-                      <FieldCard
-                        key={item.appointment.id}
-                        item={item}
-                        withDate={!ofDay}
-                        onStatus={(status, reason) => void mark(item.appointment.id, status, reason)}
-                      />
-                    ))}
-                  </ul>
-                ) : (
-                  <DefaultEmptyData title={empty} />
-                ))}
-            </div>
-          </div>
-        )}
+      <CardHeader title={t('logistics')} />
+      <CardContent className="max-w-4xl gap-8">
+        <PageIntro
+          title={t('logistics')}
+          description={t('field_page_description')}
+          illustration={<HubIllustration icon={Truck} />}
+          heading={t('logistics_hub_heading')}
+          text={t('logistics_hub_text')}
+          features={[
+            { icon: MapIcon, label: t('map') },
+            { icon: RouteIcon, label: t('route_planning') },
+            { icon: ClipboardList, label: t('inspection_record') },
+          ]}
+        />
+        <LinkCardList>
+          <LinkCard
+            icon={MapIcon}
+            title={t('map')}
+            meta={[t('date_range'), t('stops_on_map')]}
+            render={<Link to="/field/map" />}
+          />
+          <LinkCard
+            icon={RouteIcon}
+            title={t('route_planning')}
+            meta={[t('travel_cost'), t('support_on_route')]}
+            render={<Link to="/field/route" />}
+          />
+          <LinkCard
+            icon={CalendarCheck}
+            title={t('scheduled_services')}
+            meta={[t('show_on_map'), t('perform_inspection')]}
+            render={<Link to="/field/inspections" />}
+          />
+        </LinkCardList>
       </CardContent>
     </Card>
   );
@@ -167,5 +52,4 @@ export function FieldPage() {
 export const Route = createFileRoute('/_private/field/')({
   component: FieldPage,
   staticData: { title: t('logistics') },
-  validateSearch: (search: Record<string, unknown>): FieldSearch => fieldSearchSchema.parse(search),
 });

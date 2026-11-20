@@ -41,7 +41,7 @@ export function CaseInspections({ caseId }: { caseId: string }) {
               <LinkListItem
                 key={appointment.id}
                 icon={ClipboardList}
-                render={<Link to="/field/inspection" search={{ id: appointment.id }} />}
+                render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}
                 title={appointment.title}
                 badges={<Badge variant="secondary">{t(appointment.status)}</Badge>}
                 description={[

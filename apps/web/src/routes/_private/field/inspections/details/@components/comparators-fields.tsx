@@ -5,7 +5,7 @@ import { type UseFormReturn, useFieldArray } from 'react-hook-form';
 import { Checkbox } from '@/components/checkbox.js';
 import { SelectField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { INDICATED_SIDE_KEY } from '../../@consts/field-labels.js';
+import { INDICATED_SIDE_KEY } from '../../../@consts/field-labels.js';
 import { FieldList } from './field-list.js';
 
 const SIDE_ITEMS = SIDES.map((value) => ({ value, label: t(INDICATED_SIDE_KEY[value]) }));

@@ -80,6 +80,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-20 — Logística separada em Mapa, Planejamento de rota e Serviços agendados, com intervalo de datas; o registro passa a `/field/inspections/details` e ganha o termo em PDF com as assinaturas em `logistica-paginas` (AD-239).
 - 2026-11-10 — A seção "Campo" passa a se chamar "Logística" no menu, na barra do celular e no título da tela (chave `logistics`; a rota `/field` continua). A chave `field` ("Campo") segue no mapeamento de colunas do CSV.
 - 2026-11-09 — Custo de deslocamento e lugares no trajeto no mapa em `custo-deslocamento` (AD-212, AD-213).
 - 2026-11-09 — Período no Campo: Dia, Semana, Mês e Ano (estes só com vistorias), lista abaixo do mapa em ordem de data e hora; `/inspections/day` vira `/inspections/period` (AD-208).

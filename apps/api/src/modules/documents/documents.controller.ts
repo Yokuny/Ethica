@@ -1,6 +1,7 @@
 import { hasPermission } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { AppointmentNotFoundError } from '../agenda/appointment.service.js';
 import { CaseNotFoundError } from '../case/case.service.js';
 import type { DocumentContext, DocumentsRouterDeps, FinanceReportQuery, GeneratedFile } from './documents.schema.js';
 import * as documentsService from './documents.service.js';
@@ -24,14 +25,18 @@ const send = (res: Response, file: GeneratedFile): void => {
     .end(file.conteudo);
 };
 
-// One handler per document: generates and returns the file; a case from another tenant is 404.
+// One handler per document: generates and returns the file; a case or appointment from another tenant is 404.
 const handler =
   (generate: (req: Request, ctx: DocumentContext) => Promise<GeneratedFile>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       send(res, await generate(req, context(req)));
     } catch (e) {
-      next(e instanceof CaseNotFoundError ? new CustomError(e.message, 404, e.detail) : e);
+      next(
+        e instanceof CaseNotFoundError || e instanceof AppointmentNotFoundError
+          ? new CustomError(e.message, 404, e.detail)
+          : e,
+      );
     }
   };
 
@@ -40,6 +45,9 @@ export const sheet = (providers: Providers) =>
 
 export const checklist = (providers: Providers) =>
   handler((req, ctx) => documentsService.generateChecklist(providers, ctx, req.params.id as string));
+
+export const inspection = (providers: Providers) =>
+  handler((req, ctx) => documentsService.generateInspection(providers, ctx, req.params.appointmentId as string));
 
 export const schedule = (providers: Providers) =>
   handler((_req, ctx) => documentsService.generateSchedule(providers, ctx));

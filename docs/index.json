@@ -2,6 +2,27 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "logistica-paginas",
+      "feature": "Logística em páginas por intenção e termo de vistoria assinado",
+      "descricao": "Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas",
+      "data": "2026-11-20",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web"
+      ],
+      "decisoes": [
+        "AD-239"
+      ],
+      "spec": [
+        ".specs/features/logistica-paginas"
+      ],
+      "planos": [
+        ".specs/features/logistica-paginas/plans/2026-11-20-logistica-paginas.md"
+      ],
+      "doc": "features/logistica-paginas/feature.md"
+    },
+    {
       "slug": "temas",
       "feature": "Temas",
       "descricao": "Temas Claro, Escuro e Azul escolhidos no menu do usuário, com uma cor de ação por tema nos botões e nos detalhes",
@@ -1762,7 +1783,7 @@
       "id": "AD-194",
       "decisao": "(1) Navegação de período (anterior, hoje, próximo) num só contorno, sem divisórias internas, em `apps/web/src/components/period-nav.tsx`, us",
       "data": "2026-11-05",
-      "status": "active"
+      "status": "active; o item (2) (duas visualizações numa tela, sem `/field/map`) foi superseded pela AD-239"
     },
     {
       "id": "AD-195",
@@ -1846,7 +1867,7 @@
       "id": "AD-208",
       "decisao": "O Campo (`/field`) ganha o período: Dia (padrão, todos os compromissos, como antes), Semana (segunda a domingo), Mês ou Ano, estes só com as",
       "data": "2026-11-09",
-      "status": "active"
+      "status": "active; o período fixo e a regra \"fora do dia, só vistorias\" foram superseded pela AD-239"
     },
     {
       "id": "AD-209",
@@ -2025,6 +2046,12 @@
     {
       "id": "AD-238",
       "decisao": "Serviços mais enxutos. (1) Próxima OS e Última OS saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-239",
+      "decisao": "A Logística (`/field`) vira um hub com três páginas, uma por intenção: Mapa (`/field/map`: paradas do intervalo e a lista do que está no map",
       "data": "2026-11-20",
       "status": "active"
     }

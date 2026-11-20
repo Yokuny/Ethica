@@ -1069,7 +1069,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o mapa centra na próxima vistoria em vez de enquadrar todas as paradas; as outras ficam fora da tela até arrastar ou afastar.
 - **Scope**: `apps/web/src/components/period-nav.tsx`, `apps/web/src/routes/_private/{agenda,field}/`.
 - **Date**: 2026-11-05
-- **Status**: active
+- **Status**: active; o item (2) (duas visualizações numa tela, sem `/field/map`) foi superseded pela AD-239
 
 ### AD-195
 - **Decision**: A Lista do Campo **não vira tabela**: fica em duas colunas a partir da tela grande, o dia à esquerda (data em destaque, quantidade de compromissos, navegação e estado da conexão, fixos ao rolar) e os compromissos à direita como linhas separadas por um traço, sem moldura de cartão: número do processo, título grande, partes e local, selos, horário em pílula e os botões (Google Maps, Waze, feita, adiada, ausente, registro). No celular tudo empilha, com o horário no topo de cada compromisso. O Mapa segue igual (AD-194).
@@ -1181,7 +1181,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: a cópia antiga do dia guardada no aparelho (`day:<data>`) deixa de ser lida; o Campo só abre sem conexão um período já aberto depois desta versão. Ordem por proximidade e rota no mapa continuam valendo, mesmo misturando dias.
 - **Scope**: `apps/api/src/modules/agenda/inspection.{router,controller,service,schema}.ts`, `apps/web/src/routes/_private/field/`, `apps/web/src/query/inspection.ts`, `apps/web/src/lib/offline/store.ts`.
 - **Date**: 2026-11-09
-- **Status**: active
+- **Status**: active; o período fixo e a regra "fora do dia, só vistorias" foram superseded pela AD-239
 
 ### AD-209
 - **Decision**: Menu lateral em quatro grupos além de Visão geral: **Trabalho** (Serviços, Prazos e Alertas, Agenda, Campo, Laudos), **Cadastros** (Partes, Varas e comarcas), **Gestão** (Prospecção, Financeiro, Dashboard, Relatórios) e Configurações. A ordem dos cartões do Início segue a mesma (`HOME_SECTIONS`). O ícone de Serviços passa do martelo (`Gavel`) para a maleta (`BriefcaseBusiness`) em todo lugar que representa um serviço (menu, barra do celular, listas e escolha de serviço).
@@ -1420,6 +1420,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: pedido do usuário em 2026-11-20, com fotos da lista e do detalhe ("Próxima/Última OS mais discretas", "tabela num padrão consistente", "colunas bem separadas", "campos não preenchidos no final").
 - **Trade-off**: quem procura um campo vazio precisa abrir "Não preenchido" (o grupo, como todos, começa recolhido). A largura nova do rótulo vale para todo `ProductSpecs` (partes, agenda); rótulos longos quebram em duas linhas.
 - **Scope**: `apps/web/src/components/product-specs.tsx`, `apps/web/src/routes/_private/expert-cases/{index.tsx,@components/cases-overview.tsx,@utils/case-columns.tsx,details/@components/case-details-view.tsx}`, `apps/web/src/lib/helpers/translate.helper.ts`.
+- **Date**: 2026-11-20
+- **Status**: active
+
+### AD-239
+- **Decision**: A Logística (`/field`) vira um hub com três páginas, uma por intenção: **Mapa** (`/field/map`: paradas do intervalo e a lista do que está no mapa, `focus` na URL centra numa parada), **Planejamento de rota** (`/field/route`: partida pela localização, ordem, conflito, rota OSRM, volta, aviso às partes, custo de deslocamento e apoio no trajeto) e **Vistorias agendadas** (`/field/inspections`: cartões com Maps/Waze, resultado com um toque, "Ver no mapa", link para o serviço e "Realizar vistoria"). O registro passa de `/field/inspection` a `/field/inspections/details?id=`. O período fixo (Dia, Semana, Mês, Ano) vira **intervalo de datas** (`from`/`to` na URL, padrão hoje, calendário em intervalo com anterior/próximo andando o tamanho do intervalo) e mostra **todos os compromissos** em qualquer tamanho. Na aba **Observações** do registro ficam as assinaturas de todos os presentes (sai a coleta da aba Presentes) e o **termo da vistoria em PDF** montado na API (`GET /documents/inspections/:appointmentId`, permissão `agenda:view`) com tudo o que foi colhido, fotos com legenda e as assinaturas (imagem ou linha em branco, mais a do perito), **sem as observações internas**; pré-visualização pelo `PdfPreviewDialog`, indisponível sem conexão ou com alteração/mídia ainda não enviada. Supersede o item 2 da AD-194 (duas visualizações numa tela, sem `/field/map`) e a regra "fora do dia, só vistorias" da AD-208.
+- **Reason**: pedido do usuário em 2026-11-20 ("separar em partes, cada parte com sua intenção", "range de data", "colher assinatura de todos os envolvidos e gerar pdf com tudo"). As observações são internas pelo contrato (`inspectionDataSchema.notes`) e pela tela; um termo assinado pelas partes não pode expô-las.
+- **Trade-off**: um intervalo longo mistura audiências e reuniões com as vistorias (o selo do tipo distingue). O PDF só sai com conexão e depois de tudo enviado; quem quiser as observações no termo precisa de nova decisão. A cópia no aparelho de um período aberto antes desta versão (com `type=inspection`) deixa de ser lida.
+- **Scope**: `apps/web/src/routes/_private/field/`, `apps/web/src/routes/_private/{agenda/@components/appointment-detail.tsx,expert-cases/details/@components/case-inspections.tsx}`, `apps/web/src/lib/helpers/translate.helper.ts`, `apps/api/src/modules/documents/{documents.router,documents.controller,documents.service,documents.templates,documents.schema,document.layout}.ts`.
 - **Date**: 2026-11-20
 - **Status**: active
 

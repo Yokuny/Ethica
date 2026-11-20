@@ -3,6 +3,7 @@ import { strToU8, zipSync } from 'fflate';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfDocument, PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as appointmentService from '../agenda/appointment.service.js';
+import * as inspectionService from '../agenda/inspection.service.js';
 import * as caseService from '../case/case.service.js';
 import * as deadlineService from '../case/deadline.service.js';
 import * as partyService from '../case/party.service.js';
@@ -12,7 +13,14 @@ import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
 import * as opportunityService from '../prospecting/opportunity.service.js';
 import type { DocumentBase, DocumentContext, FinanceReportQuery, GeneratedFile } from './documents.schema.js';
-import { checklistHtml, financeHtml, scheduleHtml, sheetHtml, stalledHtml } from './documents.templates.js';
+import {
+  checklistHtml,
+  financeHtml,
+  inspectionHtml,
+  scheduleHtml,
+  sheetHtml,
+  stalledHtml,
+} from './documents.templates.js';
 
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
@@ -82,6 +90,36 @@ export const generateFinance = async (providers: Providers, ctx: DocumentContext
 export const generateStalled = async (providers: Providers, ctx: DocumentContext) => {
   const [baseData, stalled] = await Promise.all([base(providers, ctx), caseService.listStalled(ctx.tenantId, ctx.now)]);
   return pdf(providers, 'pericias-paradas.pdf', stalledHtml({ ...baseData, stalled }));
+};
+
+// Inspection term (AD-239): everything collected but the internal notes, photos and signatures embedded.
+export const generateInspection = async (providers: Providers, ctx: DocumentContext, appointmentId: string) => {
+  const [baseData, item] = await Promise.all([
+    base(providers, ctx),
+    inspectionService.getInspection(ctx.tenantId, appointmentId),
+  ]);
+  const dataUrl = (mediaId: string) =>
+    inspectionService
+      .getMedia(providers.storage, ctx.tenantId, appointmentId, mediaId)
+      .then((media) => `data:${media.mime};base64,${media.body.toString('base64')}`)
+      .catch(() => undefined);
+  const [photos, signatures] = await Promise.all([
+    Promise.all(
+      item.inspection.media
+        .filter((media) => media.type === 'photo')
+        .map(async (media) => ({ src: await dataUrl(media.id), caption: media.caption })),
+    ),
+    Promise.all(
+      item.inspection.data.attendees.map(
+        async (attendee) => [attendee.id, attendee.signatureId && (await dataUrl(attendee.signatureId))] as const,
+      ),
+    ),
+  ]);
+  return pdf(
+    providers,
+    `vistoria-${item.legalCase?.processNumber ?? appointmentId}.pdf`,
+    inspectionHtml({ ...baseData, item, photos, signatures: new Map(signatures) }),
+  );
 };
 
 // Export CSV (AD-122): same format as the import (`;`, UTF-8 with BOM, AD-115).

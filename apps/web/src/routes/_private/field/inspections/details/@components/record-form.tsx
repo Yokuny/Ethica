@@ -14,6 +14,7 @@ import { ComparatorsFields } from './comparators-fields.js';
 import { ConflictDialog } from './conflict-dialog.js';
 import { JobsFields } from './jobs-fields.js';
 import { MediaPanel } from './media-panel.js';
+import { SignaturesPanel } from './signatures-panel.js';
 
 const ABAS = [
   ['attendees', 'attendees'],
@@ -60,7 +61,7 @@ export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft
             </TabsList>
           </div>
           <TabsContent value="attendees" className="pt-4">
-            <AttendeesFields form={form} legalCase={item.legalCase} onSignature={storeSignature} />
+            <AttendeesFields form={form} legalCase={item.legalCase} />
           </TabsContent>
           <TabsContent value="comparators" className="pt-4">
             <ComparatorsFields form={form} />
@@ -77,14 +78,17 @@ export function RecordForm({ item, draft }: { item: DayInspection; draft?: Draft
           <TabsContent value="media" className="pt-4">
             <MediaPanel item={item} />
           </TabsContent>
-          <TabsContent value="notes" className="grid gap-2 pt-4">
-            <TextareaField
-              control={form.control}
-              name="notes"
-              label={t('internal_notes')}
-              placeholder={t('internal_notes_placeholder')}
-            />
-            <ItemDescription>{t('internal_notes_description')}</ItemDescription>
+          <TabsContent value="notes" className="flex flex-col gap-6 pt-4">
+            <div className="grid gap-2">
+              <TextareaField
+                control={form.control}
+                name="notes"
+                label={t('internal_notes')}
+                placeholder={t('internal_notes_placeholder')}
+              />
+              <ItemDescription>{t('internal_notes_description')}</ItemDescription>
+            </div>
+            <SignaturesPanel form={form} appointmentId={item.appointment.id} onSignature={storeSignature} />
           </TabsContent>
         </Tabs>
       </form>

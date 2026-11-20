@@ -3,7 +3,7 @@ import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, ArrowUp, LocateFixed, Mail, MapPinned, Route as RouteIcon } from 'lucide-react';
+import { ArrowDown, ArrowUp, LocateFixed, Mail, Route as RouteIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/checkbox.js';
@@ -11,10 +11,11 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { type DayInspection, geocodeMutation, sendNoticeMutation } from '@/query/inspection.js';
-import { conflictingStops, type Point, sortByProximity } from '../@utils/itinerary.js';
-import { findPlaces } from '../@utils/route-places.js';
-import { MapLeaflet } from './map-leaflet.js';
+import { type DayInspection, sendNoticeMutation } from '@/query/inspection.js';
+import { LocateAddresses } from '../../@components/locate-addresses.js';
+import { MapLeaflet } from '../../@components/map-leaflet.js';
+import { conflictingStops, type Point, sortByProximity } from '../../@utils/itinerary.js';
+import { findPlaces } from '../../@utils/route-places.js';
 import { type PlaceSearch, RoutePlaces } from './route-places.js';
 import { TravelCost } from './travel-cost.js';
 
@@ -36,20 +37,11 @@ const itineraryOsrm = async (points: Point[]): Promise<{ path: Point[]; km?: num
     : { path: points };
 };
 
-// "Mapa" view of the field (CAM-08, CAM-09, AD-194): suggested order, time conflict, route and notice to the
-// parties. The map is always open, on the next inspection of the day or, without one, on the default place.
-// `withDate` (week, month, year, CPE-01): each stop shows its day besides the time.
-export function FieldMap({
-  data,
-  withDate,
-  emptyTitle,
-}: {
-  data: DayInspection[];
-  withDate: boolean;
-  emptyTitle: string;
-}) {
+// Route planning (CAM-08, CAM-09, AD-239): start from the device location, suggested order, time conflict, street
+// route, return trip, notice to the parties, travel cost and support on the route. `withDate` (range of more than one
+// day): each stop shows its day besides the time.
+export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate: boolean }) {
   const queryClient = useQueryClient();
-  const geocode = useMutation(geocodeMutation(queryClient));
   const notice = useMutation(sendNoticeMutation(queryClient));
   const [origin, setOrigin] = useState<Point>();
   const [order, setOrder] = useState<string[]>([]);
@@ -61,7 +53,6 @@ export function FieldMap({
     return [...items].sort((a, b) => (position.get(a.appointment.id) ?? 999) - (position.get(b.appointment.id) ?? 999));
   }, [items, order]);
   const conflicts = conflictingStops(sorted.map((item) => item.appointment.start));
-  const withoutPoint = items.filter((item) => item.appointment.location && !item.appointment.coordinates);
   const [returnTrip, setReturnTrip] = useState(false);
   const [placeSearch, setPlaceSearch] = useState<PlaceSearch>();
   const points = [
@@ -93,12 +84,6 @@ export function FieldMap({
       ),
     ).values(),
   ];
-
-  async function locateAddresses() {
-    for (const item of withoutPoint) {
-      await geocode.mutateAsync({ id: item.appointment.id }).catch((error: Error) => toast.error(error.message));
-    }
-  }
 
   function applyMyLocation() {
     setLocating(true);
@@ -158,12 +143,7 @@ export function FieldMap({
           <LocateFixed />
           {t('start_from_my_location')}
         </Button>
-        {withoutPoint.length > 0 && (
-          <Button variant="outline" disabled={geocode.isPending} onClick={() => void locateAddresses()}>
-            <MapPinned />
-            {t('locate_addresses')} ({withoutPoint.length})
-          </Button>
-        )}
+        <LocateAddresses items={items} />
         {origin && (
           <Checkbox
             checked={returnTrip}
@@ -176,7 +156,7 @@ export function FieldMap({
       <MapLeaflet stops={stops} origin={origin} row={path} center={center} places={places.data} />
       {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
 
-      {!items.length && <DefaultEmptyData title={emptyTitle} />}
+      {!items.length && <DefaultEmptyData title={t('nothing_scheduled_in_period')} />}
       <ItemGroup variant="list">
         {sorted.map((item, index) => {
           const { appointment } = item;

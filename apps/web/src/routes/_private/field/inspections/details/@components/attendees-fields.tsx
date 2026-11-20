@@ -1,27 +1,20 @@
 import { INSPECTION_CAPACITIES, type InspectionData } from '@ethica/contracts';
-import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { useState } from 'react';
 import { type UseFormReturn, useFieldArray } from 'react-hook-form';
 import { SelectField, TextField } from '@/components/form-fields.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { FieldCase } from '@/query/inspection.js';
-import { CAPACITY_KEY } from '../../@consts/field-labels.js';
+import { CAPACITY_KEY } from '../../../@consts/field-labels.js';
 import { FieldList } from './field-list.js';
-import { SignatureDialog } from './signature-dialog.js';
 
 const CAPACITIES = INSPECTION_CAPACITIES.map((value) => ({ value, label: t(CAPACITY_KEY[value]) }));
 
-type AttendeesFieldsProps = {
-  form: UseFormReturn<InspectionData>;
-  legalCase?: FieldCase;
-  onSignature: (blob: Blob) => Promise<string>;
-};
+type AttendeesFieldsProps = { form: UseFormReturn<InspectionData>; legalCase?: FieldCase };
 
-// Who was at the inspection (CAM-02, CAM-06): name, capacity, e-mail and on-screen signature.
-export function AttendeesFields({ form, legalCase, onSignature }: AttendeesFieldsProps) {
-  const { fields, append, remove, update } = useFieldArray({ control: form.control, name: 'attendees' });
-  const [signing, setSigning] = useState<number | null>(null);
+// Who was at the inspection (CAM-02): name, capacity and e-mail; the signatures are collected in the notes tab
+// (LOG-06).
+export function AttendeesFields({ form, legalCase }: AttendeesFieldsProps) {
+  const { fields, append, remove } = useFieldArray({ control: form.control, name: 'attendees' });
 
   function addParties() {
     const names = (text: string | undefined) => (text ? text.split(', ') : []);
@@ -76,30 +69,10 @@ export function AttendeesFields({ form, legalCase, onSignature }: AttendeesField
                 label={t('email')}
                 placeholder={t('email_placeholder')}
               />
-              <div className="flex items-center gap-2">
-                {field.signatureId ? (
-                  <Badge variant="success">{t('signed')}</Badge>
-                ) : (
-                  <Button type="button" variant="outline" onClick={() => setSigning(index)}>
-                    {t('collect_signature')}
-                  </Button>
-                )}
-              </div>
             </>
           ),
         }))}
       />
-      {signing !== null && (
-        <SignatureDialog
-          name={form.getValues(`attendees.${signing}.name`)}
-          onClose={() => setSigning(null)}
-          onConfirm={async (blob) => {
-            const signatureId = await onSignature(blob);
-            update(signing, { ...form.getValues(`attendees.${signing}`), signatureId });
-            setSigning(null);
-          }}
-        />
-      )}
     </>
   );
 }
