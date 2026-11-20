@@ -40,6 +40,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 - [ ] Cadastrar o domínio do Ethica no Asaas (Minha Conta > Informações) e então preencher `ASAAS_RETURN_URL` na Railway — `cadastro-checkout`
 - [ ] Railway: `ASAAS_API_URL` (produção `https://api.asaas.com/v3`), `ASAAS_API_KEY` de produção e `ASAAS_WEBHOOK_TOKEN` — `cadastro-checkout`
 - [ ] Painel do Asaas: webhook para `<API>/billing/webhook` com os eventos de cobrança, envio sequencial e o mesmo token — `cadastro-checkout`
+- [ ] Perita: chave de sandbox (`$aact_hmlg_…`) em `ASAAS_API_KEY` no `.env` e reiniciar a API para abrir a fatura localmente — `cadastro-checkout`
 - [ ] Validar no sandbox com a API publicada: cadastro → fatura paga com cartão de teste → webhook chega → acesso liberado — `cadastro-checkout`
 - [ ] Validar com dados reais em produção: pagar o teste (R$ 6) com cartão de verdade, ver o acesso abrir, estornar no painel e ver o acesso fechar — `cadastro-checkout`
 - [ ] Railway: `MAIL_PROVIDER=resend`, `RESEND_API_KEY`, `MAIL_FROM` com domínio verificado no Resend; remover `SMTP_*` — `acesso-email`
@@ -84,6 +85,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-20 — Tela de planos em `/billing` com os preços no design (seletor Mensal/Anual e carrossel) (AD-245) — `cadastro-checkout`
 - [x] 2026-11-20 — Escritório com CPF ou CNPJ no cadastro e no Asaas, com os dígitos conferidos (AD-244) — `cadastro-checkout`
 - [x] 2026-11-20 — Seletor de intervalo no cabeçalho da Logística com mês, ano, semana e mês inteiro (AD-243) — `logistica-paginas`
 - [x] 2026-11-20 — Faixa de dias na horizontal (dia, intervalo, dia da semana e fim de semana) nas três páginas da Logística, botões do mapa flutuando sobre ele e ações do cartão agrupadas (AD-242) — `logistica-paginas`

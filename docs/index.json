@@ -19,6 +19,7 @@
         "AD-231",
         "AD-232",
         "AD-244",
+        "AD-245",
         "AD-155",
         "AD-220",
         "AD-098"
@@ -2087,6 +2088,12 @@
     {
       "id": "AD-244",
       "decisao": "O escritório (tenant) pode ser cadastrado com CPF ou CNPJ, no cadastro pela tela de acesso e pela plataforma. Uma validação só, `tenantDocum",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-245",
+      "decisao": "A tela de planos sai de `/suspended` e passa a `/billing` no web, o mesmo termo da Assinatura na API e no glossário (AD-140): é a tela de pa",
       "data": "2026-11-20",
       "status": "active"
     }

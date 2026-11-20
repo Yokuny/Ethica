@@ -37,11 +37,11 @@ describe('_private beforeLoad guard (FND-10/AC3)', () => {
     expect(ensureSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('redirects to /suspended, not /auth, when the tenant is suspended', async () => {
+  it('redirects to /billing, not /auth, when the tenant is suspended', async () => {
     const queryClient = new QueryClient();
     vi.spyOn(queryClient, 'ensureQueryData').mockRejectedValue(new Error(t('tenant_suspended')));
 
-    await expect(beforeLoad({ context: { queryClient } })).rejects.toEqual({ isRedirect: true, to: '/suspended' });
+    await expect(beforeLoad({ context: { queryClient } })).rejects.toEqual({ isRedirect: true, to: '/billing' });
   });
 
   it('produces exactly one redirect per independent invalid-session navigation attempt — no accumulation across calls', async () => {

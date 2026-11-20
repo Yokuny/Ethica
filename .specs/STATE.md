@@ -1471,6 +1471,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-20
 - **Status**: active
 
+### AD-245
+- **Decision**: A tela de planos sai de `/suspended` e passa a `/billing` no web, o mesmo termo da Assinatura na API e no glossário (AD-140): é a tela de pagamento do cadastro novo, do período vencido e do escritório suspenso. Os preços seguem o design da perita: título central, seletor Mensal/Anual que troca a assinatura no cartão do card central, e os cards em carrossel com os laterais girados em 3D (Teste só antes do primeiro pagamento, Assinatura e Mensalidade avulsa). O carrossel entra em `packages/ui` no molde do shadcn sobre Embla. O membro que não é admin vê os preços sem o botão Pagar.
+- **Reason**: pedido do usuário em 2026-11-20: a tela é também o checkout, e o nome `suspended` dizia só um dos casos; o design entregue (`apps/web/src/routes/_public/design.html`) é um carrossel com seletor de período.
+- **Trade-off**: dependência nova (`embla-carousel-react`) para três cards; em troca o celular desliza entre os planos sem layout próprio.
+- **Scope**: `apps/web/src/routes/_public/billing/`, `apps/web/src/routes/_private/route.tsx`, `packages/ui/src/components/carousel.tsx`, `apps/web/src/lib/helpers/translate.helper.ts`.
+- **Date**: 2026-11-20
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

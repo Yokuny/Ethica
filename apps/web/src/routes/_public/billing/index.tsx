@@ -1,6 +1,6 @@
 import type { BillingPlan } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { ItemDescription } from '@ethica/ui/components/item';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
@@ -18,7 +18,7 @@ import { billingQuery, payPlan } from './@query/billing.js';
 // before its first payment, the paid access over (AD-230) or the office suspended by the platform.
 // Paying opens the Asaas invoice; the access comes back when Asaas confirms the payment. Signing out
 // does not go through validToken, so it works with the office closed.
-export function SuspendedPage() {
+export function BillingPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const billing = useQuery(billingQuery);
@@ -61,11 +61,8 @@ export function SuspendedPage() {
 
   return (
     <Card>
-      <CardHeader
-        className="mx-auto w-full max-w-lg"
-        title={view?.firstPayment ? t('choose_plan') : t('tenant_suspended')}
-      />
-      <CardContent className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-6">
+      <CardHeader title={t('subscription')} />
+      <CardContent className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-8">
         {billing.isLoading ? (
           <DefaultLoading />
         ) : !view ? (
@@ -76,23 +73,36 @@ export function SuspendedPage() {
           />
         ) : (
           <>
-            <ItemDescription className="line-clamp-none">
-              {!view.canPay
-                ? t('billing_admin_only')
-                : view.firstPayment
-                  ? t('billing_first_payment_help')
-                  : t('billing_expired_help')}
-            </ItemDescription>
-            {view.canPay && (
-              <BillingPlans trialAvailable={view.trialAvailable} paying={paying} onPay={(plan) => void pay(plan)} />
-            )}
+            <div className="space-y-4 text-center">
+              <ItemTitle
+                // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
+                render={<h2 />}
+                className="mx-auto justify-center text-4xl font-medium tracking-tight text-balance lg:text-5xl"
+              >
+                {view.firstPayment ? t('choose_plan') : t('tenant_suspended')}
+              </ItemTitle>
+              <ItemDescription className="line-clamp-none lg:text-lg">
+                {!view.canPay
+                  ? t('billing_admin_only')
+                  : view.firstPayment
+                    ? t('billing_first_payment_help')
+                    : t('billing_expired_help')}
+              </ItemDescription>
+            </div>
+            <BillingPlans
+              trialAvailable={view.trialAvailable}
+              paying={paying}
+              onPay={view.canPay ? (plan) => void pay(plan) : undefined}
+            />
             {errorMessage && (
-              <ItemDescription role="alert" className="line-clamp-none text-destructive">
+              <ItemDescription role="alert" className="line-clamp-none text-center text-destructive">
                 {errorMessage}
               </ItemDescription>
             )}
-            <ItemDescription className="line-clamp-none">{t('billing_pending_help')}</ItemDescription>
-            <div>{signOutButton}</div>
+            <div className="flex flex-col items-center gap-4">
+              <ItemDescription className="line-clamp-none text-center">{t('billing_pending_help')}</ItemDescription>
+              {signOutButton}
+            </div>
           </>
         )}
       </CardContent>
@@ -100,7 +110,7 @@ export function SuspendedPage() {
   );
 }
 
-export const Route = createFileRoute('/_public/suspended/')({
-  component: SuspendedPage,
-  staticData: { title: t('tenant_suspended') },
+export const Route = createFileRoute('/_public/billing/')({
+  component: BillingPage,
+  staticData: { title: t('subscription') },
 });

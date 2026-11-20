@@ -13,8 +13,8 @@ import { Route as PublicRouteRouteImport } from './routes/_public/route';
 import { Route as PrivateRouteRouteImport } from './routes/_private/route';
 import { Route as PrivateIndexRouteImport } from './routes/_private/index';
 import { Route as PrivateAdminRouteRouteImport } from './routes/_private/_admin/route';
-import { Route as PublicSuspendedIndexRouteImport } from './routes/_public/suspended/index';
 import { Route as PublicInviteIndexRouteImport } from './routes/_public/invite/index';
+import { Route as PublicBillingIndexRouteImport } from './routes/_public/billing/index';
 import { Route as PublicAuthIndexRouteImport } from './routes/_public/auth/index';
 import { Route as PrivateReportsIndexRouteImport } from './routes/_private/reports/index';
 import { Route as PrivateProspectingIndexRouteImport } from './routes/_private/prospecting/index';
@@ -65,14 +65,14 @@ const PrivateAdminRouteRoute = PrivateAdminRouteRouteImport.update({
   id: '/_admin',
   getParentRoute: () => PrivateRouteRoute,
 } as any);
-const PublicSuspendedIndexRoute = PublicSuspendedIndexRouteImport.update({
-  id: '/suspended/',
-  path: '/suspended/',
-  getParentRoute: () => PublicRouteRoute,
-} as any);
 const PublicInviteIndexRoute = PublicInviteIndexRouteImport.update({
   id: '/invite/',
   path: '/invite/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
+const PublicBillingIndexRoute = PublicBillingIndexRouteImport.update({
+  id: '/billing/',
+  path: '/billing/',
   getParentRoute: () => PublicRouteRoute,
 } as any);
 const PublicAuthIndexRoute = PublicAuthIndexRouteImport.update({
@@ -268,8 +268,8 @@ export interface FileRoutesByFullPath {
   '/prospecting/': typeof PrivateProspectingIndexRoute;
   '/reports/': typeof PrivateReportsIndexRoute;
   '/auth/': typeof PublicAuthIndexRoute;
+  '/billing/': typeof PublicBillingIndexRoute;
   '/invite/': typeof PublicInviteIndexRoute;
-  '/suspended/': typeof PublicSuspendedIndexRoute;
   '/activity-log/': typeof PrivateAdminActivityLogIndexRoute;
   '/office/': typeof PrivateAdminOfficeIndexRoute;
   '/users/': typeof PrivateAdminUsersIndexRoute;
@@ -305,8 +305,8 @@ export interface FileRoutesByTo {
   '/prospecting': typeof PrivateProspectingIndexRoute;
   '/reports': typeof PrivateReportsIndexRoute;
   '/auth': typeof PublicAuthIndexRoute;
+  '/billing': typeof PublicBillingIndexRoute;
   '/invite': typeof PublicInviteIndexRoute;
-  '/suspended': typeof PublicSuspendedIndexRoute;
   '/activity-log': typeof PrivateAdminActivityLogIndexRoute;
   '/office': typeof PrivateAdminOfficeIndexRoute;
   '/users': typeof PrivateAdminUsersIndexRoute;
@@ -346,8 +346,8 @@ export interface FileRoutesById {
   '/_private/prospecting/': typeof PrivateProspectingIndexRoute;
   '/_private/reports/': typeof PrivateReportsIndexRoute;
   '/_public/auth/': typeof PublicAuthIndexRoute;
+  '/_public/billing/': typeof PublicBillingIndexRoute;
   '/_public/invite/': typeof PublicInviteIndexRoute;
-  '/_public/suspended/': typeof PublicSuspendedIndexRoute;
   '/_private/_admin/activity-log/': typeof PrivateAdminActivityLogIndexRoute;
   '/_private/_admin/office/': typeof PrivateAdminOfficeIndexRoute;
   '/_private/_admin/users/': typeof PrivateAdminUsersIndexRoute;
@@ -385,8 +385,8 @@ export interface FileRouteTypes {
     | '/prospecting/'
     | '/reports/'
     | '/auth/'
+    | '/billing/'
     | '/invite/'
-    | '/suspended/'
     | '/activity-log/'
     | '/office/'
     | '/users/'
@@ -422,8 +422,8 @@ export interface FileRouteTypes {
     | '/prospecting'
     | '/reports'
     | '/auth'
+    | '/billing'
     | '/invite'
-    | '/suspended'
     | '/activity-log'
     | '/office'
     | '/users'
@@ -462,8 +462,8 @@ export interface FileRouteTypes {
     | '/_private/prospecting/'
     | '/_private/reports/'
     | '/_public/auth/'
+    | '/_public/billing/'
     | '/_public/invite/'
-    | '/_public/suspended/'
     | '/_private/_admin/activity-log/'
     | '/_private/_admin/office/'
     | '/_private/_admin/users/'
@@ -520,18 +520,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateAdminRouteRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
-    '/_public/suspended/': {
-      id: '/_public/suspended/';
-      path: '/suspended';
-      fullPath: '/suspended/';
-      preLoaderRoute: typeof PublicSuspendedIndexRouteImport;
-      parentRoute: typeof PublicRouteRoute;
-    };
     '/_public/invite/': {
       id: '/_public/invite/';
       path: '/invite';
       fullPath: '/invite/';
       preLoaderRoute: typeof PublicInviteIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
+    '/_public/billing/': {
+      id: '/_public/billing/';
+      path: '/billing';
+      fullPath: '/billing/';
+      preLoaderRoute: typeof PublicBillingIndexRouteImport;
       parentRoute: typeof PublicRouteRoute;
     };
     '/_public/auth/': {
@@ -852,14 +852,14 @@ const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(
 
 interface PublicRouteRouteChildren {
   PublicAuthIndexRoute: typeof PublicAuthIndexRoute;
+  PublicBillingIndexRoute: typeof PublicBillingIndexRoute;
   PublicInviteIndexRoute: typeof PublicInviteIndexRoute;
-  PublicSuspendedIndexRoute: typeof PublicSuspendedIndexRoute;
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicAuthIndexRoute: PublicAuthIndexRoute,
+  PublicBillingIndexRoute: PublicBillingIndexRoute,
   PublicInviteIndexRoute: PublicInviteIndexRoute,
-  PublicSuspendedIndexRoute: PublicSuspendedIndexRoute,
 };
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(

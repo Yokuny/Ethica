@@ -26,7 +26,7 @@ export const beforeLoad = async ({
   } catch (error) {
     // Suspended tenant (403 tenant_suspended): the session is valid, so going back
     // to /auth would only repeat the sign-in; its own screen explains and offers to sign out.
-    if (error instanceof Error && error.message === t('tenant_suspended')) throw redirect({ to: '/suspended' });
+    if (error instanceof Error && error.message === t('tenant_suspended')) throw redirect({ to: '/billing' });
     throw redirect({ to: '/auth' });
   }
   // Single module guard through the matrix (AD-137): without `view`, back home.

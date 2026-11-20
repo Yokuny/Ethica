@@ -23,56 +23,54 @@ export function AttendeesFields({ form, legalCase }: AttendeesFieldsProps) {
   }
 
   return (
-    <>
-      <FieldList
-        title={t('attendees')}
-        empty={t('no_attendees_yet')}
-        actions={
-          <>
-            {legalCase && (
-              <Button type="button" variant="outline" onClick={addParties}>
-                {t('add_case_parties')}
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => append({ id: crypto.randomUUID(), name: '', capacity: 'witness' })}
-            >
-              {t('add_attendee')}
+    <FieldList
+      title={t('attendees')}
+      empty={t('no_attendees_yet')}
+      actions={
+        <>
+          {legalCase && (
+            <Button type="button" variant="outline" onClick={addParties}>
+              {t('add_case_parties')}
             </Button>
-          </>
-        }
-        items={fields.map((field, index) => ({
-          key: field.id,
-          onRemove: () => remove(index),
-          conteudo: (
-            <>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <TextField
-                  control={form.control}
-                  name={`attendees.${index}.name`}
-                  label={t('name')}
-                  placeholder={t('full_name')}
-                />
-                <SelectField
-                  control={form.control}
-                  name={`attendees.${index}.capacity`}
-                  label={t('attendee_role')}
-                  placeholder={t('choose')}
-                  items={CAPACITIES}
-                />
-              </div>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => append({ id: crypto.randomUUID(), name: '', capacity: 'witness' })}
+          >
+            {t('add_attendee')}
+          </Button>
+        </>
+      }
+      items={fields.map((field, index) => ({
+        key: field.id,
+        onRemove: () => remove(index),
+        conteudo: (
+          <>
+            <div className="grid gap-3 sm:grid-cols-2">
               <TextField
                 control={form.control}
-                name={`attendees.${index}.email`}
-                label={t('email')}
-                placeholder={t('email_placeholder')}
+                name={`attendees.${index}.name`}
+                label={t('name')}
+                placeholder={t('full_name')}
               />
-            </>
-          ),
-        }))}
-      />
-    </>
+              <SelectField
+                control={form.control}
+                name={`attendees.${index}.capacity`}
+                label={t('attendee_role')}
+                placeholder={t('choose')}
+                items={CAPACITIES}
+              />
+            </div>
+            <TextField
+              control={form.control}
+              name={`attendees.${index}.email`}
+              label={t('email')}
+              placeholder={t('email_placeholder')}
+            />
+          </>
+        ),
+      }))}
+    />
   );
 }

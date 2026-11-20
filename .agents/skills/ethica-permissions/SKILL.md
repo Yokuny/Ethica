@@ -78,7 +78,7 @@ O front esconde ou redireciona; nunca é a barreira. Todos leem `sessionQuery`.
 
 | Onde | Arquivo | Efeito |
 | --- | --- | --- |
-| Shell privado | `apps/web/src/routes/_private/route.tsx` | sem sessão ⇒ redirect `/auth`; tenant suspenso ⇒ `/suspended` |
+| Shell privado | `apps/web/src/routes/_private/route.tsx` | sem sessão ⇒ redirect `/auth`; tenant suspenso ou sem pagamento ⇒ `/billing` |
 | Layout de admin (pathless `_admin`) | `apps/web/src/routes/_private/_admin/route.tsx` | não-admin ⇒ redirect `/`. Tudo em `_private/_admin/**` (usuários, campos, integrações) herda. |
 | Módulos de domínio | `apps/web/src/routes/_private/route.tsx` (`moduleFromRoute` em `_private/@utils/home-access.ts`) | guarda única: primeiro segmento da URL → módulo; sem `view` ⇒ `/` |
 | Navegação (sidebar, home, command menu) | `HOME_SECTIONS` em `_private/@consts/home-sections.ts` (`access: PermissaoModulo \| 'admin'`) filtrado por `canAccessHomeSection` (`_private/@utils/home-access.ts`) em `useHomePage` | item some do menu |

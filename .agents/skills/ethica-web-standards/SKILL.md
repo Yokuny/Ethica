@@ -15,7 +15,7 @@ Stack e verificação: `apps/web/CLAUDE.md`.
 ```
 src/routes/
 ├── __root.tsx
-├── _public/route.tsx               # layout pathless visual (auth, invite, suspended)
+├── _public/route.tsx               # layout pathless visual (auth, invite, billing)
 └── _private/
     ├── route.tsx                   # layout pathless: guarda de sessão (beforeLoad) + SidebarInset + MobileDock
     ├── index.tsx                   # início
