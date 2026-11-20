@@ -1415,6 +1415,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-19
 - **Status**: active
 
+### AD-238
+- **Decision**: Serviços mais enxutos. (1) **Próxima OS** e **Última OS** saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e a tabela (`index.tsx`); a faixa volta aos cinco números. (2) Na tabela, OS, tipo de serviço, honorários e data do próximo prazo ficam em uma linha; a fase é um selo de uma linha (sai a quebra dentro do selo da AD-184); o próximo prazo mostra data e criticidade na mesma linha e o título abaixo, como as outras colunas; as colunas de texto longo passam a `min-w-44 max-w-56`. O texto longo continua inteiro (AD-182). (3) No detalhe, `ProductSpecs` fica mais compacto em todas as telas: coluna do rótulo com largura fixa (`w-36`, `sm:w-56`) em vez de metade da linha, e linhas mais baixas. (4) No detalhe do serviço só aparecem os campos preenchidos, na faixa e nos grupos; os vazios são listados uma vez, no fim, no grupo **Não preenchido**, e um grupo sem nada preenchido não aparece. A descrição do cabeçalho some quando repete o título.
+- **Reason**: pedido do usuário em 2026-11-20, com fotos da lista e do detalhe ("Próxima/Última OS mais discretas", "tabela num padrão consistente", "colunas bem separadas", "campos não preenchidos no final").
+- **Trade-off**: quem procura um campo vazio precisa abrir "Não preenchido" (o grupo, como todos, começa recolhido). A largura nova do rótulo vale para todo `ProductSpecs` (partes, agenda); rótulos longos quebram em duas linhas.
+- **Scope**: `apps/web/src/components/product-specs.tsx`, `apps/web/src/routes/_private/expert-cases/{index.tsx,@components/cases-overview.tsx,@utils/case-columns.tsx,details/@components/case-details-view.tsx}`, `apps/web/src/lib/helpers/translate.helper.ts`.
+- **Date**: 2026-11-20
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `temas` — parcial: Claro, Escuro e Azul no menu do usuário e cor de ação única (AD-237). Tela de acesso conferida nos três temas; falta conferir as telas logadas (o login exige passkey).

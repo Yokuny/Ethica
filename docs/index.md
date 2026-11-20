@@ -81,6 +81,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-238** (2026-11-20, active) — Serviços mais enxutos. (1) Próxima OS e Última OS saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e
 - **AD-237** (2026-11-19, active) — O `apps/web` passa a ter três temas, escolhidos no menu do usuário e guardados no aparelho (`localStorage.theme`, aplicado antes do primeiro
 - **AD-236** (2026-11-19, active) — A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: Serv
 - **AD-235** (2026-11-19, active) — Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) Fluxo de caixa vira tabela de calor: uma linha por mês
@@ -90,7 +91,6 @@ _Nenhum._
 - **AD-231** (2026-11-18, active) — O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte "teste = 7 dia
 - **AD-230** (2026-11-18, active (teste sem carência superseded by AD-231)) — O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no Asaas, com o e-mail confirmado antes. O acesso
 - **AD-229** (2026-11-15, active) — o calendário da Agenda segue o visual da agenda do DentalEase: blocos em tom pastel sem borda, cor só pelo tipo do item (mapa `TYPE_COLORS`
-- **AD-228** (2026-11-15, active) — no Dashboard, o gráfico de colunas por ano dá lugar a Serviços por mês: os últimos 12 meses até o atual (mês sem serviço é coluna zero), con
 
 ## `.specs/` sem registro em `docs/features/`
 

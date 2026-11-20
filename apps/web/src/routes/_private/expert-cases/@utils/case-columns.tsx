@@ -20,8 +20,10 @@ const names = (row: CaseListItem, side: Side) =>
     .map((party) => party.name)
     .join(', ');
 
-// Long-text columns share one width, so the wrapped lines of a row end even (Contratante, Cliente | Comarca).
-const TEXT_COLUMN = 'min-w-48 max-w-60';
+// Long-text columns share one width, so the wrapped lines of a row end even (Contratante, Cliente | Comarca);
+// short values (OS, type, date) stay on one line, so every row reads the same way.
+const TEXT_COLUMN = 'min-w-44 max-w-56';
+const ONE_LINE = 'whitespace-nowrap';
 
 // Sortable columns (AD-192) have an `accessorFn` and the `id` of the server sort (`CASE_LIST_SORTS`); the sort
 // itself is on the server, the value only enables the header click.
@@ -32,7 +34,9 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     accessorFn: (row) => row.serviceOrder,
     header: t('control'),
     cell: ({ row }) => (
-      <TableStack tone={row.original.serviceOrder ? 'default' : 'muted'}>{row.original.serviceOrder ?? '—'}</TableStack>
+      <TableStack className={ONE_LINE} tone={row.original.serviceOrder ? 'default' : 'muted'}>
+        {row.original.serviceOrder ?? '—'}
+      </TableStack>
     ),
   },
   {
@@ -64,7 +68,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     id: 'type',
     accessorFn: (row) => serviceLabel(row),
     header: t('service_type'),
-    cell: ({ row }) => serviceLabel(row.original),
+    cell: ({ row }) => <TableStack className={ONE_LINE}>{serviceLabel(row.original)}</TableStack>,
   },
   {
     // Perícia: court and division; the other types: who hired it (AD-176).
@@ -82,12 +86,9 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
   {
     id: 'phase',
     header: t('service_phase'),
-    // Phase in the tone of the status (AD-178); a status other than active is named after it.
+    // Phase in the tone of the status (AD-178); a status other than active is named after it. One line.
     cell: ({ row }) => (
-      <TableStatus
-        variant={CASE_STATUS_VARIANT[row.original.status]}
-        className="h-auto max-w-60 whitespace-normal text-left"
-      >
+      <TableStatus variant={CASE_STATUS_VARIANT[row.original.status]}>
         {[
           casePhaseLabel(row.original.phase, row.original.phaseName),
           row.original.status !== 'active' && caseStatusLabel(row.original.status),
@@ -104,16 +105,16 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       const deadline = row.original.nextDeadline;
       if (!deadline) return <TableStack tone="muted">—</TableStack>;
       const alert = deadlineAlert(deadline, formatDisplayDate(new Date()));
+      // Date and alert on the first line, the deadline title below: the same two lines as the other columns.
       return (
-        <div className="flex flex-col items-start gap-1">
+        <TableStack className="min-w-40 max-w-56" description={deadline.title}>
+          <span className={ONE_LINE}>{formatDate(toDate(deadline.dueDate))}</span>
           {alert && (
-            <TableStatus variant={ALERT_VARIANT[alert]}>
-              <BadgeIndicator variant={ALERT_VARIANT[alert]} />
+            <BadgeIndicator variant={ALERT_VARIANT[alert]} className="ml-2 align-middle">
               {t(alert)}
-            </TableStatus>
+            </BadgeIndicator>
           )}
-          <TableStack description={deadline.title}>{formatDate(toDate(deadline.dueDate))}</TableStack>
-        </div>
+        </TableStack>
       );
     },
   },
@@ -126,7 +127,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       // In a technical assistant case (AD-135) and in the office's own type (AD-176) it is the contracted one.
       const definido = role === 'technical_assistant' || isOwnType(row.original) ? t('contracted') : t('fixed');
       return (
-        <TableStack description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>
+        <TableStack className={ONE_LINE} description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>
           {value ? formatMoney(value) : '—'}
         </TableStack>
       );

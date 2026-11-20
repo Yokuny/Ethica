@@ -1,5 +1,6 @@
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
+import { ItemDescription } from '@ethica/ui/components/item';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
@@ -72,8 +73,19 @@ export function CasesIndexPage() {
           )}
         </CardAction>
       </CardHeader>
-      <CasesOverview stats={statsQuery.data} serviceOrder={serviceOrder} />
+      <CasesOverview stats={statsQuery.data} />
       <CardContent>
+        {/* Next service order (a preview of the sequence, AD-190) and the last one used, as a discreet line. */}
+        {(serviceOrder?.next || serviceOrder?.last) && (
+          <ItemDescription className="-mb-3 line-clamp-none">
+            {[
+              serviceOrder.next && `${t('next_service_order')}: ${serviceOrder.next}`,
+              serviceOrder.last && `${t('last_service_order')}: ${serviceOrder.last}`,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </ItemDescription>
+        )}
         <DataTable
           filters={{ items: filters }}
           search={{ value: searchInput, onChange: handleSearchInput }}

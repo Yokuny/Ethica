@@ -58,6 +58,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 - [ ] Testar a leitura com atas e processos reais de outros tribunais — `importacao-processos`, `laudo-montagem`
 - [ ] Assinar o feed num Google Agenda de verdade — `prazos-recebimentos`
 - [ ] Planilha com a base de varas e comarcas (24 TRTs) — `contatos-varas`, `partes-servico`, `rotina-servico`
+- [ ] Conferir no navegador a lista e o detalhe de Serviços após a AD-238 (linha da OS, tabela em uma linha, "Não preenchido") — `servicos`
 - [ ] Conferir as telas logadas nos temas Escuro e Azul (lista, serviço, agenda, dashboard, Conta/Escritório, celular) — `temas`
 - [ ] Conferir o tour guiado no navegador (menu aberto e recolhido, celular, operador) e revisar os textos — `tour-guiado`
 
@@ -82,6 +83,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-20 — Serviços: OS discreta abaixo da faixa, tabela normalizada e detalhe compacto com "Não preenchido" no fim (AD-238) — `servicos`
 - [x] 2026-11-20 — Temas Claro, Escuro e Azul (dourado) e cor de ação única nos botões e detalhes (AD-237) — `temas`
 - [x] 2026-11-19 — Serviços por mês/tipo e Início com número escrito: tabela por mês e rankings (AD-236) — `dashboard`
 - [x] 2026-11-19 — Dashboard com valores escritos: fluxo de caixa em tabela de calor e categorias em ranking (AD-235) — `dashboard`

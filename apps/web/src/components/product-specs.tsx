@@ -90,13 +90,13 @@ export function ProductSpecs({ groups, className }: { groups: ProductSpecGroup[]
                             spec.start && 'border-t-8 border-t-muted first:border-t-0',
                           )}
                         >
-                          <td className="w-1/2 px-4 py-3 align-top">
+                          <td className="w-36 px-4 py-2 align-top sm:w-56">
                             <ItemDescription render={<div />} className="line-clamp-none">
                               {spec.label}
                             </ItemDescription>
                             {spec.description && <div className="mt-1">{spec.description}</div>}
                           </td>
-                          <td className="px-4 py-3 align-top font-medium whitespace-pre-wrap">{spec.value}</td>
+                          <td className="px-4 py-2 align-top font-medium whitespace-pre-wrap">{spec.value}</td>
                         </tr>
                       ))}
                     </tbody>

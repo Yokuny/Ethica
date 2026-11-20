@@ -1293,6 +1293,7 @@ const translations: Record<string, string> = {
   next_service_order: 'Próxima OS',
   no_technical_responsible_yet: 'Nenhum responsável técnico cadastrado além da dona da conta.',
   not_informed: 'Não informado',
+  not_filled: 'Não preenchido',
   not_saved: 'Não salvo',
   office_has_service_order_question: 'O escritório já tem número de controle de OS?',
   yes_i_have_service_order: 'Sim, já tenho',
