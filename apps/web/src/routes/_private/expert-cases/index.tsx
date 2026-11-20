@@ -77,7 +77,7 @@ export function CasesIndexPage() {
       <CardContent>
         {/* Next service order (a preview of the sequence, AD-190) and the last one used, as a discreet line. */}
         {(serviceOrder?.next || serviceOrder?.last) && (
-          <div className="-mb-3 flex flex-wrap gap-x-6 gap-y-1">
+          <div className="flex flex-wrap gap-x-6 gap-y-1 justify-end">
             {[
               { label: t('next_service_order'), value: serviceOrder.next },
               { label: t('last_service_order'), value: serviceOrder.last },
