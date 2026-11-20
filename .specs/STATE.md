@@ -1417,6 +1417,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 
 ## Handoff
 
+- **Feature**: `temas` — parcial: Claro, Escuro e Azul no menu do usuário e cor de ação única (AD-237). Tela de acesso conferida nos três temas; falta conferir as telas logadas (o login exige passkey).
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.
 - **Feature**: `anexar-laudo` — concluída: anexar PDF / importar laudo no serviço, concluído com a entrega e salvável como modelo (AD-179). Falta a conferência visual no navegador.
 - **Feature**: `fase-servico` — concluída: tipo Perícia/Assistência técnica/Cadastrar novo, esfera só na perícia, fase em grupos e status à parte (AD-178). Conferido no navegador; falta a perita conferir os textos das fases.
