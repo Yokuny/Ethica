@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { rangeDays, rangeLabel } from './range.js';
+import { rangeLabel, rangeOf } from './range.js';
 
 describe('field range', () => {
-  it('counts both ends', () => {
-    expect(rangeDays('2026-11-20', '2026-11-20')).toBe(1);
-    expect(rangeDays('2026-11-28', '2026-12-04')).toBe(7);
+  it('orders the two days and cuts at 366 days', () => {
+    expect(rangeOf('2026-12-04', '2026-11-28')).toEqual({ from: '2026-11-28', to: '2026-12-04' });
+    expect(rangeOf('2026-01-01', '2028-01-01')).toEqual({ from: '2026-01-01', to: '2027-01-01' });
   });
 
   it('writes one day or both ends', () => {

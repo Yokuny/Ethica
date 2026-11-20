@@ -1,11 +1,12 @@
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { createFileRoute } from '@tanstack/react-router';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { DayStrip } from '../@components/day-strip.js';
 import { FieldConnection } from '../@components/field-connection.js';
 import { FieldState } from '../@components/field-state.js';
+import { RangePicker } from '../@components/range-picker.js';
 import { useFieldRange } from '../@hooks/use-field-range.js';
 import { type FieldSearch, fieldSearchSchema } from '../@interface/field.interface.js';
 import { rangeLabel } from '../@utils/range.js';
@@ -20,7 +21,11 @@ export function FieldInspectionsPage() {
 
   return (
     <Card asPage>
-      <CardHeader title={t('scheduled_services')} />
+      <CardHeader title={t('scheduled_services')}>
+        <CardAction>
+          <RangePicker from={from} to={to} onChange={update} />
+        </CardAction>
+      </CardHeader>
       <CardContent className="gap-6">
         <DayStrip from={from} to={to} onChange={update} />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-6 lg:gap-16">

@@ -1455,6 +1455,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-20
 - **Status**: active
 
+### AD-243
+- **Decision**: As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242) não alcança: calendário com mês e ano em listas (cinco anos para trás e para frente), primeiro clique o início e o segundo o fim, e os atalhos "Semana" (segunda a domingo) e "Mês" do dia selecionado. Ao escolher um intervalo fora da vista, a faixa de dias pula para o início dele. O corte em 366 dias passa a ser uma função só (`rangeOf` em `field/@utils/range.ts`), usada pela faixa e pelo seletor. Estende a AD-242.
+- **Reason**: pedido do usuário em 2026-11-20 ("no header da página dentro de CardAction coloque um datePicker para facilitar a seleção de anos, meses e semanas, já que o day strip só renderiza alguns dias").
+- **Trade-off**: o intervalo aparece duas vezes (seletor e faixa); em Serviços agendados, três (com o título).
+- **Scope**: `apps/web/src/routes/_private/field/{@components/range-picker.tsx,@components/day-strip.tsx,@utils/range.ts,map/index.tsx,route/index.tsx,inspections/index.tsx}`.
+- **Date**: 2026-11-20
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

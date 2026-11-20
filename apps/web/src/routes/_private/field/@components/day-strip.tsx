@@ -9,7 +9,7 @@ import {
 } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate, formatShortMonth, formatShortWeekday } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { RANGE_MAX_DAYS, rangeDays } from '../@utils/range.js';
+import { rangeOf } from '../@utils/range.js';
 
 type DayStripProps = {
   from: string;
@@ -21,10 +21,16 @@ const DAYS = 21;
 
 // Days side by side (month, day and weekday; weekends shaded) on every logistics page (AD-242): a click picks that
 // day; a click on another day right after closes the range (up to 366 days, AD-208). The days stretch over the whole
-// width; the arrows move them by their count without changing the selection.
+// width; the arrows move them by their count without changing the selection. Far dates: `RangePicker` in the header.
 export function DayStrip({ from, to, onChange }: DayStripProps) {
   const [first, setFirst] = useState(from);
+  const [shown, setShown] = useState(from);
   const [anchor, setAnchor] = useState<string>();
+  // A range picked elsewhere (the header calendar) brings the days to it when it starts out of sight.
+  if (from !== shown) {
+    setShown(from);
+    if (from < first || from > addDaysToDisplayDate(first, DAYS - 1)) setFirst(from);
+  }
   const today = formatDisplayDate(new Date());
   const days = Array.from({ length: DAYS }, (_, index) => addDaysToDisplayDate(first, index));
 
@@ -33,10 +39,8 @@ export function DayStrip({ from, to, onChange }: DayStripProps) {
       setAnchor(day);
       return onChange({ from: day, to: day });
     }
-    const [start, last] = [anchor, day].sort() as [string, string];
-    const end = rangeDays(start, last) > RANGE_MAX_DAYS ? addDaysToDisplayDate(start, RANGE_MAX_DAYS - 1) : last;
     setAnchor(undefined);
-    onChange({ from: start, to: end });
+    onChange(rangeOf(anchor, day));
   }
 
   return (

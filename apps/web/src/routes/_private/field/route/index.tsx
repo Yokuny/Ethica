@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { DayStrip } from '../@components/day-strip.js';
 import { FieldConnection } from '../@components/field-connection.js';
 import { FieldState } from '../@components/field-state.js';
+import { RangePicker } from '../@components/range-picker.js';
 import { useFieldRange } from '../@hooks/use-field-range.js';
 import { type FieldSearch, fieldSearchSchema } from '../@interface/field.interface.js';
 import { FieldRoute } from './@components/field-route.js';
@@ -14,7 +15,11 @@ export function FieldRoutePage() {
 
   return (
     <Card asPage>
-      <CardHeader title={t('route_planning')} />
+      <CardHeader title={t('route_planning')}>
+        <CardAction>
+          <RangePicker from={from} to={to} onChange={update} />
+        </CardAction>
+      </CardHeader>
       <CardContent className="gap-4">
         <DayStrip from={from} to={to} onChange={update} />
         <FieldConnection ofDevice={query.data?.ofDevice} />

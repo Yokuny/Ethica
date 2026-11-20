@@ -5,7 +5,7 @@ descricao: Logística em hub com Mapa, Planejamento de rota e Serviços agendado
 data: 2026-11-20
 status: parcial
 areas: [apps/api, apps/web]
-decisoes: [AD-239, AD-242]
+decisoes: [AD-239, AD-242, AD-243]
 spec: [.specs/features/logistica-paginas]
 branches: [main]
 ---
@@ -24,7 +24,7 @@ branches: [main]
 - **Planejamento de rota** (`/field/route`): a mesma faixa de dias e o mesmo "Localizar endereços" flutuando sobre o mapa do Mapa; partir da localização, ordem, conflito, rota pelas ruas, volta, aviso às partes, custo de deslocamento e apoio no trajeto.
 - **Serviços agendados** (`/field/inspections`): cartões com Google Maps/Waze e "Ver no mapa" agrupados (abre o mapa no dia com a parada em foco), link para o serviço, resultado com um toque e "Realizar vistoria".
 - **Registro da vistoria** em `/field/inspections/details?id=` (antes `/field/inspection`).
-- **Intervalo de datas** nas três páginas: faixa de 21 dias (mês, dia e dia da semana, fim de semana sombreado); um clique escolhe o dia, o seguinte fecha o intervalo (até 366 dias); as setas andam os dias visíveis; mostra todos os compromissos.
+- **Intervalo de datas** nas três páginas: faixa de 21 dias (mês, dia e dia da semana, fim de semana sombreado); um clique escolhe o dia, o seguinte fecha o intervalo (até 366 dias); as setas andam os dias visíveis; no cabeçalho, calendário com mês e ano em listas e os atalhos Semana e Mês (AD-243); mostra todos os compromissos.
 - **Aba Observações**: assinatura de cada presente (sai da aba Presentes) e **termo da vistoria em PDF** com pré-visualização e download; o botão espera a conexão e o envio do que está no aparelho.
 
 ## Por que
@@ -37,7 +37,7 @@ Pedido do usuário (2026-11-20): cada parte da Logística com sua intenção, in
 
 - `apps/web/src/routes/_private/field/index.tsx` (hub), `map/`, `route/` (`@components/field-route.tsx`, `travel-cost`, `route-places`), `inspections/` (`@components/field-card.tsx`, `@hooks/use-quick-status.ts`, `details/`).
 - `formatShortMonth` e `formatShortWeekday` em `apps/web/src/lib/helpers/formatDate.helper.ts`.
-- Compartilhado em `field/`: `@components/{day-strip,field-state,locate-addresses,map-leaflet,field-connection,navigation-icons}.tsx`, `@hooks/use-field-range.ts`, `@utils/range.ts`, `@interface/field.interface.ts`.
+- Compartilhado em `field/`: `@components/{day-strip,range-picker,field-state,locate-addresses,map-leaflet,field-connection,navigation-icons}.tsx`, `@hooks/use-field-range.ts`, `@utils/range.ts`, `@interface/field.interface.ts`.
 - `inspections/details/@components/signatures-panel.tsx` (assinaturas e termo); `attendees-fields.tsx` sem a coleta.
 - Saíram `@utils/period.ts`, a visualização Mapa/Lista e o período Dia/Semana/Mês/Ano.
 
@@ -62,6 +62,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-20 — Seletor de intervalo no cabeçalho das três páginas, com mês e ano em listas e atalhos Semana e Mês; a faixa de dias pula para o intervalo escolhido; `rangeOf` reúne o corte em 366 dias (AD-243).
 - 2026-11-20 — Serviços agendados também com a faixa de dias, no topo; o `RangeNav` e o `shiftRange` saem. A faixa mostra o dia da semana e sombreia sábado e domingo (AD-242).
 - 2026-11-20 — Planejamento de rota: "Partir da minha localização" e "Incluir volta" também flutuam sobre o mapa (AD-242). Serviços agendados: cartão com dois `ButtonGroup` (Google Maps, Waze e Ver no mapa; Realizado, Adiado e Ausente) e "Realizar vistoria" sozinho.
 - 2026-11-20 — Planejamento de rota igual ao Mapa: faixa de dias no lugar do `RangeNav` e "Localizar endereços" flutuando sobre o mapa; `day-strip` sobe para `field/@components/` e o `MapLeaflet` recebe o que flutua como `children` (AD-242).

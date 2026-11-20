@@ -13,7 +13,8 @@
       ],
       "decisoes": [
         "AD-239",
-        "AD-242"
+        "AD-242",
+        "AD-243"
       ],
       "spec": [
         ".specs/features/logistica-paginas"
@@ -2073,6 +2074,12 @@
     {
       "id": "AD-242",
       "decisao": "Nas três páginas da Logística (Mapa, Planejamento de rota e Serviços agendados), o intervalo de datas é uma faixa de dias lado a lado (mês c",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-243",
+      "decisao": "As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242)",
       "data": "2026-11-20",
       "status": "active"
     }

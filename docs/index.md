@@ -83,6 +83,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-243** (2026-11-20, active) — As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242)
 - **AD-242** (2026-11-20, active) — Nas três páginas da Logística (Mapa, Planejamento de rota e Serviços agendados), o intervalo de datas é uma faixa de dias lado a lado (mês c
 - **AD-241** (2026-11-20, active) — Uma regra de largura de coluna para todas as listas, no bloco de célula: `TableStack` ganha `width`. `fit` deixa o valor curto em uma linha
 - **AD-240** (2026-11-20, active) — No detalhe do serviço, o que não foi preenchido vai para baixo, ofuscado, sem sumir. (1) Dentro de cada grupo (Dados do contratante, Juízo,
@@ -92,7 +93,6 @@ _Nenhum._
 - **AD-236** (2026-11-19, active) — A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: Serv
 - **AD-235** (2026-11-19, active) — Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) Fluxo de caixa vira tabela de calor: uma linha por mês
 - **AD-234** (2026-11-19, active) — No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo (`MobileDock`), e o que só existe de
-- **AD-233** (2026-11-18, active (celular centralizado superseded by AD-234)) — O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI
 
 ## `.specs/` sem registro em `docs/features/`
 

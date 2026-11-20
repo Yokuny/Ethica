@@ -6,7 +6,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Crosshair } from 'lucide-react';
 import { APPOINTMENT_TYPE_VARIANT } from '@/components/appointment-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -15,6 +15,7 @@ import { FieldConnection } from '../@components/field-connection.js';
 import { FieldState } from '../@components/field-state.js';
 import { LocateAddresses } from '../@components/locate-addresses.js';
 import { MapLeaflet } from '../@components/map-leaflet.js';
+import { RangePicker } from '../@components/range-picker.js';
 import { useFieldRange } from '../@hooks/use-field-range.js';
 import { type FieldSearch, fieldSearchSchema } from '../@interface/field.interface.js';
 import type { Point } from '../@utils/itinerary.js';
@@ -28,6 +29,7 @@ export function FieldMapPage() {
   const { from, to, focus, update, query, items: all } = useFieldRange();
   const items = all.filter((item) => item.appointment.status !== 'canceled');
   const withDate = from !== to;
+  const pickRange = (range: { from: string; to: string }) => update({ ...range, focus: undefined });
   const stops = items.flatMap((item, index) =>
     item.appointment.coordinates
       ? [
@@ -52,9 +54,13 @@ export function FieldMapPage() {
 
   return (
     <Card asPage>
-      <CardHeader title={t('map')} />
+      <CardHeader title={t('map')}>
+        <CardAction>
+          <RangePicker from={from} to={to} onChange={pickRange} />
+        </CardAction>
+      </CardHeader>
       <CardContent className="gap-4">
-        <DayStrip from={from} to={to} onChange={(range) => update({ ...range, focus: undefined })} />
+        <DayStrip from={from} to={to} onChange={pickRange} />
         <FieldConnection ofDevice={query.data?.ofDevice} />
         <FieldState query={query}>
           <MapLeaflet stops={stops} row={NO_ROUTE} center={center}>
