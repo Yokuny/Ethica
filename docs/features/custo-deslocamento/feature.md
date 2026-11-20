@@ -30,9 +30,9 @@ Pedido da perita (2026-11-09). Ela escolheu os km da rota editáveis, a despesa 
 
 ## Como
 
-- `apps/web/src/routes/_private/field/@components/field-map.tsx` — distância do OSRM, volta ao ponto de partida, lugares e o bloco de custo.
-- `apps/web/src/routes/_private/field/@components/travel-cost.tsx`, `@hooks/use-travel-cost.ts`, `@interface/travel-cost.interface.ts`, `@utils/travel-cost.ts` (cálculo e divisão).
-- `apps/web/src/routes/_private/field/@components/route-places.tsx`, `@utils/route-places.ts` (Overpass), `map-leaflet.tsx` (`places`).
+- `apps/web/src/routes/_private/field/route/@components/field-route.tsx` — distância do OSRM, volta ao ponto de partida, lugares e o bloco de custo.
+- `apps/web/src/routes/_private/field/route/@components/travel-cost.tsx`, `@hooks/use-travel-cost.ts`, `@interface/travel-cost.interface.ts`, `@utils/travel-cost.ts` (cálculo e divisão).
+- `apps/web/src/routes/_private/field/route/@components/route-places.tsx`, `field/@utils/route-places.ts` (Overpass), `field/@components/map-leaflet.tsx` (`places`).
 - `packages/ui/src/components/radio-group.tsx` — primitivo do shadcn.
 
 ## Como testar
@@ -51,5 +51,6 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-20 — Custo e apoio no trajeto passam à página Planejamento de rota (`/field/route`), em `logistica-paginas` (AD-239).
 - 2026-11-09 — Custo à esquerda e Apoio no trajeto à direita, com tipos em etiquetas, posto de combustível, distância, busca no clique e links do Google Maps; consulta mais leve com espelho (AD-214).
 - 2026-11-09 — Implementado CDE-01 a CDE-04 (AD-212, AD-213); conferido na tela local (km da rota, cálculo, lançamento numa OS, restaurantes no trajeto). Achado na conferência: a lista de lugares vazia recriada a cada desenho fazia o mapa recarregar sem parar; corrigido.

@@ -57,8 +57,9 @@ pnpm run check && (cd apps/web && pnpm run build)
 ## Pendências
 
 - [ ] Conferência visual no navegador (não feita nesta entrega).
-- [ ] Confirmar com a perita as escolhas da spec (observações internas fora do PDF, intervalo com todos os compromissos).
+- [ ] Confirmar com a perita as escolhas da spec: intervalo com todos os compromissos (na AD-208 ela escolheu só vistorias fora do dia; voltar é o filtro `type` em `field/@hooks/use-field-range.ts`) e observações internas fora do PDF.
 
 ## Histórico
 
+- 2026-11-20 — Primeiro passo do breadcrumb usa o nome do módulo da Home ("Logística", não "Campo") em `apps/web/src/components/page-card.tsx`; testes de `RangeNav` e `SignaturesPanel`.
 - 2026-11-20 — Implementado LOG-01 a LOG-07 (AD-239). Divergência do design: o parâmetro da rota do PDF reaproveita o `inspectionParamSchema` da agenda em vez de um schema novo; `navigation-icons`, `itinerary` e `route-places` ficam no nível de `field/` porque o mapa compartilhado e duas páginas os usam.

@@ -4,7 +4,7 @@ import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 // APA-10: the field route of the day (start + 3 inspections) and its travel cost split among the
-// service orders of the route, as in field/@components/travel-cost.tsx.
+// service orders of the route, as in field/route/@components/travel-cost.tsx.
 
 const FUEL_CENTS = 6_450;
 const TOLLS_CENTS = 1_840;

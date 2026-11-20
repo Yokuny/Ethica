@@ -20,7 +20,7 @@ branches: [feat/campo-vistorias]
 ## O que foi feito
 
 - **Rota do dia** (`/field`, também na barra inferior do celular): compromissos do dia com processo, partes, local, atalhos para Google Maps e Waze e o resultado com um toque (feita, adiada, ausente).
-- **Registro da vistoria** (`/field/inspection`): presentes com qualidade, e-mail e assinatura na tela; paradigmas por parte; funções com a versão do reclamante e a da reclamada; agentes Sim/Não com EPI; documentos solicitados; observações internas; fotos com legenda (reduzidas e carimbadas com endereço, data e hora) e áudio.
+- **Registro da vistoria** (`/field/inspections/details`, AD-239): presentes com qualidade e e-mail; assinatura na tela na aba Observações, com o termo em PDF; paradigmas por parte; funções com a versão do reclamante e a da reclamada; agentes Sim/Não com EPI; documentos solicitados; observações internas; fotos com legenda (reduzidas e carimbadas com endereço, data e hora) e áudio.
 - **Sem conexão**: o app abre e recarrega sem rede (PWA instalável), o que é feito fica no aparelho e sobe sozinho quando a conexão volta; se alguém salvou antes, o perito escolhe qual versão fica.
 - **Período** (Dia, Semana, Mês, Ano): no dia, todos os compromissos; na semana, mês e ano, só as vistorias, com a data junto da hora (AD-208).
 - **Mapa do dia** (`/field`, visualização padrão; a Lista é a outra): paradas no mapa do OpenStreetMap, ordem pela proximidade a partir da localização do aparelho, reordenação, conflito de horário, rota pelas ruas e aviso às partes.
@@ -47,7 +47,7 @@ A vistoria era analógica e o que se colhia em campo era redigitado no laudo (`.
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/field/` — rota do dia com Mapa e Lista (`@components/field-map.tsx`, `map-leaflet.tsx`, `field-card.tsx`, `@utils/itinerary.ts`) e `inspection/` (abas, assinatura, mídias, conflito).
+- `apps/web/src/routes/_private/field/` — hub com `map/`, `route/` e `inspections/` (cartões e `details/`: abas, assinatura, mídias, conflito); `@components/map-leaflet.tsx`, `@utils/itinerary.ts` (AD-239, `logistica-paginas`).
 - `apps/web/src/lib/offline/` — `store.ts` (IndexedDB: rota, rascunhos, fila de mídias e status, sessão), `sync.ts` (envio e estado), `photo.ts` (redução e carimbo).
 - `apps/web/public/{sw.js,manifest.webmanifest,icons/}`, `apps/web/index.html` (viewport, theme-color, manifest), `apps/web/src/main.tsx` (registro do service worker só em produção), `apps/web/src/theme.css` (toque sem flash, inputs de 16 px em tela de toque).
 - `apps/web/src/query/inspection.ts`; `apps/web/src/query/session.ts` usa a última sessão sem rede; sair apaga o que o aparelho guardou.

@@ -21,9 +21,10 @@ function routeTitle(staticData: { getTitle?: () => string; title?: string } | un
   return undefined;
 }
 
-// Only the first level gets an icon: the module one, same as the sidebar.
-const crumbIcon = (segment: string, index: number): LucideIcon | undefined =>
-  index === 0 ? HOME_SECTIONS.find((section) => section.to === `/${segment}`)?.icon : undefined;
+// The first level is the module: its icon and name, the same as the sidebar (the `field` folder is "Logística").
+const moduleOf = (segment: string, index: number) =>
+  index === 0 ? HOME_SECTIONS.find((section) => section.to === `/${segment}`) : undefined;
+const crumbIcon = (segment: string, index: number): LucideIcon | undefined => moduleOf(segment, index)?.icon;
 
 function Card({
   className,
@@ -109,7 +110,8 @@ function CardHeader({
           )}
           {ancestors.map((segment, index) => {
             const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-            const Icon = crumbIcon(segment, index);
+            const section = moduleOf(segment, index);
+            const Icon = section?.icon;
             return (
               <React.Fragment key={to}>
                 <BreadcrumbItem>
@@ -117,7 +119,7 @@ function CardHeader({
                     render={
                       <Link to={to as string}>
                         {Icon && <Icon aria-hidden />}
-                        {titleOf(to, segment)}
+                        {section ? t(section.titleKey) : titleOf(to, segment)}
                       </Link>
                     }
                   />
