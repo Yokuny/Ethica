@@ -1,6 +1,7 @@
 import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
+import { ButtonGroup } from '@ethica/ui/components/button-group';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Link } from '@tanstack/react-router';
 import { ClipboardList, Crosshair, MapPin } from 'lucide-react';
@@ -66,52 +67,57 @@ export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
         </ItemTitle>
       </div>
       <div className="flex flex-wrap gap-2">
-        {appointment.location && (
-          <>
+        {/* Getting there and the result: two groups of actions; performing the inspection stands alone. */}
+        <ButtonGroup>
+          {appointment.location && (
+            <>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={
+                  <a href={mapsUrl(appointment.location)} target="_blank" rel="noreferrer">
+                    <GoogleMapsIcon />
+                    Google Maps
+                  </a>
+                }
+              />
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={
+                  <a href={wazeUrl(appointment.location)} target="_blank" rel="noreferrer">
+                    <WazeIcon />
+                    Waze
+                  </a>
+                }
+              />
+            </>
+          )}
+          {appointment.coordinates && (
             <Button
               variant="outline"
               nativeButton={false}
               render={
-                <a href={mapsUrl(appointment.location)} target="_blank" rel="noreferrer">
-                  <GoogleMapsIcon />
-                  Google Maps
-                </a>
+                <Link to="/field/map" search={{ from: day, to: day, focus: appointment.id }}>
+                  <Crosshair />
+                  {t('show_on_map')}
+                </Link>
               }
             />
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={
-                <a href={wazeUrl(appointment.location)} target="_blank" rel="noreferrer">
-                  <WazeIcon />
-                  Waze
-                </a>
-              }
-            />
-          </>
-        )}
-        {appointment.coordinates && (
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={
-              <Link to="/field/map" search={{ from: day, to: day, focus: appointment.id }}>
-                <Crosshair />
-                {t('show_on_map')}
-              </Link>
-            }
-          />
-        )}
+          )}
+        </ButtonGroup>
         <div className="flex flex-wrap gap-2 md:ml-auto">
-          <Button variant="outline" onClick={() => onStatus('done')} disabled={appointment.status === 'done'}>
-            {t('done')}
-          </Button>
-          <Button variant="outline" onClick={() => onStatus('canceled', 'postponed')}>
-            {t('postponed')}
-          </Button>
-          <Button variant="outline" onClick={() => onStatus('canceled', 'absent')}>
-            {t('absent')}
-          </Button>
+          <ButtonGroup>
+            <Button variant="outline" onClick={() => onStatus('done')} disabled={appointment.status === 'done'}>
+              {t('done')}
+            </Button>
+            <Button variant="outline" onClick={() => onStatus('canceled', 'postponed')}>
+              {t('postponed')}
+            </Button>
+            <Button variant="outline" onClick={() => onStatus('canceled', 'absent')}>
+              {t('absent')}
+            </Button>
+          </ButtonGroup>
           <Button
             nativeButton={false}
             render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}

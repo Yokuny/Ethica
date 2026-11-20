@@ -1447,6 +1447,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-20
 - **Status**: active
 
+### AD-242
+- **Decision**: Nas três páginas da Logística (Mapa, Planejamento de rota e Serviços agendados), o intervalo de datas é uma faixa de dias lado a lado (mês curto, dia e dia da semana; sábado e domingo sombreados) sobre o mapa, ocupando toda a largura: um clique escolhe o dia; o clique seguinte em outro dia fecha o intervalo (até 366 dias); as setas andam os 21 dias visíveis sem mudar a seleção; o intervalo é uma faixa contínua colorida entre as duas pontas (pontas na cor de ação) e hoje leva só uma borda. O mapa ganha o mesmo canto arredondado e borda da faixa (também no Planejamento de rota, que usa o mesmo mapa). "Localizar endereços" sai da linha de cima e flutua no canto superior direito do mapa, oposto ao zoom (o `MapLeaflet` recebe o que flutua como `children`, empilhado); no Planejamento de rota, "Partir da minha localização" e "Incluir volta" flutuam junto; perde a contagem "(N)", que caía a cada endereço e parecia regressiva, ganha um spinner durante a localização e uma dica explicando o que faz (também no Planejamento de rota). Substitui o `RangeNav` (calendário no popover e "Hoje"), que é excluído junto com o `shiftRange`; em Serviços agendados a faixa fica no topo, com a largura toda. Montada com o `Button` do projeto, sem o bloco pago do shadcnblocks (o registry devolve 404).
+- **Reason**: pedido do usuário em 2026-11-20 ("replique tudo da mesma forma para o planejamento de rota", "em cima do mapa, permitir o select da data e data range por um mini calendar com as datas na horizontal", "cobrir toda a horizontal").
+- **Trade-off**: datas distantes pedem vários cliques nas setas (não há calendário do mês no Mapa); escolher outro dia sozinho logo depois de um dia exige dois cliques nele, já que o segundo clique fecha o intervalo.
+- **Scope**: `apps/web/src/routes/_private/field/{map/index.tsx,route/index.tsx,inspections/index.tsx,inspections/@components/field-card.tsx,@utils/range.ts,route/@components/field-route.tsx,@components/day-strip.tsx,@components/map-leaflet.tsx,@components/locate-addresses.tsx}`, `formatShortMonth` e `formatShortWeekday` em `apps/web/src/lib/helpers/formatDate.helper.ts`. Estende a AD-239.
+- **Date**: 2026-11-20
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

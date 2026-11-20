@@ -1,14 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { DayStrip } from '../@components/day-strip.js';
 import { FieldConnection } from '../@components/field-connection.js';
 import { FieldState } from '../@components/field-state.js';
-import { RangeNav } from '../@components/range-nav.js';
 import { useFieldRange } from '../@hooks/use-field-range.js';
 import { type FieldSearch, fieldSearchSchema } from '../@interface/field.interface.js';
 import { FieldRoute } from './@components/field-route.js';
 
-// Route planning of the range (AD-239, LOG-04).
+// Route planning of the range (AD-239, LOG-04), with the days side by side above the map (AD-242).
 export function FieldRoutePage() {
   const { from, to, update, query, items } = useFieldRange();
 
@@ -16,7 +16,7 @@ export function FieldRoutePage() {
     <Card asPage>
       <CardHeader title={t('route_planning')} />
       <CardContent className="gap-4">
-        <RangeNav from={from} to={to} onChange={update} />
+        <DayStrip from={from} to={to} onChange={update} />
         <FieldConnection ofDevice={query.data?.ofDevice} />
         <FieldState query={query}>
           <FieldRoute key={`${from}_${to}`} data={items} withDate={from !== to} />

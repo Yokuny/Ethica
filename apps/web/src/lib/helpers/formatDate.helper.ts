@@ -75,6 +75,28 @@ export const formatDate = (value: DateInput, language: Language = DEFAULT_LANGUA
   formatAs(value, 'date', language);
 
 /**
+ * Short month name in the language. Invalid input becomes `''`.
+ *
+ * @example
+ * formatShortMonth('2026-11-20') // "nov"
+ */
+export const formatShortMonth = (value: DateInput, language: Language = DEFAULT_LANGUAGE): string => {
+  const wallClock = toWallClock(value);
+  return wallClock ? format(wallClock, 'MMM', { locale: DATE_FORMATS[language].locale }) : '';
+};
+
+/**
+ * Short weekday name in the language. Invalid input becomes `''`.
+ *
+ * @example
+ * formatShortWeekday('2026-11-20') // "sex"
+ */
+export const formatShortWeekday = (value: DateInput, language: Language = DEFAULT_LANGUAGE): string => {
+  const wallClock = toWallClock(value);
+  return wallClock ? format(wallClock, 'EEE', { locale: DATE_FORMATS[language].locale }) : '';
+};
+
+/**
  * Time in the language pattern, in the display time zone.
  *
  * @example

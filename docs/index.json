@@ -12,7 +12,8 @@
         "apps/web"
       ],
       "decisoes": [
-        "AD-239"
+        "AD-239",
+        "AD-242"
       ],
       "spec": [
         ".specs/features/logistica-paginas"
@@ -2066,6 +2067,12 @@
     {
       "id": "AD-241",
       "decisao": "Uma regra de largura de coluna para todas as listas, no bloco de célula: `TableStack` ganha `width`. `fit` deixa o valor curto em uma linha",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-242",
+      "decisao": "Nas três páginas da Logística (Mapa, Planejamento de rota e Serviços agendados), o intervalo de datas é uma faixa de dias lado a lado (mês c",
       "data": "2026-11-20",
       "status": "active"
     }

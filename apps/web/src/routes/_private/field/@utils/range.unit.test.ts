@@ -1,15 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { rangeDays, rangeLabel, shiftRange } from './range.js';
+import { rangeDays, rangeLabel } from './range.js';
 
 describe('field range', () => {
   it('counts both ends', () => {
     expect(rangeDays('2026-11-20', '2026-11-20')).toBe(1);
     expect(rangeDays('2026-11-28', '2026-12-04')).toBe(7);
-  });
-
-  it('moves by the size of the range', () => {
-    expect(shiftRange('2026-11-20', '2026-11-20', 1)).toEqual({ from: '2026-11-21', to: '2026-11-21' });
-    expect(shiftRange('2026-11-28', '2026-12-04', -1)).toEqual({ from: '2026-11-21', to: '2026-11-27' });
   });
 
   it('writes one day or both ends', () => {

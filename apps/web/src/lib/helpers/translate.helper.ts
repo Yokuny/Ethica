@@ -1141,6 +1141,7 @@ const translations: Record<string, string> = {
   sending: 'Enviando…',
   start_from_my_location: 'Partir da minha localização',
   locate_addresses: 'Localizar endereços',
+  locate_addresses_hint: 'Coloca no mapa os compromissos com endereço que ainda não aparecem nele.',
   location_unavailable: 'Não foi possível obter sua localização.',
   starting_point: 'Ponto de partida',
   time_conflict: 'Conflito de horário',

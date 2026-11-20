@@ -1,6 +1,6 @@
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { Point } from '../@utils/itinerary.js';
 import type { Place } from '../@utils/route-places.js';
@@ -41,11 +41,13 @@ type MapLeafletProps = {
   center?: Point;
   // Places on the route (CDE-04), as small markers with the name.
   places?: Place[];
+  // Floats over the map, stacked at the top right (the zoom is on the left).
+  children?: ReactNode;
 };
 
 // Day map (AD-131): OpenStreetMap tiles, numbered stops and the route. Leaflet is imperative,
 // so the map lives in an effect bound to the element; markers without an image (divIcon).
-export function MapLeaflet({ stops, origin, row, center, places }: MapLeafletProps) {
+export function MapLeaflet({ stops, origin, row, center, places, children }: MapLeafletProps) {
   const element = useRef<HTMLElement>(null);
   const map = useRef<L.Map | null>(null);
   const camada = useRef<L.LayerGroup | null>(null);
@@ -98,5 +100,15 @@ export function MapLeaflet({ stops, origin, row, center, places }: MapLeafletPro
     map.current.setView([focus.lat, focus.lng], center ? 15 : 11);
   }, [stops, origin, row, center, places]);
 
-  return <section ref={element} className="h-[60dvh] min-h-80 w-full overflow-hidden" aria-label={t('map')} />;
+  return (
+    <div className="relative">
+      <section
+        ref={element}
+        className="h-[60dvh] min-h-80 w-full overflow-hidden rounded-lg border"
+        aria-label={t('map')}
+      />
+      {/* Above Leaflet's panes and controls. */}
+      <div className="absolute top-3 right-3 z-1000 flex flex-col items-end gap-2">{children}</div>
+    </div>
+  );
 }

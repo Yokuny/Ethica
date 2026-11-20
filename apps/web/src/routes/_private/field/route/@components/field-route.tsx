@@ -138,22 +138,23 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" disabled={locating || !items.length} onClick={applyMyLocation}>
+      <MapLeaflet stops={stops} origin={origin} row={path} center={center} places={places.data}>
+        <Button variant="outline" className="shadow-sm" disabled={locating || !items.length} onClick={applyMyLocation}>
           <LocateFixed />
           {t('start_from_my_location')}
         </Button>
-        <LocateAddresses items={items} />
         {origin && (
-          <Checkbox
-            checked={returnTrip}
-            onCheckedChange={(checked) => setReturnTrip(Boolean(checked))}
-            label={t('include_return_trip')}
-            labelClassName="normal-case tracking-normal"
-          />
+          <div className="rounded-md border bg-card px-3 py-2 shadow-sm">
+            <Checkbox
+              checked={returnTrip}
+              onCheckedChange={(checked) => setReturnTrip(Boolean(checked))}
+              label={t('include_return_trip')}
+              labelClassName="normal-case tracking-normal"
+            />
+          </div>
         )}
-      </div>
-      <MapLeaflet stops={stops} origin={origin} row={path} center={center} places={places.data} />
+        <LocateAddresses items={items} />
+      </MapLeaflet>
       {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
 
       {!items.length && <DefaultEmptyData title={t('nothing_scheduled_in_period')} />}

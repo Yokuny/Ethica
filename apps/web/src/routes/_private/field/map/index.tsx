@@ -10,11 +10,11 @@ import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { DayStrip } from '../@components/day-strip.js';
 import { FieldConnection } from '../@components/field-connection.js';
 import { FieldState } from '../@components/field-state.js';
 import { LocateAddresses } from '../@components/locate-addresses.js';
 import { MapLeaflet } from '../@components/map-leaflet.js';
-import { RangeNav } from '../@components/range-nav.js';
 import { useFieldRange } from '../@hooks/use-field-range.js';
 import { type FieldSearch, fieldSearchSchema } from '../@interface/field.interface.js';
 import type { Point } from '../@utils/itinerary.js';
@@ -22,7 +22,7 @@ import type { Point } from '../@utils/itinerary.js';
 // The map page draws no route: that is the route planning page (LOG-04).
 const NO_ROUTE: Point[] = [];
 
-// Map of the range (AD-239, LOG-03): the stops numbered in date and time order and, below, the list of what is on the
+// Map of the range (AD-239, LOG-03), with the days side by side above it (AD-242): the stops numbered in date and time order and, below, the list of what is on the
 // map. It opens on `focus` ("Ver no mapa"), otherwise on the next scheduled stop, otherwise on the first one.
 export function FieldMapPage() {
   const { from, to, focus, update, query, items: all } = useFieldRange();
@@ -54,13 +54,12 @@ export function FieldMapPage() {
     <Card asPage>
       <CardHeader title={t('map')} />
       <CardContent className="gap-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <RangeNav from={from} to={to} onChange={(range) => update({ ...range, focus: undefined })} />
-          <LocateAddresses items={items} />
-        </div>
+        <DayStrip from={from} to={to} onChange={(range) => update({ ...range, focus: undefined })} />
         <FieldConnection ofDevice={query.data?.ofDevice} />
         <FieldState query={query}>
-          <MapLeaflet stops={stops} row={NO_ROUTE} center={center} />
+          <MapLeaflet stops={stops} row={NO_ROUTE} center={center}>
+            <LocateAddresses items={items} />
+          </MapLeaflet>
           {!items.length ? (
             <DefaultEmptyData title={t('nothing_scheduled_in_period')} />
           ) : (
