@@ -20,6 +20,7 @@
         "AD-232",
         "AD-244",
         "AD-245",
+        "AD-246",
         "AD-155",
         "AD-220",
         "AD-098"
@@ -2094,6 +2095,12 @@
     {
       "id": "AD-245",
       "decisao": "A tela de planos sai de `/suspended` e passa a `/billing` no web, o mesmo termo da Assinatura na API e no glossário (AD-140): é a tela de pa",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-246",
+      "decisao": "A tela de planos (`/billing`) perde o seletor Mensal/Anual e o giro 3D dos cards. Os quatro planos ficam lado a lado no carrossel, nesta ord",
       "data": "2026-11-20",
       "status": "active"
     }

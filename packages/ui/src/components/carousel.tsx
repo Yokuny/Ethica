@@ -118,7 +118,7 @@ function CarouselPrevious({ className, ...props }: React.ComponentProps<typeof B
       data-slot="carousel-previous"
       variant="outline"
       size="icon"
-      className={cn('rounded-full', className)}
+      className={className}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
       {...props}
@@ -135,7 +135,7 @@ function CarouselNext({ className, ...props }: React.ComponentProps<typeof Butto
       data-slot="carousel-next"
       variant="outline"
       size="icon"
-      className={cn('rounded-full', className)}
+      className={className}
       disabled={!canScrollNext}
       onClick={scrollNext}
       {...props}

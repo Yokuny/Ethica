@@ -23,6 +23,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 | Validar a busca do Datajud com a chave real | Ajustar campos da consulta e mapeamento (AD-105); adiado (AD-145) |
 | IA: leitura do PDF da ata, redação do laudo e transcrição do áudio | Spec própria com provedor, limite por tenant e LGPD (AD-114, AD-124); adiado (AD-145) |
 | Monitoramento de movimentos no Datajud | Alertar nova movimentação nas perícias e oportunidades |
+| Pagamento dentro do Ethica (cartão pela API, PIX com QR Code, boleto) em vez da fatura do Asaas | Precisa de spec: dados do cartão passam pela API (`cadastro-checkout`) |
 | Assinatura pelo Ethica: trocar de plano, cancelar e ver faturas | Hoje pelo suporte (`cadastro-checkout`, AD-230) |
 | Trocar o e-mail da conta | `acesso-email` |
 | PDF escaneado (sem texto): OCR | Ata na importação e anexo do laudo (`importacao-processos`, `anexar-laudo`) |
@@ -85,7 +86,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
-- [x] 2026-11-20 — Tela de planos em `/billing` com os preços no design (seletor Mensal/Anual e carrossel) (AD-245) — `cadastro-checkout`
+- [x] 2026-11-20 — Tela de planos em `/billing` com os quatro planos em carrossel (AD-245, AD-246) — `cadastro-checkout`
 - [x] 2026-11-20 — Escritório com CPF ou CNPJ no cadastro e no Asaas, com os dígitos conferidos (AD-244) — `cadastro-checkout`
 - [x] 2026-11-20 — Seletor de intervalo no cabeçalho da Logística com mês, ano, semana e mês inteiro (AD-243) — `logistica-paginas`
 - [x] 2026-11-20 — Faixa de dias na horizontal (dia, intervalo, dia da semana e fim de semana) nas três páginas da Logística, botões do mapa flutuando sobre ele e ações do cartão agrupadas (AD-242) — `logistica-paginas`

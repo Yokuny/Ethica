@@ -65,7 +65,7 @@ describe('BillingPage (AD-230)', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
   });
 
-  it('new office: trial, subscription and single month; paying opens the Asaas invoice (CHK-04, CHK-07)', async () => {
+  it('new office: trial, monthly, yearly and single month; paying opens the Asaas invoice (CHK-04, CHK-07)', async () => {
     getMock.mockResolvedValue({ success: true, data: { firstPayment: true, trialAvailable: true, canPay: true } });
     postMock.mockResolvedValue({ success: true, data: { url: 'https://asaas/i/1' } });
     const assign = vi.fn();
@@ -74,25 +74,13 @@ describe('BillingPage (AD-230)', () => {
     renderPage();
 
     expect(await screen.findByText('Escolha seu plano')).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: /^Pagar / })).toHaveLength(3);
-    expect(screen.getByRole('button', { name: 'Pagar Teste' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Pagar Mensalidade avulsa' })).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', { name: /^Pagar / }).map((button) => button.getAttribute('aria-label')),
+    ).toEqual(['Pagar Teste', 'Pagar Mensal', 'Pagar Anual', 'Pagar Mensalidade avulsa']);
 
-    await user.click(screen.getByRole('button', { name: 'Pagar Mensal' }));
-    await waitFor(() => expect(postMock).toHaveBeenCalledWith('/billing/pay', { plan: 'monthly' }));
-    expect(assign).toHaveBeenCalledWith('https://asaas/i/1');
-  });
-
-  it('the toggle turns the subscription into the yearly plan', async () => {
-    getMock.mockResolvedValue({ success: true, data: { firstPayment: false, trialAvailable: false, canPay: true } });
-    postMock.mockResolvedValue({ success: true, data: { url: 'https://asaas/i/2' } });
-    const user = userEvent.setup();
-    renderPage();
-
-    await user.click(await screen.findByRole('button', { name: 'Anual' }));
-    expect(screen.queryByRole('button', { name: 'Pagar Teste' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Pagar Anual' }));
     await waitFor(() => expect(postMock).toHaveBeenCalledWith('/billing/pay', { plan: 'yearly' }));
+    expect(assign).toHaveBeenCalledWith('https://asaas/i/1');
   });
 
   it('paid before: no trial; a member who is not admin only reads the notice', async () => {

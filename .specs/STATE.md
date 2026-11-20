@@ -1479,6 +1479,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-20
 - **Status**: active
 
+### AD-246
+- **Decision**: A tela de planos (`/billing`) perde o seletor Mensal/Anual e o giro 3D dos cards. Os quatro planos ficam lado a lado no carrossel, nesta ordem: Teste (só antes do primeiro pagamento), Mensal, Anual e Mensalidade avulsa, com o Mensal centralizado na abertura. Os cards laterais só esmaecem; borda de 1px e sem sombra, na linha da skill `minimalist-ui`. Supersede a parte visual da AD-245; a rota `/billing` continua.
+- **Reason**: pedido do usuário em 2026-11-20: o giro deformava o texto dos cards laterais, eles ficavam afastados demais, e o anual basta como card próprio.
+- **Trade-off**: nenhum relevante; menos estado na tela (sem seletor nem cálculo de giro por rolagem).
+- **Scope**: `apps/web/src/routes/_public/billing/@components/billing-plans.tsx`, `apps/web/src/routes/_public/billing/@consts/plans.ts`, `packages/ui/src/components/carousel.tsx`.
+- **Date**: 2026-11-20
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

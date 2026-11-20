@@ -83,6 +83,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-246** (2026-11-20, active) — A tela de planos (`/billing`) perde o seletor Mensal/Anual e o giro 3D dos cards. Os quatro planos ficam lado a lado no carrossel, nesta ord
 - **AD-245** (2026-11-20, active) — A tela de planos sai de `/suspended` e passa a `/billing` no web, o mesmo termo da Assinatura na API e no glossário (AD-140): é a tela de pa
 - **AD-244** (2026-11-20, active) — O escritório (tenant) pode ser cadastrado com CPF ou CNPJ, no cadastro pela tela de acesso e pela plataforma. Uma validação só, `tenantDocum
 - **AD-243** (2026-11-20, active) — As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242)
@@ -92,7 +93,6 @@ _Nenhum._
 - **AD-239** (2026-11-20, active) — A Logística (`/field`) vira um hub com três páginas, uma por intenção: Mapa (`/field/map`: paradas do intervalo e a lista do que está no map
 - **AD-238** (2026-11-20, active; a parte (4) foi superseded pela AD-240) — Serviços mais enxutos. (1) Próxima OS e Última OS saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e
 - **AD-237** (2026-11-19, active) — O `apps/web` passa a ter três temas, escolhidos no menu do usuário e guardados no aparelho (`localStorage.theme`, aplicado antes do primeiro
-- **AD-236** (2026-11-19, active) — A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: Serv
 
 ## `.specs/` sem registro em `docs/features/`
 
