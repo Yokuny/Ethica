@@ -50,6 +50,14 @@ pnpm --filter api run seed:demo
 
 Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis meses de lançamentos e oportunidades (datas relativas a hoje). Logins sem senha (AD-155): `admin@pericias.example.com`, `manager@pericias.example.com`, `operator@pericias.example.com`. Em `http://localhost:15173/auth`, informe o e-mail; com `MAIL_PROVIDER=log` o código de 6 dígitos e o link saem no log da API (`docker compose logs api | grep mail.log_send`). Rodar de novo apaga e recria só esse tenant.
 
+### Volume para conferência visual
+
+```bash
+pnpm --filter api run seed:volume <e-mail do login>
+```
+
+Enche o escritório de um login que já existe com dados para conferir as telas: 80 serviços (perícias trabalhistas, cíveis e federais, assistências técnicas e tipos do escritório, em fases e status variados, um quarto deles só com os campos obrigatórios para mostrar o "Não preenchido"), partes, advogados, varas, prazos e alertas, 70 compromissos na agenda (alguns hoje, para a rota do campo), 14 meses de lançamentos, oportunidades e laudos. As OS continuam a sequência do escritório. Só acrescenta: cada execução cria registros novos e nada é apagado. Recusa rodar com `NODE_ENV=production`.
+
 ## Conta de teste em tela
 
 Conta criada pelo cadastro aberto em 2026-11-04 para testar o sistema pela tela, sem os dados do `seed:demo`. Vive só no banco local (`ethica` em `localhost:37017`); `docker compose down -v` a apaga e basta refazer o cadastro com os mesmos dados.

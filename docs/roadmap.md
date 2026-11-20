@@ -83,6 +83,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-20 — `seed:volume`: dados em volume no escritório de um login para a conferência visual (`RUN_BOOK.md`) — `fundacao-ethica`
 - [x] 2026-11-20 — Serviços: OS discreta abaixo da faixa, tabela normalizada e detalhe compacto com "Não preenchido" no fim (AD-238) — `servicos`
 - [x] 2026-11-20 — Temas Claro, Escuro e Azul (dourado) e cor de ação única nos botões e detalhes (AD-237) — `temas`
 - [x] 2026-11-19 — Serviços por mês/tipo e Início com número escrito: tabela por mês e rankings (AD-236) — `dashboard`
