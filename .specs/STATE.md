@@ -1439,6 +1439,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-20
 - **Status**: active
 
+### AD-241
+- **Decision**: Uma regra de largura de coluna para todas as listas, no bloco de célula: `TableStack` ganha `width`. `fit` deixa o valor curto em uma linha (OS, número, data, valor, tipo, documento, contato, usuário); `text` dá ao texto longo (partes, contratante, tribunal e vara, assunto, modelo, última movimentação, registro do diário) a mesma faixa de largura (`min-w-44 max-w-56`) em toda coluna, para as linhas quebradas de uma linha da tabela terminarem parelhas. O selo de status fica em uma linha. Aplicada em Serviços, Prazos e alertas, Lançamentos, Laudos, Partes, Oportunidades, Busca do Datajud e Diário de bordo; saem as larguras soltas de cada lista (`TEXT_COLUMN`, `ONE_LINE`, `min-w-40 max-w-60`). O texto continua inteiro (AD-182). Estende a AD-238 (2) a todo o sistema.
+- **Reason**: pedido do usuário em 2026-11-20 ("da mesma forma como normalizou a tabela de Serviços, normalize todas as tabelas do sistema").
+- **Trade-off**: um valor curto longo demais (descrição de recebimento parcial) alarga a coluna em vez de quebrar; as tabelas largas rolam de lado no celular, como antes.
+- **Scope**: `apps/web/src/components/data-table.tsx`, `apps/web/src/routes/_private/{expert-cases/@utils/case-columns.tsx,deadlines/@components/deadlines-table.tsx,finance/@utils/transaction-columns.tsx,expert-reports/list/@utils/report-columns.tsx,parties/@utils/party-columns.tsx,prospecting/opportunities/@components/opportunities-table.tsx,prospecting/search/@components/search-results.tsx,_admin/activity-log/@utils/activity-log-columns.tsx}`, `.agents/skills/ethica-web-standards/SKILL.md`.
+- **Date**: 2026-11-20
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

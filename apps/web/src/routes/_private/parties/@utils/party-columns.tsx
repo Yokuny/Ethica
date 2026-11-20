@@ -23,13 +23,13 @@ export const partyColumns: ColumnDef<PartyRecord, unknown>[] = [
   {
     id: 'document',
     header: t('registration'),
-    cell: ({ row }) => <TableStack>{partyIdentification(row.original) ?? '—'}</TableStack>,
+    cell: ({ row }) => <TableStack width="fit">{partyIdentification(row.original) ?? '—'}</TableStack>,
   },
   {
     id: 'contato',
     header: t('contact'),
     cell: ({ row }) => (
-      <TableStack description={row.original.email ? row.original.phone : undefined}>
+      <TableStack width="fit" description={row.original.email ? row.original.phone : undefined}>
         {row.original.email ?? row.original.phone ?? '—'}
       </TableStack>
     ),

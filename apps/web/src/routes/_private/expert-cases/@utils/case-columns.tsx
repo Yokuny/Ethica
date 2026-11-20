@@ -20,11 +20,6 @@ const names = (row: CaseListItem, side: Side) =>
     .map((party) => party.name)
     .join(', ');
 
-// Long-text columns share one width, so the wrapped lines of a row end even (Contratante, Cliente | Comarca);
-// short values (OS, type, date) stay on one line, so every row reads the same way.
-const TEXT_COLUMN = 'min-w-44 max-w-56';
-const ONE_LINE = 'whitespace-nowrap';
-
 // Sortable columns (AD-192) have an `accessorFn` and the `id` of the server sort (`CASE_LIST_SORTS`); the sort
 // itself is on the server, the value only enables the header click.
 export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
@@ -34,7 +29,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     accessorFn: (row) => row.serviceOrder,
     header: t('control'),
     cell: ({ row }) => (
-      <TableStack className={ONE_LINE} tone={row.original.serviceOrder ? 'default' : 'muted'}>
+      <TableStack width="fit" tone={row.original.serviceOrder ? 'default' : 'muted'}>
         {row.original.serviceOrder ?? '—'}
       </TableStack>
     ),
@@ -57,9 +52,9 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     header: t('contracting_party'),
     cell: ({ row }) =>
       usesContractor(row.original) ? (
-        <TableStack className={TEXT_COLUMN}>{row.original.contractor?.name ?? '—'}</TableStack>
+        <TableStack width="text">{row.original.contractor?.name ?? '—'}</TableStack>
       ) : (
-        <TableStack className={TEXT_COLUMN} description={names(row.original, 'defendant') || undefined}>
+        <TableStack width="text" description={names(row.original, 'defendant') || undefined}>
           {names(row.original, 'plaintiff') || '—'}
         </TableStack>
       ),
@@ -68,7 +63,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     id: 'type',
     accessorFn: (row) => serviceLabel(row),
     header: t('service_type'),
-    cell: ({ row }) => <TableStack className={ONE_LINE}>{serviceLabel(row.original)}</TableStack>,
+    cell: ({ row }) => <TableStack width="fit">{serviceLabel(row.original)}</TableStack>,
   },
   {
     // Perícia: court and division; the other types: who hired it (AD-176).
@@ -76,9 +71,9 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     header: t('client_district'),
     cell: ({ row }) =>
       usesContractor(row.original) ? (
-        <TableStack className={TEXT_COLUMN}>{row.original.contractor?.name ?? '—'}</TableStack>
+        <TableStack width="text">{row.original.contractor?.name ?? '—'}</TableStack>
       ) : (
-        <TableStack className={TEXT_COLUMN} description={row.original.division || row.original.district || undefined}>
+        <TableStack width="text" description={row.original.division || row.original.district || undefined}>
           {row.original.court ?? '—'}
         </TableStack>
       ),
@@ -107,8 +102,8 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       const alert = deadlineAlert(deadline, formatDisplayDate(new Date()));
       // Date and alert on the first line, the deadline title below: the same two lines as the other columns.
       return (
-        <TableStack className="min-w-40 max-w-56" description={deadline.title}>
-          <span className={ONE_LINE}>{formatDate(toDate(deadline.dueDate))}</span>
+        <TableStack width="text" description={deadline.title}>
+          <span className="whitespace-nowrap">{formatDate(toDate(deadline.dueDate))}</span>
           {alert && (
             <BadgeIndicator variant={ALERT_VARIANT[alert]} className="ml-2 align-middle">
               {t(alert)}
@@ -127,7 +122,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
       // In a technical assistant case (AD-135) and in the office's own type (AD-176) it is the contracted one.
       const definido = role === 'technical_assistant' || isOwnType(row.original) ? t('contracted') : t('fixed');
       return (
-        <TableStack className={ONE_LINE} description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>
+        <TableStack width="fit" description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>
           {value ? formatMoney(value) : '—'}
         </TableStack>
       );

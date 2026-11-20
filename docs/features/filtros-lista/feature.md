@@ -5,7 +5,7 @@ descricao: Botão "Filtros" das listas com opções marcáveis, várias por filt
 data: 2026-11-14
 status: concluido
 areas: [apps/api, apps/web, packages/contracts]
-decisoes: [AD-193, AD-218, AD-223]
+decisoes: [AD-193, AD-218, AD-223, AD-241]
 spec: [.specs/features/filtros-lista]
 branches: [main]
 ---
@@ -68,6 +68,7 @@ pnpm vitest run packages/contracts/src/schemas/query-list.schema.unit.test.ts ap
 
 ## Histórico
 
+- 2026-11-20 — Todas as listas com a mesma regra de largura de coluna (`TableStack width`: `fit` em uma linha, `text` na faixa de texto longo) e selo de status em uma linha (AD-241). Sem conferência na tela: o login local pede passkey.
 - 2026-11-19 — `ToggleGroup` sem divisores entre os itens: uma borda só na barra e a caixa tingida só no marcado (AD-235).
 - 2026-11-14 — Exportar lista em CSV, Excel ou PDF, em tela ou todos os filtrados (AD-223).
 - 2026-11-11 — Criada: lista de filtros com opções marcáveis, várias por filtro (AD-218).

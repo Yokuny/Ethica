@@ -83,6 +83,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-241** (2026-11-20, active) — Uma regra de largura de coluna para todas as listas, no bloco de célula: `TableStack` ganha `width`. `fit` deixa o valor curto em uma linha
 - **AD-240** (2026-11-20, active) — No detalhe do serviço, o que não foi preenchido vai para baixo, ofuscado, sem sumir. (1) Dentro de cada grupo (Dados do contratante, Juízo,
 - **AD-239** (2026-11-20, active) — A Logística (`/field`) vira um hub com três páginas, uma por intenção: Mapa (`/field/map`: paradas do intervalo e a lista do que está no map
 - **AD-238** (2026-11-20, active; a parte (4) foi superseded pela AD-240) — Serviços mais enxutos. (1) Próxima OS e Última OS saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e
@@ -92,7 +93,6 @@ _Nenhum._
 - **AD-234** (2026-11-19, active) — No celular o tour também destaca: Serviços, Agenda e Campo apontam para o botão deles na barra de baixo (`MobileDock`), e o que só existe de
 - **AD-233** (2026-11-18, active (celular centralizado superseded by AD-234)) — O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI
 - **AD-232** (2026-11-18, active) — Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao início do período
-- **AD-231** (2026-11-18, active) — O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte "teste = 7 dia
 
 ## `.specs/` sem registro em `docs/features/`
 

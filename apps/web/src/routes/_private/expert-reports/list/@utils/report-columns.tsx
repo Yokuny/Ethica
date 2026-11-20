@@ -45,19 +45,27 @@ export const reportColumns = ({
     // Same column as the services list: plaintiff on the first line, defendant below.
     id: 'parties',
     header: t('parties'),
-    cell: ({ row }) => <TableStack description={row.original.defendant}>{row.original.plaintiff ?? '—'}</TableStack>,
+    cell: ({ row }) => (
+      <TableStack width="text" description={row.original.defendant}>
+        {row.original.plaintiff ?? '—'}
+      </TableStack>
+    ),
   },
   {
     id: 'court',
     header: t('court_and_division'),
-    cell: ({ row }) => <TableStack description={row.original.division}>{row.original.court ?? '—'}</TableStack>,
+    cell: ({ row }) => (
+      <TableStack width="text" description={row.original.division}>
+        {row.original.court ?? '—'}
+      </TableStack>
+    ),
   },
   {
     id: 'templateName',
     accessorFn: (row) => row.templateName,
     header: t('template'),
     cell: ({ row }) => (
-      <TableStack description={`${row.original.totalSections} ${t('sections').toLowerCase()}`}>
+      <TableStack width="text" description={`${row.original.totalSections} ${t('sections').toLowerCase()}`}>
         {row.original.templateName}
       </TableStack>
     ),
@@ -77,7 +85,7 @@ export const reportColumns = ({
     accessorFn: (row) => row.updatedAt,
     header: t('updated_on'),
     cell: ({ row }) => (
-      <TableStack tone="muted" description={row.original.updatedByName}>
+      <TableStack width="fit" tone="muted" description={row.original.updatedByName}>
         {formatDate(row.original.updatedAt)}
       </TableStack>
     ),

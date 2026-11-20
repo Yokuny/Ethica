@@ -70,7 +70,7 @@ export function OpportunitiesTable({
                   />
                 </TableCell>
                 <TableCell>
-                  <TableStack description={row.subjects.slice(0, 2).join(' · ') || undefined}>
+                  <TableStack width="text" description={row.subjects.slice(0, 2).join(' · ') || undefined}>
                     {row.caseClass ?? '—'}
                   </TableStack>
                 </TableCell>
@@ -78,7 +78,9 @@ export function OpportunitiesTable({
                   <TableStatus variant={OPPORTUNITY_STATUS_VARIANT[row.status]}>{t(row.status)}</TableStatus>
                 </TableCell>
                 <TableCell>
-                  <TableStack tone="muted">{formatDate(row.createdAt)}</TableStack>
+                  <TableStack width="fit" tone="muted">
+                    {formatDate(row.createdAt)}
+                  </TableStack>
                 </TableCell>
                 <TableCell>
                   <TableRowActions label={t('actions')}>

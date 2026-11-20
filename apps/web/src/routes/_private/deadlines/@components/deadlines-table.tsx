@@ -68,6 +68,7 @@ export function DeadlinesTable({
               <TableRow key={deadline.id} onClick={() => onOpen(deadline)} className="cursor-pointer">
                 <TableCell>
                   <TableStack
+                    width="fit"
                     tone={alert === 'deadline_overdue' ? 'error' : 'default'}
                     description={alert ? t(alert) : undefined}
                     descriptionTone={alert === 'deadline_overdue' ? 'error' : 'muted'}
@@ -79,19 +80,20 @@ export function DeadlinesTable({
                   <TableIdentity icon={CalendarClock} title={deadline.title} description={t(deadline.kind)} />
                 </TableCell>
                 <TableCell>
-                  <TableStack tone={deadline.caseNumber ? 'default' : 'muted'}>{deadline.caseNumber ?? '—'}</TableStack>
+                  <TableStack width="fit" tone={deadline.caseNumber ? 'default' : 'muted'}>
+                    {deadline.caseNumber ?? '—'}
+                  </TableStack>
                 </TableCell>
                 <TableCell>
                   {/* As in the services list: whoever hired it; in a perícia, plaintiff above the defendant. */}
-                  <TableStack
-                    className="min-w-40 max-w-60"
-                    description={deadline.client ? undefined : deadline.defendant}
-                  >
+                  <TableStack width="text" description={deadline.client ? undefined : deadline.defendant}>
                     {deadline.client ?? deadline.plaintiff ?? '—'}
                   </TableStack>
                 </TableCell>
                 <TableCell>
-                  <TableStack tone={deadline.role ? 'default' : 'muted'}>{serviceLabel(deadline) || '—'}</TableStack>
+                  <TableStack width="fit" tone={deadline.role ? 'default' : 'muted'}>
+                    {serviceLabel(deadline) || '—'}
+                  </TableStack>
                 </TableCell>
                 <TableCell>
                   <TableStatus variant={alert ? ALERT_VARIANT[alert] : DEADLINE_STATUS_VARIANT[deadline.status]}>

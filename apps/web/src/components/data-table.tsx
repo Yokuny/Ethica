@@ -452,7 +452,10 @@ type TableStackProps = {
   // `muted`: the value is secondary (date, code); `error`: delay, failure.
   tone?: 'default' | 'muted' | 'error';
   descriptionTone?: 'muted' | 'error';
-  // Width of a long-text column, so the wrapped columns of a list end at the same number of lines.
+  // One rule for every list (AD-241): `fit` keeps a short value on one line (code, date, amount, type, document);
+  // `text` gives a long text (names, court, subject) the same width band in every column, so the wrapped lines
+  // of a row end even. Without it the value wraps inside `max-w-md` (AD-182).
+  width?: 'fit' | 'text';
   className?: string;
 };
 
@@ -463,10 +466,19 @@ function TableStack({
   description,
   tone = 'default',
   descriptionTone = 'muted',
+  width,
   className,
 }: TableStackProps) {
   return (
-    <div data-slot="table-stack" className={cn('max-w-md', className)}>
+    <div
+      data-slot="table-stack"
+      className={cn(
+        'max-w-md',
+        width === 'fit' && 'whitespace-nowrap',
+        width === 'text' && 'min-w-44 max-w-56',
+        className,
+      )}
+    >
       <ItemDescription
         className={cn(
           'line-clamp-none text-pretty',

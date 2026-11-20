@@ -48,6 +48,7 @@ export const transactionColumns = ({
       header: t('amount'),
       cell: ({ row }) => (
         <TableStack
+          width="fit"
           tone={row.original.kind === 'expense' ? 'error' : 'default'}
           description={
             row.original.status === 'canceled'
@@ -69,6 +70,7 @@ export const transactionColumns = ({
       header: t('due_date'),
       cell: ({ row }) => (
         <TableStack
+          width="fit"
           tone="muted"
           description={row.original.settledDate ? `${t('settled_on')} ${day(row.original.settledDate)}` : undefined}
         >

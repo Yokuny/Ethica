@@ -143,7 +143,8 @@
       "decisoes": [
         "AD-193",
         "AD-218",
-        "AD-223"
+        "AD-223",
+        "AD-241"
       ],
       "spec": [
         ".specs/features/filtros-lista"
@@ -2059,6 +2060,12 @@
     {
       "id": "AD-240",
       "decisao": "No detalhe do serviço, o que não foi preenchido vai para baixo, ofuscado, sem sumir. (1) Dentro de cada grupo (Dados do contratante, Juízo,",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-241",
+      "decisao": "Uma regra de largura de coluna para todas as listas, no bloco de célula: `TableStack` ganha `width`. `fit` deixa o valor curto em uma linha",
       "data": "2026-11-20",
       "status": "active"
     }

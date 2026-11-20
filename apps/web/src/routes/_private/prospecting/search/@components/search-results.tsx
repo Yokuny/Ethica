@@ -45,12 +45,14 @@ export function SearchResults({ items, onSave, saving }: SearchResultsProps) {
               <TableIdentity icon={FileSearch} title={item.processNumber} description={item.courtUnit} />
             </TableCell>
             <TableCell>
-              <TableStack description={item.subjects.slice(0, 2).join(' · ') || undefined}>
+              <TableStack width="text" description={item.subjects.slice(0, 2).join(' · ') || undefined}>
                 {item.caseClass ?? '—'}
               </TableStack>
             </TableCell>
             <TableCell>
-              <TableStack description={maybeDate(item.lastMovementAt)}>{item.lastMovement ?? '—'}</TableStack>
+              <TableStack width="text" description={maybeDate(item.lastMovementAt)}>
+                {item.lastMovement ?? '—'}
+              </TableStack>
             </TableCell>
             <TableCell className="text-right">
               {item.opportunityId ? (

@@ -22,7 +22,7 @@ const DETAIL = {
 function FieldRecord({ activity }: { activity: Activity }) {
   const text = activity.label ?? (activity.recordId ? t('record') : '—');
   const destination = activity.module in DETAIL ? DETAIL[activity.module as keyof typeof DETAIL] : undefined;
-  if (!destination || !activity.recordId) return <TableStack>{text}</TableStack>;
+  if (!destination || !activity.recordId) return <TableStack width="text">{text}</TableStack>;
   return (
     <AppLink to={destination} search={{ id: activity.recordId }}>
       {text}
@@ -34,14 +34,15 @@ export const activityLogColumns: ColumnDef<Activity, unknown>[] = [
   {
     id: 'quando',
     header: t('when'),
-    cell: ({ row }) => <TableStack>{formatDateTime(row.original.createdAt)}</TableStack>,
+    cell: ({ row }) => <TableStack width="fit">{formatDateTime(row.original.createdAt)}</TableStack>,
   },
-  { id: 'quem', header: t('user'), cell: ({ row }) => <TableStack>{row.original.userName}</TableStack> },
+  { id: 'quem', header: t('user'), cell: ({ row }) => <TableStack width="fit">{row.original.userName}</TableStack> },
   {
     id: 'action',
     header: t('action'),
     cell: ({ row }) => (
       <TableStack
+        width="text"
         description={
           row.original.resource && ACTIVITY_LOG_RESOURCE_KEY[row.original.resource]
             ? t(ACTIVITY_LOG_RESOURCE_KEY[row.original.resource])
