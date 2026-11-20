@@ -657,7 +657,8 @@
         "AD-190",
         "AD-191",
         "AD-192",
-        "AD-238"
+        "AD-238",
+        "AD-240"
       ],
       "spec": [
         ".specs/features/servicos"
@@ -2047,11 +2048,17 @@
       "id": "AD-238",
       "decisao": "Serviços mais enxutos. (1) Próxima OS e Última OS saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e",
       "data": "2026-11-20",
-      "status": "active"
+      "status": "active; a parte (4) foi superseded pela AD-240"
     },
     {
       "id": "AD-239",
       "decisao": "A Logística (`/field`) vira um hub com três páginas, uma por intenção: Mapa (`/field/map`: paradas do intervalo e a lista do que está no map",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-240",
+      "decisao": "No detalhe do serviço, o que não foi preenchido vai para baixo, ofuscado, sem sumir. (1) Dentro de cada grupo (Dados do contratante, Juízo,",
       "data": "2026-11-20",
       "status": "active"
     }

@@ -16,6 +16,8 @@ export type ProductSpec = {
   // First row of a record that spans several rows: opens a separation
   // band so it does not mix with the previous record.
   start?: boolean;
+  // Field not filled (AD-238): dimmed row, placed by the caller after the filled ones.
+  muted?: boolean;
 };
 
 export type ProductSpecGroup = {
@@ -88,6 +90,7 @@ export function ProductSpecs({ groups, className }: { groups: ProductSpecGroup[]
                           className={cn(
                             'border-b last:border-0',
                             spec.start && 'border-t-8 border-t-muted first:border-t-0',
+                            spec.muted && 'opacity-60 [&>td]:font-normal',
                           )}
                         >
                           <td className="w-36 px-4 py-2 align-top sm:w-56">

@@ -38,6 +38,7 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
       icon={<History />}
       size="sm"
       title={t('movements')}
+      empty={!legalCase.movements.length}
       description={t('movements_panel_description')}
       actions={
         <Button variant="outline" onClick={() => setIsAdding(true)}>

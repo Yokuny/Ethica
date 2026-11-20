@@ -83,8 +83,9 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-240** (2026-11-20, active) — No detalhe do serviço, o que não foi preenchido vai para baixo, ofuscado, sem sumir. (1) Dentro de cada grupo (Dados do contratante, Juízo,
 - **AD-239** (2026-11-20, active) — A Logística (`/field`) vira um hub com três páginas, uma por intenção: Mapa (`/field/map`: paradas do intervalo e a lista do que está no map
-- **AD-238** (2026-11-20, active) — Serviços mais enxutos. (1) Próxima OS e Última OS saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e
+- **AD-238** (2026-11-20, active; a parte (4) foi superseded pela AD-240) — Serviços mais enxutos. (1) Próxima OS e Última OS saem da faixa de indicadores da lista e viram uma linha discreta de texto entre a faixa e
 - **AD-237** (2026-11-19, active) — O `apps/web` passa a ter três temas, escolhidos no menu do usuário e guardados no aparelho (`localStorage.theme`, aplicado antes do primeiro
 - **AD-236** (2026-11-19, active) — A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: Serv
 - **AD-235** (2026-11-19, active) — Dashboard conta o dinheiro com o número escrito, sem depender de passar o mouse. (1) Fluxo de caixa vira tabela de calor: uma linha por mês
@@ -92,7 +93,6 @@ _Nenhum._
 - **AD-233** (2026-11-18, active (celular centralizado superseded by AD-234)) — O tour guiado do primeiro acesso usa o `Popover` de `packages/ui` ancorado no item do menu lateral (prop `anchor` do `Positioner` do Base UI
 - **AD-232** (2026-11-18, active) — Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao início do período
 - **AD-231** (2026-11-18, active) — O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte "teste = 7 dia
-- **AD-230** (2026-11-18, active (teste sem carência superseded by AD-231)) — O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no Asaas, com o e-mail confirmado antes. O acesso
 
 ## `.specs/` sem registro em `docs/features/`
 

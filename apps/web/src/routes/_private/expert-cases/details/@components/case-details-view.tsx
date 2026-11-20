@@ -1,6 +1,6 @@
 import { caseLabel, isCaseClosed, usesContractor } from '@ethica/contracts';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { ArrowUpRight, Building2, CircleDashed, FileText, Scale, Users } from 'lucide-react';
+import { ArrowUpRight, Building2, FileText, Scale, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AppLink } from '@/components/app-link.js';
 import {
@@ -12,8 +12,9 @@ import {
   serviceLabel,
   serviceTypeLabel,
 } from '@/components/case-labels.js';
+import { Panel } from '@/components/panel.js';
 import { sideLabel } from '@/components/party-labels.js';
-import { type ProductSpecGroup, ProductSpecs } from '@/components/product-specs.js';
+import { type ProductSpec, type ProductSpecGroup, ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -28,22 +29,23 @@ type Field = { label: string; value: ReactNode };
 
 // Record page: header with process and status, strip with deadlines and
 // fees, and the read groups (court, parties, notes). The office's own type (AD-176) shows the contractor
-// in place of the court and the parties. Only filled fields are shown: the empty ones are named once, at
-// the end, under "Não preenchido", and a group with nothing filled does not appear (AD-238).
+// in place of the court and the parties. Not filled comes last, dimmed (AD-238): the empty fields close their
+// group and the strip, and a group with nothing filled becomes an empty block at the bottom of the page, after
+// the panels of the page (deadlines, reports…) that are empty too. It renders a fragment: its blocks are items
+// of the page's flex column, so an empty one can sink below them all.
 export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseRecord; canSeeFinance: boolean }) {
   const own = usesContractor(legalCase);
   const client = legalCase.contractor?.name ?? legalCase.parties.find((party) => party.client)?.name;
   const { contractor } = legalCase;
   const { download } = useFileDownload();
-  const missing: string[] = [];
-  // Keeps the filled fields and sends the labels of the empty ones to the "Não preenchido" list.
-  const filled = (fields: Field[]) =>
-    fields.filter((field) => {
-      if (field.value) return true;
-      missing.push(field.label);
-      return false;
-    });
-  const stats = filled([
+  // Filled fields first, then the empty ones dimmed and marked "Não preenchido".
+  const arrange = (fields: Field[]): ProductSpec[] => [
+    ...fields.filter((field) => field.value),
+    ...fields
+      .filter((field) => !field.value)
+      .map((field) => ({ label: field.label, value: t('not_filled'), muted: true })),
+  ];
+  const stats: Field[] = [
     { label: t('service_order'), value: legalCase.serviceOrder },
     { label: t('service_phase'), value: casePhaseLabel(legalCase.phase, legalCase.phaseName) },
     { label: own ? t('contracting_date') : t('appointment_date'), value: day(legalCase.nominationDate) },
@@ -53,14 +55,14 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
     ...(canSeeFinance
       ? [{ label: own ? t('contracted_fees') : t('fixed_fees'), value: money(legalCase.fixedFeesCents) }]
       : []),
-  ]);
-  const groups: ProductSpecGroup[] = [
+  ];
+  const groups: (Omit<ProductSpecGroup, 'specs'> & { fields: Field[] })[] = [
     own
       ? {
           id: 'contractor',
           name: t('contractor_data'),
           icon: <Building2 />,
-          specs: filled([
+          fields: [
             { label: t('service_type'), value: serviceTypeLabel(legalCase) },
             { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
             { label: t('name_or_company_name'), value: contractor?.name },
@@ -68,20 +70,20 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             { label: t('phone'), value: contractor?.phone },
             { label: t('email'), value: contractor?.email },
             { label: t('address'), value: contractor?.address },
-          ]),
+          ],
         }
       : {
           id: 'juizo',
           name: t('court_header'),
           icon: <Scale />,
-          specs: filled([
+          fields: [
             { label: t('service_type'), value: serviceTypeLabel(legalCase) },
             { label: t('sphere'), value: legalCase.courtType && courtTypeLabel(legalCase.courtType) },
             { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
             { label: t('court'), value: legalCase.court },
             { label: t('court_division'), value: legalCase.division },
             { label: t('judicial_district'), value: legalCase.district },
-          ]),
+          ],
         },
     ...(own
       ? []
@@ -90,31 +92,29 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             id: 'parties',
             name: t('parties'),
             icon: <Users />,
-            specs: filled(
-              legalCase.parties.length
-                ? legalCase.parties.map((party) => ({
-                    label: [
-                      sideLabel(party.side, legalCase.courtType),
-                      t(party.type),
-                      party.client ? t('contracting_party') : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' · '),
-                    value: (
-                      <AppLink to="/parties/details" search={{ id: party.partyId }}>
-                        {party.name}
-                      </AppLink>
-                    ),
-                  }))
-                : [{ label: t('parties'), value: undefined }],
-            ),
+            fields: legalCase.parties.length
+              ? legalCase.parties.map((party) => ({
+                  label: [
+                    sideLabel(party.side, legalCase.courtType),
+                    t(party.type),
+                    party.client ? t('contracting_party') : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' · '),
+                  value: (
+                    <AppLink to="/parties/details" search={{ id: party.partyId }}>
+                      {party.name}
+                    </AppLink>
+                  ),
+                }))
+              : [{ label: t('parties'), value: undefined }],
           },
         ]),
     {
       id: 'notes',
       name: t('notes'),
       icon: <FileText />,
-      specs: filled([
+      fields: [
         { label: t('notes'), value: legalCase.notes },
         {
           label: t('folder_link'),
@@ -149,12 +149,13 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             </div>
           ),
         },
-      ]),
+      ],
     },
-  ].filter((group) => group.specs?.length);
+  ];
+  const isFilled = (group: { fields: Field[] }) => group.fields.some((field) => field.value);
   const title = caseLabel(legalCase);
   return (
-    <div className="grid gap-6">
+    <>
       <RecordHeader>
         <RecordHeading
           icon={<Scale />}
@@ -169,27 +170,26 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
         />
       </RecordHeader>
       <RecordStats>
-        {stats.map((stat) => (
-          <RecordStat key={stat.label} label={stat.label} value={stat.value} />
-        ))}
+        {[...stats.filter((stat) => stat.value), ...stats.filter((stat) => !stat.value)].map((stat) =>
+          stat.value ? (
+            <RecordStat key={stat.label} label={stat.label} value={stat.value} />
+          ) : (
+            <RecordStat key={stat.label} label={stat.label} value="—" hint={t('not_filled')} className="opacity-60" />
+          ),
+        )}
       </RecordStats>
       <ProductSpecs
-        groups={[
-          ...groups,
-          ...(missing.length
-            ? [
-                {
-                  id: 'not_filled',
-                  name: t('not_filled'),
-                  icon: <CircleDashed />,
-                  children: (
-                    <ItemDescription className="line-clamp-none px-4 py-3">{missing.join(' · ')}</ItemDescription>
-                  ),
-                },
-              ]
-            : []),
-        ]}
+        groups={groups.filter(isFilled).map(({ fields, ...group }) => ({ ...group, specs: arrange(fields) }))}
       />
-    </div>
+      {groups
+        .filter((group) => !isFilled(group))
+        .map((group) => (
+          <Panel key={group.id} collapsible empty icon={group.icon} size="sm" title={group.name}>
+            <ItemDescription className="line-clamp-none">
+              {group.fields.map((field) => field.label).join(' · ')}
+            </ItemDescription>
+          </Panel>
+        ))}
+    </>
   );
 }

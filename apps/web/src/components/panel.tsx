@@ -5,6 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'cn';
 import { ChevronDown } from 'lucide-react';
 import { type ReactNode, useId, useState } from 'react';
+import { t } from '@/lib/helpers/translate.helper.js';
 
 // Block wrapper without background or border: visual grouping belongs to what is
 // inside (Item, Table, form). `size` sets the spacing between children; `lg` is the dashboard section, with a
@@ -34,6 +35,9 @@ type PanelProps = Omit<useRender.ComponentProps<'section'>, 'title'> &
     collapsible?: boolean;
     // Beside the title of a collapsible block.
     icon?: ReactNode;
+    // Collapsible block with nothing recorded yet (AD-238): dimmed title marked "Não preenchido", and it sinks
+    // below the filled blocks of the page (`order-last` in the page's flex column). The actions stay usable.
+    empty?: boolean;
   };
 
 function Panel({
@@ -45,6 +49,7 @@ function Panel({
   actions,
   collapsible = false,
   icon,
+  empty = false,
   children,
   ...props
 }: PanelProps) {
@@ -58,7 +63,7 @@ function Panel({
     props: mergeProps<'section'>(
       {
         className: collapsible
-          ? cn('w-full min-w-0 rounded-lg border', className)
+          ? cn('w-full min-w-0 rounded-lg border', empty && 'order-last', className)
           : cn(panelVariants({ size, className })),
         ...labelled,
         children: collapsible ? (
@@ -72,15 +77,16 @@ function Panel({
                 onClick={() => setOpen((prev) => !prev)}
                 className="flex min-w-0 flex-1 items-center justify-between gap-3 p-4 text-left hover:bg-muted/50"
               >
-                <div className="flex items-center gap-3">
+                <div className={cn('flex items-center gap-3', empty && 'opacity-60')}>
                   {icon && (
                     <div className="flex size-8 items-center justify-center rounded-md bg-muted [&_svg]:size-4">
                       {icon}
                     </div>
                   )}
-                  <ItemTitle id={headingId} role="heading" aria-level={2}>
+                  <ItemTitle id={headingId} role="heading" aria-level={2} className={cn(empty && 'font-normal')}>
                     {title}
                   </ItemTitle>
+                  {empty && <ItemDescription>{t('not_filled')}</ItemDescription>}
                 </div>
                 <ChevronDown
                   className={cn('size-5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')}

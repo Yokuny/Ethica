@@ -5,7 +5,7 @@ descricao: Seção Perícias vira Serviços, com tipo de serviço (inclusive do 
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188, AD-190, AD-191, AD-192, AD-238]
+decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188, AD-190, AD-191, AD-192, AD-238, AD-240]
 spec: [.specs/features/servicos]
 branches: [main]
 ---
@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-20 — Detalhe: campos vazios voltam ao grupo, no fim e esmaecidos; grupos e painéis vazios (Prazos, Vistorias, Laudos, Movimentações, Financeiro, Próximos compromissos, Partes, Observações) descem para o fim da página marcados "Não preenchido" (AD-240). Sem conferência na tela: o login local pede passkey.
 - 2026-11-20 — Linha da OS dividida em rótulo (`ItemDescription`) e número (`ItemTitle`) por item (AD-238).
 - 2026-11-20 — Próxima/Última OS viram uma linha discreta abaixo da faixa; tabela com OS, tipo, fase e prazo em uma linha; detalhe compacto, só com campos preenchidos e os vazios listados no fim em "Não preenchido" (AD-238). Falta a conferência visual no navegador (login por passkey).
 - 2026-11-05 — Ordenar pelo clique no título das colunas Controle, Serviço e Tipo de serviço (crescente, decrescente, volta ao cadastro mais novo); sai o "Ordenar por" e a ordem por Data da modificação (AD-192).

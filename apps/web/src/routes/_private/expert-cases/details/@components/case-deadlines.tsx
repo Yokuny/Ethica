@@ -36,6 +36,7 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
       icon={<CalendarClock />}
       size="sm"
       title={t('deadlines')}
+      empty={query.isSuccess && !query.data.length}
       actions={
         <Button variant="outline" onClick={() => setPanel({ kind: 'create' })}>
           {t('add_deadline')}

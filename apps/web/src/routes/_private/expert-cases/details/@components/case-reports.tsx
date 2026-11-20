@@ -64,6 +64,7 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
       icon={<FileSignature />}
       size="sm"
       title={t(opinion ? 'technical_opinions' : 'expert_reports')}
+      empty={query.isSuccess && !query.data.items.length}
       actions={
         can(session, 'expert_reports', 'create') && (
           <>
