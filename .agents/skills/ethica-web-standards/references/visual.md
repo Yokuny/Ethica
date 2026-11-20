@@ -2,7 +2,7 @@
 
 ## Mora no primitivo, não na rota
 
-O sistema em vigor é o **workspace visual minimalista de tema claro único** (AD-082), descrito em `apps/web/DESIGN.md`. A sidebar `#f1f1f3` é o fundo; o painel de trabalho recuado usa `#f7f7f7`, borda fina e sombra leve. A ação principal é grafite `#1d1c20`; seleção e hover da sidebar usam `#e8e7ec`. A identidade é aplicada em `apps/web/src/theme.css`, nos primitivos de `packages/ui/src/components/` e no shell de `apps/web/src/routes/_private/`. Rota compõe dados, não recria o tema.
+O sistema em vigor é o **workspace visual minimalista** (AD-082), descrito em `apps/web/DESIGN.md`, com três temas (Claro padrão, Escuro e Azul, AD-237) definidos por classe em `apps/web/src/theme.css`: cor sempre por token; cor da paleta do Tailwind só com a contraparte `dark:`; detalhe de destaque usa a cor de ação `--primary`. Os valores abaixo são os do Claro. A sidebar `#f1f1f3` é o fundo; o painel de trabalho recuado usa `#f7f7f7`, borda fina e sombra leve. A ação principal é grafite `#1d1c20`; seleção e hover da sidebar usam `#e8e7ec`. A identidade é aplicada em `apps/web/src/theme.css`, nos primitivos de `packages/ui/src/components/` e no shell de `apps/web/src/routes/_private/`. Rota compõe dados, não recria o tema.
 
 Escolha do agrupador: `ItemGroup` (padrão `grid`) para cartões independentes; `ItemGroup variant="list"` para lista de registros numa superfície; `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`, AD-075) para cartão que leva a outra tela. Filtro de visão usa `Tabs variant="line"` de `@ethica/ui`. `Button` e `Badge` vêm só de `@ethica/ui/components/*`: a ação principal fica no cabeçalho com `Button` padrão, as secundárias vão no `PageMenu` ("…") ou usam `outline`; remover usa `destructive`.
 

@@ -17,7 +17,7 @@ const readStoredSize = (): TextSize => {
 };
 
 // Adjusts only the text tokens in theme.css through data-text-size on html.
-// The preference persists in localStorage without affecting the fixed light theme.
+// The preference persists in localStorage, independent of the theme (AD-237).
 export function useTextSize() {
   const [textSize, setTextSizeState] = useState<TextSize>(readStoredSize);
 

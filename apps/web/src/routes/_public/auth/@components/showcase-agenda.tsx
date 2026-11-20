@@ -19,14 +19,14 @@ const DAYS = [-1, 0, 1, 2, 3].map((offset) => addDaysToDisplayDate(MONDAY, offse
 type Tone = 'done' | 'scheduled' | 'deadline';
 // Washed-out tones: done green, scheduled neutral, deadline yellow.
 const TONE: Record<Tone, string> = {
-  done: 'border-emerald-200/70 bg-emerald-50/70',
+  done: 'border-emerald-200/70 bg-emerald-50/70 dark:border-emerald-400/25 dark:bg-emerald-400/10',
   scheduled: 'border-border bg-muted/50',
-  deadline: 'border-amber-200/70 bg-amber-50/70',
+  deadline: 'border-amber-200/70 bg-amber-50/70 dark:border-amber-400/25 dark:bg-amber-400/10',
 };
 const BADGE: Record<Tone, string> = {
-  done: 'bg-emerald-100/70 text-emerald-800',
+  done: 'bg-emerald-100/70 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-200',
   scheduled: 'bg-background text-muted-foreground',
-  deadline: 'bg-amber-100/70 text-amber-800',
+  deadline: 'bg-amber-100/70 text-amber-800 dark:bg-amber-400/15 dark:text-amber-200',
 };
 const LABEL: Record<Tone, string> = { done: t('done'), scheduled: t('scheduled'), deadline: t('deadline') };
 

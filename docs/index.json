@@ -2,6 +2,25 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "temas",
+      "feature": "Temas",
+      "descricao": "Temas Claro, Escuro e Azul escolhidos no menu do usuário, com uma cor de ação por tema nos botões e nos detalhes",
+      "data": "2026-11-20",
+      "status": "parcial",
+      "areas": [
+        "apps/web",
+        "packages/ui"
+      ],
+      "decisoes": [
+        "AD-237"
+      ],
+      "spec": [
+        ".specs/features/temas"
+      ],
+      "planos": [],
+      "doc": "features/temas/feature.md"
+    },
+    {
       "slug": "tour-guiado",
       "feature": "Tour guiado",
       "descricao": "Tour no primeiro acesso que destaca as seções do menu conforme as permissões da pessoa, reaberto por \"Ver tour\"",
@@ -1993,6 +2012,12 @@
     {
       "id": "AD-236",
       "decisao": "A ideia da AD-235 (número escrito, variação contra o mês anterior, ranking com parcela) vale para todo número de painel. (1) Dashboard: Serv",
+      "data": "2026-11-19",
+      "status": "active"
+    },
+    {
+      "id": "AD-237",
+      "decisao": "O `apps/web` passa a ter três temas, escolhidos no menu do usuário e guardados no aparelho (`localStorage.theme`, aplicado antes do primeiro",
       "data": "2026-11-19",
       "status": "active"
     }

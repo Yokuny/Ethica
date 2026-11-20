@@ -5,11 +5,12 @@ import { useTheme } from 'next-themes';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = 'system' } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <Sonner
-      theme={theme as ToasterProps['theme']}
+      // Sonner knows only light/dark: the dark and blue themes (AD-237) have a dark surface.
+      theme={theme === 'dark' || theme === 'blue' ? 'dark' : 'light'}
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4" />,

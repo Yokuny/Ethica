@@ -27,13 +27,14 @@ if (!rootElement) throw new Error('Elemento #root não encontrado.');
 // bundle by itself, without an import.meta.env.DEV guard here.
 createRoot(rootElement).render(
   <StrictMode>
-    {/* Sonner reads useTheme() from the shared package. The provider pins "light"
-        so toast and native controls follow the single light theme. */}
+    {/* Themes (AD-237): class on html, saved on the device; index.html applies it before the first paint. */}
     <ThemeProvider
       attribute="class"
+      themes={['light', 'dark', 'blue']}
       defaultTheme="light"
-      forcedTheme="light"
       enableSystem={false}
+      // color-scheme comes from theme.css: next-themes would write "light" inline for the blue theme.
+      enableColorScheme={false}
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>

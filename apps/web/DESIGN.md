@@ -111,7 +111,7 @@ height: "40px"
 
 A referência enviada pelo usuário fixa a paleta e a composição. Geist Variable é a aproximação sans adotada para o raster (a fonte original da imagem não foi identificada como fato); Geist Mono aparece só em atalhos e números tabulares. O modo é Operate: achar um registro, ler seu estado e agir rapidamente.
 
-**Características:** um único tema claro; ação grafite; sidebar pastel atrás do painel; sem faixa superior; abas, faixa de indicadores e toolbar de uma linha em toda listagem; captions sans em caixa alta; sombra com deslocamento mínimo; indicadores apenas quando apoiados por dados reais (AD-083).
+**Características:** tema Claro como padrão, com Escuro e Azul no menu do usuário (AD-237); ação grafite no Claro; sidebar pastel atrás do painel; sem faixa superior; abas, faixa de indicadores e toolbar de uma linha em toda listagem; captions sans em caixa alta; sombra com deslocamento mínimo; indicadores apenas quando apoiados por dados reais (AD-083).
 
 ## Colors
 
@@ -128,7 +128,7 @@ A referência enviada pelo usuário fixa a paleta e a composição. Geist Variab
 | Texto secundário legível | --text-secondary    | #66656f | Metadados e apoio pequeno            |
 | Tom sutil da referência  | --subtle-foreground | #9594a0 | Pistas decorativas não essenciais    |
 
---primary-hover é #38373d; --border é #e5e4e8; --input é #d8d7dd; --ring é #4b4b54. Os tokens completos, inclusive seleção, desabilitado, gráficos e estados de domínio, estão em apps/web/src/theme.css. O valor #9594a0 não substitui --text-secondary em texto pequeno necessário à tarefa. Status de domínio usam variantes suaves de apps/web/src/components/badge.tsx; sua cor continua expressando significado, sem virar o acento global.
+Os valores da tabela são os do tema Claro; Escuro e Azul redefinem os mesmos tokens em `.dark` e `.blue` (AD-237), e `--primary` é sempre a cor de ação do tema: botão primário e detalhes de destaque. --primary-hover é #38373d; --border é #e5e4e8; --input é #d8d7dd; --ring é #4b4b54. Os tokens completos, inclusive seleção, desabilitado, gráficos e estados de domínio, estão em apps/web/src/theme.css. O valor #9594a0 não substitui --text-secondary em texto pequeno necessário à tarefa. Status de domínio usam variantes suaves de apps/web/src/components/badge.tsx; sua cor continua expressando significado, sem virar o acento global.
 
 ## Typography
 
@@ -187,7 +187,8 @@ AppLink (apps/web/src/components/app-link.tsx) é o único link de texto: Link d
 
 ### Don't
 
-- Não reintroduza troca de paleta ou modo escuro nesta direção de tema claro único.
+- Não use cor da paleta do Tailwind sem a contraparte `dark:` (vale nos temas Escuro e Azul); prefira os tokens.
+- Não dê a um detalhe de destaque uma cor própria: ele usa a cor de ação (`--primary`) do tema (AD-237).
 - Não invente companhia, cargo, cidade, séries temporais ou ações em lote para copiar a imagem.
 - Não recrie Button, Badge ou abas em apps/web: existem só em @ethica/ui; a rota importa e usa sem className de identidade.
 - Não use azul como acento genérico; as cores semânticas de status são a exceção.

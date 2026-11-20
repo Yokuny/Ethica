@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 // Single page in steps (AD-224), from the shadcnblocks "process1" layout: the heading stays fixed on
 // the left from `lg` up and the steps, numbered by their order, run on the right separated by a rule.
-// Each step brings its own form. The orange asterisk and the red corners are the block's own colors.
+// Each step brings its own form. The asterisk and the corners are details in the action color (AD-237).
 export function StepList({
   title,
   description,
@@ -21,7 +21,7 @@ export function StepList({
           <ItemTitle className="block text-6xl leading-none font-semibold tracking-tight text-foreground">
             {title}
           </ItemTitle>
-          <Asterisk aria-hidden className="absolute -top-2 -right-2 size-5 text-orange-500 md:size-10 lg:-right-14" />
+          <Asterisk aria-hidden className="absolute -top-2 -right-2 size-5 text-primary md:size-10 lg:-right-14" />
         </div>
         <ItemDescription className="line-clamp-none text-base text-foreground/50">{description}</ItemDescription>
       </div>
@@ -63,9 +63,16 @@ export function StepItem({
 
 function StepCorner() {
   return (
-    <svg aria-hidden width="22" height="20" viewBox="0 0 22 20" fill="none" className="absolute top-4 right-0">
-      <line x1="0.607422" y1="2.57422" x2="21.5762" y2="2.57422" stroke="#FF0000" strokeWidth="4" />
-      <line x1="19.5762" y1="19.624" x2="19.5762" y2="4.57422" stroke="#FF0000" strokeWidth="4" />
+    <svg
+      aria-hidden
+      width="22"
+      height="20"
+      viewBox="0 0 22 20"
+      fill="none"
+      className="absolute top-4 right-0 text-primary"
+    >
+      <line x1="0.607422" y1="2.57422" x2="21.5762" y2="2.57422" stroke="currentColor" strokeWidth="4" />
+      <line x1="19.5762" y1="19.624" x2="19.5762" y2="4.57422" stroke="currentColor" strokeWidth="4" />
     </svg>
   );
 }

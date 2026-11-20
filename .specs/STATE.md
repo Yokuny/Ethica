@@ -1407,6 +1407,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-19
 - **Status**: active
 
+### AD-237
+- **Decision**: O `apps/web` passa a ter três temas, escolhidos no menu do usuário e guardados no aparelho (`localStorage.theme`, aplicado antes do primeiro paint pelo script do `index.html`): **Claro** (o atual, padrão), **Escuro** (grafite) e **Azul** (fundo azul-marinho com ação em amarelo mostarda dourado). O mecanismo é o `next-themes` que já estava montado, sem `forcedTheme` e sem seguir o sistema; os tokens vivem em `apps/web/src/theme.css` por classe (`:root`, `.dark`, `.blue`) e a variante `dark:` vale nos dois temas de fundo escuro. A **cor de ação** de cada tema é `--primary` (sem token novo): botão primário e os detalhes de destaque (asterisco e cantos do `StepList`, hoje da agenda, aba ativa do celular, progresso, seleção) leem só ela; no Azul, o texto sobre o dourado é o azul-marinho do fundo. Supersede a regra "um único tema claro / não reintroduza troca de paleta ou modo escuro" do `apps/web/DESIGN.md` (AD-082/083 seguem para o resto da direção visual).
+- **Reason**: pedido do usuário em 2026-11-19 ("implementar temas, padronizar a cor dos botões de ação também nos detalhes", "temas Dark e um azul com detalhes em amarelo mostarda dourado"). Como os detalhes seguem a cor de ação, o dourado é a ação e o azul é o fundo; o dourado só tem contraste para texto e ícone sobre azul escuro, por isso o Azul é de fundo escuro.
+- **Trade-off**: no Claro o asterisco e os cantos do `StepList` deixam de ser laranja e vermelho e viram grafite. Cores fixas (selo, agenda) ganham contrapartes `dark:` que precisam ser mantidas junto. A escolha não acompanha a pessoa entre aparelhos.
+- **Scope**: `apps/web/{index.html,DESIGN.md}`, `apps/web/src/{main.tsx,theme.css}`, `apps/web/src/components/{step-list,user-menu,user-menu.theme}.tsx`, `apps/web/src/routes/_private/agenda/@consts/calendar.ts`, `apps/web/src/routes/_private/field/inspection/@components/signature-dialog.tsx`, `packages/ui/src/components/{badge,sonner}.tsx`.
+- **Date**: 2026-11-19
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

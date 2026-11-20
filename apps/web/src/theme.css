@@ -16,12 +16,13 @@
   font-display: swap;
 }
 
-/* The CRM's single light theme. The marketing site has its own tokens in
-   apps/site/src/theme.css. The sidebar sits behind the work surface;
-   the interface colors are born here, without per-page variants. */
+/* Themes (AD-237): light (:root, default), dark and blue, chosen in the user menu; next-themes puts
+   the class on html. The sidebar sits behind the work surface; the interface colors are born
+   here, without per-page variants. --primary is the action color of each theme: the primary
+   button and the highlight details (StepList, today in the agenda, progress, selection). */
 
-/* Legacy dark classes stay inactive even when the system prefers dark. */
-@custom-variant dark (&:is(.dark *));
+/* `dark:` follows both dark-surfaced themes, never the operating system. */
+@custom-variant dark (&:is(.dark *, .blue *));
 
 :root {
   --radius: 0.625rem;
@@ -112,6 +113,104 @@
   --shadow-lg: 0 12px 24px -8px rgb(29 28 32 / 0.11), 0 4px 10px -4px rgb(29 28 32 / 0.05);
   --shadow-xl: 0 18px 36px -10px rgb(29 28 32 / 0.14);
   --shadow-2xl: 0 28px 48px -12px rgb(29 28 32 / 0.18);
+}
+
+/* Shared by the dark-surfaced themes: statuses, shadows and native controls. */
+.dark,
+.blue {
+  color-scheme: dark;
+
+  --status-success: #16301f;
+  --status-success-foreground: #a7dcb5;
+  --status-success-border: #24492f;
+  --status-success-indicator: #5aa872;
+  --status-warning: #2f2a14;
+  --status-warning-foreground: #e3d18a;
+  --status-warning-border: #4a4220;
+  --status-warning-indicator: #c4aa45;
+  --status-error: #36191b;
+  --status-error-foreground: #eab0b3;
+  --status-error-border: #55282b;
+  --status-error-indicator: #c96a70;
+  --status-info: #142a33;
+  --status-info-foreground: #a5cddc;
+  --status-info-border: #1f414e;
+  --status-info-indicator: #6c9cae;
+
+  --destructive: #e5858a;
+  --primary-foreground: var(--background);
+  --sidebar-primary-foreground: var(--primary-foreground);
+
+  --shadow-2xs: 0 1px 1px 0 rgb(0 0 0 / 0.2);
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25), 0 2px 5px -2px rgb(0 0 0 / 0.2);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 2px 6px -2px rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 10px -3px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 12px 24px -8px rgb(0 0 0 / 0.4), 0 4px 10px -4px rgb(0 0 0 / 0.2);
+  --shadow-xl: 0 18px 36px -10px rgb(0 0 0 / 0.45);
+  --shadow-2xl: 0 28px 48px -12px rgb(0 0 0 / 0.5);
+}
+
+/* Dark: graphite surfaces, near-white action. */
+.dark {
+  --background: #18181b;
+  --surface-secondary: #202024;
+  --surface-raised: #26262b;
+  --accent: #2e2e34;
+  --selection: #34343b;
+  --disabled: #2a2a2f;
+
+  --foreground: #d4d4d8;
+  --impact: #f4f4f5;
+  --link: #a9c1e8;
+  --text-secondary: #a1a1aa;
+  --subtle-foreground: #71717a;
+
+  --primary: #ededef;
+  --primary-hover: #d4d4d8;
+  --border: #2e2e34;
+  --input: #3a3a41;
+  --ring: #a1a1aa;
+
+  --status-neutral: #27272b;
+  --status-neutral-foreground: #d4d4d8;
+  --status-neutral-border: #3a3a40;
+  --status-neutral-indicator: #93919a;
+
+  --sidebar: #111113;
+  --sidebar-accent: #26262b;
+  --sidebar-border: #26262b;
+}
+
+/* Blue: navy surfaces, mustard gold action and details; text on the gold is the navy. */
+.blue {
+  --background: #0f1d31;
+  --surface-secondary: #15263e;
+  --surface-raised: #1a2d48;
+  --accent: #213656;
+  --selection: #263d60;
+  --disabled: #1d304b;
+
+  --foreground: #cdd6e4;
+  --impact: #f1f4f9;
+  --link: #a9c6ef;
+  --text-secondary: #94a3bb;
+  --subtle-foreground: #6b7b95;
+
+  --primary: #d4a72c;
+  --primary-hover: #e0b847;
+  --border: #22375a;
+  --input: #2d4468;
+  --ring: #d4a72c;
+
+  --status-neutral: #1d2f49;
+  --status-neutral-foreground: #cdd6e4;
+  --status-neutral-border: #2d4468;
+  --status-neutral-indicator: #8393ad;
+
+  --sidebar: #0b1626;
+  --sidebar-accent: #1a2d48;
+  --sidebar-border: #1a2d48;
 }
 
 @theme inline {

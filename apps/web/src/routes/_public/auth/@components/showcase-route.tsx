@@ -29,8 +29,12 @@ function RouteMap() {
       {BLOCKS.map((block) => (
         <rect key={block.key} x={block.x} y={block.y} width="64" height="44" rx="3" className="fill-background" />
       ))}
-      <rect x="168" y="122" width="144" height="44" rx="3" className="fill-emerald-50" />
-      <path d="M0 26 C120 8 200 40 300 22 S440 0 480 14" className="fill-none stroke-sky-100" strokeWidth="8" />
+      <rect x="168" y="122" width="144" height="44" rx="3" className="fill-emerald-50 dark:fill-emerald-400/15" />
+      <path
+        d="M0 26 C120 8 200 40 300 22 S440 0 480 14"
+        className="fill-none stroke-sky-100 dark:stroke-sky-400/25"
+        strokeWidth="8"
+      />
       <path d={ROUTE} className="fill-none stroke-foreground/70" strokeWidth="2.5" strokeLinejoin="round" />
       <circle cx={START.x} cy={START.y} r="5" className="fill-background stroke-foreground/70" strokeWidth="2" />
       {STOPS.map((stop, index) => (

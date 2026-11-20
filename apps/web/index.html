@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#f7f7f7" />
-    <meta name="color-scheme" content="light" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -13,17 +12,21 @@
     <link rel="preload" href="/fonts/geist/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-mono/geist-mono-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <title>Ethica</title>
-    <!-- O tema visual é sempre claro. Só o tamanho do texto salvo pelo usuário
-         precisa ser aplicado antes do React para evitar mudança de escala
-         durante o primeiro paint. -->
+    <!-- Tema (AD-237) e tamanho do texto salvos no aparelho, aplicados antes do React
+         para a tela não piscar no claro nem mudar de escala no primeiro paint. -->
     <script>
       (() => {
-        document.documentElement.classList.remove('dark');
         try {
+          const theme = localStorage.getItem('theme');
+          const background = { dark: '#18181b', blue: '#0f1d31' }[theme];
+          if (background) {
+            document.documentElement.classList.add(theme);
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', background);
+          }
           const textSize = localStorage.getItem('text-size');
           if (textSize === 'sm' || textSize === 'lg') document.documentElement.setAttribute('data-text-size', textSize);
         } catch {
-          // Sem storage: mantém a escala padrão até o React montar.
+          // Sem storage: mantém o tema claro e a escala padrão até o React montar.
         }
       })();
     </script>

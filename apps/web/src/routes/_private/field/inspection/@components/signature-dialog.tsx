@@ -65,7 +65,7 @@ export function SignatureDialog({ name, onConfirm, onClose }: SignatureDialogPro
         width={600}
         height={240}
         aria-label={t('signature_area')}
-        className="h-48 w-full touch-none rounded-md border border-input bg-card"
+        className="h-48 w-full touch-none rounded-md border border-input bg-white"
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={() => {

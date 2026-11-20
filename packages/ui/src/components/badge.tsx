@@ -4,16 +4,21 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import type { ReactNode } from 'react';
 import { cn } from '../lib/utils.js';
 
-// Status badge: 50 background, 900 text and inner ring per tone (Tailwind palette).
+// Status badge: 50 background, 900 text and inner ring per tone (Tailwind palette); on the
+// dark-surfaced themes (AD-237), a translucent 400 background with 200 text.
 const tone = {
-  success: 'bg-emerald-50 text-emerald-900 ring-emerald-600/30',
-  warning: 'bg-yellow-50 text-yellow-900 ring-yellow-600/30',
-  error: 'bg-red-50 text-red-900 ring-red-600/20',
-  info: 'bg-blue-50 text-blue-900 ring-blue-500/30',
-  neutral: 'bg-gray-50 text-gray-900 ring-gray-500/30',
-  orange: 'bg-orange-50 text-orange-900 ring-orange-500/30',
-  cyan: 'bg-cyan-50 text-cyan-900 ring-cyan-500/30',
-  violet: 'bg-violet-50 text-violet-900 ring-violet-500/30',
+  success:
+    'bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/15 dark:text-emerald-200 dark:ring-emerald-400/30',
+  warning:
+    'bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/15 dark:text-yellow-200 dark:ring-yellow-400/30',
+  error: 'bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/15 dark:text-red-200 dark:ring-red-400/30',
+  info: 'bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/15 dark:text-blue-200 dark:ring-blue-400/30',
+  neutral: 'bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/15 dark:text-gray-200 dark:ring-gray-400/30',
+  orange:
+    'bg-orange-50 text-orange-900 ring-orange-500/30 dark:bg-orange-400/15 dark:text-orange-200 dark:ring-orange-400/30',
+  cyan: 'bg-cyan-50 text-cyan-900 ring-cyan-500/30 dark:bg-cyan-400/15 dark:text-cyan-200 dark:ring-cyan-400/30',
+  violet:
+    'bg-violet-50 text-violet-900 ring-violet-500/30 dark:bg-violet-400/15 dark:text-violet-200 dark:ring-violet-400/30',
 } as const;
 
 const badgeVariants = cva(
