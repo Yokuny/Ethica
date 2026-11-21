@@ -17,17 +17,24 @@ import { BadgeCheckIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { BENEFITS, PLAN_OPTIONS } from '../@consts/plans.js';
+import { PLAN_OPTIONS, type PlanOption } from '../@consts/plans.js';
 
 type BillingPlansProps = {
-  trialAvailable: boolean;
+  options: PlanOption[];
   paying?: BillingPlan;
   // Without it (member who is not admin) the prices show without the "Pagar" buttons.
   onPay?: (plan: BillingPlan) => void;
 };
 
-export function BillingPlans({ trialAvailable, paying, onPay }: BillingPlansProps) {
-  const options = PLAN_OPTIONS.filter((option) => option.plan !== 'trial' || trialAvailable);
+// "Tudo do Teste, e mais": the included plan by name when its card is on screen; without it (trial
+// already used) its features come in the list.
+const featuresOf = (option: PlanOption, options: PlanOption[]) => {
+  const base = PLAN_OPTIONS.find((other) => other.plan === option.includes);
+  if (!base || options.some((other) => other.plan === base.plan)) return { base, features: option.features };
+  return { base: undefined, features: [...base.features, ...option.features] };
+};
+
+export function BillingPlans({ options, paying, onPay }: BillingPlansProps) {
   const monthlyIndex = options.findIndex((option) => option.plan === 'monthly');
   const [api, setApi] = useState<CarouselApi>();
   const [selected, setSelected] = useState(monthlyIndex);
@@ -48,6 +55,7 @@ export function BillingPlans({ trialAvailable, paying, onPay }: BillingPlansProp
           const centered = selected === index;
           const priceCents = BILLING_PLAN_CENTS[option.plan];
           const MethodIcon = option.methodIcon;
+          const { base, features } = featuresOf(option, options);
           return (
             <CarouselItem key={option.plan} className="sm:basis-[60%] md:basis-[45%] lg:basis-[34%]">
               {/* biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: a pointer shortcut; the keyboard moves between plans with the arrows and ←/→ */}
@@ -66,12 +74,17 @@ export function BillingPlans({ trialAvailable, paying, onPay }: BillingPlansProp
                       >
                         {option.name}
                       </ItemTitle>
-                      {option.referenceCents && (
-                        <Badge variant={centered ? 'success' : 'neutral'}>
-                          {`${t('billing_save')} ${formatMoney(option.referenceCents - priceCents)}`}
-                        </Badge>
+                      {option.plan === 'monthly' ? (
+                        <Badge variant={centered ? 'default' : 'neutral'}>{t('recommended')}</Badge>
+                      ) : (
+                        option.referenceCents && (
+                          <Badge variant={centered ? 'success' : 'neutral'}>
+                            {`${t('billing_save')} ${formatMoney(option.referenceCents - priceCents)}`}
+                          </Badge>
+                        )
                       )}
                     </div>
+                    <ItemDescription className="line-clamp-none">{option.tagline}</ItemDescription>
                     <div className="mt-4">
                       {/* The struck line keeps its height on every card, so the prices line up. */}
                       <ItemDescription className={cn('line-through', !option.referenceCents && 'invisible')}>
@@ -79,7 +92,7 @@ export function BillingPlans({ trialAvailable, paying, onPay }: BillingPlansProp
                       </ItemDescription>
                       <ItemTitle className="text-4xl font-semibold">{formatMoney(priceCents)}</ItemTitle>
                       <ItemDescription>
-                        {option.perMonthCents
+                        {option.plan === 'yearly'
                           ? `${option.period} · ${t('billing_equals_to')} ${formatMoney(option.perMonthCents)} ${t('per_month').toLowerCase()}`
                           : option.period}
                       </ItemDescription>
@@ -116,24 +129,28 @@ export function BillingPlans({ trialAvailable, paying, onPay }: BillingPlansProp
                     <div className="flex items-center gap-3">
                       <Separator className={cn('flex-1', !centered && 'opacity-60')} />
                       <ItemDescription className="text-xs uppercase tracking-wide">
-                        {t('billing_benefits_title')}
+                        {base
+                          ? `${t('billing_everything_in')} ${base.name}${features.length ? `, ${t('billing_and_more')}` : ''}`
+                          : t('billing_benefits_title')}
                       </ItemDescription>
                       <Separator className={cn('flex-1', !centered && 'opacity-60')} />
                     </div>
-                    <ul className="space-y-3">
-                      {BENEFITS.map((benefit) => (
-                        <li key={benefit} className="flex items-start gap-3">
-                          <BadgeCheckIcon
-                            className={cn(
-                              'size-5 shrink-0',
-                              centered ? 'text-status-success-indicator' : 'text-muted-foreground/60',
-                            )}
-                            aria-hidden
-                          />
-                          <ItemDescription className="line-clamp-none text-foreground">{benefit}</ItemDescription>
-                        </li>
-                      ))}
-                    </ul>
+                    {features.length > 0 && (
+                      <ul className="space-y-3">
+                        {features.map((feature) => (
+                          <li key={feature} className="flex items-start gap-3">
+                            <BadgeCheckIcon
+                              className={cn(
+                                'size-5 shrink-0',
+                                centered ? 'text-status-success-indicator' : 'text-muted-foreground/60',
+                              )}
+                              aria-hidden
+                            />
+                            <ItemDescription className="line-clamp-none text-foreground">{feature}</ItemDescription>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </CardContent>
                 </Card>
               </div>

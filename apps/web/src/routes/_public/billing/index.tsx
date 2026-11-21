@@ -11,7 +11,10 @@ import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { clearDevice } from '@/lib/offline/store.js';
 import { sessionKeys } from '@/query/session.js';
+import { BillingCompare } from './@components/billing-compare.js';
+import { BillingFaq } from './@components/billing-faq.js';
 import { BillingPlans } from './@components/billing-plans.js';
+import { PLAN_OPTIONS } from './@consts/plans.js';
 import { billingQuery, payPlan } from './@query/billing.js';
 
 // Destination of the _private guard when GET /auth/session answers `tenant_suspended`: a new sign-up
@@ -26,6 +29,8 @@ export function BillingPage() {
   const [errorMessage, setErrorMessage] = useState<string>();
   const view = billing.data;
   const open = Boolean(view?.accessUntil && new Date(view.accessUntil) > new Date());
+  const options = PLAN_OPTIONS.filter((option) => option.plan !== 'trial' || view?.trialAvailable);
+  const onPay = view?.canPay ? (plan: BillingPlan) => void pay(plan) : undefined;
 
   const signOut = async () => {
     await post('/auth/signout');
@@ -62,7 +67,7 @@ export function BillingPage() {
   return (
     <Card>
       <CardHeader title={t('subscription')} />
-      <CardContent className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-8">
+      <CardContent className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-12">
         {billing.isLoading ? (
           <DefaultLoading />
         ) : !view ? (
@@ -89,15 +94,21 @@ export function BillingPage() {
                     : t('billing_expired_help')}
               </ItemDescription>
             </div>
-            <BillingPlans
-              trialAvailable={view.trialAvailable}
-              paying={paying}
-              onPay={view.canPay ? (plan) => void pay(plan) : undefined}
-            />
+            <BillingPlans options={options} paying={paying} onPay={onPay} />
             {errorMessage && (
               <ItemDescription role="alert" className="line-clamp-none text-center text-destructive">
                 {errorMessage}
               </ItemDescription>
+            )}
+            <BillingCompare options={options} />
+            <BillingFaq trialAvailable={view.trialAvailable} />
+            {onPay && (
+              <div className="flex flex-col items-center gap-4 rounded-lg border p-8 text-center">
+                <ItemTitle className="mx-auto justify-center text-xl font-medium">{t('billing_cta_title')}</ItemTitle>
+                <Button size="lg" disabled={Boolean(paying)} onClick={() => onPay('monthly')}>
+                  {t('billing_cta_button')}
+                </Button>
+              </div>
             )}
             <div className="flex flex-col items-center gap-4">
               <ItemDescription className="line-clamp-none text-center">{t('billing_pending_help')}</ItemDescription>

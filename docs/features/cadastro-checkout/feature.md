@@ -5,7 +5,7 @@ descricao: Criar conta termina na assinatura paga no Asaas; sem pagamento ou men
 data: 2026-11-20
 status: parcial
 areas: [apps/api, apps/web, packages/contracts, packages/db, harness]
-decisoes: [AD-230, AD-231, AD-232, AD-244, AD-245, AD-246, AD-155, AD-220, AD-098]
+decisoes: [AD-230, AD-231, AD-232, AD-244, AD-245, AD-246, AD-247, AD-155, AD-220, AD-098]
 spec: [.specs/features/cadastro-checkout]
 ---
 
@@ -19,7 +19,7 @@ spec: [.specs/features/cadastro-checkout]
 ## O que foi feito
 
 - Entrada com **Criar conta**: e-mail → chave → nome, escritório e CPF ou CNPJ → passkey do aparelho. O escritório nasce sem acesso.
-- Tela de planos em `/billing` (AD-245): os planos em carrossel, o Mensal no centro (AD-246). Planos: **teste** (R$ 6, 7 dias, uma vez), **mensal** (R$ 60) e **anual** (R$ 612) no cartão, e **mensalidade avulsa** (R$ 60) por boleto, PIX ou cartão. **Pagar** abre a fatura do Asaas; só o admin paga, os demais veem os preços e o aviso. Sair continua.
+- Tela de planos em `/billing` (AD-245): os planos em carrossel, o Mensal no centro e recomendado (AD-246), seguidos da comparação dos planos, das perguntas frequentes e de um Assinar o Mensal. Planos: **teste** (R$ 6 pelo primeiro mês, uma vez, AD-247), **mensal** (R$ 60) e **anual** (R$ 612) no cartão, e **mensalidade avulsa** (R$ 60) por boleto, PIX ou cartão. **Pagar** abre a fatura do Asaas; só o admin paga, os demais veem os preços e o aviso. Sair continua.
 - Pagamento confirmado pelo Asaas libera o acesso até o fim do período, mais 5 dias de carência (o teste também, AD-231). Acabou o período, toda entrada volta à tela de planos.
 - Estorno ou chargeback tira o período que o pagamento tinha pago; disputa vencida devolve. Estorno parcial não muda o acesso.
 - Feed iCal e aviso diário de prazos param junto com o acesso.
@@ -64,6 +64,7 @@ Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "ind
 - 2026-11-20 — Tela de planos vira `/billing` com os preços no design da perita: seletor Mensal/Anual e carrossel 3D (AD-245). O `.env` local ganha o sandbox do Asaas.
 - 2026-11-20 — Sem seletor Mensal/Anual e sem giro 3D: quatro cards (Teste, Mensal, Anual, Avulsa), laterais só esmaecidos, borda fina e sem sombra (AD-246, supersede a parte visual da AD-245).
 - 2026-11-20 — Cards com argumento de venda: Teste e Anual com o preço de referência riscado e "Economize" (7 dias e 12 meses do Mensal, calculados de `BILLING_PLAN_CENTS`), o Anual com o valor por mês; no topo, o meio de pagamento e a vantagem dele; embaixo, o que o Ethica muda no dia do perito (lista igual nos quatro, do `PRODUCT.md`). Clicar num card lateral o traz ao centro; os laterais só atenuam borda e ícones.
+- 2026-11-20 — Teste passa a ser o primeiro mês por R$ 6 (AD-247, supersede os 7 dias da AD-230/231), riscado contra os R$ 60 do Mensal. Página de venda na estrutura da skill `pricing-page` (instalada fora do repo): frase de posicionamento e "Recomendado" no Mensal; cada card lista "Tudo do <plano>, e mais" (o Mensal soma ao Teste a equipe sem limite; sem o card do Teste ele lista tudo); tabela "Compare os planos", perguntas frequentes (só o que as ADs garantem) e Assinar o Mensal para o admin. A equipe "Só você" no Teste é só texto: o sistema ainda não limita convites no teste.
 
 ## Referências
 

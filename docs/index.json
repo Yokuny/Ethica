@@ -21,6 +21,7 @@
         "AD-244",
         "AD-245",
         "AD-246",
+        "AD-247",
         "AD-155",
         "AD-220",
         "AD-098"
@@ -2006,13 +2007,13 @@
       "id": "AD-230",
       "decisao": "O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no Asaas, com o e-mail confirmado antes. O acesso",
       "data": "2026-11-18",
-      "status": "active (teste sem carência superseded by AD-231)"
+      "status": "active (teste sem carência superseded by AD-231; 7 dias superseded by AD-247)"
     },
     {
       "id": "AD-231",
       "decisao": "O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte \"teste = 7 dia",
       "data": "2026-11-18",
-      "status": "active"
+      "status": "active (7 dias superseded by AD-247)"
     },
     {
       "id": "AD-232",
@@ -2101,6 +2102,12 @@
     {
       "id": "AD-246",
       "decisao": "A tela de planos (`/billing`) perde o seletor Mensal/Anual e o giro 3D dos cards. Os quatro planos ficam lado a lado no carrossel, nesta ord",
+      "data": "2026-11-20",
+      "status": "active"
+    },
+    {
+      "id": "AD-247",
+      "decisao": "O teste (R$ 6, uma vez por escritório, sem renovação) passa a valer o primeiro mês: o acesso vai do pagamento + 1 mês de calendário + 5 dias",
       "data": "2026-11-20",
       "status": "active"
     }

@@ -1357,7 +1357,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o acesso só volta quando o webhook chega (o retorno do navegador não confirma pagamento; a tela de planos reconsulta a cada 10 s); o e-mail e o CNPJ de um cadastro não pago ficam presos a esse escritório até ele pagar; avulsa paga antes do fim conta a partir do dia do pagamento (não soma ao que resta); estorno e chargeback não tiram o acesso; cancelar a assinatura é pelo suporte. Escritório suspenso pela plataforma não chega nem a `/billing`. O retorno automático da fatura (`ASAAS_RETURN_URL`) só funciona com o domínio cadastrado na conta Asaas, que recusa toda cobrança com retorno sem ele; o cadastro passa a conferir o dígito do CNPJ, que o Asaas exige.
 - **Scope**: `packages/db/src/models/tenant.model.ts`, `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/{billing,auth,account}.*`, `apps/api/src/middlewares/authentication.middleware.ts`, `apps/api/src/providers/asaasClient.ts`, `apps/web/src/routes/_public/{auth,suspended}/`.
 - **Date**: 2026-11-18
-- **Status**: active (teste sem carência superseded by AD-231)
+- **Status**: active (teste sem carência superseded by AD-231; 7 dias superseded by AD-247)
 
 ### AD-231
 - **Decision**: O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte "teste = 7 dias sem carência" da **AD-230**.
@@ -1365,7 +1365,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o teste dá 12 dias de uso antes de pedir o plano.
 - **Scope**: `apps/api/src/modules/identity/billing.service.ts` (`accessUntilFor`), `packages/contracts/src/schemas/billing.schema.ts`.
 - **Date**: 2026-11-18
-- **Status**: active
+- **Status**: active (7 dias superseded by AD-247)
 
 ### AD-232
 - **Decision**: Estorno (`PAYMENT_REFUNDED`) e chargeback (`PAYMENT_CHARGEBACK_REQUESTED`) de uma cobrança do Ethica devolvem o acesso ao **início do período que ela pagou**, com `$min` em `Tenant.accessUntil`: vencimento, na renovação da assinatura; dia do pagamento, no teste e na avulsa. Disputa de chargeback vencida volta como pagamento confirmado e devolve o acesso pela regra da AD-230. Estorno parcial não muda nada. Evento sem efeito vai ao log `billing.payment_ignored`.
@@ -1484,6 +1484,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: pedido do usuário em 2026-11-20: o giro deformava o texto dos cards laterais, eles ficavam afastados demais, e o anual basta como card próprio.
 - **Trade-off**: nenhum relevante; menos estado na tela (sem seletor nem cálculo de giro por rolagem).
 - **Scope**: `apps/web/src/routes/_public/billing/@components/billing-plans.tsx`, `apps/web/src/routes/_public/billing/@consts/plans.ts`, `packages/ui/src/components/carousel.tsx`.
+- **Date**: 2026-11-20
+- **Status**: active
+
+### AD-247
+- **Decision**: O teste (R$ 6, uma vez por escritório, sem renovação) passa a valer **o primeiro mês**: o acesso vai do pagamento + 1 mês de calendário + 5 dias de carência, a mesma conta dos outros planos mensais; `BILLING_TRIAL_DAYS` sai do contrato. Supersede a parte "teste = 7 dias" da **AD-230** e da **AD-231** (a carência da AD-231 continua). Escritório que já pagou o teste de 7 dias mantém a data gravada. Na tela de planos, o teste aparece com os R$ 60 do Mensal riscados.
+- **Reason**: pedido do usuário em 2026-11-20: "o preço é 60 e no período de teste o primeiro mês caiu para 6".
+- **Trade-off**: o teste dá cerca de 35 dias de uso por R$ 6 antes de pedir um plano. O texto da tela diz que o Mensal soma a equipe sem limite ao Teste, mas o convite de membros ainda não é bloqueado no teste (roadmap).
+- **Scope**: `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/billing.service.ts` (`accessUntilFor`), `apps/web/src/routes/_public/billing/`.
 - **Date**: 2026-11-20
 - **Status**: active
 

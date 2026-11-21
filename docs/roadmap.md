@@ -43,6 +43,8 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 - [ ] Painel do Asaas: webhook para `<API>/billing/webhook` com os eventos de cobrança, envio sequencial e o mesmo token — `cadastro-checkout`
 - [ ] Perita: chave de sandbox (`$aact_hmlg_…`) em `ASAAS_API_KEY` no `.env` e reiniciar a API para abrir a fatura localmente — `cadastro-checkout`
 - [ ] Validar no sandbox com a API publicada: cadastro → fatura paga com cartão de teste → webhook chega → acesso liberado — `cadastro-checkout`
+- [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`
+- [ ] Perita: revisar os textos da página de planos (posicionamento, perguntas frequentes) — `cadastro-checkout`
 - [ ] Validar com dados reais em produção: pagar o teste (R$ 6) com cartão de verdade, ver o acesso abrir, estornar no painel e ver o acesso fechar — `cadastro-checkout`
 - [ ] Railway: `MAIL_PROVIDER=resend`, `RESEND_API_KEY`, `MAIL_FROM` com domínio verificado no Resend; remover `SMTP_*` — `acesso-email`
 - [ ] Criar os projetos na Railway e na Vercel e o cluster no Atlas; conferir se o domínio da Railway bate com o `vercel.json` — `producao-api`

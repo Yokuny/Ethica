@@ -2,7 +2,6 @@ import crypto from 'node:crypto';
 import {
   BILLING_GRACE_DAYS,
   BILLING_PLAN_CENTS,
-  BILLING_TRIAL_DAYS,
   type BillingPlan,
   type BillingView,
   type TenantUser,
@@ -21,15 +20,10 @@ const shiftDate = (date: string, { months = 0, days = 0 }) => {
   return new Date(Date.UTC(year, month - 1 + months, day + days)).toISOString().slice(0, 10);
 };
 
-// Start of the day (display time zone, AD-036) the access ends: paid period plus the grace, the trial
-// included (AD-231).
-export const accessUntilFor = (plan: BillingPlan, from: string): Date => {
-  const end =
-    plan === 'trial'
-      ? shiftDate(from, { days: BILLING_TRIAL_DAYS + BILLING_GRACE_DAYS })
-      : shiftDate(from, { months: plan === 'yearly' ? 12 : 1, days: BILLING_GRACE_DAYS });
-  return wallClockToUtc(end, '00:00');
-};
+// Start of the day (display time zone, AD-036) the access ends: the paid period (a month, the trial
+// included, AD-247, or a year) plus the grace (AD-231).
+export const accessUntilFor = (plan: BillingPlan, from: string): Date =>
+  wallClockToUtc(shiftDate(from, { months: plan === 'yearly' ? 12 : 1, days: BILLING_GRACE_DAYS }), '00:00');
 
 const findTenant = async (tenantId: string): Promise<BillingTenant> => {
   const tenant = await billingRepository.findBillingTenant(tenantId);
