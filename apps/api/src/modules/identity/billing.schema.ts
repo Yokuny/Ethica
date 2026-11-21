@@ -23,6 +23,9 @@ export type BillingRouterDeps = {
 
 const calendarDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
+// AD-251: id of an Asaas charge, the only shape that goes into the Asaas URL.
+export const billingPaymentParamsSchema = z.object({ id: z.string().regex(/^pay_[A-Za-z0-9_]{1,40}$/) }).strict();
+
 // AD-230: only the fields of a charge the reconciliation reads, in the webhook and in the check of the plans
 // screen (AD-251). Not strict: Asaas adds attributes and a rejection would stop its delivery queue.
 export const asaasPaymentSchema = z.object({

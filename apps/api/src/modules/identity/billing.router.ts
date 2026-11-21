@@ -1,9 +1,14 @@
 import { Router } from 'express';
 import { checkRole } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
-import { validBody, validParsedQuery } from '../../middlewares/validation.middleware.js';
+import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as billingController from './billing.controller.js';
-import { type BillingRouterDeps, billingPaymentQuerySchema, billingPaySchema } from './billing.schema.js';
+import {
+  type BillingRouterDeps,
+  billingPaymentParamsSchema,
+  billingPaymentQuerySchema,
+  billingPaySchema,
+} from './billing.schema.js';
 
 const canOperate = checkRole(['admin', 'manager', 'operator']);
 // CHK-07: only the admin pays the office subscription.
@@ -27,6 +32,7 @@ export const createBillingRouter = (deps: BillingRouterDeps): Router => {
     deps.validSession,
     tenantAssignmentCheck,
     isAdmin,
+    validParams(billingPaymentParamsSchema),
     validParsedQuery(billingPaymentQuerySchema),
     billingController.getPayment(deps),
   );

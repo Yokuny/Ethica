@@ -51,7 +51,7 @@ import {
 } from './finance/transaction.schema.js';
 import { passkeyIdParamSchema } from './identity/account.schema.js';
 import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } from './identity/auth.schema.js';
-import { asaasPaymentSchema, asaasWebhookSchema } from './identity/billing.schema.js';
+import { asaasPaymentSchema, asaasWebhookSchema, billingPaymentParamsSchema } from './identity/billing.schema.js';
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import {
@@ -72,6 +72,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'passkeyIdParamSchema', schema: passkeyIdParamSchema },
   { name: 'asaasPaymentSchema', schema: asaasPaymentSchema },
   { name: 'asaasWebhookSchema', schema: asaasWebhookSchema },
+  { name: 'billingPaymentParamsSchema', schema: billingPaymentParamsSchema },
   { name: 'updatePreferencesSchema', schema: updatePreferencesSchema },
   { name: 'caseIdParamSchema', schema: caseIdParamSchema },
   { name: 'listCasesQuerySchema', schema: listCasesQuerySchema },

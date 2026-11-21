@@ -28,6 +28,8 @@ const shiftDate = (date: string, { months = 0, days = 0 }) => {
 export const accessUntilFor = (plan: BillingPlan, from: string): Date =>
   wallClockToUtc(shiftDate(from, { months: plan === 'yearly' ? 12 : 1, days: BILLING_GRACE_DAYS }), '00:00');
 
+const BOLETO_DUE_DAYS = 3;
+
 const findTenant = async (tenantId: string): Promise<BillingTenant> => {
   const tenant = await billingRepository.findBillingTenant(tenantId);
   if (!tenant) throw new CustomError('not_found', 404);
@@ -38,7 +40,8 @@ const PAID_STATUSES = ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH'];
 
 // CHK-14: when the plans screen may be waiting on a payment the webhook did not bring (dev has no public URL;
 // production may have it late). Only with the access closed and something to wait for: the office never paid,
-// or created a charge in the last days. At most one Asaas call per office every 30 s.
+// created a charge in the last days, or has a card subscription (its renewal). At most one Asaas call per office
+// every 30 s.
 const CHECK_EVERY_MS = 30_000;
 const PENDING_MS = 7 * 24 * 3600_000;
 const lastCheck = new Map<string, number>();
@@ -46,7 +49,10 @@ const lastCheck = new Map<string, number>();
 const shouldCheck = (tenant: BillingTenant, now: number): boolean => {
   const billing = tenant.billing;
   if (!billing?.customerId || (tenant.accessUntil && tenant.accessUntil.getTime() > now)) return false;
-  const waiting = !billing.paidAt || (billing.pendingSince && now - billing.pendingSince.getTime() < PENDING_MS);
+  const waiting =
+    !billing.paidAt ||
+    billing.subscriptionId ||
+    (billing.pendingSince && now - billing.pendingSince.getTime() < PENDING_MS);
   if (!waiting || now - (lastCheck.get(tenant.id) ?? 0) < CHECK_EVERY_MS) return false;
   lastCheck.set(tenant.id, now);
   return true;
@@ -123,7 +129,8 @@ const charge = async (
   const payment = await asaas.createPayment({
     customer,
     valueCents,
-    dueDate: today,
+    // The boleto takes days to clear; the access counts from the payment day, not from this date.
+    dueDate: shiftDate(today, { days: BOLETO_DUE_DAYS }),
     externalReference: plan,
     successUrl,
   });

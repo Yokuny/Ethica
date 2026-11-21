@@ -23,7 +23,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 | Validar a busca do Datajud com a chave real | Ajustar campos da consulta e mapeamento (AD-105); adiado (AD-145) |
 | IA: leitura do PDF da ata, redação do laudo e transcrição do áudio | Spec própria com provedor, limite por tenant e LGPD (AD-114, AD-124); adiado (AD-145) |
 | Monitoramento de movimentos no Datajud | Alertar nova movimentação nas perícias e oportunidades |
-| Pagamento dentro do Ethica (cartão pela API, PIX com QR Code, boleto) em vez da fatura do Asaas | Precisa de spec: dados do cartão passam pela API (`cadastro-checkout`) |
+| Cartão dentro do Ethica em vez da fatura do Asaas | Dados do cartão passariam pela API (PCI-DSS); PIX e boleto já são no Ethica (AD-251, `cadastro-checkout`) |
 | Assinatura pelo Ethica: trocar de plano, cancelar e ver faturas | Hoje pelo suporte (`cadastro-checkout`, AD-230) |
 | Trocar o e-mail da conta | `acesso-email` |
 | PDF escaneado (sem texto): OCR | Ata na importação e anexo do laudo (`importacao-processos`, `anexar-laudo`) |

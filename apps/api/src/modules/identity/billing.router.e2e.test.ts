@@ -343,5 +343,25 @@ describe('billing routes (AD-230)', () => {
 
     asaas.getPayment.mockResolvedValueOnce({ id: 'pay_x', customer: 'cus_other', dueDate: '2026-11-21' } as never);
     expect((await payment('pix', 'pay_x')).status).toBe(404);
+    // Only a charge id goes into the Asaas URL.
+    expect((await payment('pix', 'sub_1%2F..')).status).toBe(400);
+  });
+
+  it('a subscription renewal without the webhook is found too, after the first payment (CHK-14)', async () => {
+    const { tenant, cookie } = await seed();
+    const asaas = fakeAsaas();
+    const app = buildTestApp(asaas);
+    await request(app).post('/billing/pay').set('Cookie', cookie).set('User-Agent', DEVICE).send({ plan: 'monthly' });
+    // First month paid long ago and over: paidAt set, nothing pending, the subscription still alive.
+    await Tenant.updateOne(
+      { _id: tenant._id },
+      { $set: { 'billing.paidAt': new Date('2026-10-01') }, $unset: { 'billing.pendingSince': 1 } },
+    );
+    asaas.listPayments.mockResolvedValue([
+      { id: 'pay_r', customer: 'cus_1', subscription: 'sub_1', status: 'CONFIRMED', dueDate: '2026-11-18' },
+    ]);
+
+    const view = await request(app).get('/billing').set('Cookie', cookie).set('User-Agent', DEVICE);
+    expect(view.body.data.accessUntil).toBe(dayStart('2026-12-23').toISOString());
   });
 });
