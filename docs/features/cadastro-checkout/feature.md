@@ -68,6 +68,7 @@ Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "ind
 - 2026-11-20 — Página de planos no modelo da perita (`pricing.html`, shadcnblocks; o arquivo de referência fica fora do commit): só o carrossel ficou; sai o cabeçalho com trilha e o bloco Assinar o Mensal; entram a barra com a marca e Sair, a tabela "Compare os planos" com preço, posicionamento e Pagar no topo de cada coluna e linhas em grupos (Plano, No dia a dia), "Precisa de ajuda?" ao lado das perguntas e o rodapé com a promessa do produto.
 - 2026-11-21 — O rodapé da tela de planos passa ao layout de todas as páginas sem login, com links para as páginas públicas (AD-248, `paginas-publicas`); as perguntas de planos vão para `apps/web/src/routes/_public/@consts/faq.ts`, também usadas pelo Suporte.
 - 2026-11-21 — Página de planos no modelo da Vercel com o carrossel mantido: Teste, Mensal e Anual com preço por mês e cobrança, Mensalidade avulsa como opção de boleto/PIX dentro do Mensal, destaques comuns e comparação em grupos com cabeçalho fixo (AD-250).
+- 2026-11-21 — Cartão do Teste com R$ 60,00 riscado antes dos R$ 6,00 e o selo "90% de desconto", calculado dos preços (AD-250).
 
 ## Referências
 

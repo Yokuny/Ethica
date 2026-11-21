@@ -81,6 +81,8 @@ describe('BillingPage (AD-230)', () => {
 
     // Price per month on every card: the trial is the first month (AD-247), the yearly against the monthly.
     expect(screen.getByText(/Economize R\$\s108,00/)).toBeInTheDocument();
+    expect(screen.getByText(/^R\$\s60,00$/, { selector: '.line-through' })).toBeInTheDocument();
+    expect(screen.getByText('90% de desconto')).toBeInTheDocument();
     expect(screen.getAllByText(/R\$\s612,00 cobrados uma vez por ano/)).toHaveLength(2);
     expect(screen.getByText(/R\$\s51,00 por mês em vez de R\$\s60,00/)).toBeInTheDocument();
     // Monthly: everything of the trial plus the team.

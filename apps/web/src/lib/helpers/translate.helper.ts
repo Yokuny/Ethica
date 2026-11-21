@@ -222,6 +222,7 @@ const translations: Record<string, string> = {
   billing_benefit_renewal: 'Renova sozinho no cartão: sem boleto para lembrar e sem acesso interrompido',
   billing_benefit_one_payment: 'Um pagamento só para o ano inteiro',
   billing_instead_of: 'em vez de',
+  billing_discount: 'de desconto',
   billing_prices_note: 'Preços em reais, cobrados pelo Asaas.',
   billing_charge: 'Cobrança',
   billing_group_price: 'Preço e pagamento',

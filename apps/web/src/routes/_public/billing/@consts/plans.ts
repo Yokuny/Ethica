@@ -21,6 +21,8 @@ export type PlanOption = {
   tagline: string;
   // The big number of the card: what the plan costs per month, so the plans compare at a glance.
   perMonthCents: number;
+  // Price shown struck through before it: what the same month costs on the monthly.
+  referenceCents?: number;
   unit: string;
   // How the price is charged, under the number.
   charge: string;
@@ -46,6 +48,7 @@ export const PLAN_OPTIONS: PlanOption[] = [
     name: t('billing_trial'),
     tagline: t('billing_trial_tagline'),
     perMonthCents: BILLING_PLAN_CENTS.trial,
+    referenceCents: MONTHLY,
     unit: t('billing_trial_period').toLowerCase(),
     charge: t('billing_trial_charge'),
     cta: t('billing_trial_cta'),

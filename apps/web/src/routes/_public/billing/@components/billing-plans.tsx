@@ -76,6 +76,11 @@ export function BillingPlans({ options, paying, onPay }: BillingPlansProps) {
                       {option.plan === 'monthly' && (
                         <Badge variant={centered ? 'default' : 'neutral'}>{t('recommended')}</Badge>
                       )}
+                      {option.referenceCents && (
+                        <Badge variant={centered ? 'success' : 'neutral'}>
+                          {`${Math.round((1 - option.perMonthCents / option.referenceCents) * 100)}% ${t('billing_discount')}`}
+                        </Badge>
+                      )}
                       {option.plan === 'yearly' && (
                         <Badge variant={centered ? 'success' : 'neutral'}>
                           {`${t('billing_save')} ${formatMoney(YEARLY_SAVING_CENTS)}`}
@@ -83,7 +88,12 @@ export function BillingPlans({ options, paying, onPay }: BillingPlansProps) {
                       )}
                     </div>
                     <div className="flex flex-col gap-1">
-                      <div className="flex items-baseline gap-1.5">
+                      <div className="flex flex-wrap items-baseline gap-1.5">
+                        {option.referenceCents && (
+                          <ItemDescription className="text-lg line-through">
+                            {formatMoney(option.referenceCents)}
+                          </ItemDescription>
+                        )}
                         <ItemTitle className="text-4xl font-semibold tracking-tight">
                           {formatMoney(option.perMonthCents)}
                         </ItemTitle>
