@@ -78,6 +78,11 @@ describe('BillingPage (AD-230)', () => {
       screen.getAllByRole('button', { name: /^Pagar / }).map((button) => button.getAttribute('aria-label')),
     ).toEqual(['Pagar Teste', 'Pagar Mensal', 'Pagar Anual', 'Pagar Mensalidade avulsa']);
 
+    // Sales offer: trial against 7 days of the monthly plan, yearly against 12 months.
+    expect(screen.getByText(/Economize R\$\s8,00/)).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s720,00/)).toHaveClass('line-through');
+    expect(screen.getByText(/Equivale a R\$\s51,00 por mês/)).toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: 'Pagar Anual' }));
     await waitFor(() => expect(postMock).toHaveBeenCalledWith('/billing/pay', { plan: 'yearly' }));
     expect(assign).toHaveBeenCalledWith('https://asaas/i/1');

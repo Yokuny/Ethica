@@ -63,6 +63,7 @@ Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "ind
 - 2026-11-20 — Escritório com CPF ou CNPJ, no cadastro e pela plataforma, com os dígitos conferidos (AD-244, supersede a AD-144).
 - 2026-11-20 — Tela de planos vira `/billing` com os preços no design da perita: seletor Mensal/Anual e carrossel 3D (AD-245). O `.env` local ganha o sandbox do Asaas.
 - 2026-11-20 — Sem seletor Mensal/Anual e sem giro 3D: quatro cards (Teste, Mensal, Anual, Avulsa), laterais só esmaecidos, borda fina e sem sombra (AD-246, supersede a parte visual da AD-245).
+- 2026-11-20 — Cards com argumento de venda: Teste e Anual com o preço de referência riscado e "Economize" (7 dias e 12 meses do Mensal, calculados de `BILLING_PLAN_CENTS`), o Anual com o valor por mês; no topo, o meio de pagamento e a vantagem dele; embaixo, o que o Ethica muda no dia do perito (lista igual nos quatro, do `PRODUCT.md`). Clicar num card lateral o traz ao centro; os laterais só atenuam borda e ícones.
 
 ## Referências
 

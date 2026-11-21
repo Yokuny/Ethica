@@ -1,4 +1,5 @@
 import { BILLING_PLAN_CENTS, type BillingPlan } from '@ethica/contracts';
+import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Card, CardContent, CardHeader } from '@ethica/ui/components/card';
 import {
@@ -16,7 +17,7 @@ import { BadgeCheckIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { PLAN_OPTIONS } from '../@consts/plans.js';
+import { BENEFITS, PLAN_OPTIONS } from '../@consts/plans.js';
 
 type BillingPlansProps = {
   trialAvailable: boolean;
@@ -45,57 +46,97 @@ export function BillingPlans({ trialAvailable, paying, onPay }: BillingPlansProp
       <CarouselContent>
         {options.map((option, index) => {
           const centered = selected === index;
+          const priceCents = BILLING_PLAN_CENTS[option.plan];
+          const MethodIcon = option.methodIcon;
           return (
             <CarouselItem key={option.plan} className="sm:basis-[60%] md:basis-[45%] lg:basis-[34%]">
-              <Card
-                className={cn(
-                  'h-full border shadow-none transition-[opacity,border-color] duration-200',
-                  centered ? 'border-foreground/40' : 'opacity-50',
-                )}
-              >
-                <CardHeader>
-                  <ItemTitle // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
-                    render={<h3 />}
-                    className="text-base font-medium"
-                  >
-                    {option.name}
-                  </ItemTitle>
-                  <div className="mt-4">
-                    <ItemTitle className="text-4xl font-semibold">
-                      {formatMoney(BILLING_PLAN_CENTS[option.plan])}
-                    </ItemTitle>
-                    <ItemDescription>{option.period}</ItemDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3 pt-2">
-                  <ItemDescription className="line-clamp-3">{option.description}</ItemDescription>
-                  {onPay && (
-                    <Button
-                      className="mt-6 w-full"
-                      size="lg"
-                      variant={centered ? 'default' : 'outline'}
-                      disabled={Boolean(paying)}
-                      aria-label={`${t('pay')} ${option.name}`}
-                      onClick={() => onPay(option.plan)}
-                    >
-                      {t('pay')}
-                    </Button>
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: a pointer shortcut; the keyboard moves between plans with the arrows and ←/→ */}
+              <div className="h-full" onClick={() => !centered && api?.scrollTo(index)}>
+                <Card
+                  className={cn(
+                    'h-full border shadow-none transition-colors duration-200',
+                    centered ? 'border-foreground/40' : 'cursor-pointer border-border/60',
                   )}
-                  <div className="my-6 flex items-center gap-3">
-                    <Separator className="flex-1" />
-                    <ItemDescription className="text-xs uppercase tracking-wide">{t('includes')}</ItemDescription>
-                    <Separator className="flex-1" />
-                  </div>
-                  <ul className="space-y-4">
-                    {option.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
-                        <BadgeCheckIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden />
-                        <ItemDescription className="line-clamp-none">{feature}</ItemDescription>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between gap-2">
+                      <ItemTitle // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
+                        render={<h3 />}
+                        className="text-base font-medium"
+                      >
+                        {option.name}
+                      </ItemTitle>
+                      {option.referenceCents && (
+                        <Badge variant={centered ? 'success' : 'neutral'}>
+                          {`${t('billing_save')} ${formatMoney(option.referenceCents - priceCents)}`}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      {/* The struck line keeps its height on every card, so the prices line up. */}
+                      <ItemDescription className={cn('line-through', !option.referenceCents && 'invisible')}>
+                        {option.referenceCents ? formatMoney(option.referenceCents) : ' '}
+                      </ItemDescription>
+                      <ItemTitle className="text-4xl font-semibold">{formatMoney(priceCents)}</ItemTitle>
+                      <ItemDescription>
+                        {option.perMonthCents
+                          ? `${option.period} · ${t('billing_equals_to')} ${formatMoney(option.perMonthCents)} ${t('per_month').toLowerCase()}`
+                          : option.period}
+                      </ItemDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-6">
+                    <div
+                      className={cn(
+                        'flex items-start gap-3 rounded-md border p-3 transition-colors',
+                        centered ? 'border-border bg-muted/50' : 'border-border/60',
+                      )}
+                    >
+                      <MethodIcon
+                        className={cn('mt-0.5 size-4 shrink-0', centered ? 'text-foreground' : 'text-muted-foreground')}
+                        aria-hidden
+                      />
+                      <div className="flex flex-col gap-1">
+                        <ItemTitle>{option.method}</ItemTitle>
+                        <ItemDescription className="line-clamp-none">{option.advantage}</ItemDescription>
+                      </div>
+                    </div>
+                    {onPay && (
+                      <Button
+                        className="w-full"
+                        size="lg"
+                        variant={centered ? 'default' : 'outline'}
+                        disabled={Boolean(paying)}
+                        aria-label={`${t('pay')} ${option.name}`}
+                        onClick={() => onPay(option.plan)}
+                      >
+                        {t('pay')}
+                      </Button>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <Separator className={cn('flex-1', !centered && 'opacity-60')} />
+                      <ItemDescription className="text-xs uppercase tracking-wide">
+                        {t('billing_benefits_title')}
+                      </ItemDescription>
+                      <Separator className={cn('flex-1', !centered && 'opacity-60')} />
+                    </div>
+                    <ul className="space-y-3">
+                      {BENEFITS.map((benefit) => (
+                        <li key={benefit} className="flex items-start gap-3">
+                          <BadgeCheckIcon
+                            className={cn(
+                              'size-5 shrink-0',
+                              centered ? 'text-status-success-indicator' : 'text-muted-foreground/60',
+                            )}
+                            aria-hidden
+                          />
+                          <ItemDescription className="line-clamp-none text-foreground">{benefit}</ItemDescription>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
             </CarouselItem>
           );
         })}
