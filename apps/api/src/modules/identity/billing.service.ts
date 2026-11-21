@@ -2,6 +2,9 @@ import crypto from 'node:crypto';
 import {
   BILLING_GRACE_DAYS,
   BILLING_PLAN_CENTS,
+  type BillingCharge,
+  type BillingPaymentQuery,
+  type BillingPaymentView,
   type BillingPlan,
   type BillingView,
   type TenantUser,
@@ -11,7 +14,7 @@ import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { type AsaasCharge, type AsaasClient, AsaasUnavailableError } from '../../providers/asaasClient.js';
 import * as authRepository from './auth.repository.js';
 import * as billingRepository from './billing.repository.js';
-import { type AsaasWebhook, asaasWebhookSchema, type BillingTenant } from './billing.schema.js';
+import { type AsaasPaymentData, asaasPaymentSchema, asaasWebhookSchema, type BillingTenant } from './billing.schema.js';
 
 // AD-230: the office pays in Asaas; each confirmed payment extends `Tenant.accessUntil`.
 
@@ -31,8 +34,46 @@ const findTenant = async (tenantId: string): Promise<BillingTenant> => {
   return tenant;
 };
 
-export const getBillingView = async (tenantUser: TenantUser): Promise<BillingView> => {
-  const tenant = await findTenant(tenantUser.tenant as string);
+const PAID_STATUSES = ['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH'];
+
+// CHK-14: when the plans screen may be waiting on a payment the webhook did not bring (dev has no public URL;
+// production may have it late). Only with the access closed and something to wait for: the office never paid,
+// or created a charge in the last days. At most one Asaas call per office every 30 s.
+const CHECK_EVERY_MS = 30_000;
+const PENDING_MS = 7 * 24 * 3600_000;
+const lastCheck = new Map<string, number>();
+
+const shouldCheck = (tenant: BillingTenant, now: number): boolean => {
+  const billing = tenant.billing;
+  if (!billing?.customerId || (tenant.accessUntil && tenant.accessUntil.getTime() > now)) return false;
+  const waiting = !billing.paidAt || (billing.pendingSince && now - billing.pendingSince.getTime() < PENDING_MS);
+  if (!waiting || now - (lastCheck.get(tenant.id) ?? 0) < CHECK_EVERY_MS) return false;
+  lastCheck.set(tenant.id, now);
+  return true;
+};
+
+// The latest charges of the office in Asaas, each paid one applied as the webhook would. Asaas failing
+// leaves the screen as it is: the next check (or the webhook) tries again.
+const checkPayments = async (asaas: AsaasClient, tenant: BillingTenant): Promise<boolean> => {
+  let granted = false;
+  try {
+    for (const raw of await asaas.listPayments(tenant.billing?.customerId as string)) {
+      const payment = asaasPaymentSchema.safeParse(raw);
+      if (payment.success && PAID_STATUSES.includes(payment.data.status ?? '')) {
+        granted = (await grant(tenant, payment.data)) === undefined || granted;
+      }
+    }
+  } catch (e) {
+    if (!(e instanceof AsaasUnavailableError)) throw e;
+  }
+  return granted;
+};
+
+export const getBillingView = async (deps: { asaas?: AsaasClient }, tenantUser: TenantUser): Promise<BillingView> => {
+  let tenant = await findTenant(tenantUser.tenant as string);
+  if (deps.asaas && shouldCheck(tenant, Date.now()) && (await checkPayments(deps.asaas, tenant))) {
+    tenant = await findTenant(tenant.id);
+  }
   const firstPayment = !tenant.billing?.paidAt;
   return {
     firstPayment,
@@ -77,7 +118,7 @@ const charge = async (
     });
     // Saved before the invoice is fetched: a failure there still leaves the live subscription known.
     await billingRepository.updateBilling(tenant.id, { subscriptionId: id, subscriptionPlan: plan });
-    return { id, invoiceUrl: await asaas.firstInvoiceUrl(id) };
+    return asaas.firstPayment(id);
   }
   const payment = await asaas.createPayment({
     customer,
@@ -95,25 +136,70 @@ const charge = async (
   return payment;
 };
 
-// Returns the Asaas invoice the person pays on; the access comes later, by webhook.
+// Returns the charge: the web opens the Asaas invoice for the card, its own screen for PIX and boleto (AD-251).
+// The access comes later, by webhook or by the check of the plans screen.
 export const pay = async (
   deps: { asaas?: AsaasClient; returnUrl?: string },
   tenantUser: TenantUser,
   plan: BillingPlan,
-): Promise<{ url: string }> => {
+): Promise<BillingCharge> => {
   if (!deps.asaas) throw new CustomError('billing_not_configured', 503);
   const tenant = await findTenant(tenantUser.tenant as string);
-  if (plan === 'trial') {
-    if (tenant.billing?.paidAt) throw new CustomError('trial_unavailable', 409);
-    // Trial once: a second click returns the same invoice.
-    if (tenant.billing?.trialInvoiceUrl) return { url: tenant.billing.trialInvoiceUrl };
-  }
+  if (plan === 'trial' && tenant.billing?.paidAt) throw new CustomError('trial_unavailable', 409);
   try {
-    const customer = await customerOf(deps.asaas, tenant, tenantUser.user);
-    const { invoiceUrl } = await charge(deps.asaas, tenant, customer, plan, deps.returnUrl);
-    return { url: invoiceUrl };
+    // Trial once: a second click returns the same charge.
+    const reused =
+      plan === 'trial' && tenant.billing?.trialPaymentId && tenant.billing.trialInvoiceUrl
+        ? { id: tenant.billing.trialPaymentId, invoiceUrl: tenant.billing.trialInvoiceUrl }
+        : undefined;
+    const { id, invoiceUrl } =
+      reused ??
+      (await charge(deps.asaas, tenant, await customerOf(deps.asaas, tenant, tenantUser.user), plan, deps.returnUrl));
+    await billingRepository.updateBilling(tenant.id, { pendingSince: new Date() });
+    return { paymentId: id, url: invoiceUrl };
   } catch (e) {
     if (e instanceof AsaasUnavailableError) throw new CustomError('billing_unavailable', 502);
+    throw e;
+  }
+};
+
+// CHK-12, CHK-13: the PIX or boleto of a charge of this office, for the Ethica screen.
+export const getPaymentView = async (
+  deps: { asaas?: AsaasClient },
+  tenantUser: TenantUser,
+  id: string,
+  { method }: BillingPaymentQuery,
+): Promise<BillingPaymentView> => {
+  if (!deps.asaas) throw new CustomError('billing_not_configured', 503);
+  const asaas = deps.asaas;
+  const tenant = await findTenant(tenantUser.tenant as string);
+  try {
+    const payment = asaasPaymentSchema.safeParse(await asaas.getPayment(id));
+    if (!payment.success || payment.data.customer !== tenant.billing?.customerId) {
+      throw new CustomError('not_found', 404);
+    }
+    const { value, dueDate, status, bankSlipUrl } = payment.data;
+    const view: BillingPaymentView = {
+      id,
+      valueCents: Math.round((value ?? 0) * 100),
+      dueDate,
+      paid: PAID_STATUSES.includes(status ?? ''),
+    };
+    if (view.paid) return view;
+    if (method === 'boleto') {
+      const { identificationField } = await asaas.boletoLine(id);
+      return { ...view, boleto: { line: identificationField, pdfUrl: bankSlipUrl ?? '' } };
+    }
+    // Asaas refuses the QR Code when the account has no Pix key.
+    const qrCode = await asaas.pixQrCode(id).catch((e: unknown) => {
+      if (e instanceof AsaasUnavailableError && e.status === 400) throw new CustomError('pix_unavailable', 502);
+      throw e;
+    });
+    return { ...view, pix: { image: qrCode.encodedImage, code: qrCode.payload, expiresAt: qrCode.expirationDate } };
+  } catch (e) {
+    if (e instanceof AsaasUnavailableError) {
+      throw e.status === 404 ? new CustomError('not_found', 404) : new CustomError('billing_unavailable', 502);
+    }
     throw e;
   }
 };
@@ -132,7 +218,7 @@ const REVOKED_EVENTS = ['PAYMENT_REFUNDED', 'PAYMENT_CHARGEBACK_REQUESTED'];
 // Plan and starting date of a payment of this office, or the reason it is not an Ethica charge.
 // The date is fixed in the payment, so the same event twice gives the same access.
 const periodOf = (
-  payment: NonNullable<AsaasWebhook['payment']>,
+  payment: AsaasPaymentData,
   billing: NonNullable<BillingTenant['billing']>,
   granting: boolean,
 ): { plan: BillingPlan; from?: string | null } | string => {
@@ -165,6 +251,19 @@ const ignore = (reason: string, body: unknown) => {
   );
 };
 
+// Applies a paid charge of the office; returns why it grants nothing. Only extends: an old payment seen again
+// (the check reads the latest charges) changes nothing, and keeps pending what may still be paid.
+const grant = async (tenant: BillingTenant, payment: AsaasPaymentData): Promise<string | undefined> => {
+  if (!tenant.billing) return 'unknown_customer';
+  const period = periodOf(payment, tenant.billing, true);
+  if (typeof period === 'string') return period;
+  if (!period.from) return 'no_payment_date';
+  const accessUntil = accessUntilFor(period.plan, period.from);
+  if (tenant.accessUntil && accessUntil <= tenant.accessUntil) return 'already_applied';
+  await billingRepository.extendAccess(tenant.id, accessUntil);
+  return undefined;
+};
+
 // CHK-09: unknown event, customer or charge is ignored without error (Asaas stops the queue on errors).
 export const receiveWebhook = async (body: unknown): Promise<void> => {
   const event = (body as { event?: string } | null)?.event ?? '';
@@ -175,13 +274,15 @@ export const receiveWebhook = async (body: unknown): Promise<void> => {
   const { payment } = parsed.data;
   const tenant = await billingRepository.findTenantByCustomer(payment.customer);
   if (!tenant?.billing) return ignore('unknown_customer', body);
-  const period = periodOf(payment, tenant.billing, granting);
-  if (typeof period === 'string') return ignore(period, body);
-  if (!period.from) return ignore('no_payment_date', body);
   if (granting) {
-    await billingRepository.extendAccess(tenant.id, accessUntilFor(period.plan, period.from));
+    const reason = await grant(tenant, payment);
+    // The same event twice is expected (at least once delivery), not worth a log.
+    if (reason && reason !== 'already_applied') ignore(reason, body);
     return;
   }
+  const period = periodOf(payment, tenant.billing, false);
+  if (typeof period === 'string') return ignore(period, body);
+  if (!period.from) return ignore('no_payment_date', body);
   // Back to the start of the period this payment paid; a won chargeback dispute is paid again.
   await billingRepository.revokeAccess(tenant.id, wallClockToUtc(period.from, '00:00'));
 };

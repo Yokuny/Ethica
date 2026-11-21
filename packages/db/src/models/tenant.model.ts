@@ -11,6 +11,7 @@ export type TenantBilling = {
   trialPaymentId?: string;
   trialInvoiceUrl?: string;
   paidAt?: Date;
+  pendingSince?: Date;
 };
 
 export interface TenantDocument {
@@ -69,6 +70,8 @@ const tenantSchema = new Schema<TenantDocument>(
           trialPaymentId: String,
           trialInvoiceUrl: String,
           paidAt: Date,
+          // AD-251: a charge was created and may be paid; the plans screen checks Asaas while it is set.
+          pendingSince: Date,
         },
         { _id: false },
       ),

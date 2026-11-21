@@ -26,6 +26,7 @@ describe('schemaRegistry', () => {
         'signupSchema',
         'tenantDocumentSchema',
         'billingPaySchema',
+        'billingPaymentQuerySchema',
         'contactMessageSchema',
         'idSchema',
         'inviteTokenParamSchema',

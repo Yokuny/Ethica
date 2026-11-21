@@ -50,6 +50,7 @@ import { Route as PrivateExpertCasesAddIndexRouteImport } from './routes/_privat
 import { Route as PrivateAdminUsersIndexRouteImport } from './routes/_private/_admin/users/index';
 import { Route as PrivateAdminOfficeIndexRouteImport } from './routes/_private/_admin/office/index';
 import { Route as PrivateAdminActivityLogIndexRouteImport } from './routes/_private/_admin/activity-log/index';
+import { Route as PublicBillingPaymentPaymentIdIndexRouteImport } from './routes/_public/billing/payment/$paymentId/index';
 import { Route as PrivateFieldInspectionsDetailsIndexRouteImport } from './routes/_private/field/inspections/details/index';
 import { Route as PrivateExpertReportsTemplatesDetailsIndexRouteImport } from './routes/_private/expert-reports/templates/details/index';
 import { Route as PrivateAdminUsersAddIndexRouteImport } from './routes/_private/_admin/users/add/index';
@@ -270,6 +271,12 @@ const PrivateAdminActivityLogIndexRoute =
     path: '/activity-log/',
     getParentRoute: () => PrivateAdminRouteRoute,
   } as any);
+const PublicBillingPaymentPaymentIdIndexRoute =
+  PublicBillingPaymentPaymentIdIndexRouteImport.update({
+    id: '/billing/payment/$paymentId/',
+    path: '/billing/payment/$paymentId/',
+    getParentRoute: () => PublicRouteRoute,
+  } as any);
 const PrivateFieldInspectionsDetailsIndexRoute =
   PrivateFieldInspectionsDetailsIndexRouteImport.update({
     id: '/field/inspections/details/',
@@ -331,6 +338,7 @@ export interface FileRoutesByFullPath {
   '/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
   '/field/inspections/details/': typeof PrivateFieldInspectionsDetailsIndexRoute;
+  '/billing/payment/$paymentId/': typeof PublicBillingPaymentPaymentIdIndexRoute;
 }
 export interface FileRoutesByTo {
   '/': typeof PrivateIndexRoute;
@@ -374,6 +382,7 @@ export interface FileRoutesByTo {
   '/users/add': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
   '/field/inspections/details': typeof PrivateFieldInspectionsDetailsIndexRoute;
+  '/billing/payment/$paymentId': typeof PublicBillingPaymentPaymentIdIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -421,6 +430,7 @@ export interface FileRoutesById {
   '/_private/_admin/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/_private/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
   '/_private/field/inspections/details/': typeof PrivateFieldInspectionsDetailsIndexRoute;
+  '/_public/billing/payment/$paymentId/': typeof PublicBillingPaymentPaymentIdIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -465,7 +475,8 @@ export interface FileRouteTypes {
     | '/prospecting/search/'
     | '/users/add/'
     | '/expert-reports/templates/details/'
-    | '/field/inspections/details/';
+    | '/field/inspections/details/'
+    | '/billing/payment/$paymentId/';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
@@ -508,7 +519,8 @@ export interface FileRouteTypes {
     | '/prospecting/search'
     | '/users/add'
     | '/expert-reports/templates/details'
-    | '/field/inspections/details';
+    | '/field/inspections/details'
+    | '/billing/payment/$paymentId';
   id:
     | '__root__'
     | '/_private'
@@ -554,7 +566,8 @@ export interface FileRouteTypes {
     | '/_private/prospecting/search/'
     | '/_private/_admin/users/add/'
     | '/_private/expert-reports/templates/details/'
-    | '/_private/field/inspections/details/';
+    | '/_private/field/inspections/details/'
+    | '/_public/billing/payment/$paymentId/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -851,6 +864,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateAdminActivityLogIndexRouteImport;
       parentRoute: typeof PrivateAdminRouteRoute;
     };
+    '/_public/billing/payment/$paymentId/': {
+      id: '/_public/billing/payment/$paymentId/';
+      path: '/billing/payment/$paymentId';
+      fullPath: '/billing/payment/$paymentId/';
+      preLoaderRoute: typeof PublicBillingPaymentPaymentIdIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
     '/_private/field/inspections/details/': {
       id: '/_private/field/inspections/details/';
       path: '/field/inspections/details';
@@ -974,6 +994,7 @@ interface PublicRouteRouteChildren {
   PublicSecurityIndexRoute: typeof PublicSecurityIndexRoute;
   PublicSupportIndexRoute: typeof PublicSupportIndexRoute;
   PublicTermsIndexRoute: typeof PublicTermsIndexRoute;
+  PublicBillingPaymentPaymentIdIndexRoute: typeof PublicBillingPaymentPaymentIdIndexRoute;
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
@@ -986,6 +1007,8 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicSecurityIndexRoute: PublicSecurityIndexRoute,
   PublicSupportIndexRoute: PublicSupportIndexRoute,
   PublicTermsIndexRoute: PublicTermsIndexRoute,
+  PublicBillingPaymentPaymentIdIndexRoute:
+    PublicBillingPaymentPaymentIdIndexRoute,
 };
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(

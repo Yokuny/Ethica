@@ -9,7 +9,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { env } from '../../config/env.config.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
-import type { AsaasClient } from '../../providers/asaasClient.js';
+import { type AsaasClient, type AsaasPayment, AsaasUnavailableError } from '../../providers/asaasClient.js';
 import { buildAuthDeps } from './auth.deps.js';
 import { createBillingRouter } from './billing.router.js';
 
@@ -28,8 +28,19 @@ const fakeAsaas = () => {
       n += 1;
       return `sub_${n}`;
     }),
-    firstInvoiceUrl: vi.fn(async (id: string) => `https://asaas/i/${id}`),
+    firstPayment: vi.fn(async (id: string) => ({ id: `${id}_pay`, invoiceUrl: `https://asaas/i/${id}` })),
     deleteSubscription: vi.fn(async () => undefined),
+    getPayment: vi.fn(async (id: string) => ({
+      id,
+      customer: 'cus_1',
+      status: 'PENDING',
+      value: 6,
+      dueDate: '2026-11-21',
+      bankSlipUrl: 'https://asaas/b/1',
+    })),
+    listPayments: vi.fn(async (): Promise<AsaasPayment[]> => []),
+    pixQrCode: vi.fn(async () => ({ encodedImage: 'img', payload: 'pix-code', expirationDate: '2026-11-22 23:59:59' })),
+    boletoLine: vi.fn(async () => ({ identificationField: '4619111' })),
   } satisfies AsaasClient;
 };
 
@@ -145,8 +156,9 @@ describe('billing routes (AD-230)', () => {
       request(app).post('/billing/pay').set('Cookie', cookie).set('User-Agent', DEVICE).send({ plan });
 
     const first = await pay('trial');
-    expect(first.body.data).toEqual({ url: 'https://asaas/i/pay_1' });
-    expect((await pay('trial')).body.data).toEqual({ url: 'https://asaas/i/pay_1' });
+    expect(first.body.data).toEqual({ paymentId: 'pay_1', url: 'https://asaas/i/pay_1' });
+    expect((await pay('trial')).body.data).toEqual({ paymentId: 'pay_1', url: 'https://asaas/i/pay_1' });
+    expect((await Tenant.findById(tenant._id).lean())?.billing?.pendingSince).toBeInstanceOf(Date);
     expect(asaas.createCustomer).toHaveBeenCalledTimes(1);
     expect(asaas.createPayment).toHaveBeenCalledTimes(1);
 
@@ -154,6 +166,8 @@ describe('billing routes (AD-230)', () => {
     expect(paid.status).toBe(200);
     const saved = await Tenant.findById(tenant._id).lean();
     expect(saved?.accessUntil).toEqual(dayStart('2026-12-25'));
+    // Paid: nothing pending, the plans screen stops checking Asaas (AD-251).
+    expect(saved?.billing?.pendingSince).toBeUndefined();
 
     const again = await pay('trial');
     expect(again.status).toBe(409);
@@ -169,7 +183,7 @@ describe('billing routes (AD-230)', () => {
 
     await pay('monthly');
     const yearly = await pay('yearly');
-    expect(yearly.body.data).toEqual({ url: 'https://asaas/i/sub_2' });
+    expect(yearly.body.data).toEqual({ paymentId: 'sub_2_pay', url: 'https://asaas/i/sub_2' });
     expect(asaas.deleteSubscription).toHaveBeenCalledWith('sub_1');
 
     // A charge of the replaced subscription grants nothing, and is logged.
@@ -271,5 +285,63 @@ describe('billing routes (AD-230)', () => {
     const odd = await request(app).post('/billing/webhook').set('asaas-access-token', TOKEN).send({ hello: 1 });
     expect(odd.status).toBe(200);
     expect((await Tenant.findById(tenant._id).lean())?.billing?.paidAt).toBeUndefined();
+  });
+
+  it('without the webhook, the plans screen finds the paid charge in Asaas, at most once every 30 s (CHK-14, AD-251)', async () => {
+    const { tenant, cookie } = await seed();
+    const asaas = fakeAsaas();
+    const app = buildTestApp(asaas);
+    await request(app).post('/billing/pay').set('Cookie', cookie).set('User-Agent', DEVICE).send({ plan: 'trial' });
+    const view = () => request(app).get('/billing').set('Cookie', cookie).set('User-Agent', DEVICE);
+
+    // Asaas down: the screen still answers.
+    asaas.listPayments.mockRejectedValueOnce(new AsaasUnavailableError(500));
+    expect((await view()).body.data.accessUntil).toBeDefined();
+    expect((await view()).status).toBe(200);
+    expect(asaas.listPayments).toHaveBeenCalledTimes(1);
+
+    // Paid after newer charges were created (the dev account case); the next check, 30 s later, opens it.
+    asaas.listPayments.mockResolvedValue([
+      { id: 'pay_3', customer: 'cus_1', status: 'PENDING', dueDate: '2026-11-21' },
+      { id: 'pay_1', customer: 'cus_1', status: 'CONFIRMED', dueDate: '2026-11-21', confirmedDate: '2026-11-21' },
+    ]);
+    vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 31_000);
+    const opened = await view();
+    vi.mocked(Date.now).mockRestore();
+    expect(opened.body.data).toMatchObject({ firstPayment: false, accessUntil: dayStart('2026-12-26').toISOString() });
+    const saved = await Tenant.findById(tenant._id).lean();
+    expect(saved?.billing?.pendingSince).toBeUndefined();
+    expect(asaas.listPayments).toHaveBeenCalledWith('cus_1');
+  });
+
+  it('PIX and boleto of a charge of the office for the Ethica screen; another office or no Pix key refused (CHK-12, CHK-13)', async () => {
+    const { cookie } = await seed();
+    const asaas = fakeAsaas();
+    const app = buildTestApp(asaas);
+    await request(app)
+      .post('/billing/pay')
+      .set('Cookie', cookie)
+      .set('User-Agent', DEVICE)
+      .send({ plan: 'single_month' });
+    const payment = (method: string, id = 'pay_1') =>
+      request(app).get(`/billing/payments/${id}?method=${method}`).set('Cookie', cookie).set('User-Agent', DEVICE);
+
+    expect((await payment('pix')).body.data).toEqual({
+      id: 'pay_1',
+      valueCents: 600,
+      dueDate: '2026-11-21',
+      paid: false,
+      pix: { image: 'img', code: 'pix-code', expiresAt: '2026-11-22 23:59:59' },
+    });
+    expect((await payment('boleto')).body.data.boleto).toEqual({ line: '4619111', pdfUrl: 'https://asaas/b/1' });
+    expect((await payment('card')).status).toBe(400);
+
+    asaas.pixQrCode.mockRejectedValueOnce(new AsaasUnavailableError(400));
+    const noKey = await payment('pix');
+    expect(noKey.status).toBe(502);
+    expect(noKey.body.message).toBe('pix_unavailable');
+
+    asaas.getPayment.mockResolvedValueOnce({ id: 'pay_x', customer: 'cus_other', dueDate: '2026-11-21' } as never);
+    expect((await payment('pix', 'pay_x')).status).toBe(404);
   });
 });

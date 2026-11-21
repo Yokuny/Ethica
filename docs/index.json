@@ -52,7 +52,9 @@
       "spec": [
         ".specs/features/cadastro-checkout"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/cadastro-checkout/plans/2026-11-21-pix-boleto-nativo.md"
+      ],
       "doc": "features/cadastro-checkout/feature.md"
     },
     {
@@ -2149,6 +2151,12 @@
     {
       "id": "AD-250",
       "decisao": "A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p",
+      "data": "2026-11-21",
+      "status": "active"
+    },
+    {
+      "id": "AD-251",
+      "decisao": "PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e dé",
       "data": "2026-11-21",
       "status": "active"
     }

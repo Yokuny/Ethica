@@ -19,8 +19,9 @@ spec: [.specs/features/cadastro-checkout]
 ## O que foi feito
 
 - Entrada com **Criar conta**: e-mail → chave → nome, escritório e CPF ou CNPJ → passkey do aparelho. O escritório nasce sem acesso.
-- Tela de planos em `/billing` (AD-245), no modelo de preços da Vercel (AD-250): barra com a marca e Sair, os cartões em carrossel com o Mensal no centro e recomendado (AD-246), cada um com o preço por mês, a cobrança e o que acrescenta ao plano anterior; três destaques comuns; a tabela "Compare os planos" em grupos com Pagar no cabeçalho; "Precisa de ajuda?" ao lado das perguntas frequentes. Planos: **teste** (R$ 6 pelo primeiro mês, uma vez, AD-247), **mensal** (R$ 60) e **anual** (R$ 612, R$ 51 por mês) no cartão, e **mensalidade avulsa** (R$ 60) por boleto, PIX ou cartão, oferecida dentro do cartão Mensal. Pagar abre a fatura do Asaas; só o admin paga, os demais veem os preços e o aviso. Sair continua.
-- Pagamento confirmado pelo Asaas libera o acesso até o fim do período, mais 5 dias de carência (o teste também, AD-231). Acabou o período, toda entrada volta à tela de planos.
+- Tela de planos em `/billing` (AD-245), no modelo de preços da Vercel (AD-250): barra com a marca e Sair, os cartões em carrossel com o Mensal no centro e recomendado (AD-246), cada um com o preço por mês, a cobrança e o que acrescenta ao plano anterior; três destaques comuns; a tabela "Compare os planos" em grupos com Pagar no cabeçalho; "Precisa de ajuda?" ao lado das perguntas frequentes. Planos: **teste** (R$ 6 pelo primeiro mês, uma vez, AD-247), **mensal** (R$ 60) e **anual** (R$ 612, R$ 51 por mês) no cartão, e **mensalidade avulsa** (R$ 60) por boleto, PIX ou cartão, oferecida dentro do cartão Mensal. Só o admin paga, os demais veem os preços e o aviso. Sair continua.
+- Forma de pagamento (AD-251): mensal e anual abrem a fatura do Asaas no cartão. Teste e mensalidade avulsa perguntam **PIX**, **boleto** ou **cartão de crédito ou débito**: PIX e boleto abrem a tela do Ethica `/billing/payment/<id>` (QR Code e copia e cola, ou linha digitável e PDF, com botão de copiar); o cartão abre a fatura do Asaas. A tela espera o pagamento e entra no sistema sozinha.
+- Pagamento confirmado pelo Asaas libera o acesso até o fim do período, mais 5 dias de carência (o teste também, AD-231). O aviso chega pelo webhook; com a tela de planos ou de pagamento aberta e o acesso fechado, a API também confere as cobranças recentes no Asaas, no máximo uma vez a cada 30 s por escritório (AD-251), o que basta em dev, sem túnel. Acabou o período, toda entrada volta à tela de planos.
 - Estorno ou chargeback tira o período que o pagamento tinha pago; disputa vencida devolve. Estorno parcial não muda o acesso.
 - Feed iCal e aviso diário de prazos param junto com o acesso.
 
@@ -32,13 +33,13 @@ O cadastro aberto e gratuito (AD-155) passa a acontecer junto do pagamento (AD-2
 
 - Banco: `Tenant.accessUntil` e `Tenant.billing`; regra única `isTenantOpen`/`openTenantFilter` (`packages/db/src/models/tenant.model.ts`).
 - Contrato: `packages/contracts/src/schemas/billing.schema.ts` (planos, valores, dias).
-- API: `apps/api/src/modules/identity/billing.*` (`GET /billing`, `POST /billing/pay`, `POST /billing/webhook`), `validSession` em `apps/api/src/middlewares/authentication.middleware.ts`, cliente em `apps/api/src/providers/asaasClient.ts`. Variáveis `ASAAS_*` em `apps/api/src/config/env.config.ts` e `.env.example`.
-- Web: `apps/web/src/routes/_public/auth/` (Criar conta) e `apps/web/src/routes/_public/billing/` (planos e Pagar), carrossel em `packages/ui/src/components/carousel.tsx`.
+- API: `apps/api/src/modules/identity/billing.*` (`GET /billing` com a conferência, `POST /billing/pay`, `GET /billing/payments/:id?method=pix|boleto`, `POST /billing/webhook`), `validSession` em `apps/api/src/middlewares/authentication.middleware.ts`, cliente em `apps/api/src/providers/asaasClient.ts`. Variáveis `ASAAS_*` em `apps/api/src/config/env.config.ts` e `.env.example`.
+- Web: `apps/web/src/routes/_public/auth/` (Criar conta), `apps/web/src/routes/_public/billing/` (planos, Pagar e a forma de pagamento) e `apps/web/src/routes/_public/billing/payment/$paymentId/` (PIX e boleto), carrossel em `packages/ui/src/components/carousel.tsx`.
 
 ## Como testar
 
 - Automático: `pnpm vitest run apps/api/src/modules/identity/billing apps/api/src/providers/asaasClient apps/web/src/routes/_public`.
-- Manual (sandbox): `ASAAS_API_URL=https://api-sandbox.asaas.com/v3` e `ASAAS_API_KEY` do sandbox (`$aact_hmlg_…`) no `.env`, com a API reiniciada; sem a URL, a chave de sandbox vai à produção e o Asaas responde 401 `invalid_environment` (vira `billing_unavailable`). Uma `ASAAS_API_KEY` exportada no shell (a do MCP do Asaas) vence a do `.env`. Localmente a fatura abre, mas o acesso só libera com o webhook chegando (túnel para `/billing/webhook`) e `ASAAS_WEBHOOK_TOKEN` e `ASAAS_WEBHOOK_TOKEN`; no painel do Asaas, webhook para `<API>/billing/webhook` com os eventos de cobrança, envio sequencial e o mesmo token. Crie uma conta em `/auth` (CPF ou CNPJ válido), pague a fatura com cartão de teste e confira que a tela de planos entra no sistema sozinha.
+- Manual (sandbox): `ASAAS_API_URL=https://api-sandbox.asaas.com/v3` e `ASAAS_API_KEY` do sandbox (`$aact_hmlg_…`) no `.env`, com a API reiniciada; sem a URL, a chave de sandbox vai à produção e o Asaas responde 401 `invalid_environment` (vira `billing_unavailable`). Uma `ASAAS_API_KEY` exportada no shell (a do MCP do Asaas) vence a do `.env`. Sem túnel: o acesso abre pela conferência da tela de planos (até 30 s depois do pagamento). Crie uma conta em `/auth` (CPF ou CNPJ válido), pague com cartão de teste ou boleto/PIX e confira que a tela entra no sistema sozinha. O QR Code do PIX exige a conta do sandbox aprovada e uma chave Pix cadastrada (sem ela, `pix_unavailable`).
 
 ## Antes de ir ao ar
 
@@ -47,10 +48,12 @@ Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "ind
 - Railway: `ASAAS_API_URL`, `ASAAS_API_KEY` e `ASAAS_WEBHOOK_TOKEN` (`.env.example`).
 - Painel do Asaas: webhook para `<API>/billing/webhook` com os eventos de cobrança (inclui estorno e chargeback), envio sequencial e o mesmo token.
 - Opcional: domínio do Ethica em Minha Conta > Informações no Asaas e então `ASAAS_RETURN_URL` (volta automática da fatura).
+- Chave Pix cadastrada na conta de produção do Asaas, senão o PIX responde indisponível.
 
 ## Pendências
 
 - [ ] Conferir o webhook real chegando e liberando o acesso (`.specs/features/cadastro-checkout/validation.md`).
+- [ ] Conferir o QR Code do PIX numa cobrança real (sandbox aprovado com chave Pix); se o Asaas recusar o QR Code na cobrança à escolha do cliente (`UNDEFINED`), criar a cobrança do PIX como `PIX`.
 - [ ] Trocar de plano, cancelar a assinatura e ver faturas pelo Ethica (fora desta entrega).
 
 ## Histórico
@@ -69,6 +72,7 @@ Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "ind
 - 2026-11-21 — O rodapé da tela de planos passa ao layout de todas as páginas sem login, com links para as páginas públicas (AD-248, `paginas-publicas`); as perguntas de planos vão para `apps/web/src/routes/_public/@consts/faq.ts`, também usadas pelo Suporte.
 - 2026-11-21 — Página de planos no modelo da Vercel com o carrossel mantido: Teste, Mensal e Anual com preço por mês e cobrança, Mensalidade avulsa como opção de boleto/PIX dentro do Mensal, destaques comuns e comparação em grupos com cabeçalho fixo (AD-250).
 - 2026-11-21 — Cartão do Teste com R$ 60,00 riscado antes dos R$ 6,00 e o selo "90% de desconto", calculado dos preços (AD-250).
+- 2026-11-21 — PIX e boleto na tela do Ethica, cartão (crédito ou débito) na fatura do Asaas, e conferência das cobranças no Asaas pela tela de planos para o acesso abrir sem webhook (AD-251, plano `.specs/features/cadastro-checkout/plans/2026-11-21-pix-boleto-nativo.md`). Divergência do plano: a forma de pagamento não vai à API (a cobrança avulsa serve PIX, boleto e cartão); a conferência lê as cobranças recentes, não só a última, para achar o teste pago antes de outras cobranças.
 
 ## Referências
 

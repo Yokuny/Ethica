@@ -2,6 +2,9 @@
 // (`invoiceUrl`); the result arrives later by webhook, never by this response.
 export type AsaasCharge = { id: string; invoiceUrl: string };
 
+// A charge as Asaas returns it; the billing module validates the fields it reads (`asaasPaymentSchema`).
+export type AsaasPayment = Record<string, unknown> & { id: string; customer: string };
+
 export type AsaasClient = {
   createCustomer: (data: {
     name: string;
@@ -26,7 +29,13 @@ export type AsaasClient = {
     nextDueDate: string;
     successUrl?: string;
   }) => Promise<string>;
-  firstInvoiceUrl: (subscriptionId: string) => Promise<string>;
+  // The first charge of the subscription, with the invoice the card is taken on.
+  firstPayment: (subscriptionId: string) => Promise<AsaasCharge>;
+  getPayment: (id: string) => Promise<AsaasPayment>;
+  // The latest charges of the customer; a short wait, since the plans screen asks for them (AD-251).
+  listPayments: (customer: string) => Promise<AsaasPayment[]>;
+  pixQrCode: (id: string) => Promise<{ encodedImage: string; payload: string; expirationDate: string }>;
+  boletoLine: (id: string) => Promise<{ identificationField: string }>;
   // A subscription already gone (404) counts as deleted.
   deleteSubscription: (id: string) => Promise<void>;
 };
@@ -40,6 +49,7 @@ export class AsaasUnavailableError extends Error {
 
 // Asaas asks for at least 60 s on card operations.
 const TIMEOUT_MS = 60_000;
+const CHECK_TIMEOUT_MS = 10_000;
 
 export const createAsaasClient = (options: {
   baseUrl: string;
@@ -48,14 +58,14 @@ export const createAsaasClient = (options: {
 }): AsaasClient => {
   const fetchImpl = options.fetchImpl ?? fetch;
 
-  const call = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
+  const call = async <T>(method: string, path: string, body?: unknown, timeoutMs = TIMEOUT_MS): Promise<T> => {
     let response: Response;
     try {
       response = await fetchImpl(`${options.baseUrl}${path}`, {
         method,
         headers: { access_token: options.apiKey, 'Content-Type': 'application/json', 'User-Agent': 'Ethica' },
         body: body === undefined ? undefined : JSON.stringify(body),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(timeoutMs),
       });
     } catch {
       throw new AsaasUnavailableError();
@@ -97,15 +107,24 @@ export const createAsaasClient = (options: {
           ...(data.successUrl ? { callback: { successUrl: data.successUrl } } : {}),
         })
       ).id,
-    firstInvoiceUrl: async (subscriptionId) => {
-      const payments = await call<{ data: { invoiceUrl: string }[] }>(
-        'GET',
-        `/subscriptions/${subscriptionId}/payments`,
-      );
-      const invoiceUrl = payments.data[0]?.invoiceUrl;
-      if (!invoiceUrl) throw new AsaasUnavailableError();
-      return invoiceUrl;
+    firstPayment: async (subscriptionId) => {
+      const payments = await call<{ data: AsaasCharge[] }>('GET', `/subscriptions/${subscriptionId}/payments`);
+      const first = payments.data[0];
+      if (!first?.invoiceUrl) throw new AsaasUnavailableError();
+      return { id: first.id, invoiceUrl: first.invoiceUrl };
     },
+    getPayment: (id) => call<AsaasPayment>('GET', `/payments/${id}`),
+    listPayments: async (customer) =>
+      (
+        await call<{ data: AsaasPayment[] }>(
+          'GET',
+          `/payments?customer=${customer}&limit=10`,
+          undefined,
+          CHECK_TIMEOUT_MS,
+        )
+      ).data,
+    pixQrCode: (id) => call('GET', `/payments/${id}/pixQrCode`),
+    boletoLine: (id) => call('GET', `/payments/${id}/identificationField`),
     deleteSubscription: async (id) => {
       try {
         await call('DELETE', `/subscriptions/${id}`);

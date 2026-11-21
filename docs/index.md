@@ -29,7 +29,7 @@ _Nenhum._
 | Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Páginas públicas do rodapé](features/paginas-publicas/feature.md) | Rodapé comum das páginas sem login com Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade | parcial | 2026-11-21 | `apps/web` `apps/api` `packages/contracts` | [spec](../.specs/features/paginas-publicas) | 1 |
-| [Cadastro com checkout](features/cadastro-checkout/feature.md) | Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso | parcial | 2026-11-20 | `apps/api` `apps/web` `packages/contracts` `packages/db` `harness` | [spec](../.specs/features/cadastro-checkout) | — |
+| [Cadastro com checkout](features/cadastro-checkout/feature.md) | Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso | parcial | 2026-11-20 | `apps/api` `apps/web` `packages/contracts` `packages/db` `harness` | [spec](../.specs/features/cadastro-checkout) | 1 |
 | [Logística em páginas por intenção e termo de vistoria assinado](features/logistica-paginas/feature.md) | Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas | parcial | 2026-11-20 | `apps/api` `apps/web` | [spec](../.specs/features/logistica-paginas) | 1 |
 | [Temas](features/temas/feature.md) | Temas Claro, Escuro e Azul escolhidos no menu do usuário, com uma cor de ação por tema nos botões e nos detalhes | parcial | 2026-11-20 | `apps/web` `packages/ui` | [spec](../.specs/features/temas) | — |
 | [Tour guiado](features/tour-guiado/feature.md) | Tour no primeiro acesso que destaca as seções do menu conforme as permissões da pessoa, reaberto por "Ver tour" | concluido | 2026-11-19 | `apps/web` `packages/ui` | [spec](../.specs/features/tour-guiado) | — |
@@ -85,6 +85,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-251** (2026-11-21, active) — PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e dé
 - **AD-250** (2026-11-21, active) — A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p
 - **AD-249** (2026-11-21, active) — A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia
 - **AD-248** (2026-11-21, active) — As páginas sem login fecham com um rodapé único, no layout `apps/web/src/routes/_public/route.tsx`, que leva a seis páginas públicas novas:
@@ -94,7 +95,6 @@ _Nenhum._
 - **AD-244** (2026-11-20, active) — O escritório (tenant) pode ser cadastrado com CPF ou CNPJ, no cadastro pela tela de acesso e pela plataforma. Uma validação só, `tenantDocum
 - **AD-243** (2026-11-20, active) — As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242)
 - **AD-242** (2026-11-20, active) — Nas três páginas da Logística (Mapa, Planejamento de rota e Serviços agendados), o intervalo de datas é uma faixa de dias lado a lado (mês c
-- **AD-241** (2026-11-20, active) — Uma regra de largura de coluna para todas as listas, no bloco de célula: `TableStack` ganha `width`. `fit` deixa o valor curto em uma linha
 
 ## `.specs/` sem registro em `docs/features/`
 

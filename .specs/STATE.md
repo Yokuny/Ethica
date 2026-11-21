@@ -1519,6 +1519,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-21
 - **Status**: active
 
+### AD-251
+- **Decision**: PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e débito seguem na fatura do Asaas. Mensal e anual (assinatura no cartão) vão direto à fatura; teste e mensalidade avulsa perguntam a forma de pagamento. A cobrança avulsa continua `UNDEFINED`, então a forma de pagamento não vai à API: a web escolhe a tela, e a API só devolve o PIX ou o boleto da cobrança do próprio escritório (`GET /billing/payments/:id`). O webhook continua o caminho principal; além dele, com o acesso fechado, `GET /billing` confere as últimas 10 cobranças do cliente no Asaas e aplica as pagas pelas mesmas regras, só quando o escritório nunca pagou ou criou cobrança nos últimos 7 dias (`billing.pendingSince`), no máximo uma vez a cada 30 s por escritório (memória do processo) e com espera de 10 s. Aplicar pagamento só estende o acesso (pagamento antigo visto de novo não muda nada). Sem túnel em dev; `ASAAS_WEBHOOK_TOKEN` gerado no `.env` local para usar o mesmo valor na Railway e no Asaas.
+- **Reason**: pedido do usuário em 2026-11-21 ("tela nativa para pix e boleto", "cartão no checkout do Asaas", "não usarei túnel", "opção b otimizada para dev e que sirva para produção sem gargalo"). O painel do Asaas não tinha webhook em nenhum ambiente, e o teste pago no sandbox nunca abriu o acesso local. Cartão na nossa tela poria o servidor no escopo do PCI-DSS (o Asaas não tem campo de cartão no navegador).
+- **Trade-off**: a conferência só acontece com a tela aberta (sem varredura em segundo plano); escritório com o acesso vencido e sem cobrança nova não é conferido. O limite de 30 s fica na memória de cada instância da API. O QR Code do PIX depende de chave Pix na conta do Asaas.
+- **Scope**: `packages/contracts/src/schemas/billing.schema.ts`, `packages/db/src/models/tenant.model.ts`, `apps/api/src/providers/asaasClient.ts`, `apps/api/src/modules/identity/billing.*`, `apps/web/src/routes/_public/billing/`.
+- **Date**: 2026-11-21
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

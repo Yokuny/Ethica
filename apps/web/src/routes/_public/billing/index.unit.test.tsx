@@ -67,7 +67,7 @@ describe('BillingPage (AD-230)', () => {
 
   it('new office: trial, monthly and yearly, the single month inside the monthly; paying opens the Asaas invoice (CHK-04, CHK-07, AD-250)', async () => {
     getMock.mockResolvedValue({ success: true, data: { firstPayment: true, trialAvailable: true, canPay: true } });
-    postMock.mockResolvedValue({ success: true, data: { url: 'https://asaas/i/1' } });
+    postMock.mockResolvedValue({ success: true, data: { paymentId: 'pay_1', url: 'https://asaas/i/1' } });
     const assign = vi.fn();
     Object.defineProperty(window, 'location', { value: { assign }, configurable: true });
     const user = userEvent.setup();
@@ -95,15 +95,35 @@ describe('BillingPage (AD-230)', () => {
     expect(assign).toHaveBeenCalledWith('https://asaas/i/1');
   });
 
-  it('the single month by boleto or PIX is paid from the monthly card (AD-250)', async () => {
+  it('the trial asks the method; PIX opens the Ethica screen (CHK-11, AD-251)', async () => {
     getMock.mockResolvedValue({ success: true, data: { firstPayment: true, trialAvailable: true, canPay: true } });
-    postMock.mockResolvedValue({ success: true, data: { url: 'https://asaas/i/2' } });
-    Object.defineProperty(window, 'location', { value: { assign: vi.fn() }, configurable: true });
+    postMock.mockResolvedValue({ success: true, data: { paymentId: 'pay_2', url: 'https://asaas/i/2' } });
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(await screen.findByRole('button', { name: 'Começar o teste' }));
+    expect(await screen.findByText('Como você quer pagar?')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^PIX/ }));
+    await waitFor(() => expect(postMock).toHaveBeenCalledWith('/billing/pay', { plan: 'trial' }));
+    expect(navigateMock).toHaveBeenCalledWith({
+      to: '/billing/payment/$paymentId',
+      params: { paymentId: 'pay_2' },
+      search: { method: 'pix' },
+    });
+  });
+
+  it('the single month paid by card goes to the Asaas invoice (CHK-11, AD-251)', async () => {
+    getMock.mockResolvedValue({ success: true, data: { firstPayment: true, trialAvailable: true, canPay: true } });
+    postMock.mockResolvedValue({ success: true, data: { paymentId: 'pay_2', url: 'https://asaas/i/2' } });
+    const assign = vi.fn();
+    Object.defineProperty(window, 'location', { value: { assign }, configurable: true });
     const user = userEvent.setup();
     renderPage();
 
     await user.click(await screen.findByRole('button', { name: 'Prefere boleto ou PIX? Pague um mês avulso' }));
+    await user.click(await screen.findByRole('button', { name: /^Cartão de crédito ou débito/ }));
     await waitFor(() => expect(postMock).toHaveBeenCalledWith('/billing/pay', { plan: 'single_month' }));
+    expect(assign).toHaveBeenCalledWith('https://asaas/i/2');
   });
 
   it('paid before: no trial; a member who is not admin only reads the notice', async () => {

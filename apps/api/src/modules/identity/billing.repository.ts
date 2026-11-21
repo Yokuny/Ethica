@@ -37,10 +37,14 @@ export const updateBilling = async (tenantId: string, data: Partial<NonNullable<
     await Tenant.updateOne({ _id: tenantId }, { $set: set });
   });
 
-// $max: the same payment received twice (or CONFIRMED then RECEIVED) gives the same date.
+// $max: the same payment received twice (or CONFIRMED then RECEIVED) gives the same date. Paid, nothing is
+// pending any more: the plans screen stops checking Asaas (AD-251).
 export const extendAccess = async (tenantId: string, accessUntil: Date) =>
   withDbTiming('billing.extendAccess', async () => {
-    await Tenant.updateOne({ _id: tenantId }, { $max: { accessUntil }, $set: { 'billing.paidAt': new Date() } });
+    await Tenant.updateOne(
+      { _id: tenantId },
+      { $max: { accessUntil }, $set: { 'billing.paidAt': new Date() }, $unset: { 'billing.pendingSince': 1 } },
+    );
   });
 
 // AD-232: $min — refund or chargeback brings the access back to the start of the period it had paid.

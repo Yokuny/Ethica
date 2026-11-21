@@ -52,3 +52,5 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Acesso pago | `Tenant.accessUntil` | Até quando o escritório usa o Ethica; cada pagamento confirmado estende. Sem a data, sem controle (AD-230). |
 | Plano | `plan` (`BILLING_PLANS`) | Teste, mensal, anual ou mensalidade avulsa, escolhido em "Pagar" (AD-230). |
 | Fatura | `invoiceUrl` (Asaas) | Página de pagamento hospedada pelo Asaas, aberta em "Pagar" (AD-230). |
+| Cobrança | `payment` (Asaas) | Cada valor a pagar criado no Asaas; o teste e a avulsa servem PIX, boleto e cartão (AD-251). |
+| Forma de pagamento | `method` (`pix`, `boleto`, `card`) | PIX e boleto na tela do Ethica; cartão de crédito ou débito na fatura do Asaas (AD-251). |

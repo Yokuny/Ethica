@@ -27,7 +27,7 @@ describe('createAsaasClient', () => {
     const fetchImpl = vi
       .fn()
       .mockResolvedValueOnce(json({ id: 'sub_1' }))
-      .mockResolvedValueOnce(json({ data: [{ invoiceUrl: 'https://asaas/i/2' }] }));
+      .mockResolvedValueOnce(json({ data: [{ id: 'pay_2', invoiceUrl: 'https://asaas/i/2' }] }));
     const client = createAsaasClient({ baseUrl: 'https://asaas/v3', apiKey: 'key', fetchImpl });
 
     const id = await client.createSubscription({
@@ -44,8 +44,26 @@ describe('createAsaasClient', () => {
       value: 612,
       cycle: 'YEARLY',
     });
-    expect(await client.firstInvoiceUrl('sub_1')).toBe('https://asaas/i/2');
+    expect(await client.firstPayment('sub_1')).toEqual({ id: 'pay_2', invoiceUrl: 'https://asaas/i/2' });
     expect(fetchImpl.mock.calls[1]?.[0]).toBe('https://asaas/v3/subscriptions/sub_1/payments');
+  });
+
+  it('PIX, linha do boleto e cobranças recentes do cliente', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(json({ encodedImage: 'img', payload: 'code', expirationDate: '2026-11-22 23:59:59' }))
+      .mockResolvedValueOnce(json({ identificationField: '123' }))
+      .mockResolvedValueOnce(json({ data: [{ id: 'pay_1', customer: 'cus_1' }] }));
+    const client = createAsaasClient({ baseUrl: 'https://asaas/v3', apiKey: 'key', fetchImpl });
+
+    expect((await client.pixQrCode('pay_1')).payload).toBe('code');
+    expect((await client.boletoLine('pay_1')).identificationField).toBe('123');
+    expect(await client.listPayments('cus_1')).toEqual([{ id: 'pay_1', customer: 'cus_1' }]);
+    expect(fetchImpl.mock.calls.map((call) => call[0])).toEqual([
+      'https://asaas/v3/payments/pay_1/pixQrCode',
+      'https://asaas/v3/payments/pay_1/identificationField',
+      'https://asaas/v3/payments?customer=cus_1&limit=10',
+    ]);
   });
 
   it('apagar assinatura que já não existe (404) não é erro', async () => {

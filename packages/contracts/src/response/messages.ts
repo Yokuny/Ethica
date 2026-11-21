@@ -38,6 +38,7 @@ export const API_MESSAGE_KEYS = [
   'trial_unavailable',
   'billing_not_configured',
   'billing_unavailable',
+  'pix_unavailable',
   // Contact page (AD-249)
   'contact_not_configured',
   // Convites e links

@@ -19,5 +19,22 @@ export const BILLING_GRACE_DAYS = 5;
 export const billingPaySchema = z.object({ plan: z.enum(BILLING_PLANS) }).strict();
 export type BillingPay = z.infer<typeof billingPaySchema>;
 
+// AD-251: PIX and boleto are paid on the Ethica screen; the card (credit or debit) on the Asaas invoice. The
+// charge just created serves any of them: the web opens `url` for the card, its own screen for PIX and boleto.
+export type BillingCharge = { paymentId: string; url: string };
+
+export const billingPaymentQuerySchema = z.object({ method: z.enum(['pix', 'boleto']) }).strict();
+export type BillingPaymentQuery = z.infer<typeof billingPaymentQuerySchema>;
+
+// The PIX or boleto screen: only the part of the method asked for.
+export type BillingPaymentView = {
+  id: string;
+  valueCents: number;
+  dueDate: string;
+  paid: boolean;
+  pix?: { image: string; code: string; expiresAt: string };
+  boleto?: { line: string; pdfUrl: string };
+};
+
 // `firstPayment`: the office never paid (new sign-up). `canPay`: only the admin pays.
 export type BillingView = { firstPayment: boolean; trialAvailable: boolean; canPay: boolean; accessUntil?: string };

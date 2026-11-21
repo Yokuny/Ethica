@@ -15,7 +15,9 @@ import { Brand } from '../@components/brand.js';
 import { BillingCompare } from './@components/billing-compare.js';
 import { BillingFaq } from './@components/billing-faq.js';
 import { BillingHighlights } from './@components/billing-highlights.js';
+import { BillingMethodDialog } from './@components/billing-method-dialog.js';
 import { BillingPlans } from './@components/billing-plans.js';
+import type { BillingMethod } from './@consts/methods.js';
 import { PLAN_OPTIONS } from './@consts/plans.js';
 import { billingQuery, payPlan } from './@query/billing.js';
 
@@ -28,11 +30,15 @@ export function BillingPage() {
   const navigate = useNavigate();
   const billing = useQuery(billingQuery);
   const [paying, setPaying] = useState<BillingPlan>();
+  // CHK-11: the trial and the single month ask the method first.
+  const [choosing, setChoosing] = useState<BillingPlan>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const view = billing.data;
   const open = Boolean(view?.accessUntil && new Date(view.accessUntil) > new Date());
   const options = PLAN_OPTIONS.filter((option) => option.plan !== 'trial' || view?.trialAvailable);
-  const onPay = view?.canPay ? (plan: BillingPlan) => void pay(plan) : undefined;
+  const onPay = view?.canPay
+    ? (plan: BillingPlan) => (plan === 'trial' || plan === 'single_month' ? setChoosing(plan) : void pay(plan, 'card'))
+    : undefined;
 
   const signOut = async () => {
     await post('/auth/signout');
@@ -41,16 +47,22 @@ export function BillingPage() {
     navigate({ to: '/auth' });
   };
 
-  const pay = async (plan: BillingPlan) => {
+  // The card goes to the Asaas invoice; PIX and boleto to the Ethica screen (AD-251).
+  const pay = async (plan: BillingPlan, method: BillingMethod) => {
     setErrorMessage(undefined);
     setPaying(plan);
     const response = await payPlan(plan);
     if (!response.success || !response.data) {
       setErrorMessage(response.message || t('action_error'));
       setPaying(undefined);
+      setChoosing(undefined);
       return;
     }
-    window.location.assign(response.data.url);
+    if (method === 'card') {
+      window.location.assign(response.data.url);
+      return;
+    }
+    navigate({ to: '/billing/payment/$paymentId', params: { paymentId: response.data.paymentId }, search: { method } });
   };
 
   // CHK-05: confirmed payment — the office is open again, enter it (the session is read anew).
@@ -113,6 +125,12 @@ export function BillingPage() {
             <BillingHighlights />
             <BillingCompare options={options} paying={paying} onPay={onPay} />
             <BillingFaq trialAvailable={view.trialAvailable} />
+            <BillingMethodDialog
+              planName={choosing === 'trial' ? t('billing_trial') : choosing ? t('billing_single_month') : undefined}
+              disabled={Boolean(paying)}
+              onClose={() => setChoosing(undefined)}
+              onChoose={(method) => choosing && void pay(choosing, method)}
+            />
           </>
         )}
       </CardContent>
