@@ -22,6 +22,7 @@ import {
   processNumberSchema,
   updateCaseSchema,
 } from './schemas/case.schema.js';
+import { contactMessageSchema } from './schemas/contactMessage.schema.js';
 import { createCourtDivisionSchema, updateCourtDivisionSchema } from './schemas/court-division.schema.js';
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
@@ -101,6 +102,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'signupSchema', schema: signupSchema },
   { name: 'tenantDocumentSchema', schema: tenantDocumentSchema },
   { name: 'billingPaySchema', schema: billingPaySchema },
+  { name: 'contactMessageSchema', schema: contactMessageSchema },
   { name: 'idSchema', schema: idSchema },
   { name: 'inviteTokenParamSchema', schema: inviteTokenParamSchema },
   { name: 'listStatsSchema', schema: listStatsSchema },

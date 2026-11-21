@@ -1,10 +1,8 @@
-import { Button } from '@ethica/ui/components/button';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { Card, CardContent } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { Brand } from './brand.js';
+import { PublicNav } from './public-nav.js';
 
 export type DocumentSection = { title: string; text?: string; children?: ReactNode };
 
@@ -21,12 +19,7 @@ export function PublicDocument({ title, description, draft, sections }: PublicDo
   return (
     <Card>
       <CardContent className="mx-auto flex w-full max-w-6xl flex-col gap-12">
-        <nav className="flex items-center justify-between">
-          <Brand />
-          <Button variant="outline" render={<Link to="/" />}>
-            {t('sign_in')}
-          </Button>
-        </nav>
+        <PublicNav />
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-10">
           <div className="flex flex-col gap-4">
             <ItemTitle // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children

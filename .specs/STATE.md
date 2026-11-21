@@ -1503,6 +1503,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-21
 - **Status**: active
 
+### AD-249
+- **Decision**: A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia `POST /contact`, rota pública do módulo novo `contact` (sem model). A mensagem vai por e-mail ao endereço fixo do servidor (`CONTACT_EMAIL`), nunca a um endereço do formulário, e não é guardada; sem a variável, a rota responde `contact_not_configured`. Limite de 5 envios por IP a cada 15 minutos, e a API passa a confiar no primeiro proxy (`trust proxy` = 1) para ler o IP real do visitante atrás da Railway, o que vale também para os limites existentes. O bloco de endereço, telefone e e-mail do modelo fica de fora até a perita informar os dados; `CONTACT_CHANNELS` sai. Detalhe em `.specs/features/paginas-publicas/spec.md`.
+- **Reason**: pedido do usuário em 2026-11-21 ("na tela de contato use o design de `contact.html`"); sem canal definido, o formulário é o único caminho do visitante até o Ethica.
+- **Trade-off**: sem guardar a mensagem, um e-mail que falha se perde (o visitante vê o erro e tenta de novo); a resposta é feita fora do Ethica, pelo e-mail do visitante.
+- **Scope**: `packages/contracts/src/schemas/contactMessage.schema.ts`, `apps/api/src/modules/contact/`, `apps/api/src/app.ts`, `apps/api/src/config/env.config.ts`, `apps/api/src/middlewares/rateLimit.middleware.ts`, `apps/web/src/routes/_public/`.
+- **Date**: 2026-11-21
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

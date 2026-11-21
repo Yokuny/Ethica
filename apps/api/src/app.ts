@@ -15,6 +15,7 @@ import { createInspectionRouter } from './modules/agenda/inspection.router.js';
 import { createCaseRouter } from './modules/case/case.router.js';
 import { createCourtDivisionRouter } from './modules/case/court-division.router.js';
 import { createPartyRouter } from './modules/case/party.router.js';
+import { createContactRouter } from './modules/contact/contact.router.js';
 import { createDocumentsRouter } from './modules/documents/documents.router.js';
 import { createReportRouter } from './modules/documents/report.router.js';
 import { createFinanceRouter } from './modules/finance/transaction.router.js';
@@ -68,12 +69,15 @@ export const buildApp = (
     mail?: MailProvider;
     geocoder?: Geocoder;
     asaas?: AsaasClient | null;
+    contactInbox?: string;
   } = {},
 ): Express => {
   // Idempotent — several buildApp() calls in the same process (tests) do not duplicate handlers.
   registerAllSubscribers();
 
   const app = express();
+  // Railway puts one proxy in front of the API: `req.ip` is the visitor, so the per-IP limits hold (AD-249).
+  app.set('trust proxy', 1);
 
   // Content-Disposition exposed: the web reads the name of the generated PDF/ZIP (AD-119, AD-122).
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Content-Disposition'] }));
@@ -155,6 +159,7 @@ export const buildApp = (
       webhookToken: env.ASAAS_WEBHOOK_TOKEN,
     }),
   );
+  app.use('/contact', createContactRouter({ mailProvider, inbox: options.contactInbox ?? env.CONTACT_EMAIL }));
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/expert-cases', createCaseRouter({ validToken, storage }));

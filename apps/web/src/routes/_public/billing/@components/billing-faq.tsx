@@ -18,8 +18,8 @@ export function BillingFaq({ trialAvailable }: { trialAvailable: boolean }) {
         </ItemTitle>
         <ItemDescription className="line-clamp-none text-lg md:text-xl">
           {`${t('billing_help_text')} `}
-          <Link to="/support" className="whitespace-nowrap text-foreground underline">
-            {t('support')}
+          <Link to="/contact" className="whitespace-nowrap text-foreground underline">
+            {t('contact')}
           </Link>
         </ItemDescription>
       </div>

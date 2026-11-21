@@ -17,6 +17,3 @@ export const USE_FAQ = [
   { question: t('support_faq_team_q'), answer: t('support_faq_team_a') },
   { question: t('support_faq_offline_q'), answer: t('support_faq_offline_a') },
 ];
-
-// Support channels, shown on the contact and support pages once the Ethica defines them (roadmap).
-export const CONTACT_CHANNELS: { label: string; value: string; href: string }[] = [];

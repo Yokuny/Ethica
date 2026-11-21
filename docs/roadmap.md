@@ -44,8 +44,9 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 - [ ] Perita: chave de sandbox (`$aact_hmlg_…`) em `ASAAS_API_KEY` no `.env` e reiniciar a API para abrir a fatura localmente — `cadastro-checkout`
 - [ ] Validar no sandbox com a API publicada: cadastro → fatura paga com cartão de teste → webhook chega → acesso liberado — `cadastro-checkout`
 - [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`
-- [ ] Perita: informar os canais de atendimento (e-mail, WhatsApp) para Contato e Suporte (`CONTACT_CHANNELS` em `apps/web/src/routes/_public/@consts/faq.ts`) — `paginas-publicas`
-- [ ] Texto final de Termos de uso e Política de privacidade, revisado por advogado (LGPD: controlador, encarregado, compartilhamento com Asaas, e-mail e armazenamento) — `paginas-publicas`
+- [ ] Railway: `CONTACT_EMAIL` com a caixa que recebe as mensagens da página Contato (sem ela o formulário responde indisponível) — `paginas-publicas`
+- [ ] Perita: endereço, telefone e e-mail do Ethica para o topo da página Contato, como no modelo — `paginas-publicas`
+- [ ] Texto final de Termos de uso e Política de privacidade, revisado por advogado (LGPD: controlador, encarregado, compartilhamento com Asaas, e-mail e armazenamento, dados do formulário de contato) — `paginas-publicas`
 - [ ] Perita: revisar os textos da página de planos (posicionamento, perguntas frequentes) — `cadastro-checkout`
 - [ ] Validar com dados reais em produção: pagar o teste (R$ 6) com cartão de verdade, ver o acesso abrir, estornar no painel e ver o acesso fechar — `cadastro-checkout`
 - [ ] Railway: `MAIL_PROVIDER=resend`, `RESEND_API_KEY`, `MAIL_FROM` com domínio verificado no Resend; remover `SMTP_*` — `acesso-email`
@@ -90,6 +91,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-21 — Página Contato com formulário enviado por e-mail ao Ethica (AD-249) — `paginas-publicas`
 - [x] 2026-11-21 — Rodapé comum das páginas sem login e páginas Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade (AD-248) — `paginas-publicas`
 - [x] 2026-11-21 — Página de planos no modelo shadcnblocks da perita e teste pelo primeiro mês (AD-247) — `cadastro-checkout`
 - [x] 2026-11-20 — Tela de planos em `/billing` com os quatro planos em carrossel (AD-245, AD-246) — `cadastro-checkout`

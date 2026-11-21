@@ -40,6 +40,10 @@ export const accessVerifyRateLimit = rejectWithTooManyRequests('access_verify', 
 export const passkeyRateLimit = rejectWithTooManyRequests('passkey', emailAndIpKeyGenerator, 30);
 export const inviteRateLimit = rejectWithTooManyRequests('invite');
 
+// Contact page (AD-249): public, the e-mail of the form is the visitor's to change — the key is the IP alone.
+const ipKeyOnly = (req: Request): string => `contact:${ipKeyGenerator(req.ip ?? 'unknown')}`;
+export const contactRateLimit = rejectWithTooManyRequests('contact', ipKeyOnly);
+
 // Datajud search (CNJ public API, with a quota): by tenant + IP. 60 searches
 // per 15 min cover manual prospecting without turning into automated scraping.
 export const datajudSearchRateLimit = rejectWithTooManyRequests('datajud_search', tenantAndIpKeyGenerator, 60);

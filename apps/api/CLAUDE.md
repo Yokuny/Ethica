@@ -28,6 +28,7 @@ apps/api/src/
     ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, aviso diário de prazos, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
     ├── finance/                    # Transaction — honorários (com installments, AD-111) e despesas; resumo, fluxo, categorias
     ├── prospecting/                # Opportunity + busca no Datajud; converte em perícia
+    ├── contact/                    # mensagem da página Contato por e-mail à caixa do Ethica (AD-249), sem model, ninguém depende dele
     └── documents/                  # PDFs (AD-119), exportação ZIP (AD-122) e laudos (Report + Template, AD-126) — ninguém depende dele
 ```
 

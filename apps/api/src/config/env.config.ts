@@ -45,6 +45,8 @@ export const envSchema = z.object({
   // Where the paid invoice sends the person back (the web URL). Asaas refuses every charge with a
   // return URL until the domain is registered in the account, so it stays empty until then.
   ASAAS_RETURN_URL: optionalSecret,
+  // Inbox of the Contact page (AD-249). Without it, sending answers `contact_not_configured`.
+  CONTACT_EMAIL: optionalSecret,
 });
 
 export type Env = z.infer<typeof envSchema>;
