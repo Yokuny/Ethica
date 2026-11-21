@@ -19,7 +19,7 @@ spec: [.specs/features/cadastro-checkout]
 ## O que foi feito
 
 - Entrada com **Criar conta**: e-mail → chave → nome, escritório e CPF ou CNPJ → passkey do aparelho. O escritório nasce sem acesso.
-- Tela de planos em `/billing` (AD-245): os planos em carrossel, o Mensal no centro e recomendado (AD-246), seguidos da comparação dos planos, das perguntas frequentes e de um Assinar o Mensal. Planos: **teste** (R$ 6 pelo primeiro mês, uma vez, AD-247), **mensal** (R$ 60) e **anual** (R$ 612) no cartão, e **mensalidade avulsa** (R$ 60) por boleto, PIX ou cartão. **Pagar** abre a fatura do Asaas; só o admin paga, os demais veem os preços e o aviso. Sair continua.
+- Tela de planos em `/billing` (AD-245): os planos em carrossel, o Mensal no centro e recomendado (AD-246), no modelo shadcnblocks da perita: barra com a marca e Sair, a tabela "Compare os planos" com preço e Pagar em cada coluna, "Precisa de ajuda?" ao lado das perguntas frequentes e o rodapé. Planos: **teste** (R$ 6 pelo primeiro mês, uma vez, AD-247), **mensal** (R$ 60) e **anual** (R$ 612) no cartão, e **mensalidade avulsa** (R$ 60) por boleto, PIX ou cartão. **Pagar** abre a fatura do Asaas; só o admin paga, os demais veem os preços e o aviso. Sair continua.
 - Pagamento confirmado pelo Asaas libera o acesso até o fim do período, mais 5 dias de carência (o teste também, AD-231). Acabou o período, toda entrada volta à tela de planos.
 - Estorno ou chargeback tira o período que o pagamento tinha pago; disputa vencida devolve. Estorno parcial não muda o acesso.
 - Feed iCal e aviso diário de prazos param junto com o acesso.
@@ -65,6 +65,7 @@ Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "ind
 - 2026-11-20 — Sem seletor Mensal/Anual e sem giro 3D: quatro cards (Teste, Mensal, Anual, Avulsa), laterais só esmaecidos, borda fina e sem sombra (AD-246, supersede a parte visual da AD-245).
 - 2026-11-20 — Cards com argumento de venda: Teste e Anual com o preço de referência riscado e "Economize" (7 dias e 12 meses do Mensal, calculados de `BILLING_PLAN_CENTS`), o Anual com o valor por mês; no topo, o meio de pagamento e a vantagem dele; embaixo, o que o Ethica muda no dia do perito (lista igual nos quatro, do `PRODUCT.md`). Clicar num card lateral o traz ao centro; os laterais só atenuam borda e ícones.
 - 2026-11-20 — Teste passa a ser o primeiro mês por R$ 6 (AD-247, supersede os 7 dias da AD-230/231), riscado contra os R$ 60 do Mensal. Página de venda na estrutura da skill `pricing-page` (instalada fora do repo): frase de posicionamento e "Recomendado" no Mensal; cada card lista "Tudo do <plano>, e mais" (o Mensal soma ao Teste a equipe sem limite; sem o card do Teste ele lista tudo); tabela "Compare os planos", perguntas frequentes (só o que as ADs garantem) e Assinar o Mensal para o admin. A equipe "Só você" no Teste é só texto: o sistema ainda não limita convites no teste.
+- 2026-11-20 — Página de planos no modelo da perita (`pricing.html`, shadcnblocks; o arquivo de referência fica fora do commit): só o carrossel ficou; sai o cabeçalho com trilha e o bloco Assinar o Mensal; entram a barra com a marca e Sair, a tabela "Compare os planos" com preço, posicionamento e Pagar no topo de cada coluna e linhas em grupos (Plano, No dia a dia), "Precisa de ajuda?" ao lado das perguntas e o rodapé com a promessa do produto.
 
 ## Referências
 

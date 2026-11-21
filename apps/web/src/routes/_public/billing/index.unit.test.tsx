@@ -100,9 +100,8 @@ describe('BillingPage (AD-230)', () => {
       await screen.findByText('O acesso volta quando o administrador do escritório pagar a mensalidade.'),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Pagar/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Assinar o Mensal' })).not.toBeInTheDocument();
-    // Prices still show to the member: monthly and single month, in the cards and in the comparison.
-    expect(screen.getAllByText(/60,00/)).toHaveLength(4);
+    // Prices still show to the member: monthly and single month, in the cards and in the comparison (price and per month).
+    expect(screen.getAllByText(/60,00/)).toHaveLength(6);
     // Without the trial card, the monthly lists the trial features itself.
     expect(screen.queryByText(/Tudo do Teste/)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Vistoria em campo/).length).toBeGreaterThan(0);

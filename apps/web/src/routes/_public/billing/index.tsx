@@ -6,7 +6,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardContent } from '@/components/page-card.js';
 import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { clearDevice } from '@/lib/offline/store.js';
@@ -64,10 +64,22 @@ export function BillingPage() {
     </Button>
   );
 
+  const brand = (
+    <div className="flex items-center gap-2">
+      <img src="/favicon.svg" alt="" className="size-8" />
+      <ItemTitle className="text-lg font-semibold">Ethica</ItemTitle>
+    </div>
+  );
+
+  // Page in the shadcnblocks model (apps/web/src/routes/_public/billing/@components/pricing.html): bar with
+  // the brand and Sair, the plans carousel, the comparison, help with the questions and the footer.
   return (
     <Card>
-      <CardHeader title={t('subscription')} />
-      <CardContent className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-12">
+      <CardContent className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 lg:gap-24">
+        <nav className="flex items-center justify-between">
+          {brand}
+          {signOutButton}
+        </nav>
         {billing.isLoading ? (
           <DefaultLoading />
         ) : !view ? (
@@ -78,7 +90,7 @@ export function BillingPage() {
           />
         ) : (
           <>
-            <div className="space-y-4 text-center">
+            <div className="-mt-4 space-y-4 text-center lg:-mt-8">
               <ItemTitle
                 // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
                 render={<h2 />}
@@ -100,22 +112,20 @@ export function BillingPage() {
                 {errorMessage}
               </ItemDescription>
             )}
-            <BillingCompare options={options} />
+            <ItemDescription className="line-clamp-none -mt-8 text-center lg:-mt-16">
+              {t('billing_pending_help')}
+            </ItemDescription>
+            <BillingCompare options={options} paying={paying} onPay={onPay} />
             <BillingFaq trialAvailable={view.trialAvailable} />
-            {onPay && (
-              <div className="flex flex-col items-center gap-4 rounded-lg border p-8 text-center">
-                <ItemTitle className="mx-auto justify-center text-xl font-medium">{t('billing_cta_title')}</ItemTitle>
-                <Button size="lg" disabled={Boolean(paying)} onClick={() => onPay('monthly')}>
-                  {t('billing_cta_button')}
-                </Button>
-              </div>
-            )}
-            <div className="flex flex-col items-center gap-4">
-              <ItemDescription className="line-clamp-none text-center">{t('billing_pending_help')}</ItemDescription>
-              {signOutButton}
-            </div>
           </>
         )}
+        <footer className="flex flex-col gap-6 border-t pt-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2">
+            {brand}
+            <ItemDescription className="line-clamp-none">{t('product_promise')}</ItemDescription>
+          </div>
+          <ItemDescription>{`© ${new Date().getFullYear()} Ethica. ${t('all_rights_reserved')}`}</ItemDescription>
+        </footer>
       </CardContent>
     </Card>
   );
