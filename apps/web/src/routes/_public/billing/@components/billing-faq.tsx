@@ -1,10 +1,10 @@
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@ethica/ui/components/collapsible';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { ChevronDownIcon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { FAQ } from '../@consts/plans.js';
+import { FaqList } from '../../@components/faq-list.js';
+import { BILLING_FAQ } from '../../@consts/faq.js';
 
-// "Need help?" of the shadcnblocks model (pricing.html): the call to the support beside the questions.
+// "Need help?" of the shadcnblocks model: the call to the support beside the questions.
 export function BillingFaq({ trialAvailable }: { trialAvailable: boolean }) {
   return (
     <div className="grid gap-10 md:grid-cols-2">
@@ -16,24 +16,14 @@ export function BillingFaq({ trialAvailable }: { trialAvailable: boolean }) {
           {t('billing_help_title')}
           <span className="text-muted-foreground/70">{t('billing_help_subtitle')}</span>
         </ItemTitle>
-        <ItemDescription className="line-clamp-none text-lg md:text-xl">{t('billing_help_text')}</ItemDescription>
+        <ItemDescription className="line-clamp-none text-lg md:text-xl">
+          {`${t('billing_help_text')} `}
+          <Link to="/support" className="whitespace-nowrap text-foreground underline">
+            {t('support')}
+          </Link>
+        </ItemDescription>
       </div>
-      <div className="flex flex-col">
-        {FAQ.filter((item) => !item.trial || trialAvailable).map((item) => (
-          <Collapsible key={item.question} className="not-last:border-b">
-            <CollapsibleTrigger className="group flex w-full cursor-pointer items-start justify-between gap-4 py-4 text-left hover:underline">
-              <ItemTitle>{item.question}</ItemTitle>
-              <ChevronDownIcon
-                className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[panel-open]:rotate-180"
-                aria-hidden
-              />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pb-4">
-              <ItemDescription className="line-clamp-none">{item.answer}</ItemDescription>
-            </CollapsibleContent>
-          </Collapsible>
-        ))}
-      </div>
+      <FaqList items={BILLING_FAQ.filter((item) => !item.trial || trialAvailable)} />
     </div>
   );
 }

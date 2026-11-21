@@ -11,6 +11,7 @@ import { post } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { clearDevice } from '@/lib/offline/store.js';
 import { sessionKeys } from '@/query/session.js';
+import { Brand } from '../@components/brand.js';
 import { BillingCompare } from './@components/billing-compare.js';
 import { BillingFaq } from './@components/billing-faq.js';
 import { BillingPlans } from './@components/billing-plans.js';
@@ -64,20 +65,13 @@ export function BillingPage() {
     </Button>
   );
 
-  const brand = (
-    <div className="flex items-center gap-2">
-      <img src="/favicon.svg" alt="" className="size-8" />
-      <ItemTitle className="text-lg font-semibold">Ethica</ItemTitle>
-    </div>
-  );
-
   // Page in the shadcnblocks model (apps/web/src/routes/_public/billing/@components/pricing.html): bar with
-  // the brand and Sair, the plans carousel, the comparison, help with the questions and the footer.
+  // the brand and Sair, the plans carousel, the comparison, help with the questions; the footer comes from the _public layout.
   return (
     <Card>
       <CardContent className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 lg:gap-24">
         <nav className="flex items-center justify-between">
-          {brand}
+          <Brand />
           {signOutButton}
         </nav>
         {billing.isLoading ? (
@@ -119,13 +113,6 @@ export function BillingPage() {
             <BillingFaq trialAvailable={view.trialAvailable} />
           </>
         )}
-        <footer className="flex flex-col gap-6 border-t pt-8 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-2">
-            {brand}
-            <ItemDescription className="line-clamp-none">{t('product_promise')}</ItemDescription>
-          </div>
-          <ItemDescription>{`© ${new Date().getFullYear()} Ethica. ${t('all_rights_reserved')}`}</ItemDescription>
-        </footer>
       </CardContent>
     </Card>
   );

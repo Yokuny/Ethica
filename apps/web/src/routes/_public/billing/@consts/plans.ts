@@ -91,12 +91,3 @@ export const PLAN_OPTIONS: PlanOption[] = [
 
 // What every plan has, the rows checked in all columns of the comparison.
 export const CORE_FEATURES = PLAN_OPTIONS[0]?.features ?? [];
-
-// `trial`: only while the trial is offered.
-export const FAQ = [
-  { question: t('billing_faq_trial_q'), answer: t('billing_faq_trial_a'), trial: true },
-  { question: t('billing_faq_access_q'), answer: t('billing_faq_access_a') },
-  { question: t('billing_faq_grace_q'), answer: t('billing_faq_grace_a') },
-  { question: t('billing_faq_methods_q'), answer: t('billing_faq_methods_a') },
-  { question: t('billing_faq_cancel_q'), answer: t('billing_faq_cancel_a') },
-];

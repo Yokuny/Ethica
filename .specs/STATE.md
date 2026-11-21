@@ -1495,6 +1495,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-20
 - **Status**: active
 
+### AD-248
+- **Decision**: As páginas sem login fecham com um rodapé único, no layout `apps/web/src/routes/_public/route.tsx`, que leva a seis páginas públicas novas: Novidades (`/news`), Segurança (`/security`), Suporte (`/support`), Contato (`/contact`), Termos de uso (`/terms`) e Política de privacidade (`/privacy`). Segurança descreve só o que o sistema já faz; Termos e Privacidade têm só as seções, com aviso de texto em elaboração, até o texto do advogado; os canais de atendimento ficam numa lista (`CONTACT_CHANNELS`) vazia até a perita informar. As perguntas de planos passam a `_public/@consts/faq.ts`, usadas pela tela de planos e pelo Suporte. Novidades é uma lista no código, não um cadastro.
+- **Reason**: pedido do usuário em 2026-11-21: criar as páginas do rodapé do modelo shadcnblocks e repetir o rodapé nas outras páginas do `_public`.
+- **Trade-off**: Novidades depende de alguém acrescentar a linha a cada entrega; páginas legais publicadas sem texto até a revisão jurídica.
+- **Scope**: `apps/web/src/routes/_public/`.
+- **Date**: 2026-11-21
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

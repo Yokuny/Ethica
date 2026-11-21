@@ -13,7 +13,13 @@ import { Route as PublicRouteRouteImport } from './routes/_public/route';
 import { Route as PrivateRouteRouteImport } from './routes/_private/route';
 import { Route as PrivateIndexRouteImport } from './routes/_private/index';
 import { Route as PrivateAdminRouteRouteImport } from './routes/_private/_admin/route';
+import { Route as PublicTermsIndexRouteImport } from './routes/_public/terms/index';
+import { Route as PublicSupportIndexRouteImport } from './routes/_public/support/index';
+import { Route as PublicSecurityIndexRouteImport } from './routes/_public/security/index';
+import { Route as PublicPrivacyIndexRouteImport } from './routes/_public/privacy/index';
+import { Route as PublicNewsIndexRouteImport } from './routes/_public/news/index';
 import { Route as PublicInviteIndexRouteImport } from './routes/_public/invite/index';
+import { Route as PublicContactIndexRouteImport } from './routes/_public/contact/index';
 import { Route as PublicBillingIndexRouteImport } from './routes/_public/billing/index';
 import { Route as PublicAuthIndexRouteImport } from './routes/_public/auth/index';
 import { Route as PrivateReportsIndexRouteImport } from './routes/_private/reports/index';
@@ -65,9 +71,39 @@ const PrivateAdminRouteRoute = PrivateAdminRouteRouteImport.update({
   id: '/_admin',
   getParentRoute: () => PrivateRouteRoute,
 } as any);
+const PublicTermsIndexRoute = PublicTermsIndexRouteImport.update({
+  id: '/terms/',
+  path: '/terms/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
+const PublicSupportIndexRoute = PublicSupportIndexRouteImport.update({
+  id: '/support/',
+  path: '/support/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
+const PublicSecurityIndexRoute = PublicSecurityIndexRouteImport.update({
+  id: '/security/',
+  path: '/security/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
+const PublicPrivacyIndexRoute = PublicPrivacyIndexRouteImport.update({
+  id: '/privacy/',
+  path: '/privacy/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
+const PublicNewsIndexRoute = PublicNewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
 const PublicInviteIndexRoute = PublicInviteIndexRouteImport.update({
   id: '/invite/',
   path: '/invite/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
+const PublicContactIndexRoute = PublicContactIndexRouteImport.update({
+  id: '/contact/',
+  path: '/contact/',
   getParentRoute: () => PublicRouteRoute,
 } as any);
 const PublicBillingIndexRoute = PublicBillingIndexRouteImport.update({
@@ -269,7 +305,13 @@ export interface FileRoutesByFullPath {
   '/reports/': typeof PrivateReportsIndexRoute;
   '/auth/': typeof PublicAuthIndexRoute;
   '/billing/': typeof PublicBillingIndexRoute;
+  '/contact/': typeof PublicContactIndexRoute;
   '/invite/': typeof PublicInviteIndexRoute;
+  '/news/': typeof PublicNewsIndexRoute;
+  '/privacy/': typeof PublicPrivacyIndexRoute;
+  '/security/': typeof PublicSecurityIndexRoute;
+  '/support/': typeof PublicSupportIndexRoute;
+  '/terms/': typeof PublicTermsIndexRoute;
   '/activity-log/': typeof PrivateAdminActivityLogIndexRoute;
   '/office/': typeof PrivateAdminOfficeIndexRoute;
   '/users/': typeof PrivateAdminUsersIndexRoute;
@@ -306,7 +348,13 @@ export interface FileRoutesByTo {
   '/reports': typeof PrivateReportsIndexRoute;
   '/auth': typeof PublicAuthIndexRoute;
   '/billing': typeof PublicBillingIndexRoute;
+  '/contact': typeof PublicContactIndexRoute;
   '/invite': typeof PublicInviteIndexRoute;
+  '/news': typeof PublicNewsIndexRoute;
+  '/privacy': typeof PublicPrivacyIndexRoute;
+  '/security': typeof PublicSecurityIndexRoute;
+  '/support': typeof PublicSupportIndexRoute;
+  '/terms': typeof PublicTermsIndexRoute;
   '/activity-log': typeof PrivateAdminActivityLogIndexRoute;
   '/office': typeof PrivateAdminOfficeIndexRoute;
   '/users': typeof PrivateAdminUsersIndexRoute;
@@ -347,7 +395,13 @@ export interface FileRoutesById {
   '/_private/reports/': typeof PrivateReportsIndexRoute;
   '/_public/auth/': typeof PublicAuthIndexRoute;
   '/_public/billing/': typeof PublicBillingIndexRoute;
+  '/_public/contact/': typeof PublicContactIndexRoute;
   '/_public/invite/': typeof PublicInviteIndexRoute;
+  '/_public/news/': typeof PublicNewsIndexRoute;
+  '/_public/privacy/': typeof PublicPrivacyIndexRoute;
+  '/_public/security/': typeof PublicSecurityIndexRoute;
+  '/_public/support/': typeof PublicSupportIndexRoute;
+  '/_public/terms/': typeof PublicTermsIndexRoute;
   '/_private/_admin/activity-log/': typeof PrivateAdminActivityLogIndexRoute;
   '/_private/_admin/office/': typeof PrivateAdminOfficeIndexRoute;
   '/_private/_admin/users/': typeof PrivateAdminUsersIndexRoute;
@@ -386,7 +440,13 @@ export interface FileRouteTypes {
     | '/reports/'
     | '/auth/'
     | '/billing/'
+    | '/contact/'
     | '/invite/'
+    | '/news/'
+    | '/privacy/'
+    | '/security/'
+    | '/support/'
+    | '/terms/'
     | '/activity-log/'
     | '/office/'
     | '/users/'
@@ -423,7 +483,13 @@ export interface FileRouteTypes {
     | '/reports'
     | '/auth'
     | '/billing'
+    | '/contact'
     | '/invite'
+    | '/news'
+    | '/privacy'
+    | '/security'
+    | '/support'
+    | '/terms'
     | '/activity-log'
     | '/office'
     | '/users'
@@ -463,7 +529,13 @@ export interface FileRouteTypes {
     | '/_private/reports/'
     | '/_public/auth/'
     | '/_public/billing/'
+    | '/_public/contact/'
     | '/_public/invite/'
+    | '/_public/news/'
+    | '/_public/privacy/'
+    | '/_public/security/'
+    | '/_public/support/'
+    | '/_public/terms/'
     | '/_private/_admin/activity-log/'
     | '/_private/_admin/office/'
     | '/_private/_admin/users/'
@@ -520,11 +592,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateAdminRouteRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
+    '/_public/terms/': {
+      id: '/_public/terms/';
+      path: '/terms';
+      fullPath: '/terms/';
+      preLoaderRoute: typeof PublicTermsIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
+    '/_public/support/': {
+      id: '/_public/support/';
+      path: '/support';
+      fullPath: '/support/';
+      preLoaderRoute: typeof PublicSupportIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
+    '/_public/security/': {
+      id: '/_public/security/';
+      path: '/security';
+      fullPath: '/security/';
+      preLoaderRoute: typeof PublicSecurityIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
+    '/_public/privacy/': {
+      id: '/_public/privacy/';
+      path: '/privacy';
+      fullPath: '/privacy/';
+      preLoaderRoute: typeof PublicPrivacyIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
+    '/_public/news/': {
+      id: '/_public/news/';
+      path: '/news';
+      fullPath: '/news/';
+      preLoaderRoute: typeof PublicNewsIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
     '/_public/invite/': {
       id: '/_public/invite/';
       path: '/invite';
       fullPath: '/invite/';
       preLoaderRoute: typeof PublicInviteIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
+    '/_public/contact/': {
+      id: '/_public/contact/';
+      path: '/contact';
+      fullPath: '/contact/';
+      preLoaderRoute: typeof PublicContactIndexRouteImport;
       parentRoute: typeof PublicRouteRoute;
     };
     '/_public/billing/': {
@@ -853,13 +967,25 @@ const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(
 interface PublicRouteRouteChildren {
   PublicAuthIndexRoute: typeof PublicAuthIndexRoute;
   PublicBillingIndexRoute: typeof PublicBillingIndexRoute;
+  PublicContactIndexRoute: typeof PublicContactIndexRoute;
   PublicInviteIndexRoute: typeof PublicInviteIndexRoute;
+  PublicNewsIndexRoute: typeof PublicNewsIndexRoute;
+  PublicPrivacyIndexRoute: typeof PublicPrivacyIndexRoute;
+  PublicSecurityIndexRoute: typeof PublicSecurityIndexRoute;
+  PublicSupportIndexRoute: typeof PublicSupportIndexRoute;
+  PublicTermsIndexRoute: typeof PublicTermsIndexRoute;
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicAuthIndexRoute: PublicAuthIndexRoute,
   PublicBillingIndexRoute: PublicBillingIndexRoute,
+  PublicContactIndexRoute: PublicContactIndexRoute,
   PublicInviteIndexRoute: PublicInviteIndexRoute,
+  PublicNewsIndexRoute: PublicNewsIndexRoute,
+  PublicPrivacyIndexRoute: PublicPrivacyIndexRoute,
+  PublicSecurityIndexRoute: PublicSecurityIndexRoute,
+  PublicSupportIndexRoute: PublicSupportIndexRoute,
+  PublicTermsIndexRoute: PublicTermsIndexRoute,
 };
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
