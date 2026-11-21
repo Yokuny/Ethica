@@ -65,7 +65,7 @@ describe('BillingPage (AD-230)', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith({ to: '/' }));
   });
 
-  it('new office: trial, monthly, yearly and single month; paying opens the Asaas invoice (CHK-04, CHK-07)', async () => {
+  it('new office: trial, monthly and yearly, the single month inside the monthly; paying opens the Asaas invoice (CHK-04, CHK-07, AD-250)', async () => {
     getMock.mockResolvedValue({ success: true, data: { firstPayment: true, trialAvailable: true, canPay: true } });
     postMock.mockResolvedValue({ success: true, data: { url: 'https://asaas/i/1' } });
     const assign = vi.fn();
@@ -74,22 +74,34 @@ describe('BillingPage (AD-230)', () => {
     renderPage();
 
     expect(await screen.findByText('Escolha seu plano')).toBeInTheDocument();
+    // The comparison columns, one per card.
     expect(
       screen.getAllByRole('button', { name: /^Pagar / }).map((button) => button.getAttribute('aria-label')),
-    ).toEqual(['Pagar Teste', 'Pagar Mensal', 'Pagar Anual', 'Pagar Mensalidade avulsa']);
+    ).toEqual(['Pagar Teste', 'Pagar Mensal', 'Pagar Anual']);
 
-    // Sales offer: the trial is the first month (AD-247), yearly against 12 months.
-    expect(screen.getByText(/Economize R\$\s54,00/)).toBeInTheDocument();
-    expect(screen.getByText(/R\$\s720,00/)).toHaveClass('line-through');
-    expect(screen.getByText(/Equivale a R\$\s51,00 por mês/)).toBeInTheDocument();
+    // Price per month on every card: the trial is the first month (AD-247), the yearly against the monthly.
+    expect(screen.getByText(/Economize R\$\s108,00/)).toBeInTheDocument();
+    expect(screen.getAllByText(/R\$\s612,00 cobrados uma vez por ano/)).toHaveLength(2);
+    expect(screen.getByText(/R\$\s51,00 por mês em vez de R\$\s60,00/)).toBeInTheDocument();
     // Monthly: everything of the trial plus the team.
-    expect(screen.getByText('Tudo do Teste, e mais')).toBeInTheDocument();
+    expect(screen.getByText('Tudo do Teste, e mais:')).toBeInTheDocument();
     expect(screen.getByText(/Convide quantas pessoas quiser/)).toBeInTheDocument();
     expect(screen.getByText('O teste renova sozinho?')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Pagar Anual' }));
+    await user.click(screen.getByRole('button', { name: 'Assinar o Anual' }));
     await waitFor(() => expect(postMock).toHaveBeenCalledWith('/billing/pay', { plan: 'yearly' }));
     expect(assign).toHaveBeenCalledWith('https://asaas/i/1');
+  });
+
+  it('the single month by boleto or PIX is paid from the monthly card (AD-250)', async () => {
+    getMock.mockResolvedValue({ success: true, data: { firstPayment: true, trialAvailable: true, canPay: true } });
+    postMock.mockResolvedValue({ success: true, data: { url: 'https://asaas/i/2' } });
+    Object.defineProperty(window, 'location', { value: { assign: vi.fn() }, configurable: true });
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(await screen.findByRole('button', { name: 'Prefere boleto ou PIX? Pague um mês avulso' }));
+    await waitFor(() => expect(postMock).toHaveBeenCalledWith('/billing/pay', { plan: 'single_month' }));
   });
 
   it('paid before: no trial; a member who is not admin only reads the notice', async () => {
@@ -100,8 +112,8 @@ describe('BillingPage (AD-230)', () => {
       await screen.findByText('O acesso volta quando o administrador do escritório pagar a mensalidade.'),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Pagar/ })).not.toBeInTheDocument();
-    // Prices still show to the member: monthly and single month, in the cards and in the comparison (price and per month).
-    expect(screen.getAllByText(/60,00/)).toHaveLength(6);
+    // Prices still show to the member: the monthly in its card and in the comparison price row.
+    expect(screen.getAllByText(/^R\$\s60,00$/)).toHaveLength(2);
     // Without the trial card, the monthly lists the trial features itself.
     expect(screen.queryByText(/Tudo do Teste/)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Vistoria em campo/).length).toBeGreaterThan(0);

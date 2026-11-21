@@ -14,6 +14,7 @@ import { sessionKeys } from '@/query/session.js';
 import { Brand } from '../@components/brand.js';
 import { BillingCompare } from './@components/billing-compare.js';
 import { BillingFaq } from './@components/billing-faq.js';
+import { BillingHighlights } from './@components/billing-highlights.js';
 import { BillingPlans } from './@components/billing-plans.js';
 import { PLAN_OPTIONS } from './@consts/plans.js';
 import { billingQuery, payPlan } from './@query/billing.js';
@@ -65,8 +66,8 @@ export function BillingPage() {
     </Button>
   );
 
-  // Page in the shadcnblocks model (apps/web/src/routes/_public/billing/@components/pricing.html): bar with
-  // the brand and Sair, the plans carousel, the comparison, help with the questions; the footer comes from the _public layout.
+  // Page in the Vercel pricing model (AD-250): bar with the brand and Sair, the plans carousel, what holds
+  // for every plan, the comparison, help with the questions; the footer comes from the _public layout.
   return (
     <Card>
       <CardContent className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 lg:gap-24">
@@ -106,9 +107,10 @@ export function BillingPage() {
                 {errorMessage}
               </ItemDescription>
             )}
-            <ItemDescription className="line-clamp-none -mt-8 text-center lg:-mt-16">
-              {t('billing_pending_help')}
+            <ItemDescription className="line-clamp-none -mt-8 text-center text-xs lg:-mt-16">
+              {`${t('billing_prices_note')} ${t('billing_pending_help')}`}
             </ItemDescription>
+            <BillingHighlights />
             <BillingCompare options={options} paying={paying} onPay={onPay} />
             <BillingFaq trialAvailable={view.trialAvailable} />
           </>

@@ -2145,6 +2145,12 @@
       "decisao": "A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia",
       "data": "2026-11-21",
       "status": "active"
+    },
+    {
+      "id": "AD-250",
+      "decisao": "A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p",
+      "data": "2026-11-21",
+      "status": "active"
     }
   ]
 }

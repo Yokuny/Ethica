@@ -91,6 +91,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-21 — Página de planos no modelo da Vercel: preço por mês, avulsa dentro do Mensal e comparação em grupos (AD-250) — `cadastro-checkout`
 - [x] 2026-11-21 — Página Contato com formulário enviado por e-mail ao Ethica (AD-249) — `paginas-publicas`
 - [x] 2026-11-21 — Rodapé comum das páginas sem login e páginas Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade (AD-248) — `paginas-publicas`
 - [x] 2026-11-21 — Página de planos no modelo shadcnblocks da perita e teste pelo primeiro mês (AD-247) — `cadastro-checkout`

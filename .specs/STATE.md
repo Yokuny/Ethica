@@ -1511,6 +1511,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-21
 - **Status**: active
 
+### AD-250
+- **Decision**: A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço por mês em destaque e a cobrança abaixo (Anual: R$ 51,00/mês, R$ 612,00 cobrados por ano), o que cada plano acrescenta ao anterior com ícone por item, e a ação no rodapé do cartão. A Mensalidade avulsa deixa de ter cartão e coluna próprios e vira a opção "Prefere boleto ou PIX? Pague um mês avulso" dentro do Mensal (mesmo preço; o plano `single_month` continua igual na API). Abaixo dos cartões, três destaques comuns a todos os planos e a comparação com grupos (preço e pagamento, equipe, dia a dia) e cabeçalho fixo no desktop. Supersede a parte visual da AD-247; preços e regras não mudam.
+- **Reason**: pedido do usuário em 2026-11-21 ("melhorar a proposta e a apresentação dos planos e as precificações", modelo `vercel.html`); escolheu manter o carrossel e a avulsa dentro do Mensal. Mensal e avulsa custam o mesmo e só diferem na forma de pagar, então dois cartões iguais confundiam a escolha.
+- **Trade-off**: quem quer pagar por boleto ou PIX precisa ver o link secundário do Mensal; a comparação não mostra a avulsa como coluna, só na linha de pagamento.
+- **Scope**: `apps/web/src/routes/_public/billing/`, `apps/web/src/lib/helpers/translate.helper.ts`.
+- **Date**: 2026-11-21
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

@@ -85,6 +85,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-250** (2026-11-21, active) — A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p
 - **AD-249** (2026-11-21, active) — A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia
 - **AD-248** (2026-11-21, active) — As páginas sem login fecham com um rodapé único, no layout `apps/web/src/routes/_public/route.tsx`, que leva a seis páginas públicas novas:
 - **AD-247** (2026-11-20, active) — O teste (R$ 6, uma vez por escritório, sem renovação) passa a valer o primeiro mês: o acesso vai do pagamento + 1 mês de calendário + 5 dias
@@ -94,7 +95,6 @@ _Nenhum._
 - **AD-243** (2026-11-20, active) — As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242)
 - **AD-242** (2026-11-20, active) — Nas três páginas da Logística (Mapa, Planejamento de rota e Serviços agendados), o intervalo de datas é uma faixa de dias lado a lado (mês c
 - **AD-241** (2026-11-20, active) — Uma regra de largura de coluna para todas as listas, no bloco de célula: `TableStack` ganha `width`. `fit` deixa o valor curto em uma linha
-- **AD-240** (2026-11-20, active) — No detalhe do serviço, o que não foi preenchido vai para baixo, ofuscado, sem sumir. (1) Dentro de cada grupo (Dados do contratante, Juízo,
 
 ## `.specs/` sem registro em `docs/features/`
 
