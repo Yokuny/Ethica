@@ -82,7 +82,8 @@ export function AuthShowcase() {
               <ItemDescription className="line-clamp-none">{description}</ItemDescription>
             </div>
             {/* One window for every piece: same height; only the bottom edge fades, where the piece goes on. */}
-            <Item className="flex-col flex-nowrap items-stretch gap-0 overflow-hidden p-0 shadow-none">
+            {/* A frame, not a list item: the pieces inside have their own items (an <li> cannot hold an <li>). */}
+            <Item render={<div />} className="flex-col flex-nowrap items-stretch gap-0 overflow-hidden p-0 shadow-none">
               <div className="flex gap-1.5 px-3 py-2.5">
                 {['close', 'minimize', 'zoom'].map((dot) => (
                   <span key={dot} className="size-2 rounded-full bg-border" />
