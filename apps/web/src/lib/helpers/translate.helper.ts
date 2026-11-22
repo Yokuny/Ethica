@@ -397,7 +397,7 @@ const translations: Record<string, string> = {
   last_12_months_vs_previous: 'Últimos 12 meses, comparados aos 12 anteriores, sem os anulados',
   new_in_period: 'Novo no período',
   change_from_previous_period_note:
-    'Recebido pela data de cada parcela e despesas pela data do pagamento, como no fluxo de caixa. Ao lado, a variação em relação ao período anterior.',
+    'Recebido pela data de cada parcela e despesas pela data do pagamento, como no fluxo de caixa. Os totais estão na mesma escala; as categorias, medidas entre si. Ao lado, a variação contra o período anterior de mesmo tamanho; o mês atual ainda está em andamento.',
   without_court_type: 'Sem justiça',
   services_have_court_type: 'serviços têm justiça',
   services_by_month_scope: 'Últimos 12 meses, pela nomeação ou pelo cadastro, sem os cancelados',

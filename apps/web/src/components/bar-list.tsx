@@ -15,6 +15,8 @@ export type BarListItem = {
   value: string;
   // Context on the right: share, change against the previous period…
   detail?: string;
+  // Total row on top of a breakdown: label in the title weight.
+  strong?: boolean;
   // Drill-down: the row becomes this link (`<Link to=… search=… />`), no children.
   render?: ReactElement;
 };
@@ -64,17 +66,26 @@ function BarRow({
       ),
       children: (
         <>
-          <ItemDescription className="col-span-2 truncate text-foreground sm:col-span-1">{item.label}</ItemDescription>
+          {item.strong ? (
+            <ItemTitle className="col-span-2 truncate font-medium sm:col-span-1">{item.label}</ItemTitle>
+          ) : (
+            <ItemDescription className="col-span-2 truncate text-foreground sm:col-span-1">
+              {item.label}
+            </ItemDescription>
+          )}
           <div aria-hidden className="h-2">
             {item.amount > 0 && (
               <div className={cn('h-full min-w-1 rounded-full', TONE[tone])} style={{ width: `${ratio * 100}%` }} />
             )}
           </div>
           <div className="flex items-center justify-end gap-3">
-            <ItemTitle className="font-medium tabular-nums">{item.value}</ItemTitle>
-            {item.detail !== undefined && (
-              <ItemDescription className="w-36 text-right text-xs tabular-nums">{item.detail}</ItemDescription>
-            )}
+            {/* On the phone the detail goes under the value, leaving the width to the bar. */}
+            <div className="flex flex-col items-end sm:flex-row sm:items-baseline sm:gap-3">
+              <ItemTitle className="font-medium tabular-nums">{item.value}</ItemTitle>
+              {item.detail !== undefined && (
+                <ItemDescription className="text-right text-xs tabular-nums sm:w-36">{item.detail}</ItemDescription>
+              )}
+            </div>
             {linked && (
               <ChevronRight aria-hidden className={cn('size-4 text-muted-foreground', !item.render && 'invisible')} />
             )}
