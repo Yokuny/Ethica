@@ -40,7 +40,7 @@ _Nenhum._
 | [Custo de deslocamento](features/custo-deslocamento/feature.md) | Custo de deslocamento da rota do Campo lançado como despesa numa OS ou dividido entre OS, e lugares no trajeto | concluido | 2026-11-09 | `apps/web` `packages/ui` | [spec](../.specs/features/custo-deslocamento) | — |
 | [Laudo automatizado](features/laudos/feature.md) | Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word | concluido | 2026-11-09 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/laudos) | — |
 | [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia | parcial | 2026-11-09 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | 1 |
-| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | 2 |
+| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | 3 |
 | [Prazos e recebimentos](features/prazos-recebimentos/feature.md) | Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-recebimentos) | — |
 | [Link da pasta e anexos do serviço](features/servico-pasta-anexos/feature.md) | Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/servico-pasta-anexos) | — |
 | [Tipo de serviço próprio](features/tipo-servico-proprio/feature.md) | Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/tipo-servico-proprio) | — |
@@ -85,8 +85,9 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-254** (2026-11-22, active) — Em Receitas e despesas por categoria, só os totais (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo.
-- **AD-253** (2026-11-22, active; a escala comum das categorias (3) foi superseded pela AD-254) — Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li
+- **AD-255** (2026-11-22, active) — Dashboard e Início reformulados com gráficos, do macro ao micro, pelo guia de dashboards do usuário (`apps/web/src/routes/_private/dashboard
+- **AD-254** (2026-11-22, superseded by AD-255) — Em Receitas e despesas por categoria, só os totais (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo.
+- **AD-253** (2026-11-22, superseded by AD-255 (a forma em barras); `months`/`previousCents` em `GET /finance/categories` e o drill-down seguem valendo) — Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li
 - **AD-252** (2026-11-21, active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)) — `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc
 - **AD-251** (2026-11-21, active) — PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e dé
 - **AD-250** (2026-11-21, active) — A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p
@@ -94,7 +95,6 @@ _Nenhum._
 - **AD-248** (2026-11-21, active) — As páginas sem login fecham com um rodapé único, no layout `apps/web/src/routes/_public/route.tsx`, que leva a seis páginas públicas novas:
 - **AD-247** (2026-11-20, active) — O teste (R$ 6, uma vez por escritório, sem renovação) passa a valer o primeiro mês: o acesso vai do pagamento + 1 mês de calendário + 5 dias
 - **AD-246** (2026-11-20, active) — A tela de planos (`/billing`) perde o seletor Mensal/Anual e o giro 3D dos cards. Os quatro planos ficam lado a lado no carrossel, nesta ord
-- **AD-245** (2026-11-20, active) — A tela de planos sai de `/suspended` e passa a `/billing` no web, o mesmo termo da Assinatura na API e no glossário (AD-140): é a tela de pa
 
 ## `.specs/` sem registro em `docs/features/`
 
