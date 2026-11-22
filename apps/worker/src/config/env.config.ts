@@ -25,6 +25,11 @@ export const envSchema = z.object({
   DATAJUD_API_KEY: optionalSecret,
   DATAJUD_BASE_URL: z.string().default('https://api-publica.datajud.cnj.jus.br'),
   DATAJUD_MIN_INTERVAL_MS: z.coerce.number().int().min(0).default(1000),
+  // Push (AVS-03): VAPID keys (`npx web-push generate-vapid-keys`) and the contact; without them push stays off.
+  VAPID_PUBLIC_KEY: optionalSecret,
+  VAPID_PRIVATE_KEY: optionalSecret,
+  // `mailto:` or `https:` contact of the sender; without it, the APP_URL.
+  VAPID_SUBJECT: optionalSecret,
   // `/health` and `/metrics`. PORT (Railway) wins.
   WORKER_PORT: z.string().default('18090'),
   // Jobs at the same time; one leaves the sweep and the digest in order.

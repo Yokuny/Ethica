@@ -3,21 +3,22 @@ feature: Central de notificações
 slug: central-notificacoes
 descricao: Notification única (prazo, alerta, sugestão, aviso) no lugar do Deadline, Central no app e worker de lembretes e entrega
 data: 2026-11-22
-status: em-andamento
+status: concluido
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db, packages/mail, docs]
-decisoes: [AD-263, AD-264, AD-265, AD-266, AD-267, AD-272, AD-273]
+decisoes: [AD-263, AD-264, AD-265, AD-266, AD-267, AD-272, AD-273, AD-280]
 spec: [.specs/features/central-notificacoes]
 ---
 
 # Central de notificações
 
-**Status**: em-andamento · **Atualizado**: 2026-11-22 · **Áreas**: `apps/api`, `apps/web`, `apps/worker`, `packages/contracts`, `packages/db`, `packages/mail`, `docs`
+**Status**: concluido · **Atualizado**: 2026-11-22 · **Áreas**: `apps/api`, `apps/web`, `apps/worker`, `packages/contracts`, `packages/db`, `packages/mail`, `docs`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='central-notificacoes'`.
 
 ## O que foi feito
 
+- **Push** no celular e no computador: Conta → "Receber notificações neste aparelho"; o resumo do dia chega também por push, só com contagens (sem valor nem nome). Sair do sistema desliga o aparelho.
 - **Worker** (`apps/worker`), serviço próprio que fala com a API só pelo banco: de hora em hora cria os avisos de vencimento financeiro e, a partir das 07:00, manda **um e-mail do dia por pessoa** com os prazos (quem vê Serviços) e os lançamentos atrasados, de hoje e de daqui a 7 dias (quem vê o Financeiro), sem perder o dia com restart e sem duplicar com duas réplicas.
 - **Sino** no topo do menu com os avisos não lidos e a aba **Avisos** da Central (lido é por pessoa, "Marcar todos como lidos"); quem não vê o Financeiro não vê os avisos dele.
 - **Conta → Notificações**: liga e desliga o e-mail de prazos e o do financeiro (a escolha antiga do aviso de prazos foi mantida).
@@ -64,13 +65,15 @@ pnpm vitest run apps/api/src/modules/notifications apps/worker apps/web/src/comp
 
 ## Pendências
 
-- [ ] Fase 6 (push) — `.specs/features/central-notificacoes/tasks.md`.
+- [ ] Usuário: gerar as chaves VAPID e colocar na Railway (API: `VAPID_PUBLIC_KEY`; worker: as duas e `VAPID_SUBJECT`).
+- [ ] Conferir o push num celular com o app instalado e num computador (build de produção).
 - [ ] Usuário: criar o serviço do worker na Railway (sem ele ninguém recebe o e-mail do dia) e o usuário próprio no Atlas.
 - [ ] Produção: apagar a collection antiga `deadlines` (usuário).
 - [ ] Perita: confirmar a tabela "Assumptions" da spec.
 
 ## Histórico
 
+- 2026-11-22 — Fase 6: push (AVS-03) com chaves VAPID, inscrição por aparelho e resumo do dia por push (AD-280). Não conferido num aparelho real (precisa do build de produção e das chaves). Plano arquivado em `.specs/features/central-notificacoes/plans/`.
 - 2026-11-22 — D8 resolvido: o usuário rodou o script na produção (11 prazos e 11 itens de agenda copiados); o script saiu do código, como previsto no plano.
 - 2026-11-22 — Script avulso `apps/api/scripts/migrate-deadlines.ts` (D8): copia `deadlines` para `notifications` com o mesmo id e religa os itens de agenda; simula sem `--apply` e é idempotente. Rodado no banco local (111 prazos, 105 itens de agenda).
 - 2026-11-22 — Conferido no navegador com o usuário logado: criar prazo, cancelar (aba Cancelado, agenda e serviço), aba Avisos com 29 avisos do worker, lido por pessoa (sino de 29 para 28) e Conta → Notificações salvando. No banco local, os prazos antigos (`deadlines`) e os itens de agenda deles (`source: 'deadline'`) seguem órfãos até a decisão do D8. A descrição da Central passa a citar os avisos.
@@ -81,4 +84,4 @@ pnpm vitest run apps/api/src/modules/notifications apps/worker apps/web/src/comp
 ## Referências
 
 - Spec (congelada): `.specs/features/central-notificacoes/`
-- Plano em execução: `.specs/plans/2026-11-22-automacao-datajud-notificacoes.md`
+- Plano (arquivado): `.specs/features/central-notificacoes/plans/2026-11-22-automacao-datajud-notificacoes.md`

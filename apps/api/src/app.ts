@@ -30,6 +30,7 @@ import { inviteRouter } from './modules/identity/invite.router.js';
 import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
 import { createPreferencesRouter } from './modules/identity/preferences.router.js';
+import { createPushRouter } from './modules/identity/push.router.js';
 import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
 import { createNotificationRouter } from './modules/notifications/notification.router.js';
 import { createProspectingRouter } from './modules/prospecting/opportunity.router.js';
@@ -144,6 +145,7 @@ export const buildApp = (
   );
   app.use('/contact', createContactRouter({ mailProvider, inbox: options.contactInbox ?? env.CONTACT_EMAIL }));
   app.use('/me', createPreferencesRouter({ validToken }));
+  app.use('/me', createPushRouter({ validToken, publicKey: env.VAPID_PUBLIC_KEY }));
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/expert-cases', createCaseRouter({ validToken, storage }));
   app.use('/notifications', createNotificationRouter({ validToken }));

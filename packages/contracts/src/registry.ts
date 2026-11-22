@@ -46,6 +46,8 @@ import { listStatsSchema } from './schemas/listStats.schema.js';
 import {
   createNotificationSchema,
   notificationPreferencesSchema,
+  pushSubscriptionSchema,
+  pushUnsubscribeSchema,
   updateNotificationSchema,
 } from './schemas/notification.schema.js';
 import {
@@ -151,6 +153,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createNotificationSchema', schema: createNotificationSchema },
   { name: 'updateNotificationSchema', schema: updateNotificationSchema },
   { name: 'notificationPreferencesSchema', schema: notificationPreferencesSchema },
+  { name: 'pushSubscriptionSchema', schema: pushSubscriptionSchema },
+  { name: 'pushUnsubscribeSchema', schema: pushUnsubscribeSchema },
   { name: 'createAppointmentSchema', schema: createAppointmentSchema },
   { name: 'updateAppointmentSchema', schema: updateAppointmentSchema },
   { name: 'createTransactionSchema', schema: createTransactionSchema },

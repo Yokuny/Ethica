@@ -21,6 +21,7 @@ import { UserAvatar } from '@/components/user-chip.js';
 import { TextSizeOptions } from '@/components/user-menu.text-size.js';
 import { ThemeOptions } from '@/components/user-menu.theme.js';
 import { post } from '@/lib/api/client.api.js';
+import { turnPushOff } from '@/lib/helpers/push.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { clearDevice } from '@/lib/offline/store.js';
 import { updatePreferencesMutation } from '@/query/preferences.js';
@@ -37,6 +38,8 @@ function UserMenuContent() {
 
   const signoutMutation = useMutation({
     mutationFn: async () => {
+      // AVS-03: this device stops getting the person's push before the session ends.
+      await turnPushOff().catch(() => undefined);
       const res = await post('/auth/signout');
       if (!res.success) throw new Error(res.message ?? t('action_error'));
     },

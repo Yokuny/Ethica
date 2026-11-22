@@ -33,6 +33,8 @@ export type { PartyDocument } from './models/party.model.js';
 export { Party } from './models/party.model.js';
 export type { PasskeyDocument } from './models/passkey.model.js';
 export { Passkey } from './models/passkey.model.js';
+export type { PushSubscriptionDocument } from './models/push-subscription.model.js';
+export { PushSubscription } from './models/push-subscription.model.js';
 export type { ReportDocument, ReportMediaDocument, ReportSectionDocument } from './models/report.model.js';
 export { Report } from './models/report.model.js';
 export type { RetiredServiceOrderDocument, ServiceOrderSequenceDocument } from './models/service-order.model.js';
@@ -86,6 +88,7 @@ export {
   listFinanceDueUntil,
   listPendingDueOn,
   listPendingSuggestions,
+  listPushSubscriptions,
   listTrackedCases,
 } from './workerReads.js';
 
@@ -103,6 +106,7 @@ import { NotificationDelivery } from './models/notification-delivery.model.js';
 import { Opportunity } from './models/opportunity.model.js';
 import { Party } from './models/party.model.js';
 import { Passkey } from './models/passkey.model.js';
+import { PushSubscription } from './models/push-subscription.model.js';
 import { Report } from './models/report.model.js';
 import { RetiredServiceOrder, ServiceOrderSequence } from './models/service-order.model.js';
 import { Session } from './models/session.model.js';
@@ -119,6 +123,7 @@ export const syncIndexes = async (): Promise<void> => {
   await Promise.all([
     Tenant.createIndexes(),
     User.createIndexes(),
+    PushSubscription.createIndexes(),
     Invite.createIndexes(),
     Session.createIndexes(),
     Passkey.createIndexes(),

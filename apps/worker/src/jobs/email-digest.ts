@@ -8,8 +8,10 @@ import {
   listDeliveryRecipients,
   listFinanceDueUntil,
   listPendingDueOn,
+  listPushSubscriptions,
 } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
+import type { PushSender } from '../push.js';
 import { deliverOnce } from '../queue/delivery-lock.js';
 import { addDays, escapeHtml, formatDay, formatMoney } from './format.js';
 
@@ -65,12 +67,21 @@ const byTenant = <T extends { tenantId: string }>(items: T[]): Map<string, T[]> 
   return map;
 };
 
-const wants = (person: DeliveryRecipient, topic: 'deadlines' | 'finance') =>
+const wants = (person: DeliveryRecipient, topic: 'deadlines' | 'finance', channel: 'email' | 'push' = 'email') =>
   hasPermission(person.permissions, topic === 'deadlines' ? 'expert_cases' : 'finance', 'view') &&
-  wantsChannel(person.preferences, topic, 'email');
+  wantsChannel(person.preferences, topic, channel);
+
+// Push of the day (AVS-03): only counts, never an amount nor a party name.
+const pushBody = (deadlines: number, finance: number): string =>
+  [
+    deadlines ? `${deadlines} ${deadlines === 1 ? 'prazo ou alerta' : 'prazos e alertas'}` : '',
+    finance ? `${finance} ${finance === 1 ? 'lançamento' : 'lançamentos'}` : '',
+  ]
+    .filter(Boolean)
+    .join(' e ');
 
 export const sendDigest = async (
-  deps: { mail: MailProvider; appUrl: string },
+  deps: { mail: MailProvider; appUrl: string; push?: PushSender },
   now: Date = new Date(),
 ): Promise<{ sent: number }> => {
   const today = dateInDisplayTz(now);
@@ -86,6 +97,7 @@ export const sendDigest = async (
   const tenantIds = [...new Set([...deadlinesByTenant.keys(), ...financeByTenant.keys()])];
   if (tenantIds.length === 0) return { sent: 0 };
   const recipients = await listDeliveryRecipients(tenantIds, now);
+  const devices = deps.push ? await listPushSubscriptions(recipients.map((person) => person.userId)) : new Map();
 
   let sent = 0;
   for (const tenantId of tenantIds) {
@@ -97,7 +109,22 @@ export const sendDigest = async (
     const financeHtml = htmlOf(
       financeSections(financeByTenant.get(tenantId) ?? [], { today, soon: financeSoon }, deps.appUrl),
     );
+    const deadlineCount = tenantDeadlines.length;
+    const financeCount = (financeByTenant.get(tenantId) ?? []).length;
     for (const person of people) {
+      const subscriptions = devices.get(person.userId) ?? [];
+      const body = pushBody(
+        wants(person, 'deadlines', 'push') ? deadlineCount : 0,
+        wants(person, 'finance', 'push') ? financeCount : 0,
+      );
+      if (deps.push && subscriptions.length && body) {
+        const push = deps.push;
+        await deliverOnce(
+          { tenantId, userId: person.userId, channel: 'push', key: `digest:${today}` },
+          () => push.send(subscriptions, { title: 'Ethica', body: `Hoje: ${body}.`, url: '/notifications' }),
+          now,
+        );
+      }
       const html = [wants(person, 'deadlines') ? deadlineHtml : '', wants(person, 'finance') ? financeHtml : '']
         .filter(Boolean)
         .join('');

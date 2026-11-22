@@ -9,8 +9,6 @@ pendência fica no `feature.md` indicado; aqui só a ação, quem faz e a featur
 | Item | Feature | Notas |
 | --- | --- | --- |
 | Fotos e anotações da vistoria no laudo; editar e excluir laudo | `laudo-vistoria` | AD-149 |
-| Central de notificações no lugar de Prazos e Alertas, worker de lembretes e entrega, aviso financeiro e push (absorve `avisos-notificacoes`) | `central-notificacoes` | AD-263 a AD-267; em execução |
-| Automação Datajud (premium): avisos de movimentação e sugestões aprovadas pela pessoa | `automacao-datajud` | AD-268 a AD-271; Fases 3 a 6 do plano |
 | Rotas de vistoria com ponto de partida e serviço de rota próprio | `rotas-vistoria` | AD-150 |
 | CRUD de membros só do admin | `gestao-membros` | AD-148 |
 | Imagem de produção da API e arquivos por perícia no S3 | `producao-api` | AD-146 |
@@ -35,6 +33,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Push: gerar as chaves com `npx web-push generate-vapid-keys`; na Railway, `VAPID_PUBLIC_KEY` na API e no worker, `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT` (mailto: ou https:) só no worker — `central-notificacoes`
 - [ ] Railway (serviço worker): incluir `DATAJUD_API_KEY` (a mesma da API) para ligar o acompanhamento no tribunal — `automacao-datajud`
 - [ ] Railway: criar o serviço **worker** no mesmo projeto e repositório, com arquivo de configuração `railway.worker.json` (Dockerfile `Dockerfile.worker`, healthcheck `/health`). Variáveis: `MONGODB_URI`, `APP_URL` (endereço do web), `NODE_ENV=production` e as mesmas `MAIL_PROVIDER`, `MAIL_FROM`, `RESEND_API_KEY` da API. **Desde a Fase 2 a API não manda mais o e-mail do dia: sem o worker ninguém recebe** — `central-notificacoes`
 - [ ] Atlas: usuário de banco próprio do worker, com `readWrite` em `workerjobs`, `workerheartbeats`, `notificationdeliveries` e `notifications` e `read` em `users`, `tenants`, `cases` e `transactions` (AD-267) — `central-notificacoes`
@@ -81,6 +80,10 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
+- [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
+- [ ] Criar a receita junto com o recebimento quando o serviço não tem honorário em aberto (hoje a tela manda lançar no Financeiro) — `automacao-datajud`
+- [ ] Circuit breaker por tribunal no cliente Datajud do worker — `automacao-datajud`
+- [ ] Pedir o motivo ao rejeitar uma sugestão (a API já guarda) — `automacao-datajud`
 - [ ] Desativar membro apaga as passkeys dele (junto com `gestao-membros`) — `acesso-aparelho`
 - [ ] Estorno de um pagamento fecha o acesso mesmo com outro pagamento valendo (AD-232) — `cadastro-checkout`
 - [ ] Excluir o laudo anexado reabrir o prazo "Entrega do laudo" — `anexar-laudo`
@@ -101,6 +104,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — Central de notificações, worker de lembretes, e-mail do dia, avisos, sino, preferências e push; Automação Datajud com plano de R$ 80, acompanhamento no tribunal e sugestões para aprovar (Fases 0 a 6) — `central-notificacoes`, `automacao-datajud`
 - [x] 2026-11-22 — Produção (D8): prazos antigos copiados para `Notification` (11 prazos, 11 itens de agenda) pelo script avulso, já apagado — `central-notificacoes`
 - [x] 2026-11-22 — Conferir no navegador a Central (prazo criado, cancelado e visto na agenda e no serviço), a aba Avisos, o sino e Conta → Notificações — `central-notificacoes`
 - [x] 2026-11-22 — Meta de receita do ano: cadastro em Escritório, acompanhamento no Dashboard e, por escolha de cada pessoa, em Serviços (AD-258) — `meta-receita`

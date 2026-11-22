@@ -33,4 +33,4 @@ Gate de cada fase: `pnpm run check` verde, `(cd apps/web && pnpm run build)` sem
 
 ## Fase 6 (parte base) — Push
 
-- [ ] T6.1 Web Push (AVS-03): inscrição por aparelho, envio pelo worker, texto sem dado sensível.
+- [x] T6.1 Web Push (AVS-03): inscrição por aparelho, envio pelo worker, texto sem dado sensível.

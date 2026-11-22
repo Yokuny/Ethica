@@ -1,7 +1,7 @@
 # Plano — Notificações como entidade única e Automação Datajud (módulo premium)
 
 - **Data**: 2026-11-22
-- **Status**: em execução desde 2026-11-22 (decisões da seção 1 tomadas pelo usuário; progresso na seção 13)
+- **Status**: executado em 2026-11-22 (Fases 0 a 6; o que ficou para depois está na seção 13 e no `docs/roadmap.md`)
 - **Features (slugs sugeridos)**:
   - `central-notificacoes`: base do produto; substitui `prazos-alertas` e absorve `avisos-notificacoes`;
   - `automacao-datajud`: módulo premium.
@@ -438,4 +438,4 @@ Estimativas em dias de uma pessoa, aproximadas. Cada fase fecha com `pnpm run ch
 | 3 — Módulo premium | concluída em 2026-11-22 | plano R$ 80 na mesma assinatura (AD-275), `automationUntil`, upgrade, aviso de vencimento (AD-276) |
 | 4 — Acompanhamento no tribunal | concluída em 2026-11-22 (TRT e TRF; TJ depois) | AD-277; rodado contra o Datajud real no banco local |
 | 5 — Sugestões de serviço | concluída em 2026-11-22 | regras da TPU, aprovar e rejeitar pelo `caseService`, aba Para aprovar (AD-278) |
-| 6 — Sugestões financeiras, prazos, push | pendente (regra do alvará desligada até a resposta) | — |
+| 6 — Sugestões financeiras, prazos, push | concluída em 2026-11-22 | recebimento pelo alvará e RPV/precatório (AD-274, AD-279), cancelar prazos, push e métricas (AD-280) |

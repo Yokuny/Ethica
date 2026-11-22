@@ -57,3 +57,27 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(cacheFirst(request));
   }
 });
+
+// Push (AVS-03): the worker sends `{ title, body, url }` with counts only; touching opens the screen.
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Ethica', {
+      body: data.body || '',
+      icon: '/icons/icon-192.png',
+      data: { url: data.url || '/' },
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      const open = windows.find((client) => client.url.startsWith(self.location.origin));
+      if (open) return open.navigate(url).then((client) => client?.focus());
+      return self.clients.openWindow(url);
+    }),
+  );
+});

@@ -13,6 +13,7 @@ import {
 } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
+import { suggestionDecisions } from '../../metrics/automation.metric.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as automationService from '../automation/automation.service.js';
 import * as caseService from '../case/case.service.js';
@@ -222,6 +223,7 @@ export const acceptSuggestion = async (
   if (fit === 'already') {
     const superseded = await notificationRepository.decideSuggestion(tenantId, id, { status: 'superseded', userId });
     if (!superseded) throw new CustomError('suggestion_outdated', 409);
+    suggestionDecisions.inc({ rule: suggestion.ruleKey, decision: 'superseded' });
     return superseded;
   }
   if (fit === 'impossible') throw new CustomError('suggestion_outdated', 409);
@@ -243,6 +245,7 @@ export const acceptSuggestion = async (
       await notificationRepository.createCancelSuggestion(tenantId, suggestion.caseId, pending, suggestion.evidence);
     }
   }
+  suggestionDecisions.inc({ rule: suggestion.ruleKey, decision: 'accepted' });
   return accepted;
 };
 
@@ -254,5 +257,6 @@ export const rejectSuggestion = async (decider: Decider, id: string, { reason }:
     rejectReason: reason,
   });
   if (!rejected) throw new NotificationNotFoundError('not_found');
+  suggestionDecisions.inc({ rule: rejected.ruleKey, decision: 'rejected' });
   return rejected;
 };

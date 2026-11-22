@@ -831,6 +831,8 @@ const translations: Record<string, string> = {
   notification_emails_description:
     'E-mail diário a partir das 7h com os prazos que vencem em 15 dias, hoje e ontem e os lançamentos atrasados, de hoje e de daqui a 7 dias.',
   finance_email_alert: 'Receber o aviso de vencimentos do financeiro por e-mail',
+  push_device: 'Receber notificações neste aparelho',
+  push_denied: 'O navegador bloqueou as notificações deste site. Libere nas configurações do navegador.',
   notices: 'Avisos',
   mark_all_as_read: 'Marcar todos como lidos',
   mark_as_read: 'Marcar como lido',

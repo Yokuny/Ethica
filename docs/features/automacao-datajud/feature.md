@@ -3,15 +3,15 @@ feature: Automação Datajud (premium)
 slug: automacao-datajud
 descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa
 data: 2026-11-22
-status: em-andamento
+status: parcial
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280]
 spec: [.specs/features/automacao-datajud]
 ---
 
 # Automação Datajud (premium)
 
-**Status**: em-andamento · **Atualizado**: 2026-11-22 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: parcial · **Atualizado**: 2026-11-22 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Ainda não implementado: a intenção está em `.specs/features/automacao-datajud/`.
 > Correlação com o git: `git log --oneline -i --grep='automacao-datajud'`.
@@ -45,7 +45,9 @@ A perita descobre tarde que o processo foi suspenso, acabou em acordo ou teve al
 
 - `apps/web/src/components/suggestion-receipt-dialog.tsx` (recebimento).
 
-Falta da Fase 6: push e métricas por regra.
+- Métrica `automation_suggestions_decided_total` por regra e decisão, com painel em `ops/grafana/api-dashboard.json`.
+
+Fica para depois: perícias cíveis (TJ), criar a receita junto com o recebimento, circuit breaker por tribunal.
 
 ## Como testar
 
@@ -58,6 +60,7 @@ A definir.
 
 ## Histórico
 
+- 2026-11-22 — Fim da Fase 6: métricas por regra (AD-280). Plano arquivado em `.specs/features/central-notificacoes/plans/`; o plano do worker da prospecção continua na caixa de entrada para depois.
 - 2026-11-22 — Fase 6 (parte financeira e de prazos, AD-279). Conferido na tela local: a sugestão de alvará abriu o formulário com o saldo e a data do movimento, e aprovar liquidou o honorário de teste.
 - 2026-11-22 — Fase 5: sugestões de situação e fase (AD-278). Conferido na tela local: a sugestão de suspensão aprovada pela Central mudou o serviço de teste para Suspenso.
 - 2026-11-22 — Fase 4: acompanhamento no tribunal só com TRT e TRF (AD-277). Rodado de verdade no banco local: o TRT24 trouxe um processo real e gravou a linha de base; 429 do TRT2, TRT4 e TRT15 voltaram para a fila e o TRF3 passou na segunda tentativa.
@@ -69,4 +72,4 @@ A definir.
 ## Referências
 
 - Spec (congelada): `.specs/features/automacao-datajud/`
-- Planos em execução: `.specs/plans/2026-11-22-automacao-datajud-notificacoes.md`, `.specs/plans/2026-11-22-prospeccao-worker-datajud.md`
+- Planos em execução: `.specs/features/central-notificacoes/plans/2026-11-22-automacao-datajud-notificacoes.md`, `.specs/plans/2026-11-22-prospeccao-worker-datajud.md`

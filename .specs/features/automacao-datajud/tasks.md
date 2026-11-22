@@ -29,4 +29,4 @@ Gate de cada fase: `pnpm run check`, `(cd apps/web && pnpm run build)`, registro
 
 - [x] T6.1 `payment_in_progress`, `notifications_cancel`, aviso de revisar prazos na suspensão.
 - [x] T6.2 Regra do alvará e da RPV/precatório paga (gatilhos confirmados por fixture, AD-274).
-- [ ] T6.3 Métricas de aceite e rejeição por regra em `ops/grafana`.
+- [x] T6.3 Métricas de aceite e rejeição por regra em `ops/grafana`.

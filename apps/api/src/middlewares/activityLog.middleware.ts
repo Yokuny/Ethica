@@ -36,6 +36,7 @@ const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
 // Technical effect or a read through POST: not an action of whoever uses the system.
 const IGNORED = [
   '/me/preferences',
+  '/me/push',
   '/auth/signin',
   '/auth/signout',
   '/invites/',

@@ -1,8 +1,16 @@
 import type { NotificationPreferenceTopic } from '@ethica/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/checkbox.js';
 import { DefaultLoading } from '@/components/default-loading.js';
+import {
+  currentPushSubscription,
+  pushPublicKey,
+  pushSupported,
+  turnPushOff,
+  turnPushOn,
+} from '@/lib/helpers/push.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { preferencesQuery, updatePreferencesMutation } from '@/query/preferences.js';
 import { can, sessionQuery } from '@/query/session.js';
@@ -39,6 +47,48 @@ export function AccountNotifications() {
           }
         />
       ))}
+      <DevicePush />
     </div>
+  );
+}
+
+// AVS-03: push on this device (each browser turns it on itself); hidden without browser support or VAPID key.
+function DevicePush() {
+  const key = useQuery({ queryKey: ['push', 'key'], queryFn: pushPublicKey, enabled: pushSupported() });
+  const [on, setOn] = useState<boolean>();
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    void currentPushSubscription().then((subscription) => setOn(Boolean(subscription)));
+  }, []);
+
+  if (!pushSupported() || !key.data || on === undefined) return null;
+  const publicKey = key.data;
+
+  const toggle = async (checked: boolean) => {
+    setBusy(true);
+    try {
+      if (!checked) {
+        await turnPushOff();
+        setOn(false);
+      } else if ((await turnPushOn(publicKey)) === 'denied') {
+        toast.error(t('push_denied'));
+      } else {
+        setOn(true);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t('action_error'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Checkbox
+      label={t('push_device')}
+      checked={on}
+      disabled={busy}
+      onCheckedChange={(checked) => void toggle(checked)}
+    />
   );
 }

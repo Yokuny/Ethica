@@ -10,6 +10,7 @@ vi.mock('@ethica/db', async (original) => ({
   listFinanceDueUntil: vi.fn(),
   listDeliveryRecipients: vi.fn(),
   caseLabelsByIds: vi.fn(),
+  listPushSubscriptions: vi.fn(),
 }));
 // The lock is the database's; here every person is the first to claim the day's digest.
 vi.mock('../queue/delivery-lock.js', () => ({
@@ -154,5 +155,50 @@ describe('sendDigest — financeiro e preferências (CNT-03, CNT-05)', () => {
     await sendDigest({ mail: { send }, appUrl: '' }, now);
 
     expect(send.mock.calls.map((call) => call[0])).toEqual(['on@x.com']);
+  });
+});
+
+describe('sendDigest — push (AVS-03)', () => {
+  afterEach(() => vi.clearAllMocks());
+
+  it('manda só as contagens no push, sem valor nem nome; quem desligou o push não recebe', async () => {
+    vi.mocked(db.listPendingDueOn).mockResolvedValue([
+      deadline('a', 't1', '2026-11-10'),
+      deadline('b', 't1', '2026-11-09'),
+    ]);
+    vi.mocked(db.listFinanceDueUntil).mockResolvedValue([
+      {
+        id: 'f',
+        tenantId: 't1',
+        kind: 'income',
+        description: 'Honorário Fulano',
+        dueDate: '2026-11-01',
+        openCents: 99_900,
+      },
+    ]);
+    vi.mocked(db.listDeliveryRecipients).mockResolvedValue([
+      person('t1', 'on@x.com'),
+      person('t1', 'off@x.com', { preferences: { deadlines: { push: false }, finance: { push: false } } }),
+    ]);
+    vi.mocked(db.caseLabelsByIds).mockResolvedValue(new Map());
+    const device = { endpoint: 'https://push/1', keys: { p256dh: 'p', auth: 'a' } };
+    vi.mocked(db.listPushSubscriptions).mockResolvedValue(
+      new Map([
+        ['u-on@x.com', [device]],
+        ['u-off@x.com', [device]],
+      ]),
+    );
+    const push = { send: vi.fn().mockResolvedValue({ sent: true }) };
+
+    await sendDigest({ mail: { send: vi.fn().mockResolvedValue({ sent: true }) }, appUrl: '', push }, now);
+
+    expect(push.send).toHaveBeenCalledTimes(1);
+    const message = push.send.mock.calls[0]?.[1];
+    expect(message).toEqual({
+      title: 'Ethica',
+      body: 'Hoje: 2 prazos e alertas e 1 lançamento.',
+      url: '/notifications',
+    });
+    expect(JSON.stringify(message)).not.toContain('Fulano');
   });
 });

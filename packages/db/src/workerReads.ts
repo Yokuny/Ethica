@@ -15,6 +15,7 @@ import {
 } from '@ethica/contracts';
 import { Case } from './models/case.model.js';
 import { Notification } from './models/notification.model.js';
+import { PushSubscription } from './models/push-subscription.model.js';
 import { openTenantFilter, Tenant } from './models/tenant.model.js';
 import { Transaction } from './models/transaction.model.js';
 import { User } from './models/user.model.js';
@@ -232,4 +233,18 @@ export const listPendingSuggestions = async (now = new Date()): Promise<PendingS
       legalCase: legalCase ? { role: legalCase.role, status: legalCase.status, phase: legalCase.phase } : undefined,
     };
   });
+};
+
+// Push inscriptions of the people (AVS-03), by user.
+export const listPushSubscriptions = async (
+  userIds: string[],
+): Promise<Map<string, { endpoint: string; keys: { p256dh: string; auth: string } }[]>> => {
+  const map = new Map<string, { endpoint: string; keys: { p256dh: string; auth: string } }[]>();
+  if (userIds.length === 0) return map;
+  const docs = await PushSubscription.find({ User: { $in: userIds.map(toObjectId) } }).lean();
+  for (const doc of docs) {
+    const user = String(doc.User);
+    map.set(user, [...(map.get(user) ?? []), { endpoint: doc.endpoint, keys: doc.keys }]);
+  }
+  return map;
 };

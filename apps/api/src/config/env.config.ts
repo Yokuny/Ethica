@@ -48,6 +48,8 @@ export const envSchema = z.object({
   ASAAS_RETURN_URL: optionalSecret,
   // Inbox of the Contact page (AD-249). Without it, sending answers `contact_not_configured`.
   CONTACT_EMAIL: optionalSecret,
+  // Push (AVS-03): the public VAPID key goes to the browser; the private one is the worker's. Empty = no push.
+  VAPID_PUBLIC_KEY: optionalSecret,
 });
 
 export type Env = z.infer<typeof envSchema>;

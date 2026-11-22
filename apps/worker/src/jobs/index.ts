@@ -1,6 +1,7 @@
 import type { TrackedCase } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
 import type { DatajudClient } from '../datajud/client.js';
+import type { PushSender } from '../push.js';
 import type { JobHandler } from '../queue/queue.js';
 import { enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
 import { sendDigest } from './email-digest.js';
@@ -13,6 +14,7 @@ export const buildHandlers = (deps: {
   mail: MailProvider;
   appUrl: string;
   datajud?: DatajudClient;
+  push?: PushSender;
 }): Record<string, JobHandler> => ({
   reminders_sweep: async (_payload, now) => {
     console.log(JSON.stringify({ event: 'worker.reminders_sweep', ...(await sweepReminders(now)) }));

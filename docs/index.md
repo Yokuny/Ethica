@@ -8,8 +8,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Em andamento
 
-- [`automacao-datajud`](features/automacao-datajud/feature.md) — **em-andamento** — Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa
-- [`central-notificacoes`](features/central-notificacoes/feature.md) — **em-andamento** — Notification única (prazo, alerta, sugestão, aviso) no lugar do Deadline, Central no app e worker de lembretes e entrega
+- [`automacao-datajud`](features/automacao-datajud/feature.md) — **parcial** — Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa
 - [`meta-receita`](features/meta-receita/feature.md) — **parcial** — Meta de receita do ano cadastrada em Escritório e acompanhada no Dashboard e, por escolha de cada pessoa, em Serviços
 - [`paginas-publicas`](features/paginas-publicas/feature.md) — **parcial** — Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade
 - [`cadastro-checkout`](features/cadastro-checkout/feature.md) — **parcial** — Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso
@@ -25,15 +24,14 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
-- [Plano — Notificações como entidade única e Automação Datajud (módulo premium)](../.specs/plans/2026-11-22-automacao-datajud-notificacoes.md)
 - [Plano — Worker do Datajud: prospecção processada fora do BFF](../.specs/plans/2026-11-22-prospeccao-worker-datajud.md)
 
 ## Features (43)
 
 | Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Automação Datajud (premium)](features/automacao-datajud/feature.md) | Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa | em-andamento | 2026-11-22 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/automacao-datajud) | — |
-| [Central de notificações](features/central-notificacoes/feature.md) | Notification única (prazo, alerta, sugestão, aviso) no lugar do Deadline, Central no app e worker de lembretes e entrega | em-andamento | 2026-11-22 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` `packages/mail` `docs` | [spec](../.specs/features/central-notificacoes) | — |
+| [Automação Datajud (premium)](features/automacao-datajud/feature.md) | Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa | parcial | 2026-11-22 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/automacao-datajud) | — |
+| [Central de notificações](features/central-notificacoes/feature.md) | Notification única (prazo, alerta, sugestão, aviso) no lugar do Deadline, Central no app e worker de lembretes e entrega | concluido | 2026-11-22 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` `packages/mail` `docs` | [spec](../.specs/features/central-notificacoes) | 1 |
 | [Meta de receita do ano](features/meta-receita/feature.md) | Meta de receita do ano cadastrada em Escritório e acompanhada no Dashboard e, por escolha de cada pessoa, em Serviços | parcial | 2026-11-22 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/meta-receita) | — |
 | [Páginas públicas do rodapé](features/paginas-publicas/feature.md) | Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade | parcial | 2026-11-21 | `apps/web` `apps/api` `packages/contracts` | [spec](../.specs/features/paginas-publicas) | 1 |
 | [Cadastro com checkout](features/cadastro-checkout/feature.md) | Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso | parcial | 2026-11-20 | `apps/api` `apps/web` `packages/contracts` `packages/db` `harness` | [spec](../.specs/features/cadastro-checkout) | 1 |
@@ -94,6 +92,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-280** (2026-11-22, active) — Push e métricas (fim da Fase 6): (1) Web Push com chaves VAPID: a API dá a chave pública (`GET /me/push`) e grava ou apaga a inscrição do ap
 - **AD-279** (2026-11-22, active) — Sugestões financeiras e de prazos (Fase 6 de `automacao-datajud`): (1) intenção de pagamento (12548, 12165, 12173, 12166, 12175) gera o avis
 - **AD-278** (2026-11-22, active) — Sugestões de serviço (Fase 5 de `automacao-datajud`): (1) regras em `packages/contracts/src/schemas/automation-rules.ts` com os códigos da T
 - **AD-277** (2026-11-22, active) — Acompanhamento no tribunal (Fase 4 de `automacao-datajud`): (1) só perícias trabalhistas (TRT) e federais (TRF) por enquanto (`TRACKED_COURT
@@ -103,7 +102,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-273** (2026-11-22, active) — Detalhes da Fase 2 de `central-notificacoes` (worker e entrega): (1) o e-mail do dia é um por pessoa (`Avisos do Ethica — DD/MM/AAAA`), com
 - **AD-272** (2026-11-22, active) — Detalhes da virada `Deadline` → `Notification` (Fase 1 de `central-notificacoes`), resolvidos na implementação: (1) o detalhe do serviço lê
 - **AD-271** (2026-11-22, active) — O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) fic
-- **AD-270** (2026-11-22, active (segunda assinatura superseded by AD-275: o premium é um plano da mesma assinatura)) — A Automação Datajud é um módulo premium cobrado à parte, numa segunda assinatura no Asaas, separada da do plano: `Tenant.automationUntil` (i
 
 ## `.specs/` sem registro em `docs/features/`
 

@@ -6,7 +6,7 @@
       "feature": "Automação Datajud (premium)",
       "descricao": "Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa",
       "data": "2026-11-22",
-      "status": "em-andamento",
+      "status": "parcial",
       "areas": [
         "apps/api",
         "apps/web",
@@ -24,7 +24,8 @@
         "AD-276",
         "AD-277",
         "AD-278",
-        "AD-279"
+        "AD-279",
+        "AD-280"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -37,7 +38,7 @@
       "feature": "Central de notificações",
       "descricao": "Notification única (prazo, alerta, sugestão, aviso) no lugar do Deadline, Central no app e worker de lembretes e entrega",
       "data": "2026-11-22",
-      "status": "em-andamento",
+      "status": "concluido",
       "areas": [
         "apps/api",
         "apps/web",
@@ -54,12 +55,15 @@
         "AD-266",
         "AD-267",
         "AD-272",
-        "AD-273"
+        "AD-273",
+        "AD-280"
       ],
       "spec": [
         ".specs/features/central-notificacoes"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/central-notificacoes/plans/2026-11-22-automacao-datajud-notificacoes.md"
+      ],
       "doc": "features/central-notificacoes/feature.md"
     },
     {
@@ -1114,10 +1118,6 @@
     }
   ],
   "planos_nao_arquivados": [
-    {
-      "arquivo": ".specs/plans/2026-11-22-automacao-datajud-notificacoes.md",
-      "titulo": "Plano — Notificações como entidade única e Automação Datajud (módulo premium)"
-    },
     {
       "arquivo": ".specs/plans/2026-11-22-prospeccao-worker-datajud.md",
       "titulo": "Plano — Worker do Datajud: prospecção processada fora do BFF"
@@ -2426,6 +2426,12 @@
     {
       "id": "AD-279",
       "decisao": "Sugestões financeiras e de prazos (Fase 6 de `automacao-datajud`): (1) intenção de pagamento (12548, 12165, 12173, 12166, 12175) gera o avis",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-280",
+      "decisao": "Push e métricas (fim da Fase 6): (1) Web Push com chaves VAPID: a API dá a chave pública (`GET /me/push`) e grava ou apaga a inscrição do ap",
       "data": "2026-11-22",
       "status": "active"
     }

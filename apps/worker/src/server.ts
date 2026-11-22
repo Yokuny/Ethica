@@ -6,6 +6,7 @@ import { parseEnv } from './config/env.config.js';
 import { createDatajudClient } from './datajud/client.js';
 import { startHealthServer } from './health.js';
 import { buildHandlers } from './jobs/index.js';
+import { createPushSender } from './push.js';
 import { runOne } from './queue/queue.js';
 import { scheduleTick } from './scheduler.js';
 
@@ -29,7 +30,15 @@ export const start = async (): Promise<void> => {
         minIntervalMs: env.DATAJUD_MIN_INTERVAL_MS,
       })
     : undefined;
-  const handlers = buildHandlers({ mail: createMailProvider(env), appUrl: env.APP_URL, datajud });
+  const push =
+    env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY
+      ? createPushSender({
+          publicKey: env.VAPID_PUBLIC_KEY,
+          privateKey: env.VAPID_PRIVATE_KEY,
+          subject: env.VAPID_SUBJECT ?? env.APP_URL,
+        })
+      : undefined;
+  const handlers = buildHandlers({ mail: createMailProvider(env), appUrl: env.APP_URL, datajud, push });
   const beat = () =>
     WorkerHeartbeat.updateOne(
       { instance: env.WORKER_INSTANCE },
