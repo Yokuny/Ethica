@@ -22,7 +22,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
-_Nenhum._
+- [Plano — Worker do Datajud: prospecção processada fora do BFF](../.specs/plans/2026-11-22-prospeccao-worker-datajud.md)
 
 ## Features (40)
 
@@ -85,6 +85,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-257** (2026-11-22, active) — Os parâmetros da URL são gravados como se leem. Texto vai sem aspas (`?q=123`, não `?q=%22123%22`); só listas e objetos (filtros de vários v
 - **AD-256** (2026-11-22, active) — Ajustes na AD-255, no mesmo dia. (1) O Dashboard usa só meses completos: o mês em andamento fica fora de todo número, linha e comparação. `G
 - **AD-255** (2026-11-22, active; período, faixa e "Outros" ajustados pela AD-256) — Dashboard e Início reformulados com gráficos, do macro ao micro, pelo guia de dashboards do usuário (`apps/web/src/routes/_private/dashboard
 - **AD-254** (2026-11-22, superseded by AD-255) — Em Receitas e despesas por categoria, só os totais (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo.
@@ -94,7 +95,6 @@ _Nenhum._
 - **AD-250** (2026-11-21, active) — A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p
 - **AD-249** (2026-11-21, active) — A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia
 - **AD-248** (2026-11-21, active) — As páginas sem login fecham com um rodapé único, no layout `apps/web/src/routes/_public/route.tsx`, que leva a seis páginas públicas novas:
-- **AD-247** (2026-11-20, active) — O teste (R$ 6, uma vez por escritório, sem renovação) passa a valer o primeiro mês: o acesso vai do pagamento + 1 mês de calendário + 5 dias
 
 ## `.specs/` sem registro em `docs/features/`
 

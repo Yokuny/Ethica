@@ -1567,6 +1567,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-22
 - **Status**: active
 
+### AD-257
+- **Decision**: Os parâmetros da URL são gravados como se leem. Texto vai sem aspas (`?q=123`, não `?q=%22123%22`); só listas e objetos (filtros de vários valores) vão em JSON. Na leitura, todo valor simples volta como texto, e o campo numérico converte na schema da página (`z.coerce.number()` em `page`, `limit` e `months`). O `apps/web/src/router.tsx` define o `parseSearch` e o `stringifySearch`; links antigos, com aspas, continuam abrindo.
+- **Reason**: o padrão do TanStack Router põe entre aspas todo texto que pareça número, para não confundir na volta. Uma busca por CPF, número de processo ou OS saía com aspas na URL. O leitor padrão também transforma `123` e `true` em número e booleano, o que quebraria a busca de texto se só tirássemos as aspas.
+- **Trade-off**: campo numérico novo na URL precisa de `z.coerce.number()` na schema; sem isso a página recusa o valor.
+- **Scope**: `apps/web/src/router.tsx`, schemas de busca em `apps/web/src/routes/**/@interface/`, `.agents/skills/ethica-web-standards/SKILL.md`.
+- **Date**: 2026-11-22
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

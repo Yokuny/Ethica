@@ -2,8 +2,8 @@ import { ACTIVITY_LOG_ACTIONS, ACTIVITY_LOG_MODULES } from '@ethica/contracts';
 import { z } from 'zod';
 
 export const activityLogSearchSchema = z.object({
-  page: z.number().int().min(1).optional().default(1),
-  limit: z.number().int().min(1).optional().default(20),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).optional().default(20),
   from: z.string().optional(),
   to: z.string().optional(),
   userId: z.array(z.string()).optional(),

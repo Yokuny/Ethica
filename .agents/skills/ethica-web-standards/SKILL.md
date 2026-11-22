@@ -77,7 +77,7 @@ src/routes/
 | `packages/ui` (`@ethica/ui/components/*`) | primitivos shadcn/Base UI; se existe wrapper em `@/components/`, use o wrapper |
 
 Schemas de payload vêm de `@ethica/contracts`; tipos de resposta são espelhados em `query/<entidade>.ts`.
-TanStack Query é a única fonte de dados — sem Zustand/estado global; filtro e paginação vivem na URL.
+TanStack Query é a única fonte de dados — sem Zustand/estado global; filtro e paginação vivem na URL. Na URL todo valor simples volta como texto (AD-257): campo numérico usa `z.coerce.number()` na schema.
 
 ## 3. Página
 

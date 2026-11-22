@@ -97,6 +97,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-22 — URL sem aspas em texto que parece número (`?q=123`): `parseSearch`/`stringifySearch` próprios em `apps/web/src/router.tsx` e `page`/`limit` com `z.coerce.number()` (AD-257).
 - 2026-11-21 — `seed:templates`: biblioteca do escritório com modelos de laudo e parecer em todas as áreas, para a conferência visual (`RUN_BOOK.md`).
 - 2026-11-21 — `seed:volume` sem rastro de dado fictício: e-mails derivados do nome da pessoa, da empresa e da vara, e pasta do Drive com id no formato real (antes `example.com`, `exemplo`).
 - 2026-11-18 — `integration` e `e2e` rodam com o Mongo local (642 testes verdes); pendências que pedem ação passam a ser acompanhadas no checklist de `docs/roadmap.md`.

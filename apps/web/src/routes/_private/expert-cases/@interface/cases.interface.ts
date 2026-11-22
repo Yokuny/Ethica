@@ -10,8 +10,8 @@ import {
 import { z } from 'zod';
 
 export const casesSearchSchema = z.object({
-  page: z.number().int().min(1).optional().default(1),
-  limit: z.number().int().min(1).optional().default(20),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).optional().default(20),
   q: z.string().optional().default(''),
   // Option filters with several values (FIL-03).
   phase: z.array(z.enum(CASE_PHASES)).optional(),

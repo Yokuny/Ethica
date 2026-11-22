@@ -90,6 +90,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — Texto que parece número sem aspas na URL em todas as telas (busca, paginação, período do Dashboard) (AD-257) — `fundacao-ethica`
 - [x] 2026-11-22 — Dashboard e Início reformulados conferidos no navegador (6 e 12 meses, três temas, celular) — `dashboard`
 - [x] 2026-11-22 — Dashboard e Início reformulados com gráficos, hierarquia macro → micro e cores indicativas (AD-255) — `dashboard`
 - [x] 2026-11-22 — Rankings do Dashboard e do Início com contexto: barras pelo maior valor com drill-down, categorias no período do fluxo de caixa com o anterior e escala comum, composição por justiça com os sem justiça (AD-253) — `dashboard`
