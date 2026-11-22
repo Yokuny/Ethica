@@ -1,8 +1,10 @@
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { CircleHelp } from 'lucide-react';
 import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -97,24 +99,34 @@ export function CasesIndexPage() {
       </CardHeader>
       <CasesOverview stats={statsQuery.data} />
       <CardContent>
-        {/* Next service order (a preview of the sequence, AD-190) and the last one used, as a discreet line. */}
-        {(serviceOrder?.next || serviceOrder?.last || followsGoal) && (
+        {/* Next service order (a preview of the sequence, AD-190, AD-262); the last one used opens in the tooltip. */}
+        {(serviceOrder?.next || followsGoal) && (
           <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
             {followsGoal && goal && goalCents && <CasesRevenueGoal goal={{ ...goal, goalCents }} />}
-            <div className="ms-auto flex flex-wrap gap-x-6 gap-y-1">
-              {[
-                { label: t('next_service_order'), value: serviceOrder?.next },
-                { label: t('last_service_order'), value: serviceOrder?.last },
-              ].map(
-                (item) =>
-                  item.value && (
-                    <div key={item.label} className="flex items-baseline gap-1.5">
-                      <ItemDescription>{item.label}</ItemDescription>
-                      <ItemTitle className="font-normal">{item.value}</ItemTitle>
+            {serviceOrder?.next && (
+              <Tooltip>
+                <TooltipTrigger
+                  type="button"
+                  className="ms-auto inline-flex items-center gap-1.5 text-muted-foreground underline decoration-dashed underline-offset-4 hover:text-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <CircleHelp aria-hidden className="size-3.5" />
+                  <ItemDescription render={<span />} className="text-inherit">
+                    {t('next_service_order')}
+                  </ItemDescription>
+                  <ItemTitle render={<span />} className="font-normal">
+                    {serviceOrder.next}
+                  </ItemTitle>
+                </TooltipTrigger>
+                {serviceOrder.last && (
+                  <TooltipContent>
+                    <div className="flex items-baseline gap-4">
+                      <ItemDescription className="text-xs text-inherit">{t('last_service_order')}</ItemDescription>
+                      <ItemTitle>{serviceOrder.last}</ItemTitle>
                     </div>
-                  ),
-              )}
-            </div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            )}
           </div>
         )}
         <DataTable

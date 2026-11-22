@@ -88,6 +88,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-262** (2026-11-22, active) — O indicador da OS na lista de Serviços mostra só a próxima OS, sublinhada com "?" como o "Dados da meta"; a última OS usada abre no tooltip
 - **AD-261** (2026-11-22, active) — No Dashboard a barra da meta fica na vertical, grossa, à direita do gráfico da meta (mesma altura), enchendo de baixo para cima, com o % ati
 - **AD-260** (2026-11-22, superseded in part by AD-261) — O ritmo da meta é a média mensal da meta (meta ÷ 12) vezes os meses já vividos do ano, contando o atual (ano passado: a meta toda; ano futur
 - **AD-259** (2026-11-22, active) — Metas por ano, gráfico próprio no Dashboard e só "? Dados da meta" em Serviços. O escritório guarda uma meta por ano (`Tenant.revenueGoals:
@@ -97,7 +98,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-255** (2026-11-22, active; período, faixa e "Outros" ajustados pela AD-256) — Dashboard e Início reformulados com gráficos, do macro ao micro, pelo guia de dashboards do usuário (`apps/web/src/routes/_private/dashboard
 - **AD-254** (2026-11-22, superseded by AD-255) — Em Receitas e despesas por categoria, só os totais (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo.
 - **AD-253** (2026-11-22, superseded by AD-255 (a forma em barras); `months`/`previousCents` em `GET /finance/categories` e o drill-down seguem valendo) — Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li
-- **AD-252** (2026-11-21, active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)) — `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc
 
 ## `.specs/` sem registro em `docs/features/`
 

@@ -720,7 +720,8 @@
         "AD-191",
         "AD-192",
         "AD-238",
-        "AD-240"
+        "AD-240",
+        "AD-262"
       ],
       "spec": [
         ".specs/features/servicos"
@@ -2256,6 +2257,12 @@
     {
       "id": "AD-261",
       "decisao": "No Dashboard a barra da meta fica na vertical, grossa, à direita do gráfico da meta (mesma altura), enchendo de baixo para cima, com o % ati",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-262",
+      "decisao": "O indicador da OS na lista de Serviços mostra só a próxima OS, sublinhada com \"?\" como o \"Dados da meta\"; a última OS usada abre no tooltip",
       "data": "2026-11-22",
       "status": "active"
     }

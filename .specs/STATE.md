@@ -1607,6 +1607,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-22
 - **Status**: active
 
+### AD-262
+- **Decision**: O indicador da OS na lista de Serviços mostra só a próxima OS, sublinhada com "?" como o "Dados da meta"; a última OS usada abre no tooltip (`GET /expert-cases/service-order/preview` segue devolvendo as duas). Sem sequência configurada, não aparece indicador. Supersede, da AD-190 (3), a última OS como item visível da linha.
+- **Reason**: pedido do usuário (2026-11-22): sabendo a próxima já se sabe a última; a última fica à mão no tooltip.
+- **Trade-off**: escritório sem sequência de OS deixa de ver o último número digitado à mão.
+- **Scope**: `apps/web/src/routes/_private/expert-cases/index.tsx`.
+- **Date**: 2026-11-22
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

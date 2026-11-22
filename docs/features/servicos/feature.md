@@ -5,7 +5,7 @@ descricao: Seção Perícias vira Serviços, com tipo de serviço (inclusive do 
 data: 2026-11-02
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188, AD-190, AD-191, AD-192, AD-238, AD-240]
+decisoes: [AD-158, AD-159, AD-160, AD-184, AD-185, AD-187, AD-188, AD-190, AD-191, AD-192, AD-238, AD-240, AD-262]
 spec: [.specs/features/servicos]
 branches: [main]
 ---
@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-22 — Lista mostra só a próxima OS; a última usada fica no tooltip dela, no mesmo estilo do "Dados da meta" (AD-262).
 - 2026-11-20 — Na lista, a linha da próxima e da última OS fica alinhada à direita, sem colar na tabela (`apps/web/src/routes/_private/expert-cases/index.tsx`).
 - 2026-11-20 — Lista: coluna Próximo prazo mostra só o ponto do alerta antes da data; o significado da cor (Atrasado, Urgente, Vence em breve, Atenção) aparece no tooltip ao passar o mouse no ponto ou na data, e a linha não quebra mais. Coluna Contratante da perícia: uma linha por lado com o primeiro nome cortado e "+N"; a lista completa de autores e réus fica no tooltip. Sem conferência na tela (login por passkey).
 - 2026-11-20 — Detalhe: campos vazios voltam ao grupo, no fim e esmaecidos; grupos e painéis vazios (Prazos, Vistorias, Laudos, Movimentações, Financeiro, Próximos compromissos, Partes, Observações) descem para o fim da página marcados "Não preenchido" (AD-240). Sem conferência na tela: o login local pede passkey.
