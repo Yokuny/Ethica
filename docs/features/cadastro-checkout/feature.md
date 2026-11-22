@@ -68,8 +68,8 @@ Configurada em 2026-11-21: variáveis do Asaas na Railway (`.env.example`, retor
 - 2026-11-21 — Página de planos no modelo da Vercel com o carrossel mantido: Teste, Mensal e Anual com preço por mês e cobrança, Mensalidade avulsa como opção de boleto/PIX dentro do Mensal, destaques comuns e comparação em grupos com cabeçalho fixo (AD-250).
 - 2026-11-21 — Cartão do Teste com R$ 60,00 riscado antes dos R$ 6,00 e o selo "90% de desconto", calculado dos preços (AD-250).
 - 2026-11-21 — PIX e boleto na tela do Ethica, cartão (crédito ou débito) na fatura do Asaas, e conferência das cobranças no Asaas pela tela de planos para o acesso abrir sem webhook (AD-251, plano `.specs/features/cadastro-checkout/plans/2026-11-21-pix-boleto-nativo.md`). Divergência do plano: a forma de pagamento não vai à API (a cobrança avulsa serve PIX, boleto e cartão); a conferência lê as cobranças recentes, não só a última, para achar o teste pago antes de outras cobranças.
+- 2026-11-21 — Produção configurada (Railway e painel do Asaas); seção "Antes de ir ao ar" virou "Produção".
 
 ## Referências
 
 - Spec, design, tasks e validação (congelados): `.specs/features/cadastro-checkout/`
-- 2026-11-21 — Produção configurada (Railway e painel do Asaas); seção "Antes de ir ao ar" virou "Produção".
