@@ -789,7 +789,7 @@ const translations: Record<string, string> = {
   deadlines_and_alerts: 'Prazos e Alertas',
   deadlines_and_alerts_description: 'Prazos e alertas de todos os serviços, do que vence antes ao que vence depois.',
   notifications: 'Notificações',
-  notifications_description: 'Prazos e alertas de todos os serviços, do que vence antes ao que vence depois.',
+  notifications_description: 'Prazos e alertas de todos os serviços e os avisos do escritório.',
   notification_emails_description:
     'E-mail diário a partir das 7h com os prazos que vencem em 15 dias, hoje e ontem e os lançamentos atrasados, de hoje e de daqui a 7 dias.',
   finance_email_alert: 'Receber o aviso de vencimentos do financeiro por e-mail',

@@ -66,12 +66,12 @@ pnpm vitest run apps/api/src/modules/notifications apps/worker apps/web/src/comp
 
 - [ ] Fase 6 (push) — `.specs/features/central-notificacoes/tasks.md`.
 - [ ] Usuário: criar o serviço do worker na Railway (sem ele ninguém recebe o e-mail do dia) e o usuário próprio no Atlas.
-- [ ] Conferir a Central e o detalhe do serviço no navegador (o login local pede passkey; não conferido pelo agente).
 - [ ] Usuário: há prazos reais em produção (D8)?
 - [ ] Perita: confirmar a tabela "Assumptions" da spec.
 
 ## Histórico
 
+- 2026-11-22 — Conferido no navegador com o usuário logado: criar prazo, cancelar (aba Cancelado, agenda e serviço), aba Avisos com 29 avisos do worker, lido por pessoa (sino de 29 para 28) e Conta → Notificações salvando. No banco local, os prazos antigos (`deadlines`) e os itens de agenda deles (`source: 'deadline'`) seguem órfãos até a decisão do D8. A descrição da Central passa a citar os avisos.
 - 2026-11-22 — Fase 2: worker, `packages/mail`, e-mail do dia por pessoa com prazos e financeiro, avisos `finance_due`, sino, aba Avisos e preferências por tipo × canal (AD-273). Worker conferido rodando local e na imagem Docker (`/health` 200, e-mail só no log).
 - 2026-11-22 — Fase 1: `Notification` no lugar de `Deadline` num commit só, sem shim; `rg -n "Deadline\b|deadlineService" apps packages` vazio. Divergências do design em AD-272 (permissões de criar e excluir continuam `expert_cases` `update`; o serviço lê `?caseId=`). Sem migração de dados (D8, a confirmar com o usuário).
 - 2026-11-22 — Fase 0: documentação, ADs e glossário. Absorve `avisos-notificacoes` e substitui a entidade de `prazos-alertas`.
