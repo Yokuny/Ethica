@@ -324,13 +324,15 @@
         "AD-200",
         "AD-228",
         "AD-235",
-        "AD-236"
+        "AD-236",
+        "AD-253"
       ],
       "spec": [
         ".specs/features/dashboard"
       ],
       "planos": [
-        ".specs/features/dashboard/plans/2026-11-19-valores-escritos.md"
+        ".specs/features/dashboard/plans/2026-11-19-valores-escritos.md",
+        ".specs/features/dashboard/plans/2026-11-22-graficos-com-contexto.md"
       ],
       "doc": "features/dashboard/feature.md"
     },
@@ -2165,6 +2167,12 @@
       "decisao": "`LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc",
       "data": "2026-11-21",
       "status": "active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)"
+    },
+    {
+      "id": "AD-253",
+      "decisao": "Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li",
+      "data": "2026-11-22",
+      "status": "active"
     }
   ]
 }

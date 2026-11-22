@@ -69,7 +69,7 @@ src/routes/
 | Pasta | Conteúdo |
 | --- | --- |
 | `routes/` | páginas + `@` locais (seção 1) |
-| `components/` | componentes compartilhados entre módulos e wrappers de primitivo do app (`button`, `badge`, `checkbox`, `panel`, `page-card`, `table-pagination`, `form-fields`, `date-picker`, `month-heat-table`, `share-list`, `*-labels.ts`) |
+| `components/` | componentes compartilhados entre módulos e wrappers de primitivo do app (`button`, `badge`, `checkbox`, `panel`, `page-card`, `table-pagination`, `form-fields`, `date-picker`, `month-heat-table`, `bar-list`, `*-labels.ts`) |
 | `query/<entidade>.ts` | chamadas à API de entidades compartilhadas por 2+ rotas: `xKeys`, `xQuery` (`queryOptions`), `xMutation(queryClient)`; factories locais em `routes/**/@query/` — ver `references/data-layer.md` |
 | `hooks/` | hooks de UI reaproveitáveis (`useDebouncedSearch`, `useTextSize`) — procure antes de criar |
 | `lib/api/` | cliente HTTP (`get/post/patch/del`) |
@@ -133,7 +133,7 @@ export const Route = createFileRoute('/_private/x/')({
 | Select | `<Select items={[{value,label}]}>` (`@ethica/ui/components/select`) — `items` obrigatório |
 | Leitura de registro (detalhe, integração) | `RecordHeader` (+ `RecordHeadingGroup` para vários pares) + `RecordStats` (faixa entre fios com divisórias) + `ProductSpecs` de `@/components/product-specs.js` (grupos colapsáveis rótulo/valor com ícone, ação e Expandir/Recolher tudo, AD-091) + `RecordTable` (lista livre tipo checklist), cabeçalho, faixa e lista de `@/components/record.js` (AD-072, AD-090); a tela só passa dados, sem `className` de identidade |
 | Faixa de indicadores da listagem | `<RecordStats variant="band">` + `ListTrendStat` (`@/components/list-trend-stat.js`) |
-| Números no painel (Início, Dashboard) | Número sempre escrito, sem depender de passar o mouse (AD-235, AD-236): série por mês em `<MonthHeatTable>` (`@/components/month-heat-table.js`: linha por mês, valor + variação contra o mês anterior, escala Menos/Mais ou saldo pelo sinal); parte de um todo em `<ShareList>` (`@/components/share-list.js`: valor, % do total e barra). Gráfico recharts (`ChartContainer` de `@ethica/ui/components/chart`, AD-104) só quando a forma da curva for o que importa |
+| Números no painel (Início, Dashboard) | Número sempre escrito, sem depender de passar o mouse (AD-235, AD-236): série por mês em `<MonthHeatTable>` (`@/components/month-heat-table.js`: linha por mês, valor + variação contra o mês anterior, escala Menos/Mais ou saldo pelo sinal); categorias em `<BarList>` (`@/components/bar-list.js`, AD-253: barra sem trilho medida pelo maior item, valor na ponta, contexto escrito como parcela ou variação contra o período anterior, a linha como link do drill-down via `render`, e `max` comum quando duas listas se comparam). Escreva o alcance e o denominador, e use o mesmo período dos painéis vizinhos. Gráfico recharts (`ChartContainer` de `@ethica/ui/components/chart`, AD-104) só quando a forma da curva for o que importa |
 | Criar/editar/agir sobre registro | `FormDialog` (`@/components/form-dialog.js`) ou página `/add` com `<DefaultFormLayout>`, decidido caso a caso (AD-070) |
 | Ícone | só `lucide-react`; link para outra página leva `ArrowUpRight` |
 
