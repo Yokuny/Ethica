@@ -25,19 +25,12 @@ const MODULES_ROOT = join(API_SRC_ROOT, 'modules');
 // stay out of the table and can be imported by any module.
 const DB_OWNERSHIP: Record<string, readonly string[]> = {
   identity: ['Tenant', 'User', 'Session', 'Passkey', 'Invite', 'AccessKey', 'Activity', 'transitionTenantStatus'],
-  case: [
-    'Case',
-    'Deadline',
-    'Party',
-    'CourtDivision',
-    'COURT_DIVISION_COLLATION',
-    'ServiceOrderSequence',
-    'RetiredServiceOrder',
-  ],
+  case: ['Case', 'Party', 'CourtDivision', 'COURT_DIVISION_COLLATION', 'ServiceOrderSequence', 'RetiredServiceOrder'],
   agenda: ['Appointment', 'Inspection', 'CalendarEntry'],
   finance: ['Transaction'],
   prospecting: ['Opportunity'],
   documents: ['Report', 'Template', 'Signatory'],
+  notifications: ['Notification'],
 };
 const DB_OWNER_BY_NAME = new Map(
   Object.entries(DB_OWNERSHIP).flatMap(([owner, names]) => names.map((name) => [name, owner] as const)),

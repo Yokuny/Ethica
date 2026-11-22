@@ -1687,6 +1687,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-22
 - **Status**: active
 
+### AD-272
+- **Decision**: Detalhes da virada `Deadline` → `Notification` (Fase 1 de `central-notificacoes`), resolvidos na implementação: (1) o detalhe do serviço lê `GET /notifications?caseId=…` (todas as do serviço, sem situação padrão) no lugar de `GET /expert-cases/:id/deadlines`; sem `caseId` a situação padrão é `pending`; (2) criar, alterar e excluir prazo ou alerta continuam exigindo `expert_cases` `update`, como dentro do serviço (o design citava `create`/`delete`); (3) no diário de bordo, `/notifications` fica no módulo Serviços com o recurso `notifications`; (4) o PDF "Cronograma de prazos" continua em `GET /documents/deadlines` (nomeia o relatório, não a entidade); (5) a preferência `deadlineReminderEmail` e o aviso diário no processo da API ficam até a Fase 2; (6) "Marcar como cancelado" no diálogo do prazo ou alerta pendente; o menu, o início e o título da página passam a "Notificações".
+- **Reason**: manter o comportamento de hoje onde o plano não decidia, com o menor número de conceitos novos.
+- **Trade-off**: o detalhe do serviço pede até 100 notificações por página (`limit=100`).
+- **Scope**: `apps/api/src/modules/notifications/`, `apps/api/src/middlewares/activityLog.middleware.ts`, `apps/web/src/query/notification.ts`, `apps/web/src/components/notification-dialog.tsx`.
+- **Date**: 2026-11-22
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

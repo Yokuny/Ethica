@@ -28,7 +28,7 @@ import { CommandMenu, useCommandMenuShortcut } from './command-menu.js';
 const groups: { key: string; destinations: HomeSection['to'][]; heading: string }[] = [
   {
     key: 'work',
-    destinations: ['/expert-cases', '/deadlines', '/agenda', '/field', '/expert-reports'],
+    destinations: ['/expert-cases', '/notifications', '/agenda', '/field', '/expert-reports'],
     heading: 'work',
   },
   { key: 'records', destinations: ['/parties', '/court-divisions'], heading: 'records' },

@@ -30,6 +30,7 @@ import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
 import { createPreferencesRouter } from './modules/identity/preferences.router.js';
 import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
+import { createNotificationRouter } from './modules/notifications/notification.router.js';
 import { createProspectingRouter } from './modules/prospecting/opportunity.router.js';
 import { type AsaasClient, createAsaasClient } from './providers/asaasClient.js';
 import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
@@ -163,6 +164,7 @@ export const buildApp = (
   app.use('/me', createPreferencesRouter({ validToken }));
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/expert-cases', createCaseRouter({ validToken, storage }));
+  app.use('/notifications', createNotificationRouter({ validToken }));
   app.use('/parties', createPartyRouter({ validToken }));
   app.use('/court-divisions', createCourtDivisionRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));

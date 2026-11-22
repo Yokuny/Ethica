@@ -48,6 +48,8 @@ const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
   if (first === 'auth') return 'users';
   const map: Record<string, ActivityLogModule> = {
     'expert-cases': 'expert_cases',
+    // Deadlines and alerts follow the cases permission (AD-263).
+    notifications: 'expert_cases',
     parties: 'parties',
     'court-divisions': 'court_divisions',
     agenda: 'agenda',
@@ -75,7 +77,9 @@ export const describeRequest = (
   const last = literals.at(-1) ?? '';
   const action = literals.includes('import') ? 'import' : (ACTION_BY_SUFFIX[last] ?? ACTION_BY_METHOD[method]);
   if (!action) return undefined;
-  const internal = literals.slice(module === 'report_templates' || literals[0] === 'tenant' ? 2 : 1);
+  // A notification is recorded under the cases module, with itself as the resource (AD-263).
+  const skip = literals[0] === 'notifications' ? 0 : module === 'report_templates' || literals[0] === 'tenant' ? 2 : 1;
+  const internal = literals.slice(skip);
   const resource = internal.filter((literal) => !(literal in ACTION_BY_SUFFIX) && literal !== 'import').at(-1);
   return { module, action, resource, recordId: segments.find((segment) => OBJECT_ID.test(segment)) };
 };

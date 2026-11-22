@@ -85,7 +85,7 @@ export function CaseFormFields({
       {!editing && (
         <DateField
           control={control}
-          name="reportDeadline"
+          name="reportDueDate"
           label={own ? t('delivery_date') : t('report_deadline')}
           placeholder={t('choose_day')}
         />

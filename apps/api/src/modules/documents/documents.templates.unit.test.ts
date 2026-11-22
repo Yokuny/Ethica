@@ -141,6 +141,8 @@ describe('documentos (DOC-02, DOC-03)', () => {
       caseId: 'p1',
       caseNumber: legalCase.processNumber,
       kind: 'deadline' as const,
+      module: 'expert_cases' as const,
+      source: 'user' as const,
       title: 'Entrega do laudo',
       dueDate,
       status: 'pending' as const,

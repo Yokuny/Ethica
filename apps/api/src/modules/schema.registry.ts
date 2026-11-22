@@ -25,7 +25,6 @@ import {
   courtDivisionIdParamSchema,
   listCourtDivisionsQuerySchema,
 } from './case/court-division.schema.js';
-import { deadlineIdParamSchema, listDeadlinesQuerySchema } from './case/deadline.schema.js';
 import { csvImportQuerySchema } from './case/import.schema.js';
 import { listPartiesQuerySchema, partyIdParamSchema } from './case/party.schema.js';
 import { documentCaseParamSchema } from './documents/documents.schema.js';
@@ -55,6 +54,7 @@ import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } fro
 import { asaasPaymentSchema, asaasWebhookSchema, billingPaymentParamsSchema } from './identity/billing.schema.js';
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
+import { listNotificationsQuerySchema, notificationIdParamSchema } from './notifications/notification.schema.js';
 import {
   convertOpportunitySchema,
   listOpportunitiesQuerySchema,
@@ -104,8 +104,8 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listCourtDivisionsQuerySchema', schema: listCourtDivisionsQuerySchema },
   { name: 'courtDivisionCitiesQuerySchema', schema: courtDivisionCitiesQuerySchema },
   { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
-  { name: 'deadlineIdParamSchema', schema: deadlineIdParamSchema },
-  { name: 'listDeadlinesQuerySchema', schema: listDeadlinesQuerySchema },
+  { name: 'notificationIdParamSchema', schema: notificationIdParamSchema },
+  { name: 'listNotificationsQuerySchema', schema: listNotificationsQuerySchema },
   { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
   { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },
   { name: 'upcomingAppointmentsQuerySchema', schema: upcomingAppointmentsQuerySchema },

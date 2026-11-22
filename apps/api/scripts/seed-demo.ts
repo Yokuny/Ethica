@@ -5,10 +5,10 @@ import {
   Appointment,
   Case,
   connect,
-  Deadline,
   dateInDisplayTz,
   disconnect,
   Inspection,
+  Notification,
   Opportunity,
   Party,
   Report,
@@ -117,7 +117,7 @@ const run = async (): Promise<void> => {
       Activity.deleteMany({ Tenant: old._id }),
       Case.deleteMany({ Tenant: old._id }),
       Party.deleteMany({ Tenant: old._id }),
-      Deadline.deleteMany({ Tenant: old._id }),
+      Notification.deleteMany({ Tenant: old._id }),
       Appointment.deleteMany({ Tenant: old._id }),
       Inspection.deleteMany({ Tenant: old._id }),
       Transaction.deleteMany({ Tenant: old._id }),
@@ -229,9 +229,9 @@ const run = async (): Promise<void> => {
   );
   const [inspection, report, civil, federal, clarifications] = cases;
 
-  // Deadlines (AD-109): each case's report delivery, filed on those already delivered,
+  // Deadlines (AD-263): each case's report delivery, filed on those already delivered,
   // and a clarifications deadline already filed to show the history.
-  await Deadline.insertMany([
+  await Notification.insertMany([
     ...CASES.flatMap((p, index) => {
       const legalCase = cases[index];
       if (!('deadline' in p) || !legalCase) return [];
@@ -240,6 +240,9 @@ const run = async (): Promise<void> => {
         {
           Tenant: tenant._id,
           Case: legalCase._id,
+          kind: 'deadline' as const,
+          module: 'expert_cases' as const,
+          source: 'system' as const,
           title: 'Entrega do laudo',
           dueDate: day(p.deadline),
           status: delivered ? ('filed' as const) : ('pending' as const),
@@ -250,6 +253,9 @@ const run = async (): Promise<void> => {
     {
       Tenant: tenant._id,
       Case: clarifications?._id,
+      kind: 'deadline' as const,
+      module: 'expert_cases' as const,
+      source: 'user' as const,
       title: 'Resposta à impugnação',
       dueDate: day(10),
       status: 'pending' as const,

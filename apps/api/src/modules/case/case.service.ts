@@ -4,11 +4,12 @@ import {
   type CaseInspection,
   type CasePayment,
   caseLabel,
-  DEADLINE_DUE_SOON_DAYS,
-  deadlineAgendaEntries,
+  DUE_SOON_DAYS,
   defaultPhase,
   formatServiceOrder,
   isOwnType,
+  REPORT_DELIVERY_TITLE,
+  SERVICE_DELIVERY_TITLE,
   type ServiceOrderSettings,
   STALLED_CASE_DAYS,
   suggestNonPrescribedPeriod,
@@ -16,7 +17,7 @@ import {
   validClient,
   validServiceType,
 } from '@ethica/contracts';
-import { dateInDisplayTz, shiftMonth, TextSearchUnavailableError } from '@ethica/db';
+import { caseIdsDueBetween, dateInDisplayTz, nextDueByCases, shiftMonth, TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
@@ -32,8 +33,6 @@ import type {
   StalledCase,
   UpdateCase,
 } from './case.schema.js';
-import * as deadlineRepository from './deadline.repository.js';
-import { REPORT_DELIVERY_DEADLINE, SERVICE_DELIVERY_DEADLINE } from './deadline.schema.js';
 import * as partyService from './party.service.js';
 import * as serviceOrderRepository from './service-order.repository.js';
 
@@ -133,9 +132,9 @@ const postFees = (tenantId: string, legalCase: CaseRecord, received?: CasePaymen
 };
 
 // Single creation path (form, PDF, CSV, opportunity): resolves the parties in the
-// registry (AD-117) and turns the report deadline into the "Entrega do laudo" deadline (AD-109).
+// registry (AD-117); the report due date becomes the "Entrega do laudo" deadline by `case:created` (AD-264).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
-  const { reportDeadline, parties, inspection, payment, ...input } = withSuggestedPeriod(data);
+  const { reportDueDate, parties, inspection, payment, ...input } = withSuggestedPeriod(data);
   if (!validClient({ role: input.role, parties })) throw new CustomError('invalid_contracting_party', 422);
   if (!validServiceType(input)) throw new CustomError('invalid_service_type', 422);
   if (input.serviceOrder && (await serviceOrderRepository.isRetired(input.tenant, input.serviceOrder))) {
@@ -152,24 +151,21 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
       serviceOrder: input.serviceOrder ?? (await nextServiceOrder(input.tenant)),
       parties: await partyService.resolveParties(input.tenant, parties ?? []),
     });
-    if (reportDeadline) {
-      // The office's own type delivers a service, not necessarily a report (AD-176).
-      const own = isOwnType(legalCase);
-      const deadline = await deadlineRepository.createDeadline(input.tenant, legalCase.id, {
-        title: own ? SERVICE_DELIVERY_DEADLINE : REPORT_DELIVERY_DEADLINE,
-        dueDate: reportDeadline,
-        notes: own
-          ? 'Gerado a partir da data de entrega informada no cadastro.'
-          : 'Gerado a partir do prazo do laudo informado no cadastro.',
-      });
-      domainEventBus.emit('agenda:entries_synced', {
-        tenantId: input.tenant,
-        source: 'deadline',
-        originId: deadline.id,
-        caseId: legalCase.id,
-        entries: deadlineAgendaEntries(deadline),
-      });
-    }
+    // The office's own type delivers a service, not necessarily a report (AD-176).
+    const own = isOwnType(legalCase);
+    domainEventBus.emit('case:created', {
+      tenantId: input.tenant,
+      caseId: legalCase.id,
+      delivery: reportDueDate
+        ? {
+            title: own ? SERVICE_DELIVERY_TITLE : REPORT_DELIVERY_TITLE,
+            dueDate: reportDueDate,
+            notes: own
+              ? 'Gerado a partir da data de entrega informada no cadastro.'
+              : 'Gerado a partir do prazo do laudo informado no cadastro.',
+          }
+        : undefined,
+    });
     scheduleInspection(input.tenant, legalCase, inspection);
     if (legalCase.fixedFeesCents) postFees(input.tenant, legalCase, payment);
     return legalCase;
@@ -242,8 +238,8 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
   return updated;
 };
 
-// Deleting is an admin action (case.router.ts), keeps its service order number used and takes the deadlines along; the reports and the agenda
-// entries of those deadlines leave through `case:deleted` (AD-126, AD-169). Appointments and transactions
+// Deleting is an admin action (case.router.ts) and keeps its service order number used; the reports, the
+// notifications and the agenda entries leave through `case:deleted` (AD-126, AD-169, AD-264). Appointments and transactions
 // that point to it lose the link: a missing reference becomes a missing field.
 export const deleteCase = async (tenantId: string, id: string, storage?: FileStorage): Promise<void> => {
   const legalCase = await getCase(tenantId, id);
@@ -252,7 +248,6 @@ export const deleteCase = async (tenantId: string, id: string, storage?: FileSto
   if (legalCase.serviceOrder) await serviceOrderRepository.retire(tenantId, legalCase.serviceOrder);
   const { deletedCount } = await caseRepository.deleteCase(tenantId, id);
   if (deletedCount === 0) throw new CaseNotFoundError('not_found');
-  await deadlineRepository.deleteByCase(tenantId, id);
   await Promise.all(attachments.map((attachment) => releaseAttachment(storage, tenantId, attachment)));
   domainEventBus.emit('case:deleted', { tenantId, caseId: id });
 };
@@ -330,21 +325,18 @@ export const listCases = async (
     const { deliveryFrom: from, deliveryTo: to } = query;
     const ids =
       from || to
-        ? await deadlineRepository.caseIdsDueBetween(tenantId, [REPORT_DELIVERY_DEADLINE, SERVICE_DELIVERY_DEADLINE], {
-            from,
-            to,
-          })
+        ? await caseIdsDueBetween(tenantId, [REPORT_DELIVERY_TITLE, SERVICE_DELIVERY_TITLE], { from, to })
         : undefined;
     const result = await caseRepository.listCases(tenantId, query, ids);
-    const upcoming = await deadlineRepository.upcomingByCaseIds(
+    const upcoming = await nextDueByCases(
       tenantId,
       result.items.map((item) => item.id),
     );
     return {
       ...result,
       items: result.items.map((item) => {
-        const nextDeadline = upcoming.get(item.id);
-        return nextDeadline ? { ...item, nextDeadline } : item;
+        const nextDue = upcoming.get(item.id);
+        return nextDue ? { ...item, nextDue } : item;
       }),
     };
   } catch (error) {
@@ -382,7 +374,7 @@ export const listForExport = (tenantId: string) => caseRepository.listAll(tenant
 
 export const listServiceTypes = (tenantId: string) => caseRepository.listServiceTypes(tenantId);
 
-export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DEADLINE_DUE_SOON_DAYS);
+export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DUE_SOON_DAYS);
 export const caseDistribution = (tenantId: string) => caseRepository.distribution(tenantId);
 // Services of the last 25 months up to the current one (DSH-04): two 12-month periods of complete months for the
 // Dashboard's comparison, plus the month in progress (AD-255).

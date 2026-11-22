@@ -26,7 +26,6 @@ import { contactMessageSchema } from './schemas/contactMessage.schema.js';
 import { createCourtDivisionSchema, updateCourtDivisionSchema } from './schemas/court-division.schema.js';
 import { createInviteSchema } from './schemas/createInvite.schema.js';
 import { calendarDateSchema, wallTimeSchema } from './schemas/date.schema.js';
-import { createDeadlineSchema, updateDeadlineSchema } from './schemas/deadline.schema.js';
 import {
   documentTextStyleSchema,
   financeReportQuerySchema,
@@ -44,6 +43,7 @@ import {
 } from './schemas/inspection.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
+import { createNotificationSchema, updateNotificationSchema } from './schemas/notification.schema.js';
 import {
   casePartyInputSchema,
   creaSchema,
@@ -144,8 +144,8 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'signatorySchema', schema: signatorySchema },
   { name: 'templateIdSchema', schema: templateIdSchema },
   { name: 'completeReportSchema', schema: completeReportSchema },
-  { name: 'createDeadlineSchema', schema: createDeadlineSchema },
-  { name: 'updateDeadlineSchema', schema: updateDeadlineSchema },
+  { name: 'createNotificationSchema', schema: createNotificationSchema },
+  { name: 'updateNotificationSchema', schema: updateNotificationSchema },
   { name: 'createAppointmentSchema', schema: createAppointmentSchema },
   { name: 'updateAppointmentSchema', schema: updateAppointmentSchema },
   { name: 'createTransactionSchema', schema: createTransactionSchema },

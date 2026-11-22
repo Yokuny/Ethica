@@ -419,7 +419,7 @@ const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: Case
 };
 
 const TEXT_FIELDS = ['court', 'division', 'district', 'subject', 'claimantJob', 'location'] as const;
-const DATE_FIELDS = ['nominationDate', 'reportDeadline', 'docketingDate', 'hireDate', 'terminationDate'] as const;
+const DATE_FIELDS = ['nominationDate', 'reportDueDate', 'docketingDate', 'hireDate', 'terminationDate'] as const;
 const NOTES_HEADER = /^(obs|observ|anota|coment)/;
 
 export type CsvCell = { header: string; field: CsvImportField; value: string };

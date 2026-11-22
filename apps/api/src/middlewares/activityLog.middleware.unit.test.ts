@@ -9,13 +9,13 @@ describe('descreverRequisicao — diário de bordo (AD-134)', () => {
     ['PATCH', `/expert-cases/${ID}`, { module: 'expert_cases', action: 'update', recordId: ID }],
     [
       'POST',
-      `/expert-cases/${ID}/deadlines`,
-      { module: 'expert_cases', action: 'create', resource: 'deadlines', recordId: ID },
+      '/notifications',
+      { module: 'expert_cases', action: 'create', resource: 'notifications', recordId: undefined },
     ],
     [
       'PATCH',
-      `/expert-cases/deadlines/${ID}`,
-      { module: 'expert_cases', action: 'update', resource: 'deadlines', recordId: ID },
+      `/notifications/${ID}`,
+      { module: 'expert_cases', action: 'update', resource: 'notifications', recordId: ID },
     ],
     ['POST', '/expert-cases/import/csv', { module: 'expert_cases', action: 'import', resource: 'csv' }],
     ['POST', `/expert-reports/${ID}/complete`, { module: 'expert_reports', action: 'complete', recordId: ID }],

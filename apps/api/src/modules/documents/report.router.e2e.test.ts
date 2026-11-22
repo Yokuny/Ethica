@@ -4,10 +4,10 @@ import type { TenantDocument } from '@ethica/db';
 import {
   Case,
   connect,
-  Deadline,
   dateInDisplayTz,
   disconnect,
   hashToken,
+  Notification,
   Party,
   Report,
   Session,
@@ -136,7 +136,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     await Promise.all([
       Report.deleteMany({}),
       Template.deleteMany({}),
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Party.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
@@ -223,9 +223,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const operator = await seedSession(tenant._id, ['operator']);
-    const legalCase = await admin
-      .as(request(app).post('/expert-cases'))
-      .send({ ...CASE, reportDeadline: '2026-12-01' });
+    const legalCase = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDueDate: '2026-12-01' });
     const caseId = legalCase.body.data.id;
     const { body: template } = await operator.as(request(app).get('/expert-reports/templates/standard-report'));
     const identification = sectionByTitle(template.data.sections, 'Identificação do processo');
@@ -324,7 +322,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(completed.status).toBe(200);
     expect(completed.body.data.status).toBe('completed');
     const today = dateInDisplayTz(new Date());
-    const deadline = await Deadline.findOne({ Case: caseId }).lean();
+    const deadline = await Notification.findOne({ Case: caseId }).lean();
     expect(deadline).toMatchObject({ status: 'filed', filedDate: today });
     const depois = await operator.as(request(app).get(`/expert-cases/${caseId}`));
     expect(depois.body.data.phase).toBe('report_delivered');
@@ -436,9 +434,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
   it('laudo anexado: concluído com a entrega, devolve o PDF enviado, vira modelo e sai com o arquivo (ANL-01 a ANL-04)', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
-    const legalCase = await admin
-      .as(request(app).post('/expert-cases'))
-      .send({ ...CASE, reportDeadline: '2026-12-01' });
+    const legalCase = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDueDate: '2026-12-01' });
     const caseId = legalCase.body.data.id;
     const file = pdfOf([
       'Laudo feito fora do Ethica.',
@@ -466,7 +462,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       sections: [],
       file: { name: 'Laudo final.pdf', bytes: file.length },
     });
-    const deadline = await Deadline.findOne({ Case: caseId }).lean();
+    const deadline = await Notification.findOne({ Case: caseId }).lean();
     expect(deadline).toMatchObject({ status: 'filed' });
     const after = await admin.as(request(app).get(`/expert-cases/${caseId}`));
     expect(after.body.data.phase).toBe('report_delivered');
@@ -475,7 +471,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       role: 'technical_assistant',
       subject: 'Assistência ao reclamante',
       contractor: { name: 'Maria' },
-      reportDeadline: '2026-12-01',
+      reportDueDate: '2026-12-01',
     });
     const opinion = await admin
       .as(

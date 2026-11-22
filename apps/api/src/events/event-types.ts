@@ -14,13 +14,21 @@ export interface CaseFixedFeesPayload {
   received?: { amountCents: number; date: string };
 }
 
+// Case created (AD-264): the delivery date informed at registration becomes its "Entrega do laudo"
+// (or "Entrega do serviço") deadline in the notifications module.
+export interface CaseCreatedPayload {
+  tenantId: string;
+  caseId: string;
+  delivery?: { title: string; dueDate: string; notes?: string };
+}
+
 // Case deleted: whoever keeps data linked to it (reports, AD-126) deletes its own.
 export interface CaseDeletedPayload {
   tenantId: string;
   caseId: string;
 }
 
-// Agenda by events (AD-169): an origin (deadline, transaction, case) sends all its agenda entries on every
+// Agenda by events (AD-169): an origin (notification, transaction, case) sends all its agenda entries on every
 // change and the agenda replaces the previous ones (an empty list removes them). `inspection` is the perícia
 // date of a case (AD-160, AEV-04): timed, it becomes the case's perícia appointment.
 export interface AgendaEntriesSyncedPayload {
@@ -34,6 +42,7 @@ export interface AgendaEntriesSyncedPayload {
 
 export type DomainEventMap = {
   'agenda:entries_synced': AgendaEntriesSyncedPayload;
+  'case:created': CaseCreatedPayload;
   'case:fixed_fees': CaseFixedFeesPayload;
   'case:deleted': CaseDeletedPayload;
 };

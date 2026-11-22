@@ -1,11 +1,11 @@
-import { caseLabel, DEADLINE_DUE_SOON_DAYS } from '@ethica/contracts';
+import { caseLabel, DUE_SOON_DAYS } from '@ethica/contracts';
 import { dateInDisplayTz, wallClockToUtc } from '@ethica/db';
 import type { MailProvider } from '../../providers/mail/index.js';
 import type { CaseSummary } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
-import type { NoticeDeadline } from '../case/deadline.schema.js';
-import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
+import type { DueReminder } from '../notifications/notification.schema.js';
+import * as notificationService from '../notifications/notification.service.js';
 
 // Daily digest at 07:00 São Paulo time (AD-110, AD-036).
 const NOTICE_HOUR = '07:00';
@@ -29,7 +29,7 @@ export const nextExecution = (now: Date): Date => {
 };
 
 const buildEmail = (
-  sections: { title: string; deadlines: NoticeDeadline[] }[],
+  sections: { title: string; deadlines: DueReminder[] }[],
   summaries: Map<string, CaseSummary>,
   appUrl: string,
 ): string =>
@@ -56,12 +56,12 @@ export const sendDeadlineNotices = async (
   now: Date = new Date(),
 ): Promise<{ sent: number }> => {
   const today = dateInDisplayTz(now);
-  const soon = addDays(today, DEADLINE_DUE_SOON_DAYS);
+  const soon = addDays(today, DUE_SOON_DAYS);
   const ontem = addDays(today, -1);
-  const deadlines = await deadlineService.listDeadlinesToNotice([soon, today, ontem]);
+  const deadlines = await notificationService.listDueReminders([soon, today, ontem]);
   if (deadlines.length === 0) return { sent: 0 };
 
-  const porTenant = new Map<string, NoticeDeadline[]>();
+  const porTenant = new Map<string, DueReminder[]>();
   for (const deadline of deadlines)
     porTenant.set(deadline.tenantId, [...(porTenant.get(deadline.tenantId) ?? []), deadline]);
   const recipients = await accountService.listDeadlineReminderRecipients([...porTenant.keys()]);
@@ -76,7 +76,7 @@ export const sendDeadlineNotices = async (
         { title: 'Venceram ontem', deadlines: doTenant.filter((p) => p.dueDate === ontem) },
         { title: 'Vencem hoje', deadlines: doTenant.filter((p) => p.dueDate === today) },
         {
-          title: `Vencem em ${DEADLINE_DUE_SOON_DAYS} dias`,
+          title: `Vencem em ${DUE_SOON_DAYS} dias`,
           deadlines: doTenant.filter((p) => p.dueDate === soon),
         },
       ],

@@ -10,7 +10,7 @@ export const CSV_IMPORT_FIELDS = [
   'subject',
   'status',
   'nominationDate',
-  'reportDeadline',
+  'reportDueDate',
   'proposedFees',
   'plaintiff',
   'plaintiffDocument',
@@ -69,7 +69,7 @@ const SYNONYMS: Record<Exclude<CsvImportField, 'ignore'>, string[]> = {
   subject: ['objeto', 'assunto', 'materia', 'objeto da pericia', 'descricao', 'tipo de pericia objeto'],
   status: ['status', 'situacao', 'etapa', 'fase', 'andamento'],
   nominationDate: ['data nomeacao', 'data da nomeacao', 'nomeacao', 'nomeado em', 'data de nomeacao'],
-  reportDeadline: ['prazo', 'prazo laudo', 'prazo do laudo', 'entrega do laudo', 'prazo de entrega', 'vencimento'],
+  reportDueDate: ['prazo', 'prazo laudo', 'prazo do laudo', 'entrega do laudo', 'prazo de entrega', 'vencimento'],
   proposedFees: [
     'honorario',
     'honorarios',

@@ -1,10 +1,10 @@
-import type { DeadlineStatus } from './deadline.schema.js';
+import type { NotificationStatus } from './notification.schema.js';
 import type { TransactionKind, TransactionStatus } from './transaction.schema.js';
 
-// All-day agenda entries sent by other modules (AEV-01, AD-169): each origin (a deadline, a
+// All-day agenda entries sent by other modules (AEV-01, AD-169): each origin (a notification, a
 // transaction) replaces its own entries on every change. A timed entry (the perícia of a case) becomes
 // an appointment instead.
-export const CALENDAR_ENTRY_SOURCES = ['deadline', 'transaction'] as const;
+export const CALENDAR_ENTRY_SOURCES = ['notification', 'transaction'] as const;
 export type CalendarEntrySource = (typeof CALENDAR_ENTRY_SOURCES)[number];
 
 export const CALENDAR_ENTRY_TYPES = ['deadline', 'income', 'expense', 'receipt'] as const;
@@ -24,19 +24,26 @@ export type CalendarEntryInput = {
   amountCents?: number;
 };
 
-const DEADLINE_STATUS_ENTRY: Record<DeadlineStatus, CalendarEntryStatus> = {
+// A deadline or an alert is an all-day `deadline` entry (AD-266); suggestions and notices have no day.
+const NOTIFICATION_STATUS_ENTRY: Partial<Record<NotificationStatus, CalendarEntryStatus>> = {
   pending: 'open',
   filed: 'done',
   missed: 'missed',
   done: 'done',
+  canceled: 'canceled',
 };
 
-export const deadlineAgendaEntries = (deadline: {
+export const notificationAgendaEntries = (notification: {
   title: string;
   dueDate: string;
-  status: DeadlineStatus;
+  status: NotificationStatus;
 }): CalendarEntryInput[] => [
-  { type: 'deadline', title: deadline.title, date: deadline.dueDate, status: DEADLINE_STATUS_ENTRY[deadline.status] },
+  {
+    type: 'deadline',
+    title: notification.title,
+    date: notification.dueDate,
+    status: NOTIFICATION_STATUS_ENTRY[notification.status] ?? 'open',
+  },
 ];
 
 // The due day of the transaction and, for a fee, each installment on the day it hit the account.

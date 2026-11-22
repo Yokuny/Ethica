@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deadlineAlert, deadlineSuggestions } from './deadline-labels.js';
+import { deadlineAlert, deadlineSuggestions } from './notification-labels.js';
 
 // Criticality (AD-190): overdue before today; urgent up to 5 days, due soon up to 10, attention up to 30.
 describe('deadlineAlert', () => {

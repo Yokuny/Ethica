@@ -51,7 +51,8 @@ const translations: Record<string, string> = {
   received_amount: 'Valor recebido',
   payoff_date: 'Data da quitação',
   example_service_type: 'Ex.: Avaliação de imóvel',
-  invalid_deadline_status: 'Prazo é protocolado ou perdido; alerta é concluído.',
+  invalid_notification_status:
+    'Situação inválida: prazo é protocolado, perdido ou cancelado; alerta é concluído ou cancelado.',
   invalid_service_type:
     'Informe o número do processo e o tribunal, ou escolha um tipo de serviço cadastrado pelo escritório.',
   inspection_date_time: 'Data e hora da perícia',
@@ -571,6 +572,7 @@ const translations: Record<string, string> = {
   main_navigation: 'Navegação principal',
   management: 'Gestão',
   manager: 'Gestor',
+  mark_as_canceled: 'Marcar como cancelado',
   mark_as_done: 'Marcar como concluído',
   mark_as_paid: 'Marcar como pago',
   mark_in_analysis: 'Marcar em análise',
@@ -788,6 +790,8 @@ const translations: Record<string, string> = {
   alerts: 'Alertas',
   deadlines_and_alerts: 'Prazos e Alertas',
   deadlines_and_alerts_description: 'Prazos e alertas de todos os serviços, do que vence antes ao que vence depois.',
+  notifications: 'Notificações',
+  notifications_description: 'Prazos e alertas de todos os serviços, do que vence antes ao que vence depois.',
   new_deadline_or_alert: 'Novo prazo ou alerta',
   no_deadlines_in_situation: 'Nenhum prazo ou alerta nesta situação.',
   remove_alert_question: 'Remover este alerta?',

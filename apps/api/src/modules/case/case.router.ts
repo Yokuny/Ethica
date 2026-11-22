@@ -21,13 +21,6 @@ import {
   movementIdParamSchema,
   updateCaseSchema,
 } from './case.schema.js';
-import * as deadlineController from './deadline.controller.js';
-import {
-  createDeadlineSchema,
-  deadlineIdParamSchema,
-  listDeadlinesQuerySchema,
-  updateDeadlineSchema,
-} from './deadline.schema.js';
 import { csvImportQuerySchema } from './import.schema.js';
 
 export const createCaseRouter = (deps: CaseRouterDeps): Router => {
@@ -74,30 +67,6 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
     validBody(serviceOrderSettingsSchema),
     caseController.setServiceOrder,
   );
-  // Deadlines (AD-109) follow the cases permission (AD-137); the agenda gets them by event (AD-169).
-  // "Prazos e Alertas" (AD-189): every case's deadlines and alerts, by criticality.
-  router.get(
-    '/deadlines',
-    ...guard,
-    can('expert_cases', 'view'),
-    validParsedQuery(listDeadlinesQuerySchema),
-    deadlineController.listDeadlines,
-  );
-  router.patch(
-    '/deadlines/:deadlineId',
-    ...guard,
-    can('expert_cases', 'update'),
-    validParams(deadlineIdParamSchema),
-    validBody(updateDeadlineSchema),
-    deadlineController.updateDeadline,
-  );
-  router.delete(
-    '/deadlines/:deadlineId',
-    ...guard,
-    can('expert_cases', 'update'),
-    validParams(deadlineIdParamSchema),
-    deadlineController.deleteDeadline,
-  );
   router.get(
     '/',
     ...guard,
@@ -106,21 +75,6 @@ export const createCaseRouter = (deps: CaseRouterDeps): Router => {
     caseController.listCases,
   );
   router.get('/:id', ...guard, can('expert_cases', 'view'), validParams(caseIdParamSchema), caseController.getCase);
-  router.get(
-    '/:id/deadlines',
-    ...guard,
-    can('expert_cases', 'view'),
-    validParams(caseIdParamSchema),
-    deadlineController.listCaseDeadlines,
-  );
-  router.post(
-    '/:id/deadlines',
-    ...guard,
-    can('expert_cases', 'update'),
-    validParams(caseIdParamSchema),
-    validBody(createDeadlineSchema),
-    deadlineController.createDeadline,
-  );
   // Files of the service (SPA-03), with the permission of the service (AD-137).
   router.post(
     '/:id/attachments',

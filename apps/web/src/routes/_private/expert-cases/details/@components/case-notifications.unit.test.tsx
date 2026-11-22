@@ -4,17 +4,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
-import { caseDeadlinesQuery, type DeadlineRecord } from '@/query/deadline.js';
-import { CaseDeadlines } from './case-deadlines.js';
+import { caseNotificationsQuery, type NotificationRecord } from '@/query/notification.js';
+import { CaseNotifications } from './case-notifications.js';
 
 const today = formatDisplayDate(new Date());
 
-const renderDeadlines = (deadlines: DeadlineRecord[]) => {
+const renderDeadlines = (deadlines: NotificationRecord[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
-  queryClient.setQueryData(caseDeadlinesQuery('p1').queryKey, deadlines);
+  queryClient.setQueryData(caseNotificationsQuery('p1').queryKey, deadlines);
   render(
     <QueryClientProvider client={queryClient}>
-      <CaseDeadlines caseId="p1" />
+      <CaseNotifications caseId="p1" />
     </QueryClientProvider>,
   );
 };
@@ -24,17 +24,37 @@ describe('PericiaPrazos (PRZ-01)', () => {
 
   it('lista cada prazo com status; vencido pendente ganha o selo "Atrasado"; protocolado mostra a data', () => {
     renderDeadlines([
-      { id: 'a', caseId: 'p1', kind: 'deadline', title: 'Entrega do laudo', dueDate: '2000-01-10', status: 'pending' },
+      {
+        id: 'a',
+        caseId: 'p1',
+        kind: 'deadline',
+        module: 'expert_cases',
+        source: 'user',
+        title: 'Entrega do laudo',
+        dueDate: '2000-01-10',
+        status: 'pending',
+      },
       {
         id: 'b',
         caseId: 'p1',
         kind: 'deadline',
+        module: 'expert_cases',
+        source: 'user',
         title: 'Esclarecimentos',
         dueDate: '2000-01-05',
         status: 'filed',
         filedDate: '2000-01-04',
       },
-      { id: 'c', caseId: 'p1', kind: 'deadline', title: 'Impugnação', dueDate: today, status: 'missed' },
+      {
+        id: 'c',
+        caseId: 'p1',
+        kind: 'deadline',
+        module: 'expert_cases',
+        source: 'user',
+        title: 'Impugnação',
+        dueDate: today,
+        status: 'missed',
+      },
     ]);
 
     const report = screen.getByText('Entrega do laudo').closest('li') as HTMLElement;

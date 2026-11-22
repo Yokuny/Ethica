@@ -1,22 +1,24 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as caseService from '../case/case.service.js';
-import type { NoticeDeadline } from '../case/deadline.schema.js';
-import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
+import type { DueReminder } from '../notifications/notification.schema.js';
+import * as notificationService from '../notifications/notification.service.js';
 import { nextExecution, sendDeadlineNotices } from './deadlineReminder.service.js';
 
 vi.mock('../identity/account.service.js', () => ({ listDeadlineReminderRecipients: vi.fn() }));
 vi.mock('../case/case.service.js', () => ({ findSummariesByIds: vi.fn() }));
-vi.mock('../case/deadline.service.js', () => ({ listDeadlinesToNotice: vi.fn() }));
+vi.mock('../notifications/notification.service.js', () => ({ listDueReminders: vi.fn() }));
 
 // 2026-11-10 07:00 in São Paulo = 10:00 UTC.
 const now = new Date('2026-11-10T10:00:00.000Z');
 
-const deadline = (id: string, tenantId: string, dueDate: string): NoticeDeadline => ({
+const deadline = (id: string, tenantId: string, dueDate: string): DueReminder => ({
   id,
   tenantId,
   caseId: `per-${id}`,
   kind: 'deadline',
+  module: 'expert_cases',
+  source: 'user',
   title: `Prazo ${id}`,
   dueDate,
   status: 'pending',
@@ -34,7 +36,7 @@ describe('proximaExecucao (07:00 de São Paulo)', () => {
 
 describe('enviarAvisosDePrazo (PRZ-04)', () => {
   it('pede os pendentes de 15 dias à frente, hoje e ontem; manda um e-mail por pessoa do tenant', async () => {
-    vi.mocked(deadlineService.listDeadlinesToNotice).mockResolvedValue([
+    vi.mocked(notificationService.listDueReminders).mockResolvedValue([
       deadline('a', 't1', '2026-11-25'),
       deadline('b', 't1', '2026-11-10'),
       deadline('c', 't1', '2026-11-09'),
@@ -51,7 +53,7 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
 
     const result = await sendDeadlineNotices({ mail: { send }, appUrl: 'https://app.ethica' }, now);
 
-    expect(deadlineService.listDeadlinesToNotice).toHaveBeenCalledWith(['2026-11-25', '2026-11-10', '2026-11-09']);
+    expect(notificationService.listDueReminders).toHaveBeenCalledWith(['2026-11-25', '2026-11-10', '2026-11-09']);
     expect(accountService.listDeadlineReminderRecipients).toHaveBeenCalledWith(['t1', 't2']);
     // t2 has no recipient (reminder off, inactive or suspended): no e-mail.
     expect(send.mock.calls.map((call) => call[0])).toEqual(['ana@x.com', 'bia@x.com']);
@@ -67,7 +69,7 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
   });
 
   it('sem prazo nos três dias não consulta destinatários nem envia', async () => {
-    vi.mocked(deadlineService.listDeadlinesToNotice).mockResolvedValue([]);
+    vi.mocked(notificationService.listDueReminders).mockResolvedValue([]);
     vi.mocked(accountService.listDeadlineReminderRecipients).mockClear();
     const send = vi.fn();
 
@@ -77,7 +79,7 @@ describe('enviarAvisosDePrazo (PRZ-04)', () => {
   });
 
   it('título com HTML é escapado no e-mail', async () => {
-    vi.mocked(deadlineService.listDeadlinesToNotice).mockResolvedValue([
+    vi.mocked(notificationService.listDueReminders).mockResolvedValue([
       { ...deadline('x', 't1', '2026-11-10'), title: '<script>alert(1)</script>' },
     ]);
     vi.mocked(accountService.listDeadlineReminderRecipients).mockResolvedValue([

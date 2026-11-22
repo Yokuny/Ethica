@@ -21,7 +21,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post, put, sendFile } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 import { caseKeys } from './case.js';
-import { deadlineKeys } from './deadline.js';
+import { notificationKeys } from './notification.js';
 
 // Mirrors the records of apps/api/src/modules/documents/report.schema.ts.
 export type TemplateSectionRecord = TemplateSection & { id: string };
@@ -173,7 +173,7 @@ export const attachReportMutation = (
   onSuccess: (report) => {
     updatedReport(queryClient, report);
     queryClient.invalidateQueries({ queryKey: caseKeys.all });
-    queryClient.invalidateQueries({ queryKey: deadlineKeys.all });
+    queryClient.invalidateQueries({ queryKey: notificationKeys.all });
   },
 });
 
@@ -253,7 +253,7 @@ export const completeReportMutation = (
   onSuccess: (report) => {
     updatedReport(queryClient, report);
     queryClient.invalidateQueries({ queryKey: caseKeys.all });
-    queryClient.invalidateQueries({ queryKey: deadlineKeys.all });
+    queryClient.invalidateQueries({ queryKey: notificationKeys.all });
   },
 });
 

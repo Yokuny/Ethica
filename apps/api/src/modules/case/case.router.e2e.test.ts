@@ -1,7 +1,18 @@
 import crypto from 'node:crypto';
 import type { Permissions, Role } from '@ethica/contracts';
 import type { TenantDocument } from '@ethica/db';
-import { Case, connect, Deadline, disconnect, hashToken, Party, Session, Tenant, Transaction, User } from '@ethica/db';
+import {
+  Case,
+  connect,
+  disconnect,
+  hashToken,
+  Notification,
+  Party,
+  Session,
+  Tenant,
+  Transaction,
+  User,
+} from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -56,7 +67,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
   afterEach(async () => {
     await Promise.all([
       Transaction.deleteMany({}),
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Party.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),

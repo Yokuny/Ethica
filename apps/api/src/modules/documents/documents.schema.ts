@@ -7,10 +7,10 @@ import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import type { AppointmentRecord } from '../agenda/appointment.schema.js';
 import type { DayInspection } from '../agenda/inspection.schema.js';
 import type { CaseRecord, StalledCase } from '../case/case.schema.js';
-import type { DeadlineRecord } from '../case/deadline.schema.js';
 import type { CaseFinanceSummary, FinanceReport } from '../finance/transaction.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
+import type { DatedNotification } from '../notifications/notification.schema.js';
 
 export type { DocumentIdentity, FinanceReportQuery };
 export { financeReportQuerySchema };
@@ -32,14 +32,14 @@ export type DocumentBase = { identity: DocumentIdentity; expert: AccountView; ge
 
 export type SheetData = DocumentBase & {
   legalCase: CaseRecord;
-  deadlines: DeadlineRecord[];
+  deadlines: DatedNotification[];
   appointments: AppointmentRecord[];
   finance?: CaseFinanceSummary;
 };
 
 export type ChecklistData = DocumentBase & { legalCase: CaseRecord };
 
-export type ScheduleData = DocumentBase & { deadlines: DeadlineRecord[]; today: string };
+export type ScheduleData = DocumentBase & { deadlines: DatedNotification[]; today: string };
 
 export type FinanceData = DocumentBase & { period: FinanceReportQuery; report: FinanceReport };
 

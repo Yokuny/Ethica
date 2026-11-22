@@ -44,7 +44,7 @@ export type ConvertOpportunity = {
   role: CaseRole;
   subject: string;
   nominationDate?: string;
-  reportDeadline?: string;
+  reportDueDate?: string;
 };
 
 export const opportunityKeys = {

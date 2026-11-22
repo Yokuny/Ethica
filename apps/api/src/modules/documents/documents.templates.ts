@@ -1,5 +1,5 @@
 import {
-  DEADLINE_DUE_SOON_DAYS,
+  DUE_SOON_DAYS,
   INSPECTION_AGENTS,
   INSPECTION_DOCUMENTS,
   STALLED_CASE_DAYS,
@@ -253,14 +253,14 @@ const missing = (days: number) => {
   if (days < 0) return `<span class="vencido">Vencido há ${-days} ${-days === 1 ? 'dia' : 'dias'}</span>`;
   if (days === 0) return '<span class="alerta">Vence hoje</span>';
   const text = `Faltam ${days} ${days === 1 ? 'dia' : 'dias'}`;
-  return days <= DEADLINE_DUE_SOON_DAYS ? `<span class="alerta">${text} · vence em breve</span>` : text;
+  return days <= DUE_SOON_DAYS ? `<span class="alerta">${text} · vence em breve</span>` : text;
 };
 
 export const scheduleHtml = (data: ScheduleData): PdfDocument =>
   document(
     data,
     'Cronograma de prazos',
-    `Prazos pendentes por vencimento · "vence em breve" até ${DEADLINE_DUE_SOON_DAYS} dias`,
+    `Prazos pendentes por vencimento · "vence em breve" até ${DUE_SOON_DAYS} dias`,
     data.deadlines.length
       ? table(
           ['Vencimento', 'Situação', 'Processo', 'Prazo'],

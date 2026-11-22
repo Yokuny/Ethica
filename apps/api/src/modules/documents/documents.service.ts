@@ -5,12 +5,12 @@ import type { PdfDocument, PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as appointmentService from '../agenda/appointment.service.js';
 import * as inspectionService from '../agenda/inspection.service.js';
 import * as caseService from '../case/case.service.js';
-import * as deadlineService from '../case/deadline.service.js';
 import * as partyService from '../case/party.service.js';
 import * as transactionService from '../finance/transaction.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
+import * as notificationService from '../notifications/notification.service.js';
 import * as opportunityService from '../prospecting/opportunity.service.js';
 import type { DocumentBase, DocumentContext, FinanceReportQuery, GeneratedFile } from './documents.schema.js';
 import {
@@ -43,7 +43,7 @@ export const generateSheet = async (providers: Providers, ctx: DocumentContext, 
   const legalCase = await caseService.getCase(ctx.tenantId, caseId);
   const [baseData, deadlines, appointments, finance] = await Promise.all([
     base(providers, ctx),
-    deadlineService.listCaseDeadlines(ctx.tenantId, caseId),
+    notificationService.listCaseNotifications(ctx.tenantId, caseId),
     appointmentService.listByCase(ctx.tenantId, caseId),
     ctx.canSeeFinance ? transactionService.caseSummary(ctx.tenantId, caseId) : undefined,
   ]);
@@ -66,7 +66,7 @@ export const generateChecklist = async (providers: Providers, ctx: DocumentConte
 export const generateSchedule = async (providers: Providers, ctx: DocumentContext) => {
   const [baseData, deadlines] = await Promise.all([
     base(providers, ctx),
-    deadlineService.listPendingDeadlines(ctx.tenantId),
+    notificationService.listPending(ctx.tenantId),
   ]);
   return pdf(
     providers,
@@ -139,7 +139,7 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
   const [cases, parties, deadlines, appointments, transactions, users, opportunities] = await Promise.all([
     caseService.listForExport(tenantId),
     partyService.listForExport(tenantId),
-    deadlineService.listForExport(tenantId),
+    notificationService.listForExport(tenantId),
     appointmentService.listForExport(tenantId),
     transactionService.listForExport(tenantId),
     authService.listUserDirectory(tenantId),

@@ -5,10 +5,10 @@ import {
   Activity,
   Case,
   connect,
-  Deadline,
   dateInDisplayTz,
   disconnect,
   hashToken,
+  Notification,
   Party,
   Session,
   Tenant,
@@ -95,7 +95,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     await Promise.all([
       Transaction.deleteMany({}),
       Activity.deleteMany({}),
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Party.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
@@ -111,7 +111,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     const tenant = await seedTenant();
     const operator = await seedSession(tenant._id, ['operator']);
     const admin = await seedSession(tenant._id, ['admin']);
-    const created = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(10) });
+    const created = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDueDate: day(10) });
     const id = created.body.data.id;
 
     const ofOperator = await operator
@@ -224,7 +224,7 @@ describe('documentos e movimentações (DOC-02..04)', () => {
   it('cronograma lista os prazos pendentes com "faltam N dias"', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['operator']);
-    await as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(3) });
+    await as(request(app).post('/expert-cases')).send({ ...CASE, reportDueDate: day(3) });
     const res = await as(request(app).get('/documents/deadlines')).buffer().parse(binary);
     expect(res.status).toBe(200);
     expect(rendered?.html).toContain('Faltam 3 dias · vence em breve');

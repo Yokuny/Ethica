@@ -3,30 +3,30 @@ import { Button } from '@ethica/ui/components/button';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarClock } from 'lucide-react';
 import { useState } from 'react';
-import { DeadlineDialog } from '@/components/deadline-dialog.js';
-import { DeadlineForm } from '@/components/deadline-form.js';
-import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
+import { NotificationDialog } from '@/components/notification-dialog.js';
+import { NotificationForm } from '@/components/notification-form.js';
+import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/notification-labels.js';
 import { Panel } from '@/components/panel.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { caseDeadlinesQuery, type DeadlineRecord } from '@/query/deadline.js';
+import { caseNotificationsQuery, type NotificationRecord } from '@/query/notification.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
 type DeadlinePanel =
   | { kind: 'create' }
-  | { kind: 'edit'; deadline: DeadlineRecord }
-  | { kind: 'detail'; deadline: DeadlineRecord }
+  | { kind: 'edit'; deadline: NotificationRecord }
+  | { kind: 'detail'; deadline: NotificationRecord }
   | null;
 
 // Every deadline and alert (AD-189) of the process (PRZ-01), by due date: pending ones with an overdue/due soon
 // alert, filed ones with the delivery date, missed ones in the history.
-export function CaseDeadlines({ caseId }: { caseId: string }) {
-  const query = useQuery(caseDeadlinesQuery(caseId));
+export function CaseNotifications({ caseId }: { caseId: string }) {
+  const query = useQuery(caseNotificationsQuery(caseId));
   const [panel, setPanel] = useState<DeadlinePanel>(null);
   const today = formatDisplayDate(new Date());
 
@@ -80,12 +80,12 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
           })}
         </LinkList>
       )}
-      {panel?.kind === 'create' && <DeadlineForm caseId={caseId} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'create' && <NotificationForm caseId={caseId} onClose={() => setPanel(null)} />}
       {panel?.kind === 'edit' && (
-        <DeadlineForm caseId={caseId} deadline={panel.deadline} onClose={() => setPanel(null)} />
+        <NotificationForm caseId={caseId} deadline={panel.deadline} onClose={() => setPanel(null)} />
       )}
       {panel?.kind === 'detail' && (
-        <DeadlineDialog
+        <NotificationDialog
           deadline={panel.deadline}
           onClose={() => setPanel(null)}
           onEdit={() => setPanel({ kind: 'edit', deadline: panel.deadline })}

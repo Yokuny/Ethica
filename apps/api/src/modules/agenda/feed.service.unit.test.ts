@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { DeadlineRecord } from '../case/deadline.schema.js';
 import * as accountService from '../identity/account.service.js';
+import type { DatedNotification } from '../notifications/notification.schema.js';
 import type { AppointmentRecord } from './appointment.schema.js';
 import { buildIcs, generateFeed } from './feed.service.js';
 
 vi.mock('../identity/account.service.js', () => ({ findFeedOwner: vi.fn() }));
 vi.mock('../case/case.service.js', () => ({ findSummariesByIds: vi.fn() }));
-vi.mock('../case/deadline.service.js', () => ({ listPendingDeadlines: vi.fn() }));
+vi.mock('../notifications/notification.service.js', () => ({ listPending: vi.fn() }));
 vi.mock('./appointment.repository.js', () => ({ listInRange: vi.fn() }));
 
 const now = new Date('2026-11-01T10:00:00.000Z');
@@ -25,10 +25,12 @@ const inspection: AppointmentRecord = {
   createdAt: now,
   updatedAt: now,
 };
-const deadline: DeadlineRecord = {
+const deadline: DatedNotification = {
   id: 'z1',
   caseId: 'p1',
   kind: 'deadline',
+  module: 'expert_cases',
+  source: 'user',
   title: 'Entrega do laudo',
   dueDate: '2026-11-30',
   status: 'pending',

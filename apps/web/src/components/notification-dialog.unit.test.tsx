@@ -3,8 +3,8 @@ import '@testing-library/jest-dom/vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { DeadlineRecord } from '@/query/deadline.js';
-import { DeadlineDialog } from './deadline-dialog.js';
+import type { NotificationRecord } from '@/query/notification.js';
+import { NotificationDialog } from './notification-dialog.js';
 
 const session = vi.hoisted(() => ({ canUpdate: true }));
 
@@ -13,26 +13,28 @@ vi.mock('@/query/session.js', () => ({
   can: () => session.canUpdate,
 }));
 
-const ALERT: DeadlineRecord = {
+const ALERT: NotificationRecord = {
   id: 'a',
   caseId: 'p1',
   kind: 'alert',
+  module: 'expert_cases',
+  source: 'user',
   title: 'Cobrar o depósito',
   dueDate: '2030-01-10',
   status: 'pending',
 };
 
-const renderDialog = (deadline: DeadlineRecord) => {
+const renderDialog = (deadline: NotificationRecord) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   queryClient.setQueryData(['session'], {});
   render(
     <QueryClientProvider client={queryClient}>
-      <DeadlineDialog deadline={deadline} onClose={() => undefined} />
+      <NotificationDialog deadline={deadline} onClose={() => undefined} />
     </QueryClientProvider>,
   );
 };
 
-describe('DeadlineDialog: adiar', () => {
+describe('NotificationDialog: adiar', () => {
   afterEach(() => {
     cleanup();
     session.canUpdate = true;
@@ -52,5 +54,17 @@ describe('DeadlineDialog: adiar', () => {
     session.canUpdate = false;
     renderDialog(ALERT);
     expect(screen.queryByRole('button', { name: 'Adiar' })).not.toBeInTheDocument();
+  });
+});
+
+describe('NotificationDialog: cancelar (AD-263)', () => {
+  afterEach(cleanup);
+
+  it('pendente oferece "Marcar como cancelado"; resolvido não', () => {
+    renderDialog(ALERT);
+    expect(screen.getByRole('button', { name: 'Marcar como cancelado' })).toBeInTheDocument();
+    cleanup();
+    renderDialog({ ...ALERT, status: 'done' });
+    expect(screen.queryByRole('button', { name: 'Marcar como cancelado' })).not.toBeInTheDocument();
   });
 });

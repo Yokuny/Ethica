@@ -26,11 +26,11 @@ import { Route as PublicAboutIndexRouteImport } from './routes/_public/about/ind
 import { Route as PrivateReportsIndexRouteImport } from './routes/_private/reports/index';
 import { Route as PrivateProspectingIndexRouteImport } from './routes/_private/prospecting/index';
 import { Route as PrivatePartiesIndexRouteImport } from './routes/_private/parties/index';
+import { Route as PrivateNotificationsIndexRouteImport } from './routes/_private/notifications/index';
 import { Route as PrivateFinanceIndexRouteImport } from './routes/_private/finance/index';
 import { Route as PrivateFieldIndexRouteImport } from './routes/_private/field/index';
 import { Route as PrivateExpertReportsIndexRouteImport } from './routes/_private/expert-reports/index';
 import { Route as PrivateExpertCasesIndexRouteImport } from './routes/_private/expert-cases/index';
-import { Route as PrivateDeadlinesIndexRouteImport } from './routes/_private/deadlines/index';
 import { Route as PrivateDashboardIndexRouteImport } from './routes/_private/dashboard/index';
 import { Route as PrivateCourtDivisionsIndexRouteImport } from './routes/_private/court-divisions/index';
 import { Route as PrivateAgendaIndexRouteImport } from './routes/_private/agenda/index';
@@ -138,6 +138,12 @@ const PrivatePartiesIndexRoute = PrivatePartiesIndexRouteImport.update({
   path: '/parties/',
   getParentRoute: () => PrivateRouteRoute,
 } as any);
+const PrivateNotificationsIndexRoute =
+  PrivateNotificationsIndexRouteImport.update({
+    id: '/notifications/',
+    path: '/notifications/',
+    getParentRoute: () => PrivateRouteRoute,
+  } as any);
 const PrivateFinanceIndexRoute = PrivateFinanceIndexRouteImport.update({
   id: '/finance/',
   path: '/finance/',
@@ -157,11 +163,6 @@ const PrivateExpertReportsIndexRoute =
 const PrivateExpertCasesIndexRoute = PrivateExpertCasesIndexRouteImport.update({
   id: '/expert-cases/',
   path: '/expert-cases/',
-  getParentRoute: () => PrivateRouteRoute,
-} as any);
-const PrivateDeadlinesIndexRoute = PrivateDeadlinesIndexRouteImport.update({
-  id: '/deadlines/',
-  path: '/deadlines/',
   getParentRoute: () => PrivateRouteRoute,
 } as any);
 const PrivateDashboardIndexRoute = PrivateDashboardIndexRouteImport.update({
@@ -308,11 +309,11 @@ export interface FileRoutesByFullPath {
   '/agenda/': typeof PrivateAgendaIndexRoute;
   '/court-divisions/': typeof PrivateCourtDivisionsIndexRoute;
   '/dashboard/': typeof PrivateDashboardIndexRoute;
-  '/deadlines/': typeof PrivateDeadlinesIndexRoute;
   '/expert-cases/': typeof PrivateExpertCasesIndexRoute;
   '/expert-reports/': typeof PrivateExpertReportsIndexRoute;
   '/field/': typeof PrivateFieldIndexRoute;
   '/finance/': typeof PrivateFinanceIndexRoute;
+  '/notifications/': typeof PrivateNotificationsIndexRoute;
   '/parties/': typeof PrivatePartiesIndexRoute;
   '/prospecting/': typeof PrivateProspectingIndexRoute;
   '/reports/': typeof PrivateReportsIndexRoute;
@@ -353,11 +354,11 @@ export interface FileRoutesByTo {
   '/agenda': typeof PrivateAgendaIndexRoute;
   '/court-divisions': typeof PrivateCourtDivisionsIndexRoute;
   '/dashboard': typeof PrivateDashboardIndexRoute;
-  '/deadlines': typeof PrivateDeadlinesIndexRoute;
   '/expert-cases': typeof PrivateExpertCasesIndexRoute;
   '/expert-reports': typeof PrivateExpertReportsIndexRoute;
   '/field': typeof PrivateFieldIndexRoute;
   '/finance': typeof PrivateFinanceIndexRoute;
+  '/notifications': typeof PrivateNotificationsIndexRoute;
   '/parties': typeof PrivatePartiesIndexRoute;
   '/prospecting': typeof PrivateProspectingIndexRoute;
   '/reports': typeof PrivateReportsIndexRoute;
@@ -402,11 +403,11 @@ export interface FileRoutesById {
   '/_private/agenda/': typeof PrivateAgendaIndexRoute;
   '/_private/court-divisions/': typeof PrivateCourtDivisionsIndexRoute;
   '/_private/dashboard/': typeof PrivateDashboardIndexRoute;
-  '/_private/deadlines/': typeof PrivateDeadlinesIndexRoute;
   '/_private/expert-cases/': typeof PrivateExpertCasesIndexRoute;
   '/_private/expert-reports/': typeof PrivateExpertReportsIndexRoute;
   '/_private/field/': typeof PrivateFieldIndexRoute;
   '/_private/finance/': typeof PrivateFinanceIndexRoute;
+  '/_private/notifications/': typeof PrivateNotificationsIndexRoute;
   '/_private/parties/': typeof PrivatePartiesIndexRoute;
   '/_private/prospecting/': typeof PrivateProspectingIndexRoute;
   '/_private/reports/': typeof PrivateReportsIndexRoute;
@@ -449,11 +450,11 @@ export interface FileRouteTypes {
     | '/agenda/'
     | '/court-divisions/'
     | '/dashboard/'
-    | '/deadlines/'
     | '/expert-cases/'
     | '/expert-reports/'
     | '/field/'
     | '/finance/'
+    | '/notifications/'
     | '/parties/'
     | '/prospecting/'
     | '/reports/'
@@ -494,11 +495,11 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/court-divisions'
     | '/dashboard'
-    | '/deadlines'
     | '/expert-cases'
     | '/expert-reports'
     | '/field'
     | '/finance'
+    | '/notifications'
     | '/parties'
     | '/prospecting'
     | '/reports'
@@ -542,11 +543,11 @@ export interface FileRouteTypes {
     | '/_private/agenda/'
     | '/_private/court-divisions/'
     | '/_private/dashboard/'
-    | '/_private/deadlines/'
     | '/_private/expert-cases/'
     | '/_private/expert-reports/'
     | '/_private/field/'
     | '/_private/finance/'
+    | '/_private/notifications/'
     | '/_private/parties/'
     | '/_private/prospecting/'
     | '/_private/reports/'
@@ -708,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivatePartiesIndexRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
+    '/_private/notifications/': {
+      id: '/_private/notifications/';
+      path: '/notifications';
+      fullPath: '/notifications/';
+      preLoaderRoute: typeof PrivateNotificationsIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
     '/_private/finance/': {
       id: '/_private/finance/';
       path: '/finance';
@@ -734,13 +742,6 @@ declare module '@tanstack/react-router' {
       path: '/expert-cases';
       fullPath: '/expert-cases/';
       preLoaderRoute: typeof PrivateExpertCasesIndexRouteImport;
-      parentRoute: typeof PrivateRouteRoute;
-    };
-    '/_private/deadlines/': {
-      id: '/_private/deadlines/';
-      path: '/deadlines';
-      fullPath: '/deadlines/';
-      preLoaderRoute: typeof PrivateDeadlinesIndexRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
     '/_private/dashboard/': {
@@ -938,11 +939,11 @@ interface PrivateRouteRouteChildren {
   PrivateAgendaIndexRoute: typeof PrivateAgendaIndexRoute;
   PrivateCourtDivisionsIndexRoute: typeof PrivateCourtDivisionsIndexRoute;
   PrivateDashboardIndexRoute: typeof PrivateDashboardIndexRoute;
-  PrivateDeadlinesIndexRoute: typeof PrivateDeadlinesIndexRoute;
   PrivateExpertCasesIndexRoute: typeof PrivateExpertCasesIndexRoute;
   PrivateExpertReportsIndexRoute: typeof PrivateExpertReportsIndexRoute;
   PrivateFieldIndexRoute: typeof PrivateFieldIndexRoute;
   PrivateFinanceIndexRoute: typeof PrivateFinanceIndexRoute;
+  PrivateNotificationsIndexRoute: typeof PrivateNotificationsIndexRoute;
   PrivatePartiesIndexRoute: typeof PrivatePartiesIndexRoute;
   PrivateProspectingIndexRoute: typeof PrivateProspectingIndexRoute;
   PrivateReportsIndexRoute: typeof PrivateReportsIndexRoute;
@@ -970,11 +971,11 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateAgendaIndexRoute: PrivateAgendaIndexRoute,
   PrivateCourtDivisionsIndexRoute: PrivateCourtDivisionsIndexRoute,
   PrivateDashboardIndexRoute: PrivateDashboardIndexRoute,
-  PrivateDeadlinesIndexRoute: PrivateDeadlinesIndexRoute,
   PrivateExpertCasesIndexRoute: PrivateExpertCasesIndexRoute,
   PrivateExpertReportsIndexRoute: PrivateExpertReportsIndexRoute,
   PrivateFieldIndexRoute: PrivateFieldIndexRoute,
   PrivateFinanceIndexRoute: PrivateFinanceIndexRoute,
+  PrivateNotificationsIndexRoute: PrivateNotificationsIndexRoute,
   PrivatePartiesIndexRoute: PrivatePartiesIndexRoute,
   PrivateProspectingIndexRoute: PrivateProspectingIndexRoute,
   PrivateReportsIndexRoute: PrivateReportsIndexRoute,

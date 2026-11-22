@@ -25,9 +25,9 @@ export const HOME_SECTIONS = [
     access: 'expert_cases',
   },
   {
-    to: '/deadlines',
-    titleKey: 'deadlines_and_alerts',
-    descriptionKey: 'deadlines_and_alerts_description',
+    to: '/notifications',
+    titleKey: 'notifications',
+    descriptionKey: 'notifications_description',
     icon: CalendarClock,
     access: 'expert_cases',
   },

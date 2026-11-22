@@ -7,7 +7,7 @@ export type TourStep = { target?: string; titleKey: string; descriptionKey: stri
 // Menu sections the tour presents, in menu order; each one only shows when the person sees it in the menu.
 export const TOUR_SECTIONS: HomeSection['to'][] = [
   '/expert-cases',
-  '/deadlines',
+  '/notifications',
   '/agenda',
   '/field',
   '/expert-reports',

@@ -15,12 +15,12 @@ export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './mo
 export { Case, migrateCases } from './models/case.model.js';
 export type { CourtDivisionDocument } from './models/court-division.model.js';
 export { COURT_DIVISION_COLLATION, CourtDivision } from './models/court-division.model.js';
-export type { DeadlineDocument } from './models/deadline.model.js';
-export { Deadline } from './models/deadline.model.js';
 export type { InspectionDocument, InspectionMediaDocument } from './models/inspection.model.js';
 export { Inspection } from './models/inspection.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
+export type { NotificationDocument } from './models/notification.model.js';
+export { Notification } from './models/notification.model.js';
 export type { OpportunityDocument } from './models/opportunity.model.js';
 export { Opportunity } from './models/opportunity.model.js';
 export type { PartyDocument } from './models/party.model.js';
@@ -43,6 +43,7 @@ export type { InstallmentDocument, TransactionDocument } from './models/transact
 export { Transaction } from './models/transaction.model.js';
 export type { UserDocument } from './models/user.model.js';
 export { User } from './models/user.model.js';
+export { caseIdsDueBetween, nextDueByCases, pendingDueCounts } from './notificationReads.js';
 export { tenantScoped } from './tenantScoped.js';
 export { resolveTestDatabaseUri, TEST_DATABASE_ENV, wipeTestDatabase } from './testDatabase.js';
 export type { CaseSearchSpec, PartySearchSpec, SearchIndexStatus, SearchStage } from './textSearch.js';
@@ -65,9 +66,9 @@ import { Appointment } from './models/appointment.model.js';
 import { CalendarEntry } from './models/calendar-entry.model.js';
 import { Case } from './models/case.model.js';
 import { CourtDivision } from './models/court-division.model.js';
-import { Deadline } from './models/deadline.model.js';
 import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
+import { Notification } from './models/notification.model.js';
 import { Opportunity } from './models/opportunity.model.js';
 import { Party } from './models/party.model.js';
 import { Passkey } from './models/passkey.model.js';
@@ -95,7 +96,7 @@ export const syncIndexes = async (): Promise<void> => {
     RetiredServiceOrder.createIndexes(),
     Party.createIndexes(),
     CourtDivision.createIndexes(),
-    Deadline.createIndexes(),
+    Notification.createIndexes(),
     Appointment.createIndexes(),
     CalendarEntry.createIndexes(),
     Transaction.createIndexes(),

@@ -92,6 +92,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-272** (2026-11-22, active) — Detalhes da virada `Deadline` → `Notification` (Fase 1 de `central-notificacoes`), resolvidos na implementação: (1) o detalhe do serviço lê
 - **AD-271** (2026-11-22, active) — O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) fic
 - **AD-270** (2026-11-22, active) — A Automação Datajud é um módulo premium cobrado à parte, numa segunda assinatura no Asaas, separada da do plano: `Tenant.automationUntil` (i
 - **AD-269** (2026-11-22, active) — O status do honorário continua derivado das parcelas (AD-111); não existe estado "aprovado". Homologação, liberação ou "aprovado" de valores
@@ -101,7 +102,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-265** (2026-11-22, active) — As leituras de `Notification` que o `case` precisa (próximo prazo pendente por serviço na lista, serviços com entrega no período, números da
 - **AD-264** (2026-11-22, active) — O prazo do laudo informado no cadastro do serviço passa a ser criado pelo evento novo `case:created` (`{ tenantId, caseId, delivery?: { titl
 - **AD-263** (2026-11-22, active) — `Notification` é a entidade única de tudo o que pede a atenção de alguém no escritório, com quatro tipos (`kind`): `deadline` (prazo: `pendi
-- **AD-262** (2026-11-22, active) — O indicador da OS na lista de Serviços mostra só a próxima OS, em rótulo (`ItemDescription`) e número (`ItemTitle`); a última OS usada abre
 
 ## `.specs/` sem registro em `docs/features/`
 

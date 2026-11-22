@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import { Case, connect, Deadline, dateInDisplayTz, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
+import { Case, connect, dateInDisplayTz, disconnect, hashToken, Notification, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -49,13 +49,15 @@ const CASE = {
   subject: 'Insalubridade',
 };
 
-describe('prazos da perícia (PRZ-01)', () => {
+const ids = (items: { id: string }[]) => items.map((item) => item.id);
+
+describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
   beforeAll(async () => {
     await connect(process.env.MONGODB_URI as string);
   });
   afterEach(async () => {
     await Promise.all([
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
@@ -66,40 +68,61 @@ describe('prazos da perícia (PRZ-01)', () => {
     await disconnect();
   });
 
-  it('Prazos e Alertas: pendentes por criticidade de todos os serviços; alerta só se conclui (AD-189)', async () => {
-    const { as } = await seedSession();
-    const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
-    const add = async (body: object) =>
-      (await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send(body)).body.data;
-    const later = await add({ title: 'Esclarecimentos', dueDate: day(10) });
-    const overdue = await add({ title: 'Manifestação', dueDate: day(-2) });
-    const alert = await add({ title: 'Ligar para o assistente', dueDate: day(1), kind: 'alert' });
-    expect([later.kind, alert.kind]).toEqual(['deadline', 'alert']);
+  const setup = async (role: Role[] = ['operator']) => {
+    const session = await seedSession(role);
+    const add = async (caseId: string, body: object) =>
+      (await session.as(request(app).post('/notifications')).send({ caseId, ...body })).body.data;
+    const list = async (query = '') => (await session.as(request(app).get(`/notifications${query}`))).body.data;
+    const patch = (id: string, body: object) => session.as(request(app).patch(`/notifications/${id}`)).send(body);
+    const ofCase = async (caseId: string) => (await list(`?caseId=${caseId}`)).items;
+    return { ...session, add, list, patch, ofCase };
+  };
 
-    const list = async (query = '') => (await as(request(app).get(`/expert-cases/deadlines${query}`))).body.data;
+  it('pendentes por criticidade de todos os serviços; alerta só se conclui (AD-189)', async () => {
+    const { as, add, list, patch } = await setup();
+    const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+    const later = await add(legalCase.id, { title: 'Esclarecimentos', dueDate: day(10) });
+    const overdue = await add(legalCase.id, { title: 'Manifestação', dueDate: day(-2) });
+    const alert = await add(legalCase.id, { title: 'Ligar para o assistente', dueDate: day(1), kind: 'alert' });
+    expect([later.kind, alert.kind]).toEqual(['deadline', 'alert']);
+    expect(later).toMatchObject({ module: 'expert_cases', source: 'user', status: 'pending' });
+
     const pending = await list();
     expect(pending.total).toBe(3);
-    expect(pending.items.map((item: { id: string }) => item.id)).toEqual([overdue.id, alert.id, later.id]);
+    expect(ids(pending.items)).toEqual([overdue.id, alert.id, later.id]);
     expect(pending.items[0]).toMatchObject({
       caseNumber: CASE.processNumber,
       role: CASE.role,
       courtType: CASE.courtType,
     });
 
-    const patch = (id: string, body: object) => as(request(app).patch(`/expert-cases/deadlines/${id}`)).send(body);
     // Postponing moves it down the list.
     expect((await patch(overdue.id, { dueDate: day(20) })).body.data).toMatchObject({ dueDate: day(20) });
-    expect((await list()).items.map((item: { id: string }) => item.id)).toEqual([alert.id, later.id, overdue.id]);
+    expect(ids((await list()).items)).toEqual([alert.id, later.id, overdue.id]);
     expect((await patch(alert.id, { status: 'filed' })).status).toBe(422);
+    expect((await patch(alert.id, { status: 'filed' })).body.message).toBe('invalid_notification_status');
     expect((await patch(later.id, { status: 'done' })).status).toBe(422);
+    expect((await patch(later.id, { status: 'accepted' })).status).toBe(422);
     expect((await patch(alert.id, { status: 'done' })).body.data).toMatchObject({ status: 'done' });
-    expect((await list('?status=done')).items.map((item: { id: string }) => item.id)).toEqual([alert.id]);
+    expect(ids((await list('?status=done')).items)).toEqual([alert.id]);
     expect((await list()).total).toBe(2);
-    expect((await as(request(app).get('/expert-cases/deadlines?status=x'))).status).toBe(400);
+    expect((await as(request(app).get('/notifications?status=x'))).status).toBe(400);
+  });
+
+  it('prazo e alerta pendentes podem ser cancelados e saem dos pendentes (D1)', async () => {
+    const { as, add, list, patch } = await setup();
+    const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+    const deadline = await add(legalCase.id, { title: 'Esclarecimentos', dueDate: day(3) });
+    const alert = await add(legalCase.id, { title: 'Lembrar', dueDate: day(4), kind: 'alert' });
+
+    expect((await patch(deadline.id, { status: 'canceled' })).body.data).toMatchObject({ status: 'canceled' });
+    expect((await patch(alert.id, { status: 'canceled' })).body.data).toMatchObject({ status: 'canceled' });
+    expect((await list()).total).toBe(0);
+    expect(ids((await list('?status=canceled')).items).sort()).toEqual([deadline.id, alert.id].sort());
   });
 
   it('a lista traz o contratante e o tipo do serviço do escritório', async () => {
-    const { as } = await seedSession();
+    const { as, add, list } = await setup();
     const legalCase = (
       await as(request(app).post('/expert-cases')).send({
         serviceType: 'Avaliação de imóvel',
@@ -108,30 +131,31 @@ describe('prazos da perícia (PRZ-01)', () => {
         contractor: { name: 'Construtora Alfa' },
       })
     ).body.data;
-    await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({ title: 'Entrega', dueDate: day(3) });
+    await add(legalCase.id, { title: 'Entrega', dueDate: day(3) });
 
-    const { items } = (await as(request(app).get('/expert-cases/deadlines'))).body.data;
+    const { items } = await list();
     expect(items[0]).toMatchObject({ client: 'Construtora Alfa', serviceType: 'Avaliação de imóvel' });
   });
 
-  it('cadastrar a perícia com prazo do laudo cria "Entrega do laudo" pendente; a perícia não guarda o campo', async () => {
-    const { as } = await seedSession();
-    const created = await as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(20) });
+  it('cadastrar o serviço com prazo do laudo cria "Entrega do laudo" pendente pelo evento (AD-264)', async () => {
+    const { as, ofCase } = await setup();
+    const created = await as(request(app).post('/expert-cases')).send({ ...CASE, reportDueDate: day(20) });
     expect(created.status).toBe(201);
-    expect(created.body.data).not.toHaveProperty('reportDeadline');
+    expect(created.body.data).not.toHaveProperty('reportDueDate');
 
-    const deadlines = await as(request(app).get(`/expert-cases/${created.body.data.id}/deadlines`));
-    expect(deadlines.status).toBe(200);
-    expect(deadlines.body.data).toEqual([
-      expect.objectContaining({ title: 'Entrega do laudo', dueDate: day(20), status: 'pending' }),
-    ]);
+    await expect
+      .poll(() => ofCase(created.body.data.id))
+      .toEqual([
+        expect.objectContaining({ title: 'Entrega do laudo', dueDate: day(20), status: 'pending', source: 'system' }),
+      ]);
   });
 
   it('cria pendente, protocola com data, marca perdido e reabre (AC 1–3)', async () => {
-    const { as } = await seedSession();
+    const { as, ofCase } = await setup();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
 
-    const created = await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
+    const created = await as(request(app).post('/notifications')).send({
+      caseId: legalCase.id,
       title: 'Esclarecimentos',
       dueDate: day(-3),
     });
@@ -139,36 +163,33 @@ describe('prazos da perícia (PRZ-01)', () => {
     expect(created.body.data).toMatchObject({ status: 'pending', dueDate: day(-3), caseId: legalCase.id });
     const id = created.body.data.id;
 
-    const filed = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({
-      status: 'filed',
-      filedDate: day(-4),
-    });
+    const filed = await as(request(app).patch(`/notifications/${id}`)).send({ status: 'filed', filedDate: day(-4) });
     expect(filed.body.data).toMatchObject({ status: 'filed', filedDate: day(-4) });
 
-    const semData = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({ status: 'filed' });
+    const semData = await as(request(app).patch(`/notifications/${id}`)).send({ status: 'filed' });
     expect(semData.body.data.filedDate).toBe(day(0));
 
-    const missed = await as(request(app).patch(`/expert-cases/deadlines/${id}`)).send({ status: 'missed' });
+    const missed = await as(request(app).patch(`/notifications/${id}`)).send({ status: 'missed' });
     expect(missed.body.data.status).toBe('missed');
     expect(missed.body.data).not.toHaveProperty('filedDate');
 
-    const [listed] = (await as(request(app).get(`/expert-cases/${legalCase.id}/deadlines`))).body.data;
+    const [listed] = await ofCase(legalCase.id);
     expect(listed.status).toBe('missed');
   });
 
   it('listagem mostra o próximo prazo pendente e a faixa conta vencidos e os que vencem em até 15 dias (AC 5)', async () => {
-    const { as } = await seedSession();
+    const { as, add } = await setup();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
     for (const [title, dueDate] of [
       ['Vencido', day(-1)],
       ['Em breve', day(15)],
       ['Longe', day(16)],
     ] as const) {
-      await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({ title, dueDate });
+      await add(legalCase.id, { title, dueDate });
     }
 
     const list = await as(request(app).get('/expert-cases'));
-    expect(list.body.data.items[0].nextDeadline).toEqual({ title: 'Vencido', dueDate: day(-1) });
+    expect(list.body.data.items[0].nextDue).toEqual({ title: 'Vencido', dueDate: day(-1) });
 
     const stats = await as(request(app).get('/expert-cases/stats'));
     const groups = Object.fromEntries(
@@ -178,16 +199,10 @@ describe('prazos da perícia (PRZ-01)', () => {
   });
 
   it('a agenda recebe os prazos do intervalo por evento, com o número do processo (AC 6, AD-169)', async () => {
-    const { as } = await seedSession();
+    const { as, add } = await setup();
     const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
-    await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
-      title: 'Dentro',
-      dueDate: day(2),
-    });
-    await as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`)).send({
-      title: 'Fora',
-      dueDate: day(40),
-    });
+    await add(legalCase.id, { title: 'Dentro', dueDate: day(2) });
+    await add(legalCase.id, { title: 'Fora', dueDate: day(40) });
 
     const entries = async () => (await as(request(app).get(`/agenda/entries?from=${day(0)}&to=${day(7)}`))).body.data;
     await expect
@@ -195,25 +210,22 @@ describe('prazos da perícia (PRZ-01)', () => {
       .toEqual([expect.objectContaining({ type: 'deadline', title: 'Dentro', caseNumber: CASE.processNumber })]);
   });
 
-  it('excluir a perícia exclui os prazos; prazo de outro tenant é 404', async () => {
-    const admin = await seedSession(['admin']);
-    const other = await seedSession();
-    const legalCase = (await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: day(5) }))
-      .body.data;
-    const [deadline] = (await admin.as(request(app).get(`/expert-cases/${legalCase.id}/deadlines`))).body.data;
+  it('excluir o serviço exclui as notificações; notificação de outro tenant é 404', async () => {
+    const admin = await setup(['admin']);
+    const other = await setup();
+    const legalCase = (await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDueDate: day(5) })).body
+      .data;
+    await expect.poll(async () => (await admin.ofCase(legalCase.id)).length).toBe(1);
+    const [deadline] = await admin.ofCase(legalCase.id);
 
+    expect((await other.patch(deadline.id, { status: 'missed' })).status).toBe(404);
     expect(
-      (await other.as(request(app).patch(`/expert-cases/deadlines/${deadline.id}`)).send({ status: 'missed' })).status,
+      (await other.as(request(app).post('/notifications')).send({ caseId: legalCase.id, title: 'X', dueDate: day(1) }))
+        .status,
     ).toBe(404);
-    expect(
-      (
-        await other
-          .as(request(app).post(`/expert-cases/${legalCase.id}/deadlines`))
-          .send({ title: 'X', dueDate: day(1) })
-      ).status,
-    ).toBe(404);
+    expect((await other.as(request(app).get(`/notifications?caseId=${legalCase.id}`))).status).toBe(404);
 
     expect((await admin.as(request(app).delete(`/expert-cases/${legalCase.id}`))).status).toBe(200);
-    expect(await Deadline.countDocuments({ Case: legalCase.id })).toBe(0);
+    await expect.poll(() => Notification.countDocuments({ Case: legalCase.id })).toBe(0);
   });
 });

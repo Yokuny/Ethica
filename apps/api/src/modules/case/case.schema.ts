@@ -25,7 +25,6 @@ import {
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { FileStorage } from '../../providers/fileStorage.js';
-import type { NextDeadline } from './deadline.schema.js';
 import type { CasePartyWrite } from './party.schema.js';
 
 export type { CreateCase, CreateMovement, UpdateCase };
@@ -129,7 +128,7 @@ export type CreateCaseInput = CreateCase & { tenant: string; opportunityId?: str
 
 // What the repository saves: parties already resolved in the registry (AD-117), without the report deadline
 // and the perícia date.
-export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDeadline' | 'parties' | 'inspection' | 'payment'> & {
+export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDueDate' | 'parties' | 'inspection' | 'payment'> & {
   parties: CasePartyWrite[];
 };
 
@@ -139,8 +138,9 @@ export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string;
 // `null` becomes `$unset` in the repository: fields of the office's own type and erased dates (AD-177).
 export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'inspection'> & { parties?: CasePartyWrite[] };
 
-// Listing: each case with its nearest pending deadline (missing if there is none).
-export type CaseListItem = CaseRecord & { nextDeadline?: NextDeadline };
+// Listing: each case with its nearest pending deadline or alert (missing if there is none).
+export type NextDue = { title: string; dueDate: string };
+export type CaseListItem = CaseRecord & { nextDue?: NextDue };
 
 // Cross-module enrichment (agenda, finance, feed, reminder, reports): number, court and division, and the names of the
 // parties on each side (without lawyers), comma-separated.

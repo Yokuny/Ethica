@@ -24,15 +24,16 @@ apps/api/src/
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)
-    ├── case/                       # Case (perícia) + Deadline (AD-109) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
+    ├── case/                       # Case (perícia) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
     ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, aviso diário de prazos, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
+    ├── notifications/              # Notification — prazo, alerta, sugestão e aviso (AD-263); Central e prazo do laudo por `case:created` (AD-264)
     ├── finance/                    # Transaction — honorários (com installments, AD-111) e despesas; resumo, fluxo, categorias
     ├── prospecting/                # Opportunity + busca no Datajud; converte em perícia
     ├── contact/                    # mensagem da página Contato por e-mail à caixa do Ethica (AD-249), sem model, ninguém depende dele
     └── documents/                  # PDFs (AD-119), exportação ZIP (AD-122) e laudos (Report + Template, AD-126) — ninguém depende dele
 ```
 
-Nomes de código em inglês pelo glossário da AD-140 (`.specs/features/english-naming/design.md`): perícia `Case`, prazo `Deadline`, parte `Party`, compromisso `Appointment`, vistoria `Inspection`, lançamento `Transaction`, laudo `Report`, modelo `Template`, oportunidade `Opportunity`, diário `Activity`.
+Nomes de código em inglês pelo glossário da AD-140 (`.specs/features/english-naming/design.md`): perícia `Case`, notificação `Notification` (prazo, alerta, sugestão, aviso), parte `Party`, compromisso `Appointment`, vistoria `Inspection`, lançamento `Transaction`, laudo `Report`, modelo `Template`, oportunidade `Opportunity`, diário `Activity`.
 
 Cada `modules/<module>/` é **auto-contido**: `<entidade>.router.ts .controller.ts .service.ts .repository.ts .schema.ts` + testes colocalizados (`.unit.test.ts .int.test.ts .e2e.test.ts`, nunca pasta `__test__` separada — AD-017). Um módulo pode agrupar mais de uma entidade (`identity`) quando elas compartilham dono de collection ou fronteira de domínio — granularidade é por **contexto**, não 1:1 com arquivo.
 
@@ -50,18 +51,19 @@ Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma co
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
+Grafo atual: `agenda`, `finance`, `prospecting` e `notifications` → `case`; `agenda` e `documents` → `notifications` (feed iCal, aviso diário, entrega do laudo); `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
 | `identity` | `Tenant User Session Passkey Invite AccessKey Activity transitionTenantStatus` (inclui a passkey do aparelho, AD-220, identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
-| `case` | `Case Deadline Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) `RetiredServiceOrder` (OS de serviço excluído, AD-187) |
+| `case` | `Case Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) `RetiredServiceOrder` (OS de serviço excluído, AD-187) |
 | `agenda` | `Appointment Inspection` (AD-130) `CalendarEntry` (itens de dia inteiro vindos de outros módulos, AD-169) |
 | `finance` | `Transaction` |
 | `prospecting` | `Opportunity` |
 | `documents` | `Report Template` (AD-126) `Signatory` (responsável técnico, AD-162) |
+| `notifications` | `Notification` (AD-263); o `case` lê o próximo prazo e os números da faixa pelas funções de leitura do `@ethica/db` (`notificationReads.ts`, AD-265) |
 
 Helpers sem dono (`tenantScoped`, `hashToken`, datas, tipos) podem ser importados por qualquer módulo — a tabela só restringe **models e transições de negócio**. A tabela vive de verdade em `tests/structural/module-boundary.structural.test.ts`(`DB_OWNERSHIP`) — atualizar os dois lugares (aqui e lá) ao mudar o dono de algo.
 
@@ -115,7 +117,7 @@ domainEventBus.on('case:fixed_fees', async (payload) => {
 });
 ```
 
-Eventos atuais: `case:fixed_fees` → financeiro lança a receita a receber (`fixed_fees` ou, na perícia de assistente técnico, `contracted_fees`, AD-135) ou atualiza o valor do honorário já lançado (AD-106, AD-111); `case:deleted` → documentos exclui os laudos da perícia (AD-126) e a agenda apaga os prazos dela; `agenda:entries_synced` → a agenda troca os itens de dia inteiro da origem (prazo, lançamento) e guarda a data da perícia do serviço como compromisso (AD-169). A lista viva é o `DomainEventMap` de `events/event-types.ts`. O prazo do laudo virou o prazo "Entrega do laudo", criado no próprio `case.service` (AD-109), sem evento.
+Eventos atuais: `case:fixed_fees` → financeiro lança a receita a receber (`fixed_fees` ou, na perícia de assistente técnico, `contracted_fees`, AD-135) ou atualiza o valor do honorário já lançado (AD-106, AD-111); `case:created` → `notifications` cria o prazo "Entrega do laudo" informado no cadastro (AD-264); `case:deleted` → documentos exclui os laudos da perícia (AD-126), `notifications` apaga as notificações dela e a agenda apaga os itens dela; `agenda:entries_synced` → a agenda troca os itens de dia inteiro da origem (prazo, lançamento) e guarda a data da perícia do serviço como compromisso (AD-169). A lista viva é o `DomainEventMap` de `events/event-types.ts`.
 
 - Um handler que rejeita **nunca propaga** pro emissor — é capturado e logado em JSON: `{"event":"domain_event.handler_failed","name":"case:fixed_fees","message":"…"}`.
 - `off(event, handler)` remove de fato (o bus guarda o wrapper por `(event, handler)` internamente).

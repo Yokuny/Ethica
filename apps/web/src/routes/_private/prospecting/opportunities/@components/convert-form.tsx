@@ -79,7 +79,7 @@ export function ConvertForm({ opportunity, onClose }: { opportunity: Opportunity
                     />
                     <DateField
                       control={form.control}
-                      name="reportDeadline"
+                      name="reportDueDate"
                       label={t('report_deadline')}
                       placeholder={t('choose_day')}
                     />

@@ -5,7 +5,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { BriefcaseBusiness } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel, caseStatusLabel, serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
-import { ALERT_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
+import { ALERT_VARIANT, deadlineAlert } from '@/components/notification-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -126,10 +126,10 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     ),
   },
   {
-    id: 'nextDeadline',
+    id: 'nextDue',
     header: t('next_deadline'),
     cell: ({ row }) => {
-      const deadline = row.original.nextDeadline;
+      const deadline = row.original.nextDue;
       if (!deadline) return <TableStack tone="muted">—</TableStack>;
       const alert = deadlineAlert(deadline, formatDisplayDate(new Date()));
       const date = formatDate(toDate(deadline.dueDate));
@@ -201,7 +201,7 @@ export const caseExportColumns = (canSeeFinance: boolean): TableExportColumn<Cas
   },
   {
     header: t('next_deadline'),
-    value: (row) => row.nextDeadline && `${formatDate(toDate(row.nextDeadline.dueDate))} · ${row.nextDeadline.title}`,
+    value: (row) => row.nextDue && `${formatDate(toDate(row.nextDue.dueDate))} · ${row.nextDue.title}`,
   },
   ...(canSeeFinance
     ? [

@@ -13,22 +13,22 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useWatch } from 'react-hook-form';
-import { DEADLINE_KIND_ITEMS, deadlineSuggestions } from '@/components/deadline-labels.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { DateField, SelectField, TextareaField, TextField } from '@/components/form-fields.js';
-import { useDeadlineForm } from '@/hooks/useDeadlineForm.js';
+import { DEADLINE_KIND_ITEMS, deadlineSuggestions } from '@/components/notification-labels.js';
+import { useNotificationForm } from '@/hooks/useNotificationForm.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
-import type { DeadlineRecord } from '@/query/deadline.js';
+import type { NotificationRecord } from '@/query/notification.js';
 
 const WRITE = '__write__';
 
-type DeadlineFormProps = { caseId: string; deadline?: DeadlineRecord; onClose: () => void };
+type DeadlineFormProps = { caseId: string; deadline?: NotificationRecord; onClose: () => void };
 
 // New deadline or alert: the approved titles of the service type (AD-190), which also set Prazo or Alerta, or
 // "Escrever outro" with the type and the title typed. Editing changes only the title, the date and the notes.
-export function DeadlineForm({ caseId, deadline, onClose }: DeadlineFormProps) {
-  const { form, onSubmit, isPending, errorMessage } = useDeadlineForm({ caseId, deadline, onDone: onClose });
+export function NotificationForm({ caseId, deadline, onClose }: DeadlineFormProps) {
+  const { form, onSubmit, isPending, errorMessage } = useNotificationForm({ caseId, deadline, onDone: onClose });
   const { control, setValue } = form;
   const legalCase = useQuery(caseQuery(caseId)).data;
   const groups = !deadline && legalCase ? deadlineSuggestions(legalCase) : [];

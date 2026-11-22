@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { PDF_IMPORT_MAX_BYTES } from '@ethica/contracts';
-import { Case, connect, Deadline, disconnect, hashToken, Party, Session, Tenant, User } from '@ethica/db';
+import { Case, connect, disconnect, hashToken, Notification, Party, Session, Tenant, User } from '@ethica/db';
 import { zipSync } from 'fflate';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
@@ -78,7 +78,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
   afterEach(async () => {
     await Promise.all([
       Party.deleteMany({}),
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
@@ -105,7 +105,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       nominationDate: '2026-10-15',
     });
     // The report deadline is typed by the expert (RSV-02).
-    expect(first.body.data.draft).not.toHaveProperty('reportDeadline');
+    expect(first.body.data.draft).not.toHaveProperty('reportDueDate');
     expect(first.body.data).not.toHaveProperty('existingId');
     expect(await Case.countDocuments({})).toBe(0);
 
@@ -181,7 +181,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     expect(civil?.subject).toBe('Perícia contábil; apuração');
     // The same defendant on both rows becomes a single record (AD-115).
     expect(await Party.countDocuments({})).toBe(1);
-    expect(await Deadline.countDocuments({ title: 'Entrega do laudo' })).toBe(1);
+    await expect.poll(() => Notification.countDocuments({ title: 'Entrega do laudo' })).toBe(1);
   });
 
   it('colunas de qualquer planilha com o campo sugerido; a importação usa os campos conferidos (RSV-04)', async () => {

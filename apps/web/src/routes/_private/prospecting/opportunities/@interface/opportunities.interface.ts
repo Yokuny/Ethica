@@ -10,6 +10,6 @@ export type OpportunitiesSearch = z.infer<typeof opportunitiesSearchSchema>;
 
 // Same slice as the API `convertOpportunitySchema`.
 export const convertFormSchema = createCaseFieldsSchema
-  .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDeadline: true })
+  .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDueDate: true })
   .strict();
 export type ConvertForm = z.infer<typeof convertFormSchema>;

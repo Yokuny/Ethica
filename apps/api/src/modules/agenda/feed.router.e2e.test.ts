@@ -4,9 +4,9 @@ import {
   Appointment,
   Case,
   connect,
-  Deadline,
   disconnect,
   hashToken,
+  Notification,
   newObjectId,
   Session,
   Tenant,
@@ -55,7 +55,7 @@ describe('feed iCal (PRZ-03)', () => {
   });
   afterEach(async () => {
     await Promise.all(
-      [Appointment, Deadline, Case, Session, User, Tenant].map((model) => (model as typeof User).deleteMany({})),
+      [Appointment, Notification, Case, Session, User, Tenant].map((model) => (model as typeof User).deleteMany({})),
     );
   });
   afterAll(async () => {
@@ -94,7 +94,16 @@ describe('feed iCal (PRZ-03)', () => {
       end: wallClockToUtc(amanha, '12:00'),
       status: 'canceled',
     });
-    await Deadline.create({ Tenant: tenant._id, Case: legalCase._id, title: 'Entrega do laudo', dueDate: amanha });
+    await Notification.create({
+      Tenant: tenant._id,
+      Case: legalCase._id,
+      kind: 'deadline',
+      module: 'expert_cases',
+      source: 'system',
+      status: 'pending',
+      title: 'Entrega do laudo',
+      dueDate: amanha,
+    });
 
     expect((await as(request(app).get('/me/calendar-feed'))).body.data).toEqual({ active: false });
     const generated = await as(request(app).post('/me/calendar-feed'));

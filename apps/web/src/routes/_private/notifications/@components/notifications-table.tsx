@@ -3,18 +3,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { CalendarClock } from 'lucide-react';
 import { serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
-import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
+import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/notification-labels.js';
 import { TablePagination } from '@/components/table-pagination.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import type { TableExportColumn } from '@/lib/helpers/tableExport.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { DeadlineRecord } from '@/query/deadline.js';
+import type { NotificationRecord } from '@/query/notification.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
 // Columns of the exported file (CSV, Excel, PDF): the same as the table, one text per cell.
-export const deadlineExportColumns: TableExportColumn<DeadlineRecord>[] = [
+export const deadlineExportColumns: TableExportColumn<NotificationRecord>[] = [
   { header: t('due_date'), value: (deadline) => day(deadline.dueDate) },
   { header: t('deadlines_and_alerts'), value: (deadline) => `${deadline.title} · ${t(deadline.kind)}` },
   { header: t('expert_case'), value: (deadline) => deadline.caseNumber },
@@ -30,16 +30,16 @@ export const deadlineExportColumns: TableExportColumn<DeadlineRecord>[] = [
 ];
 
 type DeadlinesTableProps = {
-  items: DeadlineRecord[];
+  items: NotificationRecord[];
   pageIndex: number;
   pageSize: number;
   pageCount: number;
   onPaginationChange: (state: { pageIndex: number; pageSize: number }) => void;
-  onOpen: (deadline: DeadlineRecord) => void;
+  onOpen: (deadline: NotificationRecord) => void;
 };
 
 // Deadlines and alerts of every service (AD-189), in the order the API gives (criticality); the row opens it.
-export function DeadlinesTable({
+export function NotificationsTable({
   items,
   pageIndex,
   pageSize,

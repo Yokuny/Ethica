@@ -11,7 +11,7 @@ export const CSV_FIELD_LABEL: Record<CsvImportField, string> = {
   subject: 'object',
   status: 'service_phase',
   nominationDate: 'appointment_date',
-  reportDeadline: 'report_deadline',
+  reportDueDate: 'report_deadline',
   proposedFees: 'proposed_fees',
   plaintiff: 'plaintiff_party',
   plaintiffDocument: 'plaintiff_document',

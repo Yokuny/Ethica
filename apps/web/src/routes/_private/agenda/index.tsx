@@ -15,8 +15,8 @@ import { cn } from '@/lib/utils.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { AppointmentDetail } from './@components/appointment-detail.js';
 import { AppointmentForm } from './@components/appointment-form.js';
-import { DeadlineEntryDialog } from './@components/deadline-entry-dialog.js';
 import { MonthView } from './@components/month-view.js';
+import { NotificationEntryDialog } from './@components/notification-entry-dialog.js';
 import { TimeGridView } from './@components/time-grid-view.js';
 import { ALL_FILTER_VALUE, CALENDAR_VIEWS, TYPE_COLORS } from './@consts/calendar.js';
 import { useAgendaPage } from './@hooks/use-agenda-page.js';
@@ -153,7 +153,7 @@ export function AgendaIndexPage() {
           onClose={closePanel}
         />
       )}
-      {panel?.kind === 'deadline' && <DeadlineEntryDialog entry={panel.entry} onClose={closePanel} />}
+      {panel?.kind === 'deadline' && <NotificationEntryDialog entry={panel.entry} onClose={closePanel} />}
     </Card>
   );
 }

@@ -11,11 +11,11 @@ import type { CaseDocument, SearchStage } from '@ethica/db';
 import {
   Case,
   caseSearchStages,
-  Deadline,
   dailyTrend,
   dateInDisplayTz,
   groupStats,
   newObjectId,
+  pendingDueCounts,
   tenantScoped,
   toObjectId,
   withSearch,
@@ -442,19 +442,16 @@ const addDays = (day: string, days: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
-// Listing strip: open, overdue pending deadlines, deadlines due soon
+// Listing strip: open, overdue pending deadlines and alerts, the ones due soon
 // (up to `dueSoonDays`) and delivered reports.
 export const stats = async (tenantId: string, dueSoonDays: number, now: Date = new Date()): Promise<ListStats> =>
   withDbTiming('case.stats', async () => {
     const today = dateInDisplayTz(now);
     const count = (extra: object) => Case.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
-    const deadlines = (dueDate: object) =>
-      Deadline.countDocuments(tenantScoped({ Tenant: tenantId, status: 'pending' as const, dueDate }));
-    const [total, open, vencidas, proximas, entregues, trend] = await Promise.all([
+    const [total, open, due, entregues, trend] = await Promise.all([
       count({}),
       count(OPEN),
-      deadlines({ $lt: today }),
-      deadlines({ $gte: today, $lte: addDays(today, dueSoonDays) }),
+      pendingDueCounts(tenantId, today, addDays(today, dueSoonDays)),
       count({ phase: { $in: DELIVERED } }),
       dailyTrend(Case, tenantId, 'createdAt'),
     ]);
@@ -463,8 +460,8 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
       trend,
       groups: [
         { key: 'open', count: open },
-        { key: 'overdue_deadlines', count: vencidas },
-        { key: 'deadlines_due_soon', count: proximas },
+        { key: 'overdue_deadlines', count: due.overdue },
+        { key: 'deadlines_due_soon', count: due.dueSoon },
         { key: 'reports_delivered', count: entregues },
       ],
     };

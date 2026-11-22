@@ -7,7 +7,7 @@ import { MonthView } from './month-view.js';
 
 const entry = (id: string, date: string, extra: Partial<CalendarEntryRecord> = {}): CalendarEntryRecord => ({
   id,
-  source: 'deadline',
+  source: 'notification',
   originId: `d-${id}`,
   type: 'deadline',
   caseId: 'p1',

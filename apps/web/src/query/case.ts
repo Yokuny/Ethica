@@ -81,7 +81,7 @@ export type CasesQueryParams = {
 };
 
 // Listing: each case with its nearest pending deadline (AD-109), missing if there is none.
-export type CaseListItem = CaseRecord & { nextDeadline?: { title: string; dueDate: string } };
+export type CaseListItem = CaseRecord & { nextDue?: { title: string; dueDate: string } };
 
 export type CasesListResult = { items: CaseListItem[]; total: number };
 

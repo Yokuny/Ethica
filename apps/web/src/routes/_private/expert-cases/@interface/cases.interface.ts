@@ -31,4 +31,4 @@ export type CasesSearch = z.infer<typeof casesSearchSchema>;
 // `add` and `details` form fields: the edit ones + the report deadline, the perícia date and the payment,
 // which only exist at registration (the delivery deadline, AD-109, the appointment, AD-160, and the
 // receipt, AD-176).
-export type CaseFormValues = UpdateCase & Pick<CreateCase, 'reportDeadline' | 'inspection' | 'payment'>;
+export type CaseFormValues = UpdateCase & Pick<CreateCase, 'reportDueDate' | 'inspection' | 'payment'>;

@@ -57,7 +57,7 @@ describe('GuidedTour', () => {
     expect(walkTitles()).toEqual([
       'Boas-vindas ao Ethica',
       'Serviços',
-      'Prazos e Alertas',
+      'Notificações',
       'Agenda',
       'Logística',
       'Laudos',
@@ -89,7 +89,7 @@ describe('GuidedTour', () => {
     expect(menuItem).toHaveAttribute('data-tour-active');
 
     fireEvent.click(screen.getByRole('button', { name: 'Próximo' }));
-    expect(screen.getByText('Prazos e Alertas')).toBeInTheDocument();
+    expect(screen.getByText('Notificações')).toBeInTheDocument();
     expect(menuItem).not.toHaveAttribute('data-tour-active');
     menuItem.remove();
   });
@@ -103,7 +103,7 @@ describe('GuidedTour', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Próximo' }));
     fireEvent.click(screen.getByRole('button', { name: 'Próximo' }));
-    expect(screen.getByText('Prazos e Alertas')).toBeInTheDocument();
+    expect(screen.getByText('Notificações')).toBeInTheDocument();
     expect(dockMenu).toHaveAttribute('data-tour-active');
     dockMenu.remove();
   });

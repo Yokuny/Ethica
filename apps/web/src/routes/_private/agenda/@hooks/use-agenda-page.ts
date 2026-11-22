@@ -59,7 +59,7 @@ export function useAgendaPage() {
     handleSelectItem: (appointment: AppointmentRecord) => setPanel({ kind: 'detail', appointment }),
     // A deadline opens the deadline; a finance entry opens the transactions of its case.
     handleSelectEntry: (entry: CalendarEntryRecord) =>
-      entry.source === 'deadline'
+      entry.source === 'notification'
         ? setPanel({ kind: 'deadline', entry })
         : navigate({ to: '/finance', search: entry.caseId ? { caseId: entry.caseId } : {} }),
     closePanel: () => {

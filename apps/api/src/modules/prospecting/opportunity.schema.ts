@@ -28,7 +28,7 @@ export type ListOpportunitiesQuery = z.infer<typeof listOpportunitiesQuerySchema
 // Convert into a case: the number, the court and the division come from the opportunity; the
 // expert only provides what Datajud does not bring.
 export const convertOpportunitySchema = createCaseFieldsSchema
-  .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDeadline: true })
+  .pick({ courtType: true, role: true, subject: true, nominationDate: true, reportDueDate: true })
   .strict();
 export type ConvertOpportunity = z.infer<typeof convertOpportunitySchema>;
 

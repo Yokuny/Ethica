@@ -7,19 +7,23 @@ import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DatePicker } from '@/components/date-picker.js';
-import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/deadline-labels.js';
 import { FormDialog } from '@/components/form-dialog.js';
+import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/notification-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { type DeadlineRecord, deleteDeadlineMutation, updateDeadlineMutation } from '@/query/deadline.js';
+import {
+  deleteNotificationMutation,
+  type NotificationRecord,
+  updateNotificationMutation,
+} from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
 
 const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`)) : '-');
 
-type DeadlineDialogProps = {
-  deadline: DeadlineRecord;
+type NotificationDialogProps = {
+  deadline: NotificationRecord;
   onClose: () => void;
   // Only the case detail edits title/due date; the agenda opens the case.
   onEdit?: () => void;
@@ -27,14 +31,14 @@ type DeadlineDialogProps = {
   children?: ReactNode;
 };
 
-// Deadline read view with the day-to-day actions (AD-109): file with the delivery
-// date, mark missed, reopen, postpone and remove; an alert is only concluded (AD-189). Used by the case, by
-// "Prazos e Alertas" and by the agenda.
-export function DeadlineDialog({ deadline, onClose, onEdit, children }: DeadlineDialogProps) {
+// Read view of a deadline or alert with the day-to-day actions (AD-109): file with the delivery
+// date, mark missed, cancel, reopen, postpone and remove; an alert is concluded or canceled (AD-189, AD-263).
+// Used by the case, by the Central and by the agenda.
+export function NotificationDialog({ deadline, onClose, onEdit, children }: NotificationDialogProps) {
   const queryClient = useQueryClient();
   const session = useQuery(sessionQuery).data;
-  const updateMutation = useMutation(updateDeadlineMutation(queryClient));
-  const deleteMutation = useMutation(deleteDeadlineMutation(queryClient));
+  const updateMutation = useMutation(updateNotificationMutation(queryClient));
+  const deleteMutation = useMutation(deleteNotificationMutation(queryClient));
   const today = formatDisplayDate(new Date());
   const [filedDate, setFiledDate] = useState(today);
   const [newDueDate, setNewDueDate] = useState<string>();
@@ -136,6 +140,12 @@ export function DeadlineDialog({ deadline, onClose, onEdit, children }: Deadline
           {canPostpone && !isPostponing && (
             <Button variant="outline" disabled={isPending} onClick={() => setIsPostponing(true)}>
               {t('postpone')}
+            </Button>
+          )}
+          {/* Canceled: the case ended (agreement, dismissal) or it no longer applies (AD-263). */}
+          {deadline.status === 'pending' && (
+            <Button variant="outline" disabled={isPending} onClick={() => setStatus({ status: 'canceled' })}>
+              {t('mark_as_canceled')}
             </Button>
           )}
           {deadline.status === 'pending' && isAlert ? (

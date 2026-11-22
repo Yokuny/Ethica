@@ -13,7 +13,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { casesQuery } from '@/query/case.js';
 
 // Find the case by number or by parties: first step of a new report (LAU-02) and of a deadline in
-// "Prazos e Alertas" (AD-189).
+// The Central (AD-189, AD-263).
 export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
   const [q, setQ] = useState('');
   const [input, setInput] = useDebouncedSearch(q, setQ);

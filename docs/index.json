@@ -43,7 +43,8 @@
         "AD-264",
         "AD-265",
         "AD-266",
-        "AD-267"
+        "AD-267",
+        "AD-272"
       ],
       "spec": [
         ".specs/features/central-notificacoes"
@@ -2367,6 +2368,12 @@
     {
       "id": "AD-271",
       "decisao": "O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) fic",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-272",
+      "decisao": "Detalhes da virada `Deadline` → `Notification` (Fase 1 de `central-notificacoes`), resolvidos na implementação: (1) o detalhe do serviço lê",
       "data": "2026-11-22",
       "status": "active"
     }

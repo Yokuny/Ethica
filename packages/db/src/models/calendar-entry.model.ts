@@ -5,11 +5,11 @@ import {
   type CalendarEntrySource,
   type CalendarEntryStatus,
   type CalendarEntryType,
-  deadlineAgendaEntries,
+  notificationAgendaEntries,
   transactionAgendaEntries,
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
-import { Deadline } from './deadline.model.js';
+import { Notification } from './notification.model.js';
 import { Transaction } from './transaction.model.js';
 
 // All-day agenda entry sent by another module (AD-169). `source` + `originId` name who owns it: the
@@ -51,19 +51,26 @@ calendarEntrySchema.index({ Tenant: 1, Case: 1 });
 
 export const CalendarEntry = mongoose.model<CalendarEntryDocument>('CalendarEntry', calendarEntrySchema);
 
-// First boot with the agenda by events (AEV-05): the deadlines and transactions that already exist
+// First boot with the agenda by events (AEV-05): the deadlines, alerts and transactions that already exist
 // enter the agenda. Runs only while the collection is empty; afterwards every change arrives by event.
 export const backfillCalendarEntries = async (): Promise<void> => {
   if (await CalendarEntry.estimatedDocumentCount()) return;
-  const [deadlines, transactions] = await Promise.all([Deadline.find().lean(), Transaction.find().lean()]);
+  const [notifications, transactions] = await Promise.all([
+    Notification.find({ kind: { $in: ['deadline', 'alert'] } }).lean(),
+    Transaction.find().lean(),
+  ]);
   const docs = [
-    ...deadlines.flatMap((deadline) =>
-      deadlineAgendaEntries(deadline).map((entry) => ({
+    ...notifications.flatMap((notification) =>
+      notificationAgendaEntries({
+        title: notification.title ?? '',
+        dueDate: notification.dueDate ?? '',
+        status: notification.status ?? 'pending',
+      }).map((entry) => ({
         ...entry,
-        Tenant: deadline.Tenant,
-        source: 'deadline' as const,
-        originId: deadline._id.toString(),
-        Case: deadline.Case,
+        Tenant: notification.Tenant,
+        source: 'notification' as const,
+        originId: notification._id.toString(),
+        Case: notification.Case,
       })),
     ),
     ...transactions.flatMap((transaction) =>

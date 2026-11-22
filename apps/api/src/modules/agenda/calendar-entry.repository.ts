@@ -41,8 +41,9 @@ export const listInRange = async (
     return docs.map(toRecord);
   });
 
-// The deadlines of a deleted case go with it (the case module deletes them without one event each).
-export const deleteDeadlinesOfCase = (tenantId: string, caseId: string) =>
-  withDbTiming('calendarEntry.deleteDeadlinesOfCase', () =>
-    CalendarEntry.deleteMany(tenantScoped({ Tenant: tenantId, Case: caseId, source: 'deadline' as const })),
+// The deadlines and alerts of a deleted case go with it (the notifications module deletes them without one
+// event each).
+export const deleteNotificationsOfCase = (tenantId: string, caseId: string) =>
+  withDbTiming('calendarEntry.deleteNotificationsOfCase', () =>
+    CalendarEntry.deleteMany(tenantScoped({ Tenant: tenantId, Case: caseId, source: 'notification' as const })),
   );

@@ -5,9 +5,9 @@ import {
   Appointment,
   Case,
   connect,
-  Deadline,
   disconnect,
   hashToken,
+  Notification,
   Session,
   Tenant,
   Transaction,
@@ -75,7 +75,7 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     await Promise.all([
       Appointment.deleteMany({}),
       Transaction.deleteMany({}),
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
@@ -152,7 +152,7 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
       phaseName: 'Aguardando documentos',
       contractor: { name: 'Construtora Alfa', document: '11.222.333/0001-81', address: 'Rua A, 10' },
       nominationDate: '2026-11-01',
-      reportDeadline: '2026-12-01',
+      reportDueDate: '2026-12-01',
       fixedFeesCents: 300_000,
       payment: { amountCents: 100_000, date: '2026-11-05' },
     };
@@ -180,10 +180,12 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
       contractor: { name: 'Construtora Alfa', document: '11222333000181', address: 'Rua A, 10' },
     });
     const id = created.body.data.id;
-    expect(await Deadline.findOne({ Case: id }).lean()).toMatchObject({
-      title: 'Entrega do serviço',
-      dueDate: '2026-12-01',
-    });
+    await expect
+      .poll(() => Notification.findOne({ Case: id }).lean())
+      .toMatchObject({
+        title: 'Entrega do serviço',
+        dueDate: '2026-12-01',
+      });
     await expect.poll(async () => (await Transaction.findOne({ Case: id }).lean())?.installments?.length).toBe(1);
     expect(await Transaction.findOne({ Case: id }).lean()).toMatchObject({
       category: 'contracted_fees',
@@ -318,19 +320,21 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
       subject: 'Assistência ao perito X',
       contractor: { name: 'Perito X' },
       nominationDate: '2026-11-01',
-      reportDeadline: '2026-12-10',
+      reportDueDate: '2026-12-10',
       status: 'suspended',
     });
     expect(assistance.status).toBe(201);
     const judicial = await post({
       ...JUDICIAL,
       serviceOrder: 'TS-2026-0017',
-      reportDeadline: '2027-01-20',
+      reportDueDate: '2027-01-20',
       phase: 'awaiting_judge',
     });
     const own = await post({ ...PRIVATE_SERVICE, serviceOrder: 'TS-2026-0007' });
     expect([judicial.status, own.status]).toEqual([201, 201]);
-    expect((await Deadline.findOne({ Case: assistance.body.data.id }).lean())?.title).toBe('Entrega do laudo');
+    await expect
+      .poll(async () => (await Notification.findOne({ Case: assistance.body.data.id }).lean())?.title)
+      .toBe('Entrega do laudo');
 
     const ids = async (query: string) =>
       ((await admin.as(request(app).get(`/expert-cases?${query}`))).body.data.items as { id: string }[]).map(

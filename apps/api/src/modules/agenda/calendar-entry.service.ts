@@ -15,8 +15,8 @@ const withCaseNumber = async (tenantId: string, items: CalendarEntryRecord[]): P
 // Subscriber of `agenda:entries_synced` (AD-169).
 export const syncOrigin = (sync: CalendarEntriesSync) => calendarEntryRepository.replaceOrigin(sync);
 
-export const deleteDeadlinesOfCase = (tenantId: string, caseId: string) =>
-  calendarEntryRepository.deleteDeadlinesOfCase(tenantId, caseId);
+export const deleteNotificationsOfCase = (tenantId: string, caseId: string) =>
+  calendarEntryRepository.deleteNotificationsOfCase(tenantId, caseId);
 
 // The finance entries only for whoever sees finance (AD-137).
 export const listEntries = async (

@@ -6,9 +6,9 @@ import {
   CalendarEntry,
   Case,
   connect,
-  Deadline,
   disconnect,
   hashToken,
+  Notification,
   Session,
   Tenant,
   Transaction,
@@ -72,7 +72,7 @@ describe('agenda por eventos (AEV-01 a AEV-04, AD-169)', () => {
       Appointment.deleteMany({}),
       CalendarEntry.deleteMany({}),
       Transaction.deleteMany({}),
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
@@ -87,7 +87,7 @@ describe('agenda por eventos (AEV-01 a AEV-04, AD-169)', () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const operator = await seedSession(tenant._id, ['operator']);
-    const created = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDeadline: '2026-12-20' });
+    const created = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, reportDueDate: '2026-12-20' });
     const caseId = created.body.data.id as string;
 
     const fee = await admin.as(request(app).post('/finance/entries')).send({
@@ -112,8 +112,8 @@ describe('agenda por eventos (AEV-01 a AEV-04, AD-169)', () => {
       .toEqual(['2026-12-05 income open', '2026-12-07 receipt done', '2026-12-20 deadline open']);
     expect(await types(operator.as)).toEqual(['2026-12-20 deadline open']);
 
-    const [deadline] = (await admin.as(request(app).get(`/expert-cases/${caseId}/deadlines`))).body.data;
-    await admin.as(request(app).patch(`/expert-cases/deadlines/${deadline.id}`)).send({ status: 'filed' });
+    const [deadline] = (await admin.as(request(app).get(`/notifications?caseId=${caseId}`))).body.data.items;
+    await admin.as(request(app).patch(`/notifications/${deadline.id}`)).send({ status: 'filed' });
     await expect.poll(() => types(operator.as)).toEqual(['2026-12-20 deadline done']);
 
     await admin.as(request(app).delete(`/expert-cases/${caseId}`));

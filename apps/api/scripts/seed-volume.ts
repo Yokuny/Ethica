@@ -1,8 +1,8 @@
 import {
   type CasePhase,
   type CourtType,
-  deadlineAgendaEntries,
   formatServiceOrder,
+  notificationAgendaEntries,
   PROFILE_PERMISSIONS,
   SERVICE_ORDER_PATTERN_DEFAULT,
   TECHNICAL_ASSISTANCE_PHASES,
@@ -14,9 +14,9 @@ import {
   Case,
   CourtDivision,
   connect,
-  Deadline,
   dateInDisplayTz,
   disconnect,
+  Notification,
   Opportunity,
   Party,
   Report,
@@ -454,8 +454,8 @@ const run = async (): Promise<void> => {
   const cases = await Case.insertMany(scoped([...judicial, ...assistance, ...own]));
   await ServiceOrderSequence.updateOne({ Tenant }, { $set: { year, last } });
 
-  // Deadlines and alerts (AD-109, AD-190): overdue, due in the coming days and far away, some already filed.
-  const deadlines = await Deadline.insertMany(
+  // Deadlines and alerts (AD-190, AD-263): overdue, due in the coming days and far away, some already filed.
+  const deadlines = await Notification.insertMany(
     cases.flatMap((legalCase) =>
       legalCase.status === 'canceled'
         ? []
@@ -467,6 +467,8 @@ const run = async (): Promise<void> => {
               Tenant,
               Case: legalCase._id,
               kind: alert ? ('alert' as const) : ('deadline' as const),
+              module: 'expert_cases' as const,
+              source: index === 0 ? ('system' as const) : ('user' as const),
               title: alert
                 ? pick(ALERT_TITLES)
                 : index === 0
@@ -586,10 +588,14 @@ const run = async (): Promise<void> => {
   // Agenda entries of the deadlines and transactions, as the events would send them (AD-169).
   await CalendarEntry.insertMany([
     ...deadlines.flatMap((deadline) =>
-      deadlineAgendaEntries(deadline).map((entry) => ({
+      notificationAgendaEntries({
+        title: deadline.title ?? '',
+        dueDate: deadline.dueDate ?? '',
+        status: deadline.status ?? 'pending',
+      }).map((entry) => ({
         ...entry,
         Tenant,
-        source: 'deadline' as const,
+        source: 'notification' as const,
         originId: deadline._id.toString(),
         Case: deadline.Case,
       })),

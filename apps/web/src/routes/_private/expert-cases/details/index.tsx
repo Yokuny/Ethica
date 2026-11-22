@@ -13,12 +13,12 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { CaseCourtDivision } from './@components/case-court-division.js';
-import { CaseDeadlines } from './@components/case-deadlines.js';
 import { CaseDetailsView } from './@components/case-details-view.js';
 import { CaseEditForm } from './@components/case-edit-form.js';
 import { CaseFinance } from './@components/case-finance.js';
 import { CaseInspections } from './@components/case-inspections.js';
 import { CaseMovements } from './@components/case-movements.js';
+import { CaseNotifications } from './@components/case-notifications.js';
 import { CaseRelated } from './@components/case-related.js';
 import { CaseReports } from './@components/case-reports.js';
 import { useCaseActions } from './@hooks/use-case-actions.js';
@@ -87,7 +87,7 @@ export function CaseDetailsPage() {
         <CardContent className="gap-6">
           <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} />
           {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
-          <CaseDeadlines caseId={legalCase.id} />
+          <CaseNotifications caseId={legalCase.id} />
           <CaseInspections caseId={legalCase.id} />
           <CaseReports legalCase={legalCase} />
           <CaseMovements legalCase={legalCase} />

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { describe, expect, it } from 'vitest';
 import { useTestDb } from '../../tests/helpers/db.helper.js';
 import { backfillCalendarEntries, CalendarEntry } from './calendar-entry.model.js';
-import { Deadline } from './deadline.model.js';
+import { Notification } from './notification.model.js';
 import { Transaction } from './transaction.model.js';
 
 describe('backfillCalendarEntries (AEV-05)', () => {
@@ -11,9 +11,12 @@ describe('backfillCalendarEntries (AEV-05)', () => {
   it('puts the existing deadlines and transactions on the agenda once, only with the collection empty', async () => {
     const Tenant = new mongoose.Types.ObjectId();
     const Case = new mongoose.Types.ObjectId();
-    await Deadline.create({
+    await Notification.create({
       Tenant,
       Case,
+      kind: 'deadline',
+      module: 'expert_cases',
+      source: 'user',
       title: 'Entrega do laudo',
       dueDate: '2026-12-20',
       status: 'filed',

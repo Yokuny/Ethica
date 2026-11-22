@@ -50,7 +50,7 @@ describe('extrairAta (AD-114)', () => {
       subject: 'Apuração de insalubridade',
       nominationDate: '2026-10-15',
     });
-    expect(draft).not.toHaveProperty('reportDeadline');
+    expect(draft).not.toHaveProperty('reportDueDate');
     expect(draft.parties).toEqual([
       { side: 'plaintiff', type: 'party', name: 'MARIA DA SILVA', document: '12345678909' },
       { side: 'plaintiff', type: 'lawyer', name: 'JOÃO PEREIRA', oab: 'SP123456' },
@@ -126,7 +126,7 @@ vícios construtivos no imóvel dos autores; intimem-se.`;
       'Processo 00012345620265020001. Objeto: Perícia médica\nO laudo deverá ser entregue até 30/11/2026.',
     );
     expect(draft.subject).toBe('Perícia médica');
-    expect(draft).not.toHaveProperty('reportDeadline');
+    expect(draft).not.toHaveProperty('reportDueDate');
     expect(warnings).toEqual(['invalid_process_number']);
   });
 });
@@ -205,7 +205,7 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
         notes: 'Prazo: 31/02/2026 (!)\nPerito assistente: Carlos',
       }),
     });
-    expect(result).not.toHaveProperty('data.reportDeadline');
+    expect(result).not.toHaveProperty('data.reportDueDate');
   });
 
   it('assistência técnica não tem esfera nem exige processo (AD-178)', () => {

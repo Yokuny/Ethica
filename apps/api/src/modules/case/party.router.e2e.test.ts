@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import { Case, connect, Deadline, disconnect, hashToken, Party, Session, Tenant, User } from '@ethica/db';
+import { Case, connect, disconnect, hashToken, Notification, Party, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -51,7 +51,7 @@ describe('partes e advogados (IMP-03) e dados trabalhistas (IMP-04)', () => {
   afterEach(async () => {
     await Promise.all([
       Party.deleteMany({}),
-      Deadline.deleteMany({}),
+      Notification.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),

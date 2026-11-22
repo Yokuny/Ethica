@@ -20,11 +20,11 @@ import * as appointmentService from '../agenda/appointment.service.js';
 import * as inspectionService from '../agenda/inspection.service.js';
 import type { CaseRecord } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
-import * as deadlineService from '../case/deadline.service.js';
 import * as importService from '../case/import.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
+import * as notificationService from '../notifications/notification.service.js';
 import { esc } from './document.layout.js';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
 import { templateSectionsFromText } from './report.attachment.js';
@@ -536,7 +536,7 @@ export const attachReport = async (
 
 // "Registrar a entrega" (AD-126): files the deadline, posts the movement and advances the phase.
 const fileDelivery = async (ctx: DocumentContext, legalCase: CaseRecord, notes: string): Promise<void> => {
-  await deadlineService.fileReportDelivery(ctx.tenantId, legalCase.id, ctx.now);
+  await notificationService.fileReportDelivery(ctx.tenantId, legalCase.id, ctx.now);
   await caseService.addMovement(ctx.tenantId, legalCase.id, {
     type: 'report_filed',
     date: dateInDisplayTz(ctx.now),

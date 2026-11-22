@@ -232,8 +232,8 @@ export const parseCoordinates = (text: string): { lat: number; lng: number } | u
   return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : undefined;
 };
 
-// `reportDeadline` and `inspection` only exist at registration: they become the "Entrega do laudo"
-// deadline (AD-109) and the perícia appointment (AD-160), not case fields.
+// `reportDueDate` and `inspection` only exist at registration: they become the "Entrega do laudo"
+// deadline (AD-264) and the perícia appointment (AD-160), not case fields.
 // The unrefined shape serves `.pick` (opportunity conversion); the API validates with the refined one.
 // Receipt given at registration (AD-176): it becomes a receipt of the fee income, on the payoff date.
 export const casePaymentSchema = z
@@ -246,7 +246,7 @@ export type CasePayment = z.infer<typeof casePaymentSchema>;
 
 export const createCaseFieldsSchema = caseFields
   .extend({
-    reportDeadline: calendarDateSchema.optional(),
+    reportDueDate: calendarDateSchema.optional(),
     inspection: caseInspectionSchema.optional(),
     // Fee contracted in the office's own type, and its payment, already at registration (AD-176).
     fixedFeesCents: centsSchema.optional(),

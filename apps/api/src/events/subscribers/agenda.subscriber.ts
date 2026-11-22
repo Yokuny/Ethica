@@ -10,6 +10,6 @@ export const registerAgendaSubscriber = (): void => {
     if (source !== 'case') await calendarEntryService.syncOrigin({ tenantId, source, originId, caseId, entries });
   });
   domainEventBus.on('case:deleted', async ({ tenantId, caseId }) => {
-    await calendarEntryService.deleteDeadlinesOfCase(tenantId, caseId);
+    await calendarEntryService.deleteNotificationsOfCase(tenantId, caseId);
   });
 };

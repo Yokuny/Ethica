@@ -1,8 +1,8 @@
 import { caseLabel } from '@ethica/contracts';
 import type { CaseSummary } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
-import * as deadlineService from '../case/deadline.service.js';
 import * as accountService from '../identity/account.service.js';
+import * as notificationService from '../notifications/notification.service.js';
 import * as appointmentRepository from './appointment.repository.js';
 import type { AppointmentRecord } from './appointment.schema.js';
 import type { FeedEntry } from './feed.schema.js';
@@ -128,7 +128,7 @@ export const generateFeed = async (token: string, now: Date = new Date()): Promi
       from: new Date(now.getTime() - PAST_DAYS * 86_400_000),
       to: new Date(now.getTime() + FUTURE_DAYS * 86_400_000),
     }),
-    deadlineService.listPendingDeadlines(tenantId),
+    notificationService.listPending(tenantId),
   ]);
   const active = appointments.filter((item) => item.status !== 'canceled');
   const ids = [

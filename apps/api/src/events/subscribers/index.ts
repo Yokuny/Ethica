@@ -1,6 +1,7 @@
 import { registerAgendaSubscriber } from './agenda.subscriber.js';
 import { registerDocumentsSubscriber } from './documents.subscriber.js';
 import { registerFinanceSubscriber } from './finance.subscriber.js';
+import { registerNotificationsSubscriber } from './notifications.subscriber.js';
 
 // buildApp() runs several times in the same process (tests), so registration is
 // idempotent — each handler runs only once per emit.
@@ -12,4 +13,5 @@ export const registerAllSubscribers = (): void => {
   registerFinanceSubscriber();
   registerDocumentsSubscriber();
   registerAgendaSubscriber();
+  registerNotificationsSubscriber();
 };
