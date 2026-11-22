@@ -1,11 +1,14 @@
+import { Badge } from '@ethica/ui/components/badge';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { createFileRoute } from '@tanstack/react-router';
 import { Card, CardContent } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { PublicNav } from '../@components/public-nav.js';
+import { PARTNERS } from './@consts/partners.js';
 
 // About page in the shadcnblocks model of the expert: hero, two facts beside the story and who the
-// Ethica serves. The hero photo, the founders and the partner logos of the model wait for the expert.
+// Ethica serves and the partner logos (still the ones of the model). The hero photo and the
+// founders of the model wait for the expert.
 export function AboutPage() {
   const facts = [
     { label: t('about_areas_label'), value: t('about_areas_value') },
@@ -71,6 +74,28 @@ export function AboutPage() {
                 <ItemDescription className="line-clamp-none text-base font-medium sm:text-lg">
                   {profile.text}
                 </ItemDescription>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="flex flex-col items-center gap-6">
+          <Badge variant="outline">{t('partners')}</Badge>
+          <ItemTitle // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
+            render={<h2 />}
+            className="text-center text-xl font-medium sm:text-2xl md:text-4xl"
+          >
+            {t('about_partners_title')}
+          </ItemTitle>
+          <ItemDescription className="line-clamp-none text-center text-sm font-medium sm:text-base">
+            {t('about_partners_text')}
+          </ItemDescription>
+          <div className="mt-10 grid w-full grid-cols-3 border-[0.5px] border-border/70 lg:grid-cols-4 dark:border-border">
+            {PARTNERS.map((partner) => (
+              <div
+                key={partner.name}
+                className="flex border-[0.5px] border-border/70 px-6 py-4 sm:px-10 sm:py-6 md:px-12 md:py-8 dark:border-border"
+              >
+                <img alt={partner.name} src={partner.logo} className="h-full w-full object-contain dark:invert" />
               </div>
             ))}
           </div>

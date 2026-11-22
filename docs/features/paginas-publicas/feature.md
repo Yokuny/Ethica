@@ -25,7 +25,9 @@ spec: [.specs/features/paginas-publicas]
 - **Sobre** (`/about`) no modelo shadcnblocks da perita: topo com o título, dois fatos do produto (perícias e
   assistências trabalhistas, cíveis e federais; da nomeação aos honorários) ao lado da história do Ethica, e a grade
   "Para quem é o Ethica" (perito judicial, assistente técnico, equipe do escritório) no lugar da grade de fundadores.
-  A foto do topo, os fundadores e os logos de parceiros do modelo esperam o material da perita.
+  Abaixo, a grade de parceiros com os logos do modelo (`apps/web/public/partners/`, lista em
+  `apps/web/src/routes/_public/about/@consts/partners.ts`): são marcas reais que não são parceiras do Ethica e ficam
+  por escolha da perita até chegarem os parceiros corretos. A foto do topo e os fundadores esperam o material dela.
 - **Segurança** (`/security`): entrada sem senha com passkey, dados separados por escritório, papéis conferidos no
   servidor, arquivos privados por escritório e pagamento na fatura do Asaas.
 - **Suporte** (`/support`): perguntas de uso (entrada, aparelhos, equipe, vistoria sem internet), as mesmas perguntas
@@ -68,7 +70,8 @@ páginas e elas valem para qualquer visitante, logado ou não (AD-248).
 
 - [ ] `CONTACT_EMAIL` na Railway; sem ela o formulário responde indisponível.
 - [ ] Endereço, telefone e e-mail do Ethica no topo do Contato, como no modelo — perita informa.
-- [ ] Foto do topo, fundadores (foto, nome e cargo) e logos de parceiros da página Sobre — perita envia.
+- [ ] Trocar os logos da grade de parceiros da página Sobre pelos parceiros reais: hoje mostram marcas de outras empresas (OpenAI, Claude, Okta…) que não são parceiras do Ethica.
+- [ ] Foto do topo e fundadores (foto, nome e cargo) da página Sobre — perita envia.
 - [ ] Texto final de Termos de uso e Política de privacidade (advogado); a Privacidade cobre os dados do formulário de contato.
 
 ## Histórico
@@ -76,3 +79,4 @@ páginas e elas valem para qualquer visitante, logado ou não (AD-248).
 - 2026-11-21 — Criadas as seis páginas e o rodapé comum do `_public`; o rodapé próprio da tela de planos sai (AD-248).
 - 2026-11-21 — Contato no modelo `contact.html` da perita (o arquivo de referência fica fora do commit): formulário com envio por e-mail à `CONTACT_EMAIL`, módulo `contact` na API e `trust proxy` (AD-249). Saem `CONTACT_CHANNELS` e o aviso "canais em breve"; Suporte, Segurança e a ajuda dos planos levam ao formulário.
 - 2026-11-21 — Página Sobre (`/about`) no modelo `design.html` da perita (o arquivo de referência fica fora do commit), com link na coluna Produto do rodapé. Sem foto, fundadores e parceiros reais, o topo usa o gradiente do tema e a grade de fundadores vira "Para quem é o Ethica"; a grade de logos fica de fora até a perita enviar o material.
+- 2026-11-21 — Grade de parceiros na página Sobre com os logos do modelo, a pedido da perita, que vai trocá-los pelos parceiros corretos. Os SVGs do modelo são marcas reais, não fictícias; a perita foi avisada e preferiu mantê-los. Cada SVG ganhou `<title>` com o nome da marca (regra de acessibilidade do Biome).

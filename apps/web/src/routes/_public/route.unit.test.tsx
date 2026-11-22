@@ -51,6 +51,7 @@ describe('public pages', () => {
     render(<AboutPage />);
     expect(screen.getByRole('heading', { level: 1, name: 'Sobre o Ethica' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Perito judicial' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Arc' })).toHaveAttribute('src', '/partners/arc.svg');
   });
 
   it('security tells what the system does; terms show the draft notice', () => {

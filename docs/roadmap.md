@@ -39,7 +39,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Reiniciar a API local para ler o `ASAAS_WEBHOOK_TOKEN` novo; a tela de planos já confere o pagamento do sandbox sem túnel — `cadastro-checkout`
 - [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`
 - [ ] Perita: endereço, telefone e e-mail do Ethica para o topo da página Contato, como no modelo — `paginas-publicas`
-- [ ] Perita: foto do topo, fundadores (foto, nome e cargo) e logos de parceiros para a página Sobre, como no modelo — `paginas-publicas`
+- [ ] Perita: trocar os logos da grade de parceiros da página Sobre pelos parceiros reais — hoje são marcas de outras empresas (OpenAI, Claude, Okta…) que não são parceiras do Ethica — `paginas-publicas`
+- [ ] Perita: foto do topo e fundadores (foto, nome e cargo) para a página Sobre, como no modelo — `paginas-publicas`
 - [ ] Texto final de Termos de uso e Política de privacidade, revisado por advogado (LGPD: controlador, encarregado, compartilhamento com Asaas, e-mail e armazenamento, dados do formulário de contato) — `paginas-publicas`
 - [ ] Perita: revisar os textos da página de planos (posicionamento, perguntas frequentes) — `cadastro-checkout`
 - [ ] Validar com dinheiro de verdade em `https://ethica-zeta.vercel.app` — `cadastro-checkout`
