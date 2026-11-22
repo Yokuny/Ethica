@@ -39,6 +39,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Reiniciar a API local para ler o `ASAAS_WEBHOOK_TOKEN` novo; a tela de planos já confere o pagamento do sandbox sem túnel — `cadastro-checkout`
 - [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`
 - [ ] Perita: endereço, telefone e e-mail do Ethica para o topo da página Contato, como no modelo — `paginas-publicas`
+- [ ] Perita: foto do topo, fundadores (foto, nome e cargo) e logos de parceiros para a página Sobre, como no modelo — `paginas-publicas`
 - [ ] Texto final de Termos de uso e Política de privacidade, revisado por advogado (LGPD: controlador, encarregado, compartilhamento com Asaas, e-mail e armazenamento, dados do formulário de contato) — `paginas-publicas`
 - [ ] Perita: revisar os textos da página de planos (posicionamento, perguntas frequentes) — `cadastro-checkout`
 - [ ] Validar com dinheiro de verdade em `https://ethica-zeta.vercel.app` — `cadastro-checkout`
@@ -94,6 +95,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [x] 2026-11-21 — PIX e boleto na tela do Ethica, cartão na fatura do Asaas, e acesso aberto sem webhook pela conferência da tela de planos (AD-251) — `cadastro-checkout`
 - [x] 2026-11-21 — Conta de produção do Asaas aprovada (MEI) — `cadastro-checkout`
 - [x] 2026-11-21 — Página de planos no modelo da Vercel: preço por mês, avulsa dentro do Mensal e comparação em grupos (AD-250) — `cadastro-checkout`
+- [x] 2026-11-21 — Página Sobre (`/about`) no modelo da perita, com link na coluna Produto do rodapé — `paginas-publicas`
 - [x] 2026-11-21 — Página Contato com formulário enviado por e-mail ao Ethica (AD-249) — `paginas-publicas`
 - [x] 2026-11-21 — Rodapé comum das páginas sem login e páginas Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade (AD-248) — `paginas-publicas`
 - [x] 2026-11-21 — Página de planos no modelo shadcnblocks da perita e teste pelo primeiro mês (AD-247) — `cadastro-checkout`

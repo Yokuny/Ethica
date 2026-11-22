@@ -5,6 +5,7 @@ export const FOOTER_SECTIONS = [
   {
     title: t('product'),
     links: [
+      { to: '/about', label: t('about') },
       { to: '/news', label: t('news') },
       { to: '/security', label: t('security') },
     ],

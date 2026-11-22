@@ -22,6 +22,7 @@ import { Route as PublicInviteIndexRouteImport } from './routes/_public/invite/i
 import { Route as PublicContactIndexRouteImport } from './routes/_public/contact/index';
 import { Route as PublicBillingIndexRouteImport } from './routes/_public/billing/index';
 import { Route as PublicAuthIndexRouteImport } from './routes/_public/auth/index';
+import { Route as PublicAboutIndexRouteImport } from './routes/_public/about/index';
 import { Route as PrivateReportsIndexRouteImport } from './routes/_private/reports/index';
 import { Route as PrivateProspectingIndexRouteImport } from './routes/_private/prospecting/index';
 import { Route as PrivatePartiesIndexRouteImport } from './routes/_private/parties/index';
@@ -115,6 +116,11 @@ const PublicBillingIndexRoute = PublicBillingIndexRouteImport.update({
 const PublicAuthIndexRoute = PublicAuthIndexRouteImport.update({
   id: '/auth/',
   path: '/auth/',
+  getParentRoute: () => PublicRouteRoute,
+} as any);
+const PublicAboutIndexRoute = PublicAboutIndexRouteImport.update({
+  id: '/about/',
+  path: '/about/',
   getParentRoute: () => PublicRouteRoute,
 } as any);
 const PrivateReportsIndexRoute = PrivateReportsIndexRouteImport.update({
@@ -310,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/parties/': typeof PrivatePartiesIndexRoute;
   '/prospecting/': typeof PrivateProspectingIndexRoute;
   '/reports/': typeof PrivateReportsIndexRoute;
+  '/about/': typeof PublicAboutIndexRoute;
   '/auth/': typeof PublicAuthIndexRoute;
   '/billing/': typeof PublicBillingIndexRoute;
   '/contact/': typeof PublicContactIndexRoute;
@@ -354,6 +361,7 @@ export interface FileRoutesByTo {
   '/parties': typeof PrivatePartiesIndexRoute;
   '/prospecting': typeof PrivateProspectingIndexRoute;
   '/reports': typeof PrivateReportsIndexRoute;
+  '/about': typeof PublicAboutIndexRoute;
   '/auth': typeof PublicAuthIndexRoute;
   '/billing': typeof PublicBillingIndexRoute;
   '/contact': typeof PublicContactIndexRoute;
@@ -402,6 +410,7 @@ export interface FileRoutesById {
   '/_private/parties/': typeof PrivatePartiesIndexRoute;
   '/_private/prospecting/': typeof PrivateProspectingIndexRoute;
   '/_private/reports/': typeof PrivateReportsIndexRoute;
+  '/_public/about/': typeof PublicAboutIndexRoute;
   '/_public/auth/': typeof PublicAuthIndexRoute;
   '/_public/billing/': typeof PublicBillingIndexRoute;
   '/_public/contact/': typeof PublicContactIndexRoute;
@@ -448,6 +457,7 @@ export interface FileRouteTypes {
     | '/parties/'
     | '/prospecting/'
     | '/reports/'
+    | '/about/'
     | '/auth/'
     | '/billing/'
     | '/contact/'
@@ -492,6 +502,7 @@ export interface FileRouteTypes {
     | '/parties'
     | '/prospecting'
     | '/reports'
+    | '/about'
     | '/auth'
     | '/billing'
     | '/contact'
@@ -539,6 +550,7 @@ export interface FileRouteTypes {
     | '/_private/parties/'
     | '/_private/prospecting/'
     | '/_private/reports/'
+    | '/_public/about/'
     | '/_public/auth/'
     | '/_public/billing/'
     | '/_public/contact/'
@@ -666,6 +678,13 @@ declare module '@tanstack/react-router' {
       path: '/auth';
       fullPath: '/auth/';
       preLoaderRoute: typeof PublicAuthIndexRouteImport;
+      parentRoute: typeof PublicRouteRoute;
+    };
+    '/_public/about/': {
+      id: '/_public/about/';
+      path: '/about';
+      fullPath: '/about/';
+      preLoaderRoute: typeof PublicAboutIndexRouteImport;
       parentRoute: typeof PublicRouteRoute;
     };
     '/_private/reports/': {
@@ -985,6 +1004,7 @@ const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(
 );
 
 interface PublicRouteRouteChildren {
+  PublicAboutIndexRoute: typeof PublicAboutIndexRoute;
   PublicAuthIndexRoute: typeof PublicAuthIndexRoute;
   PublicBillingIndexRoute: typeof PublicBillingIndexRoute;
   PublicContactIndexRoute: typeof PublicContactIndexRoute;
@@ -998,6 +1018,7 @@ interface PublicRouteRouteChildren {
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
+  PublicAboutIndexRoute: PublicAboutIndexRoute,
   PublicAuthIndexRoute: PublicAuthIndexRoute,
   PublicBillingIndexRoute: PublicBillingIndexRoute,
   PublicContactIndexRoute: PublicContactIndexRoute,

@@ -20,6 +20,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 });
 
 const { PublicFooter } = await import('./@components/public-footer.js');
+const { AboutPage } = await import('./about/index.js');
 const { SecurityPage } = await import('./security/index.js');
 const { TermsPage } = await import('./terms/index.js');
 const { ContactPage } = await import('./contact/index.js');
@@ -35,6 +36,7 @@ describe('public pages', () => {
     const links = screen.getAllByRole('link').map((link) => [link.textContent, link.getAttribute('href')]);
     expect(links).toEqual(
       expect.arrayContaining([
+        ['Sobre', '/about'],
         ['Novidades', '/news'],
         ['Segurança', '/security'],
         ['Suporte', '/support'],
@@ -43,6 +45,12 @@ describe('public pages', () => {
         ['Política de privacidade', '/privacy'],
       ]),
     );
+  });
+
+  it('about tells what the Ethica is and who it serves', () => {
+    render(<AboutPage />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Sobre o Ethica' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Perito judicial' })).toBeInTheDocument();
   });
 
   it('security tells what the system does; terms show the draft notice', () => {

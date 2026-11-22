@@ -8,7 +8,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Em andamento
 
-- [`paginas-publicas`](features/paginas-publicas/feature.md) — **parcial** — Rodapé comum das páginas sem login com Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade
+- [`paginas-publicas`](features/paginas-publicas/feature.md) — **parcial** — Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade
 - [`cadastro-checkout`](features/cadastro-checkout/feature.md) — **parcial** — Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso
 - [`logistica-paginas`](features/logistica-paginas/feature.md) — **parcial** — Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas
 - [`temas`](features/temas/feature.md) — **parcial** — Temas Claro, Escuro e Azul escolhidos no menu do usuário, com uma cor de ação por tema nos botões e nos detalhes
@@ -28,7 +28,7 @@ _Nenhum._
 
 | Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Páginas públicas do rodapé](features/paginas-publicas/feature.md) | Rodapé comum das páginas sem login com Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade | parcial | 2026-11-21 | `apps/web` `apps/api` `packages/contracts` | [spec](../.specs/features/paginas-publicas) | 1 |
+| [Páginas públicas do rodapé](features/paginas-publicas/feature.md) | Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade | parcial | 2026-11-21 | `apps/web` `apps/api` `packages/contracts` | [spec](../.specs/features/paginas-publicas) | 1 |
 | [Cadastro com checkout](features/cadastro-checkout/feature.md) | Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso | parcial | 2026-11-20 | `apps/api` `apps/web` `packages/contracts` `packages/db` `harness` | [spec](../.specs/features/cadastro-checkout) | 1 |
 | [Logística em páginas por intenção e termo de vistoria assinado](features/logistica-paginas/feature.md) | Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas | parcial | 2026-11-20 | `apps/api` `apps/web` | [spec](../.specs/features/logistica-paginas) | 1 |
 | [Temas](features/temas/feature.md) | Temas Claro, Escuro e Azul escolhidos no menu do usuário, com uma cor de ação por tema nos botões e nos detalhes | parcial | 2026-11-20 | `apps/web` `packages/ui` | [spec](../.specs/features/temas) | — |

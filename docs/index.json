@@ -4,7 +4,7 @@
     {
       "slug": "paginas-publicas",
       "feature": "Páginas públicas do rodapé",
-      "descricao": "Rodapé comum das páginas sem login com Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade",
+      "descricao": "Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade",
       "data": "2026-11-21",
       "status": "parcial",
       "areas": [
