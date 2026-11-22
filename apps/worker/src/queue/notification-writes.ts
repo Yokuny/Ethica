@@ -1,4 +1,4 @@
-import type { FinanceDueBucket } from '@ethica/contracts';
+import type { FinanceDueBucket, RuleMatch } from '@ethica/contracts';
 import { Notification } from '@ethica/db';
 
 // The ONLY place of the worker that writes `Notification` (AD-263, AD-267, D7): it inserts notices (and, with the
@@ -111,4 +111,45 @@ export const insertCourtMovementNotice = async (
     if (isDuplicateKey(e)) return false;
     throw e;
   }
+};
+
+// A suggestion of the automation (AD-268): one per case, rule and movement; only a person applies it, in the BFF.
+export const insertSuggestion = async (suggestion: {
+  tenantId: string;
+  caseId: string;
+  court: string;
+  match: RuleMatch;
+}): Promise<boolean> => {
+  const { rule, proposal, movement } = suggestion.match;
+  try {
+    await Notification.create({
+      Tenant: suggestion.tenantId,
+      kind: 'suggestion',
+      module: 'expert_cases',
+      source: 'datajud',
+      status: 'pending',
+      severity: 'warning',
+      Case: suggestion.caseId,
+      proposal,
+      evidence: { court: suggestion.court, movement },
+      ruleKey: rule.key,
+      ruleVersion: rule.version,
+      dedupeKey: `suggestion:${suggestion.caseId}:${rule.key}:${movement.key}`,
+    });
+    return true;
+  } catch (e) {
+    if (isDuplicateKey(e)) return false;
+    throw e;
+  }
+};
+
+// The only transitions the worker makes (D7): a pending suggestion becomes `expired` (office without the
+// module) or `superseded` (the case already is as proposed, or the change no longer fits).
+export const settleSuggestions = async (ids: string[], status: 'expired' | 'superseded'): Promise<number> => {
+  if (ids.length === 0) return 0;
+  const result = await Notification.updateMany(
+    { _id: { $in: ids }, kind: 'suggestion', status: 'pending' },
+    { $set: { status } },
+  );
+  return result.modifiedCount;
 };

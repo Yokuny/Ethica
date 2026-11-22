@@ -270,4 +270,52 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
       ),
     ).toBe(true);
   });
+
+  it('sugestões (AD-268): aprovar aplica pelo serviço uma vez só; já aplicada é superada; fora de ordem 409; rejeitar guarda o motivo', async () => {
+    const { as, tenant } = await setup(['admin']);
+    const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+    const suggestion = (proposal: object, key: string) =>
+      Notification.create({
+        Tenant: tenant._id,
+        Case: legalCase.id,
+        kind: 'suggestion',
+        module: 'expert_cases',
+        source: 'datajud',
+        status: 'pending',
+        proposal,
+        evidence: {
+          court: 'TRT2',
+          movement: { key, code: 466, name: 'Homologação de Transação', at: '2026-11-20T10:00:00Z', complements: [] },
+        },
+        ruleKey: 'case_settlement',
+        ruleVersion: 1,
+        dedupeKey: key,
+      });
+    const settlement = await suggestion({ target: 'case_phase', value: 'settlement' }, 's1');
+    const accept = (id: unknown) => as(request(app).post(`/notifications/${id}/accept`));
+
+    const blocked = await accept(settlement._id);
+    expect([blocked.status, blocked.body.message]).toEqual([403, 'automation_required']);
+    await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+
+    const listed = (await as(request(app).get(`/notifications/suggestions?caseId=${legalCase.id}`))).body.data;
+    expect(listed).toEqual([expect.objectContaining({ ruleKey: 'case_settlement', caseNumber: CASE.processNumber })]);
+
+    expect((await accept(settlement._id)).body.data).toMatchObject({ status: 'accepted' });
+    expect((await as(request(app).get(`/expert-cases/${legalCase.id}`))).body.data.phase).toBe('settlement');
+    expect((await accept(settlement._id)).status).toBe(404);
+
+    // The case is closed now: a phase suggestion no longer fits.
+    const late = await suggestion({ target: 'case_phase', value: 'evidence_closed' }, 's2');
+    const outdated = await accept(late._id);
+    expect([outdated.status, outdated.body.message]).toEqual([409, 'suggestion_outdated']);
+
+    const again = await suggestion({ target: 'case_phase', value: 'settlement' }, 's3');
+    expect((await accept(again._id)).body.data).toMatchObject({ status: 'superseded' });
+
+    const rejected = await as(request(app).post(`/notifications/${late._id}/reject`)).send({
+      reason: 'Era de outro processo',
+    });
+    expect(rejected.body.data).toMatchObject({ status: 'rejected', rejectReason: 'Era de outro processo' });
+  });
 });

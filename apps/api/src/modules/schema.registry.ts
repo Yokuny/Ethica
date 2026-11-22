@@ -58,7 +58,9 @@ import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import {
   listNoticesQuerySchema,
   listNotificationsQuerySchema,
+  listSuggestionsQuerySchema,
   notificationIdParamSchema,
+  rejectSuggestionSchema,
 } from './notifications/notification.schema.js';
 import {
   convertOpportunitySchema,
@@ -112,6 +114,8 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'notificationIdParamSchema', schema: notificationIdParamSchema },
   { name: 'listNotificationsQuerySchema', schema: listNotificationsQuerySchema },
   { name: 'listNoticesQuerySchema', schema: listNoticesQuerySchema },
+  { name: 'listSuggestionsQuerySchema', schema: listSuggestionsQuerySchema },
+  { name: 'rejectSuggestionSchema', schema: rejectSuggestionSchema },
   { name: 'automationCaseParamSchema', schema: automationCaseParamSchema },
   { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
   { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },

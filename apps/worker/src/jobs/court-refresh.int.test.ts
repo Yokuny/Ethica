@@ -12,11 +12,18 @@ import {
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CourtProcessData, DatajudClient } from '../datajud/client.js';
 import { enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
+import { expireSuggestions } from './suggestions-expire.js';
 
 const now = new Date('2026-11-22T09:00:00.000Z');
 const NUMBER = '0024364-65.2020.5.24.0091';
 
-const movement = (key: string, at: string) => ({ key, code: 60, name: 'Expedição de documento', at, complements: [] });
+const movement = (key: string, at: string, code = 60) => ({
+  key,
+  code,
+  name: `Movimento ${code}`,
+  at,
+  complements: [],
+});
 const courtProcess = (movements: CourtProcessData['movements']): CourtProcessData => ({
   court: 'TRT24',
   processNumber: NUMBER,
@@ -82,7 +89,17 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
 
   it('primeira sincronização só grava a linha de base; movimento novo vira um aviso agrupado', async () => {
     const { tenant, legalCase } = await seed('11222333000181', true);
-    const cases = [{ tenantId: tenant.id, caseId: legalCase.id, processNumber: NUMBER, court: 'TRT24' }];
+    const cases = [
+      {
+        tenantId: tenant.id,
+        caseId: legalCase.id,
+        processNumber: NUMBER,
+        court: 'TRT24',
+        role: 'court_expert' as const,
+        status: 'active' as const,
+        phase: 'drafting_report' as const,
+      },
+    ];
     const fetchProcesses = vi
       .fn<DatajudClient['fetchProcesses']>()
       .mockResolvedValueOnce([courtProcess([movement('a', '2026-11-01T10:00:00Z')])])
@@ -99,6 +116,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       processes: 1,
       baselines: 1,
       notices: 0,
+      suggestions: 0,
     });
     expect(await Notification.countDocuments({})).toBe(0);
 
@@ -106,6 +124,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       processes: 1,
       baselines: 0,
       notices: 1,
+      suggestions: 0,
     });
     const [notice] = await Notification.find({}).lean();
     expect(notice).toMatchObject({
@@ -117,5 +136,43 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
     expect((await CaseCourtSync.findOne({}).lean())?.seenMovementKeys.sort()).toEqual(['a', 'b', 'c']);
     expect(await CourtProcess.countDocuments({ processNumber: NUMBER })).toBe(1);
     expect(fetchProcesses).toHaveBeenCalledWith('TRT24', [NUMBER]);
+  });
+
+  it('acordo homologado vira sugestão pendente (sem mudar o serviço); sem o módulo ela expira', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      role: 'court_expert' as const,
+      status: 'active' as const,
+      phase: 'drafting_report' as const,
+    };
+    const fetchProcesses = vi
+      .fn<DatajudClient['fetchProcesses']>()
+      .mockResolvedValueOnce([courtProcess([movement('a', '2026-11-01T10:00:00Z')])])
+      .mockResolvedValueOnce([
+        courtProcess([movement('a', '2026-11-01T10:00:00Z'), movement('s', '2026-11-21T10:00:00Z', 466)]),
+      ]);
+    await refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day: '2026-11-21', cases: [item] }, now);
+    const result = await refreshCourtBatch(
+      { fetchProcesses },
+      { court: 'TRT24', day: '2026-11-22', cases: [item] },
+      now,
+    );
+    expect(result).toMatchObject({ notices: 1, suggestions: 1 });
+    const [suggestion] = await Notification.find({ kind: 'suggestion' }).lean();
+    expect(suggestion).toMatchObject({
+      status: 'pending',
+      ruleKey: 'case_settlement',
+      proposal: { target: 'case_phase', value: 'settlement' },
+      evidence: { court: 'TRT24', movement: { code: 466 } },
+    });
+    expect((await Case.findById(legalCase._id).lean())?.phase).not.toBe('settlement');
+
+    expect(await expireSuggestions(now)).toEqual({ expired: 0, superseded: 0 });
+    await Tenant.updateOne({ _id: tenant._id }, { $unset: { automationUntil: 1 } });
+    expect(await expireSuggestions(now)).toEqual({ expired: 1, superseded: 0 });
   });
 });

@@ -22,7 +22,8 @@
         "AD-274",
         "AD-275",
         "AD-276",
-        "AD-277"
+        "AD-277",
+        "AD-278"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -2412,6 +2413,12 @@
     {
       "id": "AD-277",
       "decisao": "Acompanhamento no tribunal (Fase 4 de `automacao-datajud`): (1) só perícias trabalhistas (TRT) e federais (TRF) por enquanto (`TRACKED_COURT",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-278",
+      "decisao": "Sugestões de serviço (Fase 5 de `automacao-datajud`): (1) regras em `packages/contracts/src/schemas/automation-rules.ts` com os códigos da T",
       "data": "2026-11-22",
       "status": "active"
     }

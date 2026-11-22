@@ -1,5 +1,7 @@
 import type {
+  CaseProposal,
   CaseRole,
+  CourtMovement,
   CourtType,
   CreateNotification,
   NotificationKind,
@@ -50,6 +52,34 @@ export type NoticeRecord = {
   caseId?: string;
   transactionId?: string;
   read: boolean;
+  createdAt: Date;
+};
+
+// Suggestions of the automation (AD-268): the pending ones by default; with `caseId`, the ones of the case.
+export const listSuggestionsQuerySchema = z
+  .object({
+    status: z.enum(NOTIFICATION_STATUS).default('pending'),
+    caseId: idSchema.optional(),
+  })
+  .strict();
+export type ListSuggestionsQuery = z.infer<typeof listSuggestionsQuerySchema>;
+
+// Rejecting keeps the reason: the quality of each rule (plan, section 5).
+export const rejectSuggestionSchema = z
+  .object({ reason: z.string().trim().max(300, 'motivo inválido').optional() })
+  .strict();
+export type RejectSuggestion = z.infer<typeof rejectSuggestionSchema>;
+
+export type SuggestionRecord = {
+  id: string;
+  caseId: string;
+  caseNumber?: string;
+  status: NotificationStatus;
+  proposal: CaseProposal;
+  evidence: { court: string; movement: CourtMovement };
+  ruleKey: string;
+  rejectReason?: string;
+  decidedAt?: Date;
   createdAt: Date;
 };
 

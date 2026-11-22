@@ -5,6 +5,7 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
+import { SuggestionsList } from '@/components/suggestions-list.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { courtProcessQuery } from '@/query/automation.js';
@@ -40,6 +41,7 @@ export function CaseCourt({ caseId }: { caseId: string }) {
           : undefined
       }
     >
+      {active && <SuggestionsList caseId={caseId} />}
       {!active ? (
         <AutomationOffer />
       ) : query.isLoading ? (

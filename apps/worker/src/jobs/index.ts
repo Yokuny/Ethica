@@ -6,6 +6,7 @@ import { enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
 import { sendDigest } from './email-digest.js';
 import { sendImmediate } from './email-immediate.js';
 import { sweepReminders } from './reminders-sweep.js';
+import { expireSuggestions } from './suggestions-expire.js';
 
 // Job kinds of the worker (central-notificacoes design, section 7).
 export const buildHandlers = (deps: {
@@ -22,6 +23,9 @@ export const buildHandlers = (deps: {
   email_immediate: async (payload, now) => {
     const result = await sendImmediate(deps, String(payload.notificationId), now);
     console.log(JSON.stringify({ event: 'worker.email_immediate', ...result }));
+  },
+  suggestions_expire: async (_payload, now) => {
+    console.log(JSON.stringify({ event: 'worker.suggestions_expire', ...(await expireSuggestions(now)) }));
   },
   // Without the Datajud key the tracking in court stays off (the jobs end without doing anything).
   court_refresh: async (_payload, now) => {

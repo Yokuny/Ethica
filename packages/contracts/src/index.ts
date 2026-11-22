@@ -6,6 +6,7 @@ export * from './schemas/access.schema.js';
 export * from './schemas/account.schema.js';
 export * from './schemas/activityLog.schema.js';
 export * from './schemas/appointment.schema.js';
+export * from './schemas/automation-rules.js';
 export * from './schemas/billing.schema.js';
 export * from './schemas/calendar-entry.schema.js';
 export * from './schemas/case.schema.js';

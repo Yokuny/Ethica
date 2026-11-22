@@ -59,6 +59,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
 - [ ] Conferir a seção No tribunal num serviço real com o plano com Automação e o aviso de movimentação no dia seguinte — `automacao-datajud`
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
 

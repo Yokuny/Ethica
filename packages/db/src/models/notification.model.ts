@@ -1,4 +1,6 @@
 import {
+  type CaseProposal,
+  type CourtMovement,
   NOTICE_TOPICS,
   NOTIFICATION_KINDS,
   NOTIFICATION_MODULES,
@@ -39,6 +41,14 @@ export interface NotificationDocument {
   dedupeKey?: string;
   // A notice leaves the database by itself (TTL).
   expireAt?: Date;
+  // Suggestion (Fase 5, AD-268): what would change, the court movement that justifies it and the rule.
+  proposal?: CaseProposal;
+  evidence?: { court: string; movement: CourtMovement };
+  ruleKey?: string;
+  ruleVersion?: number;
+  decidedBy?: mongoose.Types.ObjectId;
+  decidedAt?: Date;
+  rejectReason?: string;
   readBy: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -65,6 +75,13 @@ const notificationSchema = new Schema<NotificationDocument>(
     Transaction: { type: Schema.Types.ObjectId, ref: 'Transaction' },
     dedupeKey: { type: String },
     expireAt: { type: Date },
+    proposal: { type: Schema.Types.Mixed },
+    evidence: { type: Schema.Types.Mixed },
+    ruleKey: { type: String },
+    ruleVersion: { type: Number },
+    decidedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    decidedAt: { type: Date },
+    rejectReason: { type: String, trim: true },
     readBy: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
   },
   { timestamps: true },
@@ -77,6 +94,9 @@ notificationSchema.pre('validate', function () {
     }
   }
   if (this.kind === 'notice' && !this.topic) this.invalidate('topic', 'aviso precisa do assunto');
+  if (this.kind === 'suggestion' && (!this.Case || !this.proposal || !this.status)) {
+    this.invalidate('proposal', 'sugestão precisa do serviço, da proposta e da situação');
+  }
   if (this.status === 'filed' && !this.filedDate) {
     this.invalidate('filedDate', 'prazo protocolado precisa da data de protocolo');
   }

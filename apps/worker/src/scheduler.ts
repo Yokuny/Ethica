@@ -29,5 +29,8 @@ export const scheduleTick = async (now: Date = new Date()): Promise<string[]> =>
   ) {
     enqueued.push('court_refresh');
   }
+  if (await enqueue('suggestions_expire', {}, { dedupeKey: `suggestions_expire:${day}`, priority: 30 })) {
+    enqueued.push('suggestions_expire');
+  }
   return enqueued;
 };

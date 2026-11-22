@@ -437,5 +437,5 @@ Estimativas em dias de uma pessoa, aproximadas. Cada fase fecha com `pnpm run ch
 | 2 — Worker e entrega | concluída em 2026-11-22 | `apps/worker`, `packages/mail`, e-mail do dia por pessoa, `finance_due`, sino e preferências (AD-273); serviço na Railway e usuário no Atlas com o usuário |
 | 3 — Módulo premium | concluída em 2026-11-22 | plano R$ 80 na mesma assinatura (AD-275), `automationUntil`, upgrade, aviso de vencimento (AD-276) |
 | 4 — Acompanhamento no tribunal | concluída em 2026-11-22 (TRT e TRF; TJ depois) | AD-277; rodado contra o Datajud real no banco local |
-| 5 — Sugestões de serviço | pendente | — |
+| 5 — Sugestões de serviço | concluída em 2026-11-22 | regras da TPU, aprovar e rejeitar pelo `caseService`, aba Para aprovar (AD-278) |
 | 6 — Sugestões financeiras, prazos, push | pendente (regra do alvará desligada até a resposta) | — |

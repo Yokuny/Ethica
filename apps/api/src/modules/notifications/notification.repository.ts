@@ -7,9 +7,11 @@ import type {
   DatedNotification,
   ListNoticesQuery,
   ListNotificationsQuery,
+  ListSuggestionsQuery,
   NoticeRecord,
   NotificationRecord,
   NotificationWrite,
+  SuggestionRecord,
 } from './notification.schema.js';
 
 const DATED = { $in: ['deadline' as const, 'alert' as const] };
@@ -220,4 +222,76 @@ export const markRead = async (
     const filter = { ...noticeFilter(tenantId, modules), ...(id ? { _id: id } : {}) };
     const result = await Notification.updateMany(filter, { $addToSet: { readBy: toObjectId(userId) } });
     return { matchedCount: result.matchedCount };
+  });
+
+const toSuggestion = (doc: NotificationDocument): SuggestionRecord => ({
+  id: doc._id.toString(),
+  caseId: String(doc.Case),
+  status: doc.status ?? 'pending',
+  proposal: doc.proposal as SuggestionRecord['proposal'],
+  evidence: doc.evidence as SuggestionRecord['evidence'],
+  ruleKey: doc.ruleKey ?? '',
+  rejectReason: doc.rejectReason,
+  decidedAt: doc.decidedAt,
+  createdAt: doc.createdAt,
+});
+
+// Oldest movement first, so the person reads them in the order the court did (AD-268, invariant 5).
+export const listSuggestions = async (tenantId: string, { status, caseId }: ListSuggestionsQuery) =>
+  withDbTiming('notification.listSuggestions', async () => {
+    const docs = await Notification.find(
+      tenantScoped({ Tenant: tenantId, kind: 'suggestion' as const, status, ...(caseId ? { Case: caseId } : {}) }),
+    )
+      .sort({ 'evidence.movement.at': 1, _id: 1 })
+      .limit(200)
+      .lean();
+    return docs.map(toSuggestion);
+  });
+
+export const findPendingSuggestion = async (tenantId: string, id: string) =>
+  withDbTiming('notification.findPendingSuggestion', async () => {
+    const doc = await Notification.findOne(
+      tenantScoped({ Tenant: tenantId, _id: id, kind: 'suggestion' as const, status: 'pending' as const }),
+    ).lean();
+    return doc ? toSuggestion(doc) : null;
+  });
+
+// Conditional: only one decision wins (AD-268, invariant 4); null = it was not pending any more.
+export const decideSuggestion = async (
+  tenantId: string,
+  id: string,
+  decision: { status: 'accepted' | 'rejected' | 'superseded'; userId: string; rejectReason?: string },
+) =>
+  withDbTiming('notification.decideSuggestion', async () => {
+    const doc = await Notification.findOneAndUpdate(
+      tenantScoped({ Tenant: tenantId, _id: id, kind: 'suggestion' as const, status: 'pending' as const }),
+      {
+        $set: {
+          status: decision.status,
+          decidedBy: decision.userId,
+          decidedAt: new Date(),
+          ...(decision.rejectReason ? { rejectReason: decision.rejectReason } : {}),
+        },
+      },
+      { returnDocument: 'after' },
+    ).lean();
+    return doc ? toSuggestion(doc) : null;
+  });
+
+// The service refused the change: the suggestion goes back to pending.
+export const reopenSuggestion = async (tenantId: string, id: string) =>
+  withDbTiming('notification.reopenSuggestion', async () => {
+    await Notification.updateOne(
+      tenantScoped({ Tenant: tenantId, _id: id, kind: 'suggestion' as const, status: 'accepted' as const }),
+      { $set: { status: 'pending' }, $unset: { decidedBy: 1, decidedAt: 1 } },
+    );
+  });
+
+// A case closed by an accepted suggestion: the other pending phase suggestions of it are superseded.
+export const supersedeCaseSuggestions = async (tenantId: string, caseId: string) =>
+  withDbTiming('notification.supersedeCaseSuggestions', async () => {
+    await Notification.updateMany(
+      tenantScoped({ Tenant: tenantId, Case: caseId, kind: 'suggestion' as const, status: 'pending' as const }),
+      { $set: { status: 'superseded' } },
+    );
   });

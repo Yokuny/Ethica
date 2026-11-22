@@ -1,16 +1,19 @@
 import {
+  CASE_CLOSED_PHASES,
   caseLabel,
   hasPermission,
   NOTIFICATION_MODULES,
   type NotificationModule,
   notificationAgendaEntries,
   type Permissions,
+  proposalFits,
   REPORT_DELIVERY_TITLE,
   validNotificationStatus,
 } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import * as automationService from '../automation/automation.service.js';
 import * as caseService from '../case/case.service.js';
 import * as notificationRepository from './notification.repository.js';
 import type {
@@ -18,7 +21,10 @@ import type {
   DatedNotification,
   ListNoticesQuery,
   ListNotificationsQuery,
+  ListSuggestionsQuery,
   NotificationWrite,
+  RejectSuggestion,
+  SuggestionRecord,
   UpdateNotification,
 } from './notification.schema.js';
 
@@ -143,3 +149,63 @@ export const markRead = async (tenantId: string, userId: string, permissions: Pe
 
 export const markAllRead = (tenantId: string, userId: string, permissions: Permissions) =>
   notificationRepository.markRead(tenantId, userId, visibleModules(permissions));
+
+// Suggestions (AD-268): every suggestion with its case label.
+export const listSuggestions = async (tenantId: string, query: ListSuggestionsQuery) => {
+  const items = await notificationRepository.listSuggestions(tenantId, query);
+  const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
+  return items.map((item) => {
+    const summary = summaries.get(item.caseId);
+    return summary ? { ...item, caseNumber: caseLabel(summary) } : item;
+  });
+};
+
+// Accepting applies through the case service, with the validations and events of the manual edit (AD-268):
+// already as proposed → superseded; no longer fits → 409 `suggestion_outdated`; a service failure puts it back
+// to pending. Closing the case supersedes its other pending suggestions.
+export const acceptSuggestion = async (tenantId: string, userId: string, id: string): Promise<SuggestionRecord> => {
+  // Without the module the suggestions are only read (AD-270).
+  await automationService.ensureAutomation(tenantId);
+  const suggestion = await notificationRepository.findPendingSuggestion(tenantId, id);
+  if (!suggestion) throw new NotificationNotFoundError('not_found');
+  const legalCase = await caseService.getCase(tenantId, suggestion.caseId);
+  const fit = proposalFits(legalCase, suggestion.proposal);
+  if (fit === 'already') {
+    const superseded = await notificationRepository.decideSuggestion(tenantId, id, { status: 'superseded', userId });
+    if (!superseded) throw new CustomError('suggestion_outdated', 409);
+    return superseded;
+  }
+  if (fit === 'impossible') throw new CustomError('suggestion_outdated', 409);
+  const accepted = await notificationRepository.decideSuggestion(tenantId, id, { status: 'accepted', userId });
+  if (!accepted) throw new CustomError('suggestion_outdated', 409);
+  const { proposal } = suggestion;
+  try {
+    await caseService.updateCase(
+      tenantId,
+      suggestion.caseId,
+      proposal.target === 'case_status' ? { status: proposal.value } : { phase: proposal.value },
+    );
+  } catch (e) {
+    await notificationRepository.reopenSuggestion(tenantId, id);
+    throw e;
+  }
+  if (proposal.target === 'case_phase' && CASE_CLOSED_PHASES.includes(proposal.value)) {
+    await notificationRepository.supersedeCaseSuggestions(tenantId, suggestion.caseId);
+  }
+  return accepted;
+};
+
+export const rejectSuggestion = async (
+  tenantId: string,
+  userId: string,
+  id: string,
+  { reason }: RejectSuggestion,
+): Promise<SuggestionRecord> => {
+  const rejected = await notificationRepository.decideSuggestion(tenantId, id, {
+    status: 'rejected',
+    userId,
+    rejectReason: reason,
+  });
+  if (!rejected) throw new NotificationNotFoundError('not_found');
+  return rejected;
+};

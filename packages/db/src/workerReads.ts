@@ -1,5 +1,9 @@
 import {
   CASE_CLOSED_PHASES,
+  type CasePhase,
+  type CaseProposal,
+  type CaseRole,
+  type CaseStatus,
   caseLabel,
   courtUnitFromNumber,
   effectivePermissions,
@@ -143,7 +147,15 @@ export const listAutomationEnding = async (
   }));
 };
 
-export type TrackedCase = { tenantId: string; caseId: string; processNumber: string; court: string };
+export type TrackedCase = {
+  tenantId: string;
+  caseId: string;
+  processNumber: string;
+  court: string;
+  role: CaseRole;
+  status: CaseStatus;
+  phase: CasePhase;
+};
 
 // Cases followed in court (ADT-02): offices with the module on, a valid CNJ number of a tracked court type,
 // a judicial role and the case not closed. Derived on every run.
@@ -159,7 +171,7 @@ export const listTrackedCases = async (now = new Date()): Promise<TrackedCase[]>
     status: { $ne: 'canceled' },
     phase: { $nin: [...CASE_CLOSED_PHASES] },
   })
-    .select('Tenant processNumber')
+    .select('Tenant processNumber role status phase')
     .lean();
   return cases.flatMap((doc) => {
     const unit = doc.processNumber ? courtUnitFromNumber(doc.processNumber) : undefined;
@@ -170,7 +182,48 @@ export const listTrackedCases = async (now = new Date()): Promise<TrackedCase[]>
         caseId: doc._id.toString(),
         processNumber: doc.processNumber as string,
         court: unit.court,
+        role: doc.role,
+        status: doc.status,
+        phase: doc.phase,
       },
     ];
+  });
+};
+
+export type PendingSuggestion = {
+  id: string;
+  tenantId: string;
+  proposal: CaseProposal;
+  automation: boolean;
+  legalCase?: { role: CaseRole; status: CaseStatus; phase: CasePhase };
+};
+
+// Pending suggestions with what decides if they still fit: the module of the office and the case now.
+export const listPendingSuggestions = async (now = new Date()): Promise<PendingSuggestion[]> => {
+  const docs = await Notification.find({ kind: 'suggestion', status: 'pending' }).select('Tenant Case proposal').lean();
+  if (docs.length === 0) return [];
+  const [tenants, cases] = await Promise.all([
+    Tenant.find({ _id: { $in: docs.map((doc) => doc.Tenant) } })
+      .select('automationUntil')
+      .lean(),
+    Case.find({ _id: { $in: docs.flatMap((doc) => (doc.Case ? [doc.Case] : [])) } })
+      .select('role status phase')
+      .lean(),
+  ]);
+  const active = new Set(
+    tenants
+      .filter((tenant) => tenant.automationUntil && tenant.automationUntil > now)
+      .map((tenant) => String(tenant._id)),
+  );
+  const byId = new Map(cases.map((doc) => [String(doc._id), doc]));
+  return docs.map((doc) => {
+    const legalCase = byId.get(String(doc.Case));
+    return {
+      id: doc._id.toString(),
+      tenantId: String(doc.Tenant),
+      proposal: doc.proposal as CaseProposal,
+      automation: active.has(String(doc.Tenant)),
+      legalCase: legalCase ? { role: legalCase.role, status: legalCase.status, phase: legalCase.phase } : undefined,
+    };
   });
 };

@@ -23,7 +23,7 @@ Gate de cada fase: `pnpm run check`, `(cd apps/web && pnpm run build)`, registro
 
 ## Fase 5 — Sugestões de serviço
 
-- [ ] T5.1 Regras de status e fase; `accept`/`reject` pelo `caseService`; aba "Para aprovar"; sugestões no serviço.
+- [x] T5.1 Regras de status e fase; `accept`/`reject` pelo `caseService`; aba "Para aprovar"; sugestões no serviço.
 
 ## Fase 6 — Sugestões financeiras e de prazos, qualidade
 

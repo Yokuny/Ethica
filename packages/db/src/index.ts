@@ -70,7 +70,14 @@ export {
   withSearch,
 } from './textSearch.js';
 export { dateInDisplayTz, shiftMonth, timeInDisplayTz, wallClockToUtc } from './time.js';
-export type { DeliveryRecipient, DueItem, FinanceDueItem, NoticeForDelivery, TrackedCase } from './workerReads.js';
+export type {
+  DeliveryRecipient,
+  DueItem,
+  FinanceDueItem,
+  NoticeForDelivery,
+  PendingSuggestion,
+  TrackedCase,
+} from './workerReads.js';
 export {
   caseLabelsByIds,
   findNoticeForDelivery,
@@ -78,6 +85,7 @@ export {
   listDeliveryRecipients,
   listFinanceDueUntil,
   listPendingDueOn,
+  listPendingSuggestions,
   listTrackedCases,
 } from './workerReads.js';
 

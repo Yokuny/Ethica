@@ -7,8 +7,10 @@ import {
   createNotificationSchema,
   listNoticesQuerySchema,
   listNotificationsQuerySchema,
+  listSuggestionsQuerySchema,
   type NotificationRouterDeps,
   notificationIdParamSchema,
+  rejectSuggestionSchema,
   updateNotificationSchema,
 } from './notification.schema.js';
 
@@ -30,6 +32,23 @@ export const createNotificationRouter = (deps: NotificationRouterDeps): Router =
   router.get('/notices', ...guard, validParsedQuery(listNoticesQuerySchema), notificationController.listNotices);
   router.get('/unread-count', ...guard, notificationController.countUnread);
   router.post('/read-all', ...guard, notificationController.markAllRead);
+  // Suggestions of the automation (AD-268): applying one changes the case, so it asks to change cases (D5).
+  router.get(
+    '/suggestions',
+    ...guard,
+    can('expert_cases', 'view'),
+    validParsedQuery(listSuggestionsQuerySchema),
+    notificationController.listSuggestions,
+  );
+  router.post('/:id/accept', ...guard, can('expert_cases', 'update'), byId, notificationController.acceptSuggestion);
+  router.post(
+    '/:id/reject',
+    ...guard,
+    can('expert_cases', 'update'),
+    byId,
+    validBody(rejectSuggestionSchema),
+    notificationController.rejectSuggestion,
+  );
   router.post('/:id/read', ...guard, byId, notificationController.markRead);
   router.post(
     '/',

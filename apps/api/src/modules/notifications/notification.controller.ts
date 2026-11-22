@@ -2,7 +2,7 @@ import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
-import type { ListNoticesQuery, ListNotificationsQuery } from './notification.schema.js';
+import type { ListNoticesQuery, ListNotificationsQuery, ListSuggestionsQuery } from './notification.schema.js';
 import * as notificationService from './notification.service.js';
 import { NotificationNotFoundError } from './notification.service.js';
 
@@ -87,5 +87,41 @@ export const markAllRead = async (req: Request, res: Response, next: NextFunctio
     res.json(respObj({}));
   } catch (e) {
     next(e);
+  }
+};
+
+export const listSuggestions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const query = req.query as unknown as ListSuggestionsQuery;
+    res.json(respObj({ data: await notificationService.listSuggestions(tenantOf(req), query) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const acceptSuggestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await notificationService.acceptSuggestion(
+      tenantOf(req),
+      req.tenantUser.user,
+      req.params.id as string,
+    );
+    res.json(respObj({ data }));
+  } catch (e) {
+    notFoundAs404(e, next);
+  }
+};
+
+export const rejectSuggestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await notificationService.rejectSuggestion(
+      tenantOf(req),
+      req.tenantUser.user,
+      req.params.id as string,
+      req.body,
+    );
+    res.json(respObj({ data }));
+  } catch (e) {
+    notFoundAs404(e, next);
   }
 };

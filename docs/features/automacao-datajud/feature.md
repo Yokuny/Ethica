@@ -5,7 +5,7 @@ descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e
 data: 2026-11-22
 status: em-andamento
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278]
 spec: [.specs/features/automacao-datajud]
 ---
 
@@ -18,6 +18,7 @@ spec: [.specs/features/automacao-datajud]
 
 ## O que foi feito
 
+- **Sugestões para aprovar** (Fase 5): suspensão, retomada, acordo, desistência ou extinção e sentença no tribunal viram uma sugestão de situação ou fase na aba **Para aprovar** da Central e na seção No tribunal do serviço. Nada muda até alguém com permissão de alterar serviços clicar em Aprovar; se o serviço já estiver assim, a sugestão se encerra sozinha.
 - **Acompanhamento no tribunal** (Fase 4, perícias trabalhistas e federais): uma vez por dia o worker consulta no Datajud os processos dos escritórios com o módulo. A primeira vez só registra o que viu; depois, toda movimentação nova vira um aviso "Movimentação nova no tribunal" no sino, com link para o serviço. A seção **No tribunal** do serviço mostra os movimentos mais recentes; sem o módulo, a oferta.
 - **Planos com Automação** (Fase 3): Mensal + Automação (R$ 80/mês) e Anual + Automação (R$ 816/ano) na mesma assinatura do Asaas; o pagamento libera o acesso e o módulo juntos. Quem já tem acesso assina por "Ver planos" na aba Avisos da Central (`/billing?upgrade=true`, só o admin).
 - Faltando 7 dias para o módulo vencer, aviso no sino e e-mail na hora a quem vê o Financeiro.
@@ -38,7 +39,9 @@ A perita descobre tarde que o processo foi suspenso, acabou em acordo ou teve al
 - `apps/api/src/modules/automation/` — `GET /automation/cases/:id/court-process` com `requireAutomation`.
 - `apps/web/src/routes/_private/expert-cases/details/@components/case-court.tsx`.
 
-Fases 5 e 6 a fazer.
+- `packages/contracts/src/schemas/automation-rules.ts` (regras e `proposalFits`), `apps/worker/src/jobs/suggestions-expire.ts`, `apps/api/src/modules/notifications/notification.service.ts` (`acceptSuggestion`), `apps/web/src/components/suggestions-list.tsx`.
+
+Fase 6 a fazer.
 
 ## Como testar
 
@@ -51,6 +54,7 @@ A definir.
 
 ## Histórico
 
+- 2026-11-22 — Fase 5: sugestões de situação e fase (AD-278). Conferido na tela local: a sugestão de suspensão aprovada pela Central mudou o serviço de teste para Suspenso.
 - 2026-11-22 — Fase 4: acompanhamento no tribunal só com TRT e TRF (AD-277). Rodado de verdade no banco local: o TRT24 trouxe um processo real e gravou a linha de base; 429 do TRT2, TRT4 e TRT15 voltaram para a fila e o TRF3 passou na segunda tentativa.
 - 2026-11-22 — Fase 3: planos com Automação, `automationUntil`, modo upgrade da tela de planos, oferta na Central e aviso de vencimento (AD-276). O pagamento real não foi testado (cobrança no Asaas).
 - 2026-11-22 — Estudo do pagamento na TPU do CNJ e em processos reais: intenção = 12548 e requisição 12165; dinheiro disponível = alvará 60 + 73 e RPV/precatório "Paga" 12176/12169 (AD-274). Preço do usuário: base R$ 60, premium R$ 80 (AD-275, leitura a confirmar).

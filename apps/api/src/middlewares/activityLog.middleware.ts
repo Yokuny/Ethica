@@ -29,6 +29,9 @@ const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
   notice: 'notify',
   export: 'export',
   move: 'update',
+  // A suggestion of the automation accepted or rejected changes the case (AD-268).
+  accept: 'update',
+  reject: 'update',
 };
 // Technical effect or a read through POST: not an action of whoever uses the system.
 const IGNORED = [

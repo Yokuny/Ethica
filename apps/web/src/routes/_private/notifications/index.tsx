@@ -10,9 +10,10 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { NotificationDialog } from '@/components/notification-dialog.js';
 import { DEADLINE_STATUS_ITEMS } from '@/components/notification-labels.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { SuggestionsList } from '@/components/suggestions-list.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type NotificationRecord, notificationsQuery } from '@/query/notification.js';
-import { can, sessionQuery } from '@/query/session.js';
+import { can, hasAutomationSession, sessionQuery } from '@/query/session.js';
 import { NewNotificationDialog } from './@components/new-notification-dialog.js';
 import { NoticesList } from './@components/notices-list.js';
 import { deadlineExportColumns, NotificationsTable } from './@components/notifications-table.js';
@@ -26,6 +27,7 @@ export function NotificationsPage() {
   const navigate = useNavigate({ from: '/notifications/' });
   const session = useQuery(sessionQuery).data;
   const canUpdate = Boolean(session && can(session, 'expert_cases', 'update'));
+  const automation = Boolean(session && hasAutomationSession(session));
   const query = useQuery(notificationsQuery({ page: search.page, limit: search.limit, status: search.status }));
   const queryClient = useQueryClient();
   const [dialog, setDialog] = useState<Dialog | null>(null);
@@ -54,9 +56,14 @@ export function NotificationsPage() {
         <TabsList>
           <TabsTrigger value="dated">{t('deadlines_and_alerts')}</TabsTrigger>
           <TabsTrigger value="notices">{t('notices')}</TabsTrigger>
+          {automation && <TabsTrigger value="suggestions">{t('suggestions_to_approve')}</TabsTrigger>}
         </TabsList>
       </Tabs>
-      {search.view === 'notices' ? (
+      {search.view === 'suggestions' ? (
+        <CardContent>
+          <SuggestionsList />
+        </CardContent>
+      ) : search.view === 'notices' ? (
         <CardContent className="grid gap-3">
           <AutomationOffer />
           <NoticesList page={search.page} limit={search.limit} onPage={(page, limit) => update({ page, limit })} />
