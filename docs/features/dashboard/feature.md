@@ -21,7 +21,7 @@ branches: [main]
 
 - Item **Dashboard** no menu, em Gestão, com o acesso de Serviços.
 - Um período (6 ou 12 meses completos; o mês em andamento fica de fora) no cabeçalho vale para a página toda; toda comparação é contra o período anterior de mesmo tamanho.
-- **Nível 1**: faixa com Saldo, Recebido (e o recebido desde o início), Despesas, A receber (com o vencido), Serviços novos e Serviços em aberto (e os finalizados), cada um com linha de tendência, variação e estado (despesa subindo é ruim). Alertas por regra: honorários vencidos e saldo negativo no período, com link para os lançamentos.
+- **Nível 1**: faixa do dinheiro com Saldo, Recebido (e o recebido desde o início), Despesas e A receber (com o vencido em linha própria); a seção Trabalho abre com a própria faixa, Serviços novos e Serviços em aberto (e os finalizados). Cada número com linha de tendência, variação e estado (despesa subindo é ruim). Alertas por regra: honorários vencidos e saldo negativo no período, com link para os lançamentos.
 - **Dinheiro**: fluxo de caixa em linhas (recebido verde, despesas vermelho, a receber previsto roxo, eixo a partir de 0) e roscas de "De onde vem" e "Para onde vai" o dinheiro por categoria, com total, parcela e variação escritos; acima de 4 categorias, o resto em "Demais".
 - **Trabalho**: entrada de serviços em área empilhada por tipo e mix de serviços em rosca, com a mesma cor por tipo; cada tipo abre a lista filtrada.
 - O mês a mês exato (tabelas de calor de fluxo e de serviços) fica recolhido em "Ver mês a mês".
@@ -54,6 +54,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-22 — A faixa de seis números vira duas: dinheiro no nível 1 (quatro números) e serviços na abertura de Trabalho; o vencido do A receber sai de ao lado do valor, onde se sobrepunha, para uma linha própria em vermelho.
 - 2026-11-22 — Dashboard e Início reformulados com gráficos, do macro ao micro (AD-255, AD-256): KPIs com tendência, variação e estado, alertas, fluxo de caixa em linhas, roscas de composição (categorias, mix de serviços, justiça), área empilhada de entrada de serviços e o mês a mês recolhido. Saem as barras da AD-253/254. Só meses completos (`byMonth` com 25 meses, fluxo com `2 × meses + 1`, categorias sem o mês em andamento). Plano: `.specs/features/dashboard/plans/2026-11-22-dashboard-graficos.md`.
 - 2026-11-22 — Só os totais de Recebido e Despesas dividem a escala; as categorias ficam abaixo, recuadas, medidas entre si. A nota avisa que o mês atual está em andamento, e no celular a variação desce para baixo do valor (AD-254).
 - 2026-11-22 — Rankings com contexto (AD-253). `ShareList` vira `BarList`: barra sem trilho, medida pelo maior item, com drill-down. Serviços por tipo mostra os últimos 12 meses e abre a lista filtrada. Receitas e despesas por categoria viram um painel no período do fluxo de caixa (`GET /finance/categories` com `months` e `previousCents`), em escala comum e com variação contra o período anterior. No Início, Serviços por justiça vira barra de composição com os sem justiça e o denominador escrito. Plano: `.specs/features/dashboard/plans/2026-11-22-graficos-com-contexto.md`.
