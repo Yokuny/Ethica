@@ -11,7 +11,7 @@ spec: [.specs/features/contatos-varas]
 
 # Contatos das varas
 
-**Status**: concluido · **Atualizado**: 2026-11-01 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-22 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), o código é a fonte da verdade.
 > Correlação com o git: `git log --oneline -i --grep='contatos-varas'`.
@@ -36,8 +36,8 @@ Pedido da perita (2026-11-01). Não há fonte oficial única com os contatos de 
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/court-divisions/` — página, filtros, cartão, formulário e importação; `apps/web/src/query/court-division.ts`.
-- `apps/web/src/components/court-division-contacts.tsx` — linhas de contato, usadas na página e em `apps/web/src/routes/_private/expert-cases/details/@components/case-court-division.tsx`.
+- `apps/web/src/routes/_private/court-divisions/` — página, filtros, tabela (`@components/court-divisions-table.tsx`), formulário e importação; `apps/web/src/query/court-division.ts`.
+- `apps/web/src/components/court-division-contacts.tsx` — linhas de contato, usadas em `apps/web/src/routes/_private/expert-cases/details/@components/case-court-division.tsx`.
 - `apps/web/src/components/csv-import-report.tsx` e `apps/web/src/lib/helpers/csvTemplate.helper.ts` — agora compartilhados com a importação de perícias.
 
 ### `packages`
@@ -61,6 +61,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-22 — A lista de varas vira tabela no padrão das outras listagens (vara, local e contato, menu ⋮ com editar e excluir, linha abre a edição); sai o cartão `court-division-card.tsx`. Sem paginação: a API devolve a lista filtrada inteira.
 - 2026-11-05 — Varas no padrão de lista: busca pelo nome e "Filtros" (UF, cidade, esfera) na barra do `DataTable` (AD-193).
 - 2026-11-03 — A seção passa a "Varas e comarcas"; base pronta dos 24 TRTs pedida pela perita e pendente em `rotina-servico` (RSV-05).
 - 2026-11-01 — Implementado VAR-01 a VAR-03; validação em `.specs/features/contatos-varas/validation.md`. A justiça reaproveita a da perícia (trabalho, cível e federal) em vez de um tipo novo.
