@@ -1,11 +1,13 @@
+import type { NotificationModule } from '@ethica/contracts';
 import type { NotificationDocument } from '@ethica/db';
-import { Notification, tenantScoped } from '@ethica/db';
+import { Notification, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type {
   CreateNotification,
   DatedNotification,
-  DueReminder,
+  ListNoticesQuery,
   ListNotificationsQuery,
+  NoticeRecord,
   NotificationRecord,
   NotificationWrite,
 } from './notification.schema.js';
@@ -156,16 +158,6 @@ export const listPending = async (
     return docs.map(toDated);
   });
 
-// System query (daily reminder): deliberately without a Tenant filter — each
-// item comes back with its own, and the service splits by tenant before sending.
-export const listPendingInDays = async (days: string[]): Promise<DueReminder[]> =>
-  withDbTiming('notification.listPendingInDays', async () => {
-    const docs = await Notification.find({ kind: DATED, status: 'pending', dueDate: { $in: days } })
-      .sort({ dueDate: 1, _id: 1 })
-      .lean();
-    return docs.map((doc) => ({ ...toDated(doc), tenantId: doc.Tenant.toString() }));
-  });
-
 // Data export (DOC-04): every deadline and alert of the tenant, by due date.
 export const listAll = async (tenantId: string): Promise<DatedNotification[]> =>
   withDbTiming('notification.listAll', async () => {
@@ -173,4 +165,59 @@ export const listAll = async (tenantId: string): Promise<DatedNotification[]> =>
       .sort({ dueDate: 1 })
       .lean();
     return docs.map(toDated);
+  });
+
+// Notices of the modules the person can see (D5); `read` is per person (`readBy`).
+const noticeFilter = (tenantId: string, modules: NotificationModule[]) =>
+  tenantScoped({ Tenant: tenantId, kind: 'notice' as const, module: { $in: modules } });
+
+export const listNotices = async (
+  tenantId: string,
+  userId: string,
+  modules: NotificationModule[],
+  { page, limit, unread }: ListNoticesQuery,
+): Promise<{ items: NoticeRecord[]; total: number }> =>
+  withDbTiming('notification.listNotices', async () => {
+    const filter = {
+      ...noticeFilter(tenantId, modules),
+      ...(unread === 'true' ? { readBy: { $ne: toObjectId(userId) } } : {}),
+    };
+    const [docs, total] = await Promise.all([
+      Notification.find(filter)
+        .sort({ createdAt: -1, _id: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Notification.countDocuments(filter),
+    ]);
+    const items = docs.map((doc) => ({
+      id: doc._id.toString(),
+      module: doc.module,
+      topic: doc.topic,
+      params: doc.params,
+      severity: doc.severity,
+      caseId: doc.Case?.toString(),
+      transactionId: doc.Transaction?.toString(),
+      read: doc.readBy.some((reader) => reader.toString() === userId),
+      createdAt: doc.createdAt,
+    }));
+    return { items, total };
+  });
+
+export const countUnread = async (tenantId: string, userId: string, modules: NotificationModule[]): Promise<number> =>
+  withDbTiming('notification.countUnread', () =>
+    Notification.countDocuments({ ...noticeFilter(tenantId, modules), readBy: { $ne: toObjectId(userId) } }),
+  );
+
+// Read is per person: marking it never changes it for the others.
+export const markRead = async (
+  tenantId: string,
+  userId: string,
+  modules: NotificationModule[],
+  id?: string,
+): Promise<{ matchedCount: number }> =>
+  withDbTiming('notification.markRead', async () => {
+    const filter = { ...noticeFilter(tenantId, modules), ...(id ? { _id: id } : {}) };
+    const result = await Notification.updateMany(filter, { $addToSet: { readBy: toObjectId(userId) } });
+    return { matchedCount: result.matchedCount };
   });

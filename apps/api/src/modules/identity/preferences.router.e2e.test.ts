@@ -101,7 +101,12 @@ describe('preferences routes (ENR-03)', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toEqual({
       onboardingDismissed: false,
-      deadlineReminderEmail: true,
+      notifications: {
+        deadlines: { email: true, push: true },
+        finance: { email: true, push: true },
+        court: { email: true, push: true },
+        suggestions: { email: true, push: true },
+      },
       hiddenBlocks: [],
       revenueGoalOnCases: false,
     });
@@ -120,7 +125,12 @@ describe('preferences routes (ENR-03)', () => {
     expect(dismissed.status).toBe(200);
     expect(dismissed.body.data).toEqual({
       onboardingDismissed: true,
-      deadlineReminderEmail: true,
+      notifications: {
+        deadlines: { email: true, push: true },
+        finance: { email: true, push: true },
+        court: { email: true, push: true },
+        suggestions: { email: true, push: true },
+      },
       hiddenBlocks: [],
       revenueGoalOnCases: false,
     });
@@ -128,7 +138,12 @@ describe('preferences routes (ENR-03)', () => {
       (await request(app).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE)).body.data,
     ).toEqual({
       onboardingDismissed: true,
-      deadlineReminderEmail: true,
+      notifications: {
+        deadlines: { email: true, push: true },
+        finance: { email: true, push: true },
+        court: { email: true, push: true },
+        suggestions: { email: true, push: true },
+      },
       hiddenBlocks: [],
       revenueGoalOnCases: false,
     });
@@ -140,7 +155,12 @@ describe('preferences routes (ENR-03)', () => {
       .send({ onboardingDismissed: false });
     expect(reopened.body.data).toEqual({
       onboardingDismissed: false,
-      deadlineReminderEmail: true,
+      notifications: {
+        deadlines: { email: true, push: true },
+        finance: { email: true, push: true },
+        court: { email: true, push: true },
+        suggestions: { email: true, push: true },
+      },
       hiddenBlocks: [],
       revenueGoalOnCases: false,
     });
@@ -185,7 +205,12 @@ describe('preferences routes (ENR-03)', () => {
       .set('User-Agent', DEVICE);
     expect(resB.body.data).toEqual({
       onboardingDismissed: false,
-      deadlineReminderEmail: true,
+      notifications: {
+        deadlines: { email: true, push: true },
+        finance: { email: true, push: true },
+        court: { email: true, push: true },
+        suggestions: { email: true, push: true },
+      },
       hiddenBlocks: [],
       revenueGoalOnCases: false,
     });

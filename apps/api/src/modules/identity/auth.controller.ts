@@ -1,8 +1,8 @@
 import { respObj } from '@ethica/contracts';
+import type { MailProvider } from '@ethica/mail';
 import type { NextFunction, Request, Response } from 'express';
 import { clearCookieOptions, cookieOptions } from '../../config/cookie.config.js';
 import { extractToken } from '../../middlewares/authentication.middleware.js';
-import type { MailProvider } from '../../providers/mail/index.js';
 import type { ListUsersQuery } from './auth.schema.js';
 import * as authService from './auth.service.js';
 

@@ -43,7 +43,11 @@ import {
 } from './schemas/inspection.schema.js';
 import { inviteTokenParamSchema } from './schemas/inviteToken.schema.js';
 import { listStatsSchema } from './schemas/listStats.schema.js';
-import { createNotificationSchema, updateNotificationSchema } from './schemas/notification.schema.js';
+import {
+  createNotificationSchema,
+  notificationPreferencesSchema,
+  updateNotificationSchema,
+} from './schemas/notification.schema.js';
 import {
   casePartyInputSchema,
   creaSchema,
@@ -146,6 +150,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'completeReportSchema', schema: completeReportSchema },
   { name: 'createNotificationSchema', schema: createNotificationSchema },
   { name: 'updateNotificationSchema', schema: updateNotificationSchema },
+  { name: 'notificationPreferencesSchema', schema: notificationPreferencesSchema },
   { name: 'createAppointmentSchema', schema: createAppointmentSchema },
   { name: 'updateAppointmentSchema', schema: updateAppointmentSchema },
   { name: 'createTransactionSchema', schema: createTransactionSchema },

@@ -35,9 +35,6 @@ export const calendarFeedStatus = async (tenantId: string, userId: string) => ({
 
 export const findFeedOwner = (token: string) => accountRepository.findFeedOwner(hashToken(token));
 
-export const listDeadlineReminderRecipients = (tenantIds: string[]) =>
-  accountRepository.listDeadlineReminderRecipients(tenantIds);
-
 export const listPasskeys = (userId: string) => accountRepository.listPasskeys(userId);
 
 export const removePasskey = async (userId: string, passkeyId: string): Promise<void> => {

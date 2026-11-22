@@ -61,6 +61,7 @@ describe('schemaRegistry', () => {
         'completeReportSchema',
         'createNotificationSchema',
         'updateNotificationSchema',
+        'notificationPreferencesSchema',
         'createAppointmentSchema',
         'updateAppointmentSchema',
         'createTransactionSchema',

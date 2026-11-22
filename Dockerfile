@@ -25,8 +25,10 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
+COPY apps/worker/package.json apps/worker/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
 COPY packages/db/package.json packages/db/package.json
+COPY packages/mail/package.json packages/mail/package.json
 COPY packages/ui/package.json packages/ui/package.json
 
 # Só a API, os pacotes de que ela depende e a raiz (tsx).
@@ -36,6 +38,7 @@ COPY package.json tsconfig.base.json ./
 COPY apps/api apps/api
 COPY packages/contracts packages/contracts
 COPY packages/db packages/db
+COPY packages/mail packages/mail
 
 ENV NODE_ENV=production
 WORKDIR /app/apps/api

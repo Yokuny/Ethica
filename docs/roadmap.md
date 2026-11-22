@@ -35,6 +35,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Railway: criar o serviço **worker** no mesmo projeto e repositório, com arquivo de configuração `railway.worker.json` (Dockerfile `Dockerfile.worker`, healthcheck `/health`). Variáveis: `MONGODB_URI`, `APP_URL` (endereço do web), `NODE_ENV=production` e as mesmas `MAIL_PROVIDER`, `MAIL_FROM`, `RESEND_API_KEY` da API. **Desde a Fase 2 a API não manda mais o e-mail do dia: sem o worker ninguém recebe** — `central-notificacoes`
+- [ ] Atlas: usuário de banco próprio do worker, com `readWrite` em `workerjobs`, `workerheartbeats`, `notificationdeliveries` e `notifications` e `read` em `users`, `tenants`, `cases` e `transactions` (AD-267) — `central-notificacoes`
 - [ ] Responder: há prazos reais em produção (D8)? A Fase 1 já está na `main`: os prazos antigos (`deadlines`) e os itens de agenda deles (`calendarentries` com `source: 'deadline'`) ficaram no banco, sem aparecer. Se forem reais, um script avulso copia os dois para `Notification`/`source: 'notification'`; se não, você pode apagá-los — `central-notificacoes`
 - [ ] Responder: texto exato e origem (PJe, diário oficial ou Datajud) de "expedição de alvará eletrônico automatizado"; no Datajud só há o movimento 60 com complemento "Alvará" (AD-269) — `automacao-datajud`
 - [ ] Definir o preço e o escopo do módulo premium Automação Datajud (AD-270) — `automacao-datajud`

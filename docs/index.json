@@ -34,8 +34,10 @@
       "areas": [
         "apps/api",
         "apps/web",
+        "apps/worker",
         "packages/contracts",
         "packages/db",
+        "packages/mail",
         "docs"
       ],
       "decisoes": [
@@ -44,7 +46,8 @@
         "AD-265",
         "AD-266",
         "AD-267",
-        "AD-272"
+        "AD-272",
+        "AD-273"
       ],
       "spec": [
         ".specs/features/central-notificacoes"
@@ -2374,6 +2377,12 @@
     {
       "id": "AD-272",
       "decisao": "Detalhes da virada `Deadline` → `Notification` (Fase 1 de `central-notificacoes`), resolvidos na implementação: (1) o detalhe do serviço lê",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-273",
+      "decisao": "Detalhes da Fase 2 de `central-notificacoes` (worker e entrega): (1) o e-mail do dia é um por pessoa (`Avisos do Ethica — DD/MM/AAAA`), com",
       "data": "2026-11-22",
       "status": "active"
     }

@@ -23,8 +23,5 @@ export type AccountView = {
 // PRZ-03: owner of the iCal feed link — active user, with a role, from a non-suspended tenant.
 export type FeedOwner = { userId: string; tenantId: string };
 
-// AD-110: who gets the daily deadline reminder.
-export type NoticeRecipient = { tenantId: string; name: string; email: string };
-
 // APA-08: one of the person's own devices.
 export const passkeyIdParamSchema = z.object({ id: idSchema }).strict();

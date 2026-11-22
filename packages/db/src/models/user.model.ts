@@ -1,4 +1,4 @@
-import { PERMISSION_MODULES, type Permissions } from '@ethica/contracts';
+import { type NotificationPreferences, PERMISSION_MODULES, type Permissions } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 export interface UserDocument {
@@ -13,10 +13,10 @@ export interface UserDocument {
   permissions?: Permissions;
   // ENR-03: the person's own preferences. They only keep interface choices
   // (e.g. dismissing the getting started guide) — never progress facts.
-  // AD-110: `avisoPrazoEmail` ausente = ligado.
+  // CNT-05: delivery per kind × channel; missing = on.
   preferences?: {
     onboardingDismissed?: boolean;
-    deadlineReminderEmail?: boolean;
+    notifications?: NotificationPreferences;
     hiddenBlocks?: string[];
     // MRA-04: follow the revenue goal on the services page; absent = off.
     revenueGoalOnCases?: boolean;
@@ -54,7 +54,7 @@ const userSchema = new Schema<UserDocument>(
       type: new Schema(
         {
           onboardingDismissed: { type: Boolean, default: false },
-          deadlineReminderEmail: { type: Boolean },
+          notifications: { type: Schema.Types.Mixed },
           hiddenBlocks: { type: [String], default: undefined },
           revenueGoalOnCases: { type: Boolean },
         },
@@ -83,3 +83,17 @@ userSchema.pre('validate', function () {
 userSchema.index({ calendarFeedTokenHash: 1 }, { unique: true, sparse: true });
 
 export const User = mongoose.model<UserDocument>('User', userSchema);
+
+// CNT-05 (AD-273): the old e-mail reminder switch becomes the deadlines × e-mail cell of the matrix, once.
+export const migrateUsers = async (): Promise<void> => {
+  await User.collection.updateMany(
+    { 'preferences.deadlineReminderEmail': false },
+    {
+      $set: { 'preferences.notifications.deadlines.email': false },
+    },
+  );
+  await User.collection.updateMany(
+    { 'preferences.deadlineReminderEmail': { $exists: true } },
+    { $unset: { 'preferences.deadlineReminderEmail': '' } },
+  );
+};

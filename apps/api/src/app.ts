@@ -1,8 +1,8 @@
 import { respObj } from '@ethica/contracts';
+import { createMailProvider, type MailProvider } from '@ethica/mail';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
-import nodemailer from 'nodemailer';
 import { register } from 'prom-client';
 import { env } from './config/env.config.js';
 import { registerAllSubscribers } from './events/index.js';
@@ -36,29 +36,10 @@ import { type AsaasClient, createAsaasClient } from './providers/asaasClient.js'
 import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
 import { createS3FileStorage, type FileStorage } from './providers/fileStorage.js';
 import { createNominatimGeocoder, type Geocoder } from './providers/geocoder.js';
-import type { MailProvider } from './providers/mail/index.js';
-import { createLogMailProvider } from './providers/mail/log.mailProvider.js';
-import { createNodemailerMailProvider } from './providers/mail/nodemailer.mailProvider.js';
-import { createResendMailProvider } from './providers/mail/resend.mailProvider.js';
 import { createChromiumPdfRenderer, type PdfRenderer } from './providers/pdfRenderer.js';
 
-// Shared with server.ts (daily deadline reminder, AD-110).
-export const buildMailProvider = (): MailProvider => {
-  if (env.MAIL_PROVIDER === 'resend') {
-    return createResendMailProvider(env.RESEND_API_KEY ?? '', env.MAIL_FROM ?? '');
-  }
-  if (env.MAIL_PROVIDER === 'nodemailer') {
-    const transport = nodemailer.createTransport({
-      host: env.SMTP_HOST,
-      port: env.SMTP_PORT ? Number(env.SMTP_PORT) : undefined,
-      // Port 465 (e.g. Zoho Mail) is TLS from the start; 587 upgrades with STARTTLS.
-      secure: env.SMTP_PORT === '465',
-      auth: env.SMTP_USER && env.SMTP_PASS ? { user: env.SMTP_USER, pass: env.SMTP_PASS } : undefined,
-    });
-    return createNodemailerMailProvider(transport, env.MAIL_FROM ?? '');
-  }
-  return createLogMailProvider();
-};
+// Immediate e-mails of the API (access key, invite, notice to the parties); the reminders are the worker's (AD-267).
+export const buildMailProvider = (): MailProvider => createMailProvider(env);
 
 // No .listen() — testable through supertest without opening a port. start() (server.ts)
 // is what actually brings the process up. `datajud`, `pdf` and `storage` are injectable for tests.

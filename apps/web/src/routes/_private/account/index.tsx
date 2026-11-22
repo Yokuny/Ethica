@@ -7,8 +7,8 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { profileQuery } from '@/query/account.js';
 import { sessionQuery } from '@/query/session.js';
 import { AccountCalendarFeed } from './@components/account-calendar-feed.js';
-import { AccountDeadlineReminder } from './@components/account-deadline-reminder.js';
 import { AccountDevices } from './@components/account-devices.js';
+import { AccountNotifications } from './@components/account-notifications.js';
 import { AccountPhoto } from './@components/account-photo.js';
 import { AccountProfileForm } from './@components/account-profile-form.js';
 
@@ -36,8 +36,8 @@ export function AccountPage() {
           <StepItem title={t('devices_with_access')} description={t('devices_with_access_description')}>
             <AccountDevices />
           </StepItem>
-          <StepItem title={t('deadline_alerts')} description={t('deadline_alerts_description')}>
-            <AccountDeadlineReminder />
+          <StepItem title={t('notifications')} description={t('notification_emails_description')}>
+            <AccountNotifications />
           </StepItem>
           <StepItem title={t('calendar_sync')} description={t('calendar_sync_description')}>
             <AccountCalendarFeed />

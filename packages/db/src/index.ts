@@ -1,4 +1,4 @@
-export { connect, disconnect } from './connection.js';
+export { connect, disconnect, isConnected } from './connection.js';
 export type { EncryptedSecret } from './crypto.helper.js';
 export { decrypt, encrypt, maskSecret, sha256 } from './crypto.helper.js';
 export { dailyTrend } from './dailyTrend.js';
@@ -21,6 +21,8 @@ export type { InviteDocument, InviteStatus } from './models/invite.model.js';
 export { hashToken, Invite } from './models/invite.model.js';
 export type { NotificationDocument } from './models/notification.model.js';
 export { Notification } from './models/notification.model.js';
+export type { NotificationDeliveryDocument } from './models/notification-delivery.model.js';
+export { NotificationDelivery } from './models/notification-delivery.model.js';
 export type { OpportunityDocument } from './models/opportunity.model.js';
 export { Opportunity } from './models/opportunity.model.js';
 export type { PartyDocument } from './models/party.model.js';
@@ -42,7 +44,11 @@ export { isTenantOpen, openTenantFilter, Tenant, transitionTenantStatus } from '
 export type { InstallmentDocument, TransactionDocument } from './models/transaction.model.js';
 export { Transaction } from './models/transaction.model.js';
 export type { UserDocument } from './models/user.model.js';
-export { User } from './models/user.model.js';
+export { migrateUsers, User } from './models/user.model.js';
+export type { WorkerHeartbeatDocument } from './models/worker-heartbeat.model.js';
+export { WorkerHeartbeat } from './models/worker-heartbeat.model.js';
+export type { WorkerJobDocument, WorkerJobStatus } from './models/worker-job.model.js';
+export { WORKER_JOB_STATUS, WorkerJob } from './models/worker-job.model.js';
 export { caseIdsDueBetween, nextDueByCases, pendingDueCounts } from './notificationReads.js';
 export { tenantScoped } from './tenantScoped.js';
 export { resolveTestDatabaseUri, TEST_DATABASE_ENV, wipeTestDatabase } from './testDatabase.js';
@@ -60,6 +66,14 @@ export {
   withSearch,
 } from './textSearch.js';
 export { dateInDisplayTz, shiftMonth, timeInDisplayTz, wallClockToUtc } from './time.js';
+export type { DeliveryRecipient, DueItem, FinanceDueItem, NoticeForDelivery } from './workerReads.js';
+export {
+  caseLabelsByIds,
+  findNoticeForDelivery,
+  listDeliveryRecipients,
+  listFinanceDueUntil,
+  listPendingDueOn,
+} from './workerReads.js';
 
 import { AccessKey } from './models/access-key.model.js';
 import { Appointment } from './models/appointment.model.js';
@@ -69,6 +83,7 @@ import { CourtDivision } from './models/court-division.model.js';
 import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
 import { Notification } from './models/notification.model.js';
+import { NotificationDelivery } from './models/notification-delivery.model.js';
 import { Opportunity } from './models/opportunity.model.js';
 import { Party } from './models/party.model.js';
 import { Passkey } from './models/passkey.model.js';
@@ -80,7 +95,10 @@ import { Template } from './models/template.model.js';
 import { Tenant } from './models/tenant.model.js';
 import { Transaction } from './models/transaction.model.js';
 import { User } from './models/user.model.js';
+import { WorkerHeartbeat } from './models/worker-heartbeat.model.js';
+import { WorkerJob } from './models/worker-job.model.js';
 
+// Each service creates only the indexes of the models it owns (D6 of the worker plan, AD-267).
 export const syncIndexes = async (): Promise<void> => {
   await Promise.all([
     Tenant.createIndexes(),
@@ -105,4 +123,8 @@ export const syncIndexes = async (): Promise<void> => {
     Template.createIndexes(),
     Inspection.createIndexes(),
   ]);
+};
+
+export const syncWorkerIndexes = async (): Promise<void> => {
+  await Promise.all([WorkerJob.createIndexes(), WorkerHeartbeat.createIndexes(), NotificationDelivery.createIndexes()]);
 };

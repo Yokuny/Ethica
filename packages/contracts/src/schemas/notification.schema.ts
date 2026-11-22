@@ -42,6 +42,42 @@ export type NotificationModule = (typeof NOTIFICATION_MODULES)[number];
 export const NOTIFICATION_SOURCES = ['user', 'system', 'datajud'] as const;
 export type NotificationSource = (typeof NOTIFICATION_SOURCES)[number];
 
+// What a notice talks about: a translation key, never a ready sentence (AD-263). The finance due date
+// (CNT-03) for now; the court movements and the payment in progress come with the automation.
+export const NOTICE_TOPICS = ['finance_due'] as const;
+export type NoticeTopic = (typeof NOTICE_TOPICS)[number];
+
+export const NOTIFICATION_SEVERITIES = ['info', 'warning', 'critical'] as const;
+export type NotificationSeverity = (typeof NOTIFICATION_SEVERITIES)[number];
+
+// Finance due windows of the reminder (AVS-02): in 7 days, today and overdue.
+export const FINANCE_DUE_SOON_DAYS = 7;
+export const FINANCE_DUE_BUCKETS = ['due_soon', 'due_today', 'overdue'] as const;
+export type FinanceDueBucket = (typeof FINANCE_DUE_BUCKETS)[number];
+
+// Delivery preferences per person (CNT-05): kind of notification × channel; missing = on.
+export const NOTIFICATION_PREFERENCE_TOPICS = ['deadlines', 'finance', 'court', 'suggestions'] as const;
+export type NotificationPreferenceTopic = (typeof NOTIFICATION_PREFERENCE_TOPICS)[number];
+export const NOTIFICATION_CHANNELS = ['email', 'push'] as const;
+export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
+export type NotificationPreferences = Partial<
+  Record<NotificationPreferenceTopic, Partial<Record<NotificationChannel, boolean>>>
+>;
+const channelPreferencesSchema = z.object({ email: z.boolean().optional(), push: z.boolean().optional() }).strict();
+export const notificationPreferencesSchema = z
+  .object({
+    deadlines: channelPreferencesSchema.optional(),
+    finance: channelPreferencesSchema.optional(),
+    court: channelPreferencesSchema.optional(),
+    suggestions: channelPreferencesSchema.optional(),
+  })
+  .strict();
+export const wantsChannel = (
+  preferences: NotificationPreferences | undefined,
+  topic: NotificationPreferenceTopic,
+  channel: NotificationChannel,
+): boolean => preferences?.[topic]?.[channel] !== false;
+
 // "Due soon" (defined by the user on 2026-10-31).
 export const DUE_SOON_DAYS = 15;
 

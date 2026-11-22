@@ -22,6 +22,8 @@ x-app: &app
     - /app/apps/web/node_modules
     - /app/packages/contracts/node_modules
     - /app/packages/db/node_modules
+    - /app/packages/mail/node_modules
+    - /app/apps/worker/node_modules
     - /app/packages/ui/node_modules
 
 services:
@@ -82,6 +84,19 @@ services:
     command: /app/node_modules/.bin/tsx watch src/server.ts
     ports:
       - '18080:18080'
+
+  # Rotinas de fundo (AD-267): lembretes e entrega de e-mail. Em dev o e-mail vai para o log se
+  # MAIL_PROVIDER=log no .env.
+  worker:
+    <<: *app
+    container_name: ethica-worker
+    working_dir: /app/apps/worker
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/ethica?directConnection=true
+      APP_URL: http://localhost:15173
+    command: /app/node_modules/.bin/tsx watch src/server.ts
+    ports:
+      - '18090:18090'
 
   web:
     <<: *app

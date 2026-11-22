@@ -1,9 +1,9 @@
 import { hasPermission, respObj } from '@ethica/contracts';
+import type { MailProvider } from '@ethica/mail';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { Geocoder } from '../../providers/geocoder.js';
-import type { MailProvider } from '../../providers/mail/index.js';
 import { CaseNotFoundError } from '../case/case.service.js';
 import type { ListAppointmentsQuery, UpcomingAppointmentsQuery } from './appointment.schema.js';
 import * as appointmentService from './appointment.service.js';

@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { hashToken } from '@ethica/db';
+import type { MailProvider } from '@ethica/mail';
 import {
   type AuthenticationResponseJSON,
   generateAuthenticationOptions,
@@ -11,7 +12,6 @@ import {
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.config.js';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { MailProvider } from '../../providers/mail/index.js';
 import * as activityLogService from './activityLog.service.js';
 import * as authRepository from './auth.repository.js';
 import type {

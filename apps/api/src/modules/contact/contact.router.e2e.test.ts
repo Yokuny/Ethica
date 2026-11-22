@@ -1,8 +1,8 @@
+import type { MailProvider } from '@ethica/mail';
 import express from 'express';
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
-import type { MailProvider } from '../../providers/mail/index.js';
 import { createContactRouter } from './contact.router.js';
 
 const MESSAGE = {

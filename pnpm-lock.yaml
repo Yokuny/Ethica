@@ -47,6 +47,9 @@ importers:
       '@ethica/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@ethica/mail':
+        specifier: workspace:*
+        version: link:../../packages/mail
       '@simplewebauthn/server':
         specifier: 14.0.3
         version: 14.0.3
@@ -77,9 +80,6 @@ importers:
       jsonwebtoken:
         specifier: 9.0.3
         version: 9.0.3
-      nodemailer:
-        specifier: 9.1.1
-        version: 9.1.1
       prom-client:
         specifier: 15.1.3
         version: 15.1.3
@@ -114,9 +114,6 @@ importers:
       '@types/node':
         specifier: 26.4.1
         version: 26.4.1
-      '@types/nodemailer':
-        specifier: 8.0.1
-        version: 8.0.1
       '@types/response-time':
         specifier: 2.3.9
         version: 2.3.9
@@ -293,6 +290,28 @@ importers:
         specifier: 7.3.6
         version: 7.3.6(@types/node@26.4.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.15)
 
+  apps/worker:
+    dependencies:
+      '@ethica/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@ethica/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@ethica/mail':
+        specifier: workspace:*
+        version: link:../../packages/mail
+      prom-client:
+        specifier: 15.1.3
+        version: 15.1.3
+      zod:
+        specifier: ^4.5.4
+        version: 4.6.7
+    devDependencies:
+      '@types/node':
+        specifier: 26.4.1
+        version: 26.4.1
+
   packages/contracts:
     dependencies:
       zod:
@@ -311,6 +330,19 @@ importers:
       '@types/node':
         specifier: 26.4.1
         version: 26.4.1
+
+  packages/mail:
+    dependencies:
+      nodemailer:
+        specifier: 9.1.1
+        version: 9.1.1
+    devDependencies:
+      '@types/node':
+        specifier: 26.4.1
+        version: 26.4.1
+      '@types/nodemailer':
+        specifier: 8.0.1
+        version: 8.0.1
 
   packages/ui:
     dependencies:

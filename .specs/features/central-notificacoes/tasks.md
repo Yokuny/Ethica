@@ -21,15 +21,15 @@ Gate de cada fase: `pnpm run check` verde, `(cd apps/web && pnpm run build)` sem
 
 ## Fase 2 — Worker e entrega
 
-- [ ] T2.1 `packages/mail` (`git mv` de `apps/api/src/providers/mail/`).
-- [ ] T2.2 `packages/db`: `WorkerJob`, `WorkerHeartbeat`, `NotificationDelivery`, `syncIndexes` por dono, leituras do worker.
-- [ ] T2.3 `apps/worker`: env, boot, fila, heartbeat, `/health`, `/metrics`, agendador; projetos do vitest; testes estruturais.
-- [ ] T2.4 Jobs `reminders_sweep` (`finance_due`), `email_digest`, `email_immediate`.
-- [ ] T2.5 Preferências tipo × canal e migração da preferência atual; tela Conta → Notificações.
-- [ ] T2.6 Sino, aba Avisos, `unread-count`, `read`, `read-all`, visibilidade por módulo.
-- [ ] T2.7 Sai do api: `scheduleDeadlineNotices` e `deadlineReminder.service.ts`.
-- [ ] T2.8 `Dockerfile.worker`, `railway.worker.json`, `docker-compose.yml`, `pnpm dev:worker`, `.env.example`, `RUN_BOOK.md`.
-- [ ] T2.9 Aceite (restart às 07:10, duas réplicas, operador sem financeiro, mesmo e-mail de prazos); gate; registro; commit.
+- [x] T2.1 `packages/mail` (`git mv` de `apps/api/src/providers/mail/`).
+- [x] T2.2 `packages/db`: `WorkerJob`, `WorkerHeartbeat`, `NotificationDelivery`, `syncIndexes` por dono, leituras do worker.
+- [x] T2.3 `apps/worker`: env, boot, fila, heartbeat, `/health`, `/metrics`, agendador; projetos do vitest; testes estruturais.
+- [x] T2.4 Jobs `reminders_sweep` (`finance_due`), `email_digest`, `email_immediate`.
+- [x] T2.5 Preferências tipo × canal e migração da preferência atual; tela Conta → Notificações.
+- [x] T2.6 Sino, aba Avisos, `unread-count`, `read`, `read-all`, visibilidade por módulo.
+- [x] T2.7 Sai do api: `scheduleDeadlineNotices` e `deadlineReminder.service.ts`.
+- [x] T2.8 `Dockerfile.worker`, `railway.worker.json`, `docker-compose.yml`, `pnpm dev:worker`, `.env.example`, `RUN_BOOK.md`.
+- [x] T2.9 Aceite (restart às 07:10, duas réplicas, operador sem financeiro, mesmo e-mail de prazos); gate; registro; commit.
 
 ## Fase 6 (parte base) — Push
 

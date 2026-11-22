@@ -16,9 +16,9 @@ import {
   signupSchema,
   updatePermissionsSchema,
 } from '@ethica/contracts';
+import type { MailProvider } from '@ethica/mail';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { MailProvider } from '../../providers/mail/index.js';
 
 export type { AccessKeyVerify, DeviceKind, PasskeyResponse, Permissions, Signup, TenantUser, UpdatePermissions };
 // MOD-08: input schemas and module types in a single place.

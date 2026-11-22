@@ -6,6 +6,7 @@ import {
   connect,
   disconnect,
   hashToken,
+  listDeliveryRecipients,
   Notification,
   newObjectId,
   Session,
@@ -18,13 +19,15 @@ import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../app.js';
 import { env } from '../../config/env.config.js';
-import { listDeadlineReminderRecipients } from '../identity/account.service.js';
 
 const DEVICE = 'test-agent';
 const app = buildApp();
 
 let counter = 0;
-const seed = async (role: Role[] = ['operator'], preferences?: { deadlineReminderEmail: boolean }) => {
+const seed = async (
+  role: Role[] = ['operator'],
+  preferences?: { notifications: { deadlines: { email: boolean } } },
+) => {
   counter += 1;
   const tenant = await Tenant.create({
     name: `Escritório ${counter}`,
@@ -159,7 +162,7 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
     await disconnect();
   });
 
-  it('aviso começa ligado, a pessoa desliga e deixa de ser destinatária; tenant suspenso não recebe', async () => {
+  it('aviso começa ligado, a pessoa desliga o e-mail de prazos; escritório fechado não recebe (CNT-05)', async () => {
     const ana = await seed(['operator']);
     const bia = await seed(['admin']);
     const suspenso = await seed(['admin']);
@@ -171,24 +174,33 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
 
     expect((await ana.as(request(app).get('/me/preferences'))).body.data).toEqual({
       onboardingDismissed: false,
-      deadlineReminderEmail: true,
+      notifications: {
+        deadlines: { email: true, push: true },
+        finance: { email: true, push: true },
+        court: { email: true, push: true },
+        suggestions: { email: true, push: true },
+      },
       hiddenBlocks: [],
       revenueGoalOnCases: false,
     });
-    const desligado = await bia.as(request(app).patch('/me/preferences')).send({ deadlineReminderEmail: false });
-    expect(desligado.body.data).toEqual({
-      onboardingDismissed: false,
-      deadlineReminderEmail: false,
-      hiddenBlocks: [],
-      revenueGoalOnCases: false,
+    const desligado = await bia
+      .as(request(app).patch('/me/preferences'))
+      .send({ notifications: { deadlines: { email: false } } });
+    expect(desligado.body.data.notifications).toMatchObject({
+      deadlines: { email: false, push: true },
+      finance: { email: true },
     });
 
-    const recipients = await listDeadlineReminderRecipients([
+    // The worker reads who can receive (AD-265); the preference is applied in the digest.
+    const recipients = await listDeliveryRecipients([
       ana.tenant.id,
       bia.tenant.id,
       suspenso.tenant.id,
       vencido.tenant.id,
     ]);
-    expect(recipients.map((person) => person.email)).toEqual([ana.user.email]);
+    expect(recipients.map((person) => person.email).sort()).toEqual([ana.user.email, bia.user.email].sort());
+    expect(recipients.find((person) => person.email === bia.user.email)?.preferences).toEqual({
+      deadlines: { email: false },
+    });
   });
 });

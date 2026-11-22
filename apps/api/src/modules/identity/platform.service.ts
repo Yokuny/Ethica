@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import { PROFILE_PERMISSIONS } from '@ethica/contracts';
 import { hashToken } from '@ethica/db';
+import type { MailProvider } from '@ethica/mail';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { MailProvider } from '../../providers/mail/index.js';
 import * as platformRepository from './platform.repository.js';
 import type { CreateInvite, InviteResult, ProvisionTenant } from './platform.schema.js';
 

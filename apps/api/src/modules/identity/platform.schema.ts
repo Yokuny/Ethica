@@ -1,8 +1,8 @@
 import type { CreateInvite, Permissions, ProvisionTenant, Role } from '@ethica/contracts';
 import { createInviteSchema, idSchema, provisionTenantSchema } from '@ethica/contracts';
+import type { MailProvider } from '@ethica/mail';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { MailProvider } from '../../providers/mail/index.js';
 
 export type { CreateInvite, ProvisionTenant };
 // MOD-08: input schemas and module types in a single place.

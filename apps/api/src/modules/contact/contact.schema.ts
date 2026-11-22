@@ -1,4 +1,4 @@
-import type { MailProvider } from '../../providers/mail/index.js';
+import type { MailProvider } from '@ethica/mail';
 
 export type { ContactMessage, ContactSubject } from '@ethica/contracts';
 export { contactMessageSchema } from '@ethica/contracts';

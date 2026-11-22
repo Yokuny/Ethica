@@ -228,4 +228,46 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
     expect((await admin.as(request(app).delete(`/expert-cases/${legalCase.id}`))).status).toBe(200);
     await expect.poll(() => Notification.countDocuments({ Case: legalCase.id })).toBe(0);
   });
+
+  it('avisos: quem não vê o financeiro não vê finance_due; lido é por pessoa (CNT-04, D5)', async () => {
+    const admin = await setup(['admin']);
+    const operator = await seedSession(['operator']);
+    await User.updateOne({ _id: operator.user._id }, { Tenant: admin.tenant._id });
+    const notice = (module: 'finance' | 'expert_cases', key: string) =>
+      Notification.create({
+        Tenant: admin.tenant._id,
+        kind: 'notice',
+        module,
+        source: 'system',
+        topic: 'finance_due',
+        params: { bucket: 'overdue', description: key, dueDate: day(-1), openCents: 100 },
+        dedupeKey: key,
+      });
+    await notice('finance', 'f1');
+    await notice('expert_cases', 'c1');
+
+    const count = async (as: typeof admin.as) =>
+      (await as(request(app).get('/notifications/unread-count'))).body.data.count;
+    expect(await count(admin.as)).toBe(2);
+    expect(await count(operator.as)).toBe(1);
+    const opList = (await operator.as(request(app).get('/notifications/notices'))).body.data;
+    expect(opList.items.map((item: { module: string }) => item.module)).toEqual(['expert_cases']);
+
+    const [first] = (await admin.as(request(app).get('/notifications/notices?unread=true'))).body.data.items;
+    expect((await admin.as(request(app).post(`/notifications/${first.id}/read`))).status).toBe(200);
+    expect(await count(admin.as)).toBe(1);
+    // Reading is per person: the operator still has it unread.
+    expect(await count(operator.as)).toBe(1);
+    // The operator cannot mark the finance one.
+    const finance = await Notification.findOne({ module: 'finance' }).lean();
+    expect((await operator.as(request(app).post(`/notifications/${finance?._id}/read`))).status).toBe(404);
+
+    expect((await admin.as(request(app).post('/notifications/read-all'))).status).toBe(200);
+    expect(await count(admin.as)).toBe(0);
+    expect(
+      (await admin.as(request(app).get('/notifications/notices'))).body.data.items.every(
+        (item: { read: boolean }) => item.read,
+      ),
+    ).toBe(true);
+  });
 });

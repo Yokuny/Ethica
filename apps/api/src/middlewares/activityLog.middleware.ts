@@ -69,7 +69,9 @@ export const describeRequest = (
 ): { module: ActivityLogModule; resource?: string; action: ActivityLogAction; recordId?: string } | undefined => {
   const dataExport = method === 'GET' && path === '/documents/export';
   if (!ESCRITA.has(method) && !dataExport) return undefined;
-  if (IGNORED.some((prefix) => path.startsWith(prefix)) || path.endsWith('/geocode')) return undefined;
+  // Reading a notice is not an action of whoever uses the system (AD-273).
+  const technical = path.endsWith('/geocode') || path.endsWith('/read') || path.endsWith('/read-all');
+  if (IGNORED.some((prefix) => path.startsWith(prefix)) || technical) return undefined;
   const segments = path.split('/').filter(Boolean);
   const literals = segments.filter((segment) => !OBJECT_ID.test(segment));
   const module = moduleOf(literals);

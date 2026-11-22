@@ -31,6 +31,28 @@ export const listNotificationsQuerySchema = z
   .strict();
 export type ListNotificationsQuery = z.infer<typeof listNotificationsQuerySchema>;
 
+// Notices of the bell (CNT-04): unread first is the person's choice; newest first.
+export const listNoticesQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    unread: z.enum(['true', 'false']).optional(),
+  })
+  .strict();
+export type ListNoticesQuery = z.infer<typeof listNoticesQuerySchema>;
+
+export type NoticeRecord = {
+  id: string;
+  module: NotificationModule;
+  topic?: string;
+  params?: Record<string, string | number>;
+  severity?: string;
+  caseId?: string;
+  transactionId?: string;
+  read: boolean;
+  createdAt: Date;
+};
+
 export type NotificationRecord = {
   id: string;
   kind: NotificationKind;
@@ -64,6 +86,3 @@ export type DatedNotification = NotificationRecord & {
 
 // `filedDate: null` clears the date (the deadline went back to pending or was missed).
 export type NotificationWrite = Omit<UpdateNotification, 'filedDate'> & { filedDate?: string | null };
-
-// Pending deadline of a reminder day, with the tenant (system query, across tenants).
-export type DueReminder = DatedNotification & { tenantId: string };

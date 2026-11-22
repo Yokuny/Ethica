@@ -1,6 +1,10 @@
 import {
   caseLabel,
+  hasPermission,
+  NOTIFICATION_MODULES,
+  type NotificationModule,
   notificationAgendaEntries,
+  type Permissions,
   REPORT_DELIVERY_TITLE,
   validNotificationStatus,
 } from '@ethica/contracts';
@@ -12,6 +16,7 @@ import * as notificationRepository from './notification.repository.js';
 import type {
   CreateNotification,
   DatedNotification,
+  ListNoticesQuery,
   ListNotificationsQuery,
   NotificationWrite,
   UpdateNotification,
@@ -108,9 +113,6 @@ export const listCaseNotifications = (tenantId: string, caseId: string) =>
 export const listPending = async (tenantId: string, range: { from?: string; to?: string } = {}) =>
   withCase(tenantId, await notificationRepository.listPending(tenantId, range));
 
-// Daily reminder (system): pending ones due on the requested days, across all tenants.
-export const listDueReminders = (days: string[]) => notificationRepository.listPendingInDays(days);
-
 // Completing the report with delivery (AD-126): files today the oldest pending "Entrega do laudo"
 // deadline of the case; with none pending, does nothing.
 export const fileReportDelivery = async (tenantId: string, caseId: string, now: Date = new Date()) => {
@@ -123,3 +125,21 @@ export const fileReportDelivery = async (tenantId: string, caseId: string, now: 
 export const deleteByCase = (tenantId: string, caseId: string) => notificationRepository.deleteByCase(tenantId, caseId);
 
 export const listForExport = (tenantId: string) => notificationRepository.listAll(tenantId);
+
+// D5: a person sees the notices of the modules they can view (finance only with `finance` `view`).
+const visibleModules = (permissions: Permissions): NotificationModule[] =>
+  NOTIFICATION_MODULES.filter((module) => hasPermission(permissions, module, 'view'));
+
+export const listNotices = (tenantId: string, userId: string, permissions: Permissions, query: ListNoticesQuery) =>
+  notificationRepository.listNotices(tenantId, userId, visibleModules(permissions), query);
+
+export const countUnread = (tenantId: string, userId: string, permissions: Permissions) =>
+  notificationRepository.countUnread(tenantId, userId, visibleModules(permissions));
+
+export const markRead = async (tenantId: string, userId: string, permissions: Permissions, id: string) => {
+  const { matchedCount } = await notificationRepository.markRead(tenantId, userId, visibleModules(permissions), id);
+  if (matchedCount === 0) throw new NotificationNotFoundError('not_found');
+};
+
+export const markAllRead = (tenantId: string, userId: string, permissions: Permissions) =>
+  notificationRepository.markRead(tenantId, userId, visibleModules(permissions));

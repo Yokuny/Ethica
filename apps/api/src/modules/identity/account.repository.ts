@@ -1,6 +1,6 @@
-import { isTenantOpen, openTenantFilter, Passkey, Session, Tenant, tenantScoped, toObjectId, User } from '@ethica/db';
+import { isTenantOpen, Passkey, Session, Tenant, tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { AccountView, FeedOwner, NoticeRecipient, PasskeyView, UpdateProfile } from './account.schema.js';
+import type { AccountView, FeedOwner, PasskeyView, UpdateProfile } from './account.schema.js';
 import { avatarPath } from './auth.repository.js';
 
 // Tenant and user always come from the session (AD-010): every filter is the person themselves.
@@ -95,24 +95,6 @@ export const findFeedOwner = async (tokenHash: string): Promise<FeedOwner | null
     const tenant = await Tenant.findById(user.Tenant).select('status accessUntil').lean();
     if (!tenant || !isTenantOpen(tenant)) return null;
     return { userId: user._id.toString(), tenantId: user.Tenant.toString() };
-  });
-
-// AD-110: active users with a role and the reminder on (missing = on), from open tenants (AD-230).
-export const listDeadlineReminderRecipients = async (tenantIds: string[]): Promise<NoticeRecipient[]> =>
-  withDbTiming('account.listDeadlineReminderRecipients', async () => {
-    if (tenantIds.length === 0) return [];
-    const active = await Tenant.find({ _id: { $in: tenantIds.map(toObjectId) }, ...openTenantFilter() })
-      .select('_id')
-      .lean();
-    const users = await User.find({
-      Tenant: { $in: active.map((tenant) => tenant._id) },
-      active: true,
-      'role.0': { $exists: true },
-      'preferences.deadlineReminderEmail': { $ne: false },
-    })
-      .select('Tenant name email')
-      .lean();
-    return users.map((user) => ({ tenantId: String(user.Tenant), name: user.name, email: user.email }));
   });
 
 // APA-08 (AD-220): the person's devices — Passkey has no tenant, the user id is the filter.

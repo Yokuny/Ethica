@@ -54,7 +54,11 @@ import { listUsersQuerySchema, userDirectoryQuerySchema, userIdParamSchema } fro
 import { asaasPaymentSchema, asaasWebhookSchema, billingPaymentParamsSchema } from './identity/billing.schema.js';
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
-import { listNotificationsQuerySchema, notificationIdParamSchema } from './notifications/notification.schema.js';
+import {
+  listNoticesQuerySchema,
+  listNotificationsQuerySchema,
+  notificationIdParamSchema,
+} from './notifications/notification.schema.js';
 import {
   convertOpportunitySchema,
   listOpportunitiesQuerySchema,
@@ -106,6 +110,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
   { name: 'notificationIdParamSchema', schema: notificationIdParamSchema },
   { name: 'listNotificationsQuerySchema', schema: listNotificationsQuerySchema },
+  { name: 'listNoticesQuerySchema', schema: listNoticesQuerySchema },
   { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
   { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },
   { name: 'upcomingAppointmentsQuerySchema', schema: upcomingAppointmentsQuerySchema },

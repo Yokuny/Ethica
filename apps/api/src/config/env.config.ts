@@ -1,3 +1,4 @@
+import { mailIssues } from '@ethica/mail';
 import { z } from 'zod';
 
 const optionalSecret = z
@@ -50,15 +51,6 @@ export const envSchema = z.object({
 });
 
 export type Env = z.infer<typeof envSchema>;
-
-// AD-222: a real provider needs its own keys in every environment. Production also refuses `log`, since
-// access is by e-mail key only (AD-155) — without a real provider nobody gets in.
-const mailIssues = (env: Env): string[] => {
-  const from = env.MAIL_FROM ? [] : ['MAIL_FROM'];
-  if (env.MAIL_PROVIDER === 'resend') return [...(env.RESEND_API_KEY ? [] : ['RESEND_API_KEY']), ...from];
-  if (env.MAIL_PROVIDER === 'nodemailer') return [...(env.SMTP_HOST ? [] : ['SMTP_HOST']), ...from];
-  return env.NODE_ENV === 'production' ? ['MAIL_PROVIDER', ...from] : [];
-};
 
 // safeParse (not parse): controls the failure message to NAME the missing
 // variable instead of exposing the raw Zod error.

@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { connect, disconnect, hashToken, Invite, Session, Tenant, User } from '@ethica/db';
+import type { MailProvider } from '@ethica/mail';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
@@ -9,7 +10,6 @@ import { env } from '../../config/env.config.js';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
-import type { MailProvider } from '../../providers/mail/index.js';
 import { createPlatformRouter } from './platform.router.js';
 
 const DEVICE = 'test-agent';

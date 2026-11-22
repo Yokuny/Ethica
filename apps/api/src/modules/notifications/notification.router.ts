@@ -5,6 +5,7 @@ import { validBody, validParams, validParsedQuery } from '../../middlewares/vali
 import * as notificationController from './notification.controller.js';
 import {
   createNotificationSchema,
+  listNoticesQuerySchema,
   listNotificationsQuerySchema,
   type NotificationRouterDeps,
   notificationIdParamSchema,
@@ -25,6 +26,11 @@ export const createNotificationRouter = (deps: NotificationRouterDeps): Router =
     validParsedQuery(listNotificationsQuerySchema),
     notificationController.listNotifications,
   );
+  // Bell and notices (CNT-04): any person of the office; each one sees the modules they can view (D5).
+  router.get('/notices', ...guard, validParsedQuery(listNoticesQuerySchema), notificationController.listNotices);
+  router.get('/unread-count', ...guard, notificationController.countUnread);
+  router.post('/read-all', ...guard, notificationController.markAllRead);
+  router.post('/:id/read', ...guard, byId, notificationController.markRead);
   router.post(
     '/',
     ...guard,

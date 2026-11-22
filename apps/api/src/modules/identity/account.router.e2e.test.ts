@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import { connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
+import { createLogMailProvider } from '@ethica/mail';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as jwt from 'jsonwebtoken';
@@ -10,7 +11,6 @@ import { env } from '../../config/env.config.js';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
-import { createLogMailProvider } from '../../providers/mail/index.js';
 import { createAccountRouter } from './account.router.js';
 import { createAuthRouter } from './auth.router.js';
 

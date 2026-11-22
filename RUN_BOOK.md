@@ -24,6 +24,7 @@ docker compose up -d mongo
 pnpm install
 pnpm dev:api                             # http://localhost:18080
 pnpm dev:web                             # http://localhost:15173
+pnpm dev:worker                          # lembretes e e-mail; /health em http://localhost:18090
 ```
 
 Os scripts da API carregam o `.env` da raiz (`--env-file-if-exists`); o web lê o mesmo arquivo via `envDir` do `vite.config.ts`. A porta do web é fixa (`strictPort`) porque o `CORS_ORIGIN` da API só aceita `http://localhost:15173`.
@@ -34,8 +35,11 @@ Os scripts da API carregam o `.env` da raiz (`--env-file-if-exists`); o web lê 
 | --- | --- | --- |
 | web (Vite) | http://localhost:15173 | — |
 | api | http://localhost:18080 | `curl localhost:18080/health` |
+| worker (AD-267) | http://localhost:18090 | `curl localhost:18090/health` (200 com o banco conectado e o heartbeat em dia); `/metrics` para o Prometheus |
 | mongo (Atlas Local) | `localhost:37017` (host) / `mongo:27017` (rede do compose) | `docker compose ps` mostra `healthy` |
 | s3 (RustFS, AD-120) | `localhost:19000` (API S3) · console `http://localhost:19001` (`ethica` / `ethica-dev-secret`) | o `s3-init` termina com sucesso depois de criar o bucket `ethica` |
+
+Worker (AD-267): fala com a API só pelo banco. De hora em hora cria os avisos de vencimento financeiro e, a partir das 07:00 de São Paulo, manda o e-mail do dia a quem ainda não recebeu (trava `NotificationDelivery`, uma por pessoa e dia). Em dev, `MAIL_PROVIDER=log` deixa o e-mail só no log. A fila é a collection `workerjobs`; um job preso volta sozinho quando o lease vence.
 
 PDFs (AD-119) usam o Chromium instalado na imagem `Dockerfile.dev` (`CHROMIUM_PATH`). Fora do Docker, aponte `CHROMIUM_PATH` para um Chrome/Chromium local e suba o `s3` com `docker compose up -d s3 s3-init` para enviar o logo (sem `S3_BUCKET` o logo fica desligado e os PDFs saem sem ele).
 

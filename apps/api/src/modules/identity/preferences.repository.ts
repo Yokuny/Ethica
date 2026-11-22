@@ -1,20 +1,45 @@
-import { HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
+import { HOME_BLOCKS, type HomeBlock, type NotificationPreferences, wantsChannel } from '@ethica/contracts';
 import { tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { UpdatePreferences, UserPreferences } from './preferences.schema.js';
+import {
+  NOTIFICATION_CHANNELS,
+  NOTIFICATION_PREFERENCE_TOPICS,
+  type UpdatePreferences,
+  type UserPreferences,
+} from './preferences.schema.js';
+
+const matrixOf = (saved?: NotificationPreferences): UserPreferences['notifications'] =>
+  Object.fromEntries(
+    NOTIFICATION_PREFERENCE_TOPICS.map((topic) => [
+      topic,
+      Object.fromEntries(NOTIFICATION_CHANNELS.map((channel) => [channel, wantsChannel(saved, topic, channel)])),
+    ]),
+  ) as UserPreferences['notifications'];
+
+// `notifications.deadlines.email` and so on: one $set per cell, never the whole matrix.
+const flatten = (data: UpdatePreferences): [string, unknown][] =>
+  Object.entries(data).flatMap(([key, value]) =>
+    key === 'notifications' && value && typeof value === 'object'
+      ? Object.entries(value).flatMap(([topic, channels]) =>
+          Object.entries(channels ?? {}).map(
+            ([channel, on]) => [`notifications.${topic}.${channel}`, on] as [string, unknown],
+          ),
+        )
+      : [[key, value] as [string, unknown]],
+  );
 
 const toPreferences = (
   doc: {
     preferences?: {
       onboardingDismissed?: boolean;
-      deadlineReminderEmail?: boolean;
+      notifications?: NotificationPreferences;
       hiddenBlocks?: string[];
       revenueGoalOnCases?: boolean;
     };
   } | null,
 ): UserPreferences => ({
   onboardingDismissed: doc?.preferences?.onboardingDismissed === true,
-  deadlineReminderEmail: doc?.preferences?.deadlineReminderEmail !== false,
+  notifications: matrixOf(doc?.preferences?.notifications),
   // A key that no longer exists is ignored (AD-136).
   hiddenBlocks: (doc?.preferences?.hiddenBlocks ?? []).filter((block): block is HomeBlock =>
     (HOME_BLOCKS as readonly string[]).includes(block),
@@ -42,12 +67,12 @@ export const updatePreferences = async (
       tenantScoped({ Tenant: tenantId, _id: userId }),
       {
         $set: Object.fromEntries(
-          Object.entries(data)
+          flatten(data)
             .filter(([, value]) => value !== undefined)
             .map(([key, value]) => [`preferences.${key}`, value]),
         ),
       },
-      { new: true },
+      { returnDocument: 'after' },
     )
       .select('preferences')
       .lean();

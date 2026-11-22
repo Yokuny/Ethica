@@ -13,6 +13,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { type NotificationRecord, notificationsQuery } from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { NewNotificationDialog } from './@components/new-notification-dialog.js';
+import { NoticesList } from './@components/notices-list.js';
 import { deadlineExportColumns, NotificationsTable } from './@components/notifications-table.js';
 import { type NotificationsSearch, notificationsSearchSchema } from './@interface/notifications.interface.js';
 
@@ -37,57 +38,76 @@ export function NotificationsPage() {
   return (
     <Card asPage>
       <CardHeader title={t('notifications')} description={t('notifications_description')}>
-        {canUpdate && (
+        {canUpdate && search.view === 'dated' && (
           <CardAction>
             <Button onClick={() => setDialog({ kind: 'create' })}>{t('add')}</Button>
           </CardAction>
         )}
       </CardHeader>
-      {/* Situation tabs (AD-193): the pending ones open by default. */}
+      {/* Deadlines and alerts, or the notices (CNT-04). */}
       <Tabs
-        value={search.status}
-        onValueChange={(status) => update({ status: status as NotificationsSearch['status'], page: 1 })}
+        value={search.view}
+        onValueChange={(view) => update({ view: view as NotificationsSearch['view'], page: 1 })}
         className="px-(--card-spacing)"
       >
-        <TabsList variant="line">
-          {DEADLINE_STATUS_ITEMS.map((item) => (
-            <TabsTrigger key={item.value} value={item.value}>
-              {item.label}
-            </TabsTrigger>
-          ))}
+        <TabsList>
+          <TabsTrigger value="dated">{t('deadlines_and_alerts')}</TabsTrigger>
+          <TabsTrigger value="notices">{t('notices')}</TabsTrigger>
         </TabsList>
       </Tabs>
-      <CardContent>
-        <DataTable
-          export={{
-            title: t('deadlines_and_alerts'),
-            columns: deadlineExportColumns,
-            rows: items,
-            fetchPage: (page, limit) =>
-              queryClient.fetchQuery(notificationsQuery({ page, limit, status: search.status })),
-          }}
-        >
-          {query.isLoading ? (
-            <DefaultLoading />
-          ) : query.isError ? (
-            <DefaultEmptyData
-              title={t('load_error')}
-              action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
-            />
-          ) : !items.length ? (
-            <DefaultEmptyData title={t('no_deadlines_in_situation')} />
-          ) : (
-            <NotificationsTable
-              items={items}
-              pageIndex={search.page - 1}
-              pageSize={search.limit}
-              pageCount={pageCount}
-              onPaginationChange={({ pageIndex, pageSize }) => update({ page: pageIndex + 1, limit: pageSize })}
-              onOpen={(deadline) => setDialog({ kind: 'detail', deadline })}
-            />
-          )}
-        </DataTable>
-      </CardContent>
+      {search.view === 'notices' ? (
+        <CardContent>
+          <NoticesList page={search.page} limit={search.limit} onPage={(page, limit) => update({ page, limit })} />
+        </CardContent>
+      ) : (
+        <>
+          {/* Situation tabs (AD-193): the pending ones open by default. */}
+          <Tabs
+            value={search.status}
+            onValueChange={(status) => update({ status: status as NotificationsSearch['status'], page: 1 })}
+            className="px-(--card-spacing)"
+          >
+            <TabsList variant="line">
+              {DEADLINE_STATUS_ITEMS.map((item) => (
+                <TabsTrigger key={item.value} value={item.value}>
+                  {item.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <CardContent>
+            <DataTable
+              export={{
+                title: t('deadlines_and_alerts'),
+                columns: deadlineExportColumns,
+                rows: items,
+                fetchPage: (page, limit) =>
+                  queryClient.fetchQuery(notificationsQuery({ page, limit, status: search.status })),
+              }}
+            >
+              {query.isLoading ? (
+                <DefaultLoading />
+              ) : query.isError ? (
+                <DefaultEmptyData
+                  title={t('load_error')}
+                  action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
+                />
+              ) : !items.length ? (
+                <DefaultEmptyData title={t('no_deadlines_in_situation')} />
+              ) : (
+                <NotificationsTable
+                  items={items}
+                  pageIndex={search.page - 1}
+                  pageSize={search.limit}
+                  pageCount={pageCount}
+                  onPaginationChange={({ pageIndex, pageSize }) => update({ page: pageIndex + 1, limit: pageSize })}
+                  onOpen={(deadline) => setDialog({ kind: 'detail', deadline })}
+                />
+              )}
+            </DataTable>
+          </CardContent>
+        </>
+      )}
       {dialog?.kind === 'create' && <NewNotificationDialog onClose={() => setDialog(null)} />}
       {dialog?.kind === 'detail' && <NotificationDialog deadline={dialog.deadline} onClose={() => setDialog(null)} />}
     </Card>

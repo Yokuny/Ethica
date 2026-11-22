@@ -13,11 +13,11 @@ import {
   updateAppointmentSchema,
 } from '@ethica/contracts';
 import type { AppointmentOrigin } from '@ethica/db';
+import type { MailProvider } from '@ethica/mail';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { Geocoder } from '../../providers/geocoder.js';
-import type { MailProvider } from '../../providers/mail/index.js';
 
 export type { CreateAppointment, UpdateAppointment };
 export { createAppointmentSchema, updateAppointmentSchema };

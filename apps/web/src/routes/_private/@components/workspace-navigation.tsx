@@ -9,16 +9,19 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
   useSidebar,
 } from '@ethica/ui/components/sidebar';
+import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from '@tanstack/react-router';
-import { Home, Scale, Search } from 'lucide-react';
+import { Bell, Home, Scale, Search } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { UserMenu } from '@/components/user-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { unreadNoticesQuery } from '@/query/notification.js';
 import { useHomePage } from '../@hooks/use-home-page.js';
 import type { HomeSection } from '../@interface/home.interface.js';
 import { CommandMenu, useCommandMenuShortcut } from './command-menu.js';
@@ -65,6 +68,7 @@ export function WorkspaceNavigation() {
   const [searchOpen, setSearchOpen] = useState(false);
   const toggleSearch = useCallback(() => setSearchOpen((open) => !open), []);
   useCommandMenuShortcut(toggleSearch);
+  const unread = useQuery(unreadNoticesQuery).data ?? 0;
 
   return (
     <>
@@ -102,6 +106,17 @@ export function WorkspaceNavigation() {
                 <ItemDescription className="text-inherit line-clamp-none flex-1">{t('go_to')}</ItemDescription>
                 <Kbd>⌘K</Kbd>
               </SidebarMenuButton>
+            </SidebarMenuItem>
+            {/* Bell (CNT-04): unread notices of the modules the person sees. */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                render={<Link to="/notifications" search={{ view: 'notices' }} />}
+                tooltip={t('unread_notices')}
+              >
+                <Bell aria-hidden="true" />
+                <ItemDescription className="text-inherit line-clamp-none flex-1">{t('notices')}</ItemDescription>
+              </SidebarMenuButton>
+              {unread > 0 && <SidebarMenuBadge aria-label={t('unread_notices')}>{unread}</SidebarMenuBadge>}
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>

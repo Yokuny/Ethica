@@ -1,13 +1,18 @@
-import type { HomeBlock } from '@ethica/contracts';
+import type {
+  HomeBlock,
+  NotificationChannel,
+  NotificationPreferences,
+  NotificationPreferenceTopic,
+} from '@ethica/contracts';
 import { type QueryClient, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 import { get, patch } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
-// Mirrors UserPreferences of apps/api/src/modules/identity/preferences.schema.ts: deadline
-// reminder (AD-110, in the account) and hidden home blocks (AD-136).
+// Mirrors UserPreferences of apps/api/src/modules/identity/preferences.schema.ts: delivery of the
+// notifications by kind × channel (CNT-05, in the account) and hidden home blocks (AD-136).
 export type UserPreferences = {
   onboardingDismissed: boolean;
-  deadlineReminderEmail: boolean;
+  notifications: Record<NotificationPreferenceTopic, Record<NotificationChannel, boolean>>;
   hiddenBlocks: HomeBlock[];
   // MRA-04: follow the revenue goal on the services page.
   revenueGoalOnCases: boolean;
@@ -26,7 +31,11 @@ export const preferencesQuery = queryOptions({
 
 export const updatePreferencesMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<UserPreferences, Error, Partial<UserPreferences>> => ({
+): UseMutationOptions<
+  UserPreferences,
+  Error,
+  Partial<Omit<UserPreferences, 'notifications'>> & { notifications?: NotificationPreferences }
+> => ({
   mutationFn: async (data) => {
     const res = await patch<UserPreferences>('/me/preferences', data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));

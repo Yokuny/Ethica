@@ -41,6 +41,7 @@ export default defineConfig({
             'packages/db/src/**/*.int.test.ts',
             'apps/api/src/**/*.int.test.ts',
             'apps/api/tests/**/*.int.test.ts',
+            'apps/worker/src/**/*.int.test.ts',
           ],
           passWithNoTests: true,
           globalSetup: ['packages/db/tests/setup/globalSetup.ts'],

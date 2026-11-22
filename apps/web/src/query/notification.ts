@@ -107,3 +107,44 @@ export const deleteNotificationMutation = (
   },
   onSuccess: () => refreshNotifications(queryClient),
 });
+
+// Notices of the bell (CNT-04). Mirrors NoticeRecord of apps/api/src/modules/notifications/notification.schema.ts.
+export type NoticeRecord = {
+  id: string;
+  module: NotificationModule;
+  topic?: string;
+  params?: Record<string, string | number>;
+  severity?: string;
+  caseId?: string;
+  transactionId?: string;
+  read: boolean;
+  createdAt: string;
+};
+
+export const noticeKeys = {
+  all: ['notice'] as const,
+  list: (page: number, limit: number) => [...noticeKeys.all, 'list', page, limit] as const,
+  unread: () => [...noticeKeys.all, 'unread'] as const,
+};
+
+export const noticesQuery = (page: number, limit: number) =>
+  queryOptions({
+    queryKey: noticeKeys.list(page, limit),
+    queryFn: () =>
+      fetchData<{ items: NoticeRecord[]; total: number }>(`/notifications/notices?page=${page}&limit=${limit}`),
+  });
+
+// The bell checks every minute: the worker creates notices in the background.
+export const unreadNoticesQuery = queryOptions({
+  queryKey: noticeKeys.unread(),
+  queryFn: async () => (await fetchData<{ count: number }>('/notifications/unread-count')).count,
+  refetchInterval: 60_000,
+});
+
+export const markNoticeReadMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id?: string }> => ({
+  mutationFn: async ({ id }) => {
+    const res = await post<never>(id ? `/notifications/${encodeURIComponent(id)}/read` : '/notifications/read-all', {});
+    if (!res.success) throw new Error(res.message ?? t('save_error'));
+  },
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: noticeKeys.all }),
+});

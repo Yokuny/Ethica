@@ -10,6 +10,7 @@ vi.mock('@ethica/db', async (importOriginal) => ({
   syncIndexes: vi.fn(),
   provisionSearchIndexes: vi.fn().mockResolvedValue([]),
   migrateCases: vi.fn(),
+  migrateUsers: vi.fn(),
   backfillCalendarEntries: vi.fn(),
 }));
 
