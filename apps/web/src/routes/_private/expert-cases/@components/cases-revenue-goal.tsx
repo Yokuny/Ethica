@@ -1,21 +1,18 @@
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import { CircleHelp } from 'lucide-react';
+import { GoalProgress } from '@/components/goal-progress.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { RevenueGoal } from '@/query/transaction.js';
-
-const percent = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
 
 // Revenue goal on the services page (MRA-04), for whoever chose to follow it here: only an underlined
 // "? Dados da meta"; the numbers open in the tooltip. The chart is on the Dashboard.
 export function CasesRevenueGoal({ goal }: { goal: RevenueGoal & { goalCents: number } }) {
   const left = Math.max(0, goal.goalCents - goal.receivedCents);
-  const onPace = goal.receivedCents >= (goal.expectedCents ?? 0);
   const rows = [
     { label: t('revenue_goal'), value: formatMoney(goal.goalCents) },
     { label: t('received_accumulated'), value: formatMoney(goal.receivedCents) },
-    { label: t('reached'), value: percent.format(goal.receivedCents / goal.goalCents) },
     { label: t('left_to_goal'), value: left ? formatMoney(left) : t('goal_reached') },
     ...(left && goal.perMonthCents
       ? [{ label: t('per_month_until_december'), value: formatMoney(goal.perMonthCents) }]
@@ -33,15 +30,11 @@ export function CasesRevenueGoal({ goal }: { goal: RevenueGoal & { goalCents: nu
         </ItemDescription>
       </TooltipTrigger>
       <TooltipContent>
-        <div className="flex min-w-56 flex-col gap-2">
-          <div className="flex flex-col gap-0.5">
-            <ItemTitle>
-              {t('goal_of')} {goal.year}
-            </ItemTitle>
-            <ItemDescription className="text-xs text-inherit line-clamp-none">
-              {left ? t(onPace ? 'on_pace' : 'below_pace') : t('goal_reached')}
-            </ItemDescription>
-          </div>
+        <div className="flex min-w-64 flex-col gap-2">
+          <ItemTitle>
+            {t('goal_of')} {goal.year}
+          </ItemTitle>
+          <GoalProgress goal={goal} />
           <dl className="flex flex-col gap-1">
             {rows.map((row) => (
               <div key={row.label} className="flex items-baseline justify-between gap-4">

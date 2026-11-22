@@ -184,10 +184,8 @@ export const summary = (tenantId: string, now: Date = new Date()) => {
 
 export const feesDashboard = (tenantId: string) => transactionRepository.feesDashboard(tenantId);
 
-const DAY_MS = 86_400_000;
-
 // Revenue goal of a year (MRA-02, MRA-03, AD-258, AD-259): the realized is what was received in that calendar year,
-// by each installment's date. The pace is linear by days, today included.
+// by each installment's date. The pace is the goal's monthly average times the months lived (AD-260).
 export const revenueGoal = async (
   tenantId: string,
   requestedYear?: number,
@@ -207,15 +205,13 @@ export const revenueGoal = async (
   const base = { year, currentYear, years, byMonth, receivedCents, monthsLeft };
   const goalCents = goals.find((goal) => goal.year === year)?.amountCents;
   if (!goalCents) return base;
-  const day = (date: string) => Date.parse(`${date}T00:00:00Z`);
-  const length = (day(`${year + 1}-01-01`) - day(`${year}-01-01`)) / DAY_MS;
-  const elapsed =
-    year < currentYear ? length : year > currentYear ? 0 : (day(today) - day(`${year}-01-01`)) / DAY_MS + 1;
+  // Monthly average of the goal times the months already lived, the current one included (AD-260).
+  const lived = year < currentYear ? 12 : year > currentYear ? 0 : 13 - monthsLeft;
   const left = Math.max(0, goalCents - receivedCents);
   return {
     ...base,
     goalCents,
-    expectedCents: Math.round((goalCents * elapsed) / length),
+    expectedCents: Math.round((goalCents * lived) / 12),
     ...(monthsLeft ? { perMonthCents: Math.ceil(left / monthsLeft) } : {}),
   };
 };

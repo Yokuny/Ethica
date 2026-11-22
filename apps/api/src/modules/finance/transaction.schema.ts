@@ -104,7 +104,8 @@ export type FeesDashboard = {
 
 // Revenue goal of a year against what was received (MRA-02, MRA-03, AD-258, AD-259). `byMonth` is what came in
 // each month of the year (12 rows); `years` the years with a goal plus the current one, newest first. Without a goal
-// the pace fields are missing; `expectedCents` is the linear pace up to today (the whole goal for a past year, zero
+// the pace fields are missing; `expectedCents` is the goal's monthly average times the months lived, the current
+// one included (AD-260) (the whole goal for a past year, zero
 // for a future one) and `perMonthCents` what is left split by the remaining months, the current one included.
 export type RevenueGoal = {
   year: number;

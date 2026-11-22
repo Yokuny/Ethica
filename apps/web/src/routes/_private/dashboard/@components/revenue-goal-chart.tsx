@@ -2,6 +2,7 @@ import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } f
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from 'recharts';
 import { MONEY_COLORS } from '@/components/cash-flow-chart.js';
+import { GoalProgress } from '@/components/goal-progress.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { RevenueGoal } from '@/query/transaction.js';
@@ -15,7 +16,6 @@ const config = {
 const monthShort = new Intl.DateTimeFormat('pt-BR', { month: 'short' });
 const monthLong = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
 const asDate = (month: string) => new Date(`${month}-15T12:00:00Z`);
-const percent = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
 const compactMoney = new Intl.NumberFormat('pt-BR', {
   notation: 'compact',
   style: 'currency',
@@ -60,7 +60,7 @@ function LegendItem({
 
 // Revenue goal of a year (MRA-03, AD-258, AD-259): what was received, accumulated month by month (green area, up to
 // the current month), against the goal spread evenly over the year (dashed gray line ending at the goal in December).
-// Above, the goal, the share reached, what is left and the pace in words.
+// Above, the goal, what is left and the progress bar with the pace (AD-260).
 export function RevenueGoalChart({ goal }: { goal: RevenueGoal & { goalCents: number } }) {
   // Months already lived in the year: all of a past one, none of a future one.
   const lived = goal.year < goal.currentYear ? 12 : goal.year > goal.currentYear ? 0 : 13 - goal.monthsLeft;
@@ -74,13 +74,6 @@ export function RevenueGoalChart({ goal }: { goal: RevenueGoal & { goalCents: nu
     };
   });
   const left = Math.max(0, goal.goalCents - goal.receivedCents);
-  const reached = left === 0;
-  const onPace = goal.receivedCents >= (goal.expectedCents ?? 0);
-  const status = reached
-    ? t('goal_reached')
-    : goal.monthsLeft === 0
-      ? t('goal_not_reached')
-      : `${t(onPace ? 'on_pace' : 'below_pace')} · ${formatMoney(goal.perMonthCents)} ${t('per_month_until_december')}`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,12 +84,12 @@ export function RevenueGoalChart({ goal }: { goal: RevenueGoal & { goalCents: nu
           color={config.receivedCents.color}
         />
         <LegendItem label={t('revenue_goal')} value={formatMoney(goal.goalCents)} color={GOAL_COLOR} dashed />
-        <LegendItem label={t('reached')} value={percent.format(goal.receivedCents / goal.goalCents)} />
         <LegendItem label={t('left_to_goal')} value={formatMoney(left)} />
+        {left > 0 && goal.perMonthCents ? (
+          <LegendItem label={t('per_month_until_december')} value={formatMoney(goal.perMonthCents)} />
+        ) : null}
       </ul>
-      <ItemDescription className={reached || onPace ? undefined : 'text-status-warning-foreground'}>
-        {status}
-      </ItemDescription>
+      <GoalProgress goal={goal} className="max-w-2xl" />
       <ChartContainer
         config={config}
         className="aspect-auto h-64 w-full"

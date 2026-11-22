@@ -99,20 +99,22 @@ export function CasesIndexPage() {
       <CardContent>
         {/* Next service order (a preview of the sequence, AD-190) and the last one used, as a discreet line. */}
         {(serviceOrder?.next || serviceOrder?.last || followsGoal) && (
-          <div className="flex flex-wrap gap-x-6 gap-y-1 justify-end">
+          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
             {followsGoal && goal && goalCents && <CasesRevenueGoal goal={{ ...goal, goalCents }} />}
-            {[
-              { label: t('next_service_order'), value: serviceOrder?.next },
-              { label: t('last_service_order'), value: serviceOrder?.last },
-            ].map(
-              (item) =>
-                item.value && (
-                  <div key={item.label} className="flex items-baseline gap-1.5">
-                    <ItemDescription>{item.label}</ItemDescription>
-                    <ItemTitle className="font-normal">{item.value}</ItemTitle>
-                  </div>
-                ),
-            )}
+            <div className="ms-auto flex flex-wrap gap-x-6 gap-y-1">
+              {[
+                { label: t('next_service_order'), value: serviceOrder?.next },
+                { label: t('last_service_order'), value: serviceOrder?.last },
+              ].map(
+                (item) =>
+                  item.value && (
+                    <div key={item.label} className="flex items-baseline gap-1.5">
+                      <ItemDescription>{item.label}</ItemDescription>
+                      <ItemTitle className="font-normal">{item.value}</ItemTitle>
+                    </div>
+                  ),
+              )}
+            </div>
           </div>
         )}
         <DataTable

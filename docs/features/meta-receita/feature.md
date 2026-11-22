@@ -5,7 +5,7 @@ descricao: Meta de receita do ano cadastrada em Escritório e acompanhada no Das
 data: 2026-11-22
 status: parcial
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-258, AD-259]
+decisoes: [AD-258, AD-259, AD-260]
 spec: [.specs/features/meta-receita]
 branches: [main]
 ---
@@ -21,8 +21,10 @@ branches: [main]
 
 - **Escritório** (`/office`, só admin): etapa "Meta do ano" com a lista de metas por ano (Nova meta, Editar, Remover); o ano vai de cinco anos atrás a cinco à frente.
 - **Realizado**: tudo que entrou no ano pela data efetiva de cada recebimento (parcelas), em toda receita não anulada; despesas, vencimento e data de contratação não entram. É o mesmo número de "Recebido" do fluxo de caixa.
-- **Dashboard**: painel "Meta de <ano>" no topo para quem vê o Financeiro, com gráfico próprio: área verde do recebido acumulado até o mês atual e linha tracejada da meta distribuída no ano; acima, recebido, meta, % atingido, quanto falta e o ritmo em texto ("No ritmo · R$ X por mês até dezembro"). Com mais de um ano, um seletor de ano (`?year=`). Sem meta, só o admin vê o convite para cadastrar em Escritório.
-- **Serviços**: no menu "…", "Acompanhar a meta aqui" / "Ocultar a meta daqui" (cada pessoa, salvo na conta); ligado, aparece só "? Dados da meta" sublinhado junto da linha da OS, com meta, recebido, %, quanto falta e o por mês no tooltip.
+- **Ritmo**: média mensal da meta vezes os meses já vividos do ano, contando o atual. No ritmo ou acima é verde, a partir de 75% do esperado amarelo, abaixo vermelho.
+- **Barra da meta** (`apps/web/src/components/goal-progress.tsx`): trilho em degradê vermelho → amarelo → verde, preenchimento com o recebido na cor do ritmo, traço no esperado até agora, % atingido e o ritmo em texto.
+- **Dashboard**: painel "Meta de <ano>" depois do Fluxo de caixa, só quando há meta, para quem vê o Financeiro: recebido, meta, quanto falta e por mês até dezembro, a barra da meta e o gráfico (área verde do recebido acumulado até o mês atual, linha tracejada da meta distribuída no ano). Com mais de um ano, um seletor de ano (`?year=`).
+- **Serviços**: no menu "…", "Acompanhar a meta aqui" / "Ocultar a meta daqui" (cada pessoa, salvo na conta); ligado, aparece só "? Dados da meta" sublinhado à esquerda da linha da OS, com o nome do ano, a barra da meta, meta, recebido, quanto falta e o por mês no tooltip.
 
 ## Por que
 
@@ -51,6 +53,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-22 — Segunda conferência (AD-260): ritmo pela média mensal, barra da meta com degradê no Dashboard e no tooltip de Serviços, painel da meta depois do Fluxo de caixa e só com meta, meta à esquerda em Serviços. De carona, a Entrada de serviços do Dashboard ganha área translúcida como os outros gráficos.
 - 2026-11-22 — Ajustes da conferência da perita (AD-259): metas por ano em Escritório; no Dashboard a faixa de números, embolada com os KPIs, vira gráfico de recebido acumulado contra a meta, com seletor de ano; em Serviços sai a linha com valores e fica só "? Dados da meta" com tooltip. Diverge do `spec.md` (meta só do ano corrente, painel em faixa).
 - 2026-11-22 — Entregue (AD-258): cadastro em Escritório, `GET /finance/revenue-goal`, painel no Dashboard e linha opcional em Serviços. Testes e2e cobrem a data efetiva (vencimento em outro ano), 1º de janeiro e 31 de dezembro, anuladas e despesas fora, meta de outro ano, remover com zero e as permissões.
 

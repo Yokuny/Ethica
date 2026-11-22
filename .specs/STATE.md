@@ -1591,6 +1591,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-22
 - **Status**: active
 
+### AD-260
+- **Decision**: O ritmo da meta é a média mensal da meta (meta ÷ 12) vezes os meses já vividos do ano, contando o atual (ano passado: a meta toda; ano futuro: zero); sai o ritmo linear por dias da AD-258. Uma barra horizontal (`apps/web/src/components/goal-progress.tsx`) mostra a meta: trilho em degradê vermelho → amarelo → verde, preenchimento com o recebido na cor do ritmo (verde no ritmo ou acima, amarelo a partir de 75% do esperado, vermelho abaixo) e um traço no esperado até agora. A barra fica no painel da meta do Dashboard e no tooltip de "? Dados da meta" em Serviços. No Dashboard o painel da meta só aparece com meta e vem depois do Fluxo de caixa; em Serviços a meta fica à esquerda da linha da OS. A Entrada de serviços passa a ter área translúcida como os demais gráficos.
+- **Reason**: conferência da perita na tela (2026-11-22).
+- **Trade-off**: sem meta, o admin não vê mais o convite no Dashboard; a meta se cadastra só em Escritório.
+- **Scope**: `apps/api/src/modules/finance/transaction.service.ts`, `apps/web/src/components/goal-progress.tsx`, `apps/web/src/routes/_private/{dashboard,expert-cases}/`.
+- **Date**: 2026-11-22
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

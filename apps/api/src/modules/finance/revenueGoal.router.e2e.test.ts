@@ -102,8 +102,7 @@ describe('meta de receita do ano (MRA, AD-258)', () => {
     expect(goal).toMatchObject({ year, goalCents: 12_000_000, receivedCents: 400_000 });
     expect(goal.monthsLeft).toBe(13 - Number(today.slice(5, 7)));
     expect(goal.perMonthCents).toBe(Math.ceil((12_000_000 - 400_000) / goal.monthsLeft));
-    expect(goal.expectedCents).toBeGreaterThan(0);
-    expect(goal.expectedCents).toBeLessThanOrEqual(12_000_000);
+    expect(goal.expectedCents).toBe(1_000_000 * (13 - goal.monthsLeft));
 
     expect(goal.byMonth).toHaveLength(12);
     expect(goal.byMonth[0]).toEqual({ month: `${year}-01`, receivedCents: 100_000 });

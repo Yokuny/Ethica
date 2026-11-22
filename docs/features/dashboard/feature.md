@@ -55,6 +55,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-22 — Entrada de serviços com área translúcida (opacidade 0,25 e borda de 2px), como os outros gráficos; painel da meta do ano depois do Fluxo de caixa (`meta-receita`, AD-260).
 - 2026-11-22 — Em "De onde vem o dinheiro", cada categoria de receita ganha um ícone de ajuda com tooltip que explica a fatia (honorários fixados, contratados e prévios). O `CompositionDonut` passa a aceitar `hint` na fatia (`apps/web/src/components/composition-donut.tsx`); os textos são as chaves `*_fees_hint`.
 - 2026-11-22 — O período vira número na URL (`?months=6`, antes `?months=%226%22`, porque o roteador grava entre aspas a string que parece número). Links antigos e valores estranhos caem em 6 meses (`apps/web/src/routes/_private/dashboard/@interface/dashboard.interface.ts`).
 - 2026-11-22 — Conferido no navegador. Ajustes do que apareceu: a nota da faixa dizia que o mês atual entrava; o centro e as linhas das roscas mostram só o percentual (o "vs. período anterior" vai uma vez na descrição do painel); a linha do valor do `RecordStat` quebra em vez de sobrepor (vencido do A receber no Início e percentuais no celular).

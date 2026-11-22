@@ -15,7 +15,8 @@
       ],
       "decisoes": [
         "AD-258",
-        "AD-259"
+        "AD-259",
+        "AD-260"
       ],
       "spec": [
         ".specs/features/meta-receita"
@@ -2242,6 +2243,12 @@
     {
       "id": "AD-259",
       "decisao": "Metas por ano, gráfico próprio no Dashboard e só \"? Dados da meta\" em Serviços. O escritório guarda uma meta por ano (`Tenant.revenueGoals:",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-260",
+      "decisao": "O ritmo da meta é a média mensal da meta (meta ÷ 12) vezes os meses já vividos do ano, contando o atual (ano passado: a meta toda; ano futur",
       "data": "2026-11-22",
       "status": "active"
     }

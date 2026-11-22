@@ -67,11 +67,11 @@ export function ServicesAreaChart({ byType, byMonth }: ServicesAreaChartProps) {
             dataKey={serie.key}
             stackId="intake"
             type="monotone"
-            // The palette is pastel: a full fill and a darker edge keep each band visible on any theme.
+            // Translucent fill like the other charts (AD-260); the darker edge keeps each band readable.
             stroke={`color-mix(in oklab, var(--color-${serie.key}) 65%, var(--foreground))`}
             fill={`var(--color-${serie.key})`}
-            fillOpacity={0.9}
-            strokeWidth={1.5}
+            fillOpacity={0.25}
+            strokeWidth={2}
             isAnimationActive={false}
           />
         ))}
