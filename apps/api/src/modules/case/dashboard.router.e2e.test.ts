@@ -67,14 +67,17 @@ describe('Dashboard (DSH)', () => {
     await disconnect();
   });
 
-  it('conta por tipo, encerrados e serviços dos últimos 12 meses pela nomeação ou pelo cadastro (DSH-02 a 04)', async () => {
+  it('conta por tipo, encerrados e serviços dos últimos 24 meses pela nomeação ou pelo cadastro (DSH-02 a 04)', async () => {
     const { tenant, as } = await seedSession();
     const other = await seedSession();
     const month = dateInDisplayTz(new Date()).slice(0, 7);
     const nominated = `${shiftMonth(month, -2)}-10`;
     await Case.collection.insertMany([
       { ...base(tenant._id, 'a', { nominationDate: nominated }), createdAt: new Date() },
-      { ...base(tenant._id, 'b', { nominationDate: '2024-06-01', phase: 'fees_received' }), createdAt: new Date() },
+      {
+        ...base(tenant._id, 'b', { nominationDate: `${shiftMonth(month, -30)}-01`, phase: 'fees_received' }),
+        createdAt: new Date(),
+      },
       { ...base(tenant._id, 'c', { status: 'canceled', nominationDate: nominated }), createdAt: new Date() },
       { ...base(tenant._id, 'g', {}), createdAt: new Date() },
       { ...base(tenant._id, 'd', { role: 'technical_assistant', phase: 'assistance_hired' }), createdAt: new Date() },
@@ -89,8 +92,8 @@ describe('Dashboard (DSH)', () => {
       { role: 'other', serviceType: 'Parceria', count: 1 },
       { role: 'technical_assistant', count: 1 },
     ]);
-    // 'b' is older than 12 months, 'c' is canceled, 'f' is from another office.
-    expect(body.data.byMonth).toHaveLength(12);
+    // 'b' is older than 24 months, 'c' is canceled, 'f' is from another office.
+    expect(body.data.byMonth).toHaveLength(24);
     expect(body.data.byMonth.at(-1)).toEqual({
       month,
       count: 3,

@@ -12,6 +12,8 @@ const show = (value: number | undefined) => (value === undefined ? '—' : numbe
 
 // Home strip: what needs attention today. Financial values only for whoever sees them.
 export function HomeOverview({ stats, summary }: { stats?: ListStats; summary?: FinanceSummary }) {
+  const overdue = statCount(stats, 'overdue_deadlines');
+  const dueSoon = statCount(stats, 'deadlines_due_soon');
   return (
     <RecordStats variant="band" role="group" aria-label={t('overview')}>
       <ListTrendStat
@@ -22,14 +24,22 @@ export function HomeOverview({ stats, summary }: { stats?: ListStats; summary?: 
       />
       <RecordStat
         label={t('overdue_deadlines')}
-        value={show(statCount(stats, 'overdue_deadlines'))}
+        value={show(overdue)}
+        // State by rule (AD-255): any overdue deadline is critical, one due soon needs attention.
+        dot={overdue ? { variant: 'error' } : undefined}
+        hint={overdue ? t('needs_action') : undefined}
         render={<Link to="/expert-cases" />}
       />
-      <RecordStat label={t('deadlines_due_soon')} value={show(statCount(stats, 'deadlines_due_soon'))} />
+      <RecordStat
+        label={t('deadlines_due_soon')}
+        value={show(dueSoon)}
+        dot={dueSoon ? { variant: 'warning' } : undefined}
+      />
       {summary && (
         <RecordStat
           label={t('receivable')}
           value={formatMoney(summary.receivableCents)}
+          dot={summary.lateCents ? { variant: 'error' } : undefined}
           hint={summary.lateCents ? `${formatMoney(summary.lateCents)} ${t('overdue')}` : undefined}
           render={<Link to="/finance" search={{ state: 'expected' }} />}
         />

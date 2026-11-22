@@ -160,6 +160,8 @@ type RecordStatProps = Omit<useRender.ComponentProps<'div'>, 'children'> & {
   sparkline?: number[];
   trend?: 'up' | 'down' | 'stable';
   trendLabel?: string;
+  // Whether the direction is good or bad (expenses going up is bad); default: up is good, down is bad.
+  trendTone?: 'good' | 'bad' | 'neutral';
   // Rule that defines the number (report indicator).
   description?: ReactNode;
   // Status dot before the value (tenant color or semantic variant).
@@ -198,7 +200,15 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
-function Trend({ direction, label }: { direction: NonNullable<RecordStatProps['trend']>; label?: string }) {
+function Trend({
+  direction,
+  label,
+  tone = direction === 'up' ? 'good' : direction === 'down' ? 'bad' : 'neutral',
+}: {
+  direction: NonNullable<RecordStatProps['trend']>;
+  label?: string;
+  tone?: RecordStatProps['trendTone'];
+}) {
   const Icon = direction === 'up' ? ArrowUpRight : direction === 'down' ? ArrowDownRight : Minus;
   return (
     <ItemDescription
@@ -207,9 +217,9 @@ function Trend({ direction, label }: { direction: NonNullable<RecordStatProps['t
       className={cn(
         'line-clamp-none',
         'inline-flex shrink-0 items-center justify-center rounded-sm p-0.5 [&_svg]:size-3.5',
-        direction === 'up' && 'bg-status-success text-status-success-foreground',
-        direction === 'down' && 'bg-destructive/10 text-destructive',
-        direction === 'stable' && 'bg-muted',
+        tone === 'good' && 'bg-status-success text-status-success-foreground',
+        tone === 'bad' && 'bg-destructive/10 text-destructive',
+        tone === 'neutral' && 'bg-muted',
       )}
     >
       <Icon />
@@ -248,6 +258,7 @@ export function RecordStat({
   sparkline,
   trend,
   trendLabel,
+  trendTone,
   description,
   dot,
   render,
@@ -275,7 +286,7 @@ export function RecordStat({
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-1">
                 <ItemDescription className={ruled ? captionClass : 'text-foreground'}>{label}</ItemDescription>
-                {trend && <Trend direction={trend} label={trendLabel} />}
+                {trend && <Trend direction={trend} label={trendLabel} tone={trendTone} />}
               </div>
               {headerAction}
             </div>

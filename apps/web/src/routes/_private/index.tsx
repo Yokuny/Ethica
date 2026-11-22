@@ -1,10 +1,12 @@
-import { HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
+import { COURTTYPES, type CourtType, HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { CashFlowTable } from '@/components/cash-flow-table.js';
+import { courtTypeLabel } from '@/components/case-labels.js';
+import { CashFlowChart } from '@/components/cash-flow-chart.js';
+import { CompositionDonut, NEUTRAL_COLOR } from '@/components/composition-donut.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { HeatTilesLegend } from '@/components/heat-tiles.js';
@@ -20,7 +22,6 @@ import { preferencesQuery } from '@/query/preferences.js';
 import { can } from '@/query/session.js';
 import { financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CasesPhaseTiles } from './@components/cases-phase-tiles.js';
-import { CourtComposition } from './@components/court-composition.js';
 import { HomeCustomize } from './@components/home-customize.js';
 import { HomeOverview } from './@components/home-overview.js';
 import { StalledCasesList } from './@components/stalled-cases.js';
@@ -102,7 +103,8 @@ export function PrivateIndexPage() {
             ) : !flow.data?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents) ? (
               <DefaultEmptyData title={t('no_entries_yet')} />
             ) : (
-              <CashFlowTable data={flow.data} />
+              // The first month is only the base of the Dashboard's table; the chart shows the 6 months.
+              <CashFlowChart data={flow.data.slice(-FLOW_MONTHS)} />
             )}
           </Panel>
         )}
@@ -121,7 +123,27 @@ export function PrivateIndexPage() {
             ) : !allCases ? (
               <DefaultEmptyData title={t('no_expert_cases_yet')} />
             ) : (
-              <CourtComposition groups={courtGroups} />
+              <CompositionDonut
+                label={t('expert_cases_by_court')}
+                format={(count) => number.format(count)}
+                slices={courtGroups.map((group) =>
+                  COURTTYPES.includes(group.key as CourtType)
+                    ? {
+                        key: group.key,
+                        label: courtTypeLabel(group.key as CourtType),
+                        amount: group.count,
+                        value: number.format(group.count),
+                        render: <Link to="/expert-cases" search={{ courtType: [group.key as CourtType] }} />,
+                      }
+                    : {
+                        key: group.key,
+                        label: t('without_court_type'),
+                        amount: group.count,
+                        value: number.format(group.count),
+                        color: NEUTRAL_COLOR,
+                      },
+                )}
+              />
             )}
           </Panel>
         )}

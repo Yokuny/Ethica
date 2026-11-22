@@ -1,23 +1,24 @@
 import { Button } from '@ethica/ui/components/button';
-import { ItemTitle } from '@ethica/ui/components/item';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { BarList } from '@/components/bar-list.js';
 import { serviceTypeLabel } from '@/components/case-labels.js';
+import { CashFlowChart } from '@/components/cash-flow-chart.js';
 import { CashFlowTable } from '@/components/cash-flow-table.js';
+import { CompositionDonut } from '@/components/composition-donut.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
-import { RecordStat, RecordStats } from '@/components/record.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
+import { type CategoryTotal, categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
 import { CasesMonthTable } from './@components/cases-month-table.js';
-import { CategoryBars } from './@components/category-bars.js';
-import { FinanceOverview } from './@components/finance-overview.js';
+import { DashboardAlerts } from './@components/dashboard-alerts.js';
+import { DashboardKpis } from './@components/dashboard-kpis.js';
+import { MonthDetails } from './@components/month-details.js';
+import { ServicesAreaChart } from './@components/services-area-chart.js';
 import {
   type DashboardSearch,
   dashboardSearchSchema,
@@ -25,72 +26,86 @@ import {
   PERIOD_SCOPE,
   PERIODS,
 } from './@interface/dashboard.interface.js';
-import { type CaseDashboard, caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
+import { type CaseDashboard, caseDashboardQuery } from './@query/dashboard.js';
+import { percentChange, rankTypes, typeKey } from './@utils/dashboard-period.js';
 
 const number = new Intl.NumberFormat('pt-BR');
 const formatNumber = (value: number) => number.format(value);
-const typeKey = (row: { role: string; serviceType?: string }) => row.serviceType ?? row.role;
+const sumOf = (rows: CategoryTotal[], key: 'totalCents' | 'previousCents') =>
+  rows.reduce((total, row) => total + row[key], 0);
 
-// Each type with its count, the share of all services and how many came in the last 12 months; the row opens
-// the list filtered by that type (AD-253).
-const typeItems = ({ total, byType, byMonth }: CaseDashboard) => {
-  const recent = new Map<string, number>();
-  for (const month of byMonth)
-    for (const row of month.byType) recent.set(typeKey(row), (recent.get(typeKey(row)) ?? 0) + row.count);
-  return byType.map((row) => ({
+// Change of a part against the previous period, written beside it; "new" when there was nothing before.
+const changeText = (current: number, previous: number) =>
+  previous
+    ? `${percentChange(current, previous)} ${t('vs_previous_period')}`
+    : current
+      ? t('new_in_period')
+      : undefined;
+
+const categorySlices = (rows: CategoryTotal[]) =>
+  rows.map((row) => ({
+    key: row.category,
+    label: t(row.category),
+    amount: row.totalCents,
+    value: formatMoney(row.totalCents),
+    detail: changeText(row.totalCents, row.previousCents),
+  }));
+
+// Each type opens the list of services filtered by it.
+const typeSlices = (byType: CaseDashboard['byType']) =>
+  rankTypes(byType).map((row) => ({
     key: typeKey(row),
     label: serviceTypeLabel(row),
     amount: row.count,
     value: formatNumber(row.count),
-    detail: `${Math.round((row.count / (total || 1)) * 100)}% · ${formatNumber(recent.get(typeKey(row)) ?? 0)} ${t('in_12_months')}`,
     render: row.serviceType ? (
       <Link to="/expert-cases" search={{ serviceType: [row.serviceType] }} />
     ) : row.role === 'court_expert' || row.role === 'technical_assistant' ? (
       <Link to="/expert-cases" search={{ role: [row.role] }} />
     ) : undefined,
   }));
-};
 
-// Totals of the office (DSH): the amounts, the cash flow and the categories only for whoever sees finance (AD-137).
+// Dashboard (DSH, AD-255), macro → micro: (1) how the office is doing — figures with trend, change and state, and
+// the alerts that need action; (2) money — cash flow over time and where it comes from and goes to; (2) work —
+// service intake over time and the mix of services; the exact month by month one click below. One period for the
+// whole page. Money only for whoever sees Finance (AD-137).
 export function DashboardPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const canSeeFinance = can(session, 'finance');
-  const cases = useQuery(caseDashboardQuery);
-  const fees = useQuery({ ...feesDashboardQuery, enabled: canSeeFinance });
   const search = useSearch({ strict: false }) as DashboardSearch;
   const navigate = useNavigate({ from: '/dashboard/' });
+  const months = Number(search.months);
+  const cases = useQuery(caseDashboardQuery);
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance });
-  // One month more than the period: the base of the first month's change.
-  const flow = useQuery({ ...monthlyFlowQuery(Number(search.months) + 1), enabled: canSeeFinance });
-  const income = useQuery({ ...categoriesQuery('income', Number(search.months)), enabled: canSeeFinance });
-  const expenses = useQuery({ ...categoriesQuery('expense', Number(search.months)), enabled: canSeeFinance });
-  // One period for the cash flow and the categories, offered in both panels.
-  const periodToggle = (
-    <ToggleGroup
-      aria-label={t('period')}
-      value={search.months}
-      onValueChange={(months) => navigate({ search: { months: months as DashboardSearch['months'] }, replace: true })}
-    >
-      {PERIODS.map((months) => (
-        <ToggleGroupItem key={months} value={months}>
-          {t(PERIOD_LABEL[months])}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
-  );
+  // The period and the previous one of the same size: the base of every comparison.
+  const flow = useQuery({ ...monthlyFlowQuery(2 * months), enabled: canSeeFinance });
+  const income = useQuery({ ...categoriesQuery('income', months), enabled: canSeeFinance });
+  const expenses = useQuery({ ...categoriesQuery('expense', months), enabled: canSeeFinance });
+
+  const period = flow.data?.slice(-months);
+  const hasMoney = period?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents);
+  const balance = period?.reduce((total, row) => total + row.receivedCents - row.expensesCents, 0);
+  const intake = cases.data?.byMonth.slice(-months);
 
   return (
     <Card asPage>
-      <CardHeader title={t('dashboard')} description={t('dashboard_page_description')} />
-      {cases.data && (
-        <RecordStats variant="band" role="group" aria-label={t('overview')}>
-          <RecordStat label={t('expert_cases')} value={formatNumber(cases.data.total)} />
-          <RecordStat label={t('closed_expert_cases')} value={formatNumber(cases.data.closed)} />
-          {canSeeFinance && fees.data && (
-            <RecordStat label={t('fees_received')} value={formatMoney(fees.data.receivedCents)} />
-          )}
-        </RecordStats>
-      )}
+      <CardHeader title={t('dashboard')} description={t(PERIOD_SCOPE[search.months])}>
+        <CardAction>
+          <ToggleGroup
+            aria-label={t('period')}
+            value={search.months}
+            onValueChange={(value) =>
+              navigate({ search: { months: value as DashboardSearch['months'] }, replace: true })
+            }
+          >
+            {PERIODS.map((value) => (
+              <ToggleGroupItem key={value} value={value}>
+                {t(PERIOD_LABEL[value])}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </CardAction>
+      </CardHeader>
       <CardContent className="gap-10 pb-16">
         {cases.isLoading ? (
           <DefaultLoading />
@@ -101,59 +116,93 @@ export function DashboardPage() {
           />
         ) : (
           <>
-            <Panel
-              size="lg"
-              title={t('expert_cases_by_type')}
-              description={t('services_by_type_scope')}
-              actions={
-                cases.data.byType.length > 0 && (
-                  <ItemTitle className="font-medium tabular-nums">{formatNumber(cases.data.total)}</ItemTitle>
-                )
-              }
-            >
-              {cases.data.byType.length ? (
-                <BarList tone="info" items={typeItems(cases.data)} />
-              ) : (
-                <DefaultEmptyData title={t('no_data_yet')} />
-              )}
-            </Panel>
-            <Panel size="lg" title={t('expert_cases_by_month')} description={t('services_by_month_scope')}>
-              {cases.data.byMonth.some((row) => row.count) ? (
-                <CasesMonthTable byMonth={cases.data.byMonth} />
-              ) : (
-                <DefaultEmptyData title={t('no_data_yet')} />
-              )}
-            </Panel>
+            <section aria-label={t('overview')} className="flex flex-col gap-4">
+              <DashboardKpis
+                cases={cases.data}
+                months={months}
+                flow={canSeeFinance ? flow.data : undefined}
+                summary={canSeeFinance ? summary.data : undefined}
+              />
+              {canSeeFinance && <DashboardAlerts lateCents={summary.data?.lateCents} balanceCents={balance} />}
+            </section>
+
             {canSeeFinance && (
               <>
-                <Panel size="lg" title={t('finance')}>
-                  <FinanceOverview summary={summary.data} />
-                </Panel>
-                <Panel size="lg" title={t('cash_flow')} actions={periodToggle}>
+                <Panel size="lg" title={t('cash_flow')} description={t('cash_flow_scope')}>
                   {flow.isLoading ? (
                     <DefaultLoading />
-                  ) : !flow.data?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents) ? (
+                  ) : !period || !hasMoney ? (
                     <DefaultEmptyData title={t('no_entries_yet')} />
                   ) : (
-                    <CashFlowTable data={flow.data} />
+                    <>
+                      <CashFlowChart data={period} />
+                      <MonthDetails>
+                        <CashFlowTable data={flow.data?.slice(-(months + 1)) ?? []} />
+                      </MonthDetails>
+                    </>
                   )}
                 </Panel>
-                <Panel
-                  size="lg"
-                  title={t('income_and_expenses_by_category')}
-                  description={t(PERIOD_SCOPE[search.months])}
-                  actions={periodToggle}
-                >
-                  {income.isLoading || expenses.isLoading ? (
-                    <DefaultLoading />
-                  ) : !income.data?.length && !expenses.data?.length ? (
-                    <DefaultEmptyData title={t('no_entries_yet')} />
-                  ) : (
-                    <CategoryBars income={income.data ?? []} expenses={expenses.data ?? []} />
-                  )}
-                </Panel>
+                <div className="grid gap-10 lg:grid-cols-2">
+                  <Panel size="lg" title={t('where_money_comes_from')} description={t('received_by_category')}>
+                    {income.isLoading ? (
+                      <DefaultLoading />
+                    ) : !income.data?.some((row) => row.totalCents) ? (
+                      <DefaultEmptyData title={t('no_entries_yet')} />
+                    ) : (
+                      <CompositionDonut
+                        label={t('where_money_comes_from')}
+                        slices={categorySlices(income.data)}
+                        format={formatMoney}
+                        centerDetail={changeText(sumOf(income.data, 'totalCents'), sumOf(income.data, 'previousCents'))}
+                      />
+                    )}
+                  </Panel>
+                  <Panel size="lg" title={t('where_money_goes')} description={t('expenses_by_category')}>
+                    {expenses.isLoading ? (
+                      <DefaultLoading />
+                    ) : !expenses.data?.some((row) => row.totalCents) ? (
+                      <DefaultEmptyData title={t('no_entries_yet')} />
+                    ) : (
+                      <CompositionDonut
+                        label={t('where_money_goes')}
+                        slices={categorySlices(expenses.data)}
+                        format={formatMoney}
+                        centerDetail={changeText(
+                          sumOf(expenses.data, 'totalCents'),
+                          sumOf(expenses.data, 'previousCents'),
+                        )}
+                      />
+                    )}
+                  </Panel>
+                </div>
               </>
             )}
+
+            <div className="grid gap-10 lg:grid-cols-[3fr_2fr]">
+              <Panel size="lg" title={t('services_intake')} description={t('services_intake_scope')}>
+                {!intake?.some((row) => row.count) ? (
+                  <DefaultEmptyData title={t('no_data_yet')} />
+                ) : (
+                  <>
+                    <ServicesAreaChart byType={cases.data.byType} byMonth={intake} />
+                    <MonthDetails>
+                      <CasesMonthTable byMonth={intake} />
+                    </MonthDetails>
+                  </>
+                )}
+              </Panel>
+              <Panel size="lg" title={t('services_mix')} description={t('services_mix_scope')}>
+                {cases.data.byType.length ? (
+                  <CompositionDonut
+                    label={t('services_mix')}
+                    slices={typeSlices(cases.data.byType)}
+                    format={formatNumber}
+                  />
+                ) : (
+                  <DefaultEmptyData title={t('no_data_yet')} />
+                )}
+              </Panel>
+            </div>
           </>
         )}
       </CardContent>

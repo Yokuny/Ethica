@@ -6,8 +6,8 @@ import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '@/query/session.js';
-import { categoriesQuery } from '@/query/transaction.js';
-import { caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
+import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
+import { caseDashboardQuery } from './@query/dashboard.js';
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>();
@@ -26,6 +26,12 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 
 const { DashboardPage } = await import('./index.js');
 
+// 12 months up to 2026-11: the 6-month period and the previous 6.
+const MONTHS = Array.from({ length: 12 }, (_, index) =>
+  new Date(Date.UTC(2025, 11 + index, 1)).toISOString().slice(0, 7),
+);
+const recent = (index: number) => index >= 6;
+
 const renderPage = (role: Role[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   queryClient.setQueryData(sessionQuery.queryKey, {
@@ -35,35 +41,40 @@ const renderPage = (role: Role[]) => {
     permissions: effectivePermissions(role),
   } as never);
   queryClient.setQueryData(caseDashboardQuery.queryKey, {
-    total: 12,
-    closed: 5,
+    total: 30,
+    closed: 10,
     byType: [
-      { role: 'court_expert', count: 9 },
-      { role: 'other', serviceType: 'Parceria', count: 3 },
+      { role: 'court_expert', count: 21 },
+      { role: 'other', serviceType: 'Parceria', count: 9 },
     ],
-    byMonth: [
-      { month: '2026-10', count: 4, byType: [{ role: 'court_expert', count: 4 }] },
-      {
-        month: '2026-11',
-        count: 5,
-        byType: [
-          { role: 'court_expert', count: 3 },
-          { role: 'other', serviceType: 'Parceria', count: 2 },
-        ],
-      },
-    ],
+    byMonth: MONTHS.map((month, index) => ({
+      month,
+      count: recent(index) ? 2 : 1,
+      byType: [{ role: 'court_expert' as const, count: recent(index) ? 2 : 1 }],
+    })),
+  });
+  queryClient.setQueryData(
+    monthlyFlowQuery(12).queryKey,
+    MONTHS.map((month, index) => ({
+      month,
+      receivedCents: recent(index) ? 100_000 : 50_000,
+      receivableCents: 10_000,
+      expensesCents: 20_000,
+    })),
+  );
+  queryClient.setQueryData(financeSummaryQuery.queryKey, {
+    receivableCents: 80_000,
+    lateCents: 30_000,
+    receivedMonthCents: 100_000,
+    expensesMonthCents: 20_000,
   });
   queryClient.setQueryData(categoriesQuery('income', 6).queryKey, [
     { category: 'fixed_fees', totalCents: 400_000, previousCents: 200_000 },
-    { category: 'contracted_fees', totalCents: 100_000, previousCents: 0 },
+    { category: 'contracted_fees', totalCents: 200_000, previousCents: 0 },
   ]);
   queryClient.setQueryData(categoriesQuery('expense', 6).queryKey, [
-    { category: 'travel', totalCents: 50_000, previousCents: 100_000 },
+    { category: 'travel', totalCents: 120_000, previousCents: 240_000 },
   ]);
-  queryClient.setQueryData(feesDashboardQuery.queryKey, {
-    receivableCents: 50_000,
-    receivedCents: 300_000,
-  });
   render(
     <QueryClientProvider client={queryClient}>
       <DashboardPage />
@@ -71,35 +82,34 @@ const renderPage = (role: Role[]) => {
   );
 };
 
-describe('Dashboard (DSH)', () => {
+describe('Dashboard (DSH, AD-255)', () => {
   afterEach(cleanup);
 
-  it('mostra os totais, os tipos e o recebido somado', () => {
+  it('nível 1: saldo, recebido e despesas do período com a variação e o alerta do vencido', () => {
     renderPage(['admin']);
-    expect(screen.getByText('Serviços finalizados')).toBeInTheDocument();
-    // In the ranking by type and as a column of the table by month.
-    expect(screen.getAllByText('Perícia')).toHaveLength(2);
-    expect(screen.getAllByText('Parceria')).toHaveLength(2);
-    expect(screen.getByText(/3\.000,00/)).toBeInTheDocument();
+    const overview = screen.getByRole('group', { name: 'Visão geral' });
+    // Received 6 × 1.000 = 6.000 (+100% against 3.000); expenses 1.200 (=); balance 4.800.
+    expect(overview).toHaveTextContent(/Recebido.*6\.000,00.*\+100%/);
+    expect(overview).toHaveTextContent(/Saldo.*4\.800,00/);
+    expect(overview).toHaveTextContent(/Serviços novos.*12.*\+100%/);
+    expect(screen.getByRole('link', { name: /300,00 em honorários vencidos/ })).toHaveAttribute(
+      'href',
+      '/finance?{"state":"overdue"}',
+    );
   });
 
-  it('serviços por mês: total e cada tipo com a variação contra o mês anterior', () => {
-    renderPage(['operator']);
-    const november = screen.getByRole('rowheader', { name: /novembro de 2026/i }).closest('tr') as HTMLElement;
-    expect(november).toHaveTextContent('Em andamento');
-    // Total 5 (+1), Perícia 3 (-1), Parceria 2 (+2).
-    expect(november).toHaveTextContent(/5\s*\+1.*3\s*-1.*2\s*\+2/);
+  it('dinheiro: categorias em rosca com a variação contra o período anterior', () => {
+    renderPage(['admin']);
+    expect(screen.getByText('De onde vem o dinheiro')).toBeInTheDocument();
+    expect(screen.getByText('+100% vs. período anterior')).toBeInTheDocument();
+    expect(screen.getByText('Novo no período')).toBeInTheDocument();
+    // One expense category: the center and its legend row have the same change.
+    expect(screen.getAllByText('-50% vs. período anterior')).toHaveLength(2);
   });
 
-  it('sem o Financeiro, nenhum valor em dinheiro aparece (DSH-06)', () => {
+  it('trabalho: o mix de serviços abre a lista filtrada pelo tipo', () => {
     renderPage(['operator']);
-    expect(screen.getByText('Serviços por mês')).toBeInTheDocument();
-    expect(screen.queryByText('Honorários recebidos')).not.toBeInTheDocument();
-  });
-
-  it('serviços por tipo: parcela, últimos 12 meses e a linha abre a lista filtrada (AD-253)', () => {
-    renderPage(['operator']);
-    expect(screen.getByRole('link', { name: /Perícia\s*9\s*75% · 7 em 12 meses/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Perícia\s*21\s*70%/ })).toHaveAttribute(
       'href',
       '/expert-cases?{"role":["court_expert"]}',
     );
@@ -109,12 +119,11 @@ describe('Dashboard (DSH)', () => {
     );
   });
 
-  it('categorias: recebido e despesas do período com a variação contra o anterior (AD-253)', () => {
-    renderPage(['admin']);
-    expect(screen.getByText('Receitas e despesas por categoria')).toBeInTheDocument();
-    expect(screen.getByText(/\+R\$\s?2\s?mil · \+100%/)).toBeInTheDocument();
-    expect(screen.getAllByText('Novo no período').length).toBeGreaterThan(0);
-    // One expense category: the total and its row have the same change.
-    expect(screen.getAllByText(/-R\$\s?500 · -50%/)).toHaveLength(2);
+  it('sem o Financeiro, nenhum valor em dinheiro nem alerta aparece (DSH-06)', () => {
+    renderPage(['operator']);
+    expect(screen.getByText('Entrada de serviços')).toBeInTheDocument();
+    expect(screen.queryByText('De onde vem o dinheiro')).not.toBeInTheDocument();
+    expect(screen.queryByText(/honorários vencidos/)).not.toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Visão geral' })).not.toHaveTextContent('R$');
   });
 });

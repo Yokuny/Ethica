@@ -384,12 +384,13 @@ export const listServiceTypes = (tenantId: string) => caseRepository.listService
 
 export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DEADLINE_DUE_SOON_DAYS);
 export const caseDistribution = (tenantId: string) => caseRepository.distribution(tenantId);
-// Services of the last 12 months up to the current one (DSH-04).
+// Services of the last 24 months up to the current one (DSH-04): the Dashboard's period (6 or 12 months) and the
+// previous one of the same size (AD-255).
 export const caseDashboard = (tenantId: string, now: Date = new Date()) => {
   const month = dateInDisplayTz(now).slice(0, 7);
   return caseRepository.dashboard(
     tenantId,
-    Array.from({ length: 12 }, (_, index) => shiftMonth(month, index - 11)),
+    Array.from({ length: 24 }, (_, index) => shiftMonth(month, index - 23)),
   );
 };
 export const findSummariesByIds = (tenantId: string, ids: string[]) => caseRepository.findSummariesByIds(tenantId, ids);
