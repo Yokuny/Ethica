@@ -99,33 +99,32 @@ export function CasesIndexPage() {
       </CardHeader>
       <CasesOverview stats={statsQuery.data} />
       <CardContent>
-        {/* Next service order (a preview of the sequence, AD-190, AD-262); the last one used opens in the tooltip. */}
+        {/* Next service order (a preview of the sequence, AD-190, AD-262); the last one used opens in the "?" tooltip. */}
         {(serviceOrder?.next || followsGoal) && (
           <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
             {followsGoal && goal && goalCents && <CasesRevenueGoal goal={{ ...goal, goalCents }} />}
             {serviceOrder?.next && (
-              <Tooltip>
-                <TooltipTrigger
-                  type="button"
-                  className="ms-auto inline-flex items-center gap-1.5 text-muted-foreground underline decoration-dashed underline-offset-4 hover:text-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <CircleHelp aria-hidden className="size-3.5" />
-                  <ItemDescription render={<span />} className="text-inherit">
-                    {t('next_service_order')}
-                  </ItemDescription>
-                  <ItemTitle render={<span />} className="font-normal">
-                    {serviceOrder.next}
-                  </ItemTitle>
-                </TooltipTrigger>
+              <div className="ms-auto flex items-baseline gap-1.5">
+                <ItemDescription>{t('next_service_order')}</ItemDescription>
+                <ItemTitle className="font-normal">{serviceOrder.next}</ItemTitle>
                 {serviceOrder.last && (
-                  <TooltipContent>
-                    <div className="flex items-baseline gap-4">
-                      <ItemDescription className="text-xs text-inherit">{t('last_service_order')}</ItemDescription>
-                      <ItemTitle>{serviceOrder.last}</ItemTitle>
-                    </div>
-                  </TooltipContent>
+                  <Tooltip>
+                    <TooltipTrigger
+                      type="button"
+                      aria-label={t('last_service_order')}
+                      className="self-center text-muted-foreground hover:text-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <CircleHelp aria-hidden className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="flex items-baseline gap-4">
+                        <ItemDescription className="text-xs text-inherit">{t('last_service_order')}</ItemDescription>
+                        <ItemTitle>{serviceOrder.last}</ItemTitle>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
-              </Tooltip>
+              </div>
             )}
           </div>
         )}

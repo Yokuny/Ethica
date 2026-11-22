@@ -389,7 +389,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: duas fontes no calendário (compromissos e prazos), juntadas na tela e no feed; a perícia deixa de carregar o prazo do laudo como campo, então quem precisa dele consulta os prazos.
 - **Scope**: `packages/db/src/models/{prazo,pericia,compromisso}.model.ts`, `packages/contracts/src/schemas/{prazo,pericia,compromisso}.schema.ts`, `apps/api/src/modules/{pericia,agenda}/`, `apps/api/src/events/`, `apps/web/src/routes/_private/{pericias,agenda}/`. Supersede da AD-106 a parte `pericia:created` ⇒ compromisso "Entrega do laudo"; origem `.specs/features/prazos-recebimentos/spec.md`.
 - **Date**: 2026-10-31
-- **Status**: active
+- **Status**: active (entidade `Prazo`/`Deadline` superseded by AD-263; prazo do laudo sem evento superseded by AD-264)
 
 ### AD-110
 - **Decision**: O aviso de prazo por e-mail é uma preferência **por usuário**: todo usuário com papel no tenant (qualquer papel) liga ou desliga o próprio aviso na tela de conta, começando ligado. Não há liga/desliga no tenant. O envio é um consolidado diário às 07:00 de `America/Sao_Paulo` (AD-036) com os prazos pendentes que vencem em 15 dias, no dia e venceram ontem; prazo protocolado ou perdido sai do aviso. Tenant suspenso (AD-098) não recebe.
@@ -677,7 +677,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: regressão de rota nesses módulos aparece no UAT, não no CI.
 - **Scope**: `docs/features/fundacao-ethica/feature.md`, `docs/roadmap.md`.
 - **Date**: 2026-11-01
-- **Status**: active
+- **Status**: active (Datajud com a chave real superseded by AD-271)
 
 ### AD-146
 - **Decision**: As chaves do storage S3 (AD-120) passam a ser **por escritório e por perícia**: `tenants/<tenantId>/office/…` para o que é do escritório (logo) e `tenants/<tenantId>/cases/<caseId>/…` para o que é da perícia, com subpasta por tipo (`inspections/<appointmentId>/<mediaId>`, `reports/<reportId>/…`). Excluir a perícia apaga a pasta dela e devolve a cota. A troca do RustFS local para o bucket S3 de produção é **só configuração** (`S3_*`), sem código. Detalhe e perguntas em aberto em `.specs/features/producao-api/spec.md`.
@@ -693,7 +693,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: uma collection a mais só para a trava; o aviso pode chegar até uma hora depois das 07:00 quando a API volta.
 - **Scope**: `apps/api/src/server.ts`, `apps/api/src/modules/agenda/deadlineReminder.service.ts`, `packages/db`. Supersede, na AD-110, o disparo único às 07:00 por timer (preferência por usuário e conteúdo do aviso continuam).
 - **Date**: 2026-11-01
-- **Status**: active
+- **Status**: active (local da varredura superseded by AD-267)
 
 ### AD-148
 - **Decision**: Membros do escritório têm CRUD **só do admin**: convidar (já existe), editar nome e perfil, desativar e reativar, e cancelar ou reenviar convite pendente. "Remover" é **desativar** (`User.active: false`, sessões encerradas): o membro nunca é apagado, para o diário de bordo e os registros em que é responsável continuarem legíveis. O admin não desativa a si mesmo nem troca o próprio perfil. Detalhe em `.specs/features/gestao-membros/spec.md`.
@@ -869,7 +869,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: a agenda guarda uma cópia; um aviso perdido (falha do handler, só no log, AD-039) deixa a cópia desatualizada até a próxima mudança da origem. Prazos apagados junto com o serviço saem pelo `case:deleted`.
 - **Scope**: `packages/contracts/src/schemas/calendar-entry.schema.ts`, `packages/db/src/models/calendar-entry.model.ts`, `apps/api/src/events/`, `apps/api/src/modules/agenda/calendar-entry.*`, `apps/api/src/modules/{case,finance}/`, `apps/web/src/routes/_private/agenda/`.
 - **Date**: 2026-11-03
-- **Status**: active
+- **Status**: active (origem `deadline` → `notification` adjusted by AD-266)
 
 ### AD-170
 - **Decision**: O laudo vira modelo do escritório pelo "…" (Salvar como modelo): entram só os itens que fazem parte do laudo, com o texto escrito na variante que o item usa (a outra variante vem do modelo original, se ainda existir), o layout do laudo e o tipo. O texto já resolvido com os dados do serviço volta aos marcadores (`[NUMERO_PROCESSO]`, nomes, datas) quando o valor tem 8 caracteres ou mais. Marcar/desmarcar "Faz parte do laudo" (e a escolha de itens do modelo) leva junto os subitens do tópico; marcar também marca os tópicos acima.
@@ -1029,7 +1029,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: prazo e alerta dividem a coleção e os números do topo; o tipo não muda depois de criado.
 - **Scope**: `packages/contracts/src/schemas/{deadline,calendar-entry}.schema.ts`, `packages/db/src/models/deadline.model.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/deadlines/`, `apps/web/src/components/`, menu e início.
 - **Date**: 2026-11-04
-- **Status**: active
+- **Status**: active (entidade `Deadline` superseded by AD-263; regras de tela continuam)
 
 ### AD-190
 - **Decision**: (1) Selos de criticidade dos prazos e alertas pendentes pelos dias até o vencimento: **Atrasado** (venceu, vermelho), **Urgente** (hoje até 5 dias, laranja), **Vence em breve** (6 a 10, amarelo), **Atenção** (11 a 30, azul), sem selo depois de 30 (`deadlineAlert` em `apps/web/src/components/deadline-labels.ts`); o número "Vencem em até 15 dias" e o aviso diário por e-mail seguem com os 15 dias da AD-109. (2) Títulos aprovados por tipo de serviço na lista suspensa do novo prazo ou alerta (perícia, assistência técnica e o tipo do escritório "Parceria"; os outros tipos do escritório só escrevem à mão), cada um já marca Prazo ou Alerta; "Escrever outro" volta ao tipo e título digitados. O título gravado é o texto em pt-BR. (3) Indicador da OS na seção Serviços com a próxima OS (prévia da sequência, sem consumir o número, pulando o já usado) e a última usada (`GET /expert-cases/service-order/preview`). (4) Ordenar a lista por número de controle, com os serviços sem OS no fim nas duas direções. (5) A escolha do serviço no novo prazo/alerta mostra e busca a OS (a busca já cobria a OS, AD-185).
@@ -1357,7 +1357,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o acesso só volta quando o webhook chega (o retorno do navegador não confirma pagamento; a tela de planos reconsulta a cada 10 s); o e-mail e o CNPJ de um cadastro não pago ficam presos a esse escritório até ele pagar; avulsa paga antes do fim conta a partir do dia do pagamento (não soma ao que resta); estorno e chargeback não tiram o acesso; cancelar a assinatura é pelo suporte. Escritório suspenso pela plataforma não chega nem a `/billing`. O retorno automático da fatura (`ASAAS_RETURN_URL`) só funciona com o domínio cadastrado na conta Asaas, que recusa toda cobrança com retorno sem ele; o cadastro passa a conferir o dígito do CNPJ, que o Asaas exige.
 - **Scope**: `packages/db/src/models/tenant.model.ts`, `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/{billing,auth,account}.*`, `apps/api/src/middlewares/authentication.middleware.ts`, `apps/api/src/providers/asaasClient.ts`, `apps/web/src/routes/_public/{auth,suspended}/`.
 - **Date**: 2026-11-18
-- **Status**: active (teste sem carência superseded by AD-231; 7 dias superseded by AD-247)
+- **Status**: active (teste sem carência superseded by AD-231; 7 dias superseded by AD-247; uma assinatura viva superseded, só para o módulo premium, by AD-270)
 
 ### AD-231
 - **Decision**: O teste (R$ 6) também tem os 5 dias de carência: o acesso vai até o início do dia (pagamento + 7 + 5 dias). Supersede a parte "teste = 7 dias sem carência" da **AD-230**.
@@ -1608,10 +1608,82 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Status**: active
 
 ### AD-262
-- **Decision**: O indicador da OS na lista de Serviços mostra só a próxima OS, sublinhada com "?" como o "Dados da meta"; a última OS usada abre no tooltip (`GET /expert-cases/service-order/preview` segue devolvendo as duas). Sem sequência configurada, não aparece indicador. Supersede, da AD-190 (3), a última OS como item visível da linha.
+- **Decision**: O indicador da OS na lista de Serviços mostra só a próxima OS, em rótulo (`ItemDescription`) e número (`ItemTitle`); a última OS usada abre no tooltip do ícone "?" ao lado (`GET /expert-cases/service-order/preview` segue devolvendo as duas). Sem sequência configurada, não aparece indicador. Supersede, da AD-190 (3), a última OS como item visível da linha.
 - **Reason**: pedido do usuário (2026-11-22): sabendo a próxima já se sabe a última; a última fica à mão no tooltip.
 - **Trade-off**: escritório sem sequência de OS deixa de ver o último número digitado à mão.
 - **Scope**: `apps/web/src/routes/_private/expert-cases/index.tsx`.
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-263
+- **Decision**: `Notification` é a entidade única de tudo o que pede a atenção de alguém no escritório, com quatro tipos (`kind`): `deadline` (prazo: `pending`, `filed` com `filedDate`, `missed`, `canceled`), `alert` (lembrete com data: `pending`, `done`, `canceled`), `suggestion` (alteração proposta pela automação: `pending`, `accepted`, `rejected`, `superseded`, `expired`) e `notice` (aviso sem ação, sem status, lido por pessoa em `readBy`). Cada uma tem `module` (`expert_cases` ou `finance`) para a visibilidade (AD-137). Um schema Mongoose só; a forma por tipo é uma união discriminada em Zod em `@ethica/contracts` (`validNotificationStatus` generaliza o `validDeadlineStatus`; `invalid_notification_status` substitui `invalid_deadline_status`). O `Deadline` deixa de existir (model, módulo `case/deadline.*`, rotas `/expert-cases/deadlines` e `/expert-cases/:id/deadlines`, página `/deadlines`), trocado num commit só, sem shim; o módulo novo é `notifications` (rotas `/notifications`) e a página é a Central de notificações (`/notifications`). O campo de entrada `reportDeadline` vira `reportDueDate` e o `nextDeadline` da lista vira `nextDue`. Sem migração de dados (o sistema não foi lançado): a collection `deadlines` fica órfã, sem código que a apague, e os seeds são refeitos. Continuam valendo as regras de tela da AD-189 e da AD-190 (criticidade, Adiar, Concluir, títulos aprovados, a entrega do laudo nunca protocola alerta).
+- **Reason**: escolha do usuário em 2026-11-22 (plano `automacao-datajud-notificacoes`, D1 e D8): chegar ao formato final antes do lançamento, para que prazos, lembretes, avisos e sugestões do Datajud tenham uma casa e um motor de entrega só. `canceled` é o que a sugestão de encerramento aplica (acordo, extinção) e também serve à mão.
+- **Trade-off**: campos opcionais por tipo num schema só (a forma é garantida pelo Zod, não pelo Mongoose); prazos de dev gravados no `Deadline` somem da tela até o banco ser recriado.
+- **Scope**: `packages/db/src/models/notification.model.ts`, `packages/contracts/src/schemas/notification.schema.ts`, `apps/api/src/modules/notifications/`, `apps/web/src/routes/_private/notifications/`, `apps/web/src/components/notification-*`. Supersede a AD-109 e a AD-189 na entidade (`Deadline` → `Notification`) e o glossário da AD-140 no termo "prazo `Deadline`"; detalhe em `.specs/features/central-notificacoes/design.md`.
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-264
+- **Decision**: O prazo do laudo informado no cadastro do serviço passa a ser criado pelo evento novo `case:created` (`{ tenantId, caseId, delivery?: { title, dueDate, notes } }`), com subscriber em `notifications`; o `case` decide o título ("Entrega do laudo" ou "Entrega do serviço" no tipo próprio, AD-176). `case:deleted` passa a apagar também as notificações do serviço. O `case` não depende de `notifications`.
+- **Reason**: com o prazo fora do `case`, criá-lo no mesmo service exigiria `case → notifications`, e `notifications → case` já existe (rótulo e validação do serviço): o grafo teria ciclo (AD-038).
+- **Trade-off**: a resposta do cadastro volta antes do prazo existir (fire-and-forget, AD-039); um handler que falha só deixa log e o serviço fica sem o prazo do laudo.
+- **Scope**: `apps/api/src/events/`, `apps/api/src/modules/{case,notifications}/`. Supersede, na AD-109, "o prazo do laudo é criado na mesma chamada do service, sem evento".
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-265
+- **Decision**: As leituras de `Notification` que o `case` precisa (próximo prazo pendente por serviço na lista, serviços com entrega no período, números da faixa de vencidos e que vencem em 15 dias) são **funções de leitura em `packages/db`** (`notificationReads.ts`), no padrão de `groupStats` e `dailyTrend`, e não chamadas ao service de `notifications`. São leituras puras, sem regra de negócio nem escrita; o mesmo vale para as leituras do worker (rótulo do serviço, destinatários, escritório aberto).
+- **Reason**: o `case` não pode depender de `notifications` (AD-264), e o worker não importa services do api (plano do worker, D1). Pedir esses números à tela em outra chamada mudaria a lista de serviços sem ganho para quem usa.
+- **Trade-off**: exceção controlada à regra "dado de outro domínio só pelo service dono" (AD-038): o teste de fronteira não pega leitura por função do `@ethica/db`, então a regra "só leitura" fica no código e na revisão.
+- **Scope**: `packages/db/src/notificationReads.ts`, `apps/api/src/modules/case/case.{service,repository}.ts`, `apps/worker`.
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-266
+- **Decision**: Em `CALENDAR_ENTRY_SOURCES`, a origem `deadline` vira `notification`; o tipo do item na agenda continua `deadline` (prazo e alerta), e `canceled` vira item cancelado. O preenchimento inicial (`backfillCalendarEntries`) lê `Notification` de tipo `deadline` e `alert`.
+- **Reason**: a origem nomeia a collection que manda os itens (AD-169), que agora é `Notification`.
+- **Trade-off**: itens de agenda gravados com a origem `deadline` ficam órfãos no banco de dev até ele ser recriado.
+- **Scope**: `packages/contracts/src/schemas/calendar-entry.schema.ts`, `packages/db/src/models/calendar-entry.model.ts`, `apps/api/src/modules/agenda/`. Ajusta a AD-169 na origem.
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-267
+- **Decision**: Rotinas de fundo saem do processo da API para o **`apps/worker`**, serviço com deploy próprio que fala com o BFF **só pelo banco**: lembretes e entrega de notificações (consolidado de e-mail de hora em hora a partir das 07:00, e-mail imediato do que é `critical`, aviso de vencimento financeiro) e, no módulo premium, o acompanhamento no Datajud. A fila é a collection `WorkerJob` (claim atômico com `findOneAndUpdate`, lease, prioridade, retry com backoff, `dedupeKey` única por janela do agendador), o nome geral do `DatajudJob` do plano do worker. A trava de entrega é `NotificationDelivery` (`{User, channel, key}` único). O e-mail vira `packages/mail`, usado pelo api (e-mails imediatos de acesso, convite, aviso às partes) e pelo worker. Cada serviço cria só os índices dos models que possui (`apiModels`, `workerModels`). O worker só insere `notice` e `suggestion` e só muda `suggestion` de `pending` para `superseded`/`expired`, num arquivo só, travado por teste estrutural.
+- **Reason**: escolha do usuário em 2026-11-22 (plano `automacao-datajud-notificacoes`, D4 e D7, e plano do worker, D1, D3, D4 e D6): o `EventEmitter` do BFF (AD-039) não tem retry nem sobrevive a restart, e consulta ao Datajud leva de 20 a 50 s.
+- **Trade-off**: um serviço a mais para operar (Railway, healthcheck, usuário próprio no Atlas); a comunicação pelo banco tem cerca de 1 s de atraso no polling.
+- **Scope**: `apps/worker`, `packages/mail`, `packages/db` (`WorkerJob`, `WorkerHeartbeat`, `NotificationDelivery`, `syncIndexes`), `apps/api/src/server.ts`. Supersede a AD-147 no local da varredura (do processo da API para o worker; a trava por envio continua) e corrige o escopo de `avisos-notificacoes`: a Central no app e o serviço de jobs separado passam a fazer parte (feature absorvida por `central-notificacoes`).
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-268
+- **Decision**: A automação do Datajud só **sugere**: toda mudança em serviço, financeiro ou prazo nasce como `Notification` `suggestion` `pending` e só é aplicada quando uma pessoa com permissão de alterar o alvo (`expert_cases` `update` ou `finance` `update`, conferida no BFF e na tela) aprova. A aplicação é do BFF (`POST /notifications/:id/accept`), pelo service dono do dado (`caseService.updateCase`/`addMovement`, `transactionService.addInstallment`/`createTransaction`, `notificationService` para cancelar prazos), com as validações e os eventos da edição manual. O worker nunca aplica. Invariantes: linha de base por serviço sem gerar nada; revalidação na aprovação (`superseded` ou 409 `suggestion_outdated`); update condicional `pending` → `accepted` antes de aplicar, que volta a `pending` se o service falhar; rejeição com motivo; trilha no diário de bordo.
+- **Reason**: escolha do usuário em 2026-11-22 ("o Datajud nunca escreve no serviço, no financeiro nem nos prazos"): o Datajud tem defasagem, códigos que variam por tribunal e não informa valor nem beneficiário.
+- **Trade-off**: cada sugestão custa um clique; uma sugestão esquecida não muda nada.
+- **Scope**: `apps/api/src/modules/notifications/`, `apps/worker`, `packages/contracts/src/schemas/automation-rules.ts`.
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-269
+- **Decision**: O status do honorário continua derivado das parcelas (AD-111); não existe estado "aprovado". Homologação, liberação ou "aprovado" de valores no tribunal geram só o aviso "Pagamento em andamento no tribunal". O **único** gatilho de sugestão de pagamento é a expedição de alvará; na aprovação a pessoa escolhe o lançamento de receita em aberto e confirma valor (preenchido com o saldo), data (a do movimento) e conta, e a sugestão avisa que o alvará pode ser de outra parte. A regra do alvará só é ligada com o gatilho confirmado pelo usuário: no Datajud (TRT24, 2026-11-22) o alvará é o movimento 60 "Expedição de documento" com o complemento `tipo_de_documento` 73 "Alvará", sem distinção de "eletrônico automatizado", e um mesmo dia tem vários alvarás (um por beneficiário), então a sugestão é uma por serviço e dia.
+- **Reason**: escolha do usuário em 2026-11-22 (plano, D3): o Datajud não diz valor, data de crédito nem beneficiário.
+- **Trade-off**: pagamento por RPV ou precatório sem alvará não é sugerido; a pessoa lança à mão.
+- **Scope**: `packages/contracts/src/schemas/automation-rules.ts`, `apps/api/src/modules/notifications/`, `apps/worker`.
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-270
+- **Decision**: A **Automação Datajud** é um módulo premium cobrado à parte, numa **segunda assinatura** no Asaas, separada da do plano: `Tenant.automationUntil` (instante, estendido pelo webhook com `$max`, como o `accessUntil` da AD-230) e `Tenant.billing.automationSubscriptionId`; o webhook distingue pela `externalReference` (`automation_monthly`). Inclui o acompanhamento no tribunal, a linha do tempo, os avisos de movimentação e as sugestões. A Central de notificações, os prazos e alertas, os lembretes de prazo e de vencimento financeiro e o push são do plano base. Ao vencer: o acompanhamento para, as sugestões pendentes viram `expired` e a linha do tempo fica até a última atualização; reativar refaz a linha de base. Rotas do módulo respondem 403 `automation_required` sem ele. O preço é do usuário.
+- **Reason**: escolha do usuário em 2026-11-22 (plano, D2 e D6).
+- **Trade-off**: duas cobranças por escritório no Asaas; o cancelamento do módulo, como o do plano, é pelo suporte.
+- **Scope**: `packages/db/src/models/tenant.model.ts`, `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/billing.*`, `apps/api/src/middlewares/`, `apps/web/src/routes/_public/billing/`. Supersede, só para o módulo, a regra "uma assinatura viva por escritório" (CHK-08, AD-230).
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-271
+- **Decision**: O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) ficam **fora do `tenantScoped`**, sem nenhum dado de escritório; o vínculo com o escritório fica sempre do lado dele (`CaseCourtSync`, `Notification`). Processo com `nivelSigilo > 0` nunca é gravado nem logado. A chave do Datajud passa a ser só do worker quando o cliente sair do api (plano do worker, seção 6).
+- **Reason**: escolha do usuário em 2026-11-22; guardar por escritório multiplicaria chamadas e cópias (plano do worker, D7).
+- **Trade-off**: exceção à regra de todo filtro passar por `tenantScoped` (AD-010), válida só para essas collections.
+- **Scope**: `packages/db/src/models/court-process.model.ts`, `apps/worker/src/datajud/`. Supersede, na AD-145, "a validação do Datajud com a chave real fica para depois".
 - **Date**: 2026-11-22
 - **Status**: active
 

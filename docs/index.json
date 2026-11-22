@@ -2,6 +2,56 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "automacao-datajud",
+      "feature": "Automação Datajud (premium)",
+      "descricao": "Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa",
+      "data": "2026-11-22",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-268",
+        "AD-269",
+        "AD-270",
+        "AD-271"
+      ],
+      "spec": [
+        ".specs/features/automacao-datajud"
+      ],
+      "planos": [],
+      "doc": "features/automacao-datajud/feature.md"
+    },
+    {
+      "slug": "central-notificacoes",
+      "feature": "Central de notificações",
+      "descricao": "Notification única (prazo, alerta, sugestão, aviso) no lugar do Deadline, Central no app e worker de lembretes e entrega",
+      "data": "2026-11-22",
+      "status": "em-andamento",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db",
+        "docs"
+      ],
+      "decisoes": [
+        "AD-263",
+        "AD-264",
+        "AD-265",
+        "AD-266",
+        "AD-267"
+      ],
+      "spec": [
+        ".specs/features/central-notificacoes"
+      ],
+      "planos": [],
+      "doc": "features/central-notificacoes/feature.md"
+    },
+    {
       "slug": "meta-receita",
       "feature": "Meta de receita do ano",
       "descricao": "Meta de receita do ano cadastrada em Escritório e acompanhada no Dashboard e, por escolha de cada pessoa, em Serviços",
@@ -1346,7 +1396,7 @@
       "id": "AD-109",
       "decisao": "Prazo processual é entidade própria: collection `Prazo` no módulo `pericia` (dono do model), com título, vencimento `YYYY-MM-DD` (AD-103), s",
       "data": "2026-10-31",
-      "status": "active"
+      "status": "active (entidade `Prazo`/`Deadline` superseded by AD-263; prazo do laudo sem evento superseded by AD-264)"
     },
     {
       "id": "AD-110",
@@ -1562,7 +1612,7 @@
       "id": "AD-145",
       "decisao": "Não serão escritos testes e2e de router para `case`, `agenda`, `finance` e `prospecting` além dos que já existem; a cobertura atual (unit de",
       "data": "2026-11-01",
-      "status": "active"
+      "status": "active (Datajud com a chave real superseded by AD-271)"
     },
     {
       "id": "AD-146",
@@ -1574,7 +1624,7 @@
       "id": "AD-147",
       "decisao": "Os avisos (prazos hoje; financeiro e push em `avisos-notificacoes`) passam a sair de uma varredura agendada (cron no processo da API, a cada",
       "data": "2026-11-01",
-      "status": "active"
+      "status": "active (local da varredura superseded by AD-267)"
     },
     {
       "id": "AD-148",
@@ -1706,7 +1756,7 @@
       "id": "AD-169",
       "decisao": "Agenda por eventos. Quem tem data avisa a agenda pelo evento único `agenda:entries_synced` (origem = fonte + id, e a lista completa dos iten",
       "data": "2026-11-03",
-      "status": "active"
+      "status": "active (origem `deadline` → `notification` adjusted by AD-266)"
     },
     {
       "id": "AD-170",
@@ -1826,7 +1876,7 @@
       "id": "AD-189",
       "decisao": "\"Prazos e Alertas\" reaproveita o `Deadline` (AD-109) com o campo `kind` (`deadline` | `alert`, padrão `deadline`, sem conversão dos existent",
       "data": "2026-11-04",
-      "status": "active"
+      "status": "active (entidade `Deadline` superseded by AD-263; regras de tela continuam)"
     },
     {
       "id": "AD-190",
@@ -2072,7 +2122,7 @@
       "id": "AD-230",
       "decisao": "O cadastro deixa de ser aberto e gratuito: criar o escritório termina numa assinatura paga no Asaas, com o e-mail confirmado antes. O acesso",
       "data": "2026-11-18",
-      "status": "active (teste sem carência superseded by AD-231; 7 dias superseded by AD-247)"
+      "status": "active (teste sem carência superseded by AD-231; 7 dias superseded by AD-247; uma assinatura viva superseded, só para o módulo premium, by AD-270)"
     },
     {
       "id": "AD-231",
@@ -2262,7 +2312,61 @@
     },
     {
       "id": "AD-262",
-      "decisao": "O indicador da OS na lista de Serviços mostra só a próxima OS, sublinhada com \"?\" como o \"Dados da meta\"; a última OS usada abre no tooltip",
+      "decisao": "O indicador da OS na lista de Serviços mostra só a próxima OS, em rótulo (`ItemDescription`) e número (`ItemTitle`); a última OS usada abre",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-263",
+      "decisao": "`Notification` é a entidade única de tudo o que pede a atenção de alguém no escritório, com quatro tipos (`kind`): `deadline` (prazo: `pendi",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-264",
+      "decisao": "O prazo do laudo informado no cadastro do serviço passa a ser criado pelo evento novo `case:created` (`{ tenantId, caseId, delivery?: { titl",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-265",
+      "decisao": "As leituras de `Notification` que o `case` precisa (próximo prazo pendente por serviço na lista, serviços com entrega no período, números da",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-266",
+      "decisao": "Em `CALENDAR_ENTRY_SOURCES`, a origem `deadline` vira `notification`; o tipo do item na agenda continua `deadline` (prazo e alerta), e `canc",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-267",
+      "decisao": "Rotinas de fundo saem do processo da API para o `apps/worker`, serviço com deploy próprio que fala com o BFF só pelo banco: lembretes e entr",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-268",
+      "decisao": "A automação do Datajud só sugere: toda mudança em serviço, financeiro ou prazo nasce como `Notification` `suggestion` `pending` e só é aplic",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-269",
+      "decisao": "O status do honorário continua derivado das parcelas (AD-111); não existe estado \"aprovado\". Homologação, liberação ou \"aprovado\" de valores",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-270",
+      "decisao": "A Automação Datajud é um módulo premium cobrado à parte, numa segunda assinatura no Asaas, separada da do plano: `Tenant.automationUntil` (i",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-271",
+      "decisao": "O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) fic",
       "data": "2026-11-22",
       "status": "active"
     }
