@@ -13,9 +13,9 @@ import { PageMenu } from '@/components/page-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type CourtDivisionRecord, courtDivisionsQuery, deleteCourtDivisionMutation } from '@/query/court-division.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { CourtDivisionCard } from './@components/court-division-card.js';
 import { CourtDivisionForm } from './@components/court-division-form.js';
 import { CourtDivisionsImportDialog } from './@components/court-divisions-import-dialog.js';
+import { CourtDivisionsTable } from './@components/court-divisions-table.js';
 import { useCourtDivisionsFilters } from './@hooks/use-court-divisions-filters.js';
 import { type CourtDivisionsSearch, courtDivisionsSearchSchema } from './@interface/court-divisions.interface.js';
 import { courtDivisionExportColumns } from './@utils/court-division-export-columns.js';
@@ -87,16 +87,11 @@ export function CourtDivisionsPage() {
               description={filtering ? undefined : t('no_court_divisions_yet_description')}
             />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {items.map((division) => (
-                <CourtDivisionCard
-                  key={division.id}
-                  division={division}
-                  onEdit={canUpdate ? () => setDialog({ kind: 'form', division }) : undefined}
-                  onRemove={canDelete ? () => setDialog({ kind: 'remove', division }) : undefined}
-                />
-              ))}
-            </div>
+            <CourtDivisionsTable
+              data={items}
+              onEdit={canUpdate ? (division) => setDialog({ kind: 'form', division }) : undefined}
+              onRemove={canDelete ? (division) => setDialog({ kind: 'remove', division }) : undefined}
+            />
           )}
         </DataTable>
       </CardContent>
