@@ -346,14 +346,38 @@ export const monthlyFlow = async (tenantId: string, months: string[]): Promise<M
     }));
   });
 
-export const totalsByCategory = async (tenantId: string, kind: string): Promise<CategoryTotal[]> =>
+// Per category, what moved in the period by the dates of `monthlyFlow`: income by each installment received,
+// expense by the settlement date (or the due date while open). Same sums as the cash flow's received and expenses.
+export const totalsByCategory = async (
+  tenantId: string,
+  kind: string,
+  period: { previousStart: string; currentStart: string; end: string },
+): Promise<CategoryTotal[]> =>
   withDbTiming('finance.totalsByCategory', async () => {
-    const rows = await Transaction.aggregate<{ _id: CategoryTotal['category']; total: number }>([
+    const income = kind === 'income';
+    const rows = await Transaction.aggregate<{ _id: CategoryTotal['category']; total: number; previous: number }>([
       { $match: { Tenant: toObjectId(tenantId), kind, status: { $ne: 'canceled' } } },
-      { $group: { _id: '$category', total: { $sum: '$amountCents' } } },
-      { $sort: { total: -1 } },
+      ...(income ? [{ $unwind: '$installments' }] : []),
+      {
+        $project: {
+          category: 1,
+          data: income
+            ? '$installments.date'
+            : { $cond: [{ $eq: ['$status', 'settled'] }, '$settledDate', '$dueDate'] },
+          amount: income ? '$installments.amountCents' : '$amountCents',
+        },
+      },
+      { $match: { data: { $gte: period.previousStart, $lt: period.end } } },
+      {
+        $group: {
+          _id: '$category',
+          total: { $sum: { $cond: [{ $gte: ['$data', period.currentStart] }, '$amount', 0] } },
+          previous: { $sum: { $cond: [{ $lt: ['$data', period.currentStart] }, '$amount', 0] } },
+        },
+      },
+      { $sort: { total: -1, previous: -1 } },
     ]);
-    return rows.map((row) => ({ category: row._id, totalCents: row.total }));
+    return rows.map((row) => ({ category: row._id, totalCents: row.total, previousCents: row.previous }));
   });
 
 // Data export (DOC-04), case sheet (with `caseId`) and period report

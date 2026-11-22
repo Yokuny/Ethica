@@ -59,7 +59,8 @@ export type FinanceSummary = {
 };
 
 export type MonthlyFlow = { month: string; receivedCents: number; receivableCents: number; expensesCents: number };
-export type CategoryTotal = { category: TransactionCategory; totalCents: number };
+// What moved in the period (by the cash flow's dates) and in the previous period of the same size (AD-253).
+export type CategoryTotal = { category: TransactionCategory; totalCents: number; previousCents: number };
 
 export const transactionKeys = {
   all: ['transaction'] as const,
@@ -67,7 +68,7 @@ export const transactionKeys = {
   list: (params: TransactionsQueryParams) => [...transactionKeys.lists(), params] as const,
   summary: () => [...transactionKeys.all, 'summary'] as const,
   flow: (months: number) => [...transactionKeys.all, 'flow', months] as const,
-  categories: (kind: TransactionKind) => [...transactionKeys.all, 'categories', kind] as const,
+  categories: (kind: TransactionKind, months: number) => [...transactionKeys.all, 'categories', kind, months] as const,
   expenseNames: () => [...transactionKeys.all, 'expense-names'] as const,
 };
 
@@ -100,10 +101,10 @@ export const monthlyFlowQuery = (months: number) =>
     queryFn: () => fetchData<MonthlyFlow[]>(`/finance/flow?months=${months}`),
   });
 
-export const categoriesQuery = (kind: TransactionKind) =>
+export const categoriesQuery = (kind: TransactionKind, months: number) =>
   queryOptions({
-    queryKey: transactionKeys.categories(kind),
-    queryFn: () => fetchData<CategoryTotal[]>(`/finance/categories?kind=${kind}`),
+    queryKey: transactionKeys.categories(kind, months),
+    queryFn: () => fetchData<CategoryTotal[]>(`/finance/categories?kind=${kind}&months=${months}`),
   });
 
 // Expense categories created by the office (AD-159).

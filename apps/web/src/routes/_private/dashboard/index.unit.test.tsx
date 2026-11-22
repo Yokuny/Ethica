@@ -6,6 +6,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '@/query/session.js';
+import { categoriesQuery } from '@/query/transaction.js';
 import { caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
@@ -17,7 +18,9 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     useSearch: () => ({ months: '6' }),
     useNavigate: () => vi.fn(),
     useRouter: () => ({ history: { back: vi.fn() } }),
-    Link: ({ to, children }: { to: string; children?: ReactNode }) => <a href={to}>{children}</a>,
+    Link: ({ to, search, children }: { to: string; search?: object; children?: ReactNode }) => (
+      <a href={search ? `${to}?${JSON.stringify(search)}` : to}>{children}</a>
+    ),
   };
 });
 
@@ -50,6 +53,13 @@ const renderPage = (role: Role[]) => {
       },
     ],
   });
+  queryClient.setQueryData(categoriesQuery('income', 6).queryKey, [
+    { category: 'fixed_fees', totalCents: 400_000, previousCents: 200_000 },
+    { category: 'contracted_fees', totalCents: 100_000, previousCents: 0 },
+  ]);
+  queryClient.setQueryData(categoriesQuery('expense', 6).queryKey, [
+    { category: 'travel', totalCents: 50_000, previousCents: 100_000 },
+  ]);
   queryClient.setQueryData(feesDashboardQuery.queryKey, {
     receivableCents: 50_000,
     receivedCents: 300_000,
@@ -85,5 +95,26 @@ describe('Dashboard (DSH)', () => {
     renderPage(['operator']);
     expect(screen.getByText('Serviços por mês')).toBeInTheDocument();
     expect(screen.queryByText('Honorários recebidos')).not.toBeInTheDocument();
+  });
+
+  it('serviços por tipo: parcela, últimos 12 meses e a linha abre a lista filtrada (AD-253)', () => {
+    renderPage(['operator']);
+    expect(screen.getByRole('link', { name: /Perícia\s*9\s*75% · 7 em 12 meses/ })).toHaveAttribute(
+      'href',
+      '/expert-cases?{"role":["court_expert"]}',
+    );
+    expect(screen.getByRole('link', { name: /Parceria/ })).toHaveAttribute(
+      'href',
+      '/expert-cases?{"serviceType":["Parceria"]}',
+    );
+  });
+
+  it('categorias: recebido e despesas do período com a variação contra o anterior (AD-253)', () => {
+    renderPage(['admin']);
+    expect(screen.getByText('Receitas e despesas por categoria')).toBeInTheDocument();
+    expect(screen.getByText(/\+R\$\s?2\s?mil · \+100%/)).toBeInTheDocument();
+    expect(screen.getAllByText('Novo no período').length).toBeGreaterThan(0);
+    // One expense category: the total and its row have the same change.
+    expect(screen.getAllByText(/-R\$\s?500 · -50%/)).toHaveLength(2);
   });
 });

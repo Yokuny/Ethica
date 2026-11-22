@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { caseDistributionQuery } from '../../query/case.js';
 import { sessionQuery } from '../../query/session.js';
 
 // useLocation/useMatches/useRouter: dependencies of Card asPage — without
@@ -17,7 +18,9 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     useLocation: () => ({ pathname: '/' }),
     useMatches: () => [],
     useRouter: () => ({ history: { back: vi.fn() } }),
-    Link: ({ to, children }: { to: string; children?: ReactNode }) => <a href={to}>{children}</a>,
+    Link: ({ to, search, children }: { to: string; search?: object; children?: ReactNode }) => (
+      <a href={search ? `${to}?${JSON.stringify(search)}` : to}>{children}</a>
+    ),
   };
 });
 
@@ -44,6 +47,15 @@ const renderHome = (role: Role[]) => {
       { key: 'deadlines_due_soon', count: 3 },
     ],
   });
+  queryClient.setQueryData(caseDistributionQuery.queryKey, {
+    phase: [],
+    courtType: [
+      { key: 'civil', count: 23 },
+      { key: 'federal', count: 8 },
+      { key: 'labor', count: 23 },
+      { key: 'none', count: 26 },
+    ],
+  } as never);
   queryClient.setQueryData(['transaction', 'summary'], {
     receivableCents: 1_250_000,
     lateCents: 0,
@@ -76,5 +88,16 @@ describe('PrivateIndexPage', () => {
 
     renderHome(['manager']);
     expect(screen.getByText('A receber')).toBeInTheDocument();
+  });
+
+  it('serviços por justiça: o todo inclui os sem justiça e cada justiça abre a lista filtrada (AD-253)', () => {
+    renderHome(['operator']);
+
+    expect(screen.getByText('54 de 80 serviços têm justiça')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Cível\s*23\s*29%/ })).toHaveAttribute(
+      'href',
+      '/expert-cases?{"courtType":["civil"]}',
+    );
+    expect(screen.getByText('Sem justiça').closest('a')).toBeNull();
   });
 });

@@ -2,7 +2,7 @@ import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
-import type { FlowQuery, ListTransactionsQuery } from './transaction.schema.js';
+import type { CategoriesQuery, FlowQuery, ListTransactionsQuery } from './transaction.schema.js';
 import * as transactionService from './transaction.service.js';
 import { TransactionNotFoundError } from './transaction.service.js';
 
@@ -87,8 +87,8 @@ export const listExpenseNames = async (req: Request, res: Response, next: NextFu
 
 export const totalsByCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const kind = req.query.kind as string;
-    res.json(respObj({ data: await transactionService.totalsByCategory(tenantOf(req), kind) }));
+    const { kind, months } = req.query as unknown as CategoriesQuery;
+    res.json(respObj({ data: await transactionService.totalsByCategory(tenantOf(req), kind, months) }));
   } catch (e) {
     next(e);
   }

@@ -1,6 +1,17 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import { Case, connect, dateInDisplayTz, disconnect, hashToken, Session, Tenant, Transaction, User } from '@ethica/db';
+import {
+  Case,
+  connect,
+  dateInDisplayTz,
+  disconnect,
+  hashToken,
+  Session,
+  shiftMonth,
+  Tenant,
+  Transaction,
+  User,
+} from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -260,6 +271,50 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
 
     const atrasados = (await as(request(app).get('/finance/entries?state=overdue'))).body.data;
     expect(atrasados.items.map((item: { id: string }) => item.id)).toEqual([id]);
+  });
+
+  it('categorias somam o período pelas datas do fluxo de caixa e trazem o período anterior (AD-253)', async () => {
+    const as = await seedSession();
+    const lastMonth = `${shiftMonth(today.slice(0, 7), -1)}-15`;
+    const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, dueDate: '2020-01-10' })).body.data;
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 150_000, date: today });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 40_000, date: lastMonth });
+    // Before both periods: out.
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({
+      amountCents: 50_000,
+      date: '2020-02-01',
+    });
+    // Canceled income never counts.
+    const canceled = (await as(request(app).post('/finance/entries')).send({ ...FEE, category: 'contracted_fees' }))
+      .body.data;
+    await as(request(app).post(`/finance/entries/${canceled.id}/installments`)).send({
+      amountCents: 10_000,
+      date: today,
+    });
+    await Transaction.updateOne({ _id: canceled.id }, { status: 'canceled' });
+    // Settled expense goes by the settlement date (last month), not by the due date (this month).
+    const expense = (
+      await as(request(app).post('/finance/entries')).send({
+        kind: 'expense',
+        category: 'fees_and_taxes',
+        description: 'Taxa',
+        amountCents: 7_000,
+        dueDate: today,
+      })
+    ).body.data;
+    await Transaction.updateOne({ _id: expense.id }, { status: 'settled', settledDate: lastMonth });
+
+    const categories = async (query: string) => (await as(request(app).get(`/finance/categories?${query}`))).body.data;
+    expect(await categories('kind=income&months=1')).toEqual([
+      { category: 'fixed_fees', totalCents: 150_000, previousCents: 40_000 },
+    ]);
+    expect(await categories('kind=income&months=2')).toEqual([
+      { category: 'fixed_fees', totalCents: 190_000, previousCents: 0 },
+    ]);
+    expect(await categories('kind=expense&months=1')).toEqual([
+      { category: 'fees_and_taxes', totalCents: 0, previousCents: 7_000 },
+    ]);
+    expect((await as(request(app).get('/finance/categories?kind=income&months=13'))).status).toBe(400);
   });
 
   it('alterar o honorário fixado da perícia atualiza o lançamento existente em vez de criar outro', async () => {

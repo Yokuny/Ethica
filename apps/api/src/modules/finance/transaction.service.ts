@@ -193,8 +193,15 @@ export const monthlyFlow = (tenantId: string, months: number, now: Date = new Da
 
 export const listExpenseNames = (tenantId: string) => transactionRepository.listExpenseNames(tenantId);
 
-export const totalsByCategory = (tenantId: string, kind: string) =>
-  transactionRepository.totalsByCategory(tenantId, kind);
+// The last `months` months up to the current one and the `months` before them, by the dates of the cash flow.
+export const totalsByCategory = (tenantId: string, kind: string, months: number, now: Date = new Date()) => {
+  const month = dateInDisplayTz(now).slice(0, 7);
+  return transactionRepository.totalsByCategory(tenantId, kind, {
+    previousStart: `${shiftMonth(month, 1 - 2 * months)}-01`,
+    currentStart: `${shiftMonth(month, 1 - months)}-01`,
+    end: `${shiftMonth(month, 1)}-01`,
+  });
+};
 
 const soma = (rows: FinanceReportRow[]) => rows.reduce((total, row) => total + row.amountCents, 0);
 

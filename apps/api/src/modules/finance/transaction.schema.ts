@@ -46,7 +46,11 @@ export type ListTransactionsQuery = z.infer<typeof listTransactionsQuerySchema>;
 export const flowQuerySchema = z.object({ months: z.coerce.number().int().min(1).max(24).default(6) }).strict();
 export type FlowQuery = z.infer<typeof flowQuerySchema>;
 
-export const categoriesQuerySchema = z.object({ kind: z.enum(TRANSACTION_KINDS) }).strict();
+// `months`: the period of the Dashboard (the same as the cash flow) and, before it, the previous one of the same size.
+export const categoriesQuerySchema = z
+  .object({ kind: z.enum(TRANSACTION_KINDS), months: z.coerce.number().int().min(1).max(12).default(6) })
+  .strict();
+export type CategoriesQuery = z.infer<typeof categoriesQuerySchema>;
 
 export type FinanceRouterDeps = { validToken: RequestHandler };
 
@@ -135,4 +139,4 @@ export type CaseFinanceSummary = {
   expensesCents: number;
 };
 
-export type CategoryTotal = { category: TransactionCategory; totalCents: number };
+export type CategoryTotal = { category: TransactionCategory; totalCents: number; previousCents: number };
