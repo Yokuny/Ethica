@@ -1,22 +1,29 @@
 import { numberSections, sectionTitle } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@ethica/ui/components/dropdown-menu';
+import { ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
-import { ArrowDown, ArrowUp, ListTree, Pencil, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Ellipsis, ListTree } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
-import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
+import { NumberedList } from '@/components/numbered-list.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
-import { Panel } from '@/components/panel.js';
 import { PdfPreviewDialog } from '@/components/pdf-preview-dialog.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
-import { templateAreaItems, templateAreaLabel } from '@/components/report-labels.js';
+import { plainText, templateAreaItems, templateAreaLabel } from '@/components/report-labels.js';
+import { RichTextEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { serviceTypesQuery } from '@/query/case.js';
 import {
@@ -33,12 +40,10 @@ import { LayoutDialog } from '../../@components/layout-dialog.js';
 import { SaveTemplateDialog } from '../../@components/save-template-dialog.js';
 import { TemplateCreateForm } from '../@components/template-create-form.js';
 import { TemplateSectionForm } from './@components/template-section-form.js';
-import { TemplateSectionView } from './@components/template-section-view.js';
 import { type TemplateDetailsSearch, templateDetailsSearchSchema } from './@interface/template-details.interface.js';
 
 type PanelState =
   | { kind: 'section'; section?: TemplateSectionRecord }
-  | { kind: 'ver'; section: TemplateSectionRecord }
   | { kind: 'remove-section'; section: TemplateSectionRecord }
   | { kind: 'duplicate' }
   | { kind: 'edit' }
@@ -47,7 +52,8 @@ type PanelState =
   | { kind: 'removal' }
   | null;
 
-// LAU-01.2: sections numbered by position and level; the default is read-only and gets duplicated.
+// LAU-01.2: sections numbered by position and level, in the same list as the report; the default is read-only
+// and gets duplicated.
 export function TemplateDetailsPage() {
   const search = useSearch({ strict: false }) as TemplateDetailsSearch;
   const navigate = useNavigate({ from: '/expert-reports/templates/details/' });
@@ -77,19 +83,20 @@ export function TemplateDetailsPage() {
             {template.isDefault && can(session, 'report_templates', 'create') && (
               <Button onClick={() => setPanel({ kind: 'duplicate' })}>{t('use_in_office')}</Button>
             )}
-            {canEdit && (
-              <Button variant="outline" onClick={() => setPanel({ kind: 'layout' })}>
-                {t('report_layout')}
-              </Button>
-            )}
             {canEdit && <Button onClick={() => setPanel({ kind: 'section' })}>{t('new_section')}</Button>}
             {canEdit && (
+              // Secondary actions in the "…", like the report (only preview and the main action stay outside).
               <PageMenu>
                 <DropdownMenuItem onClick={() => setPanel({ kind: 'edit' })}>
                   {t('edit_name_and_details')}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPanel({ kind: 'layout' })}>{t('report_layout')}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setPanel({ kind: 'duplicate' })}>
                   {t('duplicate_template')}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={() => setPanel({ kind: 'removal' })}>
+                  {t('remove')}
                 </DropdownMenuItem>
               </PageMenu>
             )}
@@ -105,7 +112,7 @@ export function TemplateDetailsPage() {
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
       ) : (
-        <CardContent className="max-w-4xl gap-8">
+        <CardContent className="gap-8">
           <RecordHeader>
             <RecordHeading
               icon={<ListTree />}
@@ -119,88 +126,82 @@ export function TemplateDetailsPage() {
               }
             />
           </RecordHeader>
-          <Panel title={t('sections')} description={`${template.sections.length} ${t('sections').toLowerCase()}`}>
-            {!template.sections.length ? (
-              <DefaultEmptyData title={t('no_sections_yet')} />
-            ) : (
-              <LinkList>
-                {template.sections.map((section, i) => (
-                  <LinkListItem
-                    key={section.id}
-                    render={
-                      canEdit ? undefined : (
-                        <button
-                          type="button"
-                          className="w-full text-left"
-                          onClick={() => setPanel({ kind: 'ver', section })}
-                        />
-                      )
-                    }
-                    className={section.level > 1 ? (section.level > 2 ? 'pl-14' : 'pl-9') : undefined}
-                    title={`${numbers[i] ? `${numbers[i]}. ` : ''}${sectionTitle(section.title, section.level)}`}
-                    description={[
-                      section.titleOnly && t('title_only'),
-                      section.unnumbered && t('without_number'),
-                      section.pageBreak && t('page_break_before'),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  >
-                    {canEdit && (
-                      <div className="flex shrink-0 gap-1">
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          aria-label={t('move_up')}
-                          disabled={i === 0 || move.isPending}
-                          onClick={() =>
-                            move.mutate({ id: template.id, sectionId: section.id, direction: 'up' }, { onError })
-                          }
-                        >
-                          <ArrowUp />
-                        </Button>
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          aria-label={t('move_down')}
-                          disabled={i === template.sections.length - 1 || move.isPending}
-                          onClick={() =>
-                            move.mutate({ id: template.id, sectionId: section.id, direction: 'down' }, { onError })
-                          }
-                        >
-                          <ArrowDown />
-                        </Button>
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          aria-label={t('edit')}
-                          onClick={() => setPanel({ kind: 'section', section })}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          aria-label={t('remove')}
+          {!template.sections.length ? (
+            <DefaultEmptyData title={t('no_sections_yet')} />
+          ) : (
+            // Same list as the report (NLA-05): numbered rows, the texts open below the title.
+            <NumberedList
+              actionsLabel={`${template.sections.length} ${t('sections').toLowerCase()}`}
+              items={template.sections.map((section, i) => ({
+                id: section.id,
+                number: numbers[i],
+                level: section.level,
+                title: sectionTitle(section.title, section.level),
+                summary: [
+                  section.titleOnly && t('title_only'),
+                  section.unnumbered && t('without_number'),
+                  section.pageBreak && t('page_break_before'),
+                  plainText(section.yesText),
+                ]
+                  .filter(Boolean)
+                  .join(' · '),
+                actions: canEdit ? (
+                  <>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label={t('move_up')}
+                      disabled={i === 0 || move.isPending}
+                      onClick={() =>
+                        move.mutate({ id: template.id, sectionId: section.id, direction: 'up' }, { onError })
+                      }
+                    >
+                      <ArrowUp />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label={t('move_down')}
+                      disabled={i === template.sections.length - 1 || move.isPending}
+                      onClick={() =>
+                        move.mutate({ id: template.id, sectionId: section.id, direction: 'down' }, { onError })
+                      }
+                    >
+                      <ArrowDown />
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={<Button size="icon-sm" variant="ghost" aria-label={t('more_actions')} />}
+                      >
+                        <Ellipsis />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setPanel({ kind: 'section', section })}>
+                          {t('edit_section')}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          variant="destructive"
                           onClick={() => setPanel({ kind: 'remove-section', section })}
                         >
-                          <Trash2 />
-                        </Button>
-                      </div>
-                    )}
-                  </LinkListItem>
-                ))}
-              </LinkList>
-            )}
-          </Panel>
+                          {t('remove_section')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                ) : undefined,
+                children: section.titleOnly ? undefined : (
+                  <div className="grid gap-4">
+                    <ItemTitle>{t('yes_text')}</ItemTitle>
+                    <RichTextEditor value={section.yesText} readOnly label={t('yes_text')} />
+                    <ItemTitle>{t('no_text')}</ItemTitle>
+                    <RichTextEditor value={section.noText} readOnly label={t('no_text')} />
+                  </div>
+                ),
+              }))}
+            />
+          )}
         </CardContent>
-      )}
-      {template && canEdit && (
-        <CardFooter className="justify-between gap-2">
-          <Button variant="destructive" onClick={() => setPanel({ kind: 'removal' })}>
-            {t('remove')}
-          </Button>
-        </CardFooter>
       )}
       {template && panel?.kind === 'section' && (
         <TemplateSectionForm templateId={template.id} section={panel.section} onClose={() => setPanel(null)} />
@@ -241,7 +242,6 @@ export function TemplateDetailsPage() {
           onClose={() => setPanel(null)}
         />
       )}
-      {panel?.kind === 'ver' && <TemplateSectionView section={panel.section} onClose={() => setPanel(null)} />}
       {template && panel?.kind === 'duplicate' && (
         <TemplateCreateForm
           base={template}

@@ -12,7 +12,7 @@ branches: [main]
 
 # Biblioteca de modelos
 
-**Status**: concluido · **Atualizado**: 2026-11-09 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-21 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='biblioteca-modelos'`.
@@ -46,6 +46,7 @@ Não desfazer sem ler: a área guarda a chave ou o nome do tipo próprio (AD-204
 ### `apps/web`
 
 - `apps/web/src/routes/_private/expert-reports/templates/index.tsx` — abas (`?library=`), grupos por área, "Importar modelo" e "Novo modelo".
+- `apps/web/src/routes/_private/expert-reports/templates/details/index.tsx` — modelo aberto na mesma lista numerada do laudo (`apps/web/src/components/numbered-list.tsx`): setas e "…" por seção, textos "sim" e "não" ao abrir a seção.
 - `apps/web/src/routes/_private/expert-reports/templates/@components/template-import-form.tsx` e `@hooks/use-template-import-form.ts`.
 - `apps/web/src/components/report-labels.ts` — `templateAreaLabel`, `templateAreaItems`.
 - `apps/web/src/routes/_private/expert-reports/@components/template-select.tsx` — modelos da área primeiro.
@@ -72,6 +73,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-21 — Modelo aberto no mesmo padrão do laudo aberto: seções na lista numerada com expandir/recolher (os textos "sim" e "não" aparecem ao abrir a seção, no lugar do diálogo de leitura), setas e "…" (Editar seção, Remover seção) em cada linha; Layout e Remover foram para o "…" do topo. Sai `template-section-view.tsx`; o texto sem tags (`plainText`) passou para `apps/web/src/components/report-labels.ts`, usado pelas duas listas.
 - 2026-11-15 — Importar modelo: o seletor de arquivo ocupa a largura toda e mostra o nome cortado com "…"; o `FormDialog` fixa uma coluna `grid-cols-1`, então texto longo não alarga mais o diálogo para os lados.
 - 2026-11-09 — Sai da Biblioteca padrão o modelo de impugnação de laudo pericial trabalhista; "Visualizar PDF" no modelo aberto (AD-207, `GET /expert-reports/templates/:id/pdf`, `report.service.templatePdf`).
 - 2026-11-09 — Cabeçalho e rodapé do laudo no desenho da perita com os dados de quem assina e a logo do escritório, quando não personalizados em Escritório (AD-206).

@@ -41,6 +41,14 @@ const VARIABLE_KEY: Record<ReportVariable, string> = {
   '[DOCUMENTOS_SOLICITADOS]': 'variable_requested_documents',
 };
 
+// Text of an item without tags, for the line beside the title of a closed item (NLA-05).
+export const plainText = (html: string): string =>
+  html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 export const variableLabel = (variable: ReportVariable): string => t(VARIABLE_KEY[variable]);
 
 // Variables that only get a value after the inspection is recorded: the pending item says "vistoria" (NLA-05).

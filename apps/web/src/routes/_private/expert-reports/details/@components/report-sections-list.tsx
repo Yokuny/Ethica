@@ -11,7 +11,7 @@ import {
 import { ArrowDown, ArrowUp, Ellipsis } from 'lucide-react';
 import { Checkbox } from '@/components/checkbox.js';
 import { NumberedList } from '@/components/numbered-list.js';
-import { INSPECTION_VARIABLES } from '@/components/report-labels.js';
+import { INSPECTION_VARIABLES, plainText } from '@/components/report-labels.js';
 import type { PhotoEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { ReportRecord } from '@/query/report.js';
@@ -31,14 +31,6 @@ type ReportSectionsListProps = {
   photos?: PhotoEditor[];
   uploadPhoto?: (photo: Blob) => Promise<string>;
 };
-
-// Text without tags, for the line beside the title of a closed item.
-const plain = (html: string): string =>
-  html
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
 
 // NLA-05: the whole report in one scroll, numbered by position (AD-126), one item opened at a time or all.
 // "Faz parte do laudo" starts each row, at the left (AD-172); at the end, the arrows (the item moves with its
@@ -75,14 +67,14 @@ export function ReportSectionsList({
       items={sections.map((section, i) => {
         const draft = drafts[section.id] ?? section.html;
         const pending = report.issues.find((issue) => issue.sectionId === section.id)?.variables ?? [];
-        const empty = !section.titleOnly && !plain(section.html);
+        const empty = !section.titleOnly && !plainText(section.html);
         const dirty = draft !== section.html;
         return {
           id: section.id,
           number: numbers[i],
           level: section.level,
           title: sectionTitle(section.title, section.level),
-          summary: plain(section.html),
+          summary: plainText(section.html),
           muted: !section.included,
           badge:
             section.included && (pending.length > 0 || empty) ? (
