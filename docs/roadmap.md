@@ -35,14 +35,18 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
-- [ ] Asaas sandbox: concluir o cadastro ("Conclua seu cadastro") e criar uma chave Pix aleatória para testar o QR Code em dev — `cadastro-checkout`
+- [ ] Asaas sandbox: entrar em `sandbox.asaas.com` e concluir o cadastro ("Conclua seu cadastro", dados pessoais); com a conta aprovada, criar uma chave Pix aleatória em Pix > Minhas chaves para testar o QR Code em dev. Sem webhook no sandbox: a Railway usa a chave de produção — `cadastro-checkout`
 - [ ] Reiniciar a API local para ler o `ASAAS_WEBHOOK_TOKEN` novo; a tela de planos já confere o pagamento do sandbox sem túnel — `cadastro-checkout`
-- [ ] Validar no sandbox com a API publicada: cadastro → fatura paga com cartão de teste → webhook chega → acesso liberado — `cadastro-checkout`
 - [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`
 - [ ] Perita: endereço, telefone e e-mail do Ethica para o topo da página Contato, como no modelo — `paginas-publicas`
 - [ ] Texto final de Termos de uso e Política de privacidade, revisado por advogado (LGPD: controlador, encarregado, compartilhamento com Asaas, e-mail e armazenamento, dados do formulário de contato) — `paginas-publicas`
 - [ ] Perita: revisar os textos da página de planos (posicionamento, perguntas frequentes) — `cadastro-checkout`
-- [ ] Validar com dados reais em `https://ethica-zeta.vercel.app`: pagar o teste (R$ 6) por PIX e por cartão, ver o acesso abrir, estornar no painel e ver o acesso fechar — `cadastro-checkout`
+- [ ] Validar com dinheiro de verdade em `https://ethica-zeta.vercel.app` — `cadastro-checkout`
+  1. Janela anônima: criar um escritório novo (e-mail e CPF/CNPJ seus).
+  2. Planos > Teste > PIX: aparecendo o QR Code, pagar os R$ 6 e ver a tela confirmar e entrar sozinha. Aparecendo "PIX indisponível", anotar e pagar por Cartão de crédito ou débito (fatura do Asaas).
+  3. Estornar a cobrança no painel do Asaas (Cobranças), recarregar o Ethica e ver o acesso fechar.
+  4. Asaas > Integrações > Webhooks > "Ethica billing": conferir nos logs que as entregas saíram com sucesso e que a fila não está pausada.
+  5. Trazer ao agente: QR Code ou "PIX indisponível", quanto tempo levou para entrar e se o estorno fechou o acesso. "PIX indisponível" com chave Pix cadastrada pede criar a cobrança do PIX como `PIX` (pendência do `cadastro-checkout`).
 - [ ] Railway: `S3_BUCKET`, trocar a chave de `ethica-files-api` (apareceu em conversas) e conferir logo e anexo em produção — `producao-api`, `servico-pasta-anexos`
 
 ### Validar e confirmar — você (e a perita)
