@@ -50,10 +50,11 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 ## Pendências
 
 - [ ] Conferir no celular os 12 rótulos de mês do gráfico de serviços.
-- [ ] Conferir no navegador o Dashboard e o Início da AD-255 (6 e 12 meses, roscas, área, alertas, "Ver mês a mês"), nos três temas e no celular. A sessão de 2026-11-22 não conseguiu entrar no app de dev.
+- [x] Conferido no navegador em 2026-11-22 (Dashboard 6 e 12 meses, Início, temas Claro, Escuro e Azul, 390px).
 
 ## Histórico
 
+- 2026-11-22 — Conferido no navegador. Ajustes do que apareceu: a nota da faixa dizia que o mês atual entrava; o centro e as linhas das roscas mostram só o percentual (o "vs. período anterior" vai uma vez na descrição do painel); a linha do valor do `RecordStat` quebra em vez de sobrepor (vencido do A receber no Início e percentuais no celular).
 - 2026-11-22 — A faixa de seis números vira duas: dinheiro no nível 1 (quatro números) e serviços na abertura de Trabalho; o vencido do A receber sai de ao lado do valor, onde se sobrepunha, para uma linha própria em vermelho.
 - 2026-11-22 — Dashboard e Início reformulados com gráficos, do macro ao micro (AD-255, AD-256): KPIs com tendência, variação e estado, alertas, fluxo de caixa em linhas, roscas de composição (categorias, mix de serviços, justiça), área empilhada de entrada de serviços e o mês a mês recolhido. Saem as barras da AD-253/254. Só meses completos (`byMonth` com 25 meses, fluxo com `2 × meses + 1`, categorias sem o mês em andamento). Plano: `.specs/features/dashboard/plans/2026-11-22-dashboard-graficos.md`.
 - 2026-11-22 — Só os totais de Recebido e Despesas dividem a escala; as categorias ficam abaixo, recuadas, medidas entre si. A nota avisa que o mês atual está em andamento, e no celular a variação desce para baixo do valor (AD-254).

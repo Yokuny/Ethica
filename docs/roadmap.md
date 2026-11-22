@@ -57,7 +57,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`
 - [ ] Conferir no celular: gráfico de serviços (`dashboard`), telas e exportação das listas (`filtros-lista`)
-- [ ] Conferir no navegador o Dashboard e o Início reformulados (KPIs, alertas, fluxo em linhas, roscas, área de serviços, "Ver mês a mês"; 6 e 12 meses; temas Claro, Escuro e Azul; celular) e o menu "…" com Importar planilha em Serviços e Varas — `dashboard`
+- [ ] Conferir o menu "…" com Importar planilha em Serviços e Varas — `dashboard`
 - [ ] PDF com a fonte Source Sans em produção — `biblioteca-modelos`
 - [ ] Revisar os textos das fases (`fase-servico`) e os textos-base do laudo e da biblioteca NR-15/NR-16 (`laudo-montagem`, `laudos`, `novo-laudo`)
 - [ ] Testar a leitura com atas e processos reais de outros tribunais — `importacao-processos`, `laudo-montagem`
@@ -90,6 +90,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — Dashboard e Início reformulados conferidos no navegador (6 e 12 meses, três temas, celular) — `dashboard`
 - [x] 2026-11-22 — Dashboard e Início reformulados com gráficos, hierarquia macro → micro e cores indicativas (AD-255) — `dashboard`
 - [x] 2026-11-22 — Rankings do Dashboard e do Início com contexto: barras pelo maior valor com drill-down, categorias no período do fluxo de caixa com o anterior e escala comum, composição por justiça com os sem justiça (AD-253) — `dashboard`
 - [x] 2026-11-21 — Lista de destinos (`LinkList`) no desenho sem moldura e na largura toda; Início com compromissos e serviços parados um embaixo do outro — `gestao-escritorio`
