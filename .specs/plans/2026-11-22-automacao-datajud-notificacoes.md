@@ -1,7 +1,7 @@
 # Plano — Notificações como entidade única e Automação Datajud (módulo premium)
 
 - **Data**: 2026-11-22
-- **Status**: proposta (aguardando as decisões da seção 1 e as perguntas da seção 12)
+- **Status**: em execução desde 2026-11-22 (decisões da seção 1 tomadas pelo usuário; progresso na seção 13)
 - **Features (slugs sugeridos)**:
   - `central-notificacoes`: base do produto; substitui `prazos-alertas` e absorve `avisos-notificacoes`;
   - `automacao-datajud`: módulo premium.
@@ -427,3 +427,15 @@ Estimativas em dias de uma pessoa, aproximadas. Cada fase fecha com `pnpm run ch
 | Frequência da atualização no tribunal | 1×/dia |
 | Há dados reais de prazos em produção? (D8) | Não: seeds refeitos, sem migração |
 | O que o premium inclui e o preço | D2; o preço é do usuário |
+
+## 13. Progresso
+
+| Fase | Situação | Registro |
+| --- | --- | --- |
+| 0 — Descoberta e documentação | concluída em 2026-11-22 | specs em `.specs/features/{central-notificacoes,automacao-datajud}/`, AD-263 a AD-271, fixtures do TRT24 e do TRT2. TJ e TRF indisponíveis (429/504); alvará = movimento 60 com complemento 73 (pergunta ao usuário) |
+| 1 — `Notification` no lugar de `Deadline` | pendente | — |
+| 2 — Worker e entrega | pendente | — |
+| 3 — Módulo premium | pendente | — |
+| 4 — Acompanhamento no tribunal | pendente (porta: fixtures de TJ/TRF ou "só TRT") | — |
+| 5 — Sugestões de serviço | pendente | — |
+| 6 — Sugestões financeiras, prazos, push | pendente (regra do alvará desligada até a resposta) | — |

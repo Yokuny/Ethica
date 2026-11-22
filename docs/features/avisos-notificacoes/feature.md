@@ -41,6 +41,7 @@ A definir no `tasks.md`.
 
 ## Histórico
 
+- 2026-11-22 — Absorvida por `central-notificacoes` (AVS-01 a AVS-03 viram CNT-02, CNT-03 e CNT-06): a varredura vai para o `apps/worker` e a Central no app entra no escopo (AD-267).
 - 2026-11-01 — Spec criada (`.specs/features/avisos-notificacoes/spec.md`).
 
 ## Referências

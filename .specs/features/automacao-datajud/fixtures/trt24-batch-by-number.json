@@ -1,0 +1,432 @@
+{
+  "took": 28335,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 4,
+      "relation": "eq"
+    },
+    "max_score": 1.0,
+    "hits": [
+      {
+        "_index": "api_publica_trt24",
+        "_id": "TRT24_G1_00248982920265240081",
+        "_score": 1.0,
+        "_source": {
+          "id": "TRT24_G1_00248982920265240081",
+          "tribunal": "TRT24",
+          "grau": "G1",
+          "numeroProcesso": "00248982920265240081",
+          "dataAjuizamento": "20261021154759",
+          "nivelSigilo": 0,
+          "orgaoJulgador": {
+            "codigo": 20828,
+            "nome": "Vara do Trabalho de São Gabriel do Oeste e 2º Núcleo de Justiça 4.0",
+            "codigoMunicipioIBGE": 5007695
+          },
+          "classe": {
+            "codigo": 985,
+            "nome": "Ação Trabalhista - Rito Ordinário"
+          },
+          "sistema": {
+            "codigo": 1,
+            "nome": "PJe"
+          },
+          "formato": {
+            "codigo": 1,
+            "nome": "Eletrônico"
+          },
+          "dataHoraUltimaAtualizacao": "2026-11-04T10:34:09.697000Z",
+          "@timestamp": "2026-11-04T10:34:09.697000Z",
+          "movimentos": [
+            {
+              "codigo": 26,
+              "dataHora": "2026-10-21T15:47:59.000Z",
+              "nome": "Distribuição",
+              "complementosTabelados": [
+                {
+                  "codigo": 2,
+                  "descricao": "tipo_de_distribuicao_redistribuicao",
+                  "valor": 2,
+                  "nome": "sorteio"
+                }
+              ],
+              "orgaoJulgador": {
+                "codigo": "20828",
+                "nome": "Vara do Trabalho de São Gabriel do Oeste e 2º Núcleo de Justiça 4.0"
+              }
+            },
+            {
+              "codigo": 14736,
+              "dataHora": "2026-10-21T15:47:59.000Z",
+              "nome": "Inclusão no Juízo 100% Digital",
+              "orgaoJulgador": {
+                "codigo": "20828",
+                "nome": "Vara do Trabalho de São Gabriel do Oeste e 2º Núcleo de Justiça 4.0"
+              }
+            }
+          ],
+          "assuntos": [
+            {
+              "codigo": 13722,
+              "nome": "Reconhecimento de Relação de Emprego"
+            },
+            {
+              "codigo": 13716,
+              "nome": "CTPS"
+            },
+            {
+              "codigo": 13954,
+              "nome": "Despedida/Dispensa Imotivada"
+            },
+            {
+              "codigo": 14001,
+              "nome": "Saldo de Salário"
+            },
+            {
+              "codigo": 13994,
+              "nome": "Aviso Prévio"
+            },
+            {
+              "codigo": 13995,
+              "nome": "Décimo Terceiro Salário Proporcional"
+            },
+            {
+              "codigo": 13996,
+              "nome": "Férias Proporcionais"
+            },
+            {
+              "codigo": 13809,
+              "nome": "Férias"
+            },
+            {
+              "codigo": 13909,
+              "nome": "Gratificação de Férias"
+            },
+            {
+              "codigo": 13814,
+              "nome": "Indenização/Dobra/Terço Constitucional"
+            },
+            {
+              "codigo": 13843,
+              "nome": "Décimo Terceiro Salário"
+            },
+            {
+              "codigo": 13719,
+              "nome": "FGTS"
+            },
+            {
+              "codigo": 13998,
+              "nome": "Multa de 40% do FGTS"
+            },
+            {
+              "codigo": 13471,
+              "nome": "Levantamento do FGTS "
+            },
+            {
+              "codigo": 13969,
+              "nome": "Seguro Desemprego"
+            },
+            {
+              "codigo": 13859,
+              "nome": "Seguro de Vida"
+            },
+            {
+              "codigo": 13451,
+              "nome": "Guias do Seguro Desemprego "
+            },
+            {
+              "codigo": 13999,
+              "nome": "Multa do Artigo 467 da CLT "
+            },
+            {
+              "codigo": 14000,
+              "nome": "Multa do Artigo  477 da CLT"
+            },
+            {
+              "codigo": 13765,
+              "nome": "Adicional Noturno"
+            },
+            {
+              "codigo": 13772,
+              "nome": "Intervalo Intrajornada"
+            },
+            {
+              "codigo": 13186,
+              "nome": "Horas Extras "
+            },
+            {
+              "codigo": 13796,
+              "nome": "Reflexos"
+            },
+            {
+              "codigo": 13773,
+              "nome": "Repouso Semanal Remunerado e Feriado"
+            },
+            {
+              "codigo": 10655,
+              "nome": "Honorários Advocatícios"
+            }
+          ]
+        }
+      },
+      {
+        "_index": "api_publica_trt24",
+        "_id": "TRT24_G1_00240965920215240096",
+        "_score": 1.0,
+        "_source": {
+          "classe": {
+            "codigo": 65,
+            "nome": "Ação Civil Pública"
+          },
+          "numeroProcesso": "00240965920215240096",
+          "sistema": {
+            "codigo": 1,
+            "nome": "Pje"
+          },
+          "formato": {
+            "codigo": 1,
+            "nome": "Eletrônico"
+          },
+          "tribunal": "TRT24",
+          "dataHoraUltimaAtualizacao": "2024-08-24T17:44:54.270Z",
+          "grau": "G1",
+          "@timestamp": "2025-11-17T12:23:46.247197300Z",
+          "dataAjuizamento": "20210420153806",
+          "movimentos": [
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 2,
+                  "valor": 2,
+                  "nome": "sorteio",
+                  "descricao": "tipo_de_distribuicao_redistribuicao"
+                }
+              ],
+              "codigo": 26,
+              "nome": "Distribuição",
+              "dataHora": "2021-04-20T15:38:06.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 5,
+                  "nome": "para despacho",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-04-20T15:57:48.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 6,
+                  "nome": "para decisão",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-04-20T15:58:03.000Z"
+            }
+          ],
+          "id": "TRT24_G1_00240965920215240096",
+          "nivelSigilo": 0,
+          "orgaoJulgador": {
+            "codigoMunicipioIBGE": 5001904,
+            "codigo": 20814,
+            "nome": "VARA DO TRABALHO DE BATAGUASSU"
+          },
+          "assuntos": [
+            {
+              "codigo": 13385,
+              "nome": "Contratuais "
+            },
+            {
+              "codigo": 13796,
+              "nome": "Reflexos"
+            },
+            {
+              "codigo": 13803,
+              "nome": "Redução/Supressão"
+            }
+          ]
+        }
+      },
+      {
+        "_index": "api_publica_trt24",
+        "_id": "TRT24_G1_00243646520205240091",
+        "_score": 1.0,
+        "_source": {
+          "classe": {
+            "codigo": 63,
+            "nome": "Ação Civil Coletiva"
+          },
+          "numeroProcesso": "00243646520205240091",
+          "sistema": {
+            "codigo": 1,
+            "nome": "Pje"
+          },
+          "formato": {
+            "codigo": 1,
+            "nome": "Eletrônico"
+          },
+          "tribunal": "TRT24",
+          "dataHoraUltimaAtualizacao": "2024-08-24T20:17:22.807Z",
+          "grau": "G1",
+          "@timestamp": "2025-11-17T12:39:25.113565834Z",
+          "dataAjuizamento": "20200323153811",
+          "movimentos": [
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 2,
+                  "valor": 2,
+                  "nome": "sorteio",
+                  "descricao": "tipo_de_distribuicao_redistribuicao"
+                }
+              ],
+              "codigo": 26,
+              "nome": "Distribuição",
+              "dataHora": "2020-03-23T15:38:11.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2020-03-26T14:27:42.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2020-03-27T00:05:01.000Z"
+            }
+          ],
+          "id": "TRT24_G1_00243646520205240091",
+          "nivelSigilo": 0,
+          "orgaoJulgador": {
+            "codigoMunicipioIBGE": 5007208,
+            "codigo": 20827,
+            "nome": "VARA DO TRABALHO DE RIO BRILHANTE"
+          },
+          "assuntos": [
+            {
+              "codigo": 13968,
+              "nome": "Rescisão Indireta"
+            }
+          ]
+        }
+      },
+      {
+        "_index": "api_publica_trt24",
+        "_id": "TRT24_G1_00442007820095240036",
+        "_score": 1.0,
+        "_source": {
+          "id": "TRT24_G1_00442007820095240036",
+          "tribunal": "TRT24",
+          "grau": "G1",
+          "numeroProcesso": "00442007820095240036",
+          "dataAjuizamento": "20090511040000",
+          "nivelSigilo": 0,
+          "orgaoJulgador": {
+            "codigo": 20812,
+            "nome": "Vara do Trabalho de Amambai e 1º Núcleo de Justiça 4.0",
+            "codigoMunicipioIBGE": 5000609
+          },
+          "classe": {
+            "codigo": 985,
+            "nome": "Ação Trabalhista - Rito Ordinário"
+          },
+          "sistema": {
+            "codigo": 1,
+            "nome": "PJe"
+          },
+          "formato": {
+            "codigo": 1,
+            "nome": "Eletrônico"
+          },
+          "dataHoraUltimaAtualizacao": "2026-06-22T13:49:21.160000Z",
+          "@timestamp": "2026-06-22T13:49:21.160000Z",
+          "movimentos": [
+            {
+              "codigo": 26,
+              "dataHora": "2009-05-11T14:14:43.000Z",
+              "nome": "Distribuição",
+              "complementosTabelados": [
+                {
+                  "codigo": 2,
+                  "descricao": "tipo_de_distribuicao_redistribuicao",
+                  "valor": 2,
+                  "nome": "sorteio"
+                }
+              ],
+              "orgaoJulgador": {
+                "codigo": "20812",
+                "nome": "Vara do Trabalho de Amambai e 1º Núcleo de Justiça 4.0"
+              }
+            },
+            {
+              "codigo": 12749,
+              "dataHora": "2009-05-12T15:26:38.000Z",
+              "nome": "de Instrução",
+              "complementosTabelados": [
+                {
+                  "codigo": 36,
+                  "descricao": "dirigida_por",
+                  "valor": 185,
+                  "nome": "Juiz(a)"
+                },
+                {
+                  "codigo": 15,
+                  "descricao": "situacao_da_audiencia",
+                  "valor": 9,
+                  "nome": "designada"
+                }
+              ],
+              "orgaoJulgador": {
+                "codigo": "20812",
+                "nome": "Vara do Trabalho de Amambai e 1º Núcleo de Justiça 4.0"
+              }
+            },
+            {
+              "codigo": 92,
+              "dataHora": "2009-05-25T10:38:24.000Z",
+              "nome": "Publicação",
+              "orgaoJulgador": {
+                "codigo": "20812",
+                "nome": "Vara do Trabalho de Amambai e 1º Núcleo de Justiça 4.0"
+              }
+            }
+          ],
+          "assuntos": [
+            {
+              "codigo": 13831,
+              "nome": "Verbas Remuneratórias, Indenizatórias e Benefícios"
+            },
+            {
+              "codigo": 13998,
+              "nome": "Multa de 40% do FGTS"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

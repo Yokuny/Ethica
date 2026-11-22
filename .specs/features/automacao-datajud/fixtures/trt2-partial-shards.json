@@ -1,0 +1,22 @@
+{
+  "took": 35138,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 4,
+    "skipped": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "shard": 3,
+        "index": "api_publica_trt2",
+        "node": "O6SlKAQRSX6lpnLG3hsF_g",
+        "reason": {
+          "type": "es_rejected_execution_exception",
+          "reason": "rejected execution of TimedRunnable{original=ActionRunnable#wrap[org.elasticsearch.search.SearchService$$Lambda/0x00007f68e485eb38@1110087d], creationTimeNanos=19006540649348530, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000011/search, queue capacity = 1000, task execution EWMA = 120.2ms, total task execution time = 947d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1000, completed tasks = 758370258]]"
+        }
+      }
+    ]
+  },
+  "hits": { "total": { "value": 10000, "relation": "gte" }, "max_score": 10.29727, "hits": [] }
+}

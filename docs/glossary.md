@@ -20,8 +20,17 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Vara (contato) | `CourtDivision` (`case`); na perícia, `division` | Vara do trabalho, cível ou federal na agenda de contatos do escritório (telefones, e-mail, balcão virtual), por UF e cidade (AD-151). |
 | Mensagem de contato | `ContactMessage` (`contact` module), `POST /contact` | Mensagem que um visitante envia pela página Contato; vai por e-mail ao endereço do Ethica (`CONTACT_EMAIL`) e não é guardada (AD-249). |
 | Nomeação | `nominationDate` | Dia em que o juízo nomeou o perito. |
-| Prazo do laudo | `reportDeadline` (só no cadastro) | Dia limite de entrega; vira o prazo "Entrega do laudo" da perícia (AD-109). |
-| Prazo | `Deadline` (`case`) | Prazo processual da perícia (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo) ou perdido. **Vence em breve** = até 15 dias. |
+| Prazo do laudo | `reportDueDate` (só no cadastro e na importação) | Dia limite de entrega; vira o prazo "Entrega do laudo" do serviço (AD-264). |
+| Notificação | `Notification` (`notifications`) | Tudo o que pede a atenção de alguém no escritório (AD-263), de quatro tipos (`kind`): **prazo** (`deadline`), **alerta** (`alert`), **sugestão** (`suggestion`) e **aviso** (`notice`). Lido é por pessoa (`readBy`). |
+| Prazo | `kind: 'deadline'` da `Notification` | Prazo processual do serviço (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo), perdido ou cancelado. **Vence em breve** = até 15 dias. |
+| Alerta | `kind: 'alert'` da `Notification` | Lembrete com data que se conclui ou cancela (AD-189). |
+| Sugestão | `kind: 'suggestion'` da `Notification` | Alteração proposta pela Automação Datajud que só vale quando uma pessoa aprova (AD-268): pendente, aceita, rejeitada, superada ou expirada. |
+| Aviso | `kind: 'notice'` da `Notification` | Informação sem ação (movimentação no tribunal, vencimento financeiro, pagamento em andamento); o texto é uma chave de tradução (`topic`). |
+| Processo no tribunal | `CourtProcess` (worker, global) | Cópia pública do processo no Datajud, igual para todo escritório (AD-271); nunca processo sigiloso nem partes. |
+| Movimentação do tribunal | `courtMovement` (`CourtProcess.movements`) | Movimento do processo no Datajud (código TPU, nome, data e complementos); não se confunde com a movimentação do serviço (`movement`). |
+| Acompanhamento do serviço no tribunal | `CaseCourtSync` | Linha de base por serviço: os movimentos já vistos, para só o novo virar aviso. |
+| Fila do worker | `WorkerJob` | Tarefa de fundo do `apps/worker`, com prioridade, retry e trava por janela (AD-267). |
+| Entrega de notificação | `NotificationDelivery` | Trava de envio por pessoa, canal e chave (consolidado do dia ou imediato), contra envio em dobro. |
 | Honorários propostos | `proposedFeesCents` | Proposta do perito. |
 | Honorários fixados | `fixedFeesCents` | Valor fixado pelo juízo; vira receita a receber no financeiro. |
 | Compromisso | `Appointment` (`agenda`) | Item da agenda com horário: vistoria, audiência, reunião ou outro. A data da perícia do serviço vira o compromisso de perícia automático (AD-169). |

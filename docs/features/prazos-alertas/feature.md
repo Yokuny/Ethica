@@ -53,6 +53,7 @@ pnpm vitest run apps/api/src/modules/case/deadline.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-22 — Substituída por `central-notificacoes`: o `Deadline` vira `Notification` (tipos prazo e alerta) e a página vira a Central de notificações (AD-263). As regras de tela daqui continuam (AD-189, AD-190).
 - 2026-11-05 — Botão Adiar no prazo ou alerta pendente; colunas Contratante e Tipo de serviço na lista. O resumo do serviço passa a dar o contratante também dos tipos com contratante próprio, o que o faz aparecer no Financeiro; a agenda atualiza ao mudar um prazo.
 - 2026-11-05 — A situação volta às abas acima da lista, abrindo em Pendentes (AD-193).
 - 2026-11-05 — A situação sai do seletor solto e vai para o botão "Filtros" da lista (AD-192).

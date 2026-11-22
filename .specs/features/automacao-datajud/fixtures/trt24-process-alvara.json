@@ -1,0 +1,2908 @@
+{
+  "took": 28335,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 4,
+      "relation": "eq"
+    },
+    "max_score": 1.0,
+    "hits": [
+      {
+        "_index": "api_publica_trt24",
+        "_id": "TRT24_G1_00240965920215240096",
+        "_score": 1.0,
+        "_source": {
+          "classe": {
+            "codigo": 65,
+            "nome": "Ação Civil Pública"
+          },
+          "numeroProcesso": "00240965920215240096",
+          "sistema": {
+            "codigo": 1,
+            "nome": "Pje"
+          },
+          "formato": {
+            "codigo": 1,
+            "nome": "Eletrônico"
+          },
+          "tribunal": "TRT24",
+          "dataHoraUltimaAtualizacao": "2024-08-24T17:44:54.270Z",
+          "grau": "G1",
+          "@timestamp": "2025-11-17T12:23:46.247197300Z",
+          "dataAjuizamento": "20210420153806",
+          "movimentos": [
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 2,
+                  "valor": 2,
+                  "nome": "sorteio",
+                  "descricao": "tipo_de_distribuicao_redistribuicao"
+                }
+              ],
+              "codigo": 26,
+              "nome": "Distribuição",
+              "dataHora": "2021-04-20T15:38:06.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 5,
+                  "nome": "para despacho",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-04-20T15:57:48.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 6,
+                  "nome": "para decisão",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-04-20T15:58:03.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 5,
+                  "nome": "para despacho",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-05-18T12:35:24.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-05-19T12:59:26.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-06-03T14:38:13.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 45,
+                  "nome": "Contestação",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-06-11T18:39:40.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 5,
+                  "nome": "para despacho",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-06-14T07:47:53.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-06-22T17:33:10.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-06-24T01:23:17.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-06-24T01:23:17.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 215,
+                  "nome": "Impugnação",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-06-29T15:02:44.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 5,
+                  "nome": "para despacho",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-06-29T16:05:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-07-07T15:01:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-07-07T15:01:46.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-07-08T01:22:14.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-07-08T01:22:14.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-07-08T01:22:14.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-07-08T01:22:16.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-07-08T10:32:49.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-07-10T00:03:18.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-07-14T11:23:07.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 5,
+                  "nome": "para despacho",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-07-14T11:57:48.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-07-16T00:01:33.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-07-16T00:01:33.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 36,
+                  "valor": 185,
+                  "nome": "Juiz(a)",
+                  "descricao": "dirigida_por"
+                },
+                {
+                  "codigo": 15,
+                  "valor": 9,
+                  "nome": "designada",
+                  "descricao": "situacao_da_audiencia"
+                }
+              ],
+              "codigo": 12749,
+              "nome": "de Instrução",
+              "dataHora": "2021-07-26T14:38:47.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-07-27T12:22:29.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-07-27T12:22:29.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-07-28T01:21:05.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-07-28T01:21:05.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-07-28T01:21:05.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-07-28T01:21:05.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-08-18T17:29:13.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 36,
+                  "valor": 185,
+                  "nome": "Juiz(a)",
+                  "descricao": "dirigida_por"
+                },
+                {
+                  "codigo": 15,
+                  "valor": 11,
+                  "nome": "cancelada",
+                  "descricao": "situacao_da_audiencia"
+                }
+              ],
+              "codigo": 12749,
+              "nome": "de Instrução",
+              "dataHora": "2021-08-19T07:04:42.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 36,
+                  "valor": 185,
+                  "nome": "Juiz(a)",
+                  "descricao": "dirigida_por"
+                },
+                {
+                  "codigo": 15,
+                  "valor": 9,
+                  "nome": "designada",
+                  "descricao": "situacao_da_audiencia"
+                }
+              ],
+              "codigo": 12749,
+              "nome": "de Instrução",
+              "dataHora": "2021-08-19T07:04:42.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-08-19T07:46:42.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-08-19T07:46:43.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-08-20T01:21:42.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-08-20T01:21:42.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-08-20T01:21:42.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-08-20T01:21:42.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-08-31T00:01:57.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-08-31T00:01:57.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-09-10T00:01:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 36,
+                  "valor": 185,
+                  "nome": "Juiz(a)",
+                  "descricao": "dirigida_por"
+                },
+                {
+                  "codigo": 15,
+                  "valor": 13,
+                  "nome": "realizada",
+                  "descricao": "situacao_da_audiencia"
+                }
+              ],
+              "codigo": 12749,
+              "nome": "de Instrução",
+              "dataHora": "2021-09-22T14:05:49.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 36,
+                  "valor": 185,
+                  "nome": "Juiz(a)",
+                  "descricao": "dirigida_por"
+                },
+                {
+                  "codigo": 15,
+                  "valor": 9,
+                  "nome": "designada",
+                  "descricao": "situacao_da_audiencia"
+                }
+              ],
+              "codigo": 12749,
+              "nome": "de Instrução",
+              "dataHora": "2021-09-23T07:30:17.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-11-18T13:31:09.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 5,
+                  "nome": "para despacho",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-11-18T16:50:43.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2021-11-22T16:45:02.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 3,
+                  "valor": 36,
+                  "nome": "para julgamento",
+                  "descricao": "tipo_de_conclusao"
+                }
+              ],
+              "codigo": 51,
+              "nome": "Conclusão",
+              "dataHora": "2021-11-22T18:29:11.000Z"
+            },
+            {
+              "codigo": 787,
+              "nome": "Gratuidade da Justiça",
+              "dataHora": "2021-11-22T19:10:53.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-11-23T07:19:59.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2021-11-23T07:19:59.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-11-24T01:21:36.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-11-24T01:21:36.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2021-11-24T01:21:36.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2021-11-24T01:21:36.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 36,
+                  "valor": 185,
+                  "nome": "Juiz(a)",
+                  "descricao": "dirigida_por"
+                },
+                {
+                  "codigo": 15,
+                  "valor": 11,
+                  "nome": "cancelada",
+                  "descricao": "situacao_da_audiencia"
+                }
+              ],
+              "codigo": 12749,
+              "nome": "de Instrução",
+              "dataHora": "2021-11-24T12:29:06.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-12-07T00:02:35.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2021-12-07T00:02:35.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-01-19T10:47:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-02T17:46:23.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 80,
+                  "nome": "Outros documentos",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-03T15:51:29.000Z"
+            },
+            {
+              "codigo": 1061,
+              "nome": "Disponibilização no Diário da Justiça Eletrônico",
+              "dataHora": "2022-02-05T01:25:11.000Z"
+            },
+            {
+              "codigo": 92,
+              "nome": "Publicação",
+              "dataHora": "2022-02-05T01:25:11.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-02-11T14:45:27.000Z"
+            },
+            {
+              "codigo": 1051,
+              "nome": "Decurso de Prazo",
+              "dataHora": "2022-02-15T00:01:19.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-02-21T13:34:27.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-21T13:55:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-02-24T13:26:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-03-21T12:48:01.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-03-22T13:21:46.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-04-19T14:29:12.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-04-25T16:22:37.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-05-19T13:50:43.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:03.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:03.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:04.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:05.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-05-24T15:49:05.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-06-20T15:08:53.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:57.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:57.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:57.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:58.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:59.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-21T16:30:59.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-06-23T13:02:53.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-07-19T13:26:34.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-20T15:34:00.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-07-21T14:50:15.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-08-19T13:00:35.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-08-31T15:07:28.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-09-19T13:05:51.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-10-19T11:37:14.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-11-21T12:16:09.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2022-11-29T14:16:20.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 19,
+                  "valor": 57,
+                  "nome": "Petição (outras)",
+                  "descricao": "tipo_de_peticao"
+                }
+              ],
+              "codigo": 85,
+              "nome": "Petição",
+              "dataHora": "2022-12-19T15:37:50.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-17T10:05:39.000Z"
+            },
+            {
+              "complementosTabelados": [
+                {
+                  "codigo": 4,
+                  "valor": 73,
+                  "nome": "Alvará",
+                  "descricao": "tipo_de_documento"
+                }
+              ],
+              "codigo": 60,
+              "nome": "Expedição de documento",
+              "dataHora": "2023-01-19T08:51:23.000Z"
+            },
+            {
+              "codigo": 15101,
+              "nome": "Conclusão",
+              "dataHora": "2021-04-20T15:57:53.000Z"
+            },
+            {
+              "codigo": 15101,
+              "nome": "Conclusão",
+              "dataHora": "2021-05-18T12:35:17.000Z"
+            },
+            {
+              "codigo": 11010,
+              "nome": "Mero expediente",
+              "dataHora": "2021-05-18T17:24:21.000Z"
+            },
+            {
+              "codigo": 11010,
+              "nome": "Mero expediente",
+              "dataHora": "2021-06-22T17:32:10.000Z"
+            },
+            {
+              "codigo": 11010,
+              "nome": "Mero expediente",
+              "dataHora": "2021-07-07T15:00:46.000Z"
+            },
+            {
+              "codigo": 11010,
+              "nome": "Mero expediente",
+              "dataHora": "2021-07-27T09:58:23.000Z"
+            },
+            {
+              "codigo": 15101,
+              "nome": "Conclusão",
+              "dataHora": "2021-11-22T18:28:57.000Z"
+            },
+            {
+              "codigo": 466,
+              "nome": "Homologação de Transação",
+              "dataHora": "2021-11-22T19:10:53.000Z"
+            },
+            {
+              "codigo": 11383,
+              "nome": "Ato ordinatório",
+              "dataHora": "2023-01-25T16:48:25.000Z"
+            },
+            {
+              "codigo": 11383,
+              "nome": "Ato ordinatório",
+              "dataHora": "2023-01-25T16:48:25.000Z"
+            },
+            {
+              "codigo": 246,
+              "nome": "Definitivo",
+              "dataHora": "2023-01-25T16:51:44.000Z"
+            }
+          ],
+          "id": "TRT24_G1_00240965920215240096",
+          "nivelSigilo": 0,
+          "orgaoJulgador": {
+            "codigoMunicipioIBGE": 5001904,
+            "codigo": 20814,
+            "nome": "VARA DO TRABALHO DE BATAGUASSU"
+          },
+          "assuntos": [
+            {
+              "codigo": 13385,
+              "nome": "Contratuais "
+            },
+            {
+              "codigo": 13796,
+              "nome": "Reflexos"
+            },
+            {
+              "codigo": 13803,
+              "nome": "Redução/Supressão"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

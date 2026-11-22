@@ -9,7 +9,8 @@ pendência fica no `feature.md` indicado; aqui só a ação, quem faz e a featur
 | Item | Feature | Notas |
 | --- | --- | --- |
 | Fotos e anotações da vistoria no laudo; editar e excluir laudo | `laudo-vistoria` | AD-149 |
-| Avisos de vencimento financeiro, notificações push e varredura agendada | `avisos-notificacoes` | AD-147 |
+| Central de notificações no lugar de Prazos e Alertas, worker de lembretes e entrega, aviso financeiro e push (absorve `avisos-notificacoes`) | `central-notificacoes` | AD-263 a AD-267; em execução |
+| Automação Datajud (premium): avisos de movimentação e sugestões aprovadas pela pessoa | `automacao-datajud` | AD-268 a AD-271; Fases 3 a 6 do plano |
 | Rotas de vistoria com ponto de partida e serviço de rota próprio | `rotas-vistoria` | AD-150 |
 | CRUD de membros só do admin | `gestao-membros` | AD-148 |
 | Imagem de produção da API e arquivos por perícia no S3 | `producao-api` | AD-146 |
@@ -20,9 +21,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 | Item | Notas |
 | --- | --- |
-| Validar a busca do Datajud com a chave real | Ajustar campos da consulta e mapeamento (AD-105); adiado (AD-145) |
+| Busca de prospecção pelo worker e nomeações pelo DJEN | Plano `2026-11-22-prospeccao-worker-datajud.md`, depois da `automacao-datajud` |
 | IA: leitura do PDF da ata, redação do laudo e transcrição do áudio | Spec própria com provedor, limite por tenant e LGPD (AD-114, AD-124); adiado (AD-145) |
-| Monitoramento de movimentos no Datajud | Alertar nova movimentação nas perícias e oportunidades |
 | Cartão dentro do Ethica em vez da fatura do Asaas | Dados do cartão passariam pela API (PCI-DSS); PIX e boleto já são no Ethica (AD-251, `cadastro-checkout`) |
 | Assinatura pelo Ethica: trocar de plano, cancelar e ver faturas | Hoje pelo suporte (`cadastro-checkout`, AD-230) |
 | Trocar o e-mail da conta | `acesso-email` |
@@ -35,6 +35,9 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Responder: há prazos reais em produção (D8)? Se sim, um script avulso copia `Deadline` para `Notification` antes da Fase 1 ir ao ar; se não, a collection `deadlines` antiga pode ser apagada por você — `central-notificacoes`
+- [ ] Responder: texto exato e origem (PJe, diário oficial ou Datajud) de "expedição de alvará eletrônico automatizado"; no Datajud só há o movimento 60 com complemento "Alvará" (AD-269) — `automacao-datajud`
+- [ ] Definir o preço e o escopo do módulo premium Automação Datajud (AD-270) — `automacao-datajud`
 - [ ] Asaas sandbox: entrar em `sandbox.asaas.com` e concluir o cadastro ("Conclua seu cadastro", dados pessoais); com a conta aprovada, criar uma chave Pix aleatória em Pix > Minhas chaves para testar o QR Code em dev. Sem webhook no sandbox: a Railway usa a chave de produção — `cadastro-checkout`
 - [ ] Reiniciar a API local para ler o `ASAAS_WEBHOOK_TOKEN` novo; a tela de planos já confere o pagamento do sandbox sem túnel — `cadastro-checkout`
 - [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`
@@ -56,7 +59,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
 
 - [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`
-- [ ] Confirmar as perguntas em aberto das specs: `avisos-notificacoes`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
+- [ ] Confirmar as perguntas em aberto das specs: `central-notificacoes`, `automacao-datajud`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`
 - [ ] Conferir no celular: gráfico de serviços (`dashboard`), telas e exportação das listas (`filtros-lista`)

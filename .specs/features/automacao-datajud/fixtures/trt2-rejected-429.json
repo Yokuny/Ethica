@@ -1,0 +1,56 @@
+{
+  "error": {
+    "root_cause": [
+      {
+        "type": "es_rejected_execution_exception",
+        "reason": "rejected execution of TimedRunnable{original=ActionRunnable#wrap[org.elasticsearch.search.SearchService$$Lambda/0x00007f68e4803cd0@38606ef3], creationTimeNanos=19006256462694721, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000011/search, queue capacity = 1000, task execution EWMA = 136.4ms, total task execution time = 947d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1000, completed tasks = 758359697]]"
+      },
+      {
+        "type": "es_rejected_execution_exception",
+        "reason": "rejected execution of TimedRunnable{original=ActionRunnable#wrap[org.elasticsearch.search.SearchService$$Lambda/0x00007f68e4803cd0@c1f75ff], creationTimeNanos=19006256462750402, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000011/search, queue capacity = 1000, task execution EWMA = 136.4ms, total task execution time = 947d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1000, completed tasks = 758359697]]"
+      },
+      {
+        "type": "es_rejected_execution_exception",
+        "reason": "rejected execution of TimedRunnable{original=ActionRunnable#wrap[org.elasticsearch.search.SearchService$$Lambda/0x00007f3d08719230@13b7b060], creationTimeNanos=19005133141287863, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000008/search, queue capacity = 1000, task execution EWMA = 195.5ms, total task execution time = 1483.8d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1000, completed tasks = 2007461553]]"
+      }
+    ],
+    "type": "search_phase_execution_exception",
+    "reason": "",
+    "phase": "fetch",
+    "grouped": true,
+    "failed_shards": [
+      {
+        "shard": 2,
+        "index": "api_publica_trt2",
+        "node": "O6SlKAQRSX6lpnLG3hsF_g",
+        "reason": {
+          "type": "es_rejected_execution_exception",
+          "reason": "rejected execution of TimedRunnable{original=ActionRunnable#wrap[org.elasticsearch.search.SearchService$$Lambda/0x00007f68e4803cd0@38606ef3], creationTimeNanos=19006256462694721, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000011/search, queue capacity = 1000, task execution EWMA = 136.4ms, total task execution time = 947d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1000, completed tasks = 758359697]]"
+        }
+      },
+      {
+        "shard": 3,
+        "index": "api_publica_trt2",
+        "node": "O6SlKAQRSX6lpnLG3hsF_g",
+        "reason": {
+          "type": "es_rejected_execution_exception",
+          "reason": "rejected execution of TimedRunnable{original=ActionRunnable#wrap[org.elasticsearch.search.SearchService$$Lambda/0x00007f68e4803cd0@c1f75ff], creationTimeNanos=19006256462750402, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000011/search, queue capacity = 1000, task execution EWMA = 136.4ms, total task execution time = 947d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1000, completed tasks = 758359697]]"
+        }
+      },
+      {
+        "shard": 4,
+        "index": "api_publica_trt2",
+        "node": "bBZhzg_xRru05_O7mgYG5Q",
+        "reason": {
+          "type": "es_rejected_execution_exception",
+          "reason": "rejected execution of TimedRunnable{original=ActionRunnable#wrap[org.elasticsearch.search.SearchService$$Lambda/0x00007f3d08719230@13b7b060], creationTimeNanos=19005133141287863, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000008/search, queue capacity = 1000, task execution EWMA = 195.5ms, total task execution time = 1483.8d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1000, completed tasks = 2007461553]]"
+        }
+      }
+    ],
+    "caused_by": {
+      "type": "es_rejected_execution_exception",
+      "reason": "rejected execution of TimedRunnable{original=org.elasticsearch.action.search.FetchSearchPhase$1@3cc1a4e9, creationTimeNanos=19005141876219854, startTimeNanos=0, finishTimeNanos=-1, failedOrRejected=false} on TaskExecutionTimeTrackingEsThreadPoolExecutor[name = instance-0000000008/search, queue capacity = 1000, task execution EWMA = 940.6ms, total task execution time = 1483.8d, org.elasticsearch.common.util.concurrent.TaskExecutionTimeTrackingEsThreadPoolExecutor@130ad58d[Running, pool size = 10, active threads = 10, queued tasks = 1001, completed tasks = 2007461891]]"
+    }
+  },
+  "status": 429
+}
