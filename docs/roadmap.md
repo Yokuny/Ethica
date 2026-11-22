@@ -87,6 +87,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-21 — `seed:templates`: modelos de laudo e parecer de todas as áreas na biblioteca do escritório — `fundacao-ethica`
 - [x] 2026-11-21 — `seed:volume` com e-mails e links no formato real, sem `example.com`/`exemplo` — `fundacao-ethica`
 - [x] 2026-11-21 — Produção configurada: Railway com as variáveis do Asaas (URL, chave, token do webhook, retorno para `https://ethica-zeta.vercel.app/billing`), `CONTACT_EMAIL` e Resend conferido, `SMTP_*` removidas; Asaas com webhook "Ethica billing" (quatro eventos, envio sequencial, token), chave Pix e Site cadastrados — `cadastro-checkout`, `paginas-publicas`, `acesso-email`, `producao-api`
 - [x] 2026-11-21 — PIX e boleto na tela do Ethica, cartão na fatura do Asaas, e acesso aberto sem webhook pela conferência da tela de planos (AD-251) — `cadastro-checkout`

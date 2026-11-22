@@ -39,6 +39,7 @@ Começar o produto de gestão de perícias já com a arquitetura, o harness e a 
 - `apps/api/src/providers/datajudClient.ts` — consulta e mapeamento do Datajud (AD-105).
 - `apps/api/scripts/seed-demo.ts` — tenant de demonstração.
 - `apps/api/scripts/seed-volume.ts` — volume de dados no escritório de um login, para conferência visual.
+- `apps/api/scripts/seed-templates.ts` — modelos de laudo e parecer de todas as áreas na biblioteca do escritório.
 
 ### `apps/web`
 
@@ -96,6 +97,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-21 — `seed:templates`: biblioteca do escritório com modelos de laudo e parecer em todas as áreas, para a conferência visual (`RUN_BOOK.md`).
 - 2026-11-21 — `seed:volume` sem rastro de dado fictício: e-mails derivados do nome da pessoa, da empresa e da vara, e pasta do Drive com id no formato real (antes `example.com`, `exemplo`).
 - 2026-11-18 — `integration` e `e2e` rodam com o Mongo local (642 testes verdes); pendências que pedem ação passam a ser acompanhadas no checklist de `docs/roadmap.md`.
 - 2026-11-14 — Sai a skill `tlc-spec-driven` e as lições geradas pelo script dela (`.specs/LESSONS.md`, `.specs/lessons.json`); o fluxo spec → design → tasks fica só na `ethica-spec-driven` (AD-221).

@@ -58,6 +58,12 @@ pnpm --filter api run seed:volume <e-mail do login>
 
 Enche o escritório de um login que já existe com dados para conferir as telas: 80 serviços (perícias trabalhistas, cíveis e federais, assistências técnicas e tipos do escritório, em fases e status variados, um quarto deles só com os campos obrigatórios para mostrar o "Não preenchido"), partes, advogados, varas, prazos e alertas, 70 compromissos na agenda (alguns hoje, para a rota do campo), 14 meses de lançamentos, oportunidades e laudos. As OS continuam a sequência do escritório. Só acrescenta: cada execução cria registros novos e nada é apagado. Recusa rodar com `NODE_ENV=production`.
 
+```bash
+pnpm --filter api run seed:templates <e-mail do login>
+```
+
+Enche a biblioteca do escritório com 19 modelos: uma cópia de cada modelo padrão e modelos de laudo e de parecer em todas as áreas (trabalhista, cível, federal, assistência técnica, os tipos próprios `Parceria`, `Vistoria cautelar`, `Laudo de avaliação` e `Consultoria`, e sem área), alguns com diagramação própria. Também só acrescenta e recusa rodar em produção.
+
 ## Conta de teste em tela
 
 Conta criada pelo cadastro aberto em 2026-11-04 para testar o sistema pela tela, sem os dados do `seed:demo`. Vive só no banco local (`ethica` em `localhost:37017`); `docker compose down -v` a apaga e basta refazer o cadastro com os mesmos dados.
