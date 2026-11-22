@@ -70,7 +70,7 @@ export function DashboardPage() {
   const canSeeFinance = can(session, 'finance');
   const search = useSearch({ strict: false }) as DashboardSearch;
   const navigate = useNavigate({ from: '/dashboard/' });
-  const months = Number(search.months);
+  const months = search.months;
   const cases = useQuery(caseDashboardQuery);
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance });
   const fees = useQuery({ ...feesDashboardQuery, enabled: canSeeFinance });
@@ -92,13 +92,13 @@ export function DashboardPage() {
         <CardAction>
           <ToggleGroup
             aria-label={t('period')}
-            value={search.months}
+            value={String(months)}
             onValueChange={(value) =>
-              navigate({ search: { months: value as DashboardSearch['months'] }, replace: true })
+              navigate({ search: { months: Number(value) as DashboardSearch['months'] }, replace: true })
             }
           >
             {PERIODS.map((value) => (
-              <ToggleGroupItem key={value} value={value}>
+              <ToggleGroupItem key={value} value={String(value)}>
                 {t(PERIOD_LABEL[value])}
               </ToggleGroupItem>
             ))}

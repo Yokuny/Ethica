@@ -1,15 +1,22 @@
 import { z } from 'zod';
 
-// Months of the Dashboard's period: the cash flow and the categories (with the previous period of the same size).
-
-export const PERIODS = ['6', '12'] as const;
-export const PERIOD_LABEL: Record<(typeof PERIODS)[number], string> = {
-  '6': 'last_6_months',
-  '12': 'last_12_months',
+// Months of the Dashboard's period (complete months) and, before it, the previous one of the same size. A number,
+// so the URL reads `?months=6` (a string that looks like a number would be written quoted by the router).
+export const PERIODS = [6, 12] as const;
+export type Period = (typeof PERIODS)[number];
+export const PERIOD_LABEL: Record<Period, string> = {
+  6: 'last_6_months',
+  12: 'last_12_months',
 };
-export const PERIOD_SCOPE: Record<(typeof PERIODS)[number], string> = {
-  '6': 'last_6_months_vs_previous',
-  '12': 'last_12_months_vs_previous',
+export const PERIOD_SCOPE: Record<Period, string> = {
+  6: 'last_6_months_vs_previous',
+  12: 'last_12_months_vs_previous',
 };
-export const dashboardSearchSchema = z.object({ months: z.enum(PERIODS).optional().default('6') });
+// Old links (`"6"`) and unknown values fall back to 6 months.
+export const dashboardSearchSchema = z.object({
+  months: z.coerce
+    .number()
+    .pipe(z.union([z.literal(6), z.literal(12)]))
+    .catch(6),
+});
 export type DashboardSearch = z.infer<typeof dashboardSearchSchema>;

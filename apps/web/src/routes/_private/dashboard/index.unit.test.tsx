@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '@/query/session.js';
 import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
+import { dashboardSearchSchema } from './@interface/dashboard.interface.js';
 import { caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
@@ -15,7 +16,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     ...actual,
     useLocation: () => ({ pathname: '/dashboard' }),
     useMatches: () => [],
-    useSearch: () => ({ months: '6' }),
+    useSearch: () => ({ months: 6 }),
     useNavigate: () => vi.fn(),
     useRouter: () => ({ history: { back: vi.fn() } }),
     Link: ({ to, search, children }: { to: string; search?: object; children?: ReactNode }) => (
@@ -135,5 +136,12 @@ describe('Dashboard (DSH, AD-255)', () => {
     expect(screen.queryByText(/honorários vencidos/)).not.toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'Financeiro' })).not.toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Trabalho' })).not.toHaveTextContent('R$');
+  });
+
+  it('período na URL como número (?months=6); link antigo em texto e valor estranho caem no padrão', () => {
+    expect(dashboardSearchSchema.parse({ months: 12 })).toEqual({ months: 12 });
+    expect(dashboardSearchSchema.parse({ months: '12' })).toEqual({ months: 12 });
+    expect(dashboardSearchSchema.parse({})).toEqual({ months: 6 });
+    expect(dashboardSearchSchema.parse({ months: '7' })).toEqual({ months: 6 });
   });
 });
