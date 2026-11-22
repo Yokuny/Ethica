@@ -7,7 +7,8 @@ import type { ComponentProps, ReactNode } from 'react';
 
 // Destination list (AD-075): every row that leads to another screen or record.
 // No frame: rows separated by a thin line, always at the full width of the block.
-// Each row is icon + title (+ badges), label lines below the title and a quiet arrow;
+// Each row is an icon tile (same as LinkCard) + title (+ badges), label lines and a quiet arrow
+// that nudges up-right on hover;
 // on hover an accent background rises from the bottom of the row.
 export function LinkList({ className, ...props }: ComponentProps<'ul'>) {
   return <ul className={cn('flex w-full flex-col border-t', className)} {...props} />;
@@ -42,7 +43,7 @@ export function LinkListItem({
     props: mergeProps<'div'>(
       {
         className: cn(
-          'group/link-item relative flex w-full items-start gap-4 overflow-hidden p-4 text-left outline-none',
+          'group/link-item relative flex w-full items-center gap-4 overflow-hidden p-4 text-left outline-none',
           isLink && 'focus-visible:ring-3 focus-visible:ring-ring/25 focus-visible:ring-inset',
           className,
         ),
@@ -57,7 +58,7 @@ export function LinkListItem({
             {Icon && (
               <span
                 aria-hidden
-                className="relative flex h-5 shrink-0 items-center text-muted-foreground [&_svg]:size-4"
+                className="relative flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-all duration-200 [clip-path:inset(0_0_0_0_round_8px)] group-hover/link-item:[clip-path:inset(0_0_3px_0_round_10px)] group-focus-visible/link-item:[clip-path:inset(0_0_3px_0_round_10px)] motion-reduce:transition-none [&_svg]:size-5"
               >
                 <Icon />
               </span>
@@ -71,12 +72,10 @@ export function LinkListItem({
               {children}
             </div>
             {isLink && (
-              <span
+              <ArrowUpRight
                 aria-hidden
-                className="relative flex h-5 shrink-0 items-center text-muted-foreground transition-colors group-hover/link-item:text-foreground [&_svg]:size-4"
-              >
-                <ArrowUpRight />
-              </span>
+                className="relative size-4 shrink-0 text-muted-foreground transition-transform group-hover/link-item:-translate-y-0.5 group-hover/link-item:translate-x-0.5 group-focus-visible/link-item:-translate-y-0.5 group-focus-visible/link-item:translate-x-0.5 motion-reduce:transition-none"
+              />
             )}
           </>
         ),
