@@ -49,6 +49,7 @@ A entrada pelo e-mail (AD-155) passa a valer só no aparelho em que a pessoa cri
 
 ## Histórico
 
+- 2026-11-22 — A moldura da vitrine da tela de acesso (`auth-showcase.tsx`) passa a `<div>`: era um `Item` (`<li>`) com os `Item`s das peças dentro, e o React avisava `<li>` dentro de `<li>`.
 - 2026-11-12 — Feature planejada: passkey obrigatória após o e-mail, um computador + um celular, passkey sincronizada aceita, cadastro de teste com senha sai, tela nova com vitrine do produto (AD-220).
 - 2026-11-12 — Implementada. Divergências do design da spec: o desafio do WebAuthn volta no corpo da resposta (`challengeToken`, JWT de 10 min) em vez de cookie; o `rpID` sai de `CORS_ORIGIN`, sem variável `WEBAUTHN_RP_ID`; o tipo do aparelho (computador ou celular) é decidido só pelo servidor, pelo navegador da requisição, sem vir da tela; o registro da passkey troca o `passkeyToken` pelo `challengeToken` e não precisa reenviá-lo. O mapa da vitrine é desenho próprio (SVG), sem Leaflet nem mapa da internet.
 - 2026-11-12 — Vitrine refeita a pedido: uma peça por vez (troca a cada 6 s), cada uma como trecho do sistema real; texto da tela reescrito para falar do ganho (menos burocracia, nenhum prazo ou honorário esquecido) e não de "sem senha"; formulários de entrada e do convite sem o `DefaultFormLayout`. A grade e as etiquetas do calendário saíram da agenda para `apps/web/src/components/`. O gráfico de fluxo de caixa (`finance-flow-chart.tsx`) pintava as barras com nomes de cor antigos que não existiam; corrigido.
