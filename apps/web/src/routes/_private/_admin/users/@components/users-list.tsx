@@ -72,6 +72,13 @@ function UserCard({ user, featured }: { user: UserDirectoryEntry; featured: bool
         )}
       </div>
       <div className="grid min-w-0 grid-cols-1 gap-1 pt-3">
+        {/* Admin has everything and has no matrix (AD-137). */}
+        {!user.role.includes('admin') && (
+          <Button type="button" size="sm" variant="outline" className="w-full" onClick={() => setAjustando(true)}>
+            <ShieldCheck aria-hidden="true" />
+            {t('permissions')}
+          </Button>
+        )}
         <ItemTitle>{user.name}</ItemTitle>
         <div className="flex w-full min-w-0 max-w-full items-center justify-between gap-2 overflow-hidden">
           <ItemDescription
@@ -82,19 +89,6 @@ function UserCard({ user, featured }: { user: UserDirectoryEntry; featured: bool
           </ItemDescription>
           <CopyEmailButton email={user.email} />
         </div>
-        {/* Admin has everything and has no matrix (AD-137). */}
-        {!user.role.includes('admin') && (
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="justify-self-start"
-            onClick={() => setAjustando(true)}
-          >
-            <ShieldCheck aria-hidden="true" />
-            {t('permissions')}
-          </Button>
-        )}
       </div>
       {ajustando && <PermissionsDialog user={user} onClose={() => setAjustando(false)} />}
     </div>

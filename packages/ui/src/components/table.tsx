@@ -11,7 +11,7 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
     // the table touches the edges, as in the reference data-grid.
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto rounded-lg border bg-card shadow-xs in-data-[slot=data-table]:rounded-none in-data-[slot=data-table]:border-0 in-data-[slot=data-table]:bg-transparent in-data-[slot=data-table]:shadow-none"
+      className="relative w-full overflow-x-auto rounded-lg border in-data-[slot=data-table]:rounded-none in-data-[slot=data-table]:border-0 in-data-[slot=data-table]:bg-transparent in-data-[slot=data-table]:shadow-none"
     >
       <table
         data-slot="table"
@@ -108,7 +108,7 @@ function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
     <td
       data-slot="table-cell"
       className={cn(
-        'px-2 py-1 align-middle whitespace-nowrap first:ps-4 last:pe-4 in-data-[slot=data-table]:h-12 has-data-[slot=table-identity]:whitespace-normal has-data-[slot=table-stack]:whitespace-normal [&:has([role=checkbox])]:pe-0',
+        'p-2 py-3 align-middle whitespace-nowrap first:ps-4 last:pe-4 in-data-[slot=data-table]:h-12 has-data-[slot=table-identity]:whitespace-normal has-data-[slot=table-stack]:whitespace-normal [&:has([role=checkbox])]:pe-0',
         className,
       )}
       {...props}

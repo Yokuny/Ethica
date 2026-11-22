@@ -5,7 +5,7 @@ import {
   type PermissionModule,
   type Permissions,
 } from '@ethica/contracts';
-import { ItemTitle } from '@ethica/ui/components/item';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
 import { Checkbox } from '@/components/checkbox.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -54,7 +54,7 @@ export function PermissionsMatrix({
         {PERMISSION_MODULES.map((module) => (
           <TableRow key={module}>
             <TableCell>
-              <ItemTitle>{t(PERMISSION_MODULE_KEY[module])}</ItemTitle>
+              <ItemDescription>{t(PERMISSION_MODULE_KEY[module])}</ItemDescription>
             </TableCell>
             {PERMISSION_ACTIONS.map((action) => (
               <TableCell key={action}>
