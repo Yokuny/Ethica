@@ -33,7 +33,7 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
               <LinkListItem
                 key={legalCase.id}
                 icon={BriefcaseBusiness}
-                render={<button type="button" className="w-full text-left" onClick={() => onPick(legalCase.id)} />}
+                render={<button type="button" onClick={() => onPick(legalCase.id)} />}
                 title={[legalCase.serviceOrder, caseLabel(legalCase)].filter(Boolean).join(' · ')}
                 description={[
                   caseRoleLabel(legalCase.role, legalCase.roleName),

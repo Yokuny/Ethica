@@ -55,7 +55,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 - [ ] Confirmar as perguntas em aberto das specs: `avisos-notificacoes`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
-- [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`; UAT geral com o seed — `fundacao-ethica`
+- [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`
 - [ ] Conferir no celular: gráfico de serviços (`dashboard`), telas e exportação das listas (`filtros-lista`)
 - [ ] Conferir no navegador as tabelas por mês e os rankings do Dashboard e do Início, e o menu "…" com Importar planilha em Serviços e Varas — `dashboard`
 - [ ] PDF com a fonte Source Sans em produção — `biblioteca-modelos`
@@ -89,6 +89,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-21 — Lista de destinos (`LinkList`) no desenho sem moldura e na largura toda; Início com compromissos e serviços parados um embaixo do outro — `gestao-escritorio`
 - [x] 2026-11-21 — Modelo aberto (`/expert-reports/templates/details`) no mesmo padrão do laudo aberto: lista numerada, expandir/recolher, setas e "…" por seção — `biblioteca-modelos`
 - [x] 2026-11-21 — `seed:templates`: modelos de laudo e parecer de todas as áreas na biblioteca do escritório — `fundacao-ethica`
 - [x] 2026-11-21 — `seed:volume` com e-mails e links no formato real, sem `example.com`/`exemplo` — `fundacao-ethica`

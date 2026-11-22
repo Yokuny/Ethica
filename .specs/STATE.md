@@ -1527,6 +1527,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-21
 - **Status**: active
 
+### AD-252
+- **Decision**: `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branco, linhas separadas por fio (fio em cima da lista e embaixo de cada linha), ícone pequeno e esmaecido ao lado do título, rótulo abaixo, seta `ArrowUpRight` discreta sem botão e, no hover/foco, fundo `accent` subindo da base da linha. Tipografia só por `ItemTitle`/`ItemDescription`. A lista ocupa sempre a largura toda do bloco: saem `columns`, `size="xl"` e `media` (sem uso); a linha já é `w-full text-left`, então os `<button>` dos usos não repetem essas classes. No Início, Próximos compromissos e Serviços parados deixam a grade de duas colunas e ficam um embaixo do outro.
+- **Reason**: pedido do usuário (2026-11-21): o cartão com moldura, ladrilho de ícone e botão de seta destoava do resto do sistema, sobretudo em duas colunas no Início.
+- **Trade-off**: sem grade, listas longas ocupam mais altura; quem precisar de destaque numérico usa `RecordStats`/`InfoCard`.
+- **Scope**: `apps/web/src/components/link-list.tsx`, `apps/web/src/routes/_private/index.tsx` e os usos com `<button>` (`case-picker`, `case-deadlines`, `case-movements`).
+- **Date**: 2026-11-21
+- **Status**: active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

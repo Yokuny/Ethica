@@ -87,19 +87,15 @@ export function PrivateIndexPage() {
             {distribution.isLoading ? <DefaultLoading /> : <CasesPhaseTiles groups={distribution.data?.phase ?? []} />}
           </Panel>
         )}
-        {(showUpcoming || showStalled) && (
-          <div className="grid gap-10 lg:grid-cols-2">
-            {showUpcoming && (
-              <Panel size="lg" title={t('upcoming_commitments')}>
-                {upcoming.data ? <UpcomingAppointments items={upcoming.data} /> : <DefaultLoading />}
-              </Panel>
-            )}
-            {showStalled && (
-              <Panel size="lg" title={t('stalled_expert_cases')}>
-                {stalled.data ? <StalledCasesList stalled={stalled.data} /> : <DefaultLoading />}
-              </Panel>
-            )}
-          </div>
+        {showUpcoming && (
+          <Panel size="lg" title={t('upcoming_commitments')}>
+            {upcoming.data ? <UpcomingAppointments items={upcoming.data} /> : <DefaultLoading />}
+          </Panel>
+        )}
+        {showStalled && (
+          <Panel size="lg" title={t('stalled_expert_cases')}>
+            {stalled.data ? <StalledCasesList stalled={stalled.data} /> : <DefaultLoading />}
+          </Panel>
         )}
         {show('cash_flow') && (
           <Panel size="lg" title={t('cash_flow')} description={t('last_6_months')}>

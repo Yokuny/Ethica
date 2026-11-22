@@ -55,13 +55,7 @@ export function CaseDeadlines({ caseId }: { caseId: string }) {
               <LinkListItem
                 key={deadline.id}
                 icon={CalendarClock}
-                render={
-                  <button
-                    type="button"
-                    className="w-full text-left"
-                    onClick={() => setPanel({ kind: 'detail', deadline })}
-                  />
-                }
+                render={<button type="button" onClick={() => setPanel({ kind: 'detail', deadline })} />}
                 title={deadline.title}
                 badges={
                   <>

@@ -2159,6 +2159,12 @@
       "decisao": "PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e dé",
       "data": "2026-11-21",
       "status": "active"
+    },
+    {
+      "id": "AD-252",
+      "decisao": "`LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc",
+      "data": "2026-11-21",
+      "status": "active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)"
     }
   ]
 }

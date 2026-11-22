@@ -54,7 +54,7 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
             <LinkListItem
               key={movement.id}
               icon={History}
-              render={<button type="button" className="w-full text-left" onClick={() => setRemoving(movement)} />}
+              render={<button type="button" onClick={() => setRemoving(movement)} />}
               title={t(movement.type)}
               description={[day(movement.data), movement.notes].filter(Boolean).join(' · ')}
             />

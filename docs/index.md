@@ -85,6 +85,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-252** (2026-11-21, active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)) — `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc
 - **AD-251** (2026-11-21, active) — PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e dé
 - **AD-250** (2026-11-21, active) — A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p
 - **AD-249** (2026-11-21, active) — A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia
@@ -94,7 +95,6 @@ _Nenhum._
 - **AD-245** (2026-11-20, active) — A tela de planos sai de `/suspended` e passa a `/billing` no web, o mesmo termo da Assinatura na API e no glossário (AD-140): é a tela de pa
 - **AD-244** (2026-11-20, active) — O escritório (tenant) pode ser cadastrado com CPF ou CNPJ, no cadastro pela tela de acesso e pela plataforma. Uma validação só, `tenantDocum
 - **AD-243** (2026-11-20, active) — As três páginas da Logística ganham no cabeçalho (`CardAction`) um seletor de intervalo (`RangePicker`) para o que a faixa de dias (AD-242)
-- **AD-242** (2026-11-20, active) — Nas três páginas da Logística (Mapa, Planejamento de rota e Serviços agendados), o intervalo de datas é uma faixa de dias lado a lado (mês c
 
 ## `.specs/` sem registro em `docs/features/`
 
