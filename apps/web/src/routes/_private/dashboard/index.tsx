@@ -34,13 +34,9 @@ const formatNumber = (value: number) => number.format(value);
 const sumOf = (rows: CategoryTotal[], key: 'totalCents' | 'previousCents') =>
   rows.reduce((total, row) => total + row[key], 0);
 
-// Change of a part against the previous period, written beside it; "new" when there was nothing before.
+// Change of a part against the previous period (the panel description says so once); "new" without a base.
 const changeText = (current: number, previous: number) =>
-  previous
-    ? `${percentChange(current, previous)} ${t('vs_previous_period')}`
-    : current
-      ? t('new_in_period')
-      : undefined;
+  previous ? percentChange(current, previous) : current ? t('new_in_period') : undefined;
 
 const categorySlices = (rows: CategoryTotal[]) =>
   rows.map((row) => ({

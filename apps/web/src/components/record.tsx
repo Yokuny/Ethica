@@ -290,7 +290,8 @@ export function RecordStat({
               </div>
               {headerAction}
             </div>
-            <div className="flex items-baseline gap-2">
+            {/* Wraps instead of overflowing: in a narrow cell the hint goes to the next line, never over the value. */}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
               <ItemTitle
                 className={cn(
                   ruled ? 'text-2xl leading-tight' : 'text-[1.4rem] leading-none font-normal tracking-tight',
@@ -301,7 +302,7 @@ export function RecordStat({
                 {value}
                 {isLink && <ArrowUpRight aria-hidden className="size-3.5 shrink-0" />}
               </ItemTitle>
-              {hint && <ItemDescription className="text-xs line-clamp-none">{hint}</ItemDescription>}
+              {hint && <ItemDescription className="text-xs line-clamp-none whitespace-nowrap">{hint}</ItemDescription>}
             </div>
             {ratio !== undefined && <Ruler ratio={ratio} />}
             {sparkline && <Sparkline values={sparkline} />}

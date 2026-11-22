@@ -86,7 +86,7 @@ export function CompositionDonut({ label, slices, format, centerDetail, limit = 
             </PieChart>
           </ChartContainer>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-            <ItemTitle className="text-lg font-medium tabular-nums leading-tight">{format(total)}</ItemTitle>
+            <ItemTitle className="text-base font-medium tabular-nums leading-tight">{format(total)}</ItemTitle>
             {centerDetail && <ItemDescription className="text-xs tabular-nums">{centerDetail}</ItemDescription>}
           </div>
         </div>

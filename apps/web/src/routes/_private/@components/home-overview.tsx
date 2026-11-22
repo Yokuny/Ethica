@@ -40,7 +40,7 @@ export function HomeOverview({ stats, summary }: { stats?: ListStats; summary?: 
           label={t('receivable')}
           value={formatMoney(summary.receivableCents)}
           dot={summary.lateCents ? { variant: 'error' } : undefined}
-          hint={summary.lateCents ? `${formatMoney(summary.lateCents)} ${t('overdue')}` : undefined}
+          hint={summary.lateCents ? `${formatMoney(summary.lateCents)} ${t('overdue').toLowerCase()}` : undefined}
           render={<Link to="/finance" search={{ state: 'expected' }} />}
         />
       )}

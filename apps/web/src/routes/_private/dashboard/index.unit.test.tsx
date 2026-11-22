@@ -110,10 +110,10 @@ describe('Dashboard (DSH, AD-255)', () => {
   it('dinheiro: categorias em rosca com a variação contra o período anterior', () => {
     renderPage(['admin']);
     expect(screen.getByText('De onde vem o dinheiro')).toBeInTheDocument();
-    expect(screen.getByText('+100% vs. período anterior')).toBeInTheDocument();
+    expect(screen.getAllByText('+100%').length).toBeGreaterThan(0);
     expect(screen.getByText('Novo no período')).toBeInTheDocument();
     // One expense category: the center and its legend row have the same change.
-    expect(screen.getAllByText('-50% vs. período anterior')).toHaveLength(2);
+    expect(screen.getAllByText('-50%')).toHaveLength(2);
   });
 
   it('trabalho: o mix de serviços abre a lista filtrada pelo tipo', () => {
