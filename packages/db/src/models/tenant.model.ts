@@ -34,8 +34,8 @@ export interface TenantDocument {
   storageBytes: number;
   // Template of the schedule notice to the parties (AD-131); without it the server default applies.
   scheduleNotice?: { subject: string; body: string };
-  // Revenue goal (MRA-01, AD-258): only valid while `year` is the current year in the display time zone.
-  revenueGoal?: { year: number; amountCents: number };
+  // Revenue goals, one per year (MRA-01, AD-258, AD-259).
+  revenueGoals?: { year: number; amountCents: number }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -92,12 +92,14 @@ const tenantSchema = new Schema<TenantDocument>(
     },
     storageBytes: { type: Number, min: 0, default: 0, required: true },
     scheduleNotice: { type: new Schema({ subject: String, body: String }, { _id: false }) },
-    revenueGoal: {
-      type: new Schema(
-        { year: { type: Number, required: true }, amountCents: { type: Number, min: 1, required: true } },
-        { _id: false },
-      ),
-      required: false,
+    revenueGoals: {
+      type: [
+        new Schema(
+          { year: { type: Number, required: true }, amountCents: { type: Number, min: 1, required: true } },
+          { _id: false },
+        ),
+      ],
+      default: undefined,
     },
   },
   { timestamps: true },

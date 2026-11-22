@@ -1,7 +1,9 @@
 import { Button } from '@ethica/ui/components/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router';
+import { AppLink } from '@/components/app-link.js';
 import { serviceTypeLabel } from '@/components/case-labels.js';
 import { CashFlowChart } from '@/components/cash-flow-chart.js';
 import { CashFlowTable } from '@/components/cash-flow-table.js';
@@ -24,7 +26,7 @@ import { CasesMonthTable } from './@components/cases-month-table.js';
 import { DashboardAlerts } from './@components/dashboard-alerts.js';
 import { MoneyKpis, WorkKpis } from './@components/dashboard-kpis.js';
 import { MonthDetails } from './@components/month-details.js';
-import { RevenueGoalPanel } from './@components/revenue-goal-panel.js';
+import { RevenueGoalChart } from './@components/revenue-goal-chart.js';
 import { ServicesAreaChart } from './@components/services-area-chart.js';
 import {
   type DashboardSearch,
@@ -92,7 +94,8 @@ export function DashboardPage() {
   const cases = useQuery(caseDashboardQuery);
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance });
   const fees = useQuery({ ...feesDashboardQuery, enabled: canSeeFinance });
-  const goal = useQuery({ ...revenueGoalQuery, enabled: canSeeFinance });
+  const goal = useQuery({ ...revenueGoalQuery(search.year), enabled: canSeeFinance });
+  const goalCents = goal.data?.goalCents;
   // Complete months only (the one in progress would end every line in a false drop): the period and the previous
   // one of the same size, plus the current month that the API also sends and the page drops.
   const flow = useQuery({ ...monthlyFlowQuery(2 * months + 1), enabled: canSeeFinance });
@@ -113,7 +116,10 @@ export function DashboardPage() {
             aria-label={t('period')}
             value={String(months)}
             onValueChange={(value) =>
-              navigate({ search: { months: Number(value) as DashboardSearch['months'] }, replace: true })
+              navigate({
+                search: { months: Number(value) as DashboardSearch['months'], year: search.year },
+                replace: true,
+              })
             }
           >
             {PERIODS.map((value) => (
@@ -134,7 +140,45 @@ export function DashboardPage() {
           />
         ) : (
           <>
-            {goal.data && <RevenueGoalPanel goal={goal.data} isAdmin={isAdminSession(session)} />}
+            {goal.data && (goalCents || isAdminSession(session)) && (
+              <Panel
+                size="lg"
+                title={`${t('goal_of')} ${goal.data.year}`}
+                description={t('revenue_goal_scope')}
+                actions={
+                  goal.data.years.length > 1 && (
+                    <Select
+                      items={goal.data.years.map((year) => ({ value: String(year), label: String(year) }))}
+                      value={String(goal.data.year)}
+                      onValueChange={(value) =>
+                        value && navigate({ search: { months, year: Number(value) }, replace: true })
+                      }
+                    >
+                      <SelectTrigger size="compact" aria-label={t('year')}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {goal.data.years.map((year) => (
+                          <SelectItem key={year} value={String(year)}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )
+                }
+              >
+                {goalCents ? (
+                  <RevenueGoalChart goal={{ ...goal.data, goalCents }} />
+                ) : (
+                  <DefaultEmptyData
+                    title={t('no_revenue_goal')}
+                    description={t('set_revenue_goal_in_office')}
+                    action={<AppLink to="/office">{t('office')}</AppLink>}
+                  />
+                )}
+              </Panel>
+            )}
 
             {canSeeFinance && complete && (
               <section aria-label={t('overview')} className="flex flex-col gap-4">

@@ -18,5 +18,7 @@ export const dashboardSearchSchema = z.object({
     .number()
     .pipe(z.union([z.literal(6), z.literal(12)]))
     .catch(6),
+  // Year of the revenue goal panel (AD-259); missing = the current one.
+  year: z.coerce.number().int().min(2000).max(2100).optional().catch(undefined),
 });
 export type DashboardSearch = z.infer<typeof dashboardSearchSchema>;

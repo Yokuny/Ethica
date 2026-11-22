@@ -47,6 +47,7 @@ import {
   flowQuerySchema,
   installmentIdParamSchema,
   listTransactionsQuerySchema,
+  revenueGoalQuerySchema,
   transactionIdParamSchema,
 } from './finance/transaction.schema.js';
 import { passkeyIdParamSchema } from './identity/account.schema.js';
@@ -113,6 +114,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listTransactionsQuerySchema', schema: listTransactionsQuerySchema },
   { name: 'installmentIdParamSchema', schema: installmentIdParamSchema },
   { name: 'flowQuerySchema', schema: flowQuerySchema },
+  { name: 'revenueGoalQuerySchema', schema: revenueGoalQuerySchema },
   { name: 'categoriesQuerySchema', schema: categoriesQuerySchema },
   { name: 'opportunityIdParamSchema', schema: opportunityIdParamSchema },
   { name: 'listOpportunitiesQuerySchema', schema: listOpportunitiesQuerySchema },

@@ -50,7 +50,7 @@ export function OfficePage() {
               <OfficeScheduleNotice />
             </StepItem>
             <StepItem title={t('revenue_goal')} description={t('revenue_goal_description')}>
-              <OfficeRevenueGoal goal={office.revenueGoal} />
+              <OfficeRevenueGoal office={office} />
             </StepItem>
             <StepItem title={t('storage')} description={t('storage_description')}>
               <OfficeStorage office={office} />

@@ -7,6 +7,7 @@ import * as officeRepository from './office.repository.js';
 import type {
   DocumentIdentity,
   OfficeView,
+  RevenueGoalEntry,
   TenantLogo,
   UpdateOffice,
   UpdateRevenueGoal,
@@ -27,15 +28,12 @@ const requireStorage = (storage: FileStorage | undefined): FileStorage => {
   return storage;
 };
 
-// The current year in the display time zone: a goal of another year no longer counts (AD-258).
 const currentYear = (now: Date) => Number(dateInDisplayTz(now).slice(0, 4));
-const goalOf = (goal: { year: number; amountCents: number } | undefined, year: number) =>
-  goal?.year === year ? goal.amountCents : undefined;
+const goalsOf = (goals: RevenueGoalEntry[] | undefined): RevenueGoalEntry[] =>
+  (goals ?? []).map(({ year, amountCents }) => ({ year, amountCents })).sort((a, b) => b.year - a.year);
 
 export const getOffice = async (tenantId: string, now: Date = new Date()): Promise<OfficeView> => {
   const tenant = await findOfficeOrThrow(tenantId);
-  const year = currentYear(now);
-  const amountCents = goalOf(tenant.revenueGoal, year);
   // The latest exports come from the activity log (AD-134).
   const exports = await activityLogService.latestExports(tenantId, EXPORTS_SHOWN);
   return {
@@ -47,7 +45,8 @@ export const getOffice = async (tenantId: string, now: Date = new Date()): Promi
     storageBytes: tenant.storageBytes ?? 0,
     storageQuotaBytes: TENANT_STORAGE_QUOTA_BYTES,
     dataExports: exports.map((item) => ({ userName: item.userName, at: item.createdAt })),
-    revenueGoal: { year, ...(amountCents ? { amountCents } : {}) },
+    revenueGoals: goalsOf(tenant.revenueGoals),
+    currentYear: currentYear(now),
   };
 };
 
@@ -139,17 +138,20 @@ export const updateScheduleNotice = async (tenantId: string, notice: UpdateSched
   return getScheduleNotice(tenantId);
 };
 
-// Revenue goal of the current year (MRA-01, AD-258), for finance to measure the realized against.
-export const getRevenueGoal = async (
+// Revenue goals of the office (MRA-01, AD-259), for finance to measure the realized against; `year` defaults to the
+// current one in the display time zone.
+export const getRevenueGoals = async (
   tenantId: string,
   now: Date = new Date(),
-): Promise<{ year: number; amountCents?: number }> => {
-  const year = currentYear(now);
-  const amountCents = goalOf((await findOfficeOrThrow(tenantId)).revenueGoal, year);
-  return { year, ...(amountCents ? { amountCents } : {}) };
-};
+): Promise<{ currentYear: number; goals: RevenueGoalEntry[] }> => ({
+  currentYear: currentYear(now),
+  goals: goalsOf((await findOfficeOrThrow(tenantId)).revenueGoals),
+});
 
-export const setRevenueGoal = async (tenantId: string, { amountCents }: UpdateRevenueGoal): Promise<OfficeView> => {
-  await officeRepository.setRevenueGoal(tenantId, currentYear(new Date()), amountCents);
+export const setRevenueGoal = async (
+  tenantId: string,
+  { year, amountCents }: UpdateRevenueGoal,
+): Promise<OfficeView> => {
+  await officeRepository.setRevenueGoal(tenantId, year, amountCents);
   return getOffice(tenantId);
 };

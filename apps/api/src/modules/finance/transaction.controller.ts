@@ -2,7 +2,7 @@ import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
-import type { CategoriesQuery, FlowQuery, ListTransactionsQuery } from './transaction.schema.js';
+import type { CategoriesQuery, FlowQuery, ListTransactionsQuery, RevenueGoalQuery } from './transaction.schema.js';
 import * as transactionService from './transaction.service.js';
 import { TransactionNotFoundError } from './transaction.service.js';
 
@@ -62,7 +62,8 @@ export const summary = async (req: Request, res: Response, next: NextFunction): 
 
 export const revenueGoal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    res.json(respObj({ data: await transactionService.revenueGoal(tenantOf(req)) }));
+    const { year } = req.query as unknown as RevenueGoalQuery;
+    res.json(respObj({ data: await transactionService.revenueGoal(tenantOf(req), year) }));
   } catch (e) {
     next(e);
   }

@@ -15,8 +15,9 @@ export type OfficeView = {
   storageBytes: number;
   storageQuotaBytes: number;
   dataExports: { userName?: string; at: string }[];
-  // Revenue goal of the current year (MRA-01); `amountCents` missing without one.
-  revenueGoal: { year: number; amountCents?: number };
+  // Revenue goals by year, newest first (MRA-01, AD-259), and the current year.
+  revenueGoals: { year: number; amountCents: number }[];
+  currentYear: number;
 };
 
 export const officeKeys = { detail: ['office'] as const };
@@ -43,7 +44,7 @@ export const updateOfficeMutation = (
   onSuccess: setOffice(queryClient),
 });
 
-// Revenue goal of the current year (MRA-01); 0 removes it. The Dashboard reads it with the realized.
+// Revenue goal of a year (MRA-01, AD-259); 0 removes that year's goal. The Dashboard reads it with the realized.
 export const updateRevenueGoalMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<OfficeView, Error, UpdateRevenueGoal> => ({

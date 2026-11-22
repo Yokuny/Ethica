@@ -90,10 +90,13 @@ export const transactionsQuery = (params: TransactionsQueryParams = {}) =>
     },
   });
 
-// Mirrors RevenueGoal of apps/api/src/modules/finance/transaction.schema.ts (MRA-02, AD-258). Under the transaction
-// keys, so a receipt refreshes it; saving the goal in Office invalidates it too.
+// Mirrors RevenueGoal of apps/api/src/modules/finance/transaction.schema.ts (MRA-02, AD-258, AD-259). Under the
+// transaction keys, so a receipt refreshes it; saving a goal in Office invalidates it too.
 export type RevenueGoal = {
   year: number;
+  currentYear: number;
+  years: number[];
+  byMonth: { month: string; receivedCents: number }[];
   receivedCents: number;
   goalCents?: number;
   expectedCents?: number;
@@ -101,10 +104,12 @@ export type RevenueGoal = {
   monthsLeft: number;
 };
 
-export const revenueGoalQuery = queryOptions({
-  queryKey: [...transactionKeys.all, 'revenue-goal'],
-  queryFn: () => fetchData<RevenueGoal>('/finance/revenue-goal'),
-});
+// `year` missing = the current one.
+export const revenueGoalQuery = (year?: number) =>
+  queryOptions({
+    queryKey: [...transactionKeys.all, 'revenue-goal', year ?? 'current'],
+    queryFn: () => fetchData<RevenueGoal>(`/finance/revenue-goal${year ? `?year=${year}` : ''}`),
+  });
 
 export const financeSummaryQuery = queryOptions({
   queryKey: transactionKeys.summary(),

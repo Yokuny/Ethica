@@ -66,7 +66,7 @@ describe('meta de receita do ano (MRA, AD-258)', () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     expect(
-      (await admin(request(app).put('/tenant/office/revenue-goal')).send({ amountCents: 12_000_000 })).status,
+      (await admin(request(app).put('/tenant/office/revenue-goal')).send({ year, amountCents: 12_000_000 })).status,
     ).toBe(200);
     // Due in the past year, received on 1 January: counts.
     await income(tenant._id, `${year - 1}-11-10`, [{ amountCents: 100_000, date: `${year}-01-01` }]);
@@ -105,29 +105,53 @@ describe('meta de receita do ano (MRA, AD-258)', () => {
     expect(goal.expectedCents).toBeGreaterThan(0);
     expect(goal.expectedCents).toBeLessThanOrEqual(12_000_000);
 
+    expect(goal.byMonth).toHaveLength(12);
+    expect(goal.byMonth[0]).toEqual({ month: `${year}-01`, receivedCents: 100_000 });
+    expect(goal.byMonth.reduce((total: number, row: { receivedCents: number }) => total + row.receivedCents, 0)).toBe(
+      400_000,
+    );
+
+    // The past year: its own realized, the whole goal expected and nothing left per month.
+    await admin(request(app).put('/tenant/office/revenue-goal')).send({ year: year - 1, amountCents: 150_000 });
+    const past = (await admin(request(app).get(`/finance/revenue-goal?year=${year - 1}`))).body.data;
+    expect(past).toMatchObject({ year: year - 1, goalCents: 150_000, receivedCents: 200_000, expectedCents: 150_000 });
+    expect(past.monthsLeft).toBe(0);
+    expect(past.perMonthCents).toBeUndefined();
+    expect(past.years).toEqual([year, year - 1]);
+
     const office = await admin(request(app).get('/tenant/office'));
-    expect(office.body.data.revenueGoal).toEqual({ year, amountCents: 12_000_000 });
+    expect(office.body.data.revenueGoals).toEqual([
+      { year, amountCents: 12_000_000 },
+      { year: year - 1, amountCents: 150_000 },
+    ]);
   });
 
-  it('meta de outro ano não vale e 0 remove a meta', async () => {
+  it('cada ano tem a sua meta: regravar troca a do ano, 0 remove só aquele ano', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
-    await Tenant.updateOne({ _id: tenant._id }, { revenueGoal: { year: year - 1, amountCents: 9_000_000 } });
-    const old = (await admin(request(app).get('/finance/revenue-goal'))).body.data;
-    expect(old.goalCents).toBeUndefined();
-    expect(old.receivedCents).toBe(0);
+    await admin(request(app).put('/tenant/office/revenue-goal')).send({ year: year + 1, amountCents: 9_000_000 });
+    const current = (await admin(request(app).get('/finance/revenue-goal'))).body.data;
+    expect(current.goalCents).toBeUndefined();
+    expect(current.years).toEqual([year + 1, year]);
+    const future = (await admin(request(app).get(`/finance/revenue-goal?year=${year + 1}`))).body.data;
+    expect(future).toMatchObject({ goalCents: 9_000_000, expectedCents: 0, monthsLeft: 12, perMonthCents: 750_000 });
 
-    await admin(request(app).put('/tenant/office/revenue-goal')).send({ amountCents: 5_000_000 });
-    const removed = await admin(request(app).put('/tenant/office/revenue-goal')).send({ amountCents: 0 });
-    expect(removed.body.data.revenueGoal).toEqual({ year });
-    expect((await Tenant.findById(tenant._id).lean())?.revenueGoal).toBeUndefined();
+    await admin(request(app).put('/tenant/office/revenue-goal')).send({ year, amountCents: 5_000_000 });
+    await admin(request(app).put('/tenant/office/revenue-goal')).send({ year, amountCents: 6_000_000 });
+    const removed = await admin(request(app).put('/tenant/office/revenue-goal')).send({
+      year: year + 1,
+      amountCents: 0,
+    });
+    expect(removed.body.data.revenueGoals).toEqual([{ year, amountCents: 6_000_000 }]);
   });
 
   it('só o admin grava; ler exige ver o Financeiro', async () => {
     const tenant = await seedTenant();
     const manager = await seedSession(tenant._id, ['manager']);
     const operator = await seedSession(tenant._id, ['operator']);
-    expect((await manager(request(app).put('/tenant/office/revenue-goal')).send({ amountCents: 1 })).status).toBe(403);
+    expect((await manager(request(app).put('/tenant/office/revenue-goal')).send({ year, amountCents: 1 })).status).toBe(
+      403,
+    );
     expect((await manager(request(app).get('/finance/revenue-goal'))).status).toBe(200);
     expect((await operator(request(app).get('/finance/revenue-goal'))).status).toBe(403);
   });

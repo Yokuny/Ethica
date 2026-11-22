@@ -97,8 +97,11 @@ export const updateScheduleNoticeSchema = z
   .strict();
 export type UpdateScheduleNotice = z.infer<typeof updateScheduleNoticeSchema>;
 
-// Revenue goal of the current year (MRA-01, AD-258); 0 removes it.
+// Revenue goal of a year (MRA-01, AD-258, AD-259); 0 removes that year's goal.
 export const updateRevenueGoalSchema = z
-  .object({ amountCents: z.number().int('valor deve ser inteiro').min(0, 'valor não pode ser negativo') })
+  .object({
+    year: z.number().int('ano inválido').min(2000, 'ano inválido').max(2100, 'ano inválido'),
+    amountCents: z.number().int('valor deve ser inteiro').min(0, 'valor não pode ser negativo'),
+  })
   .strict();
 export type UpdateRevenueGoal = z.infer<typeof updateRevenueGoalSchema>;

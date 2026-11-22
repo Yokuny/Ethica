@@ -46,6 +46,11 @@ export type ListTransactionsQuery = z.infer<typeof listTransactionsQuerySchema>;
 // Up to 25: two 12-month periods of complete months plus the one in progress (AD-255).
 export const flowQuerySchema = z.object({ months: z.coerce.number().int().min(1).max(25).default(6) }).strict();
 export type FlowQuery = z.infer<typeof flowQuerySchema>;
+// Year of the revenue goal (AD-259); without it, the current one.
+export const revenueGoalQuerySchema = z
+  .object({ year: z.coerce.number().int().min(2000).max(2100).optional() })
+  .strict();
+export type RevenueGoalQuery = z.infer<typeof revenueGoalQuerySchema>;
 
 // `months`: the Dashboard's period of complete months and, before it, the previous one of the same size.
 export const categoriesQuerySchema = z
@@ -97,11 +102,15 @@ export type FeesDashboard = {
   receivedCents: number;
 };
 
-// Revenue goal of the year against what was received (MRA-02, MRA-03, AD-258). Without a goal only `year` and
-// `receivedCents` come; `expectedCents` is the linear pace up to today and `perMonthCents` what is left split by the
-// remaining months, the current one included.
+// Revenue goal of a year against what was received (MRA-02, MRA-03, AD-258, AD-259). `byMonth` is what came in
+// each month of the year (12 rows); `years` the years with a goal plus the current one, newest first. Without a goal
+// the pace fields are missing; `expectedCents` is the linear pace up to today (the whole goal for a past year, zero
+// for a future one) and `perMonthCents` what is left split by the remaining months, the current one included.
 export type RevenueGoal = {
   year: number;
+  currentYear: number;
+  years: number[];
+  byMonth: { month: string; receivedCents: number }[];
   receivedCents: number;
   goalCents?: number;
   expectedCents?: number;

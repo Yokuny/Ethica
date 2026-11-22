@@ -286,17 +286,18 @@ export const summary = async (
     return { receivableCents, lateCents, receivedMonthCents, expensesMonthCents };
   });
 
-// Received between `from` (inclusive) and `to` (exclusive), by the date each installment hit the account
-// (MRA-02): the effective payment date, never the due or hiring date. Same sum as the cash flow's received.
-export const receivedBetween = async (tenantId: string, from: string, to: string): Promise<number> =>
-  withDbTiming('finance.receivedBetween', async () =>
-    sum([
+// Received in each month (`YYYY-MM`) of a year, by the date each installment hit the account (MRA-02): the
+// effective payment date, never the due or hiring date. Same sums as the cash flow's received.
+export const receivedByMonth = async (tenantId: string, year: number): Promise<Map<string, number>> =>
+  withDbTiming('finance.receivedByMonth', async () => {
+    const rows = await Transaction.aggregate<{ _id: string; total: number }>([
       { $match: { Tenant: toObjectId(tenantId), kind: 'income', status: { $ne: 'canceled' } } },
       { $unwind: '$installments' },
-      { $match: { 'installments.date': { $gte: from, $lt: to } } },
-      { $project: { amount: '$installments.amountCents' } },
-    ]),
-  );
+      { $match: { 'installments.date': { $gte: `${year}-01-01`, $lt: `${year + 1}-01-01` } } },
+      { $group: { _id: { $substrBytes: ['$installments.date', 0, 7] }, total: { $sum: '$installments.amountCents' } } },
+    ]);
+    return new Map(rows.map((row) => [row._id, row.total]));
+  });
 
 export const feesDashboard = async (tenantId: string): Promise<FeesDashboard> =>
   withDbTiming('finance.feesDashboard', async () => {

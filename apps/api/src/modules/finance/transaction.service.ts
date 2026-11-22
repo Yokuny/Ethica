@@ -186,24 +186,37 @@ export const feesDashboard = (tenantId: string) => transactionRepository.feesDas
 
 const DAY_MS = 86_400_000;
 
-// Revenue goal of the year (MRA-02, MRA-03, AD-258): the realized is what was received in the calendar year so far,
+// Revenue goal of a year (MRA-02, MRA-03, AD-258, AD-259): the realized is what was received in that calendar year,
 // by each installment's date. The pace is linear by days, today included.
-export const revenueGoal = async (tenantId: string, now: Date = new Date()): Promise<RevenueGoal> => {
+export const revenueGoal = async (
+  tenantId: string,
+  requestedYear?: number,
+  now: Date = new Date(),
+): Promise<RevenueGoal> => {
   const today = dateInDisplayTz(now);
-  const { year, amountCents: goalCents } = await officeService.getRevenueGoal(tenantId, now);
-  const receivedCents = await transactionRepository.receivedBetween(tenantId, `${year}-01-01`, `${year + 1}-01-01`);
-  const monthsLeft = 13 - Number(today.slice(5, 7));
-  if (!goalCents) return { year, receivedCents, monthsLeft };
+  const { currentYear, goals } = await officeService.getRevenueGoals(tenantId, now);
+  const year = requestedYear ?? currentYear;
+  const received = await transactionRepository.receivedByMonth(tenantId, year);
+  const byMonth = Array.from({ length: 12 }, (_, index) => {
+    const month = `${year}-${String(index + 1).padStart(2, '0')}`;
+    return { month, receivedCents: received.get(month) ?? 0 };
+  });
+  const receivedCents = byMonth.reduce((total, row) => total + row.receivedCents, 0);
+  const years = [...new Set([currentYear, ...goals.map((goal) => goal.year)])].sort((a, b) => b - a);
+  const monthsLeft = year < currentYear ? 0 : year > currentYear ? 12 : 13 - Number(today.slice(5, 7));
+  const base = { year, currentYear, years, byMonth, receivedCents, monthsLeft };
+  const goalCents = goals.find((goal) => goal.year === year)?.amountCents;
+  if (!goalCents) return base;
   const day = (date: string) => Date.parse(`${date}T00:00:00Z`);
-  const elapsed = (day(today) - day(`${year}-01-01`)) / DAY_MS + 1;
   const length = (day(`${year + 1}-01-01`) - day(`${year}-01-01`)) / DAY_MS;
+  const elapsed =
+    year < currentYear ? length : year > currentYear ? 0 : (day(today) - day(`${year}-01-01`)) / DAY_MS + 1;
+  const left = Math.max(0, goalCents - receivedCents);
   return {
-    year,
-    receivedCents,
+    ...base,
     goalCents,
     expectedCents: Math.round((goalCents * elapsed) / length),
-    perMonthCents: Math.ceil(Math.max(0, goalCents - receivedCents) / monthsLeft),
-    monthsLeft,
+    ...(monthsLeft ? { perMonthCents: Math.ceil(left / monthsLeft) } : {}),
   };
 };
 

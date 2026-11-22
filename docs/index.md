@@ -88,7 +88,8 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-258** (2026-11-22, active) — Meta de receita do ano. O admin cadastra em Escritório um valor para o ano corrente, guardado como `Tenant.revenueGoal = { year, amountCents
+- **AD-259** (2026-11-22, active) — Metas por ano, gráfico próprio no Dashboard e só "? Dados da meta" em Serviços. O escritório guarda uma meta por ano (`Tenant.revenueGoals:
+- **AD-258** (2026-11-22, superseded in part by AD-259) — Meta de receita do ano. O admin cadastra em Escritório um valor para o ano corrente, guardado como `Tenant.revenueGoal = { year, amountCents
 - **AD-257** (2026-11-22, active) — Os parâmetros da URL são gravados como se leem. Texto vai sem aspas (`?q=123`, não `?q=%22123%22`); só listas e objetos (filtros de vários v
 - **AD-256** (2026-11-22, active) — Ajustes na AD-255, no mesmo dia. (1) O Dashboard usa só meses completos: o mês em andamento fica fora de todo número, linha e comparação. `G
 - **AD-255** (2026-11-22, active; período, faixa e "Outros" ajustados pela AD-256) — Dashboard e Início reformulados com gráficos, do macro ao micro, pelo guia de dashboards do usuário (`apps/web/src/routes/_private/dashboard
@@ -97,7 +98,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-252** (2026-11-21, active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)) — `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc
 - **AD-251** (2026-11-21, active) — PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e dé
 - **AD-250** (2026-11-21, active) — A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p
-- **AD-249** (2026-11-21, active) — A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia
 
 ## `.specs/` sem registro em `docs/features/`
 

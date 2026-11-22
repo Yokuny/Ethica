@@ -14,7 +14,8 @@
         "packages/db"
       ],
       "decisoes": [
-        "AD-258"
+        "AD-258",
+        "AD-259"
       ],
       "spec": [
         ".specs/features/meta-receita"
@@ -2235,6 +2236,12 @@
     {
       "id": "AD-258",
       "decisao": "Meta de receita do ano. O admin cadastra em Escritório um valor para o ano corrente, guardado como `Tenant.revenueGoal = { year, amountCents",
+      "data": "2026-11-22",
+      "status": "superseded in part by AD-259"
+    },
+    {
+      "id": "AD-259",
+      "decisao": "Metas por ano, gráfico próprio no Dashboard e só \"? Dados da meta\" em Serviços. O escritório guarda uma meta por ano (`Tenant.revenueGoals:",
       "data": "2026-11-22",
       "status": "active"
     }

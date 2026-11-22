@@ -59,7 +59,7 @@ export function CasesIndexPage() {
   const canCreate = Boolean(session && can(session, 'expert_cases', 'create'));
   const canSeeFinance = Boolean(session && can(session, 'finance'));
   // Revenue goal (MRA-04): each person who sees Finance chooses to follow it here.
-  const goal = useQuery({ ...revenueGoalQuery, enabled: canSeeFinance }).data;
+  const goal = useQuery({ ...revenueGoalQuery(), enabled: canSeeFinance }).data;
   const preferences = useQuery({ ...preferencesQuery, enabled: canSeeFinance }).data;
   const savePreferences = useMutation(updatePreferencesMutation(queryClient));
   const goalCents = goal?.goalCents;

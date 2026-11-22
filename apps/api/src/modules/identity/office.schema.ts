@@ -19,9 +19,12 @@ export type OfficeView = {
   storageBytes: number;
   storageQuotaBytes: number;
   dataExports: Array<{ userName?: string; at: Date }>;
-  // Revenue goal of the current year (MRA-01); missing without one.
-  revenueGoal: { year: number; amountCents?: number };
+  // Revenue goals by year, newest first (MRA-01, AD-259), and the current year in the display time zone.
+  revenueGoals: RevenueGoalEntry[];
+  currentYear: number;
 };
+
+export type RevenueGoalEntry = { year: number; amountCents: number };
 
 export type TenantLogo = { key: string; bytes: number; updatedAt?: Date };
 

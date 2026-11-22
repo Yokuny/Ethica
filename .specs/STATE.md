@@ -1581,6 +1581,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: na virada do ano o campo volta vazio até o admin cadastrar a nova meta; o painel da meta não segue o período da página.
 - **Scope**: `packages/db/src/models/{tenant,user}.model.ts`, `packages/contracts/src/schemas/document.schema.ts`, `apps/api/src/modules/identity/{office,preferences}.*`, `apps/api/src/modules/finance/transaction.*`, `apps/web/src/routes/_private/{_admin/office,dashboard,expert-cases}/`, `apps/web/src/query/{transaction,preferences}.ts`.
 - **Date**: 2026-11-22
+- **Status**: superseded in part by AD-259
+
+### AD-259
+- **Decision**: Metas por ano, gráfico próprio no Dashboard e só "? Dados da meta" em Serviços. O escritório guarda uma meta por ano (`Tenant.revenueGoals: [{ year, amountCents }]`); em Escritório a lista de metas tem Nova meta, Editar e Remover, com o ano escolhido de cinco anos atrás a cinco à frente. `PUT /tenant/office/revenue-goal` recebe `{ year, amountCents }` (0 remove aquele ano). `GET /finance/revenue-goal?year=` devolve também o recebido de cada mês (`byMonth`) e os anos com meta (`years`); ano passado espera a meta toda e não tem "por mês", ano futuro espera zero. No Dashboard o painel vira um gráfico: área verde com o recebido acumulado até o mês atual e linha tracejada com a meta distribuída no ano, com meta, recebido, % atingido, quanto falta e o ritmo em texto, e um seletor de ano (`?year=`) quando há mais de um. Em Serviços a linha vira só "? Dados da meta" sublinhado, com os números no tooltip. Supersede, da AD-258, a meta única do ano corrente e o painel em faixa de números.
+- **Reason**: conferência da perita na tela (2026-11-22): o painel em faixa ficava embolado com os KPIs logo abaixo, a linha em Serviços ocupava demais e ela quer cadastrar metas de outros anos.
+- **Trade-off**: o painel da meta segue fora do período `?months=` da página; o ano da meta vai na URL à parte.
+- **Scope**: `packages/db/src/models/tenant.model.ts`, `packages/contracts/src/schemas/document.schema.ts`, `apps/api/src/modules/identity/office.*`, `apps/api/src/modules/finance/transaction.*`, `apps/web/src/routes/_private/{_admin/office,dashboard,expert-cases}/`.
+- **Date**: 2026-11-22
 - **Status**: active
 
 ## Handoff

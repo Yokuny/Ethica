@@ -6,7 +6,7 @@ import type { TenantLogo, UpdateOffice } from './office.schema.js';
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
     Tenant.findById(tenantId)
-      .select('name header footer headerStyle footerStyle logo storageBytes scheduleNotice revenueGoal')
+      .select('name header footer headerStyle footerStyle logo storageBytes scheduleNotice revenueGoals')
       .lean(),
   );
 
@@ -67,11 +67,19 @@ export const setScheduleNotice = async (tenantId: string, notice: { subject: str
     await Tenant.updateOne({ _id: tenantId }, { $set: { scheduleNotice: notice } });
   });
 
-// Revenue goal (MRA-01, AD-258): one per office, of the year given by the service; 0 removes it.
+// Revenue goal of a year (MRA-01, AD-258, AD-259): replaces that year's entry in one update; 0 removes it.
 export const setRevenueGoal = async (tenantId: string, year: number, amountCents: number): Promise<void> =>
   withDbTiming('office.setRevenueGoal', async () => {
+    const others = { $filter: { input: { $ifNull: ['$revenueGoals', []] }, cond: { $ne: ['$$this.year', year] } } };
     await Tenant.updateOne(
       { _id: tenantId },
-      amountCents ? { $set: { revenueGoal: { year, amountCents } } } : { $unset: { revenueGoal: 1 } },
+      [
+        {
+          $set: {
+            revenueGoals: amountCents ? { $concatArrays: [others, [{ $literal: { year, amountCents } }]] } : others,
+          },
+        },
+      ],
+      { updatePipeline: true },
     );
   });

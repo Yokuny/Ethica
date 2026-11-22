@@ -1588,21 +1588,28 @@ const translations: Record<string, string> = {
   // Revenue goal of the year (MRA, AD-258).
   revenue_goal: 'Meta do ano',
   revenue_goal_description:
-    'Quanto o escritório quer receber neste ano. O Dashboard compara com o que já entrou, pela data de cada pagamento. Deixe em zero para ficar sem meta.',
+    'Quanto o escritório quer receber em cada ano. O Dashboard compara com o que já entrou, pela data de cada pagamento.',
+  new_revenue_goal: 'Nova meta',
+  edit_revenue_goal: 'Editar meta',
+  remove_revenue_goal_question: 'Remover a meta?',
+  no_revenue_goal_yet: 'Nenhuma meta cadastrada.',
   goal_of: 'Meta de',
-  revenue_goal_scope: 'Recebido no ano até hoje, pela data de cada pagamento, contra a meta cadastrada em Escritório.',
+  revenue_goal_scope: 'Recebido acumulado no ano, pela data de cada pagamento, contra a meta cadastrada em Escritório.',
   achieved: 'atingido',
+  reached: 'Atingido',
   left_to_goal: 'Falta para a meta',
-  expected_until_today: 'Esperado até hoje',
-  needed_per_month: 'Por mês até dezembro',
+  received_accumulated: 'Recebido no ano',
+  goal_pace: 'Meta (ritmo)',
+  per_month_until_december: 'por mês até dezembro',
   on_pace: 'No ritmo',
   below_pace: 'Abaixo do ritmo',
   goal_reached: 'Meta atingida',
+  goal_not_reached: 'Meta não atingida',
+  goal_data: 'Dados da meta',
   no_revenue_goal: 'Sem meta para este ano',
   set_revenue_goal_in_office: 'Cadastre em Escritório quanto o escritório quer receber no ano.',
   follow_goal_here: 'Acompanhar a meta aqui',
   hide_goal_here: 'Ocultar a meta daqui',
-  see_goal: 'Ver a meta',
 };
 
 // Languages supported by the app — today only pt-BR (the default). A new language
