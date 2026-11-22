@@ -35,6 +35,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Railway (serviço worker): incluir `DATAJUD_API_KEY` (a mesma da API) para ligar o acompanhamento no tribunal — `automacao-datajud`
 - [ ] Railway: criar o serviço **worker** no mesmo projeto e repositório, com arquivo de configuração `railway.worker.json` (Dockerfile `Dockerfile.worker`, healthcheck `/health`). Variáveis: `MONGODB_URI`, `APP_URL` (endereço do web), `NODE_ENV=production` e as mesmas `MAIL_PROVIDER`, `MAIL_FROM`, `RESEND_API_KEY` da API. **Desde a Fase 2 a API não manda mais o e-mail do dia: sem o worker ninguém recebe** — `central-notificacoes`
 - [ ] Atlas: usuário de banco próprio do worker, com `readWrite` em `workerjobs`, `workerheartbeats`, `notificationdeliveries` e `notifications` e `read` em `users`, `tenants`, `cases` e `transactions` (AD-267) — `central-notificacoes`
 - [ ] Produção: apagar a collection antiga `deadlines` (já copiada para `notifications` em 2026-11-22) quando quiser — `central-notificacoes`
@@ -58,6 +59,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir a seção No tribunal num serviço real com o plano com Automação e o aviso de movimentação no dia seguinte — `automacao-datajud`
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
 
 - [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`

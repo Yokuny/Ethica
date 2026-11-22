@@ -1,5 +1,6 @@
+import { formatCnjNumber } from '@ethica/contracts';
 import { describe, expect, it, vi } from 'vitest';
-import { buildDatajudQuery, createDatajudClient, DatajudUnavailableError, formatCnjNumber } from './datajudClient.js';
+import { buildDatajudQuery, createDatajudClient, DatajudUnavailableError } from './datajudClient.js';
 
 const hit = (numero: string, sort: number) => ({
   _source: {

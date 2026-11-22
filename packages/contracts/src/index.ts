@@ -11,6 +11,7 @@ export * from './schemas/calendar-entry.schema.js';
 export * from './schemas/case.schema.js';
 export * from './schemas/contactMessage.schema.js';
 export * from './schemas/court-division.schema.js';
+export * from './schemas/court-process.schema.js';
 export * from './schemas/createInvite.schema.js';
 export * from './schemas/date.schema.js';
 export * from './schemas/document.schema.js';

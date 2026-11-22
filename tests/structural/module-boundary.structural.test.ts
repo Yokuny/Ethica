@@ -31,6 +31,8 @@ const DB_OWNERSHIP: Record<string, readonly string[]> = {
   prospecting: ['Opportunity'],
   documents: ['Report', 'Template', 'Signatory'],
   notifications: ['Notification'],
+  // Read only: the worker writes them (AD-271).
+  automation: ['CourtProcess', 'CaseCourtSync'],
 };
 const DB_OWNER_BY_NAME = new Map(
   Object.entries(DB_OWNERSHIP).flatMap(([owner, names]) => names.map((name) => [name, owner] as const)),

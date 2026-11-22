@@ -13,8 +13,12 @@ export type { CalendarEntryDocument } from './models/calendar-entry.model.js';
 export { backfillCalendarEntries, CalendarEntry } from './models/calendar-entry.model.js';
 export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './models/case.model.js';
 export { Case, migrateCases } from './models/case.model.js';
+export type { CaseCourtSyncDocument } from './models/case-court-sync.model.js';
+export { CaseCourtSync } from './models/case-court-sync.model.js';
 export type { CourtDivisionDocument } from './models/court-division.model.js';
 export { COURT_DIVISION_COLLATION, CourtDivision } from './models/court-division.model.js';
+export type { CourtProcessDocument } from './models/court-process.model.js';
+export { CourtProcess } from './models/court-process.model.js';
 export type { InspectionDocument, InspectionMediaDocument } from './models/inspection.model.js';
 export { Inspection } from './models/inspection.model.js';
 export type { InviteDocument, InviteStatus } from './models/invite.model.js';
@@ -66,7 +70,7 @@ export {
   withSearch,
 } from './textSearch.js';
 export { dateInDisplayTz, shiftMonth, timeInDisplayTz, wallClockToUtc } from './time.js';
-export type { DeliveryRecipient, DueItem, FinanceDueItem, NoticeForDelivery } from './workerReads.js';
+export type { DeliveryRecipient, DueItem, FinanceDueItem, NoticeForDelivery, TrackedCase } from './workerReads.js';
 export {
   caseLabelsByIds,
   findNoticeForDelivery,
@@ -74,13 +78,16 @@ export {
   listDeliveryRecipients,
   listFinanceDueUntil,
   listPendingDueOn,
+  listTrackedCases,
 } from './workerReads.js';
 
 import { AccessKey } from './models/access-key.model.js';
 import { Appointment } from './models/appointment.model.js';
 import { CalendarEntry } from './models/calendar-entry.model.js';
 import { Case } from './models/case.model.js';
+import { CaseCourtSync } from './models/case-court-sync.model.js';
 import { CourtDivision } from './models/court-division.model.js';
+import { CourtProcess } from './models/court-process.model.js';
 import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
 import { Notification } from './models/notification.model.js';
@@ -127,5 +134,11 @@ export const syncIndexes = async (): Promise<void> => {
 };
 
 export const syncWorkerIndexes = async (): Promise<void> => {
-  await Promise.all([WorkerJob.createIndexes(), WorkerHeartbeat.createIndexes(), NotificationDelivery.createIndexes()]);
+  await Promise.all([
+    WorkerJob.createIndexes(),
+    WorkerHeartbeat.createIndexes(),
+    NotificationDelivery.createIndexes(),
+    CourtProcess.createIndexes(),
+    CaseCourtSync.createIndexes(),
+  ]);
 };

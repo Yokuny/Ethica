@@ -1,4 +1,9 @@
-import type { DatajudCourt, DatajudSearch, DatajudTechnicalSubject } from '@ethica/contracts';
+import {
+  type DatajudCourt,
+  type DatajudSearch,
+  type DatajudTechnicalSubject,
+  formatCnjNumber,
+} from '@ethica/contracts';
 
 // Datajud Public API (CNJ): one Elasticsearch index per court at
 // `${baseUrl}/api_publica_<tribunal>/_search`, autenticado por
@@ -41,13 +46,6 @@ type DatajudHit = { _source?: DatajudSource; sort?: (string | number)[] };
 
 const DEFAULT_SIZE = 20;
 const DEFAULT_TIMEOUT_MS = 30_000;
-
-// Datajud stores the number with digits only; the screen and the registry use the CNJ mask.
-export const formatCnjNumber = (digits: string): string => {
-  const d = digits.replace(/\D/g, '');
-  if (d.length !== 20) return digits;
-  return `${d.slice(0, 7)}-${d.slice(7, 9)}.${d.slice(9, 13)}.${d.slice(13, 14)}.${d.slice(14, 16)}.${d.slice(16)}`;
-};
 
 // Subject name as Datajud indexes it (the Ethica API speaks English keys, AD-113).
 const SUBJECT_IN_DATAJUD: Record<DatajudTechnicalSubject, string> = {

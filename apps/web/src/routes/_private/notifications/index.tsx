@@ -3,6 +3,7 @@ import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
+import { AutomationOffer } from '@/components/automation-offer.js';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -12,7 +13,6 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type NotificationRecord, notificationsQuery } from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { AutomationOffer } from './@components/automation-offer.js';
 import { NewNotificationDialog } from './@components/new-notification-dialog.js';
 import { NoticesList } from './@components/notices-list.js';
 import { deadlineExportColumns, NotificationsTable } from './@components/notifications-table.js';

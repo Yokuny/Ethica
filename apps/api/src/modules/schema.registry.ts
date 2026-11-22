@@ -13,6 +13,7 @@ import {
   inspectionPeriodQuerySchema,
   mediaUploadQuerySchema,
 } from './agenda/inspection.schema.js';
+import { automationCaseParamSchema } from './automation/automation.schema.js';
 import {
   attachmentIdParamSchema,
   attachmentUploadQuerySchema,
@@ -111,6 +112,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'notificationIdParamSchema', schema: notificationIdParamSchema },
   { name: 'listNotificationsQuerySchema', schema: listNotificationsQuerySchema },
   { name: 'listNoticesQuerySchema', schema: listNoticesQuerySchema },
+  { name: 'automationCaseParamSchema', schema: automationCaseParamSchema },
   { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
   { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },
   { name: 'upcomingAppointmentsQuerySchema', schema: upcomingAppointmentsQuerySchema },

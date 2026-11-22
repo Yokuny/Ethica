@@ -53,6 +53,7 @@ export const API_MESSAGE_KEYS = [
   'service_order_taken',
   'invalid_service_type',
   'invalid_notification_status',
+  'automation_required',
   'invalid_contracting_party',
   'party_not_found',
   // Case import (AD-114, AD-115, AD-118): file, CSV row and PDF warnings

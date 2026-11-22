@@ -9,6 +9,7 @@ import {
   CSV_IMPORT_MAX_ROWS,
   type CsvImportField,
   casePhases,
+  courtUnitFromNumber,
   creaSchema,
   createCaseFieldsSchema,
   createCaseSchema,
@@ -29,20 +30,6 @@ import * as caseService from './case.service.js';
 import type { CsvColumn, CsvImportResult, PdfDraft, PdfExtraction } from './import.schema.js';
 
 // --- Court from the CNJ number (AD-118) ---------------------------------------
-// NNNNNNN-DD.AAAA.J.TR.OOOO: J is the court branch segment, TR the court.
-// TR code of the state courts, in order: 01 = AC … 27 = TO.
-const STATE_BY_COURT = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SE SP TO'.split(' ');
-
-export const courtUnitFromNumber = (number: string): { courtType: CourtType; court: string } | undefined => {
-  const [, j, tr] = number.match(/^\d{7}-\d{2}\.\d{4}\.(\d)\.(\d{2})\.\d{4}$/) ?? [];
-  const code = Number(tr);
-  if (j === '5' && code >= 1 && code <= 24) return { courtType: 'labor', court: `TRT${code}` };
-  if (j === '4' && code >= 1 && code <= 6) return { courtType: 'federal', court: `TRF${code}` };
-  const uf = STATE_BY_COURT[code - 1];
-  if (j === '8' && uf) return { courtType: 'civil', court: `TJ${uf}` };
-  return undefined;
-};
-
 // --- Datas --------------------------------------------------------------------
 const MONTHS = 'janeiro fevereiro março abril maio junho julho agosto setembro outubro novembro dezembro'.split(' ');
 

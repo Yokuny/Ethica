@@ -1,9 +1,13 @@
 import {
+  CASE_CLOSED_PHASES,
   caseLabel,
+  courtUnitFromNumber,
   effectivePermissions,
+  JUDICIAL_CASE_ROLES,
   type NotificationPreferences,
   type Permissions,
   type Role,
+  TRACKED_COURT_TYPES,
 } from '@ethica/contracts';
 import { Case } from './models/case.model.js';
 import { Notification } from './models/notification.model.js';
@@ -137,4 +141,36 @@ export const listAutomationEnding = async (
     tenantId: tenant._id.toString(),
     automationUntil: tenant.automationUntil as Date,
   }));
+};
+
+export type TrackedCase = { tenantId: string; caseId: string; processNumber: string; court: string };
+
+// Cases followed in court (ADT-02): offices with the module on, a valid CNJ number of a tracked court type,
+// a judicial role and the case not closed. Derived on every run.
+export const listTrackedCases = async (now = new Date()): Promise<TrackedCase[]> => {
+  const tenants = await Tenant.find({ automationUntil: { $gt: now }, ...openTenantFilter(now) })
+    .select('_id')
+    .lean();
+  if (tenants.length === 0) return [];
+  const cases = await Case.find({
+    Tenant: { $in: tenants.map((tenant) => tenant._id) },
+    processNumber: { $type: 'string' },
+    role: { $in: [...JUDICIAL_CASE_ROLES] },
+    status: { $ne: 'canceled' },
+    phase: { $nin: [...CASE_CLOSED_PHASES] },
+  })
+    .select('Tenant processNumber')
+    .lean();
+  return cases.flatMap((doc) => {
+    const unit = doc.processNumber ? courtUnitFromNumber(doc.processNumber) : undefined;
+    if (!unit || !TRACKED_COURT_TYPES.includes(unit.courtType)) return [];
+    return [
+      {
+        tenantId: String(doc.Tenant),
+        caseId: doc._id.toString(),
+        processNumber: doc.processNumber as string,
+        court: unit.court,
+      },
+    ];
+  });
 };

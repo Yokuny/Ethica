@@ -4,7 +4,7 @@ Base: `.specs/features/automacao-datajud/spec.md`, o plano de 2026-11-22 e o pla
 
 ## 1. Descoberta no Datajud (Fase 0, 2026-11-22)
 
-API pública `https://api-publica.datajud.cnj.jus.br/api_publica_<tribunal>/_search`, com a chave do `.env`. Fixtures em `.specs/features/automacao-datajud/fixtures/` (dados públicos, `nivelSigilo` 0, sem `partes`, que a API não devolve):
+API pública `https://api-publica.datajud.cnj.jus.br/api_publica_<tribunal>/_search`, com a chave do `.env`. Fixtures em `apps/worker/src/datajud/fixtures/` (dados públicos, `nivelSigilo` 0, sem `partes`, que a API não devolve):
 
 | Fixture | O que prova |
 | --- | --- |

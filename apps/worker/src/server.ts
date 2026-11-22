@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { connect, disconnect, syncWorkerIndexes, WorkerHeartbeat } from '@ethica/db';
 import { createMailProvider } from '@ethica/mail';
 import { parseEnv } from './config/env.config.js';
+import { createDatajudClient } from './datajud/client.js';
 import { startHealthServer } from './health.js';
 import { buildHandlers } from './jobs/index.js';
 import { runOne } from './queue/queue.js';
@@ -21,7 +22,14 @@ export const start = async (): Promise<void> => {
   const env = parseEnv(process.env);
   await connect(env.MONGODB_URI);
   await syncWorkerIndexes();
-  const handlers = buildHandlers({ mail: createMailProvider(env), appUrl: env.APP_URL });
+  const datajud = env.DATAJUD_API_KEY
+    ? createDatajudClient({
+        apiKey: env.DATAJUD_API_KEY,
+        baseUrl: env.DATAJUD_BASE_URL,
+        minIntervalMs: env.DATAJUD_MIN_INTERVAL_MS,
+      })
+    : undefined;
+  const handlers = buildHandlers({ mail: createMailProvider(env), appUrl: env.APP_URL, datajud });
   const beat = () =>
     WorkerHeartbeat.updateOne(
       { instance: env.WORKER_INSTANCE },

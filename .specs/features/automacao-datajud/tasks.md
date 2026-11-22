@@ -17,9 +17,9 @@ Gate de cada fase: `pnpm run check`, `(cd apps/web && pnpm run build)`, registro
 
 ## Fase 4 — Acompanhamento no tribunal (porta: fixtures de TJ/TRF ou "só TRT" confirmado)
 
-- [ ] T4.1 Cliente Datajud no worker (plano anterior, seção 6), `courtUnitFromNumber` no contrato.
-- [ ] T4.2 `CourtProcess`, `CaseCourtSync`, `court_refresh`, `court_refresh_batch`, `notice` `court_movement`.
-- [ ] T4.3 `GET /automation/cases/:id/court-process`, `GET /automation/status`; seção "No tribunal".
+- [x] T4.1 Cliente Datajud no worker (plano anterior, seção 6), `courtUnitFromNumber` no contrato.
+- [x] T4.2 `CourtProcess`, `CaseCourtSync`, `court_refresh`, `court_refresh_batch`, `notice` `court_movement`.
+- [x] T4.3 `GET /automation/cases/:id/court-process` (o status vem da sessão, sem rota própria); seção "No tribunal".
 
 ## Fase 5 — Sugestões de serviço
 

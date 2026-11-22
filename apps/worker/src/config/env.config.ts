@@ -21,6 +21,10 @@ export const envSchema = z.object({
   SMTP_PORT: z.string().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
+  // Datajud (AD-271): the key is the worker's only. Without it the tracking in court stays off.
+  DATAJUD_API_KEY: optionalSecret,
+  DATAJUD_BASE_URL: z.string().default('https://api-publica.datajud.cnj.jus.br'),
+  DATAJUD_MIN_INTERVAL_MS: z.coerce.number().int().min(0).default(1000),
   // `/health` and `/metrics`. PORT (Railway) wins.
   WORKER_PORT: z.string().default('18090'),
   // Jobs at the same time; one leaves the sweep and the digest in order.

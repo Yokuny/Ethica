@@ -8,6 +8,7 @@ import {
   type BillingPaymentView,
   type BillingPlan,
   type BillingView,
+  hasAutomation,
   SUBSCRIPTION_PLANS,
   type SubscriptionPlan,
   type TenantUser,
@@ -311,3 +312,7 @@ export const receiveWebhook = async (body: unknown): Promise<void> => {
     AUTOMATION_PLANS.includes(period.plan),
   );
 };
+
+// The module rule for the other modules (automation, AD-276): the same `hasAutomation` the session uses.
+export const hasAutomationNow = async (tenantId: string, now = new Date()): Promise<boolean> =>
+  hasAutomation({ automationUntil: await billingRepository.findAutomationUntil(tenantId) }, now);

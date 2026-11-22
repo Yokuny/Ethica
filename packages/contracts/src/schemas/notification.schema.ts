@@ -44,7 +44,7 @@ export type NotificationSource = (typeof NOTIFICATION_SOURCES)[number];
 
 // What a notice talks about: a translation key, never a ready sentence (AD-263). The finance due date
 // (CNT-03) and the Automação Datajud about to end (AD-275); the court movements and the payment in progress come with the automation.
-export const NOTICE_TOPICS = ['finance_due', 'automation_expiring'] as const;
+export const NOTICE_TOPICS = ['finance_due', 'automation_expiring', 'court_movement'] as const;
 export type NoticeTopic = (typeof NOTICE_TOPICS)[number];
 
 export const NOTIFICATION_SEVERITIES = ['info', 'warning', 'critical'] as const;

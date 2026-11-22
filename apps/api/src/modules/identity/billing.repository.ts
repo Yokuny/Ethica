@@ -62,3 +62,10 @@ export const revokeAccess = async (tenantId: string, accessUntil: Date, automati
       { $min: { accessUntil, ...(automation ? { automationUntil: accessUntil } : {}) } },
     );
   });
+
+// AD-275: until when the office has the Automação Datajud (absent = never had it).
+export const findAutomationUntil = async (tenantId: string): Promise<Date | undefined> =>
+  withDbTiming('billing.findAutomationUntil', async () => {
+    const tenant = await Tenant.findById(tenantId).select('automationUntil').lean();
+    return tenant?.automationUntil;
+  });

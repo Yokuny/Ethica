@@ -12,6 +12,7 @@ import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
 import { can, sessionQuery } from '@/query/session.js';
+import { CaseCourt } from './@components/case-court.js';
 import { CaseCourtDivision } from './@components/case-court-division.js';
 import { CaseDetailsView } from './@components/case-details-view.js';
 import { CaseEditForm } from './@components/case-edit-form.js';
@@ -88,6 +89,7 @@ export function CaseDetailsPage() {
           <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} />
           {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
           <CaseNotifications caseId={legalCase.id} />
+          {legalCase.processNumber && legalCase.role !== 'other' && <CaseCourt caseId={legalCase.id} />}
           <CaseInspections caseId={legalCase.id} />
           <CaseReports legalCase={legalCase} />
           <CaseMovements legalCase={legalCase} />

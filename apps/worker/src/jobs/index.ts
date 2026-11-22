@@ -1,11 +1,18 @@
+import type { TrackedCase } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
+import type { DatajudClient } from '../datajud/client.js';
 import type { JobHandler } from '../queue/queue.js';
+import { enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
 import { sendDigest } from './email-digest.js';
 import { sendImmediate } from './email-immediate.js';
 import { sweepReminders } from './reminders-sweep.js';
 
 // Job kinds of the worker (central-notificacoes design, section 7).
-export const buildHandlers = (deps: { mail: MailProvider; appUrl: string }): Record<string, JobHandler> => ({
+export const buildHandlers = (deps: {
+  mail: MailProvider;
+  appUrl: string;
+  datajud?: DatajudClient;
+}): Record<string, JobHandler> => ({
   reminders_sweep: async (_payload, now) => {
     console.log(JSON.stringify({ event: 'worker.reminders_sweep', ...(await sweepReminders(now)) }));
   },
@@ -15,5 +22,16 @@ export const buildHandlers = (deps: { mail: MailProvider; appUrl: string }): Rec
   email_immediate: async (payload, now) => {
     const result = await sendImmediate(deps, String(payload.notificationId), now);
     console.log(JSON.stringify({ event: 'worker.email_immediate', ...result }));
+  },
+  // Without the Datajud key the tracking in court stays off (the jobs end without doing anything).
+  court_refresh: async (_payload, now) => {
+    if (!deps.datajud) return;
+    console.log(JSON.stringify({ event: 'worker.court_refresh', ...(await enqueueCourtRefresh(now)) }));
+  },
+  court_refresh_batch: async (payload, now) => {
+    if (!deps.datajud) return;
+    const batch = payload as { court: string; day: string; cases: TrackedCase[] };
+    const result = await refreshCourtBatch(deps.datajud, batch, now);
+    console.log(JSON.stringify({ event: 'worker.court_refresh_batch', court: batch.court, ...result }));
   },
 });

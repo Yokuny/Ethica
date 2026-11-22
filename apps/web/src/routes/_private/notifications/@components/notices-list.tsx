@@ -29,6 +29,13 @@ const noticeText = (notice: NoticeRecord): { title: string; description: string 
       description: `${params.description} · ${formatMoney(Number(params.openCents))} · ${day(String(params.dueDate))}`,
     };
   }
+  if (notice.topic === 'court_movement') {
+    const more = Number(params.count) > 1 ? ` (+${Number(params.count) - 1})` : '';
+    return {
+      title: t('court_movement_notice'),
+      description: `${params.latestName} · ${formatDate(new Date(String(params.latestAt)))}${more}`,
+    };
+  }
   if (notice.topic === 'automation_expiring') {
     return {
       title: t('automation_expiring_notice'),
@@ -74,11 +81,16 @@ export function NoticesList({
                 {text.title}
               </ItemTitle>
               <ItemDescription className="line-clamp-none">{text.description}</ItemDescription>
-              {notice.caseId && (
-                <AppLink to="/finance" search={{ caseId: notice.caseId }} as="description">
-                  {t('finance')}
-                </AppLink>
-              )}
+              {notice.caseId &&
+                (notice.module === 'finance' ? (
+                  <AppLink to="/finance" search={{ caseId: notice.caseId }} as="description">
+                    {t('finance')}
+                  </AppLink>
+                ) : (
+                  <AppLink to="/expert-cases/details" search={{ id: notice.caseId }} as="description">
+                    {t('open_case')}
+                  </AppLink>
+                ))}
             </ItemContent>
             <ItemActions>
               {notice.read ? (

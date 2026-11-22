@@ -9,6 +9,8 @@ const isDuplicateKey = (e: unknown): boolean =>
 
 // A finance notice lives 30 days: after that the digest and the transaction itself tell the current state.
 const FINANCE_NOTICE_DAYS = 30;
+// A court movement notice lives 180 days (plan, section 3); the timeline keeps the movement itself.
+const COURT_NOTICE_DAYS = 180;
 
 // One notice per transaction and due window (`dedupeKey`); an existing one is kept as is.
 export const insertFinanceDueNotice = async (
@@ -71,6 +73,42 @@ export const insertAutomationEndingNotice = async (
     return doc._id.toString();
   } catch (e) {
     if (isDuplicateKey(e)) return null;
+    throw e;
+  }
+};
+
+// New movements of a case in court (ADT-02): one notice per case and run day, grouping all of them.
+export const insertCourtMovementNotice = async (
+  notice: {
+    tenantId: string;
+    caseId: string;
+    day: string;
+    count: number;
+    latest: { code: number; name: string; at: string };
+  },
+  now = new Date(),
+): Promise<boolean> => {
+  try {
+    await Notification.create({
+      Tenant: notice.tenantId,
+      kind: 'notice',
+      module: 'expert_cases',
+      source: 'datajud',
+      topic: 'court_movement',
+      severity: 'info',
+      Case: notice.caseId,
+      params: {
+        count: notice.count,
+        latestCode: notice.latest.code,
+        latestName: notice.latest.name,
+        latestAt: notice.latest.at,
+      },
+      dedupeKey: `court_movement:${notice.caseId}:${notice.day}`,
+      expireAt: new Date(now.getTime() + COURT_NOTICE_DAYS * 86_400_000),
+    });
+    return true;
+  } catch (e) {
+    if (isDuplicateKey(e)) return false;
     throw e;
   }
 };

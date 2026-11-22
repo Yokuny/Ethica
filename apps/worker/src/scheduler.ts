@@ -4,6 +4,8 @@ import { enqueue } from './queue/queue.js';
 // The scheduler only enqueues (worker plan, section 5): one job per kind and hour, by `dedupeKey`, so a
 // restart or two replicas never run the same hour twice. Hours in America/Sao_Paulo (AD-036).
 export const DIGEST_FROM_HOUR = 7;
+// The Datajud refresh once a day, early (its delay is T+1 to T+7, more often gains nothing).
+export const COURT_REFRESH_FROM_HOUR = 3;
 
 export const scheduleTick = async (now: Date = new Date()): Promise<string[]> => {
   const day = dateInDisplayTz(now);
@@ -20,6 +22,12 @@ export const scheduleTick = async (now: Date = new Date()): Promise<string[]> =>
     (await enqueue('email_digest', {}, { dedupeKey: `email_digest:${window}`, priority: 20 }))
   ) {
     enqueued.push('email_digest');
+  }
+  if (
+    hour >= COURT_REFRESH_FROM_HOUR &&
+    (await enqueue('court_refresh', {}, { dedupeKey: `court_refresh:${day}`, priority: 30 }))
+  ) {
+    enqueued.push('court_refresh');
   }
   return enqueued;
 };

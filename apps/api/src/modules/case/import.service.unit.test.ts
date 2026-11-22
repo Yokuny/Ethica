@@ -1,6 +1,6 @@
-import { suggestCsvField } from '@ethica/contracts';
+import { courtUnitFromNumber, suggestCsvField } from '@ethica/contracts';
 import { describe, expect, it } from 'vitest';
-import { courtUnitFromNumber, extractMinutes, parseCsv, parseData, rowToCase } from './import.service.js';
+import { extractMinutes, parseCsv, parseData, rowToCase } from './import.service.js';
 
 const MINUTES = `PODER JUDICIÁRIO
 JUSTIÇA DO TRABALHO

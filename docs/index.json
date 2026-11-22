@@ -21,7 +21,8 @@
         "AD-271",
         "AD-274",
         "AD-275",
-        "AD-276"
+        "AD-276",
+        "AD-277"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -2405,6 +2406,12 @@
     {
       "id": "AD-276",
       "decisao": "Detalhes da Fase 3 (módulo premium): (1) planos `automation_monthly` (R$ 80) e `automation_yearly` (R$ 816) entram em `BILLING_PLANS` e em `",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-277",
+      "decisao": "Acompanhamento no tribunal (Fase 4 de `automacao-datajud`): (1) só perícias trabalhistas (TRT) e federais (TRF) por enquanto (`TRACKED_COURT",
       "data": "2026-11-22",
       "status": "active"
     }

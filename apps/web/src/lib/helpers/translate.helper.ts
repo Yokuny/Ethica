@@ -51,6 +51,7 @@ const translations: Record<string, string> = {
   received_amount: 'Valor recebido',
   payoff_date: 'Data da quitação',
   example_service_type: 'Ex.: Avaliação de imóvel',
+  automation_required: 'Recurso do plano com Automação Datajud.',
   invalid_notification_status:
     'Situação inválida: prazo é protocolado, perdido ou cancelado; alerta é concluído ou cancelado.',
   invalid_service_type:
@@ -253,6 +254,11 @@ const translations: Record<string, string> = {
   automation_offer_description:
     'Acompanhe os processos no tribunal e receba sugestões de status, fase e recebimento para aprovar. Disponível no plano com Automação.',
   see_plans: 'Ver planos',
+  court_process: 'No tribunal',
+  court_process_waiting: 'O processo ainda não foi consultado no tribunal. A consulta é feita uma vez por dia.',
+  court_updated_at: 'Atualizado no tribunal em',
+  court_movement_notice: 'Movimentação nova no tribunal',
+  open_case: 'Abrir o serviço',
   automation_expiring_notice: 'A Automação Datajud termina em breve',
   billing_method_monthly: 'Cartão de crédito; boleto ou PIX no mês avulso',
   billing_single_month_offer: 'Prefere boleto ou PIX? Pague um mês avulso',
