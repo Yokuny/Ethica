@@ -1669,7 +1669,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: pagamento por RPV ou precatório sem alvará não é sugerido; a pessoa lança à mão.
 - **Scope**: `packages/contracts/src/schemas/automation-rules.ts`, `apps/api/src/modules/notifications/`, `apps/worker`.
 - **Date**: 2026-11-22
-- **Status**: active
+- **Status**: active (gatilho só do alvará ampliado pela AD-274)
 
 ### AD-270
 - **Decision**: A **Automação Datajud** é um módulo premium cobrado à parte, numa **segunda assinatura** no Asaas, separada da do plano: `Tenant.automationUntil` (instante, estendido pelo webhook com `$max`, como o `accessUntil` da AD-230) e `Tenant.billing.automationSubscriptionId`; o webhook distingue pela `externalReference` (`automation_monthly`). Inclui o acompanhamento no tribunal, a linha do tempo, os avisos de movimentação e as sugestões. A Central de notificações, os prazos e alertas, os lembretes de prazo e de vencimento financeiro e o push são do plano base. Ao vencer: o acompanhamento para, as sugestões pendentes viram `expired` e a linha do tempo fica até a última atualização; reativar refaz a linha de base. Rotas do módulo respondem 403 `automation_required` sem ele. O preço é do usuário.
@@ -1702,6 +1702,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Scope**: `apps/worker/`, `packages/mail/`, `packages/db/src/{workerReads.ts,models/worker-job.model.ts,models/worker-heartbeat.model.ts,models/notification-delivery.model.ts,models/user.model.ts}`, `apps/api/src/modules/{notifications,identity}/`, `apps/web/src/routes/_private/{notifications,account}/`, `apps/web/src/routes/_private/@components/workspace-navigation.tsx`.
 - **Date**: 2026-11-22
 - **Status**: active
+
+### AD-274
+- **Decision**: Gatilhos de pagamento da Automação Datajud pela Tabela Processual Unificada do CNJ (estudo em `.specs/features/automacao-datajud/context.md`). **Intenção** (aviso "Pagamento em andamento no tribunal"): 12548 "Expedição de alvará de levantamento" (o juiz determina) e a requisição de pagamento 12165, 12173 (RPV), 12166 (precatório), 12175 ("Preparada para Envio"). **Dinheiro disponível** (sugestão "Registrar recebimento", com valor, data e conta confirmados pela pessoa): 60 "Expedição de documento" com o complemento `tipo_de_documento` 73 "Alvará", 12176 "Paga" (RPV) e 12169 "Paga" (precatório). O crédito na conta do perito não aparece no Datajud; só a pessoa confirma. "Alvará eletrônico automatizado" não tem código próprio: é texto do PJe que não chega ao Datajud. Sugestão uma por serviço e dia, avisando que pode ser de outra parte.
+- **Reason**: pedido do usuário em 2026-11-22 ("estudar qual status indica só a liberação e qual o pagamento feito"); confirmado na TPU oficial e em processos reais do TRT24 e do TRF3. A RPV paga é como a União paga o perito na justiça gratuita.
+- **Trade-off**: "Paga" e o alvará valem para qualquer beneficiário do processo; a pessoa decide se é dela.
+- **Scope**: `packages/contracts/src/schemas/automation-rules.ts` (Fase 6), `.specs/features/automacao-datajud/`. Amplia a AD-269: o gatilho deixa de ser só o alvará e inclui a RPV ou o precatório pagos; a regra continua só sugerindo (AD-268).
+- **Date**: 2026-11-22
+- **Status**: active
+
+### AD-275
+- **Decision**: Preço do módulo premium pelo usuário em 2026-11-22: plano base R$ 60 por mês, plano com a Automação Datajud R$ 80 por mês. Lido como **um plano a mais** na mesma assinatura (quem assina o de R$ 80 tem `automationUntil` junto com o `accessUntil`), não como uma segunda assinatura de R$ 20. A confirmar com o usuário: essa leitura e o anual do premium (proposta: R$ 816, 12 × 80 com 15% de desconto, como o anual de R$ 612).
+- **Reason**: a frase do usuário ("plano base 60, o com mais serviços 80") descreve dois planos, e um plano a mais mantém uma assinatura viva por escritório (CHK-08), com menos conceitos que a segunda assinatura da AD-270.
+- **Trade-off**: trocar de plano no meio do mês passa pelo suporte, como hoje (AD-230).
+- **Scope**: `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/billing.*`, `apps/web/src/routes/_public/billing/`. Se confirmado, supersede da AD-270 a segunda assinatura.
+- **Date**: 2026-11-22
+- **Status**: proposed
 
 ## Handoff
 

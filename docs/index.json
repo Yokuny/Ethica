@@ -17,7 +17,9 @@
         "AD-268",
         "AD-269",
         "AD-270",
-        "AD-271"
+        "AD-271",
+        "AD-274",
+        "AD-275"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -2360,7 +2362,7 @@
       "id": "AD-269",
       "decisao": "O status do honorário continua derivado das parcelas (AD-111); não existe estado \"aprovado\". Homologação, liberação ou \"aprovado\" de valores",
       "data": "2026-11-22",
-      "status": "active"
+      "status": "active (gatilho só do alvará ampliado pela AD-274)"
     },
     {
       "id": "AD-270",
@@ -2385,6 +2387,18 @@
       "decisao": "Detalhes da Fase 2 de `central-notificacoes` (worker e entrega): (1) o e-mail do dia é um por pessoa (`Avisos do Ethica — DD/MM/AAAA`), com",
       "data": "2026-11-22",
       "status": "active"
+    },
+    {
+      "id": "AD-274",
+      "decisao": "Gatilhos de pagamento da Automação Datajud pela Tabela Processual Unificada do CNJ (estudo em `.specs/features/automacao-datajud/context.md`",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-275",
+      "decisao": "Preço do módulo premium pelo usuário em 2026-11-22: plano base R$ 60 por mês, plano com a Automação Datajud R$ 80 por mês. Lido como um plan",
+      "data": "2026-11-22",
+      "status": "proposed"
     }
   ]
 }

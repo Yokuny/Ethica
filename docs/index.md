@@ -94,16 +94,16 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-275** (2026-11-22, proposed) — Preço do módulo premium pelo usuário em 2026-11-22: plano base R$ 60 por mês, plano com a Automação Datajud R$ 80 por mês. Lido como um plan
+- **AD-274** (2026-11-22, active) — Gatilhos de pagamento da Automação Datajud pela Tabela Processual Unificada do CNJ (estudo em `.specs/features/automacao-datajud/context.md`
 - **AD-273** (2026-11-22, active) — Detalhes da Fase 2 de `central-notificacoes` (worker e entrega): (1) o e-mail do dia é um por pessoa (`Avisos do Ethica — DD/MM/AAAA`), com
 - **AD-272** (2026-11-22, active) — Detalhes da virada `Deadline` → `Notification` (Fase 1 de `central-notificacoes`), resolvidos na implementação: (1) o detalhe do serviço lê
 - **AD-271** (2026-11-22, active) — O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) fic
 - **AD-270** (2026-11-22, active) — A Automação Datajud é um módulo premium cobrado à parte, numa segunda assinatura no Asaas, separada da do plano: `Tenant.automationUntil` (i
-- **AD-269** (2026-11-22, active) — O status do honorário continua derivado das parcelas (AD-111); não existe estado "aprovado". Homologação, liberação ou "aprovado" de valores
+- **AD-269** (2026-11-22, active (gatilho só do alvará ampliado pela AD-274)) — O status do honorário continua derivado das parcelas (AD-111); não existe estado "aprovado". Homologação, liberação ou "aprovado" de valores
 - **AD-268** (2026-11-22, active) — A automação do Datajud só sugere: toda mudança em serviço, financeiro ou prazo nasce como `Notification` `suggestion` `pending` e só é aplic
 - **AD-267** (2026-11-22, active) — Rotinas de fundo saem do processo da API para o `apps/worker`, serviço com deploy próprio que fala com o BFF só pelo banco: lembretes e entr
 - **AD-266** (2026-11-22, active) — Em `CALENDAR_ENTRY_SOURCES`, a origem `deadline` vira `notification`; o tipo do item na agenda continua `deadline` (prazo e alerta), e `canc
-- **AD-265** (2026-11-22, active) — As leituras de `Notification` que o `case` precisa (próximo prazo pendente por serviço na lista, serviços com entrega no período, números da
-- **AD-264** (2026-11-22, active) — O prazo do laudo informado no cadastro do serviço passa a ser criado pelo evento novo `case:created` (`{ tenantId, caseId, delivery?: { titl
 
 ## `.specs/` sem registro em `docs/features/`
 

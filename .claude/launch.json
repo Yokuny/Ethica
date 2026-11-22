@@ -4,36 +4,19 @@
     {
       "name": "api",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "--filter",
-        "api",
-        "run",
-        "dev"
-      ],
+      "runtimeArgs": ["--filter", "api", "run", "dev"],
       "port": 18080
     },
     {
       "name": "web",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "--filter",
-        "web",
-        "run",
-        "dev"
-      ],
+      "runtimeArgs": ["--filter", "web", "run", "dev"],
       "port": 15173
     },
     {
       "name": "worker",
       "runtimeExecutable": "env",
-      "runtimeArgs": [
-        "APP_URL=http://localhost:15173",
-        "pnpm",
-        "--filter",
-        "worker",
-        "run",
-        "dev"
-      ],
+      "runtimeArgs": ["APP_URL=http://localhost:15173", "pnpm", "--filter", "worker", "run", "dev"],
       "port": 18090
     }
   ]

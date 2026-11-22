@@ -1,0 +1,102 @@
+{
+  "took": 35842,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 10000,
+      "relation": "gte"
+    },
+    "max_score": 26.189493,
+    "hits": [
+      {
+        "_index": "api_publica_trf3",
+        "_id": "TRF3_436_JE_14135_00045450820074036319",
+        "_score": 25.723373,
+        "_source": {
+          "id": "TRF3_436_JE_14135_00045450820074036319",
+          "tribunal": "TRF3",
+          "grau": "JE",
+          "numeroProcesso": "00045450820074036319",
+          "dataAjuizamento": "20071129122707",
+          "nivelSigilo": 0,
+          "orgaoJulgador": {
+            "codigo": 14135,
+            "nome": "1ª VARA FED. DE LINS",
+            "codigoMunicipioIBGE": 6319
+          },
+          "classe": {
+            "codigo": 436,
+            "nome": "Procedimento do Juizado Especial Cível"
+          },
+          "sistema": {
+            "codigo": -1,
+            "nome": "Inválido"
+          },
+          "formato": {
+            "codigo": 1,
+            "nome": "Eletrônico"
+          },
+          "dataHoraUltimaAtualizacao": "2021-06-28T19:12:19.194000Z",
+          "@timestamp": "2021-06-28T19:12:19.194000Z",
+          "movimentos": [
+            {
+              "codigo": 26,
+              "dataHora": "2007-11-29T12:27:07.000Z",
+              "nome": "Distribuição",
+              "complementosTabelados": [
+                {
+                  "codigo": 2,
+                  "descricao": "tipo_de_distribuicao_redistribuicao",
+                  "valor": 2,
+                  "nome": "sorteio"
+                }
+              ]
+            },
+            {
+              "codigo": 12165,
+              "dataHora": "2009-10-09T11:14:33.000Z",
+              "nome": "Requisição de Pagamento"
+            },
+            {
+              "codigo": 12265,
+              "dataHora": "2008-10-20T14:30:21.000Z",
+              "nome": "Expedida/certificada"
+            },
+            {
+              "codigo": 12165,
+              "dataHora": "2009-10-09T11:14:43.000Z",
+              "nome": "Requisição de Pagamento"
+            },
+            {
+              "codigo": 12165,
+              "dataHora": "2009-10-09T11:14:43.000Z",
+              "nome": "Requisição de Pagamento"
+            },
+            {
+              "codigo": 12176,
+              "dataHora": "2010-01-05T16:13:36.000Z",
+              "nome": "Paga"
+            },
+            {
+              "codigo": 22,
+              "dataHora": "2010-01-15T14:49:21.000Z",
+              "nome": "Baixa Definitiva"
+            }
+          ],
+          "assuntos": [
+            {
+              "codigo": 6095,
+              "nome": "Aposentadoria por Incapacidade Permanente"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

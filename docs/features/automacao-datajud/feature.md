@@ -5,7 +5,7 @@ descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e
 data: 2026-11-22
 status: planejado
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275]
 spec: [.specs/features/automacao-datajud]
 ---
 
@@ -34,12 +34,13 @@ A definir.
 
 ## Pendências
 
-- [ ] Usuário: texto exato e origem de "expedição de alvará eletrônico automatizado" (no Datajud só há o movimento 60 com complemento "Alvará").
-- [ ] Usuário: preço e escopo do premium.
+- [ ] Usuário: confirmar o estudo do pagamento (AD-274, `.specs/features/automacao-datajud/context.md`).
+- [ ] Usuário: confirmar o premium como plano de R$ 80/mês e o anual (AD-275).
 - [ ] Fixture de TJ (TJMS e TJSP recusaram em 2026-11-22) antes da Fase 4, ou confirmar começar só com TRT e TRF.
 
 ## Histórico
 
+- 2026-11-22 — Estudo do pagamento na TPU do CNJ e em processos reais: intenção = 12548 e requisição 12165; dinheiro disponível = alvará 60 + 73 e RPV/precatório "Paga" 12176/12169 (AD-274). Preço do usuário: base R$ 60, premium R$ 80 (AD-275, leitura a confirmar).
 - 2026-11-22 — Fixture do TRF3: o alvará é o mesmo movimento 60 com o complemento 73 do TRT24; TJ ainda recusa (504/429).
 - 2026-11-22 — Fase 0: descoberta no Datajud (TRT24 responde; TRT2, TRF3 e TJMS recusaram), documentação e ADs.
 
