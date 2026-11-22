@@ -28,44 +28,71 @@ const TONE_COLOR: Record<GoalTone, string> = {
 
 const percent = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
 
-// Horizontal bar of the revenue goal (MRA, AD-260): the track is a faint red → yellow → green gradient (the scale
-// from nothing to the goal), the fill is what was received in the pace color and the tick marks what was expected
-// by now. Under it, the share reached and the pace in words.
-export function GoalProgress({ goal, className }: { goal: Goal; className?: string }) {
+const trackGradient = (direction: string) =>
+  `linear-gradient(${direction}, color-mix(in oklab, ${TONE_COLOR.error} 22%, transparent), color-mix(in oklab, ${TONE_COLOR.warning} 22%, transparent), color-mix(in oklab, ${TONE_COLOR.success} 22%, transparent))`;
+
+type GoalProgressProps = {
+  goal: Goal;
+  // `vertical`: a thick bar that fills from the bottom, beside the goal chart on the Dashboard.
+  orientation?: 'horizontal' | 'vertical';
+  className?: string;
+};
+
+// Bar of the revenue goal (MRA, AD-260, AD-261): the track is a faint red → yellow → green gradient (the scale from
+// nothing to the goal), the fill is what was received in the pace color and the tick marks what was expected by now.
+// With it, the share reached and the pace in words.
+export function GoalProgress({ goal, orientation = 'horizontal', className }: GoalProgressProps) {
   const tone = goalTone(goal);
   const reached = Math.min(1, goal.receivedCents / goal.goalCents);
   const expected = Math.min(1, (goal.expectedCents ?? 0) / goal.goalCents);
-  const label = `${percent.format(goal.receivedCents / goal.goalCents)} ${t('achieved')}`;
+  const share = `${percent.format(goal.receivedCents / goal.goalCents)} ${t('achieved')}`;
+  const pace = goal.receivedCents >= goal.goalCents ? t('goal_reached') : t(GOAL_TONE_LABEL[tone]);
+  const vertical = orientation === 'vertical';
+  const bar = (
+    <div
+      role="progressbar"
+      aria-label={t('revenue_goal')}
+      aria-valuemin={0}
+      aria-valuemax={goal.goalCents}
+      aria-valuenow={Math.min(goal.receivedCents, goal.goalCents)}
+      aria-valuetext={`${formatMoney(goal.receivedCents)} ${t('of').toLowerCase()} ${formatMoney(goal.goalCents)}, ${pace}`}
+      className={cn(
+        'relative flex overflow-hidden',
+        vertical ? 'w-12 flex-1 flex-col justify-end rounded-xl' : 'h-2.5 w-full rounded-full',
+      )}
+      style={{ backgroundImage: trackGradient(vertical ? '0deg' : '90deg') }}
+    >
+      <div
+        className={vertical ? 'w-full rounded-xl' : 'h-full rounded-full'}
+        style={{ [vertical ? 'height' : 'width']: `${reached * 100}%`, backgroundColor: TONE_COLOR[tone] }}
+      />
+      {expected > 0 && expected < 1 && (
+        <div
+          aria-hidden
+          className={cn('absolute bg-foreground/60', vertical ? 'inset-x-0 h-0.5' : 'inset-y-0 w-0.5')}
+          style={vertical ? { bottom: `calc(${expected * 100}% - 1px)` } : { left: `calc(${expected * 100}% - 1px)` }}
+        />
+      )}
+    </div>
+  );
+  if (vertical) {
+    return (
+      <div className={cn('flex w-24 flex-col items-center gap-2', className)}>
+        <ItemDescription className="text-center text-xs text-inherit">{share}</ItemDescription>
+        {bar}
+        <ItemDescription className="text-center text-xs line-clamp-none" style={{ color: TONE_COLOR[tone] }}>
+          {pace}
+        </ItemDescription>
+      </div>
+    );
+  }
   return (
     <div className={cn('flex w-full flex-col gap-1.5', className)}>
-      <div
-        role="progressbar"
-        aria-label={t('revenue_goal')}
-        aria-valuemin={0}
-        aria-valuemax={goal.goalCents}
-        aria-valuenow={Math.min(goal.receivedCents, goal.goalCents)}
-        aria-valuetext={`${formatMoney(goal.receivedCents)} ${t('of').toLowerCase()} ${formatMoney(goal.goalCents)}`}
-        className="relative h-2.5 w-full overflow-hidden rounded-full"
-        style={{
-          backgroundImage: `linear-gradient(90deg, color-mix(in oklab, ${TONE_COLOR.error} 22%, transparent), color-mix(in oklab, ${TONE_COLOR.warning} 22%, transparent), color-mix(in oklab, ${TONE_COLOR.success} 22%, transparent))`,
-        }}
-      >
-        <div
-          className="h-full rounded-full"
-          style={{ width: `${reached * 100}%`, backgroundColor: TONE_COLOR[tone] }}
-        />
-        {expected > 0 && expected < 1 && (
-          <div
-            aria-hidden
-            className="absolute inset-y-0 w-0.5 bg-foreground/60"
-            style={{ left: `calc(${expected * 100}% - 1px)` }}
-          />
-        )}
-      </div>
+      {bar}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-        <ItemDescription className="text-xs text-inherit">{label}</ItemDescription>
+        <ItemDescription className="text-xs text-inherit">{share}</ItemDescription>
         <ItemDescription className="text-xs" style={{ color: TONE_COLOR[tone] }}>
-          {goal.receivedCents >= goal.goalCents ? t('goal_reached') : t(GOAL_TONE_LABEL[tone])}
+          {pace}
         </ItemDescription>
       </div>
     </div>

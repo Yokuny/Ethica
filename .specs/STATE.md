@@ -1597,6 +1597,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: sem meta, o admin não vê mais o convite no Dashboard; a meta se cadastra só em Escritório.
 - **Scope**: `apps/api/src/modules/finance/transaction.service.ts`, `apps/web/src/components/goal-progress.tsx`, `apps/web/src/routes/_private/{dashboard,expert-cases}/`.
 - **Date**: 2026-11-22
+- **Status**: superseded in part by AD-261
+
+### AD-261
+- **Decision**: No Dashboard a barra da meta fica na vertical, grossa, à direita do gráfico da meta (mesma altura), enchendo de baixo para cima, com o % atingido em cima e o ritmo embaixo; a barra horizontal fica só no tooltip de Serviços (`GoalProgress orientation`). Supersede, da AD-260, a barra horizontal acima do gráfico.
+- **Reason**: pedido da perita na conferência (2026-11-22).
+- **Trade-off**: o gráfico perde a largura da barra (cerca de 6rem).
+- **Scope**: `apps/web/src/components/goal-progress.tsx`, `apps/web/src/routes/_private/dashboard/@components/revenue-goal-chart.tsx`.
+- **Date**: 2026-11-22
 - **Status**: active
 
 ## Handoff

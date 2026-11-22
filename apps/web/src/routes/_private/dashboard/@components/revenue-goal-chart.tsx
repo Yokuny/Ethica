@@ -60,7 +60,7 @@ function LegendItem({
 
 // Revenue goal of a year (MRA-03, AD-258, AD-259): what was received, accumulated month by month (green area, up to
 // the current month), against the goal spread evenly over the year (dashed gray line ending at the goal in December).
-// Above, the goal, what is left and the progress bar with the pace (AD-260).
+// Above, the goal and what is left; on the right, the thick vertical goal bar with the pace (AD-260, AD-261).
 export function RevenueGoalChart({ goal }: { goal: RevenueGoal & { goalCents: number } }) {
   // Months already lived in the year: all of a past one, none of a future one.
   const lived = goal.year < goal.currentYear ? 12 : goal.year > goal.currentYear ? 0 : 13 - goal.monthsLeft;
@@ -89,58 +89,60 @@ export function RevenueGoalChart({ goal }: { goal: RevenueGoal & { goalCents: nu
           <LegendItem label={t('per_month_until_december')} value={formatMoney(goal.perMonthCents)} />
         ) : null}
       </ul>
-      <GoalProgress goal={goal} className="max-w-2xl" />
-      <ChartContainer
-        config={config}
-        className="aspect-auto h-64 w-full"
-        role="img"
-        aria-label={`${t('goal_of')} ${goal.year}: ${formatMoney(goal.receivedCents)} ${t('of').toLowerCase()} ${formatMoney(goal.goalCents)}`}
-      >
-        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-          <CartesianGrid vertical={false} />
-          <XAxis
-            dataKey="month"
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            tickFormatter={(month: string) => monthShort.format(asDate(month)).replace('.', '')}
-          />
-          <YAxis
-            width={64}
-            tickLine={false}
-            axisLine={false}
-            domain={[0, 'auto']}
-            tickFormatter={(cents: number) => compactMoney.format(cents / 100)}
-          />
-          <ChartTooltip
-            content={
-              <ChartTooltipContent
-                labelFormatter={(month) => monthLong.format(asDate(String(month)))}
-                valueFormatter={formatMoney}
-              />
-            }
-          />
-          <Area
-            dataKey="receivedCents"
-            type="monotone"
-            stroke="var(--color-receivedCents)"
-            strokeWidth={2}
-            fill="var(--color-receivedCents)"
-            fillOpacity={0.15}
-            connectNulls={false}
-            isAnimationActive={false}
-          />
-          <Line
-            dataKey="paceCents"
-            type="linear"
-            stroke="var(--color-paceCents)"
-            strokeWidth={2}
-            strokeDasharray="5 4"
-            dot={false}
-            isAnimationActive={false}
-          />
-        </ComposedChart>
-      </ChartContainer>
+      <div className="flex items-stretch gap-6">
+        <ChartContainer
+          config={config}
+          className="aspect-auto h-64 min-w-0 flex-1"
+          role="img"
+          aria-label={`${t('goal_of')} ${goal.year}: ${formatMoney(goal.receivedCents)} ${t('of').toLowerCase()} ${formatMoney(goal.goalCents)}`}
+        >
+          <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(month: string) => monthShort.format(asDate(month)).replace('.', '')}
+            />
+            <YAxis
+              width={64}
+              tickLine={false}
+              axisLine={false}
+              domain={[0, 'auto']}
+              tickFormatter={(cents: number) => compactMoney.format(cents / 100)}
+            />
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(month) => monthLong.format(asDate(String(month)))}
+                  valueFormatter={formatMoney}
+                />
+              }
+            />
+            <Area
+              dataKey="receivedCents"
+              type="monotone"
+              stroke="var(--color-receivedCents)"
+              strokeWidth={2}
+              fill="var(--color-receivedCents)"
+              fillOpacity={0.15}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+            <Line
+              dataKey="paceCents"
+              type="linear"
+              stroke="var(--color-paceCents)"
+              strokeWidth={2}
+              strokeDasharray="5 4"
+              dot={false}
+              isAnimationActive={false}
+            />
+          </ComposedChart>
+        </ChartContainer>
+        <GoalProgress goal={goal} orientation="vertical" className="h-64 shrink-0" />
+      </div>
     </div>
   );
 }

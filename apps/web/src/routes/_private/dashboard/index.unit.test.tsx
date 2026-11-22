@@ -6,7 +6,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '@/query/session.js';
-import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
+import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery, revenueGoalQuery } from '@/query/transaction.js';
 import { dashboardSearchSchema } from './@interface/dashboard.interface.js';
 import { caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
 
@@ -35,7 +35,7 @@ const MONTHS = Array.from({ length: 13 }, (_, index) =>
 const recent = (index: number) => index >= 6 && index < 12;
 const current = (index: number) => index === 12;
 
-const renderPage = (role: Role[]) => {
+const renderPage = (role: Role[], goalCents?: number) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   queryClient.setQueryData(sessionQuery.queryKey, {
     tenant: { id: 't1', name: 'Perícias Silva', status: 'active' },
@@ -79,6 +79,15 @@ const renderPage = (role: Role[]) => {
   queryClient.setQueryData(categoriesQuery('expense', 6).queryKey, [
     { category: 'travel', totalCents: 120_000, previousCents: 240_000 },
   ]);
+  queryClient.setQueryData(revenueGoalQuery().queryKey, {
+    year: 2026,
+    currentYear: 2026,
+    years: [2026],
+    byMonth: MONTHS.slice(1).map((month) => ({ month, receivedCents: 900_000 })),
+    receivedCents: 10_800_000,
+    monthsLeft: 2,
+    ...(goalCents ? { goalCents, expectedCents: (goalCents * 11) / 12, perMonthCents: 600_000 } : {}),
+  });
   render(
     <QueryClientProvider client={queryClient}>
       <DashboardPage />
@@ -136,6 +145,18 @@ describe('Dashboard (DSH, AD-255)', () => {
     expect(screen.queryByText(/honorários vencidos/)).not.toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'Financeiro' })).not.toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Trabalho' })).not.toHaveTextContent('R$');
+  });
+
+  it('meta do ano: depois do Fluxo de caixa, com a barra vertical; sem meta o painel não aparece (AD-260, AD-261)', () => {
+    renderPage(['admin'], 12_000_000);
+    const cashFlow = screen.getByText('Fluxo de caixa');
+    const goal = screen.getByText('Meta de 2026');
+    expect(cashFlow.compareDocumentPosition(goal) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole('progressbar', { name: 'Meta do ano' })).toHaveAttribute('aria-valuenow', '10800000');
+    expect(screen.getByText('90% atingido')).toBeInTheDocument();
+    cleanup();
+    renderPage(['admin']);
+    expect(screen.queryByText('Meta de 2026')).not.toBeInTheDocument();
   });
 
   it('período na URL como número (?months=6); link antigo em texto e valor estranho caem no padrão', () => {
