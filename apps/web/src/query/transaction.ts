@@ -90,6 +90,22 @@ export const transactionsQuery = (params: TransactionsQueryParams = {}) =>
     },
   });
 
+// Mirrors RevenueGoal of apps/api/src/modules/finance/transaction.schema.ts (MRA-02, AD-258). Under the transaction
+// keys, so a receipt refreshes it; saving the goal in Office invalidates it too.
+export type RevenueGoal = {
+  year: number;
+  receivedCents: number;
+  goalCents?: number;
+  expectedCents?: number;
+  perMonthCents?: number;
+  monthsLeft: number;
+};
+
+export const revenueGoalQuery = queryOptions({
+  queryKey: [...transactionKeys.all, 'revenue-goal'],
+  queryFn: () => fetchData<RevenueGoal>('/finance/revenue-goal'),
+});
+
 export const financeSummaryQuery = queryOptions({
   queryKey: transactionKeys.summary(),
   queryFn: () => fetchData<FinanceSummary>('/finance/summary'),

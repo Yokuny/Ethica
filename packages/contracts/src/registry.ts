@@ -32,6 +32,7 @@ import {
   financeReportQuerySchema,
   serviceOrderSettingsSchema,
   updateOfficeSchema,
+  updateRevenueGoalSchema,
   updateScheduleNoticeSchema,
 } from './schemas/document.schema.js';
 import { idSchema } from './schemas/id.schema.js';
@@ -154,6 +155,7 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createOpportunitySchema', schema: createOpportunitySchema },
   { name: 'updateOpportunitySchema', schema: updateOpportunitySchema },
   { name: 'updateScheduleNoticeSchema', schema: updateScheduleNoticeSchema },
+  { name: 'updateRevenueGoalSchema', schema: updateRevenueGoalSchema },
   { name: 'mediaIdSchema', schema: mediaIdSchema },
   { name: 'inspectionDataSchema', schema: inspectionDataSchema },
   { name: 'saveInspectionSchema', schema: saveInspectionSchema },

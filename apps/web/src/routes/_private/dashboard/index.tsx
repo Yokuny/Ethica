@@ -12,12 +12,19 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { Panel } from '@/components/panel.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { can, sessionQuery } from '@/query/session.js';
-import { type CategoryTotal, categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
+import { can, isAdminSession, sessionQuery } from '@/query/session.js';
+import {
+  type CategoryTotal,
+  categoriesQuery,
+  financeSummaryQuery,
+  monthlyFlowQuery,
+  revenueGoalQuery,
+} from '@/query/transaction.js';
 import { CasesMonthTable } from './@components/cases-month-table.js';
 import { DashboardAlerts } from './@components/dashboard-alerts.js';
 import { MoneyKpis, WorkKpis } from './@components/dashboard-kpis.js';
 import { MonthDetails } from './@components/month-details.js';
+import { RevenueGoalPanel } from './@components/revenue-goal-panel.js';
 import { ServicesAreaChart } from './@components/services-area-chart.js';
 import {
   type DashboardSearch,
@@ -85,6 +92,7 @@ export function DashboardPage() {
   const cases = useQuery(caseDashboardQuery);
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance });
   const fees = useQuery({ ...feesDashboardQuery, enabled: canSeeFinance });
+  const goal = useQuery({ ...revenueGoalQuery, enabled: canSeeFinance });
   // Complete months only (the one in progress would end every line in a false drop): the period and the previous
   // one of the same size, plus the current month that the API also sends and the page drops.
   const flow = useQuery({ ...monthlyFlowQuery(2 * months + 1), enabled: canSeeFinance });
@@ -126,6 +134,8 @@ export function DashboardPage() {
           />
         ) : (
           <>
+            {goal.data && <RevenueGoalPanel goal={goal.data} isAdmin={isAdminSession(session)} />}
+
             {canSeeFinance && complete && (
               <section aria-label={t('overview')} className="flex flex-col gap-4">
                 <MoneyKpis

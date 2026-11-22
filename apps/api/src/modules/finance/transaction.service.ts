@@ -3,6 +3,7 @@ import { dateInDisplayTz, shiftMonth } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from '../case/case.service.js';
+import * as officeService from '../identity/office.service.js';
 import * as transactionRepository from './transaction.repository.js';
 import type {
   CaseFinanceSummary,
@@ -11,6 +12,7 @@ import type {
   FinanceReport,
   FinanceReportRow,
   ListTransactionsQuery,
+  RevenueGoal,
   TransactionRecord,
   UpdateTransaction,
 } from './transaction.schema.js';
@@ -181,6 +183,29 @@ export const summary = (tenantId: string, now: Date = new Date()) => {
 };
 
 export const feesDashboard = (tenantId: string) => transactionRepository.feesDashboard(tenantId);
+
+const DAY_MS = 86_400_000;
+
+// Revenue goal of the year (MRA-02, MRA-03, AD-258): the realized is what was received in the calendar year so far,
+// by each installment's date. The pace is linear by days, today included.
+export const revenueGoal = async (tenantId: string, now: Date = new Date()): Promise<RevenueGoal> => {
+  const today = dateInDisplayTz(now);
+  const { year, amountCents: goalCents } = await officeService.getRevenueGoal(tenantId, now);
+  const receivedCents = await transactionRepository.receivedBetween(tenantId, `${year}-01-01`, `${year + 1}-01-01`);
+  const monthsLeft = 13 - Number(today.slice(5, 7));
+  if (!goalCents) return { year, receivedCents, monthsLeft };
+  const day = (date: string) => Date.parse(`${date}T00:00:00Z`);
+  const elapsed = (day(today) - day(`${year}-01-01`)) / DAY_MS + 1;
+  const length = (day(`${year + 1}-01-01`) - day(`${year}-01-01`)) / DAY_MS;
+  return {
+    year,
+    receivedCents,
+    goalCents,
+    expectedCents: Math.round((goalCents * elapsed) / length),
+    perMonthCents: Math.ceil(Math.max(0, goalCents - receivedCents) / monthsLeft),
+    monthsLeft,
+  };
+};
 
 // The last `months` months up to the current one, from oldest to newest.
 export const monthlyFlow = (tenantId: string, months: number, now: Date = new Date()) => {

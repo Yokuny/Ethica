@@ -1,10 +1,10 @@
-import type { DocumentTextStyle, UpdateOffice, UpdateScheduleNotice } from '@ethica/contracts';
-import { updateOfficeSchema, updateScheduleNoticeSchema } from '@ethica/contracts';
+import type { DocumentTextStyle, UpdateOffice, UpdateRevenueGoal, UpdateScheduleNotice } from '@ethica/contracts';
+import { updateOfficeSchema, updateRevenueGoalSchema, updateScheduleNoticeSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import type { FileStorage } from '../../providers/fileStorage.js';
 
-export type { UpdateOffice, UpdateScheduleNotice };
-export { updateOfficeSchema, updateScheduleNoticeSchema };
+export type { UpdateOffice, UpdateRevenueGoal, UpdateScheduleNotice };
+export { updateOfficeSchema, updateRevenueGoalSchema, updateScheduleNoticeSchema };
 
 export type OfficeRouterDeps = { validToken: RequestHandler; storage?: FileStorage };
 
@@ -19,6 +19,8 @@ export type OfficeView = {
   storageBytes: number;
   storageQuotaBytes: number;
   dataExports: Array<{ userName?: string; at: Date }>;
+  // Revenue goal of the current year (MRA-01); missing without one.
+  revenueGoal: { year: number; amountCents?: number };
 };
 
 export type TenantLogo = { key: string; bytes: number; updatedAt?: Date };

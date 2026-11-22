@@ -1,9 +1,17 @@
 import { DOCUMENT_TEXT_STYLE_DEFAULT, TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
+import { dateInDisplayTz } from '@ethica/db';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import * as activityLogService from './activityLog.service.js';
 import * as officeRepository from './office.repository.js';
-import type { DocumentIdentity, OfficeView, TenantLogo, UpdateOffice, UpdateScheduleNotice } from './office.schema.js';
+import type {
+  DocumentIdentity,
+  OfficeView,
+  TenantLogo,
+  UpdateOffice,
+  UpdateRevenueGoal,
+  UpdateScheduleNotice,
+} from './office.schema.js';
 
 const EXPORTS_SHOWN = 5;
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -19,8 +27,15 @@ const requireStorage = (storage: FileStorage | undefined): FileStorage => {
   return storage;
 };
 
-export const getOffice = async (tenantId: string): Promise<OfficeView> => {
+// The current year in the display time zone: a goal of another year no longer counts (AD-258).
+const currentYear = (now: Date) => Number(dateInDisplayTz(now).slice(0, 4));
+const goalOf = (goal: { year: number; amountCents: number } | undefined, year: number) =>
+  goal?.year === year ? goal.amountCents : undefined;
+
+export const getOffice = async (tenantId: string, now: Date = new Date()): Promise<OfficeView> => {
   const tenant = await findOfficeOrThrow(tenantId);
+  const year = currentYear(now);
+  const amountCents = goalOf(tenant.revenueGoal, year);
   // The latest exports come from the activity log (AD-134).
   const exports = await activityLogService.latestExports(tenantId, EXPORTS_SHOWN);
   return {
@@ -32,6 +47,7 @@ export const getOffice = async (tenantId: string): Promise<OfficeView> => {
     storageBytes: tenant.storageBytes ?? 0,
     storageQuotaBytes: TENANT_STORAGE_QUOTA_BYTES,
     dataExports: exports.map((item) => ({ userName: item.userName, at: item.createdAt })),
+    revenueGoal: { year, ...(amountCents ? { amountCents } : {}) },
   };
 };
 
@@ -121,4 +137,19 @@ export const getScheduleNotice = async (tenantId: string): Promise<UpdateSchedul
 export const updateScheduleNotice = async (tenantId: string, notice: UpdateScheduleNotice) => {
   await officeRepository.setScheduleNotice(tenantId, notice);
   return getScheduleNotice(tenantId);
+};
+
+// Revenue goal of the current year (MRA-01, AD-258), for finance to measure the realized against.
+export const getRevenueGoal = async (
+  tenantId: string,
+  now: Date = new Date(),
+): Promise<{ year: number; amountCents?: number }> => {
+  const year = currentYear(now);
+  const amountCents = goalOf((await findOfficeOrThrow(tenantId)).revenueGoal, year);
+  return { year, ...(amountCents ? { amountCents } : {}) };
+};
+
+export const setRevenueGoal = async (tenantId: string, { amountCents }: UpdateRevenueGoal): Promise<OfficeView> => {
+  await officeRepository.setRevenueGoal(tenantId, currentYear(new Date()), amountCents);
+  return getOffice(tenantId);
 };

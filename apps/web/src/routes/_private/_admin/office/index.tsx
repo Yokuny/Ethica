@@ -8,6 +8,7 @@ import { StepItem, StepList } from '@/components/step-list.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { OfficeExport } from './@components/office-export.js';
 import { OfficeLogo } from './@components/office-logo.js';
+import { OfficeRevenueGoal } from './@components/office-revenue-goal.js';
 import { OfficeScheduleNotice } from './@components/office-schedule-notice.js';
 import { OfficeServiceOrder } from './@components/office-service-order.js';
 import { OfficeSignatories } from './@components/office-signatories.js';
@@ -47,6 +48,9 @@ export function OfficePage() {
             </StepItem>
             <StepItem title={t('scheduling_notice')} description={t('scheduling_notice_description')}>
               <OfficeScheduleNotice />
+            </StepItem>
+            <StepItem title={t('revenue_goal')} description={t('revenue_goal_description')}>
+              <OfficeRevenueGoal goal={office.revenueGoal} />
             </StepItem>
             <StepItem title={t('storage')} description={t('storage_description')}>
               <OfficeStorage office={office} />

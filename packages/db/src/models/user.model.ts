@@ -14,7 +14,13 @@ export interface UserDocument {
   // ENR-03: the person's own preferences. They only keep interface choices
   // (e.g. dismissing the getting started guide) — never progress facts.
   // AD-110: `avisoPrazoEmail` ausente = ligado.
-  preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; hiddenBlocks?: string[] };
+  preferences?: {
+    onboardingDismissed?: boolean;
+    deadlineReminderEmail?: boolean;
+    hiddenBlocks?: string[];
+    // MRA-04: follow the revenue goal on the services page; absent = off.
+    revenueGoalOnCases?: boolean;
+  };
   // iCal feed (PRZ-03): only the hash of the secret token, like session and invite. Missing = no link.
   calendarFeedTokenHash?: string;
   // ACC-02: 256×256 photo already shrunk in the browser, as a data URL. `select: false`:
@@ -50,6 +56,7 @@ const userSchema = new Schema<UserDocument>(
           onboardingDismissed: { type: Boolean, default: false },
           deadlineReminderEmail: { type: Boolean },
           hiddenBlocks: { type: [String], default: undefined },
+          revenueGoalOnCases: { type: Boolean },
         },
         { _id: false },
       ),

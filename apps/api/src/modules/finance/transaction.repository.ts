@@ -286,6 +286,18 @@ export const summary = async (
     return { receivableCents, lateCents, receivedMonthCents, expensesMonthCents };
   });
 
+// Received between `from` (inclusive) and `to` (exclusive), by the date each installment hit the account
+// (MRA-02): the effective payment date, never the due or hiring date. Same sum as the cash flow's received.
+export const receivedBetween = async (tenantId: string, from: string, to: string): Promise<number> =>
+  withDbTiming('finance.receivedBetween', async () =>
+    sum([
+      { $match: { Tenant: toObjectId(tenantId), kind: 'income', status: { $ne: 'canceled' } } },
+      { $unwind: '$installments' },
+      { $match: { 'installments.date': { $gte: from, $lt: to } } },
+      { $project: { amount: '$installments.amountCents' } },
+    ]),
+  );
+
 export const feesDashboard = async (tenantId: string): Promise<FeesDashboard> =>
   withDbTiming('finance.feesDashboard', async () => {
     const Tenant = toObjectId(tenantId);

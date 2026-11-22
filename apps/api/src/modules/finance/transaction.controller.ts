@@ -60,6 +60,14 @@ export const summary = async (req: Request, res: Response, next: NextFunction): 
   }
 };
 
+export const revenueGoal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await transactionService.revenueGoal(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const feesDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.json(respObj({ data: await transactionService.feesDashboard(tenantOf(req)) }));

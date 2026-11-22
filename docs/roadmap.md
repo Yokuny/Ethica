@@ -53,6 +53,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
+
 - [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`
 - [ ] Confirmar as perguntas em aberto das specs: `avisos-notificacoes`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
@@ -91,6 +93,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — Meta de receita do ano: cadastro em Escritório, acompanhamento no Dashboard e, por escolha de cada pessoa, em Serviços (AD-258) — `meta-receita`
 - [x] 2026-11-22 — Editar honorário no Financeiro não dá mais erro 500 (`internal_error`) ao salvar — `prazos-recebimentos`
 - [x] 2026-11-22 — Texto que parece número sem aspas na URL em todas as telas (busca, paginação, período do Dashboard) (AD-257) — `fundacao-ethica`
 - [x] 2026-11-22 — Dashboard e Início reformulados conferidos no navegador (6 e 12 meses, três temas, celular) — `dashboard`

@@ -6,7 +6,7 @@ import type { TenantLogo, UpdateOffice } from './office.schema.js';
 export const findOffice = async (tenantId: string) =>
   withDbTiming('office.findOffice', async () =>
     Tenant.findById(tenantId)
-      .select('name header footer headerStyle footerStyle logo storageBytes scheduleNotice')
+      .select('name header footer headerStyle footerStyle logo storageBytes scheduleNotice revenueGoal')
       .lean(),
   );
 
@@ -65,4 +65,13 @@ export const returnBytes = async (tenantId: string, bytes: number): Promise<void
 export const setScheduleNotice = async (tenantId: string, notice: { subject: string; body: string }) =>
   withDbTiming('office.setScheduleNotice', async () => {
     await Tenant.updateOne({ _id: tenantId }, { $set: { scheduleNotice: notice } });
+  });
+
+// Revenue goal (MRA-01, AD-258): one per office, of the year given by the service; 0 removes it.
+export const setRevenueGoal = async (tenantId: string, year: number, amountCents: number): Promise<void> =>
+  withDbTiming('office.setRevenueGoal', async () => {
+    await Tenant.updateOne(
+      { _id: tenantId },
+      amountCents ? { $set: { revenueGoal: { year, amountCents } } } : { $unset: { revenueGoal: 1 } },
+    );
   });

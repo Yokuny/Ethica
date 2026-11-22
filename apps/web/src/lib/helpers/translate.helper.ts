@@ -1585,6 +1585,24 @@ const translations: Record<string, string> = {
   save_draft_question_description:
     'O preenchimento deste laudo ainda não foi salvo. Salve como rascunho para continuar depois ou descarte.',
   discard_and_leave: 'Descartar e sair',
+  // Revenue goal of the year (MRA, AD-258).
+  revenue_goal: 'Meta do ano',
+  revenue_goal_description:
+    'Quanto o escritório quer receber neste ano. O Dashboard compara com o que já entrou, pela data de cada pagamento. Deixe em zero para ficar sem meta.',
+  goal_of: 'Meta de',
+  revenue_goal_scope: 'Recebido no ano até hoje, pela data de cada pagamento, contra a meta cadastrada em Escritório.',
+  achieved: 'atingido',
+  left_to_goal: 'Falta para a meta',
+  expected_until_today: 'Esperado até hoje',
+  needed_per_month: 'Por mês até dezembro',
+  on_pace: 'No ritmo',
+  below_pace: 'Abaixo do ritmo',
+  goal_reached: 'Meta atingida',
+  no_revenue_goal: 'Sem meta para este ano',
+  set_revenue_goal_in_office: 'Cadastre em Escritório quanto o escritório quer receber no ano.',
+  follow_goal_here: 'Acompanhar a meta aqui',
+  hide_goal_here: 'Ocultar a meta daqui',
+  see_goal: 'Ver a meta',
 };
 
 // Languages supported by the app — today only pt-BR (the default). A new language

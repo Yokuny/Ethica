@@ -5,7 +5,12 @@ import type { UpdatePreferences, UserPreferences } from './preferences.schema.js
 
 const toPreferences = (
   doc: {
-    preferences?: { onboardingDismissed?: boolean; deadlineReminderEmail?: boolean; hiddenBlocks?: string[] };
+    preferences?: {
+      onboardingDismissed?: boolean;
+      deadlineReminderEmail?: boolean;
+      hiddenBlocks?: string[];
+      revenueGoalOnCases?: boolean;
+    };
   } | null,
 ): UserPreferences => ({
   onboardingDismissed: doc?.preferences?.onboardingDismissed === true,
@@ -14,6 +19,7 @@ const toPreferences = (
   hiddenBlocks: (doc?.preferences?.hiddenBlocks ?? []).filter((block): block is HomeBlock =>
     (HOME_BLOCKS as readonly string[]).includes(block),
   ),
+  revenueGoalOnCases: doc?.preferences?.revenueGoalOnCases === true,
 });
 
 // A user without the field (account older than the feature) reads the default, no backfill.

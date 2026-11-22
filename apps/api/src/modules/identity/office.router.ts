@@ -5,7 +5,12 @@ import { fileBody } from '../../middlewares/fileBody.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody } from '../../middlewares/validation.middleware.js';
 import * as officeController from './office.controller.js';
-import { type OfficeRouterDeps, updateOfficeSchema, updateScheduleNoticeSchema } from './office.schema.js';
+import {
+  type OfficeRouterDeps,
+  updateOfficeSchema,
+  updateRevenueGoalSchema,
+  updateScheduleNoticeSchema,
+} from './office.schema.js';
 
 // Office identity on documents (DOC-01): admin configuration. Mounted on `/tenant/office`.
 export const createOfficeRouter = (deps: OfficeRouterDeps): Router => {
@@ -24,5 +29,7 @@ export const createOfficeRouter = (deps: OfficeRouterDeps): Router => {
     validBody(updateScheduleNoticeSchema),
     officeController.updateScheduleNotice,
   );
+  // Revenue goal of the current year (MRA-01, AD-258); reading it with the realized is in finance.
+  router.put('/revenue-goal', ...guard, validBody(updateRevenueGoalSchema), officeController.updateRevenueGoal);
   return router;
 };

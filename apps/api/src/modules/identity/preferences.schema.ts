@@ -13,6 +13,8 @@ export const updatePreferencesSchema = z
     deadlineReminderEmail: z.boolean().optional(),
     // AD-136: home blocks the person hid; `[]` restores the default.
     hiddenBlocks: z.array(z.enum(HOME_BLOCKS)).max(HOME_BLOCKS.length).optional(),
+    // MRA-04: follow the revenue goal on the services page.
+    revenueGoalOnCases: z.boolean().optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, { message: 'nenhuma preferência informada' });
@@ -22,4 +24,5 @@ export type UserPreferences = {
   onboardingDismissed: boolean;
   deadlineReminderEmail: boolean;
   hiddenBlocks: HomeBlock[];
+  revenueGoalOnCases: boolean;
 };

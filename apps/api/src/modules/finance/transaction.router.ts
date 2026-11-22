@@ -21,6 +21,7 @@ export const createFinanceRouter = (deps: FinanceRouterDeps): Router => {
 
   router.get('/summary', ...guard, can('finance', 'view'), transactionController.summary);
   router.get('/dashboard', ...guard, can('finance', 'view'), transactionController.feesDashboard);
+  router.get('/revenue-goal', ...guard, can('finance', 'view'), transactionController.revenueGoal);
   router.get(
     '/flow',
     ...guard,

@@ -97,6 +97,18 @@ export type FeesDashboard = {
   receivedCents: number;
 };
 
+// Revenue goal of the year against what was received (MRA-02, MRA-03, AD-258). Without a goal only `year` and
+// `receivedCents` come; `expectedCents` is the linear pace up to today and `perMonthCents` what is left split by the
+// remaining months, the current one included.
+export type RevenueGoal = {
+  year: number;
+  receivedCents: number;
+  goalCents?: number;
+  expectedCents?: number;
+  perMonthCents?: number;
+  monthsLeft: number;
+};
+
 export type MonthlyFlow = {
   month: string;
   receivedCents: number;

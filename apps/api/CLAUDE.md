@@ -50,7 +50,7 @@ Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma co
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
+Grafo atual: `agenda`, `finance` e `prospecting` → `case`; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 

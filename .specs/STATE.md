@@ -1575,6 +1575,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-22
 - **Status**: active
 
+### AD-258
+- **Decision**: Meta de receita do ano. O admin cadastra em Escritório um valor para o ano corrente, guardado como `Tenant.revenueGoal = { year, amountCents }` (um só; meta de outro ano não vale, 0 remove). O realizado é a soma das parcelas de receita não anulada com data dentro do ano (`installments.date`, a data efetiva do recebimento), o mesmo critério do "Recebido" do fluxo de caixa; despesas ficam fora. `GET /finance/revenue-goal` (exige `finance.view`) devolve meta, realizado, esperado linear até hoje e quanto falta por mês; `finance` lê a meta pelo `office.service` (`finance` → `identity`). O Dashboard mostra o painel no topo, do ano até hoje, fora do período `?months=`. Em Serviços, cada pessoa liga a linha curta da meta pelo menu "…" (preferência `revenueGoalOnCases`, desligada por padrão).
+- **Reason**: pedido da perita (2026-11-22), que escolheu receita recebida bruta, ritmo no Dashboard e a escolha por pessoa em Serviços. Uma meta só, sem histórico, porque nada lê metas passadas.
+- **Trade-off**: na virada do ano o campo volta vazio até o admin cadastrar a nova meta; o painel da meta não segue o período da página.
+- **Scope**: `packages/db/src/models/{tenant,user}.model.ts`, `packages/contracts/src/schemas/document.schema.ts`, `apps/api/src/modules/identity/{office,preferences}.*`, `apps/api/src/modules/finance/transaction.*`, `apps/web/src/routes/_private/{_admin/office,dashboard,expert-cases}/`, `apps/web/src/query/{transaction,preferences}.ts`.
+- **Date**: 2026-11-22
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.

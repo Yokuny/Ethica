@@ -1,8 +1,9 @@
-import type { DocumentTextStyle, ServiceOrderSettings, UpdateOffice } from '@ethica/contracts';
+import type { DocumentTextStyle, ServiceOrderSettings, UpdateOffice, UpdateRevenueGoal } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, put, sendFile } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+import { transactionKeys } from '@/query/transaction.js';
 
 // Mirrors OfficeView of apps/api/src/modules/identity/office.schema.ts.
 export type OfficeView = {
@@ -14,6 +15,8 @@ export type OfficeView = {
   storageBytes: number;
   storageQuotaBytes: number;
   dataExports: { userName?: string; at: string }[];
+  // Revenue goal of the current year (MRA-01); `amountCents` missing without one.
+  revenueGoal: { year: number; amountCents?: number };
 };
 
 export const officeKeys = { detail: ['office'] as const };
@@ -38,6 +41,21 @@ export const updateOfficeMutation = (
     return res.data;
   },
   onSuccess: setOffice(queryClient),
+});
+
+// Revenue goal of the current year (MRA-01); 0 removes it. The Dashboard reads it with the realized.
+export const updateRevenueGoalMutation = (
+  queryClient: QueryClient,
+): UseMutationOptions<OfficeView, Error, UpdateRevenueGoal> => ({
+  mutationFn: async (data) => {
+    const res = await put<OfficeView>('/tenant/office/revenue-goal', data);
+    if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
+    return res.data;
+  },
+  onSuccess: (data) => {
+    setOffice(queryClient)(data);
+    void queryClient.invalidateQueries({ queryKey: transactionKeys.all });
+  },
 });
 
 // `png` already shrunk in the browser (AD-120); `null` removes the logo.

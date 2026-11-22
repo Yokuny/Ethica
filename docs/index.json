@@ -2,6 +2,27 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "meta-receita",
+      "feature": "Meta de receita do ano",
+      "descricao": "Meta de receita do ano cadastrada em Escritório e acompanhada no Dashboard e, por escolha de cada pessoa, em Serviços",
+      "data": "2026-11-22",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-258"
+      ],
+      "spec": [
+        ".specs/features/meta-receita"
+      ],
+      "planos": [],
+      "doc": "features/meta-receita/feature.md"
+    },
+    {
       "slug": "paginas-publicas",
       "feature": "Páginas públicas do rodapé",
       "descricao": "Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade",
@@ -2208,6 +2229,12 @@
     {
       "id": "AD-257",
       "decisao": "Os parâmetros da URL são gravados como se leem. Texto vai sem aspas (`?q=123`, não `?q=%22123%22`); só listas e objetos (filtros de vários v",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-258",
+      "decisao": "Meta de receita do ano. O admin cadastra em Escritório um valor para o ano corrente, guardado como `Tenant.revenueGoal = { year, amountCents",
       "data": "2026-11-22",
       "status": "active"
     }

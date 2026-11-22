@@ -9,6 +9,8 @@ export type UserPreferences = {
   onboardingDismissed: boolean;
   deadlineReminderEmail: boolean;
   hiddenBlocks: HomeBlock[];
+  // MRA-04: follow the revenue goal on the services page.
+  revenueGoalOnCases: boolean;
 };
 
 export const preferencesKeys = { all: ['preferences'] as const };

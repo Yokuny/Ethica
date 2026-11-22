@@ -1,8 +1,9 @@
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -11,8 +12,11 @@ import { PageMenu } from '@/components/page-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { casesQuery, serviceOrderPreviewQuery } from '@/query/case.js';
 import { listStatsQuery } from '@/query/listStats.js';
+import { preferencesQuery, updatePreferencesMutation } from '@/query/preferences.js';
 import { can, sessionQuery } from '@/query/session.js';
+import { revenueGoalQuery } from '@/query/transaction.js';
 import { CasesOverview } from './@components/cases-overview.js';
+import { CasesRevenueGoal } from './@components/cases-revenue-goal.js';
 import { CasesTable } from './@components/cases-table.js';
 import { useCasesFilters } from './@hooks/use-cases-filters.js';
 import { useCasesSearch } from './@hooks/use-cases-search.js';
@@ -54,6 +58,17 @@ export function CasesIndexPage() {
   const session = useQuery(sessionQuery).data;
   const canCreate = Boolean(session && can(session, 'expert_cases', 'create'));
   const canSeeFinance = Boolean(session && can(session, 'finance'));
+  // Revenue goal (MRA-04): each person who sees Finance chooses to follow it here.
+  const goal = useQuery({ ...revenueGoalQuery, enabled: canSeeFinance }).data;
+  const preferences = useQuery({ ...preferencesQuery, enabled: canSeeFinance }).data;
+  const savePreferences = useMutation(updatePreferencesMutation(queryClient));
+  const goalCents = goal?.goalCents;
+  const followsGoal = Boolean(goal && goalCents && preferences?.revenueGoalOnCases);
+  const toggleGoal = () =>
+    savePreferences.mutate(
+      { revenueGoalOnCases: !preferences?.revenueGoalOnCases },
+      { onError: (error) => toast.error(error.message) },
+    );
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -62,25 +77,33 @@ export function CasesIndexPage() {
       <CardHeader title={t('expert_cases')} description={t('track_each_expert_case_from_appointment_to_report')}>
         <CardAction>
           {canCreate && (
-            <>
-              <Button nativeButton={false} role="link" render={<Link to="/expert-cases/add">{t('add')}</Link>} />
-              <PageMenu>
+            <Button nativeButton={false} role="link" render={<Link to="/expert-cases/add">{t('add')}</Link>} />
+          )}
+          {(canCreate || Boolean(goalCents && preferences)) && (
+            <PageMenu>
+              {canCreate && (
                 <DropdownMenuItem onClick={() => navigate({ to: '/expert-cases/import' })}>
                   {t('import_spreadsheet')}
                 </DropdownMenuItem>
-              </PageMenu>
-            </>
+              )}
+              {Boolean(goalCents) && preferences && (
+                <DropdownMenuItem onClick={toggleGoal}>
+                  {t(followsGoal ? 'hide_goal_here' : 'follow_goal_here')}
+                </DropdownMenuItem>
+              )}
+            </PageMenu>
           )}
         </CardAction>
       </CardHeader>
       <CasesOverview stats={statsQuery.data} />
       <CardContent>
         {/* Next service order (a preview of the sequence, AD-190) and the last one used, as a discreet line. */}
-        {(serviceOrder?.next || serviceOrder?.last) && (
+        {(serviceOrder?.next || serviceOrder?.last || followsGoal) && (
           <div className="flex flex-wrap gap-x-6 gap-y-1 justify-end">
+            {followsGoal && goal && goalCents && <CasesRevenueGoal goal={{ ...goal, goalCents }} />}
             {[
-              { label: t('next_service_order'), value: serviceOrder.next },
-              { label: t('last_service_order'), value: serviceOrder.last },
+              { label: t('next_service_order'), value: serviceOrder?.next },
+              { label: t('last_service_order'), value: serviceOrder?.last },
             ].map(
               (item) =>
                 item.value && (

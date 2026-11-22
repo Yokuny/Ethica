@@ -70,6 +70,7 @@ describe('schemaRegistry', () => {
         'createOpportunitySchema',
         'updateOpportunitySchema',
         'updateScheduleNoticeSchema',
+        'updateRevenueGoalSchema',
         'mediaIdSchema',
         'inspectionDataSchema',
         'saveInspectionSchema',

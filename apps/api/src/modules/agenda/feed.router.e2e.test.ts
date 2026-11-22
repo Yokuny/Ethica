@@ -164,12 +164,14 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
       onboardingDismissed: false,
       deadlineReminderEmail: true,
       hiddenBlocks: [],
+      revenueGoalOnCases: false,
     });
     const desligado = await bia.as(request(app).patch('/me/preferences')).send({ deadlineReminderEmail: false });
     expect(desligado.body.data).toEqual({
       onboardingDismissed: false,
       deadlineReminderEmail: false,
       hiddenBlocks: [],
+      revenueGoalOnCases: false,
     });
 
     const recipients = await listDeadlineReminderRecipients([
