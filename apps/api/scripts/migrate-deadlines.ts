@@ -1,12 +1,13 @@
 import { REPORT_DELIVERY_TITLE, SERVICE_DELIVERY_TITLE } from '@ethica/contracts';
 import { CalendarEntry, connect, disconnect, Notification, type NotificationDocument } from '@ethica/db';
-import { env } from '../src/config/env.config.js';
 
 // One-off script (D8, AD-263): copies the old `deadlines` collection into `notifications` (kinds `deadline` and
 // `alert`, keeping the same _id) and points their agenda entries to the `notification` origin. Idempotent:
 // running twice changes nothing. Without `--apply` it only reports what it would do. Deleted in the commit after
 // it runs in production (no shim in the code). The old `deadlines` collection is NOT deleted here.
 const apply = process.argv.includes('--apply');
+// Only the database: the api's other variables are not needed here.
+const uri = process.env.MONGODB_URI;
 const DELIVERY = new Set([REPORT_DELIVERY_TITLE, SERVICE_DELIVERY_TITLE]);
 
 type OldDeadline = {
@@ -24,7 +25,18 @@ type OldDeadline = {
 };
 
 const run = async (): Promise<void> => {
-  await connect(env.MONGODB_URI);
+  if (!uri) throw new Error('MONGODB_URI é obrigatória');
+  await connect(uri);
+  console.log(
+    JSON.stringify({
+      event: 'migrate_deadlines.database',
+      host: uri
+        .replace(/^mongodb(\+srv)?:\/\//, '')
+        .split('@')
+        .pop()
+        ?.split('/')[0],
+    }),
+  );
   const old = (await Notification.db.collection('deadlines').find({}).toArray()) as unknown as OldDeadline[];
   const existing = new Set(
     (await Notification.find({ _id: { $in: old.map((doc) => doc._id) } }, { _id: 1 }).lean()).map((doc) =>
