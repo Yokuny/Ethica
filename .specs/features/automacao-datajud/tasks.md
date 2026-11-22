@@ -6,7 +6,7 @@ Gate de cada fase: `pnpm run check`, `(cd apps/web && pnpm run build)`, registro
 
 - [x] T0.1 Consultas reais ao Datajud; fixtures em `fixtures/` (TRT24 completo e em lote, TRT2 parcial e recusado).
 - [x] T0.2 `spec.md`, `design.md`, `tasks.md`; ADs AD-267 a AD-271.
-- [ ] T0.3 Fixtures de TJ e TRF — indisponíveis em 2026-11-22; tentar de novo no início da Fase 4.
+- [ ] T0.3 Fixtures de TJ e TRF — TRF3 gravado em 2026-11-22 (`fixtures/trf3-process-alvara.json`, alvará com o mesmo movimento 60 + complemento 73); TJ (TJMS 504, TJSP 429) ainda indisponível.
 - [ ] T0.4 Gatilho do alvará ("expedição de alvará eletrônico automatizado"): texto e origem com o usuário.
 
 ## Fase 3 — Módulo premium

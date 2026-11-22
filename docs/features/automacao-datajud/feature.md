@@ -36,10 +36,11 @@ A definir.
 
 - [ ] Usuário: texto exato e origem de "expedição de alvará eletrônico automatizado" (no Datajud só há o movimento 60 com complemento "Alvará").
 - [ ] Usuário: preço e escopo do premium.
-- [ ] Fixtures de TJ e TRF (indisponíveis em 2026-11-22) antes da Fase 4.
+- [ ] Fixture de TJ (TJMS e TJSP recusaram em 2026-11-22) antes da Fase 4, ou confirmar começar só com TRT e TRF.
 
 ## Histórico
 
+- 2026-11-22 — Fixture do TRF3: o alvará é o mesmo movimento 60 com o complemento 73 do TRT24; TJ ainda recusa (504/429).
 - 2026-11-22 — Fase 0: descoberta no Datajud (TRT24 responde; TRT2, TRF3 e TJMS recusaram), documentação e ADs.
 
 ## Referências
