@@ -53,6 +53,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`
 - [ ] Confirmar as perguntas em aberto das specs: `avisos-notificacoes`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`

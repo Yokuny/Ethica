@@ -1,8 +1,9 @@
 import { useRender } from '@base-ui/react/use-render';
 import { ChartContainer } from '@ethica/ui/components/chart';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import { cn } from 'cn';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, CircleHelp } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -19,6 +20,8 @@ export type DonutSlice = {
   value: string;
   // Context after the share: change against the previous period, recent count…
   detail?: string;
+  // What the part means, in a tooltip beside the label (not for linked rows: a button inside a link).
+  hint?: string;
   // Fixed color (e.g. gray for "without court type"); otherwise the palette by position.
   color?: string;
   // Drill-down: the legend row becomes this link (`<Link to=… search=… />`).
@@ -116,7 +119,21 @@ function LegendRow({ part, share, linked }: { part: DonutSlice; share: string; l
         <>
           <span aria-hidden className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: part.color }} />
           <div className="flex min-w-0 flex-1 flex-col">
-            <ItemDescription className="truncate text-foreground">{part.label}</ItemDescription>
+            <div className="flex min-w-0 items-center gap-1.5">
+              <ItemDescription className="truncate text-foreground">{part.label}</ItemDescription>
+              {part.hint && (
+                <Tooltip>
+                  <TooltipTrigger
+                    type="button"
+                    aria-label={part.hint}
+                    className="inline-flex shrink-0 text-muted-foreground hover:text-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <CircleHelp aria-hidden className="size-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent>{part.hint}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
             {part.detail && <ItemDescription className="text-xs tabular-nums">{part.detail}</ItemDescription>}
           </div>
           <ItemTitle className="font-medium tabular-nums">{part.value}</ItemTitle>

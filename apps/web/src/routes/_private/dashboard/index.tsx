@@ -38,14 +38,25 @@ const sumOf = (rows: CategoryTotal[], key: 'totalCents' | 'previousCents') =>
 const changeText = (current: number, previous: number) =>
   previous ? percentChange(current, previous) : current ? t('new_in_period') : undefined;
 
+// What each income category means, in the legend's tooltip.
+const CATEGORY_HINTS: Partial<Record<CategoryTotal['category'], string>> = {
+  fixed_fees: 'fixed_fees_hint',
+  contracted_fees: 'contracted_fees_hint',
+  advance_fees: 'advance_fees_hint',
+};
+
 const categorySlices = (rows: CategoryTotal[]) =>
-  rows.map((row) => ({
-    key: row.category,
-    label: t(row.category),
-    amount: row.totalCents,
-    value: formatMoney(row.totalCents),
-    detail: changeText(row.totalCents, row.previousCents),
-  }));
+  rows.map((row) => {
+    const hint = CATEGORY_HINTS[row.category];
+    return {
+      key: row.category,
+      label: t(row.category),
+      amount: row.totalCents,
+      value: formatMoney(row.totalCents),
+      detail: changeText(row.totalCents, row.previousCents),
+      hint: hint && t(hint),
+    };
+  });
 
 // Each type opens the list of services filtered by it.
 const typeSlices = (byType: CaseDashboard['byType']) =>

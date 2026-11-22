@@ -521,6 +521,11 @@ const translations: Record<string, string> = {
   contracted: 'Contratado',
   fixed_fees: 'Honorários fixados',
   contracted_fees: 'Honorários contratados',
+  fixed_fees_hint: 'Parcelas recebidas dos honorários fixados pelo juízo nas perícias em que você é perito do juízo.',
+  contracted_fees_hint:
+    'Parcelas recebidas dos honorários combinados com o cliente em assistências técnicas e serviços próprios.',
+  advance_fees_hint:
+    'Parcelas recebidas de honorários prévios lançados à mão, como adiantamentos antes do valor final.',
   friday: 'Sexta-feira',
   go_to: 'Ir para…',
   go_to_description: 'Use as setas para escolher e Enter para abrir.',

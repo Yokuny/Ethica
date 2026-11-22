@@ -49,11 +49,13 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Pendências
 
+- [ ] Conferir no navegador o tooltip das categorias em "De onde vem o dinheiro" (passar o mouse e focar pelo teclado).
 - [ ] Conferir no celular os 12 rótulos de mês do gráfico de serviços.
 - [x] Conferido no navegador em 2026-11-22 (Dashboard 6 e 12 meses, Início, temas Claro, Escuro e Azul, 390px).
 
 ## Histórico
 
+- 2026-11-22 — Em "De onde vem o dinheiro", cada categoria de receita ganha um ícone de ajuda com tooltip que explica a fatia (honorários fixados, contratados e prévios). O `CompositionDonut` passa a aceitar `hint` na fatia (`apps/web/src/components/composition-donut.tsx`); os textos são as chaves `*_fees_hint`.
 - 2026-11-22 — O período vira número na URL (`?months=6`, antes `?months=%226%22`, porque o roteador grava entre aspas a string que parece número). Links antigos e valores estranhos caem em 6 meses (`apps/web/src/routes/_private/dashboard/@interface/dashboard.interface.ts`).
 - 2026-11-22 — Conferido no navegador. Ajustes do que apareceu: a nota da faixa dizia que o mês atual entrava; o centro e as linhas das roscas mostram só o percentual (o "vs. período anterior" vai uma vez na descrição do painel); a linha do valor do `RecordStat` quebra em vez de sobrepor (vencido do A receber no Início e percentuais no celular).
 - 2026-11-22 — A faixa de seis números vira duas: dinheiro no nível 1 (quatro números) e serviços na abertura de Trabalho; o vencido do A receber sai de ao lado do valor, onde se sobrepunha, para uma linha própria em vermelho.
