@@ -325,7 +325,8 @@
         "AD-228",
         "AD-235",
         "AD-236",
-        "AD-253"
+        "AD-253",
+        "AD-254"
       ],
       "spec": [
         ".specs/features/dashboard"
@@ -2171,6 +2172,12 @@
     {
       "id": "AD-253",
       "decisao": "Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li",
+      "data": "2026-11-22",
+      "status": "active; a escala comum das categorias (3) foi superseded pela AD-254"
+    },
+    {
+      "id": "AD-254",
+      "decisao": "Em Receitas e despesas por categoria, só os totais (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo.",
       "data": "2026-11-22",
       "status": "active"
     }

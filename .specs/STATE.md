@@ -1541,6 +1541,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: categorias deixam de mostrar o total desde o início; o lançado e ainda não recebido não entra nas receitas (fica no "A receber" do fluxo). A lista de lançamentos não tem filtro de categoria, então as categorias ficam sem drill-down. "Sem justiça" também fica sem link, porque o filtro da lista não aceita `none`.
 - **Scope**: `apps/api/src/modules/finance/transaction.{schema,repository,service,controller,router.e2e.test}.ts`, `apps/web/src/query/transaction.ts`, `apps/web/src/components/bar-list.tsx`, `apps/web/src/routes/_private/dashboard/`, `apps/web/src/routes/_private/{index.tsx,index.unit.test.tsx,@components/court-composition.tsx}`, `.agents/skills/ethica-web-standards/SKILL.md`.
 - **Date**: 2026-11-22
+- **Status**: active; a escala comum das categorias (3) foi superseded pela AD-254
+
+### AD-254
+- **Decision**: Em Receitas e despesas por categoria, só os **totais** (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo. As categorias de cada grupo ficam abaixo, recuadas, e são medidas contra a maior categoria do próprio grupo. A nota do painel diz isso e diz que o mês atual do período ainda está em andamento. No celular, a variação desce para baixo do valor, e a barra fica com a largura. Supersede a parte "recebido e despesas na mesma escala" da AD-253 (3).
+- **Reason**: revisão no mesmo dia, antes da conferência na tela. Com todas as categorias na escala da maior receita, as despesas (1% a 5% dela) viravam tocos iguais e voltavam a não dizer nada. Era também o que o usuário tinha escolhido na prévia: os totais comparados entre si e as despesas na escala delas.
+- **Trade-off**: barras de dois níveis com escalas diferentes no mesmo painel. O recuo com fio e a nota separam os níveis.
+- **Scope**: `apps/web/src/components/bar-list.tsx`, `apps/web/src/routes/_private/dashboard/@components/category-bars.tsx`, `apps/web/src/lib/helpers/translate.helper.ts`.
+- **Date**: 2026-11-22
 - **Status**: active
 
 ## Handoff

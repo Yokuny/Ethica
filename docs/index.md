@@ -85,7 +85,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-253** (2026-11-22, active) — Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li
+- **AD-254** (2026-11-22, active) — Em Receitas e despesas por categoria, só os totais (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo.
+- **AD-253** (2026-11-22, active; a escala comum das categorias (3) foi superseded pela AD-254) — Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li
 - **AD-252** (2026-11-21, active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)) — `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc
 - **AD-251** (2026-11-21, active) — PIX e boleto são pagos na tela do Ethica (`/billing/payment/<id>`, QR Code e copia e cola, ou linha digitável e PDF); cartão de crédito e dé
 - **AD-250** (2026-11-21, active) — A página de planos (`/billing`) segue o modelo de preços da Vercel, mantendo o carrossel: três cartões (Teste, Mensal e Anual) com o preço p
@@ -94,7 +95,6 @@ _Nenhum._
 - **AD-247** (2026-11-20, active) — O teste (R$ 6, uma vez por escritório, sem renovação) passa a valer o primeiro mês: o acesso vai do pagamento + 1 mês de calendário + 5 dias
 - **AD-246** (2026-11-20, active) — A tela de planos (`/billing`) perde o seletor Mensal/Anual e o giro 3D dos cards. Os quatro planos ficam lado a lado no carrossel, nesta ord
 - **AD-245** (2026-11-20, active) — A tela de planos sai de `/suspended` e passa a `/billing` no web, o mesmo termo da Assinatura na API e no glossário (AD-140): é a tela de pa
-- **AD-244** (2026-11-20, active) — O escritório (tenant) pode ser cadastrado com CPF ou CNPJ, no cadastro pela tela de acesso e pela plataforma. Uma validação só, `tenantDocum
 
 ## `.specs/` sem registro em `docs/features/`
 

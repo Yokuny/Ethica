@@ -5,7 +5,7 @@ descricao: Seção com os totais de serviços e honorários, serviços por tipo 
 data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web]
-decisoes: [AD-200, AD-228, AD-235, AD-236, AD-253]
+decisoes: [AD-200, AD-228, AD-235, AD-236, AD-253, AD-254]
 spec: [.specs/features/dashboard]
 branches: [main]
 ---
@@ -23,7 +23,7 @@ branches: [main]
 - Faixa com os totais: serviços, serviços finalizados (todos os encerrados), honorários recebidos e honorários a receber.
 - Serviços por tipo em barras (medidas pelo maior tipo) com quantidade, parcela e quantos entraram nos últimos 12 meses: Perícia, Assistência técnica e cada tipo do escritório. Cada tipo abre a lista de Serviços filtrada.
 - Tabela de serviços por mês: os últimos 12 meses, total e uma coluna por tipo, cada contagem com a variação contra o mês anterior; sem os cancelados, pelo mês da nomeação; sem essa data, o mês do cadastro.
-- Para quem vê o Financeiro: resumo do dinheiro, fluxo de caixa em tabela de calor (6 ou 12 meses: recebido, a receber, despesas e saldo por mês, cada um com a variação contra o mês anterior, e o saldo do período) e Receitas e despesas por categoria no mesmo período do fluxo de caixa, em escala comum, cada categoria com a variação contra o período anterior (somam o Recebido e as Despesas do fluxo).
+- Para quem vê o Financeiro: resumo do dinheiro, fluxo de caixa em tabela de calor (6 ou 12 meses: recebido, a receber, despesas e saldo por mês, cada um com a variação contra o mês anterior, e o saldo do período) e Receitas e despesas por categoria no mesmo período do fluxo de caixa (os dois totais na mesma escala, as categorias de cada um medidas entre si), cada categoria com a variação contra o período anterior (somam o Recebido e as Despesas do fluxo).
 - Valores em dinheiro só para quem vê o Financeiro.
 - No Início, Serviços por justiça em barra de composição sobre todos os serviços (os sem justiça incluídos), com o denominador escrito e cada justiça abrindo a lista filtrada.
 
@@ -53,6 +53,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-22 — Só os totais de Recebido e Despesas dividem a escala; as categorias ficam abaixo, recuadas, medidas entre si. A nota avisa que o mês atual está em andamento, e no celular a variação desce para baixo do valor (AD-254).
 - 2026-11-22 — Rankings com contexto (AD-253). `ShareList` vira `BarList`: barra sem trilho, medida pelo maior item, com drill-down. Serviços por tipo mostra os últimos 12 meses e abre a lista filtrada. Receitas e despesas por categoria viram um painel no período do fluxo de caixa (`GET /finance/categories` com `months` e `previousCents`), em escala comum e com variação contra o período anterior. No Início, Serviços por justiça vira barra de composição com os sem justiça e o denominador escrito. Plano: `.specs/features/dashboard/plans/2026-11-22-graficos-com-contexto.md`.
 - 2026-11-19 — Serviços por mês vira tabela por mês com total e coluna por tipo (a API manda `byType` em cada mês) e Serviços por tipo vira ranking; o Início usa a mesma tabela no fluxo de caixa e ranking em Serviços por justiça (AD-236; `apps/web/src/components/month-heat-table.tsx`). Saem os gráficos recharts do Dashboard e do Início.
 - 2026-11-19 — Fluxo de caixa vira tabela de calor por mês com saldo e variação contra o mês anterior, e as categorias viram ranking com valor e parcela escritos (AD-235; `apps/web/src/routes/_private/dashboard/@components/cash-flow-table.tsx`, `apps/web/src/components/share-list.tsx`). Sai `categories-chart.tsx`. Não conferido no navegador nesta sessão.
