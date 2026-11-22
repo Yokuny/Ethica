@@ -105,8 +105,6 @@ export function CasesIndexPage() {
             {followsGoal && goal && goalCents && <CasesRevenueGoal goal={{ ...goal, goalCents }} />}
             {serviceOrder?.next && (
               <div className="ms-auto flex items-baseline gap-1.5">
-                <ItemDescription>{t('next_service_order')}</ItemDescription>
-                <ItemTitle className="font-normal">{serviceOrder.next}</ItemTitle>
                 {serviceOrder.last && (
                   <Tooltip>
                     <TooltipTrigger
@@ -124,6 +122,8 @@ export function CasesIndexPage() {
                     </TooltipContent>
                   </Tooltip>
                 )}
+                <ItemDescription>{t('next_service_order')}</ItemDescription>
+                <ItemTitle className="font-medium">{serviceOrder.next}</ItemTitle>
               </div>
             )}
           </div>
