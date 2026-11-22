@@ -43,7 +43,7 @@ Pedido da perita (2026-11-03); escolhas dela em `.specs/features/esfera-servico/
 
 - `apps/api/src/modules/case/case.service.ts` — edição com `null`, filtro de período pelos prazos de entrega.
 - `apps/api/src/modules/case/case.repository.ts` — filtros `role`/`serviceType`/ids; `OPEN` com `custom`.
-- `apps/api/src/modules/case/deadline.repository.ts` — `caseIdsDueBetween`.
+- `packages/db/src/notificationReads.ts` — `caseIdsDueBetween` (AD-265).
 - `apps/api/src/modules/case/import.service.ts` — "Parceria" na planilha; tipo do escritório importado como Extrajudicial.
 
 ### `apps/web`
@@ -67,5 +67,6 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts packages/db
 
 ## Histórico
 
+- 2026-11-22 — Caminhos de prazo atualizados para `Notification` (`central-notificacoes`, AD-263).
 - 2026-11-03 — Revisto pela `fase-servico` (AD-178): esfera só na perícia, sem Extrajudicial, e Parceria virou tipo do escritório.
 - 2026-11-03 — Implementado ESF-01 a ESF-05 (AD-177). Conferido no navegador: cadastro de Parceria extrajudicial, "Limpar data" e filtros. Corrigido junto: "Serviços em aberto" não contava o status digitado (AD-176).

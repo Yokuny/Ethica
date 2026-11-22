@@ -35,7 +35,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
-- [ ] Responder: há prazos reais em produção (D8)? Se sim, um script avulso copia `Deadline` para `Notification` antes da Fase 1 ir ao ar; se não, a collection `deadlines` antiga pode ser apagada por você — `central-notificacoes`
+- [ ] Responder: há prazos reais em produção (D8)? A Fase 1 já está na `main`: os prazos antigos (`deadlines`) e os itens de agenda deles (`calendarentries` com `source: 'deadline'`) ficaram no banco, sem aparecer. Se forem reais, um script avulso copia os dois para `Notification`/`source: 'notification'`; se não, você pode apagá-los — `central-notificacoes`
 - [ ] Responder: texto exato e origem (PJe, diário oficial ou Datajud) de "expedição de alvará eletrônico automatizado"; no Datajud só há o movimento 60 com complemento "Alvará" (AD-269) — `automacao-datajud`
 - [ ] Definir o preço e o escopo do módulo premium Automação Datajud (AD-270) — `automacao-datajud`
 - [ ] Asaas sandbox: entrar em `sandbox.asaas.com` e concluir o cadastro ("Conclua seu cadastro", dados pessoais); com a conta aprovada, criar uma chave Pix aleatória em Pix > Minhas chaves para testar o QR Code em dev. Sem webhook no sandbox: a Railway usa a chave de produção — `cadastro-checkout`

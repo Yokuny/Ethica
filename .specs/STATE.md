@@ -1697,6 +1697,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 
 ## Handoff
 
+- **Feature**: `central-notificacoes` — em andamento: Fase 0 (docs, AD-263 a AD-271) e Fase 1 (`Notification` no lugar de `Deadline`, AD-272) na `main`. Seeds só conferidos pelo `tsc`, não executados. Falta a Fase 2 (worker, entrega, sino) e a conferência no navegador; D8 (dados reais em produção) aguarda o usuário. Progresso no plano `.specs/plans/2026-11-22-automacao-datajud-notificacoes.md`, seção 13.
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.
 - **Feature**: `temas` — parcial: Claro, Escuro e Azul no menu do usuário e cor de ação única (AD-237). Tela de acesso conferida nos três temas; falta conferir as telas logadas (o login exige passkey).
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.

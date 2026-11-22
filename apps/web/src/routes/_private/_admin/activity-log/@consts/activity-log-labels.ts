@@ -29,7 +29,9 @@ export const ACTIVITY_LOG_ACTION_KEY: Record<ActivityLogAction, string> = {
 
 // Sub-record worth naming in the action (deadline, installment…); the rest stays only in the module.
 export const ACTIVITY_LOG_RESOURCE_KEY: Record<string, string> = {
+  // Older records name the deadline; a deadline or alert of the Central is recorded as `notifications` (AD-272).
   deadlines: 'deadline',
+  notifications: 'deadline',
   movements: 'case_movement',
   installments: 'installment',
   sections: 'section',

@@ -34,10 +34,10 @@ Pedido da perita (2026-11-04); escolhas dela em `.specs/features/prazos-alertas/
 
 ## Como
 
-- `packages/contracts/src/schemas/deadline.schema.ts` — `DEADLINE_KINDS`, status `done`, `validDeadlineStatus`; `calendar-entry.schema.ts` (concluído na agenda).
-- `packages/db/src/models/deadline.model.ts` — `kind` (padrão `deadline`).
-- `apps/api/src/modules/case/deadline.{schema,repository,service,controller}.ts` + `case.router.ts` — `GET /expert-cases/deadlines`.
-- `apps/web/src/routes/_private/deadlines/` — página, tabela e "Adicionar"; `apps/web/src/components/{deadline-dialog,deadline-form,deadline-labels,case-picker}.tsx`, `apps/web/src/hooks/useDeadlineForm.ts` (formulário e escolha do serviço passaram a ser compartilhados).
+- `packages/contracts/src/schemas/notification.schema.ts` — tipos, situações e `validNotificationStatus` (desde AD-263); `calendar-entry.schema.ts` (concluído na agenda).
+- `packages/db/src/models/notification.model.ts` — `kind` `deadline`/`alert` (AD-263).
+- `apps/api/src/modules/notifications/` — `GET /notifications` (AD-263).
+- `apps/web/src/routes/_private/notifications/` — Central, tabela e "Adicionar"; `apps/web/src/components/{notification-dialog,notification-form,notification-labels,case-picker}.tsx`, `apps/web/src/hooks/useNotificationForm.ts` (formulário e escolha do serviço passaram a ser compartilhados).
 
 ## Como testar
 

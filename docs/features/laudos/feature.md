@@ -40,7 +40,7 @@ O laudo era escrito fora do Ethica, redigitando número, partes e datas e repeti
   - `report.service.ts` / `report.repository.ts` — criar, abrir (resolve de novo), editar e remover seção, concluir (o bloqueio de rascunho é o filtro `status: 'draft'` no repository), exportar.
   - `report.library.ts` — os modelos padrão; `report.html.ts` — saneamento, resolução e pendências; `report.variables.ts` — valor de cada variável; `report.templates.ts` — HTML do PDF; `report.docx.ts` — Word com `docx` + `htmlparser2`.
   - `document.layout.ts` ganhou `headerFooter` e `textsHeaderFooter`, usados pelos PDFs antigos, pelo laudo e pelo Word.
-- `apps/api/src/modules/case/deadline.service.ts` — `fileReportDelivery`; o título "Entrega do laudo" é `REPORT_DELIVERY_DEADLINE` em `deadline.schema.ts`.
+- `apps/api/src/modules/notifications/notification.service.ts` — `fileReportDelivery`; o título "Entrega do laudo" é `REPORT_DELIVERY_TITLE` em `packages/contracts/src/schemas/notification.schema.ts`.
 - `apps/api/src/modules/case/case.service.ts` emite `case:deleted`; `apps/api/src/events/subscribers/documents.subscriber.ts` exclui os laudos.
 - `apps/api/scripts/seed-demo.ts` — modelo do escritório e um laudo em rascunho.
 
@@ -75,6 +75,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-22 — Caminhos de prazo atualizados para `Notification` (`central-notificacoes`, AD-263).
 - 2026-11-09 — O modelo padrão de impugnação sai da biblioteca (AD-207, `biblioteca-modelos`).
 - 2026-11-09 — Modelos em Biblioteca padrão e Biblioteca do escritório por área, importar PDF/Word e layout da perita como padrão em `biblioteca-modelos` (AD-203 a AD-205); o modelo de impugnação passa a se chamar "Impugnação de laudo pericial trabalhista".
 - 2026-11-09 — Modelos de parecer técnico completados com os modelos da perita: o "Parecer técnico" ganha dados preliminares, documentos dos autos considerados, funções exercidas, dispositivos de proteção, parecer técnico e conclusão e considerações finais; novo modelo padrão "Parecer técnico de impugnação" (`standard-technical-objection`, texto-base de periculosidade por eletricidade, NR-16 Anexo 4 e NR-10). Dados do caso de origem viraram variáveis ou campos entre parênteses.

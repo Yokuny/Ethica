@@ -34,8 +34,8 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 
 ### `apps/api`
 
-- `apps/api/src/modules/case/deadline.{controller,service,repository,schema}.ts` (rotas em `case.router.ts`) — CRUD de prazo sob `/expert-cases` (`/expert-cases/deadlines`, `/expert-cases/:id/deadlines`, `/expert-cases/deadlines/:deadlineId`).
-- `apps/api/src/modules/case/case.service.ts` — cria "Entrega do laudo", apaga os prazos ao excluir a perícia, anexa `nextDeadline` na listagem; `findSummariesByIds` (número e partes) para os outros módulos.
+- `apps/api/src/modules/notifications/` (desde AD-263; antes `case/deadline.*`) — CRUD de prazo em `/notifications` (`/expert-cases/deadlines`, `/expert-cases/:id/deadlines`, `/expert-cases/deadlines/:deadlineId`).
+- `apps/api/src/modules/case/case.service.ts` — cria "Entrega do laudo", apaga os prazos ao excluir a perícia, anexa `nextDue` na listagem (pelas leituras de `packages/db/src/notificationReads.ts`, AD-265); `findSummariesByIds` (número e partes) para os outros módulos.
 - `apps/api/src/modules/finance/transaction.repository.ts` — parcelas e status do honorário no próprio update (pipeline), resumo e fluxo pelas parcelas.
 - `apps/api/src/modules/finance/transaction.service.ts` — regras do honorário (sem excluir/cancelar, valor ≥ recebido) e `postFixedFees` que atualiza o existente.
 - `apps/api/src/modules/agenda/feed.{service,controller,schema}.ts` — `GET /agenda/feed/:token.ics` público, `.ics` montado à mão, rate limit por token (`apps/api/src/middlewares/rateLimit.middleware.ts`).
@@ -45,22 +45,22 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 
 ### `apps/web`
 
-- `apps/web/src/routes/_private/expert-cases/details/@components/case-deadlines.tsx` e `deadline-form.tsx` — painel de prazos do detalhe.
-- `apps/web/src/components/deadline-dialog.tsx` e `deadline-labels.ts` — leitura/ações do prazo e selos, usados por perícias e agenda.
+- `apps/web/src/routes/_private/expert-cases/details/@components/case-notifications.tsx` e `notification-form.tsx` — painel de prazos do detalhe.
+- `apps/web/src/components/notification-dialog.tsx` e `notification-labels.ts` — leitura/ações do prazo e selos, usados por perícias e agenda.
 - `apps/web/src/routes/_private/expert-cases/@utils/case-columns.tsx` — coluna "Próximo prazo".
 - `apps/web/src/routes/_private/agenda/@components/{calendar-event,month-view,time-grid-view}.tsx` — prazos no calendário.
 - `apps/web/src/routes/_private/finance/@components/{receipt-form,installments-list}.tsx` — registrar e estornar recebimentos.
 - `apps/web/src/routes/_private/account/@components/{account-deadline-reminder,account-calendar-feed}.tsx` — seções da conta.
 - `apps/web/src/components/case-receipts.tsx` — recebimentos da perícia nos diálogos da agenda; `canSeeFinance` em `apps/web/src/query/session.ts`.
-- `apps/web/src/query/deadline.ts` — dados de prazo.
+- `apps/web/src/query/notification.ts` — dados de prazo.
 
 ### `packages/contracts`
 
-- `packages/contracts/src/schemas/deadline.schema.ts`; `transaction.schema.ts` (`createInstallmentSchema`, status `partial`); chaves de erro em `packages/contracts/src/response/messages.ts`.
+- `packages/contracts/src/schemas/notification.schema.ts`; `transaction.schema.ts` (`createInstallmentSchema`, status `partial`); chaves de erro em `packages/contracts/src/response/messages.ts`.
 
 ### `packages/db`
 
-- `packages/db/src/models/deadline.model.ts`; `transaction.model.ts` (`installments`); `user.model.ts` (`calendarFeedTokenHash`, `preferences.deadlineReminderEmail`).
+- `packages/db/src/models/notification.model.ts`; `transaction.model.ts` (`installments`); `user.model.ts` (`calendarFeedTokenHash`, `preferences.deadlineReminderEmail`).
 
 ## Como testar
 
@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-22 — Caminhos de prazo atualizados para `Notification` (`central-notificacoes`, AD-263).
 - 2026-11-22 — Editar um honorário pelo formulário dava erro 500: o form manda a categoria, que pede a remoção de `categoryName`, e o `$unset` ia dentro do `$set` do pipeline do `updateIncome` (`apps/api/src/modules/finance/transaction.repository.ts`). Agora a remoção é um estágio `$unset` próprio; e2e cobre o PATCH com todos os campos.
 - 2026-11-15 — Lista do Financeiro: receita com seta para cima em verde, despesa com seta para baixo em vermelho (estavam invertidas e cinza; `iconTone` no `TableIdentity`).
 - 2026-11-15 — Recebimentos do lançamento (`apps/web/src/routes/_private/finance/@components/installments-list.tsx`), com os centavos esmaecidos passa ao `InfoCard`/`InfoCardList` (`apps/web/src/components/info-card.tsx`, AD-225): moldura cinza com cartões que crescem até ocupar toda a largura da linha, valor em destaque, linha de apoio e ações no rodapé; o `LinkList` sai dessa lista. Ajuste (AD-226): um cartão por linha, cada um com toda a largura; antes os cartões dividiam a linha.

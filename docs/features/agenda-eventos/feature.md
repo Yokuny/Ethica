@@ -40,7 +40,7 @@ Não desfazer sem ler: a agenda guarda uma cópia que só a origem muda, pelo ev
 ### `apps/api`
 
 - `apps/api/src/events/event-types.ts` (`AgendaEntriesSyncedPayload`) e `apps/api/src/events/subscribers/agenda.subscriber.ts` (itens e perícia; `case:deleted` leva os prazos do serviço).
-- Quem emite: `case.service.ts` (perícia e prazo do cadastro), `deadline.service.ts`, `finance/transaction.service.ts`.
+- Quem emite: `case.service.ts` (perícia), `notifications/notification.service.ts` (prazos e alertas, inclusive o do cadastro por `case:created`), `finance/transaction.service.ts`.
 - `apps/api/src/modules/agenda/calendar-entry.{schema,repository,service}.ts`; `GET /agenda/entries` em `appointment.router.ts`; `appointment.service.saveCaseInspection`.
 
 ### `apps/web`
@@ -63,6 +63,7 @@ pnpm vitest run apps/api/src/modules/agenda packages/db/src/models/calendar-entr
 
 ## Histórico
 
+- 2026-11-22 — Caminhos de prazo atualizados para `Notification` (`central-notificacoes`, AD-263).
 - 2026-11-15 — Cabeçalho da agenda: o seletor de visualização (dia/semana/mês) passou para o topo, ao lado de Novo compromisso; o filtro de tipo desceu para a linha do dia, antes da navegação do calendário.
 - 2026-11-15 — Trocar o filtro de tipo mostra o carregamento até a busca terminar (antes, com prazo ou financeiro, caía em "Nada agendado"); bolinha de cor alinhada ao texto nas opções de seletor (`packages/ui/src/components/select.tsx`).
 - 2026-11-15 — Item do calendário sempre em duas linhas: título (`ItemTitle`) sobre o horário ou os detalhes (`ItemDescription`, mais suave); bloco curto da grade de horas com altura mínima para as duas linhas; menos espaço interno nas células.
