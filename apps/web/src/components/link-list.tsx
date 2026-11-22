@@ -58,7 +58,7 @@ export function LinkListItem({
             {Icon && (
               <span
                 aria-hidden
-                className="relative flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-all duration-200 [clip-path:inset(0_0_0_0_round_8px)] group-hover/link-item:[clip-path:inset(0_0_3px_0_round_10px)] group-focus-visible/link-item:[clip-path:inset(0_0_3px_0_round_10px)] motion-reduce:transition-none [&_svg]:size-5"
+                className="relative flex min-h-12 w-12 shrink-0 self-stretch items-center justify-center rounded-lg bg-muted text-muted-foreground transition-all duration-200 [clip-path:inset(0_0_0_0_round_8px)] group-hover/link-item:[clip-path:inset(0_0_3px_0_round_10px)] group-focus-visible/link-item:[clip-path:inset(0_0_3px_0_round_10px)] motion-reduce:transition-none [&_svg]:size-5"
               >
                 <Icon />
               </span>
