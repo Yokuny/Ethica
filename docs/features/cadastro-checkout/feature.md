@@ -41,18 +41,13 @@ O cadastro aberto e gratuito (AD-155) passa a acontecer junto do pagamento (AD-2
 - Automático: `pnpm vitest run apps/api/src/modules/identity/billing apps/api/src/providers/asaasClient apps/web/src/routes/_public`.
 - Manual (sandbox): `ASAAS_API_URL=https://api-sandbox.asaas.com/v3` e `ASAAS_API_KEY` do sandbox (`$aact_hmlg_…`) no `.env`, com a API reiniciada; sem a URL, a chave de sandbox vai à produção e o Asaas responde 401 `invalid_environment` (vira `billing_unavailable`). Uma `ASAAS_API_KEY` exportada no shell (a do MCP do Asaas) vence a do `.env`. Sem túnel: o acesso abre pela conferência da tela de planos (até 30 s depois do pagamento). Crie uma conta em `/auth` (CPF ou CNPJ válido), pague com cartão de teste ou boleto/PIX e confira que a tela entra no sistema sozinha. O QR Code do PIX exige a conta do sandbox aprovada e uma chave Pix cadastrada (sem ela, `pix_unavailable`).
 
-## Antes de ir ao ar
+## Produção
 
-Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "indisponível":
-
-- Railway: `ASAAS_API_URL`, `ASAAS_API_KEY` e `ASAAS_WEBHOOK_TOKEN` (`.env.example`).
-- Painel do Asaas: webhook para `<API>/billing/webhook` com os eventos de cobrança (inclui estorno e chargeback), envio sequencial e o mesmo token.
-- Opcional: domínio do Ethica em Minha Conta > Informações no Asaas e então `ASAAS_RETURN_URL` (volta automática da fatura).
-- Chave Pix cadastrada na conta de produção do Asaas, senão o PIX responde indisponível.
+Configurada em 2026-11-21: variáveis do Asaas na Railway (`.env.example`, retorno para `<web>/billing`), webhook para `<API>/billing/webhook` com os eventos de cobrança (inclui estorno e chargeback), envio sequencial e o mesmo token, chave Pix e domínio cadastrados na conta do Asaas. O `ASAAS_RETURN_URL` só pode entrar depois do domínio salvo no Asaas, senão toda cobrança é recusada.
 
 ## Pendências
 
-- [ ] Conferir o webhook real chegando e liberando o acesso (`.specs/features/cadastro-checkout/validation.md`).
+- [ ] Conferir o webhook real chegando em produção e liberando o acesso (`.specs/features/cadastro-checkout/validation.md`).
 - [ ] Conferir o QR Code do PIX numa cobrança real (sandbox aprovado com chave Pix); se o Asaas recusar o QR Code na cobrança à escolha do cliente (`UNDEFINED`), criar a cobrança do PIX como `PIX`.
 - [ ] Trocar de plano, cancelar a assinatura e ver faturas pelo Ethica (fora desta entrega).
 
@@ -77,3 +72,4 @@ Sem estes passos, **todo cadastro novo fica sem acesso** e "Pagar" responde "ind
 ## Referências
 
 - Spec, design, tasks e validação (congelados): `.specs/features/cadastro-checkout/`
+- 2026-11-21 — Produção configurada (Railway e painel do Asaas); seção "Antes de ir ao ar" virou "Produção".

@@ -35,22 +35,14 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
-Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" responde "indisponível".
-
-- [ ] Cadastrar o domínio do Ethica no Asaas (Minha Conta > Informações, campo Site ainda vazio) e então preencher `ASAAS_RETURN_URL` na Railway — `cadastro-checkout`
-- [ ] Railway: `ASAAS_API_URL` (produção `https://api.asaas.com/v3`), `ASAAS_API_KEY` de produção e `ASAAS_WEBHOOK_TOKEN` (o mesmo valor gerado no `.env` local) — `cadastro-checkout`
-- [ ] Painel do Asaas de produção: webhook para `<API>/billing/webhook` com os eventos de cobrança, envio sequencial e o mesmo token (hoje não há webhook em nenhum ambiente) — `cadastro-checkout`
-- [ ] Asaas: chave Pix na conta de produção; no sandbox, concluir o cadastro ("Conclua seu cadastro") e criar uma chave Pix para testar o QR Code — `cadastro-checkout`
+- [ ] Asaas sandbox: concluir o cadastro ("Conclua seu cadastro") e criar uma chave Pix aleatória para testar o QR Code em dev — `cadastro-checkout`
 - [ ] Reiniciar a API local para ler o `ASAAS_WEBHOOK_TOKEN` novo; a tela de planos já confere o pagamento do sandbox sem túnel — `cadastro-checkout`
 - [ ] Validar no sandbox com a API publicada: cadastro → fatura paga com cartão de teste → webhook chega → acesso liberado — `cadastro-checkout`
 - [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`
-- [ ] Railway: `CONTACT_EMAIL` com a caixa que recebe as mensagens da página Contato (provisória: `contato@checkduplo.com.br`; sem ela o formulário responde indisponível) — `paginas-publicas`
 - [ ] Perita: endereço, telefone e e-mail do Ethica para o topo da página Contato, como no modelo — `paginas-publicas`
 - [ ] Texto final de Termos de uso e Política de privacidade, revisado por advogado (LGPD: controlador, encarregado, compartilhamento com Asaas, e-mail e armazenamento, dados do formulário de contato) — `paginas-publicas`
 - [ ] Perita: revisar os textos da página de planos (posicionamento, perguntas frequentes) — `cadastro-checkout`
-- [ ] Validar com dados reais em produção: pagar o teste (R$ 6) com cartão de verdade, ver o acesso abrir, estornar no painel e ver o acesso fechar — `cadastro-checkout`
-- [ ] Railway: conferir `MAIL_PROVIDER=resend`, `RESEND_API_KEY` e `MAIL_FROM` no domínio provisório `checkduplo.com.br` (contato@ ou admin@) até haver nome comercial; remover `SMTP_*` — `acesso-email`
-- [ ] Railway, Vercel e Atlas já existem como MVP (usuários de teste): conferir se o domínio da Railway bate com o `vercel.json` — `producao-api`
+- [ ] Validar com dados reais em `https://ethica-zeta.vercel.app`: pagar o teste (R$ 6) por PIX e por cartão, ver o acesso abrir, estornar no painel e ver o acesso fechar — `cadastro-checkout`
 - [ ] Railway: `S3_BUCKET`, trocar a chave de `ethica-files-api` (apareceu em conversas) e conferir logo e anexo em produção — `producao-api`, `servico-pasta-anexos`
 
 ### Validar e confirmar — você (e a perita)
@@ -91,6 +83,7 @@ Sem os itens da assinatura, todo cadastro novo fica sem acesso e "Pagar" respond
 
 ## Resolvidos
 
+- [x] 2026-11-21 — Produção configurada: Railway com as variáveis do Asaas (URL, chave, token do webhook, retorno para `https://ethica-zeta.vercel.app/billing`), `CONTACT_EMAIL` e Resend conferido, `SMTP_*` removidas; Asaas com webhook "Ethica billing" (quatro eventos, envio sequencial, token), chave Pix e Site cadastrados — `cadastro-checkout`, `paginas-publicas`, `acesso-email`, `producao-api`
 - [x] 2026-11-21 — PIX e boleto na tela do Ethica, cartão na fatura do Asaas, e acesso aberto sem webhook pela conferência da tela de planos (AD-251) — `cadastro-checkout`
 - [x] 2026-11-21 — Conta de produção do Asaas aprovada (MEI) — `cadastro-checkout`
 - [x] 2026-11-21 — Página de planos no modelo da Vercel: preço por mês, avulsa dentro do Mensal e comparação em grupos (AD-250) — `cadastro-checkout`
