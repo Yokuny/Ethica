@@ -327,7 +327,8 @@
         "AD-236",
         "AD-253",
         "AD-254",
-        "AD-255"
+        "AD-255",
+        "AD-256"
       ],
       "spec": [
         ".specs/features/dashboard"
@@ -2186,6 +2187,12 @@
     {
       "id": "AD-255",
       "decisao": "Dashboard e Início reformulados com gráficos, do macro ao micro, pelo guia de dashboards do usuário (`apps/web/src/routes/_private/dashboard",
+      "data": "2026-11-22",
+      "status": "active; período, faixa e \"Outros\" ajustados pela AD-256"
+    },
+    {
+      "id": "AD-256",
+      "decisao": "Ajustes na AD-255, no mesmo dia. (1) O Dashboard usa só meses completos: o mês em andamento fica fora de todo número, linha e comparação. `G",
       "data": "2026-11-22",
       "status": "active"
     }

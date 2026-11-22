@@ -1557,6 +1557,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: tooltips do recharts dependem do mouse, mas todo número que decide está escrito nos KPIs, nas legendas e nas tabelas recolhidas. Verde/vermelho para entrada/saída mistura identidade com estado, por escolha do usuário. A rosca de categorias com mais de 4 partes esconde as pequenas em "Outros". `GET /finance/dashboard` fica sem uso no web.
 - **Scope**: `apps/api/src/modules/case/{case.service,dashboard.router.e2e.test}.ts`, `apps/web/src/components/{cash-flow-chart,composition-donut,record}.tsx`, `apps/web/src/routes/_private/dashboard/`, `apps/web/src/routes/_private/{index.tsx,@components/home-overview.tsx}`, `apps/web/src/lib/helpers/translate.helper.ts`, `.agents/skills/ethica-web-standards/SKILL.md`.
 - **Date**: 2026-11-22
+- **Status**: active; período, faixa e "Outros" ajustados pela AD-256
+
+### AD-256
+- **Decision**: Ajustes na AD-255, no mesmo dia. (1) O Dashboard usa só **meses completos**: o mês em andamento fica fora de todo número, linha e comparação. `GET /expert-cases/dashboard` manda 25 meses, o fluxo é pedido com `2 × meses + 1` (o `flowQuerySchema` aceita até 25) e `GET /finance/categories` soma até o fim do mês anterior. O Início mostra os 6 meses completos no fluxo. (2) A faixa volta a ter o que a DSH-02 pede: o recebido desde o início (sob o Recebido do período, por `GET /finance/dashboard`) e os serviços finalizados (sob Serviços em aberto). (3) O grupo das partes pequenas das roscas e da área passa a "Demais (n)", para não se confundir com a categoria "Outras despesas". (4) A legenda da rosca vai para baixo dela quando o painel é estreito (container query), com a variação sob o nome. A área empilhada usa preenchimento cheio e borda mais escura, porque a paleta é pastel.
+- **Reason**: revisão antes da conferência na tela. Com o mês parcial, toda linha terminava numa queda e as setas ficavam vermelhas no começo do mês. A AD-255 tinha tirado da faixa dois totais do spec (DSH-02). Em meio painel, a legenda espremia o nome.
+- **Trade-off**: o Dashboard não mostra o mês corrente, que segue no Financeiro e na faixa do Início.
+- **Scope**: `apps/api/src/modules/case/{case.service,dashboard.router.e2e.test}.ts`, `apps/api/src/modules/finance/transaction.{schema,service,router.e2e.test}.ts`, `apps/web/src/components/composition-donut.tsx`, `apps/web/src/routes/_private/dashboard/`, `apps/web/src/routes/_private/index.tsx`, `apps/web/src/lib/helpers/translate.helper.ts`.
+- **Date**: 2026-11-22
 - **Status**: active
 
 ## Handoff

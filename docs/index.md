@@ -85,7 +85,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-255** (2026-11-22, active) — Dashboard e Início reformulados com gráficos, do macro ao micro, pelo guia de dashboards do usuário (`apps/web/src/routes/_private/dashboard
+- **AD-256** (2026-11-22, active) — Ajustes na AD-255, no mesmo dia. (1) O Dashboard usa só meses completos: o mês em andamento fica fora de todo número, linha e comparação. `G
+- **AD-255** (2026-11-22, active; período, faixa e "Outros" ajustados pela AD-256) — Dashboard e Início reformulados com gráficos, do macro ao micro, pelo guia de dashboards do usuário (`apps/web/src/routes/_private/dashboard
 - **AD-254** (2026-11-22, superseded by AD-255) — Em Receitas e despesas por categoria, só os totais (Recebido e Despesas) dividem a mesma escala, cada um como a primeira barra do seu grupo.
 - **AD-253** (2026-11-22, superseded by AD-255 (a forma em barras); `months`/`previousCents` em `GET /finance/categories` e o drill-down seguem valendo) — Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-li
 - **AD-252** (2026-11-21, active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)) — `LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc
@@ -94,7 +95,6 @@ _Nenhum._
 - **AD-249** (2026-11-21, active) — A página Contato (`/contact`) segue o modelo shadcnblocks da perita com um formulário (nome, e-mail, telefone, assunto e mensagem) que envia
 - **AD-248** (2026-11-21, active) — As páginas sem login fecham com um rodapé único, no layout `apps/web/src/routes/_public/route.tsx`, que leva a seis páginas públicas novas:
 - **AD-247** (2026-11-20, active) — O teste (R$ 6, uma vez por escritório, sem renovação) passa a valer o primeiro mês: o acesso vai do pagamento + 1 mês de calendário + 5 dias
-- **AD-246** (2026-11-20, active) — A tela de planos (`/billing`) perde o seletor Mensal/Anual e o giro 3D dos cards. Os quatro planos ficam lado a lado no carrossel, nesta ord
 
 ## `.specs/` sem registro em `docs/features/`
 

@@ -87,7 +87,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Confirmar a busca de endereço no formato novo quando o OpenStreetMap voltar a aceitar (AD-214) — `custo-deslocamento`
 - [ ] Investigar o estouro de tempo esporádico dos testes de tela — `fundacao-ethica`
 - [ ] Filtro de categoria na lista de lançamentos, para as categorias do Dashboard abrirem os lançamentos (AD-253) — `dashboard`
-- [ ] Remover `GET /finance/dashboard` (sem uso no web desde a AD-255) e os testes dele — `dashboard`
 
 ## Resolvidos
 
