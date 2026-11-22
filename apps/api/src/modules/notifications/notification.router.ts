@@ -4,6 +4,7 @@ import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as notificationController from './notification.controller.js';
 import {
+  acceptSuggestionSchema,
   createNotificationSchema,
   listNoticesQuerySchema,
   listNotificationsQuerySchema,
@@ -36,15 +37,20 @@ export const createNotificationRouter = (deps: NotificationRouterDeps): Router =
   router.get(
     '/suggestions',
     ...guard,
-    can('expert_cases', 'view'),
     validParsedQuery(listSuggestionsQuerySchema),
     notificationController.listSuggestions,
   );
-  router.post('/:id/accept', ...guard, can('expert_cases', 'update'), byId, notificationController.acceptSuggestion);
+  // Accepting and rejecting check the permission of the suggestion module in the service (D5).
+  router.post(
+    '/:id/accept',
+    ...guard,
+    byId,
+    validBody(acceptSuggestionSchema),
+    notificationController.acceptSuggestion,
+  );
   router.post(
     '/:id/reject',
     ...guard,
-    can('expert_cases', 'update'),
     byId,
     validBody(rejectSuggestionSchema),
     notificationController.rejectSuggestion,

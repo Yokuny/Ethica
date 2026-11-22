@@ -349,3 +349,6 @@ export const postFixedFees = async (
     input.received && (await transactionRepository.addInstallment(input.tenantId, created.id, input.received));
   syncAgenda(input.tenantId, created.id, paid || created);
 };
+
+// The automation receipt (AD-269) checks the transaction is an income of that case before adding the installment.
+export const getTransaction = (tenantId: string, id: string) => findOrThrow(tenantId, id);

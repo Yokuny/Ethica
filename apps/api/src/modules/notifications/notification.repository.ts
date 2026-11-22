@@ -227,6 +227,7 @@ export const markRead = async (
 const toSuggestion = (doc: NotificationDocument): SuggestionRecord => ({
   id: doc._id.toString(),
   caseId: String(doc.Case),
+  module: doc.module,
   status: doc.status ?? 'pending',
   proposal: doc.proposal as SuggestionRecord['proposal'],
   evidence: doc.evidence as SuggestionRecord['evidence'],
@@ -237,10 +238,20 @@ const toSuggestion = (doc: NotificationDocument): SuggestionRecord => ({
 });
 
 // Oldest movement first, so the person reads them in the order the court did (AD-268, invariant 5).
-export const listSuggestions = async (tenantId: string, { status, caseId }: ListSuggestionsQuery) =>
+export const listSuggestions = async (
+  tenantId: string,
+  modules: NotificationModule[],
+  { status, caseId }: ListSuggestionsQuery,
+) =>
   withDbTiming('notification.listSuggestions', async () => {
     const docs = await Notification.find(
-      tenantScoped({ Tenant: tenantId, kind: 'suggestion' as const, status, ...(caseId ? { Case: caseId } : {}) }),
+      tenantScoped({
+        Tenant: tenantId,
+        kind: 'suggestion' as const,
+        module: { $in: modules },
+        status,
+        ...(caseId ? { Case: caseId } : {}),
+      }),
     )
       .sort({ 'evidence.movement.at': 1, _id: 1 })
       .limit(200)
@@ -287,11 +298,48 @@ export const reopenSuggestion = async (tenantId: string, id: string) =>
     );
   });
 
-// A case closed by an accepted suggestion: the other pending phase suggestions of it are superseded.
+// The follow-up of a case closed by agreement or dismissal (plan, section 4): cancel its pending deadlines.
+export const createCancelSuggestion = async (
+  tenantId: string,
+  caseId: string,
+  count: number,
+  evidence: SuggestionRecord['evidence'],
+) =>
+  withDbTiming('notification.createCancelSuggestion', async () => {
+    await Notification.updateOne(
+      { Tenant: tenantId, dedupeKey: `suggestion:${caseId}:notifications_cancel` },
+      {
+        $setOnInsert: {
+          Tenant: tenantId,
+          Case: caseId,
+          kind: 'suggestion',
+          module: 'expert_cases',
+          source: 'datajud',
+          status: 'pending',
+          severity: 'warning',
+          proposal: { target: 'notifications_cancel', count },
+          evidence,
+          ruleKey: 'notifications_cancel',
+          ruleVersion: 1,
+          readBy: [],
+        },
+      },
+      { upsert: true },
+    );
+  });
+
+// A case closed by an accepted suggestion: its other pending status and phase suggestions are superseded (a
+// payment may still come after it).
 export const supersedeCaseSuggestions = async (tenantId: string, caseId: string) =>
   withDbTiming('notification.supersedeCaseSuggestions', async () => {
     await Notification.updateMany(
-      tenantScoped({ Tenant: tenantId, Case: caseId, kind: 'suggestion' as const, status: 'pending' as const }),
+      tenantScoped({
+        Tenant: tenantId,
+        Case: caseId,
+        kind: 'suggestion' as const,
+        status: 'pending' as const,
+        'proposal.target': { $in: ['case_status' as const, 'case_phase' as const] },
+      }),
       { $set: { status: 'superseded' } },
     );
   });

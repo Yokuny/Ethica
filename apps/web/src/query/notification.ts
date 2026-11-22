@@ -155,6 +155,7 @@ export const markNoticeReadMutation = (queryClient: QueryClient): UseMutationOpt
 export type SuggestionRecord = {
   id: string;
   caseId: string;
+  module: NotificationModule;
   caseNumber?: string;
   status: NotificationStatus;
   proposal: CaseProposal;
@@ -180,14 +181,19 @@ export const suggestionsQuery = (caseId?: string) =>
 // Accepting changes the case (phase or status): the case screens, the lists and the agenda read it anew.
 export const decideSuggestionMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<SuggestionRecord, Error, { id: string; decision: 'accept' | 'reject' }> => ({
-  mutationFn: async ({ id, decision }) => {
-    const res = await post<SuggestionRecord>(`/notifications/${encodeURIComponent(id)}/${decision}`, {});
+): UseMutationOptions<
+  SuggestionRecord,
+  Error,
+  { id: string; decision: 'accept' | 'reject'; data?: Record<string, unknown> }
+> => ({
+  mutationFn: async ({ id, decision, data }) => {
+    const res = await post<SuggestionRecord>(`/notifications/${encodeURIComponent(id)}/${decision}`, data ?? {});
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: suggestionKeys.all });
     queryClient.invalidateQueries({ queryKey: caseKeys.all });
+    queryClient.invalidateQueries({ queryKey: ['transaction'] });
   },
 });

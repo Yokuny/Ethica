@@ -112,6 +112,9 @@ export const caseLabelsByIds = async (tenantId: string, ids: string[]): Promise<
 export type NoticeForDelivery = {
   id: string;
   tenantId: string;
+  kind: 'deadline' | 'alert' | 'suggestion' | 'notice';
+  proposal?: CaseProposal;
+  evidence?: { court: string; movement: { name: string; at: string } };
   module: 'expert_cases' | 'finance';
   topic?: string;
   params?: Record<string, string | number>;
@@ -125,6 +128,9 @@ export const findNoticeForDelivery = async (id: string): Promise<NoticeForDelive
   return {
     id: doc._id.toString(),
     tenantId: doc.Tenant.toString(),
+    kind: doc.kind,
+    proposal: doc.proposal,
+    evidence: doc.evidence,
     module: doc.module,
     topic: doc.topic,
     params: doc.params,

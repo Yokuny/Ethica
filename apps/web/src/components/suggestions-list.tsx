@@ -2,27 +2,33 @@ import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { AppLink } from '@/components/app-link.js';
 import { casePhaseLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
+import { SuggestionReceiptDialog } from '@/components/suggestion-receipt-dialog.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { decideSuggestionMutation, type SuggestionRecord, suggestionsQuery } from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
 
-const proposalText = ({ proposal }: SuggestionRecord): string =>
-  proposal.target === 'case_status'
-    ? `${t('proposed_status')} ${t(proposal.value)}`
-    : `${t('proposed_phase')} ${casePhaseLabel(proposal.value)}`;
+const proposalText = ({ proposal }: SuggestionRecord): string => {
+  if (proposal.target === 'case_status') return `${t('proposed_status')} ${t(proposal.value)}`;
+  if (proposal.target === 'case_phase') return `${t('proposed_phase')} ${casePhaseLabel(proposal.value)}`;
+  if (proposal.target === 'transaction_installment') {
+    return `${t('proposed_receipt')} ${formatDate(new Date(`${proposal.date}T12:00:00`))}`;
+  }
+  return `${t('proposed_cancel_deadlines')} (${proposal.count})`;
+};
 
 // Pending suggestions of the automation (AD-268), in the order of the court: the movement that justifies it
 // and the proposed change. Nothing changes before "Aprovar", which only shows to whoever changes cases (D5).
 export function SuggestionsList({ caseId }: { caseId?: string }) {
   const queryClient = useQueryClient();
   const session = useQuery(sessionQuery).data;
-  const canDecide = Boolean(session && can(session, 'expert_cases', 'update'));
+  const [receipt, setReceipt] = useState<SuggestionRecord>();
   const query = useQuery(suggestionsQuery(caseId));
   const mutation = useMutation(decideSuggestionMutation(queryClient));
 
@@ -68,12 +74,19 @@ export function SuggestionsList({ caseId }: { caseId?: string }) {
                 </AppLink>
               )}
             </ItemContent>
-            {canDecide && (
+            {session && can(session, suggestion.module, 'update') && (
               <ItemActions>
                 <Button variant="outline" disabled={mutation.isPending} onClick={() => decide(suggestion.id, 'reject')}>
                   {t('reject')}
                 </Button>
-                <Button disabled={mutation.isPending} onClick={() => decide(suggestion.id, 'accept')}>
+                <Button
+                  disabled={mutation.isPending}
+                  onClick={() =>
+                    suggestion.proposal.target === 'transaction_installment'
+                      ? setReceipt(suggestion)
+                      : decide(suggestion.id, 'accept')
+                  }
+                >
                   {t('approve')}
                 </Button>
               </ItemActions>
@@ -81,6 +94,7 @@ export function SuggestionsList({ caseId }: { caseId?: string }) {
           </Item>
         );
       })}
+      {receipt && <SuggestionReceiptDialog suggestion={receipt} onClose={() => setReceipt(undefined)} />}
     </div>
   );
 }

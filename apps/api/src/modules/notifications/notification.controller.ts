@@ -8,6 +8,11 @@ import { NotificationNotFoundError } from './notification.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 // The person and the permissions come from the session (AD-010, AD-137).
+const decider = (req: Request) => ({
+  tenantId: tenantOf(req),
+  userId: req.tenantUser.user,
+  permissions: req.tenantUser.permissions ?? {},
+});
 const reader = (req: Request) => [tenantOf(req), req.tenantUser.user, req.tenantUser.permissions ?? {}] as const;
 
 // Notification or case missing (or from another tenant) -> 404.
@@ -93,7 +98,8 @@ export const markAllRead = async (req: Request, res: Response, next: NextFunctio
 export const listSuggestions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const query = req.query as unknown as ListSuggestionsQuery;
-    res.json(respObj({ data: await notificationService.listSuggestions(tenantOf(req), query) }));
+    const permissions = req.tenantUser.permissions ?? {};
+    res.json(respObj({ data: await notificationService.listSuggestions(tenantOf(req), permissions, query) }));
   } catch (e) {
     next(e);
   }
@@ -101,11 +107,7 @@ export const listSuggestions = async (req: Request, res: Response, next: NextFun
 
 export const acceptSuggestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await notificationService.acceptSuggestion(
-      tenantOf(req),
-      req.tenantUser.user,
-      req.params.id as string,
-    );
+    const data = await notificationService.acceptSuggestion(decider(req), req.params.id as string, req.body ?? {});
     res.json(respObj({ data }));
   } catch (e) {
     notFoundAs404(e, next);
@@ -114,12 +116,7 @@ export const acceptSuggestion = async (req: Request, res: Response, next: NextFu
 
 export const rejectSuggestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await notificationService.rejectSuggestion(
-      tenantOf(req),
-      req.tenantUser.user,
-      req.params.id as string,
-      req.body,
-    );
+    const data = await notificationService.rejectSuggestion(decider(req), req.params.id as string, req.body);
     res.json(respObj({ data }));
   } catch (e) {
     notFoundAs404(e, next);

@@ -10,7 +10,13 @@ import type {
   NotificationStatus,
   UpdateNotification,
 } from '@ethica/contracts';
-import { createNotificationSchema, idSchema, NOTIFICATION_STATUS, updateNotificationSchema } from '@ethica/contracts';
+import {
+  calendarDateSchema,
+  createNotificationSchema,
+  idSchema,
+  NOTIFICATION_STATUS,
+  updateNotificationSchema,
+} from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -64,6 +70,18 @@ export const listSuggestionsQuerySchema = z
   .strict();
 export type ListSuggestionsQuery = z.infer<typeof listSuggestionsQuerySchema>;
 
+// Accepting a receipt (AD-269) asks the open income of the case and the confirmed amount, date and account;
+// the other suggestions take no body.
+export const acceptSuggestionSchema = z
+  .object({
+    transactionId: idSchema.optional(),
+    amountCents: z.number().int().min(1).optional(),
+    date: calendarDateSchema.optional(),
+    account: z.string().trim().max(120).optional(),
+  })
+  .strict();
+export type AcceptSuggestion = z.infer<typeof acceptSuggestionSchema>;
+
 // Rejecting keeps the reason: the quality of each rule (plan, section 5).
 export const rejectSuggestionSchema = z
   .object({ reason: z.string().trim().max(300, 'motivo inválido').optional() })
@@ -73,6 +91,7 @@ export type RejectSuggestion = z.infer<typeof rejectSuggestionSchema>;
 export type SuggestionRecord = {
   id: string;
   caseId: string;
+  module: NotificationModule;
   caseNumber?: string;
   status: NotificationStatus;
   proposal: CaseProposal;

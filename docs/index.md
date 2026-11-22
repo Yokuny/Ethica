@@ -94,6 +94,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-279** (2026-11-22, active) — Sugestões financeiras e de prazos (Fase 6 de `automacao-datajud`): (1) intenção de pagamento (12548, 12165, 12173, 12166, 12175) gera o avis
 - **AD-278** (2026-11-22, active) — Sugestões de serviço (Fase 5 de `automacao-datajud`): (1) regras em `packages/contracts/src/schemas/automation-rules.ts` com os códigos da T
 - **AD-277** (2026-11-22, active) — Acompanhamento no tribunal (Fase 4 de `automacao-datajud`): (1) só perícias trabalhistas (TRT) e federais (TRF) por enquanto (`TRACKED_COURT
 - **AD-276** (2026-11-22, active) — Detalhes da Fase 3 (módulo premium): (1) planos `automation_monthly` (R$ 80) e `automation_yearly` (R$ 816) entram em `BILLING_PLANS` e em `
@@ -103,7 +104,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-272** (2026-11-22, active) — Detalhes da virada `Deadline` → `Notification` (Fase 1 de `central-notificacoes`), resolvidos na implementação: (1) o detalhe do serviço lê
 - **AD-271** (2026-11-22, active) — O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) fic
 - **AD-270** (2026-11-22, active (segunda assinatura superseded by AD-275: o premium é um plano da mesma assinatura)) — A Automação Datajud é um módulo premium cobrado à parte, numa segunda assinatura no Asaas, separada da do plano: `Tenant.automationUntil` (i
-- **AD-269** (2026-11-22, active (gatilho só do alvará ampliado pela AD-274)) — O status do honorário continua derivado das parcelas (AD-111); não existe estado "aprovado". Homologação, liberação ou "aprovado" de valores
 
 ## `.specs/` sem registro em `docs/features/`
 

@@ -1,7 +1,14 @@
-import { matchRules, proposalFits, type RuleMatch } from '@ethica/contracts';
+import {
+  isPaymentAvailable,
+  isPaymentIntent,
+  matchRules,
+  PAYMENT_RULE,
+  proposalFits,
+  type RuleMatch,
+} from '@ethica/contracts';
 import { CaseCourtSync, CourtProcess, dateInDisplayTz, listTrackedCases, type TrackedCase } from '@ethica/db';
 import type { DatajudClient } from '../datajud/client.js';
-import { insertCourtMovementNotice, insertSuggestion } from '../queue/notification-writes.js';
+import { insertCaseNotice, insertCourtMovementNotice, insertSuggestion } from '../queue/notification-writes.js';
 import { enqueue } from '../queue/queue.js';
 
 // Tracking in court (ADT-02, AD-277): once a day the cases of offices with the Automação Datajud are grouped
@@ -84,6 +91,7 @@ export const refreshCourtBatch = async (
     );
     const latest = fresh.at(-1);
     if (!latest) continue;
+    const caseRef = { tenantId: item.tenantId, caseId: item.caseId, day: payload.day };
     const inserted = await insertCourtMovementNotice(
       {
         tenantId: item.tenantId,
@@ -99,10 +107,49 @@ export const refreshCourtBatch = async (
     const byRule = new Map<string, RuleMatch>();
     for (const movement of fresh)
       for (const match of matchRules(movement, item.role)) byRule.set(match.rule.key, match);
-    for (const match of byRule.values()) {
-      if (proposalFits(item, match.proposal) !== 'apply') continue;
-      if (await insertSuggestion({ tenantId: item.tenantId, caseId: item.caseId, court: item.court, match }))
+    for (const { rule, proposal, movement } of byRule.values()) {
+      if (proposalFits(item, proposal) !== 'apply') continue;
+      const id = await insertSuggestion({
+        tenantId: item.tenantId,
+        caseId: item.caseId,
+        court: item.court,
+        ruleKey: rule.key,
+        ruleVersion: rule.version,
+        proposal,
+        movement,
+        dedupeKey: `suggestion:${item.caseId}:${rule.key}:${movement.key}`,
+        severity: 'warning',
+      });
+      if (!id) continue;
+      suggestions += 1;
+      // Suspended: the court gives no new date, so the pending deadlines need a look (plan, section 4).
+      if (rule.key === 'case_suspended') {
+        await insertCaseNotice({ ...caseRef, topic: 'deadlines_review', module: 'expert_cases', movement }, now);
+      }
+    }
+    // Payment (AD-269, AD-274): the intention is only a notice; the money available is a suggestion, one per
+    // case and day (several alvarás on the same day are one), e-mailed right away.
+    const intent = fresh.filter(isPaymentIntent).at(-1);
+    if (intent) {
+      await insertCaseNotice({ ...caseRef, topic: 'payment_in_progress', module: 'finance', movement: intent }, now);
+    }
+    const paid = fresh.filter(isPaymentAvailable).at(-1);
+    if (paid) {
+      const id = await insertSuggestion({
+        tenantId: item.tenantId,
+        caseId: item.caseId,
+        court: item.court,
+        ruleKey: PAYMENT_RULE.key,
+        ruleVersion: PAYMENT_RULE.version,
+        proposal: { target: 'transaction_installment', date: paid.at.slice(0, 10) },
+        movement: paid,
+        dedupeKey: `suggestion:${item.caseId}:${PAYMENT_RULE.key}:${paid.at.slice(0, 10)}`,
+        severity: 'critical',
+      });
+      if (id) {
         suggestions += 1;
+        await enqueue('email_immediate', { notificationId: id }, { dedupeKey: `email_immediate:${id}`, priority: 5 });
+      }
     }
   }
   return { processes: processes.length, baselines, notices, suggestions };

@@ -56,6 +56,7 @@ import { asaasPaymentSchema, asaasWebhookSchema, billingPaymentParamsSchema } fr
 import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import {
+  acceptSuggestionSchema,
   listNoticesQuerySchema,
   listNotificationsQuerySchema,
   listSuggestionsQuerySchema,
@@ -116,6 +117,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listNoticesQuerySchema', schema: listNoticesQuerySchema },
   { name: 'listSuggestionsQuerySchema', schema: listSuggestionsQuerySchema },
   { name: 'rejectSuggestionSchema', schema: rejectSuggestionSchema },
+  { name: 'acceptSuggestionSchema', schema: acceptSuggestionSchema },
   { name: 'automationCaseParamSchema', schema: automationCaseParamSchema },
   { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
   { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },

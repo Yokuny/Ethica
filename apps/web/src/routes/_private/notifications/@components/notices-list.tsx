@@ -36,6 +36,12 @@ const noticeText = (notice: NoticeRecord): { title: string; description: string 
       description: `${params.latestName} · ${formatDate(new Date(String(params.latestAt)))}${more}`,
     };
   }
+  if (notice.topic === 'payment_in_progress' || notice.topic === 'deadlines_review') {
+    return {
+      title: t(notice.topic === 'payment_in_progress' ? 'payment_in_progress_notice' : 'deadlines_review_notice'),
+      description: `${params.latestName} · ${formatDate(new Date(String(params.latestAt)))}`,
+    };
+  }
   if (notice.topic === 'automation_expiring') {
     return {
       title: t('automation_expiring_notice'),

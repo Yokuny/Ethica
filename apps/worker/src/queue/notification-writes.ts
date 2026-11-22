@@ -1,4 +1,4 @@
-import type { FinanceDueBucket, RuleMatch } from '@ethica/contracts';
+import { type CaseProposal, type CourtMovement, type FinanceDueBucket, proposalModule } from '@ethica/contracts';
 import { Notification } from '@ethica/db';
 
 // The ONLY place of the worker that writes `Notification` (AD-263, AD-267, D7): it inserts notices (and, with the
@@ -113,28 +113,65 @@ export const insertCourtMovementNotice = async (
   }
 };
 
-// A suggestion of the automation (AD-268): one per case, rule and movement; only a person applies it, in the BFF.
+// A suggestion of the automation (AD-268): one per case and `dedupeKey`; only a person applies it, in the BFF.
+// Returns the new id (a critical one is e-mailed right away) or null when it already existed.
 export const insertSuggestion = async (suggestion: {
   tenantId: string;
   caseId: string;
   court: string;
-  match: RuleMatch;
-}): Promise<boolean> => {
-  const { rule, proposal, movement } = suggestion.match;
+  ruleKey: string;
+  ruleVersion: number;
+  proposal: CaseProposal;
+  movement: CourtMovement;
+  dedupeKey: string;
+  severity: 'warning' | 'critical';
+}): Promise<string | null> => {
   try {
-    await Notification.create({
+    const doc = await Notification.create({
       Tenant: suggestion.tenantId,
       kind: 'suggestion',
-      module: 'expert_cases',
+      module: proposalModule(suggestion.proposal),
       source: 'datajud',
       status: 'pending',
-      severity: 'warning',
+      severity: suggestion.severity,
       Case: suggestion.caseId,
-      proposal,
-      evidence: { court: suggestion.court, movement },
-      ruleKey: rule.key,
-      ruleVersion: rule.version,
-      dedupeKey: `suggestion:${suggestion.caseId}:${rule.key}:${movement.key}`,
+      proposal: suggestion.proposal,
+      evidence: { court: suggestion.court, movement: suggestion.movement },
+      ruleKey: suggestion.ruleKey,
+      ruleVersion: suggestion.ruleVersion,
+      dedupeKey: suggestion.dedupeKey,
+    });
+    return doc._id.toString();
+  } catch (e) {
+    if (isDuplicateKey(e)) return null;
+    throw e;
+  }
+};
+
+// A notice of a case about a court movement (payment in progress, deadlines to review): one per case, topic and day.
+export const insertCaseNotice = async (
+  notice: {
+    tenantId: string;
+    caseId: string;
+    topic: 'payment_in_progress' | 'deadlines_review';
+    module: 'expert_cases' | 'finance';
+    day: string;
+    movement: CourtMovement;
+  },
+  now = new Date(),
+): Promise<boolean> => {
+  try {
+    await Notification.create({
+      Tenant: notice.tenantId,
+      kind: 'notice',
+      module: notice.module,
+      source: 'datajud',
+      topic: notice.topic,
+      severity: 'info',
+      Case: notice.caseId,
+      params: { latestCode: notice.movement.code, latestName: notice.movement.name, latestAt: notice.movement.at },
+      dedupeKey: `${notice.topic}:${notice.caseId}:${notice.day}`,
+      expireAt: new Date(now.getTime() + COURT_NOTICE_DAYS * 86_400_000),
     });
     return true;
   } catch (e) {

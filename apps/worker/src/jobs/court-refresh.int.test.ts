@@ -175,4 +175,45 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
     await Tenant.updateOne({ _id: tenant._id }, { $unset: { automationUntil: 1 } });
     expect(await expireSuggestions(now)).toEqual({ expired: 1, superseded: 0 });
   });
+
+  it('pagamento (AD-274): requisição vira aviso; alvarás do dia viram uma sugestão de recebimento com e-mail na hora', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      role: 'court_expert' as const,
+      status: 'active' as const,
+      phase: 'fees_received' as const,
+    };
+    const alvara = (key: string) => ({
+      ...movement(key, '2026-11-21T10:00:00Z', 60),
+      complements: [{ code: 4, description: 'tipo_de_documento', value: 73, name: 'Alvará' }],
+    });
+    const fetchProcesses = vi
+      .fn<DatajudClient['fetchProcesses']>()
+      .mockResolvedValueOnce([courtProcess([movement('a', '2026-11-01T10:00:00Z')])])
+      .mockResolvedValueOnce([
+        courtProcess([
+          movement('a', '2026-11-01T10:00:00Z'),
+          movement('r', '2026-11-10T10:00:00Z', 12165),
+          alvara('x1'),
+          alvara('x2'),
+        ]),
+      ]);
+    await refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day: '2026-11-21', cases: [item] }, now);
+    await refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day: '2026-11-22', cases: [item] }, now);
+
+    expect(await Notification.countDocuments({ topic: 'payment_in_progress', module: 'finance' })).toBe(1);
+    const suggestions = await Notification.find({ kind: 'suggestion' }).lean();
+    expect(suggestions).toEqual([
+      expect.objectContaining({
+        module: 'finance',
+        severity: 'critical',
+        proposal: { target: 'transaction_installment', date: '2026-11-21' },
+      }),
+    ]);
+    expect(await WorkerJob.countDocuments({ kind: 'email_immediate' })).toBe(1);
+  });
 });

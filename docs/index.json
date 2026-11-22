@@ -23,7 +23,8 @@
         "AD-275",
         "AD-276",
         "AD-277",
-        "AD-278"
+        "AD-278",
+        "AD-279"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -2419,6 +2420,12 @@
     {
       "id": "AD-278",
       "decisao": "Sugestões de serviço (Fase 5 de `automacao-datajud`): (1) regras em `packages/contracts/src/schemas/automation-rules.ts` com os códigos da T",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-279",
+      "decisao": "Sugestões financeiras e de prazos (Fase 6 de `automacao-datajud`): (1) intenção de pagamento (12548, 12165, 12173, 12166, 12175) gera o avis",
       "data": "2026-11-22",
       "status": "active"
     }

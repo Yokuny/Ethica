@@ -1,5 +1,6 @@
 import {
   CASE_CLOSED_PHASES,
+  CASE_PHASE_GROUPS,
   caseLabel,
   hasPermission,
   NOTIFICATION_MODULES,
@@ -15,8 +16,10 @@ import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
 import * as automationService from '../automation/automation.service.js';
 import * as caseService from '../case/case.service.js';
+import * as transactionService from '../finance/transaction.service.js';
 import * as notificationRepository from './notification.repository.js';
 import type {
+  AcceptSuggestion,
   CreateNotification,
   DatedNotification,
   ListNoticesQuery,
@@ -29,6 +32,9 @@ import type {
 } from './notification.schema.js';
 
 export class NotificationNotFoundError extends KeyedError {}
+
+// Agreement, dismissal or removal: the process ended, its deadlines no longer run.
+const LOSS_PHASES: readonly string[] = [...CASE_PHASE_GROUPS.losses, 'assistance_settlement'];
 
 const withCase = async <T extends DatedNotification>(tenantId: string, items: T[]): Promise<T[]> => {
   const ids = [...new Set(items.map((item) => item.caseId))];
@@ -150,9 +156,9 @@ export const markRead = async (tenantId: string, userId: string, permissions: Pe
 export const markAllRead = (tenantId: string, userId: string, permissions: Permissions) =>
   notificationRepository.markRead(tenantId, userId, visibleModules(permissions));
 
-// Suggestions (AD-268): every suggestion with its case label.
-export const listSuggestions = async (tenantId: string, query: ListSuggestionsQuery) => {
-  const items = await notificationRepository.listSuggestions(tenantId, query);
+// Suggestions (AD-268): the ones of the modules the person sees (D5), with the case label.
+export const listSuggestions = async (tenantId: string, permissions: Permissions, query: ListSuggestionsQuery) => {
+  const items = await notificationRepository.listSuggestions(tenantId, visibleModules(permissions), query);
   const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
   return items.map((item) => {
     const summary = summaries.get(item.caseId);
@@ -160,14 +166,57 @@ export const listSuggestions = async (tenantId: string, query: ListSuggestionsQu
   });
 };
 
-// Accepting applies through the case service, with the validations and events of the manual edit (AD-268):
-// already as proposed → superseded; no longer fits → 409 `suggestion_outdated`; a service failure puts it back
-// to pending. Closing the case supersedes its other pending suggestions.
-export const acceptSuggestion = async (tenantId: string, userId: string, id: string): Promise<SuggestionRecord> => {
-  // Without the module the suggestions are only read (AD-270).
-  await automationService.ensureAutomation(tenantId);
+type Decider = { tenantId: string; userId: string; permissions: Permissions };
+
+// Deciding asks to change the data of the suggestion module (D5): cases or finance.
+const findDecidable = async ({ tenantId, permissions }: Decider, id: string): Promise<SuggestionRecord> => {
   const suggestion = await notificationRepository.findPendingSuggestion(tenantId, id);
   if (!suggestion) throw new NotificationNotFoundError('not_found');
+  if (!hasPermission(permissions, suggestion.module, 'update')) throw new CustomError('no_permission', 403);
+  return suggestion;
+};
+
+// What the accepted suggestion changes, by the service that owns the data (AD-268).
+const apply = async (tenantId: string, suggestion: SuggestionRecord, data: AcceptSuggestion): Promise<void> => {
+  const { proposal, caseId } = suggestion;
+  if (proposal.target === 'case_status') {
+    await caseService.updateCase(tenantId, caseId, { status: proposal.value });
+    return;
+  }
+  if (proposal.target === 'case_phase') {
+    await caseService.updateCase(tenantId, caseId, { phase: proposal.value });
+    return;
+  }
+  if (proposal.target === 'notifications_cancel') {
+    for (const item of await notificationRepository.listByCase(tenantId, caseId)) {
+      if (item.status === 'pending') await updateNotification(tenantId, item.id, { status: 'canceled' });
+    }
+    return;
+  }
+  // Receipt (AD-269): an open income of this case, with the amount, date and account the person confirmed.
+  if (!data.transactionId || !data.amountCents || !data.date) throw new CustomError('invalid_data', 422);
+  const transaction = await transactionService.getTransaction(tenantId, data.transactionId);
+  if (transaction.caseId !== caseId) throw new CustomError('invalid_data', 422);
+  await transactionService.addInstallment(tenantId, data.transactionId, {
+    amountCents: data.amountCents,
+    date: data.date,
+    ...(data.account ? { account: data.account } : {}),
+  });
+};
+
+// Accepting applies through the service that owns the data, with the validations and events of the manual edit
+// (AD-268): already as proposed → superseded; no longer fits → 409 `suggestion_outdated`; a service failure puts
+// it back to pending. Closing the case by agreement or dismissal supersedes its other pending suggestions and
+// offers to cancel its pending deadlines and alerts.
+export const acceptSuggestion = async (
+  decider: Decider,
+  id: string,
+  data: AcceptSuggestion,
+): Promise<SuggestionRecord> => {
+  const { tenantId, userId } = decider;
+  // Without the module the suggestions are only read (AD-270).
+  await automationService.ensureAutomation(tenantId);
+  const suggestion = await findDecidable(decider, id);
   const legalCase = await caseService.getCase(tenantId, suggestion.caseId);
   const fit = proposalFits(legalCase, suggestion.proposal);
   if (fit === 'already') {
@@ -178,32 +227,30 @@ export const acceptSuggestion = async (tenantId: string, userId: string, id: str
   if (fit === 'impossible') throw new CustomError('suggestion_outdated', 409);
   const accepted = await notificationRepository.decideSuggestion(tenantId, id, { status: 'accepted', userId });
   if (!accepted) throw new CustomError('suggestion_outdated', 409);
-  const { proposal } = suggestion;
   try {
-    await caseService.updateCase(
-      tenantId,
-      suggestion.caseId,
-      proposal.target === 'case_status' ? { status: proposal.value } : { phase: proposal.value },
-    );
+    await apply(tenantId, suggestion, data);
   } catch (e) {
     await notificationRepository.reopenSuggestion(tenantId, id);
     throw e;
   }
+  const { proposal } = suggestion;
   if (proposal.target === 'case_phase' && CASE_CLOSED_PHASES.includes(proposal.value)) {
     await notificationRepository.supersedeCaseSuggestions(tenantId, suggestion.caseId);
+    const pending = (await notificationRepository.listByCase(tenantId, suggestion.caseId)).filter(
+      (item) => item.status === 'pending',
+    ).length;
+    if (pending > 0 && LOSS_PHASES.includes(proposal.value)) {
+      await notificationRepository.createCancelSuggestion(tenantId, suggestion.caseId, pending, suggestion.evidence);
+    }
   }
   return accepted;
 };
 
-export const rejectSuggestion = async (
-  tenantId: string,
-  userId: string,
-  id: string,
-  { reason }: RejectSuggestion,
-): Promise<SuggestionRecord> => {
-  const rejected = await notificationRepository.decideSuggestion(tenantId, id, {
+export const rejectSuggestion = async (decider: Decider, id: string, { reason }: RejectSuggestion) => {
+  await findDecidable(decider, id);
+  const rejected = await notificationRepository.decideSuggestion(decider.tenantId, id, {
     status: 'rejected',
-    userId,
+    userId: decider.userId,
     rejectReason: reason,
   });
   if (!rejected) throw new NotificationNotFoundError('not_found');

@@ -1,6 +1,17 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import { Case, connect, dateInDisplayTz, disconnect, hashToken, Notification, Session, Tenant, User } from '@ethica/db';
+import {
+  Case,
+  connect,
+  dateInDisplayTz,
+  disconnect,
+  hashToken,
+  Notification,
+  Session,
+  Tenant,
+  Transaction,
+  User,
+} from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -58,6 +69,7 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
   afterEach(async () => {
     await Promise.all([
       Notification.deleteMany({}),
+      Transaction.deleteMany({}),
       Case.deleteMany({}),
       Session.deleteMany({}),
       User.deleteMany({}),
@@ -292,7 +304,7 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
         dedupeKey: key,
       });
     const settlement = await suggestion({ target: 'case_phase', value: 'settlement' }, 's1');
-    const accept = (id: unknown) => as(request(app).post(`/notifications/${id}/accept`));
+    const accept = (id: unknown) => as(request(app).post(`/notifications/${id}/accept`)).send({});
 
     const blocked = await accept(settlement._id);
     expect([blocked.status, blocked.body.message]).toEqual([403, 'automation_required']);
@@ -317,5 +329,78 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
       reason: 'Era de outro processo',
     });
     expect(rejected.body.data).toMatchObject({ status: 'rejected', rejectReason: 'Era de outro processo' });
+  });
+
+  it('recebimento do alvará (AD-269): exige lançamento, valor e data; acima do saldo recusa e volta a pendente; acordo oferece cancelar os prazos', async () => {
+    const { as, tenant, add } = await setup(['admin']);
+    await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+    const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+    const income = await Transaction.create({
+      Tenant: tenant._id,
+      Case: legalCase.id,
+      kind: 'income',
+      category: 'fixed_fees',
+      description: 'Honorários',
+      amountCents: 300_000,
+      dueDate: day(10),
+      status: 'expected',
+    });
+    const evidence = {
+      court: 'TRT2',
+      movement: {
+        key: 'p',
+        code: 60,
+        name: 'Expedição de documento',
+        at: '2026-11-21T10:00:00Z',
+        complements: [{ code: 4, value: 73, name: 'Alvará' }],
+      },
+    };
+    const receipt = await Notification.create({
+      Tenant: tenant._id,
+      Case: legalCase.id,
+      kind: 'suggestion',
+      module: 'finance',
+      source: 'datajud',
+      status: 'pending',
+      proposal: { target: 'transaction_installment', date: '2026-11-21' },
+      evidence,
+      ruleKey: 'payment_available',
+      ruleVersion: 1,
+      dedupeKey: 'receipt',
+    });
+    const accept = (id: unknown, body: object = {}) => as(request(app).post(`/notifications/${id}/accept`)).send(body);
+
+    expect((await accept(receipt._id)).status).toBe(422);
+    const tooMuch = await accept(receipt._id, { transactionId: income.id, amountCents: 900_000, date: '2026-11-21' });
+    expect([tooMuch.status, tooMuch.body.message]).toEqual([422, 'parcel_exceeds_balance']);
+    expect((await Notification.findById(receipt._id).lean())?.status).toBe('pending');
+    const ok = await accept(receipt._id, {
+      transactionId: income.id,
+      amountCents: 100_000,
+      date: '2026-11-21',
+      account: 'Banco do Brasil',
+    });
+    expect(ok.body.data).toMatchObject({ status: 'accepted' });
+    expect((await Transaction.findById(income._id).lean())?.status).toBe('partial');
+
+    await add(legalCase.id, { title: 'Esclarecimentos', dueDate: day(5) });
+    const settlement = await Notification.create({
+      Tenant: tenant._id,
+      Case: legalCase.id,
+      kind: 'suggestion',
+      module: 'expert_cases',
+      source: 'datajud',
+      status: 'pending',
+      proposal: { target: 'case_phase', value: 'settlement' },
+      evidence,
+      ruleKey: 'case_settlement',
+      ruleVersion: 1,
+      dedupeKey: 'settlement',
+    });
+    await accept(settlement._id);
+    const cancel = await Notification.findOne({ ruleKey: 'notifications_cancel' }).lean();
+    expect(cancel).toMatchObject({ status: 'pending', proposal: { target: 'notifications_cancel', count: 1 } });
+    expect((await accept(cancel?._id)).body.data).toMatchObject({ status: 'accepted' });
+    expect(await Notification.countDocuments({ kind: 'deadline', status: 'canceled' })).toBe(1);
   });
 });
