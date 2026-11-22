@@ -11,9 +11,9 @@ Gate de cada fase: `pnpm run check`, `(cd apps/web && pnpm run build)`, registro
 
 ## Fase 3 — Módulo premium
 
-- [ ] T3.1 `Tenant.automationUntil`, `billing.automationSubscriptionId`; contrato do plano do módulo (preço do usuário).
-- [ ] T3.2 Assinatura e webhook (`externalReference`), `requireAutomation`, flag na sessão.
-- [ ] T3.3 Oferta na Central, no serviço e no `/billing`; `automation_expiring` no `reminders_sweep`.
+- [x] T3.1 `Tenant.automationUntil`, `billing.automationSubscriptionId`; contrato do plano do módulo (preço do usuário).
+- [x] T3.2 Assinatura e webhook (plano da mesma assinatura, AD-275), flag na sessão; `requireAutomation` vai para a Fase 4 (AD-276).
+- [x] T3.3 Oferta na Central, no serviço e no `/billing`; `automation_expiring` no `reminders_sweep`.
 
 ## Fase 4 — Acompanhamento no tribunal (porta: fixtures de TJ/TRF ou "só TRT" confirmado)
 

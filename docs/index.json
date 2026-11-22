@@ -6,10 +6,11 @@
       "feature": "Automação Datajud (premium)",
       "descricao": "Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa",
       "data": "2026-11-22",
-      "status": "planejado",
+      "status": "em-andamento",
       "areas": [
         "apps/api",
         "apps/web",
+        "apps/worker",
         "packages/contracts",
         "packages/db"
       ],
@@ -19,7 +20,8 @@
         "AD-270",
         "AD-271",
         "AD-274",
-        "AD-275"
+        "AD-275",
+        "AD-276"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -2368,7 +2370,7 @@
       "id": "AD-270",
       "decisao": "A Automação Datajud é um módulo premium cobrado à parte, numa segunda assinatura no Asaas, separada da do plano: `Tenant.automationUntil` (i",
       "data": "2026-11-22",
-      "status": "active"
+      "status": "active (segunda assinatura superseded by AD-275: o premium é um plano da mesma assinatura)"
     },
     {
       "id": "AD-271",
@@ -2398,7 +2400,13 @@
       "id": "AD-275",
       "decisao": "Preço do módulo premium pelo usuário em 2026-11-22: plano base R$ 60 por mês, plano com a Automação Datajud R$ 80 por mês. Lido como um plan",
       "data": "2026-11-22",
-      "status": "proposed"
+      "status": "active (confirmado pelo usuário em 2026-11-22, com o anual de R$ 816)"
+    },
+    {
+      "id": "AD-276",
+      "decisao": "Detalhes da Fase 3 (módulo premium): (1) planos `automation_monthly` (R$ 80) e `automation_yearly` (R$ 816) entram em `BILLING_PLANS` e em `",
+      "data": "2026-11-22",
+      "status": "active"
     }
   ]
 }

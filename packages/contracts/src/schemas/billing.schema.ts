@@ -2,7 +2,14 @@ import { z } from 'zod';
 
 // AD-230: the office pays the Ethica subscription in Asaas. Each confirmed payment extends the
 // office access; `trial` once, the first month without renewal (AD-247).
-export const BILLING_PLANS = ['trial', 'monthly', 'yearly', 'single_month'] as const;
+export const BILLING_PLANS = [
+  'trial',
+  'monthly',
+  'yearly',
+  'single_month',
+  'automation_monthly',
+  'automation_yearly',
+] as const;
 export type BillingPlan = (typeof BILLING_PLANS)[number];
 
 // Yearly = 12 monthly payments with 15% off.
@@ -11,7 +18,20 @@ export const BILLING_PLAN_CENTS: Record<BillingPlan, number> = {
   monthly: 6000,
   yearly: 61200,
   single_month: 6000,
+  automation_monthly: 8000,
+  automation_yearly: 81600,
 };
+
+// Card subscriptions: one live per office (CHK-08). The automation plans are the base plan plus the Automação
+// Datajud (AD-275): paying one extends the access and the module together.
+export const SUBSCRIPTION_PLANS = ['monthly', 'yearly', 'automation_monthly', 'automation_yearly'] as const;
+export type SubscriptionPlan = (typeof SUBSCRIPTION_PLANS)[number];
+export const AUTOMATION_PLANS: readonly BillingPlan[] = ['automation_monthly', 'automation_yearly'];
+export const YEARLY_PLANS: readonly BillingPlan[] = ['yearly', 'automation_yearly'];
+
+// The module is on while `automationUntil` is ahead (AD-270, AD-275).
+export const hasAutomation = (tenant: { automationUntil?: Date | string }, now = new Date()): boolean =>
+  Boolean(tenant.automationUntil && new Date(tenant.automationUntil) > now);
 
 // Days of access after the paid period of every plan, the trial included (AD-231).
 export const BILLING_GRACE_DAYS = 5;
@@ -37,4 +57,10 @@ export type BillingPaymentView = {
 };
 
 // `firstPayment`: the office never paid (new sign-up). `canPay`: only the admin pays.
-export type BillingView = { firstPayment: boolean; trialAvailable: boolean; canPay: boolean; accessUntil?: string };
+export type BillingView = {
+  firstPayment: boolean;
+  trialAvailable: boolean;
+  canPay: boolean;
+  accessUntil?: string;
+  automationUntil?: string;
+};

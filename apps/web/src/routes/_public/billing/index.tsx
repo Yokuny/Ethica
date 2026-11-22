@@ -1,8 +1,9 @@
 import type { BillingPlan } from '@ethica/contracts';
+import { AUTOMATION_PLANS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -22,7 +23,9 @@ import { PLAN_OPTIONS } from './@consts/plans.js';
 import { billingQuery, payPlan } from './@query/billing.js';
 
 // Destination of the _private guard when GET /auth/session answers `tenant_suspended`: a new sign-up
-// before its first payment, the paid access over (AD-230) or the office suspended by the platform.
+// before its first payment, the paid access over (AD-230) or the office suspended by the platform. With
+// `?upgrade=true` an open office sees only the plans with the Automação Datajud (AD-275) and goes back to the
+// app once the module is on.
 // Paying opens the Asaas invoice; the access comes back when Asaas confirms the payment. Signing out
 // does not go through validToken, so it works with the office closed.
 export function BillingPage() {
@@ -33,9 +36,13 @@ export function BillingPage() {
   // CHK-11: the trial and the single month ask the method first.
   const [choosing, setChoosing] = useState<BillingPlan>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const { upgrade } = useSearch({ strict: false }) as BillingSearch;
   const view = billing.data;
-  const open = Boolean(view?.accessUntil && new Date(view.accessUntil) > new Date());
-  const options = PLAN_OPTIONS.filter((option) => option.plan !== 'trial' || view?.trialAvailable);
+  const until = upgrade ? view?.automationUntil : view?.accessUntil;
+  const open = Boolean(until && new Date(until) > new Date());
+  const options = PLAN_OPTIONS.filter((option) =>
+    upgrade ? AUTOMATION_PLANS.includes(option.plan) : option.plan !== 'trial' || view?.trialAvailable,
+  );
   const onPay = view?.canPay
     ? (plan: BillingPlan) => (plan === 'trial' || plan === 'single_month' ? setChoosing(plan) : void pay(plan, 'card'))
     : undefined;
@@ -85,7 +92,13 @@ export function BillingPage() {
       <CardContent className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 lg:gap-24">
         <nav className="flex items-center justify-between">
           <Brand />
-          {signOutButton}
+          {upgrade ? (
+            <Button variant="outline" onClick={() => navigate({ to: '/' })}>
+              {t('back')}
+            </Button>
+          ) : (
+            signOutButton
+          )}
         </nav>
         {billing.isLoading ? (
           <DefaultLoading />
@@ -103,14 +116,16 @@ export function BillingPage() {
                 render={<h2 />}
                 className="mx-auto justify-center text-4xl font-medium tracking-tight text-balance lg:text-5xl"
               >
-                {view.firstPayment ? t('choose_plan') : t('tenant_suspended')}
+                {upgrade ? t('automation_offer_title') : view.firstPayment ? t('choose_plan') : t('tenant_suspended')}
               </ItemTitle>
               <ItemDescription className="line-clamp-none lg:text-lg">
                 {!view.canPay
                   ? t('billing_admin_only')
-                  : view.firstPayment
-                    ? t('billing_first_payment_help')
-                    : t('billing_expired_help')}
+                  : upgrade
+                    ? t('automation_offer_description')
+                    : view.firstPayment
+                      ? t('billing_first_payment_help')
+                      : t('billing_expired_help')}
               </ItemDescription>
             </div>
             <BillingPlans options={options} paying={paying} onPay={onPay} />
@@ -138,7 +153,11 @@ export function BillingPage() {
   );
 }
 
+type BillingSearch = { upgrade?: boolean };
+
 export const Route = createFileRoute('/_public/billing/')({
   component: BillingPage,
   staticData: { title: t('subscription') },
+  validateSearch: (search: Record<string, unknown>): BillingSearch =>
+    search.upgrade === true || search.upgrade === 'true' ? { upgrade: true } : {},
 });

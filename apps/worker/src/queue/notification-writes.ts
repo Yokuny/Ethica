@@ -48,3 +48,29 @@ export const insertFinanceDueNotice = async (
     throw e;
   }
 };
+
+// The Automação Datajud ends in a few days (AD-275): one notice per office and end date. Returns the new id
+// (the e-mail goes right away) or null when it already existed.
+export const insertAutomationEndingNotice = async (
+  notice: { tenantId: string; automationUntil: Date },
+  now = new Date(),
+): Promise<string | null> => {
+  const day = notice.automationUntil.toISOString().slice(0, 10);
+  try {
+    const doc = await Notification.create({
+      Tenant: notice.tenantId,
+      kind: 'notice',
+      module: 'finance',
+      source: 'system',
+      topic: 'automation_expiring',
+      severity: 'critical',
+      params: { automationUntil: notice.automationUntil.toISOString() },
+      dedupeKey: `automation_expiring:${day}`,
+      expireAt: new Date(now.getTime() + FINANCE_NOTICE_DAYS * 86_400_000),
+    });
+    return doc._id.toString();
+  } catch (e) {
+    if (isDuplicateKey(e)) return null;
+    throw e;
+  }
+};

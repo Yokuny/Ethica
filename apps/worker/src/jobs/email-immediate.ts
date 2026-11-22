@@ -7,11 +7,17 @@ import { escapeHtml, formatDay, formatMoney } from './format.js';
 // Right-away e-mail of a `critical` notification (CNT-02): the lock `immediate:<id>` sends it once per person.
 // Its producer is the automation (the alvará suggestion, Fase 6); the texts follow the topic.
 
-const PREFERENCE_OF_TOPIC: Record<string, NotificationPreferenceTopic> = { finance_due: 'finance' };
+const PREFERENCE_OF_TOPIC: Record<string, NotificationPreferenceTopic> = {
+  finance_due: 'finance',
+  automation_expiring: 'finance',
+};
 
 const textOf = (topic: string | undefined, params: Record<string, string | number> = {}): string | undefined => {
   if (topic === 'finance_due') {
     return `${escapeHtml(String(params.description ?? ''))} — ${formatMoney(Number(params.openCents ?? 0))} (${formatDay(String(params.dueDate ?? ''))})`;
+  }
+  if (topic === 'automation_expiring') {
+    return `A Automação Datajud termina em ${formatDay(String(params.automationUntil ?? '').slice(0, 10))}. Renove o plano para continuar acompanhando os processos.`;
   }
   return undefined;
 };

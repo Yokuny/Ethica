@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import {
+  AUTOMATION_PLANS,
   BILLING_GRACE_DAYS,
   BILLING_PLAN_CENTS,
   type BillingCharge,
@@ -7,7 +8,10 @@ import {
   type BillingPaymentView,
   type BillingPlan,
   type BillingView,
+  SUBSCRIPTION_PLANS,
+  type SubscriptionPlan,
   type TenantUser,
+  YEARLY_PLANS,
 } from '@ethica/contracts';
 import { dateInDisplayTz, wallClockToUtc } from '@ethica/db';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
@@ -16,7 +20,8 @@ import * as authRepository from './auth.repository.js';
 import * as billingRepository from './billing.repository.js';
 import { type AsaasPaymentData, asaasPaymentSchema, asaasWebhookSchema, type BillingTenant } from './billing.schema.js';
 
-// AD-230: the office pays in Asaas; each confirmed payment extends `Tenant.accessUntil`.
+// AD-230: the office pays in Asaas; each confirmed payment extends `Tenant.accessUntil` and, on an automation
+// plan, `Tenant.automationUntil` too (AD-275).
 
 const shiftDate = (date: string, { months = 0, days = 0 }) => {
   const [year, month, day] = date.split('-').map(Number) as [number, number, number];
@@ -26,7 +31,7 @@ const shiftDate = (date: string, { months = 0, days = 0 }) => {
 // Start of the day (display time zone, AD-036) the access ends: the paid period (a month, the trial
 // included, AD-247, or a year) plus the grace (AD-231).
 export const accessUntilFor = (plan: BillingPlan, from: string): Date =>
-  wallClockToUtc(shiftDate(from, { months: plan === 'yearly' ? 12 : 1, days: BILLING_GRACE_DAYS }), '00:00');
+  wallClockToUtc(shiftDate(from, { months: YEARLY_PLANS.includes(plan) ? 12 : 1, days: BILLING_GRACE_DAYS }), '00:00');
 
 const BOLETO_DUE_DAYS = 3;
 
@@ -86,6 +91,7 @@ export const getBillingView = async (deps: { asaas?: AsaasClient }, tenantUser: 
     trialAvailable: firstPayment,
     canPay: tenantUser.role.includes('admin'),
     accessUntil: tenant.accessUntil?.toISOString(),
+    automationUntil: tenant.automationUntil?.toISOString(),
   };
 };
 
@@ -111,19 +117,22 @@ const charge = async (
 ): Promise<AsaasCharge> => {
   const today = dateInDisplayTz(new Date());
   const valueCents = BILLING_PLAN_CENTS[plan];
-  if (plan === 'monthly' || plan === 'yearly') {
-    // CHK-08: one live subscription — the previous one (failed card, abandoned invoice) goes away.
+  if ((SUBSCRIPTION_PLANS as readonly string[]).includes(plan)) {
+    // CHK-08: one live subscription — the previous one (failed card, abandoned invoice, the other plan) goes away.
     const previous = tenant.billing?.subscriptionId;
     if (previous) await asaas.deleteSubscription(previous);
     const id = await asaas.createSubscription({
       customer,
       valueCents,
-      cycle: plan === 'yearly' ? 'YEARLY' : 'MONTHLY',
+      cycle: YEARLY_PLANS.includes(plan) ? 'YEARLY' : 'MONTHLY',
       nextDueDate: today,
       successUrl,
     });
     // Saved before the invoice is fetched: a failure there still leaves the live subscription known.
-    await billingRepository.updateBilling(tenant.id, { subscriptionId: id, subscriptionPlan: plan });
+    await billingRepository.updateBilling(tenant.id, {
+      subscriptionId: id,
+      subscriptionPlan: plan as SubscriptionPlan,
+    });
     return asaas.firstPayment(id);
   }
   const payment = await asaas.createPayment({
@@ -266,8 +275,13 @@ const grant = async (tenant: BillingTenant, payment: AsaasPaymentData): Promise<
   if (typeof period === 'string') return period;
   if (!period.from) return 'no_payment_date';
   const accessUntil = accessUntilFor(period.plan, period.from);
-  if (tenant.accessUntil && accessUntil <= tenant.accessUntil) return 'already_applied';
-  await billingRepository.extendAccess(tenant.id, accessUntil);
+  const automation = AUTOMATION_PLANS.includes(period.plan);
+  const applied =
+    tenant.accessUntil &&
+    accessUntil <= tenant.accessUntil &&
+    (!automation || (tenant.automationUntil && accessUntil <= tenant.automationUntil));
+  if (applied) return 'already_applied';
+  await billingRepository.extendAccess(tenant.id, accessUntil, automation);
   return undefined;
 };
 
@@ -291,5 +305,9 @@ export const receiveWebhook = async (body: unknown): Promise<void> => {
   if (typeof period === 'string') return ignore(period, body);
   if (!period.from) return ignore('no_payment_date', body);
   // Back to the start of the period this payment paid; a won chargeback dispute is paid again.
-  await billingRepository.revokeAccess(tenant.id, wallClockToUtc(period.from, '00:00'));
+  await billingRepository.revokeAccess(
+    tenant.id,
+    wallClockToUtc(period.from, '00:00'),
+    AUTOMATION_PLANS.includes(period.plan),
+  );
 };

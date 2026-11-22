@@ -1,4 +1,5 @@
 import {
+  hasAutomation,
   hasPermission,
   type PermissionAction,
   type PermissionModule,
@@ -13,7 +14,8 @@ import { readSession, saveSession } from '../lib/offline/store.js';
 // Mirrors SessionView of apps/api/src/modules/identity/auth.service.ts — the
 // truth lives in the back-end; this type only describes what the screen consumes.
 export type SessionView = {
-  tenant?: { id: string; name: string; status: string };
+  // `automationUntil`: the Automação Datajud is on until this instant (AD-275).
+  tenant?: { id: string; name: string; status: string; automationUntil?: string };
   user: { id: string; name: string; email: string; avatar?: string };
   role: Role[];
   // Effective matrix (AD-137); a session stored on the device before it may come without one.
@@ -23,6 +25,8 @@ export type SessionView = {
 // Same `isAdmin` rule as the back-end (authorization.middleware.ts): the
 // `admin` role in the user's role list in the tenant.
 export const isAdminSession = (session: SessionView): boolean => session.role.includes('admin');
+// Same rule as the back-end (`hasAutomation`, packages/contracts): the module while the date is ahead.
+export const hasAutomationSession = (session: SessionView): boolean => hasAutomation(session.tenant ?? {});
 // Same matrix the API checks with `hasPermission()` (AD-137): the web only hides what it would reject.
 export const can = (session: SessionView, module: PermissionModule, action: PermissionAction = 'view'): boolean =>
   hasPermission(session.permissions ?? {}, module, action);

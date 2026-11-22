@@ -123,3 +123,18 @@ export const findNoticeForDelivery = async (id: string): Promise<NoticeForDelive
     caseId: doc.Case ? doc.Case.toString() : undefined,
   };
 };
+
+// Offices whose Automação Datajud ends within `days` (AD-275), still on.
+export const listAutomationEnding = async (
+  days: number,
+  now = new Date(),
+): Promise<{ tenantId: string; automationUntil: Date }[]> => {
+  const until = new Date(now.getTime() + days * 86_400_000);
+  const tenants = await Tenant.find({ automationUntil: { $gt: now, $lte: until } })
+    .select('automationUntil')
+    .lean();
+  return tenants.map((tenant) => ({
+    tenantId: tenant._id.toString(),
+    automationUntil: tenant.automationUntil as Date,
+  }));
+};

@@ -55,10 +55,11 @@ export type UserForSignin = {
 // `avatar`: versioned photo path (ACC-06), missing without a photo.
 export type UserView = { id: string; name: string; email: string; avatar?: string };
 
-export type TenantView = { id: string; name: string; status: string };
+// `automationUntil`: the Automação Datajud is on until this instant (AD-275); absent = without the module.
+export type TenantView = { id: string; name: string; status: string; automationUntil?: string };
 
 export type SessionView = {
-  tenant?: { id: string; name: string; status: string };
+  tenant?: TenantView;
   user: UserView;
   role: TenantUser['role'];
   // Effective matrix (AD-137): the web hides what the API will reject.

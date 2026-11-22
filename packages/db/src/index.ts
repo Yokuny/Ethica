@@ -70,6 +70,7 @@ export type { DeliveryRecipient, DueItem, FinanceDueItem, NoticeForDelivery } fr
 export {
   caseLabelsByIds,
   findNoticeForDelivery,
+  listAutomationEnding,
   listDeliveryRecipients,
   listFinanceDueUntil,
   listPendingDueOn,

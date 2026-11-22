@@ -1,10 +1,13 @@
 import { FINANCE_DUE_SOON_DAYS, type FinanceDueBucket } from '@ethica/contracts';
-import { dateInDisplayTz, listFinanceDueUntil } from '@ethica/db';
-import { insertFinanceDueNotice } from '../queue/notification-writes.js';
+import { dateInDisplayTz, listAutomationEnding, listFinanceDueUntil } from '@ethica/db';
+import { insertAutomationEndingNotice, insertFinanceDueNotice } from '../queue/notification-writes.js';
+import { enqueue } from '../queue/queue.js';
 import { addDays } from './format.js';
 
 // Hourly sweep (CNT-03): each open transaction due in 7 days, today or overdue becomes one `finance_due`
 // notice per window, for the bell of whoever sees finance. Deadlines need no notice: the digest reads them.
+// The Automação Datajud ending in 7 days becomes a critical notice, e-mailed right away (AD-275).
+export const AUTOMATION_ENDING_DAYS = 7;
 export const sweepReminders = async (now: Date = new Date()): Promise<{ created: number }> => {
   const today = dateInDisplayTz(now);
   const soon = addDays(today, FINANCE_DUE_SOON_DAYS);
@@ -33,6 +36,12 @@ export const sweepReminders = async (now: Date = new Date()): Promise<{ created:
       now,
     );
     if (inserted) created += 1;
+  }
+  for (const ending of await listAutomationEnding(AUTOMATION_ENDING_DAYS, now)) {
+    const id = await insertAutomationEndingNotice(ending, now);
+    if (!id) continue;
+    created += 1;
+    await enqueue('email_immediate', { notificationId: id }, { dedupeKey: `email_immediate:${id}`, priority: 5 });
   }
   return { created };
 };

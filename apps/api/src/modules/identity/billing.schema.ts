@@ -1,3 +1,4 @@
+import type { SubscriptionPlan } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import type { AsaasClient } from '../../providers/asaasClient.js';
@@ -51,10 +52,11 @@ export type BillingTenant = {
   name: string;
   document: string;
   accessUntil?: Date;
+  automationUntil?: Date;
   billing?: {
     customerId?: string;
     subscriptionId?: string;
-    subscriptionPlan?: 'monthly' | 'yearly';
+    subscriptionPlan?: SubscriptionPlan;
     trialPaymentId?: string;
     trialInvoiceUrl?: string;
     paidAt?: Date;

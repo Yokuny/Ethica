@@ -15,6 +15,7 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   return {
     ...actual,
     useNavigate: () => navigateMock,
+    useSearch: () => ({}),
     useLocation: () => ({ pathname: '/billing' }),
     useMatches: () => [],
     useRouter: () => ({ history: { back: vi.fn() } }),
@@ -77,7 +78,7 @@ describe('BillingPage (AD-230)', () => {
     // The comparison columns, one per card.
     expect(
       screen.getAllByRole('button', { name: /^Pagar / }).map((button) => button.getAttribute('aria-label')),
-    ).toEqual(['Pagar Teste', 'Pagar Mensal', 'Pagar Anual']);
+    ).toEqual(['Pagar Teste', 'Pagar Mensal', 'Pagar Anual', 'Pagar Mensal + Automação', 'Pagar Anual + Automação']);
 
     // Price per month on every card: the trial is the first month (AD-247), the yearly against the monthly.
     expect(screen.getByText(/Economize R\$\s108,00/)).toBeInTheDocument();

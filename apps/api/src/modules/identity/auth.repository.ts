@@ -44,7 +44,14 @@ export const findUserView = async (userId: string): Promise<UserView | null> =>
 export const findTenantView = async (tenantId: string): Promise<TenantView | null> =>
   withDbTiming('auth.findTenantView', async () => {
     const tenant = await Tenant.findById(tenantId).lean();
-    return tenant ? { id: tenant._id.toString(), name: tenant.name, status: tenant.status } : null;
+    if (!tenant) return null;
+    const automationUntil = tenant.automationUntil?.toISOString();
+    return {
+      id: tenant._id.toString(),
+      name: tenant.name,
+      status: tenant.status,
+      ...(automationUntil ? { automationUntil } : {}),
+    };
   });
 
 // MOD-07: ONE `$in` query per batch — without ids there is no query at all. An id

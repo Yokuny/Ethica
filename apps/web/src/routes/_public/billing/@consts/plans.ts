@@ -3,10 +3,12 @@ import {
   CalendarCheckIcon,
   CalendarClockIcon,
   FileTextIcon,
+  GavelIcon,
   type LucideIcon,
   MapPinIcon,
   PiggyBankIcon,
   RefreshCwIcon,
+  SparklesIcon,
   UsersIcon,
   WalletIcon,
 } from 'lucide-react';
@@ -38,6 +40,8 @@ export type PlanOption = {
 const MONTHLY = BILLING_PLAN_CENTS.monthly;
 const YEARLY_PER_MONTH_CENTS = Math.round(BILLING_PLAN_CENTS.yearly / 12);
 export const YEARLY_SAVING_CENTS = MONTHLY * 12 - BILLING_PLAN_CENTS.yearly;
+const AUTOMATION_MONTHLY = BILLING_PLAN_CENTS.automation_monthly;
+const AUTOMATION_YEARLY_PER_MONTH_CENTS = Math.round(BILLING_PLAN_CENTS.automation_yearly / 12);
 
 // CHK-04: offered in this order; the trial only while the office never paid. The monthly opens
 // centered and is the recommended one. The single month is the monthly paid by boleto or PIX, offered
@@ -95,6 +99,44 @@ export const PLAN_OPTIONS: PlanOption[] = [
       {
         icon: PiggyBankIcon,
         text: `${formatMoney(YEARLY_PER_MONTH_CENTS)} ${t('per_month').toLowerCase()} ${t('billing_instead_of')} ${formatMoney(MONTHLY)}`,
+      },
+      { icon: CalendarCheckIcon, text: t('billing_benefit_one_payment') },
+    ],
+  },
+  // AD-275: the base plans plus the Automação Datajud, in the same subscription.
+  {
+    plan: 'automation_monthly',
+    name: t('billing_automation_monthly'),
+    tagline: t('billing_automation_monthly_tagline'),
+    perMonthCents: AUTOMATION_MONTHLY,
+    unit: `/${t('month').toLowerCase()}`,
+    charge: t('billing_monthly_charge'),
+    cta: t('billing_automation_monthly_cta'),
+    method: t('billing_method_card'),
+    renewal: t('billing_renewal_monthly'),
+    team: t('billing_team_unlimited'),
+    includes: 'monthly',
+    features: [
+      { icon: GavelIcon, text: t('billing_benefit_court_tracking') },
+      { icon: SparklesIcon, text: t('billing_benefit_court_suggestions') },
+    ],
+  },
+  {
+    plan: 'automation_yearly',
+    name: t('billing_automation_yearly'),
+    tagline: t('billing_automation_yearly_tagline'),
+    perMonthCents: AUTOMATION_YEARLY_PER_MONTH_CENTS,
+    unit: `/${t('month').toLowerCase()}`,
+    charge: `${formatMoney(BILLING_PLAN_CENTS.automation_yearly)} ${t('billing_yearly_charge')}`,
+    cta: t('billing_automation_yearly_cta'),
+    method: t('billing_method_card'),
+    renewal: t('billing_renewal_yearly'),
+    team: t('billing_team_unlimited'),
+    includes: 'automation_monthly',
+    features: [
+      {
+        icon: PiggyBankIcon,
+        text: `${formatMoney(AUTOMATION_YEARLY_PER_MONTH_CENTS)} ${t('per_month').toLowerCase()} ${t('billing_instead_of')} ${formatMoney(AUTOMATION_MONTHLY)}`,
       },
       { icon: CalendarCheckIcon, text: t('billing_benefit_one_payment') },
     ],

@@ -39,7 +39,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Atlas: usuário de banco próprio do worker, com `readWrite` em `workerjobs`, `workerheartbeats`, `notificationdeliveries` e `notifications` e `read` em `users`, `tenants`, `cases` e `transactions` (AD-267) — `central-notificacoes`
 - [ ] Produção: apagar a collection antiga `deadlines` (já copiada para `notifications` em 2026-11-22) quando quiser — `central-notificacoes`
 - [ ] Confirmar o estudo do pagamento: aviso na intenção (12548, 12165) e sugestão de recebimento no alvará emitido (60 + 73) e na RPV ou precatório "Paga" (12176, 12169) (AD-274) — `automacao-datajud`
-- [ ] Confirmar o plano premium como um plano de R$ 80/mês na mesma assinatura (não uma segunda assinatura) e o anual dele (proposta R$ 816) (AD-275) — `automacao-datajud`
+- [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
 - [ ] Asaas sandbox: entrar em `sandbox.asaas.com` e concluir o cadastro ("Conclua seu cadastro", dados pessoais); com a conta aprovada, criar uma chave Pix aleatória em Pix > Minhas chaves para testar o QR Code em dev. Sem webhook no sandbox: a Railway usa a chave de produção — `cadastro-checkout`
 - [ ] Reiniciar a API local para ler o `ASAAS_WEBHOOK_TOKEN` novo; a tela de planos já confere o pagamento do sandbox sem túnel — `cadastro-checkout`
 - [ ] Perita: decidir se o Teste só permite uma pessoa (bloquear convites até o primeiro plano pago); hoje a diferença "Só você" × "Quantas pessoas quiser" está só no texto da tela de planos (AD-247) — `cadastro-checkout`

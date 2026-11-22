@@ -1,4 +1,10 @@
-import { type DocumentTextStyle, REPORT_FONTS, TEXT_ALIGNMENTS } from '@ethica/contracts';
+import {
+  type DocumentTextStyle,
+  REPORT_FONTS,
+  SUBSCRIPTION_PLANS,
+  type SubscriptionPlan,
+  TEXT_ALIGNMENTS,
+} from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 export type TenantStatus = 'provisioned' | 'active' | 'suspended';
@@ -7,7 +13,7 @@ export type TenantStatus = 'provisioned' | 'active' | 'suspended';
 export type TenantBilling = {
   customerId?: string;
   subscriptionId?: string;
-  subscriptionPlan?: 'monthly' | 'yearly';
+  subscriptionPlan?: SubscriptionPlan;
   trialPaymentId?: string;
   trialInvoiceUrl?: string;
   paidAt?: Date;
@@ -21,6 +27,8 @@ export interface TenantDocument {
   status: TenantStatus;
   // AD-230: access only before this instant; absent = no subscription control (test and platform offices).
   accessUntil?: Date;
+  // AD-270, AD-275: the Automação Datajud only before this instant; absent = without the module.
+  automationUntil?: Date;
   billing?: TenantBilling;
   // Document identity (AD-121): text with markers, replaced when the PDF is generated.
   header?: string;
@@ -63,12 +71,13 @@ const tenantSchema = new Schema<TenantDocument>(
       required: true,
     },
     accessUntil: Date,
+    automationUntil: Date,
     billing: {
       type: new Schema(
         {
           customerId: String,
           subscriptionId: String,
-          subscriptionPlan: { type: String, enum: ['monthly', 'yearly'] },
+          subscriptionPlan: { type: String, enum: SUBSCRIPTION_PLANS },
           trialPaymentId: String,
           trialInvoiceUrl: String,
           paidAt: Date,

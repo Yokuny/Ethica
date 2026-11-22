@@ -29,6 +29,12 @@ const noticeText = (notice: NoticeRecord): { title: string; description: string 
       description: `${params.description} · ${formatMoney(Number(params.openCents))} · ${day(String(params.dueDate))}`,
     };
   }
+  if (notice.topic === 'automation_expiring') {
+    return {
+      title: t('automation_expiring_notice'),
+      description: formatDate(new Date(String(params.automationUntil))),
+    };
+  }
   return { title: t('notices'), description: '' };
 };
 

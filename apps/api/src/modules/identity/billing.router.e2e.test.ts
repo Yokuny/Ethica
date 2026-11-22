@@ -11,6 +11,7 @@ import { createAuthMiddleware } from '../../middlewares/authentication.middlewar
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
 import { type AsaasClient, type AsaasPayment, AsaasUnavailableError } from '../../providers/asaasClient.js';
 import { buildAuthDeps } from './auth.deps.js';
+import { getSessionView } from './auth.service.js';
 import { createBillingRouter } from './billing.router.js';
 
 const DEVICE = 'test-agent';
@@ -52,6 +53,9 @@ const buildTestApp = (asaas?: AsaasClient) => {
   app.use('/billing', createBillingRouter({ validSession, asaas, returnUrl: 'https://app/', webhookToken: TOKEN }));
   app.get('/closed-check', validToken, (_req, res) => {
     res.json({ ok: true });
+  });
+  app.get('/session-check', validToken, async (req, res) => {
+    res.json(await getSessionView(req.tenantUser));
   });
   app.use(errorHandler);
   return app;
@@ -199,6 +203,31 @@ describe('billing routes (AD-230)', () => {
 
     const open = await request(app).get('/closed-check').set('Cookie', cookie).set('User-Agent', DEVICE);
     expect(open.status).toBe(200);
+  });
+
+  it('premium (AD-275): troca o plano base, estende o acesso e o módulo; a sessão mostra o módulo; estorno tira os dois', async () => {
+    const { tenant, cookie } = await seed();
+    const asaas = fakeAsaas();
+    const app = buildTestApp(asaas);
+    const pay = (plan: string) =>
+      request(app).post('/billing/pay').set('Cookie', cookie).set('User-Agent', DEVICE).send({ plan });
+    const saved = async () => Tenant.findById(tenant._id).lean();
+
+    await pay('monthly');
+    await pay('automation_monthly');
+    expect(asaas.deleteSubscription).toHaveBeenCalledWith('sub_1');
+    expect((await saved())?.billing?.subscriptionPlan).toBe('automation_monthly');
+
+    const payment = { id: 'pay_p', subscription: 'sub_2', dueDate: '2026-11-18' };
+    await webhook(app, payment);
+    expect((await saved())?.accessUntil).toEqual(dayStart('2026-12-23'));
+    expect((await saved())?.automationUntil).toEqual(dayStart('2026-12-23'));
+
+    const session = await request(app).get('/session-check').set('Cookie', cookie).set('User-Agent', DEVICE);
+    expect(session.body.tenant.automationUntil).toBe(dayStart('2026-12-23').toISOString());
+
+    await webhook(app, payment, 'PAYMENT_REFUNDED');
+    expect((await saved())?.automationUntil).toEqual(dayStart('2026-11-18'));
   });
 
   it('single month by boleto/PIX counts from the payment day plus 5 days', async () => {

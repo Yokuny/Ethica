@@ -1677,7 +1677,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: duas cobranças por escritório no Asaas; o cancelamento do módulo, como o do plano, é pelo suporte.
 - **Scope**: `packages/db/src/models/tenant.model.ts`, `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/billing.*`, `apps/api/src/middlewares/`, `apps/web/src/routes/_public/billing/`. Supersede, só para o módulo, a regra "uma assinatura viva por escritório" (CHK-08, AD-230).
 - **Date**: 2026-11-22
-- **Status**: active
+- **Status**: active (segunda assinatura superseded by AD-275: o premium é um plano da mesma assinatura)
 
 ### AD-271
 - **Decision**: O Datajud volta à pauta como base do módulo premium. As collections com dado público do CNJ (`CourtProcess`, igual para todo escritório) ficam **fora do `tenantScoped`**, sem nenhum dado de escritório; o vínculo com o escritório fica sempre do lado dele (`CaseCourtSync`, `Notification`). Processo com `nivelSigilo > 0` nunca é gravado nem logado. A chave do Datajud passa a ser só do worker quando o cliente sair do api (plano do worker, seção 6).
@@ -1717,11 +1717,19 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: trocar de plano no meio do mês passa pelo suporte, como hoje (AD-230).
 - **Scope**: `packages/contracts/src/schemas/billing.schema.ts`, `apps/api/src/modules/identity/billing.*`, `apps/web/src/routes/_public/billing/`. Se confirmado, supersede da AD-270 a segunda assinatura.
 - **Date**: 2026-11-22
-- **Status**: proposed
+- **Status**: active (confirmado pelo usuário em 2026-11-22, com o anual de R$ 816)
+
+### AD-276
+- **Decision**: Detalhes da Fase 3 (módulo premium): (1) planos `automation_monthly` (R$ 80) e `automation_yearly` (R$ 816) entram em `BILLING_PLANS` e em `SUBSCRIPTION_PLANS`; assinar um troca a assinatura viva (CHK-08) e cada pagamento confirmado estende `accessUntil` e `automationUntil` juntos, com o mesmo `$max`; estorno e chargeback tiram os dois; (2) a sessão leva `tenant.automationUntil` e a regra única é `hasAutomation` (`packages/contracts/src/schemas/billing.schema.ts`), usada no web; (3) a tela de planos ganha o modo `/billing?upgrade=true`, que só mostra os dois planos com Automação, tem "Voltar" no lugar de "Sair" e volta ao app quando o módulo é liberado; a oferta fica na aba Avisos da Central, com "Ver planos" só para o admin; (4) faltando 7 dias para o módulo vencer, a varredura cria o aviso `automation_expiring` (`critical`, módulo `finance`) e põe na fila o e-mail na hora; (5) `requireAutomation` (403 `automation_required`) entra na Fase 4, com as primeiras rotas do módulo, e a expiração das sugestões na Fase 5, com as sugestões.
+- **Reason**: plano confirmado pelo usuário (AD-275); o resto, o mínimo que deixa assinar, liberar e avisar.
+- **Trade-off**: o aviso de vencimento vai a quem vê o Financeiro, não só ao admin (a notificação não tem módulo próprio de administração).
+- **Scope**: `packages/contracts/src/schemas/{billing,notification}.schema.ts`, `packages/db/src/{models/tenant.model.ts,workerReads.ts}`, `apps/api/src/modules/identity/{billing,auth}.*`, `apps/worker/src/{jobs/reminders-sweep.ts,jobs/email-immediate.ts,queue/notification-writes.ts}`, `apps/web/src/routes/_public/billing/`, `apps/web/src/routes/_private/notifications/@components/automation-offer.tsx`.
+- **Date**: 2026-11-22
+- **Status**: active
 
 ## Handoff
 
-- **Feature**: `central-notificacoes` — em andamento: Fase 0 (docs, AD-263 a AD-271) e Fase 1 (`Notification` no lugar de `Deadline`, AD-272) na `main`. Seeds só conferidos pelo `tsc`, não executados. Fase 2 (worker, `packages/mail`, e-mail do dia, avisos financeiros, sino, preferências; AD-273) também na `main`; o serviço do worker na Railway é do usuário. Falta a conferência no navegador; D8 resolvido: prazos da produção copiados para `Notification` (11) e o script apagado. Progresso no plano `.specs/plans/2026-11-22-automacao-datajud-notificacoes.md`, seção 13.
+- **Feature**: `central-notificacoes` — em andamento: Fase 0 (docs, AD-263 a AD-271) e Fase 1 (`Notification` no lugar de `Deadline`, AD-272) na `main`. Seeds só conferidos pelo `tsc`, não executados. Fase 2 (worker, `packages/mail`, e-mail do dia, avisos financeiros, sino, preferências; AD-273) e Fase 3 (plano premium R$ 80, `automationUntil`, upgrade, aviso de vencimento; AD-275, AD-276) também na `main`; o serviço do worker na Railway é do usuário. Falta a conferência no navegador; D8 resolvido: prazos da produção copiados para `Notification` (11) e o script apagado. Progresso no plano `.specs/plans/2026-11-22-automacao-datajud-notificacoes.md`, seção 13.
 - **Feature**: `logistica-paginas` — parcial: hub da Logística com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas e termo da vistoria assinado em PDF (AD-239). Falta a conferência visual no navegador e confirmar com a perita o intervalo com todos os compromissos (ela tinha escolhido só vistorias fora do dia na AD-208) e as observações internas fora do PDF.
 - **Feature**: `temas` — parcial: Claro, Escuro e Azul no menu do usuário e cor de ação única (AD-237). Tela de acesso conferida nos três temas; falta conferir as telas logadas (o login exige passkey).
 - **Feature**: `biblioteca-modelos` — concluída: Biblioteca padrão e do escritório por área, importar PDF/Word e layout do anexo como padrão (AD-203 a AD-205). Conferido na tela local (abas, importar Word, PDF do laudo); falta a perita conferir o PDF com a fonte Source Sans em produção.
