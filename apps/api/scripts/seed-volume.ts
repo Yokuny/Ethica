@@ -48,6 +48,22 @@ const int = (min: number, max: number): number => min + Math.floor(random() * (m
 const pick = <T>(list: readonly T[]): T => list[Math.floor(random() * list.length)] as T;
 const chance = (probability: number): boolean => random() < probability;
 const digits = (length: number): string => Array.from({ length }, () => int(0, 9)).join('');
+// Lowercase ASCII words of a name, for mailboxes and domains that read like the real ones.
+const words = (name: string): string[] =>
+  name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .split(' ')
+    .filter((word) => word.length > 2 && !['ltda', 'dos', 'das', 'sul'].includes(word));
+const mailbox = (name: string): string => {
+  const parts = words(name);
+  return `${parts[0]}.${parts.at(-1)}@${pick(['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com.br'])}`;
+};
+const DRIVE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+const driveFolder = (): string =>
+  `https://drive.google.com/drive/folders/1${Array.from({ length: 32 }, () => pick([...DRIVE_CHARS])).join('')}`;
 
 const today = dateInDisplayTz(new Date());
 const day = (offset: number): string => {
@@ -218,13 +234,16 @@ const run = async (): Promise<void> => {
 
   // Team: a manager and an operator per run, with the profile presets (AD-137).
   await User.insertMany(
-    (['manager', 'operator'] as const).map((role) => ({
-      Tenant,
-      name: `${pick(FIRST)} ${pick(LAST)}`,
-      email: `${role}.${run}.${Tenant.toString().slice(-6)}@example.com`,
-      role: [role],
-      permissions: PROFILE_PERMISSIONS[role],
-    })),
+    (['manager', 'operator'] as const).map((role) => {
+      const name = `${pick(FIRST)} ${pick(LAST)}`;
+      return {
+        Tenant,
+        name,
+        email: `${words(name).join('.')}${run.slice(-2)}@gmail.com`,
+        role: [role],
+        permissions: PROFILE_PERMISSIONS[role],
+      };
+    }),
   );
 
   // Parties and lawyers, reused across services (AD-117).
@@ -244,7 +263,7 @@ const run = async (): Promise<void> => {
         type: 'party' as const,
         name,
         ...(chance(0.7) ? { document: digits(14) } : {}),
-        ...(chance(0.4) ? { email: `juridico${int(1, 99)}@empresa.com.br` } : {}),
+        ...(chance(0.4) ? { email: `juridico@${words(name).slice(0, 2).join('')}.com.br` } : {}),
       })),
     ),
   );
@@ -254,8 +273,11 @@ const run = async (): Promise<void> => {
         type: 'lawyer' as const,
         name: `${pick(FIRST)} ${pick(LAST)}`,
         oab: `SP${digits(6)}`,
-        ...(chance(0.5) ? { email: `adv${int(1, 999)}@advocacia.com.br` } : {}),
-      })),
+      })).map((lawyer) =>
+        chance(0.5)
+          ? { ...lawyer, email: `${words(lawyer.name).join('.')}@${words(lawyer.name).at(-1)}adv.com.br` }
+          : lawyer,
+      ),
     ),
   );
 
@@ -272,7 +294,9 @@ const run = async (): Promise<void> => {
             city: court.district,
             ...(chance(0.7) ? { address: pick(STREETS) } : {}),
             ...(chance(0.7) ? { phones: `(11) 3${digits(3)}-${digits(4)}` } : {}),
-            ...(chance(0.5) ? { email: `vara${int(1, 99)}@tribunal.jus.br` } : {}),
+            ...(chance(0.5)
+              ? { email: `${words(name).slice(0, 3).join('')}@${court.court.toLowerCase()}.jus.br` }
+              : {}),
           })),
         ),
       ),
@@ -342,7 +366,7 @@ const run = async (): Promise<void> => {
       ...(thin ? {} : { proposedFeesCents: int(15, 120) * 10_000 }),
       ...(DELIVERED.includes(phase) || chance(0.4) ? { fixedFeesCents: int(15, 90) * 10_000 } : {}),
       ...(thin ? {} : { notes: 'Processo com documentos digitalizados na pasta do escritório.' }),
-      ...(chance(0.3) ? { folderUrl: 'https://drive.google.com/drive/folders/exemplo' } : {}),
+      ...(chance(0.3) ? { folderUrl: driveFolder() } : {}),
       ...(courtType === 'labor' && !thin
         ? {
             docketingDate: day(-int(120, 600)),
@@ -383,7 +407,7 @@ const run = async (): Promise<void> => {
           : {
               document: digits(14),
               phone: `(51) 9${digits(4)}-${digits(4)}`,
-              email: 'contato@cliente.com.br',
+              email: `juridico@${words(client.name).slice(0, 2).join('')}.com.br`,
               address: pick(STREETS),
             }),
       },
@@ -414,7 +438,7 @@ const run = async (): Promise<void> => {
           : {
               document: digits(chance(0.5) ? 11 : 14),
               phone: `(11) 9${digits(4)}-${digits(4)}`,
-              email: 'cliente@exemplo.com.br',
+              email: mailbox(contractor),
               address: pick(STREETS),
             }),
       },

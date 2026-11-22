@@ -38,6 +38,7 @@ Começar o produto de gestão de perícias já com a arquitetura, o harness e a 
 - `apps/api/src/events/` — `case:fixed_fees` com subscriber em `events/subscribers/` (AD-106; `case:created` removido pela AD-109).
 - `apps/api/src/providers/datajudClient.ts` — consulta e mapeamento do Datajud (AD-105).
 - `apps/api/scripts/seed-demo.ts` — tenant de demonstração.
+- `apps/api/scripts/seed-volume.ts` — volume de dados no escritório de um login, para conferência visual.
 
 ### `apps/web`
 
@@ -95,6 +96,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-21 — `seed:volume` sem rastro de dado fictício: e-mails derivados do nome da pessoa, da empresa e da vara, e pasta do Drive com id no formato real (antes `example.com`, `exemplo`).
 - 2026-11-18 — `integration` e `e2e` rodam com o Mongo local (642 testes verdes); pendências que pedem ação passam a ser acompanhadas no checklist de `docs/roadmap.md`.
 - 2026-11-14 — Sai a skill `tlc-spec-driven` e as lições geradas pelo script dela (`.specs/LESSONS.md`, `.specs/lessons.json`); o fluxo spec → design → tasks fica só na `ethica-spec-driven` (AD-221).
 - 2026-11-10 — Relatórios compacto e alinhado à esquerda: nome do relatório, o que ele traz logo abaixo e os botões em seguida.
