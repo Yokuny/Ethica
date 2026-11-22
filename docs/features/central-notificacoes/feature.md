@@ -66,11 +66,12 @@ pnpm vitest run apps/api/src/modules/notifications apps/worker apps/web/src/comp
 
 - [ ] Fase 6 (push) — `.specs/features/central-notificacoes/tasks.md`.
 - [ ] Usuário: criar o serviço do worker na Railway (sem ele ninguém recebe o e-mail do dia) e o usuário próprio no Atlas.
-- [ ] Produção (D8): rodar `apps/api/scripts/migrate-deadlines.ts` (testado no banco local) e depois apagar o script.
+- [ ] Produção: apagar a collection antiga `deadlines` (usuário).
 - [ ] Perita: confirmar a tabela "Assumptions" da spec.
 
 ## Histórico
 
+- 2026-11-22 — D8 resolvido: o usuário rodou o script na produção (11 prazos e 11 itens de agenda copiados); o script saiu do código, como previsto no plano.
 - 2026-11-22 — Script avulso `apps/api/scripts/migrate-deadlines.ts` (D8): copia `deadlines` para `notifications` com o mesmo id e religa os itens de agenda; simula sem `--apply` e é idempotente. Rodado no banco local (111 prazos, 105 itens de agenda).
 - 2026-11-22 — Conferido no navegador com o usuário logado: criar prazo, cancelar (aba Cancelado, agenda e serviço), aba Avisos com 29 avisos do worker, lido por pessoa (sino de 29 para 28) e Conta → Notificações salvando. No banco local, os prazos antigos (`deadlines`) e os itens de agenda deles (`source: 'deadline'`) seguem órfãos até a decisão do D8. A descrição da Central passa a citar os avisos.
 - 2026-11-22 — Fase 2: worker, `packages/mail`, e-mail do dia por pessoa com prazos e financeiro, avisos `finance_due`, sino, aba Avisos e preferências por tipo × canal (AD-273). Worker conferido rodando local e na imagem Docker (`/health` 200, e-mail só no log).
