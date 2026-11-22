@@ -132,6 +132,11 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect(abaixo.status).toBe(422);
     expect(abaixo.body.message).toBe('amount_below_received');
 
+    // The form sends every field, category included (which drops `categoryName` in the update).
+    const full = await as(request(app).patch(`/finance/entries/${id}`)).send({ ...FEE, amountCents: 480_000 });
+    expect(full.status).toBe(200);
+    expect(full.body.data).toMatchObject({ category: 'fixed_fees', status: 'partial' });
+
     const igual = await as(request(app).patch(`/finance/entries/${id}`)).send({ amountCents: 200_000 });
     expect(igual.body.data).toMatchObject({ status: 'settled', balanceCents: 0 });
 

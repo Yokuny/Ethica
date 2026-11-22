@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-22 — Editar um honorário pelo formulário dava erro 500: o form manda a categoria, que pede a remoção de `categoryName`, e o `$unset` ia dentro do `$set` do pipeline do `updateIncome` (`apps/api/src/modules/finance/transaction.repository.ts`). Agora a remoção é um estágio `$unset` próprio; e2e cobre o PATCH com todos os campos.
 - 2026-11-15 — Lista do Financeiro: receita com seta para cima em verde, despesa com seta para baixo em vermelho (estavam invertidas e cinza; `iconTone` no `TableIdentity`).
 - 2026-11-15 — Recebimentos do lançamento (`apps/web/src/routes/_private/finance/@components/installments-list.tsx`), com os centavos esmaecidos passa ao `InfoCard`/`InfoCardList` (`apps/web/src/components/info-card.tsx`, AD-225): moldura cinza com cartões que crescem até ocupar toda a largura da linha, valor em destaque, linha de apoio e ações no rodapé; o `LinkList` sai dessa lista. Ajuste (AD-226): um cartão por linha, cada um com toda a largura; antes os cartões dividiam a linha.
 - 2026-11-10 — Financeiro vira só a lista de lançamentos em `/finance`, sem a página de entrada nem `/finance/reports`; resumo e gráficos foram para o Dashboard (AD-215).

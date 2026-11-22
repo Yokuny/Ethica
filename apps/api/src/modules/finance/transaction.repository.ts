@@ -119,8 +119,10 @@ export const updateIncome = async (
   data: UpdateTransaction,
 ): Promise<TransactionRecord | null> =>
   withDbTiming('finance.updateIncome', async () => {
+    // In a pipeline the removal is its own `$unset` stage: a `$`-prefixed key inside `$set` is rejected.
+    const { $unset, ...set } = toDocumentFields(data) as Record<string, unknown> & { $unset?: object };
     const fields = Object.fromEntries(
-      Object.entries(toDocumentFields(data)).map(([key, value]) => [
+      Object.entries(set).map(([key, value]) => [
         key,
         key === 'Case' ? toObjectId(value as string) : { $literal: value },
       ]),
@@ -130,7 +132,7 @@ export const updateIncome = async (
         ...tenantScoped({ Tenant: tenantId, _id: id, kind: 'income' as const }),
         ...(data.amountCents !== undefined ? { $expr: { $lte: [RECEIVED, data.amountCents] } } : {}),
       },
-      [{ $set: fields }, { $set: { status: INCOME_STATUS } }],
+      [{ $set: fields }, ...($unset ? [{ $unset: Object.keys($unset) }] : []), { $set: { status: INCOME_STATUS } }],
       { returnDocument: 'after', updatePipeline: true },
     ).lean();
     return doc ? toRecord(doc) : null;

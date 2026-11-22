@@ -91,6 +91,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — Editar honorário no Financeiro não dá mais erro 500 (`internal_error`) ao salvar — `prazos-recebimentos`
 - [x] 2026-11-22 — Texto que parece número sem aspas na URL em todas as telas (busca, paginação, período do Dashboard) (AD-257) — `fundacao-ethica`
 - [x] 2026-11-22 — Dashboard e Início reformulados conferidos no navegador (6 e 12 meses, três temas, celular) — `dashboard`
 - [x] 2026-11-22 — Dashboard e Início reformulados com gráficos, hierarquia macro → micro e cores indicativas (AD-255) — `dashboard`
