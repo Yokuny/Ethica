@@ -30,7 +30,7 @@ export function ServicesAreaChart({ byType, byMonth }: ServicesAreaChartProps) {
       label: serviceTypeLabel(row),
       color: SERIES_COLORS[index],
     })),
-    ...(ranked.length > LIMIT ? [{ key: 'others', type: '', label: t('others'), color: NEUTRAL_COLOR }] : []),
+    ...(ranked.length > LIMIT ? [{ key: 'others', type: '', label: t('remaining'), color: NEUTRAL_COLOR }] : []),
   ];
   const topKeys = new Map(series.filter((serie) => serie.type).map((serie) => [serie.type, serie.key]));
   const data = byMonth.map((month) => {
@@ -67,9 +67,10 @@ export function ServicesAreaChart({ byType, byMonth }: ServicesAreaChartProps) {
             dataKey={serie.key}
             stackId="intake"
             type="monotone"
-            stroke={`var(--color-${serie.key})`}
+            // The palette is pastel: a full fill and a darker edge keep each band visible on any theme.
+            stroke={`color-mix(in oklab, var(--color-${serie.key}) 65%, var(--foreground))`}
             fill={`var(--color-${serie.key})`}
-            fillOpacity={0.55}
+            fillOpacity={0.9}
             strokeWidth={1.5}
             isAnimationActive={false}
           />

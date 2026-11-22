@@ -14,15 +14,18 @@ const TREND_LABEL = { up: 'trend_up', down: 'trend_down', stable: 'trend_stable'
 type DashboardKpisProps = {
   cases: CaseDashboard;
   months: number;
-  // `2 × months` months: the period and the previous one. Absent for whoever does not see Finance.
+  // Complete months, oldest to newest: the period and the previous one. Absent for whoever does not see Finance.
   flow?: MonthlyFlow[];
   summary?: FinanceSummary;
+  // Fees received since the start (DSH-02).
+  receivedSinceStart?: number;
 };
 
 // Level 1 of the Dashboard (AD-255): how the office is doing in the period. Each number with its monthly trend
 // line, the change against the previous period of the same size and whether that is good or bad.
-export function DashboardKpis({ cases, months, flow, summary }: DashboardKpisProps) {
-  const intake = splitPeriod(cases.byMonth, months);
+export function DashboardKpis({ cases, months, flow, summary, receivedSinceStart }: DashboardKpisProps) {
+  // The month in progress is out of every comparison.
+  const intake = splitPeriod(cases.byMonth.slice(0, -1), months);
   const newCases = sum(intake.current, (row) => row.count);
   const newBefore = sum(intake.previous, (row) => row.count);
   const money = flow && splitPeriod(flow, months);
@@ -56,6 +59,11 @@ export function DashboardKpis({ cases, months, flow, summary }: DashboardKpisPro
               trendLabel={t(TREND_LABEL[direction(totals.received, totals.receivedBefore)])}
               hint={percentChange(totals.received, totals.receivedBefore)}
               sparkline={money.current.map((row) => row.receivedCents)}
+              description={
+                receivedSinceStart === undefined
+                  ? undefined
+                  : `${formatMoney(receivedSinceStart)} ${t('since_start').toLowerCase()}`
+              }
             />
             <RecordStat
               label={t('expenses')}
@@ -98,6 +106,7 @@ export function DashboardKpis({ cases, months, flow, summary }: DashboardKpisPro
           label={t('open_expert_cases')}
           value={number.format(cases.total - cases.closed)}
           hint={`${t('of')} ${number.format(cases.total)}`}
+          description={`${number.format(cases.closed)} ${t('closed_expert_cases').toLowerCase()}`}
           render={<Link to="/expert-cases" />}
         />
       </RecordStats>

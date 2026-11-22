@@ -43,10 +43,11 @@ export const listTransactionsQuerySchema = z
   .strict();
 export type ListTransactionsQuery = z.infer<typeof listTransactionsQuerySchema>;
 
-export const flowQuerySchema = z.object({ months: z.coerce.number().int().min(1).max(24).default(6) }).strict();
+// Up to 25: two 12-month periods of complete months plus the one in progress (AD-255).
+export const flowQuerySchema = z.object({ months: z.coerce.number().int().min(1).max(25).default(6) }).strict();
 export type FlowQuery = z.infer<typeof flowQuerySchema>;
 
-// `months`: the period of the Dashboard (the same as the cash flow) and, before it, the previous one of the same size.
+// `months`: the Dashboard's period of complete months and, before it, the previous one of the same size.
 export const categoriesQuerySchema = z
   .object({ kind: z.enum(TRANSACTION_KINDS), months: z.coerce.number().int().min(1).max(12).default(6) })
   .strict();

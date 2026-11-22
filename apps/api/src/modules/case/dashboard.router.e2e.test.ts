@@ -67,7 +67,7 @@ describe('Dashboard (DSH)', () => {
     await disconnect();
   });
 
-  it('conta por tipo, encerrados e serviços dos últimos 24 meses pela nomeação ou pelo cadastro (DSH-02 a 04)', async () => {
+  it('conta por tipo, encerrados e serviços dos últimos 25 meses pela nomeação ou pelo cadastro (DSH-02 a 04)', async () => {
     const { tenant, as } = await seedSession();
     const other = await seedSession();
     const month = dateInDisplayTz(new Date()).slice(0, 7);
@@ -92,8 +92,8 @@ describe('Dashboard (DSH)', () => {
       { role: 'other', serviceType: 'Parceria', count: 1 },
       { role: 'technical_assistant', count: 1 },
     ]);
-    // 'b' is older than 24 months, 'c' is canceled, 'f' is from another office.
-    expect(body.data.byMonth).toHaveLength(24);
+    // 'b' is older than 25 months, 'c' is canceled, 'f' is from another office.
+    expect(body.data.byMonth).toHaveLength(25);
     expect(body.data.byMonth.at(-1)).toEqual({
       month,
       count: 3,

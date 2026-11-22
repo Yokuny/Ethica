@@ -273,12 +273,16 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect(atrasados.items.map((item: { id: string }) => item.id)).toEqual([id]);
   });
 
-  it('categorias somam o período pelas datas do fluxo de caixa e trazem o período anterior (AD-253)', async () => {
+  it('categorias somam os meses completos do período pelas datas do fluxo de caixa (AD-253, AD-255)', async () => {
     const as = await seedSession();
     const lastMonth = `${shiftMonth(today.slice(0, 7), -1)}-15`;
     const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, dueDate: '2020-01-10' })).body.data;
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 150_000, date: today });
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 40_000, date: lastMonth });
+    await as(request(app).post(`/finance/entries/${id}/installments`)).send({
+      amountCents: 25_000,
+      date: `${shiftMonth(today.slice(0, 7), -2)}-15`,
+    });
     // Before both periods: out.
     await as(request(app).post(`/finance/entries/${id}/installments`)).send({
       amountCents: 50_000,
@@ -305,14 +309,16 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     await Transaction.updateOne({ _id: expense.id }, { status: 'settled', settledDate: lastMonth });
 
     const categories = async (query: string) => (await as(request(app).get(`/finance/categories?${query}`))).body.data;
+    // Complete months only: this month's installment is out; last month is the 1-month period.
     expect(await categories('kind=income&months=1')).toEqual([
-      { category: 'fixed_fees', totalCents: 150_000, previousCents: 40_000 },
-    ]);
-    expect(await categories('kind=income&months=2')).toEqual([
-      { category: 'fixed_fees', totalCents: 190_000, previousCents: 0 },
+      { category: 'fixed_fees', totalCents: 40_000, previousCents: 25_000 },
     ]);
     expect(await categories('kind=expense&months=1')).toEqual([
-      { category: 'fees_and_taxes', totalCents: 0, previousCents: 7_000 },
+      { category: 'fees_and_taxes', totalCents: 7_000, previousCents: 0 },
+    ]);
+    // Canceled income never counts, in any period.
+    expect(await categories('kind=income&months=12')).toEqual([
+      { category: 'fixed_fees', totalCents: 65_000, previousCents: 0 },
     ]);
     expect((await as(request(app).get('/finance/categories?kind=income&months=13'))).status).toBe(400);
   });

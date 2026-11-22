@@ -50,7 +50,7 @@ export function CompositionDonut({ label, slices, format, centerDetail, limit = 
       ? [
           {
             key: 'others',
-            label: `${t('others')} (${rest.length})`,
+            label: `${t('remaining')} (${rest.length})`,
             amount: rest.reduce((sum, slice) => sum + slice.amount, 0),
             value: format(rest.reduce((sum, slice) => sum + slice.amount, 0)),
             color: NEUTRAL_COLOR,
@@ -63,38 +63,41 @@ export function CompositionDonut({ label, slices, format, centerDetail, limit = 
   const linked = parts.some((part) => part.render);
 
   return (
-    <div className="grid items-center gap-6 sm:grid-cols-[11rem_1fr]">
-      <div className="relative mx-auto size-44">
-        <ChartContainer config={{}} className="aspect-square size-44" role="img" aria-label={label}>
-          <PieChart>
-            <Pie
-              data={parts}
-              dataKey="amount"
-              nameKey="label"
-              innerRadius="68%"
-              outerRadius="100%"
-              paddingAngle={parts.length > 1 ? 2 : 0}
-              stroke="none"
-              isAnimationActive={false}
-            >
-              {parts.map((part) => (
-                <Cell key={part.key} fill={part.color} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ChartContainer>
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-          <ItemTitle className="text-lg font-medium tabular-nums leading-tight">{format(total)}</ItemTitle>
-          {centerDetail && <ItemDescription className="text-xs tabular-nums">{centerDetail}</ItemDescription>}
+    // By the panel's width, not the screen's: in half a page the legend goes under the donut.
+    <div className="@container">
+      <div className="grid items-center gap-6 @xl:grid-cols-[11rem_1fr]">
+        <div className="relative mx-auto size-44">
+          <ChartContainer config={{}} className="aspect-square size-44" role="img" aria-label={label}>
+            <PieChart>
+              <Pie
+                data={parts}
+                dataKey="amount"
+                nameKey="label"
+                innerRadius="68%"
+                outerRadius="100%"
+                stroke="var(--background)"
+                strokeWidth={2}
+                isAnimationActive={false}
+              >
+                {parts.map((part) => (
+                  <Cell key={part.key} fill={part.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+            <ItemTitle className="text-lg font-medium tabular-nums leading-tight">{format(total)}</ItemTitle>
+            {centerDetail && <ItemDescription className="text-xs tabular-nums">{centerDetail}</ItemDescription>}
+          </div>
         </div>
+        <ul className="flex flex-col gap-0.5">
+          {parts.map((part) => (
+            <li key={part.key}>
+              <LegendRow part={part} share={percent.format(total ? part.amount / total : 0)} linked={linked} />
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul className="flex flex-col gap-0.5">
-        {parts.map((part) => (
-          <li key={part.key}>
-            <LegendRow part={part} share={percent.format(total ? part.amount / total : 0)} linked={linked} />
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -112,14 +115,12 @@ function LegendRow({ part, share, linked }: { part: DonutSlice; share: string; l
       children: (
         <>
           <span aria-hidden className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: part.color }} />
-          <ItemDescription className="min-w-0 flex-1 truncate text-foreground">{part.label}</ItemDescription>
-          <div className="flex flex-col items-end sm:flex-row sm:items-baseline sm:gap-3">
-            <ItemTitle className="font-medium tabular-nums">{part.value}</ItemTitle>
-            <ItemDescription className="text-xs tabular-nums sm:w-10 sm:text-right">{share}</ItemDescription>
-            {part.detail && (
-              <ItemDescription className="text-xs tabular-nums sm:w-32 sm:text-right">{part.detail}</ItemDescription>
-            )}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <ItemDescription className="truncate text-foreground">{part.label}</ItemDescription>
+            {part.detail && <ItemDescription className="text-xs tabular-nums">{part.detail}</ItemDescription>}
           </div>
+          <ItemTitle className="font-medium tabular-nums">{part.value}</ItemTitle>
+          <ItemDescription className="w-10 text-right text-xs tabular-nums">{share}</ItemDescription>
           {linked && (
             <ChevronRight aria-hidden className={cn('size-4 text-muted-foreground', !part.render && 'invisible')} />
           )}

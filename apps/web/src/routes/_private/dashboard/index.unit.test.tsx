@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sessionQuery } from '@/query/session.js';
 import { categoriesQuery, financeSummaryQuery, monthlyFlowQuery } from '@/query/transaction.js';
-import { caseDashboardQuery } from './@query/dashboard.js';
+import { caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>();
@@ -26,11 +26,13 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
 
 const { DashboardPage } = await import('./index.js');
 
-// 12 months up to 2026-11: the 6-month period and the previous 6.
-const MONTHS = Array.from({ length: 12 }, (_, index) =>
+// 12 complete months up to 2026-11 (the 6-month period and the previous 6) and 2026-12 in progress, which the page
+// leaves out of every number.
+const MONTHS = Array.from({ length: 13 }, (_, index) =>
   new Date(Date.UTC(2025, 11 + index, 1)).toISOString().slice(0, 7),
 );
-const recent = (index: number) => index >= 6;
+const recent = (index: number) => index >= 6 && index < 12;
+const current = (index: number) => index === 12;
 
 const renderPage = (role: Role[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
@@ -49,19 +51,20 @@ const renderPage = (role: Role[]) => {
     ],
     byMonth: MONTHS.map((month, index) => ({
       month,
-      count: recent(index) ? 2 : 1,
-      byType: [{ role: 'court_expert' as const, count: recent(index) ? 2 : 1 }],
+      count: current(index) ? 50 : recent(index) ? 2 : 1,
+      byType: [{ role: 'court_expert' as const, count: current(index) ? 50 : recent(index) ? 2 : 1 }],
     })),
   });
   queryClient.setQueryData(
-    monthlyFlowQuery(12).queryKey,
+    monthlyFlowQuery(13).queryKey,
     MONTHS.map((month, index) => ({
       month,
-      receivedCents: recent(index) ? 100_000 : 50_000,
+      receivedCents: current(index) ? 9_999_900 : recent(index) ? 100_000 : 50_000,
       receivableCents: 10_000,
       expensesCents: 20_000,
     })),
   );
+  queryClient.setQueryData(feesDashboardQuery.queryKey, { receivableCents: 80_000, receivedCents: 2_500_000 });
   queryClient.setQueryData(financeSummaryQuery.queryKey, {
     receivableCents: 80_000,
     lateCents: 30_000,
@@ -92,6 +95,9 @@ describe('Dashboard (DSH, AD-255)', () => {
     expect(overview).toHaveTextContent(/Recebido.*6\.000,00.*\+100%/);
     expect(overview).toHaveTextContent(/Saldo.*4\.800,00/);
     expect(overview).toHaveTextContent(/Serviços novos.*12.*\+100%/);
+    // DSH-02: received since the start and the closed services stay in the strip.
+    expect(overview).toHaveTextContent(/25\.000,00 desde o início/);
+    expect(overview).toHaveTextContent(/10 serviços finalizados/);
     expect(screen.getByRole('link', { name: /300,00 em honorários vencidos/ })).toHaveAttribute(
       'href',
       '/finance?{"state":"overdue"}',

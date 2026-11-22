@@ -97,14 +97,14 @@ export function PrivateIndexPage() {
           </Panel>
         )}
         {show('cash_flow') && (
-          <Panel size="lg" title={t('cash_flow')} description={t('last_6_months')}>
+          <Panel size="lg" title={t('cash_flow')} description={t('last_6_complete_months')}>
             {flow.isLoading ? (
               <DefaultLoading />
             ) : !flow.data?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents) ? (
               <DefaultEmptyData title={t('no_entries_yet')} />
             ) : (
-              // The first month is only the base of the Dashboard's table; the chart shows the 6 months.
-              <CashFlowChart data={flow.data.slice(-FLOW_MONTHS)} />
+              // The 6 complete months, as in the Dashboard: the month in progress would end the lines in a false drop.
+              <CashFlowChart data={flow.data.slice(0, -1)} />
             )}
           </Panel>
         )}

@@ -26,7 +26,7 @@ import {
   PERIOD_SCOPE,
   PERIODS,
 } from './@interface/dashboard.interface.js';
-import { type CaseDashboard, caseDashboardQuery } from './@query/dashboard.js';
+import { type CaseDashboard, caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
 import { percentChange, rankTypes, typeKey } from './@utils/dashboard-period.js';
 
 const number = new Intl.NumberFormat('pt-BR');
@@ -77,15 +77,18 @@ export function DashboardPage() {
   const months = Number(search.months);
   const cases = useQuery(caseDashboardQuery);
   const summary = useQuery({ ...financeSummaryQuery, enabled: canSeeFinance });
-  // The period and the previous one of the same size: the base of every comparison.
-  const flow = useQuery({ ...monthlyFlowQuery(2 * months), enabled: canSeeFinance });
+  const fees = useQuery({ ...feesDashboardQuery, enabled: canSeeFinance });
+  // Complete months only (the one in progress would end every line in a false drop): the period and the previous
+  // one of the same size, plus the current month that the API also sends and the page drops.
+  const flow = useQuery({ ...monthlyFlowQuery(2 * months + 1), enabled: canSeeFinance });
   const income = useQuery({ ...categoriesQuery('income', months), enabled: canSeeFinance });
   const expenses = useQuery({ ...categoriesQuery('expense', months), enabled: canSeeFinance });
 
-  const period = flow.data?.slice(-months);
+  const complete = flow.data?.slice(0, -1);
+  const period = complete?.slice(-months);
   const hasMoney = period?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents);
   const balance = period?.reduce((total, row) => total + row.receivedCents - row.expensesCents, 0);
-  const intake = cases.data?.byMonth.slice(-months);
+  const intake = cases.data?.byMonth.slice(0, -1).slice(-months);
 
   return (
     <Card asPage>
@@ -120,8 +123,9 @@ export function DashboardPage() {
               <DashboardKpis
                 cases={cases.data}
                 months={months}
-                flow={canSeeFinance ? flow.data : undefined}
+                flow={canSeeFinance ? complete : undefined}
                 summary={canSeeFinance ? summary.data : undefined}
+                receivedSinceStart={canSeeFinance ? fees.data?.receivedCents : undefined}
               />
               {canSeeFinance && <DashboardAlerts lateCents={summary.data?.lateCents} balanceCents={balance} />}
             </section>
@@ -137,7 +141,7 @@ export function DashboardPage() {
                     <>
                       <CashFlowChart data={period} />
                       <MonthDetails>
-                        <CashFlowTable data={flow.data?.slice(-(months + 1)) ?? []} />
+                        <CashFlowTable data={complete?.slice(-(months + 1)) ?? []} />
                       </MonthDetails>
                     </>
                   )}
