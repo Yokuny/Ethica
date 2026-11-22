@@ -85,12 +85,18 @@ export const refreshCourtBatch = async (
     }
     const seen = new Set(sync.seenMovementKeys);
     const fresh = movements.filter((movement) => !seen.has(movement.key)).sort((a, b) => a.at.localeCompare(b.at));
-    await CaseCourtSync.updateOne(
-      { _id: sync._id },
-      { $addToSet: { seenMovementKeys: { $each: fresh.map((movement) => movement.key) } }, $set: { syncedAt: now } },
-    );
+    // The movements become "seen" only after their notice and suggestions are written (all idempotent by
+    // `dedupeKey`): a batch that fails in the middle is retried and loses nothing.
+    const markSeen = () =>
+      CaseCourtSync.updateOne(
+        { _id: sync._id },
+        { $addToSet: { seenMovementKeys: { $each: fresh.map((movement) => movement.key) } }, $set: { syncedAt: now } },
+      );
     const latest = fresh.at(-1);
-    if (!latest) continue;
+    if (!latest) {
+      await markSeen();
+      continue;
+    }
     const caseRef = { tenantId: item.tenantId, caseId: item.caseId, day: payload.day };
     const inserted = await insertCourtMovementNotice(
       {
@@ -151,6 +157,7 @@ export const refreshCourtBatch = async (
         await enqueue('email_immediate', { notificationId: id }, { dedupeKey: `email_immediate:${id}`, priority: 5 });
       }
     }
+    await markSeen();
   }
   return { processes: processes.length, baselines, notices, suggestions };
 };

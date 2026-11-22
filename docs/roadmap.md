@@ -33,10 +33,12 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Atenção: os planos com Automação (R$ 80) já aparecem na tela de planos em produção, mas sem o serviço do worker na Railway o módulo não roda — criar o worker antes de divulgar — `automacao-datajud`
+- [ ] GitHub Actions: o repositório não tem nenhuma execução do CI (`.github/workflows/ci.yml`); conferir se as Actions estão habilitadas — `fundacao-ethica`
 - [ ] Push: gerar as chaves com `npx web-push generate-vapid-keys`; na Railway, `VAPID_PUBLIC_KEY` na API e no worker, `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT` (mailto: ou https:) só no worker — `central-notificacoes`
 - [ ] Railway (serviço worker): incluir `DATAJUD_API_KEY` (a mesma da API) para ligar o acompanhamento no tribunal — `automacao-datajud`
 - [ ] Railway: criar o serviço **worker** no mesmo projeto e repositório, com arquivo de configuração `railway.worker.json` (Dockerfile `Dockerfile.worker`, healthcheck `/health`). Variáveis: `MONGODB_URI`, `APP_URL` (endereço do web), `NODE_ENV=production` e as mesmas `MAIL_PROVIDER`, `MAIL_FROM`, `RESEND_API_KEY` da API. **Desde a Fase 2 a API não manda mais o e-mail do dia: sem o worker ninguém recebe** — `central-notificacoes`
-- [ ] Atlas: usuário de banco próprio do worker, com `readWrite` em `workerjobs`, `workerheartbeats`, `notificationdeliveries` e `notifications` e `read` em `users`, `tenants`, `cases` e `transactions` (AD-267) — `central-notificacoes`
+- [ ] Atlas: usuário de banco próprio do worker, com `readWrite` em `workerjobs`, `workerheartbeats`, `notificationdeliveries`, `notifications`, `courtprocesses`, `casecourtsyncs` e `pushsubscriptions` (apaga as vencidas) e `read` em `users`, `tenants`, `cases` e `transactions` (AD-267, AD-277, AD-280) — `central-notificacoes`
 - [ ] Produção: apagar a collection antiga `deadlines` (já copiada para `notifications` em 2026-11-22) quando quiser — `central-notificacoes`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
 - [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
@@ -80,6 +82,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
+- [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
+- [ ] Lote do Datajud que segue recebendo 429 desiste em cerca de 15 minutos no dia; aumentar a espera ou tentar no dia seguinte — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
 - [ ] Criar a receita junto com o recebimento quando o serviço não tem honorário em aberto (hoje a tela manda lançar no Financeiro) — `automacao-datajud`
 - [ ] Circuit breaker por tribunal no cliente Datajud do worker — `automacao-datajud`

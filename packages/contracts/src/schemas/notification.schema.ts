@@ -115,7 +115,8 @@ export type UpdateNotification = z.infer<typeof updateNotificationSchema>;
 // A device inscription for push (AVS-03), as the browser gives it.
 export const pushSubscriptionSchema = z
   .object({
-    endpoint: z.url().max(1000),
+    // Only a push service over HTTPS: the worker sends to this address.
+    endpoint: z.url({ protocol: /^https$/ }).max(1000),
     keys: z.object({ p256dh: z.string().min(1).max(200), auth: z.string().min(1).max(100) }).strict(),
   })
   .strip();

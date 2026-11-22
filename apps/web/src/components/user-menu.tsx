@@ -21,10 +21,10 @@ import { UserAvatar } from '@/components/user-chip.js';
 import { TextSizeOptions } from '@/components/user-menu.text-size.js';
 import { ThemeOptions } from '@/components/user-menu.theme.js';
 import { post } from '@/lib/api/client.api.js';
-import { turnPushOff } from '@/lib/helpers/push.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { clearDevice } from '@/lib/offline/store.js';
 import { updatePreferencesMutation } from '@/query/preferences.js';
+import { turnPushOff } from '@/query/push.js';
 import { type SessionView, sessionKeys } from '@/query/session.js';
 
 // The content (session from the cache, logout mutation) only mounts with the menu

@@ -60,6 +60,7 @@ A definir.
 
 ## Histórico
 
+- 2026-11-22 — Revisão final: o lote só marca os movimentos como vistos depois de gravar aviso e sugestões (uma falha no meio não perde o alvará); a seção No tribunal some nos serviços cíveis (TJ ainda não acompanhado); push só aceita endpoint `https:`. Worker conferido no docker-compose (`/health` 200).
 - 2026-11-22 — Fim da Fase 6: métricas por regra (AD-280). Plano arquivado em `.specs/features/central-notificacoes/plans/`; o plano do worker da prospecção continua na caixa de entrada para depois.
 - 2026-11-22 — Fase 6 (parte financeira e de prazos, AD-279). Conferido na tela local: a sugestão de alvará abriu o formulário com o saldo e a data do movimento, e aprovar liquidou o honorário de teste.
 - 2026-11-22 — Fase 5: sugestões de situação e fase (AD-278). Conferido na tela local: a sugestão de suspensão aprovada pela Central mudou o serviço de teste para Suspenso.

@@ -21,6 +21,12 @@ export const courtUnitFromNumber = (number: string): { courtType: CourtType; cou
 // (TRT) and federal (TRF) ones and the civil enter when a TJ fixture is recorded.
 export const TRACKED_COURT_TYPES: readonly CourtType[] = ['labor', 'federal'];
 
+// Whether the case number belongs to a court the automation follows today.
+export const isTrackedNumber = (number?: string): boolean => {
+  const unit = number ? courtUnitFromNumber(number) : undefined;
+  return Boolean(unit && TRACKED_COURT_TYPES.includes(unit.courtType));
+};
+
 // Datajud index of a court: `TRT2` → `api_publica_trt2`.
 export const datajudIndexOf = (court: string): string => `api_publica_${court.toLowerCase()}`;
 

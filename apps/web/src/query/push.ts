@@ -1,4 +1,4 @@
-import { del, get, post } from '../api/client.api.js';
+import { del, get, post } from '../lib/api/client.api.js';
 
 // Push on this device (AVS-03): the browser inscription goes to the api; signing out removes it. Only where
 // the browser supports it and the service worker runs (production build).

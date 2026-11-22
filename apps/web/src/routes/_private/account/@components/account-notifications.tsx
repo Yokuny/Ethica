@@ -4,15 +4,9 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/checkbox.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import {
-  currentPushSubscription,
-  pushPublicKey,
-  pushSupported,
-  turnPushOff,
-  turnPushOn,
-} from '@/lib/helpers/push.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { preferencesQuery, updatePreferencesMutation } from '@/query/preferences.js';
+import { currentPushSubscription, pushPublicKey, pushSupported, turnPushOff, turnPushOn } from '@/query/push.js';
 import { can, sessionQuery } from '@/query/session.js';
 
 // CNT-05: each person chooses which notifications reach them by e-mail (everything starts on). The

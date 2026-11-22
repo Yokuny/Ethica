@@ -26,6 +26,7 @@ apps/api/src/
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)
     ├── case/                       # Case (perícia) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
     ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
+    ├── automation/                 # Automação Datajud (premium): linha do tempo do processo no tribunal; lê CourtProcess e CaseCourtSync, que o worker grava (AD-277)
     ├── notifications/              # Notification — prazo, alerta, sugestão e aviso (AD-263); Central e prazo do laudo por `case:created` (AD-264)
     ├── finance/                    # Transaction — honorários (com installments, AD-111) e despesas; resumo, fluxo, categorias
     ├── prospecting/                # Opportunity + busca no Datajud; converte em perícia
@@ -51,18 +52,19 @@ Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma co
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `finance`, `prospecting` e `notifications` → `case`; `agenda` e `documents` → `notifications` (feed iCal, entrega do laudo); os lembretes e o e-mail diário são do `apps/worker` (AD-267), que não importa nada daqui; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
+Grafo atual: `agenda`, `finance`, `prospecting`, `notifications` e `automation` → `case`; `notifications` → `automation` e `finance` (aprovar sugestões, AD-268, AD-279); `automation` → `identity` (o módulo do escritório); `agenda` e `documents` → `notifications` (feed iCal, entrega do laudo); os lembretes e o e-mail diário são do `apps/worker` (AD-267), que não importa nada daqui; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 
 | Módulo | Valores do `@ethica/db` só dele |
 | ------ | ------------------------------- |
-| `identity` | `Tenant User Session Passkey Invite AccessKey Activity transitionTenantStatus` (inclui a passkey do aparelho, AD-220, identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
+| `identity` | `Tenant User Session Passkey Invite AccessKey Activity PushSubscription transitionTenantStatus` (inclui a passkey do aparelho, AD-220, identidade dos documentos, cota de arquivos, AD-120, e o diário de bordo, AD-134) |
 | `case` | `Case Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) `RetiredServiceOrder` (OS de serviço excluído, AD-187) |
 | `agenda` | `Appointment Inspection` (AD-130) `CalendarEntry` (itens de dia inteiro vindos de outros módulos, AD-169) |
 | `finance` | `Transaction` |
 | `prospecting` | `Opportunity` |
 | `documents` | `Report Template` (AD-126) `Signatory` (responsável técnico, AD-162) |
+| `automation` | `CourtProcess CaseCourtSync` (só leitura; quem grava é o `apps/worker`, AD-277) |
 | `notifications` | `Notification` (AD-263); o `case` lê o próximo prazo e os números da faixa pelas funções de leitura do `@ethica/db` (`notificationReads.ts`, AD-265) |
 
 Helpers sem dono (`tenantScoped`, `hashToken`, datas, tipos) podem ser importados por qualquer módulo — a tabela só restringe **models e transições de negócio**. A tabela vive de verdade em `tests/structural/module-boundary.structural.test.ts`(`DB_OWNERSHIP`) — atualizar os dois lugares (aqui e lá) ao mudar o dono de algo.

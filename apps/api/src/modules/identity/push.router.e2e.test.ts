@@ -71,5 +71,7 @@ describe('push no aparelho (AVS-03)', () => {
     await bia.as(request(app).delete(`/me/push-subscriptions?endpoint=${encodeURIComponent(subscription.endpoint)}`));
     expect(await PushSubscription.countDocuments({})).toBe(0);
     expect((await bia.as(request(app).post('/me/push-subscriptions')).send({ endpoint: 'nope' })).status).toBe(400);
+    const plain = { endpoint: 'http://push.example/x', keys: { p256dh: 'p', auth: 'a' } };
+    expect((await bia.as(request(app).post('/me/push-subscriptions')).send(plain)).status).toBe(400);
   });
 });

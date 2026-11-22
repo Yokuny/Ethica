@@ -216,4 +216,30 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
     ]);
     expect(await WorkerJob.countDocuments({ kind: 'email_immediate' })).toBe(1);
   });
+
+  it('falha no meio do lote: a nova tentativa ainda cria o aviso e a sugestão (nada se perde)', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      role: 'court_expert' as const,
+      status: 'active' as const,
+      phase: 'drafting_report' as const,
+    };
+    const second = [courtProcess([movement('a', '2026-11-01T10:00:00Z'), movement('s', '2026-11-21T10:00:00Z', 466)])];
+    const fetchProcesses = vi
+      .fn<DatajudClient['fetchProcesses']>()
+      .mockResolvedValueOnce([courtProcess([movement('a', '2026-11-01T10:00:00Z')])])
+      .mockResolvedValue(second);
+    const batch = (day: string) => refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day, cases: [item] }, now);
+    await batch('2026-11-21');
+
+    const create = vi.spyOn(Notification, 'create').mockRejectedValueOnce(new Error('queda'));
+    await expect(batch('2026-11-22')).rejects.toThrow('queda');
+    create.mockRestore();
+    expect(await batch('2026-11-22')).toMatchObject({ notices: 1, suggestions: 1 });
+    expect(await Notification.countDocuments({ kind: 'suggestion', ruleKey: 'case_settlement' })).toBe(1);
+  });
 });
