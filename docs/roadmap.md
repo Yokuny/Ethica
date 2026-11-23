@@ -77,7 +77,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
-- [ ] API num padrão único (controller, erro, router, arquivo de apoio, nomes) travado no teste estrutural: responder as decisões D1–D7 do plano `.specs/plans/2026-11-23-api-padrao-unico.md` e seguir spec → design → tasks — `api-padrao-unico`
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
 - [ ] Lote do Datajud que segue recebendo 429 desiste em cerca de 15 minutos no dia; aumentar a espera ou tentar no dia seguinte — `automacao-datajud`
@@ -105,6 +104,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-23 — API num padrão único: controller sem try/catch, 404 no service, convite numa entidade, model só no repository, kebab-case, tudo travado no teste estrutural (AD-284) — `api-padrao-unico`
 - [x] 2026-11-23 — Testes de falha em Notificações e Financeiro: lista resiste a data ilegível do tribunal, honorário do serviço não duplica em mudanças simultâneas, datas e valores impossíveis param na borda (AD-283) — `notificacoes-processo-unico`, `prazos-recebimentos`
 - [x] 2026-11-23 — Notificações numa lista só (Abertas/Resolvidas), sem abas aninhadas, com uma leitura e um contador na API (AD-282) — `notificacoes-processo-unico`
 - [x] 2026-11-23 — Página Automação Datajud conferida no navegador local, com e sem o módulo (menu, sugestões, processo acompanhado com link, regras e oferta) — `automacao-datajud`

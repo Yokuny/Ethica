@@ -2,6 +2,28 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "api-padrao-unico",
+      "feature": "API num padrão único",
+      "descricao": "Uma forma por camada no apps/api (router, controller, service, repository, schema, apoio), travada no teste estrutural",
+      "data": "2026-11-23",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "tests/structural",
+        "docs"
+      ],
+      "decisoes": [
+        "AD-284"
+      ],
+      "spec": [
+        ".specs/features/api-padrao-unico"
+      ],
+      "planos": [
+        ".specs/features/api-padrao-unico/plans/2026-11-23-api-padrao-unico.md"
+      ],
+      "doc": "features/api-padrao-unico/feature.md"
+    },
+    {
       "slug": "notificacoes-processo-unico",
       "feature": "Notificações num processo só",
       "descricao": "Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API",
@@ -1167,9 +1189,7 @@
     }
   ],
   "planos_nao_arquivados": [],
-  "specs_sem_registro": [
-    "api-padrao-unico"
-  ],
+  "specs_sem_registro": [],
   "decisoes": [
     {
       "id": "AD-001",
