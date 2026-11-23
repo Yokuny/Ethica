@@ -1061,7 +1061,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: a situação de Laudos e Prazos fica nas abas e não conta no número do botão "Filtros"; o tipo da Agenda é seletor no cabeçalho, não "Filtros".
 - **Scope**: `apps/web/src/components/data-table.tsx`, `apps/web/src/routes/_private/{expert-reports/list,deadlines,parties,court-divisions,agenda}/`, `apps/web/src/lib/helpers/translate.helper.ts`.
 - **Date**: 2026-11-05
-- **Status**: active
+- **Status**: active (abas de situação de Prazos e Alertas superseded by AD-282)
 
 ### AD-194
 - **Decision**: (1) Navegação de período (anterior, hoje, próximo) num só contorno, sem divisórias internas, em `apps/web/src/components/period-nav.tsx`, usada pela Agenda e pelo Campo (no Campo, o botão do meio mostra o dia e volta para hoje). (2) Campo com duas visualizações na mesma tela (`view` na URL, `map` | `list`, seletor no cabeçalho): **Mapa** é a padrão e sempre aparece, mesmo sem vistoria no dia, centrado na próxima vistoria agendada do dia com endereço localizado (ou na primeira parada); sem nenhuma, no local padrão. Sai a rota `/field/map`; o mapa vira `field/@components/field-map.tsx`. (3) Local padrão: a cidade do escritório; como o escritório ainda não tem cidade no cadastro, São Paulo.
@@ -1765,6 +1765,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: até o DJEN, o Ethica não descobre processo novo; os dados de produção da Prospecção são apagados à mão depois do deploy, com cópia e confirmação do usuário (feito em 2026-11-22: só havia a collection vazia e um convite).
 - **Scope**: `apps/api/src/modules/automation/`, `apps/web/src/routes/_private/automation/`, `apps/web/src/routes/_private/@consts/{home-sections,tour-steps}.ts`, `packages/contracts/src/schemas/{court-process,permission,activityLog}.schema.ts`, `packages/db/src/models/case.model.ts`, `tests/structural/module-boundary.structural.test.ts`.
 - **Date**: 2026-11-22
+- **Status**: active (link para a aba Para aprovar superseded by AD-282)
+
+### AD-282
+- **Decision**: Notificações viram **um processo só**: toda `Notification` (prazo, alerta, sugestão, aviso — AD-263) está **aberta** enquanto pede alguém (prazo, alerta ou sugestão `pending`; aviso que a pessoa não leu) e **resolvida** depois que alguém agiu; cada uma tem **uma data** (vencimento; dia do movimento no tribunal da sugestão; dia em que o aviso nasceu). (1) A API tem uma leitura só, `GET /notifications?state=open|resolved&kind&caseId&page&limit`, que devolve o mesmo `NotificationRecord` (`@ethica/contracts`) para os quatro tipos, sempre pelos módulos que a pessoa pode ver (D5, também para prazo e alerta, que são de `expert_cases`); abertas pela data da mais antiga (o atrasado no topo, as sugestões na ordem do tribunal, AD-268), resolvidas da mais recente; com `caseId` e sem estado, todas do serviço. (2) Um contador só, `GET /notifications/count`: abertas que já chegaram ao dia (prazo ou alerta vencido ou de hoje, sugestão pendente, aviso não lido). (3) Saem `GET /notifications/notices`, `/unread-count` e `/suggestions`; as escritas não mudam (PATCH e DELETE só de prazo e alerta; aprovar e rejeitar seguem a AD-268; lido continua por pessoa; "Marcar todos como lidos" continua). (4) Na tela, uma lista só com Abertas/Resolvidas (saem as abas Prazos e Alertas/Avisos/Para aprovar e as cinco abas de situação; a situação exata fica no selo da linha); a linha do prazo ou alerta abre o diálogo de sempre, a sugestão tem Aprovar/Rejeitar e o aviso Marcar como lido na própria linha. (5) O item "Avisos" do menu sai; o número vai para Notificações. Modelo e situações do banco não mudam. Supersede, da AD-193, as abas de situação de Prazos e Alertas e, da AD-281, o link para a aba Para aprovar.
+- **Reason**: pedido do usuário (2026-11-23): página sem aba dentro de aba, back-end simplificado num módulo só, um processo único e não um agrupamento de coisas divergentes.
+- **Trade-off**: a busca por uma situação exata (só os perdidos, por exemplo) deixa de existir na tela; resolvidas mistura tipos. O contador do menu passa a contar prazos vencidos, não só avisos.
+- **Scope**: `packages/contracts/src/schemas/notification.schema.ts`, `apps/api/src/modules/notifications/`, `apps/web/src/query/notification.ts`, `apps/web/src/routes/_private/notifications/`, `apps/web/src/components/{notification-labels,suggestions-list,suggestion-receipt-dialog}.ts*`, `apps/web/src/routes/_private/@components/workspace-navigation.tsx`, `apps/web/src/routes/_private/automation/index.tsx`. Spec: `.specs/features/notificacoes-processo-unico/`.
+- **Date**: 2026-11-23
 - **Status**: active
 
 ## Handoff

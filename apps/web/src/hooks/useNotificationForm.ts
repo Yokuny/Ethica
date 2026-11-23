@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   createNotificationMutation,
-  type NotificationRecord,
+  type DatedNotificationRecord,
   updateNotificationMutation,
 } from '@/query/notification.js';
 
@@ -16,7 +16,7 @@ export function useNotificationForm({
   onDone,
 }: {
   caseId: string;
-  deadline?: NotificationRecord;
+  deadline?: DatedNotificationRecord;
   onDone: () => void;
 }) {
   const queryClient = useQueryClient();

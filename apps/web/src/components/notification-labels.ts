@@ -1,8 +1,68 @@
-import { type NotificationStatus, USER_NOTIFICATION_KINDS, type UserNotificationKind } from '@ethica/contracts';
+import {
+  type NotificationRecord,
+  type NotificationStatus,
+  USER_NOTIFICATION_KINDS,
+  type UserNotificationKind,
+} from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
-import { PARTNERSHIP_SERVICE_TYPE } from '@/components/case-labels.js';
+import { casePhaseLabel, PARTNERSHIP_SERVICE_TYPE } from '@/components/case-labels.js';
 import { addDaysToDisplayDate } from '@/lib/helpers/displayTime.helper.js';
+import { formatDate } from '@/lib/helpers/formatDate.helper.js';
+import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
+
+const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
+
+const FINANCE_DUE_KEY: Record<string, string> = {
+  overdue: 'finance_due_overdue',
+  due_today: 'finance_due_today',
+  due_soon: 'finance_due_soon',
+};
+const NOTICE_KEY: Record<string, string> = {
+  court_movement: 'court_movement_notice',
+  payment_in_progress: 'payment_in_progress_notice',
+  deadlines_review: 'deadlines_review_notice',
+  automation_expiring: 'automation_expiring_notice',
+};
+
+// What a notification says, whatever its kind (AD-282). The database keeps the topic, the proposal and their
+// parameters; the sentence is built here, in pt-BR (AD-263).
+export const notificationText = (item: NotificationRecord): { title: string; description: string } => {
+  const params = item.params ?? {};
+  if (item.kind === 'deadline' || item.kind === 'alert') return { title: item.title ?? '', description: t(item.kind) };
+  if (item.kind === 'suggestion' && item.proposal && item.evidence) {
+    const { proposal, evidence } = item;
+    const title =
+      proposal.target === 'case_status'
+        ? `${t('proposed_status')} ${t(proposal.value)}`
+        : proposal.target === 'case_phase'
+          ? `${t('proposed_phase')} ${casePhaseLabel(proposal.value)}`
+          : proposal.target === 'transaction_installment'
+            ? `${t('proposed_receipt')} ${day(proposal.date)}`
+            : `${t('proposed_cancel_deadlines')} (${proposal.count})`;
+    return { title, description: `${t('court_movement_label')} (${evidence.court}): ${evidence.movement.name}` };
+  }
+  if (item.topic === 'finance_due') {
+    return {
+      title: t(FINANCE_DUE_KEY[String(params.bucket)] ?? 'notice'),
+      description: `${params.description} · ${formatMoney(Number(params.openCents))} · ${day(String(params.dueDate))}`,
+    };
+  }
+  if (item.topic === 'court_movement') {
+    const more = Number(params.count) > 1 ? ` (+${Number(params.count) - 1})` : '';
+    return { title: t(NOTICE_KEY.court_movement), description: `${params.latestName}${more}` };
+  }
+  if (item.topic === 'automation_expiring') {
+    return {
+      title: t(NOTICE_KEY.automation_expiring),
+      description: formatDate(new Date(String(params.automationUntil))),
+    };
+  }
+  return {
+    title: t((item.topic && NOTICE_KEY[item.topic]) ?? 'notice'),
+    description: params.latestName ? String(params.latestName) : t('notice'),
+  };
+};
 
 // Status tones of a deadline or alert (AD-109, AD-263), shared by cases and agenda.
 export const DEADLINE_STATUS_VARIANT: Partial<Record<NotificationStatus, IndicatorVariant>> = {
@@ -18,15 +78,6 @@ export const DEADLINE_KIND_ITEMS: { value: UserNotificationKind; label: string }
   { value: 'deadline', label: t('deadline') },
   { value: 'alert', label: t('alert') },
 ];
-// Situations of a deadline or alert (the suggestion ones come with the automation, AD-268).
-const DATED_STATUS = [
-  'pending',
-  'filed',
-  'missed',
-  'done',
-  'canceled',
-] as const satisfies readonly NotificationStatus[];
-export const DEADLINE_STATUS_ITEMS = DATED_STATUS.map((value) => ({ value, label: t(value) }));
 
 // Criticality of a pending deadline or alert (AD-190), by the days left: overdue, urgent (today up to 5 days),
 // due soon (6 to 10) and attention (11 to 30); later, none. The returned key is the badge translation key itself.

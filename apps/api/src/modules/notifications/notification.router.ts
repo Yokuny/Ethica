@@ -6,9 +6,7 @@ import * as notificationController from './notification.controller.js';
 import {
   acceptSuggestionSchema,
   createNotificationSchema,
-  listNoticesQuerySchema,
   listNotificationsQuerySchema,
-  listSuggestionsQuerySchema,
   type NotificationRouterDeps,
   notificationIdParamSchema,
   rejectSuggestionSchema,
@@ -22,24 +20,11 @@ export const createNotificationRouter = (deps: NotificationRouterDeps): Router =
   const guard = [deps.validToken, tenantAssignmentCheck];
   const byId = validParams(notificationIdParamSchema);
 
-  router.get(
-    '/',
-    ...guard,
-    can('expert_cases', 'view'),
-    validParsedQuery(listNotificationsQuerySchema),
-    notificationController.listNotifications,
-  );
-  // Bell and notices (CNT-04): any person of the office; each one sees the modules they can view (D5).
-  router.get('/notices', ...guard, validParsedQuery(listNoticesQuerySchema), notificationController.listNotices);
-  router.get('/unread-count', ...guard, notificationController.countUnread);
+  // One list and one counter for every kind (AD-282): any person of the office, each one sees the modules they can
+  // view (D5); deadlines and alerts are of the cases module.
+  router.get('/', ...guard, validParsedQuery(listNotificationsQuerySchema), notificationController.listNotifications);
+  router.get('/count', ...guard, notificationController.countDue);
   router.post('/read-all', ...guard, notificationController.markAllRead);
-  // Suggestions of the automation (AD-268): applying one changes the case, so it asks to change cases (D5).
-  router.get(
-    '/suggestions',
-    ...guard,
-    validParsedQuery(listSuggestionsQuerySchema),
-    notificationController.listSuggestions,
-  );
   // Accepting and rejecting check the permission of the suggestion module in the service (D5).
   router.post(
     '/:id/accept',

@@ -1,14 +1,11 @@
-import type { NotificationModule } from '@ethica/contracts';
+import { DISPLAY_TIMEZONE, type NotificationModule, type NotificationState } from '@ethica/contracts';
 import type { NotificationDocument } from '@ethica/db';
-import { Notification, tenantScoped, toObjectId } from '@ethica/db';
+import { dateInDisplayTz, Notification, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type {
   CreateNotification,
   DatedNotification,
-  ListNoticesQuery,
   ListNotificationsQuery,
-  ListSuggestionsQuery,
-  NoticeRecord,
   NotificationRecord,
   NotificationWrite,
   SuggestionRecord,
@@ -16,23 +13,41 @@ import type {
 
 const DATED = { $in: ['deadline' as const, 'alert' as const] };
 
-const toRecord = (doc: NotificationDocument): NotificationRecord => ({
+// The day a notification is about (AD-282): the due date; the court movement of a suggestion; the day a notice was born.
+const dayOf = (doc: NotificationDocument): string =>
+  doc.dueDate ?? dateInDisplayTz(new Date(doc.evidence?.movement.at ?? doc.createdAt));
+
+// Open while it asks for someone: pending, or a notice the person has not read (read is per person).
+const toRecord = (doc: NotificationDocument, userId?: string): NotificationRecord => ({
   id: doc._id.toString(),
   kind: doc.kind,
   module: doc.module,
   source: doc.source,
+  open:
+    doc.kind === 'notice'
+      ? !(doc.readBy ?? []).some((reader) => reader.toString() === userId)
+      : doc.status === 'pending',
+  date: dayOf(doc),
   status: doc.status,
   caseId: doc.Case?.toString(),
   title: doc.title,
   dueDate: doc.dueDate,
   filedDate: doc.filedDate,
   notes: doc.notes,
-  createdAt: doc.createdAt,
-  updatedAt: doc.updatedAt,
+  topic: doc.topic,
+  params: doc.params,
+  severity: doc.severity,
+  transactionId: doc.Transaction?.toString(),
+  proposal: doc.proposal,
+  evidence: doc.evidence,
+  ruleKey: doc.ruleKey,
+  rejectReason: doc.rejectReason,
+  createdAt: doc.createdAt.toISOString(),
 });
 
 // A deadline or an alert (the model requires case, title, due date and status for both).
 const toDated = (doc: NotificationDocument): DatedNotification => toRecord(doc) as DatedNotification;
+const toSuggestion = (doc: NotificationDocument): SuggestionRecord => toRecord(doc) as SuggestionRecord;
 
 // A deadline or an alert created by a person or by the system (the report delivery deadline, AD-264).
 export const createDated = async (
@@ -95,32 +110,6 @@ export const findDatedById = async (tenantId: string, id: string): Promise<Dated
     return doc ? toDated(doc) : null;
   });
 
-// Central (AD-189, AD-263): pending ones by criticality (the nearest due date first, the overdue on top);
-// resolved ones from the most recent. With `caseId` and no situation: every one of the case, by due date.
-export const listDated = async (
-  tenantId: string,
-  { page, limit, status, caseId }: ListNotificationsQuery,
-): Promise<{ items: DatedNotification[]; total: number }> =>
-  withDbTiming('notification.listDated', async () => {
-    const situation = status ?? (caseId ? undefined : 'pending');
-    const filter = tenantScoped({
-      Tenant: tenantId,
-      kind: DATED,
-      ...(situation ? { status: situation } : {}),
-      ...(caseId ? { Case: caseId } : {}),
-    });
-    const direction = situation && situation !== 'pending' ? -1 : 1;
-    const [docs, total] = await Promise.all([
-      Notification.find(filter)
-        .sort({ dueDate: direction, _id: 1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean(),
-      Notification.countDocuments(filter),
-    ]);
-    return { items: docs.map(toDated), total };
-  });
-
 export const deleteDated = async (tenantId: string, id: string): Promise<{ deletedCount: number }> =>
   withDbTiming('notification.deleteDated', async () => {
     const result = await Notification.deleteOne(tenantScoped({ Tenant: tenantId, _id: id, kind: DATED }));
@@ -169,46 +158,63 @@ export const listAll = async (tenantId: string): Promise<DatedNotification[]> =>
     return docs.map(toDated);
   });
 
-// Notices of the modules the person can see (D5); `read` is per person (`readBy`).
-const noticeFilter = (tenantId: string, modules: NotificationModule[]) =>
-  tenantScoped({ Tenant: tenantId, kind: 'notice' as const, module: { $in: modules } });
+const unread = (userId: string) => ({ kind: 'notice' as const, readBy: { $ne: toObjectId(userId) } });
+const stateFilter = (state: NotificationState, userId: string) =>
+  state === 'open'
+    ? { $or: [{ status: 'pending' as const }, unread(userId)] }
+    : { $nor: [{ status: 'pending' as const }, unread(userId)] };
 
-export const listNotices = async (
+// Every kind in one list (AD-282), only of the modules the person can see (D5). Open ones by their day, the oldest
+// first (the overdue on top, the suggestions in the order of the court, AD-268); resolved ones the newest first.
+export const list = async (
   tenantId: string,
   userId: string,
   modules: NotificationModule[],
-  { page, limit, unread }: ListNoticesQuery,
-): Promise<{ items: NoticeRecord[]; total: number }> =>
-  withDbTiming('notification.listNotices', async () => {
-    const filter = {
-      ...noticeFilter(tenantId, modules),
-      ...(unread === 'true' ? { readBy: { $ne: toObjectId(userId) } } : {}),
+  { page, limit, state, kind, caseId }: ListNotificationsQuery,
+): Promise<{ items: NotificationRecord[]; total: number }> =>
+  withDbTiming('notification.list', async () => {
+    const situation = state ?? (caseId ? undefined : 'open');
+    const match = {
+      Tenant: toObjectId(tenantId),
+      module: { $in: modules },
+      ...(kind ? { kind } : {}),
+      ...(caseId ? { Case: toObjectId(caseId) } : {}),
+      ...(situation ? stateFilter(situation, userId) : {}),
     };
-    const [docs, total] = await Promise.all([
-      Notification.find(filter)
-        .sort({ createdAt: -1, _id: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean(),
-      Notification.countDocuments(filter),
+    const movementOrBirth = { $ifNull: [{ $toDate: '$evidence.movement.at' }, '$createdAt'] };
+    const day = { $dateToString: { format: '%Y-%m-%d', date: movementOrBirth, timezone: DISPLAY_TIMEZONE } };
+    const direction = situation === 'resolved' ? -1 : 1;
+    const [result] = await Notification.aggregate<{ items: NotificationDocument[]; total: { count: number }[] }>([
+      { $match: match },
+      { $addFields: { day: { $ifNull: ['$dueDate', day] } } },
+      { $sort: { day: direction, _id: direction } },
+      { $facet: { items: [{ $skip: (page - 1) * limit }, { $limit: limit }], total: [{ $count: 'count' }] } },
     ]);
-    const items = docs.map((doc) => ({
-      id: doc._id.toString(),
-      module: doc.module,
-      topic: doc.topic,
-      params: doc.params,
-      severity: doc.severity,
-      caseId: doc.Case?.toString(),
-      transactionId: doc.Transaction?.toString(),
-      read: doc.readBy.some((reader) => reader.toString() === userId),
-      createdAt: doc.createdAt,
-    }));
-    return { items, total };
+    return {
+      items: (result?.items ?? []).map((doc) => toRecord(doc, userId)),
+      total: result?.total[0]?.count ?? 0,
+    };
   });
 
-export const countUnread = async (tenantId: string, userId: string, modules: NotificationModule[]): Promise<number> =>
-  withDbTiming('notification.countUnread', () =>
-    Notification.countDocuments({ ...noticeFilter(tenantId, modules), readBy: { $ne: toObjectId(userId) } }),
+// The number of the menu (AD-282): open ones that already reached their day. Suggestions and notices are born on it.
+export const countDue = async (
+  tenantId: string,
+  userId: string,
+  modules: NotificationModule[],
+  today: string,
+): Promise<number> =>
+  withDbTiming('notification.countDue', () =>
+    Notification.countDocuments(
+      tenantScoped({
+        Tenant: tenantId,
+        module: { $in: modules },
+        $or: [
+          { kind: DATED, status: 'pending' as const, dueDate: { $lte: today } },
+          { kind: 'suggestion' as const, status: 'pending' as const },
+          unread(userId),
+        ],
+      }),
+    ),
   );
 
 // Read is per person: marking it never changes it for the others.
@@ -219,44 +225,14 @@ export const markRead = async (
   id?: string,
 ): Promise<{ matchedCount: number }> =>
   withDbTiming('notification.markRead', async () => {
-    const filter = { ...noticeFilter(tenantId, modules), ...(id ? { _id: id } : {}) };
+    const filter = tenantScoped({
+      Tenant: tenantId,
+      kind: 'notice' as const,
+      module: { $in: modules },
+      ...(id ? { _id: id } : {}),
+    });
     const result = await Notification.updateMany(filter, { $addToSet: { readBy: toObjectId(userId) } });
     return { matchedCount: result.matchedCount };
-  });
-
-const toSuggestion = (doc: NotificationDocument): SuggestionRecord => ({
-  id: doc._id.toString(),
-  caseId: String(doc.Case),
-  module: doc.module,
-  status: doc.status ?? 'pending',
-  proposal: doc.proposal as SuggestionRecord['proposal'],
-  evidence: doc.evidence as SuggestionRecord['evidence'],
-  ruleKey: doc.ruleKey ?? '',
-  rejectReason: doc.rejectReason,
-  decidedAt: doc.decidedAt,
-  createdAt: doc.createdAt,
-});
-
-// Oldest movement first, so the person reads them in the order the court did (AD-268, invariant 5).
-export const listSuggestions = async (
-  tenantId: string,
-  modules: NotificationModule[],
-  { status, caseId }: ListSuggestionsQuery,
-) =>
-  withDbTiming('notification.listSuggestions', async () => {
-    const docs = await Notification.find(
-      tenantScoped({
-        Tenant: tenantId,
-        kind: 'suggestion' as const,
-        module: { $in: modules },
-        status,
-        ...(caseId ? { Case: caseId } : {}),
-      }),
-    )
-      .sort({ 'evidence.movement.at': 1, _id: 1 })
-      .limit(200)
-      .lean();
-    return docs.map(toSuggestion);
   });
 
 export const findPendingSuggestion = async (tenantId: string, id: string) =>

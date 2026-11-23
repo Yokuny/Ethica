@@ -4,14 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
-import { caseNotificationsQuery, type NotificationRecord } from '@/query/notification.js';
+import { caseNotificationsQuery, type DatedNotificationRecord } from '@/query/notification.js';
 import { CaseNotifications } from './case-notifications.js';
 
 const today = formatDisplayDate(new Date());
 
-const renderDeadlines = (deadlines: NotificationRecord[]) => {
+const renderDeadlines = (deadlines: DatedNotificationRecord[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
-  queryClient.setQueryData(caseNotificationsQuery('p1').queryKey, deadlines);
+  queryClient.setQueryData(caseNotificationsQuery('p1').queryKey, { items: deadlines, total: deadlines.length });
   render(
     <QueryClientProvider client={queryClient}>
       <CaseNotifications caseId="p1" />
@@ -30,6 +30,9 @@ describe('PericiaPrazos (PRZ-01)', () => {
         kind: 'deadline',
         module: 'expert_cases',
         source: 'user',
+        open: true,
+        date: '2000-01-01',
+        createdAt: '2000-01-01T12:00:00.000Z',
         title: 'Entrega do laudo',
         dueDate: '2000-01-10',
         status: 'pending',
@@ -40,6 +43,9 @@ describe('PericiaPrazos (PRZ-01)', () => {
         kind: 'deadline',
         module: 'expert_cases',
         source: 'user',
+        open: true,
+        date: '2000-01-01',
+        createdAt: '2000-01-01T12:00:00.000Z',
         title: 'Esclarecimentos',
         dueDate: '2000-01-05',
         status: 'filed',
@@ -51,6 +57,9 @@ describe('PericiaPrazos (PRZ-01)', () => {
         kind: 'deadline',
         module: 'expert_cases',
         source: 'user',
+        open: true,
+        date: '2000-01-01',
+        createdAt: '2000-01-01T12:00:00.000Z',
         title: 'Impugnação',
         dueDate: today,
         status: 'missed',

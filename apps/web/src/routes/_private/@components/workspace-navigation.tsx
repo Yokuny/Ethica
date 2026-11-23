@@ -17,11 +17,11 @@ import {
 } from '@ethica/ui/components/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from '@tanstack/react-router';
-import { Bell, Home, Scale, Search } from 'lucide-react';
+import { Home, Scale, Search } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { UserMenu } from '@/components/user-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { unreadNoticesQuery } from '@/query/notification.js';
+import { notificationCountQuery } from '@/query/notification.js';
 import { useHomePage } from '../@hooks/use-home-page.js';
 import type { HomeSection } from '../@interface/home.interface.js';
 import { CommandMenu, useCommandMenuShortcut } from './command-menu.js';
@@ -43,7 +43,12 @@ const groups: { key: string; destinations: HomeSection['to'][]; heading: string 
   { key: 'admin', destinations: ['/users', '/office', '/activity-log'], heading: 'settings' },
 ];
 
-function NavigationLink({ to, titleKey, icon: Icon }: Pick<HomeSection, 'to' | 'titleKey' | 'icon'>) {
+function NavigationLink({
+  to,
+  titleKey,
+  icon: Icon,
+  count = 0,
+}: Pick<HomeSection, 'to' | 'titleKey' | 'icon'> & { count?: number }) {
   const pathname = useLocation().pathname;
   const sectionPath = `/${to.split('/')[1]}`;
   const label = t(titleKey);
@@ -57,6 +62,7 @@ function NavigationLink({ to, titleKey, icon: Icon }: Pick<HomeSection, 'to' | '
         <Icon aria-hidden="true" />
         <ItemDescription className="text-inherit line-clamp-none">{label}</ItemDescription>
       </SidebarMenuButton>
+      {count > 0 && <SidebarMenuBadge>{count}</SidebarMenuBadge>}
     </SidebarMenuItem>
   );
 }
@@ -68,7 +74,8 @@ export function WorkspaceNavigation() {
   const [searchOpen, setSearchOpen] = useState(false);
   const toggleSearch = useCallback(() => setSearchOpen((open) => !open), []);
   useCommandMenuShortcut(toggleSearch);
-  const unread = useQuery(unreadNoticesQuery).data ?? 0;
+  // Notifications show the open ones that already reached their day (AD-282).
+  const notificationCount = useQuery(notificationCountQuery).data ?? 0;
 
   return (
     <>
@@ -107,17 +114,6 @@ export function WorkspaceNavigation() {
                 <Kbd>⌘K</Kbd>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            {/* Bell (CNT-04): unread notices of the modules the person sees. */}
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                render={<Link to="/notifications" search={{ view: 'notices' }} />}
-                tooltip={t('unread_notices')}
-              >
-                <Bell aria-hidden="true" />
-                <ItemDescription className="text-inherit line-clamp-none flex-1">{t('notices')}</ItemDescription>
-              </SidebarMenuButton>
-              {unread > 0 && <SidebarMenuBadge aria-label={t('unread_notices')}>{unread}</SidebarMenuBadge>}
-            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
 
@@ -148,7 +144,11 @@ export function WorkspaceNavigation() {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {items.map((section) => (
-                      <NavigationLink key={section.to} {...section} />
+                      <NavigationLink
+                        key={section.to}
+                        {...section}
+                        count={section.to === '/notifications' ? notificationCount : 0}
+                      />
                     ))}
                   </SidebarMenu>
                 </SidebarGroupContent>

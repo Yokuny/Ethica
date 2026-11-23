@@ -62,7 +62,7 @@ const CASE = {
 
 const ids = (items: { id: string }[]) => items.map((item) => item.id);
 
-describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
+describe('Notificações num processo só (AD-263, AD-282)', () => {
   beforeAll(async () => {
     await connect(process.env.MONGODB_URI as string);
   });
@@ -116,9 +116,10 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
     expect((await patch(later.id, { status: 'done' })).status).toBe(422);
     expect((await patch(later.id, { status: 'accepted' })).status).toBe(422);
     expect((await patch(alert.id, { status: 'done' })).body.data).toMatchObject({ status: 'done' });
-    expect(ids((await list('?status=done')).items)).toEqual([alert.id]);
+    expect((await list('?state=resolved')).items).toEqual([expect.objectContaining({ id: alert.id, open: false })]);
     expect((await list()).total).toBe(2);
-    expect((await as(request(app).get('/notifications?status=x'))).status).toBe(400);
+    expect((await as(request(app).get('/notifications?state=x'))).status).toBe(400);
+    expect((await as(request(app).get('/notifications?status=pending'))).status).toBe(400);
   });
 
   it('prazo e alerta pendentes podem ser cancelados e saem dos pendentes (D1)', async () => {
@@ -130,7 +131,7 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
     expect((await patch(deadline.id, { status: 'canceled' })).body.data).toMatchObject({ status: 'canceled' });
     expect((await patch(alert.id, { status: 'canceled' })).body.data).toMatchObject({ status: 'canceled' });
     expect((await list()).total).toBe(0);
-    expect(ids((await list('?status=canceled')).items).sort()).toEqual([deadline.id, alert.id].sort());
+    expect(ids((await list('?state=resolved')).items).sort()).toEqual([deadline.id, alert.id].sort());
   });
 
   it('a lista traz o contratante e o tipo do serviço do escritório', async () => {
@@ -241,46 +242,80 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
     await expect.poll(() => Notification.countDocuments({ Case: legalCase.id })).toBe(0);
   });
 
-  it('avisos: quem não vê o financeiro não vê finance_due; lido é por pessoa (CNT-04, D5)', async () => {
+  it('uma lista só: prazo, sugestão e aviso pela data; cada um vê os módulos que pode ver; o contador é do dia (AD-282, D5)', async () => {
     const admin = await setup(['admin']);
     const operator = await seedSession(['operator']);
+    const financial = await seedSession(['operator']);
     await User.updateOne({ _id: operator.user._id }, { Tenant: admin.tenant._id });
-    const notice = (module: 'finance' | 'expert_cases', key: string) =>
-      Notification.create({
-        Tenant: admin.tenant._id,
-        kind: 'notice',
-        module,
-        source: 'system',
-        topic: 'finance_due',
-        params: { bucket: 'overdue', description: key, dueDate: day(-1), openCents: 100 },
-        dedupeKey: key,
-      });
-    await notice('finance', 'f1');
-    await notice('expert_cases', 'c1');
+    await User.updateOne({ _id: financial.user._id }, { Tenant: admin.tenant._id, permissions: { finance: ['view'] } });
+    const legalCase = (await admin.as(request(app).post('/expert-cases')).send(CASE)).body.data;
+    const overdue = await admin.add(legalCase.id, { title: 'Manifestação', dueDate: day(-5) });
+    const future = await admin.add(legalCase.id, { title: 'Esclarecimentos', dueDate: day(20) });
+    const financeNotice = await Notification.create({
+      Tenant: admin.tenant._id,
+      kind: 'notice',
+      module: 'finance',
+      source: 'system',
+      topic: 'finance_due',
+      params: { bucket: 'overdue', description: 'Honorários', dueDate: day(-1), openCents: 100 },
+      dedupeKey: 'f1',
+    });
+    const suggestion = await Notification.create({
+      Tenant: admin.tenant._id,
+      Case: legalCase.id,
+      kind: 'suggestion',
+      module: 'expert_cases',
+      source: 'datajud',
+      status: 'pending',
+      proposal: { target: 'case_phase', value: 'settlement' },
+      evidence: {
+        court: 'TRT2',
+        movement: { key: 'm', code: 466, name: 'Homologação', at: `${day(-2)}T15:00:00Z`, complements: [] },
+      },
+      ruleKey: 'case_settlement',
+      ruleVersion: 1,
+      dedupeKey: 's1',
+    });
 
-    const count = async (as: typeof admin.as) =>
-      (await as(request(app).get('/notifications/unread-count'))).body.data.count;
+    const open = await admin.list();
+    expect(ids(open.items)).toEqual([overdue.id, suggestion.id, financeNotice.id, future.id]);
+    expect(open.items[1]).toMatchObject({
+      kind: 'suggestion',
+      open: true,
+      date: day(-2),
+      caseNumber: CASE.processNumber,
+    });
+    expect(open.items[2]).toMatchObject({ kind: 'notice', open: true, date: day(0) });
+    expect(open.items[2]).not.toHaveProperty('caseNumber');
+
+    const count = async (as: typeof admin.as) => (await as(request(app).get('/notifications/count'))).body.data.count;
+    // The future deadline has not reached its day.
+    expect(await count(admin.as)).toBe(3);
+    expect(await count(operator.as)).toBe(2);
+    expect(await count(financial.as)).toBe(1);
+    expect(ids((await operator.as(request(app).get('/notifications'))).body.data.items)).toEqual([
+      overdue.id,
+      suggestion.id,
+      future.id,
+    ]);
+    expect(ids((await financial.as(request(app).get('/notifications'))).body.data.items)).toEqual([financeNotice.id]);
+
+    // Reading is per person and only of what the person sees.
+    expect((await operator.as(request(app).post(`/notifications/${financeNotice.id}/read`))).status).toBe(404);
+    expect((await admin.as(request(app).post(`/notifications/${financeNotice.id}/read`))).status).toBe(200);
     expect(await count(admin.as)).toBe(2);
-    expect(await count(operator.as)).toBe(1);
-    const opList = (await operator.as(request(app).get('/notifications/notices'))).body.data;
-    expect(opList.items.map((item: { module: string }) => item.module)).toEqual(['expert_cases']);
+    expect(await count(financial.as)).toBe(1);
+    expect((await admin.list('?state=resolved')).items).toEqual([
+      expect.objectContaining({ id: financeNotice.id, open: false }),
+    ]);
+    expect((await financial.as(request(app).post('/notifications/read-all'))).status).toBe(200);
+    expect(await count(financial.as)).toBe(0);
 
-    const [first] = (await admin.as(request(app).get('/notifications/notices?unread=true'))).body.data.items;
-    expect((await admin.as(request(app).post(`/notifications/${first.id}/read`))).status).toBe(200);
-    expect(await count(admin.as)).toBe(1);
-    // Reading is per person: the operator still has it unread.
-    expect(await count(operator.as)).toBe(1);
-    // The operator cannot mark the finance one.
-    const finance = await Notification.findOne({ module: 'finance' }).lean();
-    expect((await operator.as(request(app).post(`/notifications/${finance?._id}/read`))).status).toBe(404);
-
-    expect((await admin.as(request(app).post('/notifications/read-all'))).status).toBe(200);
-    expect(await count(admin.as)).toBe(0);
-    expect(
-      (await admin.as(request(app).get('/notifications/notices'))).body.data.items.every(
-        (item: { read: boolean }) => item.read,
-      ),
-    ).toBe(true);
+    // A notice is not a deadline: it cannot be changed nor removed as one.
+    expect((await admin.patch(financeNotice.id, { status: 'done' })).status).toBe(404);
+    expect((await admin.as(request(app).delete(`/notifications/${financeNotice.id}`))).status).toBe(404);
+    expect((await admin.patch(String(suggestion._id), { status: 'accepted' })).status).toBe(404);
+    expect(ids((await admin.list('?kind=suggestion')).items)).toEqual([suggestion.id]);
   });
 
   it('sugestões (AD-268): aprovar aplica pelo serviço uma vez só; já aplicada é superada; fora de ordem 409; rejeitar guarda o motivo', async () => {
@@ -310,8 +345,10 @@ describe('Central de notificações: prazos e alertas (CNT-01, AD-263)', () => {
     expect([blocked.status, blocked.body.message]).toEqual([403, 'automation_required']);
     await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
 
-    const listed = (await as(request(app).get(`/notifications/suggestions?caseId=${legalCase.id}`))).body.data;
-    expect(listed).toEqual([expect.objectContaining({ ruleKey: 'case_settlement', caseNumber: CASE.processNumber })]);
+    const listed = (await as(request(app).get(`/notifications?caseId=${legalCase.id}&kind=suggestion`))).body.data;
+    expect(listed.items).toEqual([
+      expect.objectContaining({ ruleKey: 'case_settlement', caseNumber: CASE.processNumber, open: true }),
+    ]);
 
     expect((await accept(settlement._id)).body.data).toMatchObject({ status: 'accepted' });
     expect((await as(request(app).get(`/expert-cases/${legalCase.id}`))).body.data.phase).toBe('settlement');

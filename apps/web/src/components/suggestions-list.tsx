@@ -4,37 +4,25 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@eth
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { AppLink } from '@/components/app-link.js';
-import { casePhaseLabel } from '@/components/case-labels.js';
-import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { DefaultLoading } from '@/components/default-loading.js';
+import { notificationText } from '@/components/notification-labels.js';
 import { SuggestionReceiptDialog } from '@/components/suggestion-receipt-dialog.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { decideSuggestionMutation, type SuggestionRecord, suggestionsQuery } from '@/query/notification.js';
+import { decideSuggestionMutation, type NotificationRecord, notificationsQuery } from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
 
-const proposalText = ({ proposal }: SuggestionRecord): string => {
-  if (proposal.target === 'case_status') return `${t('proposed_status')} ${t(proposal.value)}`;
-  if (proposal.target === 'case_phase') return `${t('proposed_phase')} ${casePhaseLabel(proposal.value)}`;
-  if (proposal.target === 'transaction_installment') {
-    return `${t('proposed_receipt')} ${formatDate(new Date(`${proposal.date}T12:00:00`))}`;
-  }
-  return `${t('proposed_cancel_deadlines')} (${proposal.count})`;
-};
-
-// Pending suggestions of the automation (AD-268), in the order of the court: the movement that justifies it
-// and the proposed change. Nothing changes before "Aprovar", which only shows to whoever changes cases (D5).
-export function SuggestionsList({ caseId }: { caseId?: string }) {
+// "Rejeitar" and "Aprovar" of a pending suggestion (AD-268): nothing changes before it, and only whoever changes
+// the module of the suggestion sees them (D5). The receipt asks the income and the amount first (AD-269).
+export function SuggestionActions({ suggestion }: { suggestion: NotificationRecord }) {
   const queryClient = useQueryClient();
   const session = useQuery(sessionQuery).data;
-  const [receipt, setReceipt] = useState<SuggestionRecord>();
-  const query = useQuery(suggestionsQuery(caseId));
+  const [receipt, setReceipt] = useState(false);
   const mutation = useMutation(decideSuggestionMutation(queryClient));
+  if (!session || !can(session, suggestion.module, 'update')) return null;
 
-  const decide = (id: string, decision: 'accept' | 'reject') =>
+  const decide = (decision: 'accept' | 'reject') =>
     mutation.mutate(
-      { id, decision },
+      { id: suggestion.id, decision },
       {
         onSuccess: (result) =>
           toast.success(
@@ -50,51 +38,52 @@ export function SuggestionsList({ caseId }: { caseId?: string }) {
       },
     );
 
-  if (query.isLoading) return <DefaultLoading />;
-  const items = query.data ?? [];
-  if (!items.length) return caseId ? null : <DefaultEmptyData title={t('no_suggestions')} />;
+  return (
+    <div className="flex flex-wrap justify-end gap-2">
+      <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => decide('reject')}>
+        {t('reject')}
+      </Button>
+      <Button
+        size="sm"
+        disabled={mutation.isPending}
+        onClick={() =>
+          suggestion.proposal?.target === 'transaction_installment' ? setReceipt(true) : decide('accept')
+        }
+      >
+        {t('approve')}
+      </Button>
+      {receipt && <SuggestionReceiptDialog suggestion={suggestion} onClose={() => setReceipt(false)} />}
+    </div>
+  );
+}
+
+// The pending suggestions of a case (its "No tribunal"), in the order of the court.
+export function SuggestionsList({ caseId }: { caseId: string }) {
+  const query = useQuery(notificationsQuery({ caseId, kind: 'suggestion', state: 'open', limit: 100 }));
+  const items = query.data?.items ?? [];
+  if (!items.length) return null;
 
   return (
     <div className="grid gap-2">
       {items.map((suggestion) => {
-        const { movement, court } = suggestion.evidence;
+        const text = notificationText(suggestion);
         return (
           <Item key={suggestion.id} variant="muted">
             <ItemContent>
               <ItemTitle className="gap-2">
                 <Badge variant="warning">{t('suggestions_to_approve')}</Badge>
-                {proposalText(suggestion)}
+                {text.title}
               </ItemTitle>
               <ItemDescription className="line-clamp-none">
-                {`${t('court_movement_label')} (${court}): ${movement.name} · ${formatDate(new Date(movement.at))}`}
+                {`${text.description} · ${formatDate(new Date(`${suggestion.date}T12:00:00`))}`}
               </ItemDescription>
-              {!caseId && (
-                <AppLink to="/expert-cases/details" search={{ id: suggestion.caseId }} as="description">
-                  {suggestion.caseNumber ?? t('open_case')}
-                </AppLink>
-              )}
             </ItemContent>
-            {session && can(session, suggestion.module, 'update') && (
-              <ItemActions>
-                <Button variant="outline" disabled={mutation.isPending} onClick={() => decide(suggestion.id, 'reject')}>
-                  {t('reject')}
-                </Button>
-                <Button
-                  disabled={mutation.isPending}
-                  onClick={() =>
-                    suggestion.proposal.target === 'transaction_installment'
-                      ? setReceipt(suggestion)
-                      : decide(suggestion.id, 'accept')
-                  }
-                >
-                  {t('approve')}
-                </Button>
-              </ItemActions>
-            )}
+            <ItemActions>
+              <SuggestionActions suggestion={suggestion} />
+            </ItemActions>
           </Item>
         );
       })}
-      {receipt && <SuggestionReceiptDialog suggestion={receipt} onClose={() => setReceipt(undefined)} />}
     </div>
   );
 }

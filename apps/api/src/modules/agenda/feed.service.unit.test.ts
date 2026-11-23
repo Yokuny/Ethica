@@ -34,8 +34,9 @@ const deadline: DatedNotification = {
   title: 'Entrega do laudo',
   dueDate: '2026-11-30',
   status: 'pending',
-  createdAt: now,
-  updatedAt: now,
+  open: true,
+  date: '2026-11-30',
+  createdAt: now.toISOString(),
 };
 const summaries = new Map([
   [

@@ -2,18 +2,17 @@ import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import { CaseNotFoundError } from '../case/case.service.js';
-import type { ListNoticesQuery, ListNotificationsQuery, ListSuggestionsQuery } from './notification.schema.js';
+import type { ListNotificationsQuery } from './notification.schema.js';
 import * as notificationService from './notification.service.js';
 import { NotificationNotFoundError } from './notification.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 // The person and the permissions come from the session (AD-010, AD-137).
-const decider = (req: Request) => ({
+const reader = (req: Request) => ({
   tenantId: tenantOf(req),
   userId: req.tenantUser.user,
   permissions: req.tenantUser.permissions ?? {},
 });
-const reader = (req: Request) => [tenantOf(req), req.tenantUser.user, req.tenantUser.permissions ?? {}] as const;
 
 // Notification or case missing (or from another tenant) -> 404.
 const notFoundAs404 = (e: unknown, next: NextFunction): void => {
@@ -36,7 +35,7 @@ export const createNotification = async (req: Request, res: Response, next: Next
 export const listNotifications = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const query = req.query as unknown as ListNotificationsQuery;
-    res.json(respObj({ data: await notificationService.listNotifications(tenantOf(req), query) }));
+    res.json(respObj({ data: await notificationService.listNotifications(reader(req), query) }));
   } catch (e) {
     notFoundAs404(e, next);
   }
@@ -60,18 +59,9 @@ export const deleteNotification = async (req: Request, res: Response, next: Next
   }
 };
 
-export const listNotices = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const countDue = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const query = req.query as unknown as ListNoticesQuery;
-    res.json(respObj({ data: await notificationService.listNotices(...reader(req), query) }));
-  } catch (e) {
-    next(e);
-  }
-};
-
-export const countUnread = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: { count: await notificationService.countUnread(...reader(req)) } }));
+    res.json(respObj({ data: { count: await notificationService.countDue(reader(req)) } }));
   } catch (e) {
     next(e);
   }
@@ -79,7 +69,7 @@ export const countUnread = async (req: Request, res: Response, next: NextFunctio
 
 export const markRead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await notificationService.markRead(...reader(req), req.params.id as string);
+    await notificationService.markRead(reader(req), req.params.id as string);
     res.json(respObj({}));
   } catch (e) {
     notFoundAs404(e, next);
@@ -88,18 +78,8 @@ export const markRead = async (req: Request, res: Response, next: NextFunction):
 
 export const markAllRead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await notificationService.markAllRead(...reader(req));
+    await notificationService.markRead(reader(req));
     res.json(respObj({}));
-  } catch (e) {
-    next(e);
-  }
-};
-
-export const listSuggestions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const query = req.query as unknown as ListSuggestionsQuery;
-    const permissions = req.tenantUser.permissions ?? {};
-    res.json(respObj({ data: await notificationService.listSuggestions(tenantOf(req), permissions, query) }));
   } catch (e) {
     next(e);
   }
@@ -107,7 +87,7 @@ export const listSuggestions = async (req: Request, res: Response, next: NextFun
 
 export const acceptSuggestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await notificationService.acceptSuggestion(decider(req), req.params.id as string, req.body ?? {});
+    const data = await notificationService.acceptSuggestion(reader(req), req.params.id as string, req.body ?? {});
     res.json(respObj({ data }));
   } catch (e) {
     notFoundAs404(e, next);
@@ -116,7 +96,7 @@ export const acceptSuggestion = async (req: Request, res: Response, next: NextFu
 
 export const rejectSuggestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const data = await notificationService.rejectSuggestion(decider(req), req.params.id as string, req.body);
+    const data = await notificationService.rejectSuggestion(reader(req), req.params.id as string, req.body);
     res.json(respObj({ data }));
   } catch (e) {
     notFoundAs404(e, next);

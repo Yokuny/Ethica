@@ -146,8 +146,9 @@ describe('documentos (DOC-02, DOC-03)', () => {
       title: 'Entrega do laudo',
       dueDate,
       status: 'pending' as const,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      open: true,
+      date: dueDate,
+      createdAt: '2026-10-01T12:00:00.000Z',
     });
     const { html } = scheduleHtml({
       ...base,

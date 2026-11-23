@@ -19,11 +19,11 @@ import { DEADLINE_KIND_ITEMS, deadlineSuggestions } from '@/components/notificat
 import { useNotificationForm } from '@/hooks/useNotificationForm.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
-import type { NotificationRecord } from '@/query/notification.js';
+import type { DatedNotificationRecord } from '@/query/notification.js';
 
 const WRITE = '__write__';
 
-type DeadlineFormProps = { caseId: string; deadline?: NotificationRecord; onClose: () => void };
+type DeadlineFormProps = { caseId: string; deadline?: DatedNotificationRecord; onClose: () => void };
 
 // New deadline or alert: the approved titles of the service type (AD-190), which also set Prazo or Alerta, or
 // "Escrever outro" with the type and the title typed. Editing changes only the title, the date and the notes.

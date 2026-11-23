@@ -2,6 +2,27 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "notificacoes-processo-unico",
+      "feature": "Notificações num processo só",
+      "descricao": "Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API",
+      "data": "2026-11-23",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "docs"
+      ],
+      "decisoes": [
+        "AD-282"
+      ],
+      "spec": [
+        ".specs/features/notificacoes-processo-unico"
+      ],
+      "planos": [],
+      "doc": "features/notificacoes-processo-unico/feature.md"
+    },
+    {
       "slug": "automacao-datajud",
       "feature": "Automação Datajud (premium)",
       "descricao": "Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa",
@@ -1931,7 +1952,7 @@
       "id": "AD-193",
       "decisao": "Ajusta a parte (2) e (4) da AD-192. (1) Situação dos Laudos e situação de Prazos e Alertas voltam a ser abas acima da lista (Prazos sem \"Tod",
       "data": "2026-11-05",
-      "status": "active"
+      "status": "active (abas de situação de Prazos e Alertas superseded by AD-282)"
     },
     {
       "id": "AD-194",
@@ -2459,6 +2480,12 @@
       "id": "AD-281",
       "decisao": "A Prospecção sai inteira e o item de menu vira a página Automação Datajud (`/automation`). (1) Divisão das fontes: o Datajud é inteligência",
       "data": "2026-11-22",
+      "status": "active (link para a aba Para aprovar superseded by AD-282)"
+    },
+    {
+      "id": "AD-282",
+      "decisao": "Notificações viram um processo só: toda `Notification` (prazo, alerta, sugestão, aviso — AD-263) está aberta enquanto pede alguém (prazo, al",
+      "data": "2026-11-23",
       "status": "active"
     }
   ]

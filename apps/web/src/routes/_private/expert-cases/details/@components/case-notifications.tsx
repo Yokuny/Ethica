@@ -13,14 +13,14 @@ import { Panel } from '@/components/panel.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { caseNotificationsQuery, type NotificationRecord } from '@/query/notification.js';
+import { caseNotificationsQuery, type DatedNotificationRecord } from '@/query/notification.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
 type DeadlinePanel =
   | { kind: 'create' }
-  | { kind: 'edit'; deadline: NotificationRecord }
-  | { kind: 'detail'; deadline: NotificationRecord }
+  | { kind: 'edit'; deadline: DatedNotificationRecord }
+  | { kind: 'detail'; deadline: DatedNotificationRecord }
   | null;
 
 // Every deadline and alert (AD-189) of the process (PRZ-01), by due date: pending ones with an overdue/due soon

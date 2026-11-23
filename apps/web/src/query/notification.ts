@@ -1,50 +1,33 @@
 import type {
-  CaseProposal,
-  CaseRole,
-  CourtMovement,
-  CourtType,
   CreateNotification,
-  NotificationModule,
-  NotificationSource,
-  NotificationStatus,
+  DatedNotificationRecord,
+  NotificationKind,
+  NotificationRecord,
+  NotificationState,
   UpdateNotification,
-  UserNotificationKind,
 } from '@ethica/contracts';
+import { isDatedNotification } from '@ethica/contracts';
 import type { QueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { queryOptions } from '@tanstack/react-query';
 import { del, get, patch, post } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 import { caseKeys } from './case.js';
 
-// Mirrors DatedNotification of apps/api/src/modules/notifications/notification.schema.ts (a deadline or an
-// alert, AD-263). Dates `YYYY-MM-DD`.
-export type NotificationRecord = {
-  id: string;
-  module: NotificationModule;
-  source: NotificationSource;
-  caseId: string;
-  caseNumber?: string;
-  client?: string;
-  plaintiff?: string;
-  defendant?: string;
-  role?: CaseRole;
-  serviceType?: string;
-  courtType?: CourtType;
-  kind: UserNotificationKind;
-  title: string;
-  dueDate: string;
-  status: NotificationStatus;
-  filedDate?: string;
-  notes?: string;
+export type { DatedNotificationRecord, NotificationRecord };
+
+export type NotificationsQueryParams = {
+  page?: number;
+  limit?: number;
+  state?: NotificationState;
+  kind?: NotificationKind;
+  caseId?: string;
 };
 
 export const notificationKeys = {
   all: ['notification'] as const,
-  ofCase: (caseId: string) => [...notificationKeys.all, 'legalCase', caseId] as const,
   list: (params: NotificationsQueryParams) => [...notificationKeys.all, 'list', params] as const,
+  count: () => [...notificationKeys.all, 'count'] as const,
 };
-
-export type NotificationsQueryParams = { page: number; limit: number; status: NotificationStatus };
 
 type NotificationPage = { items: NotificationRecord[]; total: number };
 
@@ -54,21 +37,31 @@ const fetchData = async <T>(path: string): Promise<T> => {
   return res.data;
 };
 
-// Every deadline and alert of the case, by due date (the case detail).
-export const caseNotificationsQuery = (caseId: string) =>
-  queryOptions({
-    queryKey: notificationKeys.ofCase(caseId),
-    queryFn: async () =>
-      (await fetchData<NotificationPage>(`/notifications?caseId=${encodeURIComponent(caseId)}&limit=100`)).items,
-  });
-
-// Central (AD-189, AD-263): every case's, one situation at a time, by criticality.
+// One list for every kind (AD-282): the open ones by default; `caseId` alone gives every one of the case.
 export const notificationsQuery = (params: NotificationsQueryParams) =>
   queryOptions({
     queryKey: notificationKeys.list(params),
-    queryFn: () =>
-      fetchData<NotificationPage>(`/notifications?page=${params.page}&limit=${params.limit}&status=${params.status}`),
+    queryFn: () => {
+      const search = new URLSearchParams(
+        Object.entries(params).flatMap(([key, value]) => (value === undefined ? [] : [[key, String(value)]])),
+      );
+      return fetchData<NotificationPage>(`/notifications?${search}`);
+    },
   });
+
+// Every deadline and alert of the case, by due date (the case detail and the agenda).
+export const caseNotificationsQuery = (caseId: string) =>
+  queryOptions({
+    ...notificationsQuery({ caseId, limit: 100 }),
+    select: (page): DatedNotificationRecord[] => page.items.filter(isDatedNotification),
+  });
+
+// The number of the menu: the open ones that already reached their day. The worker creates notices in the background.
+export const notificationCountQuery = queryOptions({
+  queryKey: notificationKeys.count(),
+  queryFn: async () => (await fetchData<{ count: number }>('/notifications/count')).count,
+  refetchInterval: 60_000,
+});
 
 // A deadline changes the listing's "next deadline", the cases indicator strip and its agenda entry.
 const refreshNotifications = (queryClient: QueryClient) => {
@@ -80,9 +73,9 @@ const refreshNotifications = (queryClient: QueryClient) => {
 
 export const createNotificationMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<NotificationRecord, Error, CreateNotification> => ({
+): UseMutationOptions<DatedNotificationRecord, Error, CreateNotification> => ({
   mutationFn: async (data) => {
-    const res = await post<NotificationRecord>('/notifications', data);
+    const res = await post<DatedNotificationRecord>('/notifications', data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('create_error'));
     return res.data;
   },
@@ -91,9 +84,9 @@ export const createNotificationMutation = (
 
 export const updateNotificationMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<NotificationRecord, Error, { id: string; data: UpdateNotification }> => ({
+): UseMutationOptions<DatedNotificationRecord, Error, { id: string; data: UpdateNotification }> => ({
   mutationFn: async ({ id, data }) => {
-    const res = await patch<NotificationRecord>(`/notifications/${encodeURIComponent(id)}`, data);
+    const res = await patch<DatedNotificationRecord>(`/notifications/${encodeURIComponent(id)}`, data);
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
@@ -110,89 +103,30 @@ export const deleteNotificationMutation = (
   onSuccess: () => refreshNotifications(queryClient),
 });
 
-// Notices of the bell (CNT-04). Mirrors NoticeRecord of apps/api/src/modules/notifications/notification.schema.ts.
-export type NoticeRecord = {
-  id: string;
-  module: NotificationModule;
-  topic?: string;
-  params?: Record<string, string | number>;
-  severity?: string;
-  caseId?: string;
-  transactionId?: string;
-  read: boolean;
-  createdAt: string;
-};
-
-export const noticeKeys = {
-  all: ['notice'] as const,
-  list: (page: number, limit: number) => [...noticeKeys.all, 'list', page, limit] as const,
-  unread: () => [...noticeKeys.all, 'unread'] as const,
-};
-
-export const noticesQuery = (page: number, limit: number) =>
-  queryOptions({
-    queryKey: noticeKeys.list(page, limit),
-    queryFn: () =>
-      fetchData<{ items: NoticeRecord[]; total: number }>(`/notifications/notices?page=${page}&limit=${limit}`),
-  });
-
-// The bell checks every minute: the worker creates notices in the background.
-export const unreadNoticesQuery = queryOptions({
-  queryKey: noticeKeys.unread(),
-  queryFn: async () => (await fetchData<{ count: number }>('/notifications/unread-count')).count,
-  refetchInterval: 60_000,
-});
-
-export const markNoticeReadMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id?: string }> => ({
+// Read is per person; without `id`, every notice the person sees.
+export const markReadMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id?: string }> => ({
   mutationFn: async ({ id }) => {
     const res = await post<never>(id ? `/notifications/${encodeURIComponent(id)}/read` : '/notifications/read-all', {});
     if (!res.success) throw new Error(res.message ?? t('save_error'));
   },
-  onSuccess: () => queryClient.invalidateQueries({ queryKey: noticeKeys.all }),
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
 });
-
-// Suggestions of the Automação Datajud (AD-268). Mirrors SuggestionRecord of the api.
-export type SuggestionRecord = {
-  id: string;
-  caseId: string;
-  module: NotificationModule;
-  caseNumber?: string;
-  status: NotificationStatus;
-  proposal: CaseProposal;
-  evidence: { court: string; movement: CourtMovement };
-  ruleKey: string;
-  createdAt: string;
-};
-
-export const suggestionKeys = {
-  all: ['suggestion'] as const,
-  list: (caseId?: string) => [...suggestionKeys.all, 'list', caseId ?? 'all'] as const,
-};
-
-export const suggestionsQuery = (caseId?: string) =>
-  queryOptions({
-    queryKey: suggestionKeys.list(caseId),
-    queryFn: () =>
-      fetchData<SuggestionRecord[]>(
-        `/notifications/suggestions${caseId ? `?caseId=${encodeURIComponent(caseId)}` : ''}`,
-      ),
-  });
 
 // Accepting changes the case (phase or status): the case screens, the lists and the agenda read it anew.
 export const decideSuggestionMutation = (
   queryClient: QueryClient,
 ): UseMutationOptions<
-  SuggestionRecord,
+  NotificationRecord,
   Error,
   { id: string; decision: 'accept' | 'reject'; data?: Record<string, unknown> }
 > => ({
   mutationFn: async ({ id, decision, data }) => {
-    const res = await post<SuggestionRecord>(`/notifications/${encodeURIComponent(id)}/${decision}`, data ?? {});
+    const res = await post<NotificationRecord>(`/notifications/${encodeURIComponent(id)}/${decision}`, data ?? {});
     if (!res.success || !res.data) throw new Error(res.message ?? t('save_error'));
     return res.data;
   },
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: suggestionKeys.all });
+    queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     queryClient.invalidateQueries({ queryKey: caseKeys.all });
     queryClient.invalidateQueries({ queryKey: ['transaction'] });
   },

@@ -6,7 +6,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { trackedCasesQuery } from '../../../query/automation.js';
-import { suggestionsQuery } from '../../../query/notification.js';
+import { notificationsQuery } from '../../../query/notification.js';
 import { sessionQuery } from '../../../query/session.js';
 
 // Card asPage needs the router hooks; Link becomes a plain <a> to check the destinations.
@@ -33,7 +33,10 @@ const renderPage = (automationUntil?: string) => {
     role: ['admin'],
     permissions: effectivePermissions(['admin']),
   });
-  queryClient.setQueryData(suggestionsQuery().queryKey, [{ id: 's1' }, { id: 's2' }] as never);
+  queryClient.setQueryData(notificationsQuery({ kind: 'suggestion', limit: 1 }).queryKey, {
+    items: [{ id: 's1' }],
+    total: 2,
+  } as never);
   queryClient.setQueryData(trackedCasesQuery.queryKey, [
     { caseId: 'c1', caseLabel: '0024364-65.2020.5.24.0091', court: 'TRT24', syncedAt: '2026-11-20T06:00:00.000Z' },
   ]);
@@ -57,7 +60,7 @@ describe('AutomationPage', () => {
     renderPage(new Date(Date.now() + 86_400_000).toISOString());
     expect(screen.getByText('sugestões esperando a sua aprovação').closest('a')).toHaveAttribute(
       'href',
-      '/notifications?{"view":"suggestions"}',
+      '/notifications',
     );
     expect(screen.getByText('0024364-65.2020.5.24.0091').closest('a')).toHaveAttribute(
       'href',

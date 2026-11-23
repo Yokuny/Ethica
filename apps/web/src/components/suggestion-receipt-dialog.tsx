@@ -12,7 +12,7 @@ import { FormDialog } from '@/components/form-dialog.js';
 import { DateField, MoneyField, TextField } from '@/components/form-fields.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { decideSuggestionMutation, type SuggestionRecord } from '@/query/notification.js';
+import { decideSuggestionMutation, type NotificationRecord } from '@/query/notification.js';
 import { type TransactionRecord, transactionsQuery } from '@/query/transaction.js';
 
 // Accepting the receipt suggestion (AD-269): the open income of the case and the amount (the balance by
@@ -22,7 +22,7 @@ export function SuggestionReceiptDialog({
   suggestion,
   onClose,
 }: {
-  suggestion: SuggestionRecord;
+  suggestion: NotificationRecord;
   onClose: () => void;
 }) {
   const query = useQuery(transactionsQuery({ caseId: suggestion.caseId, kind: 'income', limit: 20 }));
@@ -56,7 +56,7 @@ function ReceiptFields({
   income,
   onClose,
 }: {
-  suggestion: SuggestionRecord;
+  suggestion: NotificationRecord;
   income: TransactionRecord;
   onClose: () => void;
 }) {
@@ -67,7 +67,7 @@ function ReceiptFields({
     resolver: zodResolver(createInstallmentSchema),
     defaultValues: {
       amountCents: income.balanceCents ?? income.amountCents,
-      date: suggestion.proposal.target === 'transaction_installment' ? suggestion.proposal.date : '',
+      date: suggestion.proposal?.target === 'transaction_installment' ? suggestion.proposal.date : '',
       account: '',
     },
   });

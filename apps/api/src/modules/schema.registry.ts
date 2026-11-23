@@ -57,9 +57,7 @@ import { tenantIdParamSchema } from './identity/platform.schema.js';
 import { updatePreferencesSchema } from './identity/preferences.schema.js';
 import {
   acceptSuggestionSchema,
-  listNoticesQuerySchema,
   listNotificationsQuerySchema,
-  listSuggestionsQuerySchema,
   notificationIdParamSchema,
   rejectSuggestionSchema,
 } from './notifications/notification.schema.js';
@@ -109,8 +107,6 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'listPartiesQuerySchema', schema: listPartiesQuerySchema },
   { name: 'notificationIdParamSchema', schema: notificationIdParamSchema },
   { name: 'listNotificationsQuerySchema', schema: listNotificationsQuerySchema },
-  { name: 'listNoticesQuerySchema', schema: listNoticesQuerySchema },
-  { name: 'listSuggestionsQuerySchema', schema: listSuggestionsQuerySchema },
   { name: 'rejectSuggestionSchema', schema: rejectSuggestionSchema },
   { name: 'acceptSuggestionSchema', schema: acceptSuggestionSchema },
   { name: 'automationCaseParamSchema', schema: automationCaseParamSchema },

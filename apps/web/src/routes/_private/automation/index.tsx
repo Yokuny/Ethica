@@ -7,7 +7,7 @@ import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { suggestionsQuery } from '@/query/notification.js';
+import { notificationsQuery } from '@/query/notification.js';
 import { hasAutomationSession, sessionQuery } from '@/query/session.js';
 import { TrackedCases } from './@components/tracked-cases.js';
 import { RULE_ITEMS } from './@utils/rule-items.js';
@@ -17,8 +17,8 @@ import { RULE_ITEMS } from './@utils/rule-items.js';
 export function AutomationPage() {
   const session = useQuery(sessionQuery).data;
   const active = Boolean(session && hasAutomationSession(session));
-  const suggestions = useQuery({ ...suggestionsQuery(), enabled: active });
-  const pending = suggestions.data?.length ?? 0;
+  const suggestions = useQuery({ ...notificationsQuery({ kind: 'suggestion', limit: 1 }), enabled: active });
+  const pending = suggestions.data?.total ?? 0;
 
   return (
     <Card asPage>
@@ -34,7 +34,7 @@ export function AutomationPage() {
                   icon={Sparkles}
                   title={pending}
                   description={t(pending === 1 ? 'pending_suggestion' : 'pending_suggestions')}
-                  render={<Link to="/notifications" search={{ view: 'suggestions' }} />}
+                  render={<Link to="/notifications" />}
                 />
               </LinkList>
             </Panel>

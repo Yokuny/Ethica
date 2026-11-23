@@ -23,9 +23,8 @@ import type {
   AcceptSuggestion,
   CreateNotification,
   DatedNotification,
-  ListNoticesQuery,
   ListNotificationsQuery,
-  ListSuggestionsQuery,
+  NotificationRecord,
   NotificationWrite,
   RejectSuggestion,
   SuggestionRecord,
@@ -37,11 +36,12 @@ export class NotificationNotFoundError extends KeyedError {}
 // Agreement, dismissal or removal: the process ended, its deadlines no longer run.
 const LOSS_PHASES: readonly string[] = [...CASE_PHASE_GROUPS.losses, 'assistance_settlement'];
 
-const withCase = async <T extends DatedNotification>(tenantId: string, items: T[]): Promise<T[]> => {
-  const ids = [...new Set(items.map((item) => item.caseId))];
+// The case of each one (number, contracting party, kind of service) in one batch; a notice may have none.
+const withCase = async <T extends NotificationRecord>(tenantId: string, items: T[]): Promise<T[]> => {
+  const ids = [...new Set(items.flatMap((item) => (item.caseId ? [item.caseId] : [])))];
   const summaries = await caseService.findSummariesByIds(tenantId, ids);
   return items.map((item) => {
-    const summary = summaries.get(item.caseId);
+    const summary = item.caseId ? summaries.get(item.caseId) : undefined;
     if (!summary) return item;
     const { client, plaintiff, defendant, role, serviceType, courtType } = summary;
     return { ...item, caseNumber: caseLabel(summary), client, plaintiff, defendant, role, serviceType, courtType };
@@ -113,11 +113,25 @@ export const deleteNotification = async (tenantId: string, id: string): Promise<
   syncAgenda(tenantId, id);
 };
 
-// With `caseId`, the case must exist (404 otherwise).
-export const listNotifications = async (tenantId: string, query: ListNotificationsQuery) => {
+// D5: a person sees the notifications of the modules they can view (finance only with `finance` `view`).
+const visibleModules = (permissions: Permissions): NotificationModule[] =>
+  NOTIFICATION_MODULES.filter((module) => hasPermission(permissions, module, 'view'));
+
+type Reader = { tenantId: string; userId: string; permissions: Permissions };
+
+// One list for every kind (AD-282). With `caseId`, the case must exist (404 otherwise).
+export const listNotifications = async ({ tenantId, userId, permissions }: Reader, query: ListNotificationsQuery) => {
   if (query.caseId) await caseService.getCase(tenantId, query.caseId);
-  const result = await notificationRepository.listDated(tenantId, query);
+  const result = await notificationRepository.list(tenantId, userId, visibleModules(permissions), query);
   return { ...result, items: await withCase(tenantId, result.items) };
+};
+
+export const countDue = ({ tenantId, userId, permissions }: Reader, now: Date = new Date()) =>
+  notificationRepository.countDue(tenantId, userId, visibleModules(permissions), dateInDisplayTz(now));
+
+export const markRead = async ({ tenantId, userId, permissions }: Reader, id?: string) => {
+  const { matchedCount } = await notificationRepository.markRead(tenantId, userId, visibleModules(permissions), id);
+  if (id && matchedCount === 0) throw new NotificationNotFoundError('not_found');
 };
 
 export const listCaseNotifications = (tenantId: string, caseId: string) =>
@@ -139,38 +153,8 @@ export const deleteByCase = (tenantId: string, caseId: string) => notificationRe
 
 export const listForExport = (tenantId: string) => notificationRepository.listAll(tenantId);
 
-// D5: a person sees the notices of the modules they can view (finance only with `finance` `view`).
-const visibleModules = (permissions: Permissions): NotificationModule[] =>
-  NOTIFICATION_MODULES.filter((module) => hasPermission(permissions, module, 'view'));
-
-export const listNotices = (tenantId: string, userId: string, permissions: Permissions, query: ListNoticesQuery) =>
-  notificationRepository.listNotices(tenantId, userId, visibleModules(permissions), query);
-
-export const countUnread = (tenantId: string, userId: string, permissions: Permissions) =>
-  notificationRepository.countUnread(tenantId, userId, visibleModules(permissions));
-
-export const markRead = async (tenantId: string, userId: string, permissions: Permissions, id: string) => {
-  const { matchedCount } = await notificationRepository.markRead(tenantId, userId, visibleModules(permissions), id);
-  if (matchedCount === 0) throw new NotificationNotFoundError('not_found');
-};
-
-export const markAllRead = (tenantId: string, userId: string, permissions: Permissions) =>
-  notificationRepository.markRead(tenantId, userId, visibleModules(permissions));
-
-// Suggestions (AD-268): the ones of the modules the person sees (D5), with the case label.
-export const listSuggestions = async (tenantId: string, permissions: Permissions, query: ListSuggestionsQuery) => {
-  const items = await notificationRepository.listSuggestions(tenantId, visibleModules(permissions), query);
-  const summaries = await caseService.findSummariesByIds(tenantId, [...new Set(items.map((item) => item.caseId))]);
-  return items.map((item) => {
-    const summary = summaries.get(item.caseId);
-    return summary ? { ...item, caseNumber: caseLabel(summary) } : item;
-  });
-};
-
-type Decider = { tenantId: string; userId: string; permissions: Permissions };
-
 // Deciding asks to change the data of the suggestion module (D5): cases or finance.
-const findDecidable = async ({ tenantId, permissions }: Decider, id: string): Promise<SuggestionRecord> => {
+const findDecidable = async ({ tenantId, permissions }: Reader, id: string): Promise<SuggestionRecord> => {
   const suggestion = await notificationRepository.findPendingSuggestion(tenantId, id);
   if (!suggestion) throw new NotificationNotFoundError('not_found');
   if (!hasPermission(permissions, suggestion.module, 'update')) throw new CustomError('no_permission', 403);
@@ -210,7 +194,7 @@ const apply = async (tenantId: string, suggestion: SuggestionRecord, data: Accep
 // it back to pending. Closing the case by agreement or dismissal supersedes its other pending suggestions and
 // offers to cancel its pending deadlines and alerts.
 export const acceptSuggestion = async (
-  decider: Decider,
+  decider: Reader,
   id: string,
   data: AcceptSuggestion,
 ): Promise<SuggestionRecord> => {
@@ -249,7 +233,7 @@ export const acceptSuggestion = async (
   return accepted;
 };
 
-export const rejectSuggestion = async (decider: Decider, id: string, { reason }: RejectSuggestion) => {
+export const rejectSuggestion = async (decider: Reader, id: string, { reason }: RejectSuggestion) => {
   await findDecidable(decider, id);
   const rejected = await notificationRepository.decideSuggestion(decider.tenantId, id, {
     status: 'rejected',

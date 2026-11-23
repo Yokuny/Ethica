@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import type { CaseProposal } from './automation-rules.js';
+import type { CaseRole, CourtType } from './case.schema.js';
+import type { CourtMovement } from './court-process.schema.js';
 import { calendarDateSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
@@ -30,6 +33,11 @@ const STATUS_OF_KIND: Record<NotificationKind, readonly NotificationStatus[]> = 
 };
 export const validNotificationStatus = (kind: NotificationKind, status: NotificationStatus): boolean =>
   STATUS_OF_KIND[kind].includes(status);
+
+// One process for every kind (AD-282): open while it asks for someone (a pending deadline, alert or suggestion,
+// a notice the person has not read), resolved once someone acted on it.
+export const NOTIFICATION_STATES = ['open', 'resolved'] as const;
+export type NotificationState = (typeof NOTIFICATION_STATES)[number];
 
 // What a person creates by hand: a deadline or an alert.
 export const USER_NOTIFICATION_KINDS = ['deadline', 'alert'] as const;
@@ -122,3 +130,51 @@ export const pushSubscriptionSchema = z
   .strip();
 export type PushSubscriptionInput = z.infer<typeof pushSubscriptionSchema>;
 export const pushUnsubscribeSchema = z.object({ endpoint: z.url().max(1000) }).strict();
+
+// The one shape the API gives for every kind (AD-282). `date` is the day it is about: the due date of a deadline
+// or alert, the court movement of a suggestion, the day a notice was born. The case fields come from the case and
+// are missing when there is none.
+export type NotificationRecord = {
+  id: string;
+  kind: NotificationKind;
+  module: NotificationModule;
+  source: NotificationSource;
+  open: boolean;
+  date: string;
+  status?: NotificationStatus;
+  caseId?: string;
+  caseNumber?: string;
+  client?: string;
+  plaintiff?: string;
+  defendant?: string;
+  role?: CaseRole;
+  serviceType?: string;
+  courtType?: CourtType;
+  // Deadline and alert.
+  title?: string;
+  dueDate?: string;
+  filedDate?: string;
+  notes?: string;
+  // Notice: a translation key and its parameters (the sentence is built by the screen).
+  topic?: NoticeTopic;
+  params?: Record<string, string | number>;
+  severity?: NotificationSeverity;
+  transactionId?: string;
+  // Suggestion (AD-268).
+  proposal?: CaseProposal;
+  evidence?: { court: string; movement: CourtMovement };
+  ruleKey?: string;
+  rejectReason?: string;
+  createdAt: string;
+};
+
+// A deadline or an alert always has case, title, due date and status (the model guarantees it).
+export type DatedNotificationRecord = NotificationRecord & {
+  kind: UserNotificationKind;
+  caseId: string;
+  title: string;
+  dueDate: string;
+  status: NotificationStatus;
+};
+export const isDatedNotification = (record: NotificationRecord): record is DatedNotificationRecord =>
+  record.kind === 'deadline' || record.kind === 'alert';

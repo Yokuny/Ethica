@@ -14,8 +14,8 @@ import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import {
+  type DatedNotificationRecord,
   deleteNotificationMutation,
-  type NotificationRecord,
   updateNotificationMutation,
 } from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
@@ -23,7 +23,7 @@ import { can, sessionQuery } from '@/query/session.js';
 const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`)) : '-');
 
 type NotificationDialogProps = {
-  deadline: NotificationRecord;
+  deadline: DatedNotificationRecord;
   onClose: () => void;
   // Only the case detail edits title/due date; the agenda opens the case.
   onEdit?: () => void;

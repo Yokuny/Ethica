@@ -1,20 +1,15 @@
 import type {
-  CaseProposal,
-  CaseRole,
-  CourtMovement,
-  CourtType,
   CreateNotification,
-  NotificationKind,
-  NotificationModule,
-  NotificationSource,
-  NotificationStatus,
+  DatedNotificationRecord,
+  NotificationRecord,
   UpdateNotification,
 } from '@ethica/contracts';
 import {
   calendarDateSchema,
   createNotificationSchema,
   idSchema,
-  NOTIFICATION_STATUS,
+  NOTIFICATION_KINDS,
+  NOTIFICATION_STATES,
   updateNotificationSchema,
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
@@ -27,48 +22,18 @@ export type NotificationRouterDeps = { validToken: RequestHandler };
 
 export const notificationIdParamSchema = z.object({ id: idSchema }).strict();
 
-// Central (AD-263): one situation at a time, the pending ones by default; with `caseId`, every one of the
-// case (its detail), unless a situation is asked.
+// One list for every kind (AD-282): the open ones by default; `kind` and `caseId` narrow it. With `caseId` and no
+// state, every one of the case (its detail).
 export const listNotificationsQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
-    status: z.enum(NOTIFICATION_STATUS).optional(),
+    state: z.enum(NOTIFICATION_STATES).optional(),
+    kind: z.enum(NOTIFICATION_KINDS).optional(),
     caseId: idSchema.optional(),
   })
   .strict();
 export type ListNotificationsQuery = z.infer<typeof listNotificationsQuerySchema>;
-
-// Notices of the bell (CNT-04): unread first is the person's choice; newest first.
-export const listNoticesQuerySchema = z
-  .object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20),
-    unread: z.enum(['true', 'false']).optional(),
-  })
-  .strict();
-export type ListNoticesQuery = z.infer<typeof listNoticesQuerySchema>;
-
-export type NoticeRecord = {
-  id: string;
-  module: NotificationModule;
-  topic?: string;
-  params?: Record<string, string | number>;
-  severity?: string;
-  caseId?: string;
-  transactionId?: string;
-  read: boolean;
-  createdAt: Date;
-};
-
-// Suggestions of the automation (AD-268): the pending ones by default; with `caseId`, the ones of the case.
-export const listSuggestionsQuerySchema = z
-  .object({
-    status: z.enum(NOTIFICATION_STATUS).default('pending'),
-    caseId: idSchema.optional(),
-  })
-  .strict();
-export type ListSuggestionsQuery = z.infer<typeof listSuggestionsQuerySchema>;
 
 // Accepting a receipt (AD-269) asks the open income of the case and the confirmed amount, date and account;
 // the other suggestions take no body.
@@ -88,50 +53,11 @@ export const rejectSuggestionSchema = z
   .strict();
 export type RejectSuggestion = z.infer<typeof rejectSuggestionSchema>;
 
-export type SuggestionRecord = {
-  id: string;
-  caseId: string;
-  module: NotificationModule;
-  caseNumber?: string;
-  status: NotificationStatus;
-  proposal: CaseProposal;
-  evidence: { court: string; movement: CourtMovement };
-  ruleKey: string;
-  rejectReason?: string;
-  decidedAt?: Date;
-  createdAt: Date;
-};
+export type { DatedNotificationRecord as DatedNotification, NotificationRecord };
 
-export type NotificationRecord = {
-  id: string;
-  kind: NotificationKind;
-  module: NotificationModule;
-  source: NotificationSource;
-  status?: NotificationStatus;
-  caseId?: string;
-  // Enriched by the service; missing if the case no longer exists.
-  caseNumber?: string;
-  client?: string;
-  plaintiff?: string;
-  defendant?: string;
-  role?: CaseRole;
-  serviceType?: string;
-  courtType?: CourtType;
-  title?: string;
-  dueDate?: string;
-  filedDate?: string;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-// A deadline or an alert: always with case, title, due date and status (the model guarantees it).
-export type DatedNotification = NotificationRecord & {
-  caseId: string;
-  title: string;
-  dueDate: string;
-  status: NotificationStatus;
-};
+// A suggestion always has case, proposal, evidence, rule and status (AD-268).
+export type SuggestionRecord = NotificationRecord &
+  Required<Pick<NotificationRecord, 'caseId' | 'proposal' | 'evidence' | 'ruleKey' | 'status'>>;
 
 // `filedDate: null` clears the date (the deadline went back to pending or was missed).
 export type NotificationWrite = Omit<UpdateNotification, 'filedDate'> & { filedDate?: string | null };

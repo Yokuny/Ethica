@@ -1,0 +1,57 @@
+---
+feature: Notificações num processo só
+slug: notificacoes-processo-unico
+descricao: Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API
+data: 2026-11-23
+status: concluido
+areas: [apps/api, apps/web, packages/contracts, docs]
+decisoes: [AD-282]
+spec: [.specs/features/notificacoes-processo-unico]
+---
+
+# Notificações num processo só
+
+**Status**: concluido · **Atualizado**: 2026-11-23 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `docs`
+
+> Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
+> Correlação com o git: `git log --oneline -i --grep='notificacoes-processo-unico'`.
+
+## O que foi feito
+
+- **Notificações** é uma lista só, com **Abertas** (padrão) e **Resolvidas**: prazos, alertas, sugestões do Datajud e avisos juntos, pela data de cada um (o atrasado no topo). Saíram as abas Prazos e Alertas / Avisos / Para aprovar e as cinco abas de situação; a situação exata aparece no selo da linha.
+- Resolver é na própria linha: o prazo ou alerta abre o diálogo de sempre (protocolar, adiar, concluir, cancelar…), a sugestão tem Aprovar/Rejeitar, o aviso tem Marcar como lido. "Marcar todos como lidos" aparece quando há avisos abertos.
+- O item **Avisos** do menu saiu; o número fica em **Notificações** e conta o que já chegou ao dia (prazo ou alerta vencido ou de hoje, sugestão pendente, aviso não lido).
+- API: uma leitura (`GET /notifications`, com `state`, `kind`, `caseId`) e um contador (`GET /notifications/count`); saíram `/notices`, `/unread-count` e `/suggestions`. Quem vê o quê segue uma regra só: os módulos que a pessoa pode ver.
+- Detalhe do serviço ("Prazos" e as sugestões em "No tribunal"), agenda e Automação Datajud leem a mesma lista.
+
+## Por que
+
+Pedido do usuário (2026-11-23): sem aba dentro de aba, um módulo só no back-end, um processo único. Não desfazer sem ler a AD-282.
+
+## Como
+
+- `packages/contracts/src/schemas/notification.schema.ts` — `NotificationRecord` (forma única dos quatro tipos), `DatedNotificationRecord`, `isDatedNotification`, `NOTIFICATION_STATES`.
+- `apps/api/src/modules/notifications/notification.repository.ts` — `list` (uma agregação: filtro de aberta/resolvida, data calculada no fuso de exibição, página e total) e `countDue`; escritas e leituras internas (agenda, documentos) sem mudança.
+- `apps/web/src/query/notification.ts` — `notificationsQuery`, `caseNotificationsQuery` (prazos e alertas do serviço), `notificationCountQuery`, `markReadMutation`.
+- `apps/web/src/routes/_private/notifications/` — página e tabela; `apps/web/src/components/notification-labels.ts` (`notificationText`: o texto de qualquer tipo) e `suggestions-list.tsx` (`SuggestionActions`).
+
+## Como testar
+
+```
+pnpm vitest run apps/api/src/modules/notifications apps/web/src/routes/_private/automation apps/web/src/components/notification-dialog.unit.test.tsx
+```
+
+- UAT: Notificações → Abertas mostra prazos, sugestões e avisos juntos; Marcar como lido num aviso baixa o número do menu e o leva para Resolvidas.
+
+## Pendências
+
+- [ ] Perita: confirmar a tabela "Assumptions" da spec (contador do menu, Abertas/Resolvidas no lugar das cinco situações).
+
+## Histórico
+
+- 2026-11-23 — Conferido no navegador local: lista aberta com prazos e avisos, aviso marcado como lido (menu de 50 para 49) e Resolvidas com Cancelado, Lido, Aprovada e Protocolado.
+- 2026-11-23 — Entrega: página, API, contrato e consumidores num commit só (AD-282).
+
+## Referências
+
+- Spec (congelada): `.specs/features/notificacoes-processo-unico/`

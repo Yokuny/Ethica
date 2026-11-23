@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { NotificationRecord } from '@/query/notification.js';
+import type { DatedNotificationRecord } from '@/query/notification.js';
 import { NotificationDialog } from './notification-dialog.js';
 
 const session = vi.hoisted(() => ({ canUpdate: true }));
@@ -13,18 +13,21 @@ vi.mock('@/query/session.js', () => ({
   can: () => session.canUpdate,
 }));
 
-const ALERT: NotificationRecord = {
+const ALERT: DatedNotificationRecord = {
   id: 'a',
   caseId: 'p1',
   kind: 'alert',
   module: 'expert_cases',
   source: 'user',
+  open: true,
+  date: '2000-01-01',
+  createdAt: '2000-01-01T12:00:00.000Z',
   title: 'Cobrar o depósito',
   dueDate: '2030-01-10',
   status: 'pending',
 };
 
-const renderDialog = (deadline: NotificationRecord) => {
+const renderDialog = (deadline: DatedNotificationRecord) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   queryClient.setQueryData(['session'], {});
   render(
