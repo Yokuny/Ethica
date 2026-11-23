@@ -10,27 +10,40 @@ import * as importService from './import.service.js';
 // The Tenant always comes from req.tenantUser (AD-010), never from the body/query.
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
+// The fees are finance data (AD-285): without `finance:view` they leave the response, and writing them
+// (or the payment at registration, AD-176) launches a finance entry, so it needs the finance action.
+const canFinance = (req: Request, action: 'view' | 'create' | 'update'): boolean =>
+  hasPermission(req.tenantUser.permissions, 'finance', action);
+const withoutFees = <T extends { proposedFeesCents?: number; fixedFeesCents?: number }>(req: Request, record: T): T => {
+  if (canFinance(req, 'view')) return record;
+  const { proposedFeesCents: _proposed, fixedFeesCents: _fixed, ...rest } = record;
+  return rest as T;
+};
+const requireFinanceForFees = (req: Request, action: 'create' | 'update'): void => {
+  const writesFees = 'proposedFeesCents' in req.body || 'fixedFeesCents' in req.body || 'payment' in req.body;
+  if (writesFees && !canFinance(req, action)) throw new CustomError('no_permission', 403);
+};
+
 export const createCase = async (req: Request, res: Response): Promise<void> => {
-  // The payment given at registration is a receipt in finance (AD-176).
-  if (req.body.payment && !hasPermission(req.tenantUser.permissions, 'finance', 'create')) {
-    throw new CustomError('no_permission', 403);
-  }
+  requireFinanceForFees(req, 'create');
   const result = await caseService.createCase({ ...req.body, tenant: tenantOf(req) });
-  res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
+  res.status(201).json(respObj({ data: withoutFees(req, result), message: 'created_successfully' }));
 };
 
 export const listCases = async (req: Request, res: Response): Promise<void> => {
   const result = await caseService.listCases(tenantOf(req), req.query as unknown as ListCasesQuery);
-  res.json(respObj({ data: result }));
+  res.json(respObj({ data: { ...result, items: result.items.map((item) => withoutFees(req, item)) } }));
 };
 
 export const getCase = async (req: Request, res: Response): Promise<void> => {
-  res.json(respObj({ data: await caseService.getCase(tenantOf(req), req.params.id as string) }));
+  const result = await caseService.getCase(tenantOf(req), req.params.id as string);
+  res.json(respObj({ data: withoutFees(req, result) }));
 };
 
 export const updateCase = async (req: Request, res: Response): Promise<void> => {
+  requireFinanceForFees(req, 'update');
   const result = await caseService.updateCase(tenantOf(req), req.params.id as string, req.body);
-  res.json(respObj({ data: result }));
+  res.json(respObj({ data: withoutFees(req, result) }));
 };
 
 export const addAttachment =
@@ -130,7 +143,7 @@ export const importCsv = async (req: Request, res: Response): Promise<void> => {
 
 export const addMovement = async (req: Request, res: Response): Promise<void> => {
   const data = await caseService.addMovement(tenantOf(req), req.params.id as string, req.body);
-  res.status(201).json(respObj({ data, message: 'created_successfully' }));
+  res.status(201).json(respObj({ data: withoutFees(req, data), message: 'created_successfully' }));
 };
 
 export const removeMovement = async (req: Request, res: Response): Promise<void> => {
@@ -139,5 +152,5 @@ export const removeMovement = async (req: Request, res: Response): Promise<void>
     req.params.id as string,
     req.params.movementId as string,
   );
-  res.json(respObj({ data, message: 'removed_successfully' }));
+  res.json(respObj({ data: withoutFees(req, data), message: 'removed_successfully' }));
 };

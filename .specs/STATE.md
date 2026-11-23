@@ -1791,6 +1791,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-23
 - **Status**: active
 
+### AD-285
+- **Decision**: Achados da validação local de 2026-11-23 (contas admin, operador restrito e um segundo escritório). (1) Honorário é dado do financeiro também na API: `proposedFeesCents` e `fixedFeesCents` saem das respostas de serviço (lista, detalhe, criar, editar, movimentação) para quem não tem `finance:view`, e gravá-los (como o pagamento no cadastro, AD-176) exige `finance:create` no cadastro e `finance:update` na edição — senão 403 `no_permission`. O formulário do serviço só mostra os campos a quem pode gravá-los. (2) Borda da API: rota inexistente responde 404 em JSON com a chave `not_found` (antes, a página HTML do Express), sem `X-Powered-By` e com `X-Content-Type-Options: nosniff` em toda resposta.
+- **Reason**: a tela escondia os honorários de quem não vê o Financeiro, mas a API os devolvia a qualquer um com acesso a Serviços, e quem editava serviço podia fixar honorário e lançar receita sem permissão no Financeiro ("permissão checada só no web", proibida pelo `AGENTS.md`). A página HTML e o cabeçalho anunciavam o framework e fugiam do contrato de erro.
+- **Trade-off**: quem edita serviço sem acesso ao Financeiro não registra mais o honorário fixado pelo juízo; isso passa a ser de quem tem o Financeiro.
+- **Scope**: `apps/api/src/modules/case/case.controller.ts`, `apps/api/src/app.ts`, `apps/web/src/routes/_private/expert-cases/@components/case-form-fields.tsx`.
+- **Date**: 2026-11-23
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

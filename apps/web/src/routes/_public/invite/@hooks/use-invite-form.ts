@@ -9,7 +9,7 @@ import { acceptInvite } from '../@query/invite.js';
 export function useInviteForm(token: string) {
   const [submitError, setSubmitError] = useState<string>();
   const [passkeyToken, setPasskeyToken] = useState<string>();
-  const form = useForm<AcceptInvite>({ resolver: zodResolver(acceptInviteSchema) });
+  const form = useForm<AcceptInvite>({ resolver: zodResolver(acceptInviteSchema), defaultValues: { name: '' } });
 
   const onSubmit = async (data: AcceptInvite) => {
     setSubmitError(undefined);

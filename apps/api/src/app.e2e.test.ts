@@ -50,3 +50,23 @@ describe('GET /metrics', () => {
     expect(res.status).toBe(200);
   });
 });
+
+// AD-285: the edge of the API answers like the rest of it.
+describe('borda da API', () => {
+  beforeAll(async () => {
+    await connect(process.env.MONGODB_URI as string);
+  });
+
+  afterAll(async () => {
+    await disconnect();
+  });
+
+  it('rota inexistente responde 404 em JSON com chave do contrato, sem anunciar o Express', async () => {
+    const res = await request(buildApp()).get('/rota-que-nao-existe');
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ success: false, message: 'not_found' });
+    expect(res.headers['x-powered-by']).toBeUndefined();
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+  });
+});

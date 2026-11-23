@@ -50,6 +50,7 @@ pnpm run check
 
 ## Histórico
 
+- 2026-11-23 — Validação local depois da entrega, com API e web no ar e login real (código no log da API e passkey num autenticador virtual do Chrome): como admin, 75 de 78 operações de criar, editar e excluir certas (as 3 restantes eram erro do roteiro: e-mail com acento recusado e parte sem rota de exclusão, por desenho); operador restrito barrado em 37 de 37 ações proibidas, sem conseguir se dar permissão; segundo escritório sem acesso aos dados do primeiro (17 tentativas, todas 404); injeção NoSQL, atribuição em massa, datas e valores impossíveis, JSON quebrado, corpo de 3 MB, XSS, CORS e enumeração de e-mail sem falha. Achados corrigidos (AD-285): honorário visível e gravável sem o Financeiro, e rota inexistente respondendo HTML com `X-Powered-By`. Também: o campo nome do convite começa vazio (aviso de componente controlado no console).
 - 2026-11-23 — Entrega em sete commits (AD-284). Divergências do design: o convite de membro tem router próprio (`createTeamInviteRouter`, prefixo `/tenant`) em vez de montar o mesmo router em dois prefixos; o feed do calendário passou a lançar o 404 no service; `isManager`/`isOperator`, sem uso, deram lugar a `isMember`; o arquivo de apoio pode chamar função pura de service de outro módulo (`report.process.ts` usa `parseData` do `case`). Mudança visível: "não encontrado" de outro módulo que o controller não mapeava passa de 500 para 404.
 
 ## Referências

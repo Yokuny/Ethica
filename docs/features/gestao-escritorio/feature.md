@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-23 — Honorário é dado do Financeiro também na API (AD-285): `proposedFeesCents`/`fixedFeesCents` saem das respostas de serviço sem `finance:view`, e gravá-los exige a ação no Financeiro (403 `no_permission`); o formulário do serviço só mostra os campos a quem pode gravar. Achado na validação local com um operador sem Financeiro (a tela escondia, a API devolvia). Teste em `apps/api/src/modules/case/case.router.e2e.test.ts`.
 - 2026-11-21 — Início: Próximos compromissos e Serviços parados ficam um embaixo do outro, na largura toda, com a lista de destinos no novo desenho sem moldura, com o ladrilho de ícone e a seta animada do `LinkCard` (AD-252).
 - 2026-11-19 — Início: fluxo de caixa em tabela por mês com saldo e variação, largura toda; Serviços por justiça em ranking com quantidade e parcela (AD-236).
 - 2026-11-15 — Início: Próximos compromissos e Serviços parados só aparecem quando há o que listar (saem os estados vazios e as chaves `commitments_appear_here`/`no_stalled_expert_cases`); a legenda Menos/Mais de Serviços por etapa vai para o cabeçalho do bloco, oposta ao título (`HeatTilesLegend`).

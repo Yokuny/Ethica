@@ -8,7 +8,7 @@ import { env } from './config/env.config.js';
 import { registerAllSubscribers } from './events/index.js';
 import { createActivityLogMiddleware } from './middlewares/activity-log.middleware.js';
 import { createAuthMiddleware } from './middlewares/authentication.middleware.js';
-import { errorHandler } from './middlewares/error-handler.middleware.js';
+import { CustomError, errorHandler } from './middlewares/error-handler.middleware.js';
 import { responseTime } from './middlewares/response-time.middleware.js';
 import { createAgendaRouter } from './modules/agenda/appointment.router.js';
 import { createInspectionRouter } from './modules/agenda/inspection.router.js';
@@ -58,6 +58,12 @@ export const buildApp = (
   const app = express();
   // Railway puts one proxy in front of the API: `req.ip` is the visitor, so the per-IP limits hold (AD-249).
   app.set('trust proxy', 1);
+  // The API does not announce its framework, and no response is sniffed into another type (AD-285).
+  app.disable('x-powered-by');
+  app.use((_req, res, next) => {
+    res.set('X-Content-Type-Options', 'nosniff');
+    next();
+  });
 
   // Content-Disposition exposed: the web reads the name of the generated PDF/ZIP (AD-119, AD-122).
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Content-Disposition'] }));
@@ -149,6 +155,8 @@ export const buildApp = (
   app.use('/documents', createDocumentsRouter({ validToken, pdf, storage }));
   app.use('/expert-reports', createReportRouter({ validToken, pdf, storage }));
 
+  // An unknown route answers like every other error: JSON with a contract key, never Express's HTML page.
+  app.use((_req, _res, next) => next(new CustomError('not_found', 404)));
   app.use(errorHandler);
 
   return app;

@@ -33,6 +33,8 @@ export function CaseFormFields({
   const serviceType = useWatch({ control, name: 'serviceType' });
   const [creatingType, setCreatingType] = useState(false);
   const own = creatingType || usesContractor({ serviceType, role });
+  // Writing a fee launches a finance entry (AD-285): only who can do it there sees the fields.
+  const canWriteFees = Boolean(session && can(session, 'finance', editing ? 'update' : 'create'));
   const serviceFields = (
     <div key="service" className="grid gap-4 sm:grid-cols-2">
       <ServiceTypeField creating={creatingType} onCreating={setCreatingType} />
@@ -147,7 +149,7 @@ export function CaseFormFields({
           {
             title: t('fees'),
             fields: [
-              contractedFee,
+              ...(canWriteFees ? [contractedFee] : []),
               ...(!editing && session && can(session, 'finance', 'create')
                 ? [<CasePaymentFields key="payment" />]
                 : []),
@@ -224,22 +226,26 @@ export function CaseFormFields({
           title: t('fees'),
           description: t('proposed_and_fixed_fees'),
           fields: [
-            <div key="fees" className="grid gap-4 sm:grid-cols-2">
-              <MoneyField
-                control={control}
-                name="proposedFeesCents"
-                label={t('proposed_fees')}
-                placeholder={t('example_money')}
-              />
-              {editing && (
-                <MoneyField
-                  control={control}
-                  name="fixedFeesCents"
-                  label={t('fixed_fees')}
-                  placeholder={t('example_money')}
-                />
-              )}
-            </div>,
+            ...(canWriteFees
+              ? [
+                  <div key="fees" className="grid gap-4 sm:grid-cols-2">
+                    <MoneyField
+                      control={control}
+                      name="proposedFeesCents"
+                      label={t('proposed_fees')}
+                      placeholder={t('example_money')}
+                    />
+                    {editing && (
+                      <MoneyField
+                        control={control}
+                        name="fixedFeesCents"
+                        label={t('fixed_fees')}
+                        placeholder={t('example_money')}
+                      />
+                    )}
+                  </div>,
+                ]
+              : []),
             notes,
             attachments,
           ],

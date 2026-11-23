@@ -97,6 +97,32 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     expect((await operator.as(request(app).post('/expert-cases')).send(CASE)).status).toBe(201);
   });
 
+  it('honorário é dado do financeiro: some da resposta e não se grava sem a permissão (AD-285)', async () => {
+    const tenant = await seedTenant();
+    const admin = await seedSession(tenant._id, ['admin']);
+    const created = await admin.as(request(app).post('/expert-cases')).send({ ...CASE, proposedFeesCents: 300000 });
+    const id = created.body.data.id as string;
+    expect(created.body.data.proposedFeesCents).toBe(300000);
+
+    const editor = await seedSession(tenant._id, ['operator'], { expert_cases: ['view', 'create', 'update'] });
+    const detail = await editor.as(request(app).get(`/expert-cases/${id}`));
+    expect(detail.status).toBe(200);
+    expect(detail.body.data).not.toHaveProperty('proposedFeesCents');
+    const list = await editor.as(request(app).get('/expert-cases'));
+    expect(list.body.data.items[0]).not.toHaveProperty('proposedFeesCents');
+
+    // Editing the rest still works; writing the fee (which would launch a finance entry) does not.
+    expect((await editor.as(request(app).patch(`/expert-cases/${id}`)).send({ notes: 'ok' })).status).toBe(200);
+    const fee = await editor.as(request(app).patch(`/expert-cases/${id}`)).send({ fixedFeesCents: 1 });
+    expect(fee.status).toBe(403);
+    expect(fee.body.message).toBe('no_permission');
+    expect((await editor.as(request(app).post('/expert-cases')).send({ ...CASE, proposedFeesCents: 1 })).status).toBe(
+      403,
+    );
+    expect(await Transaction.countDocuments()).toBe(0);
+    expect((await Case.findById(id).lean())?.fixedFeesCents).toBeUndefined();
+  });
+
   it('fase e status: cadastro e edição, encerrado nas perdas e valor fora da lista recusado (AD-178)', async () => {
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['admin']);
