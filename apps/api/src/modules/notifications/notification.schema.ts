@@ -10,6 +10,7 @@ import {
   idSchema,
   NOTIFICATION_KINDS,
   NOTIFICATION_STATES,
+  queryListSchema,
   updateNotificationSchema,
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
@@ -22,15 +23,18 @@ export type NotificationRouterDeps = { validToken: RequestHandler };
 
 export const notificationIdParamSchema = z.object({ id: idSchema }).strict();
 
-// One list for every kind (AD-282): the open ones by default; `kind` and `caseId` narrow it. With `caseId` and no
+// One list for every kind (AD-282): the open ones by default; `kind` (one or more) and `caseId` narrow it. With `caseId` and no
 // state, every one of the case (its detail).
 export const listNotificationsQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     state: z.enum(NOTIFICATION_STATES).optional(),
-    kind: z.enum(NOTIFICATION_KINDS).optional(),
+    kind: queryListSchema(z.enum(NOTIFICATION_KINDS)),
     caseId: idSchema.optional(),
+    // Period of the day it is about (the due date, the court movement, the day the notice was born).
+    from: calendarDateSchema.optional(),
+    to: calendarDateSchema.optional(),
   })
   .strict();
 export type ListNotificationsQuery = z.infer<typeof listNotificationsQuerySchema>;

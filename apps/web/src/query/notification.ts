@@ -19,8 +19,10 @@ export type NotificationsQueryParams = {
   page?: number;
   limit?: number;
   state?: NotificationState;
-  kind?: NotificationKind;
+  kind?: NotificationKind[];
   caseId?: string;
+  from?: string;
+  to?: string;
 };
 
 export const notificationKeys = {
@@ -43,7 +45,9 @@ export const notificationsQuery = (params: NotificationsQueryParams) =>
     queryKey: notificationKeys.list(params),
     queryFn: () => {
       const search = new URLSearchParams(
-        Object.entries(params).flatMap(([key, value]) => (value === undefined ? [] : [[key, String(value)]])),
+        Object.entries(params).flatMap(([key, value]) =>
+          value === undefined ? [] : [value].flat().map((item) => [key, String(item)]),
+        ),
       );
       return fetchData<NotificationPage>(`/notifications?${search}`);
     },
@@ -52,7 +56,7 @@ export const notificationsQuery = (params: NotificationsQueryParams) =>
 // Every deadline and alert of the case, by due date (the case detail and the agenda).
 export const caseNotificationsQuery = (caseId: string) =>
   queryOptions({
-    ...notificationsQuery({ caseId, limit: 100 }),
+    ...notificationsQuery({ caseId, kind: ['deadline', 'alert'], limit: 100 }),
     select: (page): DatedNotificationRecord[] => page.items.filter(isDatedNotification),
   });
 

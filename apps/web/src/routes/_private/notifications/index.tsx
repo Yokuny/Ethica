@@ -1,4 +1,4 @@
-import { NOTIFICATION_STATES } from '@ethica/contracts';
+import { NOTIFICATION_KINDS, NOTIFICATION_STATES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,8 @@ import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AutomationOffer } from '@/components/automation-offer.js';
-import { DataTable } from '@/components/data-table.js';
+import { DataTable, periodSummary, type TableFilterItem } from '@/components/data-table.js';
+import { DatePicker } from '@/components/date-picker.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { NotificationDialog } from '@/components/notification-dialog.js';
@@ -29,24 +30,51 @@ export function NotificationsPage() {
   const navigate = useNavigate({ from: '/notifications/' });
   const session = useQuery(sessionQuery).data;
   const canAdd = Boolean(session && can(session, 'expert_cases', 'update'));
-  const params = { page: search.page, limit: search.limit, state: search.state };
+  const params = {
+    page: search.page,
+    limit: search.limit,
+    state: search.state,
+    kind: search.kind,
+    from: search.from,
+    to: search.to,
+  };
+  const filtered = Boolean(search.kind || search.from || search.to);
   const query = useQuery(notificationsQuery(params));
   const queryClient = useQueryClient();
   const readAll = useMutation(markReadMutation(queryClient));
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
-  const hasNotices = search.state === 'open' && items.some((item) => item.kind === 'notice');
 
   function update(patch: Partial<NotificationsSearch>) {
     navigate({ search: (prev: NotificationsSearch) => ({ ...prev, ...patch }), replace: true });
   }
 
+  // "Filtros" (FIL-01): the kind (several at once) and the period of the day each one is about.
+  const filters: TableFilterItem[] = [
+    {
+      label: t('type'),
+      items: NOTIFICATION_KINDS.map((kind) => ({ value: kind, label: t(kind) })),
+      value: search.kind,
+      onChange: (kind) => update({ kind: kind as NotificationsSearch['kind'], page: 1 }),
+    },
+    {
+      label: t('period'),
+      summary: periodSummary(search.from, search.to),
+      content: (
+        <div className="grid grid-cols-2 gap-2">
+          <DatePicker value={search.from} placeholder={t('from')} onChange={(from) => update({ from, page: 1 })} />
+          <DatePicker value={search.to} placeholder={t('to')} onChange={(to) => update({ to, page: 1 })} />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <Card asPage>
       <CardHeader title={t('notifications')} description={t('notifications_description')}>
         <CardAction>
-          {hasNotices && (
+          {search.state === 'open' && (
             <Button
               variant="outline"
               disabled={readAll.isPending}
@@ -74,6 +102,7 @@ export function NotificationsPage() {
       <CardContent className="grid gap-3">
         <AutomationOffer />
         <DataTable
+          filters={{ items: filters }}
           export={{
             title: t('notifications'),
             columns: notificationExportColumns,
@@ -87,6 +116,15 @@ export function NotificationsPage() {
             <DefaultEmptyData
               title={t('load_error')}
               action={<Button onClick={() => void query.refetch()}>{t('try_again')}</Button>}
+            />
+          ) : !items.length && filtered ? (
+            <DefaultEmptyData
+              title={t('no_records_match_filters')}
+              action={
+                <Button onClick={() => update({ kind: undefined, from: undefined, to: undefined, page: 1 })}>
+                  {t('clear_filters')}
+                </Button>
+              }
             />
           ) : !items.length ? (
             <DefaultEmptyData title={t('no_notifications')} />

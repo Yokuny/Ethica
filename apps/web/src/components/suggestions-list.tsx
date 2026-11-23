@@ -59,7 +59,7 @@ export function SuggestionActions({ suggestion }: { suggestion: NotificationReco
 
 // The pending suggestions of a case (its "No tribunal"), in the order of the court.
 export function SuggestionsList({ caseId }: { caseId: string }) {
-  const query = useQuery(notificationsQuery({ caseId, kind: 'suggestion', state: 'open', limit: 100 }));
+  const query = useQuery(notificationsQuery({ caseId, kind: ['suggestion'], state: 'open', limit: 100 }));
   const items = query.data?.items ?? [];
   if (!items.length) return null;
 

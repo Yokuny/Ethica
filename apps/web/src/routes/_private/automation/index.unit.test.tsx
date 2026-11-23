@@ -33,7 +33,7 @@ const renderPage = (automationUntil?: string) => {
     role: ['admin'],
     permissions: effectivePermissions(['admin']),
   });
-  queryClient.setQueryData(notificationsQuery({ kind: 'suggestion', limit: 1 }).queryKey, {
+  queryClient.setQueryData(notificationsQuery({ kind: ['suggestion'], limit: 1 }).queryKey, {
     items: [{ id: 's1' }],
     total: 2,
   } as never);

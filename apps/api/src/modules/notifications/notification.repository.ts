@@ -170,14 +170,14 @@ export const list = async (
   tenantId: string,
   userId: string,
   modules: NotificationModule[],
-  { page, limit, state, kind, caseId }: ListNotificationsQuery,
+  { page, limit, state, kind, caseId, from, to }: ListNotificationsQuery,
 ): Promise<{ items: NotificationRecord[]; total: number }> =>
   withDbTiming('notification.list', async () => {
     const situation = state ?? (caseId ? undefined : 'open');
     const match = {
       Tenant: toObjectId(tenantId),
       module: { $in: modules },
-      ...(kind ? { kind } : {}),
+      ...(kind ? { kind: { $in: kind } } : {}),
       ...(caseId ? { Case: toObjectId(caseId) } : {}),
       ...(situation ? stateFilter(situation, userId) : {}),
     };
@@ -187,7 +187,8 @@ export const list = async (
     const [result] = await Notification.aggregate<{ items: NotificationDocument[]; total: { count: number }[] }>([
       { $match: match },
       { $addFields: { day: { $ifNull: ['$dueDate', day] } } },
-      { $sort: { day: direction, _id: direction } },
+      ...(from || to ? [{ $match: { day: { ...(from ? { $gte: from } : {}), ...(to ? { $lte: to } : {}) } } }] : []),
+      { $sort: { day: direction, 'evidence.movement.at': direction, _id: direction } },
       { $facet: { items: [{ $skip: (page - 1) * limit }, { $limit: limit }], total: [{ $count: 'count' }] } },
     ]);
     return {

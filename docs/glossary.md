@@ -21,7 +21,7 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Mensagem de contato | `ContactMessage` (`contact` module), `POST /contact` | Mensagem que um visitante envia pela página Contato; vai por e-mail ao endereço do Ethica (`CONTACT_EMAIL`) e não é guardada (AD-249). |
 | Nomeação | `nominationDate` | Dia em que o juízo nomeou o perito. |
 | Prazo do laudo | `reportDueDate` (só no cadastro e na importação) | Dia limite de entrega; vira o prazo "Entrega do laudo" do serviço (AD-264). |
-| Notificação | `Notification` (`notifications`) | Tudo o que pede a atenção de alguém no escritório (AD-263), de quatro tipos (`kind`): **prazo** (`deadline`), **alerta** (`alert`), **sugestão** (`suggestion`) e **aviso** (`notice`). Lido é por pessoa (`readBy`). |
+| Notificação | `Notification` (`notifications`) | Tudo o que pede a atenção de alguém no escritório (AD-263), de quatro tipos (`kind`): **prazo** (`deadline`), **alerta** (`alert`), **sugestão** (`suggestion`) e **aviso** (`notice`). Lido é por pessoa (`readBy`). Toda notificação está **aberta** (pede alguém) ou **resolvida** (alguém agiu) e tem uma data (AD-282). |
 | Prazo | `kind: 'deadline'` da `Notification` | Prazo processual do serviço (laudo, esclarecimentos, impugnação…): pendente, protocolado (com a data de protocolo), perdido ou cancelado. **Vence em breve** = até 15 dias. |
 | Alerta | `kind: 'alert'` da `Notification` | Lembrete com data que se conclui ou cancela (AD-189). |
 | Sugestão | `kind: 'suggestion'` da `Notification` | Alteração proposta pela Automação Datajud que só vale quando uma pessoa aprova (AD-268): pendente, aceita, rejeitada, superada ou expirada. |

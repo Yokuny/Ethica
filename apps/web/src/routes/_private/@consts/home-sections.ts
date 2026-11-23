@@ -29,7 +29,7 @@ export const HOME_SECTIONS = [
     titleKey: 'notifications',
     descriptionKey: 'notifications_description',
     icon: CalendarClock,
-    access: 'expert_cases',
+    access: 'everyone',
   },
   {
     to: '/agenda',

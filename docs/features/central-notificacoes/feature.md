@@ -20,7 +20,7 @@ spec: [.specs/features/central-notificacoes]
 
 - **Push** no celular e no computador: Conta → "Receber notificações neste aparelho"; o resumo do dia chega também por push, só com contagens (sem valor nem nome). Sair do sistema desliga o aparelho.
 - **Worker** (`apps/worker`), serviço próprio que fala com a API só pelo banco: de hora em hora cria os avisos de vencimento financeiro e, a partir das 07:00, manda **um e-mail do dia por pessoa** com os prazos (quem vê Serviços) e os lançamentos atrasados, de hoje e de daqui a 7 dias (quem vê o Financeiro), sem perder o dia com restart e sem duplicar com duas réplicas.
-- **Sino** no topo do menu com os avisos não lidos e a aba **Avisos** da Central (lido é por pessoa, "Marcar todos como lidos"); quem não vê o Financeiro não vê os avisos dele.
+- **Sino** no topo do menu com os avisos não lidos e a aba **Avisos** da Central (desde a AD-282, uma lista só e o número em Notificações) (lido é por pessoa, "Marcar todos como lidos"); quem não vê o Financeiro não vê os avisos dele.
 - **Conta → Notificações**: liga e desliga o e-mail de prazos e o do financeiro (a escolha antiga do aviso de prazos foi mantida).
 - A API não manda mais o e-mail do dia (saiu o timer de `server.ts`).
 - **Notificações** no menu e no início, no lugar de "Prazos e Alertas": a mesma lista de prazos e alertas de todos os serviços por criticidade, com Adiar, protocolar, concluir e agora **Marcar como cancelado**.

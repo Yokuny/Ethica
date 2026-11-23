@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, CalendarClock, type LucideIcon, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
 import {
   ALERT_VARIANT,
@@ -52,6 +53,7 @@ export const notificationExportColumns: TableExportColumn<NotificationRecord>[] 
   { header: t('notification'), value: (item) => notificationText(item).title },
   { header: t('expert_case'), value: (item) => item.caseNumber ?? '' },
   { header: t('contracting_party'), value: party },
+  { header: t('service_type'), value: (item) => serviceLabel(item) },
   { header: t('status'), value: (item) => t(situation(item, formatDisplayDate(new Date())).key) },
 ];
 
@@ -86,6 +88,7 @@ export function NotificationsTable({
             <TableHead>{t('date')}</TableHead>
             <TableHead>{t('notification')}</TableHead>
             <TableHead>{t('expert_case')}</TableHead>
+            <TableHead>{t('service_type')}</TableHead>
             <TableHead>{t('status')}</TableHead>
             <TableHead />
           </TableRow>
@@ -112,6 +115,11 @@ export function NotificationsTable({
                 <TableCell>
                   <TableStack width="text" tone={item.caseNumber ? 'default' : 'muted'} description={party(item)}>
                     {item.caseNumber ?? '—'}
+                  </TableStack>
+                </TableCell>
+                <TableCell>
+                  <TableStack width="fit" tone={item.role || item.serviceType ? 'default' : 'muted'}>
+                    {serviceLabel(item) || '—'}
                   </TableStack>
                 </TableCell>
                 <TableCell>

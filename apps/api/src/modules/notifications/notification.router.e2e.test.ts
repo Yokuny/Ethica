@@ -316,6 +316,11 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
     expect((await admin.as(request(app).delete(`/notifications/${financeNotice.id}`))).status).toBe(404);
     expect((await admin.patch(String(suggestion._id), { status: 'accepted' })).status).toBe(404);
     expect(ids((await admin.list('?kind=suggestion')).items)).toEqual([suggestion.id]);
+    expect(ids((await admin.list(`?from=${day(-3)}&to=${day(0)}`)).items)).toEqual([suggestion.id]);
+    expect(ids((await admin.list(`?caseId=${legalCase.id}&kind=deadline&kind=alert`)).items)).toEqual([
+      overdue.id,
+      future.id,
+    ]);
   });
 
   it('sugestões (AD-268): aprovar aplica pelo serviço uma vez só; já aplicada é superada; fora de ordem 409; rejeitar guarda o motivo', async () => {

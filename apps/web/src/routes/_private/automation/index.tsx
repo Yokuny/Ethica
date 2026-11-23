@@ -17,7 +17,7 @@ import { RULE_ITEMS } from './@utils/rule-items.js';
 export function AutomationPage() {
   const session = useQuery(sessionQuery).data;
   const active = Boolean(session && hasAutomationSession(session));
-  const suggestions = useQuery({ ...notificationsQuery({ kind: 'suggestion', limit: 1 }), enabled: active });
+  const suggestions = useQuery({ ...notificationsQuery({ kind: ['suggestion'], limit: 1 }), enabled: active });
   const pending = suggestions.data?.total ?? 0;
 
   return (
