@@ -66,11 +66,11 @@ pnpm vitest run apps/api/src/modules/notifications apps/worker apps/web/src/comp
 ## Pendências
 
 - [ ] Conferir o push num celular com o app instalado e num computador (build de produção).
-- [ ] Produção: apagar a collection antiga `deadlines` (usuário).
 - [ ] Perita: confirmar a tabela "Assumptions" da spec.
 
 ## Histórico
 
+- 2026-11-22 — Collection antiga `deadlines` apagada pelo usuário na produção; a troca do `Deadline` terminou também nos dados.
 - 2026-11-22 — Worker no ar na Railway, configurado em Settings (a Railway não aceita mais config-as-code em serviço novo), com o usuário `ethica-worker` do Atlas e as chaves VAPID; o primeiro ciclo rodou (varredura, e-mail do dia, tribunal, expiração de sugestões).
 - 2026-11-22 — Fase 6: push (AVS-03) com chaves VAPID, inscrição por aparelho e resumo do dia por push (AD-280). Não conferido num aparelho real (precisa do build de produção e das chaves). Plano arquivado em `.specs/features/central-notificacoes/plans/`.
 - 2026-11-22 — D8 resolvido: o usuário rodou o script na produção (11 prazos e 11 itens de agenda copiados); o script saiu do código, como previsto no plano.
