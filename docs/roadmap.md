@@ -54,7 +54,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
-- [ ] Conferir a página Automação Datajud no navegador, com e sem o módulo (o login local exige passkey, não conferido pelo agente) — `automacao-datajud`
 - [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
 - [ ] Conferir a seção No tribunal num serviço real com o plano com Automação e o aviso de movimentação no dia seguinte — `automacao-datajud`
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
@@ -103,6 +102,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-23 — Página Automação Datajud conferida no navegador local, com e sem o módulo (menu, sugestões, processo acompanhado com link, regras e oferta) — `automacao-datajud`
 - [x] 2026-11-22 — Produção: collection `opportunities` (vazia) apagada e `prospecting` tirado do único convite que tinha, depois da cópia em `ethica-backups` e da confirmação do usuário; nenhum serviço, usuário ou diário de bordo tinha dado da Prospecção — `prospeccao-datajud`
 - [x] 2026-11-22 — Página Automação Datajud no lugar da Prospecção; Prospecção removida inteira do código, sem shim (AD-281) — `automacao-datajud`, `prospeccao-datajud`
 - [x] 2026-11-22 — GitHub Actions habilitadas no repositório (estavam desligadas, por isso o CI nunca rodou); o workflow CI passa a rodar a cada push na main — `fundacao-ethica`

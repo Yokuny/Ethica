@@ -57,13 +57,13 @@ A definir.
 
 ## Pendências
 
-- [ ] Usuário: conferir a página Automação Datajud no navegador (com e sem o módulo).
 - [ ] Usuário: confirmar o estudo do pagamento (AD-274, `.specs/features/automacao-datajud/context.md`).
 - [ ] Fixture de TJ para incluir as perícias cíveis (TJMS e TJSP recusaram em 2026-11-22).
 
 ## Histórico
 
-- 2026-11-22 — Página Automação Datajud no lugar da Prospecção, removida inteira, sem shim (AD-281, supersede a AD-105): o Datajud acompanha os processos do escritório e a descoberta de nomeações fica para o DJEN. Página coberta por teste de tela; a conferência no navegador ficou para o usuário (o acesso local exige passkey). Dados da Prospecção apagados em produção com a confirmação do usuário (collection vazia e um convite).
+- 2026-11-23 — Página Automação Datajud conferida no navegador local: com o módulo, as sugestões (0), o processo do TRT24 com a última consulta e o link para o serviço, e as oito regras com Aviso ou Sugestão; sem o módulo, só a oferta, sem chamada à API.
+- 2026-11-22 — Página Automação Datajud no lugar da Prospecção, removida inteira, sem shim (AD-281, supersede a AD-105): o Datajud acompanha os processos do escritório e a descoberta de nomeações fica para o DJEN. Página coberta por teste de tela e conferida no navegador em 2026-11-23. Dados da Prospecção apagados em produção com a confirmação do usuário (collection vazia e um convite).
 - 2026-11-22 — Produção: limpeza deixou só o escritório ETHICA (Bykonz e Tal apagados, cópia fora do repositório) e o ETHICA recebeu o plano Mensal + Automação gravado no banco, sem assinatura no Asaas, até 31/12/2027, para usar o Datajud.
 - 2026-11-22 — Revisão final: o lote só marca os movimentos como vistos depois de gravar aviso e sugestões (uma falha no meio não perde o alvará); a seção No tribunal some nos serviços cíveis (TJ ainda não acompanhado); push só aceita endpoint `https:`. Worker conferido no docker-compose (`/health` 200).
 - 2026-11-22 — Fim da Fase 6: métricas por regra (AD-280). Plano arquivado em `.specs/features/central-notificacoes/plans/`; o plano do worker da prospecção continua na caixa de entrada para depois.
