@@ -1,4 +1,5 @@
-import { join, relative, sep } from 'node:path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { basename, join, relative, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   findCrossModuleImportViolations,
@@ -90,6 +91,66 @@ const LEGACY_LAYER_PATHS = [
 const SHARED_LAYER_DIRS = ['config', 'middlewares', 'providers', 'metrics', 'events'];
 const EVENT_SUBSCRIBERS_PREFIX = join('events', 'subscribers') + sep;
 
+// Rules (f)–(j) — AD-284: one shape per layer. The 409 of the offline inspection
+// (AD-128) is the only controller try/catch and the only module error class.
+const CONTROLLER_TRY_EXEMPT = ['agenda/inspection.controller.ts'];
+const ERROR_CLASS_EXEMPT = ['InspectionConflictError'];
+const LAYER_SUFFIXES = ['.router.ts', '.controller.ts', '.service.ts', '.repository.ts', '.schema.ts'];
+const NOT_FROM_REPOSITORY = ['.service.js', '.controller.js', '.router.js', '.repository.js'];
+const moduleFiles = (root: string) => findSourceFiles(root).filter((file) => moduleOf(root, file) !== null);
+
+// (f) controller: no try/catch, no repository, no @ethica/db value.
+const findControllerViolations = (root: string): string[] =>
+  moduleFiles(root)
+    .filter((file) => file.endsWith('.controller.ts'))
+    .flatMap((file) => {
+      const rel = relative(root, file).split(sep).join('/');
+      const found: string[] = [];
+      if (!CONTROLLER_TRY_EXEMPT.includes(rel) && /\btry\s*\{/.test(readFileSync(file, 'utf8')))
+        found.push(`${rel}: try`);
+      for (const { specifier, valueNames } of readImports(file)) {
+        if (specifier.endsWith('.repository.js')) found.push(`${rel} -> ${specifier}`);
+        if (specifier === '@ethica/db' && valueNames.length) found.push(`${rel} -> @ethica/db`);
+      }
+      return found;
+    });
+
+// (g) no module error class: "not found" is CustomError('…', 404) thrown by the service.
+const findErrorClassViolations = (root: string): string[] =>
+  moduleFiles(root).flatMap((file) =>
+    [...readFileSync(file, 'utf8').matchAll(/class (\w+) extends \w*Error\b/g)]
+      .filter(([, name]) => !ERROR_CLASS_EXEMPT.includes(name as string))
+      .map(([, name]) => `${relative(root, file)}: ${name}`),
+  );
+
+// (h) only the repository imports an owned model; it never imports another layer.
+const findRepositoryLayerViolations = (root: string): string[] =>
+  moduleFiles(root).flatMap((file) => {
+    const rel = relative(root, file);
+    const isRepository = file.endsWith('.repository.ts');
+    return readImports(file).flatMap(({ specifier, valueNames }) => {
+      if (!isRepository && specifier === '@ethica/db') {
+        return valueNames.filter((name) => DB_OWNER_BY_NAME.has(name)).map((name) => `${rel}: ${name}`);
+      }
+      if (isRepository && NOT_FROM_REPOSITORY.some((suffix) => specifier.endsWith(suffix)))
+        return [`${rel} -> ${specifier}`];
+      return [];
+    });
+  });
+
+// (i) a module file is one of the five layers or a support file `<entity>.<role>.ts`.
+const findFileShapeViolations = (root: string): string[] =>
+  moduleFiles(root)
+    .filter((file) => !LAYER_SUFFIXES.some((suffix) => file.endsWith(suffix)))
+    .filter((file) => !/^[a-z0-9-]+\.[a-z0-9-]+\.ts$/.test(basename(file)))
+    .map((file) => relative(root, file));
+
+// (j) every file name under apps/api/src is kebab-case (tests included).
+const findFileNameViolations = (root: string): string[] =>
+  readdirSync(root, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && !/^[a-z0-9.-]+$/.test(entry.name))
+    .map((entry) => relative(root, join(entry.parentPath, entry.name)));
+
 describe('api module boundaries (AD-038)', () => {
   describe('self-check', () => {
     it('(a) flags a cross-module import that is not .service.js/.schema.js; same-module imports and tests are exempt', () => {
@@ -173,6 +234,76 @@ describe('api module boundaries (AD-038)', () => {
         },
       );
     });
+
+    it('(f) flags a controller with try/catch or importing a repository/model; the inspection 409 is exempt', () => {
+      withFixture(
+        {
+          'a/x.controller.ts':
+            "import { Case } from '@ethica/db';\nimport { y } from './x.repository.js';\nexport const x = async () => { try { y(Case); } catch {} };\n",
+          'a/ok.controller.ts': "import * as s from './ok.service.js';\nexport const ok = async () => s.run();\n",
+          'agenda/inspection.controller.ts': 'export const save = async () => { try { 1; } catch {} };\n',
+        },
+        (root) => {
+          expect(findControllerViolations(root)).toEqual([
+            'a/x.controller.ts: try',
+            'a/x.controller.ts -> @ethica/db',
+            'a/x.controller.ts -> ./x.repository.js',
+          ]);
+        },
+      );
+    });
+
+    it('(g) flags a module error class other than InspectionConflictError', () => {
+      withFixture(
+        {
+          'a/x.service.ts': 'export class XNotFoundError extends KeyedError {}\n',
+          'agenda/inspection.service.ts': 'export class InspectionConflictError extends KeyedError {}\n',
+        },
+        (root) => {
+          expect(findErrorClassViolations(root)).toEqual(['a/x.service.ts: XNotFoundError']);
+        },
+      );
+    });
+
+    it('(h) flags an owned model outside a repository and a repository importing another layer', () => {
+      withFixture(
+        {
+          'case/case.deps.ts':
+            "import { Case, dateInDisplayTz } from '@ethica/db';\nexport const d = [Case, dateInDisplayTz];\n",
+          'case/case.repository.ts':
+            "import { Case } from '@ethica/db';\nimport { p } from './party.repository.js';\nimport { a } from './case.avatar.js';\nexport const c = [Case, p, a];\n",
+        },
+        (root) => {
+          expect(findRepositoryLayerViolations(root)).toEqual([
+            'case/case.deps.ts: Case',
+            'case/case.repository.ts -> ./party.repository.js',
+          ]);
+        },
+      );
+    });
+
+    it('(i) flags a module file that is neither a layer nor <entity>.<role>.ts', () => {
+      withFixture(
+        {
+          'a/helpers.ts': 'export const h = 1;\n',
+          'a/x.y.z.ts': 'export const h = 1;\n',
+          'a/report.docx.ts': 'export const h = 1;\n',
+          'a/report.service.ts': 'export const h = 1;\n',
+        },
+        (root) => {
+          expect(findFileShapeViolations(root).sort()).toEqual(['a/helpers.ts', 'a/x.y.z.ts']);
+        },
+      );
+    });
+
+    it('(j) flags a camelCase file name, tests included', () => {
+      withFixture(
+        { 'a/activityLog.service.ts': 'export const h = 1;\n', 'a/activity-log.router.e2e.test.ts': 'export {};\n' },
+        (root) => {
+          expect(findFileNameViolations(root)).toEqual(['a/activityLog.service.ts']);
+        },
+      );
+    });
   });
 
   it('(a) every cross-module import under modules/ targets a .service.js or .schema.js file (MOD-04)', () => {
@@ -195,5 +326,25 @@ describe('api module boundaries (AD-038)', () => {
     expect(findSharedLayerModuleImportViolations(API_SRC_ROOT, SHARED_LAYER_DIRS, [EVENT_SUBSCRIBERS_PREFIX])).toEqual(
       [],
     );
+  });
+
+  it('(f) controllers have no try/catch (except the inspection 409) and never touch a repository or model (AD-284)', () => {
+    expect(findControllerViolations(MODULES_ROOT)).toEqual([]);
+  });
+
+  it('(g) no module declares its own error class except InspectionConflictError (AD-284)', () => {
+    expect(findErrorClassViolations(MODULES_ROOT)).toEqual([]);
+  });
+
+  it('(h) only repositories import owned models, and repositories import no other layer (AD-284)', () => {
+    expect(findRepositoryLayerViolations(MODULES_ROOT)).toEqual([]);
+  });
+
+  it('(i) every module file is a layer file or a support file <entity>.<role>.ts (AD-284)', () => {
+    expect(findFileShapeViolations(MODULES_ROOT)).toEqual([]);
+  });
+
+  it('(j) every file under apps/api/src is kebab-case (AD-284)', () => {
+    expect(findFileNameViolations(API_SRC_ROOT)).toEqual([]);
   });
 });

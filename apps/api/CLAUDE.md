@@ -44,12 +44,12 @@ Uma forma por camada, sem variante. O teste estrutural trava cada regra.
 
 | Camada | Forma | Importa |
 | --- | --- | --- |
-| `*.router.ts` | `export const createXRouter = (deps): Router => { … }`; um router por prefixo montado no `app.ts` | controller e schema do módulo, middlewares |
+| `*.router.ts` | `export const createXRouter = (deps): Router => { … }`; um router por prefixo montado no `app.ts` (o convite tem dois: `/invites` público e `/tenant` do escritório) | controller e schema do módulo, middlewares |
 | `*.controller.ts` | função exportada **sem `try/catch`** (o Express 5 encaminha a rejeição ao `errorHandler`); quem precisa de provider o recebe antes: `(storage) => async (req, res) => …`. Sem fábrica de controller nem wrapper de resposta | service e schema do módulo (e de outro módulo, se precisar) |
 | `*.service.ts` | regras de negócio; erro é `CustomError('<chave>', status)` — "não encontrado" é `CustomError('x_not_found', 404)`, nunca classe própria | repository, schema, apoio do módulo; service de outro módulo; helpers do `@ethica/db` |
 | `*.repository.ts` | única camada que importa model do `@ethica/db` por valor | `@ethica/db`, schema e apoio do módulo — nunca outro repository |
 | `*.schema.ts` | Zod de entrada, re-export do `@ethica/contracts`, tipos de saída | contratos e outros schemas |
-| `<entidade>.<papel>.ts` | **arquivo de apoio**: só funções puras (sem banco, sem HTTP), ex. `report.docx.ts` | schema e outros apoios do módulo |
+| `<entidade>.<papel>.ts` | **arquivo de apoio**: só funções puras (sem banco, sem HTTP), ex. `report.docx.ts`, `user.avatar.ts` | schema e apoio do módulo, função pura de service de outro módulo |
 
 ```ts
 // modules/case/case.controller.ts
@@ -101,7 +101,12 @@ Varre `apps/api/src/modules/**` (fora de `*.test.ts`) e falha se:
 - **(b)** um módulo importar (por valor, não `import type`) um nome da tabela de ownership que não é dele;
 - **(c)** o grafo de dependência entre módulos tiver ciclo;
 - **(d)** `src/{routers,controllers,services,repositories,workers,ws}` ou `src/authDeps.ts` existirem;
-- **(e)** a camada compartilhada (`config/middlewares/providers/metrics/events`) importar de `modules/` — exceto `events/subscribers/**`.
+- **(e)** a camada compartilhada (`config/middlewares/providers/metrics/events`) importar de `modules/` — exceto `events/subscribers/**`;
+- **(f)** um controller tiver `try` (exceto `agenda/inspection.controller.ts`) ou importar repository ou valor do `@ethica/db` (AD-284);
+- **(g)** um módulo declarar classe de erro própria (exceto `InspectionConflictError`);
+- **(h)** um model do `DB_OWNERSHIP` for importado por valor fora de `*.repository.ts`, ou um repository importar service, controller, router ou outro repository;
+- **(i)** um arquivo de módulo não for de uma das 5 camadas nem de apoio `<entidade>.<papel>.ts`;
+- **(j)** um arquivo de `apps/api/src` (testes inclusive) não estiver em kebab-case.
 
 Cada regra tem self-check com fixture sintético num diretório temporário (mesmo molde de `mongoose-boundary.structural.test.ts`). Rodar `pnpm vitest run --project structural` depois de mexer em import cross-módulo.
 
