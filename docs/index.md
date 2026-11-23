@@ -24,6 +24,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
+- [Plano — Página "Automação Datajud" no lugar da Prospecção](../.specs/plans/2026-11-22-pagina-automacao-fim-prospeccao.md)
 - [Plano — Worker do Datajud: prospecção processada fora do BFF](../.specs/plans/2026-11-22-prospeccao-worker-datajud.md)
 
 ## Features (43)

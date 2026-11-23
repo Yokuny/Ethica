@@ -1119,6 +1119,10 @@
   ],
   "planos_nao_arquivados": [
     {
+      "arquivo": ".specs/plans/2026-11-22-pagina-automacao-fim-prospeccao.md",
+      "titulo": "Plano — Página \"Automação Datajud\" no lugar da Prospecção"
+    },
+    {
       "arquivo": ".specs/plans/2026-11-22-prospeccao-worker-datajud.md",
       "titulo": "Plano — Worker do Datajud: prospecção processada fora do BFF"
     }
