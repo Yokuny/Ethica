@@ -24,7 +24,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
-_Nenhum._
+- [Plano — `apps/api` num padrão único de arquitetura](../.specs/plans/2026-11-23-api-padrao-unico.md)
 
 ## Features (45)
 

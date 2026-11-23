@@ -77,6 +77,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
+- [ ] API num padrão único (controller, erro, router, arquivo de apoio, nomes) travado no teste estrutural: responder as decisões D1–D7 do plano `.specs/plans/2026-11-23-api-padrao-unico.md` e seguir spec → design → tasks — `api-padrao-unico`
+
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
 - [ ] Lote do Datajud que segue recebendo 429 desiste em cerca de 15 minutos no dia; aumentar a espera ou tentar no dia seguinte — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
