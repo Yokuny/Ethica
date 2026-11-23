@@ -24,7 +24,6 @@ export * from './schemas/listStats.schema.js';
 export * from './schemas/notification.schema.js';
 export * from './schemas/party.schema.js';
 export * from './schemas/permission.schema.js';
-export * from './schemas/prospecting.schema.js';
 export * from './schemas/provisionTenant.schema.js';
 export * from './schemas/query-list.schema.js';
 export * from './schemas/report.schema.js';

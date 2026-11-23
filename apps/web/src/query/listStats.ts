@@ -4,7 +4,7 @@ import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
 
 // Listing overview endpoints (GET .../stats): total and count per group.
-type StatsPath = '/expert-cases/stats' | '/prospecting/opportunities/stats';
+type StatsPath = '/expert-cases/stats';
 
 export const listStatsQuery = (path: StatsPath) =>
   queryOptions({

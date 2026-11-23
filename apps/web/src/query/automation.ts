@@ -1,4 +1,4 @@
-import type { CourtProcessView } from '@ethica/contracts';
+import type { CourtProcessView, TrackedCase } from '@ethica/contracts';
 import { queryOptions } from '@tanstack/react-query';
 import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
@@ -18,3 +18,13 @@ export const courtProcessQuery = (caseId: string) =>
       return res.data ?? null;
     },
   });
+
+// The cases followed in court (the Automação page), the most recently read first.
+export const trackedCasesQuery = queryOptions({
+  queryKey: [...automationKeys.all, 'cases'] as const,
+  queryFn: async (): Promise<TrackedCase[]> => {
+    const res = await get<TrackedCase[]>('/automation/cases');
+    if (!res.success) throw new Error(res.message ?? t('load_error'));
+    return res.data ?? [];
+  },
+});

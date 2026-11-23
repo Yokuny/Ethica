@@ -27,7 +27,6 @@ describe('descreverRequisicao — diário de bordo (AD-134)', () => {
     ['POST', `/finance/entries/${ID}/installments`, { module: 'finance', action: 'create', resource: 'installments' }],
     ['PUT', `/inspections/${ID}`, { module: 'agenda', action: 'update', resource: undefined }],
     ['POST', `/agenda/${ID}/notice`, { module: 'agenda', action: 'notify' }],
-    ['POST', `/prospecting/opportunities/${ID}/convert`, { module: 'prospecting', action: 'convert' }],
     ['GET', '/documents/export', { module: 'office', action: 'export' }],
     ['PUT', '/tenant/office', { module: 'office', action: 'update' }],
     ['POST', '/tenant/invites', { module: 'users', action: 'create' }],
@@ -42,7 +41,6 @@ describe('descreverRequisicao — diário de bordo (AD-134)', () => {
     ['GET', `/expert-reports/${ID}/pdf`],
     ['PATCH', '/me/preferences'],
     ['POST', `/agenda/${ID}/geocode`],
-    ['POST', '/prospecting/datajud/search'],
     ['POST', '/auth/signin'],
     ['POST', '/invites/abc/accept'],
   ])('não registra %s %s', (method, path) => {

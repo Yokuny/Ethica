@@ -101,7 +101,6 @@ export type CaseRecord = {
   nonPrescribedPeriodEnd?: string;
   location?: string;
   movements: MovementRecord[];
-  opportunityId?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -124,7 +123,7 @@ export type StalledCase = {
   stalledDays: number;
 };
 
-export type CreateCaseInput = CreateCase & { tenant: string; opportunityId?: string };
+export type CreateCaseInput = CreateCase & { tenant: string };
 
 // What the repository saves: parties already resolved in the registry (AD-117), without the report deadline
 // and the perícia date.

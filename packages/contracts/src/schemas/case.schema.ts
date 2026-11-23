@@ -234,7 +234,6 @@ export const parseCoordinates = (text: string): { lat: number; lng: number } | u
 
 // `reportDueDate` and `inspection` only exist at registration: they become the "Entrega do laudo"
 // deadline (AD-264) and the perícia appointment (AD-160), not case fields.
-// The unrefined shape serves `.pick` (opportunity conversion); the API validates with the refined one.
 // Receipt given at registration (AD-176): it becomes a receipt of the fee income, on the payoff date.
 export const casePaymentSchema = z
   .object({
@@ -244,6 +243,7 @@ export const casePaymentSchema = z
   .strict();
 export type CasePayment = z.infer<typeof casePaymentSchema>;
 
+// The unrefined shape serves the field-by-field check of the import (`.shape`); the API validates with the refined one.
 export const createCaseFieldsSchema = caseFields
   .extend({
     reportDueDate: calendarDateSchema.optional(),

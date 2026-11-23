@@ -25,7 +25,6 @@ const ACTION_BY_METHOD: Record<string, ActivityLogAction> = {
 // Path suffix that names the action better than the method.
 const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
   complete: 'complete',
-  convert: 'convert',
   notice: 'notify',
   export: 'export',
   move: 'update',
@@ -34,15 +33,7 @@ const ACTION_BY_SUFFIX: Record<string, ActivityLogAction> = {
   reject: 'update',
 };
 // Technical effect or a read through POST: not an action of whoever uses the system.
-const IGNORED = [
-  '/me/preferences',
-  '/me/push',
-  '/auth/signin',
-  '/auth/signout',
-  '/invites/',
-  '/platform/',
-  '/prospecting/datajud/search',
-];
+const IGNORED = ['/me/preferences', '/me/push', '/auth/signin', '/auth/signout', '/invites/', '/platform/'];
 const LABELS = ['processNumber', 'title', 'name', 'description', 'email'] as const;
 
 const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
@@ -59,7 +50,6 @@ const moduleOf = (literals: string[]): ActivityLogModule | undefined => {
     agenda: 'agenda',
     inspections: 'agenda',
     finance: 'finance',
-    prospecting: 'prospecting',
     documents: 'office',
     me: 'account',
   };

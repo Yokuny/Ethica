@@ -9,7 +9,6 @@ import {
   disconnect,
   Inspection,
   Notification,
-  Opportunity,
   Party,
   Report,
   Session,
@@ -25,7 +24,7 @@ import { DEFAULT_TEMPLATES } from '../src/modules/documents/report.library.js';
 import type { TemplateRecord } from '../src/modules/documents/report.schema.js';
 
 // Dev tool: creates (or recreates) the "Perícias Demo" demo tenant
-// with a team, cases in several phases, agenda, transactions and opportunities,
+// with a team, cases in several phases, agenda and transactions,
 // with dates relative to today. Deletes only this tenant's data.
 //
 //   pnpm --filter api run seed:demo
@@ -121,7 +120,6 @@ const run = async (): Promise<void> => {
       Appointment.deleteMany({ Tenant: old._id }),
       Inspection.deleteMany({ Tenant: old._id }),
       Transaction.deleteMany({ Tenant: old._id }),
-      Opportunity.deleteMany({ Tenant: old._id }),
       Report.deleteMany({ Tenant: old._id }),
       Template.deleteMany({ Tenant: old._id }),
       Session.deleteMany({ user: { $in: users.map((user) => user._id) } }),
@@ -511,29 +509,6 @@ const run = async (): Promise<void> => {
         };
       }),
   });
-
-  await Opportunity.create([
-    {
-      Tenant: tenant._id,
-      processNumber: '0007890-12.2026.5.02.0045',
-      court: 'trt2',
-      caseClass: 'Ação Trabalhista - Rito Ordinário',
-      subjects: ['Adicional de Insalubridade'],
-      courtUnit: '45ª Vara do Trabalho de São Paulo',
-      lastMovement: 'Determinada a realização de perícia',
-      status: 'new',
-    },
-    {
-      Tenant: tenant._id,
-      processNumber: '0008901-23.2026.5.15.0001',
-      court: 'trt15',
-      caseClass: 'Ação Trabalhista - Rito Sumaríssimo',
-      subjects: ['Doença Ocupacional'],
-      courtUnit: '1ª Vara do Trabalho de Campinas',
-      lastMovement: 'Nomeado perito',
-      status: 'under_review',
-    },
-  ]);
 
   console.log(
     JSON.stringify({

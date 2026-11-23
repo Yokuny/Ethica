@@ -9,13 +9,6 @@ const emailAndIpKeyGenerator = (req: Request): string => {
   return `${email}:${ipKeyGenerator(req.ip ?? 'unknown')}`;
 };
 
-// Authenticated template mutation routes have no e-mail in the body — the key
-// is the tenant+IP pair (FLD-16). Deliberate divergence from the generator above.
-const tenantAndIpKeyGenerator = (req: Request): string => {
-  const tenant = req.tenantUser?.tenant ?? 'sem-tenant';
-  return `${tenant}:${ipKeyGenerator(req.ip ?? 'unknown')}`;
-};
-
 // The client always gets the same key (`too_many_attempts`); `scope` only
 // identifies the limiter in the errorHandler log.
 const rejectWithTooManyRequests = (scope: string, keyGenerator = emailAndIpKeyGenerator, limit = 5) => {
@@ -43,10 +36,6 @@ export const inviteRateLimit = rejectWithTooManyRequests('invite');
 // Contact page (AD-249): public, the e-mail of the form is the visitor's to change — the key is the IP alone.
 const ipKeyOnly = (req: Request): string => `contact:${ipKeyGenerator(req.ip ?? 'unknown')}`;
 export const contactRateLimit = rejectWithTooManyRequests('contact', ipKeyOnly);
-
-// Datajud search (CNJ public API, with a quota): by tenant + IP. 60 searches
-// per 15 min cover manual prospecting without turning into automated scraping.
-export const datajudSearchRateLimit = rejectWithTooManyRequests('datajud_search', tenantAndIpKeyGenerator, 60);
 
 // iCal feed (PRZ-03): public route queried by Google/Outlook/Apple servers, which
 // share an IP among thousands of subscribers — the key is the link token itself.

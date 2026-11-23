@@ -37,7 +37,7 @@ export function MobileDock() {
         <CalendarDays className="size-5" />
         {t('agenda')}
       </Link>
-      {/* Field (AD-128): the phone screen during the inspection; prospecting stays in the Menu. */}
+      {/* Field (AD-128): the phone screen during the inspection; the automation stays in the Menu. */}
       <Link
         to="/field"
         data-tour="/field"

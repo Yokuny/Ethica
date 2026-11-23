@@ -33,9 +33,7 @@ import { createPreferencesRouter } from './modules/identity/preferences.router.j
 import { createPushRouter } from './modules/identity/push.router.js';
 import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
 import { createNotificationRouter } from './modules/notifications/notification.router.js';
-import { createProspectingRouter } from './modules/prospecting/opportunity.router.js';
 import { type AsaasClient, createAsaasClient } from './providers/asaasClient.js';
-import { createDatajudClient, type DatajudClient } from './providers/datajudClient.js';
 import { createS3FileStorage, type FileStorage } from './providers/fileStorage.js';
 import { createNominatimGeocoder, type Geocoder } from './providers/geocoder.js';
 import { createChromiumPdfRenderer, type PdfRenderer } from './providers/pdfRenderer.js';
@@ -44,10 +42,9 @@ import { createChromiumPdfRenderer, type PdfRenderer } from './providers/pdfRend
 export const buildMailProvider = (): MailProvider => createMailProvider(env);
 
 // No .listen() — testable through supertest without opening a port. start() (server.ts)
-// is what actually brings the process up. `datajud`, `pdf` and `storage` are injectable for tests.
+// is what actually brings the process up. `pdf` and `storage` are injectable for tests.
 export const buildApp = (
   options: {
-    datajud?: DatajudClient;
     pdf?: PdfRenderer;
     storage?: FileStorage | null;
     mail?: MailProvider;
@@ -79,11 +76,6 @@ export const buildApp = (
   const { validToken, validSession } = createAuthMiddleware(buildAuthDeps());
   const mailProvider = options.mail ?? buildMailProvider();
   const inviteBaseUrl = `${env.CORS_ORIGIN}/invite`;
-  const datajud =
-    options.datajud ??
-    (env.DATAJUD_API_KEY
-      ? createDatajudClient({ baseUrl: env.DATAJUD_BASE_URL, apiKey: env.DATAJUD_API_KEY })
-      : undefined);
 
   // PDF (AD-119): Chromium only starts on the first generation.
   const pdf = options.pdf ?? createChromiumPdfRenderer(env.CHROMIUM_PATH);
@@ -157,7 +149,6 @@ export const buildApp = (
   app.use('/finance', createFinanceRouter({ validToken }));
   app.use('/documents', createDocumentsRouter({ validToken, pdf, storage }));
   app.use('/expert-reports', createReportRouter({ validToken, pdf, storage }));
-  app.use('/prospecting', createProspectingRouter({ validToken, datajud }));
 
   app.use(errorHandler);
 

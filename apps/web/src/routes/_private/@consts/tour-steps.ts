@@ -12,6 +12,7 @@ export const TOUR_SECTIONS: HomeSection['to'][] = [
   '/field',
   '/expert-reports',
   '/finance',
+  '/automation',
 ];
 
 export const TOUR_WELCOME: TourStep = {

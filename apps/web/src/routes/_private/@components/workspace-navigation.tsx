@@ -27,7 +27,7 @@ import type { HomeSection } from '../@interface/home.interface.js';
 import { CommandMenu, useCommandMenuShortcut } from './command-menu.js';
 
 // Sidebar groups (AD-208): the routine of the services, the reference records that feed them, and the office
-// management with the search for new appointments.
+// management with the automation of the processes in court.
 const groups: { key: string; destinations: HomeSection['to'][]; heading: string }[] = [
   {
     key: 'work',
@@ -37,7 +37,7 @@ const groups: { key: string; destinations: HomeSection['to'][]; heading: string 
   { key: 'records', destinations: ['/parties', '/court-divisions'], heading: 'records' },
   {
     key: 'management',
-    destinations: ['/finance', '/reports', '/dashboard', '/prospecting'],
+    destinations: ['/finance', '/reports', '/dashboard', '/automation'],
     heading: 'management',
   },
   { key: 'admin', destinations: ['/users', '/office', '/activity-log'], heading: 'settings' },

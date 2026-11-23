@@ -26,15 +26,7 @@ const CLEARABLE = [
 
 export function useCaseEditForm({ legalCase, onSaved }: Pick<CaseEditFormProps, 'legalCase' | 'onSaved'>) {
   const queryClient = useQueryClient();
-  const {
-    id: _id,
-    createdAt: _c,
-    updatedAt: _u,
-    opportunityId: _o,
-    movements: _m,
-    attachments: _a,
-    ...defaultValues
-  } = legalCase;
+  const { id: _id, createdAt: _c, updatedAt: _u, movements: _m, attachments: _a, ...defaultValues } = legalCase;
   const form = useForm<CaseFormValues>({
     resolver: zodResolver(
       updateCaseSchema.refine(validNominationDate, {

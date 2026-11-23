@@ -9,7 +9,6 @@ export const PERMISSION_MODULE_KEY: Record<PermissionModule, string> = {
   expert_reports: 'reports_and_opinions',
   report_templates: 'report_templates',
   finance: 'finance',
-  prospecting: 'prospecting',
   reports: 'reports',
 };
 

@@ -11,7 +11,6 @@ export const PERMISSION_MODULES = [
   'expert_reports',
   'report_templates',
   'finance',
-  'prospecting',
   'reports',
 ] as const;
 export type PermissionModule = (typeof PERMISSION_MODULES)[number];
@@ -55,7 +54,6 @@ export const PROFILE_PERMISSIONS: Record<Exclude<Role, 'admin'>, Permissions> = 
     agenda: TUDO,
     expert_reports: TUDO,
     report_templates: ['view'],
-    prospecting: TUDO,
     reports: ['view'],
   },
 };

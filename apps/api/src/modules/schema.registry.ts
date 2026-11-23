@@ -63,11 +63,6 @@ import {
   notificationIdParamSchema,
   rejectSuggestionSchema,
 } from './notifications/notification.schema.js';
-import {
-  convertOpportunitySchema,
-  listOpportunitiesQuerySchema,
-  opportunityIdParamSchema,
-} from './prospecting/opportunity.schema.js';
 
 // Local Zod schemas of the modules (router params/query, in
 // `<entity>.schema.ts`). Same shape as the @ethica/contracts schemaRegistry,
@@ -129,7 +124,4 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'flowQuerySchema', schema: flowQuerySchema },
   { name: 'revenueGoalQuerySchema', schema: revenueGoalQuerySchema },
   { name: 'categoriesQuerySchema', schema: categoriesQuerySchema },
-  { name: 'opportunityIdParamSchema', schema: opportunityIdParamSchema },
-  { name: 'listOpportunitiesQuerySchema', schema: listOpportunitiesQuerySchema },
-  { name: 'convertOpportunitySchema', schema: convertOpportunitySchema },
 ];

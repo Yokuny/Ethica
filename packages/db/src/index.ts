@@ -27,8 +27,6 @@ export type { NotificationDocument } from './models/notification.model.js';
 export { Notification } from './models/notification.model.js';
 export type { NotificationDeliveryDocument } from './models/notification-delivery.model.js';
 export { NotificationDelivery } from './models/notification-delivery.model.js';
-export type { OpportunityDocument } from './models/opportunity.model.js';
-export { Opportunity } from './models/opportunity.model.js';
 export type { PartyDocument } from './models/party.model.js';
 export { Party } from './models/party.model.js';
 export type { PasskeyDocument } from './models/passkey.model.js';
@@ -103,7 +101,6 @@ import { Inspection } from './models/inspection.model.js';
 import { Invite } from './models/invite.model.js';
 import { Notification } from './models/notification.model.js';
 import { NotificationDelivery } from './models/notification-delivery.model.js';
-import { Opportunity } from './models/opportunity.model.js';
 import { Party } from './models/party.model.js';
 import { Passkey } from './models/passkey.model.js';
 import { PushSubscription } from './models/push-subscription.model.js';
@@ -139,7 +136,6 @@ export const syncIndexes = async (): Promise<void> => {
     Appointment.createIndexes(),
     CalendarEntry.createIndexes(),
     Transaction.createIndexes(),
-    Opportunity.createIndexes(),
     Report.createIndexes(),
     Template.createIndexes(),
     Inspection.createIndexes(),

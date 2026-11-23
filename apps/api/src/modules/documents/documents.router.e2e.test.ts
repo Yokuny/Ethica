@@ -246,7 +246,6 @@ describe('documentos e movimentações (DOC-02..04)', () => {
     expect(Object.keys(files).sort()).toEqual([
       'compromissos.csv',
       'lancamentos.csv',
-      'oportunidades.csv',
       'partes.csv',
       'pericias.csv',
       'prazos.csv',

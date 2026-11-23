@@ -131,7 +131,7 @@ const postFees = (tenantId: string, legalCase: CaseRecord, received?: CasePaymen
   });
 };
 
-// Single creation path (form, PDF, CSV, opportunity): resolves the parties in the
+// Single creation path (form, PDF, CSV): resolves the parties in the
 // registry (AD-117); the report due date becomes the "Entrega do laudo" deadline by `case:created` (AD-264).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
   const { reportDueDate, parties, inspection, payment, ...input } = withSuggestedPeriod(data);

@@ -86,7 +86,6 @@ const toRecord = (doc: CaseDocument): CaseRecord => ({
       date: movement.date,
       notes: movement.notes,
     })),
-  opportunityId: doc.Opportunity?.toString(),
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });
@@ -109,13 +108,12 @@ const DELIVERED: CasePhase[] = [
   ...ASSISTANCE_DELIVERED,
 ];
 
-export const createCase = async ({ tenant, opportunityId, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
+export const createCase = async ({ tenant, parties, ...data }: CaseCreateWrite): Promise<CaseRecord> =>
   withDbTiming('case.createCase', async () => {
     const doc = await Case.create({
       ...data,
       parties: toPartiesDocs(parties),
       Tenant: tenant,
-      Opportunity: opportunityId,
     });
     return toRecord(doc);
   });

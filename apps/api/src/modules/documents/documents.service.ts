@@ -11,7 +11,6 @@ import * as accountService from '../identity/account.service.js';
 import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
 import * as notificationService from '../notifications/notification.service.js';
-import * as opportunityService from '../prospecting/opportunity.service.js';
 import type { DocumentBase, DocumentContext, FinanceReportQuery, GeneratedFile } from './documents.schema.js';
 import {
   checklistHtml,
@@ -136,14 +135,13 @@ export const toCsv = <T>(columns: Array<[string, (item: T) => Cell]>, items: T[]
 // DOC-04: one CSV per tenant entity in a ZIP; records who exported and when.
 export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> => {
   const { tenantId } = ctx;
-  const [cases, parties, deadlines, appointments, transactions, users, opportunities] = await Promise.all([
+  const [cases, parties, deadlines, appointments, transactions, users] = await Promise.all([
     caseService.listForExport(tenantId),
     partyService.listForExport(tenantId),
     notificationService.listForExport(tenantId),
     appointmentService.listForExport(tenantId),
     transactionService.listForExport(tenantId),
     authService.listUserDirectory(tenantId),
-    opportunityService.listForExport(tenantId),
   ]);
   const files = {
     'pericias.csv': toCsv(
@@ -241,21 +239,6 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['createdAt', (u) => u.createdAt],
       ],
       users,
-    ),
-    'oportunidades.csv': toCsv(
-      [
-        ['id', (o) => o.id],
-        ['numeroProcesso', (o) => o.processNumber],
-        ['tribunal', (o) => o.court],
-        ['caseClass', (o) => o.caseClass],
-        ['subjects', (o) => o.subjects.join(' | ')],
-        ['courtUnit', (o) => o.courtUnit],
-        ['status', (o) => o.status],
-        ['periciaId', (o) => o.caseId],
-        ['notes', (o) => o.notes],
-        ['createdAt', (o) => o.createdAt],
-      ],
-      opportunities,
     ),
   };
   const zip = zipSync(Object.fromEntries(Object.entries(files).map(([name, csv]) => [name, strToU8(csv)])));

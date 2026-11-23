@@ -17,7 +17,6 @@ import {
   dateInDisplayTz,
   disconnect,
   Notification,
-  Opportunity,
   Party,
   Report,
   ServiceOrderSequence,
@@ -32,7 +31,7 @@ import type { TemplateRecord } from '../src/modules/documents/report.schema.js';
 
 // Dev tool: fills the office of an existing login with a large volume of data for visual checks — parties,
 // court divisions, services of every type, phase and status (some with empty fields), deadlines, agenda,
-// twelve months of transactions, opportunities and draft reports, with dates relative to today. It only adds:
+// twelve months of transactions and draft reports, with dates relative to today. It only adds:
 // every run creates new records (new process numbers and the next service orders), nothing is deleted.
 //
 //   pnpm --filter api run seed:volume <login e-mail>
@@ -610,23 +609,6 @@ const run = async (): Promise<void> => {
       })),
     ),
   ]);
-
-  // Prospecting opportunities in every status.
-  await Opportunity.insertMany(
-    scoped(
-      Array.from({ length: 24 }, () => ({
-        processNumber: `${digits(7)}-${digits(2)}.${year}.5.02.${digits(4)}`,
-        court: pick(['trt2', 'trt15', 'trt4'] as const),
-        caseClass: pick(['Ação Trabalhista - Rito Ordinário', 'Ação Trabalhista - Rito Sumaríssimo']),
-        subjects: [pick(['Adicional de Insalubridade', 'Adicional de Periculosidade', 'Doença Ocupacional'])],
-        courtUnit: pick(COURTS.labor[0]?.divisions ?? []),
-        filingDate: day(-int(10, 200)),
-        lastMovement: pick(['Determinada a realização de perícia', 'Nomeado perito', 'Conclusos para despacho']),
-        lastMovementAt: day(-int(0, 30)),
-        status: pick(['new', 'new', 'under_review', 'discarded'] as const),
-      })),
-    ),
-  );
 
   // Draft reports of cases being drafted, from the default template (AD-126).
   const template = DEFAULT_TEMPLATES.find((item) => item.id === 'standard-report') as TemplateRecord;

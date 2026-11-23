@@ -94,11 +94,6 @@ export const API_MESSAGE_KEYS = [
   'fee_cannot_be_removed',
   'fee_status_comes_from_parcels',
   'amount_below_received',
-  // Prospecting (Datajud)
-  'datajud_unavailable',
-  'datajud_not_configured',
-  'opportunity_already_saved',
-  'opportunity_already_converted',
 ] as const;
 
 export type ApiMessageKey = (typeof API_MESSAGE_KEYS)[number];

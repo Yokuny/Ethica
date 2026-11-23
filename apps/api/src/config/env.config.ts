@@ -20,11 +20,6 @@ export const envSchema = z.object({
   SMTP_PORT: z.string().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
-  // Datajud Public API (CNJ): key published by CNJ in the API
-  // documentation, sent as `Authorization: APIKey <key>`. Without it, the prospecting
-  // search answers `datajud_not_configured` and the rest of the app works.
-  DATAJUD_API_KEY: optionalSecret,
-  DATAJUD_BASE_URL: z.string().default('https://api-publica.datajud.cnj.jus.br'),
   // Field map geocoding (AD-131): public Nominatim by default.
   GEOCODER_URL: z.string().default('https://nominatim.openstreetmap.org'),
   GEOCODER_USER_AGENT: z.string().default('Ethica/1.0 (gestao de pericias)'),

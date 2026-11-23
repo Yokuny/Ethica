@@ -38,7 +38,6 @@ const DB_OWNERSHIP: Record<string, readonly string[]> = {
   case: ['Case', 'Party', 'CourtDivision', 'COURT_DIVISION_COLLATION', 'ServiceOrderSequence', 'RetiredServiceOrder'],
   agenda: ['Appointment', 'Inspection', 'CalendarEntry'],
   finance: ['Transaction'],
-  prospecting: ['Opportunity'],
   documents: ['Report', 'Template', 'Signatory'],
   notifications: ['Notification'],
   // Read only: the worker writes them (AD-271).

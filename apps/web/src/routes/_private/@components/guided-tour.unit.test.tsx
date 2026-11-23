@@ -53,7 +53,7 @@ describe('GuidedTour', () => {
 
   it('admin vê as seções, o escritório e a conta', () => {
     renderTour(['admin']);
-    expect(screen.getByText('1 de 9')).toBeInTheDocument();
+    expect(screen.getByText('1 de 10')).toBeInTheDocument();
     expect(walkTitles()).toEqual([
       'Boas-vindas ao Ethica',
       'Serviços',
@@ -62,6 +62,7 @@ describe('GuidedTour', () => {
       'Logística',
       'Laudos',
       'Financeiro',
+      'Automação Datajud',
       'Seu escritório',
       'Sua conta',
     ]);

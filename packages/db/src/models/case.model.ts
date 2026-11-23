@@ -91,8 +91,6 @@ export interface CaseDocument {
   nonPrescribedPeriodEnd?: string;
   location?: string;
   movements: CaseMovementDocument[];
-  // Case born from a prospecting opportunity (Datajud).
-  Opportunity?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -173,7 +171,6 @@ const caseSchema = new Schema<CaseDocument>(
       ],
       default: [],
     },
-    Opportunity: { type: Schema.Types.ObjectId, ref: 'Opportunity' },
   },
   { timestamps: true },
 );

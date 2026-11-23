@@ -61,7 +61,6 @@ import {
   updatePartySchema,
 } from './schemas/party.schema.js';
 import { permissionsSchema, updatePermissionsSchema } from './schemas/permission.schema.js';
-import { createOpportunitySchema, datajudSearchSchema, updateOpportunitySchema } from './schemas/prospecting.schema.js';
 import { provisionTenantSchema } from './schemas/provisionTenant.schema.js';
 import {
   addReportSectionSchema,
@@ -160,9 +159,6 @@ export const schemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }> = 
   { name: 'createTransactionSchema', schema: createTransactionSchema },
   { name: 'updateTransactionSchema', schema: updateTransactionSchema },
   { name: 'createInstallmentSchema', schema: createInstallmentSchema },
-  { name: 'datajudSearchSchema', schema: datajudSearchSchema },
-  { name: 'createOpportunitySchema', schema: createOpportunitySchema },
-  { name: 'updateOpportunitySchema', schema: updateOpportunitySchema },
   { name: 'updateScheduleNoticeSchema', schema: updateScheduleNoticeSchema },
   { name: 'updateRevenueGoalSchema', schema: updateRevenueGoalSchema },
   { name: 'mediaIdSchema', schema: mediaIdSchema },

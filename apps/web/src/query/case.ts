@@ -59,7 +59,6 @@ export type CaseRecord = {
   location?: string;
   // Movements that count for the stalled case (AD-121), from newest to oldest.
   movements: { id: string; type: MovementType; data: string; notes?: string }[];
-  opportunityId?: string;
   createdAt: string;
   updatedAt: string;
 };

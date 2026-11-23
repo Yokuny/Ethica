@@ -20,7 +20,7 @@ const MODULE_BY_SEGMENT: Record<string, PermissionModule> = {
   field: 'agenda',
   'expert-reports': 'expert_reports',
   finance: 'finance',
-  prospecting: 'prospecting',
+  automation: 'expert_cases',
   reports: 'reports',
 };
 

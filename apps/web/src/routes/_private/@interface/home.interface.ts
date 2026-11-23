@@ -11,7 +11,7 @@ export type HomeSection = {
     | '/agenda'
     | '/dashboard'
     | '/finance'
-    | '/prospecting'
+    | '/automation'
     | '/reports'
     | '/users'
     | '/office'
