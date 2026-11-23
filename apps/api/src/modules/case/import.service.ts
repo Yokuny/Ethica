@@ -27,7 +27,7 @@ import { extractText } from 'unpdf';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseRepository from './case.repository.js';
 import * as caseService from './case.service.js';
-import type { CsvColumn, CsvImportResult, PdfDraft, PdfExtraction } from './import.schema.js';
+import type { CsvCell, CsvColumn, CsvImportResult, PdfDraft, PdfExtraction } from './import.schema.js';
 
 // --- Court from the CNJ number (AD-118) ---------------------------------------
 // --- Datas --------------------------------------------------------------------
@@ -409,7 +409,6 @@ const TEXT_FIELDS = ['court', 'division', 'district', 'subject', 'claimantJob', 
 const DATE_FIELDS = ['nominationDate', 'reportDueDate', 'docketingDate', 'hireDate', 'terminationDate'] as const;
 const NOTES_HEADER = /^(obs|observ|anota|coment)/;
 
-export type CsvCell = { header: string; field: CsvImportField; value: string };
 type DeclinedRow = { column?: string; reason: ApiMessageKey };
 
 // One spreadsheet row → registration validated by the same schema as the form, or the rejection reason.

@@ -15,8 +15,6 @@ const notFoundAs404 = (e: unknown, next: NextFunction): void => {
   next(e instanceof CaseNotFoundError ? new CustomError(e.message, 404, e.detail) : e);
 };
 
-const STALLED_IN_START = 5;
-
 export const createCase = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     // The payment given at registration is a receipt in finance (AD-176).
@@ -176,11 +174,10 @@ export const caseDistribution = async (req: Request, res: Response, next: NextFu
   }
 };
 
-// Home "Stalled cases" block (GES-05): the total and the oldest ones, same rule as the PDF.
+// Home "Stalled cases" block (GES-05).
 export const stalledSummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const stalled = await caseService.listStalled(tenantOf(req));
-    res.json(respObj({ data: { total: stalled.length, items: stalled.slice(0, STALLED_IN_START) } }));
+    res.json(respObj({ data: await caseService.stalledSummary(tenantOf(req)) }));
   } catch (e) {
     next(e);
   }

@@ -16,6 +16,7 @@ export type CsvImportQuery = z.infer<typeof csvImportQuerySchema>;
 
 // Column of the spreadsheet with the suggested field; not `certain` is shown with "!".
 export type CsvColumn = { header: string; sample?: string; field: CsvImportField; certain: boolean };
+export type CsvCell = { header: string; field: CsvImportField; value: string };
 
 // Draft extracted from the PDF (AD-114): only fills the form, saves nothing.
 export type PdfDraft = Partial<CreateCase>;

@@ -370,6 +370,13 @@ export const listStalled = async (tenantId: string, now: Date = new Date()): Pro
   return stalled.map((stalled) => ({ ...stalled, stalledDays: daysBetween(stalled.reference, today) }));
 };
 
+// Home "Stalled cases" block (GES-05): the total and the oldest ones, same rule as the PDF.
+const STALLED_IN_START = 5;
+export const stalledSummary = async (tenantId: string): Promise<{ total: number; items: StalledCase[] }> => {
+  const stalled = await listStalled(tenantId);
+  return { total: stalled.length, items: stalled.slice(0, STALLED_IN_START) };
+};
+
 export const listForExport = (tenantId: string) => caseRepository.listAll(tenantId);
 
 export const listServiceTypes = (tenantId: string) => caseRepository.listServiceTypes(tenantId);
