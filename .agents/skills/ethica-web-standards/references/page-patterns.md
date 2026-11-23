@@ -5,7 +5,7 @@ Caminhos a partir de `apps/web/src/routes/_private/`.
 
 ## Hub de módulo — `{module}/index.tsx`
 
-Referência: `finance/index.tsx`, `prospecting/index.tsx`.
+Referência: `finance/index.tsx`, `expert-reports/index.tsx`.
 
 ```tsx
 // SECTIONS vem de ./@consts/sections.js (um destino por sub-rota; `icon` é LucideIcon).
@@ -41,7 +41,7 @@ export function XIndexPage() {
 
 ## Listagem — `index.tsx` ou `list/index.tsx`
 
-Referência: `expert-cases/index.tsx` (busca + filtros em popover), `finance/entries/index.tsx` (filtros na barra + Dialog de criar/editar), `prospecting/opportunities/index.tsx` (abas por status).
+Referência: `expert-cases/index.tsx` (busca + filtros em popover), `finance/entries/index.tsx` (filtros na barra + Dialog de criar/editar), `notifications/index.tsx` (abas por situação).
 
 - Schema Zod dos search params (`page`, `limit`, filtros) em `@interface/`;
   `validateSearch` no `Route`.

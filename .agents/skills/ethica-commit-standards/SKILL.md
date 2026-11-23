@@ -21,10 +21,10 @@ Commit **nunca** levam `Co-Authored-By`, `Generated with` ou qualquer menção a
 - Corpo opcional: bullets do que mudou e por quê.
 
 ```
-feat(prospeccao): converte oportunidade do Datajud em perícia
+feat(automacao-datajud): lista os processos acompanhados no tribunal
 fix(web): corrige filtro de etapa vazio na listagem de perícias
 refactor(api): move honorários para o módulo financeiro
-docs(prospeccao): registra implementação
+docs(automacao-datajud): registra implementação
 ```
 
 ## Commits atômicos

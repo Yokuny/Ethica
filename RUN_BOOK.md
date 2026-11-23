@@ -6,7 +6,7 @@ Sobe mongo (Atlas Local), `api` e `web` em containers, com hot-reload do código
 
 - Docker Desktop rodando, Node 24+ e pnpm 11 (`corepack enable`).
 - Arquivo `.env` na raiz: `cp .env.example .env`.
-- Para a prospecção: `DATAJUD_API_KEY` com a chave pública vigente do CNJ (https://datajud-wiki.cnj.jus.br/api-publica/acesso). Sem ela, o resto do app funciona e a busca responde "não configurada".
+- Para a Automação Datajud (só o worker): `DATAJUD_API_KEY` com a chave pública vigente do CNJ (https://datajud-wiki.cnj.jus.br/api-publica/acesso). Sem ela, o resto do app funciona e o acompanhamento no tribunal fica desligado.
 
 ## Subir o ambiente
 
@@ -52,7 +52,7 @@ pnpm --filter api run seed:demo
 # ou: docker compose exec api /app/node_modules/.bin/tsx scripts/seed-demo.ts
 ```
 
-Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis meses de lançamentos e oportunidades (datas relativas a hoje). Logins sem senha (AD-155): `admin@pericias.example.com`, `manager@pericias.example.com`, `operator@pericias.example.com`. Em `http://localhost:15173/auth`, informe o e-mail; com `MAIL_PROVIDER=log` o código de 6 dígitos e o link saem no log da API (`docker compose logs api | grep mail.log_send`). Rodar de novo apaga e recria só esse tenant.
+Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis meses de lançamentos (datas relativas a hoje). Logins sem senha (AD-155): `admin@pericias.example.com`, `manager@pericias.example.com`, `operator@pericias.example.com`. Em `http://localhost:15173/auth`, informe o e-mail; com `MAIL_PROVIDER=log` o código de 6 dígitos e o link saem no log da API (`docker compose logs api | grep mail.log_send`). Rodar de novo apaga e recria só esse tenant.
 
 ### Volume para conferência visual
 
@@ -60,7 +60,7 @@ Cria o tenant **Perícias Demo** com perícias em várias etapas, agenda, seis m
 pnpm --filter api run seed:volume <e-mail do login>
 ```
 
-Enche o escritório de um login que já existe com dados para conferir as telas: 80 serviços (perícias trabalhistas, cíveis e federais, assistências técnicas e tipos do escritório, em fases e status variados, um quarto deles só com os campos obrigatórios para mostrar o "Não preenchido"), partes, advogados, varas, prazos e alertas, 70 compromissos na agenda (alguns hoje, para a rota do campo), 14 meses de lançamentos, oportunidades e laudos. As OS continuam a sequência do escritório. Só acrescenta: cada execução cria registros novos e nada é apagado. Recusa rodar com `NODE_ENV=production`.
+Enche o escritório de um login que já existe com dados para conferir as telas: 80 serviços (perícias trabalhistas, cíveis e federais, assistências técnicas e tipos do escritório, em fases e status variados, um quarto deles só com os campos obrigatórios para mostrar o "Não preenchido"), partes, advogados, varas, prazos e alertas, 70 compromissos na agenda (alguns hoje, para a rota do campo), 14 meses de lançamentos e laudos. As OS continuam a sequência do escritório. Só acrescenta: cada execução cria registros novos e nada é apagado. Recusa rodar com `NODE_ENV=production`.
 
 ```bash
 pnpm --filter api run seed:templates <e-mail do login>
@@ -80,7 +80,7 @@ Conta criada pelo cadastro aberto em 2026-11-04 para testar o sistema pela tela,
 | CNPJ | `98765432000198` (fictício, dígitos válidos) |
 | Papel | admin |
 
-O escritório tem os mesmos dados de demonstração do `seed:demo` (seis serviços em fases diferentes, prazos, agenda com vistorias hoje, lançamentos de seis meses, um laudo em rascunho e oportunidades), gerados em 2026-11-04 com datas relativas àquele dia.
+O escritório tem os mesmos dados de demonstração do `seed:demo` (seis serviços em fases diferentes, prazos, agenda com vistorias hoje, lançamentos de seis meses, um laudo em rascunho; as oportunidades da época saíram com a Prospecção, AD-281), gerados em 2026-11-04 com datas relativas àquele dia.
 
 Não há senha (AD-155): em `http://localhost:15173/auth`, informe o e-mail e use o código de 6 dígitos que sai no log da API (`mail.log_send`, com `MAIL_PROVIDER=log`). A sessão dura 30 dias.
 
