@@ -1,4 +1,4 @@
-# Imagem de produção da API (AD-153), usada pela Railway (railway.json). Roda o código-fonte com
+# Imagem de produção da API (AD-153), usada pela Railway (configurada em Settings do serviço da API). Roda o código-fonte com
 # tsx, sem watch: os pacotes do monorepo exportam o .ts direto (`exports: ./src/index.ts`), então
 # não há etapa de compilação. O web não entra aqui: é estático e fica na Vercel.
 FROM node:24-bookworm-slim

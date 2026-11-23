@@ -1,5 +1,6 @@
 # Imagem de produção do worker (AD-267): lembretes, entrega de e-mail e, no módulo premium, o Datajud.
-# Fala com a API só pelo banco. Sem chromium nem fontes (o worker não gera PDF). Roda o código-fonte com tsx,
+# Fala com a API só pelo banco. Na Railway, o serviço "worker" aponta para este arquivo em Settings
+# (healthcheck /health, reinício em falha, 1 réplica). Sem chromium nem fontes (o worker não gera PDF). Roda o código-fonte com tsx,
 # como a API (Dockerfile).
 FROM node:24-bookworm-slim
 

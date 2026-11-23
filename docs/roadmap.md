@@ -33,7 +33,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
-- [ ] Railway: a configuração da API em `railway.json` (config-as-code) deixa de valer em 01/12/2026; passar para Settings da API e depois tirar `railway.json` e `railway.worker.json` do repositório (o worker já está em Settings) — `producao-api`
 - [ ] GitHub Actions: o repositório não tem nenhuma execução do CI (`.github/workflows/ci.yml`); conferir se as Actions estão habilitadas — `fundacao-ethica`
 - [ ] Produção: apagar a collection antiga `deadlines` (já copiada para `notifications` em 2026-11-22) quando quiser — `central-notificacoes`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
@@ -104,6 +103,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — Configuração da Railway da API e do worker passada para Settings (config-as-code deixa de valer em 01/12/2026); `railway.json` e `railway.worker.json` saíram do repositório — `producao-api`
 - [x] 2026-11-22 — Worker no ar na Railway (Dockerfile.worker, healthcheck /health, Datajud e push ligados), usuário `ethica-worker` com role própria no Atlas e chaves VAPID na API e no worker — `central-notificacoes`, `automacao-datajud`
 - [x] 2026-11-22 — Central de notificações, worker de lembretes, e-mail do dia, avisos, sino, preferências e push; Automação Datajud com plano de R$ 80, acompanhamento no tribunal e sugestões para aprovar (Fases 0 a 6) — `central-notificacoes`, `automacao-datajud`
 - [x] 2026-11-22 — Produção (D8): prazos antigos copiados para `Notification` (11 prazos, 11 itens de agenda) pelo script avulso, já apagado — `central-notificacoes`

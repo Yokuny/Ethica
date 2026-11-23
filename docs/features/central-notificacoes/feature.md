@@ -49,7 +49,7 @@ O sistema não foi lançado, e prazos, lembretes, avisos e as sugestões do Data
 
 - `apps/worker/src/server.ts` (boot, heartbeat, laços), `queue/queue.ts` (fila `WorkerJob`), `queue/delivery-lock.ts` (trava `NotificationDelivery`), `queue/notification-writes.ts` (único lugar que grava `Notification`), `scheduler.ts`, `jobs/{reminders-sweep,email-digest,email-immediate}.ts`.
 - `packages/db/src/workerReads.ts` — leituras do worker; `packages/mail` — provedores de e-mail usados pela API e pelo worker.
-- Deploy: `Dockerfile.worker`, `railway.worker.json`, serviço `worker` no `docker-compose.yml`.
+- Deploy: `Dockerfile.worker` (na Railway, configurado em Settings do serviço worker: healthcheck `/health`, reinício em falha, 1 réplica), serviço `worker` no `docker-compose.yml`.
 
 ### `apps/web`
 

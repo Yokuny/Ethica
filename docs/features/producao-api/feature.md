@@ -19,7 +19,7 @@ spec: [.specs/features/producao-api]
 
 ## O que foi feito
 
-- Imagem de produção da API em `Dockerfile` (Node 24, Chromium, só a API e os pacotes de que ela depende, usuário sem root), publicada na Railway por `railway.json` com health check em `/health`.
+- Imagem de produção da API em `Dockerfile` (Node 24, Chromium, só a API e os pacotes de que ela depende, usuário sem root), publicada na Railway, com o Dockerfile e o health check em `/health` configurados em Settings do serviço.
 - Web na Vercel por `vercel.json`: volta para `index.html` em qualquer rota e repassa `/api/*` para a API da Railway (cookie de sessão do mesmo site, AD-153).
 - Bucket S3 de produção em us-east-2, com acesso separado por escritório garantido pela AWS (AD-202): `infra/aws/file-storage.yml`, publicado como stack `ethica-files`. Com `S3_ROLE_ARN`, `apps/api/src/providers/fileStorage.ts` tira o escritório da chave (`tenants/<tenantId>/…`) e usa uma sessão do papel por escritório; chave fora desse formato é recusada. Passo a passo em `RUN_BOOK.md` ("Arquivos em produção").
 
@@ -49,6 +49,7 @@ Só existe a imagem de desenvolvimento, e as pastas do storage são por tipo de 
 
 ## Histórico
 
+- 2026-11-22 — A configuração da Railway (Dockerfile, healthcheck `/health`, reinício em falha, 1 réplica) passou do `railway.json` para Settings do serviço, porque o config-as-code deixa de valer em 01/12/2026; o arquivo saiu do repositório.
 - 2026-11-09 — Provider assume o papel por escritório quando há `S3_ROLE_ARN` (`@aws-sdk/credential-providers`); conferido contra o bucket real (gravar, ler e apagar em `tenants/live-check/`). Railway já tem `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` e `S3_ROLE_ARN`; falta `S3_BUCKET`. Plano: `.specs/features/producao-api/plans/2026-11-09-s3-acesso-por-escritorio.md`.
 - 2026-11-09 — Bucket `ethica-files-677296948879`, usuário `ethica-files-api` e papel `ethica-files-tenant` criados na AWS (us-east-2) por `infra/aws/file-storage.yml` (AD-202). Divergência da AD-146: a troca para o S3 deixa de ser só configuração, porque o acesso por escritório passa pela AWS.
 
