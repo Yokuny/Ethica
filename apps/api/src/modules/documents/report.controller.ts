@@ -1,7 +1,5 @@
 import { hasPermission, respObj } from '@ethica/contracts';
-import type { NextFunction, Request, Response } from 'express';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import { CaseNotFoundError } from '../case/case.service.js';
+import type { Request, Response } from 'express';
 import type { DocumentContext, GeneratedFile } from './documents.schema.js';
 import type {
   AttachReportQuery,
@@ -12,10 +10,7 @@ import type {
   ReportRouterDeps,
 } from './report.schema.js';
 import * as reportService from './report.service.js';
-import { ReportNotFoundError } from './report.service.js';
-import { SignatoryNotFoundError } from './signatory.service.js';
 import * as templateService from './template.service.js';
-import { TemplateNotFoundError } from './template.service.js';
 
 type Providers = Pick<ReportRouterDeps, 'pdf' | 'storage'>;
 
@@ -30,145 +25,178 @@ const context = (req: Request): DocumentContext => {
   };
 };
 
-// Report, template or case missing (or from another tenant) → 404.
-const notFoundAs404 = (e: unknown, next: NextFunction): void => {
-  next(
-    e instanceof ReportNotFoundError ||
-      e instanceof TemplateNotFoundError ||
-      e instanceof CaseNotFoundError ||
-      e instanceof SignatoryNotFoundError
-      ? new CustomError(e.message, 404, e.detail)
-      : e,
-  );
+const send = (res: Response, file: GeneratedFile): void => {
+  res
+    .set('Content-Type', file.type)
+    .set('Content-Disposition', `attachment; filename="${file.name}"`)
+    .set('Cache-Control', 'no-store')
+    .end(file.conteudo);
 };
 
-const json =
-  (run: (req: Request) => Promise<unknown>, status = 200) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const data = await run(req);
-      res.status(status).json(respObj(status === 201 ? { data, message: 'created_successfully' } : { data }));
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
-  };
-
-const removed =
-  (run: (req: Request) => Promise<void>) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      await run(req);
-      res.json(respObj({ message: 'removed_successfully' }));
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
-  };
-
-const file =
-  (generate: (req: Request) => Promise<GeneratedFile>) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const generated = await generate(req);
-      res
-        .set('Content-Type', generated.type)
-        .set('Content-Disposition', `attachment; filename="${generated.name}"`)
-        .set('Cache-Control', 'no-store')
-        .end(generated.conteudo);
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
-  };
+const created = (res: Response, data: unknown): void => {
+  res.status(201).json(respObj({ data, message: 'created_successfully' }));
+};
 
 const id = (req: Request): string => req.params.id as string;
 const sectionId = (req: Request): string => req.params.sectionId as string;
+const mediaId = (req: Request): string => req.params.mediaId as string;
 
 // Modelos (LAU-01, LAU-05)
-export const listTemplates = json((req) =>
-  templateService.listTemplates(tenantOf(req), (req.query as unknown as ListTemplatesQuery).type),
-);
-export const getTemplate = json((req) => templateService.getTemplate(tenantOf(req), id(req)));
-export const createTemplate = json((req) => templateService.createTemplate(tenantOf(req), req.body), 201);
-export const importTemplate = json(
-  (req) =>
-    templateService.importTemplate(tenantOf(req), req.query as unknown as ImportTemplateQuery, req.body as Buffer),
-  201,
-);
-export const updateTemplate = json((req) => templateService.updateTemplate(tenantOf(req), id(req), req.body));
-export const deleteTemplate = removed((req) => templateService.deleteTemplate(tenantOf(req), id(req)));
-export const addTemplateSection = json((req) => templateService.addSection(tenantOf(req), id(req), req.body), 201);
-export const updateTemplateSection = json((req) =>
-  templateService.updateSection(tenantOf(req), id(req), sectionId(req), req.body),
-);
-export const removeTemplateSection = json((req) =>
-  templateService.removeSection(tenantOf(req), id(req), sectionId(req)),
-);
-export const setTemplateLayout = json((req) => templateService.setLayout(tenantOf(req), id(req), req.body));
-export const moveTemplateSection = json((req) =>
-  templateService.moveSection(tenantOf(req), id(req), sectionId(req), req.body),
-);
+export const listTemplates = async (req: Request, res: Response): Promise<void> => {
+  const { type } = req.query as unknown as ListTemplatesQuery;
+  res.json(respObj({ data: await templateService.listTemplates(tenantOf(req), type) }));
+};
+
+export const getTemplate = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await templateService.getTemplate(tenantOf(req), id(req)) }));
+};
+
+export const createTemplate = async (req: Request, res: Response): Promise<void> => {
+  created(res, await templateService.createTemplate(tenantOf(req), req.body));
+};
+
+export const importTemplate = async (req: Request, res: Response): Promise<void> => {
+  const query = req.query as unknown as ImportTemplateQuery;
+  created(res, await templateService.importTemplate(tenantOf(req), query, req.body as Buffer));
+};
+
+export const updateTemplate = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await templateService.updateTemplate(tenantOf(req), id(req), req.body) }));
+};
+
+export const deleteTemplate = async (req: Request, res: Response): Promise<void> => {
+  await templateService.deleteTemplate(tenantOf(req), id(req));
+  res.json(respObj({ message: 'removed_successfully' }));
+};
+
+export const addTemplateSection = async (req: Request, res: Response): Promise<void> => {
+  created(res, await templateService.addSection(tenantOf(req), id(req), req.body));
+};
+
+export const updateTemplateSection = async (req: Request, res: Response): Promise<void> => {
+  const data = await templateService.updateSection(tenantOf(req), id(req), sectionId(req), req.body);
+  res.json(respObj({ data }));
+};
+
+export const removeTemplateSection = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await templateService.removeSection(tenantOf(req), id(req), sectionId(req)) }));
+};
+
+export const setTemplateLayout = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await templateService.setLayout(tenantOf(req), id(req), req.body) }));
+};
+
+export const moveTemplateSection = async (req: Request, res: Response): Promise<void> => {
+  const data = await templateService.moveSection(tenantOf(req), id(req), sectionId(req), req.body);
+  res.json(respObj({ data }));
+};
 
 // Laudos (LAU-02, LAU-03, LAU-06)
-export const listReports = json((req) =>
-  reportService.listReports(tenantOf(req), req.query as unknown as ListReportsQuery),
-);
-export const getReport = json((req) => reportService.openReport(context(req), id(req)));
-export const createReport = (providers: Providers) =>
-  json((req) => reportService.createReport(providers, context(req), req.body), 201);
-export const updateReportSection = json((req) =>
-  reportService.updateSection(context(req), id(req), sectionId(req), req.body),
-);
-export const saveReportAsTemplate = (providers: Providers) =>
-  json((req) => reportService.saveAsTemplate(providers, context(req), id(req), req.body), 201);
-export const attachReport = (providers: Providers) =>
-  json(
-    (req) =>
-      reportService.attachReport(
-        providers,
-        context(req),
-        req.query as unknown as AttachReportQuery,
-        req.body as Buffer,
-      ),
-    201,
-  );
-export const moveReportSection = json((req) =>
-  reportService.moveSection(context(req), id(req), sectionId(req), req.body),
-);
-export const addReportSection = json((req) => reportService.addSection(context(req), id(req), req.body), 201);
-export const setReportLayout = json((req) => reportService.setLayout(context(req), id(req), req.body));
-export const chooseReportSections = (providers: Providers) =>
-  json((req) => reportService.chooseSections(providers, context(req), id(req), req.body));
-export const fillReportFromProcess = json((req) =>
-  reportService.fillFromProcess(context(req), id(req), req.body as Buffer),
-);
-export const removeReportSection = json((req) => reportService.removeSection(context(req), id(req), sectionId(req)));
-export const completeReport = (providers: Providers) =>
-  json((req) => reportService.completeReport(providers, context(req), id(req), req.body));
-export const deleteReport = (providers: Providers) =>
-  removed((req) => reportService.deleteReport(providers, tenantOf(req), id(req)));
-export const uploadReportMedia = (providers: Providers) =>
-  json((req) =>
-    reportService.uploadMedia(providers, tenantOf(req), id(req), req.params.mediaId as string, {
+export const listReports = async (req: Request, res: Response): Promise<void> => {
+  const query = req.query as unknown as ListReportsQuery;
+  res.json(respObj({ data: await reportService.listReports(tenantOf(req), query) }));
+};
+
+export const getReport = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await reportService.openReport(context(req), id(req)) }));
+};
+
+export const createReport =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    created(res, await reportService.createReport(providers, context(req), req.body));
+  };
+
+export const updateReportSection = async (req: Request, res: Response): Promise<void> => {
+  const data = await reportService.updateSection(context(req), id(req), sectionId(req), req.body);
+  res.json(respObj({ data }));
+};
+
+export const saveReportAsTemplate =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    created(res, await reportService.saveAsTemplate(providers, context(req), id(req), req.body));
+  };
+
+export const attachReport =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    const query = req.query as unknown as AttachReportQuery;
+    created(res, await reportService.attachReport(providers, context(req), query, req.body as Buffer));
+  };
+
+export const moveReportSection = async (req: Request, res: Response): Promise<void> => {
+  const data = await reportService.moveSection(context(req), id(req), sectionId(req), req.body);
+  res.json(respObj({ data }));
+};
+
+export const addReportSection = async (req: Request, res: Response): Promise<void> => {
+  created(res, await reportService.addSection(context(req), id(req), req.body));
+};
+
+export const setReportLayout = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await reportService.setLayout(context(req), id(req), req.body) }));
+};
+
+export const chooseReportSections =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    res.json(respObj({ data: await reportService.chooseSections(providers, context(req), id(req), req.body) }));
+  };
+
+export const fillReportFromProcess = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await reportService.fillFromProcess(context(req), id(req), req.body as Buffer) }));
+};
+
+export const removeReportSection = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await reportService.removeSection(context(req), id(req), sectionId(req)) }));
+};
+
+export const completeReport =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    res.json(respObj({ data: await reportService.completeReport(providers, context(req), id(req), req.body) }));
+  };
+
+export const deleteReport =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    await reportService.deleteReport(providers, tenantOf(req), id(req));
+    res.json(respObj({ message: 'removed_successfully' }));
+  };
+
+export const uploadReportMedia =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    const data = await reportService.uploadMedia(providers, tenantOf(req), id(req), mediaId(req), {
       body: req.body as Buffer,
       mime: (req.get('content-type') ?? '').split(';')[0] as string,
-    }),
-  );
+    });
+    res.json(respObj({ data }));
+  };
+
 export const getReportMedia =
   (providers: Providers) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const media = await reportService.getMedia(providers, tenantOf(req), id(req), req.params.mediaId as string);
-      res.set('Content-Type', media.mime).set('Cache-Control', 'private, max-age=31536000, immutable').end(media.body);
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
+  async (req: Request, res: Response): Promise<void> => {
+    const media = await reportService.getMedia(providers, tenantOf(req), id(req), mediaId(req));
+    res.set('Content-Type', media.mime).set('Cache-Control', 'private, max-age=31536000, immutable').end(media.body);
   };
-export const reportPdf = (providers: Providers) =>
-  file((req) =>
-    reportService.generatePdf(providers, context(req), id(req), {
-      preview: (req.query as unknown as ReportPdfQuery).preview === 'true',
-    }),
-  );
-export const templatePdf = (providers: Providers) =>
-  file((req) => reportService.templatePdf(providers, context(req), id(req)));
-export const reportDocx = (providers: Providers) =>
-  file((req) => reportService.generateDocx(providers, context(req), id(req)));
+
+export const reportPdf =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    const preview = (req.query as unknown as ReportPdfQuery).preview === 'true';
+    send(res, await reportService.generatePdf(providers, context(req), id(req), { preview }));
+  };
+
+export const templatePdf =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    send(res, await reportService.templatePdf(providers, context(req), id(req)));
+  };
+
+export const reportDocx =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    send(res, await reportService.generateDocx(providers, context(req), id(req)));
+  };

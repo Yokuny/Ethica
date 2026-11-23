@@ -1,7 +1,7 @@
 import { caseLabel, transactionAgendaEntries } from '@ethica/contracts';
 import { dateInDisplayTz, shiftMonth } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from '../case/case.service.js';
 import * as officeService from '../identity/office.service.js';
 import * as transactionRepository from './transaction.repository.js';
@@ -16,8 +16,6 @@ import type {
   TransactionRecord,
   UpdateTransaction,
 } from './transaction.schema.js';
-
-export class TransactionNotFoundError extends KeyedError {}
 
 // Default term to receive fixed fees when the court does not set a date.
 const DAYS_TO_RECEIVE_FEES = 30;
@@ -84,7 +82,7 @@ export const createTransaction = async (tenantId: string, data: CreateTransactio
 
 const findOrThrow = async (tenantId: string, id: string): Promise<TransactionRecord> => {
   const transaction = await transactionRepository.findById(tenantId, id);
-  if (!transaction) throw new TransactionNotFoundError('not_found');
+  if (!transaction) throw new CustomError('not_found', 404);
   return transaction;
 };
 
@@ -106,7 +104,7 @@ export const updateTransaction = async (
   if (current.kind === 'income') {
     if (data.status === 'canceled' || reactivating) {
       const updated = await transactionRepository.setIncomeCanceled(tenantId, id, !reactivating);
-      if (!updated) throw new TransactionNotFoundError('not_found');
+      if (!updated) throw new CustomError('not_found', 404);
       syncAgenda(tenantId, id, updated);
       return updated;
     }
@@ -129,7 +127,7 @@ export const updateTransaction = async (
       dateInDisplayTz(now),
     ),
   );
-  if (!updated) throw new TransactionNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   syncAgenda(tenantId, id, updated);
   return updated;
 };
@@ -138,7 +136,7 @@ export const deleteTransaction = async (tenantId: string, id: string): Promise<v
   const current = await findOrThrow(tenantId, id);
   if (current.kind === 'income') throw new CustomError('fee_cannot_be_removed', 409);
   const { deletedCount } = await transactionRepository.deleteTransaction(tenantId, id);
-  if (deletedCount === 0) throw new TransactionNotFoundError('not_found');
+  if (deletedCount === 0) throw new CustomError('not_found', 404);
   syncAgenda(tenantId, id);
 };
 
@@ -162,7 +160,7 @@ export const reverseInstallment = async (
   installmentId: string,
 ): Promise<TransactionRecord> => {
   const updated = await transactionRepository.removeInstallment(tenantId, id, installmentId);
-  if (!updated) throw new TransactionNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   syncAgenda(tenantId, id, updated);
   return updated;
 };

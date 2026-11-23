@@ -4,7 +4,7 @@ import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseRepository from './case.repository.js';
 import type { CaseRecord } from './case.schema.js';
-import { CaseNotFoundError, createCase, deleteCase, listCases, updateCase } from './case.service.js';
+import { createCase, deleteCase, listCases, updateCase } from './case.service.js';
 import * as serviceOrderRepository from './service-order.repository.js';
 
 vi.mock('./case.repository.js', () => ({
@@ -115,7 +115,7 @@ describe('case.service', () => {
 
     emit.mockClear();
     vi.mocked(caseRepository.findById).mockResolvedValueOnce(null);
-    await expect(deleteCase('t1', 'nope')).rejects.toBeInstanceOf(CaseNotFoundError);
+    await expect(deleteCase('t1', 'nope')).rejects.toMatchObject({ message: 'not_found', status: 404 });
     expect(emit).not.toHaveBeenCalled();
   });
 
@@ -212,10 +212,13 @@ describe('case.service', () => {
     });
   });
 
-  it('updatePericia de id inexistente (ou de outro tenant) é PericiaNotFoundError', async () => {
+  it('updatePericia de id inexistente (ou de outro tenant) é 404', async () => {
     vi.mocked(caseRepository.findById).mockResolvedValue(null);
 
-    await expect(updateCase('t1', 'nope', { phase: 'inspection_scheduled' })).rejects.toBeInstanceOf(CaseNotFoundError);
+    await expect(updateCase('t1', 'nope', { phase: 'inspection_scheduled' })).rejects.toMatchObject({
+      message: 'not_found',
+      status: 404,
+    });
   });
 });
 

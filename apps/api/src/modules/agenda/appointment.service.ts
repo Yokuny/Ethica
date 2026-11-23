@@ -1,7 +1,7 @@
 import { caseLabel, parseCoordinates } from '@ethica/contracts';
 import { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { Geocoder } from '../../providers/geocoder.js';
 import * as caseService from '../case/case.service.js';
 import * as partyService from '../case/party.service.js';
@@ -15,8 +15,6 @@ import type {
   UpcomingAppointmentsQuery,
   UpdateAppointment,
 } from './appointment.schema.js';
-
-export class AppointmentNotFoundError extends KeyedError {}
 
 // Wall-clock date/time + duration -> UTC range (AD-036, AD-103).
 const toInterval = (date: string, time: string, durationMinutes: number) => {
@@ -74,14 +72,14 @@ export const updateAppointment = async (
     ...interval,
     reason: reasonWrite,
   });
-  if (!updated) throw new AppointmentNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   const [enriched] = await withCaseNumber(tenantId, [updated]);
   return enriched as AppointmentRecord;
 };
 
 export const deleteAppointment = async (tenantId: string, id: string): Promise<void> => {
   const { deletedCount } = await appointmentRepository.deleteAppointment(tenantId, id);
-  if (deletedCount === 0) throw new AppointmentNotFoundError('not_found');
+  if (deletedCount === 0) throw new CustomError('not_found', 404);
 };
 
 export const listAppointments = async (tenantId: string, query: ListAppointmentsQuery) =>
@@ -100,7 +98,7 @@ export const listUpcoming = async (tenantId: string, query: UpcomingAppointments
 
 export const getAppointment = async (tenantId: string, id: string): Promise<AppointmentRecord> => {
   const appointment = await appointmentRepository.findById(tenantId, id);
-  if (!appointment) throw new AppointmentNotFoundError('not_found');
+  if (!appointment) throw new CustomError('not_found', 404);
   const [enriched] = await withCaseNumber(tenantId, [appointment]);
   return enriched as AppointmentRecord;
 };

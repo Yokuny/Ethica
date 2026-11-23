@@ -1,8 +1,6 @@
 import { respObj } from '@ethica/contracts';
-import type { NextFunction, Request, Response } from 'express';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import type { Request, Response } from 'express';
 import type { FileStorage } from '../../providers/fileStorage.js';
-import { AppointmentNotFoundError } from './appointment.service.js';
 import type { InspectionPeriodQuery, MediaUploadQuery } from './inspection.schema.js';
 import * as inspectionService from './inspection.service.js';
 import { InspectionConflictError } from './inspection.service.js';
@@ -11,59 +9,60 @@ const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 const appointmentId = (req: Request): string => req.params.appointmentId as string;
 const mediaId = (req: Request): string => req.params.mediaId as string;
 
-const json =
-  (run: (req: Request) => Promise<unknown>) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      res.json(respObj({ data: await run(req) }));
-    } catch (e) {
-      // Offline conflict (AD-128): 409 with the server version for the device to compare.
-      if (e instanceof InspectionConflictError) {
-        res.status(409).json({ ...respObj({ data: e.current, message: e.message }), success: false });
-        return;
-      }
-      next(e instanceof AppointmentNotFoundError ? new CustomError(e.message, 404, e.detail) : e);
-    }
-  };
+export const listPeriod = async (req: Request, res: Response): Promise<void> => {
+  const query = req.query as unknown as InspectionPeriodQuery;
+  res.json(respObj({ data: await inspectionService.listPeriod(tenantOf(req), query) }));
+};
 
-export const listPeriod = json((req) =>
-  inspectionService.listPeriod(tenantOf(req), req.query as unknown as InspectionPeriodQuery),
-);
-export const listByCase = json((req) => inspectionService.listByCase(tenantOf(req), req.params.caseId as string));
-export const getInspection = json((req) => inspectionService.getInspection(tenantOf(req), appointmentId(req)));
-export const saveInspection = json((req) =>
-  inspectionService.saveInspection(tenantOf(req), appointmentId(req), req.body),
-);
+export const listByCase = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await inspectionService.listByCase(tenantOf(req), req.params.caseId as string) }));
+};
 
-export const uploadMedia = (storage: FileStorage | undefined) =>
-  json((req) =>
-    inspectionService.uploadMedia(
+export const getInspection = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await inspectionService.getInspection(tenantOf(req), appointmentId(req)) }));
+};
+
+// Offline conflict (AD-128): 409 with the server version for the device to compare — the
+// only error a controller answers itself (AD-284).
+export const saveInspection = async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.json(respObj({ data: await inspectionService.saveInspection(tenantOf(req), appointmentId(req), req.body) }));
+  } catch (e) {
+    if (!(e instanceof InspectionConflictError)) throw e;
+    res.status(409).json({ ...respObj({ data: e.current, message: e.message }), success: false });
+  }
+};
+
+export const uploadMedia =
+  (storage: FileStorage | undefined) =>
+  async (req: Request, res: Response): Promise<void> => {
+    const data = await inspectionService.uploadMedia(
       storage,
       tenantOf(req),
       appointmentId(req),
       mediaId(req),
       req.query as unknown as MediaUploadQuery,
       { body: req.body as Buffer, mime: (req.get('content-type') ?? '').split(';')[0] as string },
-    ),
-  );
+    );
+    res.json(respObj({ data }));
+  };
 
-export const updateCaption = json((req) =>
-  inspectionService.updateCaption(tenantOf(req), appointmentId(req), mediaId(req), req.body.caption),
-);
+export const updateCaption = async (req: Request, res: Response): Promise<void> => {
+  const data = await inspectionService.updateCaption(tenantOf(req), appointmentId(req), mediaId(req), req.body.caption);
+  res.json(respObj({ data }));
+};
 
-export const removeMedia = (storage: FileStorage | undefined) =>
-  json(async (req) => {
+export const removeMedia =
+  (storage: FileStorage | undefined) =>
+  async (req: Request, res: Response): Promise<void> => {
     await inspectionService.removeMedia(storage, tenantOf(req), appointmentId(req), mediaId(req));
-  });
+    res.json(respObj({}));
+  };
 
 // Media is immutable (new id for each file): the browser may cache it freely.
 export const getMedia =
   (storage: FileStorage | undefined) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const media = await inspectionService.getMedia(storage, tenantOf(req), appointmentId(req), mediaId(req));
-      res.set('Content-Type', media.mime).set('Cache-Control', 'private, max-age=31536000, immutable').end(media.body);
-    } catch (e) {
-      next(e);
-    }
+  async (req: Request, res: Response): Promise<void> => {
+    const media = await inspectionService.getMedia(storage, tenantOf(req), appointmentId(req), mediaId(req));
+    res.set('Content-Type', media.mime).set('Cache-Control', 'private, max-age=31536000, immutable').end(media.body);
   };

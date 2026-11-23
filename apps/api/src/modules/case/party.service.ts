@@ -1,6 +1,6 @@
 import { partyNameKey } from '@ethica/contracts';
 import { TextSearchUnavailableError } from '@ethica/db';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseRepository from './case.repository.js';
 import * as partyRepository from './party.repository.js';
 import type {
@@ -12,8 +12,6 @@ import type {
   UpdateParty,
 } from './party.schema.js';
 
-export class PartyNotFoundError extends KeyedError {}
-
 const normalizeName = (name: string): string => name.trim().replace(/\s+/g, ' ');
 
 export const createParty = (tenantId: string, data: CreateParty): Promise<PartyRecord> =>
@@ -21,7 +19,7 @@ export const createParty = (tenantId: string, data: CreateParty): Promise<PartyR
 
 export const getParty = async (tenantId: string, id: string): Promise<PartyRecord> => {
   const party = await partyRepository.findById(tenantId, id);
-  if (!party) throw new PartyNotFoundError('not_found');
+  if (!party) throw new CustomError('not_found', 404);
   return party;
 };
 
@@ -30,7 +28,7 @@ export const updateParty = async (tenantId: string, id: string, data: UpdatePart
   const before = await getParty(tenantId, id);
   const name = data.name ? normalizeName(data.name) : undefined;
   const updated = await partyRepository.updateParty(tenantId, id, { ...data, name });
-  if (!updated) throw new PartyNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   if (name && name !== before.name) await caseRepository.renameParty(tenantId, id, name);
   return updated;
 };

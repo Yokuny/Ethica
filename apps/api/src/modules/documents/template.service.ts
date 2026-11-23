@@ -1,5 +1,5 @@
 import { isDefaultTemplate, REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType } from '@ethica/contracts';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as importService from '../case/import.service.js';
 import { templateSectionsFromDocx, templateSectionsFromText } from './report.attachment.js';
 import { sanitizeReportHtml } from './report.html.js';
@@ -16,8 +16,6 @@ import type {
 } from './report.schema.js';
 import * as templateRepository from './template.repository.js';
 
-export class TemplateNotFoundError extends KeyedError {}
-
 const DEFAULT = DEFAULT_TEMPLATES;
 
 // The default template is read-only (AD-126): the office clones it to adapt.
@@ -26,7 +24,7 @@ const ofOffice = (id: string): void => {
 };
 
 const found = (template: TemplateRecord | null): TemplateRecord => {
-  if (!template) throw new TemplateNotFoundError('not_found');
+  if (!template) throw new CustomError('not_found', 404);
   return template;
 };
 
@@ -106,7 +104,7 @@ export const updateTemplate = async (tenantId: string, id: string, data: UpdateT
 export const deleteTemplate = async (tenantId: string, id: string): Promise<void> => {
   ofOffice(id);
   const { deletedCount } = await templateRepository.remove(tenantId, id);
-  if (deletedCount === 0) throw new TemplateNotFoundError('not_found');
+  if (deletedCount === 0) throw new CustomError('not_found', 404);
 };
 
 export const addSection = async (tenantId: string, id: string, section: TemplateSection): Promise<TemplateRecord> => {
@@ -139,7 +137,7 @@ export const moveSection = async (
   ofOffice(id);
   const template = found(await templateRepository.findById(tenantId, id));
   const de = template.sections.findIndex((section) => section.id === sectionId);
-  if (de < 0) throw new TemplateNotFoundError('not_found');
+  if (de < 0) throw new CustomError('not_found', 404);
   const para = direction === 'up' ? de - 1 : de + 1;
   if (para < 0 || para >= template.sections.length) return template;
   const sections = [...template.sections];

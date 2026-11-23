@@ -1,8 +1,5 @@
 import { hasPermission } from '@ethica/contracts';
-import type { NextFunction, Request, Response } from 'express';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import { AppointmentNotFoundError } from '../agenda/appointment.service.js';
-import { CaseNotFoundError } from '../case/case.service.js';
+import type { Request, Response } from 'express';
 import type { DocumentContext, DocumentsRouterDeps, FinanceReportQuery, GeneratedFile } from './documents.schema.js';
 import * as documentsService from './documents.service.js';
 
@@ -25,37 +22,44 @@ const send = (res: Response, file: GeneratedFile): void => {
     .end(file.conteudo);
 };
 
-// One handler per document: generates and returns the file; a case or appointment from another tenant is 404.
-const handler =
-  (generate: (req: Request, ctx: DocumentContext) => Promise<GeneratedFile>) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      send(res, await generate(req, context(req)));
-    } catch (e) {
-      next(
-        e instanceof CaseNotFoundError || e instanceof AppointmentNotFoundError
-          ? new CustomError(e.message, 404, e.detail)
-          : e,
-      );
-    }
+// One handler per document: generates and returns the file.
+export const sheet =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    send(res, await documentsService.generateSheet(providers, context(req), req.params.id as string));
   };
 
-export const sheet = (providers: Providers) =>
-  handler((req, ctx) => documentsService.generateSheet(providers, ctx, req.params.id as string));
+export const checklist =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    send(res, await documentsService.generateChecklist(providers, context(req), req.params.id as string));
+  };
 
-export const checklist = (providers: Providers) =>
-  handler((req, ctx) => documentsService.generateChecklist(providers, ctx, req.params.id as string));
+export const inspection =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    send(res, await documentsService.generateInspection(providers, context(req), req.params.appointmentId as string));
+  };
 
-export const inspection = (providers: Providers) =>
-  handler((req, ctx) => documentsService.generateInspection(providers, ctx, req.params.appointmentId as string));
+export const schedule =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    send(res, await documentsService.generateSchedule(providers, context(req)));
+  };
 
-export const schedule = (providers: Providers) =>
-  handler((_req, ctx) => documentsService.generateSchedule(providers, ctx));
+export const finance =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    const query = req.query as unknown as FinanceReportQuery;
+    send(res, await documentsService.generateFinance(providers, context(req), query));
+  };
 
-export const finance = (providers: Providers) =>
-  handler((req, ctx) => documentsService.generateFinance(providers, ctx, req.query as unknown as FinanceReportQuery));
+export const stalled =
+  (providers: Providers) =>
+  async (req: Request, res: Response): Promise<void> => {
+    send(res, await documentsService.generateStalled(providers, context(req)));
+  };
 
-export const stalled = (providers: Providers) =>
-  handler((_req, ctx) => documentsService.generateStalled(providers, ctx));
-
-export const runExport = handler((_req, ctx) => documentsService.exportData(ctx));
+export const runExport = async (req: Request, res: Response): Promise<void> => {
+  send(res, await documentsService.exportData(context(req)));
+};

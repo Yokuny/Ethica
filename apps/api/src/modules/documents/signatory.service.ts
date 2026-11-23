@@ -1,4 +1,4 @@
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
@@ -6,13 +6,11 @@ import * as officeService from '../identity/office.service.js';
 import * as signatoryRepository from './signatory.repository.js';
 import type { SignatoryInput, SignatoryRecord } from './signatory.schema.js';
 
-export class SignatoryNotFoundError extends KeyedError {}
-
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 const found = async (tenantId: string, id: string) => {
   const signatory = await signatoryRepository.findById(tenantId, id);
-  if (!signatory) throw new SignatoryNotFoundError('not_found');
+  if (!signatory) throw new CustomError('not_found', 404);
   return signatory;
 };
 
@@ -26,14 +24,14 @@ export const createSignatory = (tenantId: string, data: SignatoryInput) => signa
 
 export const updateSignatory = async (tenantId: string, id: string, data: SignatoryInput): Promise<SignatoryRecord> => {
   const updated = await signatoryRepository.update(tenantId, id, data);
-  if (!updated) throw new SignatoryNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   return updated;
 };
 
 // The logo leaves storage and gives the quota back (AD-120). A report signed by them falls back to its creator.
 export const deleteSignatory = async (storage: FileStorage | undefined, tenantId: string, id: string) => {
   const removed = await signatoryRepository.remove(tenantId, id);
-  if (!removed) throw new SignatoryNotFoundError('not_found');
+  if (!removed) throw new CustomError('not_found', 404);
   if (removed.logo) {
     await storage?.remove(removed.logo.key).catch(() => undefined);
     await officeService.returnFile(tenantId, removed.logo.bytes);
@@ -73,7 +71,7 @@ export const removeLogo = async (storage: FileStorage | undefined, tenantId: str
 export const getLogo = async (storage: FileStorage | undefined, tenantId: string, id: string): Promise<Buffer> => {
   const logo = (await found(tenantId, id)).logo;
   const bytes = logo && storage ? await storage.get(logo.key) : null;
-  if (!bytes) throw new SignatoryNotFoundError('not_found');
+  if (!bytes) throw new CustomError('not_found', 404);
   return bytes;
 };
 

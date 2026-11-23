@@ -19,7 +19,7 @@ import {
 } from '@ethica/contracts';
 import { caseIdsDueBetween, dateInDisplayTz, nextDueByCases, shiftMonth, TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import * as officeService from '../identity/office.service.js';
 import * as caseRepository from './case.repository.js';
@@ -35,10 +35,6 @@ import type {
 } from './case.schema.js';
 import * as partyService from './party.service.js';
 import * as serviceOrderRepository from './service-order.repository.js';
-
-// AD-010: findById/update/delete are already tenant-scoped — an id from another tenant
-// simply does not exist for this session.
-export class CaseNotFoundError extends KeyedError {}
 
 const isDuplicateKeyError = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
@@ -177,7 +173,7 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
 
 export const getCase = async (tenantId: string, id: string): Promise<CaseRecord> => {
   const legalCase = await caseRepository.findById(tenantId, id);
-  if (!legalCase) throw new CaseNotFoundError('not_found');
+  if (!legalCase) throw new CustomError('not_found', 404);
   return legalCase;
 };
 
@@ -230,7 +226,7 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
     .catch((e: unknown) => {
       throw isDuplicateKeyError(e) ? duplicateError(e) : e;
     });
-  if (!updated) throw new CaseNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   // Fee fixed by the court or contracted by the assistant (AD-135), new or changed,
   // becomes receivable income in finance.
   if (updated.fixedFeesCents && updated.fixedFeesCents !== before.fixedFeesCents) postFees(tenantId, updated);
@@ -247,7 +243,7 @@ export const deleteCase = async (tenantId: string, id: string, storage?: FileSto
   // Its number stays used for good (AD-187).
   if (legalCase.serviceOrder) await serviceOrderRepository.retire(tenantId, legalCase.serviceOrder);
   const { deletedCount } = await caseRepository.deleteCase(tenantId, id);
-  if (deletedCount === 0) throw new CaseNotFoundError('not_found');
+  if (deletedCount === 0) throw new CustomError('not_found', 404);
   await Promise.all(attachments.map((attachment) => releaseAttachment(storage, tenantId, attachment)));
   domainEventBus.emit('case:deleted', { tenantId, caseId: id });
 };
@@ -279,7 +275,7 @@ export const addAttachment = async (
   try {
     await storage.put(key, body, mime);
     const updated = await caseRepository.addAttachment(tenantId, id, { key, name, mime, bytes: body.length });
-    if (!updated) throw new CaseNotFoundError('not_found');
+    if (!updated) throw new CustomError('not_found', 404);
     return updated;
   } catch (error) {
     await releaseAttachment(storage, tenantId, { key, bytes: body.length });
@@ -290,7 +286,7 @@ export const addAttachment = async (
 const findAttachment = async (tenantId: string, id: string, attachmentId: string) => {
   const attachments = await caseRepository.listAttachments(tenantId, id);
   const attachment = attachments.find((item) => item._id.toString() === attachmentId);
-  if (!attachment) throw new CaseNotFoundError('not_found');
+  if (!attachment) throw new CustomError('not_found', 404);
   return attachment;
 };
 
@@ -302,7 +298,7 @@ export const getAttachment = async (
 ) => {
   const { key, name, mime } = await findAttachment(tenantId, id, attachmentId);
   const body = await storage?.get(key);
-  if (!body) throw new CaseNotFoundError('not_found');
+  if (!body) throw new CustomError('not_found', 404);
   return { body, name, mime };
 };
 
@@ -348,13 +344,13 @@ export const listCases = async (
 
 export const addMovement = async (tenantId: string, id: string, data: CreateMovement): Promise<CaseRecord> => {
   const updated = await caseRepository.addMovement(tenantId, id, data);
-  if (!updated) throw new CaseNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   return updated;
 };
 
 export const removeMovement = async (tenantId: string, id: string, movementId: string): Promise<CaseRecord> => {
   const updated = await caseRepository.removeMovement(tenantId, id, movementId);
-  if (!updated) throw new CaseNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   return updated;
 };
 

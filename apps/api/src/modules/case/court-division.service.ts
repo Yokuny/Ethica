@@ -6,7 +6,7 @@ import {
   CSV_IMPORT_MAX_ROWS,
   createCourtDivisionSchema,
 } from '@ethica/contracts';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as courtDivisionRepository from './court-division.repository.js';
 import type {
   CourtDivisionImportResult,
@@ -16,8 +16,6 @@ import type {
   UpdateCourtDivision,
 } from './court-division.schema.js';
 import { parseCsv } from './import.service.js';
-
-export class CourtDivisionNotFoundError extends KeyedError {}
 
 const isDuplicateKey = (e: unknown): boolean =>
   typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 11000;
@@ -47,7 +45,7 @@ export const updateCourtDivision = async (
 ): Promise<CourtDivisionRecord> => {
   try {
     const updated = await courtDivisionRepository.update(tenantId, id, data);
-    if (!updated) throw new CourtDivisionNotFoundError('not_found');
+    if (!updated) throw new CustomError('not_found', 404);
     return updated;
   } catch (e) {
     if (isDuplicateKey(e)) throw new CustomError('already_exists', 409);
@@ -56,7 +54,7 @@ export const updateCourtDivision = async (
 };
 
 export const deleteCourtDivision = async (tenantId: string, id: string): Promise<void> => {
-  if (!(await courtDivisionRepository.remove(tenantId, id))) throw new CourtDivisionNotFoundError('not_found');
+  if (!(await courtDivisionRepository.remove(tenantId, id))) throw new CustomError('not_found', 404);
 };
 
 // Spreadsheet column of each field, to say where a rejected row is wrong.

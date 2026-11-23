@@ -92,8 +92,8 @@ describe('buildIcs', () => {
 });
 
 describe('generateFeed', () => {
-  it('link inexistente, revogado ou de tenant suspenso (sem dono) devolve null', async () => {
+  it('link inexistente, revogado ou de tenant suspenso (sem dono) é 404', async () => {
     vi.mocked(accountService.findFeedOwner).mockResolvedValue(null);
-    await expect(generateFeed('a'.repeat(64), now)).resolves.toBeNull();
+    await expect(generateFeed('a'.repeat(64), now)).rejects.toMatchObject({ message: 'not_found', status: 404 });
   });
 });

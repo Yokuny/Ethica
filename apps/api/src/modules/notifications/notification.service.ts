@@ -14,7 +14,7 @@ import {
 import { dateInDisplayTz } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { suggestionDecisions } from '../../metrics/automation.metric.js';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as automationService from '../automation/automation.service.js';
 import * as caseService from '../case/case.service.js';
 import * as transactionService from '../finance/transaction.service.js';
@@ -30,8 +30,6 @@ import type {
   SuggestionRecord,
   UpdateNotification,
 } from './notification.schema.js';
-
-export class NotificationNotFoundError extends KeyedError {}
 
 // Agreement, dismissal or removal: the process ended, its deadlines no longer run.
 const LOSS_PHASES: readonly string[] = [...CASE_PHASE_GROUPS.losses, 'assistance_settlement'];
@@ -66,7 +64,7 @@ const syncAgenda = (tenantId: string, id: string, notification?: DatedNotificati
   });
 };
 
-// Missing case (or from another tenant) → CaseNotFoundError, the same 404 as the case.
+// Missing case (or from another tenant) → the same 404 as the case.
 export const createNotification = async (tenantId: string, data: CreateNotification): Promise<DatedNotification> => {
   await caseService.getCase(tenantId, data.caseId);
   const notification = await notificationRepository.createDated(tenantId, data, 'user');
@@ -98,18 +96,18 @@ export const updateNotification = async (
   // A deadline is filed, missed or canceled; an alert is concluded or canceled (AD-189, AD-263).
   if (data.status) {
     const before = await notificationRepository.findDatedById(tenantId, id);
-    if (!before) throw new NotificationNotFoundError('not_found');
+    if (!before) throw new CustomError('not_found', 404);
     if (!validNotificationStatus(before.kind, data.status)) throw new CustomError('invalid_notification_status', 422);
   }
   const updated = await notificationRepository.updateDated(tenantId, id, toWrite(data, dateInDisplayTz(now)));
-  if (!updated) throw new NotificationNotFoundError('not_found');
+  if (!updated) throw new CustomError('not_found', 404);
   syncAgenda(tenantId, id, updated);
   return updated;
 };
 
 export const deleteNotification = async (tenantId: string, id: string): Promise<void> => {
   const { deletedCount } = await notificationRepository.deleteDated(tenantId, id);
-  if (deletedCount === 0) throw new NotificationNotFoundError('not_found');
+  if (deletedCount === 0) throw new CustomError('not_found', 404);
   syncAgenda(tenantId, id);
 };
 
@@ -131,7 +129,7 @@ export const countDue = ({ tenantId, userId, permissions }: Reader, now: Date = 
 
 export const markRead = async ({ tenantId, userId, permissions }: Reader, id?: string) => {
   const { matchedCount } = await notificationRepository.markRead(tenantId, userId, visibleModules(permissions), id);
-  if (id && matchedCount === 0) throw new NotificationNotFoundError('not_found');
+  if (id && matchedCount === 0) throw new CustomError('not_found', 404);
 };
 
 export const listCaseNotifications = (tenantId: string, caseId: string) =>
@@ -156,7 +154,7 @@ export const listForExport = (tenantId: string) => notificationRepository.listAl
 // Deciding asks to change the data of the suggestion module (D5): cases or finance.
 const findDecidable = async ({ tenantId, permissions }: Reader, id: string): Promise<SuggestionRecord> => {
   const suggestion = await notificationRepository.findPendingSuggestion(tenantId, id);
-  if (!suggestion) throw new NotificationNotFoundError('not_found');
+  if (!suggestion) throw new CustomError('not_found', 404);
   if (!hasPermission(permissions, suggestion.module, 'update')) throw new CustomError('no_permission', 403);
   return suggestion;
 };
@@ -240,7 +238,7 @@ export const rejectSuggestion = async (decider: Reader, id: string, { reason }: 
     userId: decider.userId,
     rejectReason: reason,
   });
-  if (!rejected) throw new NotificationNotFoundError('not_found');
+  if (!rejected) throw new CustomError('not_found', 404);
   suggestionDecisions.inc({ rule: rejected.ruleKey, decision: 'rejected' });
   return rejected;
 };

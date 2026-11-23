@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { platformAdminOnly } from '../../middlewares/authorization.middleware.js';
 import { inviteRateLimit } from '../../middlewares/rateLimit.middleware.js';
 import { validBody, validParams } from '../../middlewares/validation.middleware.js';
-import { createPlatformController } from './platform.controller.js';
+import * as platformController from './platform.controller.js';
 import type { PlatformRouterDeps } from './platform.schema.js';
 import { createInviteSchema, provisionTenantSchema, tenantIdParamSchema } from './platform.schema.js';
 
@@ -10,7 +10,6 @@ import { createInviteSchema, provisionTenantSchema, tenantIdParamSchema } from '
 // touching data (FND-01/AC3); validToken comes first because platformAdminOnly
 // only reads req.tenantUser, already resolved from the database.
 export const createPlatformRouter = (deps: PlatformRouterDeps): Router => {
-  const controller = createPlatformController(deps);
   const router = Router();
 
   router.post(
@@ -18,7 +17,7 @@ export const createPlatformRouter = (deps: PlatformRouterDeps): Router => {
     deps.validToken,
     platformAdminOnly,
     validBody(provisionTenantSchema),
-    controller.provisionTenant,
+    platformController.provisionTenant,
   );
 
   router.post(
@@ -28,7 +27,7 @@ export const createPlatformRouter = (deps: PlatformRouterDeps): Router => {
     inviteRateLimit,
     validParams(tenantIdParamSchema),
     validBody(createInviteSchema),
-    controller.inviteToTenant,
+    platformController.inviteToTenant(deps),
   );
 
   return router;

@@ -13,7 +13,7 @@ import {
   TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as appointmentService from '../agenda/appointment.service.js';
@@ -57,8 +57,6 @@ import { reportValues } from './report.variables.js';
 import * as signatoryService from './signatory.service.js';
 import * as templateService from './template.service.js';
 
-export class ReportNotFoundError extends KeyedError {}
-
 type Providers = { pdf: PdfRenderer; storage?: FileStorage };
 
 // Phases before delivery: completing with delivery moves to `report_delivered` (AD-126, AD-178, AD-180) or,
@@ -82,7 +80,7 @@ const withNumber = async <T extends { caseId: string }>(tenantId: string, items:
 };
 
 const found = (report: ReportRecord | null): ReportRecord => {
-  if (!report) throw new ReportNotFoundError('not_found');
+  if (!report) throw new CustomError('not_found', 404);
   return report;
 };
 
@@ -287,7 +285,7 @@ export const updateSection = async (
   const { tenantId } = ctx;
   const report = await editable(tenantId, id);
   const index = report.sections.findIndex((section) => section.id === sectionId);
-  if (index < 0) throw new ReportNotFoundError('not_found');
+  if (index < 0) throw new CustomError('not_found', 404);
   if (included !== undefined) {
     const { parents, children } = sectionFamily(report.sections, index);
     const ids = [sectionId, ...children, ...(included ? parents : [])];
@@ -364,7 +362,7 @@ const attachedAsTemplate = async (
 ) => {
   const file = await reportRepository.fileOf(ctx.tenantId, report.id);
   const body = file && providers.storage ? await providers.storage.get(file.key) : null;
-  if (!body) throw new ReportNotFoundError('not_found');
+  if (!body) throw new CustomError('not_found', 404);
   const sections = templateSectionsFromText(await importService.extractPdfText(body), report.templateName);
   return templateService.createFromReport(ctx.tenantId, {
     ...template,
@@ -379,7 +377,7 @@ const attachedAsTemplate = async (
 export const addSection = async (ctx: DocumentContext, id: string, data: AddReportSection): Promise<ReportRecord> => {
   const report = await editable(ctx.tenantId, id);
   const index = data.afterId ? report.sections.findIndex((section) => section.id === data.afterId) : -1;
-  if (data.afterId && index < 0) throw new ReportNotFoundError('not_found');
+  if (data.afterId && index < 0) throw new CustomError('not_found', 404);
   const position = data.afterId ? index + 1 + sectionFamily(report.sections, index).children.length : 0;
   found(
     await reportRepository.insertSection(ctx, id, position, {
@@ -407,7 +405,7 @@ export const moveSection = async (
   const report = await editable(ctx.tenantId, id);
   const { sections } = report;
   const index = sections.findIndex((section) => section.id === sectionId);
-  if (index < 0) throw new ReportNotFoundError('not_found');
+  if (index < 0) throw new CustomError('not_found', 404);
   const level = (sections[index] as ReportSectionRecord).level;
   const end = index + 1 + sectionFamily(sections, index).children.length;
   let neighbor = -1;
@@ -470,7 +468,7 @@ export const fillFromProcess = async (ctx: DocumentContext, id: string, file: Bu
 export const removeSection = async (ctx: DocumentContext, id: string, sectionId: string): Promise<ReportRecord> => {
   const { tenantId } = ctx;
   const report = await editable(tenantId, id);
-  if (!report.sections.some((section) => section.id === sectionId)) throw new ReportNotFoundError('not_found');
+  if (!report.sections.some((section) => section.id === sectionId)) throw new CustomError('not_found', 404);
   if (report.sections.length === 1) throw new CustomError('report_needs_section', 422);
   found(await reportRepository.removeSection(ctx, id, sectionId));
   return openReport(ctx, id);
@@ -563,7 +561,7 @@ export const deleteReport = async (
     reportRepository.fileOf(tenantId, id),
   ]);
   const { deletedCount } = await reportRepository.remove(tenantId, id);
-  if (deletedCount === 0) throw new ReportNotFoundError('not_found');
+  if (deletedCount === 0) throw new CustomError('not_found', 404);
   for (const item of file ? [...media, file] : media) {
     await providers.storage?.remove(item.key).catch(() => undefined);
     await officeService.returnFile(tenantId, item.bytes);
@@ -613,7 +611,7 @@ export const getMedia = async (
 ): Promise<{ body: Buffer; mime: string }> => {
   const media = await reportRepository.findMedia(tenantId, id, mediaId);
   const body = media && providers.storage ? await providers.storage.get(media.key) : null;
-  if (!media || !body) throw new ReportNotFoundError('not_found');
+  if (!media || !body) throw new CustomError('not_found', 404);
   return { body, mime: media.mime };
 };
 
@@ -664,7 +662,7 @@ const attachedPdf = async (
   const file = await reportRepository.fileOf(tenantId, id);
   if (!file) return null;
   const body = providers.storage ? await providers.storage.get(file.key) : null;
-  if (!body) throw new ReportNotFoundError('not_found');
+  if (!body) throw new CustomError('not_found', 404);
   // The name goes in the Content-Disposition header: only ASCII, without quotes.
   const name = file.name.normalize('NFD').replace(/[^\x20-\x7e]|"/g, '');
   return { name: /\.pdf$/i.test(name) ? name : `${name}.pdf`, type: 'application/pdf', conteudo: body };
@@ -748,7 +746,7 @@ export const templatePdf = async (providers: Providers, ctx: DocumentContext, id
 
 export const generateDocx = async (providers: Providers, ctx: DocumentContext, id: string): Promise<GeneratedFile> => {
   // The attached report only exists as the PDF that was sent (ANL-02).
-  if (await reportRepository.fileOf(ctx.tenantId, id)) throw new ReportNotFoundError('not_found');
+  if (await reportRepository.fileOf(ctx.tenantId, id)) throw new CustomError('not_found', 404);
   const data = await toExport(providers, ctx, id);
   return {
     name: fileName(data.report, data.legalCase, 'docx'),

@@ -1,4 +1,5 @@
 import { caseLabel } from '@ethica/contracts';
+import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { CaseSummary } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
 import * as accountService from '../identity/account.service.js';
@@ -119,9 +120,9 @@ export const buildIcs = ({ appointments, deadlines, summaries, now }: FeedEntry)
 
 // Feed by token (PRZ-03): `null` when the link does not exist, was revoked, the user is
 // inactive or the tenant suspended. Non-canceled appointments in the window + pending deadlines.
-export const generateFeed = async (token: string, now: Date = new Date()): Promise<string | null> => {
+export const generateFeed = async (token: string, now: Date = new Date()): Promise<string> => {
   const owner = await accountService.findFeedOwner(token);
-  if (!owner) return null;
+  if (!owner) throw new CustomError('not_found', 404);
   const { tenantId } = owner;
   const [appointments, deadlines] = await Promise.all([
     appointmentRepository.listInRange(tenantId, {

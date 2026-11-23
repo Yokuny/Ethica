@@ -1,232 +1,143 @@
 import { hasPermission, respObj } from '@ethica/contracts';
-import type { NextFunction, Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
 import type { AttachmentUploadQuery, ListCasesQuery } from './case.schema.js';
 import * as caseService from './case.service.js';
-import { CaseNotFoundError } from './case.service.js';
 import type { CsvImportQuery } from './import.schema.js';
 import * as importService from './import.service.js';
 
 // The Tenant always comes from req.tenantUser (AD-010), never from the body/query.
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
-const notFoundAs404 = (e: unknown, next: NextFunction): void => {
-  next(e instanceof CaseNotFoundError ? new CustomError(e.message, 404, e.detail) : e);
+export const createCase = async (req: Request, res: Response): Promise<void> => {
+  // The payment given at registration is a receipt in finance (AD-176).
+  if (req.body.payment && !hasPermission(req.tenantUser.permissions, 'finance', 'create')) {
+    throw new CustomError('no_permission', 403);
+  }
+  const result = await caseService.createCase({ ...req.body, tenant: tenantOf(req) });
+  res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
 };
 
-export const createCase = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    // The payment given at registration is a receipt in finance (AD-176).
-    if (req.body.payment && !hasPermission(req.tenantUser.permissions, 'finance', 'create')) {
-      throw new CustomError('no_permission', 403);
-    }
-    const result = await caseService.createCase({ ...req.body, tenant: tenantOf(req) });
-    res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
-  } catch (e) {
-    next(e);
-  }
+export const listCases = async (req: Request, res: Response): Promise<void> => {
+  const result = await caseService.listCases(tenantOf(req), req.query as unknown as ListCasesQuery);
+  res.json(respObj({ data: result }));
 };
 
-export const listCases = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const result = await caseService.listCases(tenantOf(req), req.query as unknown as ListCasesQuery);
-    res.json(respObj({ data: result }));
-  } catch (e) {
-    next(e);
-  }
+export const getCase = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.getCase(tenantOf(req), req.params.id as string) }));
 };
 
-export const getCase = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.getCase(tenantOf(req), req.params.id as string) }));
-  } catch (e) {
-    notFoundAs404(e, next);
-  }
-};
-
-export const updateCase = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const result = await caseService.updateCase(tenantOf(req), req.params.id as string, req.body);
-    res.json(respObj({ data: result }));
-  } catch (e) {
-    notFoundAs404(e, next);
-  }
+export const updateCase = async (req: Request, res: Response): Promise<void> => {
+  const result = await caseService.updateCase(tenantOf(req), req.params.id as string, req.body);
+  res.json(respObj({ data: result }));
 };
 
 export const addAttachment =
   (storage: FileStorage | undefined) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { name } = req.query as unknown as AttachmentUploadQuery;
-      const mime = req.get('content-type')?.split(';')[0] ?? '';
-      const result = await caseService.addAttachment(
-        storage,
-        tenantOf(req),
-        req.params.id as string,
-        name,
-        mime,
-        req.body as Buffer,
-      );
-      res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
+  async (req: Request, res: Response): Promise<void> => {
+    const { name } = req.query as unknown as AttachmentUploadQuery;
+    const mime = req.get('content-type')?.split(';')[0] ?? '';
+    const result = await caseService.addAttachment(
+      storage,
+      tenantOf(req),
+      req.params.id as string,
+      name,
+      mime,
+      req.body as Buffer,
+    );
+    res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
   };
 
 // Always a download (SPA-04): an uploaded HTML never runs on the API domain.
 export const getAttachment =
   (storage: FileStorage | undefined) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { body, name, mime } = await caseService.getAttachment(
-        storage,
-        tenantOf(req),
-        req.params.id as string,
-        req.params.attachmentId as string,
-      );
-      res.attachment(name).type(mime).set('X-Content-Type-Options', 'nosniff').end(body);
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
+  async (req: Request, res: Response): Promise<void> => {
+    const { body, name, mime } = await caseService.getAttachment(
+      storage,
+      tenantOf(req),
+      req.params.id as string,
+      req.params.attachmentId as string,
+    );
+    res.attachment(name).type(mime).set('X-Content-Type-Options', 'nosniff').end(body);
   };
 
 export const deleteAttachment =
   (storage: FileStorage | undefined) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      await caseService.deleteAttachment(
-        storage,
-        tenantOf(req),
-        req.params.id as string,
-        req.params.attachmentId as string,
-      );
-      res.json(respObj({ message: 'removed_successfully' }));
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
+  async (req: Request, res: Response): Promise<void> => {
+    await caseService.deleteAttachment(
+      storage,
+      tenantOf(req),
+      req.params.id as string,
+      req.params.attachmentId as string,
+    );
+    res.json(respObj({ message: 'removed_successfully' }));
   };
 
 export const deleteCase =
   (storage: FileStorage | undefined) =>
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      await caseService.deleteCase(tenantOf(req), req.params.id as string, storage);
-      res.json(respObj({ message: 'removed_successfully' }));
-    } catch (e) {
-      notFoundAs404(e, next);
-    }
+  async (req: Request, res: Response): Promise<void> => {
+    await caseService.deleteCase(tenantOf(req), req.params.id as string, storage);
+    res.json(respObj({ message: 'removed_successfully' }));
   };
 
-export const caseStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.caseStats(tenantOf(req)) }));
-  } catch (e) {
-    next(e);
-  }
+export const caseStats = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.caseStats(tenantOf(req)) }));
 };
 
-export const getServiceOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.getServiceOrder(tenantOf(req)) }));
-  } catch (e) {
-    next(e);
-  }
+export const getServiceOrder = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.getServiceOrder(tenantOf(req)) }));
 };
 
-export const serviceOrderPreview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.serviceOrderPreview(tenantOf(req)) }));
-  } catch (e) {
-    next(e);
-  }
+export const serviceOrderPreview = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.serviceOrderPreview(tenantOf(req)) }));
 };
 
-export const setServiceOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.setServiceOrder(tenantOf(req), req.body) }));
-  } catch (e) {
-    next(e);
-  }
+export const setServiceOrder = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.setServiceOrder(tenantOf(req), req.body) }));
 };
 
-export const listServiceTypes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.listServiceTypes(tenantOf(req)) }));
-  } catch (e) {
-    next(e);
-  }
+export const listServiceTypes = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.listServiceTypes(tenantOf(req)) }));
 };
 
-export const caseDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.caseDashboard(tenantOf(req)) }));
-  } catch (e) {
-    next(e);
-  }
+export const caseDashboard = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.caseDashboard(tenantOf(req)) }));
 };
 
-export const caseDistribution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.caseDistribution(tenantOf(req)) }));
-  } catch (e) {
-    next(e);
-  }
+export const caseDistribution = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.caseDistribution(tenantOf(req)) }));
 };
 
 // Home "Stalled cases" block (GES-05).
-export const stalledSummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await caseService.stalledSummary(tenantOf(req)) }));
-  } catch (e) {
-    next(e);
-  }
+export const stalledSummary = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.stalledSummary(tenantOf(req)) }));
 };
 
 // Import (AD-114, AD-118): the file arrives as the body through the router's `fileBody`.
-export const importPdf = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: await importService.extractPdf(tenantOf(req), req.body) }));
-  } catch (e) {
-    next(e);
-  }
+export const importPdf = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await importService.extractPdf(tenantOf(req), req.body) }));
 };
 
-export const csvColumns = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json(respObj({ data: importService.csvColumns(req.body) }));
-  } catch (e) {
-    next(e);
-  }
+export const csvColumns = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: importService.csvColumns(req.body) }));
 };
 
-export const importCsv = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const { fields } = req.query as CsvImportQuery;
-    res.json(respObj({ data: await importService.importCsv(tenantOf(req), req.body, fields) }));
-  } catch (e) {
-    next(e);
-  }
+export const importCsv = async (req: Request, res: Response): Promise<void> => {
+  const { fields } = req.query as CsvImportQuery;
+  res.json(respObj({ data: await importService.importCsv(tenantOf(req), req.body, fields) }));
 };
 
-export const addMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const data = await caseService.addMovement(tenantOf(req), req.params.id as string, req.body);
-    res.status(201).json(respObj({ data, message: 'created_successfully' }));
-  } catch (e) {
-    notFoundAs404(e, next);
-  }
+export const addMovement = async (req: Request, res: Response): Promise<void> => {
+  const data = await caseService.addMovement(tenantOf(req), req.params.id as string, req.body);
+  res.status(201).json(respObj({ data, message: 'created_successfully' }));
 };
 
-export const removeMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const data = await caseService.removeMovement(
-      tenantOf(req),
-      req.params.id as string,
-      req.params.movementId as string,
-    );
-    res.json(respObj({ data, message: 'removed_successfully' }));
-  } catch (e) {
-    notFoundAs404(e, next);
-  }
+export const removeMovement = async (req: Request, res: Response): Promise<void> => {
+  const data = await caseService.removeMovement(
+    tenantOf(req),
+    req.params.id as string,
+    req.params.movementId as string,
+  );
+  res.json(respObj({ data, message: 'removed_successfully' }));
 };
