@@ -26,12 +26,19 @@ export type TransactionStatus = (typeof TRANSACTION_STATUS)[number];
 export const TRANSACTION_LIST_SORTS = ['description', 'amountCents', 'dueDate'] as const;
 export type TransactionListSort = (typeof TRANSACTION_LIST_SORTS)[number];
 
+// An amount in cents of real money: whole, positive and up to R$ 1 bilhão, so the sums stay exact.
+const amountCentsSchema = z
+  .number()
+  .int('valor deve ser inteiro')
+  .min(1, 'valor deve ser positivo')
+  .max(100_000_000_000, 'valor inválido');
+
 const transactionFields = z.object({
   kind: z.enum(TRANSACTION_KINDS),
   category: z.enum(ALL_TRANSACTION_CATEGORIES),
   description: z.string().trim().min(1, 'descrição é obrigatória').max(200, 'descrição inválida'),
   categoryName: z.string().trim().min(1).max(60, 'categoria inválida').optional(),
-  amountCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
+  amountCents: amountCentsSchema,
   dueDate: calendarDateSchema,
   caseId: idSchema.optional(),
 });
@@ -57,7 +64,7 @@ export type UpdateTransaction = z.infer<typeof updateTransactionSchema>;
 // Partial receipt of a fee (AD-111): amount, day it hit the account and the account.
 export const createInstallmentSchema = z
   .object({
-    amountCents: z.number().int('valor deve ser inteiro').min(1, 'valor deve ser positivo'),
+    amountCents: amountCentsSchema,
     date: calendarDateSchema,
     account: z.string().trim().max(120, 'conta inválida').optional(),
   })

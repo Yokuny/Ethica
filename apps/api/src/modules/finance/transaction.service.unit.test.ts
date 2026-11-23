@@ -3,7 +3,7 @@ import * as transactionRepository from './transaction.repository.js';
 import { monthlyFlow, postFixedFees, summary, updateTransaction } from './transaction.service.js';
 
 vi.mock('./transaction.repository.js', () => ({
-  createTransaction: vi.fn(async (_tenant: string, data: object) => ({
+  createCaseFee: vi.fn(async (_tenant: string, data: object) => ({
     id: 'tx1',
     status: 'expected',
     installments: [],
@@ -63,7 +63,7 @@ describe('transaction.service', () => {
       now,
     );
 
-    expect(transactionRepository.createTransaction).toHaveBeenCalledWith('t1', {
+    expect(transactionRepository.createCaseFee).toHaveBeenCalledWith('t1', {
       kind: 'income',
       category: 'fixed_fees',
       description: 'Honorários fixados — 0001',
@@ -80,14 +80,14 @@ describe('transaction.service', () => {
       now,
     );
 
-    expect(transactionRepository.createTransaction).toHaveBeenLastCalledWith(
+    expect(transactionRepository.createCaseFee).toHaveBeenLastCalledWith(
       't1',
       expect.objectContaining({ category: 'contracted_fees', description: 'Honorários contratados — 0001' }),
     );
   });
 
   it('honorário fixado já lançado: o valor novo atualiza o mesmo lançamento (AD-111)', async () => {
-    vi.mocked(transactionRepository.createTransaction).mockClear();
+    vi.mocked(transactionRepository.createCaseFee).mockClear();
     vi.mocked(transactionRepository.findFixedFee).mockResolvedValue({ id: 'l9' } as never);
     vi.mocked(transactionRepository.updateIncome).mockResolvedValue({ id: 'l9' } as never);
 
@@ -103,7 +103,7 @@ describe('transaction.service', () => {
     );
 
     expect(transactionRepository.updateIncome).toHaveBeenCalledWith('t1', 'l9', { amountCents: 650_000 });
-    expect(transactionRepository.createTransaction).not.toHaveBeenCalled();
+    expect(transactionRepository.createCaseFee).not.toHaveBeenCalled();
   });
 
   it('honorário fixado reduzido abaixo do recebido rejeita (o bus só registra no log)', async () => {

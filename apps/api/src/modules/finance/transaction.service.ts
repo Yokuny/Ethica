@@ -328,26 +328,29 @@ export const postFixedFees = async (
   now: Date = new Date(),
 ): Promise<void> => {
   const existing = await transactionRepository.findFixedFee(input.tenantId, input.caseId);
-  if (existing) {
-    const updated = await transactionRepository.updateIncome(input.tenantId, existing.id, {
-      amountCents: input.amountCents,
-    });
-    if (!updated) throw new CustomError('amount_below_received', 422);
-    syncAgenda(input.tenantId, existing.id, updated);
+  const created = existing
+    ? null
+    : await transactionRepository.createCaseFee(input.tenantId, {
+        kind: 'income',
+        category: input.category,
+        description: `${input.category === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.caseLabel}`,
+        amountCents: input.amountCents,
+        dueDate: addDays(dateInDisplayTz(now), DAYS_TO_RECEIVE_FEES),
+        caseId: input.caseId,
+      });
+  if (created) {
+    // Payment given at registration (AD-176).
+    const paid =
+      input.received && (await transactionRepository.addInstallment(input.tenantId, created.id, input.received));
+    syncAgenda(input.tenantId, created.id, paid || created);
     return;
   }
-  const created = await transactionRepository.createTransaction(input.tenantId, {
-    kind: 'income',
-    category: input.category,
-    description: `${input.category === 'contracted_fees' ? 'Honorários contratados' : 'Honorários fixados'} — ${input.caseLabel}`,
-    amountCents: input.amountCents,
-    dueDate: addDays(dateInDisplayTz(now), DAYS_TO_RECEIVE_FEES),
-    caseId: input.caseId,
-  });
-  // Payment given at registration (AD-176).
-  const paid =
-    input.received && (await transactionRepository.addInstallment(input.tenantId, created.id, input.received));
-  syncAgenda(input.tenantId, created.id, paid || created);
+  // Already posted, now or by a change that arrived together: only the amount changes.
+  const fee = existing ?? (await transactionRepository.findFixedFee(input.tenantId, input.caseId));
+  if (!fee) return;
+  const updated = await transactionRepository.updateIncome(input.tenantId, fee.id, { amountCents: input.amountCents });
+  if (!updated) throw new CustomError('amount_below_received', 422);
+  syncAgenda(input.tenantId, fee.id, updated);
 };
 
 // The automation receipt (AD-269) checks the transaction is an income of that case before adding the installment.

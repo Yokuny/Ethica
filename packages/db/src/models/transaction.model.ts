@@ -31,6 +31,8 @@ export interface TransactionDocument {
   settledDate?: string;
   installments: InstallmentDocument[];
   Case?: mongoose.Types.ObjectId;
+  // Posted by the system: the same fact never becomes two entries (`case_fee:<caseId>`, the fee of the case).
+  dedupeKey?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +59,7 @@ const transactionSchema = new Schema<TransactionDocument>(
       default: [],
     },
     Case: { type: Schema.Types.ObjectId, ref: 'Case' },
+    dedupeKey: { type: String },
   },
   { timestamps: true },
 );
@@ -71,5 +74,9 @@ transactionSchema.pre('validate', function () {
 transactionSchema.index({ Tenant: 1, dueDate: 1 });
 transactionSchema.index({ Tenant: 1, Case: 1 });
 transactionSchema.index({ Tenant: 1, kind: 1, status: 1 });
+transactionSchema.index(
+  { Tenant: 1, dedupeKey: 1 },
+  { unique: true, partialFilterExpression: { dedupeKey: { $type: 'string' } } },
+);
 
 export const Transaction = mongoose.model<TransactionDocument>('Transaction', transactionSchema);

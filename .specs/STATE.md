@@ -1775,6 +1775,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-23
 - **Status**: active
 
+### AD-283
+- **Decision**: Endurecimento achado por testes de falha (2026-11-23). (1) `calendarDateSchema` (`@ethica/contracts`) aceita só dia que existe no calendário: `2026-02-30` e `2026-13-45` param na borda com 400, em todo o sistema (prazo, lançamento, parcela, agenda). (2) Valor de lançamento e de parcela vai até R$ 1 bilhão (`amountCentsSchema`), para as somas continuarem exatas. (3) O honorário automático do serviço (`case:fixed_fees`, AD-111) ganha `dedupeKey` `case_fee:<caseId>` com índice único parcial `{Tenant, dedupeKey}`, como a `Notification`: duas mudanças do honorário ao mesmo tempo criam um lançamento só e a segunda só atualiza o valor (`createCaseFee` devolve `null` na chave repetida). Lançamentos antigos ficam sem a chave e continuam achados por `findFixedFee`.
+- **Reason**: pedido do usuário de simular falhas no processo do Financeiro: três mudanças simultâneas do honorário criavam três receitas (a receber triplicado) e datas impossíveis eram gravadas.
+- **Trade-off**: um escritório que já tenha honorário duplicado por essa corrida continua com ele até alguém anular o excedente; data impossível vinda de algum cliente antigo passa a receber 400.
+- **Scope**: `packages/contracts/src/schemas/{date,transaction}.schema.ts`, `packages/db/src/models/transaction.model.ts`, `apps/api/src/modules/finance/transaction.{repository,service}.ts`, `apps/api/src/modules/finance/transaction.router.e2e.test.ts`.
+- **Date**: 2026-11-23
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

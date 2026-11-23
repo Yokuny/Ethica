@@ -71,6 +71,26 @@ export const createTransaction = async (
     return toRecord(doc);
   });
 
+// The fee of a case (AD-111), one per case even when two changes of the fee arrive together: the second gets
+// `null` and updates the one already posted.
+export const createCaseFee = async (
+  tenantId: string,
+  data: CreateTransaction & { caseId: string },
+): Promise<TransactionRecord | null> =>
+  withDbTiming('finance.createCaseFee', async () => {
+    try {
+      const doc = await Transaction.create({
+        Tenant: tenantId,
+        ...toDocumentFields(data),
+        dedupeKey: `case_fee:${data.caseId}`,
+      });
+      return toRecord(doc);
+    } catch (e) {
+      if ((e as { code?: unknown }).code === 11000) return null;
+      throw e;
+    }
+  });
+
 export const findById = async (tenantId: string, id: string): Promise<TransactionRecord | null> =>
   withDbTiming('finance.findById', async () => {
     const doc = await Transaction.findOne(tenantScoped({ Tenant: tenantId, _id: id })).lean();

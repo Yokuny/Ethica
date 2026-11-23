@@ -14,7 +14,7 @@ import {
 } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { buildApp } from '../../app.js';
 import { env } from '../../config/env.config.js';
 
@@ -348,5 +348,105 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       .poll(async () => (await Transaction.findOne({ Case: legalCase.id }).lean())?.amountCents)
       .toBe(350_000);
     expect(await Transaction.countDocuments({ Case: legalCase.id })).toBe(1);
+  });
+
+  describe('falhas', () => {
+    const CASE = {
+      processNumber: '0001234-56.2026.5.02.0001',
+      courtType: 'labor',
+      role: 'court_expert',
+      court: 'TRT2',
+      subject: 'Insalubridade',
+    };
+
+    it('duas parcelas ao mesmo tempo nunca passam do valor do honorário', async () => {
+      const as = await seedSession();
+      const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
+      const pay = () =>
+        as(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 300_000, date: today });
+
+      const results = await Promise.all([pay(), pay(), pay()]);
+      expect(results.map((result) => result.status).sort()).toEqual([201, 422, 422]);
+      const saved = await Transaction.findById(id).lean();
+      expect(saved?.installments).toHaveLength(1);
+      expect(saved?.status).toBe('partial');
+    });
+
+    it('o honorário fixado mudado duas vezes ao mesmo tempo continua um lançamento só', async () => {
+      const as = await seedSession();
+      const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+      const fee = (fixedFeesCents: number) =>
+        as(request(app).patch(`/expert-cases/${legalCase.id}`)).send({ fixedFeesCents });
+
+      await Promise.all([fee(300_000), fee(350_000), fee(400_000)]);
+      await expect.poll(() => Transaction.countDocuments({ Case: legalCase.id })).toBeGreaterThan(0);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(await Transaction.countDocuments({ Case: legalCase.id })).toBe(1);
+    });
+
+    it('data impossível e valor fora do real param na borda (400), nunca chegam ao banco', async () => {
+      const as = await seedSession();
+      for (const body of [
+        { ...FEE, dueDate: '2026-13-45' },
+        { ...FEE, dueDate: '2026-02-30' },
+        { ...FEE, amountCents: 0 },
+        { ...FEE, amountCents: 10.5 },
+        { ...FEE, amountCents: 1e17 },
+        { ...FEE, kind: 'gift' },
+        { ...FEE, Tenant: 'x' },
+      ]) {
+        expect((await as(request(app).post('/finance/entries')).send(body)).status).toBe(400);
+      }
+      const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
+      const parcel = (body: object) => as(request(app).post(`/finance/entries/${id}/installments`)).send(body);
+      expect((await parcel({ amountCents: 100, date: '2026-02-31' })).status).toBe(400);
+      expect((await parcel({ amountCents: -100, date: today })).status).toBe(400);
+      expect(await Transaction.countDocuments({})).toBe(1);
+    });
+
+    it('lançamento de outro escritório é 404 em toda operação; estorno de parcela inexistente é 404', async () => {
+      const owner = await seedSession();
+      const other = await seedSession();
+      const { id } = (await owner(request(app).post('/finance/entries')).send(FEE)).body.data;
+      const parcel = (
+        await owner(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 100, date: today })
+      ).body.data.installments[0];
+
+      expect((await other(request(app).patch(`/finance/entries/${id}`)).send({ description: 'X' })).status).toBe(404);
+      expect(
+        (await other(request(app).post(`/finance/entries/${id}/installments`)).send({ amountCents: 1, date: today }))
+          .status,
+      ).toBe(404);
+      expect((await other(request(app).delete(`/finance/entries/${id}/installments/${parcel.id}`))).status).toBe(404);
+      expect((await other(request(app).get('/finance/entries'))).body.data.total).toBe(0);
+      expect(
+        (await owner(request(app).delete(`/finance/entries/${id}/installments/64b000000000000000000001`))).status,
+      ).toBe(404);
+    });
+
+    it('honorário anulado não recebe parcela; escritório sem lançamentos tem resumo zerado', async () => {
+      const as = await seedSession();
+      const empty = await as(request(app).get('/finance/summary'));
+      expect(empty.status).toBe(200);
+      const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
+      await as(request(app).patch(`/finance/entries/${id}`)).send({ status: 'canceled' });
+      const parcel = await as(request(app).post(`/finance/entries/${id}/installments`)).send({
+        amountCents: 100,
+        date: today,
+      });
+      expect(parcel.status).toBe(422);
+    });
+
+    it('banco fora do ar: 500 com a chave de erro, sem o detalhe técnico', async () => {
+      const as = await seedSession();
+      const spy = vi.spyOn(Transaction, 'find').mockImplementationOnce(() => {
+        throw new Error('connection lost 10.0.0.1');
+      });
+      const response = await as(request(app).get('/finance/entries'));
+      spy.mockRestore();
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('internal_error');
+      expect(JSON.stringify(response.body)).not.toContain('10.0.0.1');
+    });
   });
 });

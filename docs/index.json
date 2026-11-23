@@ -500,7 +500,8 @@
         "AD-113",
         "AD-192",
         "AD-200",
-        "AD-201"
+        "AD-201",
+        "AD-283"
       ],
       "spec": [
         ".specs/features/prazos-recebimentos"
@@ -2485,6 +2486,12 @@
     {
       "id": "AD-282",
       "decisao": "Notificações viram um processo só: toda `Notification` (prazo, alerta, sugestão, aviso — AD-263) está aberta enquanto pede alguém (prazo, al",
+      "data": "2026-11-23",
+      "status": "active"
+    },
+    {
+      "id": "AD-283",
+      "decisao": "Endurecimento achado por testes de falha (2026-11-23). (1) `calendarDateSchema` (`@ethica/contracts`) aceita só dia que existe no calendário",
       "data": "2026-11-23",
       "status": "active"
     }

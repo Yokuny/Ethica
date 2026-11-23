@@ -103,6 +103,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-23 — Testes de falha em Notificações e Financeiro: lista resiste a data ilegível do tribunal, honorário do serviço não duplica em mudanças simultâneas, datas e valores impossíveis param na borda (AD-283) — `notificacoes-processo-unico`, `prazos-recebimentos`
 - [x] 2026-11-23 — Notificações numa lista só (Abertas/Resolvidas), sem abas aninhadas, com uma leitura e um contador na API (AD-282) — `notificacoes-processo-unico`
 - [x] 2026-11-23 — Página Automação Datajud conferida no navegador local, com e sem o módulo (menu, sugestões, processo acompanhado com link, regras e oferta) — `automacao-datajud`
 - [x] 2026-11-22 — Produção: collection `opportunities` (vazia) apagada e `prospecting` tirado do único convite que tinha, depois da cópia em `ethica-backups` e da confirmação do usuário; nenhum serviço, usuário ou diário de bordo tinha dado da Prospecção — `prospeccao-datajud`
