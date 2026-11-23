@@ -57,3 +57,6 @@ export type CourtProcessView = {
   fetchedAt?: string;
   movements: CourtMovement[];
 };
+
+// A case the automation follows (the Automação page): its label, the court and when the worker last read it.
+export type TrackedCase = { caseId: string; caseLabel: string; court: string; syncedAt: string };

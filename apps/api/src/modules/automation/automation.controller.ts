@@ -24,3 +24,11 @@ export const getCaseCourtProcess = async (req: Request, res: Response, next: Nex
     next(e instanceof CaseNotFoundError ? new CustomError(e.message, 404, e.detail) : e);
   }
 };
+
+export const listTrackedCases = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.json(respObj({ data: await automationService.listTrackedCases(tenantOf(req)) }));
+  } catch (e) {
+    next(e);
+  }
+};

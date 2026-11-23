@@ -1,5 +1,5 @@
 import type { CourtMovement } from '@ethica/contracts';
-import { CourtProcess } from '@ethica/db';
+import { CaseCourtSync, CourtProcess, tenantScoped } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 
 // CourtProcess is global public data (AD-271): no tenant filter here; the case of the office is checked before
@@ -23,4 +23,14 @@ export const findCourtProcess = async (court: string, processNumber: string) =>
       fetchedAt: newest(docs.map((doc) => doc.fetchedAt))?.toISOString(),
       movements,
     };
+  });
+
+// The cases of the office the worker follows in court, the most recently read first.
+export const findTrackedCases = async (tenantId: string) =>
+  withDbTiming('automation.findTrackedCases', async () => {
+    const docs = await CaseCourtSync.find(tenantScoped({ Tenant: tenantId }))
+      .select('Case court syncedAt')
+      .sort({ syncedAt: -1 })
+      .lean();
+    return docs.map((doc) => ({ caseId: doc.Case.toString(), court: doc.court, syncedAt: doc.syncedAt.toISOString() }));
   });

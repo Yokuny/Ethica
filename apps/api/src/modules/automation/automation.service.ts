@@ -1,9 +1,9 @@
-import { courtUnitFromNumber } from '@ethica/contracts';
+import { caseLabel, courtUnitFromNumber } from '@ethica/contracts';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import * as caseService from '../case/case.service.js';
 import * as billingService from '../identity/billing.service.js';
 import * as automationRepository from './automation.repository.js';
-import type { CourtProcessView } from './automation.schema.js';
+import type { CourtProcessView, TrackedCase } from './automation.schema.js';
 
 // Automação Datajud (AD-268 to AD-271): the BFF only reads what the worker brought from the court.
 
@@ -18,4 +18,17 @@ export const getCaseCourtProcess = async (tenantId: string, caseId: string): Pro
   const unit = legalCase.processNumber ? courtUnitFromNumber(legalCase.processNumber) : undefined;
   if (!unit || !legalCase.processNumber) return null;
   return automationRepository.findCourtProcess(unit.court, legalCase.processNumber);
+};
+
+// The cases followed in court; a case deleted meanwhile is left out (nothing to link to).
+export const listTrackedCases = async (tenantId: string): Promise<TrackedCase[]> => {
+  const tracked = await automationRepository.findTrackedCases(tenantId);
+  const summaries = await caseService.findSummariesByIds(
+    tenantId,
+    tracked.map((item) => item.caseId),
+  );
+  return tracked.flatMap((item) => {
+    const summary = summaries.get(item.caseId);
+    return summary ? [{ ...item, caseLabel: caseLabel(summary) }] : [];
+  });
 };

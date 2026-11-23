@@ -10,6 +10,7 @@ export const createAutomationRouter = (deps: AutomationRouterDeps): Router => {
   const router = Router();
   const guard = [deps.validToken, tenantAssignmentCheck, automationController.requireAutomation];
 
+  router.get('/cases', ...guard, can('expert_cases', 'view'), automationController.listTrackedCases);
   router.get(
     '/cases/:id/court-process',
     ...guard,

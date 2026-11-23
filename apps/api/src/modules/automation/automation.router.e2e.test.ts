@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
-import { Case, CourtProcess, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
+import { Case, CaseCourtSync, CourtProcess, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -43,7 +43,9 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
   });
   afterEach(async () => {
     await Promise.all(
-      [CourtProcess, Case, Session, User, Tenant].map((model) => (model as typeof Tenant).deleteMany({})),
+      [CaseCourtSync, CourtProcess, Case, Session, User, Tenant].map((model) =>
+        (model as typeof Tenant).deleteMany({}),
+      ),
     );
   });
   afterAll(async () => {
@@ -88,5 +90,38 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
     const other = await seedSession();
     await Tenant.updateOne({ _id: other.tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
     expect((await other.as(request(app).get(path))).status).toBe(404);
+  });
+
+  it('lista os processos acompanhados do escritório, com o rótulo do serviço, e só com o módulo', async () => {
+    const { as, tenant } = await seedSession();
+    const legalCase = (
+      await as(request(app).post('/expert-cases')).send({
+        processNumber: NUMBER,
+        courtType: 'labor',
+        role: 'court_expert',
+        court: 'TRT24',
+        subject: 'Insalubridade',
+      })
+    ).body.data;
+    const syncedAt = new Date('2026-11-20T06:00:00Z');
+    await CaseCourtSync.create({
+      Tenant: tenant._id,
+      Case: legalCase.id,
+      court: 'TRT24',
+      processNumber: NUMBER,
+      baselineAt: syncedAt,
+      syncedAt,
+    });
+
+    expect((await as(request(app).get('/automation/cases'))).status).toBe(403);
+
+    await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+    expect((await as(request(app).get('/automation/cases'))).body.data).toEqual([
+      { caseId: legalCase.id, caseLabel: NUMBER, court: 'TRT24', syncedAt: syncedAt.toISOString() },
+    ]);
+
+    const other = await seedSession();
+    await Tenant.updateOne({ _id: other.tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+    expect((await other.as(request(app).get('/automation/cases'))).body.data).toEqual([]);
   });
 });
