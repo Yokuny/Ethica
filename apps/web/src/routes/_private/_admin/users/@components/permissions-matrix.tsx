@@ -5,7 +5,7 @@ import {
   type PermissionModule,
   type Permissions,
 } from '@ethica/contracts';
-import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { ItemDescription } from '@ethica/ui/components/item';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
 import { Checkbox } from '@/components/checkbox.js';
 import { t } from '@/lib/helpers/translate.helper.js';
