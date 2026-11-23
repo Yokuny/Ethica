@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deadlineAlert, deadlineSuggestions } from './notification-labels.js';
+import { deadlineAlert, deadlineSuggestions, notificationText } from './notification-labels.js';
 
 // Criticality (AD-190): overdue before today; urgent up to 5 days, due soon up to 10, attention up to 30.
 describe('deadlineAlert', () => {
@@ -42,5 +42,34 @@ describe('deadlineSuggestions', () => {
       'Entrega de revisão',
     ]);
     expect(deadlineSuggestions({ role: 'other', serviceType: 'Avaliação de imóvel' })).toEqual([]);
+  });
+});
+
+// Failures (AD-282): a notice or a suggestion written by the worker with missing or unreadable data never breaks
+// the page; the row still says what kind it is.
+describe('notificationText com dados incompletos', () => {
+  const base = {
+    id: 'n',
+    module: 'expert_cases',
+    source: 'system',
+    open: true,
+    date: '2026-11-20',
+    createdAt: '',
+  } as const;
+
+  it('aviso sem parâmetros, data ilegível e assunto desconhecido', () => {
+    expect(() => notificationText({ ...base, kind: 'notice', topic: 'finance_due' })).not.toThrow();
+    expect(() =>
+      notificationText({ ...base, kind: 'notice', topic: 'automation_expiring', params: { automationUntil: 'x' } }),
+    ).not.toThrow();
+    expect(notificationText({ ...base, kind: 'notice' })).toEqual({ title: 'Aviso', description: 'Aviso' });
+  });
+
+  it('sugestão sem a proposta ou o movimento continua dizendo que é uma sugestão', () => {
+    expect(notificationText({ ...base, kind: 'suggestion', status: 'pending' }).title).toBe('Sugestão');
+  });
+
+  it('prazo sem título não vira texto vazio de "undefined"', () => {
+    expect(notificationText({ ...base, kind: 'deadline' }).title).not.toContain('undefined');
   });
 });

@@ -43,6 +43,7 @@ Pedido do usuário (2026-11-23): sem aba dentro de aba, um módulo só no back-e
 pnpm vitest run apps/api/src/modules/notifications apps/web/src/routes/_private/automation apps/web/src/components/notification-dialog.unit.test.tsx
 ```
 
+- Falhas: `describe('falhas (AD-282)')` no e2e da API e `notificationText com dados incompletos` em `apps/web/src/components/notification-labels.unit.test.ts`.
 - UAT: Notificações → Abertas mostra prazos, sugestões e avisos juntos; Marcar como lido num aviso baixa o número do menu e o leva para Resolvidas.
 
 ## Pendências
@@ -50,6 +51,8 @@ pnpm vitest run apps/api/src/modules/notifications apps/web/src/routes/_private/
 - [ ] Perita: confirmar a tabela "Assumptions" da spec (contador do menu, Abertas/Resolvidas no lugar das cinco situações).
 
 ## Histórico
+
+- 2026-11-23 — Testes de falha: data ilegível do tribunal derrubava a lista inteira (500 para todos) e agora entra pelo dia em que a notificação nasceu (`$convert` com `onError` na agregação e a mesma regra no `dayOf`); duas aprovações ao mesmo tempo aplicam uma vez só; banco fora devolve `internal_error` sem detalhe; entrada inválida para na borda (400); quem não vê nenhum módulo recebe lista vazia; aviso de serviço excluído aparece sem os dados do serviço; texto de aviso ou sugestão incompleto diz o tipo em vez de "Aviso". Volume medido à parte (20 mil notificações num escritório): lista em ~90 ms, contador em ~25 ms, sem índice novo.
 
 - 2026-11-23 — Filtros Tipo e Período na lista (pedido do usuário), conferidos no navegador; a coluna Tipo de serviço volta (pedido da perita de 2026-11-05); Notificações no menu também para quem só vê o Financeiro; o detalhe do serviço pede só prazos e alertas (`kind` repetível), para nenhum ficar fora do limite de 100; sugestões do mesmo dia na ordem do movimento.
 

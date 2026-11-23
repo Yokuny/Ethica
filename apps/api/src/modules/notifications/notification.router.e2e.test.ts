@@ -14,7 +14,7 @@ import {
 } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { buildApp } from '../../app.js';
 import { env } from '../../config/env.config.js';
 
@@ -444,5 +444,96 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
     expect(cancel).toMatchObject({ status: 'pending', proposal: { target: 'notifications_cancel', count: 1 } });
     expect((await accept(cancel?._id)).body.data).toMatchObject({ status: 'accepted' });
     expect(await Notification.countDocuments({ kind: 'deadline', status: 'canceled' })).toBe(1);
+  });
+
+  describe('falhas (AD-282)', () => {
+    const suggestionOf = (tenant: string, caseId: string, at: string, key: string) =>
+      Notification.create({
+        Tenant: tenant,
+        Case: caseId,
+        kind: 'suggestion',
+        module: 'expert_cases',
+        source: 'datajud',
+        status: 'pending',
+        proposal: { target: 'case_phase', value: 'settlement' },
+        evidence: { court: 'TRT2', movement: { key, code: 466, name: 'Homologação', at, complements: [] } },
+        ruleKey: 'case_settlement',
+        ruleVersion: 1,
+        dedupeKey: key,
+      });
+
+    it('um movimento com data ilegível do tribunal não derruba a lista: entra pelo dia em que nasceu', async () => {
+      const { as, tenant, add, list } = await setup(['admin']);
+      const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+      const deadline = await add(legalCase.id, { title: 'Manifestação', dueDate: day(-1) });
+      const broken = await suggestionOf(tenant.id, legalCase.id, 'sem-data', 'broken');
+
+      const open = await list();
+      expect(ids(open.items)).toEqual([deadline.id, broken.id]);
+      expect(open.items[1]).toMatchObject({ date: day(0) });
+      expect((await as(request(app).get('/notifications/count'))).body.data.count).toBe(2);
+    });
+
+    it('duas aprovações ao mesmo tempo aplicam uma vez só (AD-268)', async () => {
+      const { as, tenant } = await setup(['admin']);
+      await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+      const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+      const suggestion = await suggestionOf(tenant.id, legalCase.id, '2026-11-20T10:00:00Z', 'twice');
+      const accept = () => as(request(app).post(`/notifications/${suggestion._id}/accept`)).send({});
+
+      const results = await Promise.all([accept(), accept()]);
+      expect(results.map((result) => result.status).sort()).toEqual([200, 409]);
+      expect((await Notification.findById(suggestion._id).lean())?.status).toBe('accepted');
+    });
+
+    it('banco fora do ar: 500 com a chave de erro, sem o detalhe técnico', async () => {
+      const { as } = await setup();
+      const spy = vi.spyOn(Notification, 'aggregate').mockRejectedValueOnce(new Error('connection lost 10.0.0.1'));
+      const response = await as(request(app).get('/notifications'));
+      spy.mockRestore();
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('internal_error');
+      expect(JSON.stringify(response.body)).not.toContain('10.0.0.1');
+    });
+
+    it('entrada fora do esperado: 400 na borda; página além do fim e período invertido devolvem vazio', async () => {
+      const { as, add, list } = await setup();
+      const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+      await add(legalCase.id, { title: 'Manifestação', dueDate: day(1) });
+
+      for (const query of ['?limit=101', '?page=0', '?kind=x', '?from=amanha', '?caseId=1', '?Tenant=x']) {
+        expect((await as(request(app).get(`/notifications${query}`))).status).toBe(400);
+      }
+      expect(await list('?page=9')).toEqual({ items: [], total: 1 });
+      expect(await list(`?from=${day(5)}&to=${day(0)}`)).toEqual({ items: [], total: 0 });
+    });
+
+    it('quem não vê nenhum módulo recebe a lista vazia e o contador zero, nunca erro', async () => {
+      const { tenant, add, as } = await setup(['admin']);
+      const legalCase = (await as(request(app).post('/expert-cases')).send(CASE)).body.data;
+      await add(legalCase.id, { title: 'Manifestação', dueDate: day(-1) });
+      const nobody = await seedSession(['operator']);
+      await User.updateOne({ _id: nobody.user._id }, { Tenant: tenant._id, permissions: {} });
+
+      expect((await nobody.as(request(app).get('/notifications'))).body.data).toEqual({ items: [], total: 0 });
+      expect((await nobody.as(request(app).get('/notifications/count'))).body.data.count).toBe(0);
+      expect((await nobody.as(request(app).post('/notifications/read-all'))).status).toBe(200);
+    });
+
+    it('aviso de um serviço já excluído aparece sem os dados do serviço', async () => {
+      const { tenant, list } = await setup(['admin']);
+      const gone = await Notification.create({
+        Tenant: tenant._id,
+        Case: new Case()._id,
+        kind: 'notice',
+        module: 'expert_cases',
+        source: 'datajud',
+        topic: 'court_movement',
+        params: { count: 1, latestName: 'Juntada' },
+      });
+      const [item] = (await list()).items;
+      expect(item).toMatchObject({ id: gone.id, kind: 'notice', open: true });
+      expect(item).not.toHaveProperty('caseNumber');
+    });
   });
 });

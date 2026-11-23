@@ -44,7 +44,7 @@ export const notificationText = (item: NotificationRecord): { title: string; des
   }
   if (item.topic === 'finance_due') {
     return {
-      title: t(FINANCE_DUE_KEY[String(params.bucket)] ?? 'notice'),
+      title: t(FINANCE_DUE_KEY[String(params.bucket)] ?? item.kind),
       description: `${params.description} · ${formatMoney(Number(params.openCents))} · ${day(String(params.dueDate))}`,
     };
   }
@@ -58,9 +58,10 @@ export const notificationText = (item: NotificationRecord): { title: string; des
       description: formatDate(new Date(String(params.automationUntil))),
     };
   }
+  // Anything incomplete still says what kind it is.
   return {
-    title: t((item.topic && NOTICE_KEY[item.topic]) ?? 'notice'),
-    description: params.latestName ? String(params.latestName) : t('notice'),
+    title: t((item.topic && NOTICE_KEY[item.topic]) ?? item.kind),
+    description: params.latestName ? String(params.latestName) : t(item.kind),
   };
 };
 

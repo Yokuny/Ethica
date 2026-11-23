@@ -13,9 +13,14 @@ import type {
 
 const DATED = { $in: ['deadline' as const, 'alert' as const] };
 
-// The day a notification is about (AD-282): the due date; the court movement of a suggestion; the day a notice was born.
-const dayOf = (doc: NotificationDocument): string =>
-  doc.dueDate ?? dateInDisplayTz(new Date(doc.evidence?.movement.at ?? doc.createdAt));
+// The day a notification is about (AD-282): the due date; the court movement of a suggestion; the day it was born.
+// A movement date the court sent unreadable falls back to the day it was born, never breaking the list (the same
+// rule as `list`).
+const dayOf = (doc: NotificationDocument): string => {
+  if (doc.dueDate) return doc.dueDate;
+  const movement = new Date(doc.evidence?.movement.at ?? Number.NaN);
+  return dateInDisplayTz(Number.isNaN(movement.getTime()) ? doc.createdAt : movement);
+};
 
 // Open while it asks for someone: pending, or a notice the person has not read (read is per person).
 const toRecord = (doc: NotificationDocument, userId?: string): NotificationRecord => ({
@@ -181,7 +186,8 @@ export const list = async (
       ...(caseId ? { Case: toObjectId(caseId) } : {}),
       ...(situation ? stateFilter(situation, userId) : {}),
     };
-    const movementOrBirth = { $ifNull: [{ $toDate: '$evidence.movement.at' }, '$createdAt'] };
+    const movement = { $convert: { input: '$evidence.movement.at', to: 'date', onError: null, onNull: null } };
+    const movementOrBirth = { $ifNull: [movement, '$createdAt'] };
     const day = { $dateToString: { format: '%Y-%m-%d', date: movementOrBirth, timezone: DISPLAY_TIMEZONE } };
     const direction = situation === 'resolved' ? -1 : 1;
     const [result] = await Notification.aggregate<{ items: NotificationDocument[]; total: { count: number }[] }>([
