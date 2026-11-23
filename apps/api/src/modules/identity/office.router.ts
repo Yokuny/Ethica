@@ -1,8 +1,8 @@
 import { TENANT_LOGO_MAX_BYTES } from '@ethica/contracts';
 import { Router } from 'express';
 import { isAdmin } from '../../middlewares/authorization.middleware.js';
-import { fileBody } from '../../middlewares/fileBody.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { fileBody } from '../../middlewares/file-body.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody } from '../../middlewares/validation.middleware.js';
 import * as officeController from './office.controller.js';
 import {

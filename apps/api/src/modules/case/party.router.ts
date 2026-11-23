@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import type { CaseRouterDeps } from './case.schema.js';
 import * as partyController from './party.controller.js';

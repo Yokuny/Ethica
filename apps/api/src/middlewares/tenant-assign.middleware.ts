@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { CustomError } from './errorHandler.middleware.js';
+import { CustomError } from './error-handler.middleware.js';
 
 // 424 exactly when req.tenantUser.tenant is missing (FND-05/AC4) —
 // tells the user to complete the link, without revealing internal detail.

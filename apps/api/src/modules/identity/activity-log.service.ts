@@ -1,6 +1,6 @@
 import { wallClockToUtc } from '@ethica/db';
-import * as activityLogRepository from './activityLog.repository.js';
-import type { ListActivityLogQuery, NewActivity } from './activityLog.schema.js';
+import * as activityLogRepository from './activity-log.repository.js';
+import type { ListActivityLogQuery, NewActivity } from './activity-log.schema.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -10,7 +10,7 @@ export const record = async (activity: NewActivity): Promise<void> => {
     await activityLogRepository.record(activity);
   } catch (e) {
     console.error(
-      JSON.stringify({ event: 'activityLog.record_failed', message: e instanceof Error ? e.message : String(e) }),
+      JSON.stringify({ event: 'activity-log.record_failed', message: e instanceof Error ? e.message : String(e) }),
     );
   }
 };

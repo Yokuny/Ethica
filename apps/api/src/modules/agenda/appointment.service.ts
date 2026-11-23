@@ -1,7 +1,7 @@
 import { caseLabel, parseCoordinates } from '@ethica/contracts';
 import { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import type { Geocoder } from '../../providers/geocoder.js';
 import * as caseService from '../case/case.service.js';
 import * as partyService from '../case/party.service.js';

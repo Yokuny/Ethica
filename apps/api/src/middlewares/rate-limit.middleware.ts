@@ -1,6 +1,6 @@
 import type { Request } from 'express';
 import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
-import { CustomError } from './errorHandler.middleware.js';
+import { CustomError } from './error-handler.middleware.js';
 
 // Key by normalized e-mail + IP (synchronous — our version does not need the
 // reference's async keyGenerator, which checked the clinic subscription).

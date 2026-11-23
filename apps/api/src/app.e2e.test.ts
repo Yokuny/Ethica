@@ -6,7 +6,7 @@ import { buildApp } from './app.js';
 // OPS-03/04/05: GET /metrics exposes register.metrics() (prom-client) without
 // validToken (same unauthenticated pattern as /health).
 // dbReqResTime/reqResTime are already registered in the default `register` on import
-// of db.metric.ts/responseTime.middleware.ts — no new metric is created.
+// of db.metric.ts/response-time.middleware.ts — no new metric is created.
 //
 // Test order matters here: the prom-client `register` is a singleton
 // per file (Vitest module cache); the OPS-05 test (empty histograms)

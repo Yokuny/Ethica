@@ -1,7 +1,7 @@
 import type { DocumentTextStyle, UpdateOffice, UpdateRevenueGoal, UpdateScheduleNotice } from '@ethica/contracts';
 import { updateOfficeSchema, updateRevenueGoalSchema, updateScheduleNoticeSchema } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 
 export type { UpdateOffice, UpdateRevenueGoal, UpdateScheduleNotice };
 export { updateOfficeSchema, updateRevenueGoalSchema, updateScheduleNoticeSchema };

@@ -36,7 +36,7 @@ Partes deixaram de ser texto livre (`plaintiff`/`defendant` foram removidos) e v
 
 - `apps/api/src/modules/case/party.{router,controller,service,repository,schema}.ts` — `/parties` (lista com busca Atlas Search, criar, detalhe, editar, `GET /:id/expert-cases`), todas para qualquer papel do tenant (AD-107). `party.service.resolveParties` é a regra de reaproveitamento; `updateParty` propaga o nome.
 - `apps/api/src/modules/case/import.service.ts` — `extractMinutes` (regras sobre o texto), `extractPdf` (`unpdf`), `parseCsv`, `rowToCase` e `importCsv`; `courtUnitFromNumber` (número CNJ → justiça/tribunal). Rotas `POST /expert-cases/import/pdf` e `/csv` em `case.router.ts`.
-- `apps/api/src/middlewares/fileBody.middleware.ts` — arquivo como corpo com o próprio `Content-Type` e limite; 415 `unsupported_file_type` e 413 `file_too_large`.
+- `apps/api/src/middlewares/file-body.middleware.ts` — arquivo como corpo com o próprio `Content-Type` e limite; 415 `unsupported_file_type` e 413 `file_too_large`.
 - `apps/api/src/modules/case/case.service.ts` — `createCase` é o caminho único (formulário, PDF, CSV, oportunidade): resolve as partes e grava o período imprescrito sugerido quando vem vazio. `case.repository.ts` traz `renameParty`, `listByParty`, `findIdByNumber` e o `findSummariesByIds` com autor/réu derivados das partes.
 - `apps/api/scripts/seed-demo.ts` — partes, advogados e dados trabalhistas de demonstração. Sem migração (AD-117).
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { can, isAdmin } from '../../middlewares/authorization.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import { inspectionParamSchema } from '../agenda/inspection.schema.js';
 import * as documentsController from './documents.controller.js';

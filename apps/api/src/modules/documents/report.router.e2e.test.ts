@@ -21,8 +21,8 @@ import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../app.js';
 import { env } from '../../config/env.config.js';
-import type { FileStorage } from '../../providers/fileStorage.js';
-import type { PdfDocument } from '../../providers/pdfRenderer.js';
+import type { FileStorage } from '../../providers/file-storage.js';
+import type { PdfDocument } from '../../providers/pdf-renderer.js';
 
 const DEVICE = 'test-agent';
 let rendered: PdfDocument | undefined;

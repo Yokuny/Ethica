@@ -11,8 +11,8 @@ import {
 } from '@simplewebauthn/server';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.config.js';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import * as activityLogService from './activityLog.service.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
+import * as activityLogService from './activity-log.service.js';
 import * as authRepository from './auth.repository.js';
 import type {
   AccessKeyVerify,

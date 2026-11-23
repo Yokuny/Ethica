@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { PROFILE_PERMISSIONS } from '@ethica/contracts';
 import { hashToken } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as authService from './auth.service.js';
 import * as inviteRepository from './invite.repository.js';
 import type { AcceptInvite, CreateInvite, InvitePeek, InviteResult } from './invite.schema.js';

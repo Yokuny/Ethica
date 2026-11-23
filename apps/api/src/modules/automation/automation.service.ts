@@ -1,5 +1,5 @@
 import { caseLabel, courtUnitFromNumber } from '@ethica/contracts';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as caseService from '../case/case.service.js';
 import * as billingService from '../identity/billing.service.js';
 import * as automationRepository from './automation.repository.js';

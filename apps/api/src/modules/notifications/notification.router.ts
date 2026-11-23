@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as notificationController from './notification.controller.js';
 import {

@@ -1,6 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createS3FileStorage } from './fileStorage.js';
+import { createS3FileStorage } from './file-storage.js';
 
 const roleSessions = vi.hoisted(() => [] as unknown[]);
 vi.mock('@aws-sdk/credential-providers', () => ({

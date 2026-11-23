@@ -9,7 +9,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { env } from '../../config/env.config.js';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
-import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
+import { errorHandler } from '../../middlewares/error-handler.middleware.js';
 import { createAuthRouter } from './auth.router.js';
 
 // The WebAuthn ceremony needs a real authenticator: the library is replaced by a stand-in that

@@ -61,7 +61,7 @@ router.post('/', deps.validToken, tenantAssignmentCheck, isAdmin, validBody(sche
 | --- | --- | --- |
 | `validToken` (via `createAuthMiddleware`) | `middlewares/authentication.middleware.ts` | 401 `invalid_session`; 403 `tenant_suspended` |
 | `validSession` (via `createAuthMiddleware`) | `middlewares/authentication.middleware.ts` | 401 `invalid_session`; sem a barreira do acesso do escritório — só `/billing` (AD-230), para o escritório fechado poder pagar |
-| `tenantAssignmentCheck` | `middlewares/tenantAssign.middleware.ts` | 424 `company_link_required` (usuário sem tenant, ex. admin da plataforma) |
+| `tenantAssignmentCheck` | `middlewares/tenant-assign.middleware.ts` | 424 `company_link_required` (usuário sem tenant, ex. admin da plataforma) |
 | `can(module, ...actions)` (domínio, AD-137), `checkRole([...])`, `isAdmin`, `platformAdminOnly` | `middlewares/authorization.middleware.ts` | 403 `no_permission` |
 | Regra por recurso/dono no service | `modules/<m>/<m>.service.ts` | 403 `no_permission` ou 404 |
 | Isolamento de tenant no repository | `tenantScoped` (`packages/db/src/tenantScoped.ts`), tenant sempre de `req.tenantUser.tenant` (AD-010) | registro de outro tenant simplesmente não existe |

@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
-import { tenantAssignmentCheck } from './tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from './tenant-assign.middleware.js';
 
 const buildReq = (tenant?: string): Request => ({ tenantUser: { tenant } }) as unknown as Request;
 

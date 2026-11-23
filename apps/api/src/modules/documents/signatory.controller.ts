@@ -1,6 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import type { Request, Response } from 'express';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import * as signatoryService from './signatory.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;

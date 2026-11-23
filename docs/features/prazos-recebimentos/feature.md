@@ -38,7 +38,7 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 - `apps/api/src/modules/case/case.service.ts` — cria "Entrega do laudo", apaga os prazos ao excluir a perícia, anexa `nextDue` na listagem (pelas leituras de `packages/db/src/notificationReads.ts`, AD-265); `findSummariesByIds` (número e partes) para os outros módulos.
 - `apps/api/src/modules/finance/transaction.repository.ts` — parcelas e status do honorário no próprio update (pipeline), resumo e fluxo pelas parcelas.
 - `apps/api/src/modules/finance/transaction.service.ts` — regras do honorário (sem excluir/cancelar, valor ≥ recebido) e `postFixedFees` que atualiza o existente.
-- `apps/api/src/modules/agenda/feed.{service,controller,schema}.ts` — `GET /agenda/feed/:token.ics` público, `.ics` montado à mão, rate limit por token (`apps/api/src/middlewares/rateLimit.middleware.ts`).
+- `apps/api/src/modules/agenda/feed.{service,controller,schema}.ts` — `GET /agenda/feed/:token.ics` público, `.ics` montado à mão, rate limit por token (`apps/api/src/middlewares/rate-limit.middleware.ts`).
 - `apps/api/src/modules/agenda/deadlineReminder.service.ts` + `apps/api/src/server.ts` — consolidado diário às 07:00 com timer em memória.
 - `apps/api/src/modules/identity/account.*` — `/me/calendar-feed` (gerar, status, revogar) e destinatários do aviso; `preferences.*` com `deadlineReminderEmail`.
 - Removidos: evento `case:created`, `events/subscribers/agenda.subscriber.ts`, `createReportDeadline`.

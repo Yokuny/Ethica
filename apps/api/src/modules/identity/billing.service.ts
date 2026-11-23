@@ -15,8 +15,8 @@ import {
   YEARLY_PLANS,
 } from '@ethica/contracts';
 import { dateInDisplayTz, wallClockToUtc } from '@ethica/db';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import { type AsaasCharge, type AsaasClient, AsaasUnavailableError } from '../../providers/asaasClient.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
+import { type AsaasCharge, type AsaasClient, AsaasUnavailableError } from '../../providers/asaas-client.js';
 import * as authRepository from './auth.repository.js';
 import * as billingRepository from './billing.repository.js';
 import { type AsaasPaymentData, asaasPaymentSchema, asaasWebhookSchema, type BillingTenant } from './billing.schema.js';

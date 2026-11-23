@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validParams } from '../../middlewares/validation.middleware.js';
 import * as automationController from './automation.controller.js';
 import { type AutomationRouterDeps, automationCaseParamSchema } from './automation.schema.js';

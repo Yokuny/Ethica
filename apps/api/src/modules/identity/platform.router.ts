@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { platformAdminOnly } from '../../middlewares/authorization.middleware.js';
-import { inviteRateLimit } from '../../middlewares/rateLimit.middleware.js';
+import { inviteRateLimit } from '../../middlewares/rate-limit.middleware.js';
 import { validBody, validParams } from '../../middlewares/validation.middleware.js';
 import * as inviteController from './invite.controller.js';
 import { createInviteSchema } from './invite.schema.js';

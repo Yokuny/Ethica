@@ -162,7 +162,7 @@ describe('api module boundaries (AD-038)', () => {
           'middlewares/authentication.middleware.ts':
             "import { authService } from '../modules/identity/auth.service.js';\nexport const x = authService;\n",
           'middlewares/validation.middleware.ts':
-            "import { invalidDataError } from './errorHandler.middleware.js';\nexport const y = invalidDataError;\n",
+            "import { invalidDataError } from './error-handler.middleware.js';\nexport const y = invalidDataError;\n",
           'events/subscribers/fieldTemplate.subscriber.ts':
             "import { seed } from '../../modules/field-template/fieldTemplate.service.js';\nexport const z = seed;\n",
         },

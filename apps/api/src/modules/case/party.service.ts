@@ -1,6 +1,6 @@
 import { partyNameKey } from '@ethica/contracts';
 import { TextSearchUnavailableError } from '@ethica/db';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as caseRepository from './case.repository.js';
 import * as partyRepository from './party.repository.js';
 import type {

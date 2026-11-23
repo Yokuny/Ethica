@@ -16,7 +16,7 @@ import type { AppointmentOrigin } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import type { Geocoder } from '../../providers/geocoder.js';
 
 export type { CreateAppointment, UpdateAppointment };

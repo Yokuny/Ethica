@@ -1,6 +1,6 @@
 import { INSPECTION_EMPTY_DATA, INSPECTION_MEDIA_LIMITS, REPORT_IMG_SRC } from '@ethica/contracts';
-import { CustomError, KeyedError } from '../../middlewares/errorHandler.middleware.js';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import { CustomError, KeyedError } from '../../middlewares/error-handler.middleware.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import * as caseService from '../case/case.service.js';
 import * as officeService from '../identity/office.service.js';
 import type { AppointmentRecord } from './appointment.schema.js';

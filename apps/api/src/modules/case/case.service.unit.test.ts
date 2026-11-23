@@ -1,7 +1,7 @@
 import { nextDueByCases } from '@ethica/db';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { domainEventBus } from '../../events/event-bus.js';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as caseRepository from './case.repository.js';
 import type { CaseRecord } from './case.schema.js';
 import { createCase, deleteCase, listCases, updateCase } from './case.service.js';

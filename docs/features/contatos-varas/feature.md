@@ -32,7 +32,7 @@ Pedido da perita (2026-11-01). Não há fonte oficial única com os contatos de 
 ### `apps/api`
 
 - `apps/api/src/modules/case/court-division.{router,controller,service,repository,schema}.ts` — lista, cidades, criar, editar, excluir e importar (`parseCsv` de `import.service.ts`). Montado em `apps/api/src/app.ts`.
-- `apps/api/src/middlewares/activityLog.middleware.ts` — `/court-divisions` entra no diário de bordo.
+- `apps/api/src/middlewares/activity-log.middleware.ts` — `/court-divisions` entra no diário de bordo.
 
 ### `apps/web`
 

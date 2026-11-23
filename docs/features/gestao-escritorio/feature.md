@@ -35,7 +35,7 @@ Onda 6 da gap analysis (`.specs/features/benchmark-jusperia/2026-10-31-jusperia-
 
 - `apps/api/src/middlewares/authorization.middleware.ts` — `can(module, ...actions)`; `authentication.middleware.ts` resolve `req.tenantUser.permissions` (`effectivePermissions`). Todos os routers de domínio usam `can`; o mapa está em `node .agents/skills/ethica-permissions/scripts/matrix.mjs api`.
 - `apps/api/src/modules/identity/auth.*` — `PATCH /auth/users/:id/permissions`, sessão e diretório com permissões; `platform.service.ts`/`invite.*` levam a matriz do convite ao usuário.
-- `apps/api/src/middlewares/activityLog.middleware.ts` (`describeRequest`) montado em `apps/api/src/app.ts` com `activityLogService.record`; `apps/api/src/modules/identity/activityLog.*` (`GET /tenant/activity-log`); o login registra em `auth.service.ts`; `office.service.ts` lê as exportações do diário.
+- `apps/api/src/middlewares/activity-log.middleware.ts` (`describeRequest`) montado em `apps/api/src/app.ts` com `activityLogService.record`; `apps/api/src/modules/identity/activity-log.*` (`GET /tenant/activity-log`); o login registra em `auth.service.ts`; `office.service.ts` lê as exportações do diário.
 - `apps/api/src/modules/case/case.service.ts` — `resolveStatusAndPhase`, contratante válido, categoria do honorário no evento; `case.repository.ts` — situação na leitura e no filtro, paradas sem suspensas; `GET /expert-cases/stalled`.
 - `apps/api/src/modules/finance/transaction.*` — `contracted_fees` e contratante no enriquecimento e no relatório.
 - `apps/api/src/modules/documents/report.service.ts` — fase ao concluir com a entrega; controllers de `documents` decidem valores pela matriz.

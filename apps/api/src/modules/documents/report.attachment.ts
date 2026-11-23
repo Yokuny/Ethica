@@ -1,7 +1,7 @@
 import { REPORT_LEVEL_MAX, REPORT_SECTIONS_MAX, type TemplateSection } from '@ethica/contracts';
 import { unzipSync } from 'fflate';
 import { parseDocument } from 'htmlparser2';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import { esc } from './document.layout.js';
 
 // PDF or Word turned into template items (ANL-04, BIB-04), by rules like the process (AD-152, AD-205).

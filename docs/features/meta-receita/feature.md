@@ -41,7 +41,7 @@ Pedido da perita (2026-11-22); escolhas dela na tabela de `.specs/features/meta-
 ## Como testar
 
 ```
-pnpm vitest run apps/api/src/modules/finance/revenueGoal.router.e2e.test.ts
+pnpm vitest run apps/api/src/modules/finance/revenue-goal.router.e2e.test.ts
 pnpm run check && (cd apps/web && pnpm run build)
 ```
 

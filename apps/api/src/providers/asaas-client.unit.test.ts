@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AsaasUnavailableError, createAsaasClient } from './asaasClient.js';
+import { AsaasUnavailableError, createAsaasClient } from './asaas-client.js';
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 

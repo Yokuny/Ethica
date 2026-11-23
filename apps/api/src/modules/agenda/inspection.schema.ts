@@ -10,7 +10,7 @@ import {
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import type { AppointmentRecord } from './appointment.schema.js';
 
 export type { InspectionData, SaveInspection, UpdateMedia };

@@ -1,5 +1,5 @@
 import { isDefaultTemplate, REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType } from '@ethica/contracts';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import { extractPdfText } from '../../providers/pdf-text.js';
 import { templateSectionsFromDocx, templateSectionsFromText } from './report.attachment.js';
 import { sanitizeReportHtml } from './report.html.js';

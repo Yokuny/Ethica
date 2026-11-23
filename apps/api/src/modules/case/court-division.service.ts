@@ -6,7 +6,7 @@ import {
   CSV_IMPORT_MAX_ROWS,
   createCourtDivisionSchema,
 } from '@ethica/contracts';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as courtDivisionRepository from './court-division.repository.js';
 import type {
   CourtDivisionImportResult,

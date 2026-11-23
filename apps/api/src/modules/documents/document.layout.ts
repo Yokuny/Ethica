@@ -1,5 +1,5 @@
 import { DISPLAY_TIMEZONE, type DocumentTextStyle, type ReportFont } from '@ethica/contracts';
-import type { PdfDocument } from '../../providers/pdfRenderer.js';
+import type { PdfDocument } from '../../providers/pdf-renderer.js';
 import type { DocumentIdentity } from './documents.schema.js';
 
 // Common base of the PDFs (AD-119, AD-121). Every text that comes from the database goes through `esc`: the HTML

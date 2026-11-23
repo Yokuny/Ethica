@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isMember } from '../../middlewares/authorization.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody } from '../../middlewares/validation.middleware.js';
 import * as preferencesController from './preferences.controller.js';
 import { type PreferencesRouterDeps, updatePreferencesSchema } from './preferences.schema.js';

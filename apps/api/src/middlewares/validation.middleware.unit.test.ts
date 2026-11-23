@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { CustomError } from './errorHandler.middleware.js';
+import { CustomError } from './error-handler.middleware.js';
 import { validBody, validParams, validParsedQuery, validQuery } from './validation.middleware.js';
 
 const testSchema = z

@@ -10,7 +10,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { env } from '../config/env.config.js';
 import type { AuthDeps } from './authentication.middleware.js';
 import { authenticateSession, createAuthMiddleware, extractToken } from './authentication.middleware.js';
-import { CustomError, errorHandler } from './errorHandler.middleware.js';
+import { CustomError, errorHandler } from './error-handler.middleware.js';
 
 describe('extractToken', () => {
   const buildReq = (overrides: { cookies?: Record<string, string>; headers?: Record<string, string> }): Request =>

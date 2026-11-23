@@ -1,4 +1,4 @@
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as preferencesRepository from './preferences.repository.js';
 import type { UpdatePreferences, UserPreferences } from './preferences.schema.js';
 

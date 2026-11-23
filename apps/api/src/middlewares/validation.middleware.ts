@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { ZodError, ZodType } from 'zod';
-import { CustomError } from './errorHandler.middleware.js';
+import { CustomError } from './error-handler.middleware.js';
 
 type ValidationTarget = 'body' | 'params' | 'query';
 

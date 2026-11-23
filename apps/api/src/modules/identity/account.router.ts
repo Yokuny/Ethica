@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isMember } from '../../middlewares/authorization.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParams } from '../../middlewares/validation.middleware.js';
 import * as accountController from './account.controller.js';
 import {

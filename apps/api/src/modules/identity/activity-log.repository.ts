@@ -1,6 +1,6 @@
 import { Activity, type ActivityDocument, tenantScoped, toObjectId, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
-import type { ActivityRecord, ListActivityLogQuery, NewActivity } from './activityLog.schema.js';
+import type { ActivityRecord, ListActivityLogQuery, NewActivity } from './activity-log.schema.js';
 
 const toRecord = (doc: ActivityDocument): ActivityRecord => ({
   id: doc._id.toString(),
@@ -15,7 +15,7 @@ const toRecord = (doc: ActivityDocument): ActivityRecord => ({
 });
 
 export const record = async ({ tenantId, userId, ...data }: NewActivity): Promise<void> =>
-  withDbTiming('activityLog.record', async () => {
+  withDbTiming('activity-log.record', async () => {
     const user = await User.findOne(tenantScoped({ Tenant: tenantId, _id: userId }))
       .select('name')
       .lean();
@@ -29,7 +29,7 @@ export const listActivities = async (
   query: ListActivityLogQuery,
   period: { from?: Date; to?: Date },
 ): Promise<{ items: ActivityRecord[]; total: number }> =>
-  withDbTiming('activityLog.listActivities', async () => {
+  withDbTiming('activity-log.listActivities', async () => {
     const filter = tenantScoped({
       Tenant: tenantId,
       ...(query.userId ? { User: { $in: query.userId.map(toObjectId) } } : {}),
@@ -52,7 +52,7 @@ export const listActivities = async (
 
 // The office's latest data exports (replaces `Tenant.dataExports`, AD-134).
 export const latestExports = async (tenantId: string, limit: number): Promise<ActivityRecord[]> =>
-  withDbTiming('activityLog.latestExports', async () => {
+  withDbTiming('activity-log.latestExports', async () => {
     const docs = await Activity.find(tenantScoped({ Tenant: tenantId, action: 'export' as const }))
       .sort({ createdAt: -1 })
       .limit(limit)

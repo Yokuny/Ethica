@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { isAdmin, isMember } from '../../middlewares/authorization.middleware.js';
-import { accessKeyRateLimit, accessVerifyRateLimit, passkeyRateLimit } from '../../middlewares/rateLimit.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import {
+  accessKeyRateLimit,
+  accessVerifyRateLimit,
+  passkeyRateLimit,
+} from '../../middlewares/rate-limit.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as authController from './auth.controller.js';
 import type { AuthRouterDeps } from './auth.schema.js';

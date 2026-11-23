@@ -1,5 +1,5 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
-import { CustomError } from './errorHandler.middleware.js';
+import { CustomError } from './error-handler.middleware.js';
 
 // File sent as the request body with its own Content-Type (AD-118), without
 // multipart. `text/*` arrives as a string; the rest as a Buffer. The body-parser 413 and the

@@ -1,7 +1,7 @@
 import { hasPermission, respObj } from '@ethica/contracts';
 import type { Request, Response } from 'express';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import type { AttachmentUploadQuery, ListCasesQuery } from './case.schema.js';
 import * as caseService from './case.service.js';
 import type { CsvImportQuery } from './import.schema.js';

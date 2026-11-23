@@ -1,5 +1,5 @@
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';
 import * as officeService from '../identity/office.service.js';

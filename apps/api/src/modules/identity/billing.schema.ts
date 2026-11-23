@@ -1,7 +1,7 @@
 import type { SubscriptionPlan } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { AsaasClient } from '../../providers/asaasClient.js';
+import type { AsaasClient } from '../../providers/asaas-client.js';
 
 export type {
   BillingCharge,

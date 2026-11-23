@@ -1,6 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import type { Request, Response } from 'express';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import type { UpdateOffice, UpdateRevenueGoal } from './office.schema.js';
 import * as officeService from './office.service.js';
 

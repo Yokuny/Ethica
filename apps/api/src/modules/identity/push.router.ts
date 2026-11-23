@@ -1,6 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import { Router } from 'express';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as pushController from './push.controller.js';
 import { type PushRouterDeps, pushSubscriptionSchema, pushUnsubscribeSchema } from './push.schema.js';

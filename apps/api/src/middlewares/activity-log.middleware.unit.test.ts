@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeRequest } from './activityLog.middleware.js';
+import { describeRequest } from './activity-log.middleware.js';
 
 const ID = '6650f1a2b3c4d5e6f7a8b9c0';
 

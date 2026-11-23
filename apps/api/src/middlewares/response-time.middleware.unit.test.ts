@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { describe, expect, it } from 'vitest';
-import { recordResponseTime, reqResTime } from './responseTime.middleware.js';
+import { recordResponseTime, reqResTime } from './response-time.middleware.js';
 
 describe('recordResponseTime', () => {
   it('records the observed duration in the histogram with method, route and status_code labels', async () => {

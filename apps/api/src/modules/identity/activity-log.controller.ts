@@ -1,7 +1,7 @@
 import { respObj } from '@ethica/contracts';
 import type { Request, Response } from 'express';
-import type { ListActivityLogQuery } from './activityLog.schema.js';
-import * as activityLogService from './activityLog.service.js';
+import type { ListActivityLogQuery } from './activity-log.schema.js';
+import * as activityLogService from './activity-log.service.js';
 
 export const listActivities = async (req: Request, res: Response): Promise<void> => {
   const data = await activityLogService.listActivities(

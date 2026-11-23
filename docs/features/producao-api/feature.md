@@ -21,7 +21,7 @@ spec: [.specs/features/producao-api]
 
 - Imagem de produção da API em `Dockerfile` (Node 24, Chromium, só a API e os pacotes de que ela depende, usuário sem root), publicada na Railway, com o Dockerfile e o health check em `/health` configurados em Settings do serviço.
 - Web na Vercel por `vercel.json`: volta para `index.html` em qualquer rota e repassa `/api/*` para a API da Railway (cookie de sessão do mesmo site, AD-153).
-- Bucket S3 de produção em us-east-2, com acesso separado por escritório garantido pela AWS (AD-202): `infra/aws/file-storage.yml`, publicado como stack `ethica-files`. Com `S3_ROLE_ARN`, `apps/api/src/providers/fileStorage.ts` tira o escritório da chave (`tenants/<tenantId>/…`) e usa uma sessão do papel por escritório; chave fora desse formato é recusada. Passo a passo em `RUN_BOOK.md` ("Arquivos em produção").
+- Bucket S3 de produção em us-east-2, com acesso separado por escritório garantido pela AWS (AD-202): `infra/aws/file-storage.yml`, publicado como stack `ethica-files`. Com `S3_ROLE_ARN`, `apps/api/src/providers/file-storage.ts` tira o escritório da chave (`tenants/<tenantId>/…`) e usa uma sessão do papel por escritório; chave fora desse formato é recusada. Passo a passo em `RUN_BOOK.md` ("Arquivos em produção").
 
 ## Por que
 

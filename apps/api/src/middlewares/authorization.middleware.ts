@@ -1,6 +1,6 @@
 import { hasPermission, type PermissionAction, type PermissionModule, type Role } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
-import { CustomError } from './errorHandler.middleware.js';
+import { CustomError } from './error-handler.middleware.js';
 
 // checkRole is synchronous and only reads req.tenantUser (already resolved from the database by
 // createAuthMiddleware) — it never touches data before deciding (FND-08).

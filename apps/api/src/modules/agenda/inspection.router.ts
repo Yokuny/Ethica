@@ -1,8 +1,8 @@
 import { INSPECTION_MEDIA_LIMITS } from '@ethica/contracts';
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
-import { fileBody } from '../../middlewares/fileBody.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { fileBody } from '../../middlewares/file-body.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as inspectionController from './inspection.controller.js';
 import {

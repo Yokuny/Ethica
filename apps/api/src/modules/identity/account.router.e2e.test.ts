@@ -10,7 +10,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { env } from '../../config/env.config.js';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
-import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
+import { errorHandler } from '../../middlewares/error-handler.middleware.js';
 import { createAccountRouter } from './account.router.js';
 import { createAuthRouter } from './auth.router.js';
 

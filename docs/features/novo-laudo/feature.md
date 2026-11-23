@@ -44,7 +44,7 @@ Não desfazer sem ler: a sequência de OS é do módulo `case` (`ServiceOrderSeq
 - `apps/api/src/modules/documents/signatory.*` — `/expert-reports/signatories` (CRUD e logo, permissão `expert_reports`); `documentSigner` monta quem assina e a identidade.
 - `apps/api/src/modules/documents/report.service.ts` — `currentData` usa o responsável do laudo; `addSection`; `setLayout`; `chooseSections` mantém os itens adicionados; exportação só com os itens que fazem parte do laudo.
 - `apps/api/src/modules/documents/report.library.ts` — `DEFAULT_TEMPLATES` em lista, com o modelo trabalhista (`standard-labor-report`).
-- `apps/api/src/modules/documents/report.templates.ts` e `report.docx.ts` — layout, abertura e "É o laudo."; `apps/api/src/providers/pdfRenderer.ts` aceita margens.
+- `apps/api/src/modules/documents/report.templates.ts` e `report.docx.ts` — layout, abertura e "É o laudo."; `apps/api/src/providers/pdf-renderer.ts` aceita margens.
 - `report.service.ts` — `saveAsTemplate` (`POST /expert-reports/:id/template`, permissão `report_templates.create`) e `updateSection` com `included` levando os subitens (`sectionFamily` em `packages/contracts/src/schemas/report.schema.ts`); `template.service.ts` — `createFromReport`.
 - Rotas novas: `POST /expert-reports/:id/sections`, `PUT /expert-reports/:id/layout`, `PUT /expert-reports/templates/:id/layout`.
 

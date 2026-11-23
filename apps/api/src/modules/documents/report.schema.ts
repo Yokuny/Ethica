@@ -35,8 +35,8 @@ import {
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { FileStorage } from '../../providers/fileStorage.js';
-import type { PdfRenderer } from '../../providers/pdfRenderer.js';
+import type { FileStorage } from '../../providers/file-storage.js';
+import type { PdfRenderer } from '../../providers/pdf-renderer.js';
 import type { CaseRecord } from '../case/case.schema.js';
 import type { AccountView } from '../identity/account.schema.js';
 import type { DocumentIdentity } from '../identity/office.schema.js';

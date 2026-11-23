@@ -13,10 +13,10 @@ import {
   TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
+import type { FileStorage } from '../../providers/file-storage.js';
+import type { PdfRenderer } from '../../providers/pdf-renderer.js';
 import { extractPdfText } from '../../providers/pdf-text.js';
-import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as appointmentService from '../agenda/appointment.service.js';
 import * as inspectionService from '../agenda/inspection.service.js';
 import type { CaseRecord } from '../case/case.schema.js';

@@ -33,12 +33,12 @@ O cadastro aberto e gratuito (AD-155) passa a acontecer junto do pagamento (AD-2
 
 - Banco: `Tenant.accessUntil` e `Tenant.billing`; regra única `isTenantOpen`/`openTenantFilter` (`packages/db/src/models/tenant.model.ts`).
 - Contrato: `packages/contracts/src/schemas/billing.schema.ts` (planos, valores, dias).
-- API: `apps/api/src/modules/identity/billing.*` (`GET /billing` com a conferência, `POST /billing/pay`, `GET /billing/payments/:id?method=pix|boleto`, `POST /billing/webhook`), `validSession` em `apps/api/src/middlewares/authentication.middleware.ts`, cliente em `apps/api/src/providers/asaasClient.ts`. Variáveis `ASAAS_*` em `apps/api/src/config/env.config.ts` e `.env.example`.
+- API: `apps/api/src/modules/identity/billing.*` (`GET /billing` com a conferência, `POST /billing/pay`, `GET /billing/payments/:id?method=pix|boleto`, `POST /billing/webhook`), `validSession` em `apps/api/src/middlewares/authentication.middleware.ts`, cliente em `apps/api/src/providers/asaas-client.ts`. Variáveis `ASAAS_*` em `apps/api/src/config/env.config.ts` e `.env.example`.
 - Web: `apps/web/src/routes/_public/auth/` (Criar conta), `apps/web/src/routes/_public/billing/` (planos, Pagar e a forma de pagamento) e `apps/web/src/routes/_public/billing/payment/$paymentId/` (PIX e boleto), carrossel em `packages/ui/src/components/carousel.tsx`.
 
 ## Como testar
 
-- Automático: `pnpm vitest run apps/api/src/modules/identity/billing apps/api/src/providers/asaasClient apps/web/src/routes/_public`.
+- Automático: `pnpm vitest run apps/api/src/modules/identity/billing apps/api/src/providers/asaas-client apps/web/src/routes/_public`.
 - Manual (sandbox): `ASAAS_API_URL=https://api-sandbox.asaas.com/v3` e `ASAAS_API_KEY` do sandbox (`$aact_hmlg_…`) no `.env`, com a API reiniciada; sem a URL, a chave de sandbox vai à produção e o Asaas responde 401 `invalid_environment` (vira `billing_unavailable`). Uma `ASAAS_API_KEY` exportada no shell (a do MCP do Asaas) vence a do `.env`. Sem túnel: o acesso abre pela conferência da tela de planos (até 30 s depois do pagamento). Crie uma conta em `/auth` (CPF ou CNPJ válido), pague com cartão de teste ou boleto/PIX e confira que a tela entra no sistema sozinha. O QR Code do PIX exige a conta do sandbox aprovada e uma chave Pix cadastrada (sem ela, `pix_unavailable`).
 
 ## Produção

@@ -23,7 +23,7 @@ import {
   suggestCsvField,
   usesContractor,
 } from '@ethica/contracts';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import { extractPdfText } from '../../providers/pdf-text.js';
 import * as caseRepository from './case.repository.js';
 import * as caseService from './case.service.js';

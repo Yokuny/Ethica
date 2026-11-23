@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
-import { CustomError, errorHandler } from './errorHandler.middleware.js';
+import { CustomError, errorHandler } from './error-handler.middleware.js';
 
 const buildRes = () => {
   const res: Partial<Response> = {};

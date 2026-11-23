@@ -1,8 +1,8 @@
 import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { errorHandler } from './errorHandler.middleware.js';
-import { accessKeyRateLimit, inviteRateLimit } from './rateLimit.middleware.js';
+import { errorHandler } from './error-handler.middleware.js';
+import { accessKeyRateLimit, inviteRateLimit } from './rate-limit.middleware.js';
 
 const LIMIT = 5;
 

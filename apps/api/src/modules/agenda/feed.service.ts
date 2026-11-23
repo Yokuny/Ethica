@@ -1,5 +1,5 @@
 import { caseLabel } from '@ethica/contracts';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import type { CaseSummary } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
 import * as accountService from '../identity/account.service.js';

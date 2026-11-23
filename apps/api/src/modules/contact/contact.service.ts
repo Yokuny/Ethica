@@ -1,4 +1,4 @@
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import type { ContactMessage, ContactRouterDeps, ContactSubject } from './contact.schema.js';
 
 // AD-249: the message goes by e-mail to the Ethica inbox (never to an address of the form) and is not stored.

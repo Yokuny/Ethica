@@ -2,7 +2,7 @@ import { connect, disconnect, hashToken, Invite, Session, Tenant, User } from '@
 import express from 'express';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
+import { errorHandler } from '../../middlewares/error-handler.middleware.js';
 import { createInviteRouter } from './invite.router.js';
 
 const buildTestApp = () => {

@@ -1,5 +1,5 @@
 import { extractText } from 'unpdf';
-import { CustomError } from '../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../middlewares/error-handler.middleware.js';
 
 // Text of a PDF with selectable text (AD-114); also read by the report from the full process (AD-152).
 const pdfText = async (file: Uint8Array): Promise<string> => {

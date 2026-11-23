@@ -1,7 +1,7 @@
 import { caseLabel, transactionAgendaEntries } from '@ethica/contracts';
 import { dateInDisplayTz, shiftMonth } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as caseService from '../case/case.service.js';
 import * as officeService from '../identity/office.service.js';
 import * as transactionRepository from './transaction.repository.js';

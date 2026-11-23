@@ -30,7 +30,7 @@ A perita pediu que a segurança do login ficasse com o provedor de e-mail de cad
 ## Como
 
 - Banco: `packages/db/src/models/access-key.model.ts` guarda só os hashes do link e do código, uma chave por e-mail, com TTL.
-- API: `apps/api/src/modules/identity/auth.service.ts` (`requestAccessKey`, `verifyAccessKey`, `signup`, `startSession` — o único lugar que abre sessão, usado também pelo convite). Rotas em `auth.router.ts`; limites em `apps/api/src/middlewares/rateLimit.middleware.ts`.
+- API: `apps/api/src/modules/identity/auth.service.ts` (`requestAccessKey`, `verifyAccessKey`, `signup`, `startSession` — o único lugar que abre sessão, usado também pelo convite). Rotas em `auth.router.ts`; limites em `apps/api/src/middlewares/rate-limit.middleware.ts`.
 - Contratos: `packages/contracts/src/schemas/access.schema.ts`.
 - Web: `apps/web/src/routes/_public/auth/` (`@hooks/use-access.ts` conduz os passos).
 - E-mail: `apps/api/src/providers/mail/` — Resend pela API HTTPS (AD-219), SMTP pelo nodemailer ou log em dev. Produção exige um provedor real, e qualquer ambiente exige as variáveis do provedor escolhido (AD-156, AD-219, AD-222, `apps/api/src/config/env.config.ts`).

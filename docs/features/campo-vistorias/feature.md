@@ -42,7 +42,7 @@ A vistoria era analógica e o que se colhia em campo era redigitado no laudo (`.
 - `apps/api/src/modules/identity/office.*` — `reserveFile`/`returnFile` (cota para outros módulos) e `/tenant/office/schedule-notice`.
 - `apps/api/src/modules/case/party.service.ts` — `findByIds` (destinatários do aviso).
 - `apps/api/src/modules/documents/` — `report.variables.ts` (variáveis de campo), `report.html.ts` (`img` só da vistoria), `report.templates.ts` (foto em data URL), `report.docx.ts` (`ImageRun`, `imageDimensions`), `report.library.ts`; o checklist usa as listas do contrato.
-- `apps/api/src/middlewares/fileBody.middleware.ts` aceita lista de tipos; `apps/api/src/app.ts` com `express.json` de 1 MB em `/inspections`.
+- `apps/api/src/middlewares/file-body.middleware.ts` aceita lista de tipos; `apps/api/src/app.ts` com `express.json` de 1 MB em `/inspections`.
 - `apps/api/scripts/seed-demo.ts` — duas vistorias hoje e o registro da vistoria feita da perícia em elaboração de laudo.
 
 ### `apps/web`

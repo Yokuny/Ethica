@@ -34,7 +34,7 @@ O perito precisava de papel para a vistoria, relatórios para o escritório e o 
 ### `apps/api`
 
 - `apps/api/src/modules/documents/` — módulo novo (desde `laudos`, dono de `Report` e `Template`, AD-126): `documents.router.ts` (`/documents/*`, papéis por rota), `documents.service.ts` (junta os dados pelos services de `case`, `agenda`, `finance`, `prospecting`, `identity`; CSV e ZIP da exportação), `documents.templates.ts` (um documento = função pura dados → HTML) e `document.layout.ts` (CSS de impressão, escape, rótulos pt-BR e a troca dos marcadores no cabeçalho/rodapé).
-- `apps/api/src/providers/pdfRenderer.ts` — Chromium via `puppeteer-core`, um navegador por processo, sem JavaScript na página. `apps/api/src/providers/fileStorage.ts` — bucket privado S3 (`@aws-sdk/client-s3`). Os dois são criados em `apps/api/src/app.ts` e injetáveis nos testes; o CORS expõe `Content-Disposition` para o web ler o nome do arquivo.
+- `apps/api/src/providers/pdf-renderer.ts` — Chromium via `puppeteer-core`, um navegador por processo, sem JavaScript na página. `apps/api/src/providers/file-storage.ts` — bucket privado S3 (`@aws-sdk/client-s3`). Os dois são criados em `apps/api/src/app.ts` e injetáveis nos testes; o CORS expõe `Content-Disposition` para o web ler o nome do arquivo.
 - `apps/api/src/modules/identity/office.*` — `/tenant/office` (texto, logo com cota reservada no mesmo update, registro de exportação, identidade para os PDFs). `account.*` ganhou `GET /me/profile` e os dados profissionais.
 - `apps/api/src/modules/case/` — `POST/DELETE /expert-cases/:id/movements` e `listStalled` (regra dos 60 dias em `case.service.ts`); funções `listForExport` nos services de cada módulo e `reportPeriod`/`caseSummary` em `finance/transaction.service.ts`.
 

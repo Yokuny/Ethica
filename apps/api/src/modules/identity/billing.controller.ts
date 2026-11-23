@@ -1,6 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import type { Request, Response } from 'express';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import type { BillingPay, BillingPaymentQuery, BillingRouterDeps } from './billing.schema.js';
 import * as billingService from './billing.service.js';
 

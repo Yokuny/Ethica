@@ -19,8 +19,8 @@ import {
 } from '@ethica/contracts';
 import { caseIdsDueBetween, dateInDisplayTz, nextDueByCases, shiftMonth, TextSearchUnavailableError } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import * as officeService from '../identity/office.service.js';
 import * as caseRepository from './case.repository.js';
 import type {

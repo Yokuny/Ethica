@@ -17,10 +17,10 @@ apps/api/src/
 │   ├── event-types.ts              # DomainEventMap
 │   ├── index.ts
 │   └── subscribers/                # um *.subscriber.ts por consumidor + registerAllSubscribers()
-├── providers/pdfRenderer.ts        # HTML → PDF com Chromium (AD-119), injetado em buildApp
-├── providers/fileStorage.ts        # arquivos do tenant em bucket S3 (AD-120), injetado em buildApp
+├── providers/pdf-renderer.ts        # HTML → PDF com Chromium (AD-119), injetado em buildApp
+├── providers/file-storage.ts        # arquivos do tenant em bucket S3 (AD-120), injetado em buildApp
 ├── providers/geocoder.ts           # endereço → coordenadas pelo Nominatim (AD-131), injetado em buildApp
-├── providers/asaasClient.ts        # cliente HTTP do Asaas (assinatura), injetado em buildApp
+├── providers/asaas-client.ts        # cliente HTTP do Asaas (assinatura), injetado em buildApp
 ├── providers/pdf-text.ts           # texto de PDF com texto selecionável (AD-114, AD-152), função direta usada por case e documents
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app

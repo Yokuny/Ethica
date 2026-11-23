@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isAdmin } from '../../middlewares/authorization.middleware.js';
-import { inviteRateLimit } from '../../middlewares/rateLimit.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { inviteRateLimit } from '../../middlewares/rate-limit.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParams } from '../../middlewares/validation.middleware.js';
 import * as inviteController from './invite.controller.js';
 import {

@@ -5,7 +5,7 @@ import {
   STALLED_CASE_DAYS,
   usesContractor,
 } from '@ethica/contracts';
-import type { PdfDocument } from '../../providers/pdfRenderer.js';
+import type { PdfDocument } from '../../providers/pdf-renderer.js';
 import {
   buildDocument,
   dateTime,

@@ -24,7 +24,7 @@ import {
 } from '@ethica/contracts';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import type { CasePartyWrite } from './party.schema.js';
 
 export type { CreateCase, CreateMovement, UpdateCase };

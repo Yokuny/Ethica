@@ -1,6 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import type { Request, Response } from 'express';
-import type { FileStorage } from '../../providers/fileStorage.js';
+import type { FileStorage } from '../../providers/file-storage.js';
 import type { InspectionPeriodQuery, MediaUploadQuery } from './inspection.schema.js';
 import * as inspectionService from './inspection.service.js';
 import { InspectionConflictError } from './inspection.service.js';

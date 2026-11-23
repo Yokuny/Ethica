@@ -4,7 +4,7 @@ import { isTenantOpen } from '@ethica/db';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.config.js';
-import { CustomError } from './errorHandler.middleware.js';
+import { CustomError } from './error-handler.middleware.js';
 
 declare global {
   namespace Express {

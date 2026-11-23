@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { hashToken } from '@ethica/db';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as accountRepository from './account.repository.js';
 import type { AccountView, UpdateProfile } from './account.schema.js';
 

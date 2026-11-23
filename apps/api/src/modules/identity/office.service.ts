@@ -1,8 +1,8 @@
 import { DOCUMENT_TEXT_STYLE_DEFAULT, TENANT_STORAGE_QUOTA_BYTES } from '@ethica/contracts';
 import { dateInDisplayTz } from '@ethica/db';
-import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import type { FileStorage } from '../../providers/fileStorage.js';
-import * as activityLogService from './activityLog.service.js';
+import { CustomError } from '../../middlewares/error-handler.middleware.js';
+import type { FileStorage } from '../../providers/file-storage.js';
+import * as activityLogService from './activity-log.service.js';
 import * as officeRepository from './office.repository.js';
 import type {
   DocumentIdentity,

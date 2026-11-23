@@ -1,8 +1,8 @@
 import { CSV_IMPORT_MAX_BYTES } from '@ethica/contracts';
 import { Router } from 'express';
 import { can } from '../../middlewares/authorization.middleware.js';
-import { fileBody } from '../../middlewares/fileBody.middleware.js';
-import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
+import { fileBody } from '../../middlewares/file-body.middleware.js';
+import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import type { CaseRouterDeps } from './case.schema.js';
 import * as courtDivisionController from './court-division.controller.js';

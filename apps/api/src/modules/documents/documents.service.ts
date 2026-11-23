@@ -1,7 +1,7 @@
 import { dateInDisplayTz } from '@ethica/db';
 import { strToU8, zipSync } from 'fflate';
-import type { FileStorage } from '../../providers/fileStorage.js';
-import type { PdfDocument, PdfRenderer } from '../../providers/pdfRenderer.js';
+import type { FileStorage } from '../../providers/file-storage.js';
+import type { PdfDocument, PdfRenderer } from '../../providers/pdf-renderer.js';
 import * as appointmentService from '../agenda/appointment.service.js';
 import * as inspectionService from '../agenda/inspection.service.js';
 import * as caseService from '../case/case.service.js';

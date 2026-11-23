@@ -1,5 +1,5 @@
 import { numberSections, type ReportLayout, sectionTitle } from '@ethica/contracts';
-import type { PdfDocument } from '../../providers/pdfRenderer.js';
+import type { PdfDocument } from '../../providers/pdf-renderer.js';
 import { esc, headerFooter, PDF_FONTS } from './document.layout.js';
 import type { ReportExportData } from './report.schema.js';
 
