@@ -138,12 +138,29 @@ const findRepositoryLayerViolations = (root: string): string[] =>
     });
   });
 
-// (i) a module file is one of the five layers or a support file `<entity>.<role>.ts`.
+// (i) a module file is one of the five layers or a support file `<entity>.<role>.ts`, and a
+// support file is pure: no repository, provider, express or owned model. `auth.deps.ts` is the
+// one adapter (the AuthDeps of the authentication middleware, built over auth.repository).
+const SUPPORT_IMPURE = ['.repository.js', '/providers/', 'express'];
+const SUPPORT_EXEMPT = ['identity/auth.deps.ts'];
 const findFileShapeViolations = (root: string): string[] =>
   moduleFiles(root)
     .filter((file) => !LAYER_SUFFIXES.some((suffix) => file.endsWith(suffix)))
-    .filter((file) => !/^[a-z0-9-]+\.[a-z0-9-]+\.ts$/.test(basename(file)))
-    .map((file) => relative(root, file));
+    .flatMap((file) => {
+      const rel = relative(root, file).split(sep).join('/');
+      if (!/^[a-z0-9-]+\.[a-z0-9-]+\.ts$/.test(basename(file))) return [rel];
+      if (SUPPORT_EXEMPT.includes(rel)) return [];
+      // Type-only imports vanish on compilation; `import * as x` counts as a value.
+      const namespaces = [...readFileSync(file, 'utf8').matchAll(/import \* as \w+ from '([^']+)'/g)].map(([, s]) => s);
+      return readImports(file)
+        .filter(({ specifier, valueNames }) => valueNames.length > 0 || namespaces.includes(specifier))
+        .filter(({ specifier, valueNames }) =>
+          specifier === '@ethica/db'
+            ? valueNames.some((name) => DB_OWNER_BY_NAME.has(name))
+            : SUPPORT_IMPURE.some((impure) => specifier.includes(impure)),
+        )
+        .map(({ specifier }) => `${rel} -> ${specifier}`);
+    });
 
 // (j) every file name under apps/api/src is kebab-case (tests included).
 const findFileNameViolations = (root: string): string[] =>
@@ -282,16 +299,23 @@ describe('api module boundaries (AD-038)', () => {
       );
     });
 
-    it('(i) flags a module file that is neither a layer nor <entity>.<role>.ts', () => {
+    it('(i) flags a module file that is neither a layer nor <entity>.<role>.ts, and an impure support file', () => {
       withFixture(
         {
           'a/helpers.ts': 'export const h = 1;\n',
           'a/x.y.z.ts': 'export const h = 1;\n',
-          'a/report.docx.ts': 'export const h = 1;\n',
+          'a/report.docx.ts': "import { dateInDisplayTz } from '@ethica/db';\nexport const h = dateInDisplayTz;\n",
+          'a/report.html.ts': "import * as r from './report.repository.js';\nexport const h = r;\n",
+          'a/report.layout.ts': "import type { Pdf } from '../../providers/pdf-renderer.js';\nexport type L = Pdf;\n",
           'a/report.service.ts': 'export const h = 1;\n',
+          'identity/auth.deps.ts': "import { r } from './auth.repository.js';\nexport const h = r;\n",
         },
         (root) => {
-          expect(findFileShapeViolations(root).sort()).toEqual(['a/helpers.ts', 'a/x.y.z.ts']);
+          expect(findFileShapeViolations(root).sort()).toEqual([
+            'a/helpers.ts',
+            'a/report.html.ts -> ./report.repository.js',
+            'a/x.y.z.ts',
+          ]);
         },
       );
     });
@@ -340,7 +364,7 @@ describe('api module boundaries (AD-038)', () => {
     expect(findRepositoryLayerViolations(MODULES_ROOT)).toEqual([]);
   });
 
-  it('(i) every module file is a layer file or a support file <entity>.<role>.ts (AD-284)', () => {
+  it('(i) every module file is a layer file or a pure support file <entity>.<role>.ts (AD-284)', () => {
     expect(findFileShapeViolations(MODULES_ROOT)).toEqual([]);
   });
 

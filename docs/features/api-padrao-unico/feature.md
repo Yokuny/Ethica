@@ -20,7 +20,7 @@ spec: [.specs/features/api-padrao-unico]
 
 - Análise da arquitetura da API com seis skills de análise (tamanho, lógica repetida, achatamento, acoplamento, domínios e roteiro), instaladas em `.claude/skills/`; resultado e decisões no plano arquivado.
 - **Controller**: função exportada sem `try/catch` (o Express 5 encaminha a rejeição ao `errorHandler`); quem precisa de provider o recebe antes. Saíram os wrappers `json`/`removed`/`handler` e as fábricas de controller.
-- **Erro**: "não encontrado" é `CustomError('not_found', 404)` lançado no service. Saíram as dez classes `XNotFoundError` e os seis `notFoundAs404`. Única exceção: o 409 da vistoria offline (`InspectionConflictError`, AD-128).
+- **Erro**: "não encontrado" é `CustomError('not_found', 404)` lançado no service. Saíram as nove classes `XNotFoundError` e os seis `notFoundAs404`. Única exceção: o 409 da vistoria offline (`InspectionConflictError`, AD-128).
 - **Convite** numa entidade só (`invite`): emitir, consultar e aceitar; `tenantInvite` deixou de existir e `platform` só provisiona o escritório. Routers sempre `createXRouter`.
 - **Camadas**: só repository importa model (`auth.deps.ts` passa pelo `auth.repository`); repository não importa outro repository (`user.avatar.ts`); texto de PDF em `apps/api/src/providers/pdf-text.ts`; `push` ganhou service; `isMember` no lugar das quatro cópias de `canOperate`.
 - **Nomes** em kebab-case em todo o `apps/api/src`.

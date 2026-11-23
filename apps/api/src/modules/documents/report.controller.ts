@@ -33,10 +33,6 @@ const send = (res: Response, file: GeneratedFile): void => {
     .end(file.conteudo);
 };
 
-const created = (res: Response, data: unknown): void => {
-  res.status(201).json(respObj({ data, message: 'created_successfully' }));
-};
-
 const id = (req: Request): string => req.params.id as string;
 const sectionId = (req: Request): string => req.params.sectionId as string;
 const mediaId = (req: Request): string => req.params.mediaId as string;
@@ -52,12 +48,21 @@ export const getTemplate = async (req: Request, res: Response): Promise<void> =>
 };
 
 export const createTemplate = async (req: Request, res: Response): Promise<void> => {
-  created(res, await templateService.createTemplate(tenantOf(req), req.body));
+  res
+    .status(201)
+    .json(
+      respObj({ data: await templateService.createTemplate(tenantOf(req), req.body), message: 'created_successfully' }),
+    );
 };
 
 export const importTemplate = async (req: Request, res: Response): Promise<void> => {
   const query = req.query as unknown as ImportTemplateQuery;
-  created(res, await templateService.importTemplate(tenantOf(req), query, req.body as Buffer));
+  res.status(201).json(
+    respObj({
+      data: await templateService.importTemplate(tenantOf(req), query, req.body as Buffer),
+      message: 'created_successfully',
+    }),
+  );
 };
 
 export const updateTemplate = async (req: Request, res: Response): Promise<void> => {
@@ -70,7 +75,12 @@ export const deleteTemplate = async (req: Request, res: Response): Promise<void>
 };
 
 export const addTemplateSection = async (req: Request, res: Response): Promise<void> => {
-  created(res, await templateService.addSection(tenantOf(req), id(req), req.body));
+  res.status(201).json(
+    respObj({
+      data: await templateService.addSection(tenantOf(req), id(req), req.body),
+      message: 'created_successfully',
+    }),
+  );
 };
 
 export const updateTemplateSection = async (req: Request, res: Response): Promise<void> => {
@@ -104,7 +114,12 @@ export const getReport = async (req: Request, res: Response): Promise<void> => {
 export const createReport =
   (providers: Providers) =>
   async (req: Request, res: Response): Promise<void> => {
-    created(res, await reportService.createReport(providers, context(req), req.body));
+    res.status(201).json(
+      respObj({
+        data: await reportService.createReport(providers, context(req), req.body),
+        message: 'created_successfully',
+      }),
+    );
   };
 
 export const updateReportSection = async (req: Request, res: Response): Promise<void> => {
@@ -115,14 +130,24 @@ export const updateReportSection = async (req: Request, res: Response): Promise<
 export const saveReportAsTemplate =
   (providers: Providers) =>
   async (req: Request, res: Response): Promise<void> => {
-    created(res, await reportService.saveAsTemplate(providers, context(req), id(req), req.body));
+    res.status(201).json(
+      respObj({
+        data: await reportService.saveAsTemplate(providers, context(req), id(req), req.body),
+        message: 'created_successfully',
+      }),
+    );
   };
 
 export const attachReport =
   (providers: Providers) =>
   async (req: Request, res: Response): Promise<void> => {
     const query = req.query as unknown as AttachReportQuery;
-    created(res, await reportService.attachReport(providers, context(req), query, req.body as Buffer));
+    res.status(201).json(
+      respObj({
+        data: await reportService.attachReport(providers, context(req), query, req.body as Buffer),
+        message: 'created_successfully',
+      }),
+    );
   };
 
 export const moveReportSection = async (req: Request, res: Response): Promise<void> => {
@@ -131,7 +156,12 @@ export const moveReportSection = async (req: Request, res: Response): Promise<vo
 };
 
 export const addReportSection = async (req: Request, res: Response): Promise<void> => {
-  created(res, await reportService.addSection(context(req), id(req), req.body));
+  res.status(201).json(
+    respObj({
+      data: await reportService.addSection(context(req), id(req), req.body),
+      message: 'created_successfully',
+    }),
+  );
 };
 
 export const setReportLayout = async (req: Request, res: Response): Promise<void> => {

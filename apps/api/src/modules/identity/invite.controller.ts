@@ -1,6 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import type { Request, Response } from 'express';
-import type { InviteMailDeps, InviteResult } from './invite.schema.js';
+import type { InviteMailDeps } from './invite.schema.js';
 import * as inviteService from './invite.service.js';
 
 export const peekInvite = async (req: Request, res: Response): Promise<void> => {
@@ -13,15 +13,8 @@ export const acceptInvite = async (req: Request, res: Response): Promise<void> =
   res.status(201).json(respObj({ data, message: 'created_successfully' }));
 };
 
-// 202 when sending fails but the invite is already persisted (FND-12) —
-// never 500, the e-mail is not what guarantees the resource creation.
-const sendResult = (res: Response, result: InviteResult): void => {
-  res
-    .status(result.sent ? 201 : 202)
-    .json(respObj({ data: { id: result.id }, message: result.sent ? undefined : 'invite_email_failed' }));
-};
-
-// Platform admin invites the first admin of an office.
+// Platform admin invites the first admin of an office. 202 when sending fails but the invite is
+// already persisted (FND-12) — never 500, the e-mail is not what guarantees the resource creation.
 export const inviteToTenant =
   (deps: InviteMailDeps) =>
   async (req: Request, res: Response): Promise<void> => {
@@ -33,7 +26,9 @@ export const inviteToTenant =
       mailProvider,
       inviteBaseUrl,
     );
-    sendResult(res, result);
+    res
+      .status(result.sent ? 201 : 202)
+      .json(respObj({ data: { id: result.id }, message: result.sent ? undefined : 'invite_email_failed' }));
   };
 
 // The office admin invites a team member.
@@ -49,5 +44,7 @@ export const inviteTeamMember =
       mailProvider,
       inviteBaseUrl,
     );
-    sendResult(res, result);
+    res
+      .status(result.sent ? 201 : 202)
+      .json(respObj({ data: { id: result.id }, message: result.sent ? undefined : 'invite_email_failed' }));
   };
