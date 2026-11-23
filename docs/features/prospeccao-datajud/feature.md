@@ -27,7 +27,7 @@ O Datajud não traz o perito nomeado, então a busca manual não achava nomeaç�
 
 ## Como
 
-Nada no código. Os dados de produção (collection `opportunities`, campo `Opportunity` nos serviços, `permissions.prospecting` dos usuários e o diário de bordo do módulo) são apagados à mão depois do deploy, com cópia e confirmação do usuário (plano `.specs/features/automacao-datajud/plans/2026-11-22-pagina-automacao-fim-prospeccao.md`, seção "Dados de produção").
+Nada no código nem na produção: a collection `opportunities` (vazia) foi apagada e o `prospecting` saiu do único convite que o tinha, depois da cópia fora do repositório (plano `.specs/features/automacao-datajud/plans/2026-11-22-pagina-automacao-fim-prospeccao.md`, seção "Dados de produção").
 
 ## Como testar
 
@@ -35,10 +35,11 @@ Nada a testar: `rg -il "prospect|opportunit" apps packages tests` só acha o cli
 
 ## Pendências
 
-- [ ] Apagar os dados da Prospecção em produção, com cópia e confirmação do usuário.
+- [x] 2026-11-22 — Dados da Prospecção apagados em produção, com cópia e confirmação do usuário.
 
 ## Histórico
 
+- 2026-11-22 — Produção: `opportunities` estava vazia (0 documentos) e foi apagada; nenhum serviço, usuário ou diário de bordo tinha dado da Prospecção; um convite vencido perdeu o `prospecting`. Cópia em `/Users/yokuny/Documents/ethica-backups/`.
 - 2026-11-22 — Removida inteira, sem shim (AD-281): web, API, contrato, banco, testes estruturais e docs. O plano do worker (`.specs/features/prospeccao-datajud/plans/2026-11-22-prospeccao-worker-datajud.md`) foi arquivado: a base técnica serviu à Automação Datajud e a busca foi abandonada.
 - 2026-10-29 — Busca no Datajud pela API e oportunidades (AD-105).
 
