@@ -1,6 +1,6 @@
 # Ethica Web — Regras do Front-End
 
-Front-end do Ethica: multi-tenant, gestão de perícias (perícias, agenda, financeiro, prospecção), API em `apps/api`.
+Front-end do Ethica: multi-tenant, gestão de perícias (serviços, agenda, financeiro, Automação Datajud), API em `apps/api`.
 
 **Arquitetura e padrões de código: skill `ethica-web-standards`** (`.agents/skills/ethica-web-standards/SKILL.md`).
 Leia antes de criar página, módulo, sub-rota, componente, formulário ou query, e para entender a estrutura do front. Ela é a fonte única — não duplique regra aqui.

@@ -5,7 +5,7 @@ descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e
 data: 2026-11-22
 status: parcial
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281]
 spec: [.specs/features/automacao-datajud]
 ---
 
@@ -13,11 +13,12 @@ spec: [.specs/features/automacao-datajud]
 
 **Status**: parcial · **Atualizado**: 2026-11-22 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
-> Documento vivo. Ainda não implementado: a intenção está em `.specs/features/automacao-datajud/`.
+> Documento vivo. A intenção está em `.specs/features/automacao-datajud/`.
 > Correlação com o git: `git log --oneline -i --grep='automacao-datajud'`.
 
 ## O que foi feito
 
+- **Página Automação Datajud** (`/automation`, no lugar da Prospecção, que saiu inteira): o número de sugestões para aprovar (link para a aba da Central), os processos acompanhados no tribunal com a data da última consulta (link para o serviço) e as regras do que cada movimento traz, em texto da perita. Sem o módulo, a oferta. Está no menu, no início, no tour e no celular pelo Menu.
 - **Pagamento no tribunal** (Fase 6): a requisição ou a ordem de pagamento vira o aviso "Pagamento em andamento no tribunal"; o alvará emitido ou a RPV/precatório paga vira a sugestão "Registrar o recebimento", com e-mail na hora. Aprovar abre o formulário com o honorário em aberto, o saldo e a data do movimento para a pessoa confirmar.
 - Depois de aprovar um acordo ou uma desistência, vem a sugestão de cancelar os prazos e alertas pendentes do serviço; a suspensão traz o aviso para revisar os prazos.
 - **Sugestões para aprovar** (Fase 5): suspensão, retomada, acordo, desistência ou extinção e sentença no tribunal viram uma sugestão de situação ou fase na aba **Para aprovar** da Central e na seção No tribunal do serviço. Nada muda até alguém com permissão de alterar serviços clicar em Aprovar; se o serviço já estiver assim, a sugestão se encerra sozinha.
@@ -38,7 +39,8 @@ A perita descobre tarde que o processo foi suspenso, acabou em acordo ou teve al
 - `apps/web/src/routes/_public/billing/` (modo upgrade) e `apps/web/src/routes/_private/notifications/@components/automation-offer.tsx`.
 
 - `apps/worker/src/datajud/client.ts` (cliente, fixtures reais ao lado), `apps/worker/src/jobs/court-refresh.ts`; `packages/db/src/models/{court-process,case-court-sync}.model.ts`.
-- `apps/api/src/modules/automation/` — `GET /automation/cases/:id/court-process` com `requireAutomation`.
+- `apps/api/src/modules/automation/` — `GET /automation/cases` (processos acompanhados) e `GET /automation/cases/:id/court-process`, com `requireAutomation`.
+- `apps/web/src/routes/_private/automation/` (página; regras em `@utils/rule-items.ts`).
 - `apps/web/src/routes/_private/expert-cases/details/@components/case-court.tsx`.
 
 - `packages/contracts/src/schemas/automation-rules.ts` (regras e `proposalFits`), `apps/worker/src/jobs/suggestions-expire.ts`, `apps/api/src/modules/notifications/notification.service.ts` (`acceptSuggestion`), `apps/web/src/components/suggestions-list.tsx`.
@@ -47,7 +49,7 @@ A perita descobre tarde que o processo foi suspenso, acabou em acordo ou teve al
 
 - Métrica `automation_suggestions_decided_total` por regra e decisão, com painel em `ops/grafana/api-dashboard.json`.
 
-Fica para depois: perícias cíveis (TJ), criar a receita junto com o recebimento, circuit breaker por tribunal.
+Fica para depois: descoberta de nomeações pelo DJEN (AD-281), perícias cíveis (TJ), criar a receita junto com o recebimento, circuit breaker por tribunal.
 
 ## Como testar
 
@@ -55,11 +57,14 @@ A definir.
 
 ## Pendências
 
+- [ ] Usuário: conferir a página Automação Datajud no navegador (com e sem o módulo).
+- [ ] Apagar os dados da Prospecção em produção, com cópia e confirmação do usuário.
 - [ ] Usuário: confirmar o estudo do pagamento (AD-274, `.specs/features/automacao-datajud/context.md`).
 - [ ] Fixture de TJ para incluir as perícias cíveis (TJMS e TJSP recusaram em 2026-11-22).
 
 ## Histórico
 
+- 2026-11-22 — Página Automação Datajud no lugar da Prospecção, removida inteira, sem shim (AD-281, supersede a AD-105): o Datajud acompanha os processos do escritório e a descoberta de nomeações fica para o DJEN. Página coberta por teste de tela; a conferência no navegador ficou para o usuário (o acesso local exige passkey). Dados da Prospecção em produção esperam a confirmação do usuário.
 - 2026-11-22 — Produção: limpeza deixou só o escritório ETHICA (Bykonz e Tal apagados, cópia fora do repositório) e o ETHICA recebeu o plano Mensal + Automação gravado no banco, sem assinatura no Asaas, até 31/12/2027, para usar o Datajud.
 - 2026-11-22 — Revisão final: o lote só marca os movimentos como vistos depois de gravar aviso e sugestões (uma falha no meio não perde o alvará); a seção No tribunal some nos serviços cíveis (TJ ainda não acompanhado); push só aceita endpoint `https:`. Worker conferido no docker-compose (`/health` 200).
 - 2026-11-22 — Fim da Fase 6: métricas por regra (AD-280). Plano arquivado em `.specs/features/central-notificacoes/plans/`; o plano do worker da prospecção continua na caixa de entrada para depois.
@@ -74,4 +79,4 @@ A definir.
 ## Referências
 
 - Spec (congelada): `.specs/features/automacao-datajud/`
-- Planos em execução: `.specs/features/central-notificacoes/plans/2026-11-22-automacao-datajud-notificacoes.md`, `.specs/plans/2026-11-22-prospeccao-worker-datajud.md`
+- Planos: `.specs/features/central-notificacoes/plans/2026-11-22-automacao-datajud-notificacoes.md`, `.specs/features/automacao-datajud/plans/2026-11-22-pagina-automacao-fim-prospeccao.md`, `.specs/features/prospeccao-datajud/plans/2026-11-22-prospeccao-worker-datajud.md` (arquivado)

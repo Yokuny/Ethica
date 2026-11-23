@@ -17,7 +17,6 @@ apps/api/src/
 │   ├── event-types.ts              # DomainEventMap
 │   ├── index.ts
 │   └── subscribers/                # um *.subscriber.ts por consumidor + registerAllSubscribers()
-├── providers/datajudClient.ts      # API Pública do Datajud (AD-105), injetado em buildApp
 ├── providers/pdfRenderer.ts        # HTML → PDF com Chromium (AD-119), injetado em buildApp
 ├── providers/fileStorage.ts        # arquivos do tenant em bucket S3 (AD-120), injetado em buildApp
 ├── providers/geocoder.ts           # endereço → coordenadas pelo Nominatim (AD-131), injetado em buildApp
@@ -26,15 +25,14 @@ apps/api/src/
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)
     ├── case/                       # Case (perícia) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
     ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
-    ├── automation/                 # Automação Datajud (premium): linha do tempo do processo no tribunal; lê CourtProcess e CaseCourtSync, que o worker grava (AD-277)
+    ├── automation/                 # Automação Datajud (premium): processos acompanhados e linha do tempo no tribunal; lê CourtProcess e CaseCourtSync, que o worker grava (AD-277)
     ├── notifications/              # Notification — prazo, alerta, sugestão e aviso (AD-263); Central e prazo do laudo por `case:created` (AD-264)
     ├── finance/                    # Transaction — honorários (com installments, AD-111) e despesas; resumo, fluxo, categorias
-    ├── prospecting/                # Opportunity + busca no Datajud; converte em perícia
     ├── contact/                    # mensagem da página Contato por e-mail à caixa do Ethica (AD-249), sem model, ninguém depende dele
     └── documents/                  # PDFs (AD-119), exportação ZIP (AD-122) e laudos (Report + Template, AD-126) — ninguém depende dele
 ```
 
-Nomes de código em inglês pelo glossário da AD-140 (`.specs/features/english-naming/design.md`): perícia `Case`, notificação `Notification` (prazo, alerta, sugestão, aviso), parte `Party`, compromisso `Appointment`, vistoria `Inspection`, lançamento `Transaction`, laudo `Report`, modelo `Template`, oportunidade `Opportunity`, diário `Activity`.
+Nomes de código em inglês pelo glossário da AD-140 (`.specs/features/english-naming/design.md`): perícia `Case`, notificação `Notification` (prazo, alerta, sugestão, aviso), parte `Party`, compromisso `Appointment`, vistoria `Inspection`, lançamento `Transaction`, laudo `Report`, modelo `Template`, diário `Activity`.
 
 Cada `modules/<module>/` é **auto-contido**: `<entidade>.router.ts .controller.ts .service.ts .repository.ts .schema.ts` + testes colocalizados (`.unit.test.ts .int.test.ts .e2e.test.ts`, nunca pasta `__test__` separada — AD-017). Um módulo pode agrupar mais de uma entidade (`identity`) quando elas compartilham dono de collection ou fronteira de domínio — granularidade é por **contexto**, não 1:1 com arquivo.
 
@@ -52,7 +50,7 @@ Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma co
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `finance`, `prospecting`, `notifications` e `automation` → `case`; `notifications` → `automation` e `finance` (aprovar sugestões, AD-268, AD-279); `automation` → `identity` (o módulo do escritório); `agenda` e `documents` → `notifications` (feed iCal, entrega do laudo); os lembretes e o e-mail diário são do `apps/worker` (AD-267), que não importa nada daqui; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
+Grafo atual: `agenda`, `finance`, `notifications` e `automation` → `case`; `notifications` → `automation` e `finance` (aprovar sugestões, AD-268, AD-279); `automation` → `identity` (o módulo do escritório); `agenda` e `documents` → `notifications` (feed iCal, entrega do laudo); os lembretes e o e-mail diário são do `apps/worker` (AD-267), que não importa nada daqui; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 
@@ -62,7 +60,6 @@ Grafo atual: `agenda`, `finance`, `prospecting`, `notifications` e `automation` 
 | `case` | `Case Party CourtDivision COURT_DIVISION_COLLATION` (vara, AD-151) `ServiceOrderSequence` (OS, AD-161) `RetiredServiceOrder` (OS de serviço excluído, AD-187) |
 | `agenda` | `Appointment Inspection` (AD-130) `CalendarEntry` (itens de dia inteiro vindos de outros módulos, AD-169) |
 | `finance` | `Transaction` |
-| `prospecting` | `Opportunity` |
 | `documents` | `Report Template` (AD-126) `Signatory` (responsável técnico, AD-162) |
 | `automation` | `CourtProcess CaseCourtSync` (só leitura; quem grava é o `apps/worker`, AD-277) |
 | `notifications` | `Notification` (AD-263); o `case` lê o próximo prazo e os números da faixa pelas funções de leitura do `@ethica/db` (`notificationReads.ts`, AD-265) |
@@ -104,7 +101,7 @@ Query com paginação/filtro usa `validParsedQuery(schema)` (`middlewares/valida
 
 ## Event bus (`src/events/`, AD-039)
 
-Processo compartilhado entre módulos cujo **resultado a resposta HTTP não usa** vira evento — fire-and-forget. O que a resposta HTTP precisa continua chamada síncrona direta ao service do outro módulo (ex.: converter oportunidade chama `caseService.createCase` porque devolve o id da perícia).
+Processo compartilhado entre módulos cujo **resultado a resposta HTTP não usa** vira evento — fire-and-forget. O que a resposta HTTP precisa continua chamada síncrona direta ao service do outro módulo (ex.: aprovar uma sugestão de situação chama `caseService.updateCase` direto, porque a resposta devolve a sugestão já aplicada).
 
 ```ts
 // event-types.ts

@@ -1,7 +1,7 @@
 # Plano — Página "Automação Datajud" no lugar da Prospecção
 
 - **Data**: 2026-11-22
-- **Status**: aprovado pelo usuário em 2026-11-22 ("Sim, siga"); não iniciado
+- **Status**: executado em 2026-11-22 (AD-281); a limpeza dos dados de produção espera a confirmação do usuário
 - **Feature**: `automacao-datajud` (o registro vivo é `docs/features/automacao-datajud/feature.md`)
 - **Contexto**: plano arquivado `.specs/features/central-notificacoes/plans/2026-11-22-automacao-datajud-notificacoes.md` e ADs AD-263 a AD-280 em `.specs/STATE.md`.
 

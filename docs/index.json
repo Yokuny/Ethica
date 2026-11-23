@@ -25,12 +25,15 @@
         "AD-277",
         "AD-278",
         "AD-279",
-        "AD-280"
+        "AD-280",
+        "AD-281"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/automacao-datajud/plans/2026-11-22-pagina-automacao-fim-prospeccao.md"
+      ],
       "doc": "features/automacao-datajud/feature.md"
     },
     {
@@ -89,6 +92,30 @@
       ],
       "planos": [],
       "doc": "features/meta-receita/feature.md"
+    },
+    {
+      "slug": "prospeccao-datajud",
+      "feature": "Prospecção no Datajud (removida)",
+      "descricao": "Busca de processos no Datajud e oportunidades convertidas em serviço; removida e substituída pela página Automação Datajud",
+      "data": "2026-11-22",
+      "status": "revertido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-105",
+        "AD-281"
+      ],
+      "spec": [
+        ".specs/features/prospeccao-datajud"
+      ],
+      "planos": [
+        ".specs/features/prospeccao-datajud/plans/2026-11-22-prospeccao-worker-datajud.md"
+      ],
+      "doc": "features/prospeccao-datajud/feature.md"
     },
     {
       "slug": "paginas-publicas",
@@ -1117,19 +1144,8 @@
       "doc": "features/rotas-vistoria/feature.md"
     }
   ],
-  "planos_nao_arquivados": [
-    {
-      "arquivo": ".specs/plans/2026-11-22-pagina-automacao-fim-prospeccao.md",
-      "titulo": "Plano — Página \"Automação Datajud\" no lugar da Prospecção"
-    },
-    {
-      "arquivo": ".specs/plans/2026-11-22-prospeccao-worker-datajud.md",
-      "titulo": "Plano — Worker do Datajud: prospecção processada fora do BFF"
-    }
-  ],
-  "specs_sem_registro": [
-    "prospeccao-datajud"
-  ],
+  "planos_nao_arquivados": [],
+  "specs_sem_registro": [],
   "decisoes": [
     {
       "id": "AD-001",
@@ -1387,7 +1403,7 @@
       "id": "AD-105",
       "decisao": "Prospecção usa a API Pública do Datajud (CNJ) chamada só pelo `apps/api` (`providers/datajudClient.ts`, injetado em `buildApp`), com a chave",
       "data": "2026-10-29",
-      "status": "active"
+      "status": "superseded by AD-281"
     },
     {
       "id": "AD-106",
@@ -2436,6 +2452,12 @@
     {
       "id": "AD-280",
       "decisao": "Push e métricas (fim da Fase 6): (1) Web Push com chaves VAPID: a API dá a chave pública (`GET /me/push`) e grava ou apaga a inscrição do ap",
+      "data": "2026-11-22",
+      "status": "active"
+    },
+    {
+      "id": "AD-281",
+      "decisao": "A Prospecção sai inteira e o item de menu vira a página Automação Datajud (`/automation`). (1) Divisão das fontes: o Datajud é inteligência",
       "data": "2026-11-22",
       "status": "active"
     }

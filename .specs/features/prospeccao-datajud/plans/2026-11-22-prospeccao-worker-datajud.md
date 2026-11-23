@@ -1,5 +1,9 @@
 # Plano — Worker do Datajud: prospecção processada fora do BFF
 
+> **Arquivado em 2026-11-22 (AD-281)**: a base técnica do worker (fila, cliente Datajud, deploy) foi executada
+> pela Automação Datajud (AD-277). A busca de prospecção foi abandonada e a Prospecção saiu do produto; a
+> descoberta de nomeações fica para o DJEN, no roadmap.
+
 > **Prioridade revisada (2026-11-22, mais tarde)**: o foco passou a ser a Automação Datajud (premium) e a
 > Central de Notificações (`.specs/plans/2026-11-22-automacao-datajud-notificacoes.md`).
 >

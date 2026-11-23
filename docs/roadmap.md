@@ -19,7 +19,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 | Item | Notas |
 | --- | --- |
-| Busca de prospecção pelo worker e nomeações pelo DJEN | Plano `2026-11-22-prospeccao-worker-datajud.md`, depois da `automacao-datajud` |
+| Descoberta de nomeações pelo DJEN, construída do zero, com a caixa de nomeações própria | O Datajud só acompanha os processos do escritório (AD-281) |
 | IA: leitura do PDF da ata, redação do laudo e transcrição do áudio | Spec própria com provedor, limite por tenant e LGPD (AD-114, AD-124); adiado (AD-145) |
 | Cartão dentro do Ethica em vez da fatura do Asaas | Dados do cartão passariam pela API (PCI-DSS); PIX e boleto já são no Ethica (AD-251, `cadastro-checkout`) |
 | Assinatura pelo Ethica: trocar de plano, cancelar e ver faturas | Hoje pelo suporte (`cadastro-checkout`, AD-230) |
@@ -33,6 +33,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Produção: apagar os dados da Prospecção (`opportunities`, campo `Opportunity` dos serviços, `permissions.prospecting` dos usuários, diário de bordo do módulo) depois da cópia, com a sua confirmação — `prospeccao-datajud`
 - [ ] Escritório ETHICA em produção com assinatura só no banco (sem Asaas): `subscriptionPlan: automation_monthly`, acesso e Automação até 31/12/2027, gravados à mão em 2026-11-22. Antes dessa data, assinar de verdade pelo app ou estender a data, senão o acesso fecha — `automacao-datajud`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
 - [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
@@ -54,6 +55,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir a página Automação Datajud no navegador, com e sem o módulo (o login local exige passkey, não conferido pelo agente) — `automacao-datajud`
 - [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
 - [ ] Conferir a seção No tribunal num serviço real com o plano com Automação e o aviso de movimentação no dia seguinte — `automacao-datajud`
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
@@ -102,6 +104,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — Página Automação Datajud no lugar da Prospecção; Prospecção removida inteira do código, sem shim (AD-281) — `automacao-datajud`, `prospeccao-datajud`
 - [x] 2026-11-22 — GitHub Actions habilitadas no repositório (estavam desligadas, por isso o CI nunca rodou); o workflow CI passa a rodar a cada push na main — `fundacao-ethica`
 - [x] 2026-11-22 — Collection antiga `deadlines` apagada na produção (já copiada para `notifications`); healthcheck da API conferido em Settings na Railway — `central-notificacoes`, `producao-api`
 - [x] 2026-11-22 — Configuração da Railway da API e do worker passada para Settings (config-as-code deixa de valer em 01/12/2026); `railway.json` e `railway.worker.json` saíram do repositório — `producao-api`

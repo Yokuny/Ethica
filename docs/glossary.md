@@ -53,7 +53,6 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Faz parte do laudo | `sections[].included` | Item que sai no PDF e no Word; desmarcado fica no rascunho com o texto (AD-163). |
 | Layout do laudo | `layout` (`reportLayoutSchema`) | Fonte, tamanho, espaçamento, margens, cor dos títulos e páginas (capa, sumário, abertura) do laudo (AD-163). |
 | Histórico de auditoria (antes "Diário de bordo") | `Activity` (`identity`) | Registro de quem fez o quê: toda escrita, exportação e entrada no sistema, guardado por 1 ano (AD-134). |
-| Oportunidade | `Opportunity` (`prospecting`) | Processo encontrado no Datajud e salvo para análise; pode ser convertido em perícia. |
 | Valor de domínio | enums em `packages/contracts/src/schemas/` | Gravado e devolvido pela API em inglês (AD-113); o web traduz com `t()` antes de mostrar. |
 | Chave de acesso | `AccessKey` (`identity`) | Link de uso único e código de 6 dígitos enviados ao e-mail da pessoa para entrar ou criar o escritório; vale 15 minutos. Não há senha (AD-155). |
 | Acesso do aparelho (passkey) | `Passkey` (`identity`) | Chave guardada no próprio aparelho (digital, rosto, PIN ou Windows Hello) que abre toda sessão; no máximo um computador e um celular por pessoa (AD-220). |
