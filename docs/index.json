@@ -9,7 +9,7 @@
       "status": "concluido",
       "areas": [
         "apps/api",
-        "tests/structural",
+        "tests",
         "docs"
       ],
       "decisoes": [

@@ -4,14 +4,14 @@ slug: api-padrao-unico
 descricao: Uma forma por camada no apps/api (router, controller, service, repository, schema, apoio), travada no teste estrutural
 data: 2026-11-23
 status: concluido
-areas: [apps/api, tests/structural, docs]
+areas: [apps/api, tests, docs]
 decisoes: [AD-284]
 spec: [.specs/features/api-padrao-unico]
 ---
 
 # API num padrão único
 
-**Status**: concluido · **Atualizado**: 2026-11-23 · **Áreas**: `apps/api`, `tests/structural`, `docs`
+**Status**: concluido · **Atualizado**: 2026-11-23 · **Áreas**: `apps/api`, `tests`, `docs`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='api-padrao-unico'`.
