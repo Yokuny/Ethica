@@ -33,7 +33,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
-- [ ] GitHub Actions: o repositório não tem nenhuma execução do CI (`.github/workflows/ci.yml`); conferir se as Actions estão habilitadas — `fundacao-ethica`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
 - [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
 - [ ] Asaas sandbox: entrar em `sandbox.asaas.com` e concluir o cadastro ("Conclua seu cadastro", dados pessoais); com a conta aprovada, criar uma chave Pix aleatória em Pix > Minhas chaves para testar o QR Code em dev. Sem webhook no sandbox: a Railway usa a chave de produção — `cadastro-checkout`
@@ -102,6 +101,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-22 — GitHub Actions habilitadas no repositório (estavam desligadas, por isso o CI nunca rodou); o workflow CI passa a rodar a cada push na main — `fundacao-ethica`
 - [x] 2026-11-22 — Collection antiga `deadlines` apagada na produção (já copiada para `notifications`); healthcheck da API conferido em Settings na Railway — `central-notificacoes`, `producao-api`
 - [x] 2026-11-22 — Configuração da Railway da API e do worker passada para Settings (config-as-code deixa de valer em 01/12/2026); `railway.json` e `railway.worker.json` saíram do repositório — `producao-api`
 - [x] 2026-11-22 — Worker no ar na Railway (Dockerfile.worker, healthcheck /health, Datajud e push ligados), usuário `ethica-worker` com role própria no Atlas e chaves VAPID na API e no worker — `central-notificacoes`, `automacao-datajud`
