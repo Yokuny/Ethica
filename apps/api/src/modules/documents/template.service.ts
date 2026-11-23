@@ -1,6 +1,6 @@
 import { isDefaultTemplate, REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType } from '@ethica/contracts';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
-import * as importService from '../case/import.service.js';
+import { extractPdfText } from '../../providers/pdf-text.js';
 import { templateSectionsFromDocx, templateSectionsFromText } from './report.attachment.js';
 import { sanitizeReportHtml } from './report.html.js';
 import { DEFAULT_TEMPLATES } from './report.library.js';
@@ -69,7 +69,7 @@ export const importTemplate = async (
   file: Buffer,
 ): Promise<TemplateRecord> => {
   const sections = isPdf(file)
-    ? templateSectionsFromText(await importService.extractPdfText(file), name)
+    ? templateSectionsFromText(await extractPdfText(file), name)
     : templateSectionsFromDocx(file, name);
   if (!sections.length) throw new CustomError('pdf_without_text', 422);
   return templateRepository.create(tenantId, {

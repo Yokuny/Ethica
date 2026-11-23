@@ -13,11 +13,7 @@ import type {
   UserSummary,
   UserView,
 } from './auth.schema.js';
-
-// ACC-06: photo path with the version in the query — the URL changes when the photo changes,
-// so the image response can be cached forever.
-export const avatarPath = (userId: string, updatedAt: Date): string =>
-  `/auth/users/${userId}/avatar?v=${updatedAt.getTime()}`;
+import { avatarPath } from './user.avatar.js';
 
 const avatarOf = (user: { _id: { toString(): string }; avatarUpdatedAt?: Date }) =>
   user.avatarUpdatedAt ? { avatar: avatarPath(user._id.toString(), user.avatarUpdatedAt) } : {};
@@ -276,3 +272,34 @@ export const touchPasskey = async (id: string, counter: number): Promise<void> =
   withDbTiming('auth.touchPasskey', async () => {
     await Passkey.updateOne({ _id: id }, { $set: { counter, lastUsedAt: new Date() } });
   });
+
+// Session lookup of every authenticated request (FND-05), used by buildAuthDeps.
+export const findSessionByHash = async (tokenHash: string) => {
+  const session = await Session.findOne({ tokenHash }).lean();
+  return session ? { user: session.user.toString(), deviceInfo: session.deviceInfo } : null;
+};
+
+export const revokeAllSessions = async (userId: string): Promise<void> => {
+  await Session.deleteMany({ user: userId });
+};
+
+export const findSessionUser = async (userId: string) => {
+  const user = await User.findById(userId).lean();
+  return user
+    ? {
+        id: user._id.toString(),
+        tenant: user.Tenant?.toString(),
+        role: user.role,
+        permissions: user.permissions,
+        isPlatformAdmin: user.isPlatformAdmin,
+        active: user.active,
+      }
+    : null;
+};
+
+export const findSessionTenant = async (tenantId: string) => {
+  const tenant = await Tenant.findById(tenantId).lean();
+  return tenant
+    ? { id: tenant._id.toString(), name: tenant.name, status: tenant.status, accessUntil: tenant.accessUntil }
+    : null;
+};

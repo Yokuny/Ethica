@@ -21,6 +21,7 @@ apps/api/src/
 ├── providers/fileStorage.ts        # arquivos do tenant em bucket S3 (AD-120), injetado em buildApp
 ├── providers/geocoder.ts           # endereço → coordenadas pelo Nominatim (AD-131), injetado em buildApp
 ├── providers/asaasClient.ts        # cliente HTTP do Asaas (assinatura), injetado em buildApp
+├── providers/pdf-text.ts           # texto de PDF com texto selecionável (AD-114, AD-152), função direta usada por case e documents
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)

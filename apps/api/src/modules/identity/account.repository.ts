@@ -1,7 +1,7 @@
 import { isTenantOpen, Passkey, Session, Tenant, tenantScoped, User } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { AccountView, FeedOwner, PasskeyView, UpdateProfile } from './account.schema.js';
-import { avatarPath } from './auth.repository.js';
+import { avatarPath } from './user.avatar.js';
 
 // Tenant and user always come from the session (AD-010): every filter is the person themselves.
 const own = (tenantId: string, userId: string) => tenantScoped({ Tenant: tenantId, _id: userId });

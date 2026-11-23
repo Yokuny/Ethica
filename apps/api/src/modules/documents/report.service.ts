@@ -15,12 +15,12 @@ import {
 import { dateInDisplayTz } from '@ethica/db';
 import { CustomError } from '../../middlewares/errorHandler.middleware.js';
 import type { FileStorage } from '../../providers/fileStorage.js';
+import { extractPdfText } from '../../providers/pdf-text.js';
 import type { PdfRenderer } from '../../providers/pdfRenderer.js';
 import * as appointmentService from '../agenda/appointment.service.js';
 import * as inspectionService from '../agenda/inspection.service.js';
 import type { CaseRecord } from '../case/case.schema.js';
 import * as caseService from '../case/case.service.js';
-import * as importService from '../case/import.service.js';
 import * as accountService from '../identity/account.service.js';
 import * as authService from '../identity/auth.service.js';
 import * as officeService from '../identity/office.service.js';
@@ -363,7 +363,7 @@ const attachedAsTemplate = async (
   const file = await reportRepository.fileOf(ctx.tenantId, report.id);
   const body = file && providers.storage ? await providers.storage.get(file.key) : null;
   if (!body) throw new CustomError('not_found', 404);
-  const sections = templateSectionsFromText(await importService.extractPdfText(body), report.templateName);
+  const sections = templateSectionsFromText(await extractPdfText(body), report.templateName);
   return templateService.createFromReport(ctx.tenantId, {
     ...template,
     type: report.type,
@@ -439,7 +439,7 @@ export const setLayout = async (ctx: DocumentContext, id: string, layout: Report
 // labor data found go back for the expert to confirm on the case. Nothing already written is deleted.
 export const fillFromProcess = async (ctx: DocumentContext, id: string, file: Buffer): Promise<ProcessFill> => {
   const report = await editable(ctx.tenantId, id);
-  const extraction = extractProcess(await importService.extractPdfText(file));
+  const extraction = extractProcess(await extractPdfText(file));
   const changed = applyProcess(report.sections, extraction);
   for (const section of changed) {
     await reportRepository.updateSection(ctx, id, section.id, { html: sanitizeReportHtml(section.html) });
