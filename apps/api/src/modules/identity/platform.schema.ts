@@ -1,30 +1,12 @@
-import type { CreateInvite, Permissions, ProvisionTenant, Role } from '@ethica/contracts';
-import { createInviteSchema, idSchema, provisionTenantSchema } from '@ethica/contracts';
-import type { MailProvider } from '@ethica/mail';
-import type { RequestHandler } from 'express';
+import type { ProvisionTenant } from '@ethica/contracts';
+import { idSchema, provisionTenantSchema } from '@ethica/contracts';
 import { z } from 'zod';
+import type { InviteRouterDeps } from './invite.schema.js';
 
-export type { CreateInvite, ProvisionTenant };
+export type { ProvisionTenant };
 // MOD-08: input schemas and module types in a single place.
-export { createInviteSchema, provisionTenantSchema };
+export { provisionTenantSchema };
 
 export const tenantIdParamSchema = z.object({ id: idSchema }).strict();
 
-export type PlatformControllerDeps = {
-  mailProvider: MailProvider;
-  inviteBaseUrl: string;
-};
-
-export type PlatformRouterDeps = PlatformControllerDeps & { validToken: RequestHandler };
-
-export type InviteResult = { id: string; sent: boolean };
-
-export type CreateInviteInput = {
-  tenant: string;
-  email: string;
-  role: Role;
-  permissions?: Permissions;
-  tokenHash: string;
-  expiresAt: Date;
-  invitedBy: string;
-};
+export type PlatformRouterDeps = InviteRouterDeps;

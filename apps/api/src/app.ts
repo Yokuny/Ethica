@@ -26,12 +26,11 @@ import * as activityLogService from './modules/identity/activityLog.service.js';
 import { buildAuthDeps } from './modules/identity/auth.deps.js';
 import { createAuthRouter } from './modules/identity/auth.router.js';
 import { createBillingRouter } from './modules/identity/billing.router.js';
-import { inviteRouter } from './modules/identity/invite.router.js';
+import { createInviteRouter, createTeamInviteRouter } from './modules/identity/invite.router.js';
 import { createOfficeRouter } from './modules/identity/office.router.js';
 import { createPlatformRouter } from './modules/identity/platform.router.js';
 import { createPreferencesRouter } from './modules/identity/preferences.router.js';
 import { createPushRouter } from './modules/identity/push.router.js';
-import { createTenantInviteRouter } from './modules/identity/tenantInvite.router.js';
 import { createNotificationRouter } from './modules/notifications/notification.router.js';
 import { type AsaasClient, createAsaasClient } from './providers/asaasClient.js';
 import { createS3FileStorage, type FileStorage } from './providers/fileStorage.js';
@@ -123,8 +122,8 @@ export const buildApp = (
   app.use('/platform', createPlatformRouter({ validToken, mailProvider, inviteBaseUrl }));
   app.use('/tenant/office', createOfficeRouter({ validToken, storage }));
   app.use('/tenant/activity-log', createActivityLogRouter({ validToken }));
-  app.use('/tenant', createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
-  app.use('/invites', inviteRouter);
+  app.use('/tenant', createTeamInviteRouter({ validToken, mailProvider, inviteBaseUrl }));
+  app.use('/invites', createInviteRouter());
   app.use('/auth', createAuthRouter({ validToken, mailProvider, accessUrl: `${env.CORS_ORIGIN}/auth` }));
   app.use(
     '/billing',

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkRole } from '../../middlewares/authorization.middleware.js';
+import { isAdmin, isMember } from '../../middlewares/authorization.middleware.js';
 import { accessKeyRateLimit, accessVerifyRateLimit, passkeyRateLimit } from '../../middlewares/rateLimit.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenantAssign.middleware.js';
 import { validBody, validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
@@ -16,15 +16,6 @@ import {
   userDirectoryQuerySchema,
   userIdParamSchema,
 } from './auth.schema.js';
-
-// Same role (canOperate) already required in GET /conversations
-// (conversation.router.ts) — /auth/users exists to feed the "assignee" filter
-// of the conversation queue, so any authenticated tenant role
-// that reaches the inbox can also list the user directory.
-const canOperate = checkRole(['admin', 'manager', 'operator']);
-// REG-07 (AD-071): e-mail and role of the whole team for admin only; /users above
-// keeps only {id,name} for the assignee selectors.
-const isAdmin = checkRole(['admin']);
 
 export const createAuthRouter = (deps: AuthRouterDeps): Router => {
   const router = Router();
@@ -61,7 +52,7 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     '/users',
     deps.validToken,
     tenantAssignmentCheck,
-    canOperate,
+    isMember,
     validParsedQuery(listUsersQuerySchema),
     authController.listUsers,
   );
@@ -88,7 +79,7 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     '/users/:id/avatar',
     deps.validToken,
     tenantAssignmentCheck,
-    canOperate,
+    isMember,
     validParams(userIdParamSchema),
     authController.getUserAvatar,
   );

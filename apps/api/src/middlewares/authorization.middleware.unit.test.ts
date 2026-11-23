@@ -1,7 +1,7 @@
 import type { Permissions, Role } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
-import { can, checkRole, isAdmin, isManager, isOperator, platformAdminOnly } from './authorization.middleware.js';
+import { can, checkRole, isAdmin, isMember, platformAdminOnly } from './authorization.middleware.js';
 
 const buildReq = (tenantUser: { role?: Role[]; isPlatformAdmin?: boolean; permissions?: Permissions }): Request =>
   ({ tenantUser }) as unknown as Request;
@@ -65,23 +65,13 @@ describe('role aliases', () => {
     expect(asStatusError(nextReject).status).toBe(403);
   });
 
-  it('isManager allows manager and rejects other roles with 403', () => {
+  it('isMember allows any office role and rejects a user without one with 403', () => {
     const nextOk = vi.fn();
-    isManager(buildReq({ role: ['manager'] }), {} as Response, nextOk as unknown as NextFunction);
+    isMember(buildReq({ role: ['operator'] }), {} as Response, nextOk as unknown as NextFunction);
     expect(nextOk).toHaveBeenCalledWith();
 
     const nextReject = vi.fn();
-    isManager(buildReq({ role: ['operator'] }), {} as Response, nextReject as unknown as NextFunction);
-    expect(asStatusError(nextReject).status).toBe(403);
-  });
-
-  it('isOperator allows operator and rejects other roles with 403', () => {
-    const nextOk = vi.fn();
-    isOperator(buildReq({ role: ['operator'] }), {} as Response, nextOk as unknown as NextFunction);
-    expect(nextOk).toHaveBeenCalledWith();
-
-    const nextReject = vi.fn();
-    isOperator(buildReq({ role: ['admin'] }), {} as Response, nextReject as unknown as NextFunction);
+    isMember(buildReq({ role: [] }), {} as Response, nextReject as unknown as NextFunction);
     expect(asStatusError(nextReject).status).toBe(403);
   });
 });

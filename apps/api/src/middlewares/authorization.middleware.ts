@@ -32,8 +32,8 @@ export const can = (module: PermissionModule, ...actions: PermissionAction[]) =>
 };
 
 export const isAdmin = checkRole(['admin']);
-export const isManager = checkRole(['manager']);
-export const isOperator = checkRole(['operator']);
+// Any role of the office: the person's own account, preferences and subscription view.
+export const isMember = checkRole(['admin', 'manager', 'operator']);
 
 // 403 before ANY access to data/controller (FND-01/AC3) — calling
 // next(err) here is what stops Express from moving on to the route; only the

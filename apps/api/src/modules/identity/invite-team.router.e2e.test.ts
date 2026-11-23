@@ -11,8 +11,7 @@ import { env } from '../../config/env.config.js';
 import type { AuthDeps } from '../../middlewares/authentication.middleware.js';
 import { createAuthMiddleware } from '../../middlewares/authentication.middleware.js';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
-import { inviteRouter } from './invite.router.js';
-import { createTenantInviteRouter } from './tenantInvite.router.js';
+import { createInviteRouter, createTeamInviteRouter } from './invite.router.js';
 
 const buildAuthDeps = (): AuthDeps => ({
   findSessionByHash: async (tokenHash) => {
@@ -48,9 +47,9 @@ const buildTestApp = (mailProvider: MailProvider = { send: async () => ({ sent: 
   const { validToken } = createAuthMiddleware(buildAuthDeps());
   app.use(
     '/tenant',
-    createTenantInviteRouter({ validToken, mailProvider, inviteBaseUrl: 'http://localhost:15173/invite' }),
+    createTeamInviteRouter({ validToken, mailProvider, inviteBaseUrl: 'http://localhost:15173/invite' }),
   );
-  app.use('/invites', inviteRouter);
+  app.use('/invites', createInviteRouter());
   app.use(errorHandler);
   return app;
 };

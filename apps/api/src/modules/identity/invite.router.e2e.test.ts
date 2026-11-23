@@ -3,12 +3,12 @@ import express from 'express';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { errorHandler } from '../../middlewares/errorHandler.middleware.js';
-import { inviteRouter } from './invite.router.js';
+import { createInviteRouter } from './invite.router.js';
 
 const buildTestApp = () => {
   const app = express();
   app.use(express.json());
-  app.use('/invites', inviteRouter);
+  app.use('/invites', createInviteRouter());
   app.use(errorHandler);
   return app;
 };

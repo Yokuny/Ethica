@@ -2,9 +2,11 @@ import { Router } from 'express';
 import { platformAdminOnly } from '../../middlewares/authorization.middleware.js';
 import { inviteRateLimit } from '../../middlewares/rateLimit.middleware.js';
 import { validBody, validParams } from '../../middlewares/validation.middleware.js';
+import * as inviteController from './invite.controller.js';
+import { createInviteSchema } from './invite.schema.js';
 import * as platformController from './platform.controller.js';
 import type { PlatformRouterDeps } from './platform.schema.js';
-import { createInviteSchema, provisionTenantSchema, tenantIdParamSchema } from './platform.schema.js';
+import { provisionTenantSchema, tenantIdParamSchema } from './platform.schema.js';
 
 // platformAdminOnly before ANY other business middleware — 403 without
 // touching data (FND-01/AC3); validToken comes first because platformAdminOnly
@@ -27,7 +29,7 @@ export const createPlatformRouter = (deps: PlatformRouterDeps): Router => {
     inviteRateLimit,
     validParams(tenantIdParamSchema),
     validBody(createInviteSchema),
-    platformController.inviteToTenant(deps),
+    inviteController.inviteToTenant(deps),
   );
 
   return router;

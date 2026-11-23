@@ -1,9 +1,26 @@
-import type { AcceptInvite, Permissions, Role } from '@ethica/contracts';
-import { acceptInviteSchema, inviteTokenParamSchema } from '@ethica/contracts';
+import type { AcceptInvite, CreateInvite, Permissions, Role } from '@ethica/contracts';
+import { acceptInviteSchema, createInviteSchema, inviteTokenParamSchema } from '@ethica/contracts';
+import type { MailProvider } from '@ethica/mail';
+import type { RequestHandler } from 'express';
 
-export type { AcceptInvite, Permissions, Role };
+export type { AcceptInvite, CreateInvite, Permissions, Role };
 // MOD-08: input schemas and module types in a single place.
-export { acceptInviteSchema, inviteTokenParamSchema };
+export { acceptInviteSchema, createInviteSchema, inviteTokenParamSchema };
+
+export type InviteMailDeps = { mailProvider: MailProvider; inviteBaseUrl: string };
+export type InviteRouterDeps = InviteMailDeps & { validToken: RequestHandler };
+
+export type InviteResult = { id: string; sent: boolean };
+
+export type CreateInviteInput = {
+  tenant: string;
+  email: string;
+  role: Role;
+  permissions?: Permissions;
+  tokenHash: string;
+  expiresAt: Date;
+  invitedBy: string;
+};
 
 export type InvitePeek = { tenantName: string; email: string };
 
