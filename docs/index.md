@@ -24,7 +24,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
-- [Plano — `apps/api` num padrão único de arquitetura](../.specs/plans/2026-11-23-api-padrao-unico.md)
+_Nenhum._
 
 ## Features (45)
 
@@ -94,6 +94,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-284** (2026-11-23, active) — Padrão único das camadas do `apps/api`, travado no teste estrutural. (1) Controller é função exportada sem `try/catch`; quem precisa de prov
 - **AD-283** (2026-11-23, active) — Endurecimento achado por testes de falha (2026-11-23). (1) `calendarDateSchema` (`@ethica/contracts`) aceita só dia que existe no calendário
 - **AD-282** (2026-11-23, active) — Notificações viram um processo só: toda `Notification` (prazo, alerta, sugestão, aviso — AD-263) está aberta enquanto pede alguém (prazo, al
 - **AD-281** (2026-11-22, active (link para a aba Para aprovar superseded by AD-282)) — A Prospecção sai inteira e o item de menu vira a página Automação Datajud (`/automation`). (1) Divisão das fontes: o Datajud é inteligência
@@ -103,7 +104,10 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-277** (2026-11-22, active) — Acompanhamento no tribunal (Fase 4 de `automacao-datajud`): (1) só perícias trabalhistas (TRT) e federais (TRF) por enquanto (`TRACKED_COURT
 - **AD-276** (2026-11-22, active) — Detalhes da Fase 3 (módulo premium): (1) planos `automation_monthly` (R$ 80) e `automation_yearly` (R$ 816) entram em `BILLING_PLANS` e em `
 - **AD-275** (2026-11-22, active (confirmado pelo usuário em 2026-11-22, com o anual de R$ 816)) — Preço do módulo premium pelo usuário em 2026-11-22: plano base R$ 60 por mês, plano com a Automação Datajud R$ 80 por mês. Lido como um plan
-- **AD-274** (2026-11-22, active) — Gatilhos de pagamento da Automação Datajud pela Tabela Processual Unificada do CNJ (estudo em `.specs/features/automacao-datajud/context.md`
+
+## `.specs/` sem registro em `docs/features/`
+
+- `.specs/features/api-padrao-unico/`
 
 ## Outros documentos
 

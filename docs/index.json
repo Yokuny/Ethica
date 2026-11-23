@@ -1166,13 +1166,10 @@
       "doc": "features/rotas-vistoria/feature.md"
     }
   ],
-  "planos_nao_arquivados": [
-    {
-      "arquivo": ".specs/plans/2026-11-23-api-padrao-unico.md",
-      "titulo": "Plano — `apps/api` num padrão único de arquitetura"
-    }
+  "planos_nao_arquivados": [],
+  "specs_sem_registro": [
+    "api-padrao-unico"
   ],
-  "specs_sem_registro": [],
   "decisoes": [
     {
       "id": "AD-001",
@@ -2497,6 +2494,12 @@
     {
       "id": "AD-283",
       "decisao": "Endurecimento achado por testes de falha (2026-11-23). (1) `calendarDateSchema` (`@ethica/contracts`) aceita só dia que existe no calendário",
+      "data": "2026-11-23",
+      "status": "active"
+    },
+    {
+      "id": "AD-284",
+      "decisao": "Padrão único das camadas do `apps/api`, travado no teste estrutural. (1) Controller é função exportada sem `try/catch`; quem precisa de prov",
       "data": "2026-11-23",
       "status": "active"
     }

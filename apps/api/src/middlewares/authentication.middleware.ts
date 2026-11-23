@@ -66,8 +66,7 @@ export const extractToken = (req: Request): string | undefined => {
   return parts[1];
 };
 
-// Pure function: jwt→hash→Session→device match→User/Tenant validation, outside the
-// Express pipeline so it can be reused (e.g. WebSocket handshake).
+// Pure function: jwt→hash→Session→device match→User/Tenant validation.
 // `token` accepts `undefined` because `extractToken` can already return it
 // when the credential did not come — the 401 is resolved here.
 // `allowClosed`: the subscription routes (AD-230) work with the office closed for lack of payment.

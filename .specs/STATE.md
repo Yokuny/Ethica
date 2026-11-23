@@ -1783,6 +1783,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-23
 - **Status**: active
 
+### AD-284
+- **Decision**: Padrão único das camadas do `apps/api`, travado no teste estrutural. (1) Controller é função exportada sem `try/catch`; quem precisa de provider o recebe antes (`(storage) => async (req, res) => …`); sem fábrica de controller nem wrapper de resposta. (2) "Não encontrado" é `CustomError('<chave>', 404)` lançado no service; somem as classes `XNotFoundError` e o mapeamento no controller. Única classe de erro de módulo e único `try/catch` de controller: `InspectionConflictError` (409 com a versão do servidor, AD-128). (3) Router sempre `createXRouter(deps)`, um por prefixo. (4) O convite de membro do escritório é da entidade `invite`. (5) Só repository importa model do `@ethica/db` por valor; repository importa só `@ethica/db`, schema e arquivo de apoio do módulo. (6) Arquivo de apoio é `<entidade>.<papel>.ts`, só funções puras. (7) Texto de PDF em `providers/pdf-text.ts`. (8) Arquivos em kebab-case.
+- **Reason**: pedido do usuário de devolver o back-end a um padrão único (análise em `.specs/features/api-padrao-unico/plans/2026-11-23-api-padrao-unico.md`, decisões D1–D7 aceitas em 2026-11-23). O Express 5 já encaminha a rejeição de handler `async` ao `errorHandler` com o `status` do erro, então o `try/catch` + `next(e)` e a tradução de classe para 404 eram só repetição.
+- **Trade-off**: "não encontrado" de outro módulo que o controller não mapeava passa de 500 para 404; o service conhece o status HTTP do erro, como já acontecia com a maioria dos erros (`CustomError`). Renomear arquivos mexe em muitos imports de uma vez.
+- **Scope**: `apps/api/src/**`, `tests/structural/module-boundary.structural.test.ts`, `apps/api/CLAUDE.md`.
+- **Date**: 2026-11-23
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

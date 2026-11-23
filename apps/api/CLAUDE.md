@@ -20,10 +20,11 @@ apps/api/src/
 ├── providers/pdfRenderer.ts        # HTML → PDF com Chromium (AD-119), injetado em buildApp
 ├── providers/fileStorage.ts        # arquivos do tenant em bucket S3 (AD-120), injetado em buildApp
 ├── providers/geocoder.ts           # endereço → coordenadas pelo Nominatim (AD-131), injetado em buildApp
+├── providers/asaasClient.ts        # cliente HTTP do Asaas (assinatura), injetado em buildApp
 └── modules/
     ├── schema.registry.ts          # apiSchemaRegistry — schemas Zod locais do app
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)
-    ├── case/                       # Case (perícia) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, não depende de ninguém
+    ├── case/                       # Case (perícia) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, só usa a cota de arquivos de `identity`
     ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
     ├── automation/                 # Automação Datajud (premium): processos acompanhados e linha do tempo no tribunal; lê CourtProcess e CaseCourtSync, que o worker grava (AD-277)
     ├── notifications/              # Notification — prazo, alerta, sugestão e aviso (AD-263); Central e prazo do laudo por `case:created` (AD-264)
@@ -35,6 +36,31 @@ apps/api/src/
 Nomes de código em inglês pelo glossário da AD-140 (`.specs/features/english-naming/design.md`): perícia `Case`, notificação `Notification` (prazo, alerta, sugestão, aviso), parte `Party`, compromisso `Appointment`, vistoria `Inspection`, lançamento `Transaction`, laudo `Report`, modelo `Template`, diário `Activity`.
 
 Cada `modules/<module>/` é **auto-contido**: `<entidade>.router.ts .controller.ts .service.ts .repository.ts .schema.ts` + testes colocalizados (`.unit.test.ts .int.test.ts .e2e.test.ts`, nunca pasta `__test__` separada — AD-017). Um módulo pode agrupar mais de uma entidade (`identity`) quando elas compartilham dono de collection ou fronteira de domínio — granularidade é por **contexto**, não 1:1 com arquivo.
+
+## Padrão único das camadas (AD-284)
+
+Uma forma por camada, sem variante. O teste estrutural trava cada regra.
+
+| Camada | Forma | Importa |
+| --- | --- | --- |
+| `*.router.ts` | `export const createXRouter = (deps): Router => { … }`; um router por prefixo montado no `app.ts` | controller e schema do módulo, middlewares |
+| `*.controller.ts` | função exportada **sem `try/catch`** (o Express 5 encaminha a rejeição ao `errorHandler`); quem precisa de provider o recebe antes: `(storage) => async (req, res) => …`. Sem fábrica de controller nem wrapper de resposta | service e schema do módulo (e de outro módulo, se precisar) |
+| `*.service.ts` | regras de negócio; erro é `CustomError('<chave>', status)` — "não encontrado" é `CustomError('x_not_found', 404)`, nunca classe própria | repository, schema, apoio do módulo; service de outro módulo; helpers do `@ethica/db` |
+| `*.repository.ts` | única camada que importa model do `@ethica/db` por valor | `@ethica/db`, schema e apoio do módulo — nunca outro repository |
+| `*.schema.ts` | Zod de entrada, re-export do `@ethica/contracts`, tipos de saída | contratos e outros schemas |
+| `<entidade>.<papel>.ts` | **arquivo de apoio**: só funções puras (sem banco, sem HTTP), ex. `report.docx.ts` | schema e outros apoios do módulo |
+
+```ts
+// modules/case/case.controller.ts
+export const getCase = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await caseService.getCase(tenantOf(req), req.params.id as string) }));
+};
+
+// modules/case/case.service.ts
+if (!found) throw new CustomError('case_not_found', 404);
+```
+
+Exceção única: `InspectionConflictError` (AD-128) — o salvar da vistoria offline devolve 409 com a versão do servidor, então é a única classe de erro de módulo e o único `try/catch` em controller. Nomes de arquivo em kebab-case.
 
 ## Regra central: um módulo só fala com o *service* de outro
 
@@ -50,7 +76,7 @@ Enriquecimento cross-módulo (número do processo, nome do usuário) é **uma co
 
 Service expõe **funções** que delegam ao repository (`export const x = (a, b) => repository.x(a, b)`), nunca alias (`export const x = repository.x`): o alias é avaliado no import e quebra o `vi.mock` do repository nos testes.
 
-Grafo atual: `agenda`, `finance`, `notifications` e `automation` → `case`; `notifications` → `automation` e `finance` (aprovar sugestões, AD-268, AD-279); `automation` → `identity` (o módulo do escritório); `agenda` e `documents` → `notifications` (feed iCal, entrega do laudo); os lembretes e o e-mail diário são do `apps/worker` (AD-267), que não importa nada daqui; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` e `identity` não dependem de ninguém (AD-106, AD-109, AD-119).
+Grafo atual: `agenda`, `finance`, `notifications` e `automation` → `case`; `notifications` → `automation` e `finance` (aprovar sugestões, AD-268, AD-279); `automation` → `identity` (o módulo do escritório); `agenda` e `documents` → `notifications` (feed iCal, entrega do laudo); os lembretes e o e-mail diário são do `apps/worker` (AD-267), que não importa nada daqui; `agenda` → `identity` (dono do link do feed e destinatários do aviso); `finance` → `identity` (meta do ano, AD-258); `documents` → todos os outros (lê; ao concluir um laudo, protocola o prazo e lança a movimentação pelos services de `case`; ninguém depende dele, e a exclusão da perícia chega por `case:deleted`); `case` → `identity` só pela cota de arquivos (`officeService.reserveFile/returnFile`); `identity` não depende de ninguém (AD-106, AD-109, AD-119).
 
 ### Ownership do `@ethica/db` (quem importa o quê)
 

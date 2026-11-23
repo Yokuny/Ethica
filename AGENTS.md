@@ -23,8 +23,10 @@ Vale para **toda** tarefa, em qualquer área. Não é uma tarefa de "simplificar
 | --- | --- | --- |
 | `apps/api` | API (Express 5 + Mongoose), módulos em `src/modules/<module>/` (AD-038), eventos in-process (AD-039) | `apps/api/CLAUDE.md` |
 | `apps/web` | Front (React 19, Vite 7, TanStack Router/Query, Tailwind 4, shadcn/Base UI, recharts) | `apps/web/CLAUDE.md` + skill `ethica-web-standards` |
+| `apps/worker` | Processo de rotinas: lembretes, e-mail diário e Datajud (AD-267, AD-277); não importa nada da API | — |
 | `packages/contracts` | Schemas Zod compartilhados entre API e web | — |
 | `packages/db` | Models Mongoose — único lugar que importa `mongoose` | — |
+| `packages/mail` | Provedores de e-mail (Resend, Nodemailer, log) usados pela API e pelo worker | — |
 | `packages/ui` | Componentes de UI compartilhados (primitivos shadcn/Base UI + `chart`) | `packages/ui/README.md` |
 
 Os `CLAUDE.md` dentro de cada app são regras de código daquele app e valem para qualquer agente — leia o do app que você vai tocar antes de editar.
