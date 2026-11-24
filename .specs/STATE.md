@@ -1879,6 +1879,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-24
 - **Status**: active
 
+### AD-296
+- **Decision**: Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/record.tsx`. Os dois usos (relatório da importação CSV, `apps/web/src/components/csv-import-report.tsx`, e conferência das colunas, `apps/web/src/routes/_private/expert-cases/import/@components/csv-columns-review.tsx`) viram `ItemGroup` + `Item render={<li />}` com a situação em `ItemMedia variant="icon"` (`role="img"`, `aria-label`), o dado em `ItemTitle`, o apoio em `ItemDescription` e o campo em `ItemActions`. Ficam `RecordHeader`/`RecordHeading`/`RecordHeadingGroup`/`RecordStatus` e `RecordStats`/`RecordStat`. Supersede a parte de lista livre da AD-072/AD-090.
+- **Reason**: pedido do usuário (2026-11-24), grupo B aprovado: a lista livre fixava o desenho (tabela com células rótulo sobre valor) e tinha só dois usos.
+- **Trade-off**: a conferência de colunas deixa de alinhar coluna e exemplo em colunas de tabela; cada linha lê nome, exemplo e campo.
+- **Scope**: `apps/web/src/components/{record,record.unit.test,csv-import-report}.tsx`, `apps/web/src/routes/_private/expert-cases/import/@components/csv-columns-review.tsx`, `.agents/skills/ethica-web-standards/`, `apps/web/DESIGN.md`.
+- **Date**: 2026-11-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

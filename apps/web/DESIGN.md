@@ -176,7 +176,7 @@ DataTable é uma faixa integrada ao painel: toolbar compacta, cabeçalho sans em
 
 ### Página de registro
 
-Detalhes e integrações usam apps/web/src/components/record.tsx, no modelo das telas do iotlog-frontend-v2 (AD-090). Cabeçalho com um ou mais pares rótulo em caixa alta + título a 24px e o estado à direita; logo abaixo, a faixa de destaques entre fios (em cima e embaixo), sem divisória vertical, com colunas do tamanho do conteúdo e nenhuma célula sozinha numa linha (AD-292), rótulo caption e valor a 24px, sem superfície de fundo; o ícone do cabeçalho fica num ladrilho `bg-muted` (48px no celular, 64px a partir de `sm`) na cor do título; depois as seções colapsáveis num cartão com linhas rótulo/valor; e a lista livre (RecordTable), título a 24px e linhas entre fios com ícone de situação em círculo tingido pelos tokens --status-* e células rótulo sobre valor. Os usos não passam classe de identidade.
+Detalhes e integrações usam apps/web/src/components/record.tsx, no modelo das telas do iotlog-frontend-v2 (AD-090). Cabeçalho com um ou mais pares rótulo em caixa alta + título a 24px e o estado à direita; logo abaixo, a faixa de destaques entre fios (em cima e embaixo), sem divisória vertical, com colunas do tamanho do conteúdo e nenhuma célula sozinha numa linha (AD-292), rótulo caption e valor a 24px, sem superfície de fundo; o ícone do cabeçalho fica num ladrilho `bg-muted` (48px no celular, 64px a partir de `sm`) na cor do título; depois as seções colapsáveis num cartão com linhas rótulo/valor; e a lista de itens do registro montada na página com `ItemGroup`/`Item`, a situação num ícone em `ItemMedia` (AD-296).
 
 ### Links
 

@@ -4,18 +4,15 @@ import { BadgeIndicator } from '@ethica/ui/components/badge';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { cn } from 'cn';
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
-import { Children, type ComponentProps, createContext, type ReactNode, useContext, useId } from 'react';
+import { type ComponentProps, createContext, type ReactNode, useContext } from 'react';
 
 // Record page (AD-072, AD-090): the final layout of the
 // iotlog-frontend-v2 models (FAS, filled work order, completed work order), in stacked blocks:
 //   1. RecordHeader — one or more uppercase label + large title pairs
 //      (RecordHeadingGroup), and on the right a second pair or the status;
-//   2. RecordStats — highlight strip between rules (top and bottom), cells
-//      split by a vertical divider, uppercase label and value at 24px;
-//   3. RecordTable — free list (checklist): large title, rows between rules,
-//      optional state icon and label-over-value cells.
-// The whole identity lives here: the screen only picks the data and passes no class.
-// Label/value sections stay in ProductSpecs (AD-091).
+//   2. RecordStats — highlight strip between rules (top and bottom), cells side by side
+//      (AD-292), uppercase label and value at 24px.
+// Label/value sections stay in ProductSpecs (AD-091); lists are Item/ItemGroup in the page (AD-296).
 // Every text is ItemTitle or ItemDescription.
 
 // Uppercase label of the header and the strip (the IOT "ORDEM"/"ATIVO").
@@ -308,116 +305,4 @@ export function RecordStat({
       props,
     ),
   });
-}
-
-// ─── 3. Lista livre (checklist) ──────────────────────────────────────────────
-
-type RecordTableProps = {
-  title: string;
-  // Buttons to the right of the title.
-  actions?: ReactNode;
-  // Text shown when there are no rows.
-  empty?: string;
-  children?: ReactNode;
-};
-
-// List of record items in the completed work order checklist model: title at
-// 24px, rows separated by a rule and, in each row, label-over-value cells
-// aligned in columns (that is why it is a <table>).
-export function RecordTable({ title, actions, empty, children }: RecordTableProps) {
-  const headingId = useId();
-  const hasRows = Children.toArray(children).length > 0;
-  return (
-    <section aria-labelledby={headingId} data-slot="record-table" className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <ItemTitle
-          id={headingId}
-          // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
-          render={<h2 />}
-          className="text-lg text-impact"
-        >
-          {title}
-        </ItemTitle>
-        {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
-      </div>
-      {hasRows ? (
-        <div className="overflow-x-auto">
-          <table aria-labelledby={headingId} className="w-full border-separate border-spacing-0">
-            <tbody>{children}</tbody>
-          </table>
-        </div>
-      ) : (
-        empty && <ItemDescription className="line-clamp-none border-y py-4">{empty}</ItemDescription>
-      )}
-    </section>
-  );
-}
-
-type RecordTableRowProps = ComponentProps<'tr'> & {
-  // State icon on the left (RecordTableMedia); hidden on mobile.
-  media?: ReactNode;
-};
-
-export function RecordTableRow({ media, className, children, ...props }: RecordTableRowProps) {
-  return (
-    <tr
-      data-slot="record-table-row"
-      className={cn(
-        'transition-colors hover:bg-accent/50 [&:not(:last-child)>td]:border-b [&>td]:px-4 [&>td]:py-4 [&>td]:align-top',
-        props.onClick && 'cursor-pointer',
-        className,
-      )}
-      {...props}
-    >
-      {media && <td className="hidden w-16 md:table-cell">{media}</td>}
-      {children}
-    </tr>
-  );
-}
-
-const mediaVariantClass = {
-  success: 'border-status-success-border bg-status-success text-status-success-foreground',
-  warning: 'border-status-warning-border bg-status-warning text-status-warning-foreground',
-  error: 'border-status-error-border bg-status-error text-status-error-foreground',
-  info: 'border-status-info-border bg-status-info text-status-info-foreground',
-  neutral: 'border-status-neutral-border bg-status-neutral text-status-neutral-foreground',
-} as const;
-
-// Tinted circle with the row's state icon (done / not done).
-export function RecordTableMedia({
-  variant = 'neutral',
-  label,
-  children,
-}: {
-  variant?: keyof typeof mediaVariantClass;
-  // Accessible name of the state (the icon alone says nothing to the screen reader).
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <span
-      role="img"
-      aria-label={label}
-      className={cn('grid size-8 place-items-center rounded-full border [&_svg]:size-4', mediaVariantClass[variant])}
-    >
-      {children}
-    </span>
-  );
-}
-
-type RecordTableCellProps = Omit<ComponentProps<'td'>, 'children'> & {
-  label: string;
-  value: ReactNode;
-};
-
-// Label-over-value cell. The value can be text, a badge or a link.
-export function RecordTableCell({ label, value, className, ...props }: RecordTableCellProps) {
-  return (
-    <td data-slot="record-table-cell" className={cn('min-w-32', className)} {...props}>
-      <div className="flex flex-col gap-1">
-        <ItemDescription className="line-clamp-none">{label}</ItemDescription>
-        <ItemTitle>{value}</ItemTitle>
-      </div>
-    </td>
-  );
 }

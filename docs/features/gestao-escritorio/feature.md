@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-24 — Simplificação, grupo B: sai o `RecordTable*` do `record.tsx`; relatório da importação CSV e conferência das colunas em `Item` (AD-296).
 - 2026-11-24 — Simplificação, grupo A: saem `PageIntro`, `HubIllustration`, `LinkCard`, `StepList` e `InfoCard`; hubs de Laudos e Logística, Conta, Escritório e Relatórios montados direto na página com `Item`/`section` (AD-295). `NumberedList` fica (tem a lógica da árvore de seções).
 - 2026-11-24 — Varredura com o Playwright em 31 rotas (1440 e 390 px): controles e superfícies sem sombra; apoio do título-link da tabela afastado do sublinhado; ações do painel recolhível em linha própria no celular; título e valores longos quebram sem estourar a tela (AD-294).
 - 2026-11-24 — Tabelas e listas com hierarquia: título da identidade escuro e médio, valor da célula em `ItemTitle`, apoio menor; data do compromisso e metadado dos modelos separados (AD-293).

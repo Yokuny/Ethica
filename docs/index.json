@@ -2619,6 +2619,12 @@
       "decisao": "Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step",
       "data": "2026-11-24",
       "status": "active"
+    },
+    {
+      "id": "AD-296",
+      "decisao": "Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/",
+      "data": "2026-11-24",
+      "status": "active"
     }
   ]
 }

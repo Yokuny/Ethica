@@ -1,18 +1,8 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  RecordHeader,
-  RecordHeading,
-  RecordStat,
-  RecordStats,
-  RecordStatus,
-  RecordTable,
-  RecordTableCell,
-  RecordTableMedia,
-  RecordTableRow,
-} from './record.js';
+import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from './record.js';
 
 describe('Record (AD-072)', () => {
   afterEach(() => cleanup());
@@ -55,36 +45,6 @@ describe('Record (AD-072)', () => {
     expect(ruled).toHaveClass('border-y');
     expect(band).toHaveAttribute('data-variant', 'band');
     expect(band).toHaveClass('bg-surface-secondary');
-  });
-
-  it('renders a free list with a heading, the row status and label-over-value cells', () => {
-    render(
-      <RecordTable title="Checklist" empty="Sem itens">
-        <RecordTableRow
-          media={
-            <RecordTableMedia variant="success" label="Feito">
-              ✓
-            </RecordTableMedia>
-          }
-        >
-          <RecordTableCell label="Serviço" value="Verificar cabos" />
-          <RecordTableCell label="Grupo" value="Sistema elétrico" />
-        </RecordTableRow>
-      </RecordTable>,
-    );
-
-    const table = screen.getByRole('table', { name: 'Checklist' });
-    expect(screen.getByRole('heading', { name: 'Checklist' })).toBeVisible();
-    expect(within(table).getByRole('img', { name: 'Feito' })).toBeInTheDocument();
-    expect(within(table).getByText('Verificar cabos')).toBeVisible();
-    expect(within(table).getByText('Grupo')).toBeVisible();
-  });
-
-  it('shows the empty text when the free list has no rows', () => {
-    render(<RecordTable title="Checklist" empty="Sem itens" />);
-
-    expect(screen.getByText('Sem itens')).toBeVisible();
-    expect(screen.queryByRole('table')).toBeNull();
   });
 
   it('renders a trend line and direction beside a proportion marker', () => {
