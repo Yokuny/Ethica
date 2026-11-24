@@ -38,3 +38,5 @@ Já feito nesta sessão: `link-list.tsx` (AD-288) e `default-timeline.tsx` (sem 
 - Grupo B (AD-296): saiu o `RecordTable*`; os dois usos (importação CSV) viraram `Item`.
 - Grupo C (AD-297): o `Panel` simples virou `section` nas 29 telas; `Panel` ficou só recolhível. **Divergência:** `ProductSpecs` e `DefaultFormLayout` ficaram — guardam estado e lógica (grupos recolhíveis, grade de formulário), não só desenho.
 - Conferido no Playwright logado (31 rotas, 1440 e 390 px) depois de cada grupo.
+
+- **Revertido (AD-299):** o grupo A nas telas Escritório, Minha conta, Relatórios e hubs de Laudos e Logística voltou à versão anterior, a pedido do usuário; só os recebimentos do lançamento seguem em `Item`.

@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-24 — Desfeito o grupo A da simplificação em Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`, `PageIntro`, `HubIllustration`, `LinkCard` e `InfoCard` como estavam (AD-299).
 - 2026-11-24 — Faixa de números com colunas pelo número de células (linhas sempre equilibradas, medido de 390 a 1920 px), no lugar do `auto-fit` que deixava célula sozinha em larguras intermediárias (AD-298).
 - 2026-11-24 — Simplificação, grupo C: `Panel` simples vira `section` direto nas 29 telas; `Panel` fica só como o bloco recolhível do detalhe do serviço; sem `max-w-4xl` no app logado. `NumberedList`, `ProductSpecs` e `DefaultFormLayout` ficam por guardarem lógica (AD-297). Plano: `.specs/features/gestao-escritorio/plans/2026-11-24-simplificar-componentes.md`.
 - 2026-11-24 — Simplificação, grupo B: sai o `RecordTable*` do `record.tsx`; relatório da importação CSV e conferência das colunas em `Item` (AD-296).

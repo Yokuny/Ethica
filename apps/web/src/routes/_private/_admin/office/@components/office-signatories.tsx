@@ -1,10 +1,11 @@
 import { Button } from '@ethica/ui/components/button';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import { ItemDescription } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultLoading } from '@/components/default-loading.js';
+import { InfoCard, InfoCardList } from '@/components/info-card.js';
 import { SignatoryDialog } from '@/components/signatory-dialog.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { deleteSignatoryMutation, type SignatoryRecord, signatoriesQuery } from '@/query/signatory.js';
@@ -22,26 +23,25 @@ export function OfficeSignatories() {
   return (
     <div className="flex w-full flex-col items-start gap-3">
       {signatories.length ? (
-        <ItemGroup>
+        <InfoCardList>
           {signatories.map((signatory) => (
-            <Item key={signatory.id} render={<li />}>
-              <ItemContent>
-                <ItemTitle>{signatory.name}</ItemTitle>
-                <ItemDescription>
-                  {[signatory.education, signatory.professionalRegistration].filter(Boolean).join(' · ')}
-                </ItemDescription>
-              </ItemContent>
-              <ItemActions>
-                <Button variant="ghost" size="sm" onClick={() => setRemoving(signatory)}>
-                  {t('remove')}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setEditing(signatory)}>
-                  {t('edit')}
-                </Button>
-              </ItemActions>
-            </Item>
+            <InfoCard
+              key={signatory.id}
+              title={signatory.name}
+              description={[signatory.education, signatory.professionalRegistration].filter(Boolean).join(' · ')}
+              actions={
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => setRemoving(signatory)}>
+                    {t('remove')}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setEditing(signatory)}>
+                    {t('edit')}
+                  </Button>
+                </>
+              }
+            />
           ))}
-        </ItemGroup>
+        </InfoCardList>
       ) : (
         <ItemDescription>{t('no_technical_responsible_yet')}</ItemDescription>
       )}

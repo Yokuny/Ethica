@@ -1,42 +1,49 @@
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@ethica/ui/components/item';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ArrowUpRight, CalendarCheck, Map as MapIcon, Route as RouteIcon } from 'lucide-react';
+import { CalendarCheck, ClipboardList, Map as MapIcon, Route as RouteIcon, Truck } from 'lucide-react';
+import { HubIllustration } from '@/components/hub-illustration.js';
+import { LinkCard, LinkCardList } from '@/components/link-card.js';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { PageIntro } from '@/components/page-intro.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
-// Logistics hub (AD-239, AD-295): one row per intention — see the map, plan the route, follow the scheduled services.
-const DESTINATIONS = [
-  { to: '/field/map', icon: MapIcon, title: 'map', meta: ['date_range', 'stops_on_map'] },
-  { to: '/field/route', icon: RouteIcon, title: 'route_planning', meta: ['travel_cost', 'support_on_route'] },
-  {
-    to: '/field/inspections',
-    icon: CalendarCheck,
-    title: 'scheduled_services',
-    meta: ['show_on_map', 'perform_inspection'],
-  },
-] as const;
-
+// Logistics hub (AD-239): one page per intention — see the map, plan the route, follow the scheduled services.
 export function FieldPage() {
   return (
     <Card asPage>
-      <CardHeader title={t('logistics')} description={t('field_page_description')} />
-      <CardContent>
-        <ItemGroup>
-          {DESTINATIONS.map(({ to, icon: Icon, title, meta }) => (
-            <li key={to}>
-              <Item render={<Link to={to} />}>
-                <ItemMedia variant="icon">
-                  <Icon />
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle>{t(title)}</ItemTitle>
-                  <ItemDescription>{meta.map((key) => t(key)).join(' · ')}</ItemDescription>
-                </ItemContent>
-                <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
-              </Item>
-            </li>
-          ))}
-        </ItemGroup>
+      <CardHeader title={t('logistics')} />
+      <CardContent className="max-w-4xl gap-8">
+        <PageIntro
+          title={t('logistics')}
+          description={t('field_page_description')}
+          illustration={<HubIllustration icon={Truck} />}
+          heading={t('logistics_hub_heading')}
+          text={t('logistics_hub_text')}
+          features={[
+            { icon: MapIcon, label: t('map') },
+            { icon: RouteIcon, label: t('route_planning') },
+            { icon: ClipboardList, label: t('inspection_record') },
+          ]}
+        />
+        <LinkCardList>
+          <LinkCard
+            icon={MapIcon}
+            title={t('map')}
+            meta={[t('date_range'), t('stops_on_map')]}
+            render={<Link to="/field/map" />}
+          />
+          <LinkCard
+            icon={RouteIcon}
+            title={t('route_planning')}
+            meta={[t('travel_cost'), t('support_on_route')]}
+            render={<Link to="/field/route" />}
+          />
+          <LinkCard
+            icon={CalendarCheck}
+            title={t('scheduled_services')}
+            meta={[t('show_on_map'), t('perform_inspection')]}
+            render={<Link to="/field/inspections" />}
+          />
+        </LinkCardList>
       </CardContent>
     </Card>
   );

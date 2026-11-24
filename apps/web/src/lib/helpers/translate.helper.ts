@@ -1020,6 +1020,8 @@ const translations: Record<string, string> = {
   office: 'Escritório',
   office_page_description:
     'Identidade dos documentos, numeração de OS, responsáveis técnicos, aviso de agendamento e dados do escritório.',
+  your_office_in_every_document: 'O escritório em cada documento',
+  you_in_every_routine: 'Sua identidade na rotina',
   office_hub_text:
     'Defina o logo, o cabeçalho e o rodapé que saem nos PDFs e no Word, a sigla da OS, quem assina os laudos e o e-mail do aviso de vistoria. Acompanhe o espaço usado e exporte os dados quando precisar.',
   logo: 'Logo',
@@ -1050,6 +1052,7 @@ const translations: Record<string, string> = {
   deadline_schedule: 'Cronograma de prazos',
   stalled_cases: 'Serviços parados',
   financial_report: 'Relatório financeiro',
+  office_numbers_on_paper: 'Os números do escritório no papel',
   management_reports_hub_text:
     'Escolha o relatório, confira na prévia e gere o PDF com a identidade do escritório: prazos por vencimento, serviços parados e o resultado financeiro do período.',
   pending_deadlines_by_due_date: 'Prazos pendentes por vencimento',
@@ -1074,6 +1077,12 @@ const translations: Record<string, string> = {
   completed_report: 'Concluído',
   reports_and_opinions: 'Laudos',
   reports_page_hub_description: 'Laudos e pareceres a partir de modelos, com os dados do processo.',
+  write_the_report_without_retyping: 'Escreva o laudo sem redigitar o processo',
+  reports_hub_text:
+    'Escolha as seções do modelo, marque o texto "sim" ou "não" de cada uma e o laudo nasce com número, vara, partes e datas preenchidos. Exporte em PDF ou Word com a identidade do escritório.',
+  sections_yes_no: 'Seções sim/não',
+  case_variables: 'Variáveis do processo',
+  pdf_and_word: 'PDF e Word',
   report_templates: 'Modelos de laudo',
   report_templates_description: 'Biblioteca padrão e biblioteca do escritório, por área de atuação.',
   standard_library: 'Biblioteca padrão',
@@ -1225,6 +1234,9 @@ const translations: Record<string, string> = {
   map: 'Mapa',
   field_page_description: 'Vistorias do dia no celular, registro, fotos e mapa, mesmo sem conexão.',
   // Logistics pages by intention (AD-239).
+  logistics_hub_heading: 'Do mapa à vistoria assinada',
+  logistics_hub_text:
+    'Veja os compromissos no mapa, planeje a rota com o custo do deslocamento e realize a vistoria com as assinaturas.',
   route_planning: 'Planejamento de rota',
   scheduled_services: 'Serviços agendados',
   show_on_map: 'Ver no mapa',

@@ -110,6 +110,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-24 — Escritório, Minha conta, Relatórios e hubs de Laudos e Logística de volta à versão com `StepList`, `PageIntro`, `LinkCard` e `InfoCard` (AD-299) — `gestao-escritorio`
 - [x] 2026-11-24 — Simplificação dos componentes do `apps/web`, grupos A, B e C (AD-295 a AD-297); plano em `.specs/features/gestao-escritorio/plans/2026-11-24-simplificar-componentes.md` — `gestao-escritorio`
 - [x] 2026-11-24 — Varredura estética com o Playwright (31 rotas, desktop e celular): sem célula sozinha, sem texto colado em sublinhado, sem rolagem lateral, sem sombra em controle (AD-293, AD-294) — `gestao-escritorio`
 - [x] 2026-11-24 — Meta em Serviços sem depender do menu (AD-291); Recebimentos com hierarquia de valores; faixa de números sem célula sozinha nem dica colada no sublinhado; Dashboard com a faixa no topo (AD-292, AD-298) — conferido com o Playwright, menos o diálogo dos Recebimentos — `meta-receita`, `dashboard`, `prazos-recebimentos`

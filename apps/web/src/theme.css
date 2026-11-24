@@ -19,7 +19,7 @@
 /* Themes (AD-237): light (:root, default), dark and blue, chosen in the user menu; next-themes puts
    the class on html. The sidebar sits behind the work surface; the interface colors are born
    here, without per-page variants. --primary is the action color of each theme: the primary
-   button and the highlight details (today in the agenda, progress, selection). */
+   button and the highlight details (StepList, today in the agenda, progress, selection). */
 
 /* `dark:` follows both dark-surfaced themes, never the operating system. */
 @custom-variant dark (&:is(.dark *, .blue *));

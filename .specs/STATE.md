@@ -1877,7 +1877,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o markup da seção se repete nas três páginas de configuração (cerca de 15 linhas cada); somem a ilustração e o texto de marketing dos hubs.
 - **Scope**: `apps/web/src/routes/_private/{expert-reports,field,account,reports,_admin/office}/index.tsx`, `apps/web/src/routes/_private/_admin/office/@components/{office-revenue-goal,office-signatories}.tsx`, `apps/web/src/routes/_private/finance/@components/installments-list.tsx`, `apps/web/src/routes/_private/account/@components/account-devices.tsx`, `.agents/skills/ethica-web-standards/`.
 - **Date**: 2026-11-24
-- **Status**: active
+- **Status**: superseded by AD-299 (menos os recebimentos do lançamento, que seguem em `Item`)
 
 ### AD-296
 - **Decision**: Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/record.tsx`. Os dois usos (relatório da importação CSV, `apps/web/src/components/csv-import-report.tsx`, e conferência das colunas, `apps/web/src/routes/_private/expert-cases/import/@components/csv-columns-review.tsx`) viram `ItemGroup` + `Item render={<li />}` com a situação em `ItemMedia variant="icon"` (`role="img"`, `aria-label`), o dado em `ItemTitle`, o apoio em `ItemDescription` e o campo em `ItemActions`. Ficam `RecordHeader`/`RecordHeading`/`RecordHeadingGroup`/`RecordStatus` e `RecordStats`/`RecordStat`. Supersede a parte de lista livre da AD-072/AD-090.
@@ -1900,6 +1900,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: medição com o Playwright de 768 a 1440 px depois da AD-292: o `auto-fit` enche as linhas da esquerda para a direita e voltava a deixar uma célula sozinha em larguras intermediárias (Início 3+1 entre 828 e 978 px; Serviços e Dashboard 4+1 entre 1008 e 1158 px; detalhe do serviço 5+1 entre 1098 e 1248 px).
 - **Trade-off**: numa tela de 1440 px com a sidebar aberta o detalhe do serviço mostra 3+3 em vez de 6 numa linha; uma linha só aparece a partir de 1536 px.
 - **Scope**: `apps/web/src/components/record.tsx`, `apps/web/DESIGN.md`.
+- **Date**: 2026-11-24
+- **Status**: active
+
+### AD-299
+- **Decision**: Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList` e `InfoCard`/`InfoCardList` (`apps/web/src/components/`), as cinco páginas, os cartões de metas do ano, responsáveis técnicos e aparelhos e as chaves de texto, exatamente como estavam antes da AD-295. Os recebimentos do lançamento (`apps/web/src/routes/_private/finance/@components/installments-list.tsx`) seguem em `Item`, porque a versão antiga dependia do `Panel` simples que a AD-297 retirou. Valem de novo a AD-094/AD-095 (hubs), a AD-224 (páginas em etapas) e a AD-225/AD-226 (`InfoCard`) nessas telas.
+- **Reason**: o usuário avaliou (2026-11-24) que essas cinco telas regrediram com a montagem direta e pediu a versão anterior com os componentes padrão.
+- **Trade-off**: os componentes de layout voltam a existir só para essas telas; o resto da simplificação (AD-296, AD-297) segue.
+- **Scope**: os arquivos restaurados acima e `.agents/skills/ethica-web-standards/`.
 - **Date**: 2026-11-24
 - **Status**: active
 
