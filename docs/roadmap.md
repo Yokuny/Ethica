@@ -81,6 +81,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
+- [ ] Simplificar componentes do `apps/web` (grupos A, B e C aprovados em 2026-11-24): `.specs/plans/2026-11-24-simplificar-componentes.md` — `gestao-escritorio`
 - [ ] Aplicar a correção das falhas do Datajud que os logs apontarem (espalhar os lotes no tempo, disjuntor por tribunal, outro horário, lote menor; Lambda ou serviço próprio com outro IP só se o bloqueio for do IP) — `automacao-datajud`
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`

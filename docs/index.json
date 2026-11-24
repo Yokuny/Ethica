@@ -1214,7 +1214,12 @@
       "doc": "features/rotas-vistoria/feature.md"
     }
   ],
-  "planos_nao_arquivados": [],
+  "planos_nao_arquivados": [
+    {
+      "arquivo": ".specs/plans/2026-11-24-simplificar-componentes.md",
+      "titulo": "Plano — simplificar os componentes do `apps/web`"
+    }
+  ],
   "specs_sem_registro": [],
   "decisoes": [
     {

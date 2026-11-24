@@ -24,7 +24,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
-_Nenhum._
+- [Plano — simplificar os componentes do `apps/web`](../.specs/plans/2026-11-24-simplificar-componentes.md)
 
 ## Features (47)
 

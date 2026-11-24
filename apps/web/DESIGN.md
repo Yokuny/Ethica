@@ -111,7 +111,7 @@ height: "40px"
 
 A referência enviada pelo usuário fixa a paleta e a composição. Geist Variable é a aproximação sans adotada para o raster (a fonte original da imagem não foi identificada como fato); Geist Mono aparece só em atalhos e números tabulares. O modo é Operate: achar um registro, ler seu estado e agir rapidamente.
 
-**Características:** tema Claro como padrão, com Escuro e Azul no menu do usuário (AD-237); ação grafite no Claro; sidebar pastel atrás do painel; sem faixa superior; abas, faixa de indicadores e toolbar de uma linha em toda listagem; captions sans em caixa alta; sombra com deslocamento mínimo; indicadores apenas quando apoiados por dados reais (AD-083).
+**Características:** tema Claro como padrão, com Escuro e Azul no menu do usuário (AD-237); ação grafite no Claro; sidebar pastel atrás do painel; sem faixa superior; abas, faixa de indicadores e toolbar de uma linha em toda listagem; captions sans em caixa alta; sem sombra em controles e superfícies (AD-294); conteúdo sempre na largura toda do painel; indicadores apenas quando apoiados por dados reais (AD-083).
 
 ## Colors
 
@@ -144,11 +144,13 @@ No desktop, WorkspaceNavigation usa Sidebar em variante inset. A sidebar ocupa 1
 
 Card asPage compõe o conteúdo dentro do painel. CardHeader é uma linha: o breadcrumb com ícone em cada item (reui `breadcrumb-5`; ícone só no módulo, igual ao da sidebar; texto 12px) é o título (o último item é a página atual, os anteriores são links) e as ações (CardAction: ação primária, depois o menu "…" de PageMenu) ficam à direita; não há botão voltar. Abaixo vêm, nesta ordem: abas de recorte (Tabs variant="line"), a faixa de indicadores (RecordStats variant="band") e o DataTable.
 
+A faixa de indicadores fica logo abaixo do CardHeader, fora do CardContent e na largura toda do painel, em toda página que a tem (Início, Serviços, Dashboard — AD-292); não se repete uma segunda faixa no meio da página. O conteúdo ocupa a largura toda do painel: listas, tabelas e blocos não levam `max-w-*` (AD-288).
+
 Toda listagem (clientes, tarefas, processos, catálogo, pedidos) segue essa composição. Os indicadores vêm de GET /<entidade>/stats (contagem real por grupo, panorama do tenant); falta de dado aparece como traço. Recortes salvos viram abas (Todos, um por recorte, "+" para salvar o atual; Gerenciar fica no menu "…"). DataTable tem toolbar de uma linha: Filtros (popover) e busca sem moldura; rolagem horizontal interna quando as colunas não cabem. Busca, filtros, ordenação e paginação permanecem ligados à URL e ao servidor.
 
 ## Elevation & Depth
 
-A profundidade vem primeiro de tons e bordas. A superfície principal usa --shadow-xs, atualmente 0 1px 2px rgb(29 28 32 / 0.04). Menus e sobreposições podem usar degraus maiores da mesma escala de apps/web/src/theme.css. Sombra sempre tem deslocamento e opacidade baixa; não se usa halo colorido para separar áreas.
+A profundidade vem de tons e bordas, nunca de sombra. Botão, campo, seletor, grupo de botões, `Item`, cartão e grade da agenda não têm sombra (AD-289, AD-294): separam-se do fundo pela borda de 1px e pela cor. Sombra só onde há sobreposição de verdade: menus, popovers, diálogos, a sidebar flutuante e os controles sobre o mapa, com os degraus de apps/web/src/theme.css. Não se usa halo colorido para separar áreas.
 
 ## Shapes
 
@@ -164,13 +166,17 @@ O menu usa --sidebar-accent no hover e no ativo; o item ativo também ganha peso
 
 O botão primário usa --primary com texto branco e escurece para --primary-hover; botões comuns e alternadores têm 32px. A variante `field` do Button tem 44px para alinhar gatilhos de data e ações ao lado de Input e Select, que também têm 44px. Na toolbar da tabela, InputGroup tem 32px. Foco usa --ring visível; desabilitado perde intensidade e interação. Campos usam borda --input, fundo da superfície e texto sans.
 
+### Listas
+
+Lista de linhas é `ItemGroup` (só `flex flex-col gap-2`) com cada `Item` como o próprio cartão com borda e sem sombra (AD-289). Por linha: ícone em `ItemMedia variant="icon"` à esquerda, `ItemContent` com o dado em `ItemTitle` e o metadado em `ItemDescription`, selos em `ItemActions` à direita e, quando a linha abre outra tela, `ArrowUpRight` no fim (AD-288, AD-290). Linha que leva a outra tela é `<li><Item render={<Link/>}>`; linha estática é `<Item render={<li />}>`. Valores em lista (dinheiro, data) seguem a mesma hierarquia: o número em `ItemTitle`, o rótulo ou contexto em `ItemDescription`.
+
 ### Tabelas, indicadores e status
 
-DataTable é uma faixa integrada ao painel: toolbar compacta, cabeçalho sans em caixa alta, linhas de 48px, hover em --surface-secondary e seleção em --selection. A célula principal conserva avatar e nome; status aparece em selo pastel; ações reais ficam no menu da linha. Indicadores usam RecordStats variant="band" (superfície cinza, sem divisórias) com valores dos endpoints de stats; a régua de traços sob o número mostra a proporção real do grupo no total. O total de clientes também mostra a série diária real de criação e a comparação entre períodos de 30 dias.
+DataTable é uma faixa integrada ao painel: toolbar compacta, cabeçalho sans em caixa alta, linhas de 48px, hover em --surface-secondary e seleção em --selection. A célula principal conserva avatar e nome, com o título em `ItemTitle` médio e `--impact`; o valor de cada célula é `ItemTitle` regular e a linha de apoio `ItemDescription` menor (AD-293); status aparece em selo pastel; ações reais ficam no menu da linha. Indicadores usam RecordStats variant="band" (superfície cinza, sem divisórias, células em `auto-fit`: todas numa linha quando cabem, quebra por igual quando não) com valores dos endpoints de stats; a régua de traços sob o número mostra a proporção real do grupo no total. O total de clientes também mostra a série diária real de criação e a comparação entre períodos de 30 dias.
 
 ### Página de registro
 
-Detalhes e integrações usam apps/web/src/components/record.tsx, no modelo das telas do iotlog-frontend-v2 (AD-090). Cabeçalho com um ou mais pares rótulo em caixa alta + título a 24px e o estado à direita; logo abaixo, a faixa de destaques entre fios (em cima e embaixo) com divisória vertical entre células, rótulo caption e valor a 24px, sem superfície de fundo; depois as seções colapsáveis num cartão com linhas rótulo/valor; e a lista livre (RecordTable), título a 24px e linhas entre fios com ícone de situação em círculo tingido pelos tokens --status-* e células rótulo sobre valor. Os usos não passam classe de identidade.
+Detalhes e integrações usam apps/web/src/components/record.tsx, no modelo das telas do iotlog-frontend-v2 (AD-090). Cabeçalho com um ou mais pares rótulo em caixa alta + título a 24px e o estado à direita; logo abaixo, a faixa de destaques entre fios (em cima e embaixo), sem divisória vertical, com colunas do tamanho do conteúdo e nenhuma célula sozinha numa linha (AD-292), rótulo caption e valor a 24px, sem superfície de fundo; o ícone do cabeçalho fica num ladrilho `bg-muted` (48px no celular, 64px a partir de `sm`) na cor do título; depois as seções colapsáveis num cartão com linhas rótulo/valor; e a lista livre (RecordTable), título a 24px e linhas entre fios com ícone de situação em círculo tingido pelos tokens --status-* e células rótulo sobre valor. Os usos não passam classe de identidade.
 
 ### Links
 
@@ -182,7 +188,8 @@ AppLink (apps/web/src/components/app-link.tsx) é o único link de texto: Link d
 
 - Defina identidade em apps/web/src/theme.css e nos primitivos; a rota compõe dados e layout local.
 - Use ItemDescription com classes locais de caption para rótulos descritivos e texto secundário legível para informação essencial.
-- Confira 1440px e 390px, hover, ativo, seleção, foco, loading, erro e vazio.
+- Confira 1440px e 390px, hover, ativo, seleção, foco, loading, erro e vazio — na tela de verdade, com o Playwright logado (RUN_BOOK.md, "Conta de teste em tela"): sem rolagem lateral, sem célula sozinha numa faixa, sem texto colado em sublinhado, sem sombra em controle.
+- Prefira montar a tela direto no código da página com os primitivos (`Item`, `ItemTitle`, `ItemDescription`, `Button`, `Badge`) a criar um componente que recebe dados e fixa o desenho.
 - Preserve consultas, permissões, URLs e comportamento das ações ao redesenhar uma tela.
 
 ### Don't
@@ -194,3 +201,5 @@ AppLink (apps/web/src/components/app-link.tsx) é o único link de texto: Link d
 - Não use azul como acento genérico; as cores semânticas de status são a exceção.
 - Não use #9594a0 para texto pequeno que precisa ser lido, nem mono para corpo ou rótulos.
 - Não espalhe borda, sombra e fonte de identidade pelas rotas.
+- Não ponha sombra em botão, campo, cartão ou linha de lista.
+- Não limite a largura de lista, tabela ou bloco com `max-w-*`.
