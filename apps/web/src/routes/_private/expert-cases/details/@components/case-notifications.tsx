@@ -40,9 +40,7 @@ export function CaseNotifications({ caseId }: { caseId: string }) {
 
   return (
     <Panel
-      collapsible
       icon={<CalendarClock />}
-      size="sm"
       title={t('deadlines')}
       empty={query.isSuccess && !query.data.length}
       actions={

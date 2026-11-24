@@ -1,4 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
@@ -10,7 +11,6 @@ import { CompositionDonut } from '@/components/composition-donut.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
-import { Panel } from '@/components/panel.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
@@ -154,7 +154,13 @@ export function DashboardPage() {
 
             {canSeeFinance && (
               <>
-                <Panel size="lg" title={t('cash_flow')} description={t('cash_flow_scope')}>
+                <section className="flex w-full min-w-0 flex-col gap-5">
+                  <div className="grid gap-1">
+                    <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                      {t('cash_flow')}
+                    </ItemTitle>
+                    <ItemDescription>{t('cash_flow_scope')}</ItemDescription>
+                  </div>
                   {flow.isLoading ? (
                     <DefaultLoading />
                   ) : !period || !hasMoney ? (
@@ -167,14 +173,19 @@ export function DashboardPage() {
                       </MonthDetails>
                     </>
                   )}
-                </Panel>
+                </section>
                 {goal.data && goalCents && (
-                  <Panel
-                    size="lg"
-                    title={`${t('goal_of')} ${goal.data.year}`}
-                    description={t('revenue_goal_scope')}
-                    actions={
-                      goal.data.years.length > 1 && (
+                  <section className="flex w-full min-w-0 flex-col gap-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="grid gap-1">
+                        <ItemTitle
+                          role="heading"
+                          aria-level={2}
+                          className="text-base font-medium text-impact"
+                        >{`${t('goal_of')} ${goal.data.year}`}</ItemTitle>
+                        <ItemDescription>{t('revenue_goal_scope')}</ItemDescription>
+                      </div>
+                      {goal.data.years.length > 1 && (
                         <Select
                           items={goal.data.years.map((year) => ({ value: String(year), label: String(year) }))}
                           value={String(goal.data.year)}
@@ -193,14 +204,19 @@ export function DashboardPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                      )
-                    }
-                  >
+                      )}
+                    </div>
                     <RevenueGoalChart goal={{ ...goal.data, goalCents }} />
-                  </Panel>
+                  </section>
                 )}
                 <div className="grid gap-10 lg:grid-cols-2">
-                  <Panel size="lg" title={t('where_money_comes_from')} description={t('received_by_category')}>
+                  <section className="flex w-full min-w-0 flex-col gap-5">
+                    <div className="grid gap-1">
+                      <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                        {t('where_money_comes_from')}
+                      </ItemTitle>
+                      <ItemDescription>{t('received_by_category')}</ItemDescription>
+                    </div>
                     {income.isLoading ? (
                       <DefaultLoading />
                     ) : !income.data?.some((row) => row.totalCents) ? (
@@ -213,8 +229,14 @@ export function DashboardPage() {
                         centerDetail={changeText(sumOf(income.data, 'totalCents'), sumOf(income.data, 'previousCents'))}
                       />
                     )}
-                  </Panel>
-                  <Panel size="lg" title={t('where_money_goes')} description={t('expenses_by_category')}>
+                  </section>
+                  <section className="flex w-full min-w-0 flex-col gap-5">
+                    <div className="grid gap-1">
+                      <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                        {t('where_money_goes')}
+                      </ItemTitle>
+                      <ItemDescription>{t('expenses_by_category')}</ItemDescription>
+                    </div>
                     {expenses.isLoading ? (
                       <DefaultLoading />
                     ) : !expenses.data?.some((row) => row.totalCents) ? (
@@ -230,13 +252,19 @@ export function DashboardPage() {
                         )}
                       />
                     )}
-                  </Panel>
+                  </section>
                 </div>
               </>
             )}
 
             <div className="grid gap-10 lg:grid-cols-[3fr_2fr]">
-              <Panel size="lg" title={t('services_intake')} description={t('services_intake_scope')}>
+              <section className="flex w-full min-w-0 flex-col gap-5">
+                <div className="grid gap-1">
+                  <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                    {t('services_intake')}
+                  </ItemTitle>
+                  <ItemDescription>{t('services_intake_scope')}</ItemDescription>
+                </div>
                 {!intake?.some((row) => row.count) ? (
                   <DefaultEmptyData title={t('no_data_yet')} />
                 ) : (
@@ -247,8 +275,14 @@ export function DashboardPage() {
                     </MonthDetails>
                   </>
                 )}
-              </Panel>
-              <Panel size="lg" title={t('services_mix')} description={t('services_mix_scope')}>
+              </section>
+              <section className="flex w-full min-w-0 flex-col gap-5">
+                <div className="grid gap-1">
+                  <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                    {t('services_mix')}
+                  </ItemTitle>
+                  <ItemDescription>{t('services_mix_scope')}</ItemDescription>
+                </div>
                 {cases.data.byType.length ? (
                   <CompositionDonut
                     label={t('services_mix')}
@@ -258,7 +292,7 @@ export function DashboardPage() {
                 ) : (
                   <DefaultEmptyData title={t('no_data_yet')} />
                 )}
-              </Panel>
+              </section>
             </div>
           </>
         )}

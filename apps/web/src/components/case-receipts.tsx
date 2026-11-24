@@ -5,7 +5,6 @@ import { Link } from '@tanstack/react-router';
 import { ArrowUpRight } from 'lucide-react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Panel } from '@/components/panel.js';
 import { STATE_VARIANT, stateLabel, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -27,7 +26,10 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
   if (!allowed) return null;
 
   return (
-    <Panel size="sm" title={t('receipts')}>
+    <section className="flex w-full min-w-0 flex-col gap-2">
+      <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+        {t('receipts')}
+      </ItemTitle>
       {query.isLoading ? (
         <DefaultLoading />
       ) : !query.data?.items.length ? (
@@ -84,6 +86,6 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
           })}
         </ItemGroup>
       )}
-    </Panel>
+    </section>
   );
 }

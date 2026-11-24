@@ -14,9 +14,7 @@ export function CaseRelated({ caseId }: { caseId: string }) {
 
   return (
     <Panel
-      collapsible
       icon={<CalendarDays />}
-      size="sm"
       title={t('upcoming_commitments')}
       empty={appointments.isSuccess && !appointments.data.length}
       actions={<AppLink to="/agenda">{t('open_agenda')}</AppLink>}

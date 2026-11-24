@@ -1,11 +1,10 @@
 import { INSPECTION_AGENTS, INSPECTION_DOCUMENTS, type InspectionData } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Input } from '@ethica/ui/components/input';
-import { ItemTitle } from '@ethica/ui/components/item';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import type { UseFormReturn } from 'react-hook-form';
 import { Checkbox } from '@/components/checkbox.js';
-import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { AGENT_KEY, DOCUMENT_KEY } from '../../../@consts/field-labels.js';
 
@@ -20,7 +19,13 @@ export function AgentsFields({ form }: Props) {
   const set = (list: InspectionData['agents']) => form.setValue('agents', list, { shouldDirty: true });
 
   return (
-    <Panel title={t('agents_mapping')} description={t('agents_mapping_description')}>
+    <section className="flex w-full min-w-0 flex-col gap-4">
+      <div className="grid gap-1">
+        <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+          {t('agents_mapping')}
+        </ItemTitle>
+        <ItemDescription>{t('agents_mapping_description')}</ItemDescription>
+      </div>
       <ul className="flex flex-col divide-y divide-border">
         {INSPECTION_AGENTS.map((agent) => {
           const current = agents.find((item) => item.agent === agent);
@@ -69,7 +74,7 @@ export function AgentsFields({ form }: Props) {
           );
         })}
       </ul>
-    </Panel>
+    </section>
   );
 }
 
@@ -80,9 +85,11 @@ export function DocumentsFields({ form }: Props) {
   const free = documents.filter((document) => !DEFAULT.includes(document.document));
 
   return (
-    <Panel
-      title={t('requested_documents')}
-      actions={
+    <section className="flex w-full min-w-0 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+          {t('requested_documents')}
+        </ItemTitle>
         <Button
           type="button"
           variant="outline"
@@ -90,8 +97,7 @@ export function DocumentsFields({ form }: Props) {
         >
           {t('add_document')}
         </Button>
-      }
-    >
+      </div>
       <div className="grid gap-2">
         {INSPECTION_DOCUMENTS.map((key) => {
           const checked = documents.some((document) => document.document === key);
@@ -133,6 +139,6 @@ export function DocumentsFields({ form }: Props) {
           </div>
         ))}
       </div>
-    </Panel>
+    </section>
   );
 }

@@ -41,9 +41,7 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
 
   return (
     <Panel
-      collapsible
       icon={<Wallet />}
-      size="sm"
       title={t('service_finance')}
       empty={transactions.isSuccess && !items.length && !finance.baseCents}
       description={t('service_finance_description')}

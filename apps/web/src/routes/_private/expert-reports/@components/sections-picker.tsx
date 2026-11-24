@@ -5,7 +5,6 @@ import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { cn } from 'cn';
 import { Checkbox } from '@/components/checkbox.js';
-import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { TemplateSectionRecord } from '@/query/report.js';
 
@@ -32,11 +31,15 @@ export function SectionsPicker({ sections, choices, onChange }: SectionsPickerPr
   };
 
   return (
-    <Panel
-      title={t('what_the_report_contains')}
-      description={`${checked} ${t('of')} ${sections.length} ${t('sections').toLowerCase()}`}
-      actions={
-        <>
+    <section className="flex w-full min-w-0 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="grid gap-1">
+          <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+            {t('what_the_report_contains')}
+          </ItemTitle>
+          <ItemDescription>{`${checked} ${t('of')} ${sections.length} ${t('sections').toLowerCase()}`}</ItemDescription>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={() =>
@@ -48,9 +51,8 @@ export function SectionsPicker({ sections, choices, onChange }: SectionsPickerPr
           <Button variant="outline" onClick={() => onChange({})}>
             {t('clear_selection')}
           </Button>
-        </>
-      }
-    >
+        </div>
+      </div>
       <ul className="flex flex-col divide-y divide-border">
         {sections.map((section, i) => {
           const variant = choices[section.id];
@@ -93,6 +95,6 @@ export function SectionsPicker({ sections, choices, onChange }: SectionsPickerPr
           );
         })}
       </ul>
-    </Panel>
+    </section>
   );
 }

@@ -31,3 +31,10 @@ Já feito nesta sessão: `link-list.tsx` (AD-288) e `default-timeline.tsx` (sem 
 2. Cada exclusão leva a decisão: AD nova que supersede a do componente (AD-094 para os hubs, AD-225 para o `InfoCard`, AD-224 para o `StepList`, AD-090 para o `RecordTable`) e linha no "Histórico" dos `feature.md` tocados.
 3. `ethica-web-standards` (SKILL.md e `references/`) e `apps/web/DESIGN.md` sem menção ao que saiu.
 4. Fim: `grep` pelo nome de cada componente excluído só encontra histórico congelado.
+
+## Resultado (2026-11-24)
+
+- Grupo A (AD-295): saíram `PageIntro`, `HubIllustration`, `LinkCard`, `StepList`, `InfoCard`. **Divergência:** `NumberedList` ficou — guarda a lógica de árvore (subitem só aparece com o pai aberto, expandir/recolher tudo) do editor de laudo e do modelo.
+- Grupo B (AD-296): saiu o `RecordTable*`; os dois usos (importação CSV) viraram `Item`.
+- Grupo C (AD-297): o `Panel` simples virou `section` nas 29 telas; `Panel` ficou só recolhível. **Divergência:** `ProductSpecs` e `DefaultFormLayout` ficaram — guardam estado e lógica (grupos recolhíveis, grade de formulário), não só desenho.
+- Conferido no Playwright logado (31 rotas, 1440 e 390 px) depois de cada grupo.

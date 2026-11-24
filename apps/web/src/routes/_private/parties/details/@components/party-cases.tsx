@@ -15,7 +15,6 @@ import { ArrowUpRight, BriefcaseBusiness } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Panel } from '@/components/panel.js';
 import { sideLabel } from '@/components/party-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { partyProcessesQuery } from '@/query/party.js';
@@ -24,7 +23,10 @@ import { partyProcessesQuery } from '@/query/party.js';
 export function PartyCases({ partyId }: { partyId: string }) {
   const query = useQuery(partyProcessesQuery(partyId));
   return (
-    <Panel size="sm" title={t('expert_cases')}>
+    <section className="flex w-full min-w-0 flex-col gap-2">
+      <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+        {t('expert_cases')}
+      </ItemTitle>
       {query.isLoading ? (
         <DefaultLoading />
       ) : !query.data?.length ? (
@@ -59,6 +61,6 @@ export function PartyCases({ partyId }: { partyId: string }) {
           })}
         </ItemGroup>
       )}
-    </Panel>
+    </section>
   );
 }

@@ -6,7 +6,6 @@ import { ArrowUpRight, Sparkles } from 'lucide-react';
 import { AutomationOffer } from '@/components/automation-offer.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
-import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { notificationsQuery } from '@/query/notification.js';
 import { hasAutomationSession, sessionQuery } from '@/query/session.js';
@@ -39,7 +38,10 @@ export function AutomationPage() {
           <AutomationOffer />
         ) : (
           <>
-            <Panel title={t('suggestions_to_approve')}>
+            <section className="flex w-full min-w-0 flex-col gap-4">
+              <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+                {t('suggestions_to_approve')}
+              </ItemTitle>
               <Item render={<Link to="/notifications" />}>
                 <ItemMedia variant="icon">
                   <Sparkles />
@@ -50,10 +52,16 @@ export function AutomationPage() {
                 </ItemContent>
                 <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
               </Item>
-            </Panel>
-            <Panel title={t('tracked_cases')} description={t('tracked_cases_description')}>
+            </section>
+            <section className="flex w-full min-w-0 flex-col gap-4">
+              <div className="grid gap-1">
+                <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+                  {t('tracked_cases')}
+                </ItemTitle>
+                <ItemDescription>{t('tracked_cases_description')}</ItemDescription>
+              </div>
               <TrackedCases />
-            </Panel>
+            </section>
           </>
         )}
       </CardContent>

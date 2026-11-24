@@ -2,7 +2,6 @@ import { Button } from '@ethica/ui/components/button';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { useQueryClient } from '@tanstack/react-query';
 import { CloudOff, RefreshCw } from 'lucide-react';
-import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { runSync, useStateSync } from '@/lib/offline/sync.js';
 
@@ -13,7 +12,7 @@ export function FieldConnection({ ofDevice }: { ofDevice?: boolean }) {
   if (sync.online && !sync.pending && !ofDevice) return null;
 
   return (
-    <Panel size="xs" aria-live="polite">
+    <section aria-live="polite" className="flex w-full min-w-0 flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2">
         {!sync.online && <CloudOff className="size-4 text-status-warning-indicator" aria-hidden />}
         <ItemDescription className="line-clamp-none flex-1">
@@ -34,6 +33,6 @@ export function FieldConnection({ ofDevice }: { ofDevice?: boolean }) {
           </Button>
         )}
       </div>
-    </Panel>
+    </section>
   );
 }

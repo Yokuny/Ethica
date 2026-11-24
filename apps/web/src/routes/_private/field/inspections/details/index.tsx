@@ -47,7 +47,7 @@ export function InspectionPage() {
           <DefaultEmptyData title={t('not_found')} />
         </CardContent>
       ) : (
-        <CardContent className="max-w-4xl gap-6">
+        <CardContent className="gap-6">
           <RecordHeader>
             <RecordHeading
               icon={<ClipboardList />}

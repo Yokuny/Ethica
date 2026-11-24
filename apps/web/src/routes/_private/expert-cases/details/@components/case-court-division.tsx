@@ -28,9 +28,7 @@ export function CaseCourtDivision({ legalCase }: { legalCase: CaseRecord }) {
 
   return (
     <Panel
-      collapsible
       icon={<Landmark />}
-      size="sm"
       title={t('court_division_contact')}
       description={`${found.name} · ${found.city}/${found.state}`}
       actions={

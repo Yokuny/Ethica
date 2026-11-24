@@ -1,6 +1,7 @@
 import { COURTTYPES, type CourtType, HOME_BLOCKS, type HomeBlock } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -12,7 +13,6 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { HeatTilesLegend } from '@/components/heat-tiles.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
-import { Panel } from '@/components/panel.js';
 import { UpcomingAppointments } from '@/components/upcoming-appointments.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { upcomingAppointmentsQuery } from '@/query/appointment.js';
@@ -82,22 +82,40 @@ export function PrivateIndexPage() {
       {show('overview') && <HomeOverview stats={stats.data} summary={canSeeFinance ? summary.data : undefined} />}
       <CardContent className="gap-10 pb-16">
         {show('by_stage') && (
-          <Panel size="lg" title={t('expert_cases_by_stage')} actions={<HeatTilesLegend />}>
+          <section className="flex w-full min-w-0 flex-col gap-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                {t('expert_cases_by_stage')}
+              </ItemTitle>
+              <HeatTilesLegend />
+            </div>
             {distribution.isLoading ? <DefaultLoading /> : <CasesPhaseTiles groups={distribution.data?.phase ?? []} />}
-          </Panel>
+          </section>
         )}
         {showUpcoming && (
-          <Panel size="lg" title={t('upcoming_commitments')}>
+          <section className="flex w-full min-w-0 flex-col gap-5">
+            <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+              {t('upcoming_commitments')}
+            </ItemTitle>
             {upcoming.data ? <UpcomingAppointments items={upcoming.data} /> : <DefaultLoading />}
-          </Panel>
+          </section>
         )}
         {showStalled && (
-          <Panel size="lg" title={t('stalled_expert_cases')}>
+          <section className="flex w-full min-w-0 flex-col gap-5">
+            <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+              {t('stalled_expert_cases')}
+            </ItemTitle>
             {stalled.data ? <StalledCasesList stalled={stalled.data} /> : <DefaultLoading />}
-          </Panel>
+          </section>
         )}
         {show('cash_flow') && (
-          <Panel size="lg" title={t('cash_flow')} description={t('last_6_complete_months')}>
+          <section className="flex w-full min-w-0 flex-col gap-5">
+            <div className="grid gap-1">
+              <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                {t('cash_flow')}
+              </ItemTitle>
+              <ItemDescription>{t('last_6_complete_months')}</ItemDescription>
+            </div>
             {flow.isLoading ? (
               <DefaultLoading />
             ) : !flow.data?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents) ? (
@@ -106,18 +124,20 @@ export function PrivateIndexPage() {
               // The 6 complete months, as in the Dashboard: the month in progress would end the lines in a false drop.
               <CashFlowChart data={flow.data.slice(0, -1)} />
             )}
-          </Panel>
+          </section>
         )}
         {show('by_court') && (
-          <Panel
-            size="lg"
-            title={t('expert_cases_by_court')}
-            description={
-              allCases > 0
-                ? `${number.format(withCourt)} ${t('of')} ${number.format(allCases)} ${t('services_have_court_type')}`
-                : undefined
-            }
-          >
+          <section className="flex w-full min-w-0 flex-col gap-5">
+            <div className="grid gap-1">
+              <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                {t('expert_cases_by_court')}
+              </ItemTitle>
+              <ItemDescription>
+                {allCases > 0
+                  ? `${number.format(withCourt)} ${t('of')} ${number.format(allCases)} ${t('services_have_court_type')}`
+                  : undefined}
+              </ItemDescription>
+            </div>
             {distribution.isLoading ? (
               <DefaultLoading />
             ) : !allCases ? (
@@ -145,7 +165,7 @@ export function PrivateIndexPage() {
                 )}
               />
             )}
-          </Panel>
+          </section>
         )}
       </CardContent>
       {customizing && <HomeCustomize blocks={allowed} hidden={hidden} onClose={() => setCustomizing(false)} />}

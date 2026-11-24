@@ -5,7 +5,6 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle }
 import { FileText } from 'lucide-react';
 import { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
-import { Panel } from '@/components/panel.js';
 import { PdfPreviewDialog } from '@/components/pdf-preview-dialog.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -36,7 +35,13 @@ export function SignaturesPanel({ form, appointmentId, onSignature }: Signatures
 
   return (
     <>
-      <Panel title={t('signatures')} description={t('signatures_description')}>
+      <section className="flex w-full min-w-0 flex-col gap-4">
+        <div className="grid gap-1">
+          <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+            {t('signatures')}
+          </ItemTitle>
+          <ItemDescription>{t('signatures_description')}</ItemDescription>
+        </div>
         {!attendees.length ? (
           <ItemTitle className="font-normal text-muted-foreground">{t('no_attendees_yet')}</ItemTitle>
         ) : (
@@ -60,19 +65,22 @@ export function SignaturesPanel({ form, appointmentId, onSignature }: Signatures
             ))}
           </ItemGroup>
         )}
-      </Panel>
-      <Panel
-        title={t('inspection_term')}
-        description={t('inspection_term_description')}
-        actions={
+      </section>
+      <section className="flex w-full min-w-0 flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="grid gap-1">
+            <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+              {t('inspection_term')}
+            </ItemTitle>
+            <ItemDescription>{t('inspection_term_description')}</ItemDescription>
+          </div>
           <Button type="button" variant="outline" disabled={Boolean(waiting)} onClick={() => setPreviewing(true)}>
             <FileText />
             {t('preview_pdf')}
           </Button>
-        }
-      >
+        </div>
         {waiting && <ItemDescription className="line-clamp-none">{waiting}</ItemDescription>}
-      </Panel>
+      </section>
       {signing !== null && (
         <SignatureDialog
           name={form.getValues(`attendees.${signing}.name`)}

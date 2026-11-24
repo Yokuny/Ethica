@@ -184,7 +184,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
       {groups
         .filter((group) => !isFilled(group))
         .map((group) => (
-          <Panel key={group.id} collapsible empty icon={group.icon} size="sm" title={group.name}>
+          <Panel key={group.id} empty icon={group.icon} title={group.name}>
             <ItemDescription className="line-clamp-none">
               {group.fields.map((field) => field.label).join(' · ')}
             </ItemDescription>

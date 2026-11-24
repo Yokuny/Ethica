@@ -112,7 +112,7 @@ Referência: `expert-cases/add/index.tsx`.
 
 - `useForm<CreateX>({ resolver: zodResolver(createXSchema), defaultValues })` com schema de `@ethica/contracts`.
 - `<Form {...form}><form noValidate onSubmit={form.handleSubmit(onSubmit)}><DefaultFormLayout sections={[...]} /></form></Form>`
-  — cada seção com título + descrição; `<Panel render={<form/>}>` quando o form é um bloco dentro de outra página.
+  — cada seção com título + descrição; quando o form é um bloco dentro de outra página, ele é o próprio `<form className="flex flex-col gap-4">` com título em `ItemTitle` (AD-297).
 - `useMutation(createXMutation(queryClient))`; `onSuccess` navega para a listagem (ou detalhe).
 - Form compartilhado com o `details` → componente em `{module}/@components/` (ex.:
   `expert-cases/@components/case-form-fields.tsx`, usado por `add` e pela edição em `details`).

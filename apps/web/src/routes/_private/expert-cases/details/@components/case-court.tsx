@@ -31,9 +31,7 @@ export function CaseCourt({ caseId }: { caseId: string }) {
 
   return (
     <Panel
-      collapsible
       icon={<Gavel />}
-      size="sm"
       title={t('court_process')}
       description={
         courtProcess

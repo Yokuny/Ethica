@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Camera, Mic, Square, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Panel } from '@/components/panel.js';
 import { apiUrl, del, patch } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { preparePhoto } from '@/lib/offline/photo.js';
@@ -104,11 +103,15 @@ export function MediaPanel({ item }: { item: DayInspection }) {
   }
 
   return (
-    <Panel
-      title={t('photos_and_audio')}
-      description={t('photos_and_audio_description')}
-      actions={
-        <>
+    <section className="flex w-full min-w-0 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="grid gap-1">
+          <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+            {t('photos_and_audio')}
+          </ItemTitle>
+          <ItemDescription>{t('photos_and_audio_description')}</ItemDescription>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <input
             ref={camera}
             type="file"
@@ -129,9 +132,8 @@ export function MediaPanel({ item }: { item: DayInspection }) {
             {recorder ? <Square /> : <Mic />}
             {t(recorder ? 'stop_recording' : 'record_audio')}
           </Button>
-        </>
-      }
-    >
+        </div>
+      </div>
       {!sent.length && !pending.data?.length ? (
         <ItemTitle className="font-normal text-muted-foreground">{t('no_media_yet')}</ItemTitle>
       ) : (
@@ -197,6 +199,6 @@ export function MediaPanel({ item }: { item: DayInspection }) {
           })}
         </ul>
       )}
-    </Panel>
+    </section>
   );
 }

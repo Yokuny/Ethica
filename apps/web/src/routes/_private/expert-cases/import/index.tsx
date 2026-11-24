@@ -1,13 +1,12 @@
 import { CSV_IMPORT_EXAMPLE, CSV_IMPORT_MAX_ROWS } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { ItemDescription } from '@ethica/ui/components/item';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { createFileRoute } from '@tanstack/react-router';
 import { Download, FileUp } from 'lucide-react';
 import { useRef } from 'react';
 import { CsvImportReport } from '@/components/csv-import-report.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
-import { Panel } from '@/components/panel.js';
 import { downloadCsvTemplate } from '@/lib/helpers/csvTemplate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { CsvColumnsReview } from './@components/csv-columns-review.js';
@@ -38,12 +37,15 @@ export function CasesImportPage() {
         </CardAction>
       </CardHeader>
       <CardContent className="gap-6">
-        <Panel size="sm" title={t('csv_format')}>
+        <section className="flex w-full min-w-0 flex-col gap-2">
+          <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+            {t('csv_format')}
+          </ItemTitle>
           <ItemDescription className="line-clamp-none">{t('csv_format_description')}</ItemDescription>
           <ItemDescription className="line-clamp-none">
             {`${t('csv_max_rows')}: ${CSV_IMPORT_MAX_ROWS}`}
           </ItemDescription>
-        </Panel>
+        </section>
         <input
           ref={inputRef}
           type="file"

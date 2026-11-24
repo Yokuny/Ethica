@@ -21,7 +21,7 @@ Detalhe e integração seguem um modelo só, o das telas do `iotlog-frontend-v2`
 
 A faixa das listagens é outro visual: `RecordStats variant="band"` (superfície cinza, sem divisórias, com sparkline/régua/tendência de `ListTrendStat`).
 
-Painéis (Início e Dashboard): a faixa `band` no topo, seções em `Panel size="lg"` (título maior em caixa normal, sem caixa nem borda) e contagens por grupo em `HeatTiles` (`apps/web/src/components/heat-tiles.tsx`, blocos em tom pastel proporcional à quantidade). Os gráficos usam a paleta pastel `--chart-1..5`.
+Painéis (Início e Dashboard): a faixa `band` no topo, seções em `section` direto na página com o título em `ItemTitle` `text-base font-medium text-impact` (sem caixa nem borda, AD-297) e contagens por grupo em `HeatTiles` (`apps/web/src/components/heat-tiles.tsx`, blocos em tom pastel proporcional à quantidade). Os gráficos usam a paleta pastel `--chart-1..5`.
 
 ## Altura dos controles (AD-093)
 

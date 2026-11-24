@@ -1087,7 +1087,9 @@
       "spec": [
         ".specs/features/gestao-escritorio"
       ],
-      "planos": [],
+      "planos": [
+        ".specs/features/gestao-escritorio/plans/2026-11-24-simplificar-componentes.md"
+      ],
       "doc": "features/gestao-escritorio/feature.md"
     },
     {
@@ -1214,12 +1216,7 @@
       "doc": "features/rotas-vistoria/feature.md"
     }
   ],
-  "planos_nao_arquivados": [
-    {
-      "arquivo": ".specs/plans/2026-11-24-simplificar-componentes.md",
-      "titulo": "Plano — simplificar os componentes do `apps/web`"
-    }
-  ],
+  "planos_nao_arquivados": [],
   "specs_sem_registro": [],
   "decisoes": [
     {
@@ -2623,6 +2620,12 @@
     {
       "id": "AD-296",
       "decisao": "Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/",
+      "data": "2026-11-24",
+      "status": "active"
+    },
+    {
+      "id": "AD-297",
+      "decisao": "Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e",
       "data": "2026-11-24",
       "status": "active"
     }

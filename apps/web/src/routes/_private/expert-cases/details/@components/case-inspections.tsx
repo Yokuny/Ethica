@@ -31,9 +31,7 @@ export function CaseInspections({ caseId }: { caseId: string }) {
 
   return (
     <Panel
-      collapsible
       icon={<ClipboardList />}
-      size="sm"
       title={t('inspections')}
       empty={query.isSuccess && !records.length}
       description={t('inspections_panel_description')}

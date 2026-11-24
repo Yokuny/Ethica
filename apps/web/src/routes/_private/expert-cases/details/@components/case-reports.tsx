@@ -68,9 +68,7 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
 
   return (
     <Panel
-      collapsible
       icon={<FileSignature />}
-      size="sm"
       title={t(opinion ? 'technical_opinions' : 'expert_reports')}
       empty={query.isSuccess && !query.data.items.length}
       actions={

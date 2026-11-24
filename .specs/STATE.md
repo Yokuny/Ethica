@@ -1887,6 +1887,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-24
 - **Status**: active
 
+### AD-297
+- **Decision**: Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e cada um dos 29 usos vira `section` direto na página, com o título em `ItemTitle role="heading" aria-level={2}` (`text-base font-medium text-impact` nos painéis do Início e do Dashboard, `text-xs uppercase` nos demais) e a descrição em `ItemDescription`; ações com mais de um botão num `div` próprio. `Panel` (`apps/web/src/components/panel.tsx`) fica só como o bloco recolhível da página de registro (9 usos no detalhe do serviço), sem as props `collapsible`, `size` e `render`. Saem também os `max-w-4xl` que restavam no app logado (Novo laudo e registro da vistoria). Ficam, por guardarem lógica: `NumberedList` (árvore de seções), `ProductSpecs` (grupos recolhíveis com expandir/recolher tudo e faixa entre registros) e `DefaultFormLayout` (grade dos formulários). Supersede o uso do `Panel` simples da AD-172/AD-238 e das skills.
+- **Reason**: pedido do usuário (2026-11-24), grupo C aprovado: o bloco por props fixava tamanho de título e espaçamento; montar direto deixa cada tela ajustar o próprio bloco.
+- **Trade-off**: o markup do cabeçalho do bloco (título + descrição) se repete nas telas; a região deixa de ter nome acessível automático (o título continua sendo um heading).
+- **Scope**: `apps/web/src/components/panel.tsx` e os usos em `apps/web/src/{components,routes}`, `.agents/skills/ethica-web-standards/`.
+- **Date**: 2026-11-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

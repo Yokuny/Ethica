@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { Panel } from '@/components/panel.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -34,11 +33,13 @@ export function InstallmentsList({
   }
 
   return (
-    <Panel
-      size="sm"
-      title={t('receipts')}
-      description={`${t('received')} ${formatMoney(transaction.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(transaction.balanceCents ?? 0)}`}
-    >
+    <section className="flex w-full min-w-0 flex-col gap-2">
+      <div className="grid gap-1">
+        <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+          {t('receipts')}
+        </ItemTitle>
+        <ItemDescription>{`${t('received')} ${formatMoney(transaction.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(transaction.balanceCents ?? 0)}`}</ItemDescription>
+      </div>
       {!transaction.installments.length ? (
         <DefaultEmptyData title={t('no_receipts_yet')} />
       ) : (
@@ -75,6 +76,6 @@ export function InstallmentsList({
           onClose={() => setReversing(null)}
         />
       )}
-    </Panel>
+    </section>
   );
 }

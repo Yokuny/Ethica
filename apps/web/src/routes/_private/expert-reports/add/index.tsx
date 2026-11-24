@@ -1,5 +1,6 @@
 import { caseArea, caseLabel, defaultTemplateOf, reportRoleType } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
+import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useBlocker, useNavigate, useSearch } from '@tanstack/react-router';
 import { BriefcaseBusiness } from 'lucide-react';
@@ -10,7 +11,6 @@ import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
-import { Panel } from '@/components/panel.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
@@ -101,7 +101,7 @@ export function ReportAddPage() {
       )}
       <CardHeader title={t('new_report')} />
       {!caseId ? (
-        <CardContent className="max-w-4xl">
+        <CardContent>
           <CasePicker onPick={(id) => updateSearch({ caseId: id, templateId: undefined })} />
         </CardContent>
       ) : legalCase.isLoading ? (
@@ -114,7 +114,7 @@ export function ReportAddPage() {
         </CardContent>
       ) : (
         <>
-          <CardContent className="max-w-4xl gap-8">
+          <CardContent className="gap-8">
             <RecordHeader>
               <RecordHeading
                 icon={<BriefcaseBusiness />}
@@ -129,19 +129,37 @@ export function ReportAddPage() {
                   .join(' · ')}
               />
             </RecordHeader>
-            <Panel title={t('linked_service_order')} description={t('linked_service_order_description')}>
+            <section className="flex w-full min-w-0 flex-col gap-4">
+              <div className="grid gap-1">
+                <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+                  {t('linked_service_order')}
+                </ItemTitle>
+                <ItemDescription>{t('linked_service_order_description')}</ItemDescription>
+              </div>
               <ServiceOrderField legalCase={legalCase.data} />
-            </Panel>
-            <Panel title={t('technical_responsible')} description={t('technical_responsible_description')}>
+            </section>
+            <section className="flex w-full min-w-0 flex-col gap-4">
+              <div className="grid gap-1">
+                <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+                  {t('technical_responsible')}
+                </ItemTitle>
+                <ItemDescription>{t('technical_responsible_description')}</ItemDescription>
+              </div>
               <SignatoryPicker value={signatory} onChange={setSignatory} />
-            </Panel>
-            <Panel title={t('template')} description={t('choose_template_description')}>
+            </section>
+            <section className="flex w-full min-w-0 flex-col gap-4">
+              <div className="grid gap-1">
+                <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+                  {t('template')}
+                </ItemTitle>
+                <ItemDescription>{t('choose_template_description')}</ItemDescription>
+              </div>
               <TemplateSelect
                 area={legalCase.data && caseArea(legalCase.data)}
                 value={templateId}
                 onChange={(value) => updateSearch({ templateId: value })}
               />
-            </Panel>
+            </section>
             {template.isLoading ? (
               <DefaultLoading />
             ) : template.data ? (

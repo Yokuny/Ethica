@@ -111,7 +111,7 @@ export const Route = createFileRoute('/_private/x/')({
   antes do `Card` some com o breadcrumb). Early-return (`if (isLoading) return <DefaultLoading/>`)
   só em componente comum.
 - Quem busca o dado decide loading/vazio; o filho recebe o dado pronto, nunca `isLoading` por prop.
-- `Card` só em página. Componente comum usa `Item`/`ItemGroup`/`Panel`.
+- `Card` só em página. Componente comum usa `Item`/`ItemGroup` e `section` direto.
 - Moldes completos (hub, listagem, detalhe, add, painel inline): `references/page-patterns.md`.
 
 ## 4. Componentes obrigatórios
@@ -127,7 +127,7 @@ export const Route = createFileRoute('/_private/x/')({
 | Lista de linhas (registros, destinos, atalho, registro relacionado) | `<ItemGroup>` (só `flex flex-col gap-2`) + `<Item>`, cada linha um cartão com borda e sem sombra (`@ethica/ui/components/item`, AD-288, AD-289): linha que leva a outra tela é `<li><Item render={<Link/>}>…</Item></li>` (ou `<button>`), linha estática é `<Item render={<li />}>`; `ItemContent` com `ItemTitle`/`ItemDescription`, ícone em `ItemMedia variant="icon"` à esquerda, selos em `ItemActions` à direita e, na linha que leva a outra tela, `ArrowUpRight` no fim (AD-290); sempre na largura toda, sem `max-w-*` em volta |
 | Página única de configuração (`/office`, `/account`, `/reports`) | `CardHeader` com a descrição + uma `section` por assunto, montada direto na página a partir de um array local: título e descrição à esquerda, formulário à direita, fio entre seções (AD-295) |
 | Lista de registros pequenos com ação (aparelhos, responsáveis técnicos, recebimentos, metas) | `<ItemGroup>` + `<Item render={<li />}>` com o valor em `ItemTitle`, o apoio em `ItemDescription` e selo e botões em `ItemActions` (AD-295) |
-| Bloco dentro da página | `<Panel size>` (`@/components/panel.js`); `render={<form/>}` se for form |
+| Bloco dentro da página | `<section className="flex flex-col gap-4">` direto na página, título em `<ItemTitle role="heading" aria-level={2}>` e descrição em `ItemDescription` (AD-297); bloco recolhível de página de registro: `<Panel title icon actions empty>` (`@/components/panel.js`) |
 | Formulário | `Form*` (`@ethica/ui/components/form`) + `react-hook-form` + `zodResolver(schema de @ethica/contracts)` + `<DefaultFormLayout>`; campos por `TextField`/`SelectField`/`MoneyField`/`DateField`/`TimeField`/`NumberField`/`TextareaField` (`@/components/form-fields.js`); `placeholder` em todo input |
 | Select | `<Select items={[{value,label}]}>` (`@ethica/ui/components/select`) — `items` obrigatório |
 | Leitura de registro (detalhe, integração) | `RecordHeader` (+ `RecordHeadingGroup` para vários pares) + `RecordStats` (faixa entre fios, células lado a lado, AD-292) + `ProductSpecs` de `@/components/product-specs.js` (grupos colapsáveis rótulo/valor com ícone, ação e Expandir/Recolher tudo, AD-091) (cabeçalho e faixa de `@/components/record.js`, AD-072, AD-090); lista de itens do registro direto na página com `ItemGroup`/`Item` (AD-296) |

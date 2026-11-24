@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-24 — Simplificação, grupo C: `Panel` simples vira `section` direto nas 29 telas; `Panel` fica só como o bloco recolhível do detalhe do serviço; sem `max-w-4xl` no app logado. `NumberedList`, `ProductSpecs` e `DefaultFormLayout` ficam por guardarem lógica (AD-297). Plano: `.specs/features/gestao-escritorio/plans/2026-11-24-simplificar-componentes.md`.
 - 2026-11-24 — Simplificação, grupo B: sai o `RecordTable*` do `record.tsx`; relatório da importação CSV e conferência das colunas em `Item` (AD-296).
 - 2026-11-24 — Simplificação, grupo A: saem `PageIntro`, `HubIllustration`, `LinkCard`, `StepList` e `InfoCard`; hubs de Laudos e Logística, Conta, Escritório e Relatórios montados direto na página com `Item`/`section` (AD-295). `NumberedList` fica (tem a lógica da árvore de seções).
 - 2026-11-24 — Varredura com o Playwright em 31 rotas (1440 e 390 px): controles e superfícies sem sombra; apoio do título-link da tabela afastado do sublinhado; ações do painel recolhível em linha própria no celular; título e valores longos quebram sem estourar a tela (AD-294).

@@ -2,7 +2,6 @@ import { Button } from '@ethica/ui/components/button';
 import { ItemTitle } from '@ethica/ui/components/item';
 import { Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Panel } from '@/components/panel.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 // Repeatable record block: one item per row, with remove and add.
@@ -18,7 +17,13 @@ export function FieldList({
   items: Array<{ key: string; conteudo: ReactNode; onRemove: () => void }>;
 }) {
   return (
-    <Panel title={title} actions={actions}>
+    <section className="flex w-full min-w-0 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+          {title}
+        </ItemTitle>
+        {actions}
+      </div>
       {!items.length ? (
         <ItemTitle className="font-normal text-muted-foreground">{empty}</ItemTitle>
       ) : (
@@ -33,6 +38,6 @@ export function FieldList({
           ))}
         </ul>
       )}
-    </Panel>
+    </section>
   );
 }

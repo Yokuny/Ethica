@@ -24,7 +24,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
-- [Plano — simplificar os componentes do `apps/web`](../.specs/plans/2026-11-24-simplificar-componentes.md)
+_Nenhum._
 
 ## Features (47)
 
@@ -71,7 +71,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 | [Contatos das varas](features/contatos-varas/feature.md) | Agenda de contatos das varas do trabalho e cíveis do escritório, filtrável por estado e cidade, com importação por planilha | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/contatos-varas) | — |
 | [Base de documentos](features/documentos-pdf/feature.md) | Identidade do escritório, dados profissionais, PDFs (ficha, checklist, prazos, financeiro, paradas) e exportação ZIP | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` `infra` | [spec](../.specs/features/documentos-pdf) | — |
 | [Nomes de código em inglês](features/english-naming/feature.md) | Todo nome definido no código (campo, model, collection, módulo, arquivo, parâmetro, evento, comentário) em inglês, com um termo por conceito | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` `tests` `docs` | [spec](../.specs/features/english-naming) | — |
-| [Gestão do escritório](features/gestao-escritorio/feature.md) | Matriz de permissões por membro, diário de bordo, fase e situação da perícia, honorário do assistente técnico e início configurável | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` `harness` | [spec](../.specs/features/gestao-escritorio) | — |
+| [Gestão do escritório](features/gestao-escritorio/feature.md) | Matriz de permissões por membro, diário de bordo, fase e situação da perícia, honorário do assistente técnico e início configurável | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` `harness` | [spec](../.specs/features/gestao-escritorio) | 1 |
 | [Gestão de membros pelo admin](features/gestao-membros/feature.md) | Admin edita nome e perfil, desativa e reativa membros e gerencia convites pendentes, sem mexer no banco | planejado | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` | [spec](../.specs/features/gestao-membros) | — |
 | [Importação de processos](features/importacao-processos/feature.md) | Cadastro de perícia a partir do PDF da ata, importação em lote por CSV, partes e advogados reutilizáveis e dados trabalhistas | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/importacao-processos) | — |
 | [Montagem do laudo](features/laudo-montagem/feature.md) | Seções e modelo editáveis no rascunho, modelo trabalhista completo, pré-preenchimento pelo processo, pré-visualização e fotos 2x3 nos anexos | concluido | 2026-11-01 | `apps/api` `apps/web` `packages/contracts` | [spec](../.specs/features/laudo-montagem) | — |
@@ -96,6 +96,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-297** (2026-11-24, active) — Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e
 - **AD-296** (2026-11-24, active) — Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/
 - **AD-295** (2026-11-24, active) — Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step
 - **AD-294** (2026-11-24, active) — Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `Select
@@ -105,7 +106,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-290** (2026-11-24, active) — As linhas de lista voltam a ter o ícone à esquerda (`ItemMedia variant="icon"`, o mesmo ícone que cada lista usava antes da AD-288) e a linh
 - **AD-289** (2026-11-24, active) — `ItemGroup` (`packages/ui/src/components/item.tsx`) perde as variantes `grid` e `list` e passa a ser só `<ul>` com `flex flex-col gap-2`, co
 - **AD-288** (2026-11-24, active; supersede a AD-252 e a parte de `LinkList` da AD-075 (a forma do `ItemGroup` superseded by AD-289; ícones e seta superseded by AD-290)) — `LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item`
-- **AD-287** (2026-11-24, active) — Antes de mudar a infra da consulta ao Datajud, o worker registra cada chamada: uma linha `datajud.request` com resultado (`rate_limited`, `t
 
 ## Outros documentos
 
