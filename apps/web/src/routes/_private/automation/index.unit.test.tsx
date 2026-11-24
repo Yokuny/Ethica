@@ -78,10 +78,10 @@ describe('AutomationPage', () => {
     renderPage(new Date(Date.now() + 86_400_000).toISOString());
     const rows = screen.getAllByRole('listitem').filter((row) => row.textContent?.includes('TRT'));
     expect(rows.map((row) => row.textContent)).toEqual([
-      expect.stringContaining('0017068-93.2025.5.16.0008Não encontrado no tribunal'),
-      expect.stringContaining('0000020-00.2026.5.24.0001Sem resposta do tribunal'),
-      expect.stringContaining('0000010-00.2026.5.24.0001Aguardando a primeira consulta'),
-      expect.stringContaining('0024364-65.2020.5.24.0091Consultado'),
+      expect.stringMatching(/^0017068-93\.2025\.5\.16\.0008.*Não encontrado no tribunal$/),
+      expect.stringMatching(/^0000020-00\.2026\.5\.24\.0001.*Sem resposta do tribunal$/),
+      expect.stringMatching(/^0000010-00\.2026\.5\.24\.0001.*Aguardando a primeira consulta$/),
+      expect.stringMatching(/^0024364-65\.2020\.5\.24\.0091.*Consultado$/),
     ]);
     expect(rows[0]).toHaveTextContent('o processo pode ser sigiloso');
     expect(rows[1]).toHaveTextContent('Sem resposta do tribunal desde');

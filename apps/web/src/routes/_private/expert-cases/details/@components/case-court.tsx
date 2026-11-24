@@ -1,9 +1,9 @@
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Gavel } from 'lucide-react';
 import { AutomationOffer } from '@/components/automation-offer.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { SuggestionsList } from '@/components/suggestions-list.js';
 import { trackedCaseDescription, trackedCaseLabel, trackedCaseState } from '@/components/tracked-case-labels.js';
@@ -56,19 +56,21 @@ export function CaseCourt({ caseId }: { caseId: string }) {
       ) : !courtProcess ? (
         <DefaultEmptyData title={trackedCaseLabel(state)} description={trackedCaseDescription(tracked ?? {}, state)} />
       ) : (
-        <LinkList>
+        <ItemGroup variant="list">
           {courtProcess.movements.slice(0, SHOWN).map((movement) => (
-            <LinkListItem
-              key={movement.key}
-              icon={Gavel}
-              title={movement.name}
-              description={[
-                formatDate(new Date(movement.at)),
-                ...movement.complements.map((item) => item.name).filter(Boolean),
-              ].join(' · ')}
-            />
+            <Item key={movement.key} render={<li />}>
+              <ItemContent>
+                <ItemTitle>{movement.name}</ItemTitle>
+                <ItemDescription>
+                  {[
+                    formatDate(new Date(movement.at)),
+                    ...movement.complements.map((item) => item.name).filter(Boolean),
+                  ].join(' · ')}
+                </ItemDescription>
+              </ItemContent>
+            </Item>
           ))}
-        </LinkList>
+        </ItemGroup>
       )}
     </Panel>
   );

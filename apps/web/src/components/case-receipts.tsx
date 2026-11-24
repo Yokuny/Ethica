@@ -1,11 +1,9 @@
 import { Badge } from '@ethica/ui/components/badge';
-import { ItemDescription } from '@ethica/ui/components/item';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Wallet } from 'lucide-react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { STATE_VARIANT, stateLabel, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -34,29 +32,33 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
       ) : !query.data?.items.length ? (
         <DefaultEmptyData title={t('no_fees_yet')} />
       ) : (
-        <LinkList>
+        <ItemGroup variant="list">
           {query.data.items.map((fee) => {
             const state = transactionState(fee, today);
             return (
-              <LinkListItem
-                key={fee.id}
-                icon={Wallet}
-                render={<Link to="/finance" search={{ caseId }} />}
-                title={formatMoney(fee.amountCents)}
-                badges={<Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>}
-                description={`${fee.description} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}
-              >
-                {fee.installments.map((installment) => (
-                  <ItemDescription key={installment.id} className="line-clamp-none">
-                    {[day(installment.date), formatMoney(installment.amountCents), installment.account]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </ItemDescription>
-                ))}
-              </LinkListItem>
+              <li key={fee.id}>
+                <Item render={<Link to="/finance" search={{ caseId }} />}>
+                  <ItemContent>
+                    <ItemTitle className="tabular-nums">{formatMoney(fee.amountCents)}</ItemTitle>
+                    <ItemDescription>
+                      {`${fee.description} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}
+                    </ItemDescription>
+                    {fee.installments.map((installment) => (
+                      <ItemDescription key={installment.id} className="line-clamp-none">
+                        {[day(installment.date), formatMoney(installment.amountCents), installment.account]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </ItemDescription>
+                    ))}
+                  </ItemContent>
+                  <ItemActions>
+                    <Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>
+                  </ItemActions>
+                </Item>
+              </li>
             );
           })}
-        </LinkList>
+        </ItemGroup>
       )}
     </Panel>
   );

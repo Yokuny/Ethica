@@ -2355,7 +2355,7 @@
       "id": "AD-252",
       "decisao": "`LinkList`/`LinkListItem` (`apps/web/src/components/link-list.tsx`) passa ao desenho do `item.html` do usuário: sem moldura nem cartão branc",
       "data": "2026-11-21",
-      "status": "active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)"
+      "status": "superseded by AD-288"
     },
     {
       "id": "AD-253",
@@ -2566,6 +2566,12 @@
       "decisao": "Antes de mudar a infra da consulta ao Datajud, o worker registra cada chamada: uma linha `datajud.request` com resultado (`rate_limited`, `t",
       "data": "2026-11-24",
       "status": "active"
+    },
+    {
+      "id": "AD-288",
+      "decisao": "`LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item`",
+      "data": "2026-11-24",
+      "status": "active; supersede a AD-252 e a parte de `LinkList` da AD-075"
     }
   ]
 }

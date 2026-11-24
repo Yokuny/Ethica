@@ -96,6 +96,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-288** (2026-11-24, active; supersede a AD-252 e a parte de `LinkList` da AD-075) — `LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item`
 - **AD-287** (2026-11-24, active) — Antes de mudar a infra da consulta ao Datajud, o worker registra cada chamada: uma linha `datajud.request` com resultado (`rate_limited`, `t
 - **AD-286** (2026-11-23, active) — Job da fila do worker pode ter o próprio limite de tentativas (`maxAttempts` no `WorkerJob`, padrão `MAX_ATTEMPTS` = 5). O lote do Datajud (
 - **AD-285** (2026-11-23, active) — Achados da validação local de 2026-11-23 (contas admin, operador restrito e um segundo escritório). (1) Honorário é dado do financeiro també
@@ -105,7 +106,6 @@ _Nenhum._
 - **AD-281** (2026-11-22, active (link para a aba Para aprovar superseded by AD-282)) — A Prospecção sai inteira e o item de menu vira a página Automação Datajud (`/automation`). (1) Divisão das fontes: o Datajud é inteligência
 - **AD-280** (2026-11-22, active) — Push e métricas (fim da Fase 6): (1) Web Push com chaves VAPID: a API dá a chave pública (`GET /me/push`) e grava ou apaga a inscrição do ap
 - **AD-279** (2026-11-22, active) — Sugestões financeiras e de prazos (Fase 6 de `automacao-datajud`): (1) intenção de pagamento (12548, 12165, 12173, 12166, 12175) gera o avis
-- **AD-278** (2026-11-22, active) — Sugestões de serviço (Fase 5 de `automacao-datajud`): (1) regras em `packages/contracts/src/schemas/automation-rules.ts` com os códigos da T
 
 ## Outros documentos
 

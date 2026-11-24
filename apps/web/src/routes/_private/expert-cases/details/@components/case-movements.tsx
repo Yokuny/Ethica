@@ -1,11 +1,11 @@
 import { Button } from '@ethica/ui/components/button';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { History } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -49,17 +49,18 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
       {!legalCase.movements.length ? (
         <DefaultEmptyData title={t('no_movements_yet')} />
       ) : (
-        <LinkList>
+        <ItemGroup variant="list">
           {legalCase.movements.map((movement) => (
-            <LinkListItem
-              key={movement.id}
-              icon={History}
-              render={<button type="button" onClick={() => setRemoving(movement)} />}
-              title={t(movement.type)}
-              description={[day(movement.data), movement.notes].filter(Boolean).join(' · ')}
-            />
+            <li key={movement.id}>
+              <Item render={<button type="button" onClick={() => setRemoving(movement)} />}>
+                <ItemContent>
+                  <ItemTitle>{t(movement.type)}</ItemTitle>
+                  <ItemDescription>{[day(movement.data), movement.notes].filter(Boolean).join(' · ')}</ItemDescription>
+                </ItemContent>
+              </Item>
+            </li>
           ))}
-        </LinkList>
+        </ItemGroup>
       )}
       {isAdding && <MovementForm caseId={legalCase.id} onClose={() => setIsAdding(false)} />}
       {removing && (

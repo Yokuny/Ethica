@@ -1,12 +1,11 @@
 import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { BriefcaseBusiness } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { sideLabel } from '@/components/party-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -22,27 +21,30 @@ export function PartyCases({ partyId }: { partyId: string }) {
       ) : !query.data?.length ? (
         <DefaultEmptyData title={t('no_expert_cases_for_party')} />
       ) : (
-        <LinkList>
+        <ItemGroup variant="list">
           {query.data.map((legalCase) => {
             const link = legalCase.parties.find((party) => party.partyId === partyId);
             return (
-              <LinkListItem
-                key={legalCase.id}
-                icon={BriefcaseBusiness}
-                render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}
-                title={caseLabel(legalCase)}
-                badges={
-                  <Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>
-                    {casePhaseLabel(legalCase.phase, legalCase.phaseName)}
-                  </Badge>
-                }
-                description={[link && sideLabel(link.side, legalCase.courtType), legalCase.subject]
-                  .filter(Boolean)
-                  .join(' · ')}
-              />
+              <li key={legalCase.id}>
+                <Item render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}>
+                  <ItemContent>
+                    <ItemTitle>{caseLabel(legalCase)}</ItemTitle>
+                    <ItemDescription>
+                      {[link && sideLabel(link.side, legalCase.courtType), legalCase.subject]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemActions>
+                    <Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>
+                      {casePhaseLabel(legalCase.phase, legalCase.phaseName)}
+                    </Badge>
+                  </ItemActions>
+                </Item>
+              </li>
             );
           })}
-        </LinkList>
+        </ItemGroup>
       )}
     </Panel>
   );

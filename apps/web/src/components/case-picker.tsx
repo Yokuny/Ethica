@@ -1,12 +1,11 @@
 import { caseLabel } from '@ethica/contracts';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
-import { BriefcaseBusiness } from 'lucide-react';
 import { useState } from 'react';
 import { caseRoleLabel } from '@/components/case-labels.js';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { useDebouncedSearch } from '@/hooks/useDebouncedSearch.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -28,21 +27,24 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
         ) : !items.length ? (
           <DefaultEmptyData />
         ) : (
-          <LinkList>
+          <ItemGroup variant="list">
             {items.map((legalCase) => (
-              <LinkListItem
-                key={legalCase.id}
-                icon={BriefcaseBusiness}
-                render={<button type="button" onClick={() => onPick(legalCase.id)} />}
-                title={[legalCase.serviceOrder, caseLabel(legalCase)].filter(Boolean).join(' · ')}
-                description={[
-                  caseRoleLabel(legalCase.role, legalCase.roleName),
-                  legalCase.division ?? legalCase.court,
-                  legalCase.subject,
-                ].join(' · ')}
-              />
+              <li key={legalCase.id}>
+                <Item render={<button type="button" onClick={() => onPick(legalCase.id)} />}>
+                  <ItemContent>
+                    <ItemTitle>{[legalCase.serviceOrder, caseLabel(legalCase)].filter(Boolean).join(' · ')}</ItemTitle>
+                    <ItemDescription>
+                      {[
+                        caseRoleLabel(legalCase.role, legalCase.roleName),
+                        legalCase.division ?? legalCase.court,
+                        legalCase.subject,
+                      ].join(' · ')}
+                    </ItemDescription>
+                  </ItemContent>
+                </Item>
+              </li>
             ))}
-          </LinkList>
+          </ItemGroup>
         )}
       </DataTable>
     </Panel>

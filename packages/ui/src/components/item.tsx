@@ -11,13 +11,15 @@ import { Separator } from './separator.js';
 //   by breakpoint. No `flex-1` on purpose: an incomplete last row
 //   keeps the column width instead of stretching.
 // - `list`: a single card with the Items as rows split by a rule — the
-//   dense record list (files, conversations, orders). The group draws
-//   the lines: the child carries no border utility.
+//   dense record list (files, conversations, orders, links to another screen).
+//   The group draws the lines: the child carries no border utility. A row is
+//   `<Item render={<li />}>`, or `<li><Item render={<Link />} /></li>` when the
+//   whole row leads somewhere.
 const itemGroupVariants = cva('group/item-group w-full', {
   variants: {
     variant: {
       grid: 'flex flex-wrap gap-2 [&>*]:min-w-0 [&>*]:basis-full sm:[&>*]:basis-[calc(50%-0.25rem)] xl:[&>*]:basis-[calc(33.333%-0.34rem)] 2xl:[&>*]:basis-[calc(25%-0.375rem)]',
-      list: 'flex flex-col overflow-hidden rounded-lg border bg-card shadow-xs [&>*]:rounded-none [&>*]:border-x-0 [&>*]:border-b-0 [&>*]:shadow-none [&>*:first-child]:border-t-0',
+      list: 'flex flex-col divide-y overflow-hidden rounded-lg border bg-card shadow-xs [&>*]:rounded-none [&>*]:border-0 [&>*]:shadow-none [&>li>[data-slot=item]]:rounded-none [&>li>[data-slot=item]]:border-0 [&>li>[data-slot=item]]:shadow-none',
     },
   },
   defaultVariants: { variant: 'grid' },
@@ -53,7 +55,7 @@ function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Sepa
 }
 
 const itemVariants = cva(
-  'group/item flex flex-wrap items-center rounded-lg border bg-card text-xs shadow-xs transition-[background-color,border-color,box-shadow] duration-150 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 [a]:hover:bg-accent/70 [button]:hover:bg-accent/70',
+  'group/item flex flex-wrap items-center rounded-lg border bg-card text-xs shadow-xs transition-[background-color,border-color,box-shadow] duration-150 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 [a]:hover:bg-accent/70 [button]:w-full [button]:text-left [button]:hover:bg-accent/70',
   {
     variants: {
       variant: {

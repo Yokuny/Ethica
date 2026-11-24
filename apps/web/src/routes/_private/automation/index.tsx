@@ -1,9 +1,9 @@
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { Sparkles } from 'lucide-react';
 import { AutomationOffer } from '@/components/automation-offer.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
 import { Panel } from '@/components/panel.js';
@@ -34,20 +34,21 @@ export function AutomationPage() {
           </CardAction>
         )}
       </CardHeader>
-      <CardContent className="max-w-4xl gap-8">
+      <CardContent className="gap-8">
         {!active ? (
           <AutomationOffer />
         ) : (
           <>
             <Panel title={t('suggestions_to_approve')}>
-              <LinkList>
-                <LinkListItem
-                  icon={Sparkles}
-                  title={pending}
-                  description={t(pending === 1 ? 'pending_suggestion' : 'pending_suggestions')}
-                  render={<Link to="/notifications" />}
-                />
-              </LinkList>
+              <Item render={<Link to="/notifications" />}>
+                <ItemMedia variant="icon">
+                  <Sparkles />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle className="tabular-nums">{pending}</ItemTitle>
+                  <ItemDescription>{t(pending === 1 ? 'pending_suggestion' : 'pending_suggestions')}</ItemDescription>
+                </ItemContent>
+              </Item>
             </Panel>
             <Panel title={t('tracked_cases')} description={t('tracked_cases_description')}>
               <TrackedCases />

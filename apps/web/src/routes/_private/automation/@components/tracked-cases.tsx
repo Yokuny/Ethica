@@ -1,11 +1,10 @@
 import { Badge } from '@ethica/ui/components/badge';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Gavel } from 'lucide-react';
 import { useMemo } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import {
   TRACKED_CASE_VARIANT,
   type TrackedCaseState,
@@ -38,17 +37,20 @@ export function TrackedCases() {
   if (query.isError) return <DefaultEmptyData title={t('load_error')} />;
   if (!items.length) return <DefaultEmptyData title={t('no_tracked_cases')} />;
   return (
-    <LinkList>
+    <ItemGroup variant="list">
       {items.map((item) => (
-        <LinkListItem
-          key={item.caseId}
-          icon={Gavel}
-          title={item.caseLabel}
-          badges={<Badge variant={TRACKED_CASE_VARIANT[item.state]}>{trackedCaseLabel(item.state)}</Badge>}
-          description={`${item.court} · ${trackedCaseDescription(item, item.state)}`}
-          render={<Link to="/expert-cases/details" search={{ id: item.caseId }} />}
-        />
+        <li key={item.caseId}>
+          <Item render={<Link to="/expert-cases/details" search={{ id: item.caseId }} />}>
+            <ItemContent>
+              <ItemTitle>{item.caseLabel}</ItemTitle>
+              <ItemDescription>{`${item.court} · ${trackedCaseDescription(item, item.state)}`}</ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Badge variant={TRACKED_CASE_VARIANT[item.state]}>{trackedCaseLabel(item.state)}</Badge>
+            </ItemActions>
+          </Item>
+        </li>
       ))}
-    </LinkList>
+    </ItemGroup>
   );
 }

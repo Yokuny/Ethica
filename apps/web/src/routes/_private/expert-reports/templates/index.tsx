@@ -1,15 +1,13 @@
 import { TEMPLATE_AREAS } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { ItemTitle } from '@ethica/ui/components/item';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { ListTree } from 'lucide-react';
 import { useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { templateAreaLabel } from '@/components/report-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -30,20 +28,27 @@ const byArea = (templates: TemplateSummary[]): Array<[string | undefined, Templa
 
 function TemplateList({ templates }: { templates: TemplateSummary[] }) {
   return (
-    <LinkList>
+    <ItemGroup variant="list">
       {templates.map((template) => (
-        <LinkListItem
-          key={template.id}
-          icon={ListTree}
-          render={<Link to="/expert-reports/templates/details" search={{ id: template.id }} />}
-          title={template.name}
-          badges={template.isDefault && <Badge variant="info">{t('standard')}</Badge>}
-          description={[template.details, t(template.type), `${template.totalSections} ${t('sections').toLowerCase()}`]
-            .filter(Boolean)
-            .join(' · ')}
-        />
+        <li key={template.id}>
+          <Item render={<Link to="/expert-reports/templates/details" search={{ id: template.id }} />}>
+            <ItemContent>
+              <ItemTitle>{template.name}</ItemTitle>
+              <ItemDescription>
+                {[template.details, t(template.type), `${template.totalSections} ${t('sections').toLowerCase()}`]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </ItemDescription>
+            </ItemContent>
+            {template.isDefault && (
+              <ItemActions>
+                <Badge variant="info">{t('standard')}</Badge>
+              </ItemActions>
+            )}
+          </Item>
+        </li>
       ))}
-    </LinkList>
+    </ItemGroup>
   );
 }
 
@@ -85,7 +90,7 @@ export function TemplatesPage() {
           ))}
         </TabsList>
       </Tabs>
-      <CardContent className="max-w-4xl gap-6">
+      <CardContent className="gap-6">
         {query.isLoading ? (
           <DefaultLoading />
         ) : query.isError ? (

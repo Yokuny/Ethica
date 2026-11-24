@@ -1,11 +1,11 @@
 import { Badge, BadgeIndicator } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarClock } from 'lucide-react';
 import { useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { NotificationDialog } from '@/components/notification-dialog.js';
 import { NotificationForm } from '@/components/notification-form.js';
 import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/notification-labels.js';
@@ -48,17 +48,24 @@ export function CaseNotifications({ caseId }: { caseId: string }) {
       ) : !query.data?.length ? (
         <DefaultEmptyData title={t('no_deadlines_yet')} />
       ) : (
-        <LinkList>
+        <ItemGroup variant="list">
           {query.data.map((deadline) => {
             const alert = deadlineAlert(deadline, today);
             return (
-              <LinkListItem
-                key={deadline.id}
-                icon={CalendarClock}
-                render={<button type="button" onClick={() => setPanel({ kind: 'detail', deadline })} />}
-                title={deadline.title}
-                badges={
-                  <>
+              <li key={deadline.id}>
+                <Item render={<button type="button" onClick={() => setPanel({ kind: 'detail', deadline })} />}>
+                  <ItemContent>
+                    <ItemTitle>{deadline.title}</ItemTitle>
+                    <ItemDescription>
+                      {[
+                        `${t('due_on')} ${day(deadline.dueDate)}`,
+                        deadline.filedDate && `${t('filed_on')} ${day(deadline.filedDate)}`,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemActions className="flex-wrap">
                     {deadline.kind === 'alert' && <Badge variant="secondary">{t('alert')}</Badge>}
                     <Badge variant={DEADLINE_STATUS_VARIANT[deadline.status]}>{t(deadline.status)}</Badge>
                     {alert && (
@@ -67,18 +74,12 @@ export function CaseNotifications({ caseId }: { caseId: string }) {
                         {t(alert)}
                       </Badge>
                     )}
-                  </>
-                }
-                description={[
-                  `${t('due_on')} ${day(deadline.dueDate)}`,
-                  deadline.filedDate && `${t('filed_on')} ${day(deadline.filedDate)}`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              />
+                  </ItemActions>
+                </Item>
+              </li>
             );
           })}
-        </LinkList>
+        </ItemGroup>
       )}
       {panel?.kind === 'create' && <NotificationForm caseId={caseId} onClose={() => setPanel(null)} />}
       {panel?.kind === 'edit' && (

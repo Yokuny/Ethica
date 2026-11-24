@@ -66,7 +66,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Depois da rodada das 03:00 seguinte ao deploy do worker na Railway, conferir em /automation do ETHICA que todo processo acompanhado aparece com a situação (o 0017068-93.2025.5.16.0008 do TRT16 como consultado ou não encontrado) — `processos-acompanhados`
 - [ ] Confirmar as perguntas em aberto das specs: `central-notificacoes`, `automacao-datajud`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
-- [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`
+- [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, listas no `Item` com borda e na largura toda (Início, serviço aberto, parte, novo laudo, modelos, Automação e regras — AD-288); UAT geral com o seed — `fundacao-ethica`
 - [ ] Conferir no celular: gráfico de serviços (`dashboard`), telas e exportação das listas (`filtros-lista`)
 - [ ] Conferir o menu "…" com Importar planilha em Serviços e Varas — `dashboard`
 - [ ] PDF com a fonte Source Sans em produção — `biblioteca-modelos`
@@ -108,6 +108,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-24 — `LinkList` excluído; toda lista de linhas usa o `Item` com borda (`ItemGroup variant="list"`), selos à direita e na largura toda — `gestao-escritorio`
 - [x] 2026-11-24 — Conferidos no navegador local /automation (situações, textos e ordem) e a seção No tribunal de um serviço não encontrado — `processos-acompanhados`
 - [x] 2026-11-24 — Processos acompanhados: todo serviço acompanhado aparece, com a situação de cada um, também na seção No tribunal; o worker grava o não encontrado — `processos-acompanhados`
 - [x] 2026-11-24 — Perita: perguntas da spec de processos acompanhados respondidas (padrões da spec; seção No tribunal aceita) — `processos-acompanhados`

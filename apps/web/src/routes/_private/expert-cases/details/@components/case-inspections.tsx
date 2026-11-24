@@ -1,11 +1,10 @@
 import { Badge } from '@ethica/ui/components/badge';
-import { ItemDescription } from '@ethica/ui/components/item';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { ClipboardList } from 'lucide-react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { apiUrl } from '@/lib/api/client.api.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
@@ -37,22 +36,27 @@ export function CaseInspections({ caseId }: { caseId: string }) {
         <DefaultEmptyData title={t('no_inspection_records_yet')} />
       ) : (
         <>
-          <LinkList>
+          <ItemGroup variant="list">
             {records.map(({ appointment, inspection }) => (
-              <LinkListItem
-                key={appointment.id}
-                icon={ClipboardList}
-                render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}
-                title={appointment.title}
-                badges={<Badge variant="secondary">{t(appointment.status)}</Badge>}
-                description={[
-                  formatDateTime(appointment.start),
-                  `${inspection.data.attendees.length} ${t('attendees').toLowerCase()}`,
-                  `${inspection.media.filter((media) => media.type === 'photo').length} ${t('photos').toLowerCase()}`,
-                ].join(' · ')}
-              />
+              <li key={appointment.id}>
+                <Item render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}>
+                  <ItemContent>
+                    <ItemTitle>{appointment.title}</ItemTitle>
+                    <ItemDescription>
+                      {[
+                        formatDateTime(appointment.start),
+                        `${inspection.data.attendees.length} ${t('attendees').toLowerCase()}`,
+                        `${inspection.media.filter((media) => media.type === 'photo').length} ${t('photos').toLowerCase()}`,
+                      ].join(' · ')}
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemActions>
+                    <Badge variant="secondary">{t(appointment.status)}</Badge>
+                  </ItemActions>
+                </Item>
+              </li>
             ))}
-          </LinkList>
+          </ItemGroup>
           {photos.length > 0 && (
             <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label={t('photos')}>
               {photos.map(({ appointmentId, media }) => (

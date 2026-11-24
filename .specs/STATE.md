@@ -1533,7 +1533,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: sem grade, listas longas ocupam mais altura; quem precisar de destaque numérico usa `RecordStats`/`InfoCard`.
 - **Scope**: `apps/web/src/components/link-list.tsx`, `apps/web/src/routes/_private/index.tsx` e os usos com `<button>` (`case-picker`, `case-deadlines`, `case-movements`).
 - **Date**: 2026-11-21
-- **Status**: active; supersede a AD-075 só no visual e nas props (`columns`, `size`, `media`)
+- **Status**: superseded by AD-288
 
 ### AD-253
 - **Decision**: Os rankings do Dashboard e do Início passam a responder com contexto. (1) `ShareList` sai e entra `BarList` (`apps/web/src/components/bar-list.tsx`): barra **sem trilho**, medida contra o **maior** item (e não contra o total), valor na ponta, contexto escrito à direita e, quando há destino, a linha é o link do drill-down. (2) **Serviços por tipo** mostra a parcela e quantos entraram nos últimos 12 meses (somados de `byMonth[].byType`, sem mudar a API), e cada tipo abre `/expert-cases` filtrado por `role` ou `serviceType`. (3) **Receitas/Despesas por categoria** viram um painel só, que segue o período 6/12 meses do fluxo de caixa (o mesmo `ToggleGroup` em ambos os painéis, `?months=`). Recebido e despesas ficam na **mesma escala**, cada categoria com a variação contra o período anterior de mesmo tamanho. `GET /finance/categories` ganha `months` (1 a 12, padrão 6) e devolve `previousCents`, somando pelas datas do `monthlyFlow`: receita pela data de cada parcela recebida, despesa pela data do pagamento (ou do vencimento enquanto aberta). Assim as categorias somam o Recebido e as Despesas do fluxo de caixa. (4) **Serviços por justiça** (Início) vira barra de composição única em que 100% são todos os serviços, os sem justiça incluídos (cinza neutro). O denominador fica escrito no cabeçalho ("54 de 80 serviços têm justiça") e cada justiça abre a lista filtrada por `courtType`. Supersede a parte `ShareList` da AD-235 (2) e da AD-236 (1, 2).
@@ -1814,6 +1814,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Scope**: `apps/worker/src/datajud/client.ts`, `apps/worker/src/queue/queue.ts`, `apps/worker/src/jobs/{court-refresh,index}.ts`, `apps/worker/src/server.ts`.
 - **Date**: 2026-11-24
 - **Status**: active
+
+### AD-288
+- **Decision**: `LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item` de `@ethica/ui/components/item` direto: `ItemGroup variant="list"` (um cartão com borda e as linhas separadas por fio) e, por linha, `ItemContent` com `ItemTitle`/`ItemDescription` e os selos em `ItemActions`, à direita. Linha que leva a outra tela é `<li><Item render={<Link/>}/></li>` (ou `<button>`); linha estática é `<Item render={<li/>}>`. O `list` do `ItemGroup` passa a desenhar o fio com `divide-y` e a tirar a moldura também do `Item` dentro de `<li>`; o `Item` como `<button>` ocupa a largura toda com texto à esquerda. Sem ícone repetido em cada linha (o painel já tem o seu); fica `ItemMedia variant="icon"` só quando o ícone diz algo (laudo anexado × laudo do modelo) e no item único de sugestões da Automação. Saem os `max-w-4xl` de Modelos de laudo, Automação e Regras da automação: a lista ocupa a largura toda da página. Supersede a AD-252 e a parte de `LinkList` da AD-075.
+- **Reason**: pedido do usuário (2026-11-24): um só componente de lista (o `Item` com borda) em todo o sistema, cada lista no formato do seu conteúdo e na largura toda; o `LinkList` era uma segunda forma de lista ao lado do `ItemGroup` já usado no mapa e na rota do campo.
+- **Trade-off**: some o fundo que subia no hover e a seta `ArrowUpRight`; a linha clicável se reconhece pelo hover `bg-accent` do `Item`. O `<li>` em volta do `Item` clicável é um nível a mais de marcação para manter a lista válida.
+- **Scope**: `packages/ui/src/components/item.tsx`, os 15 usos antigos do `LinkList` em `apps/web/src` e `apps/web/src/routes/_private/automation/index.unit.test.tsx`.
+- **Date**: 2026-11-24
+- **Status**: active; supersede a AD-252 e a parte de `LinkList` da AD-075
 
 ## Handoff
 

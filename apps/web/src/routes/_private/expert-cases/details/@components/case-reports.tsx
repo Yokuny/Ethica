@@ -1,6 +1,15 @@
 import { PDF_IMPORT_MAX_BYTES, reportRoleType } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { FilePlus, FileSignature, Paperclip } from 'lucide-react';
@@ -8,7 +17,6 @@ import { type ChangeEvent, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { REPORT_STATUS_VARIANT, reportStatusLabel } from '@/components/report-labels.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -100,18 +108,22 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
       ) : !query.data?.items.length ? (
         <DefaultEmptyData title={t('no_reports_yet')} />
       ) : (
-        <LinkList>
+        <ItemGroup variant="list">
           {query.data.items.map((report) => (
-            <LinkListItem
-              key={report.id}
-              icon={report.file ? Paperclip : FileSignature}
-              render={<Link to="/expert-reports/details" search={{ id: report.id }} />}
-              title={report.templateName}
-              badges={<Badge variant={REPORT_STATUS_VARIANT[report.status]}>{reportStatusLabel(report.status)}</Badge>}
-              description={`${t('updated_on')} ${formatDate(report.updatedAt)}`}
-            />
+            <li key={report.id}>
+              <Item render={<Link to="/expert-reports/details" search={{ id: report.id }} />}>
+                <ItemMedia variant="icon">{report.file ? <Paperclip /> : <FileSignature />}</ItemMedia>
+                <ItemContent>
+                  <ItemTitle>{report.templateName}</ItemTitle>
+                  <ItemDescription>{`${t('updated_on')} ${formatDate(report.updatedAt)}`}</ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <Badge variant={REPORT_STATUS_VARIANT[report.status]}>{reportStatusLabel(report.status)}</Badge>
+                </ItemActions>
+              </Item>
+            </li>
           ))}
-        </LinkList>
+        </ItemGroup>
       )}
       {file && (
         <AttachReportDialog

@@ -1,5 +1,6 @@
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { Wallet } from 'lucide-react';
@@ -7,7 +8,6 @@ import { useState } from 'react';
 import { AppLink } from '@/components/app-link.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { LinkList, LinkListItem } from '@/components/link-list.js';
 import { Panel } from '@/components/panel.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
 import { categoryLabel, STATE_VARIANT, stateLabel, transactionState } from '@/components/transaction-labels.js';
@@ -69,25 +69,30 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
           {!items.length ? (
             <DefaultEmptyData title={t('no_entries_yet')} />
           ) : (
-            <LinkList>
+            <ItemGroup variant="list">
               {items.map((item) => {
                 const state = transactionState(item, today);
                 return (
-                  <LinkListItem
-                    key={item.id}
-                    icon={Wallet}
-                    render={<Link to="/finance" search={{ caseId: legalCase.id }} />}
-                    title={
-                      item.status === 'canceled'
-                        ? formatMoney(0)
-                        : `${item.kind === 'expense' ? '−' : ''}${formatMoney(item.amountCents)}`
-                    }
-                    badges={<Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>}
-                    description={`${categoryLabel(item)} · ${formatDate(new Date(`${item.dueDate}T12:00:00`))}`}
-                  />
+                  <li key={item.id}>
+                    <Item render={<Link to="/finance" search={{ caseId: legalCase.id }} />}>
+                      <ItemContent>
+                        <ItemTitle className="tabular-nums">
+                          {item.status === 'canceled'
+                            ? formatMoney(0)
+                            : `${item.kind === 'expense' ? '−' : ''}${formatMoney(item.amountCents)}`}
+                        </ItemTitle>
+                        <ItemDescription>
+                          {`${categoryLabel(item)} · ${formatDate(new Date(`${item.dueDate}T12:00:00`))}`}
+                        </ItemDescription>
+                      </ItemContent>
+                      <ItemActions>
+                        <Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>
+                      </ItemActions>
+                    </Item>
+                  </li>
                 );
               })}
-            </LinkList>
+            </ItemGroup>
           )}
         </div>
       )}
