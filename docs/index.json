@@ -2597,7 +2597,7 @@
       "id": "AD-292",
       "decisao": "Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam",
       "data": "2026-11-24",
-      "status": "active"
+      "status": "active; o `auto-fit` da faixa superseded by AD-298"
     },
     {
       "id": "AD-293",
@@ -2626,6 +2626,12 @@
     {
       "id": "AD-297",
       "decisao": "Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e",
+      "data": "2026-11-24",
+      "status": "active"
+    },
+    {
+      "id": "AD-298",
+      "decisao": "Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas",
       "data": "2026-11-24",
       "status": "active"
     }

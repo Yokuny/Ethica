@@ -96,16 +96,16 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-298** (2026-11-24, active) — Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas
 - **AD-297** (2026-11-24, active) — Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e
 - **AD-296** (2026-11-24, active) — Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/
 - **AD-295** (2026-11-24, active) — Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step
 - **AD-294** (2026-11-24, active) — Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `Select
 - **AD-293** (2026-11-24, active) — Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-med
-- **AD-292** (2026-11-24, active) — Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam
+- **AD-292** (2026-11-24, active; o `auto-fit` da faixa superseded by AD-298) — Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam
 - **AD-291** (2026-11-24, active) — A meta de receita aparece na página Serviços para quem vê o Financeiro sempre que o ano corrente tem meta cadastrada, sem escolha por pessoa
 - **AD-290** (2026-11-24, active) — As linhas de lista voltam a ter o ícone à esquerda (`ItemMedia variant="icon"`, o mesmo ícone que cada lista usava antes da AD-288) e a linh
 - **AD-289** (2026-11-24, active) — `ItemGroup` (`packages/ui/src/components/item.tsx`) perde as variantes `grid` e `list` e passa a ser só `<ul>` com `flex flex-col gap-2`, co
-- **AD-288** (2026-11-24, active; supersede a AD-252 e a parte de `LinkList` da AD-075 (a forma do `ItemGroup` superseded by AD-289; ícones e seta superseded by AD-290)) — `LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item`
 
 ## Outros documentos
 

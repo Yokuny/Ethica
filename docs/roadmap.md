@@ -55,6 +55,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Entrar de novo pelo e-mail no seu navegador: a passkey de teste do Playwright (2026-11-24) substituiu a do seu computador (APA-05) — `gestao-escritorio`
+- [ ] Conferir na tela os Recebimentos no diálogo de um compromisso ou prazo da agenda (novo desenho com Recebido e Saldo como rótulo sobre valor); o Playwright não achou um evento com recebimento lançado — `prazos-recebimentos`
 - [ ] Daqui a uns 7 dias com o worker novo na Railway, ler os logs `datajud.request` e `worker.job_failed` (por tribunal, hora, `errorTypes`, `ip`) e decidir a correção das falhas do Datajud pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md` (AD-287) — `automacao-datajud`
 - [ ] Conferir com a perita a lista única de Notificações: Abertas/Resolvidas no lugar das cinco situações e o número do menu contando prazos vencidos, sugestões e avisos (AD-282) — `notificacoes-processo-unico`
 - [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
@@ -110,7 +112,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 - [x] 2026-11-24 — Simplificação dos componentes do `apps/web`, grupos A, B e C (AD-295 a AD-297); plano em `.specs/features/gestao-escritorio/plans/2026-11-24-simplificar-componentes.md` — `gestao-escritorio`
 - [x] 2026-11-24 — Varredura estética com o Playwright (31 rotas, desktop e celular): sem célula sozinha, sem texto colado em sublinhado, sem rolagem lateral, sem sombra em controle (AD-293, AD-294) — `gestao-escritorio`
-- [x] 2026-11-24 — Meta em Serviços sem depender do menu (AD-291); Recebimentos com hierarquia de valores; faixa de números sem célula sozinha nem dica colada no sublinhado; Dashboard com a faixa no topo (AD-292) — conferido no navegador local com o Playwright — `meta-receita`, `dashboard`, `prazos-recebimentos`
+- [x] 2026-11-24 — Meta em Serviços sem depender do menu (AD-291); Recebimentos com hierarquia de valores; faixa de números sem célula sozinha nem dica colada no sublinhado; Dashboard com a faixa no topo (AD-292, AD-298) — conferido com o Playwright, menos o diálogo dos Recebimentos — `meta-receita`, `dashboard`, `prazos-recebimentos`
 - [x] 2026-11-24 — Ícone do cabeçalho dos detalhes no ladrilho do `LinkCard` — `gestao-escritorio`
 - [x] 2026-11-24 — Listas com o ícone de volta e a seta ↗ nas linhas que levam a outra tela — `gestao-escritorio`
 - [x] 2026-11-24 — `ItemGroup` só flex com gap: cada linha é um `Item` com borda, sem sombra; mapa e rota do campo no mesmo formato — `gestao-escritorio`

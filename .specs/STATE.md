@@ -1853,7 +1853,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: sem divisor vertical, a faixa `ruled` separa as células só pelo espaço; quem não vê o Financeiro tem no Dashboard uma faixa com uma célula.
 - **Scope**: `apps/web/src/components/record.tsx`, `apps/web/src/routes/_private/dashboard/{index.tsx,@components/dashboard-kpis.tsx,index.unit.test.tsx}`.
 - **Date**: 2026-11-24
-- **Status**: active
+- **Status**: active; o `auto-fit` da faixa superseded by AD-298
 
 ### AD-293
 - **Decision**: Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-medium text-impact`; em `TableStack` o valor passa de `ItemDescription` pintado para `ItemTitle` regular (`tone="muted"` o deixa `text-muted-foreground`), e a linha de apoio segue `ItemDescription` menor. Nas listas, o dado vira `ItemTitle` e o metadado `ItemDescription`: data e hora do compromisso em `ItemTitle` regular ao lado do processo e endereço; nos modelos, a descrição livre e, abaixo, tipo e número de seções em texto menor.
@@ -1892,6 +1892,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Reason**: pedido do usuário (2026-11-24), grupo C aprovado: o bloco por props fixava tamanho de título e espaçamento; montar direto deixa cada tela ajustar o próprio bloco.
 - **Trade-off**: o markup do cabeçalho do bloco (título + descrição) se repete nas telas; a região deixa de ter nome acessível automático (o título continua sendo um heading).
 - **Scope**: `apps/web/src/components/panel.tsx` e os usos em `apps/web/src/{components,routes}`, `.agents/skills/ethica-web-standards/`.
+- **Date**: 2026-11-24
+- **Status**: active
+
+### AD-298
+- **Decision**: Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas a partir de `sm`; 3 → 3; 4 → 2 e 4 a partir de `xl`; 5 → 3 e 5 a partir de `xl`; 6 → 3 e 6 a partir de `2xl`; mais de 6 em linhas de 3. No celular a faixa cinza (`band`) tem duas colunas e a última célula ímpar ocupa a linha; a `ruled` empilha. Supersede o `auto-fit` da AD-292 (o resto da AD-292 segue).
+- **Reason**: medição com o Playwright de 768 a 1440 px depois da AD-292: o `auto-fit` enche as linhas da esquerda para a direita e voltava a deixar uma célula sozinha em larguras intermediárias (Início 3+1 entre 828 e 978 px; Serviços e Dashboard 4+1 entre 1008 e 1158 px; detalhe do serviço 5+1 entre 1098 e 1248 px).
+- **Trade-off**: numa tela de 1440 px com a sidebar aberta o detalhe do serviço mostra 3+3 em vez de 6 numa linha; uma linha só aparece a partir de 1536 px.
+- **Scope**: `apps/web/src/components/record.tsx`, `apps/web/DESIGN.md`.
 - **Date**: 2026-11-24
 - **Status**: active
 

@@ -4,7 +4,7 @@ import { BadgeIndicator } from '@ethica/ui/components/badge';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { cn } from 'cn';
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
-import { type ComponentProps, createContext, type ReactNode, useContext } from 'react';
+import { Children, type ComponentProps, createContext, type ReactNode, useContext } from 'react';
 
 // Record page (AD-072, AD-090): the final layout of the
 // iotlog-frontend-v2 models (FAS, filled work order, completed work order), in stacked blocks:
@@ -106,8 +106,8 @@ export function RecordStatus({ variant, label, pulse = true }: RecordStatusProps
 // ─── 2. Highlight strip ──────────────────────────────────────────────────────
 
 // `ruled` (default): record strip in the IOT model — rules on top and
-// bottom, uppercase label, value at 24px. Both variants put every cell on one line when they fit
-// and wrap them evenly when they do not (`auto-fit`), so no cell is left alone on a row.
+// bottom, uppercase label, value at 24px. Columns come from the number of cells so the rows always
+// balance (4 → 2+2, 5 → 3+2, 6 → 3+3) and only go to one line where it fits (AD-292).
 // `band`: listing indicator strip (gray surface, sparkline,
 // ruler and trend), without dividers.
 type RecordStatsVariant = 'ruled' | 'band';
@@ -115,21 +115,44 @@ type RecordStatsVariant = 'ruled' | 'band';
 const StatsVariantContext = createContext<RecordStatsVariant>('ruled');
 
 const statsVariantClass: Record<RecordStatsVariant, string> = {
-  ruled: 'grid-cols-1 gap-x-8 gap-y-5 border-y py-6 sm:grid-cols-[repeat(auto-fit,minmax(8rem,auto))]',
-  band: 'grid-cols-2 gap-x-6 gap-y-6 bg-surface-secondary px-4 py-5 md:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] md:gap-x-8',
+  ruled: 'gap-x-8 gap-y-5 border-y py-6',
+  band: 'gap-x-6 gap-y-6 bg-surface-secondary px-4 py-5 md:gap-x-8',
 };
 
 type RecordStatsProps = ComponentProps<'div'> & {
   variant?: RecordStatsVariant;
 };
 
+// From `sm` up, by number of cells; past 6 they stay in rows of 3.
+const statsColumns = [
+  '',
+  '',
+  'sm:grid-cols-2',
+  'sm:grid-cols-3',
+  'sm:grid-cols-2 xl:grid-cols-4',
+  'sm:grid-cols-3 xl:grid-cols-5',
+  'sm:grid-cols-3 2xl:grid-cols-6',
+];
+
 export function RecordStats({ variant = 'ruled', className, children, ...props }: RecordStatsProps) {
+  const count = Children.toArray(children).length;
+  // The gray band keeps two cells per row on a phone; an odd last cell takes the whole row.
+  const phone =
+    variant === 'band' && count > 1
+      ? cn('grid-cols-2', count % 2 && '[&>*:last-child]:col-span-2 sm:[&>*:last-child]:col-span-1')
+      : 'grid-cols-1';
   return (
     <StatsVariantContext.Provider value={variant}>
       <div
         data-slot="record-stats"
         data-variant={variant}
-        className={cn('grid', statsVariantClass[variant], className)}
+        className={cn(
+          'grid',
+          phone,
+          statsColumns[Math.min(count, 6)] || 'sm:grid-cols-3',
+          statsVariantClass[variant],
+          className,
+        )}
         {...props}
       >
         {children}
