@@ -2613,6 +2613,12 @@
       "decisao": "Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `Select",
       "data": "2026-11-24",
       "status": "active"
+    },
+    {
+      "id": "AD-295",
+      "decisao": "Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step",
+      "data": "2026-11-24",
+      "status": "active"
     }
   ]
 }

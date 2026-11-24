@@ -5,37 +5,41 @@ Caminhos a partir de `apps/web/src/routes/_private/`.
 
 ## Hub de módulo — `{module}/index.tsx`
 
-Referência: `finance/index.tsx`, `expert-reports/index.tsx`.
+Referência: `expert-reports/index.tsx`, `field/index.tsx`.
 
 ```tsx
-// SECTIONS vem de ./@consts/sections.js (um destino por sub-rota; `icon` é LucideIcon).
+const DESTINATIONS = [
+  { to: '/x/list', icon: List, title: 'x_list', meta: ['a', 'b'] },
+] as const;
 
 export function XIndexPage() {
   return (
     <Card asPage>
-      <CardHeader title={t('x')} />
-      <CardContent className="flex w-full max-w-4xl flex-col gap-8 pb-24">
-        <PageIntro
-          title={t('x')}
-          description={t('...')}
-          illustration={<XIllustration />} // @components/ da rota, decorativa
-          heading={t('...')}
-          text={t('...')}
-          features={[{ icon: List, label: t('list') } /* 3 recursos */]}
-        />
-        <LinkCardList>
-          {SECTIONS.map(({ to, titleKey, icon }) => (
-            <LinkCard key={to} render={<Link to={to} />} icon={icon} title={t(titleKey)} />
+      <CardHeader title={t('x')} description={t('x_description')} />
+      <CardContent>
+        <ItemGroup>
+          {DESTINATIONS.map(({ to, icon: Icon, title, meta }) => (
+            <li key={to}>
+              <Item render={<Link to={to} />}>
+                <ItemMedia variant="icon">
+                  <Icon />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>{t(title)}</ItemTitle>
+                  <ItemDescription>{meta.map((key) => t(key)).join(' · ')}</ItemDescription>
+                </ItemContent>
+                <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+              </Item>
+            </li>
           ))}
-        </LinkCardList>
+        </ItemGroup>
       </CardContent>
     </Card>
   );
 }
 ```
 
-- Padrão de toda página `index` que redireciona para as páginas do módulo (AD-095). `CardHeader` leva só o título (e `CardAction`, quando há ação principal); a descrição vive no `PageIntro`, que vem antes da lista.
-- `PageIntro` tem altura fixa para ficar igual em todos os hubs: texto novo precisa caber.
+- Padrão de toda página `index` que redireciona para as páginas do módulo (AD-295, supersede AD-094/AD-095 no formato). A descrição fica no `CardHeader`; não há cartão de introdução nem ilustração. Conteúdo na largura toda, sem `max-w-*`.
 - Nunca `redirect()` automático para a primeira sub-rota.
 - Destino só de admin: filtre por `isAdminSession` (ver `index.tsx` do `_private`).
 

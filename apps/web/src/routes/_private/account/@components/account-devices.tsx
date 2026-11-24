@@ -1,12 +1,12 @@
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Laptop, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { InfoCard, InfoCardList } from '@/components/info-card.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { passkeysQuery, removePasskeyMutation } from '@/query/passkey.js';
@@ -29,30 +29,33 @@ export function AccountDevices() {
     );
 
   return (
-    <InfoCardList>
-      {query.data.map((device) => (
-        <InfoCard
-          key={device.id}
-          title={device.label}
-          description={[
-            `${t('added_on')} ${formatDate(device.createdAt)}`,
-            device.lastUsedAt && `${t('last_used')} ${formatDate(device.lastUsedAt)}`,
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-          badge={
-            <Badge variant="secondary">
-              {device.kind === 'mobile' ? <Smartphone /> : <Laptop />}
-              {t(device.kind === 'mobile' ? 'cell_phone' : 'computer')}
-            </Badge>
-          }
-          actions={
-            <Button variant="outline" size="sm" onClick={() => setRemovingId(device.id)}>
-              {t('remove')}
-            </Button>
-          }
-        />
-      ))}
+    <>
+      <ItemGroup>
+        {query.data.map((device) => (
+          <Item key={device.id} render={<li />}>
+            <ItemContent>
+              <ItemTitle>{device.label}</ItemTitle>
+              <ItemDescription>
+                {[
+                  `${t('added_on')} ${formatDate(device.createdAt)}`,
+                  device.lastUsedAt && `${t('last_used')} ${formatDate(device.lastUsedAt)}`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Badge variant="secondary">
+                {device.kind === 'mobile' ? <Smartphone /> : <Laptop />}
+                {t(device.kind === 'mobile' ? 'cell_phone' : 'computer')}
+              </Badge>
+              <Button variant="outline" size="sm" onClick={() => setRemovingId(device.id)}>
+                {t('remove')}
+              </Button>
+            </ItemActions>
+          </Item>
+        ))}
+      </ItemGroup>
       {removingId && (
         <ConfirmDialog
           title={t('remove')}
@@ -64,6 +67,6 @@ export function AccountDevices() {
           onClose={() => setRemovingId(null)}
         />
       )}
-    </InfoCardList>
+    </>
   );
 }

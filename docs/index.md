@@ -96,6 +96,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-295** (2026-11-24, active) — Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step
 - **AD-294** (2026-11-24, active) — Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `Select
 - **AD-293** (2026-11-24, active) — Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-med
 - **AD-292** (2026-11-24, active) — Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam
@@ -105,7 +106,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-288** (2026-11-24, active; supersede a AD-252 e a parte de `LinkList` da AD-075 (a forma do `ItemGroup` superseded by AD-289; ícones e seta superseded by AD-290)) — `LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item`
 - **AD-287** (2026-11-24, active) — Antes de mudar a infra da consulta ao Datajud, o worker registra cada chamada: uma linha `datajud.request` com resultado (`rate_limited`, `t
 - **AD-286** (2026-11-23, active) — Job da fila do worker pode ter o próprio limite de tentativas (`maxAttempts` no `WorkerJob`, padrão `MAX_ATTEMPTS` = 5). O lote do Datajud (
-- **AD-285** (2026-11-23, active) — Achados da validação local de 2026-11-23 (contas admin, operador restrito e um segundo escritório). (1) Honorário é dado do financeiro també
 
 ## Outros documentos
 

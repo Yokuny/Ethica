@@ -1871,6 +1871,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-24
 - **Status**: active
 
+### AD-295
+- **Decision**: Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `StepList`/`StepItem` e `InfoCard`/`InfoCardList` (`apps/web/src/components/`). Os hubs de Laudos e Logística põem a descrição no `CardHeader` e listam os destinos com `ItemGroup` + `Item render={<Link/>}` (ícone, título, apoio, seta) direto na página; Conta, Escritório e Relatórios montam uma `section` por assunto a partir de um array local (título e descrição à esquerda, formulário à direita, fio entre seções); metas do ano, responsáveis técnicos, recebimentos do lançamento e aparelhos viram `Item`. Saem as chaves de texto da introdução e do título grande das etapas que ficaram sem uso. `NumberedList` fica: guarda a lógica de árvore (subitem só aparece com o pai aberto, expandir/recolher tudo) do editor de laudo e do modelo. Supersede o formato da AD-094/AD-095 (hubs), a AD-224 (páginas em etapas) e a AD-225/AD-226 (`InfoCard`).
+- **Reason**: pedido do usuário (2026-11-24): componentes que recebem dados e fixam o desenho limitavam a personalização e traziam padrão rígido; fazer direto na página com os primitivos.
+- **Trade-off**: o markup da seção se repete nas três páginas de configuração (cerca de 15 linhas cada); somem a ilustração e o texto de marketing dos hubs.
+- **Scope**: `apps/web/src/routes/_private/{expert-reports,field,account,reports,_admin/office}/index.tsx`, `apps/web/src/routes/_private/_admin/office/@components/{office-revenue-goal,office-signatories}.tsx`, `apps/web/src/routes/_private/finance/@components/installments-list.tsx`, `apps/web/src/routes/_private/account/@components/account-devices.tsx`, `.agents/skills/ethica-web-standards/`.
+- **Date**: 2026-11-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

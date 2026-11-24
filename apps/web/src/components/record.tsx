@@ -61,7 +61,7 @@ export function RecordHeading({ label, title, icon, badge, description, align = 
   return (
     <div className={cn('flex min-w-0 items-center gap-4', align === 'end' && 'sm:justify-end sm:text-right')}>
       {icon && (
-        // Same tile as LinkCard: muted square, rounded, the icon centered.
+        // Icon tile: muted square, rounded, the icon centered in the title color.
         <span
           aria-hidden
           className="flex aspect-square w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-impact sm:w-16 [&_svg]:size-5 sm:[&_svg]:size-6"
