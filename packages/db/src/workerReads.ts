@@ -164,10 +164,15 @@ export type TrackedCase = {
   phase: CasePhase;
 };
 
-// Cases followed in court (ADT-02): offices with the module on, a valid CNJ number of a tracked court type,
-// a judicial role and the case not closed. Derived on every run.
-export const listTrackedCases = async (now = new Date()): Promise<TrackedCase[]> => {
-  const tenants = await Tenant.find({ automationUntil: { $gt: now }, ...openTenantFilter(now) })
+// Cases followed in court (ADT-02, PAC-03): offices with the module on, a valid CNJ number of a tracked court
+// type, a judicial role and the case not closed. Derived on every run; the worker reads every office, the api
+// one office (the Automação page).
+export const listTrackedCases = async (now = new Date(), tenantId?: string): Promise<TrackedCase[]> => {
+  const tenants = await Tenant.find({
+    ...(tenantId ? { _id: toObjectId(tenantId) } : {}),
+    automationUntil: { $gt: now },
+    ...openTenantFilter(now),
+  })
     .select('_id')
     .lean();
   if (tenants.length === 0) return [];

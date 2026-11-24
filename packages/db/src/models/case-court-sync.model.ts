@@ -2,7 +2,8 @@ import mongoose, { Schema } from 'mongoose';
 
 // Tracking of a case in court (AD-268): the movement keys this case has already seen. The first sync
 // (and the module back on) only saves them — the baseline — and creates nothing; afterwards only a key not
-// seen becomes a notice. Per case, because the CourtProcess is global.
+// seen becomes a notice. Per case, because the CourtProcess is global. Every successful query records
+// `syncedAt`; `baselineAt` only exists once the Datajud brought the process (without it: not found in court).
 export interface CaseCourtSyncDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
@@ -10,7 +11,7 @@ export interface CaseCourtSyncDocument {
   court: string;
   processNumber: string;
   seenMovementKeys: string[];
-  baselineAt: Date;
+  baselineAt?: Date;
   syncedAt: Date;
 }
 
@@ -20,7 +21,7 @@ const caseCourtSyncSchema = new Schema<CaseCourtSyncDocument>({
   court: { type: String, required: true },
   processNumber: { type: String, required: true },
   seenMovementKeys: { type: [String], default: [] },
-  baselineAt: { type: Date, required: true },
+  baselineAt: { type: Date },
   syncedAt: { type: Date, required: true },
 });
 
