@@ -19,7 +19,7 @@ const itemGroupVariants = cva('group/item-group w-full', {
   variants: {
     variant: {
       grid: 'flex flex-wrap gap-2 [&>*]:min-w-0 [&>*]:basis-full sm:[&>*]:basis-[calc(50%-0.25rem)] xl:[&>*]:basis-[calc(33.333%-0.34rem)] 2xl:[&>*]:basis-[calc(25%-0.375rem)]',
-      list: 'flex flex-col divide-y overflow-hidden rounded-lg border bg-card shadow-xs [&>*]:rounded-none [&>*]:border-0 [&>*]:shadow-none [&>li>[data-slot=item]]:rounded-none [&>li>[data-slot=item]]:border-0 [&>li>[data-slot=item]]:shadow-none',
+      list: 'flex flex-col overflow-hidden rounded-lg border bg-card shadow-xs [&>*]:rounded-none [&>*]:border-0 [&>*]:shadow-none [&>*:not(:first-child)]:border-t [&>li>[data-slot=item]]:rounded-none [&>li>[data-slot=item]]:border-0 [&>li>[data-slot=item]]:shadow-none [&>*:focus-visible]:ring-inset [&>li>[data-slot=item]:focus-visible]:ring-inset',
     },
   },
   defaultVariants: { variant: 'grid' },
