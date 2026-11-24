@@ -17,7 +17,14 @@ import {
   validClient,
   validServiceType,
 } from '@ethica/contracts';
-import { caseIdsDueBetween, dateInDisplayTz, nextDueByCases, shiftMonth, TextSearchUnavailableError } from '@ethica/db';
+import {
+  caseIdsDueBetween,
+  dateInDisplayTz,
+  listTrackedCases,
+  nextDueByCases,
+  shiftMonth,
+  TextSearchUnavailableError,
+} from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import type { FileStorage } from '../../providers/file-storage.js';
@@ -389,3 +396,6 @@ export const caseDashboard = (tenantId: string, now: Date = new Date()) => {
   );
 };
 export const findSummariesByIds = (tenantId: string, ids: string[]) => caseRepository.findSummariesByIds(tenantId, ids);
+
+// The cases of the office the worker follows in court (PAC-03): the same rule the worker uses.
+export const listTrackedCasesOf = (tenantId: string, now = new Date()) => listTrackedCases(now, tenantId);

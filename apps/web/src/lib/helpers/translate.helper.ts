@@ -270,7 +270,8 @@ const translations: Record<string, string> = {
   proposed_receipt: 'Registrar o recebimento de',
   proposed_cancel_deadlines: 'Cancelar os prazos e alertas pendentes deste serviço',
   suggestion_outdated: 'O serviço mudou desde a sugestão; ela não se aplica mais.',
-  court_process_waiting: 'O processo ainda não foi consultado no tribunal. A consulta é feita uma vez por dia.',
+  court_process_waiting:
+    'O processo ainda não foi consultado no tribunal. A consulta é feita uma vez por dia, de madrugada.',
   court_updated_at: 'Atualizado no tribunal em',
   court_movement_notice: 'Movimentação nova no tribunal',
   payment_in_progress_notice: 'Pagamento em andamento no tribunal',
@@ -284,6 +285,13 @@ const translations: Record<string, string> = {
   tracked_cases_description: 'Os serviços trabalhistas e federais consultados uma vez por dia no Datajud.',
   no_tracked_cases: 'Nenhum processo acompanhado ainda. A primeira consulta é feita na madrugada seguinte.',
   last_court_query: 'última consulta em',
+  court_query_waiting: 'Aguardando a primeira consulta',
+  court_query_not_found: 'Não encontrado no tribunal',
+  court_query_not_found_description:
+    'Confira o número no serviço: ele pode estar errado, o processo pode ser sigiloso ou ainda não estar no Datajud (até 7 dias).',
+  court_query_stale: 'Sem resposta do tribunal',
+  court_query_stale_since: 'Sem resposta do tribunal desde',
+  court_query_synced: 'Consultado',
   automation_rules: 'Regras',
   automation_rules_description: 'O aviso só informa; a sugestão só muda o serviço depois que alguém aprova.',
   automation_rule_new_movement: 'Qualquer movimentação nova no tribunal',

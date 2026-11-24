@@ -19,7 +19,7 @@ export const courtProcessQuery = (caseId: string) =>
     },
   });
 
-// The cases followed in court (the Automação page), the most recently read first.
+// Every case followed in court (the Automação page, PAC-01), with its situation; the screen orders it.
 export const trackedCasesQuery = queryOptions({
   queryKey: [...automationKeys.all, 'cases'] as const,
   queryFn: async (): Promise<TrackedCase[]> => {

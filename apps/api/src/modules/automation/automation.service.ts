@@ -1,4 +1,4 @@
-import { caseLabel, courtUnitFromNumber } from '@ethica/contracts';
+import { courtUnitFromNumber } from '@ethica/contracts';
 import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as caseService from '../case/case.service.js';
 import * as billingService from '../identity/billing.service.js';
@@ -20,15 +20,18 @@ export const getCaseCourtProcess = async (tenantId: string, caseId: string): Pro
   return automationRepository.findCourtProcess(unit.court, legalCase.processNumber);
 };
 
-// The cases followed in court; a case deleted meanwhile is left out (nothing to link to).
+// Every case the worker follows (PAC-01), with what the court answered (PAC-02): no record = waiting for the first
+// query; a record without baseline = not found in court. A case closed or canceled is not followed, so not listed.
 export const listTrackedCases = async (tenantId: string): Promise<TrackedCase[]> => {
-  const tracked = await automationRepository.findTrackedCases(tenantId);
-  const summaries = await caseService.findSummariesByIds(
+  const tracked = await caseService.listTrackedCasesOf(tenantId);
+  const syncs = await automationRepository.findCourtSyncs(
     tenantId,
     tracked.map((item) => item.caseId),
   );
-  return tracked.flatMap((item) => {
-    const summary = summaries.get(item.caseId);
-    return summary ? [{ ...item, caseLabel: caseLabel(summary) }] : [];
+  return tracked.map((item): TrackedCase => {
+    const sync = syncs.get(item.caseId);
+    const base = { caseId: item.caseId, caseLabel: item.processNumber, court: item.court };
+    if (!sync) return { ...base, status: 'waiting' };
+    return { ...base, status: sync.found ? 'synced' : 'not_found', syncedAt: sync.syncedAt };
   });
 };

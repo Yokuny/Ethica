@@ -37,8 +37,12 @@ const renderPage = (automationUntil?: string) => {
     items: [{ id: 's1' }],
     total: 2,
   } as never);
+  const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString();
   queryClient.setQueryData(trackedCasesQuery.queryKey, [
-    { caseId: 'c1', caseLabel: '0024364-65.2020.5.24.0091', court: 'TRT24', syncedAt: '2026-11-20T06:00:00.000Z' },
+    { caseId: 'c1', caseLabel: '0024364-65.2020.5.24.0091', court: 'TRT24', status: 'synced', syncedAt: daysAgo(1) },
+    { caseId: 'c2', caseLabel: '0000010-00.2026.5.24.0001', court: 'TRT24', status: 'waiting' },
+    { caseId: 'c3', caseLabel: '0017068-93.2025.5.16.0008', court: 'TRT16', status: 'not_found', syncedAt: daysAgo(1) },
+    { caseId: 'c4', caseLabel: '0000020-00.2026.5.24.0001', court: 'TRT24', status: 'synced', syncedAt: daysAgo(5) },
   ]);
   render(
     <QueryClientProvider client={queryClient}>
@@ -68,5 +72,20 @@ describe('AutomationPage', () => {
     );
     expect(screen.queryByText('Processo suspenso ou sobrestado')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument();
+  });
+
+  it('mostra a situação de cada processo, primeiro o que pede atenção (PAC-02)', () => {
+    renderPage(new Date(Date.now() + 86_400_000).toISOString());
+    const rows = screen.getAllByRole('listitem').filter((row) => row.textContent?.includes('TRT'));
+    expect(rows.map((row) => row.textContent)).toEqual([
+      expect.stringContaining('0017068-93.2025.5.16.0008Não encontrado no tribunal'),
+      expect.stringContaining('0000020-00.2026.5.24.0001Sem resposta do tribunal'),
+      expect.stringContaining('0000010-00.2026.5.24.0001Aguardando a primeira consulta'),
+      expect.stringContaining('0024364-65.2020.5.24.0091Consultado'),
+    ]);
+    expect(rows[0]).toHaveTextContent('o processo pode ser sigiloso');
+    expect(rows[1]).toHaveTextContent('Sem resposta do tribunal desde');
+    expect(rows[2]).toHaveTextContent('A consulta é feita uma vez por dia, de madrugada.');
+    expect(rows[3]).toHaveTextContent('última consulta em');
   });
 });

@@ -58,5 +58,13 @@ export type CourtProcessView = {
   movements: CourtMovement[];
 };
 
-// A case the automation follows (the Automação page): its label, the court and when the worker last read it.
-export type TrackedCase = { caseId: string; caseLabel: string; court: string; syncedAt: string };
+// A case the automation follows (the Automação page, PAC-02): waiting for the first successful query, queried and
+// not found in court, or synced; `syncedAt` is the last successful query (absent while waiting).
+export type TrackedCaseStatus = 'waiting' | 'not_found' | 'synced';
+export type TrackedCase = {
+  caseId: string;
+  caseLabel: string;
+  court: string;
+  status: TrackedCaseStatus;
+  syncedAt?: string;
+};

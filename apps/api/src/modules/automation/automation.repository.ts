@@ -25,12 +25,18 @@ export const findCourtProcess = async (court: string, processNumber: string) =>
     };
   });
 
-// The cases of the office the worker follows in court, the most recently read first.
-export const findTrackedCases = async (tenantId: string) =>
-  withDbTiming('automation.findTrackedCases', async () => {
-    const docs = await CaseCourtSync.find(tenantScoped({ Tenant: tenantId }))
-      .select('Case court syncedAt')
-      .sort({ syncedAt: -1 })
+// What the worker recorded of each case (PAC-02): the last successful query and, if the court brought it, the
+// baseline. One query for the whole list.
+export const findCourtSyncs = async (tenantId: string, caseIds: string[]) =>
+  withDbTiming('automation.findCourtSyncs', async () => {
+    if (caseIds.length === 0) return new Map<string, { found: boolean; syncedAt: string }>();
+    const docs = await CaseCourtSync.find(tenantScoped({ Tenant: tenantId, Case: { $in: caseIds } }))
+      .select('Case baselineAt syncedAt')
       .lean();
-    return docs.map((doc) => ({ caseId: doc.Case.toString(), court: doc.court, syncedAt: doc.syncedAt.toISOString() }));
+    return new Map(
+      docs.map((doc) => [
+        doc.Case.toString(),
+        { found: Boolean(doc.baselineAt), syncedAt: doc.syncedAt.toISOString() },
+      ]),
+    );
   });
