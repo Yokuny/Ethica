@@ -243,4 +243,63 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
     expect(await batch('2026-11-22')).toMatchObject({ notices: 1, suggestions: 1 });
     expect(await Notification.countDocuments({ kind: 'suggestion', ruleKey: 'case_settlement' })).toBe(1);
   });
+
+  it('não encontrado grava só a data; quando o processo aparece vira linha de base sem aviso (PAC-02)', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      role: 'court_expert' as const,
+      status: 'active' as const,
+      phase: 'drafting_report' as const,
+    };
+    const later = new Date('2026-11-23T09:00:00.000Z');
+    const fetchProcesses = vi
+      .fn<DatajudClient['fetchProcesses']>()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([courtProcess([movement('a', '2026-11-01T10:00:00Z')])])
+      .mockResolvedValueOnce([
+        courtProcess([movement('a', '2026-11-01T10:00:00Z'), movement('b', '2026-11-22T10:00:00Z')]),
+      ])
+      .mockResolvedValueOnce([]);
+    const batch = (day: string, at: Date) =>
+      refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day, cases: [item] }, at);
+
+    expect(await batch('2026-11-21', now)).toMatchObject({ processes: 0, baselines: 0 });
+    const notFound = await CaseCourtSync.findOne({}).lean();
+    expect(notFound).toMatchObject({ court: 'TRT24', processNumber: NUMBER, syncedAt: now, seenMovementKeys: [] });
+    expect(notFound?.baselineAt).toBeUndefined();
+
+    expect(await batch('2026-11-22', later)).toMatchObject({ baselines: 1, notices: 0 });
+    expect(await Notification.countDocuments({})).toBe(0);
+    expect(await CaseCourtSync.findOne({}).lean()).toMatchObject({ baselineAt: later, seenMovementKeys: ['a'] });
+
+    expect(await batch('2026-11-23', later)).toMatchObject({ baselines: 0, notices: 1 });
+
+    // Not found again one day: the process stays synced, only the date moves.
+    const latest = new Date('2026-11-24T09:00:00.000Z');
+    await batch('2026-11-24', latest);
+    expect(await CaseCourtSync.findOne({}).lean()).toMatchObject({ baselineAt: later, syncedAt: latest });
+    expect(await CaseCourtSync.countDocuments({})).toBe(1);
+  });
+
+  it('consulta que falha não grava nada', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      role: 'court_expert' as const,
+      status: 'active' as const,
+      phase: 'drafting_report' as const,
+    };
+    const fetchProcesses = vi.fn<DatajudClient['fetchProcesses']>().mockRejectedValueOnce(new Error('429'));
+    await expect(
+      refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day: '2026-11-21', cases: [item] }, now),
+    ).rejects.toThrow('429');
+    expect(await CaseCourtSync.countDocuments({})).toBe(0);
+  });
 });

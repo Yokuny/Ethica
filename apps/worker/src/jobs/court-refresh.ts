@@ -12,7 +12,9 @@ import { insertCaseNotice, insertCourtMovementNotice, insertSuggestion } from '.
 import { enqueue } from '../queue/queue.js';
 
 // Tracking in court (ADT-02, AD-277): once a day the cases of offices with the Automação Datajud are grouped
-// by court and queried in batches. The first sync of a case only records what it saw (baseline); afterwards
+// by court and queried in batches. Every successful query is recorded (a case not found keeps only the date,
+// PAC-02); a failed one records nothing and the batch is retried. The first time the court brings the process
+// only records what it saw (baseline); afterwards
 // each new movement enters one notice per case and day, and a movement a rule recognizes becomes a suggestion
 // (the latest per rule) when it still fits the case. Nothing here changes a case (AD-268).
 
@@ -76,18 +78,33 @@ export const refreshCourtBatch = async (
     const movements = processes
       .filter((process) => process.processNumber === item.processNumber)
       .flatMap((process) => process.movements);
-    if (movements.length === 0) continue;
-    const sync = await CaseCourtSync.findOne({ Tenant: item.tenantId, Case: item.caseId }).lean();
-    if (!sync) {
-      await CaseCourtSync.create({
-        Tenant: item.tenantId,
-        Case: item.caseId,
-        court: item.court,
-        processNumber: item.processNumber,
-        seenMovementKeys: movements.map((movement) => movement.key),
-        baselineAt: now,
-        syncedAt: now,
-      });
+    const caseKey = { Tenant: item.tenantId, Case: item.caseId };
+    // Queried and not found (PAC-02): only the date of the query, so the page shows it; a case already synced
+    // keeps its baseline.
+    if (movements.length === 0) {
+      await CaseCourtSync.updateOne(
+        caseKey,
+        { $set: { court: item.court, processNumber: item.processNumber, syncedAt: now } },
+        { upsert: true },
+      );
+      continue;
+    }
+    const sync = await CaseCourtSync.findOne(caseKey).lean();
+    // First time the court brings the process (never queried, or not found until now): baseline, no notice.
+    if (!sync?.baselineAt) {
+      await CaseCourtSync.updateOne(
+        caseKey,
+        {
+          $set: {
+            court: item.court,
+            processNumber: item.processNumber,
+            seenMovementKeys: movements.map((movement) => movement.key),
+            baselineAt: now,
+            syncedAt: now,
+          },
+        },
+        { upsert: true },
+      );
       baselines += 1;
       continue;
     }
