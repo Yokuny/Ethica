@@ -12,7 +12,6 @@ pendência fica no `feature.md` indicado; aqui só a ação, quem faz e a featur
 | Rotas de vistoria com ponto de partida e serviço de rota próprio | `rotas-vistoria` | AD-150 |
 | CRUD de membros só do admin | `gestao-membros` | AD-148 |
 | Imagem de produção da API e arquivos por perícia no S3 | `producao-api` | AD-146 |
-| Processos acompanhados com a situação de cada um (design inline na spec) | `processos-acompanhados` | AD-286 |
 
 Em paralelo: validação do que já existe pela perita, com pequenas correções direto na `main` (AD-143).
 
@@ -34,6 +33,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Conferir que o worker na Railway subiu com a versão de 2026-11-24 (grava o processo não encontrado) antes da rodada das 03:00 — `processos-acompanhados`
 - [ ] Escritório ETHICA em produção com assinatura só no banco (sem Asaas): `subscriptionPlan: automation_monthly`, acesso e Automação até 31/12/2027, gravados à mão em 2026-11-22. Antes dessa data, assinar de verdade pelo app ou estender a data, senão o acesso fecha — `automacao-datajud`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
 - [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
@@ -62,7 +62,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
 
 - [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`
-- [ ] Perita: confirmar as perguntas da spec de processos acompanhados (as três situações, a data velha de 3 dias, a ordem e a seção No tribunal) — `processos-acompanhados`
+- [ ] Depois da rodada das 03:00 seguinte ao deploy do worker na Railway, conferir em /automation do ETHICA que todo processo acompanhado aparece com a situação (o 0017068-93.2025.5.16.0008 do TRT16 como consultado ou não encontrado) — `processos-acompanhados`
+- [ ] Conferir no navegador a página /automation e a seção No tribunal com as quatro situações (o login local exige passkey, não conferido pelo agente) — `processos-acompanhados`
 - [ ] Confirmar as perguntas em aberto das specs: `central-notificacoes`, `automacao-datajud`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`
@@ -82,7 +83,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
-- [ ] Implementar a lista de processos acompanhados com a situação de cada um (tasks T1 a T6, depois da confirmação da perita) — `processos-acompanhados`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
 - [ ] Criar a receita junto com o recebimento quando o serviço não tem honorário em aberto (hoje a tela manda lançar no Financeiro) — `automacao-datajud`
 - [ ] Circuit breaker por tribunal no cliente Datajud do worker — `automacao-datajud`
@@ -107,6 +107,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-24 — Processos acompanhados: todo serviço acompanhado aparece, com a situação de cada um, também na seção No tribunal; o worker grava o não encontrado — `processos-acompanhados`
+- [x] 2026-11-24 — Perita: perguntas da spec de processos acompanhados respondidas (padrões da spec; seção No tribunal aceita) — `processos-acompanhados`
 - [x] 2026-11-23 — Lote do Datajud com 429 tenta 12 vezes no dia em vez de desistir em cerca de 20 minutos (AD-286) — `automacao-datajud`
 - [x] 2026-11-23 — API num padrão único: controller sem try/catch, 404 no service, convite numa entidade, model só no repository, kebab-case, tudo travado no teste estrutural (AD-284) — `api-padrao-unico`
 - [x] 2026-11-23 — Testes de falha em Notificações e Financeiro: lista resiste a data ilegível do tribunal, honorário do serviço não duplica em mudanças simultâneas, datas e valores impossíveis param na borda (AD-283) — `notificacoes-processo-unico`, `prazos-recebimentos`

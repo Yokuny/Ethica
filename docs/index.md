@@ -8,7 +8,6 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Em andamento
 
-- [`processos-acompanhados`](features/processos-acompanhados/feature.md) — **planejado** — Página da Automação lista todo processo acompanhado, mesmo sem dado do tribunal, com a situação de cada um
 - [`automacao-datajud`](features/automacao-datajud/feature.md) — **parcial** — Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa
 - [`meta-receita`](features/meta-receita/feature.md) — **parcial** — Meta de receita do ano cadastrada em Escritório e acompanhada no Dashboard e, por escolha de cada pessoa, em Serviços
 - [`paginas-publicas`](features/paginas-publicas/feature.md) — **parcial** — Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade
@@ -31,7 +30,7 @@ _Nenhum._
 
 | Feature | O que faz | Status | Atualizado | Áreas | Spec | Planos |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Processos acompanhados com a situação de cada um](features/processos-acompanhados/feature.md) | Página da Automação lista todo processo acompanhado, mesmo sem dado do tribunal, com a situação de cada um | planejado | 2026-11-24 | `apps/web` `apps/api` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/processos-acompanhados) | — |
+| [Processos acompanhados com a situação de cada um](features/processos-acompanhados/feature.md) | Página da Automação lista todo processo acompanhado, mesmo sem dado do tribunal, com a situação de cada um | concluido | 2026-11-24 | `apps/web` `apps/api` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/processos-acompanhados) | — |
 | [API num padrão único](features/api-padrao-unico/feature.md) | Uma forma por camada no apps/api (router, controller, service, repository, schema, apoio), travada no teste estrutural | concluido | 2026-11-23 | `apps/api` `tests` `docs` | [spec](../.specs/features/api-padrao-unico) | 1 |
 | [Automação Datajud (premium)](features/automacao-datajud/feature.md) | Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa | parcial | 2026-11-23 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/automacao-datajud) | 1 |
 | [Notificações num processo só](features/notificacoes-processo-unico/feature.md) | Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API | concluido | 2026-11-23 | `apps/api` `apps/web` `packages/contracts` `docs` | [spec](../.specs/features/notificacoes-processo-unico) | — |

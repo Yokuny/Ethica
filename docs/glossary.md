@@ -28,7 +28,7 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Aviso | `kind: 'notice'` da `Notification` | Informação sem ação (movimentação no tribunal, vencimento financeiro, pagamento em andamento); o texto é uma chave de tradução (`topic`). |
 | Processo no tribunal | `CourtProcess` (worker, global) | Cópia pública do processo no Datajud, igual para todo escritório (AD-271); nunca processo sigiloso nem partes. |
 | Movimentação do tribunal | `courtMovement` (`CourtProcess.movements`) | Movimento do processo no Datajud (código TPU, nome, data e complementos); não se confunde com a movimentação do serviço (`movement`). |
-| Acompanhamento do serviço no tribunal | `CaseCourtSync` | Linha de base por serviço: os movimentos já vistos, para só o novo virar aviso. |
+| Acompanhamento do serviço no tribunal | `CaseCourtSync` | Linha de base por serviço: os movimentos já vistos, para só o novo virar aviso. Sem `baselineAt`, o processo foi consultado e não encontrado no tribunal. |
 | Fila do worker | `WorkerJob` | Tarefa de fundo do `apps/worker`, com prioridade, retry e trava por janela (AD-267). |
 | Entrega de notificação | `NotificationDelivery` | Trava de envio por pessoa, canal e chave (consolidado do dia ou imediato), contra envio em dobro. |
 | Honorários propostos | `proposedFeesCents` | Proposta do perito. |

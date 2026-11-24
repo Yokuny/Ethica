@@ -18,7 +18,7 @@ spec: [.specs/features/automacao-datajud]
 
 ## O que foi feito
 
-- **Página Automação Datajud** (`/automation`, no lugar da Prospecção, que saiu inteira): o número de sugestões para aprovar (link para a aba da Central), os processos acompanhados no tribunal com a data da última consulta (link para o serviço) e, no menu "…" do cabeçalho, a página **Regras** (`/automation/rules`) com o que cada movimento traz, em texto da perita. Sem o módulo, a oferta. Está no menu, no início, no tour e no celular pelo Menu.
+- **Página Automação Datajud** (`/automation`, no lugar da Prospecção, que saiu inteira): o número de sugestões para aprovar (link para a aba da Central), todo processo acompanhado no tribunal com a situação de cada um (aguardando, não encontrado, sem resposta ou consultado; feature `processos-acompanhados`) e link para o serviço e, no menu "…" do cabeçalho, a página **Regras** (`/automation/rules`) com o que cada movimento traz, em texto da perita. Sem o módulo, a oferta. Está no menu, no início, no tour e no celular pelo Menu.
 - **Pagamento no tribunal** (Fase 6): a requisição ou a ordem de pagamento vira o aviso "Pagamento em andamento no tribunal"; o alvará emitido ou a RPV/precatório paga vira a sugestão "Registrar o recebimento", com e-mail na hora. Aprovar abre o formulário com o honorário em aberto, o saldo e a data do movimento para a pessoa confirmar.
 - Depois de aprovar um acordo ou uma desistência, vem a sugestão de cancelar os prazos e alertas pendentes do serviço; a suspensão traz o aviso para revisar os prazos.
 - **Sugestões para aprovar** (Fase 5): suspensão, retomada, acordo, desistência ou extinção e sentença no tribunal viram uma sugestão de situação ou fase na aba **Para aprovar** da Central e na seção No tribunal do serviço. Nada muda até alguém com permissão de alterar serviços clicar em Aprovar; se o serviço já estiver assim, a sugestão se encerra sozinha.
@@ -62,6 +62,7 @@ A definir.
 
 ## Histórico
 
+- 2026-11-24 — "Processos acompanhados" lista todo serviço acompanhado, mesmo sem resposta do tribunal, com a situação de cada um; o worker passa a gravar o `CaseCourtSync` também do processo não encontrado (sem `baselineAt`). Detalhe em `processos-acompanhados`.
 - 2026-11-24 — As regras saíram da página principal e foram para `/automation/rules`, aberta pelo menu "…" do cabeçalho (só com o módulo ativo), no mesmo padrão de /expert-cases.
 - 2026-11-23 — Produção: o processo 0017068-93.2025.5.16.0008 (TRT16) do ETHICA estava na lista do worker e o Datajud o devolve (84 movimentos), mas o lote do dia levou 429 cinco vezes em 20 minutos e desistiu até o dia seguinte; sem resposta não há `CaseCourtSync` e o processo não aparece em "Processos acompanhados". O lote do Datajud agora tenta 12 vezes no dia (AD-286). Na véspera não houve lote: o módulo entrou depois da rodada do dia 22. A lista com todo processo acompanhado e a situação de cada um virou a feature `processos-acompanhados` (spec em 2026-11-24).
 - 2026-11-23 — Página Automação Datajud conferida no navegador local: com o módulo, as sugestões (0), o processo do TRT24 com a última consulta e o link para o serviço, e as oito regras com Aviso ou Sugestão; sem o módulo, só a oferta, sem chamada à API.

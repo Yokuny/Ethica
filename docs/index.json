@@ -6,7 +6,7 @@
       "feature": "Processos acompanhados com a situação de cada um",
       "descricao": "Página da Automação lista todo processo acompanhado, mesmo sem dado do tribunal, com a situação de cada um",
       "data": "2026-11-24",
-      "status": "planejado",
+      "status": "concluido",
       "areas": [
         "apps/web",
         "apps/api",
