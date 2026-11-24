@@ -1,6 +1,7 @@
 import { caseLabel } from '@ethica/contracts';
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
+import { BriefcaseBusiness } from 'lucide-react';
 import { useState } from 'react';
 import { caseRoleLabel } from '@/components/case-labels.js';
 import { DataTable } from '@/components/data-table.js';
@@ -31,6 +32,9 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
             {items.map((legalCase) => (
               <li key={legalCase.id}>
                 <Item render={<button type="button" onClick={() => onPick(legalCase.id)} />}>
+                  <ItemMedia variant="icon">
+                    <BriefcaseBusiness />
+                  </ItemMedia>
                   <ItemContent>
                     <ItemTitle>{[legalCase.serviceOrder, caseLabel(legalCase)].filter(Boolean).join(' · ')}</ItemTitle>
                     <ItemDescription>

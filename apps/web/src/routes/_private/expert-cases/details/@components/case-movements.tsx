@@ -1,5 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { History } from 'lucide-react';
 import { useState } from 'react';
@@ -53,6 +53,9 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
           {legalCase.movements.map((movement) => (
             <li key={movement.id}>
               <Item render={<button type="button" onClick={() => setRemoving(movement)} />}>
+                <ItemMedia variant="icon">
+                  <History />
+                </ItemMedia>
                 <ItemContent>
                   <ItemTitle>{t(movement.type)}</ItemTitle>
                   <ItemDescription>{[day(movement.data), movement.notes].filter(Boolean).join(' · ')}</ItemDescription>

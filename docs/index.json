@@ -2571,11 +2571,17 @@
       "id": "AD-288",
       "decisao": "`LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item`",
       "data": "2026-11-24",
-      "status": "active; supersede a AD-252 e a parte de `LinkList` da AD-075 (a forma do `ItemGroup` superseded by AD-289)"
+      "status": "active; supersede a AD-252 e a parte de `LinkList` da AD-075 (a forma do `ItemGroup` superseded by AD-289; ícones e seta superseded by AD-290)"
     },
     {
       "id": "AD-289",
       "decisao": "`ItemGroup` (`packages/ui/src/components/item.tsx`) perde as variantes `grid` e `list` e passa a ser só `<ul>` com `flex flex-col gap-2`, co",
+      "data": "2026-11-24",
+      "status": "active"
+    },
+    {
+      "id": "AD-290",
+      "decisao": "As linhas de lista voltam a ter o ícone à esquerda (`ItemMedia variant=\"icon\"`, o mesmo ícone que cada lista usava antes da AD-288) e a linh",
       "data": "2026-11-24",
       "status": "active"
     }

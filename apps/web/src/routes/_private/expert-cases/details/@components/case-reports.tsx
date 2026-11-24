@@ -12,7 +12,7 @@ import {
 } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { FilePlus, FileSignature, Paperclip } from 'lucide-react';
+import { ArrowUpRight, FilePlus, FileSignature, Paperclip } from 'lucide-react';
 import { type ChangeEvent, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -120,6 +120,7 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
                 <ItemActions>
                   <Badge variant={REPORT_STATUS_VARIANT[report.status]}>{reportStatusLabel(report.status)}</Badge>
                 </ItemActions>
+                <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
               </Item>
             </li>
           ))}

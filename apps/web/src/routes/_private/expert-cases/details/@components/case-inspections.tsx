@@ -1,8 +1,16 @@
 import { Badge } from '@ethica/ui/components/badge';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ClipboardList } from 'lucide-react';
+import { ArrowUpRight, ClipboardList } from 'lucide-react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Panel } from '@/components/panel.js';
@@ -40,6 +48,9 @@ export function CaseInspections({ caseId }: { caseId: string }) {
             {records.map(({ appointment, inspection }) => (
               <li key={appointment.id}>
                 <Item render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}>
+                  <ItemMedia variant="icon">
+                    <ClipboardList />
+                  </ItemMedia>
                   <ItemContent>
                     <ItemTitle>{appointment.title}</ItemTitle>
                     <ItemDescription>
@@ -53,6 +64,7 @@ export function CaseInspections({ caseId }: { caseId: string }) {
                   <ItemActions>
                     <Badge variant="secondary">{t(appointment.status)}</Badge>
                   </ItemActions>
+                  <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
                 </Item>
               </li>
             ))}

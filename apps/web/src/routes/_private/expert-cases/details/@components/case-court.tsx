@@ -1,4 +1,4 @@
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Gavel } from 'lucide-react';
 import { AutomationOffer } from '@/components/automation-offer.js';
@@ -59,6 +59,9 @@ export function CaseCourt({ caseId }: { caseId: string }) {
         <ItemGroup>
           {courtProcess.movements.slice(0, SHOWN).map((movement) => (
             <Item key={movement.key} render={<li />}>
+              <ItemMedia variant="icon">
+                <Gavel />
+              </ItemMedia>
               <ItemContent>
                 <ItemTitle>{movement.name}</ItemTitle>
                 <ItemDescription>

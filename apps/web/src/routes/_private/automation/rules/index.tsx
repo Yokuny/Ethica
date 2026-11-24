@@ -1,6 +1,15 @@
 import { Badge } from '@ethica/ui/components/badge';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { createFileRoute } from '@tanstack/react-router';
+import { BellRing } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { RULE_ITEMS } from './@utils/rule-items.js';
@@ -14,6 +23,9 @@ export function AutomationRulesPage() {
         <ItemGroup>
           {RULE_ITEMS.map((item) => (
             <Item key={item.key} render={<li />}>
+              <ItemMedia variant="icon">
+                <BellRing />
+              </ItemMedia>
               <ItemContent>
                 <ItemTitle>{item.title}</ItemTitle>
                 <ItemDescription className="line-clamp-none">{item.description}</ItemDescription>

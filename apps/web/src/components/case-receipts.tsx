@@ -2,6 +2,7 @@ import { Badge } from '@ethica/ui/components/badge';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { ArrowUpRight } from 'lucide-react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Panel } from '@/components/panel.js';
@@ -54,6 +55,7 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
                   <ItemActions>
                     <Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>
                   </ItemActions>
+                  <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
                 </Item>
               </li>
             );

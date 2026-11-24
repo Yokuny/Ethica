@@ -1,8 +1,17 @@
 import { caseLabel } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { ArrowUpRight, BriefcaseBusiness } from 'lucide-react';
 import { CASE_STATUS_VARIANT, casePhaseLabel } from '@/components/case-labels.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -27,6 +36,9 @@ export function PartyCases({ partyId }: { partyId: string }) {
             return (
               <li key={legalCase.id}>
                 <Item render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}>
+                  <ItemMedia variant="icon">
+                    <BriefcaseBusiness />
+                  </ItemMedia>
                   <ItemContent>
                     <ItemTitle>{caseLabel(legalCase)}</ItemTitle>
                     <ItemDescription>
@@ -40,6 +52,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
                       {casePhaseLabel(legalCase.phase, legalCase.phaseName)}
                     </Badge>
                   </ItemActions>
+                  <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
                 </Item>
               </li>
             );

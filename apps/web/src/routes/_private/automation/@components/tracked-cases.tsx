@@ -1,7 +1,16 @@
 import { Badge } from '@ethica/ui/components/badge';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { ArrowUpRight, Gavel } from 'lucide-react';
 import { useMemo } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -41,6 +50,9 @@ export function TrackedCases() {
       {items.map((item) => (
         <li key={item.caseId}>
           <Item render={<Link to="/expert-cases/details" search={{ id: item.caseId }} />}>
+            <ItemMedia variant="icon">
+              <Gavel />
+            </ItemMedia>
             <ItemContent>
               <ItemTitle>{item.caseLabel}</ItemTitle>
               <ItemDescription>{`${item.court} · ${trackedCaseDescription(item, item.state)}`}</ItemDescription>
@@ -48,6 +60,7 @@ export function TrackedCases() {
             <ItemActions>
               <Badge variant={TRACKED_CASE_VARIANT[item.state]}>{trackedCaseLabel(item.state)}</Badge>
             </ItemActions>
+            <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
           </Item>
         </li>
       ))}

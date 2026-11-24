@@ -2,7 +2,7 @@ import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { Sparkles } from 'lucide-react';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 import { AutomationOffer } from '@/components/automation-offer.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
@@ -48,6 +48,7 @@ export function AutomationPage() {
                   <ItemTitle className="tabular-nums">{pending}</ItemTitle>
                   <ItemDescription>{t(pending === 1 ? 'pending_suggestion' : 'pending_suggestions')}</ItemDescription>
                 </ItemContent>
+                <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
               </Item>
             </Panel>
             <Panel title={t('tracked_cases')} description={t('tracked_cases_description')}>

@@ -1,10 +1,19 @@
 import { TEMPLATE_AREAS } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router';
+import { ArrowUpRight, ListTree } from 'lucide-react';
 import { useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -32,6 +41,9 @@ function TemplateList({ templates }: { templates: TemplateSummary[] }) {
       {templates.map((template) => (
         <li key={template.id}>
           <Item render={<Link to="/expert-reports/templates/details" search={{ id: template.id }} />}>
+            <ItemMedia variant="icon">
+              <ListTree />
+            </ItemMedia>
             <ItemContent>
               <ItemTitle>{template.name}</ItemTitle>
               <ItemDescription>
@@ -45,6 +57,7 @@ function TemplateList({ templates }: { templates: TemplateSummary[] }) {
                 <Badge variant="info">{t('standard')}</Badge>
               </ItemActions>
             )}
+            <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
           </Item>
         </li>
       ))}

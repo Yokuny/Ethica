@@ -1,6 +1,15 @@
 import { Badge } from '@ethica/ui/components/badge';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { Link } from '@tanstack/react-router';
+import { ArrowUpRight, CalendarClock } from 'lucide-react';
 import { APPOINTMENT_TYPE_VARIANT } from '@/components/appointment-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
@@ -14,6 +23,9 @@ export function UpcomingAppointments({ items }: { items: AppointmentRecord[] }) 
       {items.map((item) => (
         <li key={item.id}>
           <Item render={<Link to="/agenda" search={{ date: formatDisplayDate(item.start), view: 'day' }} />}>
+            <ItemMedia variant="icon">
+              <CalendarClock />
+            </ItemMedia>
             <ItemContent>
               <ItemTitle>{item.title}</ItemTitle>
               <ItemDescription>
@@ -23,6 +35,7 @@ export function UpcomingAppointments({ items }: { items: AppointmentRecord[] }) 
             <ItemActions>
               <Badge variant={APPOINTMENT_TYPE_VARIANT[item.type]}>{t(item.type)}</Badge>
             </ItemActions>
+            <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
           </Item>
         </li>
       ))}

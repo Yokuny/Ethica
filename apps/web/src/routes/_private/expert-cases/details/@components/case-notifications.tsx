@@ -1,6 +1,14 @@
 import { Badge, BadgeIndicator } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarClock } from 'lucide-react';
 import { useState } from 'react';
@@ -54,6 +62,9 @@ export function CaseNotifications({ caseId }: { caseId: string }) {
             return (
               <li key={deadline.id}>
                 <Item render={<button type="button" onClick={() => setPanel({ kind: 'detail', deadline })} />}>
+                  <ItemMedia variant="icon">
+                    <CalendarClock />
+                  </ItemMedia>
                   <ItemContent>
                     <ItemTitle>{deadline.title}</ItemTitle>
                     <ItemDescription>

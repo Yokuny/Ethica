@@ -1,9 +1,17 @@
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Wallet } from 'lucide-react';
+import { ArrowUpRight, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { AppLink } from '@/components/app-link.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
@@ -75,6 +83,9 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
                 return (
                   <li key={item.id}>
                     <Item render={<Link to="/finance" search={{ caseId: legalCase.id }} />}>
+                      <ItemMedia variant="icon">
+                        <Wallet />
+                      </ItemMedia>
                       <ItemContent>
                         <ItemTitle className="tabular-nums">
                           {item.status === 'canceled'
@@ -88,6 +99,7 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
                       <ItemActions>
                         <Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>
                       </ItemActions>
+                      <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
                     </Item>
                   </li>
                 );
