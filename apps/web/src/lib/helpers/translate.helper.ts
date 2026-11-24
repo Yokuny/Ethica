@@ -283,7 +283,7 @@ const translations: Record<string, string> = {
   pending_suggestions: 'sugestões esperando a sua aprovação',
   tracked_cases: 'Processos acompanhados',
   tracked_cases_description: 'Os serviços trabalhistas e federais consultados uma vez por dia no Datajud.',
-  no_tracked_cases: 'Nenhum processo acompanhado ainda. A primeira consulta é feita na madrugada seguinte.',
+  no_tracked_cases: 'Nenhum serviço trabalhista ou federal com número do processo para acompanhar.',
   last_court_query: 'última consulta em',
   court_query_waiting: 'Aguardando a primeira consulta',
   court_query_not_found: 'Não encontrado no tribunal',
