@@ -18,8 +18,6 @@ export interface UserDocument {
     onboardingDismissed?: boolean;
     notifications?: NotificationPreferences;
     hiddenBlocks?: string[];
-    // MRA-04: follow the revenue goal on the services page; absent = off.
-    revenueGoalOnCases?: boolean;
   };
   // iCal feed (PRZ-03): only the hash of the secret token, like session and invite. Missing = no link.
   calendarFeedTokenHash?: string;
@@ -56,7 +54,6 @@ const userSchema = new Schema<UserDocument>(
           onboardingDismissed: { type: Boolean, default: false },
           notifications: { type: Schema.Types.Mixed },
           hiddenBlocks: { type: [String], default: undefined },
-          revenueGoalOnCases: { type: Boolean },
         },
         { _id: false },
       ),

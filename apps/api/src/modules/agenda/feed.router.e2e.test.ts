@@ -181,7 +181,6 @@ describe('preferência de aviso e destinatários (AD-110)', () => {
         suggestions: { email: true, push: true },
       },
       hiddenBlocks: [],
-      revenueGoalOnCases: false,
     });
     const desligado = await bia
       .as(request(app).patch('/me/preferences'))

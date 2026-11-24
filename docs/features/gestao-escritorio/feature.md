@@ -76,6 +76,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-24 — Faixa de números (`RecordStats`) sem limite de colunas nem divisor vertical: tudo numa linha quando cabe, quebra por igual quando não; espaço entre o valor sublinhado e a dica; ladrilho do cabeçalho com 48px no celular (AD-292).
 - 2026-11-23 — Honorário é dado do Financeiro também na API (AD-285): `proposedFeesCents`/`fixedFeesCents` saem das respostas de serviço sem `finance:view`, e gravá-los exige a ação no Financeiro (403 `no_permission`); o formulário do serviço só mostra os campos a quem pode gravar. Achado na validação local com um operador sem Financeiro (a tela escondia, a API devolvia). Teste em `apps/api/src/modules/case/case.router.e2e.test.ts`.
 - 2026-11-21 — Início: Próximos compromissos e Serviços parados ficam um embaixo do outro, na largura toda, com a lista de destinos no novo desenho sem moldura, com o ladrilho de ícone e a seta animada do `LinkCard` (AD-252).
 - 2026-11-24 — `LinkList` excluído: todas as listas (Início, serviço aberto, parte, agenda, novo laudo, modelos, Automação e regras) usam `ItemGroup variant="list"` + `Item` com borda, selos à direita e na largura toda, sem o `max-w-4xl` de Modelos, Automação e Regras (AD-288).

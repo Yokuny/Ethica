@@ -64,7 +64,7 @@ export function RecordHeading({ label, title, icon, badge, description, align = 
         // Same tile as LinkCard: muted square, rounded, the icon centered.
         <span
           aria-hidden
-          className="flex aspect-square w-16 shrink-0 items-center justify-center rounded-lg bg-muted text-impact [&_svg]:size-6"
+          className="flex aspect-square w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-impact sm:w-16 [&_svg]:size-5 sm:[&_svg]:size-6"
         >
           {icon}
         </span>
@@ -107,17 +107,9 @@ export function RecordStatus({ variant, label, pulse = true }: RecordStatusProps
 
 // ─── 2. Highlight strip ──────────────────────────────────────────────────────
 
-// By number of columns (from md up).
-const statsColumns: Record<1 | 2 | 3 | 4 | 5, string> = {
-  1: 'md:grid-cols-1',
-  2: 'md:grid-cols-2',
-  3: 'md:grid-cols-3',
-  4: 'md:grid-cols-4',
-  5: 'md:grid-cols-5',
-};
-
 // `ruled` (default): record strip in the IOT model — rules on top and
-// bottom, vertical divider between cells, uppercase label, value at 24px.
+// bottom, uppercase label, value at 24px. Both variants put every cell on one line when they fit
+// and wrap them evenly when they do not (`auto-fit`), so no cell is left alone on a row.
 // `band`: listing indicator strip (gray surface, sparkline,
 // ruler and trend), without dividers.
 type RecordStatsVariant = 'ruled' | 'band';
@@ -125,25 +117,21 @@ type RecordStatsVariant = 'ruled' | 'band';
 const StatsVariantContext = createContext<RecordStatsVariant>('ruled');
 
 const statsVariantClass: Record<RecordStatsVariant, string> = {
-  ruled:
-    'grid-cols-1 gap-y-5 border-y py-6 sm:grid-cols-2 sm:gap-x-8 md:gap-x-0 md:[&>*]:px-8 md:[&>*:first-child]:pl-0 md:[&>*:last-child]:pr-0 md:[&>*+*]:border-l',
-  band: 'grid-cols-2 gap-x-6 gap-y-6 bg-surface-secondary px-4 py-5 md:gap-x-10',
+  ruled: 'grid-cols-1 gap-x-8 gap-y-5 border-y py-6 sm:grid-cols-[repeat(auto-fit,minmax(8rem,auto))]',
+  band: 'grid-cols-2 gap-x-6 gap-y-6 bg-surface-secondary px-4 py-5 md:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] md:gap-x-8',
 };
 
 type RecordStatsProps = ComponentProps<'div'> & {
-  // Columns from `md` up; default = number of cells (up to 5).
-  columns?: 1 | 2 | 3 | 4 | 5;
   variant?: RecordStatsVariant;
 };
 
-export function RecordStats({ columns, variant = 'ruled', className, children, ...props }: RecordStatsProps) {
-  const count = Math.max(1, Math.min(Children.toArray(children).length, 5)) as 1 | 2 | 3 | 4 | 5;
+export function RecordStats({ variant = 'ruled', className, children, ...props }: RecordStatsProps) {
   return (
     <StatsVariantContext.Provider value={variant}>
       <div
         data-slot="record-stats"
         data-variant={variant}
-        className={cn('grid', statsVariantClass[variant], statsColumns[columns ?? count], className)}
+        className={cn('grid', statsVariantClass[variant], className)}
         {...props}
       >
         {children}
@@ -295,7 +283,7 @@ export function RecordStat({
               {headerAction}
             </div>
             {/* Wraps instead of overflowing: in a narrow cell the hint goes to the next line, never over the value. */}
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
               <ItemTitle
                 className={cn(
                   ruled ? 'text-2xl leading-tight' : 'text-[1.4rem] leading-none font-normal tracking-tight',

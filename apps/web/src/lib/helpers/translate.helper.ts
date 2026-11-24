@@ -474,8 +474,6 @@ const translations: Record<string, string> = {
   services_mix: 'Mix de serviços',
   services_mix_scope: 'Todos os serviços desde o início, por tipo',
   cash_flow_scope: 'Recebido pela data de cada parcela, despesas pela data do pagamento e a receber pelo vencimento',
-  kpis_scope_note:
-    'Só meses completos: o mês em andamento fica de fora. Setas e percentuais comparam com o período anterior de mesmo tamanho.',
   negative: 'Negativo',
   up_to_date: 'Em dia',
   new_expert_cases: 'Serviços novos',
@@ -1634,8 +1632,6 @@ const translations: Record<string, string> = {
   slightly_below_pace: 'Um pouco abaixo do ritmo',
   goal_reached: 'Meta atingida',
   goal_data: 'Dados da meta',
-  follow_goal_here: 'Acompanhar a meta aqui',
-  hide_goal_here: 'Ocultar a meta daqui',
 };
 
 // Languages supported by the app — today only pt-BR (the default). A new language

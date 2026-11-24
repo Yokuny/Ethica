@@ -1839,6 +1839,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-24
 - **Status**: active
 
+### AD-291
+- **Decision**: A meta de receita aparece na página Serviços para quem vê o Financeiro sempre que o ano corrente tem meta cadastrada, sem escolha por pessoa: sai o item "Acompanhar a meta aqui / Ocultar a meta daqui" do menu e a preferência `revenueGoalOnCases` some de ponta a ponta (`packages/db` `User.preferences`, schema e repository de `apps/api/src/modules/identity/preferences.*`, tipo do web e testes e2e). O gatilho fica só "? Dados da meta", sem sublinhado tracejado; os números seguem no tooltip. Supersede a preferência da spec `meta-receita` (MRA-04) e do `tasks.md` dela.
+- **Reason**: pedido do usuário (2026-11-24): a meta não deve depender do menu; sublinhado tracejado no gatilho parecia link.
+- **Trade-off**: quem não quer ver a meta em Serviços não tem como escondê-la; o campo antigo fica órfão nos documentos de usuário que o gravaram (o schema do Mongoose não o lê mais, sem migração).
+- **Scope**: `apps/web/src/routes/_private/expert-cases/index.tsx`, `apps/web/src/routes/_private/expert-cases/@components/cases-revenue-goal.tsx`, `apps/web/src/query/preferences.ts`, `apps/api/src/modules/identity/preferences.{schema,repository}.ts`, `packages/db/src/models/user.model.ts`, `apps/api/src/modules/{identity/preferences,agenda/feed}.router.e2e.test.ts`.
+- **Date**: 2026-11-24
+- **Status**: active
+
+### AD-292
+- **Decision**: Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam `auto-fit` (`ruled` com colunas do tamanho do conteúdo, `minmax(8rem,auto)`; `band` com `minmax(9rem,1fr)`), então todas as células ficam numa linha quando cabem e quebram por igual quando não; sai a prop `columns`. Entre o valor (sublinhado quando é link) e a dica há `gap-y-1.5`. O Dashboard segue o molde da Home e de Serviços: uma faixa só, logo abaixo do cabeçalho (fora do `CardContent`), com Saldo, Recebido, Despesas, A receber e Serviços novos (`DashboardKpis`); saem a faixa "Trabalho" do meio da página, a célula "Serviços em aberto" (já está na Home e em Serviços) e a nota `kpis_scope_note` (o cabeçalho já diz o período). Ladrilho do ícone do `RecordHeading` com 48px no celular e 64px a partir de `sm`.
+- **Reason**: pedido do usuário (2026-11-24): a sexta célula do serviço caía sozinha numa segunda linha com borda solta; a dica encostava no sublinhado do valor; o Dashboard tinha a faixa recuada e repetida, diferente das outras páginas.
+- **Trade-off**: sem divisor vertical, a faixa `ruled` separa as células só pelo espaço; quem não vê o Financeiro tem no Dashboard uma faixa com uma célula.
+- **Scope**: `apps/web/src/components/record.tsx`, `apps/web/src/routes/_private/dashboard/{index.tsx,@components/dashboard-kpis.tsx,index.unit.test.tsx}`.
+- **Date**: 2026-11-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

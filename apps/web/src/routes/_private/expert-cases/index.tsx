@@ -2,10 +2,9 @@ import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { CircleHelp } from 'lucide-react';
-import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -14,7 +13,6 @@ import { PageMenu } from '@/components/page-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { casesQuery, serviceOrderPreviewQuery } from '@/query/case.js';
 import { listStatsQuery } from '@/query/listStats.js';
-import { preferencesQuery, updatePreferencesMutation } from '@/query/preferences.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { revenueGoalQuery } from '@/query/transaction.js';
 import { CasesOverview } from './@components/cases-overview.js';
@@ -60,17 +58,9 @@ export function CasesIndexPage() {
   const session = useQuery(sessionQuery).data;
   const canCreate = Boolean(session && can(session, 'expert_cases', 'create'));
   const canSeeFinance = Boolean(session && can(session, 'finance'));
-  // Revenue goal (MRA-04): each person who sees Finance chooses to follow it here.
+  // Revenue goal (MRA-04, AD-291): shown to whoever sees Finance whenever the current year has a goal.
   const goal = useQuery({ ...revenueGoalQuery(), enabled: canSeeFinance }).data;
-  const preferences = useQuery({ ...preferencesQuery, enabled: canSeeFinance }).data;
-  const savePreferences = useMutation(updatePreferencesMutation(queryClient));
   const goalCents = goal?.goalCents;
-  const followsGoal = Boolean(goal && goalCents && preferences?.revenueGoalOnCases);
-  const toggleGoal = () =>
-    savePreferences.mutate(
-      { revenueGoalOnCases: !preferences?.revenueGoalOnCases },
-      { onError: (error) => toast.error(error.message) },
-    );
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
 
@@ -81,18 +71,11 @@ export function CasesIndexPage() {
           {canCreate && (
             <Button nativeButton={false} role="link" render={<Link to="/expert-cases/add">{t('add')}</Link>} />
           )}
-          {(canCreate || Boolean(goalCents && preferences)) && (
+          {canCreate && (
             <PageMenu>
-              {canCreate && (
-                <DropdownMenuItem onClick={() => navigate({ to: '/expert-cases/import' })}>
-                  {t('import_spreadsheet')}
-                </DropdownMenuItem>
-              )}
-              {Boolean(goalCents) && preferences && (
-                <DropdownMenuItem onClick={toggleGoal}>
-                  {t(followsGoal ? 'hide_goal_here' : 'follow_goal_here')}
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={() => navigate({ to: '/expert-cases/import' })}>
+                {t('import_spreadsheet')}
+              </DropdownMenuItem>
             </PageMenu>
           )}
         </CardAction>
@@ -100,9 +83,9 @@ export function CasesIndexPage() {
       <CasesOverview stats={statsQuery.data} />
       <CardContent>
         {/* Next service order (a preview of the sequence, AD-190, AD-262); the last one used opens in the "?" tooltip. */}
-        {(serviceOrder?.next || followsGoal) && (
+        {(serviceOrder?.next || goalCents) && (
           <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
-            {followsGoal && goal && goalCents && <CasesRevenueGoal goal={{ ...goal, goalCents }} />}
+            {goal && goalCents && <CasesRevenueGoal goal={{ ...goal, goalCents }} />}
             {serviceOrder?.next && (
               <div className="ms-auto flex items-baseline gap-1.5">
                 {serviceOrder.last && (

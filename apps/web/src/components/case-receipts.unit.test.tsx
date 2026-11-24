@@ -53,8 +53,10 @@ describe('PericiaRecebimentos (recebimentos no detalhe do evento da agenda)', ()
   it('admin e manager veem o honorário com status, recebido, saldo e cada parcela', () => {
     renderReceipts(['manager']);
     expect(screen.getByText('Parcial')).toBeInTheDocument();
-    expect(screen.getByText(/Recebido R\$\s?1\.500,00 · Saldo a receber R\$\s?3\.300,00/)).toBeInTheDocument();
-    expect(screen.getByText(/13 out 2026 · R\$\s?1\.500,00 · Banco do Brasil/)).toBeInTheDocument();
+    expect(screen.getByText('Recebido').nextElementSibling).toHaveTextContent(/R\$\s?1\.500,00/);
+    expect(screen.getByText('Saldo a receber').nextElementSibling).toHaveTextContent(/R\$\s?3\.300,00/);
+    const installment = screen.getByText('13 out 2026 · Banco do Brasil').closest('li');
+    expect(installment).toHaveTextContent(/R\$\s?1\.500,00/);
   });
 
   it('operador não vê o financeiro (AD-107): nada é renderizado', () => {

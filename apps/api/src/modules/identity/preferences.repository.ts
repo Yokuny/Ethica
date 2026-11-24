@@ -34,7 +34,6 @@ const toPreferences = (
       onboardingDismissed?: boolean;
       notifications?: NotificationPreferences;
       hiddenBlocks?: string[];
-      revenueGoalOnCases?: boolean;
     };
   } | null,
 ): UserPreferences => ({
@@ -44,7 +43,6 @@ const toPreferences = (
   hiddenBlocks: (doc?.preferences?.hiddenBlocks ?? []).filter((block): block is HomeBlock =>
     (HOME_BLOCKS as readonly string[]).includes(block),
   ),
-  revenueGoalOnCases: doc?.preferences?.revenueGoalOnCases === true,
 });
 
 // A user without the field (account older than the feature) reads the default, no backfill.

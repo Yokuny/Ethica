@@ -2584,6 +2584,18 @@
       "decisao": "As linhas de lista voltam a ter o ícone à esquerda (`ItemMedia variant=\"icon\"`, o mesmo ícone que cada lista usava antes da AD-288) e a linh",
       "data": "2026-11-24",
       "status": "active"
+    },
+    {
+      "id": "AD-291",
+      "decisao": "A meta de receita aparece na página Serviços para quem vê o Financeiro sempre que o ano corrente tem meta cadastrada, sem escolha por pessoa",
+      "data": "2026-11-24",
+      "status": "active"
+    },
+    {
+      "id": "AD-292",
+      "decisao": "Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam",
+      "data": "2026-11-24",
+      "status": "active"
     }
   ]
 }

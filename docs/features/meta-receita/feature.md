@@ -53,6 +53,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-24 — A meta aparece em Serviços sempre que o ano tem meta (quem vê o Financeiro), sem o item do menu nem sublinhado no "? Dados da meta"; a preferência `revenueGoalOnCases` sai do banco, da API e do web (AD-291).
 - 2026-11-22 — Barra da meta na vertical à direita do gráfico no Dashboard (AD-261); teste da página confirma o painel depois do Fluxo de caixa e nenhum painel sem meta.
 - 2026-11-22 — Segunda conferência (AD-260): ritmo pela média mensal, barra da meta com degradê no Dashboard e no tooltip de Serviços, painel da meta depois do Fluxo de caixa e só com meta, meta à esquerda em Serviços. De carona, a Entrada de serviços do Dashboard ganha área translúcida como os outros gráficos.
 - 2026-11-22 — Ajustes da conferência da perita (AD-259): metas por ano em Escritório; no Dashboard a faixa de números, embolada com os KPIs, vira gráfico de recebido acumulado contra a meta, com seletor de ano; em Serviços sai a linha com valores e fica só "? Dados da meta" com tooltip. Diverge do `spec.md` (meta só do ano corrente, painel em faixa).

@@ -39,18 +39,40 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
             return (
               <li key={fee.id}>
                 <Item render={<Link to="/finance" search={{ caseId }} />}>
-                  <ItemContent>
-                    <ItemTitle className="tabular-nums">{formatMoney(fee.amountCents)}</ItemTitle>
-                    <ItemDescription>
-                      {`${fee.description} · ${t('received')} ${formatMoney(fee.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(fee.balanceCents ?? 0)}`}
-                    </ItemDescription>
-                    {fee.installments.map((installment) => (
-                      <ItemDescription key={installment.id} className="line-clamp-none">
-                        {[day(installment.date), formatMoney(installment.amountCents), installment.account]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </ItemDescription>
-                    ))}
+                  <ItemContent className="gap-3">
+                    <div className="flex flex-col gap-0.5">
+                      <ItemTitle className="text-base tabular-nums">{formatMoney(fee.amountCents)}</ItemTitle>
+                      <ItemDescription>{fee.description}</ItemDescription>
+                    </div>
+                    <dl className="flex flex-wrap gap-x-8 gap-y-2">
+                      {[
+                        { label: t('received'), value: fee.receivedCents ?? 0 },
+                        { label: t('balance_due'), value: fee.balanceCents ?? 0 },
+                      ].map((row) => (
+                        <div key={row.label} className="flex flex-col gap-0.5">
+                          <ItemDescription render={<dt />} className="text-xs">
+                            {row.label}
+                          </ItemDescription>
+                          <ItemTitle render={<dd />} className="tabular-nums">
+                            {formatMoney(row.value)}
+                          </ItemTitle>
+                        </div>
+                      ))}
+                    </dl>
+                    {fee.installments.length > 0 && (
+                      <ul className="flex flex-col gap-1 border-t pt-2">
+                        {fee.installments.map((installment) => (
+                          <li key={installment.id} className="flex flex-wrap items-baseline gap-x-2">
+                            <ItemTitle className="font-medium tabular-nums">
+                              {formatMoney(installment.amountCents)}
+                            </ItemTitle>
+                            <ItemDescription>
+                              {[day(installment.date), installment.account].filter(Boolean).join(' · ')}
+                            </ItemDescription>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </ItemContent>
                   <ItemActions>
                     <Badge variant={STATE_VARIANT[state]}>{stateLabel(state)}</Badge>

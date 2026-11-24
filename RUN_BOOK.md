@@ -70,6 +70,10 @@ Enche a biblioteca do escritório com 19 modelos: uma cópia de cada modelo padr
 
 ## Conta de teste em tela
 
+**Conta em uso para conferir as telas: `felipe.vni@hotmail.com`** (escritório com volume de dados no banco local). Em `http://localhost:15173/auth`, informe o e-mail; o código de 6 dígitos sai no log da API (`mail.log_send`, com `MAIL_PROVIDER=log`) e, confirmado, a tela pede a passkey do aparelho (AD-220). Para conferência automática com o Playwright, o Chromium cria a passkey com o autenticador virtual (CDP `WebAuthn.addVirtualAuthenticator`) e o script guarda o `storageState`; use sempre o mesmo `userAgent`, porque a sessão é presa ao aparelho e um `User-Agent` diferente derruba todas as sessões do usuário.
+
+Conta antiga, ainda válida:
+
 Conta criada pelo cadastro aberto em 2026-11-04 para testar o sistema pela tela, sem os dados do `seed:demo`. Vive só no banco local (`ethica` em `localhost:37017`); `docker compose down -v` a apaga e basta refazer o cadastro com os mesmos dados.
 
 | Campo | Valor |

@@ -108,6 +108,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-24 — Meta em Serviços sem depender do menu (AD-291); Recebimentos com hierarquia de valores; faixa de números sem célula sozinha nem dica colada no sublinhado; Dashboard com a faixa no topo (AD-292) — conferido no navegador local com o Playwright — `meta-receita`, `dashboard`, `prazos-recebimentos`
 - [x] 2026-11-24 — Ícone do cabeçalho dos detalhes no ladrilho do `LinkCard` — `gestao-escritorio`
 - [x] 2026-11-24 — Listas com o ícone de volta e a seta ↗ nas linhas que levam a outra tela — `gestao-escritorio`
 - [x] 2026-11-24 — `ItemGroup` só flex com gap: cada linha é um `Item` com borda, sem sombra; mapa e rota do campo no mesmo formato — `gestao-escritorio`

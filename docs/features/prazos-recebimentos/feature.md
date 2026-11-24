@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-24 — Recebimentos do serviço na agenda (`apps/web/src/components/case-receipts.tsx`): valor em destaque com a descrição abaixo, Recebido e Saldo a receber como rótulo sobre valor, e cada parcela com o valor em destaque e data e conta em tom fraco.
 - 2026-11-23 — Testes de falha do Financeiro (AD-283): três mudanças simultâneas do honorário fixado criavam três receitas e agora criam uma (`dedupeKey` `case_fee:<caseId>` com índice único); data impossível (`2026-02-30`) e valor acima de R$ 1 bilhão param na borda com 400. Também cobertos: parcelas simultâneas nunca passam do valor, outro escritório é 404 em toda operação, honorário anulado não recebe parcela, banco fora devolve `internal_error` sem detalhe. Volume medido à parte (20 mil lançamentos): lista, resumo, fluxo, painel e categorias abaixo de 70 ms.
 
 - 2026-11-22 — Caminhos de prazo atualizados para `Notification` (`central-notificacoes`, AD-263).

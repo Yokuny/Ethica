@@ -23,7 +23,7 @@ import {
 } from '@/query/transaction.js';
 import { CasesMonthTable } from './@components/cases-month-table.js';
 import { DashboardAlerts } from './@components/dashboard-alerts.js';
-import { MoneyKpis, WorkKpis } from './@components/dashboard-kpis.js';
+import { DashboardKpis } from './@components/dashboard-kpis.js';
 import { MonthDetails } from './@components/month-details.js';
 import { RevenueGoalChart } from './@components/revenue-goal-chart.js';
 import { ServicesAreaChart } from './@components/services-area-chart.js';
@@ -129,6 +129,15 @@ export function DashboardPage() {
           </ToggleGroup>
         </CardAction>
       </CardHeader>
+      {cases.data && (
+        <DashboardKpis
+          months={months}
+          cases={cases.data}
+          flow={canSeeFinance ? complete : undefined}
+          summary={canSeeFinance ? summary.data : undefined}
+          receivedSinceStart={canSeeFinance ? fees.data?.receivedCents : undefined}
+        />
+      )}
       <CardContent className="gap-10 pb-16">
         {cases.isLoading ? (
           <DefaultLoading />
@@ -140,15 +149,7 @@ export function DashboardPage() {
         ) : (
           <>
             {canSeeFinance && complete && (
-              <section aria-label={t('overview')} className="flex flex-col gap-4">
-                <MoneyKpis
-                  months={months}
-                  flow={complete}
-                  summary={summary.data}
-                  receivedSinceStart={fees.data?.receivedCents}
-                />
-                <DashboardAlerts lateCents={summary.data?.lateCents} balanceCents={balance} />
-              </section>
+              <DashboardAlerts lateCents={summary.data?.lateCents} balanceCents={balance} />
             )}
 
             {canSeeFinance && (
@@ -234,7 +235,6 @@ export function DashboardPage() {
               </>
             )}
 
-            <WorkKpis cases={cases.data} months={months} />
             <div className="grid gap-10 lg:grid-cols-[3fr_2fr]">
               <Panel size="lg" title={t('services_intake')} description={t('services_intake_scope')}>
                 {!intake?.some((row) => row.count) ? (

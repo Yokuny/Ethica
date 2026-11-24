@@ -100,15 +100,13 @@ describe('Dashboard (DSH, AD-255)', () => {
 
   it('nível 1: saldo, recebido e despesas do período com a variação e o alerta do vencido', () => {
     renderPage(['admin']);
-    const overview = screen.getByRole('group', { name: 'Financeiro' });
-    const work = screen.getByRole('group', { name: 'Trabalho' });
+    const overview = screen.getByRole('group', { name: 'Visão geral' });
     // Received 6 × 1.000 = 6.000 (+100% against 3.000); expenses 1.200 (=); balance 4.800.
     expect(overview).toHaveTextContent(/Recebido.*6\.000,00.*\+100%/);
     expect(overview).toHaveTextContent(/Saldo.*4\.800,00/);
-    expect(work).toHaveTextContent(/Serviços novos.*12.*\+100%/);
-    // DSH-02: received since the start and the closed services stay in the strip.
+    expect(overview).toHaveTextContent(/Serviços novos.*12.*\+100%/);
+    // DSH-02: received since the start stays in the strip.
     expect(overview).toHaveTextContent(/25\.000,00 desde o início/);
-    expect(work).toHaveTextContent(/10 serviços finalizados/);
     // The overdue part on its own line under A receber.
     expect(overview).toHaveTextContent(/A receber.*800,00.*300,00 atrasado/);
     expect(screen.getByRole('link', { name: /300,00 em honorários vencidos/ })).toHaveAttribute(
@@ -143,8 +141,8 @@ describe('Dashboard (DSH, AD-255)', () => {
     expect(screen.getByText('Entrada de serviços')).toBeInTheDocument();
     expect(screen.queryByText('De onde vem o dinheiro')).not.toBeInTheDocument();
     expect(screen.queryByText(/honorários vencidos/)).not.toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: 'Financeiro' })).not.toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Trabalho' })).not.toHaveTextContent('R$');
+    // The strip keeps only the work number.
+    expect(screen.getByRole('group', { name: 'Visão geral' })).not.toHaveTextContent('R$');
   });
 
   it('meta do ano: depois do Fluxo de caixa, com a barra vertical; sem meta o painel não aparece (AD-260, AD-261)', () => {

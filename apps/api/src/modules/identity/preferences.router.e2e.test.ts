@@ -108,7 +108,6 @@ describe('preferences routes (ENR-03)', () => {
         suggestions: { email: true, push: true },
       },
       hiddenBlocks: [],
-      revenueGoalOnCases: false,
     });
   });
 
@@ -132,7 +131,6 @@ describe('preferences routes (ENR-03)', () => {
         suggestions: { email: true, push: true },
       },
       hiddenBlocks: [],
-      revenueGoalOnCases: false,
     });
     expect(
       (await request(app).get('/me/preferences').set('Cookie', cookie).set('User-Agent', DEVICE)).body.data,
@@ -145,7 +143,6 @@ describe('preferences routes (ENR-03)', () => {
         suggestions: { email: true, push: true },
       },
       hiddenBlocks: [],
-      revenueGoalOnCases: false,
     });
 
     const reopened = await request(app)
@@ -162,7 +159,6 @@ describe('preferences routes (ENR-03)', () => {
         suggestions: { email: true, push: true },
       },
       hiddenBlocks: [],
-      revenueGoalOnCases: false,
     });
   });
 
@@ -212,7 +208,6 @@ describe('preferences routes (ENR-03)', () => {
         suggestions: { email: true, push: true },
       },
       hiddenBlocks: [],
-      revenueGoalOnCases: false,
     });
     expect((await User.findById(b.user.id).lean())?.preferences?.onboardingDismissed ?? false).toBe(false);
   });
@@ -263,7 +258,7 @@ describe('preferences routes (ENR-03)', () => {
       .patch('/me/preferences')
       .set('Cookie', cookie)
       .set('User-Agent', DEVICE)
-      .send({ hiddenBlocks: [], revenueGoalOnCases: false });
+      .send({ hiddenBlocks: [] });
     expect(isDefault.body.data.hiddenBlocks).toEqual([]);
   });
 });

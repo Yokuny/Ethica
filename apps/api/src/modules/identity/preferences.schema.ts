@@ -22,8 +22,6 @@ export const updatePreferencesSchema = z
     notifications: notificationPreferencesSchema.optional(),
     // AD-136: home blocks the person hid; `[]` restores the default.
     hiddenBlocks: z.array(z.enum(HOME_BLOCKS)).max(HOME_BLOCKS.length).optional(),
-    // MRA-04: follow the revenue goal on the services page.
-    revenueGoalOnCases: z.boolean().optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, { message: 'nenhuma preferência informada' });
@@ -34,7 +32,6 @@ export type UserPreferences = {
   // Every cell resolved (missing = on).
   notifications: Record<NotificationPreferenceTopic, Record<NotificationChannel, boolean>>;
   hiddenBlocks: HomeBlock[];
-  revenueGoalOnCases: boolean;
 };
 
 export { NOTIFICATION_CHANNELS, NOTIFICATION_PREFERENCE_TOPICS };

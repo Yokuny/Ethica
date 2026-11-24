@@ -6,8 +6,8 @@ import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { RevenueGoal } from '@/query/transaction.js';
 
-// Revenue goal on the services page (MRA-04), for whoever chose to follow it here: only an underlined
-// "? Dados da meta"; the numbers open in the tooltip. The chart is on the Dashboard.
+// Revenue goal on the services page (MRA-04, AD-291): only "? Dados da meta"; the numbers open in the tooltip.
+// The chart is on the Dashboard.
 export function CasesRevenueGoal({ goal }: { goal: RevenueGoal & { goalCents: number } }) {
   const left = Math.max(0, goal.goalCents - goal.receivedCents);
   const rows = [
@@ -22,7 +22,7 @@ export function CasesRevenueGoal({ goal }: { goal: RevenueGoal & { goalCents: nu
     <Tooltip>
       <TooltipTrigger
         type="button"
-        className="inline-flex items-center gap-1.5 text-muted-foreground underline decoration-dashed underline-offset-4 hover:text-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <CircleHelp aria-hidden className="size-3.5" />
         <ItemDescription render={<span />} className="text-inherit">

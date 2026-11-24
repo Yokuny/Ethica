@@ -96,6 +96,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-292** (2026-11-24, active) — Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam
+- **AD-291** (2026-11-24, active) — A meta de receita aparece na página Serviços para quem vê o Financeiro sempre que o ano corrente tem meta cadastrada, sem escolha por pessoa
 - **AD-290** (2026-11-24, active) — As linhas de lista voltam a ter o ícone à esquerda (`ItemMedia variant="icon"`, o mesmo ícone que cada lista usava antes da AD-288) e a linh
 - **AD-289** (2026-11-24, active) — `ItemGroup` (`packages/ui/src/components/item.tsx`) perde as variantes `grid` e `list` e passa a ser só `<ul>` com `flex flex-col gap-2`, co
 - **AD-288** (2026-11-24, active; supersede a AD-252 e a parte de `LinkList` da AD-075 (a forma do `ItemGroup` superseded by AD-289; ícones e seta superseded by AD-290)) — `LinkList`/`LinkListItem` sai (`apps/web/src/components/link-list.tsx` excluído). Toda lista de linhas, leve ou não a outra tela, é o `Item`
@@ -104,8 +106,6 @@ _Nenhum._
 - **AD-285** (2026-11-23, active) — Achados da validação local de 2026-11-23 (contas admin, operador restrito e um segundo escritório). (1) Honorário é dado do financeiro també
 - **AD-284** (2026-11-23, active) — Padrão único das camadas do `apps/api`, travado no teste estrutural. (1) Controller é função exportada sem `try/catch`; quem precisa de prov
 - **AD-283** (2026-11-23, active) — Endurecimento achado por testes de falha (2026-11-23). (1) `calendarDateSchema` (`@ethica/contracts`) aceita só dia que existe no calendário
-- **AD-282** (2026-11-23, active) — Notificações viram um processo só: toda `Notification` (prazo, alerta, sugestão, aviso — AD-263) está aberta enquanto pede alguém (prazo, al
-- **AD-281** (2026-11-22, active (link para a aba Para aprovar superseded by AD-282)) — A Prospecção sai inteira e o item de menu vira a página Automação Datajud (`/automation`). (1) Divisão das fontes: o Datajud é inteligência
 
 ## Outros documentos
 
