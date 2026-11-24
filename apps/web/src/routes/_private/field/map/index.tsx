@@ -69,20 +69,15 @@ export function FieldMapPage() {
           {!items.length ? (
             <DefaultEmptyData title={t('nothing_scheduled_in_period')} />
           ) : (
-            <ItemGroup variant="list">
+            <ItemGroup>
               {items.map((item, index) => {
                 const { appointment } = item;
                 return (
-                  <Item key={appointment.id} render={<li />} className="flex-wrap">
+                  <Item key={appointment.id} render={<li />}>
                     <ItemContent>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <ItemTitle className="tabular-nums">
-                          {index + 1}. {(withDate ? formatDateTime : formatDisplayTime)(appointment.start)}
-                        </ItemTitle>
-                        <Badge variant={APPOINTMENT_TYPE_VARIANT[appointment.type]}>{t(appointment.type)}</Badge>
-                        <Badge variant="secondary">{t(appointment.reason ?? appointment.status)}</Badge>
-                        {!appointment.coordinates && <Badge variant="warning">{t('address_not_located')}</Badge>}
-                      </div>
+                      <ItemTitle className="tabular-nums">
+                        {index + 1}. {(withDate ? formatDateTime : formatDisplayTime)(appointment.start)}
+                      </ItemTitle>
                       <ItemTitle>{appointment.title}</ItemTitle>
                       <ItemDescription className="line-clamp-none">
                         {[item.legalCase && caseLabel(item.legalCase), appointment.location]
@@ -90,8 +85,11 @@ export function FieldMapPage() {
                           .join(' · ')}
                       </ItemDescription>
                     </ItemContent>
-                    {appointment.coordinates && (
-                      <ItemActions>
+                    <ItemActions className="flex-wrap">
+                      <Badge variant={APPOINTMENT_TYPE_VARIANT[appointment.type]}>{t(appointment.type)}</Badge>
+                      <Badge variant="secondary">{t(appointment.reason ?? appointment.status)}</Badge>
+                      {!appointment.coordinates && <Badge variant="warning">{t('address_not_located')}</Badge>}
+                      {appointment.coordinates && (
                         <Button
                           variant={appointment.id === focus ? 'secondary' : 'ghost'}
                           onClick={() => update({ focus: appointment.id })}
@@ -99,8 +97,8 @@ export function FieldMapPage() {
                           <Crosshair />
                           {t('show_on_map')}
                         </Button>
-                      </ItemActions>
-                    )}
+                      )}
+                    </ItemActions>
                   </Item>
                 );
               })}

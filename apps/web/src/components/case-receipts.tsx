@@ -32,7 +32,7 @@ export function CaseReceipts({ caseId }: { caseId: string }) {
       ) : !query.data?.items.length ? (
         <DefaultEmptyData title={t('no_fees_yet')} />
       ) : (
-        <ItemGroup variant="list">
+        <ItemGroup>
           {query.data.items.map((fee) => {
             const state = transactionState(fee, today);
             return (

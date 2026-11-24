@@ -28,7 +28,7 @@ const byArea = (templates: TemplateSummary[]): Array<[string | undefined, Templa
 
 function TemplateList({ templates }: { templates: TemplateSummary[] }) {
   return (
-    <ItemGroup variant="list">
+    <ItemGroup>
       {templates.map((template) => (
         <li key={template.id}>
           <Item render={<Link to="/expert-reports/templates/details" search={{ id: template.id }} />}>

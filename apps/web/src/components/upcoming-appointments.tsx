@@ -10,7 +10,7 @@ import type { AppointmentRecord } from '@/query/appointment.js';
 // Upcoming appointments; each row opens the agenda on its day.
 export function UpcomingAppointments({ items }: { items: AppointmentRecord[] }) {
   return (
-    <ItemGroup variant="list">
+    <ItemGroup>
       {items.map((item) => (
         <li key={item.id}>
           <Item render={<Link to="/agenda" search={{ date: formatDisplayDate(item.start), view: 'day' }} />}>

@@ -48,7 +48,7 @@ export function CaseNotifications({ caseId }: { caseId: string }) {
       ) : !query.data?.length ? (
         <DefaultEmptyData title={t('no_deadlines_yet')} />
       ) : (
-        <ItemGroup variant="list">
+        <ItemGroup>
           {query.data.map((deadline) => {
             const alert = deadlineAlert(deadline, today);
             return (

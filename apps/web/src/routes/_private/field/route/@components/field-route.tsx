@@ -158,26 +158,24 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
       {itinerary.isError && <ItemDescription>{t('route_unavailable_straight_lines')}</ItemDescription>}
 
       {!items.length && <DefaultEmptyData title={t('nothing_scheduled_in_period')} />}
-      <ItemGroup variant="list">
+      <ItemGroup>
         {sorted.map((item, index) => {
           const { appointment } = item;
           return (
-            <Item key={appointment.id} render={<li />} className="flex-wrap">
+            <Item key={appointment.id} render={<li />}>
               <ItemContent>
-                <div className="flex flex-wrap items-center gap-2">
-                  <ItemTitle className="tabular-nums">
-                    {index + 1}. {(withDate ? formatDateTime : formatDisplayTime)(appointment.start)}
-                  </ItemTitle>
-                  {conflicts.has(index) && <Badge variant="error">{t('time_conflict')}</Badge>}
-                  {!appointment.coordinates && <Badge variant="warning">{t('address_not_located')}</Badge>}
-                  {(appointment.notices?.length ?? 0) > 0 && <Badge variant="success">{t('parties_notified')}</Badge>}
-                </div>
+                <ItemTitle className="tabular-nums">
+                  {index + 1}. {(withDate ? formatDateTime : formatDisplayTime)(appointment.start)}
+                </ItemTitle>
                 <ItemTitle>{appointment.title}</ItemTitle>
                 <ItemDescription className="line-clamp-none">
                   {[item.legalCase && caseLabel(item.legalCase), appointment.location].filter(Boolean).join(' · ')}
                 </ItemDescription>
               </ItemContent>
               <ItemActions className="flex-wrap">
+                {conflicts.has(index) && <Badge variant="error">{t('time_conflict')}</Badge>}
+                {!appointment.coordinates && <Badge variant="warning">{t('address_not_located')}</Badge>}
+                {(appointment.notices?.length ?? 0) > 0 && <Badge variant="success">{t('parties_notified')}</Badge>}
                 <Button
                   variant="ghost"
                   size="icon"

@@ -36,7 +36,7 @@ export function CaseInspections({ caseId }: { caseId: string }) {
         <DefaultEmptyData title={t('no_inspection_records_yet')} />
       ) : (
         <>
-          <ItemGroup variant="list">
+          <ItemGroup>
             {records.map(({ appointment, inspection }) => (
               <li key={appointment.id}>
                 <Item render={<Link to="/field/inspections/details" search={{ id: appointment.id }} />}>

@@ -9,7 +9,7 @@ import type { StalledCases } from '@/query/case.js';
 export function StalledCasesList({ stalled }: { stalled: StalledCases }) {
   return (
     <div className="grid gap-3">
-      <ItemGroup variant="list">
+      <ItemGroup>
         {stalled.items.map((legalCase) => (
           <li key={legalCase.id}>
             <Item render={<Link to="/expert-cases/details" search={{ id: legalCase.id }} />}>

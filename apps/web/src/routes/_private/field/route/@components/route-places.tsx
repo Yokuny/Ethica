@@ -114,7 +114,7 @@ export function RoutePlaces({ path, onSearch, places, searched, isLoading, isErr
           ) : !places?.length ? (
             <ItemDescription>{t('no_places_found')}</ItemDescription>
           ) : (
-            <ItemGroup variant="list" className="max-h-96 overflow-y-auto">
+            <ItemGroup className="max-h-96 overflow-y-auto">
               {places.map((place) => {
                 const Icon = KIND_ICON[place.kind];
                 const point = `${place.point.lat},${place.point.lng}`;

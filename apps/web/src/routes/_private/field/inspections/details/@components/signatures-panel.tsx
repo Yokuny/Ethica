@@ -40,7 +40,7 @@ export function SignaturesPanel({ form, appointmentId, onSignature }: Signatures
         {!attendees.length ? (
           <ItemTitle className="font-normal text-muted-foreground">{t('no_attendees_yet')}</ItemTitle>
         ) : (
-          <ItemGroup variant="list">
+          <ItemGroup>
             {attendees.map((attendee, index) => (
               <Item key={attendee.id} render={<li />}>
                 <ItemContent>

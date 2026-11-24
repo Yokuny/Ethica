@@ -56,7 +56,7 @@ export function CaseCourt({ caseId }: { caseId: string }) {
       ) : !courtProcess ? (
         <DefaultEmptyData title={trackedCaseLabel(state)} description={trackedCaseDescription(tracked ?? {}, state)} />
       ) : (
-        <ItemGroup variant="list">
+        <ItemGroup>
           {courtProcess.movements.slice(0, SHOWN).map((movement) => (
             <Item key={movement.key} render={<li />}>
               <ItemContent>

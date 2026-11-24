@@ -27,7 +27,7 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
         ) : !items.length ? (
           <DefaultEmptyData />
         ) : (
-          <ItemGroup variant="list">
+          <ItemGroup>
             {items.map((legalCase) => (
               <li key={legalCase.id}>
                 <Item render={<button type="button" onClick={() => onPick(legalCase.id)} />}>

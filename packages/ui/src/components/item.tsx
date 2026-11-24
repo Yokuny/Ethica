@@ -6,56 +6,20 @@ import { cn } from '../lib/utils.js';
 
 import { Separator } from './separator.js';
 
-// Two ways to group Items:
-// - `grid` (default): each Item is its own card; they wrap into 1/2/3/4 columns
-//   by breakpoint. No `flex-1` on purpose: an incomplete last row
-//   keeps the column width instead of stretching.
-// - `list`: a single card with the Items as rows split by a rule — the
-//   dense record list (files, conversations, orders, links to another screen).
-//   The group draws the lines: the child carries no border utility. A row is
-//   `<Item render={<li />}>`, or `<li><Item render={<Link />} /></li>` when the
-//   whole row leads somewhere.
-const itemGroupVariants = cva('group/item-group w-full', {
-  variants: {
-    variant: {
-      grid: 'flex flex-wrap gap-2 [&>*]:min-w-0 [&>*]:basis-full sm:[&>*]:basis-[calc(50%-0.25rem)] xl:[&>*]:basis-[calc(33.333%-0.34rem)] 2xl:[&>*]:basis-[calc(25%-0.375rem)]',
-      list: 'flex flex-col overflow-hidden rounded-lg border bg-card shadow-xs [&>*]:rounded-none [&>*]:border-0 [&>*]:shadow-none [&>*:not(:first-child)]:border-t [&>li>[data-slot=item]]:rounded-none [&>li>[data-slot=item]]:border-0 [&>li>[data-slot=item]]:shadow-none [&>*:focus-visible]:ring-inset [&>li>[data-slot=item]:focus-visible]:ring-inset',
-    },
-  },
-  defaultVariants: { variant: 'grid' },
-});
-
-function ItemGroup({
-  className,
-  variant = 'grid',
-  ...props
-}: React.ComponentProps<'ul'> & VariantProps<typeof itemGroupVariants>) {
+// A list of Items: each Item is its own bordered card, stacked at the full width with a gap between them.
+// A row is `<Item render={<li />}>`, or `<li><Item render={<Link />} /></li>` when the whole row leads somewhere.
+function ItemGroup({ className, ...props }: React.ComponentProps<'ul'>) {
   return (
-    <ul
-      data-slot="item-group"
-      data-variant={variant}
-      className={cn(itemGroupVariants({ variant }), className)}
-      {...props}
-    />
+    <ul data-slot="item-group" className={cn('group/item-group flex w-full flex-col gap-2', className)} {...props} />
   );
 }
 
-// Content block inside a page (inbox panel, scheduling/block
-// panel, schedule editor, kanban blocks). Same frame
-// as ItemGroup, but with padding and without dividers — it is a free
-// composition container, not a list. It exists so that no route needs to
-// write `<div className="rounded-md border p-4">` by hand.
-//
-// Panel only handles the frame and the density; the inner arrangement (grid, row,
-// alignment) stays a className of the caller — that is local layout, not
-// visual identity. `render` (same API as Item) covers the cases where the
-// panel is another element, typically a <form>.
 function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Separator>) {
   return <Separator data-slot="item-separator" orientation="horizontal" className={cn('my-2', className)} {...props} />;
 }
 
 const itemVariants = cva(
-  'group/item flex flex-wrap items-center rounded-lg border bg-card text-xs shadow-xs transition-[background-color,border-color,box-shadow] duration-150 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 [a]:hover:bg-accent/70 [button]:w-full [button]:text-left [button]:hover:bg-accent/70',
+  'group/item flex flex-wrap items-center rounded-lg border bg-card text-xs transition-[background-color,border-color] duration-150 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 [a]:hover:bg-accent/70 [button]:w-full [button]:text-left [button]:hover:bg-accent/70',
   {
     variants: {
       variant: {

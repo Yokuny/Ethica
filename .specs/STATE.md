@@ -1821,7 +1821,15 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: some o fundo que subia no hover e a seta `ArrowUpRight`; a linha clicável se reconhece pelo hover `bg-accent` do `Item`. O `<li>` em volta do `Item` clicável é um nível a mais de marcação para manter a lista válida.
 - **Scope**: `packages/ui/src/components/item.tsx`, os 15 usos antigos do `LinkList` em `apps/web/src` e `apps/web/src/routes/_private/automation/index.unit.test.tsx`.
 - **Date**: 2026-11-24
-- **Status**: active; supersede a AD-252 e a parte de `LinkList` da AD-075
+- **Status**: active; supersede a AD-252 e a parte de `LinkList` da AD-075 (a forma do `ItemGroup` superseded by AD-289)
+
+### AD-289
+- **Decision**: `ItemGroup` (`packages/ui/src/components/item.tsx`) perde as variantes `grid` e `list` e passa a ser só `<ul>` com `flex flex-col gap-2`, como o `item.tsx` já consolidado em outro projeto do usuário: cada `Item` é o próprio cartão com borda, empilhado na largura toda com espaço entre eles, e não há mais cartão único com as linhas separadas por fio. O `Item` perde o `shadow-xs`. Mapa e Rota do campo seguem o formato das outras listas: horário, título e descrição à esquerda, selos à direita em `ItemActions`, junto com os botões. Supersede a parte do `ItemGroup variant="list"` da AD-288; o resto da AD-288 segue.
+- **Reason**: pedido do usuário (2026-11-24), logo depois da AD-288: a lista em um cartão só não era o formato desejado; a referência é um grupo flex com gap entre cartões, sem sombra.
+- **Trade-off**: listas longas ocupam um pouco mais de altura (gap de 8px por linha); sem `grid`, não há mais lista de cartões em colunas (não tinha uso).
+- **Scope**: `packages/ui/src/components/item.tsx`, os 18 usos de `ItemGroup` em `apps/web/src`, `apps/web/src/routes/_private/field/map/index.tsx`, `apps/web/src/routes/_private/field/route/@components/field-route.tsx`.
+- **Date**: 2026-11-24
+- **Status**: active
 
 ## Handoff
 

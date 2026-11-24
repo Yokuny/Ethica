@@ -49,7 +49,7 @@ export function CaseMovements({ legalCase }: { legalCase: CaseRecord }) {
       {!legalCase.movements.length ? (
         <DefaultEmptyData title={t('no_movements_yet')} />
       ) : (
-        <ItemGroup variant="list">
+        <ItemGroup>
           {legalCase.movements.map((movement) => (
             <li key={movement.id}>
               <Item render={<button type="button" onClick={() => setRemoving(movement)} />}>

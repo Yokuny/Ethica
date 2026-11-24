@@ -21,7 +21,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
       ) : !query.data?.length ? (
         <DefaultEmptyData title={t('no_expert_cases_for_party')} />
       ) : (
-        <ItemGroup variant="list">
+        <ItemGroup>
           {query.data.map((legalCase) => {
             const link = legalCase.parties.find((party) => party.partyId === partyId);
             return (

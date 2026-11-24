@@ -37,7 +37,7 @@ export function TrackedCases() {
   if (query.isError) return <DefaultEmptyData title={t('load_error')} />;
   if (!items.length) return <DefaultEmptyData title={t('no_tracked_cases')} />;
   return (
-    <ItemGroup variant="list">
+    <ItemGroup>
       {items.map((item) => (
         <li key={item.caseId}>
           <Item render={<Link to="/expert-cases/details" search={{ id: item.caseId }} />}>

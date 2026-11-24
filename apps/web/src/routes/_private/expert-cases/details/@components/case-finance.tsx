@@ -69,7 +69,7 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
           {!items.length ? (
             <DefaultEmptyData title={t('no_entries_yet')} />
           ) : (
-            <ItemGroup variant="list">
+            <ItemGroup>
               {items.map((item) => {
                 const state = transactionState(item, today);
                 return (

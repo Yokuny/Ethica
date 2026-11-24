@@ -11,7 +11,7 @@ export function AutomationRulesPage() {
     <Card asPage>
       <CardHeader title={t('automation_rules')} description={t('automation_rules_description')} />
       <CardContent>
-        <ItemGroup variant="list">
+        <ItemGroup>
           {RULE_ITEMS.map((item) => (
             <Item key={item.key} render={<li />}>
               <ItemContent>

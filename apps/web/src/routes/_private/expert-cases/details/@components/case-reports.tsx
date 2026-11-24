@@ -108,7 +108,7 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
       ) : !query.data?.items.length ? (
         <DefaultEmptyData title={t('no_reports_yet')} />
       ) : (
-        <ItemGroup variant="list">
+        <ItemGroup>
           {query.data.items.map((report) => (
             <li key={report.id}>
               <Item render={<Link to="/expert-reports/details" search={{ id: report.id }} />}>
