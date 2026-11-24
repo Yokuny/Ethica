@@ -17,6 +17,10 @@ import { enqueue } from '../queue/queue.js';
 // (the latest per rule) when it still fits the case. Nothing here changes a case (AD-268).
 
 export const BATCH_SIZE = 50;
+// The Datajud answers 429 in bursts (TRT16 on 2026-11-23, five times in 20 minutes): with the backoff capped at
+// 30 minutes, 12 attempts keep a batch trying for some hours of the same day instead of waiting for the next one
+// (AD-286).
+export const BATCH_MAX_ATTEMPTS = 12;
 
 export const enqueueCourtRefresh = async (now = new Date()): Promise<{ batches: number }> => {
   const day = dateInDisplayTz(now);
@@ -29,7 +33,11 @@ export const enqueueCourtRefresh = async (now = new Date()): Promise<{ batches: 
       await enqueue(
         'court_refresh_batch',
         { court, day, cases },
-        { dedupeKey: `court_refresh_batch:${day}:${court}:${start / BATCH_SIZE}`, priority: 30 },
+        {
+          dedupeKey: `court_refresh_batch:${day}:${court}:${start / BATCH_SIZE}`,
+          priority: 30,
+          maxAttempts: BATCH_MAX_ATTEMPTS,
+        },
       );
       batches += 1;
     }

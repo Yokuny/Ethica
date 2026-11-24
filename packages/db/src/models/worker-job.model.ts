@@ -13,6 +13,8 @@ export interface WorkerJobDocument {
   priority: number;
   status: WorkerJobStatus;
   attempts: number;
+  // Attempts before `failed`; without it, the queue default (`MAX_ATTEMPTS` of the worker).
+  maxAttempts?: number;
   runAt: Date;
   lockedUntil?: Date;
   lockedBy?: string;
@@ -31,6 +33,7 @@ const workerJobSchema = new Schema<WorkerJobDocument>(
     priority: { type: Number, default: 10 },
     status: { type: String, enum: WORKER_JOB_STATUS, default: 'queued', required: true },
     attempts: { type: Number, default: 0 },
+    maxAttempts: { type: Number },
     runAt: { type: Date, required: true, default: () => new Date() },
     lockedUntil: { type: Date },
     lockedBy: { type: String },

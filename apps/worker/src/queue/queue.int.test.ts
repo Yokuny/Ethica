@@ -49,6 +49,18 @@ describe('fila e trava de entrega do worker (AD-267)', () => {
     expect(jobs[0]?.runAt.getTime()).toBeGreaterThan(Date.now());
   });
 
+  it('job com mais tentativas segue na fila depois da quinta falha (429 do TRT16 em 2026-11-23)', async () => {
+    await enqueue('court', {}, { maxAttempts: 7 });
+    const handlers = { court: async () => Promise.reject(new Error('TRT16 respondeu 429')) };
+    // Each attempt runs after the previous backoff.
+    for (let attempt = 1; attempt <= 6; attempt += 1) {
+      await runOne(handlers, 'w1', 60_000, new Date(Date.now() + attempt * 86_400_000));
+    }
+    expect(await WorkerJob.findOne({}).lean()).toMatchObject({ status: 'queued', attempts: 6 });
+    await runOne(handlers, 'w1', 60_000, new Date(Date.now() + 7 * 86_400_000));
+    expect(await WorkerJob.findOne({}).lean()).toMatchObject({ status: 'failed', attempts: 7 });
+  });
+
   const delivery = () => ({
     tenantId: newObjectId().toString(),
     userId: newObjectId().toString(),

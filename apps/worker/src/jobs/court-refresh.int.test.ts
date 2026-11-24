@@ -11,7 +11,7 @@ import {
 } from '@ethica/db';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CourtProcessData, DatajudClient } from '../datajud/client.js';
-import { enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
+import { BATCH_MAX_ATTEMPTS, enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
 import { expireSuggestions } from './suggestions-expire.js';
 
 const now = new Date('2026-11-22T09:00:00.000Z');
@@ -81,6 +81,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
 
     expect(await enqueueCourtRefresh(now)).toEqual({ batches: 1 });
     const [job] = await WorkerJob.find({ kind: 'court_refresh_batch' }).lean();
+    expect(job?.maxAttempts).toBe(BATCH_MAX_ATTEMPTS);
     expect(job?.payload).toMatchObject({
       court: 'TRT24',
       cases: [{ caseId: premium.legalCase.id, processNumber: NUMBER, tenantId: premium.tenant.id }],

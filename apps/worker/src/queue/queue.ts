@@ -12,7 +12,7 @@ const isDuplicateKey = (e: unknown): boolean =>
 export const enqueue = async (
   kind: string,
   payload: Record<string, unknown> = {},
-  options: { dedupeKey?: string; priority?: number; runAt?: Date } = {},
+  options: { dedupeKey?: string; priority?: number; runAt?: Date; maxAttempts?: number } = {},
 ): Promise<boolean> => {
   try {
     await WorkerJob.create({
@@ -21,6 +21,7 @@ export const enqueue = async (
       priority: options.priority ?? 10,
       runAt: options.runAt,
       dedupeKey: options.dedupeKey,
+      maxAttempts: options.maxAttempts,
     });
     return true;
   } catch (e) {
@@ -51,9 +52,13 @@ export const complete = (id: WorkerJobDocument['_id'], now = new Date()) =>
 export const MAX_ATTEMPTS = 5;
 
 // Back to the queue with exponential backoff and jitter; after the last attempt, `failed`.
-export const fail = (job: Pick<WorkerJobDocument, '_id' | 'attempts'>, error: unknown, now = new Date()) => {
+export const fail = (
+  job: Pick<WorkerJobDocument, '_id' | 'attempts' | 'maxAttempts'>,
+  error: unknown,
+  now = new Date(),
+) => {
   const message = error instanceof Error ? error.message : String(error);
-  if (job.attempts >= MAX_ATTEMPTS) {
+  if (job.attempts >= (job.maxAttempts ?? MAX_ATTEMPTS)) {
     return WorkerJob.updateOne({ _id: job._id }, { $set: { status: 'failed', error: message, finishedAt: now } });
   }
   const delay = Math.min(30 * 60_000, 2 ** job.attempts * 30_000) * (0.5 + Math.random());
@@ -79,7 +84,7 @@ export const runOne = async (
     await complete(job._id);
     console.log(JSON.stringify({ event: 'worker.job_done', kind: job.kind, attempts: job.attempts }));
   } catch (e) {
-    await fail(handler === undefined ? { ...job, attempts: MAX_ATTEMPTS } : job, e);
+    await fail(handler === undefined ? { ...job, maxAttempts: job.attempts } : job, e);
     console.error(
       JSON.stringify({
         event: 'worker.job_failed',
