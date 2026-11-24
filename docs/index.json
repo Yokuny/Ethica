@@ -24,31 +24,10 @@
       "doc": "features/api-padrao-unico/feature.md"
     },
     {
-      "slug": "notificacoes-processo-unico",
-      "feature": "Notificações num processo só",
-      "descricao": "Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API",
-      "data": "2026-11-23",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "docs"
-      ],
-      "decisoes": [
-        "AD-282"
-      ],
-      "spec": [
-        ".specs/features/notificacoes-processo-unico"
-      ],
-      "planos": [],
-      "doc": "features/notificacoes-processo-unico/feature.md"
-    },
-    {
       "slug": "automacao-datajud",
       "feature": "Automação Datajud (premium)",
       "descricao": "Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa",
-      "data": "2026-11-22",
+      "data": "2026-11-23",
       "status": "parcial",
       "areas": [
         "apps/api",
@@ -69,7 +48,8 @@
         "AD-278",
         "AD-279",
         "AD-280",
-        "AD-281"
+        "AD-281",
+        "AD-286"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -78,6 +58,27 @@
         ".specs/features/automacao-datajud/plans/2026-11-22-pagina-automacao-fim-prospeccao.md"
       ],
       "doc": "features/automacao-datajud/feature.md"
+    },
+    {
+      "slug": "notificacoes-processo-unico",
+      "feature": "Notificações num processo só",
+      "descricao": "Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API",
+      "data": "2026-11-23",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "docs"
+      ],
+      "decisoes": [
+        "AD-282"
+      ],
+      "spec": [
+        ".specs/features/notificacoes-processo-unico"
+      ],
+      "planos": [],
+      "doc": "features/notificacoes-processo-unico/feature.md"
     },
     {
       "slug": "central-notificacoes",
@@ -2526,6 +2527,12 @@
     {
       "id": "AD-285",
       "decisao": "Achados da validação local de 2026-11-23 (contas admin, operador restrito e um segundo escritório). (1) Honorário é dado do financeiro també",
+      "data": "2026-11-23",
+      "status": "active"
+    },
+    {
+      "id": "AD-286",
+      "decisao": "Job da fila do worker pode ter o próprio limite de tentativas (`maxAttempts` no `WorkerJob`, padrão `MAX_ATTEMPTS` = 5). O lote do Datajud (",
       "data": "2026-11-23",
       "status": "active"
     }

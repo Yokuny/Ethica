@@ -2,16 +2,16 @@
 feature: Automação Datajud (premium)
 slug: automacao-datajud
 descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa
-data: 2026-11-22
+data: 2026-11-23
 status: parcial
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281, AD-286]
 spec: [.specs/features/automacao-datajud]
 ---
 
 # Automação Datajud (premium)
 
-**Status**: parcial · **Atualizado**: 2026-11-22 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: parcial · **Atualizado**: 2026-11-23 · **Áreas**: `apps/api`, `apps/web`, `apps/worker`, `packages/contracts`, `packages/db`
 
 > Documento vivo. A intenção está em `.specs/features/automacao-datajud/`.
 > Correlação com o git: `git log --oneline -i --grep='automacao-datajud'`.
@@ -63,6 +63,7 @@ A definir.
 ## Histórico
 
 - 2026-11-24 — As regras saíram da página principal e foram para `/automation/rules`, aberta pelo menu "…" do cabeçalho (só com o módulo ativo), no mesmo padrão de /expert-cases.
+- 2026-11-23 — Produção: o processo 0017068-93.2025.5.16.0008 (TRT16) do ETHICA estava na lista do worker e o Datajud o devolve (84 movimentos), mas o lote do dia levou 429 cinco vezes em 20 minutos e desistiu até o dia seguinte; sem resposta não há `CaseCourtSync` e o processo não aparece em "Processos acompanhados". O lote do Datajud agora tenta 12 vezes no dia (AD-286). Na véspera não houve lote: o módulo entrou depois da rodada do dia 22. Fica a proposta de mostrar na página os processos acompanhados que ainda não têm dado do tribunal.
 - 2026-11-23 — Página Automação Datajud conferida no navegador local: com o módulo, as sugestões (0), o processo do TRT24 com a última consulta e o link para o serviço, e as oito regras com Aviso ou Sugestão; sem o módulo, só a oferta, sem chamada à API.
 - 2026-11-22 — Página Automação Datajud no lugar da Prospecção, removida inteira, sem shim (AD-281, supersede a AD-105): o Datajud acompanha os processos do escritório e a descoberta de nomeações fica para o DJEN. Página coberta por teste de tela e conferida no navegador em 2026-11-23. Dados da Prospecção apagados em produção com a confirmação do usuário (collection vazia e um convite).
 - 2026-11-22 — Produção: limpeza deixou só o escritório ETHICA (Bykonz e Tal apagados, cópia fora do repositório) e o ETHICA recebeu o plano Mensal + Automação gravado no banco, sem assinatura no Asaas, até 31/12/2027, para usar o Datajud.

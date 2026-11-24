@@ -1799,6 +1799,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-23
 - **Status**: active
 
+### AD-286
+- **Decision**: Job da fila do worker pode ter o próprio limite de tentativas (`maxAttempts` no `WorkerJob`, padrão `MAX_ATTEMPTS` = 5). O lote do Datajud (`court_refresh_batch`) usa 12: com o backoff limitado a 30 minutos, ele segue tentando por algumas horas do mesmo dia em vez de desistir em cerca de 20 minutos. Refina o item (3) da AD-277.
+- **Reason**: produção, 2026-11-23: o processo 0017068-93.2025.5.16.0008 (TRT16) estava acompanhado e o Datajud o devolve (84 movimentos), mas o único lote do dia levou 429 cinco vezes entre 06:00 e 06:20 UTC e terminou `failed`; a chave do dia (`court_refresh_batch:<dia>:<tribunal>:<n>`) impede nova tentativa até o dia seguinte, e sem resposta não nasce o `CaseCourtSync`, então o processo não aparece em "Processos acompanhados".
+- **Trade-off**: um tribunal fora do ar ocupa a fila por mais tempo no dia (uma consulta a cada até 30 minutos); os outros jobs mantêm as 5 tentativas.
+- **Scope**: `packages/db/src/models/worker-job.model.ts`, `apps/worker/src/queue/queue.ts`, `apps/worker/src/jobs/court-refresh.ts`.
+- **Date**: 2026-11-23
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

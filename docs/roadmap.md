@@ -56,6 +56,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 - [ ] Conferir com a perita a lista única de Notificações: Abertas/Resolvidas no lugar das cinco situações e o número do menu contando prazos vencidos, sugestões e avisos (AD-282) — `notificacoes-processo-unico`
 - [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
+- [ ] Depois da rodada de 24/11 (03:00), conferir que o 0017068-93.2025.5.16.0008 (TRT16) aparece em Processos acompanhados no ETHICA; se o TRT16 seguir em 429 o dia todo, pode ser bloqueio do IP da Railway — `automacao-datajud`
 - [ ] Conferir a seção No tribunal num serviço real com o plano com Automação e o aviso de movimentação no dia seguinte — `automacao-datajud`
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
 
@@ -79,7 +80,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
-- [ ] Lote do Datajud que segue recebendo 429 desiste em cerca de 15 minutos no dia; aumentar a espera ou tentar no dia seguinte — `automacao-datajud`
+- [ ] "Processos acompanhados" mostrar também o processo que o worker acompanha e ainda não tem dado do tribunal (consulta falhou ou o Datajud não encontrou), com a situação de cada um; feature média, spec antes do código — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
 - [ ] Criar a receita junto com o recebimento quando o serviço não tem honorário em aberto (hoje a tela manda lançar no Financeiro) — `automacao-datajud`
 - [ ] Circuit breaker por tribunal no cliente Datajud do worker — `automacao-datajud`
@@ -104,6 +105,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-23 — Lote do Datajud com 429 tenta 12 vezes no dia em vez de desistir em cerca de 20 minutos (AD-286) — `automacao-datajud`
 - [x] 2026-11-23 — API num padrão único: controller sem try/catch, 404 no service, convite numa entidade, model só no repository, kebab-case, tudo travado no teste estrutural (AD-284) — `api-padrao-unico`
 - [x] 2026-11-23 — Testes de falha em Notificações e Financeiro: lista resiste a data ilegível do tribunal, honorário do serviço não duplica em mudanças simultâneas, datas e valores impossíveis param na borda (AD-283) — `notificacoes-processo-unico`, `prazos-recebimentos`
 - [x] 2026-11-23 — Notificações numa lista só (Abertas/Resolvidas), sem abas aninhadas, com uma leitura e um contador na API (AD-282) — `notificacoes-processo-unico`
