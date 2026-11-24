@@ -24,7 +24,9 @@ export const BATCH_SIZE = 50;
 // (AD-286).
 export const BATCH_MAX_ATTEMPTS = 12;
 
-export const enqueueCourtRefresh = async (now = new Date()): Promise<{ batches: number }> => {
+export const enqueueCourtRefresh = async (
+  now = new Date(),
+): Promise<{ batches: number; courts: Record<string, number> }> => {
   const day = dateInDisplayTz(now);
   const byCourt = new Map<string, TrackedCase[]>();
   for (const item of await listTrackedCases(now)) byCourt.set(item.court, [...(byCourt.get(item.court) ?? []), item]);
@@ -44,14 +46,15 @@ export const enqueueCourtRefresh = async (now = new Date()): Promise<{ batches: 
       batches += 1;
     }
   }
-  return { batches };
+  // Cases per court in the run, for the diagnosis (AD-287): which courts and how big when the 429 comes.
+  return { batches, courts: Object.fromEntries([...byCourt].map(([court, items]) => [court, items.length])) };
 };
 
 export const refreshCourtBatch = async (
   datajud: DatajudClient,
   payload: { court: string; day: string; cases: TrackedCase[] },
   now = new Date(),
-): Promise<{ processes: number; baselines: number; notices: number; suggestions: number }> => {
+): Promise<{ processes: number; baselines: number; notices: number; suggestions: number; notFound: number }> => {
   const numbers = [...new Set(payload.cases.map((item) => item.processNumber))];
   const processes = await datajud.fetchProcesses(payload.court, numbers);
   for (const process of processes) {
@@ -73,6 +76,7 @@ export const refreshCourtBatch = async (
   let baselines = 0;
   let notices = 0;
   let suggestions = 0;
+  let notFound = 0;
   for (const item of payload.cases) {
     // Every degree of the process (G1, G2…) is the same process for the case.
     const movements = processes
@@ -82,6 +86,7 @@ export const refreshCourtBatch = async (
     // Queried and not found (PAC-02): only the date of the query, so the page shows it; a case already synced
     // keeps its baseline.
     if (movements.length === 0) {
+      notFound += 1;
       await CaseCourtSync.updateOne(
         caseKey,
         { $set: { court: item.court, processNumber: item.processNumber, syncedAt: now } },
@@ -184,5 +189,5 @@ export const refreshCourtBatch = async (
     }
     await markSeen();
   }
-  return { processes: processes.length, baselines, notices, suggestions };
+  return { processes: processes.length, baselines, notices, suggestions, notFound };
 };

@@ -79,7 +79,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       subject: 'Avaliação',
     });
 
-    expect(await enqueueCourtRefresh(now)).toEqual({ batches: 1 });
+    expect(await enqueueCourtRefresh(now)).toEqual({ batches: 1, courts: { TRT24: 1 } });
     const [job] = await WorkerJob.find({ kind: 'court_refresh_batch' }).lean();
     expect(job?.maxAttempts).toBe(BATCH_MAX_ATTEMPTS);
     expect(job?.payload).toMatchObject({
@@ -118,6 +118,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       baselines: 1,
       notices: 0,
       suggestions: 0,
+      notFound: 0,
     });
     expect(await Notification.countDocuments({})).toBe(0);
 
@@ -126,6 +127,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       baselines: 0,
       notices: 1,
       suggestions: 0,
+      notFound: 0,
     });
     const [notice] = await Notification.find({}).lean();
     expect(notice).toMatchObject({
@@ -267,7 +269,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
     const batch = (day: string, at: Date) =>
       refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day, cases: [item] }, at);
 
-    expect(await batch('2026-11-21', now)).toMatchObject({ processes: 0, baselines: 0 });
+    expect(await batch('2026-11-21', now)).toMatchObject({ processes: 0, baselines: 0, notFound: 1 });
     const notFound = await CaseCourtSync.findOne({}).lean();
     expect(notFound).toMatchObject({ court: 'TRT24', processNumber: NUMBER, syncedAt: now, seenMovementKeys: [] });
     expect(notFound?.baselineAt).toBeUndefined();

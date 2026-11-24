@@ -1,6 +1,6 @@
 import type { TrackedCase } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
-import type { DatajudClient } from '../datajud/client.js';
+import { type DatajudClient, lookupEgressIp } from '../datajud/client.js';
 import type { PushSender } from '../push.js';
 import type { JobHandler } from '../queue/queue.js';
 import { enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
@@ -32,12 +32,22 @@ export const buildHandlers = (deps: {
   // Without the Datajud key the tracking in court stays off (the jobs end without doing anything).
   court_refresh: async (_payload, now) => {
     if (!deps.datajud) return;
-    console.log(JSON.stringify({ event: 'worker.court_refresh', ...(await enqueueCourtRefresh(now)) }));
+    // The public IP of the day goes with the run (AD-287): it shows whether the 429 follows the address.
+    const [result, ip] = await Promise.all([enqueueCourtRefresh(now), lookupEgressIp()]);
+    console.log(JSON.stringify({ event: 'worker.court_refresh', ip, ...result }));
   },
   court_refresh_batch: async (payload, now) => {
     if (!deps.datajud) return;
     const batch = payload as { court: string; day: string; cases: TrackedCase[] };
     const result = await refreshCourtBatch(deps.datajud, batch, now);
-    console.log(JSON.stringify({ event: 'worker.court_refresh_batch', court: batch.court, ...result }));
+    console.log(
+      JSON.stringify({
+        event: 'worker.court_refresh_batch',
+        court: batch.court,
+        day: batch.day,
+        cases: batch.cases.length,
+        ...result,
+      }),
+    );
   },
 });

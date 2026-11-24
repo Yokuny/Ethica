@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { connect, disconnect, syncWorkerIndexes, WorkerHeartbeat } from '@ethica/db';
 import { createMailProvider } from '@ethica/mail';
 import { parseEnv } from './config/env.config.js';
-import { createDatajudClient } from './datajud/client.js';
+import { createDatajudClient, lookupEgressIp } from './datajud/client.js';
 import { startHealthServer } from './health.js';
 import { buildHandlers } from './jobs/index.js';
 import { createPushSender } from './push.js';
@@ -28,6 +28,7 @@ export const start = async (): Promise<void> => {
         apiKey: env.DATAJUD_API_KEY,
         baseUrl: env.DATAJUD_BASE_URL,
         minIntervalMs: env.DATAJUD_MIN_INTERVAL_MS,
+        instance: env.WORKER_INSTANCE,
       })
     : undefined;
   const push =
@@ -66,7 +67,16 @@ export const start = async (): Promise<void> => {
     }
   };
   const loops = Array.from({ length: env.WORKER_CONCURRENCY }, loop);
-  log('worker.started', { instance: env.WORKER_INSTANCE, concurrency: env.WORKER_CONCURRENCY });
+  // Where it runs (AD-287): region and deployment of the Railway and the public IP, to tell a block by address.
+  log('worker.started', {
+    instance: env.WORKER_INSTANCE,
+    concurrency: env.WORKER_CONCURRENCY,
+    datajud: Boolean(datajud),
+    datajudMinIntervalMs: env.DATAJUD_MIN_INTERVAL_MS,
+    region: process.env.RAILWAY_REPLICA_REGION,
+    deployment: process.env.RAILWAY_DEPLOYMENT_ID,
+    ip: datajud ? await lookupEgressIp() : undefined,
+  });
 
   // SIGTERM: stops claiming, waits for the jobs in progress (a job cut in the middle comes back by the lease).
   const stop = async () => {

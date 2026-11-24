@@ -51,21 +51,25 @@ export const complete = (id: WorkerJobDocument['_id'], now = new Date()) =>
 
 export const MAX_ATTEMPTS = 5;
 
-// Back to the queue with exponential backoff and jitter; after the last attempt, `failed`.
-export const fail = (
+// Back to the queue with exponential backoff and jitter; after the last attempt, `failed`. Returns when it
+// runs again (absent when it failed for good), for the log.
+export const fail = async (
   job: Pick<WorkerJobDocument, '_id' | 'attempts' | 'maxAttempts'>,
   error: unknown,
   now = new Date(),
-) => {
+): Promise<{ retryAt?: Date }> => {
   const message = error instanceof Error ? error.message : String(error);
   if (job.attempts >= (job.maxAttempts ?? MAX_ATTEMPTS)) {
-    return WorkerJob.updateOne({ _id: job._id }, { $set: { status: 'failed', error: message, finishedAt: now } });
+    await WorkerJob.updateOne({ _id: job._id }, { $set: { status: 'failed', error: message, finishedAt: now } });
+    return {};
   }
   const delay = Math.min(30 * 60_000, 2 ** job.attempts * 30_000) * (0.5 + Math.random());
-  return WorkerJob.updateOne(
+  const retryAt = new Date(now.getTime() + delay);
+  await WorkerJob.updateOne(
     { _id: job._id },
-    { $set: { status: 'queued', error: message, runAt: new Date(now.getTime() + delay) }, $unset: { lockedUntil: 1 } },
+    { $set: { status: 'queued', error: message, runAt: retryAt }, $unset: { lockedUntil: 1 } },
   );
+  return { retryAt };
 };
 
 // Runs one claimed job with its handler; an unknown kind fails for good.
@@ -78,18 +82,31 @@ export const runOne = async (
   const job = await claim(instance, leaseMs, now);
   if (!job) return false;
   const handler: JobHandler | undefined = handlers[job.kind];
+  const startedAt = Date.now();
+  // Which job and which attempt (the `dedupeKey` of a court batch names the day, the court and the batch).
+  const context = {
+    kind: job.kind,
+    dedupeKey: job.dedupeKey,
+    attempts: job.attempts,
+    maxAttempts: job.maxAttempts ?? MAX_ATTEMPTS,
+    queuedForMs: now.getTime() - new Date(job.createdAt ?? now).getTime(),
+  };
   try {
     if (!handler) throw new Error(`job desconhecido: ${job.kind}`);
     await handler(job.payload ?? {}, now);
     await complete(job._id);
-    console.log(JSON.stringify({ event: 'worker.job_done', kind: job.kind, attempts: job.attempts }));
+    console.log(JSON.stringify({ event: 'worker.job_done', ...context, durationMs: Date.now() - startedAt }));
   } catch (e) {
-    await fail(handler === undefined ? { ...job, maxAttempts: job.attempts } : job, e);
+    const { retryAt } = await fail(handler === undefined ? { ...job, maxAttempts: job.attempts } : job, e);
     console.error(
       JSON.stringify({
         event: 'worker.job_failed',
-        kind: job.kind,
+        ...context,
+        durationMs: Date.now() - startedAt,
+        errorName: e instanceof Error ? e.constructor.name : undefined,
         message: e instanceof Error ? e.message : String(e),
+        retryAt: retryAt?.toISOString(),
+        final: !retryAt,
       }),
     );
   }
