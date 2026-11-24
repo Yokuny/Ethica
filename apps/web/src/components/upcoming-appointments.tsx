@@ -28,9 +28,10 @@ export function UpcomingAppointments({ items }: { items: AppointmentRecord[] }) 
             </ItemMedia>
             <ItemContent>
               <ItemTitle>{item.title}</ItemTitle>
-              <ItemDescription>
-                {[formatDateTime(item.start), item.caseNumber, item.location].filter(Boolean).join(' · ')}
-              </ItemDescription>
+              <div className="flex flex-wrap items-baseline gap-x-2">
+                <ItemTitle className="font-normal tabular-nums">{formatDateTime(item.start)}</ItemTitle>
+                <ItemDescription>{[item.caseNumber, item.location].filter(Boolean).join(' · ')}</ItemDescription>
+              </div>
             </ItemContent>
             <ItemActions>
               <Badge variant={APPOINTMENT_TYPE_VARIANT[item.type]}>{t(item.type)}</Badge>

@@ -2596,6 +2596,12 @@
       "decisao": "Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam",
       "data": "2026-11-24",
       "status": "active"
+    },
+    {
+      "id": "AD-293",
+      "decisao": "Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-med",
+      "data": "2026-11-24",
+      "status": "active"
     }
   ]
 }

@@ -1855,6 +1855,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-24
 - **Status**: active
 
+### AD-293
+- **Decision**: Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-medium text-impact`; em `TableStack` o valor passa de `ItemDescription` pintado para `ItemTitle` regular (`tone="muted"` o deixa `text-muted-foreground`), e a linha de apoio segue `ItemDescription` menor. Nas listas, o dado vira `ItemTitle` e o metadado `ItemDescription`: data e hora do compromisso em `ItemTitle` regular ao lado do processo e endereço; nos modelos, a descrição livre e, abaixo, tipo e número de seções em texto menor.
+- **Reason**: pedido do usuário (2026-11-24): o valor e a linha de apoio tinham o mesmo peso e quase a mesma cor, sem contraste entre dado e hierarquia.
+- **Trade-off**: o título da identidade fica mais pesado em toda tabela; o valor da célula deixa de herdar o `line-clamp-none` do `ItemDescription` (o `ItemTitle` não corta).
+- **Scope**: `apps/web/src/components/data-table.tsx`, `apps/web/src/components/upcoming-appointments.tsx`, `apps/web/src/routes/_private/expert-reports/templates/index.tsx`.
+- **Date**: 2026-11-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

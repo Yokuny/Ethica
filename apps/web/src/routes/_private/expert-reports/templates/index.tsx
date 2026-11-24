@@ -46,10 +46,9 @@ function TemplateList({ templates }: { templates: TemplateSummary[] }) {
             </ItemMedia>
             <ItemContent>
               <ItemTitle>{template.name}</ItemTitle>
-              <ItemDescription>
-                {[template.details, t(template.type), `${template.totalSections} ${t('sections').toLowerCase()}`]
-                  .filter(Boolean)
-                  .join(' · ')}
+              {template.details && <ItemDescription>{template.details}</ItemDescription>}
+              <ItemDescription className="text-xs">
+                {`${t(template.type)} · ${template.totalSections} ${t('sections').toLowerCase()}`}
               </ItemDescription>
             </ItemContent>
             {template.isDefault && (

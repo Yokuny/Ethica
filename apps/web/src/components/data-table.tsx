@@ -438,7 +438,7 @@ function TableIdentity({
             {title}
           </AppLink>
         ) : (
-          <ItemTitle className="block max-w-md truncate font-normal text-left">{title}</ItemTitle>
+          <ItemTitle className="block max-w-md truncate font-medium text-impact text-left">{title}</ItemTitle>
         )}
         {description && <ItemDescription className="max-w-md text-xs text-pretty">{description}</ItemDescription>}
       </div>
@@ -479,15 +479,15 @@ function TableStack({
         className,
       )}
     >
-      <ItemDescription
+      <ItemTitle
         className={cn(
-          'line-clamp-none text-pretty',
-          tone === 'default' && 'text-foreground',
+          'block font-normal text-pretty',
+          tone === 'muted' && 'text-muted-foreground',
           tone === 'error' && 'text-destructive',
         )}
       >
         {children}
-      </ItemDescription>
+      </ItemTitle>
       {description && (
         <ItemDescription
           className={cn('text-[0.8rem] line-clamp-none text-pretty', descriptionTone === 'error' && 'text-destructive')}
