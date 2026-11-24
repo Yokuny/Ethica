@@ -2,6 +2,29 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "processos-acompanhados",
+      "feature": "Processos acompanhados com a situação de cada um",
+      "descricao": "Página da Automação lista todo processo acompanhado, mesmo sem dado do tribunal, com a situação de cada um",
+      "data": "2026-11-24",
+      "status": "planejado",
+      "areas": [
+        "apps/web",
+        "apps/api",
+        "apps/worker",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-277",
+        "AD-286"
+      ],
+      "spec": [
+        ".specs/features/processos-acompanhados"
+      ],
+      "planos": [],
+      "doc": "features/processos-acompanhados/feature.md"
+    },
+    {
       "slug": "api-padrao-unico",
       "feature": "API num padrão único",
       "descricao": "Uma forma por camada no apps/api (router, controller, service, repository, schema, apoio), travada no teste estrutural",

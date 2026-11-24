@@ -12,6 +12,7 @@ pendência fica no `feature.md` indicado; aqui só a ação, quem faz e a featur
 | Rotas de vistoria com ponto de partida e serviço de rota próprio | `rotas-vistoria` | AD-150 |
 | CRUD de membros só do admin | `gestao-membros` | AD-148 |
 | Imagem de produção da API e arquivos por perícia no S3 | `producao-api` | AD-146 |
+| Processos acompanhados com a situação de cada um (design inline na spec) | `processos-acompanhados` | AD-286 |
 
 Em paralelo: validação do que já existe pela perita, com pequenas correções direto na `main` (AD-143).
 
@@ -61,6 +62,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
 
 - [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`
+- [ ] Perita: confirmar as perguntas da spec de processos acompanhados (as três situações, a data velha de 3 dias, a ordem e a seção No tribunal) — `processos-acompanhados`
 - [ ] Confirmar as perguntas em aberto das specs: `central-notificacoes`, `automacao-datajud`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`
@@ -80,7 +82,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
-- [ ] "Processos acompanhados" mostrar também o processo que o worker acompanha e ainda não tem dado do tribunal (consulta falhou ou o Datajud não encontrou), com a situação de cada um; feature média, spec antes do código — `automacao-datajud`
+- [ ] Implementar a lista de processos acompanhados com a situação de cada um (tasks T1 a T6, depois da confirmação da perita) — `processos-acompanhados`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
 - [ ] Criar a receita junto com o recebimento quando o serviço não tem honorário em aberto (hoje a tela manda lançar no Financeiro) — `automacao-datajud`
 - [ ] Circuit breaker por tribunal no cliente Datajud do worker — `automacao-datajud`
