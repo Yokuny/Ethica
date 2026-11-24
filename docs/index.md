@@ -32,7 +32,7 @@ _Nenhum._
 | --- | --- | --- | --- | --- | --- | --- |
 | [Processos acompanhados com a situação de cada um](features/processos-acompanhados/feature.md) | Página da Automação lista todo processo acompanhado, mesmo sem dado do tribunal, com a situação de cada um | concluido | 2026-11-24 | `apps/web` `apps/api` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/processos-acompanhados) | — |
 | [API num padrão único](features/api-padrao-unico/feature.md) | Uma forma por camada no apps/api (router, controller, service, repository, schema, apoio), travada no teste estrutural | concluido | 2026-11-23 | `apps/api` `tests` `docs` | [spec](../.specs/features/api-padrao-unico) | 1 |
-| [Automação Datajud (premium)](features/automacao-datajud/feature.md) | Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa | parcial | 2026-11-23 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/automacao-datajud) | 1 |
+| [Automação Datajud (premium)](features/automacao-datajud/feature.md) | Módulo premium que acompanha os processos no Datajud e gera avisos e sugestões que só valem com a aprovação da pessoa | parcial | 2026-11-23 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` | [spec](../.specs/features/automacao-datajud) | 2 |
 | [Notificações num processo só](features/notificacoes-processo-unico/feature.md) | Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API | concluido | 2026-11-23 | `apps/api` `apps/web` `packages/contracts` `docs` | [spec](../.specs/features/notificacoes-processo-unico) | — |
 | [Central de notificações](features/central-notificacoes/feature.md) | Notification única (prazo, alerta, sugestão, aviso) no lugar do Deadline, Central no app e worker de lembretes e entrega | concluido | 2026-11-22 | `apps/api` `apps/web` `apps/worker` `packages/contracts` `packages/db` `packages/mail` `docs` | [spec](../.specs/features/central-notificacoes) | 1 |
 | [Meta de receita do ano](features/meta-receita/feature.md) | Meta de receita do ano cadastrada em Escritório e acompanhada no Dashboard e, por escolha de cada pessoa, em Serviços | parcial | 2026-11-22 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/meta-receita) | — |
@@ -96,6 +96,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-287** (2026-11-24, active) — Antes de mudar a infra da consulta ao Datajud, o worker registra cada chamada: uma linha `datajud.request` com resultado (`rate_limited`, `t
 - **AD-286** (2026-11-23, active) — Job da fila do worker pode ter o próprio limite de tentativas (`maxAttempts` no `WorkerJob`, padrão `MAX_ATTEMPTS` = 5). O lote do Datajud (
 - **AD-285** (2026-11-23, active) — Achados da validação local de 2026-11-23 (contas admin, operador restrito e um segundo escritório). (1) Honorário é dado do financeiro també
 - **AD-284** (2026-11-23, active) — Padrão único das camadas do `apps/api`, travado no teste estrutural. (1) Controller é função exportada sem `try/catch`; quem precisa de prov
@@ -105,7 +106,6 @@ _Nenhum._
 - **AD-280** (2026-11-22, active) — Push e métricas (fim da Fase 6): (1) Web Push com chaves VAPID: a API dá a chave pública (`GET /me/push`) e grava ou apaga a inscrição do ap
 - **AD-279** (2026-11-22, active) — Sugestões financeiras e de prazos (Fase 6 de `automacao-datajud`): (1) intenção de pagamento (12548, 12165, 12173, 12166, 12175) gera o avis
 - **AD-278** (2026-11-22, active) — Sugestões de serviço (Fase 5 de `automacao-datajud`): (1) regras em `packages/contracts/src/schemas/automation-rules.ts` com os códigos da T
-- **AD-277** (2026-11-22, active) — Acompanhamento no tribunal (Fase 4 de `automacao-datajud`): (1) só perícias trabalhistas (TRT) e federais (TRF) por enquanto (`TRACKED_COURT
 
 ## Outros documentos
 

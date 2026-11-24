@@ -72,13 +72,15 @@
         "AD-279",
         "AD-280",
         "AD-281",
-        "AD-286"
+        "AD-286",
+        "AD-287"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
       ],
       "planos": [
-        ".specs/features/automacao-datajud/plans/2026-11-22-pagina-automacao-fim-prospeccao.md"
+        ".specs/features/automacao-datajud/plans/2026-11-22-pagina-automacao-fim-prospeccao.md",
+        ".specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md"
       ],
       "doc": "features/automacao-datajud/feature.md"
     },
@@ -2557,6 +2559,12 @@
       "id": "AD-286",
       "decisao": "Job da fila do worker pode ter o próprio limite de tentativas (`maxAttempts` no `WorkerJob`, padrão `MAX_ATTEMPTS` = 5). O lote do Datajud (",
       "data": "2026-11-23",
+      "status": "active"
+    },
+    {
+      "id": "AD-287",
+      "decisao": "Antes de mudar a infra da consulta ao Datajud, o worker registra cada chamada: uma linha `datajud.request` com resultado (`rate_limited`, `t",
+      "data": "2026-11-24",
       "status": "active"
     }
   ]

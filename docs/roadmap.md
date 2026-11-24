@@ -55,6 +55,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Daqui a uns 7 dias com o worker novo na Railway, ler os logs `datajud.request` e `worker.job_failed` (por tribunal, hora, `errorTypes`, `ip`) e decidir a correção das falhas do Datajud pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md` (AD-287) — `automacao-datajud`
 - [ ] Conferir com a perita a lista única de Notificações: Abertas/Resolvidas no lugar das cinco situações e o número do menu contando prazos vencidos, sugestões e avisos (AD-282) — `notificacoes-processo-unico`
 - [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
 - [ ] Depois da rodada de 24/11 (03:00), conferir que o 0017068-93.2025.5.16.0008 (TRT16) aparece em Processos acompanhados no ETHICA; se o TRT16 seguir em 429 o dia todo, pode ser bloqueio do IP da Railway — `automacao-datajud`
@@ -63,7 +64,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 - [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`
 - [ ] Depois da rodada das 03:00 seguinte ao deploy do worker na Railway, conferir em /automation do ETHICA que todo processo acompanhado aparece com a situação (o 0017068-93.2025.5.16.0008 do TRT16 como consultado ou não encontrado) — `processos-acompanhados`
-- [ ] Conferir no navegador a página /automation e a seção No tribunal com as quatro situações (o login local exige passkey, não conferido pelo agente) — `processos-acompanhados`
 - [ ] Confirmar as perguntas em aberto das specs: `central-notificacoes`, `automacao-datajud`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, lista de destinos no novo desenho (Início, serviço aberto, modelos — AD-252); UAT geral com o seed — `fundacao-ethica`
@@ -81,6 +81,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
+- [ ] Aplicar a correção das falhas do Datajud que os logs apontarem (espalhar os lotes no tempo, disjuntor por tribunal, outro horário, lote menor; Lambda ou serviço próprio com outro IP só se o bloqueio for do IP) — `automacao-datajud`
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
@@ -107,6 +108,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-24 — Conferidos no navegador local /automation (situações, textos e ordem) e a seção No tribunal de um serviço não encontrado — `processos-acompanhados`
 - [x] 2026-11-24 — Processos acompanhados: todo serviço acompanhado aparece, com a situação de cada um, também na seção No tribunal; o worker grava o não encontrado — `processos-acompanhados`
 - [x] 2026-11-24 — Perita: perguntas da spec de processos acompanhados respondidas (padrões da spec; seção No tribunal aceita) — `processos-acompanhados`
 - [x] 2026-11-23 — Lote do Datajud com 429 tenta 12 vezes no dia em vez de desistir em cerca de 20 minutos (AD-286) — `automacao-datajud`

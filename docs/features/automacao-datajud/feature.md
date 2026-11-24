@@ -5,7 +5,7 @@ descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e
 data: 2026-11-23
 status: parcial
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281, AD-286]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281, AD-286, AD-287]
 spec: [.specs/features/automacao-datajud]
 ---
 
@@ -39,6 +39,7 @@ A perita descobre tarde que o processo foi suspenso, acabou em acordo ou teve al
 - `apps/web/src/routes/_public/billing/` (modo upgrade) e `apps/web/src/routes/_private/notifications/@components/automation-offer.tsx`.
 
 - `apps/worker/src/datajud/client.ts` (cliente, fixtures reais ao lado), `apps/worker/src/jobs/court-refresh.ts`; `packages/db/src/models/{court-process,case-court-sync}.model.ts`.
+- Diagnóstico das falhas (AD-287): cada chamada ao Datajud escreve `datajud.request` no log do worker (resultado, tempo, ritmo, cabeçalhos, carga do Elasticsearch, encontrados e faltantes) e alimenta `datajud_requests_total` e `datajud_request_duration_seconds` no `/metrics`; `worker.court_refresh` traz o IP público do dia; `worker.job_failed` traz o lote (`dedupeKey`), a tentativa e o `retryAt`. Campos, hipóteses e soluções: `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md`.
 - `apps/api/src/modules/automation/` — `GET /automation/cases` (processos acompanhados) e `GET /automation/cases/:id/court-process`, com `requireAutomation`.
 - `apps/web/src/routes/_private/automation/` (página; regras em `rules/`, com `rules/@utils/rule-items.ts`).
 - `apps/web/src/routes/_private/expert-cases/details/@components/case-court.tsx`.
@@ -57,11 +58,13 @@ A definir.
 
 ## Pendências
 
+- [ ] Investigar a causa real das falhas do Datajud com os logs `datajud.request` de uns 7 dias na Railway e escolher a correção (plano de 2026-11-24, AD-287). Primeira evidência: 429 do próprio Elasticsearch do CNJ com a fila de busca cheia, também de outro IP.
 - [ ] Usuário: confirmar o estudo do pagamento (AD-274, `.specs/features/automacao-datajud/context.md`).
 - [ ] Fixture de TJ para incluir as perícias cíveis (TJMS e TJSP recusaram em 2026-11-22).
 
 ## Histórico
 
+- 2026-11-24 — Diagnóstico das falhas do Datajud (AD-287): logs e métricas por chamada, IP público, contexto do job na falha; resposta `timed_out` volta para a fila em vez de virar "não encontrado". Uma chamada real da máquina local à 01:08 recebeu 429 no TRT16 e no TRT24 com a fila de busca do Elasticsearch cheia (10/10 threads, 1000 na fila) e tempo esgotado no TRT2: indica sobrecarga do cluster do CNJ, não bloqueio do nosso IP. Hipóteses e soluções (espalhar no tempo, disjuntor, outro horário, Lambda ou serviço próprio com outro IP, falar com o CNJ) no plano de 2026-11-24, para decidir com os logs da Railway.
 - 2026-11-24 — "Processos acompanhados" lista todo serviço acompanhado, mesmo sem resposta do tribunal, com a situação de cada um; o worker passa a gravar o `CaseCourtSync` também do processo não encontrado (sem `baselineAt`). Detalhe em `processos-acompanhados`.
 - 2026-11-24 — As regras saíram da página principal e foram para `/automation/rules`, aberta pelo menu "…" do cabeçalho (só com o módulo ativo), no mesmo padrão de /expert-cases.
 - 2026-11-23 — Produção: o processo 0017068-93.2025.5.16.0008 (TRT16) do ETHICA estava na lista do worker e o Datajud o devolve (84 movimentos), mas o lote do dia levou 429 cinco vezes em 20 minutos e desistiu até o dia seguinte; sem resposta não há `CaseCourtSync` e o processo não aparece em "Processos acompanhados". O lote do Datajud agora tenta 12 vezes no dia (AD-286). Na véspera não houve lote: o módulo entrou depois da rodada do dia 22. A lista com todo processo acompanhado e a situação de cada um virou a feature `processos-acompanhados` (spec em 2026-11-24).

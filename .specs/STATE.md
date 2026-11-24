@@ -1807,6 +1807,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-23
 - **Status**: active
 
+### AD-287
+- **Decision**: Antes de mudar a infra da consulta ao Datajud, o worker registra cada chamada: uma linha `datajud.request` com resultado (`rate_limited`, `timeout`, `partial`, `auth`, `network`…), tempo, nosso ritmo, cabeçalhos de limite, carga da fila do Elasticsearch lida do erro, tamanho do lote e encontrados/faltantes; métricas `datajud_requests_total` e `datajud_request_duration_seconds`; o IP público no início e em cada rodada; contexto do job (`dedupeKey`, tentativa, `retryAt`) na falha. Resposta com `timed_out` passa a voltar para a fila, como o shard recusado. A correção (espalhar no tempo, disjuntor, outro horário, outro IP, Lambda, serviço próprio) se decide depois dos logs, pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md`.
+- **Reason**: o 429 se repete em vários tribunais e só a AD-286 (mais tentativas) não diz a causa. A primeira chamada instrumentada (2026-11-24, de outro IP, sem chamada anterior) recebeu 429 do próprio Elasticsearch do CNJ com a fila de busca cheia (`es_rejected_execution_exception`, 10/10 threads, 1000 na fila), sem cabeçalho de limite: aponta para sobrecarga do cluster e não para bloqueio do nosso IP, o que ainda precisa ser confirmado na Railway.
+- **Trade-off**: uma linha de log por chamada (poucas centenas por dia) e uma consulta ao `api.ipify.org` por rodada e por início do worker; o corpo do erro vai cortado em 300 caracteres e a chave só como hash.
+- **Scope**: `apps/worker/src/datajud/client.ts`, `apps/worker/src/queue/queue.ts`, `apps/worker/src/jobs/{court-refresh,index}.ts`, `apps/worker/src/server.ts`.
+- **Date**: 2026-11-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.
