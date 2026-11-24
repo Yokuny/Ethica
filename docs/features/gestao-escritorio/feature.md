@@ -81,6 +81,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 - 2026-11-24 — `LinkList` excluído: todas as listas (Início, serviço aberto, parte, agenda, novo laudo, modelos, Automação e regras) usam `ItemGroup variant="list"` + `Item` com borda, selos à direita e na largura toda, sem o `max-w-4xl` de Modelos, Automação e Regras (AD-288).
 - 2026-11-24 — `ItemGroup` vira só `flex flex-col gap-2`: cada linha é um `Item` com borda própria, sem sombra e com espaço entre elas; Mapa e Rota do campo com os selos à direita, como as outras listas (AD-289).
 - 2026-11-24 — Listas voltam a ter o ícone à esquerda (menos Recebimentos) e a seta ↗ na linha que leva a outra tela (AD-290).
+- 2026-11-24 — Cabeçalho dos detalhes (`RecordHeading`, `apps/web/src/components/record.tsx`: serviço, laudo, modelo, vistoria, parte, novo laudo): o ícone sai solto e vai para o ladrilho do `LinkCard` (quadrado `bg-muted` de 64px, ícone de 24px).
 - 2026-11-19 — Início: fluxo de caixa em tabela por mês com saldo e variação, largura toda; Serviços por justiça em ranking com quantidade e parcela (AD-236).
 - 2026-11-15 — Início: Próximos compromissos e Serviços parados só aparecem quando há o que listar (saem os estados vazios e as chaves `commitments_appear_here`/`no_stalled_expert_cases`); a legenda Menos/Mais de Serviços por etapa vai para o cabeçalho do bloco, oposta ao título (`HeatTilesLegend`).
 - 2026-11-15 — Menu "…" (`PageMenu`) no cabeçalho do Início, com "Personalizar" dentro, e em Usuários, com "Minha conta" levando a `/account`.
