@@ -108,6 +108,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-24 — Varredura estética com o Playwright (31 rotas, desktop e celular): sem célula sozinha, sem texto colado em sublinhado, sem rolagem lateral, sem sombra em controle (AD-293, AD-294) — `gestao-escritorio`
 - [x] 2026-11-24 — Meta em Serviços sem depender do menu (AD-291); Recebimentos com hierarquia de valores; faixa de números sem célula sozinha nem dica colada no sublinhado; Dashboard com a faixa no topo (AD-292) — conferido no navegador local com o Playwright — `meta-receita`, `dashboard`, `prazos-recebimentos`
 - [x] 2026-11-24 — Ícone do cabeçalho dos detalhes no ladrilho do `LinkCard` — `gestao-escritorio`
 - [x] 2026-11-24 — Listas com o ícone de volta e a seta ↗ nas linhas que levam a outra tela — `gestao-escritorio`

@@ -9,9 +9,9 @@ const buttonVariants = cva(
       variant: {
         // Hover darkens (bg-primary-hover, index.css) instead of `primary/80`: the
         // transparency let the gray canvas bleed through and the green looked washed out.
-        default: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary-hover',
+        default: 'bg-primary text-primary-foreground hover:bg-primary-hover',
         outline:
-          'border-input bg-card text-foreground shadow-xs hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground',
+          'border-input bg-card text-foreground hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary-hover aria-expanded:bg-secondary-hover',
         ghost:
           'hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground',

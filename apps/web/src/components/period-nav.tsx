@@ -16,7 +16,7 @@ type PeriodNavProps = {
 export function PeriodNav({ label, previousLabel, nextLabel, onPrevious, onToday, onNext }: PeriodNavProps) {
   return (
     // biome-ignore lint/a11y/useSemanticElements: a fieldset brings form styles; same div+role="group" as ButtonGroup.
-    <div role="group" className="inline-flex w-fit items-center rounded-md border border-input bg-card shadow-xs">
+    <div role="group" className="inline-flex w-fit items-center rounded-md border border-input bg-card">
       <Button
         type="button"
         variant="ghost"

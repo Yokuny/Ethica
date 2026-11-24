@@ -78,7 +78,8 @@ export function RecordHeading({ label, title, icon, badge, description, align = 
           <ItemTitle
             // biome-ignore lint/a11y/useHeadingContent: the title arrives as the ItemTitle children
             render={<h2 />}
-            className="text-2xl text-impact"
+            // A long unbroken title (a pasted address, a test string) wraps instead of pushing past the screen.
+            className="text-2xl text-impact wrap-anywhere"
           >
             {title}
           </ItemTitle>
@@ -286,7 +287,9 @@ export function RecordStat({
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
               <ItemTitle
                 className={cn(
-                  ruled ? 'text-2xl leading-tight' : 'text-[1.4rem] leading-none font-normal tracking-tight',
+                  ruled
+                    ? 'text-2xl leading-tight wrap-anywhere'
+                    : 'text-[1.4rem] leading-none font-normal tracking-tight',
                   isLink ? 'link' : 'text-impact',
                 )}
               >

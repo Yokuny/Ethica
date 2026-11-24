@@ -440,7 +440,12 @@ function TableIdentity({
         ) : (
           <ItemTitle className="block max-w-md truncate font-medium text-impact text-left">{title}</ItemTitle>
         )}
-        {description && <ItemDescription className="max-w-md text-xs text-pretty">{description}</ItemDescription>}
+        {description && (
+          // A link title is underlined: the supporting line keeps clear of it.
+          <ItemDescription className={cn('max-w-md text-xs text-pretty', link && 'mt-1')}>
+            {description}
+          </ItemDescription>
+        )}
       </div>
     </div>
   );

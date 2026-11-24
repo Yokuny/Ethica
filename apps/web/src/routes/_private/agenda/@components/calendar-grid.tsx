@@ -16,7 +16,7 @@ import type * as React from 'react';
 // goes to the inner content (typically the min width).
 function CalendarTimeGrid({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div className="w-full overflow-x-auto rounded-lg border bg-card shadow-xs">
+    <div className="w-full overflow-x-auto rounded-lg border bg-card">
       <div data-slot="calendar-time-grid" className={cn('flex', className)} {...props} />
     </div>
   );
@@ -66,7 +66,7 @@ function CalendarMonthGrid({ className, ...props }: React.ComponentProps<'div'>)
     <div
       data-slot="calendar-month-grid"
       className={cn(
-        'grid w-full grid-cols-7 overflow-hidden rounded-lg border bg-card shadow-xs',
+        'grid w-full grid-cols-7 overflow-hidden rounded-lg border bg-card',
         '[&>*:not(:nth-child(7n))]:border-r [&>*:nth-child(n+8)]:border-t [&>*]:border-border/70',
         className,
       )}

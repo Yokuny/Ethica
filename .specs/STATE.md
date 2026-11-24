@@ -1863,6 +1863,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-24
 - **Status**: active
 
+### AD-294
+- **Decision**: Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `SelectTrigger`, `ToggleGroup` e a sidebar `inset` (`packages/ui/src/components/*`), e de `InfoCard`, `PeriodNav`, `UserChip`, editor de texto e grade da agenda (`apps/web/src`). Ficam só as sombras com função: barra lateral flutuante, botões sobre o mapa e popovers/diálogos. Junto, três ajustes achados na varredura com o Playwright (31 rotas, 1440 e 390 px): a linha de apoio de um título-link de tabela (`TableIdentity`) ganha `mt-1` para não encostar no sublinhado; as ações do `Panel` recolhível descem para uma linha própria no celular em vez de passar da tela; título do `RecordHeading` e valor do `RecordStat` (`ruled`) quebram texto longo sem espaço (`wrap-anywhere`).
+- **Reason**: pedido do usuário (2026-11-24): design limpo e simples, sem a sombra que ele já tinha notado no `Item` (AD-289), e validação estética com o Playwright em todo o projeto.
+- **Trade-off**: botão e campo se separam do fundo só pela borda e pela cor.
+- **Scope**: `packages/ui/src/components/{button,input,input-group,textarea,select,toggle-group,sidebar}.tsx`, `apps/web/src/components/{info-card,period-nav,user-chip,rich-text-editor,data-table,panel,record}.tsx`, `apps/web/src/routes/_private/agenda/@components/calendar-grid.tsx`.
+- **Date**: 2026-11-24
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

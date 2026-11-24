@@ -2602,6 +2602,12 @@
       "decisao": "Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-med",
       "data": "2026-11-24",
       "status": "active"
+    },
+    {
+      "id": "AD-294",
+      "decisao": "Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `Select",
+      "data": "2026-11-24",
+      "status": "active"
     }
   ]
 }

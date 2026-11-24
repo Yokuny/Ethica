@@ -272,7 +272,7 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        'flex min-w-0 flex-col rounded-md border border-input bg-card shadow-xs focus-within:border-ring',
+        'flex min-w-0 flex-col rounded-md border border-input bg-card focus-within:border-ring',
         '[&_h3]:mt-3 [&_h3]:font-semibold [&_h4]:mt-2 [&_h4]:font-semibold [&_li_p]:my-0 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-6',
         '[&_img]:mx-auto [&_img]:my-2 [&_img]:max-h-80 [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-input [&_td]:p-1.5 [&_th]:border [&_th]:border-input [&_th]:bg-muted [&_th]:p-1.5 [&_th]:text-left',
         readOnly && 'bg-muted/40',

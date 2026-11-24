@@ -26,7 +26,7 @@ export function InfoCard({
   actions?: ReactNode;
 }) {
   return (
-    <li className="flex w-full min-w-0 flex-col justify-between gap-7 rounded-xl border bg-card bg-clip-padding px-5 py-4 shadow-xs">
+    <li className="flex w-full min-w-0 flex-col justify-between gap-7 rounded-xl border bg-card bg-clip-padding px-5 py-4">
       <div className="flex flex-col gap-1.5">
         <ItemTitle className="text-xl leading-tight">
           <span>

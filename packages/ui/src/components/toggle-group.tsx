@@ -42,7 +42,7 @@ function ToggleGroup({ value, onValueChange, className, ...props }: ToggleGroupP
       value={[value]}
       onValueChange={([next]) => next && onValueChange(next)}
       className={cn(
-        'flex w-fit items-center rounded-md border border-input bg-card shadow-xs [&>*:first-child]:-ms-px [&>*:last-child]:-me-px [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
+        'flex w-fit items-center rounded-md border border-input bg-card [&>*:first-child]:-ms-px [&>*:last-child]:-me-px [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
         className,
       )}
       {...props}

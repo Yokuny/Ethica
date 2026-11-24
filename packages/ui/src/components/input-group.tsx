@@ -9,7 +9,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="input-group"
       className={cn(
-        'flex h-11 w-full min-w-0 items-center gap-2 rounded-md border border-input bg-card px-2.5 shadow-xs transition-colors has-[input:focus-visible]:border-ring has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-ring/20 has-[input:disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-text-secondary in-data-[slot=data-table-toolbar]:h-8 in-data-[slot=data-table-toolbar]:border-0 in-data-[slot=data-table-toolbar]:bg-transparent in-data-[slot=data-table-toolbar]:px-0 in-data-[slot=data-table-toolbar]:shadow-none in-data-[slot=data-table-toolbar]:has-[input:focus-visible]:ring-0',
+        'flex h-11 w-full min-w-0 items-center gap-2 rounded-md border border-input bg-card px-2.5 transition-colors has-[input:focus-visible]:border-ring has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-ring/20 has-[input:disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-text-secondary in-data-[slot=data-table-toolbar]:h-8 in-data-[slot=data-table-toolbar]:border-0 in-data-[slot=data-table-toolbar]:bg-transparent in-data-[slot=data-table-toolbar]:px-0 in-data-[slot=data-table-toolbar]:shadow-none in-data-[slot=data-table-toolbar]:has-[input:focus-visible]:ring-0',
         className,
       )}
       {...props}

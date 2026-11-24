@@ -70,7 +70,7 @@ function Panel({
           // Same box as the ProductSpecs groups (Juízo, Partes): rounded border, icon and title on the left,
           // chevron and actions on the right; the description opens with the content.
           <>
-            <div className="flex items-center">
+            <div className="flex flex-wrap items-center">
               <button
                 type="button"
                 aria-expanded={open}
@@ -92,7 +92,12 @@ function Panel({
                   className={cn('size-5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')}
                 />
               </button>
-              {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 pr-4">{actions}</div>}
+              {/* On a phone the actions take their own row under the title instead of pushing past the screen. */}
+              {actions && (
+                <div className="flex basis-full flex-wrap items-center gap-2 px-4 pb-4 sm:basis-auto sm:pb-0 sm:pl-0">
+                  {actions}
+                </div>
+              )}
             </div>
             <div className={cn(panelVariants({ size }), 'border-t p-4', !open && 'hidden')}>
               {description && <ItemDescription>{description}</ItemDescription>}
