@@ -46,6 +46,7 @@ import { Route as PrivateExpertReportsAddIndexRouteImport } from './routes/_priv
 import { Route as PrivateExpertCasesImportIndexRouteImport } from './routes/_private/expert-cases/import/index';
 import { Route as PrivateExpertCasesDetailsIndexRouteImport } from './routes/_private/expert-cases/details/index';
 import { Route as PrivateExpertCasesAddIndexRouteImport } from './routes/_private/expert-cases/add/index';
+import { Route as PrivateAutomationRulesIndexRouteImport } from './routes/_private/automation/rules/index';
 import { Route as PrivateAdminUsersIndexRouteImport } from './routes/_private/_admin/users/index';
 import { Route as PrivateAdminOfficeIndexRouteImport } from './routes/_private/_admin/office/index';
 import { Route as PrivateAdminActivityLogIndexRouteImport } from './routes/_private/_admin/activity-log/index';
@@ -248,6 +249,12 @@ const PrivateExpertCasesAddIndexRoute =
     path: '/expert-cases/add/',
     getParentRoute: () => PrivateRouteRoute,
   } as any);
+const PrivateAutomationRulesIndexRoute =
+  PrivateAutomationRulesIndexRouteImport.update({
+    id: '/automation/rules/',
+    path: '/automation/rules/',
+    getParentRoute: () => PrivateRouteRoute,
+  } as any);
 const PrivateAdminUsersIndexRoute = PrivateAdminUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -316,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/activity-log/': typeof PrivateAdminActivityLogIndexRoute;
   '/office/': typeof PrivateAdminOfficeIndexRoute;
   '/users/': typeof PrivateAdminUsersIndexRoute;
+  '/automation/rules/': typeof PrivateAutomationRulesIndexRoute;
   '/expert-cases/add/': typeof PrivateExpertCasesAddIndexRoute;
   '/expert-cases/details/': typeof PrivateExpertCasesDetailsIndexRoute;
   '/expert-cases/import/': typeof PrivateExpertCasesImportIndexRoute;
@@ -359,6 +367,7 @@ export interface FileRoutesByTo {
   '/activity-log': typeof PrivateAdminActivityLogIndexRoute;
   '/office': typeof PrivateAdminOfficeIndexRoute;
   '/users': typeof PrivateAdminUsersIndexRoute;
+  '/automation/rules': typeof PrivateAutomationRulesIndexRoute;
   '/expert-cases/add': typeof PrivateExpertCasesAddIndexRoute;
   '/expert-cases/details': typeof PrivateExpertCasesDetailsIndexRoute;
   '/expert-cases/import': typeof PrivateExpertCasesImportIndexRoute;
@@ -406,6 +415,7 @@ export interface FileRoutesById {
   '/_private/_admin/activity-log/': typeof PrivateAdminActivityLogIndexRoute;
   '/_private/_admin/office/': typeof PrivateAdminOfficeIndexRoute;
   '/_private/_admin/users/': typeof PrivateAdminUsersIndexRoute;
+  '/_private/automation/rules/': typeof PrivateAutomationRulesIndexRoute;
   '/_private/expert-cases/add/': typeof PrivateExpertCasesAddIndexRoute;
   '/_private/expert-cases/details/': typeof PrivateExpertCasesDetailsIndexRoute;
   '/_private/expert-cases/import/': typeof PrivateExpertCasesImportIndexRoute;
@@ -451,6 +461,7 @@ export interface FileRouteTypes {
     | '/activity-log/'
     | '/office/'
     | '/users/'
+    | '/automation/rules/'
     | '/expert-cases/add/'
     | '/expert-cases/details/'
     | '/expert-cases/import/'
@@ -494,6 +505,7 @@ export interface FileRouteTypes {
     | '/activity-log'
     | '/office'
     | '/users'
+    | '/automation/rules'
     | '/expert-cases/add'
     | '/expert-cases/details'
     | '/expert-cases/import'
@@ -540,6 +552,7 @@ export interface FileRouteTypes {
     | '/_private/_admin/activity-log/'
     | '/_private/_admin/office/'
     | '/_private/_admin/users/'
+    | '/_private/automation/rules/'
     | '/_private/expert-cases/add/'
     | '/_private/expert-cases/details/'
     | '/_private/expert-cases/import/'
@@ -823,6 +836,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateExpertCasesAddIndexRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
+    '/_private/automation/rules/': {
+      id: '/_private/automation/rules/';
+      path: '/automation/rules';
+      fullPath: '/automation/rules/';
+      preLoaderRoute: typeof PrivateAutomationRulesIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
     '/_private/_admin/users/': {
       id: '/_private/_admin/users/';
       path: '/users';
@@ -907,6 +927,7 @@ interface PrivateRouteRouteChildren {
   PrivateNotificationsIndexRoute: typeof PrivateNotificationsIndexRoute;
   PrivatePartiesIndexRoute: typeof PrivatePartiesIndexRoute;
   PrivateReportsIndexRoute: typeof PrivateReportsIndexRoute;
+  PrivateAutomationRulesIndexRoute: typeof PrivateAutomationRulesIndexRoute;
   PrivateExpertCasesAddIndexRoute: typeof PrivateExpertCasesAddIndexRoute;
   PrivateExpertCasesDetailsIndexRoute: typeof PrivateExpertCasesDetailsIndexRoute;
   PrivateExpertCasesImportIndexRoute: typeof PrivateExpertCasesImportIndexRoute;
@@ -937,6 +958,7 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateNotificationsIndexRoute: PrivateNotificationsIndexRoute,
   PrivatePartiesIndexRoute: PrivatePartiesIndexRoute,
   PrivateReportsIndexRoute: PrivateReportsIndexRoute,
+  PrivateAutomationRulesIndexRoute: PrivateAutomationRulesIndexRoute,
   PrivateExpertCasesAddIndexRoute: PrivateExpertCasesAddIndexRoute,
   PrivateExpertCasesDetailsIndexRoute: PrivateExpertCasesDetailsIndexRoute,
   PrivateExpertCasesImportIndexRoute: PrivateExpertCasesImportIndexRoute,

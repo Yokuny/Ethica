@@ -18,7 +18,7 @@ spec: [.specs/features/automacao-datajud]
 
 ## O que foi feito
 
-- **Página Automação Datajud** (`/automation`, no lugar da Prospecção, que saiu inteira): o número de sugestões para aprovar (link para a aba da Central), os processos acompanhados no tribunal com a data da última consulta (link para o serviço) e as regras do que cada movimento traz, em texto da perita. Sem o módulo, a oferta. Está no menu, no início, no tour e no celular pelo Menu.
+- **Página Automação Datajud** (`/automation`, no lugar da Prospecção, que saiu inteira): o número de sugestões para aprovar (link para a aba da Central), os processos acompanhados no tribunal com a data da última consulta (link para o serviço) e, no menu "…" do cabeçalho, a página **Regras** (`/automation/rules`) com o que cada movimento traz, em texto da perita. Sem o módulo, a oferta. Está no menu, no início, no tour e no celular pelo Menu.
 - **Pagamento no tribunal** (Fase 6): a requisição ou a ordem de pagamento vira o aviso "Pagamento em andamento no tribunal"; o alvará emitido ou a RPV/precatório paga vira a sugestão "Registrar o recebimento", com e-mail na hora. Aprovar abre o formulário com o honorário em aberto, o saldo e a data do movimento para a pessoa confirmar.
 - Depois de aprovar um acordo ou uma desistência, vem a sugestão de cancelar os prazos e alertas pendentes do serviço; a suspensão traz o aviso para revisar os prazos.
 - **Sugestões para aprovar** (Fase 5): suspensão, retomada, acordo, desistência ou extinção e sentença no tribunal viram uma sugestão de situação ou fase na aba **Para aprovar** da Central e na seção No tribunal do serviço. Nada muda até alguém com permissão de alterar serviços clicar em Aprovar; se o serviço já estiver assim, a sugestão se encerra sozinha.
@@ -40,7 +40,7 @@ A perita descobre tarde que o processo foi suspenso, acabou em acordo ou teve al
 
 - `apps/worker/src/datajud/client.ts` (cliente, fixtures reais ao lado), `apps/worker/src/jobs/court-refresh.ts`; `packages/db/src/models/{court-process,case-court-sync}.model.ts`.
 - `apps/api/src/modules/automation/` — `GET /automation/cases` (processos acompanhados) e `GET /automation/cases/:id/court-process`, com `requireAutomation`.
-- `apps/web/src/routes/_private/automation/` (página; regras em `@utils/rule-items.ts`).
+- `apps/web/src/routes/_private/automation/` (página; regras em `rules/`, com `rules/@utils/rule-items.ts`).
 - `apps/web/src/routes/_private/expert-cases/details/@components/case-court.tsx`.
 
 - `packages/contracts/src/schemas/automation-rules.ts` (regras e `proposalFits`), `apps/worker/src/jobs/suggestions-expire.ts`, `apps/api/src/modules/notifications/notification.service.ts` (`acceptSuggestion`), `apps/web/src/components/suggestions-list.tsx`.
@@ -62,6 +62,7 @@ A definir.
 
 ## Histórico
 
+- 2026-11-24 — As regras saíram da página principal e foram para `/automation/rules`, aberta pelo menu "…" do cabeçalho (só com o módulo ativo), no mesmo padrão de /expert-cases.
 - 2026-11-23 — Página Automação Datajud conferida no navegador local: com o módulo, as sugestões (0), o processo do TRT24 com a última consulta e o link para o serviço, e as oito regras com Aviso ou Sugestão; sem o módulo, só a oferta, sem chamada à API.
 - 2026-11-22 — Página Automação Datajud no lugar da Prospecção, removida inteira, sem shim (AD-281, supersede a AD-105): o Datajud acompanha os processos do escritório e a descoberta de nomeações fica para o DJEN. Página coberta por teste de tela e conferida no navegador em 2026-11-23. Dados da Prospecção apagados em produção com a confirmação do usuário (collection vazia e um convite).
 - 2026-11-22 — Produção: limpeza deixou só o escritório ETHICA (Bykonz e Tal apagados, cópia fora do repositório) e o ETHICA recebeu o plano Mensal + Automação gravado no banco, sem assinatura no Asaas, até 31/12/2027, para usar o Datajud.

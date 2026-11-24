@@ -56,7 +56,7 @@ describe('AutomationPage', () => {
     expect(screen.queryByText('Processos acompanhados')).not.toBeInTheDocument();
   });
 
-  it('com o módulo mostra as sugestões, os processos acompanhados e as regras', () => {
+  it('com o módulo mostra as sugestões e os processos acompanhados, com as regras no menu', () => {
     renderPage(new Date(Date.now() + 86_400_000).toISOString());
     expect(screen.getByText('sugestões esperando a sua aprovação').closest('a')).toHaveAttribute(
       'href',
@@ -66,8 +66,7 @@ describe('AutomationPage', () => {
       'href',
       '/expert-cases/details?{"id":"c1"}',
     );
-    expect(screen.getByText('Processo suspenso ou sobrestado')).toBeInTheDocument();
-    expect(screen.getByText('Mudar a situação para Suspenso')).toBeInTheDocument();
-    expect(screen.getByText('Alvará expedido ou RPV e precatório pagos')).toBeInTheDocument();
+    expect(screen.queryByText('Processo suspenso ou sobrestado')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument();
   });
 });
