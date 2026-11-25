@@ -1,418 +1,622 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-16T18:55:26.093Z",
+  "generatedAt": "2026-11-25T01:41:49+00:00",
   "title": "Design System: Ethica",
   "extensions": {
     "colorMeta": {
       "sidebar": {
         "role": "neutral",
-        "displayName": "Fundo da sidebar",
+        "displayName": "Fundo da Sidebar",
+        "canonical": "#f1f1f3",
         "tonalRamp": [
-          "oklch(0.15 0.003 286.3)",
-          "oklch(0.27 0.003 286.3)",
-          "oklch(0.39 0.003 286.3)",
-          "oklch(0.51 0.003 286.3)",
-          "oklch(0.63 0.003 286.3)",
-          "oklch(0.75 0.003 286.3)",
-          "oklch(0.87 0.003 286.3)",
-          "oklch(0.96 0.003 286.3)"
+          "#0b0b0c",
+          "#262628",
+          "#454546",
+          "#666667",
+          "#89898b",
+          "#aeaeaf",
+          "#d1d1d3",
+          "#eeeef0"
         ]
       },
       "sidebar-active": {
         "role": "neutral",
-        "displayName": "Navegação ativa",
+        "displayName": "Lilás de Seleção",
+        "canonical": "#e8e7ec",
         "tonalRamp": [
-          "oklch(0.15 0.007 295.4)",
-          "oklch(0.27 0.007 295.4)",
-          "oklch(0.39 0.007 295.4)",
-          "oklch(0.51 0.007 295.4)",
-          "oklch(0.63 0.007 295.4)",
-          "oklch(0.75 0.007 295.4)",
-          "oklch(0.87 0.007 295.4)",
-          "oklch(0.96 0.007 295.4)"
+          "#0b0b0e",
+          "#272629",
+          "#454448",
+          "#66656a",
+          "#89888d",
+          "#aeadb2",
+          "#d1d0d5",
+          "#efeef3"
         ]
       },
       "canvas": {
         "role": "neutral",
-        "displayName": "Canvas de trabalho",
+        "displayName": "Canvas",
+        "canonical": "#f7f7f7",
         "tonalRamp": [
-          "oklch(0.15 0.000 89.9)",
-          "oklch(0.27 0.000 89.9)",
-          "oklch(0.39 0.000 89.9)",
-          "oklch(0.51 0.000 89.9)",
-          "oklch(0.63 0.000 89.9)",
-          "oklch(0.75 0.000 89.9)",
-          "oklch(0.87 0.000 89.9)",
-          "oklch(0.96 0.000 89.9)"
+          "#0b0b0b",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#aeaeae",
+          "#d1d1d1",
+          "#eeeeee"
         ]
       },
       "highlight": {
         "role": "neutral",
-        "displayName": "Destaque secundário",
+        "displayName": "Cinza de Destaque",
+        "canonical": "#f2f2f2",
         "tonalRamp": [
-          "oklch(0.15 0.000 89.9)",
-          "oklch(0.27 0.000 89.9)",
-          "oklch(0.39 0.000 89.9)",
-          "oklch(0.51 0.000 89.9)",
-          "oklch(0.63 0.000 89.9)",
-          "oklch(0.75 0.000 89.9)",
-          "oklch(0.87 0.000 89.9)",
-          "oklch(0.96 0.000 89.9)"
+          "#0b0b0b",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#aeaeae",
+          "#d1d1d1",
+          "#eeeeee"
         ]
       },
       "raised": {
         "role": "neutral",
-        "displayName": "Superfície elevada",
+        "displayName": "Branco Elevado",
+        "canonical": "#ffffff",
         "tonalRamp": [
-          "oklch(0.15 0.000 89.9)",
-          "oklch(0.27 0.000 89.9)",
-          "oklch(0.39 0.000 89.9)",
-          "oklch(0.51 0.000 89.9)",
-          "oklch(0.63 0.000 89.9)",
-          "oklch(0.75 0.000 89.9)",
-          "oklch(0.87 0.000 89.9)",
-          "oklch(0.96 0.000 89.9)"
+          "#0b0b0b",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#aeaeae",
+          "#d1d1d1",
+          "#eeeeee"
         ]
       },
       "action": {
         "role": "primary",
-        "displayName": "Ação grafite",
+        "displayName": "Grafite de Ação",
+        "canonical": "#1d1c20",
         "tonalRamp": [
-          "oklch(0.15 0.008 297.2)",
-          "oklch(0.27 0.008 297.2)",
-          "oklch(0.39 0.008 297.2)",
-          "oklch(0.51 0.008 297.2)",
-          "oklch(0.63 0.008 297.2)",
-          "oklch(0.75 0.008 297.2)",
-          "oklch(0.87 0.008 297.2)",
-          "oklch(0.96 0.008 297.2)"
+          "#0b0a0e",
+          "#27262a",
+          "#454449",
+          "#66656a",
+          "#89888d",
+          "#aeadb2",
+          "#d1d0d5",
+          "#efedf3"
         ]
       },
       "action-hover": {
         "role": "primary",
-        "displayName": "Ação no hover",
+        "displayName": "Grafite de Hover",
+        "canonical": "#38373d",
         "tonalRamp": [
-          "oklch(0.15 0.010 293.5)",
-          "oklch(0.27 0.010 293.5)",
-          "oklch(0.39 0.010 293.5)",
-          "oklch(0.51 0.010 293.5)",
-          "oklch(0.63 0.010 293.5)",
-          "oklch(0.75 0.010 293.5)",
-          "oklch(0.87 0.010 293.5)",
-          "oklch(0.96 0.010 293.5)"
+          "#0b0a0f",
+          "#26262b",
+          "#45444a",
+          "#66656c",
+          "#89888f",
+          "#aeadb4",
+          "#d1d0d7",
+          "#eeedf5"
         ]
       },
       "action-ink": {
         "role": "primary",
-        "displayName": "Texto da ação",
+        "displayName": "Tinta sobre Ação",
+        "canonical": "#ffffff",
         "tonalRamp": [
-          "oklch(0.15 0.000 89.9)",
-          "oklch(0.27 0.000 89.9)",
-          "oklch(0.39 0.000 89.9)",
-          "oklch(0.51 0.000 89.9)",
-          "oklch(0.63 0.000 89.9)",
-          "oklch(0.75 0.000 89.9)",
-          "oklch(0.87 0.000 89.9)",
-          "oklch(0.96 0.000 89.9)"
+          "#0b0b0b",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#aeaeae",
+          "#d1d1d1",
+          "#eeeeee"
         ]
       },
       "impact": {
         "role": "neutral",
-        "displayName": "Tinta de impacto",
+        "displayName": "Tinta de Impacto",
+        "canonical": "#1d1c1f",
         "tonalRamp": [
-          "oklch(0.15 0.006 301.1)",
-          "oklch(0.27 0.006 301.1)",
-          "oklch(0.39 0.006 301.1)",
-          "oklch(0.51 0.006 301.1)",
-          "oklch(0.63 0.006 301.1)",
-          "oklch(0.75 0.006 301.1)",
-          "oklch(0.87 0.006 301.1)",
-          "oklch(0.96 0.006 301.1)"
+          "#0b0b0d",
+          "#272629",
+          "#454448",
+          "#666569",
+          "#8a888c",
+          "#aeadb1",
+          "#d1d0d4",
+          "#efeef2"
         ]
       },
       "body-ink": {
         "role": "neutral",
-        "displayName": "Texto padrão",
+        "displayName": "Tinta do Corpo",
+        "canonical": "#4b4b54",
         "tonalRamp": [
-          "oklch(0.15 0.015 285.7)",
-          "oklch(0.27 0.015 285.7)",
-          "oklch(0.39 0.015 285.7)",
-          "oklch(0.51 0.015 285.7)",
-          "oklch(0.63 0.015 285.7)",
-          "oklch(0.75 0.015 285.7)",
-          "oklch(0.87 0.015 285.7)",
-          "oklch(0.96 0.015 285.7)"
+          "#0a0a11",
+          "#26252e",
+          "#44444d",
+          "#65656e",
+          "#888892",
+          "#adadb7",
+          "#d0d0db",
+          "#ededf8"
         ]
       },
       "secondary-ink": {
         "role": "neutral",
-        "displayName": "Texto secundário",
+        "displayName": "Tinta Secundária",
+        "canonical": "#66656f",
         "tonalRamp": [
-          "oklch(0.15 0.016 290.4)",
-          "oklch(0.27 0.016 290.4)",
-          "oklch(0.39 0.016 290.4)",
-          "oklch(0.51 0.016 290.4)",
-          "oklch(0.63 0.016 290.4)",
-          "oklch(0.75 0.016 290.4)",
-          "oklch(0.87 0.016 290.4)",
-          "oklch(0.96 0.016 290.4)"
+          "#0b0a11",
+          "#26252e",
+          "#45444d",
+          "#66656f",
+          "#898892",
+          "#adacb7",
+          "#d0cfdb",
+          "#eeedf9"
         ]
       },
       "subtle-ink": {
         "role": "neutral",
-        "displayName": "Texto sutil",
+        "displayName": "Tom Sutil",
+        "canonical": "#9594a0",
         "tonalRamp": [
-          "oklch(0.15 0.018 289.8)",
-          "oklch(0.27 0.018 289.8)",
-          "oklch(0.39 0.018 289.8)",
-          "oklch(0.51 0.018 289.8)",
-          "oklch(0.63 0.018 289.8)",
-          "oklch(0.75 0.018 289.8)",
-          "oklch(0.87 0.018 289.8)",
-          "oklch(0.96 0.018 289.8)"
+          "#0b0a12",
+          "#26252f",
+          "#45444e",
+          "#666570",
+          "#898893",
+          "#adacb9",
+          "#d0cfdc",
+          "#eeedfa"
+        ]
+      },
+      "link": {
+        "role": "neutral",
+        "displayName": "Azul de Link",
+        "canonical": "#1c2638",
+        "tonalRamp": [
+          "#040b1a",
+          "#1c2638",
+          "#3a4559",
+          "#5b677c",
+          "#7d8aa0",
+          "#a1afc6",
+          "#c4d2ea",
+          "#e1efff"
         ]
       },
       "border": {
         "role": "neutral",
-        "displayName": "Borda leve",
+        "displayName": "Fio",
+        "canonical": "#e5e4e8",
         "tonalRamp": [
-          "oklch(0.15 0.005 297.7)",
-          "oklch(0.27 0.005 297.7)",
-          "oklch(0.39 0.005 297.7)",
-          "oklch(0.51 0.005 297.7)",
-          "oklch(0.63 0.005 297.7)",
-          "oklch(0.75 0.005 297.7)",
-          "oklch(0.87 0.005 297.7)",
-          "oklch(0.96 0.005 297.7)"
+          "#0b0b0d",
+          "#272629",
+          "#454448",
+          "#666569",
+          "#89888c",
+          "#aeadb1",
+          "#d1d0d4",
+          "#efeef2"
         ]
       },
       "input-border": {
         "role": "neutral",
-        "displayName": "Borda de campo",
+        "displayName": "Fio do Campo",
+        "canonical": "#d8d7dd",
         "tonalRamp": [
-          "oklch(0.15 0.008 293.9)",
-          "oklch(0.27 0.008 293.9)",
-          "oklch(0.39 0.008 293.9)",
-          "oklch(0.51 0.008 293.9)",
-          "oklch(0.63 0.008 293.9)",
-          "oklch(0.75 0.008 293.9)",
-          "oklch(0.87 0.008 293.9)",
-          "oklch(0.96 0.008 293.9)"
+          "#0b0b0e",
+          "#26262a",
+          "#454449",
+          "#66656a",
+          "#89888e",
+          "#aeadb3",
+          "#d1d0d6",
+          "#eeedf4"
         ]
       },
       "focus": {
-        "role": "primary",
-        "displayName": "Anel de foco",
+        "role": "neutral",
+        "displayName": "Anel",
+        "canonical": "#4b4b54",
         "tonalRamp": [
-          "oklch(0.15 0.015 285.7)",
-          "oklch(0.27 0.015 285.7)",
-          "oklch(0.39 0.015 285.7)",
-          "oklch(0.51 0.015 285.7)",
-          "oklch(0.63 0.015 285.7)",
-          "oklch(0.75 0.015 285.7)",
-          "oklch(0.87 0.015 285.7)",
-          "oklch(0.96 0.015 285.7)"
+          "#0a0a11",
+          "#26252e",
+          "#44444d",
+          "#65656e",
+          "#888892",
+          "#adadb7",
+          "#d0d0db",
+          "#ededf8"
         ]
       },
       "destructive": {
-        "role": "error",
-        "displayName": "Destrutivo",
+        "role": "status",
+        "displayName": "Vermelho Contido",
+        "canonical": "#a64b4f",
         "tonalRamp": [
-          "oklch(0.15 0.120 19.4)",
-          "oklch(0.27 0.120 19.4)",
-          "oklch(0.39 0.120 19.4)",
-          "oklch(0.51 0.120 19.4)",
-          "oklch(0.63 0.120 19.4)",
-          "oklch(0.75 0.120 19.4)",
-          "oklch(0.87 0.120 19.4)",
-          "oklch(0.96 0.120 19.4)"
+          "#2d0000",
+          "#52000c",
+          "#78212a",
+          "#9f454a",
+          "#c7696b",
+          "#f08e8f",
+          "#ffb1b1",
+          "#ffcece"
         ]
       },
       "status-success-bg": {
-        "role": "secondary",
-        "displayName": "Sucesso pastel",
+        "role": "status",
+        "displayName": "Status Success Bg",
+        "canonical": "#dcefdc",
         "tonalRamp": [
-          "oklch(0.15 0.032 145.3)",
-          "oklch(0.27 0.032 145.3)",
-          "oklch(0.39 0.032 145.3)",
-          "oklch(0.51 0.032 145.3)",
-          "oklch(0.63 0.032 145.3)",
-          "oklch(0.75 0.032 145.3)",
-          "oklch(0.87 0.032 145.3)",
-          "oklch(0.96 0.032 145.3)"
+          "#030f04",
+          "#1c2b1d",
+          "#3a4a3b",
+          "#5b6b5b",
+          "#7d8f7d",
+          "#a2b4a2",
+          "#c4d7c4",
+          "#e2f5e2"
         ]
       },
       "status-success-ink": {
-        "role": "secondary",
-        "displayName": "Sucesso texto",
+        "role": "status",
+        "displayName": "Status Success Ink",
+        "canonical": "#245b38",
         "tonalRamp": [
-          "oklch(0.15 0.083 153.1)",
-          "oklch(0.27 0.083 153.1)",
-          "oklch(0.39 0.083 153.1)",
-          "oklch(0.51 0.083 153.1)",
-          "oklch(0.63 0.083 153.1)",
-          "oklch(0.75 0.083 153.1)",
-          "oklch(0.87 0.083 153.1)",
-          "oklch(0.96 0.083 153.1)"
+          "#001300",
+          "#003111",
+          "#19512f",
+          "#3d744f",
+          "#619871",
+          "#85be95",
+          "#a8e1b8",
+          "#c5ffd5"
+        ]
+      },
+      "status-success-dot": {
+        "role": "status",
+        "displayName": "Status Success Dot",
+        "canonical": "#5aa872",
+        "tonalRamp": [
+          "#001500",
+          "#003404",
+          "#005524",
+          "#277845",
+          "#4e9c67",
+          "#74c28b",
+          "#97e7ad",
+          "#b4ffca"
         ]
       },
       "status-warning-bg": {
-        "role": "secondary",
-        "displayName": "Aviso pastel",
+        "role": "status",
+        "displayName": "Status Warning Bg",
+        "canonical": "#f3efd4",
         "tonalRamp": [
-          "oklch(0.15 0.036 100.1)",
-          "oklch(0.27 0.036 100.1)",
-          "oklch(0.39 0.036 100.1)",
-          "oklch(0.51 0.036 100.1)",
-          "oklch(0.63 0.036 100.1)",
-          "oklch(0.75 0.036 100.1)",
-          "oklch(0.87 0.036 100.1)",
-          "oklch(0.96 0.036 100.1)"
+          "#0f0b00",
+          "#2a2711",
+          "#49462f",
+          "#6b674f",
+          "#8e8a71",
+          "#b3af95",
+          "#d6d2b8",
+          "#f4f0d5"
         ]
       },
       "status-warning-ink": {
-        "role": "secondary",
-        "displayName": "Aviso texto",
+        "role": "status",
+        "displayName": "Status Warning Ink",
+        "canonical": "#6d6025",
         "tonalRamp": [
-          "oklch(0.15 0.080 96.9)",
-          "oklch(0.27 0.080 96.9)",
-          "oklch(0.39 0.080 96.9)",
-          "oklch(0.51 0.080 96.9)",
-          "oklch(0.63 0.080 96.9)",
-          "oklch(0.75 0.080 96.9)",
-          "oklch(0.87 0.080 96.9)",
-          "oklch(0.96 0.080 96.9)"
+          "#150800",
+          "#322500",
+          "#514401",
+          "#73662b",
+          "#97894f",
+          "#bcaf73",
+          "#e0d295",
+          "#fdefb2"
+        ]
+      },
+      "status-warning-dot": {
+        "role": "status",
+        "displayName": "Status Warning Dot",
+        "canonical": "#a89236",
+        "tonalRamp": [
+          "#1a0500",
+          "#382300",
+          "#584300",
+          "#7a6400",
+          "#9e882a",
+          "#c4ad53",
+          "#e7d177",
+          "#ffef94"
         ]
       },
       "status-error-bg": {
-        "role": "secondary",
-        "displayName": "Erro pastel",
+        "role": "status",
+        "displayName": "Status Error Bg",
+        "canonical": "#f4e3e1",
         "tonalRamp": [
-          "oklch(0.15 0.019 25.6)",
-          "oklch(0.27 0.019 25.6)",
-          "oklch(0.39 0.019 25.6)",
-          "oklch(0.51 0.019 25.6)",
-          "oklch(0.63 0.019 25.6)",
-          "oklch(0.75 0.019 25.6)",
-          "oklch(0.87 0.019 25.6)",
-          "oklch(0.96 0.019 25.6)"
+          "#120807",
+          "#2f2322",
+          "#4f4140",
+          "#716260",
+          "#948583",
+          "#baaaa8",
+          "#ddcdcb",
+          "#fbeae8"
         ]
       },
       "status-error-ink": {
-        "role": "secondary",
-        "displayName": "Erro texto",
+        "role": "status",
+        "displayName": "Status Error Ink",
+        "canonical": "#7d3d42",
         "tonalRamp": [
-          "oklch(0.15 0.089 16.5)",
-          "oklch(0.27 0.089 16.5)",
-          "oklch(0.39 0.089 16.5)",
-          "oklch(0.51 0.089 16.5)",
-          "oklch(0.63 0.089 16.5)",
-          "oklch(0.75 0.089 16.5)",
-          "oklch(0.87 0.089 16.5)",
-          "oklch(0.96 0.089 16.5)"
+          "#250001",
+          "#480d17",
+          "#6d2e34",
+          "#925054",
+          "#b97376",
+          "#e0979a",
+          "#ffbabd",
+          "#ffd7da"
+        ]
+      },
+      "status-error-dot": {
+        "role": "status",
+        "displayName": "Status Error Dot",
+        "canonical": "#b46166",
+        "tonalRamp": [
+          "#2a0000",
+          "#4e0112",
+          "#732730",
+          "#9a4a50",
+          "#c16d72",
+          "#ea9195",
+          "#ffb4b8",
+          "#ffd1d5"
         ]
       },
       "status-info-bg": {
-        "role": "secondary",
-        "displayName": "Informação pastel",
+        "role": "status",
+        "displayName": "Status Info Bg",
+        "canonical": "#e1edf2",
         "tonalRamp": [
-          "oklch(0.15 0.014 224.5)",
-          "oklch(0.27 0.014 224.5)",
-          "oklch(0.39 0.014 224.5)",
-          "oklch(0.51 0.014 224.5)",
-          "oklch(0.63 0.014 224.5)",
-          "oklch(0.75 0.014 224.5)",
-          "oklch(0.87 0.014 224.5)",
-          "oklch(0.96 0.014 224.5)"
+          "#050c10",
+          "#1f282c",
+          "#3d474b",
+          "#5e686c",
+          "#808b90",
+          "#a5b0b5",
+          "#c7d3d8",
+          "#e5f1f6"
         ]
       },
       "status-info-ink": {
-        "role": "secondary",
-        "displayName": "Informação texto",
+        "role": "status",
+        "displayName": "Status Info Ink",
+        "canonical": "#365e6d",
         "tonalRamp": [
-          "oklch(0.15 0.051 224.1)",
-          "oklch(0.27 0.051 224.1)",
-          "oklch(0.39 0.051 224.1)",
-          "oklch(0.51 0.051 224.1)",
-          "oklch(0.63 0.051 224.1)",
-          "oklch(0.75 0.051 224.1)",
-          "oklch(0.87 0.051 224.1)",
-          "oklch(0.96 0.051 224.1)"
+          "#000f1b",
+          "#002b39",
+          "#234b59",
+          "#446d7c",
+          "#6790a0",
+          "#8bb6c6",
+          "#aed9ea",
+          "#cbf7ff"
+        ]
+      },
+      "status-info-dot": {
+        "role": "status",
+        "displayName": "Status Info Dot",
+        "canonical": "#6c9cae",
+        "tonalRamp": [
+          "#000f1d",
+          "#002c3b",
+          "#1b4c5c",
+          "#3f6e7f",
+          "#6291a3",
+          "#86b7c9",
+          "#a8daed",
+          "#c5f8ff"
         ]
       },
       "status-neutral-bg": {
-        "role": "secondary",
-        "displayName": "Estado neutro",
+        "role": "status",
+        "displayName": "Status Neutral Bg",
+        "canonical": "#ebe9eb",
         "tonalRamp": [
-          "oklch(0.15 0.003 325.6)",
-          "oklch(0.27 0.003 325.6)",
-          "oklch(0.39 0.003 325.6)",
-          "oklch(0.51 0.003 325.6)",
-          "oklch(0.63 0.003 325.6)",
-          "oklch(0.75 0.003 325.6)",
-          "oklch(0.87 0.003 325.6)",
-          "oklch(0.96 0.003 325.6)"
+          "#0c0b0c",
+          "#272627",
+          "#464446",
+          "#676567",
+          "#8a888a",
+          "#afadaf",
+          "#d2d0d2",
+          "#f0eef0"
         ]
       },
       "status-neutral-ink": {
-        "role": "secondary",
-        "displayName": "Estado neutro texto",
+        "role": "status",
+        "displayName": "Status Neutral Ink",
+        "canonical": "#4b4b54",
         "tonalRamp": [
-          "oklch(0.15 0.015 285.7)",
-          "oklch(0.27 0.015 285.7)",
-          "oklch(0.39 0.015 285.7)",
-          "oklch(0.51 0.015 285.7)",
-          "oklch(0.63 0.015 285.7)",
-          "oklch(0.75 0.015 285.7)",
-          "oklch(0.87 0.015 285.7)",
-          "oklch(0.96 0.015 285.7)"
+          "#0a0a11",
+          "#26252e",
+          "#44444d",
+          "#65656e",
+          "#888892",
+          "#adadb7",
+          "#d0d0db",
+          "#ededf8"
+        ]
+      },
+      "status-neutral-dot": {
+        "role": "status",
+        "displayName": "Status Neutral Dot",
+        "canonical": "#93919a",
+        "tonalRamp": [
+          "#0c0a10",
+          "#27252c",
+          "#45444c",
+          "#67656d",
+          "#8a8890",
+          "#aeacb6",
+          "#d1cfd9",
+          "#efedf7"
+        ]
+      },
+      "chart-blue": {
+        "role": "chart",
+        "displayName": "Chart Blue",
+        "canonical": "#8eaacb",
+        "tonalRamp": [
+          "#000a22",
+          "#102742",
+          "#2e4763",
+          "#4e6886",
+          "#718cac",
+          "#95b1d2",
+          "#b7d4f6",
+          "#d4f2ff"
+        ]
+      },
+      "chart-sage": {
+        "role": "chart",
+        "displayName": "Chart Sage",
+        "canonical": "#9fbfa6",
+        "tonalRamp": [
+          "#001102",
+          "#122d1a",
+          "#304d38",
+          "#516e58",
+          "#73927a",
+          "#98b79f",
+          "#badbc1",
+          "#d7f9de"
+        ]
+      },
+      "chart-sand": {
+        "role": "chart",
+        "displayName": "Chart Sand",
+        "canonical": "#d6c38f",
+        "tonalRamp": [
+          "#160700",
+          "#342400",
+          "#54430e",
+          "#766433",
+          "#9a8856",
+          "#bfad79",
+          "#e3d09b",
+          "#ffedb8"
+        ]
+      },
+      "chart-pale-blue": {
+        "role": "chart",
+        "displayName": "Chart Pale Blue",
+        "canonical": "#c9d7e6",
+        "tonalRamp": [
+          "#040c16",
+          "#1d2833",
+          "#3b4653",
+          "#5b6875",
+          "#7e8b99",
+          "#a2b0be",
+          "#c5d3e2",
+          "#e2f0ff"
+        ]
+      },
+      "chart-lilac": {
+        "role": "chart",
+        "displayName": "Chart Lilac",
+        "canonical": "#cbbfdc",
+        "tonalRamp": [
+          "#0f0619",
+          "#2b2137",
+          "#4a3f58",
+          "#6b607a",
+          "#8f839e",
+          "#b4a8c4",
+          "#d7cbe8",
+          "#f4e8ff"
         ]
       }
     },
     "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Título do registro, estado e valor da faixa entre fios."
+      },
       "headline": {
-        "displayName": "Cabeçalho",
-        "purpose": "Título principal de página em Geist Variable."
+        "displayName": "Headline",
+        "purpose": "Título de seção dos painéis do Início e do Dashboard."
       },
       "title": {
-        "displayName": "Título",
-        "purpose": "Nomes e conteúdo principal em Geist Variable."
+        "displayName": "Title",
+        "purpose": "ItemTitle: nome de linha, título de bloco, valor."
       },
       "body": {
-        "displayName": "Corpo",
-        "purpose": "Informação corrente e leitura em Geist Variable."
+        "displayName": "Body",
+        "purpose": "ItemDescription em Tinta Secundária."
       },
       "control": {
-        "displayName": "Controle",
-        "purpose": "Botões e campos compactos em Geist Variable."
+        "displayName": "Control",
+        "purpose": "Botões, campos, abas e menu."
       },
-      "caption": {
-        "displayName": "Rótulo",
-        "purpose": "Descrições curtas em Geist, caixa alta."
+      "label": {
+        "displayName": "Label",
+        "purpose": "Captions em caixa alta e cabeçalho de tabela."
+      },
+      "numeric": {
+        "displayName": "Numeric",
+        "purpose": "Atalhos e números tabulares."
       }
     },
     "shadows": [
       {
-        "name": "xs",
-        "value": "0 1px 2px 0 rgb(29 28 32 / 0.04)",
-        "purpose": "Separação leve de controle e inset."
-      },
-      {
-        "name": "sm",
-        "value": "0 1px 2px 0 rgb(29 28 32 / 0.04), 0 2px 5px -2px rgb(29 28 32 / 0.04)",
-        "purpose": "Superfície de trabalho."
-      },
-      {
-        "name": "md",
+        "name": "overlay",
         "value": "0 4px 10px -3px rgb(29 28 32 / 0.08), 0 2px 4px -2px rgb(29 28 32 / 0.04)",
-        "purpose": "Menu ou popover elevado."
+        "purpose": "Menus e popovers."
+      },
+      {
+        "name": "dialog",
+        "value": "0 12px 24px -8px rgb(29 28 32 / 0.11), 0 4px 10px -4px rgb(29 28 32 / 0.05)",
+        "purpose": "Diálogos e drawers."
+      },
+      {
+        "name": "map-control",
+        "value": "0 1px 2px 0 rgb(29 28 32 / 0.04), 0 2px 5px -2px rgb(29 28 32 / 0.04)",
+        "purpose": "Controles sobre o mapa e sidebar flutuante."
       }
     ],
     "motion": [
       {
         "name": "state",
-        "value": "150ms ease-out",
-        "purpose": "Hover e foco discretos em controles."
+        "value": "150ms ease",
+        "purpose": "Hover e foco de controles e linhas."
+      },
+      {
+        "name": "tile-reveal",
+        "value": "200ms ease-in-out",
+        "purpose": "Recorte do ladrilho do LinkCard no hover."
       }
     ],
     "breakpoints": [
@@ -423,99 +627,147 @@
       {
         "name": "md",
         "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
       }
     ]
   },
   "components": [
     {
-      "name": "Botão de ação",
+      "name": "Botão primário",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Ação principal grafite da tela.",
-      "html": "<button class=\"ds-button-primary\">Adicionar</button>",
-      "css": ".ds-button-primary{height:32px;padding:0 10px;border:0;border-radius:8px;background:var(--primary,#1d1c20);color:#fff;font:500 13px \"Geist Variable\",sans-serif;cursor:pointer;transition:background .15s ease-out}.ds-button-primary:hover{background:var(--primary-hover,#38373d)}.ds-button-primary:focus-visible{outline:2px solid var(--ring,#4b4b54);outline-offset:2px}"
+      "description": "A única ação primária do cabeçalho da página.",
+      "html": "<button class=\"ds-btn-primary\">Novo serviço</button>",
+      "css": ".ds-btn-primary { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; height: 32px; padding: 0 10px; border: 1px solid transparent; border-radius: 8px; background: var(--primary, #1d1c20); color: var(--primary-foreground, #fff); font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s; } .ds-btn-primary:hover { background: var(--primary-hover, #38373d); } .ds-btn-primary:focus-visible { outline: none; border-color: var(--ring, #4b4b54); box-shadow: 0 0 0 1px rgb(75 75 84 / .5); } .ds-btn-primary:active { transform: translateY(1px); }"
     },
     {
-      "name": "Item da sidebar",
-      "kind": "nav",
-      "refersTo": "sidebar-item-active",
-      "description": "Seleção da navegação sobre o fundo pastel.",
-      "html": "<div class=\"ds-sidebar\"><div class=\"ds-sidebar-item\">Clientes</div></div>",
-      "css": ".ds-sidebar{padding:8px;background:var(--sidebar,#f1f1f3);font:500 13px \"Geist Variable\",sans-serif;color:var(--foreground,#4b4b54)}.ds-sidebar-item{height:32px;display:flex;align-items:center;padding:0 8px;border-radius:8px;background:var(--sidebar-accent,#e8e7ec);color:var(--impact,#1d1c1f)}"
+      "name": "Botão contorno",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Ações secundárias e botões dentro de blocos.",
+      "html": "<button class=\"ds-btn-outline\">Lançar despesa</button>",
+      "css": ".ds-btn-outline { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; height: 32px; padding: 0 10px; border: 1px solid var(--input, #d8d7dd); border-radius: 8px; background: var(--card, #f7f7f7); color: var(--foreground, #4b4b54); font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s; } .ds-btn-outline:hover { background: var(--accent, #e8e7ec); color: var(--impact, #1d1c1f); } .ds-btn-outline:focus-visible { outline: none; border-color: var(--ring, #4b4b54); }"
     },
     {
-      "name": "Painel de trabalho",
-      "kind": "card",
-      "refersTo": "content-inset",
-      "description": "Canvas claro recuado da sidebar.",
-      "html": "<div class=\"ds-inset\"><div class=\"ds-inset-heading\">Clientes</div><div class=\"ds-inset-rule\"></div></div>",
-      "css": ".ds-inset{min-height:100px;padding:16px;border:1px solid var(--border,#e5e4e8);border-radius:18px;background:var(--background,#f7f7f7);box-shadow:0 1px 2px rgb(29 28 32 / .04);font:400 13px \"Geist Variable\",sans-serif;color:var(--foreground,#4b4b54)}.ds-inset-heading{font-size:18px;font-weight:600;color:var(--impact,#1d1c1f)}.ds-inset-rule{height:1px;margin-top:12px;background:var(--border,#e5e4e8)}"
-    },
-    {
-      "name": "Campo de busca",
+      "name": "Campo de texto",
       "kind": "input",
       "refersTo": "input",
-      "description": "Busca compacta sobre o canvas.",
-      "html": "<input class=\"ds-input\" placeholder=\"Buscar…\" />",
-      "css": ".ds-input{height:32px;width:240px;padding:0 10px;border:1px solid var(--input,#d8d7dd);border-radius:8px;background:var(--background,#f7f7f7);box-shadow:0 1px 2px rgb(29 28 32 / .04);font:400 13px \"Geist Variable\",sans-serif;color:var(--foreground,#4b4b54)}.ds-input::placeholder{color:var(--text-secondary,#66656f)}.ds-input:hover{border-color:#a6a5af}.ds-input:focus-visible{outline:2px solid var(--ring,#4b4b54);outline-offset:1px}"
+      "description": "Campo de formulário de 44px, sem sombra.",
+      "html": "<input class=\"ds-input\" placeholder=\"Ex.: CREA-SP 5061234567\">",
+      "css": ".ds-input { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; height: 44px; width: 280px; padding: 4px 10px; border: 1px solid var(--input, #d8d7dd); border-radius: 8px; background: var(--card, #f7f7f7); color: var(--foreground, #4b4b54); font-size: 13px; outline: none; transition: border-color .15s, box-shadow .15s; } .ds-input::placeholder { color: var(--text-secondary, #66656f); } .ds-input:hover { border-color: rgb(102 101 111 / .6); } .ds-input:focus-visible { border-color: var(--ring, #4b4b54); box-shadow: 0 0 0 3px rgb(75 75 84 / .2); }"
     },
     {
-      "name": "Cabeçalho de tabela",
-      "kind": "custom",
-      "refersTo": "table-header",
-      "description": "Rótulos compactos em mono sobre fio fino.",
-      "html": "<div class=\"ds-table-head\"><span>NOME</span><span>STATUS</span></div>",
-      "css": ".ds-table-head{display:flex;justify-content:space-between;align-items:center;height:40px;padding:0 16px;border-bottom:1px solid var(--border,#e5e4e8);font:500 10px \"Geist Mono\",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary,#66656f)}"
-    },
-    {
-      "name": "Estado ativo",
+      "name": "Selo de status",
       "kind": "chip",
-      "description": "Selo pastel para um status operacional.",
-      "html": "<span class=\"ds-status\">Ativo</span>",
-      "css": ".ds-status{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:4px;background:var(--status-success,#dcefdc);color:var(--status-success-foreground,#245b38);font:500 12px \"Geist Variable\",sans-serif}"
+      "refersTo": "badge-success",
+      "description": "Estado do registro, à direita da linha.",
+      "html": "<span class=\"ds-badge\"><span class=\"ds-badge-dot\"></span>Liquidado</span>",
+      "css": ".ds-badge { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 6px; background: #ecfdf5; color: #064e3b; box-shadow: inset 0 0 0 1px rgb(5 150 105 / .3); font-size: 13px; font-weight: 500; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--status-success-indicator, #5aa872); }"
+    },
+    {
+      "name": "Item de menu da sidebar",
+      "kind": "nav",
+      "refersTo": "sidebar-item",
+      "description": "Navegação principal; ativo em lilás de seleção.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-active\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/></svg>Agenda</a><a class=\"ds-nav-item\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/></svg>Serviços</a></nav>",
+      "css": ".ds-nav { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; display: flex; flex-direction: column; gap: 2px; width: 220px; padding: 8px; background: var(--sidebar, #f1f1f3); } .ds-nav-item { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 8px; color: var(--foreground, #4b4b54); font-size: 13px; font-weight: 500; text-decoration: none; } .ds-nav-item:hover { background: var(--sidebar-accent, #e8e7ec); } .ds-nav-active { background: var(--sidebar-accent, #e8e7ec); color: var(--impact, #1d1c1f); font-weight: 600; }"
+    },
+    {
+      "name": "Linha de lista",
+      "kind": "card",
+      "refersTo": "list-item",
+      "description": "Item com borda que leva a outra tela: ícone, dado, contexto, selo e seta.",
+      "html": "<a class=\"ds-item\" href=\"#\"><span class=\"ds-item-tile\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/></svg></span><span class=\"ds-item-body\"><span class=\"ds-item-title\">Vistoria 4</span><span class=\"ds-item-desc\"><b>25 nov 2026 · 11:30</b> Av. Paulista, 1000</span></span><span class=\"ds-badge\">Vistoria</span><span class=\"ds-item-arrow\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></span></a>",
+      "css": ".ds-item { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; display: flex; align-items: center; gap: 10px; width: 520px; padding: 10px 12px; border: 1px solid var(--border, #e5e4e8); border-radius: 10px; background: var(--card, #f7f7f7); color: var(--foreground, #4b4b54); text-decoration: none; transition: background .15s; } .ds-item:hover { background: rgb(232 231 236 / .7); } .ds-item:focus-visible { outline: none; border-color: var(--ring, #4b4b54); box-shadow: 0 0 0 3px rgb(75 75 84 / .25); } .ds-item-tile { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--border, #e5e4e8); border-radius: 6px; background: rgb(242 242 242 / .6); color: var(--text-secondary, #66656f); } .ds-item:hover .ds-item-tile { color: var(--primary, #1d1c20); } .ds-item-body { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; } .ds-item-title { font-size: 14px; font-weight: 600; line-height: 1.375; } .ds-item-desc { font-size: 14px; color: var(--text-secondary, #66656f); } .ds-item-desc b { font-weight: 400; color: var(--foreground, #4b4b54); font-variant-numeric: tabular-nums; } .ds-item .ds-badge { background: #f5f3ff; color: #4c1d95; box-shadow: inset 0 0 0 1px rgb(139 92 246 / .3); padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: 500; } .ds-item-arrow { color: var(--text-secondary, #66656f); display: flex; }"
+    },
+    {
+      "name": "Faixa de números",
+      "kind": "custom",
+      "refersTo": "stats-band",
+      "description": "Indicadores logo abaixo do cabeçalho, em colunas equilibradas.",
+      "html": "<div class=\"ds-band\"><div class=\"ds-stat\"><span class=\"ds-stat-label\">Serviços em aberto</span><span class=\"ds-stat-value\">77</span></div><div class=\"ds-stat\"><span class=\"ds-stat-label\">Prazos vencidos</span><span class=\"ds-stat-value\"><i class=\"ds-dot\"></i>23</span><span class=\"ds-stat-hint\">Pede ação</span></div><div class=\"ds-stat\"><span class=\"ds-stat-label\">A receber</span><a class=\"ds-stat-value ds-stat-link\" href=\"#\">R$ 89.799,00</a><span class=\"ds-stat-hint ds-stat-late\">R$ 60.699,00 atrasado</span></div></div>",
+      "css": ".ds-band { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; padding: 20px 16px; background: var(--surface-secondary, #f2f2f2); width: 640px; } .ds-stat { display: flex; flex-direction: column; gap: 8px; } .ds-stat-label { font-size: 14px; color: var(--foreground, #4b4b54); } .ds-stat-value { display: inline-flex; align-items: center; gap: 8px; font-size: 22px; line-height: 1; letter-spacing: -0.01em; color: var(--impact, #1d1c1f); } .ds-stat-link { color: var(--link, #1c2638); text-decoration: underline dashed; text-underline-offset: 4px; } .ds-stat-hint { font-size: 13px; color: var(--text-secondary, #66656f); } .ds-stat-late { color: var(--destructive, #a64b4f); } .ds-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--status-error-indicator, #b46166); }"
+    },
+    {
+      "name": "Link de texto",
+      "kind": "custom",
+      "refersTo": "link",
+      "description": "AppLink: azul escuro, sublinhado tracejado e seta.",
+      "html": "<a class=\"ds-link\" href=\"#\">Abrir agenda<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></a>",
+      "css": ".ds-link { font-family: \"Geist Variable\", ui-sans-serif, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; color: var(--link, #1c2638); text-decoration: underline dashed; text-underline-offset: 4px; } .ds-link svg { width: 14px; height: 14px; } .ds-link:focus-visible { outline: 2px solid var(--ring, #4b4b54); outline-offset: 2px; border-radius: 2px; }"
     }
   ],
   "narrative": {
-    "northStar": "Mesa de trabalho serena",
-    "overview": "O Ethica é usado durante sessões longas. A sidebar forma o fundo da aplicação, enquanto o trabalho acontece em uma superfície clara recuada. Dados, filtros e ações ficam perto uns dos outros; bordas finas e pequenas diferenças de tom estabelecem a hierarquia.",
+    "northStar": "A mesa de trabalho serena",
+    "overview": "**Creative North Star: \"A mesa de trabalho serena\"**\n\nO Ethica é usado em sessões longas por peritas e equipes de escritório: achar um serviço, ler em que pé ele está e agir. A sidebar forma o fundo da aplicação e o trabalho acontece numa superfície clara recuada, como uma folha sobre a mesa. Dados, filtros e ações ficam perto uns dos outros; a hierarquia vem de bordas finas, pequenas diferenças de tom e do peso do texto, nunca de sombra, gradiente ou cor de marca. O modo é Operate: leitura rápida, consistência entre telas e expectativa nativa valem mais que expressão.\n\nA referência visual enviada pelo usuário fixa a paleta grafite e a composição. Geist Variable é a sans de tudo; Geist Mono aparece só em atalhos e números tabulares. Há três temas (Claro, padrão; Escuro; Azul, AD-237), todos redefinindo os mesmos tokens de `apps/web/src/theme.css`; as cores deste documento são as do Claro.\n\nO sistema tem componentes padrão para as composições que se repetem (cabeçalho de registro, faixa de números, hub de módulo, página de configuração em etapas, cartões de registro pequeno, blocos recolhíveis). Quando existe um componente padrão para o caso, a tela usa ele; quando não existe, a tela compõe direto com os primitivos de `@ethica/ui` (`Item`, `ItemTitle`, `ItemDescription`, `Button`, `Badge`) em vez de criar um wrapper novo que fixe desenho.",
     "keyCharacteristics": [
-      "Um único tema claro",
-      "Ação grafite",
-      "Sidebar pastel atrás do painel",
-      "Linhas compactas",
-      "Captions mono",
-      "Sombra com deslocamento mínimo",
-      "Indicadores apenas quando apoiados por dados reais"
+      "Sidebar pastel ao fundo, painel de trabalho recuado com raio de 18px, sem faixa superior.",
+      "Grafite como única cor de ação; cor semântica só em status.",
+      "Tipografia por `ItemTitle`/`ItemDescription`; captions em caixa alta com tracking.",
+      "Plano: profundidade por tom e borda, sem sombra em controles e superfícies.",
+      "Conteúdo na largura toda do painel; a faixa de números logo abaixo do cabeçalho.",
+      "Indicadores só com dado real (AD-083)."
     ],
     "rules": [
       {
-        "name": "Contraste da informação",
-        "body": "#9594a0 serve apenas a pistas não essenciais; texto pequeno necessário à tarefa usa #66656f.",
+        "name": "The One Voice Rule",
+        "body": "A única cor de ação é o grafite do tema. Azul não é acento genérico; cor aparece só para dizer estado.",
         "section": "colors"
       },
       {
-        "name": "Identidade no primitivo",
-        "body": "Cor, fonte, borda, raio e sombra pertencem aos tokens e componentes base, não a cada rota.",
-        "section": "components"
+        "name": "The Readable Small Text Rule",
+        "body": "Texto pequeno necessário à tarefa usa a Tinta Secundária, nunca o Tom Sutil.",
+        "section": "colors"
       },
       {
-        "name": "Métrica verdadeira",
-        "body": "Indicadores e gráficos só entram quando a consulta oferece os dados necessários.",
-        "section": "components"
+        "name": "The Two Wrappers Rule",
+        "body": "Todo texto de tela é `ItemTitle` ou `ItemDescription` (AD-087); a tag muda por `render` quando a semântica pede (`h2`, `dt`, `dd`, `label`, `Link`).",
+        "section": "typography"
+      },
+      {
+        "name": "The Data Over Label Rule",
+        "body": "Em lista, tabela e faixa, o dado é `ItemTitle` e o rótulo ou contexto é `ItemDescription` (AD-293): o número se lê antes da palavra que o explica.",
+        "section": "typography"
+      },
+      {
+        "name": "The Balanced Strip Rule",
+        "body": "A faixa de números tem colunas pelo número de células (4 → 2 e 4 a partir de `xl`; 5 → 3 e 5 a partir de `xl`; 6 → 3 e 6 a partir de `2xl`): as linhas ficam sempre equilibradas e nenhuma célula fica sozinha. No celular a faixa cinza tem duas colunas e a última célula ímpar ocupa a linha (AD-298).",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Surface Rule",
+        "body": "Se o elemento está na página e não sobre ela, ele não tem sombra. Separe com borda e tom.",
+        "section": "elevation"
       }
     ],
     "dos": [
-      "Defina identidade em apps/web/src/theme.css e nos primitivos; a rota compõe dados e layout local.",
-      "Use ItemDescription caption para rótulos descritivos e texto secundário legível para informação essencial.",
-      "Confira 1440px e 390px, hover, ativo, seleção, foco, loading, erro e vazio.",
-      "Preserve consultas, permissões, URLs e comportamento das ações ao redesenhar uma tela."
+      "**Do** definir identidade em `apps/web/src/theme.css` e nos primitivos; a rota compõe dados e layout local.",
+      "**Do** usar o componente padrão quando ele existe para o caso (hub, página em etapas, cartões de registro, cabeçalho e faixa do registro, blocos recolhíveis); sem componente padrão, compor direto com `Item`/`ItemTitle`/`ItemDescription` na página em vez de criar um wrapper que fixe desenho.",
+      "**Do** colocar a faixa de números logo abaixo do cabeçalho, fora do `CardContent`, na largura toda.",
+      "**Do** separar dado e contexto: número em `ItemTitle`, rótulo em `ItemDescription`.",
+      "**Do** conferir 1440px e 390px na tela de verdade, com o Playwright logado (RUN_BOOK.md, \"Conta de teste em tela\"): sem rolagem lateral, sem célula sozinha numa faixa, sem texto colado em sublinhado, sem sombra em controle; e hover, foco, loading, erro e vazio.",
+      "**Do** preservar consultas, permissões, URLs e comportamento das ações ao redesenhar uma tela."
     ],
     "donts": [
-      "Não reintroduza troca de paleta ou modo escuro nesta direção de tema claro único.",
-      "Não invente companhia, cargo, cidade, gráficos, KPIs temporais ou ações em lote para copiar a imagem.",
-      "Não use azul como acento genérico; as cores semânticas de status são a exceção.",
-      "Não use #9594a0 para texto pequeno que precisa ser lido, nem mono para todo o corpo.",
-      "Não espalhe borda, sombra e fonte de identidade pelas rotas."
+      "**Don't** pôr sombra em botão, campo, cartão, linha de lista ou no painel principal.",
+      "**Don't** limitar com `max-w-*` lista, tabela ou bloco do app logado; só o hub de módulo tem coluna de leitura.",
+      "**Don't** usar cor da paleta do Tailwind sem a contraparte `dark:` (vale nos temas Escuro e Azul); prefira os tokens.",
+      "**Don't** dar a um detalhe de destaque uma cor própria: ele usa a cor de ação do tema (AD-237).",
+      "**Don't** usar azul como acento genérico; as cores semânticas de status são a exceção.",
+      "**Don't** recriar `Button`, `Badge` ou abas em `apps/web`: existem só em `@ethica/ui`.",
+      "**Don't** usar o Tom Sutil em texto pequeno que precisa ser lido, nem mono para corpo ou rótulos.",
+      "**Don't** inventar companhia, cargo, cidade, séries temporais ou ações em lote para preencher a tela."
     ]
   }
 }

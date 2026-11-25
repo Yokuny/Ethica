@@ -55,6 +55,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Rodar `/impeccable init` para trazer o `PRODUCT.md` ao formato atual do impeccable (faltam Positioning, Operating Context, Evidence on Hand e Product Principles; o init preserva o que já está lá e pergunta o resto) — `gestao-escritorio`
 - [ ] Entrar de novo pelo e-mail no seu navegador: a passkey de teste do Playwright (2026-11-24) substituiu a do seu computador (APA-05) — `gestao-escritorio`
 - [ ] Conferir na tela os Recebimentos no diálogo de um compromisso ou prazo da agenda (novo desenho com Recebido e Saldo como rótulo sobre valor); o Playwright não achou um evento com recebimento lançado — `prazos-recebimentos`
 - [ ] Daqui a uns 7 dias com o worker novo na Railway, ler os logs `datajud.request` e `worker.job_failed` (por tribunal, hora, `errorTypes`, `ip`) e decidir a correção das falhas do Datajud pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md` (AD-287) — `automacao-datajud`
@@ -110,6 +111,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-24 — `apps/web/DESIGN.md` atualizado com o código (YAML válido, tokens de link, gráficos e status, campo de 44px, selo em `packages/ui`, componentes padrão revertidos na AD-299, coluna `max-w-4xl` só no hub) e `.impeccable/design.json` regenerado — `gestao-escritorio`
 - [x] 2026-11-24 — Escritório, Minha conta, Relatórios e hubs de Laudos e Logística de volta à versão com `StepList`, `PageIntro`, `LinkCard` e `InfoCard` (AD-299) — `gestao-escritorio`
 - [x] 2026-11-24 — Simplificação dos componentes do `apps/web`, grupos A, B e C (AD-295 a AD-297); plano em `.specs/features/gestao-escritorio/plans/2026-11-24-simplificar-componentes.md` — `gestao-escritorio`
 - [x] 2026-11-24 — Varredura estética com o Playwright (31 rotas, desktop e celular): sem célula sozinha, sem texto colado em sublinhado, sem rolagem lateral, sem sombra em controle (AD-293, AD-294) — `gestao-escritorio`
