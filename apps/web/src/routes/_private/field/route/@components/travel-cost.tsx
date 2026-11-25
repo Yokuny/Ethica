@@ -1,19 +1,21 @@
 import { Button } from '@ethica/ui/components/button';
 import { Card, CardContent } from '@ethica/ui/components/card';
 import { Form } from '@ethica/ui/components/form';
-import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { RadioGroup, RadioGroupItem } from '@ethica/ui/components/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Calculator, Fuel } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Checkbox } from '@/components/checkbox.js';
+import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { MoneyField, NumberField } from '@/components/form-fields.js';
+import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { cn } from '@/lib/utils.js';
 import { can, sessionQuery } from '@/query/session.js';
-import { type RouteCase, useTravelCost } from '../@hooks/use-travel-cost.js';
+import { type RouteCase, type RouteDays, useTravelCost } from '../@hooks/use-travel-cost.js';
 import type { TravelTarget } from '../@interface/travel-cost.interface.js';
 
 function Row({
@@ -87,9 +89,9 @@ function Choice({
 }
 
 // "Custo de deslocamento" below the field map (CDE-01 to CDE-03).
-export function TravelCost({ routeKm, cases }: { routeKm?: number; cases: RouteCase[] }) {
+export function TravelCost({ routeKm, cases, days }: { routeKm?: number; cases: RouteCase[]; days: RouteDays }) {
   const { data: session } = useSuspenseQuery(sessionQuery);
-  const travel = useTravelCost({ routeKm, cases });
+  const travel = useTravelCost({ routeKm, cases, days });
   const { cost, shares } = travel;
   const canLaunch = can(session, 'finance', 'create') && cases.length > 0;
   const liters = cost.liters.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
@@ -214,6 +216,36 @@ export function TravelCost({ routeKm, cases }: { routeKm?: number; cases: RouteC
           </div>
         )}
       </CardContent>
+      {travel.launched && (
+        // AD-301: the same service orders already have the travel of these days; replacing avoids paying it twice.
+        <ConfirmDialog
+          title={t('travel_expense_exists')}
+          description={t('travel_expense_exists_description')}
+          confirmLabel={t('replace')}
+          variant="default"
+          pending={travel.isPending}
+          onConfirm={() => void travel.replace()}
+          onClose={travel.dismiss}
+        >
+          <ItemGroup>
+            {travel.launched.map((item) => (
+              <Item key={item.id} render={<li />}>
+                <ItemContent>
+                  <ItemTitle>{item.description}</ItemTitle>
+                  <ItemDescription>
+                    {[cases.find((one) => one.id === item.caseId)?.label ?? item.caseNumber, formatDate(item.dueDate)]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <ItemTitle className="tabular-nums">{formatMoney(item.amountCents)}</ItemTitle>
+                </ItemActions>
+              </Item>
+            ))}
+          </ItemGroup>
+        </ConfirmDialog>
+      )}
     </Card>
   );
 }

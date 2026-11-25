@@ -443,6 +443,7 @@ const translations: Record<string, string> = {
   authorization: 'Autorização',
   calendar: 'Calendário',
   cancel: 'Cancelar',
+  replace: 'Substituir',
   cancel_commitment: 'Cancelar compromisso',
   cancel_entry: 'Anular lançamento',
   annulled: 'Anulado',
@@ -1269,6 +1270,10 @@ const translations: Record<string, string> = {
   support_on_route: 'Apoio no trajeto',
   search_on_route: 'Buscar no trajeto',
   up_to: 'Até',
+  travel_expense_replaced: 'Despesa de deslocamento substituída no Financeiro.',
+  travel_expense_exists: 'Deslocamento já lançado',
+  travel_expense_exists_description:
+    'Estes serviços já têm despesa de deslocamento prevista nos dias desta rota. Substitua para não lançar em dobro.',
   from_the_route: 'da rota',
   distance_from_route: 'Distância da rota',
   also_search_google_maps: 'Procurar também no Google Maps',

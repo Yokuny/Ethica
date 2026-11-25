@@ -7,6 +7,7 @@ import type {
   UpdateTransaction,
 } from '@ethica/contracts';
 import {
+  ALL_TRANSACTION_CATEGORIES,
   calendarDateSchema,
   createInstallmentSchema,
   createTransactionSchema,
@@ -34,6 +35,8 @@ export const listTransactionsQuerySchema = z
     kind: z.enum(TRANSACTION_KINDS).optional(),
     state: z.enum([...TRANSACTION_STATUS, 'overdue']).optional(),
     caseId: idSchema.optional(),
+    // The route planning looks for travel expenses already launched (AD-301).
+    category: z.enum(ALL_TRANSACTION_CATEGORIES).optional(),
     from: calendarDateSchema.optional(),
     to: calendarDateSchema.optional(),
     // Column click (AD-192); without it, the latest due date first.

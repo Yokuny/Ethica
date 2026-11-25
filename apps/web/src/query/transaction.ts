@@ -45,6 +45,10 @@ export type TransactionsQueryParams = {
   kind?: TransactionKind;
   state?: TransactionState;
   caseId?: string;
+  category?: TransactionCategory;
+  // Due date from `from` (inclusive) to `to` (exclusive).
+  from?: string;
+  to?: string;
   sort?: TransactionListSort;
   order?: SortOrder;
 };

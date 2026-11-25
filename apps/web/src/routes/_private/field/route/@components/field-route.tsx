@@ -86,6 +86,9 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
     ).values(),
   ];
 
+  // The days of the route, in order: the travel expense is due on the first one (AD-301).
+  const routeDays = items.map((item) => formatDisplayDate(item.appointment.start)).sort();
+
   function applyMyLocation() {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
@@ -199,9 +202,6 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
                 >
                   <ArrowDown />
                 </Button>
-                {appointment.caseId && (
-                  <Button
-                    variant="outline"
                 {/* A wrong address or time is fixed in the appointment itself, opened in the agenda. */}
                 <Button
                   variant="outline"
@@ -216,6 +216,9 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
                     </Link>
                   }
                 />
+                {appointment.caseId && (
+                  <Button
+                    variant="outline"
                     disabled={notice.isPending}
                     onClick={() =>
                       notice.mutate(
@@ -245,7 +248,11 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
       {items.length > 0 && (
         // Travel cost on the left and support on the route on the right (AD-214); stacked on the phone.
         <div className="grid items-start gap-6 pt-6 lg:grid-cols-2">
-          <TravelCost routeKm={itinerary.data?.km} cases={routeCases} />
+          <TravelCost
+            routeKm={itinerary.data?.km}
+            cases={routeCases}
+            days={{ from: routeDays[0] ?? '', to: routeDays.at(-1) ?? '' }}
+          />
           <RoutePlaces
             path={path}
             onSearch={setPlaceSearch}

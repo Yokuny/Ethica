@@ -252,6 +252,7 @@ export const listTransactions = async (
       Tenant: tenantId,
       ...(query.kind ? { kind: query.kind } : {}),
       ...(query.caseId ? { Case: query.caseId } : {}),
+      ...(query.category ? { category: query.category } : {}),
       ...(Object.keys(dueDate).length ? { dueDate } : {}),
       ...stateFilter(query.state, today),
     });
