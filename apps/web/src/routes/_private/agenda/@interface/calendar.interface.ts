@@ -26,5 +26,7 @@ export const calendarSearchSchema = z.object({
   type: z.enum([...APPOINTMENT_TYPES, ...CALENDAR_ENTRY_TYPES]).optional(),
   // Shortcut from the case detail: opens the "new appointment" already linked.
   caseId: z.string().optional(),
+  // Shortcut from the logistics (route planning, scheduled services): opens that appointment already in edit.
+  appointmentId: z.string().optional(),
 });
 export type CalendarSearch = z.infer<typeof calendarSearchSchema>;

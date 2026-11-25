@@ -12,8 +12,28 @@ describe('rota do dia (AD-131)', () => {
   });
 
   it('ordena pelo vizinho mais próximo e deixa sem coordenada no fim', () => {
-    const items = [{ id: 'campinas', coordinates: CAMPINAS }, { id: 'sem' }, { id: 'paulista', coordinates: PAULISTA }];
+    const day = '2026-12-16';
+    const items = [
+      { id: 'campinas', day, coordinates: CAMPINAS },
+      { id: 'sem', day },
+      { id: 'paulista', day, coordinates: PAULISTA },
+    ];
     expect(sortByProximity(SE, items).map((item) => item.id)).toEqual(['paulista', 'campinas', 'sem']);
+  });
+
+  it('segue os dias em ordem e só ordena por proximidade dentro de cada dia', () => {
+    const items = [
+      { id: 'campinas-17', day: '2026-12-17', coordinates: CAMPINAS },
+      { id: 'sem-16', day: '2026-12-16' },
+      { id: 'paulista-16', day: '2026-12-16', coordinates: PAULISTA },
+      { id: 'se-22', day: '2026-12-22', coordinates: SE },
+    ];
+    expect(sortByProximity(CAMPINAS, items).map((item) => item.id)).toEqual([
+      'paulista-16',
+      'sem-16',
+      'campinas-17',
+      'se-22',
+    ]);
   });
 
   it('aponta a parada marcada antes da anterior', () => {

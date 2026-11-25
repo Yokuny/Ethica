@@ -3,12 +3,13 @@ import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, ArrowUp, LocateFixed, Mail, Route as RouteIcon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { ArrowDown, ArrowUp, ArrowUpRight, LocateFixed, Mail, Route as RouteIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/checkbox.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
-import { formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
+import { formatDisplayDate, formatDisplayTime } from '@/lib/helpers/displayTime.helper.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { type DayInspection, sendNoticeMutation } from '@/query/inspection.js';
@@ -94,7 +95,11 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
         setOrder(
           sortByProximity(
             point,
-            items.map((item) => ({ id: item.appointment.id, coordinates: item.appointment.coordinates })),
+            items.map((item) => ({
+              id: item.appointment.id,
+              day: formatDisplayDate(item.appointment.start),
+              coordinates: item.appointment.coordinates,
+            })),
           ).map((item) => item.id),
         );
         setLocating(false);
@@ -197,6 +202,20 @@ export function FieldRoute({ data, withDate }: { data: DayInspection[]; withDate
                 {appointment.caseId && (
                   <Button
                     variant="outline"
+                {/* A wrong address or time is fixed in the appointment itself, opened in the agenda. */}
+                <Button
+                  variant="outline"
+                  nativeButton={false}
+                  render={
+                    <Link
+                      to="/agenda"
+                      search={{ date: formatDisplayDate(appointment.start), appointmentId: appointment.id }}
+                    >
+                      {t('edit')}
+                      <ArrowUpRight />
+                    </Link>
+                  }
+                />
                     disabled={notice.isPending}
                     onClick={() =>
                       notice.mutate(

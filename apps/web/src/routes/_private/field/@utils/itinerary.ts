@@ -12,24 +12,31 @@ export const distanceKm = (a: Point, b: Point): number => {
   return 2 * RADIUS_EARTH_KM * Math.asin(Math.sqrt(h));
 };
 
-// Nearest neighbor from the origin; whoever has no coordinate goes to the end, in the given order.
-export const sortByProximity = <T extends { coordinates?: Point }>(origin: Point, items: T[]): T[] => {
-  const remaining = items.filter((item) => item.coordinates);
+// Day by day, the earliest day first; inside each day, the nearest neighbor from where the day before ended (the
+// origin on the first one). Whoever has no coordinate closes its own day, in the given order.
+export const sortByProximity = <T extends { coordinates?: Point; day: string }>(origin: Point, items: T[]): T[] => {
   const order: T[] = [];
   let current = origin;
-  while (remaining.length) {
-    let best = 0;
-    remaining.forEach((item, index) => {
-      if (distanceKm(current, item.coordinates as Point) < distanceKm(current, remaining[best]?.coordinates as Point)) {
-        best = index;
-      }
-    });
-    const [next] = remaining.splice(best, 1);
-    if (!next) break;
-    order.push(next);
-    current = next.coordinates as Point;
+  for (const day of [...new Set(items.map((item) => item.day))].sort()) {
+    const ofDay = items.filter((item) => item.day === day);
+    const remaining = ofDay.filter((item) => item.coordinates);
+    while (remaining.length) {
+      let best = 0;
+      remaining.forEach((item, index) => {
+        if (
+          distanceKm(current, item.coordinates as Point) < distanceKm(current, remaining[best]?.coordinates as Point)
+        ) {
+          best = index;
+        }
+      });
+      const [next] = remaining.splice(best, 1);
+      if (!next) break;
+      order.push(next);
+      current = next.coordinates as Point;
+    }
+    order.push(...ofDay.filter((item) => !item.coordinates));
   }
-  return [...order, ...items.filter((item) => !item.coordinates)];
+  return order;
 };
 
 // A stop scheduled before the previous one in the route order: time conflict.

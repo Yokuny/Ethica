@@ -34,9 +34,9 @@ export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
   const parties = legalCase && [legalCase.plaintiff, legalCase.defendant].filter(Boolean).join(' × ');
 
   return (
-    <li className="flex flex-col gap-6 border-b py-8 first:pt-0 last:border-b-0 lg:py-10">
+    <li className="flex flex-col gap-4 border-b py-6 first:pt-0 last:border-b-0 lg:py-7">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-        <div className="flex min-w-0 flex-col gap-2 lg:w-2/3">
+        <div className="flex min-w-0 flex-col gap-1.5 lg:w-2/3">
           {legalCase && (
             <AppLink to="/expert-cases/details" search={{ id: legalCase.id }}>
               {caseLabel(legalCase)}
@@ -56,7 +56,7 @@ export function FieldCard({ item, withDate, onStatus }: FieldCardProps) {
               {appointment.location}
             </ItemDescription>
           )}
-          <div className="flex flex-wrap items-center gap-2 pt-2">
+          <div className="flex flex-wrap items-center gap-2 pt-1">
             <Badge variant={APPOINTMENT_TYPE_VARIANT[appointment.type]}>{t(appointment.type)}</Badge>
             <Badge variant="secondary">{t(status)}</Badge>
             {recorded && <Badge variant="success">{t('record_started')}</Badge>}

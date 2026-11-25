@@ -12,7 +12,7 @@ import { rangeForView, shiftDate } from '../@utils/calendar-navigation.js';
 export function useAgendaPage() {
   const search = useSearch({ strict: false }) as CalendarSearch;
   const navigate = useNavigate();
-  const [panel, setPanel] = useState<PanelState>(search.caseId ? { kind: 'create' } : null);
+  const [chosen, setPanel] = useState<PanelState>(search.caseId ? { kind: 'create' } : null);
 
   const view = search.view ?? DEFAULT_VIEW;
   const date = search.date ?? formatDisplayDate(new Date());
@@ -26,6 +26,9 @@ export function useAgendaPage() {
   const entriesQuery = useQuery({ ...calendarEntriesQuery({ from, to, type: entryType }), enabled: !appointmentType });
   const items = entryType ? [] : (query.data ?? []);
   const entries = appointmentType ? [] : (entriesQuery.data ?? []);
+  // The appointment linked from the logistics opens in edit as soon as the period loads.
+  const linked = search.appointmentId ? items.find((item) => item.id === search.appointmentId) : undefined;
+  const panel: PanelState = chosen ?? (linked ? { kind: 'edit', appointment: linked } : null);
 
   const updateSearch = (patch: (prev: CalendarSearch) => CalendarSearch) => {
     navigate({ to: '/agenda', search: patch, replace: true });
@@ -64,7 +67,9 @@ export function useAgendaPage() {
         : navigate({ to: '/finance', search: entry.caseId ? { caseId: entry.caseId } : {} }),
     closePanel: () => {
       setPanel(null);
-      if (search.caseId) updateSearch((prev) => ({ ...prev, caseId: undefined }));
+      if (search.caseId || search.appointmentId) {
+        updateSearch((prev) => ({ ...prev, caseId: undefined, appointmentId: undefined }));
+      }
     },
     clearFilters: () => updateSearch((prev) => ({ ...prev, type: undefined })),
   };
