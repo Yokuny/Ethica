@@ -1935,6 +1935,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-25
 - **Status**: active
 
+### AD-303
+- **Decision**: A consulta diária ao Datajud começa às 05:00 de Brasília (era 03:00, AD-277) e o tempo limite de cada chamada sobe de 60 s para 120 s (`DATAJUD_TIMEOUT_MS`). As 12 tentativas da AD-286 continuam. Primeira correção do diagnóstico da AD-287.
+- **Reason**: logs da Railway de 24 e 25/11: o lote do TRT16 levou 429 do Elasticsearch do CNJ (fila de busca cheia) em todas as tentativas entre 03:00 e 04:47 e passou na 9ª, às 04:47 e às 05:09; com IP diferente a cada dia e lote de 1 número, a recusa é sobrecarga do cluster, não do nosso lado. A busca que passa leva 32 a 38 s e duas tentativas morreram no limite de 60 s.
+- **Trade-off**: o aviso de movimentação chega cerca de duas horas mais tarde (ainda antes do e-mail das 07:00); uma chamada presa pode ocupar a fila por até 2 minutos, abaixo do lease de 5. Só dois dias e um tribunal observados: os logs da AD-287 continuam para confirmar ou ajustar o horário.
+- **Scope**: `apps/worker/src/scheduler.ts`, `apps/worker/src/datajud/client.ts`.
+- **Date**: 2026-11-25
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

@@ -5,7 +5,7 @@ descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e
 data: 2026-11-23
 status: parcial
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281, AD-286, AD-287]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281, AD-286, AD-287, AD-303]
 spec: [.specs/features/automacao-datajud]
 ---
 
@@ -58,12 +58,13 @@ A definir.
 
 ## Pendências
 
-- [ ] Escolher a correção das falhas do Datajud (plano de 2026-11-24, AD-287). Logs de 24/11 e 25/11 confirmam sobrecarga do cluster do CNJ, não do nosso IP; candidatas: começar mais tarde ou espalhar os lotes pela manhã, tempo limite maior que 60 s, manter as 12 tentativas. Falta ver um dia com mais tribunais (só o TRT16 roda hoje) e o horário em que o cluster alivia.
+- [ ] Conferir nos logs `datajud.request` que a rodada das 05:00 (AD-303) passa nas primeiras tentativas; se não passar, espalhar os lotes pela manhã ou criar o disjuntor por tribunal (plano de 2026-11-24, AD-287). Só o TRT16 roda hoje: observar também quando houver mais tribunais.
 - [ ] Usuário: confirmar o estudo do pagamento (AD-274, `.specs/features/automacao-datajud/context.md`).
 - [ ] Fixture de TJ para incluir as perícias cíveis (TJMS e TJSP recusaram em 2026-11-22).
 
 ## Histórico
 
+- 2026-11-25 — Primeira correção das falhas (AD-303): a consulta diária começa às 05:00 em vez de 03:00 e o tempo limite por chamada sobe para 120 s; as 12 tentativas continuam. Os logs da AD-287 seguem para confirmar se a rodada passa nas primeiras tentativas.
 - 2026-11-25 — Primeiras rodadas com os logs da AD-287 (Railway, 24/11 e 25/11, um lote do TRT16 com 1 processo): nos dois dias as 8 primeiras tentativas falharam e a 9ª deu certo (04:47 e 05:09 de Brasília); sem a AD-286 (5 tentativas) os dois dias teriam falhado. Todo 429 foi `es_rejected_execution_exception` do Elasticsearch do CNJ com a fila de busca cheia (10/10 threads, 1000 a 1003 na fila), em nós diferentes (`instance-0000000003`, `-10`, `-11`), sem cabeçalho de limite, com `lastMinute: 0` e lote de 1 número; o IP da Railway mudou entre os dias (dois endereços diferentes) e a máquina local também levou 429. Conclusão: sobrecarga do cluster do CNJ (H1); descartados bloqueio por IP (H2), nosso ritmo (H5) e tamanho do lote (H6), então trocar de IP (Lambda, outro servidor) não resolve. Também visto: a busca que dá certo leva 32 a 38 s (`took`) e duas tentativas morreram no limite de 60 s. Em 24/11 o 0017068-93.2025.5.16.0008 ganhou a linha de base (aparece como consultado em Processos acompanhados).
 - 2026-11-24 — Diagnóstico das falhas do Datajud (AD-287): logs e métricas por chamada, IP público, contexto do job na falha; resposta `timed_out` volta para a fila em vez de virar "não encontrado". Uma chamada real da máquina local à 01:08 recebeu 429 no TRT16 e no TRT24 com a fila de busca do Elasticsearch cheia (10/10 threads, 1000 na fila) e tempo esgotado no TRT2: indica sobrecarga do cluster do CNJ, não bloqueio do nosso IP. Hipóteses e soluções (espalhar no tempo, disjuntor, outro horário, Lambda ou serviço próprio com outro IP, falar com o CNJ) no plano de 2026-11-24, para decidir com os logs da Railway.
 - 2026-11-24 — "Processos acompanhados" lista todo serviço acompanhado, mesmo sem resposta do tribunal, com a situação de cada um; o worker passa a gravar o `CaseCourtSync` também do processo não encontrado (sem `baselineAt`). Detalhe em `processos-acompanhados`.

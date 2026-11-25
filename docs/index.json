@@ -73,7 +73,8 @@
         "AD-280",
         "AD-281",
         "AD-286",
-        "AD-287"
+        "AD-287",
+        "AD-303"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -2659,6 +2660,12 @@
     {
       "id": "AD-302",
       "decisao": "`APPOINTMENT_TYPES` ganha `technical_inspection` (Inspeção), `appraisal` (Avaliação) e `expert_examination` (Perícia), na ordem Vistoria, In",
+      "data": "2026-11-25",
+      "status": "active"
+    },
+    {
+      "id": "AD-303",
+      "decisao": "A consulta diária ao Datajud começa às 05:00 de Brasília (era 03:00, AD-277) e o tempo limite de cada chamada sobe de 60 s para 120 s (`DATA",
       "data": "2026-11-25",
       "status": "active"
     }

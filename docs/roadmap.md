@@ -61,7 +61,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Rodar `/impeccable init` para trazer o `PRODUCT.md` ao formato atual do impeccable (faltam Positioning, Operating Context, Evidence on Hand e Product Principles; o init preserva o que já está lá e pergunta o resto) — `gestao-escritorio`
 - [ ] Entrar de novo pelo e-mail no seu navegador: a passkey de teste do Playwright (2026-11-24) substituiu a do seu computador (APA-05) — `gestao-escritorio`
 - [ ] Conferir na tela os Recebimentos no diálogo de um compromisso ou prazo da agenda (novo desenho com Recebido e Saldo como rótulo sobre valor); o Playwright não achou um evento com recebimento lançado — `prazos-recebimentos`
-- [ ] Decidir a correção das falhas do Datajud pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md` (AD-287): logs de 24 e 25/11 já mostram sobrecarga do cluster do CNJ (não IP); ler mais alguns dias, de preferência com mais tribunais, para ver a hora em que alivia — `automacao-datajud`
+- [ ] Nos próximos dias, ler os logs `datajud.request` da rodada das 05:00 (AD-303) e conferir se passa nas primeiras tentativas; se não, ajustar pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md` — `automacao-datajud`
 - [ ] Conferir com a perita a lista única de Notificações: Abertas/Resolvidas no lugar das cinco situações e o número do menu contando prazos vencidos, sugestões e avisos (AD-282) — `notificacoes-processo-unico`
 - [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
 - [ ] Conferir a seção No tribunal num serviço real com o plano com Automação e o aviso de movimentação no dia seguinte — `automacao-datajud`
@@ -85,7 +85,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
-- [ ] Aplicar a correção das falhas do Datajud escolhida (começar mais tarde ou espalhar os lotes, tempo limite maior que 60 s, disjuntor por tribunal); trocar de IP (Lambda, outro servidor) foi descartado pelos logs de 24 e 25/11 — `automacao-datajud`
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
@@ -112,6 +111,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-25 — Consulta ao Datajud às 05:00 e tempo limite de 120 s, pela sobrecarga do CNJ vista nos logs (AD-303) — `automacao-datajud`
 - [x] 2026-11-25 — Produção: o 0017068-93.2025.5.16.0008 (TRT16) do ETHICA consultado com linha de base em 24/11, pelos logs do worker (a página não foi aberta em produção) — `processos-acompanhados`
 - [x] 2026-11-25 — Worker na Railway com a versão de 2026-11-24 (deploy de 24/11 01:13; logs `datajud.request` nas rodadas de 24 e 25/11) — `processos-acompanhados`
 - [x] 2026-11-25 — TRT16 do ETHICA consultado na rodada de 24/11 (9ª tentativa, linha de base gravada); o 429 era sobrecarga do cluster do CNJ, não bloqueio do IP da Railway — `automacao-datajud`
