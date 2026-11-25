@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "createdAt": "2026-11-25T01:47:17.523Z",
+        "reason": "apps/web/DESIGN.md: Geist Variable é a sans adotada a partir da referência visual do usuário (AD de identidade do apps/web)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist mono",
+        "createdAt": "2026-11-25T01:47:17.555Z",
+        "reason": "apps/web/DESIGN.md: Geist Mono só em atalhos e números tabulares, parte do sistema documentado"
+      }
+    ]
+  }
+}
