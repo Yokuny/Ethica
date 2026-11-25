@@ -25,7 +25,7 @@ export function JobsFields({ form }: { form: UseFormReturn<InspectionData> }) {
       items={fields.map((field, index) => ({
         key: field.id,
         onRemove: () => remove(index),
-        conteudo: (
+        content: (
           <>
             <div className="grid gap-3 sm:grid-cols-2">
               <TextField

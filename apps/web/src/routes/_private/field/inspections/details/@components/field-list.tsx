@@ -14,7 +14,7 @@ export function FieldList({
   title: string;
   empty: string;
   actions: ReactNode;
-  items: Array<{ key: string; conteudo: ReactNode; onRemove: () => void }>;
+  items: Array<{ key: string; content: ReactNode; onRemove: () => void }>;
 }) {
   return (
     <section className="flex w-full min-w-0 flex-col gap-4">
@@ -22,7 +22,8 @@ export function FieldList({
         <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
           {title}
         </ItemTitle>
-        {actions}
+        {/* The actions stay together on the right, whatever their number. */}
+        <div className="flex flex-wrap gap-2">{actions}</div>
       </div>
       {!items.length ? (
         <ItemTitle className="font-normal text-muted-foreground">{empty}</ItemTitle>
@@ -30,7 +31,7 @@ export function FieldList({
         <ul className="flex flex-col divide-y divide-border">
           {items.map((item) => (
             <li key={item.key} className="flex items-start gap-2 py-3">
-              <div className="grid min-w-0 flex-1 gap-3">{item.conteudo}</div>
+              <div className="grid min-w-0 flex-1 gap-3">{item.content}</div>
               <Button type="button" variant="ghost" size="icon" aria-label={t('remove')} onClick={item.onRemove}>
                 <Trash2 />
               </Button>

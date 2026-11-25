@@ -62,6 +62,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-25 — Registro da vistoria: as ações de cada bloco (ex.: "Partes do serviço" e "Adicionar presente") ficam juntas à direita do título; antes o fragmento espalhava os botões pela linha. `FieldList` troca `conteudo` por `content`.
 - 2026-11-25 — Planejamento de rota: "Partir da minha localização" ordena por proximidade dentro de cada dia, com os dias em ordem (antes misturava 17 → 16 → 22); botão "Editar" em cada parada abre o compromisso já em edição na Agenda (`/agenda?date=&appointmentId=`). Serviços agendados: cartão com menos espaço vertical.
 - 2026-11-20 — Seletor de intervalo no cabeçalho das três páginas, com mês e ano em listas e atalhos Semana e Mês; a faixa de dias pula para o intervalo escolhido; `rangeOf` reúne o corte em 366 dias (AD-243).
 - 2026-11-20 — Serviços agendados também com a faixa de dias, no topo; o `RangeNav` e o `shiftRange` saem. A faixa mostra o dia da semana e sombreia sábado e domingo (AD-242).
