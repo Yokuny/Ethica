@@ -441,12 +441,12 @@ const addDays = (day: string, days: number): string => {
 };
 
 // Listing strip: open, overdue pending deadlines and alerts, the ones due soon
-// (up to `dueSoonDays`) and delivered reports.
+// (up to `dueSoonDays`) and delivered services.
 export const stats = async (tenantId: string, dueSoonDays: number, now: Date = new Date()): Promise<ListStats> =>
   withDbTiming('case.stats', async () => {
     const today = dateInDisplayTz(now);
     const count = (extra: object) => Case.countDocuments(tenantScoped({ Tenant: tenantId, ...extra }));
-    const [total, open, due, entregues, trend] = await Promise.all([
+    const [total, open, due, delivered, trend] = await Promise.all([
       count({}),
       count(OPEN),
       pendingDueCounts(tenantId, today, addDays(today, dueSoonDays)),
@@ -460,7 +460,7 @@ export const stats = async (tenantId: string, dueSoonDays: number, now: Date = n
         { key: 'open', count: open },
         { key: 'overdue_deadlines', count: due.overdue },
         { key: 'deadlines_due_soon', count: due.dueSoon },
-        { key: 'reports_delivered', count: entregues },
+        { key: 'services_delivered', count: delivered },
       ],
     };
   });

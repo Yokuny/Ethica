@@ -693,7 +693,7 @@ const translations: Record<string, string> = {
   reopen: 'Reabrir',
   report_deadline: 'Prazo do laudo',
   reports: 'Relatórios',
-  reports_delivered: 'Laudos entregues',
+  services_delivered: 'Serviços entregues',
   request_conflict: 'Esta solicitação já foi usada com outros dados. Recarregue e tente novamente.',
   meeting: 'Reunião',
   review_people_and_invite_to_team: 'Consulte as pessoas cadastradas e convide novos integrantes para a equipe.',

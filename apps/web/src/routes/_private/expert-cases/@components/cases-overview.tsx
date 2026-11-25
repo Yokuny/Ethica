@@ -5,12 +5,12 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { statCount } from '@/query/listStats.js';
 
 const number = new Intl.NumberFormat('pt-BR');
-const GROUPS = ['open', 'overdue_deadlines', 'deadlines_due_soon', 'reports_delivered'] as const;
+const GROUPS = ['open', 'overdue_deadlines', 'deadlines_due_soon', 'services_delivered'] as const;
 const LABELS: Record<(typeof GROUPS)[number], string> = {
   open: 'open_expert_cases',
   overdue_deadlines: 'overdue_deadlines',
   deadlines_due_soon: 'deadlines_due_soon',
-  reports_delivered: 'reports_delivered',
+  services_delivered: 'services_delivered',
 };
 
 // Listing indicator strip, from GET /expert-cases/stats.

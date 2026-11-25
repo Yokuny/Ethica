@@ -232,14 +232,14 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
           (await admin.as(request(app).get('/expert-cases/stats'))).body.data.groups as { key: string; count: number }[]
         ).map((group) => [group.key, group.count]),
       );
-    expect(await stats()).toMatchObject({ open: 1, reports_delivered: 1 });
+    expect(await stats()).toMatchObject({ open: 1, services_delivered: 1 });
     expect((await patch({ phase: 'technical_opinion_delivered' })).status).toBe(200);
-    expect(await stats()).toMatchObject({ open: 1, reports_delivered: 2 });
+    expect(await stats()).toMatchObject({ open: 1, services_delivered: 2 });
     // "Assistência finalizada" stays open; fees received or settlement close it.
     await patch({ phase: 'assistance_finished' });
     expect(await stats()).toMatchObject({ open: 1 });
     await patch({ phase: 'assistance_settlement' });
-    expect(await stats()).toMatchObject({ open: 0, reports_delivered: 1 });
+    expect(await stats()).toMatchObject({ open: 0, services_delivered: 1 });
   });
 
   it('ordena por nome, data do cadastro e tipo, crescente e decrescente (AD-188, AD-192)', async () => {
