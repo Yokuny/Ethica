@@ -79,6 +79,10 @@ export const parseAnswer = (court: string, answer: Answer): CourtProcessData[] =
   });
 };
 
+// A search that passes takes 32 to 38 s on an overloaded cluster and some died at 60 s (AD-303); stays under
+// the 5-minute lease of the job.
+export const DATAJUD_TIMEOUT_MS = 120_000;
+
 export type DatajudClient = { fetchProcesses: (court: string, numbers: string[]) => Promise<CourtProcessData[]> };
 
 // Diagnosis of the failures (AD-287): every call to the Datajud writes one `datajud.request` line and feeds the
@@ -212,7 +216,7 @@ export const createDatajudClient = (options: {
           method: 'POST',
           headers: { Authorization: `APIKey ${options.apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ size, query: { terms: { numeroProcesso: unique.map(cnjDigits) } } }),
-          signal: AbortSignal.timeout(options.timeoutMs ?? 60_000),
+          signal: AbortSignal.timeout(options.timeoutMs ?? DATAJUD_TIMEOUT_MS),
         });
       } catch (e) {
         const timeout = e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError');

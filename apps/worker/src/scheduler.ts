@@ -4,8 +4,10 @@ import { enqueue } from './queue/queue.js';
 // The scheduler only enqueues (worker plan, section 5): one job per kind and hour, by `dedupeKey`, so a
 // restart or two replicas never run the same hour twice. Hours in America/Sao_Paulo (AD-036).
 export const DIGEST_FROM_HOUR = 7;
-// The Datajud refresh once a day, early (its delay is T+1 to T+7, more often gains nothing).
-export const COURT_REFRESH_FROM_HOUR = 3;
+// The Datajud refresh once a day, early (its delay is T+1 to T+7, more often gains nothing). From 05:00: before it
+// the search queue of the CNJ cluster stayed full and only the attempt near 05:00 passed (logs of 24 and 25/11,
+// AD-303).
+export const COURT_REFRESH_FROM_HOUR = 5;
 
 export const scheduleTick = async (now: Date = new Date()): Promise<string[]> => {
   const day = dateInDisplayTz(now);
