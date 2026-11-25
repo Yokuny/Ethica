@@ -90,6 +90,9 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
 - [ ] Criar a receita junto com o recebimento quando o serviço não tem honorário em aberto (hoje a tela manda lançar no Financeiro) — `automacao-datajud`
 - [ ] Circuit breaker por tribunal no cliente Datajud do worker — `automacao-datajud`
+- [ ] Resposta truncada do Datajud (`truncated`) refazer a busca em vez de virar "não encontrado", e juntar o mesmo número de escritórios diferentes no mesmo lote — `automacao-datajud`
+- [ ] Índice `{ status, dueDate }` em `Transaction` para a leitura de lançamentos a vencer de todos os escritórios (hoje `COLLSCAN`, de hora em hora) — `central-notificacoes`
+- [ ] Resumo do dia de hora em hora (AD-147) pular de uma vez quem já recebeu no dia, em vez de tentar a trava pessoa a pessoa (decisão nova supersede a AD-147) — `central-notificacoes`
 - [ ] Pedir o motivo ao rejeitar uma sugestão (a API já guarda) — `automacao-datajud`
 - [ ] Desativar membro apaga as passkeys dele (junto com `gestao-membros`) — `acesso-aparelho`
 - [ ] Estorno de um pagamento fecha o acesso mesmo com outro pagamento valendo (AD-232) — `cadastro-checkout`
