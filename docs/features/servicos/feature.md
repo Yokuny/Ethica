@@ -12,7 +12,7 @@ branches: [main]
 
 # Serviços
 
-**Status**: concluido · **Atualizado**: 2026-11-02 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-25 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='servicos'`.
@@ -78,6 +78,7 @@ pnpm vitest run apps/api/src/modules/case/service.router.e2e.test.ts apps/web/sr
 
 ## Histórico
 
+- 2026-11-25 — Faixa de Serviços: "Laudos entregues" vira "Serviços entregues"; a chave do grupo em `GET /expert-cases/stats` passa a `services_delivered`.
 - 2026-11-22 — Lista mostra só a próxima OS; a última usada fica no tooltip do ícone "?" ao lado (AD-262).
 - 2026-11-20 — Na lista, a linha da próxima e da última OS fica alinhada à direita, sem colar na tabela (`apps/web/src/routes/_private/expert-cases/index.tsx`).
 - 2026-11-20 — Lista: coluna Próximo prazo mostra só o ponto do alerta antes da data; o significado da cor (Atrasado, Urgente, Vence em breve, Atenção) aparece no tooltip ao passar o mouse no ponto ou na data, e a linha não quebra mais. Coluna Contratante da perícia: uma linha por lado com o primeiro nome cortado e "+N"; a lista completa de autores e réus fica no tooltip. Sem conferência na tela (login por passkey).

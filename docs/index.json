@@ -261,7 +261,8 @@
         ".specs/features/logistica-paginas"
       ],
       "planos": [
-        ".specs/features/logistica-paginas/plans/2026-11-20-logistica-paginas.md"
+        ".specs/features/logistica-paginas/plans/2026-11-20-logistica-paginas.md",
+        ".specs/features/logistica-paginas/plans/2026-11-25-ajustes-perita-logistica-abas.md"
       ],
       "doc": "features/logistica-paginas/feature.md"
     },
@@ -428,7 +429,8 @@
       "decisoes": [
         "AD-212",
         "AD-213",
-        "AD-214"
+        "AD-214",
+        "AD-301"
       ],
       "spec": [
         ".specs/features/custo-deslocamento"
@@ -706,7 +708,8 @@
         "AD-192",
         "AD-193",
         "AD-194",
-        "AD-229"
+        "AD-229",
+        "AD-302"
       ],
       "spec": [
         ".specs/features/agenda-eventos"
@@ -2644,6 +2647,18 @@
     {
       "id": "AD-300",
       "decisao": "A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query",
+      "data": "2026-11-25",
+      "status": "active"
+    },
+    {
+      "id": "AD-301",
+      "decisao": "O lançamento do custo de deslocamento (Planejamento de rota) não duplica: a despesa vence no primeiro dia da rota (antes, no dia do lançamen",
+      "data": "2026-11-25",
+      "status": "active"
+    },
+    {
+      "id": "AD-302",
+      "decisao": "`APPOINTMENT_TYPES` ganha `technical_inspection` (Inspeção), `appraisal` (Avaliação) e `expert_examination` (Perícia), na ordem Vistoria, In",
       "data": "2026-11-25",
       "status": "active"
     }

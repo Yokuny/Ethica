@@ -1919,6 +1919,22 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-25
 - **Status**: active
 
+### AD-301
+- **Decision**: O lançamento do custo de deslocamento (Planejamento de rota) não duplica: a despesa vence no **primeiro dia da rota** (antes, no dia do lançamento) e, antes de lançar, a tela procura despesas `travel` **previstas** (`expected`) das OS escolhidas com vencimento entre o primeiro e o último dia da rota (`GET /finance/entries` ganha o filtro `category`). Encontrou → diálogo "Deslocamento já lançado" com a lista e "Substituir": cria as novas e só então apaga as antigas. Liquidadas e parciais nunca são apagadas nem contam.
+- **Reason**: a perita (2026-11-24) planejou uma rota com duas OS, depois incluiu uma terceira no mesmo período e lançou de novo; ficaram as duas despesas antigas e as três novas, fácil de passar despercebido. Ela pediu que o sistema não deixe lançar em dobro e peça para substituir.
+- **Trade-off**: a busca é pela tela (uma consulta por OS, poucas por rota), não uma regra do servidor; um lançamento feito fora do Planejamento de rota não passa por ela. Despesas lançadas antes desta decisão vencem no dia do lançamento e, fora dos dias da rota, não são achadas: as duplicadas que já existem são apagadas à mão no Financeiro. Se a criação falhar no meio, sobra duplicado, nunca falta.
+- **Scope**: `apps/web/src/routes/_private/field/route/` (`@hooks/use-travel-cost.ts`, `@components/travel-cost.tsx`, `@components/field-route.tsx`), `apps/web/src/query/transaction.ts`, `apps/api/src/modules/finance/transaction.{schema,repository}.ts`. Refina a AD-212 (vencimento e duplicidade).
+- **Date**: 2026-11-25
+- **Status**: active
+
+### AD-302
+- **Decision**: `APPOINTMENT_TYPES` ganha `technical_inspection` (Inspeção), `appraisal` (Avaliação) e `expert_examination` (Perícia), na ordem Vistoria, Inspeção, Avaliação, Perícia, Audiência, Reunião, Outro. Cada um com cor própria na agenda (índigo, laranja, fúcsia), rótulo no iCal, no PDF e no aviso às partes. O compromisso automático da data da perícia do serviço (AD-169) e a variável de data da vistoria do laudo continuam só com `inspection`.
+- **Reason**: pedido da perita (2026-11-24): são conceitos diferentes e ela quer classificar o compromisso certo, também para métricas depois.
+- **Trade-off**: "Perícia" passa a nomear tanto o serviço (na tela antiga) quanto um tipo de compromisso; o automático continua "Vistoria" até a perita dizer se deve virar "Perícia".
+- **Scope**: `packages/contracts/src/schemas/appointment.schema.ts`, `apps/web/src/components/appointment-labels.ts`, `apps/web/src/routes/_private/agenda/@consts/calendar.ts`, `apps/api/src/modules/agenda/{feed,appointment}.service.ts`, `apps/api/src/modules/documents/document.layout.ts`, `docs/glossary.md`.
+- **Date**: 2026-11-25
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

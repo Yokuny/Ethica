@@ -5,14 +5,14 @@ descricao: Perícia, prazos, vencimentos e recebimentos do financeiro chegam à 
 data: 2026-11-03
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-169, AD-192, AD-193, AD-194, AD-229]
+decisoes: [AD-169, AD-192, AD-193, AD-194, AD-229, AD-302]
 spec: [.specs/features/agenda-eventos]
 branches: [main]
 ---
 
 # Agenda por eventos
 
-**Status**: concluido · **Atualizado**: 2026-11-15 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-25 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='agenda-eventos'`.
@@ -63,6 +63,7 @@ pnpm vitest run apps/api/src/modules/agenda packages/db/src/models/calendar-entr
 
 ## Histórico
 
+- 2026-11-25 — Tipos de compromisso Inspeção, Avaliação e Perícia, além de Vistoria, Audiência, Reunião e Outro, com cor própria na agenda, no iCal e no PDF (AD-302). `?appointmentId=` abre o compromisso em edição (vindo da Logística). O aviso às partes volta a dizer "vistoria"/"compromisso" em vez de "inspection"/"appointment" (escapou da AD-140).
 - 2026-11-22 — Caminhos de prazo atualizados para `Notification` (`central-notificacoes`, AD-263).
 - 2026-11-15 — Cabeçalho da agenda: o seletor de visualização (dia/semana/mês) passou para o topo, ao lado de Novo compromisso; o filtro de tipo desceu para a linha do dia, antes da navegação do calendário.
 - 2026-11-15 — Trocar o filtro de tipo mostra o carregamento até a busca terminar (antes, com prazo ou financeiro, caía em "Nada agendado"); bolinha de cor alinhada ao texto nas opções de seletor (`packages/ui/src/components/select.tsx`).

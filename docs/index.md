@@ -39,7 +39,7 @@ _Nenhum._
 | [Prospecção no Datajud (removida)](features/prospeccao-datajud/feature.md) | Busca de processos no Datajud e oportunidades convertidas em serviço; removida e substituída pela página Automação Datajud | revertido | 2026-11-22 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prospeccao-datajud) | 1 |
 | [Páginas públicas do rodapé](features/paginas-publicas/feature.md) | Rodapé comum das páginas sem login com Sobre, Novidades, Segurança, Suporte, Contato, Termos de uso e Política de privacidade | parcial | 2026-11-21 | `apps/web` `apps/api` `packages/contracts` | [spec](../.specs/features/paginas-publicas) | 1 |
 | [Cadastro com checkout](features/cadastro-checkout/feature.md) | Criar conta termina na assinatura paga no Asaas; sem pagamento ou mensalidade vencida, o escritório fica suspenso | parcial | 2026-11-20 | `apps/api` `apps/web` `packages/contracts` `packages/db` `harness` | [spec](../.specs/features/cadastro-checkout) | 1 |
-| [Logística em páginas por intenção e termo de vistoria assinado](features/logistica-paginas/feature.md) | Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas | parcial | 2026-11-20 | `apps/api` `apps/web` | [spec](../.specs/features/logistica-paginas) | 1 |
+| [Logística em páginas por intenção e termo de vistoria assinado](features/logistica-paginas/feature.md) | Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas | parcial | 2026-11-20 | `apps/api` `apps/web` | [spec](../.specs/features/logistica-paginas) | 2 |
 | [Temas](features/temas/feature.md) | Temas Claro, Escuro e Azul escolhidos no menu do usuário, com uma cor de ação por tema nos botões e nos detalhes | parcial | 2026-11-20 | `apps/web` `packages/ui` | [spec](../.specs/features/temas) | — |
 | [Tour guiado](features/tour-guiado/feature.md) | Tour no primeiro acesso que destaca as seções do menu conforme as permissões da pessoa, reaberto por "Ver tour" | concluido | 2026-11-19 | `apps/web` `packages/ui` | [spec](../.specs/features/tour-guiado) | — |
 | [Fundação do Ethica](features/fundacao-ethica/feature.md) | Base do monorepo (harness, api modular com eventos, web padronizada) e domínio inicial de perícias, agenda, financeiro e prospecção | parcial | 2026-11-15 | `apps/api` `apps/web` `packages/contracts` `packages/db` `packages/ui` `harness` `docs` `infra` `tests` | [spec](../.specs/features/fundacao-ethica) | 1 |
@@ -96,6 +96,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-302** (2026-11-25, active) — `APPOINTMENT_TYPES` ganha `technical_inspection` (Inspeção), `appraisal` (Avaliação) e `expert_examination` (Perícia), na ordem Vistoria, In
+- **AD-301** (2026-11-25, active) — O lançamento do custo de deslocamento (Planejamento de rota) não duplica: a despesa vence no primeiro dia da rota (antes, no dia do lançamen
 - **AD-300** (2026-11-25, active) — A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query
 - **AD-299** (2026-11-24, active) — Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `Pag
 - **AD-298** (2026-11-24, active; os pontos de quebra por janela superseded by AD-300) — Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas
@@ -104,8 +106,6 @@ _Nenhum._
 - **AD-295** (2026-11-24, superseded by AD-299 (menos os recebimentos do lançamento, que seguem em `Item`)) — Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step
 - **AD-294** (2026-11-24, active) — Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `Select
 - **AD-293** (2026-11-24, active) — Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-med
-- **AD-292** (2026-11-24, active; o `auto-fit` da faixa superseded by AD-298) — Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam
-- **AD-291** (2026-11-24, active) — A meta de receita aparece na página Serviços para quem vê o Financeiro sempre que o ano corrente tem meta cadastrada, sem escolha por pessoa
 
 ## Outros documentos
 

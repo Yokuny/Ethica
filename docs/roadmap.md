@@ -55,6 +55,9 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir na tela (não renderizado nesta entrega; o login exige passkey): números ao lado das abas de Notificações e Laudos, cartão de Serviços agendados mais baixo, "Editar" da rota abrindo o compromisso na Agenda, diálogo "Deslocamento já lançado", cores dos tipos novos na Agenda e o mês no Mix de serviços — `logistica-paginas`, `custo-deslocamento`, `agenda-eventos`, `dashboard`
+- [ ] Apagar à mão no Financeiro as despesas de deslocamento duplicadas que já existem (lançadas antes da AD-301, vencem no dia do lançamento e a tela nova não as acha) — `custo-deslocamento`
+- [ ] Perguntar à perita se o compromisso automático da data da perícia do serviço deve passar de "Vistoria" para o tipo novo "Perícia" (hoje segue Vistoria, AD-302) — `agenda-eventos`
 - [ ] Conferir na tela o menu lateral recolhido mostrando `⌘B` no botão de abrir/fechar (o Playwright não entrou: sessão de teste expirada) — `fundacao-ethica`
 - [ ] Rodar `/impeccable init` para trazer o `PRODUCT.md` ao formato atual do impeccable (faltam Positioning, Operating Context, Evidence on Hand e Product Principles; o init preserva o que já está lá e pergunta o resto) — `gestao-escritorio`
 - [ ] Entrar de novo pelo e-mail no seu navegador: a passkey de teste do Playwright (2026-11-24) substituiu a do seu computador (APA-05) — `gestao-escritorio`
@@ -112,6 +115,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-25 — Pedidos da perita: contagem nas abas de Notificações e Laudos, cartão de Serviços agendados mais baixo, rota ordenada por dia e "Editar" que abre o compromisso na Agenda, deslocamento sem lançar em dobro (AD-301), tipos Inspeção, Avaliação e Perícia (AD-302), "Serviços entregues" e mês no Mix de serviços; plano em `.specs/features/logistica-paginas/plans/2026-11-25-ajustes-perita-logistica-abas.md` — `central-notificacoes`, `laudos`, `logistica-paginas`, `custo-deslocamento`, `agenda-eventos`, `servicos`, `dashboard`
 - [x] 2026-11-24 — `apps/web/DESIGN.md` atualizado com o código (YAML válido, tokens de link, gráficos e status, campo de 44px, selo em `packages/ui`, componentes padrão revertidos na AD-299, coluna `max-w-4xl` só no hub) e `.impeccable/design.json` regenerado — `gestao-escritorio`
 - [x] 2026-11-24 — Escritório, Minha conta, Relatórios e hubs de Laudos e Logística de volta à versão com `StepList`, `PageIntro`, `LinkCard` e `InfoCard` (AD-299) — `gestao-escritorio`
 - [x] 2026-11-24 — Simplificação dos componentes do `apps/web`, grupos A, B e C (AD-295 a AD-297); plano em `.specs/features/gestao-escritorio/plans/2026-11-24-simplificar-componentes.md` — `gestao-escritorio`

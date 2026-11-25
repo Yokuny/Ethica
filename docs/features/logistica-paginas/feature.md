@@ -12,7 +12,7 @@ branches: [main]
 
 # Logística em páginas por intenção e termo de vistoria assinado
 
-**Status**: parcial · **Atualizado**: 2026-11-20 · **Áreas**: `apps/api`, `apps/web`
+**Status**: parcial · **Atualizado**: 2026-11-25 · **Áreas**: `apps/api`, `apps/web`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), o código é a fonte da verdade.
 > Correlação com o git: `git log --oneline -i --grep='logistica-paginas'`.
@@ -62,6 +62,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-25 — Planejamento de rota: "Partir da minha localização" ordena por proximidade dentro de cada dia, com os dias em ordem (antes misturava 17 → 16 → 22); botão "Editar" em cada parada abre o compromisso já em edição na Agenda (`/agenda?date=&appointmentId=`). Serviços agendados: cartão com menos espaço vertical.
 - 2026-11-20 — Seletor de intervalo no cabeçalho das três páginas, com mês e ano em listas e atalhos Semana e Mês; a faixa de dias pula para o intervalo escolhido; `rangeOf` reúne o corte em 366 dias (AD-243).
 - 2026-11-20 — Serviços agendados também com a faixa de dias, no topo; o `RangeNav` e o `shiftRange` saem. A faixa mostra o dia da semana e sombreia sábado e domingo (AD-242).
 - 2026-11-20 — Planejamento de rota: "Partir da minha localização" e "Incluir volta" também flutuam sobre o mapa (AD-242). Serviços agendados: cartão com dois `ButtonGroup` (Google Maps, Waze e Ver no mapa; Realizado, Adiado e Ausente) e "Realizar vistoria" sozinho.

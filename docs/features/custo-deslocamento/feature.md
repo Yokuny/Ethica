@@ -5,14 +5,14 @@ descricao: Custo de deslocamento da rota do Campo lançado como despesa numa OS 
 data: 2026-11-09
 status: concluido
 areas: [apps/web, packages/ui]
-decisoes: [AD-212, AD-213, AD-214]
+decisoes: [AD-212, AD-213, AD-214, AD-301]
 spec: [.specs/features/custo-deslocamento]
 branches: [main]
 ---
 
 # Custo de deslocamento
 
-**Status**: concluido · **Atualizado**: 2026-11-09 · **Áreas**: `apps/web`, `packages/ui`
+**Status**: concluido · **Atualizado**: 2026-11-25 · **Áreas**: `apps/web`, `packages/ui`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='custo-deslocamento'`.
@@ -51,6 +51,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-25 — A despesa vence no primeiro dia da rota; antes de lançar, procura deslocamento previsto das mesmas OS nos dias da rota e pede para substituir (cria as novas e só então apaga as antigas). `GET /finance/entries` aceita `category` (AD-301).
 - 2026-11-20 — Custo e apoio no trajeto passam à página Planejamento de rota (`/field/route`), em `logistica-paginas` (AD-239).
 - 2026-11-09 — Custo à esquerda e Apoio no trajeto à direita, com tipos em etiquetas, posto de combustível, distância, busca no clique e links do Google Maps; consulta mais leve com espelho (AD-214).
 - 2026-11-09 — Implementado CDE-01 a CDE-04 (AD-212, AD-213); conferido na tela local (km da rota, cálculo, lançamento numa OS, restaurantes no trajeto). Achado na conferência: a lista de lugares vazia recriada a cada desenho fazia o mapa recarregar sem parar; corrigido.

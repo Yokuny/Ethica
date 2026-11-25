@@ -33,8 +33,11 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Entrega de notificação | `NotificationDelivery` | Trava de envio por pessoa, canal e chave (consolidado do dia ou imediato), contra envio em dobro. |
 | Honorários propostos | `proposedFeesCents` | Proposta do perito. |
 | Honorários fixados | `fixedFeesCents` | Valor fixado pelo juízo; vira receita a receber no financeiro. |
-| Compromisso | `Appointment` (`agenda`) | Item da agenda com horário: vistoria, audiência, reunião ou outro. A data da perícia do serviço vira o compromisso de perícia automático (AD-169). |
+| Compromisso | `Appointment` (`agenda`) | Item da agenda com horário: vistoria, inspeção, avaliação, perícia, audiência, reunião ou outro (`APPOINTMENT_TYPES`, AD-302). A data da perícia do serviço vira o compromisso de perícia automático (AD-169). |
 | Item da agenda | `CalendarEntry` (`agenda`) | Item de dia inteiro enviado por outro módulo (AD-169): prazo, honorário a receber, despesa ou recebimento, aberto, feito (protocolado/pago), perdido ou cancelado. |
+| Inspeção | `type: 'technical_inspection'` no `Appointment` | Compromisso de inspeção técnica, classificado à parte da vistoria (AD-302). |
+| Avaliação | `type: 'appraisal'` no `Appointment` | Compromisso de avaliação (ex.: de imóvel ou bem), classificado à parte (AD-302). |
+| Perícia (compromisso) | `type: 'expert_examination'` no `Appointment` | Compromisso que a perita marca como perícia; o compromisso automático da data da perícia do serviço segue como vistoria (AD-169, AD-302). |
 | Vistoria | `type: 'inspection'` no `Appointment`; registro `Inspection` (`agenda`) | Visita técnica ao local periciado. O registro colhido em campo (presentes, paradigmas, funções, agentes, mídias) é um `Inspection` por compromisso (AD-130). |
 | Lançamento | `Transaction` (`finance`) | Receita (honorário prévio ou fixado) ou despesa operacional (deslocamento, material, taxas, outras). |
 | Parcela (recebimento) | `installments` do lançamento de receita | Valor que caiu na conta contra um honorário, com data e conta; estornável. Honorário não é excluído nem cancelado (AD-111). |
