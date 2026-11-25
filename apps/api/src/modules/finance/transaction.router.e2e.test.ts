@@ -258,6 +258,22 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect((await as(request(app).get('/finance/entries?sort=kind'))).status).toBe(400);
   });
 
+  it('filtra pela categoria: o planejamento de rota só acha o deslocamento previsto da OS nos dias (AD-301)', async () => {
+    const as = await seedSession();
+    const post = async (body: object) =>
+      (await as(request(app).post('/finance/entries')).send({ ...FEE, kind: 'expense', amountCents: 100, ...body }))
+        .body.data.id as string;
+    const travel = await post({ category: 'travel', description: 'Deslocamento', dueDate: '2026-12-16' });
+    await post({ category: 'food', description: 'Almoço', dueDate: '2026-12-16' });
+    await post({ category: 'travel', description: 'Fora dos dias', dueDate: '2026-12-23' });
+    const ids = async (query: string) =>
+      ((await as(request(app).get(`/finance/entries?${query}`))).body.data.items as { id: string }[]).map(
+        (item) => item.id,
+      );
+    expect(await ids('kind=expense&category=travel&state=expected&from=2026-12-16&to=2026-12-23')).toEqual([travel]);
+    expect((await as(request(app).get('/finance/entries?category=travels'))).status).toBe(400);
+  });
+
   it('resumo e fluxo contam o recebido pela data de cada parcela e o saldo como a receber (PRZ-02.5)', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send({ ...FEE, dueDate: '2020-01-10' })).body.data;

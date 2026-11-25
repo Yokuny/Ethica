@@ -89,10 +89,12 @@ export function useTravelCost({ routeKm, cases, days }: { routeKm?: number; case
         });
       }
       for (const item of replacing) await remove.mutateAsync({ id: item.id });
-      setLaunched(undefined);
       toast.success(t(replacing.length ? 'travel_expense_replaced' : 'travel_expense_launched'));
     } catch (error) {
       toast.error((error as Error).message);
+    } finally {
+      // After a failure, launching again looks for what was already launched instead of repeating the old list.
+      setLaunched(undefined);
     }
   }
 

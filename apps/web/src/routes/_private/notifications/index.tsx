@@ -97,7 +97,7 @@ export function NotificationsPage() {
           {NOTIFICATION_STATES.map((state) => (
             <TabsTrigger key={state} value={state}>
               {t(STATE_LABEL[state])}
-              {query.data && (
+              {query.data?.counts && (
                 <Badge variant="secondary" className="px-1.5 py-0 tabular-nums">
                   {query.data.counts[state]}
                 </Badge>
