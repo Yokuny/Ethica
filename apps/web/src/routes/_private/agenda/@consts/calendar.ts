@@ -12,6 +12,18 @@ export const TYPE_COLORS: Record<AppointmentType | CalendarEntryType, { chip: st
     chip: 'bg-violet-200/50 text-violet-950/80 hover:bg-violet-200/70 dark:bg-violet-400/20 dark:text-violet-100 dark:hover:bg-violet-400/30',
     dot: 'bg-violet-400',
   },
+  technical_inspection: {
+    chip: 'bg-indigo-200/50 text-indigo-950/80 hover:bg-indigo-200/70 dark:bg-indigo-400/20 dark:text-indigo-100 dark:hover:bg-indigo-400/30',
+    dot: 'bg-indigo-400',
+  },
+  appraisal: {
+    chip: 'bg-orange-200/50 text-orange-950/80 hover:bg-orange-200/70 dark:bg-orange-400/20 dark:text-orange-100 dark:hover:bg-orange-400/30',
+    dot: 'bg-orange-400',
+  },
+  expert_examination: {
+    chip: 'bg-fuchsia-200/50 text-fuchsia-950/80 hover:bg-fuchsia-200/70 dark:bg-fuchsia-400/20 dark:text-fuchsia-100 dark:hover:bg-fuchsia-400/30',
+    dot: 'bg-fuchsia-400',
+  },
   hearing: {
     chip: 'bg-sky-200/50 text-sky-950/80 hover:bg-sky-200/70 dark:bg-sky-400/20 dark:text-sky-100 dark:hover:bg-sky-400/30',
     dot: 'bg-sky-400',

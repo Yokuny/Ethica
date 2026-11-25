@@ -14,6 +14,9 @@ const FUTURE_DAYS = 365;
 
 const TYPE_LABEL: Record<AppointmentRecord['type'], string> = {
   inspection: 'Vistoria',
+  technical_inspection: 'Inspeção',
+  appraisal: 'Avaliação',
+  expert_examination: 'Perícia',
   hearing: 'Audiência',
   meeting: 'Reunião',
   other: 'Outro',

@@ -2,7 +2,16 @@ import { z } from 'zod';
 import { calendarDateSchema, wallTimeSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
 
-export const APPOINTMENT_TYPES = ['inspection', 'hearing', 'meeting', 'other'] as const;
+// Vistoria, Inspeção, Avaliação and Perícia are distinct concepts the expert classifies apart (AD-302); `other` last.
+export const APPOINTMENT_TYPES = [
+  'inspection',
+  'technical_inspection',
+  'appraisal',
+  'expert_examination',
+  'hearing',
+  'meeting',
+  'other',
+] as const;
 export type AppointmentType = (typeof APPOINTMENT_TYPES)[number];
 
 export const APPOINTMENT_STATUS = ['scheduled', 'done', 'canceled'] as const;

@@ -4,6 +4,9 @@ import { t } from '@/lib/helpers/translate.helper.js';
 
 export const APPOINTMENT_TYPE_VARIANT: Record<AppointmentType, IndicatorVariant> = {
   inspection: 'violet',
+  technical_inspection: 'violet',
+  appraisal: 'orange',
+  expert_examination: 'violet',
   hearing: 'info',
   meeting: 'cyan',
   other: 'neutral',

@@ -121,11 +121,15 @@ export const geocode = async (geocoder: Geocoder, tenantId: string, id: string):
   return getAppointment(tenantId, id);
 };
 
+// Text of the e-mail to the parties ("Informo que a [TIPO_EVENTO]…"), in pt-BR like the rest of the message.
 const TYPE_EVENT: Record<AppointmentRecord['type'], string> = {
-  inspection: 'inspection',
+  inspection: 'vistoria',
+  technical_inspection: 'inspeção',
+  appraisal: 'avaliação',
+  expert_examination: 'perícia',
   hearing: 'audiência',
   meeting: 'reunião',
-  other: 'appointment',
+  other: 'compromisso',
 };
 
 const day = (date: Date): string => dateInDisplayTz(date).split('-').reverse().join('/');

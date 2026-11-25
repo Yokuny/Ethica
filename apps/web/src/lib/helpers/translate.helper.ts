@@ -779,6 +779,8 @@ const translations: Record<string, string> = {
   view: 'Ver',
   inspection: 'Vistoria',
   wednesday: 'Quarta-feira',
+  technical_inspection: 'Inspeção',
+  appraisal: 'Avaliação',
   week: 'Semana',
   work: 'Trabalho',
   records: 'Cadastros',
