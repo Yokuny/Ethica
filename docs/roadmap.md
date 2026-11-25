@@ -33,7 +33,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
-- [ ] Conferir que o worker na Railway subiu com a versão de 2026-11-24 (grava o processo não encontrado) antes da rodada das 03:00 — `processos-acompanhados`
 - [ ] Escritório ETHICA em produção com assinatura só no banco (sem Asaas): `subscriptionPlan: automation_monthly`, acesso e Automação até 31/12/2027, gravados à mão em 2026-11-22. Antes dessa data, assinar de verdade pelo app ou estender a data, senão o acesso fecha — `automacao-datajud`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
 - [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
@@ -62,15 +61,13 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 - [ ] Rodar `/impeccable init` para trazer o `PRODUCT.md` ao formato atual do impeccable (faltam Positioning, Operating Context, Evidence on Hand e Product Principles; o init preserva o que já está lá e pergunta o resto) — `gestao-escritorio`
 - [ ] Entrar de novo pelo e-mail no seu navegador: a passkey de teste do Playwright (2026-11-24) substituiu a do seu computador (APA-05) — `gestao-escritorio`
 - [ ] Conferir na tela os Recebimentos no diálogo de um compromisso ou prazo da agenda (novo desenho com Recebido e Saldo como rótulo sobre valor); o Playwright não achou um evento com recebimento lançado — `prazos-recebimentos`
-- [ ] Daqui a uns 7 dias com o worker novo na Railway, ler os logs `datajud.request` e `worker.job_failed` (por tribunal, hora, `errorTypes`, `ip`) e decidir a correção das falhas do Datajud pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md` (AD-287) — `automacao-datajud`
+- [ ] Decidir a correção das falhas do Datajud pelo plano `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md` (AD-287): logs de 24 e 25/11 já mostram sobrecarga do cluster do CNJ (não IP); ler mais alguns dias, de preferência com mais tribunais, para ver a hora em que alivia — `automacao-datajud`
 - [ ] Conferir com a perita a lista única de Notificações: Abertas/Resolvidas no lugar das cinco situações e o número do menu contando prazos vencidos, sugestões e avisos (AD-282) — `notificacoes-processo-unico`
 - [ ] Perita: conferir as regras das sugestões (suspensão, retomada, acordo, desistência, sentença → qual situação ou fase) — `automacao-datajud`
-- [ ] Depois da rodada de 24/11 (03:00), conferir que o 0017068-93.2025.5.16.0008 (TRT16) aparece em Processos acompanhados no ETHICA; se o TRT16 seguir em 429 o dia todo, pode ser bloqueio do IP da Railway — `automacao-datajud`
 - [ ] Conferir a seção No tribunal num serviço real com o plano com Automação e o aviso de movimentação no dia seguinte — `automacao-datajud`
 - [ ] Conferir no navegador a meta do ano: etapa em Escritório, painel no Dashboard (com e sem meta, admin e gestor) e a linha em Serviços ligada pelo menu "…" (o login local exige passkey, não conferido pelo agente) — `meta-receita`
 
 - [ ] Dashboard: passar o mouse (e focar pelo teclado) no ícone de ajuda de cada categoria em "De onde vem o dinheiro" e conferir o texto do tooltip — `dashboard`
-- [ ] Depois da rodada das 03:00 seguinte ao deploy do worker na Railway, conferir em /automation do ETHICA que todo processo acompanhado aparece com a situação (o 0017068-93.2025.5.16.0008 do TRT16 como consultado ou não encontrado) — `processos-acompanhados`
 - [ ] Confirmar as perguntas em aberto das specs: `central-notificacoes`, `automacao-datajud`, `gestao-membros`, `laudo-vistoria`, `rotas-vistoria`, `producao-api`
 - [ ] Ativar e entrar com digital/PIN de verdade num computador e num celular — `acesso-aparelho`
 - [ ] Conferir as telas no navegador: `agenda-eventos`, `anexar-laudo`, `fase-assistencia`, `novo-laudo`, `partes-servico`, `preencher-pdfs`, `rotina-servico`, `servicos`, listas no `Item` com borda e na largura toda (Início, serviço aberto, parte, novo laudo, modelos, Automação e regras, mapa e rota do campo — AD-288, AD-289); UAT geral com o seed — `fundacao-ethica`
@@ -88,7 +85,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
-- [ ] Aplicar a correção das falhas do Datajud que os logs apontarem (espalhar os lotes no tempo, disjuntor por tribunal, outro horário, lote menor; Lambda ou serviço próprio com outro IP só se o bloqueio for do IP) — `automacao-datajud`
+- [ ] Aplicar a correção das falhas do Datajud escolhida (começar mais tarde ou espalhar os lotes, tempo limite maior que 60 s, disjuntor por tribunal); trocar de IP (Lambda, outro servidor) foi descartado pelos logs de 24 e 25/11 — `automacao-datajud`
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
@@ -115,6 +112,9 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-25 — Produção: o 0017068-93.2025.5.16.0008 (TRT16) do ETHICA consultado com linha de base em 24/11, pelos logs do worker (a página não foi aberta em produção) — `processos-acompanhados`
+- [x] 2026-11-25 — Worker na Railway com a versão de 2026-11-24 (deploy de 24/11 01:13; logs `datajud.request` nas rodadas de 24 e 25/11) — `processos-acompanhados`
+- [x] 2026-11-25 — TRT16 do ETHICA consultado na rodada de 24/11 (9ª tentativa, linha de base gravada); o 429 era sobrecarga do cluster do CNJ, não bloqueio do IP da Railway — `automacao-datajud`
 - [x] 2026-11-25 — Pedidos da perita: contagem nas abas de Notificações e Laudos, cartão de Serviços agendados mais baixo, rota ordenada por dia e "Editar" que abre o compromisso na Agenda, deslocamento sem lançar em dobro (AD-301), tipos Inspeção, Avaliação e Perícia (AD-302), "Serviços entregues" e mês no Mix de serviços; plano em `.specs/features/logistica-paginas/plans/2026-11-25-ajustes-perita-logistica-abas.md` — `central-notificacoes`, `laudos`, `logistica-paginas`, `custo-deslocamento`, `agenda-eventos`, `servicos`, `dashboard`
 - [x] 2026-11-24 — `apps/web/DESIGN.md` atualizado com o código (YAML válido, tokens de link, gráficos e status, campo de 44px, selo em `packages/ui`, componentes padrão revertidos na AD-299, coluna `max-w-4xl` só no hub) e `.impeccable/design.json` regenerado — `gestao-escritorio`
 - [x] 2026-11-24 — Escritório, Minha conta, Relatórios e hubs de Laudos e Logística de volta à versão com `StepList`, `PageIntro`, `LinkCard` e `InfoCard` (AD-299) — `gestao-escritorio`
