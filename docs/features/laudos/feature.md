@@ -75,7 +75,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
-- 2026-11-25 — Abas com a contagem ao lado (Todos e cada situação): `GET /expert-reports` devolve `counts` por situação no mesmo `aggregate` da lista.
+- 2026-11-25 — Abas com a contagem ao lado (Todos e cada situação): `GET /expert-reports` devolve `counts` por situação no mesmo `aggregate` da lista. O número é um `Badge` no tamanho padrão, com a cor da situação (`REPORT_STATUS_VARIANT`; Todos em `info`).
 - 2026-11-22 — Caminhos de prazo atualizados para `Notification` (`central-notificacoes`, AD-263).
 - 2026-11-09 — O modelo padrão de impugnação sai da biblioteca (AD-207, `biblioteca-modelos`).
 - 2026-11-09 — Modelos em Biblioteca padrão e Biblioteca do escritório por área, importar PDF/Word e layout da perita como padrão em `biblioteca-modelos` (AD-203 a AD-205); o modelo de impugnação passa a se chamar "Impugnação de laudo pericial trabalhista".

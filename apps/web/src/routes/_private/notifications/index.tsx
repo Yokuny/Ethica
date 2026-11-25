@@ -21,6 +21,7 @@ import { NotificationsTable, notificationExportColumns } from './@components/not
 import { type NotificationsSearch, notificationsSearchSchema } from './@interface/notifications.interface.js';
 
 const STATE_LABEL = { open: 'open_plural', resolved: 'resolved_plural' } as const;
+const STATE_VARIANT = { open: 'warning', resolved: 'success' } as const;
 
 type Dialog = { kind: 'create' } | { kind: 'detail'; item: DatedNotificationRecord };
 
@@ -97,11 +98,7 @@ export function NotificationsPage() {
           {NOTIFICATION_STATES.map((state) => (
             <TabsTrigger key={state} value={state}>
               {t(STATE_LABEL[state])}
-              {query.data?.counts && (
-                <Badge variant="secondary" className="px-1.5 py-0 tabular-nums">
-                  {query.data.counts[state]}
-                </Badge>
-              )}
+              {query.data?.counts && <Badge variant={STATE_VARIANT[state]}>{query.data.counts[state]}</Badge>}
             </TabsTrigger>
           ))}
         </TabsList>

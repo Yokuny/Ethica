@@ -12,7 +12,7 @@ import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
-import { reportStatusLabel } from '@/components/report-labels.js';
+import { REPORT_STATUS_VARIANT, reportStatusLabel } from '@/components/report-labels.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { deleteReportMutation, type ReportListItem, reportsQuery } from '@/query/report.js';
@@ -22,14 +22,6 @@ import { type ReportsSearch, reportsSearchSchema } from './@interface/reports.in
 import { reportExportColumns } from './@utils/report-columns.js';
 
 const ALL = 'all';
-
-function TabCount({ count }: { count: number }) {
-  return (
-    <Badge variant="secondary" className="px-1.5 py-0 tabular-nums">
-      {count}
-    </Badge>
-  );
-}
 
 export function ReportsListPage() {
   const search = useSearch({ strict: false }) as ReportsSearch;
@@ -85,12 +77,12 @@ export function ReportsListPage() {
         <TabsList variant="line">
           <TabsTrigger value={ALL}>
             {t('all')}
-            {counts && <TabCount count={Object.values(counts).reduce((total, count) => total + count, 0)} />}
+            {counts && <Badge variant="info">{Object.values(counts).reduce((total, count) => total + count, 0)}</Badge>}
           </TabsTrigger>
           {REPORT_STATUS.map((status) => (
             <TabsTrigger key={status} value={status}>
               {reportStatusLabel(status)}
-              {counts && <TabCount count={counts[status] ?? 0} />}
+              {counts && <Badge variant={REPORT_STATUS_VARIANT[status]}>{counts[status] ?? 0}</Badge>}
             </TabsTrigger>
           ))}
         </TabsList>

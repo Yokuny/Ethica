@@ -70,7 +70,7 @@ pnpm vitest run apps/api/src/modules/notifications apps/worker apps/web/src/comp
 
 ## Histórico
 
-- 2026-11-25 — Abas Abertas e Resolvidas com a contagem ao lado: `GET /notifications` devolve `counts` no mesmo `aggregate` da lista (`$facet`), com o tipo e o período filtrados e sem a própria aba; sem contador gravado. A contagem "Abertas" não é o número do menu (`countDue` só conta o que já chegou no dia).
+- 2026-11-25 — Abas Abertas e Resolvidas com a contagem ao lado: `GET /notifications` devolve `counts` no mesmo `aggregate` da lista (`$facet`), com o tipo e o período filtrados e sem a própria aba; sem contador gravado. O número é um `Badge` no tamanho padrão, âmbar em Abertas e verde em Resolvidas. A contagem "Abertas" não é o número do menu (`countDue` só conta o que já chegou no dia).
 - 2026-11-23 — A Central vira uma lista só (Abertas/Resolvidas), com uma leitura e um contador na API; saem as abas e o item Avisos do menu. Detalhe em `notificacoes-processo-unico` (AD-282).
 
 - 2026-11-22 — Collection antiga `deadlines` apagada pelo usuário na produção; a troca do `Deadline` terminou também nos dados.
