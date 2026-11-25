@@ -55,6 +55,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir na tela o menu lateral recolhido mostrando `⌘B` no botão de abrir/fechar (o Playwright não entrou: sessão de teste expirada) — `fundacao-ethica`
 - [ ] Rodar `/impeccable init` para trazer o `PRODUCT.md` ao formato atual do impeccable (faltam Positioning, Operating Context, Evidence on Hand e Product Principles; o init preserva o que já está lá e pergunta o resto) — `gestao-escritorio`
 - [ ] Entrar de novo pelo e-mail no seu navegador: a passkey de teste do Playwright (2026-11-24) substituiu a do seu computador (APA-05) — `gestao-escritorio`
 - [ ] Conferir na tela os Recebimentos no diálogo de um compromisso ou prazo da agenda (novo desenho com Recebido e Saldo como rótulo sobre valor); o Playwright não achou um evento com recebimento lançado — `prazos-recebimentos`

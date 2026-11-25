@@ -17,7 +17,7 @@ import {
 } from '@ethica/ui/components/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from '@tanstack/react-router';
-import { Home, Scale, Search } from 'lucide-react';
+import { Home, PanelLeft, Scale, Search } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { UserMenu } from '@/components/user-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -101,7 +101,11 @@ export function WorkspaceNavigation() {
                   <ItemTitle className="line-clamp-1 block">{session.tenant?.name ?? t('workspace')}</ItemTitle>
                 </span>
               </SidebarMenuButton>
-              <SidebarTrigger label={t('toggle_sidebar')} />
+              {/* Collapsed, the trigger shows its shortcut instead of the panel icon. */}
+              <SidebarTrigger label={t('toggle_sidebar')}>
+                <PanelLeft aria-hidden="true" className="group-data-[collapsible=icon]:hidden" />
+                <Kbd className="hidden group-data-[collapsible=icon]:inline-flex">⌘B</Kbd>
+              </SidebarTrigger>
             </SidebarMenuItem>
             <SidebarMenuItem className="mt-1">
               <SidebarMenuButton

@@ -97,6 +97,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-25 — Menu lateral recolhido: o botão de abrir/fechar mostra o atalho `⌘B` no lugar do ícone; aberto, segue o ícone. `SidebarTrigger` (`packages/ui/src/components/sidebar.tsx`) passa a aceitar o conteúdo do botão, com o ícone como padrão.
 - 2026-11-22 — URL sem aspas em texto que parece número (`?q=123`): `parseSearch`/`stringifySearch` próprios em `apps/web/src/router.tsx` e `page`/`limit` com `z.coerce.number()` (AD-257).
 - 2026-11-21 — `seed:templates`: biblioteca do escritório com modelos de laudo e parecer em todas as áreas, para a conferência visual (`RUN_BOOK.md`).
 - 2026-11-21 — `seed:volume` sem rastro de dado fictício: e-mails derivados do nome da pessoa, da empresa e da vara, e pasta do Drive com id no formato real (antes `example.com`, `exemplo`).
