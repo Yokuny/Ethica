@@ -102,9 +102,9 @@ describe('Dashboard (DSH, AD-255)', () => {
     renderPage(['admin']);
     const overview = screen.getByRole('group', { name: 'Visão geral' });
     // Received 6 × 1.000 = 6.000 (+100% against 3.000); expenses 1.200 (=); balance 4.800.
-    expect(overview).toHaveTextContent(/Recebido.*6\.000,00.*\+100%/);
+    expect(overview).toHaveTextContent(/Recebido.*\+100%.*6\.000,00/);
     expect(overview).toHaveTextContent(/Saldo.*4\.800,00/);
-    expect(overview).toHaveTextContent(/Serviços novos.*12.*\+100%/);
+    expect(overview).toHaveTextContent(/Serviços novos.*\+100%.*12/);
     // DSH-02: received since the start stays in the strip.
     expect(overview).toHaveTextContent(/25\.000,00 desde o início/);
     // The overdue part on its own line under A receber.

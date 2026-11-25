@@ -25,7 +25,7 @@ describe('ListTrendStat', () => {
       />,
     );
 
-    expect(screen.getByRole('img', { name: 'Tendência de queda' })).toHaveClass('text-destructive');
+    expect(screen.getByRole('img', { name: /^Tendência de queda/ })).toHaveClass('text-destructive');
     const help = screen.getByRole('button', { name: /Hoje: 2\. Média diária anterior: 4\. Perda: 50%/ });
     await user.hover(help);
     expect(await screen.findByText('Processos perdidos')).toBeVisible();
@@ -48,7 +48,7 @@ describe('ListTrendStat', () => {
       />,
     );
 
-    expect(screen.getByRole('img', { name: 'Tendência de alta' })).toHaveClass('text-status-success-foreground');
+    expect(screen.getByRole('img', { name: /^Tendência de alta/ })).toHaveClass('text-status-success-foreground');
     expect(
       screen.getByRole('button', { name: /Últimos 30 dias: 3\. 30 dias anteriores: 0\. Delta: \+3/ }),
     ).toBeVisible();

@@ -55,6 +55,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-25 — A faixa de cinco números cabe numa linha: as colunas seguem a largura da própria faixa, e cada célula conta como uma (antes os três números de dinheiro, agrupados, contavam como um). O percentual de variação vai dentro do selo da tendência, ao lado do rótulo (AD-300).
 - 2026-11-24 — Uma faixa de números só, logo abaixo do cabeçalho como na Home e em Serviços: Saldo, Recebido, Despesas, A receber e Serviços novos; saem a faixa "Trabalho" do meio da página, "Serviços em aberto" e a nota de escopo (AD-292).
 - 2026-11-22 — Entrada de serviços com área translúcida (opacidade 0,25 e borda de 2px), como os outros gráficos; painel da meta do ano depois do Fluxo de caixa (`meta-receita`, AD-260).
 - 2026-11-22 — Em "De onde vem o dinheiro", cada categoria de receita ganha um ícone de ajuda com tooltip que explica a fatia (honorários fixados, contratados e prévios). O `CompositionDonut` passa a aceitar `hint` na fatia (`apps/web/src/components/composition-donut.tsx`); os textos são as chaves `*_fees_hint`.

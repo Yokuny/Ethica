@@ -245,7 +245,7 @@ O conteúdo ocupa a largura toda do painel: listas, tabelas e blocos não levam 
 Ritmo: 8px entre linhas de lista, 16px dentro de um bloco, 40px entre seções do Início e do Dashboard. Toda listagem tem toolbar de uma linha (Filtros em popover e busca sem moldura), rolagem horizontal interna quando as colunas não cabem, e busca, filtros, ordenação e paginação na URL.
 
 ### Named Rules
-**The Balanced Strip Rule.** A faixa de números tem colunas pelo número de células (4 → 2 e 4 a partir de `xl`; 5 → 3 e 5 a partir de `xl`; 6 → 3 e 6 a partir de `2xl`): as linhas ficam sempre equilibradas e nenhuma célula fica sozinha. No celular a faixa cinza tem duas colunas e a última célula ímpar ocupa a linha (AD-298).
+**The Balanced Strip Rule.** A faixa de números tem colunas pelo número de células e pela largura da própria faixa, não da janela (4 → 2 e 4 a partir de `@3xl`; 5 → 3 e 5 a partir de `@4xl`; 6 → 3 e 6 a partir de `@6xl`): as linhas ficam sempre equilibradas e nenhuma célula fica sozinha. Cada célula é um filho direto, sem fragmento. No celular a faixa cinza tem duas colunas e a última célula ímpar ocupa a linha. A variação ("+12%") fica dentro do selo da tendência, ao lado do rótulo (AD-298, AD-300).
 
 ## Elevation & Depth
 

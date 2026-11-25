@@ -2633,12 +2633,18 @@
       "id": "AD-298",
       "decisao": "Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas",
       "data": "2026-11-24",
-      "status": "active"
+      "status": "active; os pontos de quebra por janela superseded by AD-300"
     },
     {
       "id": "AD-299",
       "decisao": "Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `Pag",
       "data": "2026-11-24",
+      "status": "active"
+    },
+    {
+      "id": "AD-300",
+      "decisao": "A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query",
+      "data": "2026-11-25",
       "status": "active"
     }
   ]

@@ -1901,7 +1901,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: numa tela de 1440 px com a sidebar aberta o detalhe do serviço mostra 3+3 em vez de 6 numa linha; uma linha só aparece a partir de 1536 px.
 - **Scope**: `apps/web/src/components/record.tsx`, `apps/web/DESIGN.md`.
 - **Date**: 2026-11-24
-- **Status**: active
+- **Status**: active; os pontos de quebra por janela superseded by AD-300
 
 ### AD-299
 - **Decision**: Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList` e `InfoCard`/`InfoCardList` (`apps/web/src/components/`), as cinco páginas, os cartões de metas do ano, responsáveis técnicos e aparelhos e as chaves de texto, exatamente como estavam antes da AD-295. Os recebimentos do lançamento (`apps/web/src/routes/_private/finance/@components/installments-list.tsx`) seguem em `Item`, porque a versão antiga dependia do `Panel` simples que a AD-297 retirou. Valem de novo a AD-094/AD-095 (hubs), a AD-224 (páginas em etapas) e a AD-225/AD-226 (`InfoCard`) nessas telas.
@@ -1909,6 +1909,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: os componentes de layout voltam a existir só para essas telas; o resto da simplificação (AD-296, AD-297) segue.
 - **Scope**: os arquivos restaurados acima e `.agents/skills/ethica-web-standards/`.
 - **Date**: 2026-11-24
+- **Status**: active
+
+### AD-300
+- **Decision**: A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query num invólucro `@container`), não pela largura da janela: 2 e 3 células a partir de `@lg`; 4 → 2 e 4 a partir de `@3xl`; 5 → 3 e 5 a partir de `@4xl`; 6 → 3 e 6 a partir de `@6xl`. A contagem continua sendo pelos filhos diretos, então quem monta a faixa não agrupa células num fragmento (o Dashboard contava 3 em vez de 5). Na célula com tendência, o complemento (`hint`, ex.: "+61%") vai dentro do selo da tendência, na mesma cor, ao lado do rótulo; sem tendência, segue ao lado do valor. Supersede os pontos de quebra por janela da AD-298 (a regra por número de células segue).
+- **Reason**: o usuário viu (2026-11-25) a faixa do Dashboard quebrar em duas linhas numa tela de ~1220 px; o fragmento fazia a faixa achar que tinha 3 células, e a sidebar aberta ou fechada muda a largura útil sem mudar a janela. O percentual no selo encurta a linha do valor.
+- **Trade-off**: um `div` a mais em volta da faixa; o nome acessível do selo passa a incluir o percentual ("Tendência de alta +61%").
+- **Scope**: `apps/web/src/components/record.tsx`, `apps/web/src/routes/_private/dashboard/@components/dashboard-kpis.tsx`, `apps/web/DESIGN.md`.
+- **Date**: 2026-11-25
 - **Status**: active
 
 ## Handoff

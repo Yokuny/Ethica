@@ -96,8 +96,9 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-300** (2026-11-25, active) — A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query
 - **AD-299** (2026-11-24, active) — Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `Pag
-- **AD-298** (2026-11-24, active) — Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas
+- **AD-298** (2026-11-24, active; os pontos de quebra por janela superseded by AD-300) — Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas
 - **AD-297** (2026-11-24, active) — Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e
 - **AD-296** (2026-11-24, active) — Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/
 - **AD-295** (2026-11-24, superseded by AD-299 (menos os recebimentos do lançamento, que seguem em `Item`)) — Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step
@@ -105,7 +106,6 @@ _Nenhum._
 - **AD-293** (2026-11-24, active) — Hierarquia do texto nas tabelas e listas: em `TableIdentity` (`apps/web/src/components/data-table.tsx`) o título é `ItemTitle` com `font-med
 - **AD-292** (2026-11-24, active; o `auto-fit` da faixa superseded by AD-298) — Faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) sem limite de colunas e sem divisor vertical: as duas variantes usam
 - **AD-291** (2026-11-24, active) — A meta de receita aparece na página Serviços para quem vê o Financeiro sempre que o ano corrente tem meta cadastrada, sem escolha por pessoa
-- **AD-290** (2026-11-24, active) — As linhas de lista voltam a ter o ícone à esquerda (`ItemMedia variant="icon"`, o mesmo ícone que cada lista usava antes da AD-288) e a linh
 
 ## Outros documentos
 

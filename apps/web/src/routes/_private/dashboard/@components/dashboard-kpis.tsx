@@ -37,43 +37,46 @@ export function DashboardKpis({ months, cases, flow, summary, receivedSinceStart
   const balance = received - expenses;
   const balanceBefore = receivedBefore - expensesBefore;
 
+  // One condition per cell, no fragment: the strip counts its direct children to pick the columns.
   return (
     <RecordStats variant="band" role="group" aria-label={t('overview')}>
       {money && (
-        <>
-          <RecordStat
-            label={t('balance')}
-            value={formatMoney(balance)}
-            dot={{ variant: balance > 0 ? 'success' : balance < 0 ? 'error' : 'neutral' }}
-            trend={direction(balance, balanceBefore)}
-            trendLabel={t(TREND_LABEL[direction(balance, balanceBefore)])}
-            hint={balance < 0 ? t('negative') : percentChange(balance, balanceBefore)}
-            sparkline={money.current.map((row) => row.receivedCents - row.expensesCents)}
-          />
-          <RecordStat
-            label={t('received')}
-            value={formatMoney(received)}
-            trend={direction(received, receivedBefore)}
-            trendLabel={t(TREND_LABEL[direction(received, receivedBefore)])}
-            hint={percentChange(received, receivedBefore)}
-            sparkline={money.current.map((row) => row.receivedCents)}
-            description={
-              receivedSinceStart === undefined
-                ? undefined
-                : `${formatMoney(receivedSinceStart)} ${t('since_start').toLowerCase()}`
-            }
-          />
-          <RecordStat
-            label={t('expenses')}
-            value={formatMoney(expenses)}
-            trend={direction(expenses, expensesBefore)}
-            trendLabel={t(TREND_LABEL[direction(expenses, expensesBefore)])}
-            // More expense is bad: the arrow up is red.
-            trendTone={expenses > expensesBefore ? 'bad' : expenses < expensesBefore ? 'good' : 'neutral'}
-            hint={percentChange(expenses, expensesBefore)}
-            sparkline={money.current.map((row) => row.expensesCents)}
-          />
-        </>
+        <RecordStat
+          label={t('balance')}
+          value={formatMoney(balance)}
+          dot={{ variant: balance > 0 ? 'success' : balance < 0 ? 'error' : 'neutral' }}
+          trend={direction(balance, balanceBefore)}
+          trendLabel={t(TREND_LABEL[direction(balance, balanceBefore)])}
+          hint={balance < 0 ? t('negative') : percentChange(balance, balanceBefore)}
+          sparkline={money.current.map((row) => row.receivedCents - row.expensesCents)}
+        />
+      )}
+      {money && (
+        <RecordStat
+          label={t('received')}
+          value={formatMoney(received)}
+          trend={direction(received, receivedBefore)}
+          trendLabel={t(TREND_LABEL[direction(received, receivedBefore)])}
+          hint={percentChange(received, receivedBefore)}
+          sparkline={money.current.map((row) => row.receivedCents)}
+          description={
+            receivedSinceStart === undefined
+              ? undefined
+              : `${formatMoney(receivedSinceStart)} ${t('since_start').toLowerCase()}`
+          }
+        />
+      )}
+      {money && (
+        <RecordStat
+          label={t('expenses')}
+          value={formatMoney(expenses)}
+          trend={direction(expenses, expensesBefore)}
+          trendLabel={t(TREND_LABEL[direction(expenses, expensesBefore)])}
+          // More expense is bad: the arrow up is red.
+          trendTone={expenses > expensesBefore ? 'bad' : expenses < expensesBefore ? 'good' : 'neutral'}
+          hint={percentChange(expenses, expensesBefore)}
+          sparkline={money.current.map((row) => row.expensesCents)}
+        />
       )}
       {summary && (
         <RecordStat

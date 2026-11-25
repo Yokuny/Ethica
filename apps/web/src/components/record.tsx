@@ -123,15 +123,16 @@ type RecordStatsProps = ComponentProps<'div'> & {
   variant?: RecordStatsVariant;
 };
 
-// From `sm` up, by number of cells; past 6 they stay in rows of 3.
+// By number of cells and by the width the strip really has (container, not viewport: the open sidebar counts);
+// past 6 they stay in rows of 3.
 const statsColumns = [
   '',
   '',
-  'sm:grid-cols-2',
-  'sm:grid-cols-3',
-  'sm:grid-cols-2 xl:grid-cols-4',
-  'sm:grid-cols-3 xl:grid-cols-5',
-  'sm:grid-cols-3 2xl:grid-cols-6',
+  '@lg:grid-cols-2',
+  '@lg:grid-cols-3',
+  '@lg:grid-cols-2 @3xl:grid-cols-4',
+  '@lg:grid-cols-3 @4xl:grid-cols-5',
+  '@lg:grid-cols-3 @6xl:grid-cols-6',
 ];
 
 export function RecordStats({ variant = 'ruled', className, children, ...props }: RecordStatsProps) {
@@ -139,23 +140,25 @@ export function RecordStats({ variant = 'ruled', className, children, ...props }
   // The gray band keeps two cells per row on a phone; an odd last cell takes the whole row.
   const phone =
     variant === 'band' && count > 1
-      ? cn('grid-cols-2', count % 2 && '[&>*:last-child]:col-span-2 sm:[&>*:last-child]:col-span-1')
+      ? cn('grid-cols-2', count % 2 && '[&>*:last-child]:col-span-2 @lg:[&>*:last-child]:col-span-1')
       : 'grid-cols-1';
   return (
     <StatsVariantContext.Provider value={variant}>
-      <div
-        data-slot="record-stats"
-        data-variant={variant}
-        className={cn(
-          'grid',
-          phone,
-          statsColumns[Math.min(count, 6)] || 'sm:grid-cols-3',
-          statsVariantClass[variant],
-          className,
-        )}
-        {...props}
-      >
-        {children}
+      <div className="@container">
+        <div
+          data-slot="record-stats"
+          data-variant={variant}
+          className={cn(
+            'grid',
+            phone,
+            statsColumns[Math.min(count, 6)] || '@lg:grid-cols-3',
+            statsVariantClass[variant],
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </div>
       </div>
     </StatsVariantContext.Provider>
   );
@@ -165,7 +168,7 @@ type RecordStatProps = Omit<useRender.ComponentProps<'div'>, 'children'> & {
   label: string;
   value: ReactNode;
   headerAction?: ReactNode;
-  // Small complement next to the value (e.g. "94%").
+  // Small complement (e.g. "+12%"): inside the trend chip when there is a trend, otherwise next to the value.
   hint?: ReactNode;
   // Ratio (0 to 1) drawn as a dash ruler under the value.
   ratio?: number;
@@ -216,26 +219,30 @@ function Sparkline({ values }: { values: number[] }) {
 function Trend({
   direction,
   label,
+  hint,
   tone = direction === 'up' ? 'good' : direction === 'down' ? 'bad' : 'neutral',
 }: {
   direction: NonNullable<RecordStatProps['trend']>;
   label?: string;
+  hint?: ReactNode;
   tone?: RecordStatProps['trendTone'];
 }) {
   const Icon = direction === 'up' ? ArrowUpRight : direction === 'down' ? ArrowDownRight : Minus;
   return (
     <ItemDescription
-      aria-label={label ?? direction}
+      aria-label={[label ?? direction, typeof hint === 'string' ? hint : undefined].filter(Boolean).join(' ')}
       role="img"
       className={cn(
         'line-clamp-none',
-        'inline-flex shrink-0 items-center justify-center rounded-sm p-0.5 [&_svg]:size-3.5',
+        'inline-flex shrink-0 items-center justify-center gap-0.5 rounded-sm p-0.5 text-xs whitespace-nowrap [&_svg]:size-3.5',
+        hint && 'pr-1',
         tone === 'good' && 'bg-status-success text-status-success-foreground',
         tone === 'bad' && 'bg-destructive/10 text-destructive',
         tone === 'neutral' && 'bg-muted',
       )}
     >
       <Icon />
+      {hint}
     </ItemDescription>
   );
 }
@@ -299,7 +306,7 @@ export function RecordStat({
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-1">
                 <ItemDescription className={ruled ? captionClass : 'text-foreground'}>{label}</ItemDescription>
-                {trend && <Trend direction={trend} label={trendLabel} tone={trendTone} />}
+                {trend && <Trend direction={trend} label={trendLabel} hint={hint} tone={trendTone} />}
               </div>
               {headerAction}
             </div>
@@ -317,7 +324,9 @@ export function RecordStat({
                 {value}
                 {isLink && <ArrowUpRight aria-hidden className="size-3.5 shrink-0" />}
               </ItemTitle>
-              {hint && <ItemDescription className="text-xs line-clamp-none whitespace-nowrap">{hint}</ItemDescription>}
+              {hint && !trend && (
+                <ItemDescription className="text-xs line-clamp-none whitespace-nowrap">{hint}</ItemDescription>
+              )}
             </div>
             {ratio !== undefined && <Ruler ratio={ratio} />}
             {sparkline && <Sparkline values={sparkline} />}
