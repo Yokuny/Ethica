@@ -13,6 +13,7 @@ import type {
   ReportSectionRecord,
   ReportSectionsReplace,
   ReportSectionWrite,
+  ReportStatus,
   UpdateReportSection,
 } from './report.schema.js';
 
@@ -80,24 +81,27 @@ const SORT_KEY: Record<ListReportsQuery['sort'], unknown> = {
   updatedAt: '$updatedAt',
 };
 
+// `counts`: how many of each status (without the status filter), the number beside each tab.
 export const list = async (
   tenantId: string,
   query: ListReportsQuery,
-): Promise<{ items: ReportListItem[]; total: number }> =>
+): Promise<{ items: ReportListItem[]; total: number; counts: Partial<Record<ReportStatus, number>> }> =>
   withDbTiming('report.list', async () => {
     const match = {
       Tenant: toObjectId(tenantId),
-      ...(query.status ? { status: query.status } : {}),
       ...(query.caseId ? { Case: toObjectId(query.caseId) } : {}),
     };
+    const ofStatus = query.status ? [{ $match: { status: query.status } }] : [];
     const [result] = await Report.aggregate<{
       items: Array<ReportDocument & { totalSections: number }>;
       total: { n: number }[];
+      counts: { _id: ReportStatus; n: number }[];
     }>([
       { $match: match },
       {
         $facet: {
           items: [
+            ...ofStatus,
             // Column click (AD-192): the template by name ignoring upper case; ties, the last change first.
             { $addFields: { sortKey: SORT_KEY[query.sort] } },
             { $sort: { sortKey: query.order === 'asc' ? 1 : -1, updatedAt: -1, _id: 1 } },
@@ -106,7 +110,8 @@ export const list = async (
             { $addFields: { totalSections: { $size: '$sections' } } },
             { $project: { sections: 0, sortKey: 0 } },
           ],
-          total: [{ $count: 'n' }],
+          total: [...ofStatus, { $count: 'n' }],
+          counts: [{ $group: { _id: '$status', n: { $sum: 1 } } }],
         },
       },
     ]);
@@ -126,6 +131,7 @@ export const list = async (
         ...(doc.UpdatedBy ? { updatedById: String(doc.UpdatedBy) } : {}),
       })),
       total: result?.total[0]?.n ?? 0,
+      counts: Object.fromEntries((result?.counts ?? []).map((row) => [row._id, row.n])),
     };
   });
 

@@ -250,6 +250,10 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       updatedById: operator.user.id,
       updatedByName: operator.user.name,
     });
+    // The number beside each tab counts every status, whatever the chosen tab.
+    expect(listed.body.data.counts).toEqual({ draft: 1 });
+    const completedTab = await admin.as(request(app).get(`/expert-reports?caseId=${caseId}&status=completed`));
+    expect(completedTab.body.data).toMatchObject({ items: [], total: 0, counts: { draft: 1 } });
     // Template order, not the order of the selection.
     expect(report.sections.map((section: Section) => section.title)).toEqual([
       'Identificação do processo',

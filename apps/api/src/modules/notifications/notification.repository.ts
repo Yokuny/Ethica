@@ -171,12 +171,13 @@ const stateFilter = (state: NotificationState, userId: string) =>
 
 // Every kind in one list (AD-282), only of the modules the person can see (D5). Open ones by their day, the oldest
 // first (the overdue on top, the suggestions in the order of the court, AD-268); resolved ones the newest first.
+// `counts`: how many of each state with the same kind and period, the number beside each tab.
 export const list = async (
   tenantId: string,
   userId: string,
   modules: NotificationModule[],
   { page, limit, state, kind, caseId, from, to }: ListNotificationsQuery,
-): Promise<{ items: NotificationRecord[]; total: number }> =>
+): Promise<{ items: NotificationRecord[]; total: number; counts: Record<NotificationState, number> }> =>
   withDbTiming('notification.list', async () => {
     const situation = state ?? (caseId ? undefined : 'open');
     const match = {
@@ -184,22 +185,39 @@ export const list = async (
       module: { $in: modules },
       ...(kind ? { kind: { $in: kind } } : {}),
       ...(caseId ? { Case: toObjectId(caseId) } : {}),
-      ...(situation ? stateFilter(situation, userId) : {}),
     };
+    const ofSituation = situation ? [{ $match: stateFilter(situation, userId) }] : [];
     const movement = { $convert: { input: '$evidence.movement.at', to: 'date', onError: null, onNull: null } };
     const movementOrBirth = { $ifNull: [movement, '$createdAt'] };
     const day = { $dateToString: { format: '%Y-%m-%d', date: movementOrBirth, timezone: DISPLAY_TIMEZONE } };
     const direction = situation === 'resolved' ? -1 : 1;
-    const [result] = await Notification.aggregate<{ items: NotificationDocument[]; total: { count: number }[] }>([
+    const [result] = await Notification.aggregate<{
+      items: NotificationDocument[];
+      total: { count: number }[];
+      open: { count: number }[];
+      resolved: { count: number }[];
+    }>([
       { $match: match },
       { $addFields: { day: { $ifNull: ['$dueDate', day] } } },
       ...(from || to ? [{ $match: { day: { ...(from ? { $gte: from } : {}), ...(to ? { $lte: to } : {}) } } }] : []),
-      { $sort: { day: direction, 'evidence.movement.at': direction, _id: direction } },
-      { $facet: { items: [{ $skip: (page - 1) * limit }, { $limit: limit }], total: [{ $count: 'count' }] } },
+      {
+        $facet: {
+          items: [
+            ...ofSituation,
+            { $sort: { day: direction, 'evidence.movement.at': direction, _id: direction } },
+            { $skip: (page - 1) * limit },
+            { $limit: limit },
+          ],
+          total: [...ofSituation, { $count: 'count' }],
+          open: [{ $match: stateFilter('open', userId) }, { $count: 'count' }],
+          resolved: [{ $match: stateFilter('resolved', userId) }, { $count: 'count' }],
+        },
+      },
     ]);
     return {
       items: (result?.items ?? []).map((doc) => toRecord(doc, userId)),
       total: result?.total[0]?.count ?? 0,
+      counts: { open: result?.open[0]?.count ?? 0, resolved: result?.resolved[0]?.count ?? 0 },
     };
   });
 

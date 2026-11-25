@@ -31,7 +31,8 @@ export const notificationKeys = {
   count: () => [...notificationKeys.all, 'count'] as const,
 };
 
-type NotificationPage = { items: NotificationRecord[]; total: number };
+// `counts`: how many open and resolved with the same filters, beside each tab.
+type NotificationPage = { items: NotificationRecord[]; total: number; counts: Record<NotificationState, number> };
 
 const fetchData = async <T>(path: string): Promise<T> => {
   const res = await get<T>(path);

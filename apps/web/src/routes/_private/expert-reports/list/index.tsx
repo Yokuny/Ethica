@@ -1,7 +1,8 @@
 import { REPORT_STATUS } from '@ethica/contracts';
+import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate, useSearch } from '@tanstack/react-router';
 import type { PaginationState, SortingState, Updater } from '@tanstack/react-table';
 import { useState } from 'react';
@@ -22,11 +23,24 @@ import { reportExportColumns } from './@utils/report-columns.js';
 
 const ALL = 'all';
 
+function TabCount({ count }: { count: number }) {
+  return (
+    <Badge variant="secondary" className="px-1.5 py-0 tabular-nums">
+      {count}
+    </Badge>
+  );
+}
+
 export function ReportsListPage() {
   const search = useSearch({ strict: false }) as ReportsSearch;
   const navigate = useNavigate({ from: '/expert-reports/list/' });
   const params = { status: search.status, sort: search.sort, order: search.order };
-  const query = useQuery(reportsQuery({ ...params, page: search.page, limit: search.limit }));
+  // The previous page stays while the next tab loads, so the counts beside the tabs do not blink.
+  const query = useQuery({
+    ...reportsQuery({ ...params, page: search.page, limit: search.limit }),
+    placeholderData: keepPreviousData,
+  });
+  const counts = query.data?.counts;
   const session = useQuery(sessionQuery).data;
   const queryClient = useQueryClient();
   const removal = useMutation(deleteReportMutation(queryClient));
@@ -69,10 +83,14 @@ export function ReportsListPage() {
         className="px-(--card-spacing)"
       >
         <TabsList variant="line">
-          <TabsTrigger value={ALL}>{t('all')}</TabsTrigger>
+          <TabsTrigger value={ALL}>
+            {t('all')}
+            {counts && <TabCount count={Object.values(counts).reduce((total, count) => total + count, 0)} />}
+          </TabsTrigger>
           {REPORT_STATUS.map((status) => (
             <TabsTrigger key={status} value={status}>
               {reportStatusLabel(status)}
+              {counts && <TabCount count={counts[status] ?? 0} />}
             </TabsTrigger>
           ))}
         </TabsList>

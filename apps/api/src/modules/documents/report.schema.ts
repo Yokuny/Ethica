@@ -48,6 +48,7 @@ export type {
   CreateReport,
   CreateTemplate,
   MoveSection,
+  ReportStatus,
   TemplateSection,
   UpdateReportSection,
   UpdateTemplate,

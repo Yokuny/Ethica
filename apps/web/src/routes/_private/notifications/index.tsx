@@ -1,7 +1,8 @@
 import { NOTIFICATION_KINDS, NOTIFICATION_STATES } from '@ethica/contracts';
+import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -39,7 +40,8 @@ export function NotificationsPage() {
     to: search.to,
   };
   const filtered = Boolean(search.kind || search.from || search.to);
-  const query = useQuery(notificationsQuery(params));
+  // The previous page stays while the next tab loads, so the counts beside the tabs do not blink.
+  const query = useQuery({ ...notificationsQuery(params), placeholderData: keepPreviousData });
   const queryClient = useQueryClient();
   const readAll = useMutation(markReadMutation(queryClient));
   const [dialog, setDialog] = useState<Dialog | null>(null);
@@ -95,6 +97,11 @@ export function NotificationsPage() {
           {NOTIFICATION_STATES.map((state) => (
             <TabsTrigger key={state} value={state}>
               {t(STATE_LABEL[state])}
+              {query.data && (
+                <Badge variant="secondary" className="px-1.5 py-0 tabular-nums">
+                  {query.data.counts[state]}
+                </Badge>
+              )}
             </TabsTrigger>
           ))}
         </TabsList>

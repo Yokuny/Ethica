@@ -122,7 +122,12 @@ export const reportsQuery = (params: ReportsQueryParams = {}) =>
   queryOptions({
     queryKey: reportKeys.list(params),
     queryFn: async () =>
-      unwrap(await get<{ items: ReportListItem[]; total: number }>(`/expert-reports${qs(params)}`), 'load_error'),
+      unwrap(
+        await get<{ items: ReportListItem[]; total: number; counts: Partial<Record<ReportStatus, number>> }>(
+          `/expert-reports${qs(params)}`,
+        ),
+        'load_error',
+      ),
   });
 
 export const reportQuery = (id: string) =>

@@ -42,7 +42,6 @@ import type {
   MoveSection,
   ProcessFill,
   ProcessMissing,
-  ReportListItem,
   ReportRecord,
   ReportSectionRecord,
   ReportSectionWrite,
@@ -135,10 +134,7 @@ const withoutIssues = (sections: ReportSectionRecord[]): void => {
   }
 };
 
-export const listReports = async (
-  tenantId: string,
-  query: ListReportsQuery,
-): Promise<{ items: ReportListItem[]; total: number }> => {
+export const listReports = async (tenantId: string, query: ListReportsQuery) => {
   const result = await reportRepository.list(tenantId, query);
   const items = await withNumber(tenantId, result.items);
   const ids = [...new Set(items.flatMap((item) => (item.updatedById ? [item.updatedById] : [])))];

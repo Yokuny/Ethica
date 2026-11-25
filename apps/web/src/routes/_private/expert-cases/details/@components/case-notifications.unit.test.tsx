@@ -11,7 +11,11 @@ const today = formatDisplayDate(new Date());
 
 const renderDeadlines = (deadlines: DatedNotificationRecord[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
-  queryClient.setQueryData(caseNotificationsQuery('p1').queryKey, { items: deadlines, total: deadlines.length });
+  queryClient.setQueryData(caseNotificationsQuery('p1').queryKey, {
+    items: deadlines,
+    total: deadlines.length,
+    counts: { open: deadlines.length, resolved: 0 },
+  });
   render(
     <QueryClientProvider client={queryClient}>
       <CaseNotifications caseId="p1" />

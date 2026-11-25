@@ -504,8 +504,12 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
       for (const query of ['?limit=101', '?page=0', '?kind=x', '?from=amanha', '?caseId=1', '?Tenant=x']) {
         expect((await as(request(app).get(`/notifications${query}`))).status).toBe(400);
       }
-      expect(await list('?page=9')).toEqual({ items: [], total: 1 });
-      expect(await list(`?from=${day(5)}&to=${day(0)}`)).toEqual({ items: [], total: 0 });
+      expect(await list('?page=9')).toEqual({ items: [], total: 1, counts: { open: 1, resolved: 0 } });
+      expect(await list(`?from=${day(5)}&to=${day(0)}`)).toEqual({
+        items: [],
+        total: 0,
+        counts: { open: 0, resolved: 0 },
+      });
     });
 
     it('quem não vê nenhum módulo recebe a lista vazia e o contador zero, nunca erro', async () => {
@@ -515,7 +519,11 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
       const nobody = await seedSession(['operator']);
       await User.updateOne({ _id: nobody.user._id }, { Tenant: tenant._id, permissions: {} });
 
-      expect((await nobody.as(request(app).get('/notifications'))).body.data).toEqual({ items: [], total: 0 });
+      expect((await nobody.as(request(app).get('/notifications'))).body.data).toEqual({
+        items: [],
+        total: 0,
+        counts: { open: 0, resolved: 0 },
+      });
       expect((await nobody.as(request(app).get('/notifications/count'))).body.data.count).toBe(0);
       expect((await nobody.as(request(app).post('/notifications/read-all'))).status).toBe(200);
     });
