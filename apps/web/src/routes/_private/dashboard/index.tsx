@@ -38,6 +38,8 @@ import { type CaseDashboard, caseDashboardQuery, feesDashboardQuery } from './@q
 import { percentChange, rankTypes, typeKey } from './@utils/dashboard-period.js';
 
 const number = new Intl.NumberFormat('pt-BR');
+const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const SINCE_START = 'since_start';
 const formatNumber = (value: number) => number.format(value);
 const sumOf = (rows: CategoryTotal[], key: 'totalCents' | 'previousCents') =>
   rows.reduce((total, row) => total + row[key], 0);
@@ -106,6 +108,13 @@ export function DashboardPage() {
   const hasMoney = period?.some((row) => row.receivedCents || row.receivableCents || row.expensesCents);
   const balance = period?.reduce((total, row) => total + row.receivedCents - row.expensesCents, 0);
   const intake = cases.data?.byMonth.slice(0, -1).slice(-months);
+  // Services mix since the start or of one month (the new services of it), newest month first.
+  const mixMonths = (cases.data?.byMonth ?? []).filter((row) => row.count).reverse();
+  const mixItems = [
+    { value: SINCE_START, label: t('since_start') },
+    ...mixMonths.map((row) => ({ value: row.month, label: monthName.format(new Date(`${row.month}-15T12:00:00Z`)) })),
+  ];
+  const mixByType = search.mix ? (mixMonths.find((row) => row.month === search.mix)?.byType ?? []) : cases.data?.byType;
 
   return (
     <Card asPage>
@@ -116,7 +125,7 @@ export function DashboardPage() {
             value={String(months)}
             onValueChange={(value) =>
               navigate({
-                search: { months: Number(value) as DashboardSearch['months'], year: search.year },
+                search: { ...search, months: Number(value) as DashboardSearch['months'] },
                 replace: true,
               })
             }
@@ -190,7 +199,7 @@ export function DashboardPage() {
                           items={goal.data.years.map((year) => ({ value: String(year), label: String(year) }))}
                           value={String(goal.data.year)}
                           onValueChange={(value) =>
-                            value && navigate({ search: { months, year: Number(value) }, replace: true })
+                            value && navigate({ search: { ...search, year: Number(value) }, replace: true })
                           }
                         >
                           <SelectTrigger size="compact" aria-label={t('year')}>
@@ -277,18 +286,41 @@ export function DashboardPage() {
                 )}
               </section>
               <section className="flex w-full min-w-0 flex-col gap-5">
-                <div className="grid gap-1">
-                  <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
-                    {t('services_mix')}
-                  </ItemTitle>
-                  <ItemDescription>{t('services_mix_scope')}</ItemDescription>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="grid gap-1">
+                    <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                      {t('services_mix')}
+                    </ItemTitle>
+                    <ItemDescription>
+                      {t(search.mix ? 'services_mix_month_scope' : 'services_mix_scope')}
+                    </ItemDescription>
+                  </div>
+                  {mixMonths.length > 0 && (
+                    <Select
+                      items={mixItems}
+                      value={search.mix ?? SINCE_START}
+                      onValueChange={(value) =>
+                        navigate({
+                          search: { ...search, mix: !value || value === SINCE_START ? undefined : value },
+                          replace: true,
+                        })
+                      }
+                    >
+                      <SelectTrigger size="compact" aria-label={t('month')}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mixItems.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
-                {cases.data.byType.length ? (
-                  <CompositionDonut
-                    label={t('services_mix')}
-                    slices={typeSlices(cases.data.byType)}
-                    format={formatNumber}
-                  />
+                {mixByType?.length ? (
+                  <CompositionDonut label={t('services_mix')} slices={typeSlices(mixByType)} format={formatNumber} />
                 ) : (
                   <DefaultEmptyData title={t('no_data_yet')} />
                 )}
