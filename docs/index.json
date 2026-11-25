@@ -2120,7 +2120,7 @@
       "id": "AD-212",
       "decisao": "O mapa do Campo ganha o bloco Custo de deslocamento, todo no web: quilometragem total (preenchida com a distância da rota do OSRM, que agora",
       "data": "2026-11-09",
-      "status": "active"
+      "status": "active; o vencimento hoje e a duplicidade refinados pela AD-301"
     },
     {
       "id": "AD-213",

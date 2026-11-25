@@ -1213,7 +1213,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: um lançamento por OS, feitos em sequência pela tela: se um falhar no meio, os anteriores ficam (o aviso mostra o erro e eles aparecem no Financeiro). Pedágio é digitado (não há fonte aberta de tarifas). Os dados do veículo não ficam guardados.
 - **Scope**: `apps/web/src/routes/_private/field/` (`@components/travel-cost.tsx`, `@hooks/use-travel-cost.ts`, `@utils/travel-cost.ts`, `field-map.tsx`), `packages/ui/src/components/radio-group.tsx`.
 - **Date**: 2026-11-09
-- **Status**: active
+- **Status**: active; o vencimento hoje e a duplicidade refinados pela AD-301
 
 ### AD-213
 - **Decision**: "Lugares no trajeto" no mapa do Campo: restaurante, hotel, pousada, borracharia e oficina mecânica até 2 km da rota, consultados direto do navegador na Overpass API pública do OpenStreetMap (sem chave, como o OSRM e o Nominatim da AD-131), com a rota amostrada em até 20 pontos; marcados em laranja no mapa e listados com nome, endereço e atalhos para Google Maps e Waze.

@@ -20,7 +20,7 @@ branches: [main]
 ## O que foi feito
 
 - **Custo de deslocamento** abaixo do mapa do Campo: quilometragem total (vem da rota do mapa, editável), média km/L, combustível (R$/L) e pedágios; mostra litros, combustível, pedágios, total e custo por km. "Incluir a volta ao ponto de partida" aparece depois de "Partir da minha localização".
-- **Lançar como despesa** (quem lança no Financeiro): "Em uma OS" (escolhe o serviço) ou "Dividir entre OS" (partes iguais entre os serviços marcados da rota). Cada OS recebe uma despesa "Deslocamento" a pagar, vencendo hoje.
+- **Lançar como despesa** (quem lança no Financeiro): "Em uma OS" (escolhe o serviço) ou "Dividir entre OS" (partes iguais entre os serviços marcados da rota). Cada OS recebe uma despesa "Deslocamento" a pagar, vencendo no primeiro dia da rota; se as mesmas OS já têm deslocamento previsto nos dias da rota, a tela pede para substituir (AD-301).
 - **Duas colunas** abaixo do mapa: Custo de deslocamento à esquerda e **Apoio no trajeto** à direita (AD-214).
 - **Apoio no trajeto**: etiquetas de restaurante, hotel, pousada, borracharia, oficina mecânica e posto de combustível, distância de 1, 2 ou 5 km da rota e "Buscar no trajeto"; os lugares saem no mapa e na lista com Google Maps e Waze. "Procurar também no Google Maps" abre a busca de cada tipo no meio do caminho ou perto do destino.
 
