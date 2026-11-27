@@ -43,3 +43,27 @@ describe('DataTable — exportar', () => {
     expect(screen.getByRole('button', { name: 'Exportar dados' })).toBeDisabled();
   });
 });
+
+describe('DataTable — filtro "todas, exceto"', () => {
+  afterEach(cleanup);
+  const items = [
+    { value: 'a', label: 'Ativo' },
+    { value: 's', label: 'Suspenso' },
+    { value: 'c', label: 'Cancelado' },
+  ];
+
+  it('"Marcar todas" marca todas as opções para desmarcar as exceções', async () => {
+    const onChange = vi.fn();
+    render(<DataTable filters={{ items: [{ label: 'Status', items, onChange }] }} />);
+    await userEvent.click(screen.getByRole('button', { name: /Filtros/ }));
+    await userEvent.click(await screen.findByText('Status'));
+    await userEvent.click(screen.getByRole('button', { name: 'Marcar todas' }));
+    expect(onChange).toHaveBeenCalledWith(['a', 's', 'c']);
+  });
+
+  it('com todas menos uma marcadas, o resumo diz qual ficou de fora', async () => {
+    render(<DataTable filters={{ items: [{ label: 'Status', items, value: ['a', 's'], onChange: vi.fn() }] }} />);
+    await userEvent.click(screen.getByRole('button', { name: /Filtros/ }));
+    expect(await screen.findByText('Todas, exceto Cancelado')).toBeInTheDocument();
+  });
+});

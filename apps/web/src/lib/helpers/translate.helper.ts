@@ -1152,6 +1152,7 @@ const translations: Record<string, string> = {
   choose_template_description: 'Modelos do mesmo tipo de documento do serviço.',
   what_the_report_contains: 'O que deve constar',
   select_all: 'Marcar todas',
+  all_except: 'Todas, exceto',
   clear_selection: 'Desmarcar todas',
   title_only: 'Apenas título',
   yes: 'Sim',

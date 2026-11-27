@@ -49,6 +49,29 @@
       "doc": "features/fase-servico/feature.md"
     },
     {
+      "slug": "filtros-lista",
+      "feature": "Filtros das listas",
+      "descricao": "Botão \"Filtros\" das listas com opções marcáveis, várias por filtro, e exportação da lista em CSV, Excel ou PDF",
+      "data": "2026-11-27",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts"
+      ],
+      "decisoes": [
+        "AD-193",
+        "AD-218",
+        "AD-223",
+        "AD-241"
+      ],
+      "spec": [
+        ".specs/features/filtros-lista"
+      ],
+      "planos": [],
+      "doc": "features/filtros-lista/feature.md"
+    },
+    {
       "slug": "prazos-recebimentos",
       "feature": "Prazos e recebimentos",
       "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
@@ -425,29 +448,6 @@
         ".specs/features/fundacao-ethica/plans/2026-10-29-fundacao-ethica.md"
       ],
       "doc": "features/fundacao-ethica/feature.md"
-    },
-    {
-      "slug": "filtros-lista",
-      "feature": "Filtros das listas",
-      "descricao": "Botão \"Filtros\" das listas com opções marcáveis, várias por filtro, e exportação da lista em CSV, Excel ou PDF",
-      "data": "2026-11-14",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts"
-      ],
-      "decisoes": [
-        "AD-193",
-        "AD-218",
-        "AD-223",
-        "AD-241"
-      ],
-      "spec": [
-        ".specs/features/filtros-lista"
-      ],
-      "planos": [],
-      "doc": "features/filtros-lista/feature.md"
     },
     {
       "slug": "acesso-aparelho",

@@ -67,10 +67,15 @@ export type TableFilterItem = { label: string; disabled?: boolean } & (
 
 type TableFiltersProps = { items: TableFilterItem[]; options?: never } | { options: TableFilterOptions; items?: never };
 
-// What the filter row shows on the right: the option when one, how many when several.
+// What the filter row shows on the right: the option when one, how many when several, and "Todas, exceto …"
+// when every option but a few is checked ("Marcar todas" and uncheck the exceptions).
 function filterSummary(filter: TableFilterItem): string | undefined {
   if ('content' in filter) return filter.summary;
   const value = filter.value ?? [];
+  const excluded = filter.items.filter((item) => !value.includes(item.value));
+  if (value.length > 1 && excluded.length && excluded.length < value.length) {
+    return `${t('all_except')} ${excluded.length === 1 ? excluded[0]?.label : excluded.length}`;
+  }
   if (value.length > 1) return String(value.length);
   return filter.items.find((item) => item.value === value[0])?.label ?? value[0];
 }
@@ -150,14 +155,24 @@ function TableFilterChecklist({
           <ItemDescription className="px-2 py-1.5">{t('not_found')}</ItemDescription>
         )}
       </div>
-      {value.length > 0 && (
-        <>
-          <Separator />
-          <Button variant="ghost" size="sm" className="m-1 justify-center" onClick={() => onChange(undefined)}>
+      <Separator />
+      <div className="flex gap-1 p-1">
+        {value.length < items.length && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-1 justify-center"
+            onClick={() => onChange(items.map((item) => item.value))}
+          >
+            {t('select_all')}
+          </Button>
+        )}
+        {value.length > 0 && (
+          <Button variant="ghost" size="sm" className="flex-1 justify-center" onClick={() => onChange(undefined)}>
             {t('clear')}
           </Button>
-        </>
-      )}
+        )}
+      </div>
     </>
   );
 }
