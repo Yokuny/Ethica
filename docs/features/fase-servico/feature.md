@@ -2,7 +2,7 @@
 feature: Fase e status do serviço
 slug: fase-servico
 descricao: Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado
-data: 2026-11-05
+data: 2026-11-27
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
 decisoes: [AD-178, AD-180, AD-196]
@@ -12,7 +12,7 @@ branches: [main]
 
 # Fase e status do serviço
 
-**Status**: concluido · **Atualizado**: 2026-11-05 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-27 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fase-servico'`.
@@ -68,6 +68,7 @@ pnpm vitest run apps/api/src/modules/case packages/db/src/models/case.model.int.
 
 ## Histórico
 
+- 2026-11-27 — Pedido da perita: fase inicial "Nomeado" (`nominated`, `packages/contracts/src/schemas/case.schema.ts`) antes de "Nomeação aceita", para o processo em análise antes do aceite ou da escusa. Rótulos na tela e no PDF; na importação de planilha, o texto "Nomeado" passa a cair nessa fase (antes ia para "Aguardando agendamento"). O padrão do cadastro segue "Aguardando agendamento"; os serviços já gravados não mudam.
 - 2026-11-05 — Fases da perícia passam de 34 para 20, com nomes curtos: as redundantes se juntam e os serviços salvos vão para a fase equivalente ao subir o sistema (AD-196). As impugnações deixam de ter o número da rodada.
 - 2026-11-04 — `apps/api/scripts/seed-demo.ts` passa a gravar a fase (e status ativo) nos serviços de demonstração; o script ainda usava as etapas antigas e falhava ao rodar.
 - 2026-11-04 — Assistência técnica deixa a lista em grupos e ganha lista própria de fases: feature `fase-assistencia` (AD-186).

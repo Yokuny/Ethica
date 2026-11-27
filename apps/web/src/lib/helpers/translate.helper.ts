@@ -1485,6 +1485,7 @@ const translations: Record<string, string> = {
   final_phase: 'Fase final',
   receiving_phase: 'Fase de recebimento',
   auxiliary_phases: 'Fases auxiliares',
+  nominated: 'Nomeado',
   nomination_accepted: 'Nomeação aceita',
   inspection_scheduled: 'Perícia agendada',
   inspection_done: 'Perícia realizada',

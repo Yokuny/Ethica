@@ -14,7 +14,9 @@ export const JUDICIAL_CASE_ROLES = ['court_expert', 'technical_assistant'] as co
 // Service phase (AD-178, AD-196): the expert's routine list, in groups and in order. `custom`: phase typed in the
 // office's own type, named in `Case.phaseName`.
 export const CASE_PHASE_GROUPS = {
+  // `nominated`: the case is under analysis, before accepting or declining the nomination.
   initial: [
+    'nominated',
     'nomination_accepted',
     'fee_proposal',
     'document_request',

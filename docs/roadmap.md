@@ -120,6 +120,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-27 — Fase inicial "Nomeado" antes de "Nomeação aceita" no cadastro do serviço — `fase-servico`
 - [x] 2026-11-26 — Recebimento do honorário pelo detalhe do serviço e pelo diálogo do lançamento, abatendo o saldo do honorário fixado — `prazos-recebimentos`
 - [x] 2026-11-25 — Consulta ao Datajud às 05:00 e tempo limite de 120 s, pela sobrecarga do CNJ vista nos logs (AD-303) — `automacao-datajud`
 - [x] 2026-11-25 — Produção: o 0017068-93.2025.5.16.0008 (TRT16) do ETHICA consultado com linha de base em 24/11, pelos logs do worker (a página não foi aberta em produção) — `processos-acompanhados`

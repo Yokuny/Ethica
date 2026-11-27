@@ -186,6 +186,7 @@ const OWN_TYPES = [
 ];
 const OWN_PHASES = ['Contratado', 'Em andamento', 'Entregue', 'Finalizado', 'Aguardando pagamento'];
 const PERICIA_PHASES: CasePhase[] = [
+  'nominated',
   'nomination_accepted',
   'fee_proposal',
   'document_request',

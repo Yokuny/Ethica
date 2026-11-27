@@ -16,6 +16,7 @@ import { t } from '@/lib/helpers/translate.helper.js';
 // Service phase (AD-178): labels shared by listing, detail, home and charts. The key is not the value:
 // several values read differently in other domains (`report_delivered`, `removal`).
 const CASE_PHASE_KEY: Record<CasePhase, string> = {
+  nominated: 'nominated',
   nomination_accepted: 'nomination_accepted',
   fee_proposal: 'fee_proposal',
   document_request: 'awaiting_documents',

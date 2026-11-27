@@ -20,6 +20,7 @@ const LABELS: Record<string, string> = {
   court_expert: 'Perito do juízo',
   technical_assistant: 'Assistente técnico',
   // Service phase and status (AD-178); `inspection` is the appointment type.
+  nominated: 'Nomeado',
   nomination_accepted: 'Nomeação aceita',
   fee_proposal: 'Proposta de honorários',
   document_request: 'Aguardando documentos',

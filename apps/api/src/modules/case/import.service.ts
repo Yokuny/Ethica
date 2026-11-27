@@ -307,7 +307,7 @@ const PHASE_NAMES: [string, PhaseAndStatus][] = [
   ['proposta de honorarios', { phase: 'fee_proposal' }],
   ['solicitacao de documentos', { phase: 'document_request' }],
   ['documentos pendentes', { phase: 'document_request' }],
-  ['nomeado', { phase: 'awaiting_scheduling' }],
+  ['nomeado', { phase: 'nominated' }],
   ['nomeada', { phase: 'awaiting_scheduling' }],
   ['aguardando agendamento', { phase: 'awaiting_scheduling' }],
   ['checklist', { phase: 'awaiting_scheduling' }],
