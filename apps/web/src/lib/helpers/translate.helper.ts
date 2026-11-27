@@ -1502,6 +1502,7 @@ const translations: Record<string, string> = {
   complementary_inspection: 'Perícia complementar',
   extra_stage: 'Etapa extra',
   assistance_finished: 'Assistência finalizada',
+  finished: 'Finalizado',
   settlement_or_withdrawal: 'Acordo / desistência',
   report_in_progress: 'Laudo em elaboração',
   report_in_review: 'Laudo em revisão',

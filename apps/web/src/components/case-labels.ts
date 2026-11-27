@@ -51,6 +51,7 @@ const CASE_PHASE_KEY: Record<CasePhase, string> = {
   extra_stage: 'extra_stage',
   assistance_finished: 'assistance_finished',
   assistance_settlement: 'settlement_or_withdrawal',
+  assistance_closed: 'finished',
   custom: 'own_phase',
 };
 // A phase typed in the office's own type (AD-176) shows its name.

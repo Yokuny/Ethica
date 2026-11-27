@@ -52,11 +52,14 @@ export const TECHNICAL_ASSISTANCE_PHASES = [
   ...ASSISTANCE_ONLY_PHASES,
   'fees_received',
   'assistance_settlement',
+  // "Finalizado": closes the assistance even without the fees received ("Assistência finalizada" stays open).
+  'assistance_closed',
 ] as const;
 export const CASE_PHASES = [
   ...Object.values(CASE_PHASE_GROUPS).flat(),
   ...ASSISTANCE_ONLY_PHASES,
   'assistance_settlement',
+  'assistance_closed',
   'custom',
 ] as const;
 export type CasePhase = (typeof CASE_PHASES)[number];
@@ -73,11 +76,13 @@ export type SortOrder = (typeof SORT_ORDERS)[number];
 // Service status (AD-178), apart from the phase.
 export const CASE_STATUS = ['active', 'suspended', 'canceled'] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
-// Closed (AD-178): canceled, or a loss phase, or fees received. Suspended is open but not stalled.
+// Closed (AD-178): canceled, or a loss phase, or fees received, or the assistance closed. Suspended is open but
+// not stalled.
 export const CASE_CLOSED_PHASES: readonly CasePhase[] = [
   ...CASE_PHASE_GROUPS.losses,
   'fees_received',
   'assistance_settlement',
+  'assistance_closed',
 ];
 export const isCaseClosed = (data: { status: CaseStatus; phase: CasePhase }): boolean =>
   data.status === 'canceled' || CASE_CLOSED_PHASES.includes(data.phase);

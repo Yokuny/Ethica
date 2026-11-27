@@ -1951,6 +1951,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-27
 - **Status**: proposed (aguarda a perita confirmar as questões da spec)
 
+### AD-305
+- **Decision**: A Assistência técnica ganha a fase "Finalizado" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo sem os honorários recebidos. "Assistência finalizada" continua na lista e segue em aberto. Supersede, da AD-186, só a regra de que a assistência encerra apenas com "Honorários recebidos" ou "Acordo / desistência".
+- **Reason**: pedido da perita (2026-11-27): "Assistência finalizada" não significa que os honorários foram recebidos; ela quer as duas fases, uma em aberto e outra que encerra.
+- **Trade-off**: duas fases de nome parecido na mesma lista; a importação de planilha não reconhece "Finalizado" (o texto vale para os tipos do escritório também).
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `apps/web/src/components/case-labels.ts`, `apps/api/src/modules/documents/document.layout.ts`.
+- **Date**: 2026-11-27
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

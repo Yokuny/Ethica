@@ -240,6 +240,11 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await stats()).toMatchObject({ open: 1 });
     await patch({ phase: 'assistance_settlement' });
     expect(await stats()).toMatchObject({ open: 0, services_delivered: 1 });
+    // "Finalizado" also closes it, without the fees received.
+    await patch({ phase: 'assistance_finished' });
+    expect(await stats()).toMatchObject({ open: 1 });
+    await patch({ phase: 'assistance_closed' });
+    expect(await stats()).toMatchObject({ open: 0 });
   });
 
   it('ordena por nome, data do cadastro e tipo, crescente e decrescente (AD-188, AD-192)', async () => {

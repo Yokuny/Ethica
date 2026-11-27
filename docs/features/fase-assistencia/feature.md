@@ -2,17 +2,17 @@
 feature: Fases da Assistência técnica
 slug: fase-assistencia
 descricao: Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência
-data: 2026-11-04
+data: 2026-11-27
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-186]
+decisoes: [AD-186, AD-305]
 spec: [.specs/features/fase-assistencia]
 branches: [main]
 ---
 
 # Fases da Assistência técnica
 
-**Status**: concluido · **Atualizado**: 2026-11-04 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-27 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='fase-assistencia'`.
@@ -52,4 +52,5 @@ pnpm vitest run apps/api/src/modules/case apps/api/src/modules/documents/report.
 
 ## Histórico
 
+- 2026-11-27 — Pedido da perita: fase "Finalizado" (`assistance_closed`) no fim da lista, que encerra a assistência mesmo sem os honorários recebidos; "Assistência finalizada" segue em aberto (AD-305). Rótulo na tela e no PDF; e2e em `apps/api/src/modules/case/service.router.e2e.test.ts`.
 - 2026-11-04 — Feature entregue a pedido da perita (AD-186).

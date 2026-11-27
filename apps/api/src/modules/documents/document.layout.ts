@@ -53,6 +53,7 @@ const LABELS: Record<string, string> = {
   extra_stage: 'Etapa extra',
   assistance_finished: 'Assistência finalizada',
   assistance_settlement: 'Acordo / desistência',
+  assistance_closed: 'Finalizado',
   supplement_inspection: 'Complementar perícia',
   petition: 'Elaborar petição',
   active: 'Ativo',
