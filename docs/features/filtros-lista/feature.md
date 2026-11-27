@@ -68,6 +68,7 @@ pnpm vitest run packages/contracts/src/schemas/query-list.schema.unit.test.ts ap
 
 ## Histórico
 
+- 2026-11-27 — "Marcar todas" e "Limpar" sobem para logo abaixo da busca do filtro, antes das opções (antes ficavam no fim do quadro).
 - 2026-11-27 — Pedido da perita: filtrar "todas as opções, exceto". Cada filtro de opções ganha "Marcar todas" ao lado de "Limpar" (`TableFilterChecklist` em `apps/web/src/components/data-table.tsx`): marca todas e a pessoa desmarca as exceções; com todas menos algumas marcadas, o resumo do filtro mostra "Todas, exceto <opção>" (ou quantas ficaram de fora). Sem mudança na API: a lista segue filtrando pelas opções marcadas. Vale para todas as listas com "Filtros".
 - 2026-11-20 — Todas as listas com a mesma regra de largura de coluna (`TableStack width`: `fit` em uma linha, `text` na faixa de texto longo) e selo de status em uma linha (AD-241). Sem conferência na tela: o login local pede passkey.
 - 2026-11-19 — `ToggleGroup` sem divisores entre os itens: uma borda só na barra e a caixa tingida só no marcado (AD-235).

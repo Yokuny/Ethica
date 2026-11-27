@@ -125,6 +125,25 @@ function TableFilterChecklist({
           </InputGroup>
         </div>
       )}
+      {/* Right below the search: "Marcar todas" to uncheck the exceptions, and "Limpar". */}
+      <div className="flex gap-1 p-1">
+        {value.length < items.length && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-1 justify-center"
+            onClick={() => onChange(items.map((item) => item.value))}
+          >
+            {t('select_all')}
+          </Button>
+        )}
+        {value.length > 0 && (
+          <Button variant="ghost" size="sm" className="flex-1 justify-center" onClick={() => onChange(undefined)}>
+            {t('clear')}
+          </Button>
+        )}
+      </div>
+      <Separator />
       <div className="no-scrollbar max-h-72 overflow-y-auto p-1">
         {visible.length ? (
           visible.map((item) => {
@@ -153,24 +172,6 @@ function TableFilterChecklist({
           })
         ) : (
           <ItemDescription className="px-2 py-1.5">{t('not_found')}</ItemDescription>
-        )}
-      </div>
-      <Separator />
-      <div className="flex gap-1 p-1">
-        {value.length < items.length && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1 justify-center"
-            onClick={() => onChange(items.map((item) => item.value))}
-          >
-            {t('select_all')}
-          </Button>
-        )}
-        {value.length > 0 && (
-          <Button variant="ghost" size="sm" className="flex-1 justify-center" onClick={() => onChange(undefined)}>
-            {t('clear')}
-          </Button>
         )}
       </div>
     </>
