@@ -24,7 +24,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 ## Planos não arquivados (`.specs/plans/`)
 
-- [Conteúdo dos movimentos do tribunal (descoberta, 2026-11-26)](../.specs/plans/2026-11-26-conteudo-dos-movimentos.md)
+_Nenhum._
 
 ## Features (47)
 
@@ -96,6 +96,7 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-304** (2026-11-27, proposed (aguarda a perita confirmar as questões da spec)) — Papel de cada fonte do tribunal. (1) O Datajud é a fonte do estado do processo em código (TPU do CNJ): sugestões de situação, fase e recebim
 - **AD-303** (2026-11-25, active) — A consulta diária ao Datajud começa às 05:00 de Brasília (era 03:00, AD-277) e o tempo limite de cada chamada sobe de 60 s para 120 s (`DATA
 - **AD-302** (2026-11-25, active) — `APPOINTMENT_TYPES` ganha `technical_inspection` (Inspeção), `appraisal` (Avaliação) e `expert_examination` (Perícia), na ordem Vistoria, In
 - **AD-301** (2026-11-25, active) — O lançamento do custo de deslocamento (Planejamento de rota) não duplica: a despesa vence no primeiro dia da rota (antes, no dia do lançamen
@@ -105,7 +106,10 @@ validação e planos (congelados) ficam em `.specs/features/<slug>/`. Decisões:
 - **AD-297** (2026-11-24, active) — Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e
 - **AD-296** (2026-11-24, active) — Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/
 - **AD-295** (2026-11-24, superseded by AD-299 (menos os recebimentos do lançamento, que seguem em `Item`)) — Grupo A do plano `.specs/plans/2026-11-24-simplificar-componentes.md`: saem `PageIntro`, `HubIllustration`, `LinkCard`/`LinkCardList`, `Step
-- **AD-294** (2026-11-24, active) — Controles e superfícies sem sombra: saem `shadow-xs`/`shadow-sm` de `Button` (default e outline), `Input`, `InputGroup`, `Textarea`, `Select
+
+## `.specs/` sem registro em `docs/features/`
+
+- `.specs/features/sugestoes-datajud/`
 
 ## Outros documentos
 

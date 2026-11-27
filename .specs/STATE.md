@@ -1943,6 +1943,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-25
 - **Status**: active
 
+### AD-304
+- **Decision**: Papel de cada fonte do tribunal. (1) O **Datajud** é a fonte do estado do processo em código (TPU do CNJ): sugestões de situação, fase e recebimento, avisos de hora de cobrar e de encerrar, e o preenchimento do serviço pelo número (vara, data de ajuizamento, objeto). (2) O **DJEN** (Comunica PJe) é a fonte do conteúdo publicado (texto das intimações, link do PJe) e da descoberta de nomeações, em spec própria. (3) A busca pelo número no cadastro é feita na hora pela API, então a chave do Datajud volta para a API (revê o item 2 da AD-281, que a deixou só no worker). Spec: `.specs/features/sugestoes-datajud/`.
+- **Reason**: consultas reais de 2026-11-26: o Datajud não traz texto, destinatário nem partes, mas traz o código que move as regras e o alvará; o DJEN traz o texto inteiro e o link, mas não publica alvará nem tem código de situação.
+- **Trade-off**: duas fontes externas para operar; a busca na hora depende do cluster do CNJ, que recusa muitas vezes (AD-287), por isso a automação traz o mesmo preenchimento como sugestão quando a busca falha.
+- **Scope**: `apps/api`, `apps/worker`, `apps/web`, `packages/contracts`.
+- **Date**: 2026-11-27
+- **Status**: proposed (aguarda a perita confirmar as questões da spec)
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

@@ -1220,13 +1220,10 @@
       "doc": "features/rotas-vistoria/feature.md"
     }
   ],
-  "planos_nao_arquivados": [
-    {
-      "arquivo": ".specs/plans/2026-11-26-conteudo-dos-movimentos.md",
-      "titulo": "Conteúdo dos movimentos do tribunal (descoberta, 2026-11-26)"
-    }
+  "planos_nao_arquivados": [],
+  "specs_sem_registro": [
+    "sugestoes-datajud"
   ],
-  "specs_sem_registro": [],
   "decisoes": [
     {
       "id": "AD-001",
@@ -2673,6 +2670,12 @@
       "decisao": "A consulta diária ao Datajud começa às 05:00 de Brasília (era 03:00, AD-277) e o tempo limite de cada chamada sobe de 60 s para 120 s (`DATA",
       "data": "2026-11-25",
       "status": "active"
+    },
+    {
+      "id": "AD-304",
+      "decisao": "Papel de cada fonte do tribunal. (1) O Datajud é a fonte do estado do processo em código (TPU do CNJ): sugestões de situação, fase e recebim",
+      "data": "2026-11-27",
+      "status": "proposed (aguarda a perita confirmar as questões da spec)"
     }
   ]
 }
