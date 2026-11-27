@@ -1,5 +1,10 @@
 import { Button } from '@ethica/ui/components/button';
-import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
+import {
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@ethica/ui/components/dropdown-menu';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,6 +23,7 @@ import { revenueGoalQuery } from '@/query/transaction.js';
 import { CasesOverview } from './@components/cases-overview.js';
 import { CasesRevenueGoal } from './@components/cases-revenue-goal.js';
 import { CasesTable } from './@components/cases-table.js';
+import { CASES_PRESETS } from './@consts/cases-presets.js';
 import { useCasesFilters } from './@hooks/use-cases-filters.js';
 import { useCasesSearch } from './@hooks/use-cases-search.js';
 import { type CasesSearch, casesSearchSchema } from './@interface/cases.interface.js';
@@ -71,13 +77,24 @@ export function CasesIndexPage() {
           {canCreate && (
             <Button nativeButton={false} role="link" render={<Link to="/expert-cases/add">{t('add')}</Link>} />
           )}
-          {canCreate && (
-            <PageMenu>
-              <DropdownMenuItem onClick={() => navigate({ to: '/expert-cases/import' })}>
-                {t('import_spreadsheet')}
-              </DropdownMenuItem>
-            </PageMenu>
-          )}
+          <PageMenu>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>{t('ready_made_filters')}</DropdownMenuLabel>
+              {CASES_PRESETS.map((preset) => (
+                <DropdownMenuItem key={preset.label} onClick={() => update({ ...preset.filters, page: 1 })}>
+                  {t(preset.label)}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+            {canCreate && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate({ to: '/expert-cases/import' })}>
+                  {t('import_spreadsheet')}
+                </DropdownMenuItem>
+              </>
+            )}
+          </PageMenu>
         </CardAction>
       </CardHeader>
       <CasesOverview stats={statsQuery.data} />

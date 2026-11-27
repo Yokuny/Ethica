@@ -57,6 +57,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir na tela os "Filtros prontos" do menu "…" de Serviços e do Histórico de auditoria (não renderizado nesta entrega: o login local pede passkey) — `filtros-lista`
 - [ ] Conferir na tela o botão "Registrar recebimento" no Financeiro do serviço e no diálogo do lançamento (não renderizado nesta entrega: o código de acesso sai no log da API) — `prazos-recebimentos`
 - [ ] Desfazer o lançamento avulso de "Honorários prévios" de R$ 1.110,00 do 5019106-45.2025.8.24.0064: anular o lançamento e registrar o valor como recebimento do honorário fixado — `prazos-recebimentos`
 - [ ] Perguntar à perita se os honorários prévios devem abater sozinhos o honorário fixado (hoje são lançamento à parte; só o recebimento registrado no honorário abate o saldo) — `prazos-recebimentos`
@@ -120,6 +121,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-27 — "Filtros prontos" no menu "…" de Serviços (ocultar finalizados) e do Histórico de auditoria (AD-307) — `filtros-lista`
 - [x] 2026-11-27 — Filtros das listas com "Marcar todas" e o resumo "Todas, exceto …" — `filtros-lista`
 - [x] 2026-11-27 — "Honorários recebidos" deixa de encerrar o serviço; encerram só as fases de perdas, "Acordo / desistência" e "Finalizado" (AD-306) — `fase-servico`
 - [x] 2026-11-27 — Fase "Finalizado" na Assistência técnica, que encerra o serviço (AD-305) — `fase-assistencia`

@@ -96,6 +96,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-307** (2026-11-27, active) — listas com "Filtros" ganham "Filtros prontos" no menu "…" do cabeçalho, em vez de filtro salvo. Cada filtro pronto só escreve as suas chaves
 - **AD-306** (2026-11-27, active) — "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório)
 - **AD-305** (2026-11-27, active) — A Assistência técnica ganha a fase "Finalizado" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo s
 - **AD-304** (2026-11-27, proposed (aguarda a perita confirmar as questões da spec)) — Papel de cada fonte do tribunal. (1) O Datajud é a fonte do estado do processo em código (TPU do CNJ): sugestões de situação, fase e recebim
@@ -105,7 +106,6 @@ _Nenhum._
 - **AD-300** (2026-11-25, active) — A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query
 - **AD-299** (2026-11-24, active) — Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `Pag
 - **AD-298** (2026-11-24, active; os pontos de quebra por janela superseded by AD-300) — Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas
-- **AD-297** (2026-11-24, active) — Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e
 
 ## `.specs/` sem registro em `docs/features/`
 

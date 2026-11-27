@@ -3,6 +3,7 @@ import { Calendar } from '@ethica/ui/components/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@ethica/ui/components/popover';
 import { CalendarRange } from 'lucide-react';
 import { useState } from 'react';
+import { toCalendarDate } from '@/components/date-picker.js';
 import {
   addDaysToDisplayDate,
   daysInDisplayMonth,
@@ -19,8 +20,6 @@ type RangePickerProps = {
 };
 
 const toDate = (value: string): Date => new Date(`${value}T12:00:00`);
-const toCalendarDate = (date: Date): string =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
 // Header calendar of the logistics pages (AD-242), for what `DayStrip` does not show: month and year in lists, the
 // first click is the start and the second the end, and the whole week or month of the first selected day.

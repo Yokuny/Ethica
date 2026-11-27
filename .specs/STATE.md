@@ -1967,6 +1967,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-27
 - **Status**: active
 
+### AD-307
+- **Decision**: listas com "Filtros" ganham "Filtros prontos" no menu "…" do cabeçalho, em vez de filtro salvo. Cada filtro pronto só escreve as suas chaves no endereço da tela (com `page: 1`), sem parâmetro escondido na API: o botão "Filtros" mostra o que foi aplicado e "Limpar" remove. Primeiros: Serviços ("Ocultar finalizados", "Perícias em andamento", "Assistências técnicas em andamento") e Histórico de auditoria (Hoje, Últimos 7 dias, Exclusões, Entradas no sistema, Financeiro).
+- **Reason**: pedido do usuário (2026-11-27): filtro salvo vira visualização padrão que a pessoa esquece como tirar; o pronto é um atalho que fica visível no "Filtros".
+- **Trade-off**: "Ocultar finalizados" é escrito como listas de inclusão (status sem Cancelado e fases sem `CASE_CLOSED_PHASES`, incluindo `custom`), porque o filtro não tem "exceto"; aparece como "Todas, exceto …" na Fase. Um filtro pronto se soma aos já aplicados (não limpa os outros).
+- **Scope**: `apps/web/src/routes/_private/expert-cases/@consts/cases-presets.ts`, `apps/web/src/routes/_private/_admin/activity-log/@consts/activity-log-presets.ts` e o `index.tsx` de cada uma.
+- **Date**: 2026-11-27
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

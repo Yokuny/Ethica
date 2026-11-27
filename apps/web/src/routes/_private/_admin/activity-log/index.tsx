@@ -1,12 +1,15 @@
 import { Button } from '@ethica/ui/components/button';
+import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel } from '@ethica/ui/components/dropdown-menu';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Card, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { PageMenu } from '@/components/page-menu.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { ActivityLogTable } from './@components/activity-log-table.js';
+import { activityLogPresets } from './@consts/activity-log-presets.js';
 import { useActivityLogFilters } from './@hooks/use-activity-log-filters.js';
 import { useActivityLogSearch } from './@hooks/use-activity-log-search.js';
 import { type ActivityLogSearch, activityLogSearchSchema } from './@interface/activityLog.interface.js';
@@ -24,7 +27,20 @@ export function ActivityLogPage() {
 
   return (
     <Card asPage>
-      <CardHeader title={t('activity_log')} description={t('activity_log_page_description')} />
+      <CardHeader title={t('activity_log')} description={t('activity_log_page_description')}>
+        <CardAction>
+          <PageMenu>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>{t('ready_made_filters')}</DropdownMenuLabel>
+              {activityLogPresets().map((preset) => (
+                <DropdownMenuItem key={preset.label} onClick={() => update({ ...preset.filters, page: 1 })}>
+                  {t(preset.label)}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          </PageMenu>
+        </CardAction>
+      </CardHeader>
       <CardContent>
         <DataTable
           filters={{ items: filters }}

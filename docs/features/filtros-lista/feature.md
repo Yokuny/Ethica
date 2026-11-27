@@ -5,7 +5,7 @@ descricao: Botão "Filtros" das listas com opções marcáveis, várias por filt
 data: 2026-11-27
 status: concluido
 areas: [apps/api, apps/web, packages/contracts]
-decisoes: [AD-193, AD-218, AD-223, AD-241]
+decisoes: [AD-193, AD-218, AD-223, AD-241, AD-307]
 spec: [.specs/features/filtros-lista]
 branches: [main]
 ---
@@ -62,12 +62,14 @@ pnpm vitest run packages/contracts/src/schemas/query-list.schema.unit.test.ts ap
 
 ## Pendências
 
+- [ ] Conferir na tela os "Filtros prontos" de Serviços e do Histórico de auditoria (menu, endereço e resumo do "Filtros").
 - [ ] Conferir as telas no celular (não foi possível abrir o sistema local nesta sessão).
 - [ ] Conferir a exportação na tela real (botão, menu e os três arquivos) — a sessão de 2026-11-14 não conseguiu
   entrar no sistema local; o componente tem teste e os arquivos foram gerados à parte.
 
 ## Histórico
 
+- 2026-11-27 — "Filtros prontos" no menu "…" de Serviços ("Ocultar finalizados", "Perícias em andamento", "Assistências técnicas em andamento") e do Histórico de auditoria (Hoje, Últimos 7 dias, Exclusões, Entradas no sistema, Financeiro), em vez de filtro salvo (AD-307). O pronto escreve só as suas chaves no endereço da tela, somando aos filtros já aplicados; "Filtros" mostra e "Limpar" remove. Listas em `@consts/*-presets.ts` de cada tela; `toCalendarDate` passa a ser exportado de `apps/web/src/components/date-picker.tsx` (o `range-picker` da Logística usa o mesmo). Sem conferência na tela: o login local pede passkey.
 - 2026-11-27 — "Marcar todas" e "Limpar" sobem para logo abaixo da busca do filtro, antes das opções (antes ficavam no fim do quadro).
 - 2026-11-27 — Pedido da perita: filtrar "todas as opções, exceto". Cada filtro de opções ganha "Marcar todas" ao lado de "Limpar" (`TableFilterChecklist` em `apps/web/src/components/data-table.tsx`): marca todas e a pessoa desmarca as exceções; com todas menos algumas marcadas, o resumo do filtro mostra "Todas, exceto <opção>" (ou quantas ficaram de fora). Sem mudança na API: a lista segue filtrando pelas opções marcadas. Vale para todas as listas com "Filtros".
 - 2026-11-20 — Todas as listas com a mesma regra de largura de coluna (`TableStack width`: `fit` em uma linha, `text` na faixa de texto longo) e selo de status em uma linha (AD-241). Sem conferência na tela: o login local pede passkey.
