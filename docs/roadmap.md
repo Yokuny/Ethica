@@ -54,6 +54,9 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir na tela o botão "Registrar recebimento" no Financeiro do serviço e no diálogo do lançamento (não renderizado nesta entrega: o código de acesso sai no log da API) — `prazos-recebimentos`
+- [ ] Desfazer o lançamento avulso de "Honorários prévios" de R$ 1.110,00 do 5019106-45.2025.8.24.0064: anular o lançamento e registrar o valor como recebimento do honorário fixado — `prazos-recebimentos`
+- [ ] Perguntar à perita se os honorários prévios devem abater sozinhos o honorário fixado (hoje são lançamento à parte; só o recebimento registrado no honorário abate o saldo) — `prazos-recebimentos`
 - [ ] Conferir na tela (não renderizado nesta entrega; o login exige passkey): números ao lado das abas de Notificações e Laudos, cartão de Serviços agendados mais baixo, "Editar" da rota abrindo o compromisso na Agenda, diálogo "Deslocamento já lançado", cores dos tipos novos na Agenda e o mês no Mix de serviços — `logistica-paginas`, `custo-deslocamento`, `agenda-eventos`, `dashboard`
 - [ ] Apagar à mão no Financeiro as despesas de deslocamento duplicadas que já existem (lançadas antes da AD-301, vencem no dia do lançamento e a tela nova não as acha) — `custo-deslocamento`
 - [ ] Perguntar à perita se o compromisso automático da data da perícia do serviço deve passar de "Vistoria" para o tipo novo "Perícia" (hoje segue Vistoria, AD-302) — `agenda-eventos`
@@ -114,6 +117,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-26 — Recebimento do honorário pelo detalhe do serviço e pelo diálogo do lançamento, abatendo o saldo do honorário fixado — `prazos-recebimentos`
 - [x] 2026-11-25 — Consulta ao Datajud às 05:00 e tempo limite de 120 s, pela sobrecarga do CNJ vista nos logs (AD-303) — `automacao-datajud`
 - [x] 2026-11-25 — Produção: o 0017068-93.2025.5.16.0008 (TRT16) do ETHICA consultado com linha de base em 24/11, pelos logs do worker (a página não foi aberta em produção) — `processos-acompanhados`
 - [x] 2026-11-25 — Worker na Railway com a versão de 2026-11-24 (deploy de 24/11 01:13; logs `datajud.request` nas rodadas de 24 e 25/11) — `processos-acompanhados`

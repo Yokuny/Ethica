@@ -11,7 +11,15 @@ import type { TransactionRecord } from '@/query/transaction.js';
 import { useTransactionForm } from '../@hooks/use-transaction-form.js';
 import { InstallmentsList } from './installments-list.js';
 
-export function TransactionForm({ transaction, onClose }: { transaction?: TransactionRecord; onClose: () => void }) {
+export function TransactionForm({
+  transaction,
+  onClose,
+  onReceive,
+}: {
+  transaction?: TransactionRecord;
+  onClose: () => void;
+  onReceive?: () => void;
+}) {
   const { form, kind, onSubmit, handleKindChange, isPending, errorMessage, caseItems } = useTransactionForm({
     transaction,
     onDone: onClose,
@@ -88,7 +96,9 @@ export function TransactionForm({ transaction, onClose }: { transaction?: Transa
               },
             ]}
           />
-          {transaction?.kind === 'income' && <InstallmentsList transaction={transaction} onChanged={onClose} />}
+          {transaction?.kind === 'income' && (
+            <InstallmentsList transaction={transaction} onChanged={onClose} onReceive={onReceive} />
+          )}
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">
               {errorMessage}

@@ -16,9 +16,11 @@ const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 export function InstallmentsList({
   transaction,
   onChanged,
+  onReceive,
 }: {
   transaction: TransactionRecord;
   onChanged: () => void;
+  onReceive?: () => void;
 }) {
   const queryClient = useQueryClient();
   const mutation = useMutation(reverseInstallmentMutation(queryClient));
@@ -34,11 +36,19 @@ export function InstallmentsList({
 
   return (
     <section className="flex w-full min-w-0 flex-col gap-2">
-      <div className="grid gap-1">
-        <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
-          {t('receipts')}
-        </ItemTitle>
-        <ItemDescription>{`${t('received')} ${formatMoney(transaction.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(transaction.balanceCents ?? 0)}`}</ItemDescription>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="grid gap-1">
+          <ItemTitle role="heading" aria-level={2} className="text-xs uppercase">
+            {t('receipts')}
+          </ItemTitle>
+          <ItemDescription>{`${t('received')} ${formatMoney(transaction.receivedCents ?? 0)} · ${t('balance_due')} ${formatMoney(transaction.balanceCents ?? 0)}`}</ItemDescription>
+        </div>
+        {/* Same rule as the row action: an open fee (not settled nor annulled) takes receipts. */}
+        {onReceive && transaction.status !== 'settled' && transaction.status !== 'canceled' && (
+          <Button type="button" variant="outline" size="sm" onClick={onReceive}>
+            {t('register_receipt')}
+          </Button>
+        )}
       </div>
       {!transaction.installments.length ? (
         <DefaultEmptyData title={t('no_receipts_yet')} />

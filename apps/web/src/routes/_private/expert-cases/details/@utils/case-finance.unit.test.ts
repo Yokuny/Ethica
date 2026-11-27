@@ -27,3 +27,21 @@ describe('caseFinance (SRV-04, SRV-05)', () => {
     expect(result.netCents).toBe(270_000);
   });
 });
+
+describe('caseFinance openFee', () => {
+  const income = (category: TransactionRecord['category'], status: TransactionRecord['status']) =>
+    ({ kind: 'income', category, amountCents: 220_000, receivedCents: 0, status }) as TransactionRecord;
+
+  it('recebimento vai para o honorário fixado ou contratado ainda em aberto', () => {
+    expect(
+      caseFinance(legalCase, [income('advance_fees', 'expected'), income('fixed_fees', 'partial')]).openFee?.category,
+    ).toBe('fixed_fees');
+    expect(caseFinance(legalCase, [income('contracted_fees', 'expected')]).openFee?.category).toBe('contracted_fees');
+  });
+
+  it('sem honorário em aberto (liquidado, anulado ou só prévios) não há onde registrar', () => {
+    expect(caseFinance(legalCase, [income('fixed_fees', 'settled')]).openFee).toBeUndefined();
+    expect(caseFinance(legalCase, [income('fixed_fees', 'canceled')]).openFee).toBeUndefined();
+    expect(caseFinance(legalCase, [income('advance_fees', 'expected')]).openFee).toBeUndefined();
+  });
+});

@@ -2,7 +2,7 @@
 feature: Prazos e recebimentos
 slug: prazos-recebimentos
 descricao: Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail
-data: 2026-11-06
+data: 2026-11-26
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
 decisoes: [AD-103, AD-106, AD-107, AD-109, AD-110, AD-111, AD-112, AD-113, AD-192, AD-200, AD-201, AD-283]
@@ -12,7 +12,7 @@ branches: [feat/prazos-recebimentos]
 
 # Prazos e recebimentos
 
-**Status**: concluido · **Atualizado**: 2026-11-06 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
+**Status**: concluido · **Atualizado**: 2026-11-26 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
 > Documento vivo. Onde divergir de `spec.md`/`design.md` (congelados), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='prazos-recebimentos'`.
@@ -49,7 +49,8 @@ Prazo perdido e honorário esquecido são as duas maiores dores do perito (`PROD
 - `apps/web/src/components/notification-dialog.tsx` e `notification-labels.ts` — leitura/ações do prazo e selos, usados por perícias e agenda.
 - `apps/web/src/routes/_private/expert-cases/@utils/case-columns.tsx` — coluna "Próximo prazo".
 - `apps/web/src/routes/_private/agenda/@components/{calendar-event,month-view,time-grid-view}.tsx` — prazos no calendário.
-- `apps/web/src/routes/_private/finance/@components/{receipt-form,installments-list}.tsx` — registrar e estornar recebimentos.
+- `apps/web/src/components/receipt-form.tsx` — registrar recebimento (Financeiro e detalhe do serviço); `apps/web/src/routes/_private/finance/@components/installments-list.tsx` — lista e estorno.
+- `apps/web/src/routes/_private/expert-cases/details/@components/case-finance.tsx` — "Registrar recebimento" no Financeiro do serviço, no honorário fixado ou contratado em aberto (`openFee` de `@utils/case-finance.ts`).
 - `apps/web/src/routes/_private/account/@components/{account-deadline-reminder,account-calendar-feed}.tsx` — seções da conta.
 - `apps/web/src/components/case-receipts.tsx` — recebimentos da perícia nos diálogos da agenda; `canSeeFinance` em `apps/web/src/query/session.ts`.
 - `apps/web/src/query/notification.ts` — dados de prazo.
@@ -81,6 +82,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-26 — Pedido da perita: o recebimento lançado como receita nova somava ao honorário em vez de abater. "Registrar recebimento" passa a aparecer no Financeiro do serviço, ao lado de "Lançar despesa" (honorário fixado ou contratado em aberto, quem tem `finance` update), e no diálogo do lançamento, na seção Recebimentos (troca o diálogo pelo do recebimento); antes só existia no menu da linha da tabela. O formulário sai de `finance/@components/` para `apps/web/src/components/receipt-form.tsx` (hook junto, sai `use-receipt-form.ts`). Honorários prévios seguem lançamento à parte (pergunta à perita no roadmap).
 - 2026-11-24 — Recebimentos do serviço na agenda (`apps/web/src/components/case-receipts.tsx`): valor em destaque com a descrição abaixo, Recebido e Saldo a receber como rótulo sobre valor, e cada parcela com o valor em destaque e data e conta em tom fraco.
 - 2026-11-23 — Testes de falha do Financeiro (AD-283): três mudanças simultâneas do honorário fixado criavam três receitas e agora criam uma (`dedupeKey` `case_fee:<caseId>` com índice único); data impossível (`2026-02-30`) e valor acima de R$ 1 bilhão param na borda com 400. Também cobertos: parcelas simultâneas nunca passam do valor, outro escritório é 404 em toda operação, honorário anulado não recebe parcela, banco fora devolve `internal_error` sem detalhe. Volume medido à parte (20 mil lançamentos): lista, resumo, fluxo, painel e categorias abaixo de 70 ms.
 

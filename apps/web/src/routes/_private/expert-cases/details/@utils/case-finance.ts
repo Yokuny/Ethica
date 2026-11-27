@@ -13,6 +13,13 @@ export const caseFinance = (legalCase: CaseRecord, transactions: TransactionReco
   const baseCents = legalCase.fixedFeesCents ?? legalCase.proposedFeesCents ?? 0;
   // Without a base fee, paid means every posted fee was received.
   const dueCents = baseCents || income.reduce((total, item) => total + item.amountCents, 0);
+  // The case's fee (fixed or contracted, AD-111/AD-135) still open: receipts go into it and lower its balance.
+  const openFee = income.find(
+    (item) =>
+      (item.category === 'fixed_fees' || item.category === 'contracted_fees') &&
+      item.status !== 'settled' &&
+      item.status !== 'canceled',
+  );
   const payment: PaymentState = receivedCents === 0 ? 'no' : dueCents && receivedCents >= dueCents ? 'yes' : 'partial';
-  return { baseCents, receivedCents, expensesCents, netCents: baseCents - expensesCents, payment, expenses };
+  return { baseCents, receivedCents, expensesCents, netCents: baseCents - expensesCents, payment, expenses, openFee };
 };

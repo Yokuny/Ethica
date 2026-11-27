@@ -98,7 +98,11 @@ export function CaseDetailsPage() {
           <CaseReports legalCase={legalCase} />
           <CaseMovements legalCase={legalCase} />
           {can(session, 'finance') && (
-            <CaseFinance legalCase={legalCase} canCreate={can(session, 'finance', 'create')} />
+            <CaseFinance
+              legalCase={legalCase}
+              canCreate={can(session, 'finance', 'create')}
+              canUpdate={can(session, 'finance', 'update')}
+            />
           )}
           <CaseRelated caseId={legalCase.id} />
         </CardContent>

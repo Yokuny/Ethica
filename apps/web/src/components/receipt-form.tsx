@@ -1,16 +1,37 @@
+import { type CreateInstallment, createInstallmentSchema } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Form } from '@ethica/ui/components/form';
 import { ItemDescription } from '@ethica/ui/components/item';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FormDialog } from '@/components/form-dialog.js';
 import { DateField, MoneyField, TextField } from '@/components/form-fields.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { TransactionRecord } from '@/query/transaction.js';
-import { useReceiptForm } from '../@hooks/use-receipt-form.js';
+import { addInstallmentMutation, type TransactionRecord } from '@/query/transaction.js';
 
+// Registers a receipt on a fee (AD-111): it is an installment of that income, so it lowers its balance.
+// The suggested amount is the balance; the date is the real payment day, always given (AD-201).
 export function ReceiptForm({ transaction, onClose }: { transaction: TransactionRecord; onClose: () => void }) {
-  const { form, onSubmit, isPending, errorMessage } = useReceiptForm({ transaction, onDone: onClose });
+  const queryClient = useQueryClient();
+  const form = useForm<CreateInstallment>({
+    resolver: zodResolver(createInstallmentSchema),
+    defaultValues: { amountCents: transaction.balanceCents ?? transaction.amountCents, date: '', account: '' },
+  });
+  const mutation = useMutation(addInstallmentMutation(queryClient));
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { control } = form;
+
+  const onSubmit = form.handleSubmit((data) => {
+    if (mutation.isPending) return;
+    setErrorMessage(null);
+    mutation.mutate(
+      { id: transaction.id, data: { ...data, account: data.account || undefined } },
+      { onSuccess: onClose, onError: (error: Error) => setErrorMessage(error.message) },
+    );
+  });
 
   return (
     <FormDialog
@@ -35,10 +56,10 @@ export function ReceiptForm({ transaction, onClose }: { transaction: Transaction
             </ItemDescription>
           )}
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={mutation.isPending}>
               {t('cancel')}
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={mutation.isPending}>
               {t('save')}
             </Button>
           </div>

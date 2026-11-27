@@ -5,11 +5,11 @@ import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { ReceiptForm } from '@/components/receipt-form.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { transactionsQuery } from '@/query/transaction.js';
 import { PaymentForm } from './@components/payment-form.js';
-import { ReceiptForm } from './@components/receipt-form.js';
 import { TransactionForm } from './@components/transaction-form.js';
 import { TransactionsFilters } from './@components/transactions-filters.js';
 import { TransactionsTable } from './@components/transactions-table.js';
@@ -90,7 +90,17 @@ export function TransactionsIndexPage() {
         </DataTable>
       </CardContent>
       {panel?.kind === 'create' && <TransactionForm onClose={() => setPanel(null)} />}
-      {panel?.kind === 'edit' && <TransactionForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'edit' && (
+        <TransactionForm
+          transaction={panel.transaction}
+          onClose={() => setPanel(null)}
+          onReceive={
+            session && can(session, 'finance', 'update')
+              ? () => setPanel({ kind: 'receive', transaction: panel.transaction })
+              : undefined
+          }
+        />
+      )}
       {panel?.kind === 'receive' && <ReceiptForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
       {panel?.kind === 'pay' && <PaymentForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
     </Card>

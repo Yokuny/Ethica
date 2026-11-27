@@ -17,6 +17,7 @@ import { AppLink } from '@/components/app-link.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Panel } from '@/components/panel.js';
+import { ReceiptForm } from '@/components/receipt-form.js';
 import { RecordStat, RecordStats } from '@/components/record.js';
 import { categoryLabel, STATE_VARIANT, stateLabel, transactionState } from '@/components/transaction-labels.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
@@ -31,10 +32,19 @@ import { ExpenseForm } from './expense-form.js';
 const ENTRIES_LIMIT = 100;
 
 // Service money (SRV-04, SRV-05): payment from the receipts, expenses and the net fee, plus every
-// entry of the service. Only for whoever sees finance (AD-137); posting needs `finance` create.
-export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; canCreate: boolean }) {
+// entry of the service. Only for whoever sees finance (AD-137); posting an expense needs `finance` create and
+// a receipt on the fee needs `finance` update (the installments route).
+export function CaseFinance({
+  legalCase,
+  canCreate,
+  canUpdate,
+}: {
+  legalCase: CaseRecord;
+  canCreate: boolean;
+  canUpdate: boolean;
+}) {
   const transactions = useQuery(transactionsQuery({ caseId: legalCase.id, limit: ENTRIES_LIMIT }));
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState<'expense' | 'receipt' | null>(null);
   const today = formatDisplayDate(new Date());
   const items = transactions.data?.items ?? [];
   const finance = caseFinance(legalCase, items);
@@ -50,8 +60,13 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
           <AppLink to="/finance" search={{ caseId: legalCase.id }}>
             {t('financial_entries')}
           </AppLink>
+          {canUpdate && finance.openFee && (
+            <Button variant="outline" onClick={() => setAdding('receipt')}>
+              {t('register_receipt')}
+            </Button>
+          )}
           {canCreate && (
-            <Button variant="outline" onClick={() => setAdding(true)}>
+            <Button variant="outline" onClick={() => setAdding('expense')}>
               {t('add_expense')}
             </Button>
           )}
@@ -106,7 +121,10 @@ export function CaseFinance({ legalCase, canCreate }: { legalCase: CaseRecord; c
           )}
         </div>
       )}
-      {adding && <ExpenseForm caseId={legalCase.id} onClose={() => setAdding(false)} />}
+      {adding === 'expense' && <ExpenseForm caseId={legalCase.id} onClose={() => setAdding(null)} />}
+      {adding === 'receipt' && finance.openFee && (
+        <ReceiptForm transaction={finance.openFee} onClose={() => setAdding(null)} />
+      )}
     </Panel>
   );
 }
