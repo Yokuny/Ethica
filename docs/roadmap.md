@@ -121,6 +121,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-27 — Filtro Situação (Em andamento / Finalizados) em Serviços e filtros prontos só de serviço; regra "gestor de serviços, não de perícias" no `AGENTS.md` (AD-308) — `filtros-lista`
 - [x] 2026-11-27 — "Filtros prontos" no menu "…" de Serviços (ocultar finalizados) e do Histórico de auditoria (AD-307) — `filtros-lista`
 - [x] 2026-11-27 — Filtros das listas com "Marcar todas" e o resumo "Todas, exceto …" — `filtros-lista`
 - [x] 2026-11-27 — "Honorários recebidos" deixa de encerrar o serviço; encerram só as fases de perdas, "Acordo / desistência" e "Finalizado" (AD-306) — `fase-servico`

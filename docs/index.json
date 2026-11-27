@@ -64,7 +64,8 @@
         "AD-218",
         "AD-223",
         "AD-241",
-        "AD-307"
+        "AD-307",
+        "AD-308"
       ],
       "spec": [
         ".specs/features/filtros-lista"
@@ -2696,6 +2697,12 @@
     {
       "id": "AD-307",
       "decisao": "listas com \"Filtros\" ganham \"Filtros prontos\" no menu \"…\" do cabeçalho, em vez de filtro salvo. Cada filtro pronto só escreve as suas chaves",
+      "data": "2026-11-27",
+      "status": "active"
+    },
+    {
+      "id": "AD-308",
+      "decisao": "o Ethica é gestor de serviços: texto, filtros e filtros prontos falam de serviço e valem para todo tipo de escritório, sem recurso que só si",
       "data": "2026-11-27",
       "status": "active"
     }

@@ -1,6 +1,7 @@
 import {
   CASE_LIST_SORTS,
   CASE_PHASES,
+  CASE_SITUATIONS,
   CASE_STATUS,
   COURTTYPES,
   type CreateCase,
@@ -17,6 +18,8 @@ export const casesSearchSchema = z.object({
   phase: z.array(z.enum(CASE_PHASES)).optional(),
   status: z.array(z.enum(CASE_STATUS)).optional(),
   courtType: z.array(z.enum(COURTTYPES)).optional(),
+  // Open or closed (AD-308).
+  situation: z.array(z.enum(CASE_SITUATIONS)).optional(),
   // "Tipo" filter (AD-177): Perícia, Assistência técnica or an own type by name.
   role: z.array(z.enum(['court_expert', 'technical_assistant'])).optional(),
   serviceType: z.array(z.string()).optional(),

@@ -3,6 +3,7 @@ import type {
   CaseListSort,
   CasePhase,
   CaseRole,
+  CaseSituation,
   CaseStatus,
   CourtType,
   CreateCase,
@@ -70,6 +71,7 @@ export type CasesQueryParams = {
   phase?: CasePhase[];
   status?: CaseStatus[];
   courtType?: CourtType[];
+  situation?: CaseSituation[];
   role?: ('court_expert' | 'technical_assistant')[];
   serviceType?: string[];
   serviceOrder?: string;

@@ -1155,9 +1155,9 @@ const translations: Record<string, string> = {
   all_except: 'Todas, exceto',
   // Ready-made filters of the list "…" menu (AD-307).
   ready_made_filters: 'Filtros prontos',
-  hide_closed: 'Ocultar finalizados',
-  open_expert_examinations: 'Perícias em andamento',
-  open_technical_assistances: 'Assistências técnicas em andamento',
+  services_in_progress: 'Serviços em andamento',
+  situation: 'Situação',
+  finished_plural: 'Finalizados',
   last_7_days: 'Últimos 7 dias',
   deletions: 'Exclusões',
   sign_ins: 'Entradas no sistema',

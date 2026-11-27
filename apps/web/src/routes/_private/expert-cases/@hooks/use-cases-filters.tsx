@@ -31,7 +31,7 @@ function ServiceOrderField({ value, onChange }: { value?: string; onChange: Patc
   );
 }
 
-// "Filtros" of the services list (FIL-01): control number (OS), phase and status (AD-178), sphere, type (AD-177)
+// "Filtros" of the services list (FIL-01): control number (OS), situation (AD-308), phase and status (AD-178), sphere, type (AD-177)
 // and delivery period. Option filters take several values (FIL-03).
 export function useCasesFilters(search: CasesSearch, onChange: Patch): TableFilterItem[] {
   const officeTypes = useQuery(serviceTypesQuery);
@@ -51,6 +51,15 @@ export function useCasesFilters(search: CasesSearch, onChange: Patch): TableFilt
       label: t('control_number'),
       summary: search.serviceOrder,
       content: <ServiceOrderField value={search.serviceOrder} onChange={onChange} />,
+    },
+    {
+      label: t('situation'),
+      items: [
+        { value: 'open', label: t('in_progress') },
+        { value: 'closed', label: t('finished_plural') },
+      ],
+      value: search.situation,
+      onChange: (situation) => onChange({ situation: situation as CasesSearch['situation'], page: 1 }),
     },
     {
       label: t('service_phase'),

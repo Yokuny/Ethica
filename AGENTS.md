@@ -87,6 +87,7 @@ Código em inglês, texto do usuário em pt-BR. Vale para back-end, front-end, c
 
 ## Regras gerais
 
+- **O Ethica é gestor de serviços, não de perícias** (AD-308). Texto de tela, filtro, atalho, filtro pronto, e-mail e documentação falam de **serviço**, termo que inclui perícia, assistência técnica e os tipos próprios do escritório. Nada de recurso ou rótulo que só sirva a um tipo de serviço ou de usuário (ex.: "Perícias em andamento") quando a mesma ideia vale para todos ("Serviços em andamento"); o tipo específico só aparece onde a regra é de fato só dele (esfera só na perícia, fases de cada tipo).
 - Caminhos em docs sempre a partir da raiz do repo (`apps/web/src/...`), nunca relativos ao arquivo.
 - Docs apontam para o código como fonte da verdade — não copie enums, chaves, permissões ou valores que podem mudar; referencie o arquivo.
 - Não copie `FR-`/`AC-`/tabelas de design/evidência de validação para dentro do `feature.md`; linke o `.specs/` uma vez (campo `spec:`).

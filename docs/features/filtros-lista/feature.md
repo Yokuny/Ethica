@@ -5,7 +5,7 @@ descricao: Botão "Filtros" das listas com opções marcáveis, várias por filt
 data: 2026-11-27
 status: concluido
 areas: [apps/api, apps/web, packages/contracts]
-decisoes: [AD-193, AD-218, AD-223, AD-241, AD-307]
+decisoes: [AD-193, AD-218, AD-223, AD-241, AD-307, AD-308]
 spec: [.specs/features/filtros-lista]
 branches: [main]
 ---
@@ -19,6 +19,7 @@ branches: [main]
 
 ## O que foi feito
 
+- No menu "…" de Serviços e do Histórico de auditoria, "Filtros prontos" aplicam um grupo de filtros pelo endereço da tela (AD-307, AD-308).
 - Em Serviços, Varas e Diário de bordo, "Filtros" abre uma lista curta com o nome de cada filtro e, ao lado, o que
   está aplicado. Um clique no filtro mostra as opções dele (busca quando a lista é longa, marcação em cada opção e
   "Limpar") ou os campos (número de controle, período), com seta para voltar.
@@ -69,6 +70,7 @@ pnpm vitest run packages/contracts/src/schemas/query-list.schema.unit.test.ts ap
 
 ## Histórico
 
+- 2026-11-27 — Filtros prontos de Serviços falam só de serviço (AD-308): "Serviços em andamento" e "Serviços finalizados" no lugar de "Ocultar finalizados", "Perícias em andamento" e "Assistências técnicas em andamento". Ambos usam o filtro novo **Situação** (Em andamento / Finalizados) do "Filtros", com `situation` na API (`apps/api/src/modules/case/case.repository.ts`).
 - 2026-11-27 — "Filtros prontos" no menu "…" de Serviços ("Ocultar finalizados", "Perícias em andamento", "Assistências técnicas em andamento") e do Histórico de auditoria (Hoje, Últimos 7 dias, Exclusões, Entradas no sistema, Financeiro), em vez de filtro salvo (AD-307). O pronto escreve só as suas chaves no endereço da tela, somando aos filtros já aplicados; "Filtros" mostra e "Limpar" remove. Listas em `@consts/*-presets.ts` de cada tela; `toCalendarDate` passa a ser exportado de `apps/web/src/components/date-picker.tsx` (o `range-picker` da Logística usa o mesmo). Sem conferência na tela: o login local pede passkey.
 - 2026-11-27 — "Marcar todas" e "Limpar" sobem para logo abaixo da busca do filtro, antes das opções (antes ficavam no fim do quadro).
 - 2026-11-27 — Pedido da perita: filtrar "todas as opções, exceto". Cada filtro de opções ganha "Marcar todas" ao lado de "Limpar" (`TableFilterChecklist` em `apps/web/src/components/data-table.tsx`): marca todas e a pessoa desmarca as exceções; com todas menos algumas marcadas, o resumo do filtro mostra "Todas, exceto <opção>" (ou quantas ficaram de fora). Sem mudança na API: a lista segue filtrando pelas opções marcadas. Vale para todas as listas com "Filtros".

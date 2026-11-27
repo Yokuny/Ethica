@@ -290,10 +290,13 @@ export const listCases = async (
   ids?: string[],
 ): Promise<{ items: CaseRecord[]; total: number }> =>
   withDbTiming('case.listCases', async () => {
+    const situation = query.situation?.length === 1 ? query.situation[0] : undefined;
     const filters = {
       ...(query.phase ? { phase: { $in: query.phase } } : {}),
       ...(query.status ? { status: { $in: query.status } } : {}),
       ...(query.courtType ? { courtType: { $in: query.courtType } } : {}),
+      // Situação (AD-308): with only one checked; `$and`/`$nor` keep the phase and status filters above.
+      ...(situation === 'open' ? { $and: [OPEN] } : situation === 'closed' ? { $nor: [OPEN] } : {}),
       // "Tipo" with several values (FIL-03): Perícia and Assistência técnica have no own type name (AD-177).
       ...(query.role || query.serviceType
         ? {

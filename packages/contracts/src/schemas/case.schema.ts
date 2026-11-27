@@ -83,6 +83,9 @@ export const CASE_CLOSED_PHASES: readonly CasePhase[] = [
   'assistance_settlement',
   'assistance_closed',
 ];
+// "Situação" filter of the services list (AD-308): open (with work ahead) or closed, by the rule above.
+export const CASE_SITUATIONS = ['open', 'closed'] as const;
+export type CaseSituation = (typeof CASE_SITUATIONS)[number];
 export const isCaseClosed = (data: { status: CaseStatus; phase: CasePhase }): boolean =>
   data.status === 'canceled' || CASE_CLOSED_PHASES.includes(data.phase);
 

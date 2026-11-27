@@ -96,6 +96,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-308** (2026-11-27, active) — o Ethica é gestor de serviços: texto, filtros e filtros prontos falam de serviço e valem para todo tipo de escritório, sem recurso que só si
 - **AD-307** (2026-11-27, active) — listas com "Filtros" ganham "Filtros prontos" no menu "…" do cabeçalho, em vez de filtro salvo. Cada filtro pronto só escreve as suas chaves
 - **AD-306** (2026-11-27, active) — "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório)
 - **AD-305** (2026-11-27, active) — A Assistência técnica ganha a fase "Finalizado" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo s
@@ -105,7 +106,6 @@ _Nenhum._
 - **AD-301** (2026-11-25, active) — O lançamento do custo de deslocamento (Planejamento de rota) não duplica: a despesa vence no primeiro dia da rota (antes, no dia do lançamen
 - **AD-300** (2026-11-25, active) — A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query
 - **AD-299** (2026-11-24, active) — Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `Pag
-- **AD-298** (2026-11-24, active; os pontos de quebra por janela superseded by AD-300) — Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas
 
 ## `.specs/` sem registro em `docs/features/`
 

@@ -12,6 +12,7 @@ import type {
 import {
   CASE_LIST_SORTS,
   CASE_PHASES,
+  CASE_SITUATIONS,
   CASE_STATUS,
   COURTTYPES,
   calendarDateSchema,
@@ -46,6 +47,8 @@ export const listCasesQuerySchema = z
     phase: queryListSchema(z.enum(CASE_PHASES)),
     status: queryListSchema(z.enum(CASE_STATUS)),
     courtType: queryListSchema(z.enum(COURTTYPES)),
+    // Open or closed (AD-308); both checked filter nothing.
+    situation: queryListSchema(z.enum(CASE_SITUATIONS)),
     // "Tipo" filter (AD-177): Perícia or Assistência técnica by `role`, an own type by its name.
     role: queryListSchema(z.enum(['court_expert', 'technical_assistant'])),
     serviceType: queryListSchema(z.string().trim().min(1).max(80)),

@@ -360,6 +360,10 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
     expect(await ids('q=0007')).toEqual([own.body.data.id]);
     expect(await ids('phase=awaiting_judge')).toEqual([judicial.body.data.id]);
     expect(await ids('status=suspended')).toEqual([assistance.body.data.id]);
+    // Situação (AD-308): none of the three is closed.
+    expect(await ids('situation=open')).toHaveLength(3);
+    expect(await ids('situation=closed')).toEqual([]);
+    expect(await ids('situation=open&situation=closed')).toHaveLength(3);
     expect(await ids('deliveryFrom=2026-12-01&deliveryTo=2026-12-31')).toEqual([assistance.body.data.id]);
     expect(await ids('deliveryFrom=2027-01-01')).toEqual([judicial.body.data.id]);
     expect((await admin.as(request(app).get('/expert-cases?status=custom'))).status).toBe(400);

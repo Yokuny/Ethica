@@ -1975,6 +1975,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-27
 - **Status**: active
 
+### AD-308
+- **Decision**: o Ethica é gestor de **serviços**: texto, filtros e filtros prontos falam de serviço e valem para todo tipo de escritório, sem recurso que só sirva a perícia ou assistência técnica quando a ideia vale para todos (regra em `AGENTS.md`). Os filtros prontos de Serviços passam a ser "Serviços em andamento" e "Serviços finalizados" (saem "Ocultar finalizados", "Perícias em andamento" e "Assistências técnicas em andamento" da AD-307), sobre um filtro novo **Situação** (Em andamento / Finalizados) no "Filtros" e na API (`situation`, `CASE_SITUATIONS`), pela regra de encerrado da AD-306. Supersede a lista de filtros prontos de Serviços da AD-307.
+- **Reason**: pedido do usuário (2026-11-27): falar de perícia é um escopo fechado; um atalho só de perícia ou só de assistência é inútil para os outros grupos de usuários. "Finalizado" (cancelado **ou** fase que encerra) não cabe nos filtros de inclusão de status e fase.
+- **Trade-off**: um filtro a mais no "Filtros"; com as duas opções marcadas não filtra nada.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `apps/api/src/modules/case/case.{schema,repository}.ts`, `apps/web/src/routes/_private/expert-cases/` (`@consts/cases-presets.ts`, `@hooks/use-cases-filters.tsx`), `AGENTS.md`, `docs/glossary.md`.
+- **Date**: 2026-11-27
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.
