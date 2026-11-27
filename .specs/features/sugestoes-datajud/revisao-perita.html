@@ -1,0 +1,182 @@
+<title>Revisão das sugestões do tribunal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column; each question is a numbered card the perita answers by its number. */
+:root {
+  --bg: #f7f6fb;
+  --surface: #ffffff;
+  --fg: #1f1d2b;
+  --muted: #514e63;
+  --line: #e3e0ee;
+  --accent: #6127b8;
+  --accent-soft: #efe7fb;
+  --ok: #165c3a;
+  --ok-soft: #e3f4ea;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-head: "Space Grotesk", "Source Sans 3", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15141c; --surface: #1e1c28; --fg: #ece9f5; --muted: #a8a3bd; --line: #2f2c3d;
+    --accent: #b591f2; --accent-soft: #2c2440; --ok: #6fd3a0; --ok-soft: #1b3428; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15141c; --surface: #1e1c28; --fg: #ece9f5; --muted: #a8a3bd; --line: #2f2c3d;
+  --accent: #b591f2; --accent-soft: #2c2440; --ok: #6fd3a0; --ok-soft: #1b3428; color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.55;
+}
+.page {
+  max-width: 46rem; margin: 0 auto; padding-block: 2.5rem 4rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 2.25rem;
+}
+header { display: grid; gap: .75rem; }
+.eyebrow { font-family: var(--font-head); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--font-head); font-size: clamp(1.7rem, 4vw, 2.2rem); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-head); font-size: 1.2rem; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.lead { color: var(--muted); max-width: 62ch; }
+.how { background: var(--accent-soft); border-radius: 12px; padding: 1rem 1.25rem; display: grid; gap: .35rem; }
+.how strong { color: var(--accent); }
+section { display: grid; gap: 1rem; }
+.section-head { display: grid; gap: .25rem; }
+.section-head p { color: var(--muted); }
+ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; display: grid; grid-template-columns: 2.25rem 1fr; gap: .25rem 1rem; }
+.num { font-family: var(--font-head); font-weight: 600; font-size: 1.05rem; color: var(--accent); font-variant-numeric: tabular-nums; grid-row: span 3; }
+.q h3 { font-size: 1.02rem; font-weight: 700; margin: 0; min-width: 0; }
+.q .prop { min-width: 0; }
+.q .why { color: var(--muted); font-size: .94rem; min-width: 0; }
+.tag { display: inline-block; font-size: .78rem; font-weight: 600; padding: .1rem .5rem; border-radius: 999px; background: var(--ok-soft); color: var(--ok); margin-left: .35rem; vertical-align: .1rem; }
+footer { color: var(--muted); font-size: .92rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+@media (max-width: 480px) { .q { grid-template-columns: 1fr; } .num { grid-row: auto; } }
+</style>
+
+<main class="page">
+  <header>
+    <span class="eyebrow">Ethica · Automação Datajud</span>
+    <h1>O que o sistema vai sugerir a partir do tribunal</h1>
+    <p class="lead">O tribunal informa o que aconteceu no processo (suspensão, arquivamento, alvará), mas não o texto. Com isso o Ethica vai sugerir mudanças no serviço e no financeiro. Nada muda sozinho: você sempre aceita ou rejeita. Abaixo está o que pensamos para cada situação.</p>
+    <div class="how">
+      <p><strong>Como responder:</strong> mande o número de cada item com "concordo" ou com o que você faria diferente.</p>
+      <p>Exemplo: "1 concordo, 5 só depois do trânsito em julgado, 10 quero também a comarca".</p>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>Situação do serviço: suspenso ou ativo</h2>
+      <p>Quando o processo para ou volta a andar no tribunal.</p>
+    </div>
+    <ol>
+      <li class="q"><span class="num">1</span>
+        <h3>Processo suspenso no tribunal</h3>
+        <p class="prop">Qualquer motivo de suspensão (decisão do juiz, aguardando outro processo, recurso repetitivo, aguardando precatório ou RPV e os demais) sugere mudar o serviço para <b>Suspenso</b>.</p>
+        <p class="why">Hoje só alguns motivos são reconhecidos; a ideia é reconhecer todos os da tabela do CNJ.</p>
+      </li>
+      <li class="q"><span class="num">2</span>
+        <h3>Correção: fim da suspensão sugerindo "Suspenso"</h3>
+        <p class="prop">Encontramos três movimentos do tribunal que significam o <b>fim</b> da suspensão, mas hoje o sistema sugere "Suspenso" para eles. Vamos corrigir para sugerir <b>Ativo</b>.</p>
+        <p class="why">Um erro nosso, que encontramos conferindo a tabela oficial do CNJ.</p>
+      </li>
+      <li class="q"><span class="num">3</span>
+        <h3>Processo volta a andar</h3>
+        <p class="prop">Fim da suspensão, reativação ou desarquivamento sugerem mudar o serviço para <b>Ativo</b>.</p>
+        <p class="why">Todos dizem a mesma coisa: o processo saiu da espera.</p>
+      </li>
+      <li class="q"><span class="num">4</span>
+        <h3>Arquivamento provisório</h3>
+        <p class="prop">Sugere <b>Suspenso</b>, não encerrado.</p>
+        <p class="why">Na trabalhista costuma ser a execução parada à espera de bens do devedor: o processo pode voltar.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Honorários: hora de cobrar e de encerrar</h2>
+      <p>Quando o tribunal indica que é hora de receber, ou que o processo terminou.</p>
+    </div>
+    <ol>
+      <li class="q"><span class="num">5</span>
+        <h3>Hora de cobrar os honorários</h3>
+        <p class="prop">Quando o processo transita em julgado ou começa a liquidação ou a execução, e o serviço ainda tem honorário a receber, chega um <b>aviso</b> "Hora de cobrar os honorários" com um botão que abre o lançamento.</p>
+        <p class="why">É um aviso, não uma mudança: a ação é sua (cobrar ou peticionar). Só vem se houver honorário em aberto.</p>
+      </li>
+      <li class="q"><span class="num">6</span>
+        <h3>Esse aviso só uma vez por serviço</h3>
+        <p class="prop">Mesmo que o tribunal registre trânsito em julgado, liquidação e execução em sequência, o aviso de cobrar vem <b>uma vez só</b>.</p>
+        <p class="why">Três avisos iguais seguidos seriam ruído.</p>
+      </li>
+      <li class="q"><span class="num">7</span>
+        <h3>Processo arquivado com honorários já recebidos</h3>
+        <p class="prop">Arquivamento definitivo, baixa definitiva ou fim da execução sugerem mudar a fase para <b>Honorários recebidos</b>, o que encerra o serviço. Vale para perícia e para assistência técnica.</p>
+        <p class="why">O processo acabou e não há mais nada a receber.</p>
+      </li>
+      <li class="q"><span class="num">8</span>
+        <h3>Processo arquivado com honorário em aberto</h3>
+        <p class="prop">O sistema <b>não</b> sugere encerrar. Manda um aviso "Processo arquivado com honorário em aberto", com o botão para o lançamento.</p>
+        <p class="why">Encerrar o serviço esconderia dinheiro que ainda falta receber.</p>
+      </li>
+      <li class="q"><span class="num">9</span>
+        <h3>Pagamento logo antes do arquivamento</h3>
+        <p class="prop">No tribunal é comum o alvará ou a RPV paga vir pouco antes do arquivamento. Nesse caso o sistema não avisa "honorário em aberto": ele espera você confirmar o recebimento e, em seguida, sugere encerrar o serviço.</p>
+        <p class="why">Evita um aviso de "em aberto" que já está sendo pago.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Preencher o serviço pelo número do processo</h2>
+      <p>No cadastro, ao lado do número, um botão "Buscar no tribunal" completa o resto.</p>
+    </div>
+    <ol>
+      <li class="q"><span class="num">10</span>
+        <h3>O que é preenchido</h3>
+        <p class="prop">Vara, data de ajuizamento e objeto (os assuntos do processo, como "Adicional de Insalubridade"). Só os campos que estiverem <b>vazios</b>; você revisa antes de salvar, como no preenchimento pelo PDF. Esfera e tribunal já saem do próprio número.</p>
+        <p class="why">O tribunal não informa partes, advogados nem o nome da comarca; esses virão de outra fonte depois.</p>
+      </li>
+      <li class="q"><span class="num">11</span>
+        <h3>Só para quem tem a Automação</h3>
+        <p class="prop">O botão funciona no plano com Automação. No plano sem ela, mostra a oferta do módulo.</p>
+        <p class="why">Faz parte do que o módulo oferece.</p>
+      </li>
+      <li class="q"><span class="num">12</span>
+        <h3>Quando o tribunal demora ou não responde</h3>
+        <p class="prop">O sistema do CNJ anda sobrecarregado e recusa muitas consultas. A busca espera até 2 minutos; se não vier, você salva normalmente e, na madrugada, a automação busca de novo e traz uma <b>sugestão</b> "Preencher com os dados do tribunal".</p>
+        <p class="why">Você não fica presa no cadastro esperando o tribunal.</p>
+      </li>
+      <li class="q"><span class="num">13</span>
+        <h3>Também pela automação</h3>
+        <p class="prop">Em todo serviço acompanhado, na primeira vez que o sistema encontra o processo, se vara, data de ajuizamento ou objeto estiverem vazios, chega a mesma sugestão de preenchimento.</p>
+        <p class="why">Aceitar grava só o que ainda estiver vazio naquele momento.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Na tela</h2>
+    </div>
+    <ol>
+      <li class="q"><span class="num">14</span>
+        <h3>Lista "No tribunal" mais limpa</h3>
+        <p class="prop">Esconder "Decurso de prazo", juntar "Publicação" e "Disponibilização no Diário" numa linha só e agrupar documentos iguais do mesmo dia (por exemplo, "Alvará ×16" em vez de 16 linhas).</p>
+        <p class="why">Hoje a maior parte da lista é repetição sem informação nova.</p>
+      </li>
+      <li class="q"><span class="num">15</span>
+        <h3>Botão da sugestão ao lado do dado <span class="tag">já decidido</span></h3>
+        <p class="prop">A sugestão aparece ao lado do dado que ela muda (situação, fase, parcela) e no topo da página, num botão com a borda animada em roxo e rosa. Da notificação, além de aceitar e rejeitar, há um botão para abrir o serviço ou o lançamento.</p>
+        <p class="why">Só para você saber como vai ficar; não precisa responder.</p>
+      </li>
+    </ol>
+  </section>
+
+  <footer>Atualizado em 27/11/2026. O conteúdo das intimações (o texto publicado no Diário) virá numa próxima etapa, com outra fonte.</footer>
+</main>
