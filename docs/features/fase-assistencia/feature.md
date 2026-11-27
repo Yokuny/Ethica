@@ -5,7 +5,7 @@ descricao: Assistência técnica com lista própria de fases do serviço, da pro
 data: 2026-11-27
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-186, AD-305]
+decisoes: [AD-186, AD-305, AD-306]
 spec: [.specs/features/fase-assistencia]
 branches: [main]
 ---
@@ -21,7 +21,7 @@ branches: [main]
 
 - Com o tipo **Assistência técnica**, "Fase do serviço" mostra uma lista própria, sem grupos: as 12 fases da perita mais Proposta de honorários enviada, Honorários recebidos e Acordo / desistência. A perícia segue com a lista em grupos (`fase-servico`) e o tipo do escritório com as fases digitadas.
 - A API recusa fase de uma lista no serviço do outro tipo; assistência nova começa em "Contratado"; trocar o tipo no formulário troca a fase quando a atual não serve.
-- Encerram a assistência só Honorários recebidos e Acordo / desistência (e o status Cancelado). "Assistência finalizada" continua em aberto.
+- Encerram a assistência só Acordo / desistência e Finalizado (e o status Cancelado, AD-306). "Assistência finalizada" e "Honorários recebidos" continuam em aberto.
 - "Laudos entregues" conta a assistência de "Parecer técnico entregue" em diante; concluir o parecer com a entrega leva a essa fase.
 - Assistências já cadastradas com fase da perícia passaram para "Contratado" na subida da API (as de Honorários recebidos ficaram).
 - Planilha: fase da assistência reconhecida pelo texto; fase da perícia numa assistência fica em branco e vai às observações com "(!)".
@@ -52,5 +52,6 @@ pnpm vitest run apps/api/src/modules/case apps/api/src/modules/documents/report.
 
 ## Histórico
 
+- 2026-11-27 — Só "Acordo / desistência" e "Finalizado" encerram a assistência; "Honorários recebidos" passa a deixá-la em aberto (AD-306).
 - 2026-11-27 — Pedido da perita: fase "Finalizado" (`assistance_closed`) no fim da lista, que encerra a assistência mesmo sem os honorários recebidos; "Assistência finalizada" segue em aberto (AD-305). Rótulo na tela e no PDF; e2e em `apps/api/src/modules/case/service.router.e2e.test.ts`.
 - 2026-11-04 — Feature entregue a pedido da perita (AD-186).

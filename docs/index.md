@@ -96,6 +96,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-306** (2026-11-27, active) — "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório)
 - **AD-305** (2026-11-27, active) — A Assistência técnica ganha a fase "Finalizado" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo s
 - **AD-304** (2026-11-27, proposed (aguarda a perita confirmar as questões da spec)) — Papel de cada fonte do tribunal. (1) O Datajud é a fonte do estado do processo em código (TPU do CNJ): sugestões de situação, fase e recebim
 - **AD-303** (2026-11-25, active) — A consulta diária ao Datajud começa às 05:00 de Brasília (era 03:00, AD-277) e o tempo limite de cada chamada sobe de 60 s para 120 s (`DATA
@@ -105,7 +106,6 @@ _Nenhum._
 - **AD-299** (2026-11-24, active) — Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `Pag
 - **AD-298** (2026-11-24, active; os pontos de quebra por janela superseded by AD-300) — Colunas da faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) pelo número de células, nas duas variantes: 2 → 2 colunas
 - **AD-297** (2026-11-24, active) — Grupo C do plano de simplificação: o bloco simples do `Panel` (título, descrição e ações por props, tamanhos `lg`/`default`/`sm`/`xs`) sai e
-- **AD-296** (2026-11-24, active) — Grupo B do plano de simplificação: saem `RecordTable`, `RecordTableRow`, `RecordTableMedia` e `RecordTableCell` de `apps/web/src/components/
 
 ## `.specs/` sem registro em `docs/features/`
 

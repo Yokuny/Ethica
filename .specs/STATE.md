@@ -1959,6 +1959,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-27
 - **Status**: active
 
+### AD-306
+- **Decision**: "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório). Encerram só o status Cancelado e as fases `CASE_CLOSED_PHASES`: na perícia Desistência, Destituição e Acordo; na assistência "Acordo / desistência" e "Finalizado" (AD-305). Supersede a parte de "Honorários recebidos" encerrar da AD-178 e da AD-186.
+- **Reason**: pedido da perita (2026-11-27): na assistência, só acordo/desistência e Finalizado encerram; perguntada, confirmou que vale também para a perícia.
+- **Trade-off**: serviço em "Honorários recebidos" segue contando como em aberto (faixa, Dashboard, Automação Datajud continua acompanhando o processo e propondo sugestões) até a perita mudar para uma fase que encerra; tipo do escritório só encerra pelo status Cancelado.
+- **Scope**: `packages/contracts/src/schemas/case.schema.ts` (`CASE_CLOSED_PHASES`); testes em `apps/api/src/modules/{case,automation}/` e `packages/db/src/workerReads.int.test.ts`.
+- **Date**: 2026-11-27
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

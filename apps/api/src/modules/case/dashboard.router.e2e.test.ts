@@ -75,7 +75,7 @@ describe('Dashboard (DSH)', () => {
     await Case.collection.insertMany([
       { ...base(tenant._id, 'a', { nominationDate: nominated }), createdAt: new Date() },
       {
-        ...base(tenant._id, 'b', { nominationDate: `${shiftMonth(month, -30)}-01`, phase: 'fees_received' }),
+        ...base(tenant._id, 'b', { nominationDate: `${shiftMonth(month, -30)}-01`, phase: 'settlement' }),
         createdAt: new Date(),
       },
       { ...base(tenant._id, 'c', { status: 'canceled', nominationDate: nominated }), createdAt: new Date() },

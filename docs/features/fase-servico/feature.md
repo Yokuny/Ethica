@@ -5,7 +5,7 @@ descricao: Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na
 data: 2026-11-27
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
-decisoes: [AD-178, AD-180, AD-196]
+decisoes: [AD-178, AD-180, AD-196, AD-306]
 spec: [.specs/features/fase-servico]
 branches: [main]
 ---
@@ -23,7 +23,7 @@ branches: [main]
 - **Esfera** (Trabalhista, Cível, Federal) só aparece, e é obrigatória, na perícia. Saiu a esfera Extrajudicial.
 - **Assistência técnica** usa o formulário de dados do contratante, como o tipo novo.
 - **Fase do serviço** (antes "Status do serviço"): a lista da perita em grupos (inicial, intermediária, de perdas, final, de recebimento, auxiliares) na perícia e na assistência; no tipo novo, as fases digitadas nele, "Honorários recebidos" ou cadastrar nova.
-- **Status**: Ativo, Suspenso, Cancelado. Cancelado, as fases de perdas e "Honorários recebidos" encerram o serviço; Suspenso não conta como parado.
+- **Status**: Ativo, Suspenso, Cancelado. Cancelado e as fases de perdas (na assistência, "Acordo / desistência" e "Finalizado") encerram o serviço; "Honorários recebidos" não encerra (AD-306); Suspenso não conta como parado.
 - Obrigatórios com asterisco: tipo, esfera (perícia), fase, status, objeto, número do processo, tribunal e data da nomeação (perícia).
 - Lista com a coluna Fase (no tom do status), filtros por Fase e Status, detalhe com a fase e o status, ficha em PDF com Fase e Status, gráfico do início por grupo de fase.
 - Data, hora e local da perícia seguem indo para a agenda como digitados (AD-160, AD-169), sem mudança.
@@ -68,6 +68,7 @@ pnpm vitest run apps/api/src/modules/case packages/db/src/models/case.model.int.
 
 ## Histórico
 
+- 2026-11-27 — "Honorários recebidos" deixa de encerrar o serviço, na perícia, na assistência e nos tipos do escritório (AD-306, pedido da perita); encerram o status Cancelado e as fases de `CASE_CLOSED_PHASES` (`packages/contracts/src/schemas/case.schema.ts`).
 - 2026-11-27 — Pedido da perita: fase inicial "Nomeado" (`nominated`, `packages/contracts/src/schemas/case.schema.ts`) antes de "Nomeação aceita", para o processo em análise antes do aceite ou da escusa. Rótulos na tela e no PDF; na importação de planilha, o texto "Nomeado" passa a cair nessa fase (antes ia para "Aguardando agendamento"). O padrão do cadastro segue "Aguardando agendamento"; os serviços já gravados não mudam.
 - 2026-11-05 — Fases da perícia passam de 34 para 20, com nomes curtos: as redundantes se juntam e os serviços salvos vão para a fase equivalente ao subir o sistema (AD-196). As impugnações deixam de ter o número da rodada.
 - 2026-11-04 — `apps/api/scripts/seed-demo.ts` passa a gravar a fase (e status ativo) nos serviços de demonstração; o script ainda usava as etapas antigas e falhava ao rodar.

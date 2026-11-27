@@ -33,7 +33,7 @@ describe('listTrackedCases (PAC-03)', () => {
     const withoutModule = await seedTenant('22333444000105', false);
     const tracked = await seedCase(office, '0017068-93.2025.5.16.0008');
     await seedCase(office, '0000002-00.2026.8.26.0100', { courtType: 'civil' });
-    await seedCase(office, '0000003-00.2026.5.16.0001', { phase: 'fees_received' });
+    await seedCase(office, '0000003-00.2026.5.16.0001', { phase: 'settlement' });
     await seedCase(office, '0000004-00.2026.5.16.0001', { status: 'canceled' });
     const otherTracked = await seedCase(other, '0024364-65.2020.5.24.0091');
     await seedCase(withoutModule, '0000005-00.2026.5.16.0001');

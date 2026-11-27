@@ -76,11 +76,10 @@ export type SortOrder = (typeof SORT_ORDERS)[number];
 // Service status (AD-178), apart from the phase.
 export const CASE_STATUS = ['active', 'suspended', 'canceled'] as const;
 export type CaseStatus = (typeof CASE_STATUS)[number];
-// Closed (AD-178): canceled, or a loss phase, or fees received, or the assistance closed. Suspended is open but
-// not stalled.
+// Closed (AD-178, AD-306): canceled, or a loss phase (in the assistance, "Acordo / desistência"), or the
+// assistance "Finalizado". Fees received do not close a service. Suspended is open but not stalled.
 export const CASE_CLOSED_PHASES: readonly CasePhase[] = [
   ...CASE_PHASE_GROUPS.losses,
-  'fees_received',
   'assistance_settlement',
   'assistance_closed',
 ];

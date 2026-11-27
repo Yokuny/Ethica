@@ -199,14 +199,14 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
       { name: 'Avaliação de imóvel', role: 'other', roleName: 'Consultoria', phases: ['Aguardando documentos'] },
     ]);
 
-    // "Honorários recebidos" closes it and drops the typed phase.
+    // "Honorários recebidos" drops the typed phase.
     const done = await admin.as(request(app).patch(`/expert-cases/${id}`)).send({ phase: 'fees_received' });
     expect(done.status).toBe(200);
     expect(done.body.data).toMatchObject({ phase: 'fees_received' });
     expect(done.body.data.phaseName).toBeUndefined();
   });
 
-  it('assistência técnica tem a lista de fases própria e só encerra com honorários ou acordo (AD-186)', async () => {
+  it('assistência técnica tem a lista de fases própria e só encerra com acordo ou Finalizado (AD-186, AD-306)', async () => {
     const tenant = await seedTenant();
     const admin = await seedSession(tenant._id, ['admin']);
     const post = (body: object) => admin.as(request(app).post('/expert-cases')).send(body);
@@ -232,19 +232,21 @@ describe('serviços — tipo, fase, status, data da perícia e despesas (SRV-02/
           (await admin.as(request(app).get('/expert-cases/stats'))).body.data.groups as { key: string; count: number }[]
         ).map((group) => [group.key, group.count]),
       );
-    expect(await stats()).toMatchObject({ open: 1, services_delivered: 1 });
+    // The perícia in "Honorários recebidos" stays open too (AD-306).
+    expect(await stats()).toMatchObject({ open: 2, services_delivered: 1 });
     expect((await patch({ phase: 'technical_opinion_delivered' })).status).toBe(200);
-    expect(await stats()).toMatchObject({ open: 1, services_delivered: 2 });
-    // "Assistência finalizada" stays open; fees received or settlement close it.
+    expect(await stats()).toMatchObject({ open: 2, services_delivered: 2 });
+    // "Assistência finalizada" and fees received stay open; settlement or "Finalizado" close it.
     await patch({ phase: 'assistance_finished' });
-    expect(await stats()).toMatchObject({ open: 1 });
+    expect(await stats()).toMatchObject({ open: 2 });
+    await patch({ phase: 'fees_received' });
+    expect(await stats()).toMatchObject({ open: 2 });
     await patch({ phase: 'assistance_settlement' });
-    expect(await stats()).toMatchObject({ open: 0, services_delivered: 1 });
-    // "Finalizado" also closes it, without the fees received.
+    expect(await stats()).toMatchObject({ open: 1, services_delivered: 1 });
     await patch({ phase: 'assistance_finished' });
-    expect(await stats()).toMatchObject({ open: 1 });
+    expect(await stats()).toMatchObject({ open: 2 });
     await patch({ phase: 'assistance_closed' });
-    expect(await stats()).toMatchObject({ open: 0 });
+    expect(await stats()).toMatchObject({ open: 1 });
   });
 
   it('ordena por nome, data do cadastro e tipo, crescente e decrescente (AD-188, AD-192)', async () => {

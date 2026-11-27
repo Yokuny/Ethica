@@ -109,7 +109,7 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
     const waiting = await create('0000010-00.2026.5.24.0001');
     const closed = await create('0000011-00.2026.5.24.0001');
     const canceled = await create('0000012-00.2026.5.24.0001');
-    await Case.updateOne({ _id: closed.id }, { phase: 'fees_received' });
+    await Case.updateOne({ _id: closed.id }, { phase: 'settlement' });
     await Case.updateOne({ _id: canceled.id }, { status: 'canceled' });
     const syncedAt = new Date('2026-11-20T06:00:00Z');
     const queriedAt = new Date('2026-11-23T06:00:00Z');

@@ -120,6 +120,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-27 — "Honorários recebidos" deixa de encerrar o serviço; encerram só as fases de perdas, "Acordo / desistência" e "Finalizado" (AD-306) — `fase-servico`
 - [x] 2026-11-27 — Fase "Finalizado" na Assistência técnica, que encerra o serviço (AD-305) — `fase-assistencia`
 - [x] 2026-11-27 — Fase inicial "Nomeado" antes de "Nomeação aceita" no cadastro do serviço — `fase-servico`
 - [x] 2026-11-26 — Recebimento do honorário pelo detalhe do serviço e pelo diálogo do lançamento, abatendo o saldo do honorário fixado — `prazos-recebimentos`

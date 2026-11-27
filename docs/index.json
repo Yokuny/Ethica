@@ -15,7 +15,8 @@
       ],
       "decisoes": [
         "AD-186",
-        "AD-305"
+        "AD-305",
+        "AD-306"
       ],
       "spec": [
         ".specs/features/fase-assistencia"
@@ -38,7 +39,8 @@
       "decisoes": [
         "AD-178",
         "AD-180",
-        "AD-196"
+        "AD-196",
+        "AD-306"
       ],
       "spec": [
         ".specs/features/fase-servico"
@@ -2681,6 +2683,12 @@
     {
       "id": "AD-305",
       "decisao": "A Assistência técnica ganha a fase \"Finalizado\" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo s",
+      "data": "2026-11-27",
+      "status": "active"
+    },
+    {
+      "id": "AD-306",
+      "decisao": "\"Honorários recebidos\" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório)",
       "data": "2026-11-27",
       "status": "active"
     }
