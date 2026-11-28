@@ -1,6 +1,6 @@
 import type { CourtMovement } from '@ethica/contracts';
 import type { CourtProcessData } from '@ethica/datajud';
-import { CaseCourtSync, CourtProcess, tenantScoped } from '@ethica/db';
+import { CaseCourtSync, CourtProcess, CourtSyncDay, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 
 // CourtProcess is global public data (AD-271): no tenant filter here; the case of the office is checked before
@@ -77,3 +77,28 @@ export const saveCourtProcesses = async (processes: CourtProcessData[], now: Dat
       );
     }
   });
+
+// The day record of the office from a day on (PAT-06), oldest first; the answered set comes as its size only.
+export const findSyncDays = async (tenantId: string, fromDay: string) =>
+  withDbTiming('automation.findSyncDays', () =>
+    CourtSyncDay.aggregate<{
+      day: string;
+      tracked: number;
+      answered: number;
+      newMovements: number;
+      notices: { expert_cases: number; finance: number };
+    }>([
+      { $match: { Tenant: toObjectId(tenantId), day: { $gte: fromDay } } },
+      {
+        $project: {
+          _id: 0,
+          day: 1,
+          tracked: 1,
+          answered: { $size: '$answeredCases' },
+          newMovements: 1,
+          notices: 1,
+        },
+      },
+      { $sort: { day: 1 } },
+    ]),
+  );

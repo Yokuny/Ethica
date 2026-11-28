@@ -1,10 +1,10 @@
-import type { CourtLookup, CourtProcessView, TrackedCase } from '@ethica/contracts';
+import type { AutomationDashboard, CourtLookup, CourtProcessView, TrackedCase } from '@ethica/contracts';
 import { idSchema, processNumberSchema } from '@ethica/contracts';
 import type { DatajudClient } from '@ethica/datajud';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
-export type { CourtLookup, CourtProcessView, DatajudClient, TrackedCase };
+export type { AutomationDashboard, CourtLookup, CourtProcessView, DatajudClient, TrackedCase };
 
 export type AutomationRouterDeps = { validToken: RequestHandler; datajud?: DatajudClient };
 

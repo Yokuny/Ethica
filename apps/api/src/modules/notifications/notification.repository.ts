@@ -1,4 +1,9 @@
-import { DISPLAY_TIMEZONE, type NotificationModule, type NotificationState } from '@ethica/contracts';
+import {
+  DISPLAY_TIMEZONE,
+  type NotificationModule,
+  type NotificationState,
+  type SuggestionOutcome,
+} from '@ethica/contracts';
 import type { NotificationDocument } from '@ethica/db';
 import { dateInDisplayTz, Notification, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
@@ -219,6 +224,29 @@ export const list = async (
       total: result?.total[0]?.count ?? 0,
       counts: { open: result?.open[0]?.count ?? 0, resolved: result?.resolved[0]?.count ?? 0 },
     };
+  });
+
+// Suggestions by creation month and outcome, of the modules the person sees, and the ones still pending (the
+// Automação panel, PAT-05): every suggestion comes from the Datajud.
+export const suggestionActivity = async (tenantId: string, modules: NotificationModule[], since: Date) =>
+  withDbTiming('notification.suggestionActivity', async () => {
+    const match = { Tenant: toObjectId(tenantId), kind: 'suggestion' as const, module: { $in: modules } };
+    const [byMonth, pending] = await Promise.all([
+      Notification.aggregate<{ _id: { month: string; status: SuggestionOutcome }; count: number }>([
+        { $match: { ...match, createdAt: { $gte: since } } },
+        {
+          $group: {
+            _id: {
+              month: { $dateToString: { date: '$createdAt', format: '%Y-%m', timezone: DISPLAY_TIMEZONE } },
+              status: '$status',
+            },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      Notification.countDocuments({ ...match, status: 'pending' }),
+    ]);
+    return { byMonth: byMonth.map(({ _id, count }) => ({ ..._id, count })), pending };
   });
 
 // The number of the menu (AD-282): open ones that already reached their day. Suggestions and notices are born on it.

@@ -26,3 +26,11 @@ export const lookupCourtProcess =
     const { processNumber } = req.query as { processNumber: string };
     res.json(respObj({ data: await automationService.lookupCourtProcess(processNumber, datajud) }));
   };
+
+export const automationDashboard = async (req: Request, res: Response): Promise<void> => {
+  res.json(
+    respObj({
+      data: await automationService.automationDashboard(tenantOf(req), req.tenantUser.permissions ?? {}),
+    }),
+  );
+};

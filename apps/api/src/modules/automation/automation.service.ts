@@ -1,9 +1,22 @@
-import { courtDivisionName, courtUnitFromNumber, isTrackedNumber } from '@ethica/contracts';
-import { dateInDisplayTz } from '@ethica/db';
+import {
+  courtDivisionName,
+  courtUnitFromNumber,
+  hasPermission,
+  isTrackedNumber,
+  type Permissions,
+} from '@ethica/contracts';
+import { dateInDisplayTz, shiftMonth, wallClockToUtc } from '@ethica/db';
 import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as caseService from '../case/case.service.js';
+import * as notificationService from '../notifications/notification.service.js';
 import * as automationRepository from './automation.repository.js';
-import type { CourtLookup, CourtProcessView, DatajudClient, TrackedCase } from './automation.schema.js';
+import type {
+  AutomationDashboard,
+  CourtLookup,
+  CourtProcessView,
+  DatajudClient,
+  TrackedCase,
+} from './automation.schema.js';
 
 // Automação Datajud (AD-268 to AD-271): the BFF reads what the worker brought from the court; the live lookup by
 // number (SGD-06, AD-304) is the only call it makes to the Datajud.
@@ -30,6 +43,46 @@ export const listTrackedCases = async (tenantId: string): Promise<TrackedCase[]>
     if (!sync) return { ...base, status: 'waiting' };
     return { ...base, status: sync.found ? 'synced' : 'not_found', syncedAt: sync.syncedAt };
   });
+};
+
+const sum = <T>(rows: T[], value: (row: T) => number) => rows.reduce((total, row) => total + value(row), 0);
+
+// The Automação panel (PAT-01, PAT-04, PAT-05): what is tracked now, what waits for approval and, month by month over
+// 25 months, what the daily query did (day record) and the suggestions it made. Finance notices and suggestions only
+// for whoever sees Finance (AD-137).
+export const automationDashboard = async (
+  tenantId: string,
+  permissions: Permissions,
+  now = new Date(),
+): Promise<AutomationDashboard> => {
+  const current = dateInDisplayTz(now).slice(0, 7);
+  const months = Array.from({ length: 25 }, (_, index) => shiftMonth(current, index - 24));
+  const [tracked, days, suggestions] = await Promise.all([
+    listTrackedCases(tenantId),
+    automationRepository.findSyncDays(tenantId, `${months[0]}-01`),
+    notificationService.suggestionActivity(tenantId, permissions, wallClockToUtc(`${months[0]}-01`, '00:00')),
+  ]);
+  const seesFinance = hasPermission(permissions, 'finance', 'view');
+  const byState = { waiting: 0, not_found: 0, synced: 0 };
+  for (const item of tracked) byState[item.status] += 1;
+  return {
+    since: days[0]?.day,
+    tracked: { total: tracked.length, byState },
+    pending: suggestions.pending,
+    byMonth: months.map((month) => {
+      const ofMonth = days.filter((row) => row.day.startsWith(month));
+      const outcomes = suggestions.byMonth.filter((row) => row.month === month);
+      return {
+        month,
+        movements: sum(ofMonth, (row) => row.newMovements),
+        notices: sum(ofMonth, (row) => row.notices.expert_cases + (seesFinance ? row.notices.finance : 0)),
+        roundDays: ofMonth.length,
+        completeDays: ofMonth.filter((row) => row.tracked > 0 && row.answered >= row.tracked).length,
+        suggestions: sum(outcomes, (row) => row.count),
+        byStatus: Object.fromEntries(outcomes.map((row) => [row.status, row.count])),
+      };
+    }),
+  };
 };
 
 // Fill a case by its number, live (SGD-06): the copy fetched today when there is one, otherwise one call to the

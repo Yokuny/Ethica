@@ -116,6 +116,10 @@ export const deleteNotification = async (tenantId: string, id: string): Promise<
 const visibleModules = (permissions: Permissions): NotificationModule[] =>
   NOTIFICATION_MODULES.filter((module) => hasPermission(permissions, module, 'view'));
 
+// The suggestions of the Automação panel (PAT-05), of the modules the person sees (D5).
+export const suggestionActivity = (tenantId: string, permissions: Permissions, since: Date) =>
+  notificationRepository.suggestionActivity(tenantId, visibleModules(permissions), since);
+
 type Reader = { tenantId: string; userId: string; permissions: Permissions };
 
 // One list for every kind (AD-282). With `caseId`, the case must exist (404 otherwise).

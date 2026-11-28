@@ -78,3 +78,27 @@ export type TrackedCase = {
   status: TrackedCaseStatus;
   syncedAt?: string;
 };
+
+// What happened to a suggestion of the automation (the Automação panel, PAT-05).
+export type SuggestionOutcome = 'accepted' | 'rejected' | 'expired' | 'superseded' | 'pending';
+
+// The Automação panel (PAT-01, PAT-04, PAT-05): 25 months, oldest to the current one (two 12-month periods of complete
+// months plus the month in progress, as in the Dashboard). Movements, notices and run days come from the day record
+// (`CourtSyncDay`), so they start on the day it was first written (`since`); suggestions come from the notifications.
+export type AutomationMonth = {
+  month: string;
+  movements: number;
+  notices: number;
+  // Days with a run and, of those, the days every case of the run got an answer from the court.
+  roundDays: number;
+  completeDays: number;
+  suggestions: number;
+  byStatus: Partial<Record<SuggestionOutcome, number>>;
+};
+export type AutomationDashboard = {
+  since?: string;
+  tracked: { total: number; byState: Record<TrackedCaseStatus, number> };
+  // Suggestions waiting for approval, of the modules the person sees: the same number as the Central.
+  pending: number;
+  byMonth: AutomationMonth[];
+};

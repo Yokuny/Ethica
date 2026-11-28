@@ -1,7 +1,21 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
 import type { DatajudClient } from '@ethica/datajud';
-import { Case, CaseCourtSync, CourtProcess, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
+import {
+  Case,
+  CaseCourtSync,
+  CourtProcess,
+  CourtSyncDay,
+  connect,
+  dateInDisplayTz,
+  disconnect,
+  hashToken,
+  Notification,
+  Session,
+  shiftMonth,
+  Tenant,
+  User,
+} from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -12,13 +26,15 @@ const DEVICE = 'test-agent';
 const app = buildApp();
 
 let counter = 0;
-const seedSession = async (role: Role[] = ['operator']) => {
+const seedSession = async (role: Role[] = ['operator'], office?: InstanceType<typeof Tenant>) => {
   counter += 1;
-  const tenant = await Tenant.create({
-    name: `Escritório ${counter}`,
-    document: `7777777700${String(counter).padStart(4, '0')}`,
-    status: 'active',
-  });
+  const tenant =
+    office ??
+    (await Tenant.create({
+      name: `Escritório ${counter}`,
+      document: `7777777700${String(counter).padStart(4, '0')}`,
+      status: 'active',
+    }));
   const user = await User.create({
     name: `Perito ${counter}`,
     email: `expert-${counter}@x.com`,
@@ -44,7 +60,7 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
   });
   afterEach(async () => {
     await Promise.all(
-      [CaseCourtSync, CourtProcess, Case, Session, User, Tenant].map((model) =>
+      [CaseCourtSync, CourtProcess, CourtSyncDay, Notification, Case, Session, User, Tenant].map((model) =>
         (model as typeof Tenant).deleteMany({}),
       ),
     );
@@ -216,5 +232,76 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
       );
       expect([response.status, response.body.message]).toEqual([503, 'court_unavailable']);
     });
+  });
+
+  it('painel (PAT-01, PAT-04, PAT-05): meses do registro diário e sugestões; dinheiro só para quem vê o Financeiro', async () => {
+    const admin = await seedSession(['admin']);
+    const operator = await seedSession(['operator'], admin.tenant);
+    const blocked = await admin.as(request(app).get('/automation/dashboard'));
+    expect(blocked.status).toBe(403);
+    expect(blocked.body.message).toBe('automation_required');
+
+    await Tenant.updateOne({ _id: admin.tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+    const legalCase = (
+      await admin.as(request(app).post('/expert-cases')).send({
+        processNumber: NUMBER,
+        courtType: 'labor',
+        serviceType: 'expert_examination',
+        court: 'TRT24',
+        subject: 'Insalubridade',
+      })
+    ).body.data;
+    const current = dateInDisplayTz(new Date()).slice(0, 7);
+    const previous = shiftMonth(current, -1);
+    await CourtSyncDay.create([
+      {
+        Tenant: admin.tenant._id,
+        day: `${previous}-10`,
+        tracked: 1,
+        answeredCases: [legalCase.id],
+        found: 1,
+        newMovements: 3,
+        notices: { expert_cases: 1, finance: 1 },
+      },
+      { Tenant: admin.tenant._id, day: `${previous}-11`, tracked: 1 },
+    ]);
+    const suggestion = (module: 'expert_cases' | 'finance', status: 'pending' | 'accepted') => ({
+      Tenant: admin.tenant._id,
+      kind: 'suggestion',
+      module,
+      source: 'datajud',
+      status,
+      Case: legalCase.id,
+      proposal: { target: 'case_fill', division: '1ª Vara' },
+    });
+    await Notification.create([
+      suggestion('expert_cases', 'pending'),
+      suggestion('expert_cases', 'accepted'),
+      suggestion('finance', 'pending'),
+    ]);
+
+    const full = (await admin.as(request(app).get('/automation/dashboard'))).body.data;
+    expect(full.byMonth).toHaveLength(25);
+    expect(full.since).toBe(`${previous}-10`);
+    expect(full.tracked).toEqual({ total: 1, byState: { waiting: 1, not_found: 0, synced: 0 } });
+    expect(full.pending).toBe(2);
+    expect(full.byMonth.at(-2)).toMatchObject({
+      month: previous,
+      movements: 3,
+      notices: 2,
+      roundDays: 2,
+      completeDays: 1,
+      suggestions: 0,
+    });
+    expect(full.byMonth.at(-1)).toMatchObject({
+      month: current,
+      suggestions: 3,
+      byStatus: { pending: 2, accepted: 1 },
+    });
+
+    const partial = (await operator.as(request(app).get('/automation/dashboard'))).body.data;
+    expect(partial.pending).toBe(1);
+    expect(partial.byMonth.at(-2).notices).toBe(1);
+    expect(partial.byMonth.at(-1)).toMatchObject({ suggestions: 2, byStatus: { pending: 1, accepted: 1 } });
   });
 });
