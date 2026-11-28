@@ -14,6 +14,9 @@ branches: [main]
 
 **Status**: concluido · **Atualizado**: 2026-11-06 · **Áreas**: `apps/api`, `apps/web`, `packages/contracts`, `packages/db`
 
+> **Substituída pela `servico-enums` (AD-310)**: não há mais tipo, atuação nem fase digitados; ficam Parceria e
+> Serviço particular com fases fixas. O texto abaixo descreve o que existiu até 2026-11-27.
+>
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='tipo-servico-proprio'`.
 

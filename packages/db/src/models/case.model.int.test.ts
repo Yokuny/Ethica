@@ -42,7 +42,7 @@ describe('migrateCases (AD-310)', () => {
       ['technical_assistance', 'hired', undefined],
       ['partnership', 'finished', undefined],
       ['private_service', 'delivered', undefined],
-      ['partnership', 'in_progress', undefined],
+      ['private_service', 'in_progress', undefined],
       ['partnership', 'fees_received', undefined],
       ['expert_examination', 'awaiting_judge', 'labor'],
     ]);

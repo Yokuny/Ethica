@@ -92,6 +92,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
+- [ ] Na implementação da `sugestoes-datajud`, a fase sugerida na assistência encerrada é `finished` (o design cita `assistance_closed`, que virou `finished` na AD-310); tipo do serviço é `serviceType`, não `role` — `sugestoes-datajud`
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`

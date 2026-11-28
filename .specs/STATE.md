@@ -781,7 +781,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: `processNumber` opcional em todo o sistema: quem mostra o serviço usa `caseLabel` (número ou, sem ele, o objeto). Tipo do escritório não é renomeado nem excluído; existe enquanto um serviço o usa. Laudo de tipo `other` usa Requerente/Requerido.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
 - **Date**: 2026-11-02
-- **Status**: active (status do serviço superseded by AD-166; `courtType: 'other'` superseded by AD-177)
+- **Status**: active (status do serviço superseded by AD-166; `courtType: 'other'` superseded by AD-177; tipo/atuação/fase digitados superseded by AD-310)
 
 ### AD-159
 - **Decision**: Categorias de despesa: deslocamento, equipamentos, terceiros, materiais, taxas, alimentação e outras; categoria criada pelo escritório é `other_expenses` + `Transaction.categoryName`, com a lista dos nomes já usados (`GET /finance/expense-names`). Pagamento (Sim, Não, Parcial) e honorário líquido do serviço são calculados na tela pelos lançamentos do serviço, sem campo gravado: base = honorário fixado/contratado ou, sem ele, o proposto; líquido = base − despesas não canceladas; pago quando o recebido alcança a base (sem base, quando todo honorário lançado foi recebido).
@@ -925,7 +925,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: contratante obrigatório só no formulário (a importação por PDF/planilha cria o tipo sem ele); serviços do tipo próprio já cadastrados mantêm o status da rotina judicial até serem trocados; o prazo "Entrega do serviço" não é protocolado sozinho ao concluir um laudo (só "Entrega do laudo" é); pagamento só no cadastro.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/finance/transaction.service.ts`, `apps/api/src/events/event-types.ts`, `apps/api/src/modules/documents/documents.templates.ts`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/components/case-labels.ts`.
 - **Date**: 2026-11-03
-- **Status**: active (`status: 'custom'`/`statusName` superseded by AD-178: `phase: 'custom'`/`phaseName`)
+- **Status**: active (`status: 'custom'`/`statusName` superseded by AD-178: `phase: 'custom'`/`phaseName`; tipo/atuação/fase digitados superseded by AD-310)
 
 ### AD-177
 - **Decision**: O cadastro separa **Esfera** de **Tipo de serviço**. `Case.courtType` vira a esfera (`labor`, `civil`, `federal`, `extrajudicial`, obrigatória); sai o `other` da AD-158, convertido para `extrajudicial` na subida (`migrateCases`). O tipo é Perícia (`role: court_expert`), Assistência técnica (`technical_assistant`), **Parceria** (`partnership`, novo papel) ou um tipo do escritório (`serviceType`). Tipo próprio = tem nome de tipo ou é parceria (`isOwnType`), e só ele usa o formulário de contratante, status e atuação abertos (AD-176). Perícia e assistência exigem processo, tribunal e esfera de tribunal. Na edição, `null` apaga: os campos do tipo próprio ao virar judicial e as datas apagadas ("Limpar data" no `DatePicker`). A lista filtra por esfera, tipo (`role` ou `serviceType`) e período de entrega (prazo "Entrega do laudo"/"Entrega do serviço", com aviso na tela). "Serviços em aberto" passa a contar o status digitado.
@@ -933,7 +933,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: tipos do escritório antigos ficam com esfera Extrajudicial até alguém trocar; perícia ou assistência não podem ser extrajudiciais; apagar a data da perícia na edição continua sem mover/remover o compromisso (só o cadastro e a troca de data movem).
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/`, `apps/web/src/components/{case-labels.ts,date-picker.tsx}`, `apps/web/src/routes/_private/expert-cases/`.
 - **Date**: 2026-11-03
-- **Status**: active (esfera Extrajudicial, esfera fora da perícia e Parceria superseded by AD-178)
+- **Status**: active (esfera Extrajudicial, esfera fora da perícia e Parceria superseded by AD-178; tipo/atuação/fase digitados superseded by AD-310)
 
 ### AD-178
 - **Decision**: O serviço tem **fase** e **status** separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento, auxiliares) é a lista da perita; no tipo do escritório, `phase: 'custom'` + `Case.phaseName` (substitui `status: 'custom'`/`statusName`), além de "Honorários recebidos". `Case.status` vira `active | suspended | canceled`. Encerrado = `canceled` ou fase de perdas ou `fees_received` (`isCaseClosed`); parado só com `active` e fase aberta. Tipo de serviço: Perícia, Assistência técnica, tipos do escritório e Cadastrar novo; **Esfera** (`courtType`, `labor | civil | federal`, agora opcional) só e obrigatória na perícia. Assistência técnica usa o formulário de contratante (`usesContractor`), sem processo obrigatório. Saem a esfera Extrajudicial e o papel `partnership`. Conversão na subida (`migrateCases`): status antigo → fase + status (tabela em `.specs/features/fase-servico/design.md`), Extrajudicial → sem esfera, Parceria → tipo do escritório "Parceria" (`role: other`, `roleName: 'Parceria'`). Data da nomeação obrigatória só no formulário da perícia (`validNominationDate`).
@@ -941,7 +941,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: serviços antigos suspensos ou recusados perdem a etapa (voltam para "Aguardando agendamento perícia"); assistência antiga perde a esfera na primeira edição; laudo de assistência técnica sem esfera chama as partes de Requerente/Requerido; a importação de PDF/planilha cria sem data da nomeação.
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `packages/db/src/models/case.model.ts`, `apps/api/src/modules/case/`, `apps/api/src/modules/documents/`, `apps/web/src/components/case-labels.ts`, `apps/web/src/routes/_private/expert-cases/`, `apps/web/src/routes/_private/@components/cases-phase-chart.tsx`.
 - **Date**: 2026-11-03
-- **Status**: active (lista de fases ampliada por AD-180)
+- **Status**: active (lista de fases ampliada por AD-180; tipo/atuação/fase digitados superseded by AD-310)
 
 ### AD-179
 - **Decision**: Laudo feito fora do Ethica entra pelo PDF: `Report.file` (`key`, `name`, `bytes`) marca o laudo **anexado**, que nasce `completed`, sem itens, com o tipo pelo papel no serviço (`reportRoleType`) e o nome do arquivo em `templateName`. `POST /expert-reports/file` recebe o PDF no corpo (AD-118) e os dados na query; a cota é reservada antes (AD-120). "Registrar a entrega" é o mesmo trecho de concluir (`fileDelivery`). `GET /:id/pdf` devolve o arquivo enviado e o Word responde 404. Excluir aceita rascunho **ou** anexado (`report.repository.remove`); concluído no Ethica continua não saindo (AD-126). Salvar como modelo o anexado lê o texto do PDF e separa títulos numerados em itens pelo nível do número (`templateSectionsFromText`).
@@ -1109,7 +1109,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o nome fica gravado em cada serviço; trocá-lo depois exige atualizar os salvos. Sem títulos sugeridos de prazo e alerta, que continuam digitados nesse tipo.
 - **Scope**: `apps/web/src/components/{case-labels,deadline-labels}.ts`.
 - **Date**: 2026-11-06
-- **Status**: active
+- **Status**: active (tipo/atuação/fase digitados superseded by AD-310)
 
 ### AD-200
 - **Decision**: Refina a **AD-111**: receita também pode ser **anulada**. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o lançamento de todos os totais, da agenda e do relatório; a tela mostra R$ 0,00, "Anulado" e o valor anulado. Reativar devolve o status pelas parcelas (receita) ou pela data de pagamento (despesa). Enquanto anulada, a receita não recebe parcela e, mesmo editada, continua anulada. "Serviço particular" começa com a Atuação vazia e obrigatória (`role: 'other'` sem `roleName`). O relatório financeiro traz data, descrição (na receita, o objeto do serviço), contratante, serviço, OS, categoria e valor.
@@ -1117,7 +1117,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: o honorário no cadastro do serviço não muda ao anular o lançamento; só o Financeiro deixa de contar.
 - **Scope**: `apps/api/src/modules/finance/`, `apps/api/src/modules/documents/documents.templates.ts`, `apps/api/src/modules/case/case.repository.ts`, `packages/contracts/src/schemas/{case,transaction,calendar-entry}.schema.ts`, `apps/web/src/routes/_private/finance/entries/`, `apps/web/src/components/transaction-labels.ts`, `apps/web/src/routes/_private/expert-cases/`.
 - **Date**: 2026-11-06
-- **Status**: active
+- **Status**: active (tipo/atuação/fase digitados superseded by AD-310)
 
 ### AD-201
 - **Decision**: O dia em que o dinheiro entrou ou saiu é sempre informado, nunca presumido: "Data do pagamento" no cadastro e na edição da despesa, no novo lançamento de receita e na despesa do serviço (`settledDate`, opcional; preenchida, a despesa nasce paga e a receita nasce com um recebimento do valor inteiro). "Marcar como pago" e "Registrar recebimento" pedem a data e não vêm mais preenchidos com hoje. Reabrir uma despesa apaga a data de pagamento.
@@ -1957,7 +1957,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: duas fases de nome parecido na mesma lista; a importação de planilha não reconhece "Finalizado" (o texto vale para os tipos do escritório também).
 - **Scope**: `packages/contracts/src/schemas/case.schema.ts`, `apps/web/src/components/case-labels.ts`, `apps/api/src/modules/documents/document.layout.ts`.
 - **Date**: 2026-11-27
-- **Status**: active
+- **Status**: active (`assistance_closed` superseded by AD-310: `finished`, comum a todos os tipos)
 
 ### AD-306
 - **Decision**: "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório). Encerram só o status Cancelado e as fases `CASE_CLOSED_PHASES`: na perícia Desistência, Destituição e Acordo; na assistência "Acordo / desistência" e "Finalizado" (AD-305). Supersede a parte de "Honorários recebidos" encerrar da AD-178 e da AD-186.

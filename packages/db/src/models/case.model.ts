@@ -222,9 +222,9 @@ export const migrateCases = async (): Promise<void> => {
     const serviceType: ServiceType = SERVICE_TYPES.includes(doc.serviceType as ServiceType)
       ? (doc.serviceType as ServiceType)
       : doc.serviceType
-        ? /particular/i.test(doc.serviceType)
-          ? 'private_service'
-          : 'partnership'
+        ? /parceri/i.test(doc.serviceType)
+          ? 'partnership'
+          : 'private_service'
         : (SERVICE_TYPE_OF_ROLE[doc.role ?? ''] ?? 'expert_examination');
     const phases = casePhases(serviceType);
     const typed = doc.phase === 'custom' ? (doc.phaseName ?? '') : undefined;

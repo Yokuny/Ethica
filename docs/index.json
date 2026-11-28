@@ -27,7 +27,7 @@
     {
       "slug": "fase-servico",
       "feature": "Fase e status do serviço",
-      "descricao": "Tipo Perícia, Assistência técnica ou Cadastrar novo, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
+      "descricao": "Quatro tipos de serviço, esfera só na perícia, fase do serviço em grupos e status Ativo, Suspenso ou Cancelado",
       "data": "2026-11-27",
       "status": "concluido",
       "areas": [
@@ -1851,7 +1851,7 @@
       "id": "AD-158",
       "decisao": "A seção \"Perícias\" passa a \"Serviços\" só no texto da tela (o código segue `Case`). O tipo de serviço é uma lista única: os judiciais são `co",
       "data": "2026-11-02",
-      "status": "active (status do serviço superseded by AD-166; `courtType: 'other'` superseded by AD-177)"
+      "status": "active (status do serviço superseded by AD-166; `courtType: 'other'` superseded by AD-177; tipo/atuação/fase digitados superseded by AD-310)"
     },
     {
       "id": "AD-159",
@@ -1959,19 +1959,19 @@
       "id": "AD-176",
       "decisao": "No tipo de serviço do escritório (`courtType: 'other'`, AD-158) a atuação e o status podem ser digitados: `role: 'other'` + `Case.roleName`",
       "data": "2026-11-03",
-      "status": "active (`status: 'custom'`/`statusName` superseded by AD-178: `phase: 'custom'`/`phaseName`)"
+      "status": "active (`status: 'custom'`/`statusName` superseded by AD-178: `phase: 'custom'`/`phaseName`; tipo/atuação/fase digitados superseded by AD-310)"
     },
     {
       "id": "AD-177",
       "decisao": "O cadastro separa Esfera de Tipo de serviço. `Case.courtType` vira a esfera (`labor`, `civil`, `federal`, `extrajudicial`, obrigatória); sai",
       "data": "2026-11-03",
-      "status": "active (esfera Extrajudicial, esfera fora da perícia e Parceria superseded by AD-178)"
+      "status": "active (esfera Extrajudicial, esfera fora da perícia e Parceria superseded by AD-178; tipo/atuação/fase digitados superseded by AD-310)"
     },
     {
       "id": "AD-178",
       "decisao": "O serviço tem fase e status separados. `Case.phase` (`CASE_PHASES`, em grupos `CASE_PHASE_GROUPS`: inicial, de perdas, final, de recebimento",
       "data": "2026-11-03",
-      "status": "active (lista de fases ampliada por AD-180)"
+      "status": "active (lista de fases ampliada por AD-180; tipo/atuação/fase digitados superseded by AD-310)"
     },
     {
       "id": "AD-179",
@@ -2097,13 +2097,13 @@
       "id": "AD-199",
       "decisao": "Refina a AD-178. \"Parceria\" e \"Serviço particular\" são tipos do escritório sempre oferecidos, mesmo antes do primeiro serviço (`FIXED_OWN_TY",
       "data": "2026-11-06",
-      "status": "active"
+      "status": "active (tipo/atuação/fase digitados superseded by AD-310)"
     },
     {
       "id": "AD-200",
       "decisao": "Refina a AD-111: receita também pode ser anulada. Anular grava `status: 'canceled'` em receita ou despesa, guarda valor e parcelas e tira o",
       "data": "2026-11-06",
-      "status": "active"
+      "status": "active (tipo/atuação/fase digitados superseded by AD-310)"
     },
     {
       "id": "AD-201",
@@ -2733,7 +2733,7 @@
       "id": "AD-305",
       "decisao": "A Assistência técnica ganha a fase \"Finalizado\" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo s",
       "data": "2026-11-27",
-      "status": "active"
+      "status": "active (`assistance_closed` superseded by AD-310: `finished`, comum a todos os tipos)"
     },
     {
       "id": "AD-306",
