@@ -42,30 +42,30 @@ assuntos).
 
 ## Assumptions & Open Questions
 
-Confirmar com a perita antes do design (em linguagem de rotina). Códigos conferidos na TPU oficial
+Confirmado pela perita em 2026-11-27, item a item, pela página `.specs/features/sugestoes-datajud/revisao-perita.html`. Códigos conferidos na TPU oficial
 (`https://dpj.cnj.jus.br/sgt/api/v1.0/movimentos.csv`, baixada em 2026-11-27) e nos processos reais das fixtures.
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --- | --- | --- | --- |
-| Suspensão | Todo filho ativo de 25 "Suspensão ou Sobrestamento" (hoje só 4 deles) | A TPU agrupa ali todos os motivos de suspensão | No |
-| **Correção**: 14975, 14984, 14985 | Saem da suspensão e vão para a retomada | Na TPU são filhos de 14974 "Levantamento da causa suspensiva": o processo voltou a andar | No |
-| Retomada | 12066, 14974 e seus filhos, 849 "Reativação" e 893 "Desarquivamento" sugerem "Ativo" | Mesmo sentido: o processo voltou a andar | No |
-| Arquivamento provisório (245) | Sugestão "Suspenso" | Na trabalhista é a execução parada à espera de bens | No |
-| Hora de cobrar: quais movimentos | Trânsito em julgado (848) e início da liquidação ou da execução (11384, 11385), só se o serviço tem honorário em aberto | É quando o juiz manda pagar o perito; sem honorário em aberto não há o que cobrar | No |
-| Hora de cobrar: quantas vezes | **Uma vez por serviço** | 848, 11384 e 11385 chegam em sequência; três avisos seguidos seriam ruído | No |
-| Hora de cobrar: aviso ou sugestão | **Aviso** com botão para o lançamento em aberto | Não há dado a mudar: a ação é cobrar | No |
-| Hora de encerrar: quais movimentos | Arquivamento definitivo (246), baixa definitiva (22) e extinção da execução (196) | Fim do processo no tribunal (visto no TRT24: pago → extinção → arquivamento) | No |
-| Hora de encerrar com honorário **recebido** | Sugestão de fase "Honorários recebidos" (perícia e assistência técnica: a fase é das duas) | É a fase que encerra o serviço pelo recebimento | No |
-| Hora de encerrar com honorário **em aberto** | Aviso "processo arquivado com honorário em aberto", com botão para o lançamento; não sugere encerrar | Encerrar esconderia dinheiro a receber | No |
-| Pagamento seguido de arquivamento | Se há sugestão de recebimento pendente, o arquivamento **não** gera o aviso de honorário em aberto; ao aceitar o recebimento num processo arquivado, vem a sugestão de encerrar | No tribunal o pagamento vem logo antes da extinção e do arquivamento | No |
-| Arquivamento muda de "só aviso" para sugestão | Esta spec substitui o padrão da `automacao-datajud` ("Arquivamento definitivo: só aviso") e o trade-off da AD-278 | Com o honorário como critério, o arquivamento diz o que fazer | No |
-| Busca pelo número: quem pode usar | **Só com o módulo** Automação | É parte do premium (AD-276); sem o módulo, o botão mostra a oferta | No |
-| Busca pelo número: campos | Vara, data de ajuizamento e objeto (assuntos do processo, ex. "Adicional de Insalubridade"); só os campos **vazios**, com a mesma revisão do preenchimento pelo PDF. Esfera e tribunal já saem do número, sem consulta | O Datajud não traz partes nem comarca; nunca sobrescrever o que a pessoa digitou | No |
-| Busca pelo número: tribunal lento ou recusando | **A busca na hora vai falhar muitas vezes**: hoje uma consulta ao TRT16 precisou de várias tentativas e a rodada de produção, de nove. Espera até 2 min; se falhar, diz "o tribunal não respondeu agora; depois de salvar, a automação busca e traz como sugestão" | Cluster do CNJ sobrecarregado (AD-287, AD-303); a sugestão de preenchimento cobre a falha | No |
-| Busca pelo número: quem consulta | A API, na hora (a chave do Datajud volta para a API, revendo o item 2 da AD-281); se o processo já foi consultado hoje, usa a cópia gravada | O worker só roda de madrugada; a resposta precisa vir na mesma tela | No |
-| Preenchimento pela automação | Na primeira consulta do acompanhamento (linha de base), se o serviço tem vara, data de ajuizamento ou objeto vazios, vem a sugestão "Preencher com os dados do tribunal" | Topico 3 do usuário: também faz parte da automação | No |
+| Suspensão | Todo filho ativo de 25 "Suspensão ou Sobrestamento" (hoje só 4 deles) | A TPU agrupa ali todos os motivos de suspensão | Yes |
+| **Correção**: 14975, 14984, 14985 | Saem da suspensão e vão para a retomada | Na TPU são filhos de 14974 "Levantamento da causa suspensiva": o processo voltou a andar | Yes |
+| Retomada | 12066, 14974 e seus filhos, 849 "Reativação" e 893 "Desarquivamento" sugerem "Ativo" | Mesmo sentido: o processo voltou a andar | Yes |
+| Arquivamento provisório (245) | Sugestão "Suspenso" | Na trabalhista é a execução parada à espera de bens | Yes |
+| Hora de cobrar: quais movimentos | Trânsito em julgado (848) e início da liquidação ou da execução (11384, 11385), só se o serviço tem honorário em aberto | É quando o juiz manda pagar o perito; sem honorário em aberto não há o que cobrar | Yes |
+| Hora de cobrar: quantas vezes | **Uma vez por serviço** | 848, 11384 e 11385 chegam em sequência; três avisos seguidos seriam ruído | Yes |
+| Hora de cobrar: aviso ou sugestão | **Aviso** com botão para o lançamento em aberto | Não há dado a mudar: a ação é cobrar | Yes |
+| Hora de encerrar: quais movimentos | Arquivamento definitivo (246), baixa definitiva (22) e extinção da execução (196) | Fim do processo no tribunal (visto no TRT24: pago → extinção → arquivamento) | Yes |
+| Hora de encerrar com honorário **recebido** | Perícia: sugestão de fase "Honorários recebidos" (pela AD-306 não encerra mais; o serviço fica em aberto). Assistência técnica: sugestão de fase "Finalizado" (`assistance_closed`, AD-305), que encerra | A perita confirmou "Honorários recebidos"; a AD-306, do mesmo dia, tirou o encerramento dessa fase, e o usuário escolheu em 2026-11-27 seguir assim, sem fase nova na perícia | Yes |
+| Hora de encerrar com honorário **em aberto** | Aviso "processo arquivado com honorário em aberto", com botão para o lançamento; não sugere encerrar | Encerrar esconderia dinheiro a receber | Yes |
+| Pagamento seguido de arquivamento | Se há sugestão de recebimento pendente, o arquivamento **não** gera o aviso de honorário em aberto; ao aceitar o recebimento num processo arquivado, vem a sugestão de encerrar | No tribunal o pagamento vem logo antes da extinção e do arquivamento | Yes |
+| Arquivamento muda de "só aviso" para sugestão | Esta spec substitui o padrão da `automacao-datajud` ("Arquivamento definitivo: só aviso") e o trade-off da AD-278 | Com o honorário como critério, o arquivamento diz o que fazer | Yes |
+| Busca pelo número: quem pode usar | **Só com o módulo** Automação | É parte do premium (AD-276); sem o módulo, o botão mostra a oferta | Yes |
+| Busca pelo número: campos | Vara, data de ajuizamento e objeto (assuntos do processo, ex. "Adicional de Insalubridade"); só os campos **vazios**, com a mesma revisão do preenchimento pelo PDF. Esfera e tribunal já saem do número, sem consulta | O Datajud não traz partes nem comarca; nunca sobrescrever o que a pessoa digitou | Yes |
+| Busca pelo número: tribunal lento ou recusando | **A busca na hora vai falhar muitas vezes**: hoje uma consulta ao TRT16 precisou de várias tentativas e a rodada de produção, de nove. Espera até 2 min; se falhar, diz "o tribunal não respondeu agora; depois de salvar, a automação busca e traz como sugestão" | Cluster do CNJ sobrecarregado (AD-287, AD-303); a sugestão de preenchimento cobre a falha | Yes |
+| Busca pelo número: quem consulta | A API, na hora (a chave do Datajud volta para a API, revendo o item 2 da AD-281); se o processo já foi consultado hoje, usa a cópia gravada | O worker só roda de madrugada; a resposta precisa vir na mesma tela | Yes |
+| Preenchimento pela automação | Na primeira consulta do acompanhamento (linha de base), se o serviço tem vara, data de ajuizamento ou objeto vazios, vem a sugestão "Preencher com os dados do tribunal" | Topico 3 do usuário: também faz parte da automação | Yes |
 | Botão da sugestão | Borda animada girando em roxo e rosa; com "reduzir movimento" do sistema, a borda fica parada | Pedido do usuário; acessibilidade | Yes (cor e forma: usuário) |
-| Ruído da lista No tribunal | Esconder Decurso de Prazo, juntar Publicação + Disponibilização no Diário, agrupar expedições iguais do mesmo dia ("Alvará ×16") | Queixa original do usuário ("muitos dados desnecessários") | No |
+| Ruído da lista No tribunal | Esconder Decurso de Prazo, juntar Publicação + Disponibilização no Diário, agrupar expedições iguais do mesmo dia ("Alvará ×16") | Queixa original do usuário ("muitos dados desnecessários") | Yes |
 
 ---
 

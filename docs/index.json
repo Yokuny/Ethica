@@ -74,6 +74,32 @@
       "doc": "features/filtros-lista/feature.md"
     },
     {
+      "slug": "sugestoes-datajud",
+      "feature": "Sugestões do Datajud no serviço e no financeiro",
+      "descricao": "Sugestão ao lado do dado, detalhe do lançamento, hora de cobrar e de encerrar e busca no tribunal pelo número",
+      "data": "2026-11-27",
+      "status": "planejado",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "apps/worker",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-304",
+        "AD-305",
+        "AD-306"
+      ],
+      "spec": [
+        ".specs/features/sugestoes-datajud"
+      ],
+      "planos": [
+        ".specs/features/sugestoes-datajud/plans/2026-11-26-conteudo-dos-movimentos.md"
+      ],
+      "doc": "features/sugestoes-datajud/feature.md"
+    },
+    {
       "slug": "prazos-recebimentos",
       "feature": "Prazos e recebimentos",
       "descricao": "Vários prazos por perícia com protocolo, recebimento parcial de honorários, feed iCal e aviso de prazo por e-mail",
@@ -1227,7 +1253,7 @@
   ],
   "planos_nao_arquivados": [],
   "specs_sem_registro": [
-    "sugestoes-datajud"
+    "servico-enums"
   ],
   "decisoes": [
     {
@@ -2680,7 +2706,7 @@
       "id": "AD-304",
       "decisao": "Papel de cada fonte do tribunal. (1) O Datajud é a fonte do estado do processo em código (TPU do CNJ): sugestões de situação, fase e recebim",
       "data": "2026-11-27",
-      "status": "proposed (aguarda a perita confirmar as questões da spec)"
+      "status": "active (questões da spec confirmadas pela perita em 2026-11-27)"
     },
     {
       "id": "AD-305",

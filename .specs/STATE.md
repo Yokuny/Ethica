@@ -1949,7 +1949,7 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: duas fontes externas para operar; a busca na hora depende do cluster do CNJ, que recusa muitas vezes (AD-287), por isso a automação traz o mesmo preenchimento como sugestão quando a busca falha.
 - **Scope**: `apps/api`, `apps/worker`, `apps/web`, `packages/contracts`.
 - **Date**: 2026-11-27
-- **Status**: proposed (aguarda a perita confirmar as questões da spec)
+- **Status**: active (questões da spec confirmadas pela perita em 2026-11-27)
 
 ### AD-305
 - **Decision**: A Assistência técnica ganha a fase "Finalizado" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo sem os honorários recebidos. "Assistência finalizada" continua na lista e segue em aberto. Supersede, da AD-186, só a regra de que a assistência encerra apenas com "Honorários recebidos" ou "Acordo / desistência".

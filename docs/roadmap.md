@@ -12,7 +12,7 @@ pendência fica no `feature.md` indicado; aqui só a ação, quem faz e a featur
 | Rotas de vistoria com ponto de partida e serviço de rota próprio | `rotas-vistoria` | AD-150 |
 | CRUD de membros só do admin | `gestao-membros` | AD-148 |
 | Imagem de produção da API e arquivos por perícia no S3 | `producao-api` | AD-146 |
-| Sugestões do Datajud ao lado do dado, detalhe do lançamento, hora de cobrar e de encerrar, busca no tribunal pelo número | `sugestoes-datajud` | AD-304 (proposta) |
+| Sugestões do Datajud ao lado do dado, detalhe do lançamento, hora de cobrar e de encerrar, busca no tribunal pelo número | `sugestoes-datajud` | AD-304 |
 
 Em paralelo: validação do que já existe pela perita, com pequenas correções direto na `main` (AD-143).
 
@@ -35,7 +35,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 ### Ir ao ar — você
 
 - [ ] Antes do deploy da `sugestoes-datajud`, apagar de novo os dados do Datajud em produção (ou pausar o worker na Railway até lá), para validar a linha de base do zero — `sugestoes-datajud`
-- [ ] Confirmar as questões da spec `sugestoes-datajud` (tabela "Assumptions & Open Questions"): regras de suspensão e retomada, hora de cobrar e de encerrar, busca no tribunal só com o módulo — `sugestoes-datajud`
 - [ ] Escritório ETHICA em produção com assinatura só no banco (sem Asaas): `subscriptionPlan: automation_monthly`, acesso e Automação até 31/12/2027, gravados à mão em 2026-11-22. Antes dessa data, assinar de verdade pelo app ou estender a data, senão o acesso fecha — `automacao-datajud`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
 - [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
@@ -121,6 +120,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-27 — Perita confirmou as 14 questões da spec `sugestoes-datajud`; encerramento com honorários recebidos segue a AD-306 (perícia: "Honorários recebidos", assistência: "Finalizado") — `sugestoes-datajud`
 - [x] 2026-11-27 — Filtro Situação (Em andamento / Finalizados) em Serviços e filtros prontos só de serviço; regra "gestor de serviços, não de perícias" no `AGENTS.md` (AD-308) — `filtros-lista`
 - [x] 2026-11-27 — "Filtros prontos" no menu "…" de Serviços (ocultar finalizados) e do Histórico de auditoria (AD-307) — `filtros-lista`
 - [x] 2026-11-27 — Filtros das listas com "Marcar todas" e o resumo "Todas, exceto …" — `filtros-lista`
