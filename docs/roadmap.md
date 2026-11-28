@@ -58,6 +58,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir na tela (login local pede passkey): contratante cortado em uma linha em Serviços, "Visão completa" nos Filtros prontos, coluna Serviço com tooltip e ações em ícones em Notificações — `filtros-lista`, `notificacoes-processo-unico`
+- [ ] Rota de 16 a 22 dez: clicar em "Localizar endereços" e ver se a vistoria de Viamão (-30.0700…, -51.0352…) ganha o ponto; se não ganhar, reescrever o local à mão (copiar pode trazer caractere invisível) — `logistica-paginas`
 - [ ] Conferir na tela os "Filtros prontos" do menu "…" de Serviços e do Histórico de auditoria (não renderizado nesta entrega: o login local pede passkey) — `filtros-lista`
 - [ ] Conferir na tela o botão "Registrar recebimento" no Financeiro do serviço e no diálogo do lançamento (não renderizado nesta entrega: o código de acesso sai no log da API) — `prazos-recebimentos`
 - [ ] Desfazer o lançamento avulso de "Honorários prévios" de R$ 1.110,00 do 5019106-45.2025.8.24.0064: anular o lançamento e registrar o valor como recebimento do honorário fixado — `prazos-recebimentos`
@@ -123,6 +125,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-28 — Sem "Marcar todos como lidos" nas Notificações; ações em ícones com tooltip; Serviço com tooltip das partes (AD-311) — `notificacoes-processo-unico`
+- [x] 2026-11-28 — "Visão completa" nos Filtros prontos de Serviços e nome do contratante sem passar por cima da coluna seguinte — `filtros-lista`
 - [x] 2026-11-27 — Tipo e fase do serviço só em enums; "Serviços finalizados" traz as Parcerias finalizadas e o filtro de tipo usa um parâmetro só (AD-310) — `servico-enums`
 - [x] 2026-11-27 — Perita confirmou as 14 questões da spec `sugestoes-datajud`; encerramento com honorários recebidos segue a AD-306 (perícia: "Honorários recebidos", assistência: "Finalizado") — `sugestoes-datajud`
 - [x] 2026-11-27 — Filtro Situação (Em andamento / Finalizados) em Serviços e filtros prontos só de serviço; regra "gestor de serviços, não de perícias" no `AGENTS.md` (AD-308) — `filtros-lista`

@@ -2,6 +2,53 @@
   "gerado_por": "scripts/docs/sync-docs.mjs",
   "features": [
     {
+      "slug": "filtros-lista",
+      "feature": "Filtros das listas",
+      "descricao": "Botão \"Filtros\" das listas com opções marcáveis, várias por filtro, e exportação da lista em CSV, Excel ou PDF",
+      "data": "2026-11-28",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts"
+      ],
+      "decisoes": [
+        "AD-193",
+        "AD-218",
+        "AD-223",
+        "AD-241",
+        "AD-307",
+        "AD-308"
+      ],
+      "spec": [
+        ".specs/features/filtros-lista"
+      ],
+      "planos": [],
+      "doc": "features/filtros-lista/feature.md"
+    },
+    {
+      "slug": "notificacoes-processo-unico",
+      "feature": "Notificações num processo só",
+      "descricao": "Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API",
+      "data": "2026-11-28",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "docs"
+      ],
+      "decisoes": [
+        "AD-282",
+        "AD-311"
+      ],
+      "spec": [
+        ".specs/features/notificacoes-processo-unico"
+      ],
+      "planos": [],
+      "doc": "features/notificacoes-processo-unico/feature.md"
+    },
+    {
       "slug": "fase-assistencia",
       "feature": "Fases da Assistência técnica",
       "descricao": "Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência",
@@ -47,31 +94,6 @@
       ],
       "planos": [],
       "doc": "features/fase-servico/feature.md"
-    },
-    {
-      "slug": "filtros-lista",
-      "feature": "Filtros das listas",
-      "descricao": "Botão \"Filtros\" das listas com opções marcáveis, várias por filtro, e exportação da lista em CSV, Excel ou PDF",
-      "data": "2026-11-27",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts"
-      ],
-      "decisoes": [
-        "AD-193",
-        "AD-218",
-        "AD-223",
-        "AD-241",
-        "AD-307",
-        "AD-308"
-      ],
-      "spec": [
-        ".specs/features/filtros-lista"
-      ],
-      "planos": [],
-      "doc": "features/filtros-lista/feature.md"
     },
     {
       "slug": "servico-enums",
@@ -260,27 +282,6 @@
         ".specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md"
       ],
       "doc": "features/automacao-datajud/feature.md"
-    },
-    {
-      "slug": "notificacoes-processo-unico",
-      "feature": "Notificações num processo só",
-      "descricao": "Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API",
-      "data": "2026-11-23",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "docs"
-      ],
-      "decisoes": [
-        "AD-282"
-      ],
-      "spec": [
-        ".specs/features/notificacoes-processo-unico"
-      ],
-      "planos": [],
-      "doc": "features/notificacoes-processo-unico/feature.md"
     },
     {
       "slug": "central-notificacoes",
@@ -2763,6 +2764,12 @@
       "id": "AD-310",
       "decisao": "Tipo e fase do serviço só como enums em inglês. `Case.serviceType` é obrigatório e é um de `SERVICE_TYPES` (`expert_examination`, `technical",
       "data": "2026-11-27",
+      "status": "active"
+    },
+    {
+      "id": "AD-311",
+      "decisao": "Sai o \"Marcar todos como lidos\" das Notificações: botão, chave `mark_all_as_read`, rota `POST /notifications/read-all` e `markAllRead`; `mar",
+      "data": "2026-11-28",
       "status": "active"
     }
   ]

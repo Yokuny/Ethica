@@ -2,7 +2,7 @@
 feature: Filtros das listas
 slug: filtros-lista
 descricao: Botão "Filtros" das listas com opções marcáveis, várias por filtro, e exportação da lista em CSV, Excel ou PDF
-data: 2026-11-27
+data: 2026-11-28
 status: concluido
 areas: [apps/api, apps/web, packages/contracts]
 decisoes: [AD-193, AD-218, AD-223, AD-241, AD-307, AD-308]
@@ -70,6 +70,7 @@ pnpm vitest run packages/contracts/src/schemas/query-list.schema.unit.test.ts ap
 
 ## Histórico
 
+- 2026-11-28 — "Visão completa" no fim dos "Filtros prontos" de Serviços: limpa todos os filtros e a busca (o `clearFilters` de `use-cases-search`). Correção: nome cortado em uma linha no título de uma célula (contratante em Serviços) passava por cima da coluna seguinte porque o `ItemTitle` é `w-fit`; o `TableStack` limita o título a `max-w-full` (`apps/web/src/components/data-table.tsx`).
 - 2026-11-27 — Filtro "Tipo de serviço" com um parâmetro só, `serviceType` (AD-310, `servico-enums`); "Serviços finalizados" passa a trazer as Parcerias finalizadas.
 - 2026-11-27 — Filtros prontos de Serviços falam só de serviço (AD-308): "Serviços em andamento" e "Serviços finalizados" no lugar de "Ocultar finalizados", "Perícias em andamento" e "Assistências técnicas em andamento". Ambos usam o filtro novo **Situação** (Em andamento / Finalizados) do "Filtros", com `situation` na API (`apps/api/src/modules/case/case.repository.ts`).
 - 2026-11-27 — "Filtros prontos" no menu "…" de Serviços ("Ocultar finalizados", "Perícias em andamento", "Assistências técnicas em andamento") e do Histórico de auditoria (Hoje, Últimos 7 dias, Exclusões, Entradas no sistema, Financeiro), em vez de filtro salvo (AD-307). O pronto escreve só as suas chaves no endereço da tela, somando aos filtros já aplicados; "Filtros" mostra e "Limpar" remove. Listas em `@consts/*-presets.ts` de cada tela; `toCalendarDate` passa a ser exportado de `apps/web/src/components/date-picker.tsx` (o `range-picker` da Logística usa o mesmo). Sem conferência na tela: o login local pede passkey.

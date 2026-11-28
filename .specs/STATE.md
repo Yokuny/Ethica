@@ -1999,6 +1999,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-27
 - **Status**: active
 
+### AD-311
+- **Decision**: Sai o "Marcar todos como lidos" das Notificações: botão, chave `mark_all_as_read`, rota `POST /notifications/read-all` e `markAllRead`; `markRead` (service e repository) passa a exigir o `id` e lê um aviso por vez (`updateOne`). A coluna de ação da lista vira ícones com o texto no tooltip (Rejeitar, Aprovar, Marcar como lido, abrir o dado); a coluna Serviço mostra o contratante em uma linha e os nomes inteiros no tooltip, como a lista de Serviços. Supersede, da AD-282, só o "Marcar todos como lidos continua".
+- **Reason**: pedido do usuário (2026-11-28): o botão não deveria existir; marcar tudo de uma vez esconde avisos sem que alguém os leia, e um caminho a menos deixa o processo mais simples.
+- **Trade-off**: quem tem muitos avisos marca um por um (ou filtra por tipo); o número do menu só cai com a leitura de cada aviso.
+- **Scope**: `apps/api/src/modules/notifications/`, `apps/api/src/middlewares/activity-log.middleware.ts`, `apps/web/src/routes/_private/notifications/`, `apps/web/src/components/suggestions-list.tsx`, `apps/web/src/query/notification.ts`.
+- **Date**: 2026-11-28
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.
