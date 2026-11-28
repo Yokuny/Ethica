@@ -22,7 +22,7 @@ const textOf = (notice: NoticeForDelivery): string | undefined => {
     return `${escapeHtml(String(params.description ?? ''))} — ${formatMoney(Number(params.openCents ?? 0))} (${formatDay(String(params.dueDate ?? ''))})`;
   }
   if (topic === 'automation_expiring') {
-    return `O Acompanhamento processual termina em ${formatDay(String(params.automationUntil ?? '').slice(0, 10))}. Renove o plano para continuar acompanhando os processos.`;
+    return `A Automação processual termina em ${formatDay(String(params.automationUntil ?? '').slice(0, 10))}. Renove o plano para continuar acompanhando os processos.`;
   }
   return undefined;
 };

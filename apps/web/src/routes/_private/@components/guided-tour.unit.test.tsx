@@ -62,7 +62,7 @@ describe('GuidedTour', () => {
       'Logística',
       'Laudos',
       'Financeiro',
-      'Acompanhamento processual',
+      'Automação processual',
       'Seu escritório',
       'Sua conta',
     ]);

@@ -101,7 +101,8 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
-- **AD-315** (2026-11-28, active) — O usuário não lê "Datajud" em lugar nenhum: o módulo se chama Acompanhamento processual na tela, no menu, no tour, nos planos e no e-mail de
+- **AD-316** (2026-11-28, active) — O módulo se chama Automação processual para o usuário, no lugar de "Acompanhamento processual" (AD-315): mesmas chaves (`automation_offer_ti
+- **AD-315** (2026-11-28, active; o nome "Acompanhamento processual" superseded by AD-316) — O usuário não lê "Datajud" em lugar nenhum: o módulo se chama Acompanhamento processual na tela, no menu, no tour, nos planos e no e-mail de
 - **AD-314** (2026-11-28, active) — Painel da Automação Datajud (`painel-automacao`). (1) A API fica no módulo `automation` (`GET /automation/dashboard`, `GET /automation/cases
 - **AD-313** (2026-11-28, active) — Hierarquia do Dashboard pelo tamanho e peso do texto, como no detalhe do serviço e em Relatórios, sem trocar gráfico nem cor. (1) Títulos da
 - **AD-312** (2026-11-28, active) — (1) Os blocos recolhíveis de uma página ficam numa moldura só: `PanelGroup` (`apps/web/src/components/panel.tsx`) com `rounded-lg border` e
@@ -110,7 +111,6 @@ _Nenhum._
 - **AD-309** (2026-11-27, active) — (1) O fim do processo no tribunal vira sugestão ou aviso pelo estado do processo, avaliado a cada consulta do worker depois da linha de base
 - **AD-308** (2026-11-27, active) — o Ethica é gestor de serviços: texto, filtros e filtros prontos falam de serviço e valem para todo tipo de escritório, sem recurso que só si
 - **AD-307** (2026-11-27, active) — listas com "Filtros" ganham "Filtros prontos" no menu "…" do cabeçalho, em vez de filtro salvo. Cada filtro pronto só escreve as suas chaves
-- **AD-306** (2026-11-27, active) — "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório)
 
 ## Outros documentos
 

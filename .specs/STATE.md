@@ -2037,6 +2037,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Trade-off**: "Processos" sem "acompanhados" na faixa (o título da página dá o contexto).
 - **Scope**: `apps/web/src/lib/helpers/translate.helper.ts`, `apps/worker/src/jobs/email-immediate.ts`, `apps/web/src/routes/_private/automation/`, `PRODUCT.md`.
 - **Date**: 2026-11-28
+- **Status**: active; o nome "Acompanhamento processual" superseded by AD-316
+
+### AD-316
+- **Decision**: O módulo se chama **Automação processual** para o usuário, no lugar de "Acompanhamento processual" (AD-315): mesmas chaves (`automation_offer_title` e vizinhas em `apps/web/src/lib/helpers/translate.helper.ts`) e o e-mail de vencimento (`apps/worker/src/jobs/email-immediate.ts`), com o artigo no feminino. Supersede só o nome da AD-315; o resto dela segue.
+- **Reason**: pedido do usuário (2026-11-28): mais curto e melhor.
+- **Trade-off**: nenhum além do texto.
+- **Scope**: `apps/web/src/lib/helpers/translate.helper.ts`, `apps/worker/src/jobs/email-immediate.ts`, `PRODUCT.md`.
+- **Date**: 2026-11-28
 - **Status**: active
 
 ## Handoff

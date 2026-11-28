@@ -109,7 +109,8 @@
       ],
       "decisoes": [
         "AD-314",
-        "AD-315"
+        "AD-315",
+        "AD-316"
       ],
       "spec": [
         ".specs/features/painel-automacao"
@@ -2841,6 +2842,12 @@
     {
       "id": "AD-315",
       "decisao": "O usuário não lê \"Datajud\" em lugar nenhum: o módulo se chama Acompanhamento processual na tela, no menu, no tour, nos planos e no e-mail de",
+      "data": "2026-11-28",
+      "status": "active; o nome \"Acompanhamento processual\" superseded by AD-316"
+    },
+    {
+      "id": "AD-316",
+      "decisao": "O módulo se chama Automação processual para o usuário, no lugar de \"Acompanhamento processual\" (AD-315): mesmas chaves (`automation_offer_ti",
       "data": "2026-11-28",
       "status": "active"
     }

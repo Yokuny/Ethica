@@ -51,7 +51,7 @@ const OUTCOME_COLOR: Record<SuggestionOutcome, string> = {
   superseded: NEUTRAL_COLOR,
 };
 
-// Acompanhamento processual (the Datajud automation) as a panel (PAT-01 to PAT-05), macro → micro: the strip with what the automation did in the period
+// Automação processual (the Datajud automation) as a panel (PAT-01 to PAT-05), macro → micro: the strip with what the automation did in the period
 // and what waits for approval, the activity month by month with the constancy of the daily query, what happened to
 // the suggestions and the situation of the cases, and the list of tracked cases, newest movement first. The rules on
 // their own page and the period in the "…" menu. Without the module, the offer (AD-276).

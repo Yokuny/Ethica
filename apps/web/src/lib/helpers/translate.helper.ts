@@ -44,7 +44,7 @@ const translations: Record<string, string> = {
   payment_received: 'Pagamento recebido',
   received_amount: 'Valor recebido',
   payoff_date: 'Data da quitação',
-  automation_required: 'Recurso do plano com Acompanhamento processual.',
+  automation_required: 'Recurso do plano com Automação processual.',
   court_process_not_found: 'Processo não encontrado no tribunal ou em segredo de justiça.',
   court_unavailable: 'O tribunal não respondeu agora. Depois de salvar, a automação busca e traz como sugestão.',
   invalid_notification_status:
@@ -131,7 +131,7 @@ const translations: Record<string, string> = {
   about_story_solution:
     'O Ethica reúne tudo em um só lugar: o serviço com as partes e os prazos, a agenda das vistorias, o laudo feito a partir de modelos e o financeiro com o que falta receber.',
   about_story_field:
-    'A vistoria funciona no celular mesmo sem internet, e o Acompanhamento processual consulta os processos no tribunal todo dia.',
+    'A vistoria funciona no celular mesmo sem internet, e a Automação processual consulta os processos no tribunal todo dia.',
   about_mission: 'Queremos que o perito faça mais perícias gastando menos tempo com burocracia.',
   about_audience_title: 'Para quem é o Ethica',
   about_audience_text: 'Para quem vive a perícia no dia a dia, sozinho ou com a equipe do escritório.',
@@ -239,14 +239,14 @@ const translations: Record<string, string> = {
   billing_yearly_cta: 'Assinar o Anual',
   billing_automation_monthly: 'Mensal + Automação',
   billing_automation_yearly: 'Anual + Automação',
-  billing_automation_monthly_tagline: 'O Mensal com o Acompanhamento processual dos seus processos no tribunal',
-  billing_automation_yearly_tagline: 'O Anual com o Acompanhamento processual, pelo menor preço por mês',
+  billing_automation_monthly_tagline: 'O Mensal com a Automação processual acompanhando os seus processos no tribunal',
+  billing_automation_yearly_tagline: 'O Anual com a Automação processual, pelo menor preço por mês',
   billing_automation_monthly_cta: 'Assinar o Mensal + Automação',
   billing_automation_yearly_cta: 'Assinar o Anual + Automação',
   billing_benefit_court_tracking: 'Acompanhamento diário dos processos no tribunal',
   billing_benefit_court_suggestions:
     'Avisos de movimentação e sugestões de status, fase e recebimento para você aprovar',
-  automation_offer_title: 'Acompanhamento processual',
+  automation_offer_title: 'Automação processual',
   automation_offer_description:
     'Acompanhe os processos no tribunal e receba sugestões de status, fase e recebimento para aprovar. Disponível no plano com Automação.',
   see_plans: 'Ver planos',
@@ -275,7 +275,7 @@ const translations: Record<string, string> = {
   deadlines_review_notice: 'Processo suspenso: revise os prazos pendentes',
   fees_collection_notice: 'Hora de cobrar os honorários',
   fees_open_finished_notice: 'Processo arquivado com honorário em aberto',
-  automation_expiring_notice: 'O Acompanhamento processual termina em breve',
+  automation_expiring_notice: 'A Automação processual termina em breve',
   automation_page_description: 'O que a automação fez no período e os processos acompanhados no tribunal.',
   notice: 'Aviso',
   tracked_cases: 'Processos acompanhados',
