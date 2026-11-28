@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { CASE_FINISHED_RULE, courtFinishing, matchRules, proposalFits } from './automation-rules.js';
+import {
+  CASE_FINISHED_RULE,
+  caseFillOf,
+  courtDivisionName,
+  courtFinishing,
+  matchRules,
+  proposalFits,
+} from './automation-rules.js';
 
 const movement = (code: number) => ({ key: 'k', code, name: 'x', at: '2026-11-20T10:00:00Z', complements: [] });
 const perito = {
@@ -97,5 +104,23 @@ describe('regras completas pela TPU e fim do processo (SGD-04, AD-309)', () => {
     expect(CASE_FINISHED_RULE.propose('expert_examination')).toEqual({ target: 'case_phase', value: 'fees_received' });
     expect(CASE_FINISHED_RULE.propose('technical_assistance')).toEqual({ target: 'case_phase', value: 'finished' });
     expect(CASE_FINISHED_RULE.propose('partnership')).toBe(undefined);
+  });
+});
+
+describe('preencher com os dados do tribunal (SGD-07)', () => {
+  it('só os campos que continuam vazios; nada a preencher = já aplicada', () => {
+    const proposal = {
+      target: 'case_fill' as const,
+      division: 'Vara do Trabalho de Bacabal',
+      docketingDate: '2025-11-06',
+    };
+    expect(caseFillOf({ division: 'Já digitada' }, proposal)).toEqual({ docketingDate: '2025-11-06' });
+    expect(proposalFits({ ...perito, phase: 'finished' }, proposal)).toBe('apply');
+    expect(proposalFits({ ...perito, division: 'x', docketingDate: '2025-01-01' }, proposal)).toBe('already');
+  });
+
+  it('nome da vara todo em maiúsculas fica só com a inicial maiúscula', () => {
+    expect(courtDivisionName('VARA DO TRABALHO DE BATAGUASSU')).toBe('Vara do Trabalho de Bataguassu');
+    expect(courtDivisionName('Vara do Trabalho de Bacabal')).toBe('Vara do Trabalho de Bacabal');
   });
 });

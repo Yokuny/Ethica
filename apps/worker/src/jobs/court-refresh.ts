@@ -1,4 +1,7 @@
 import {
+  CASE_FILL_RULE,
+  caseFillOf,
+  courtDivisionName,
   isPaymentAvailable,
   isPaymentIntent,
   matchRules,
@@ -85,6 +88,30 @@ export const refreshCourtBatch = async (
       .filter((process) => process.processNumber === item.processNumber)
       .flatMap((process) => process.movements);
     const caseKey = { Tenant: item.tenantId, Case: item.caseId };
+    // SGD-07: whenever the court finds the process (baseline or not), what it knows fills the empty division and
+    // filing day, once per case.
+    const found = processes.find((process) => process.processNumber === item.processNumber);
+    const fill =
+      found &&
+      caseFillOf(item, {
+        division: found.courtUnitName ? courtDivisionName(found.courtUnitName) : undefined,
+        docketingDate: found.filedAt,
+      });
+    const newest = [...movements].sort((a, b) => a.at.localeCompare(b.at)).at(-1);
+    if (fill && newest) {
+      const id = await insertSuggestion({
+        tenantId: item.tenantId,
+        caseId: item.caseId,
+        court: item.court,
+        ruleKey: CASE_FILL_RULE.key,
+        ruleVersion: CASE_FILL_RULE.version,
+        proposal: { target: 'case_fill', ...fill },
+        movement: newest,
+        dedupeKey: `suggestion:${item.caseId}:${CASE_FILL_RULE.key}`,
+        severity: 'warning',
+      });
+      if (id) suggestions += 1;
+    }
     // Queried and not found (PAC-02): only the date of the query, so the page shows it; a case already synced
     // keeps its baseline.
     if (movements.length === 0) {

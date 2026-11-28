@@ -161,6 +161,8 @@ export type TrackedCase = {
   serviceType: ServiceType;
   status: CaseStatus;
   phase: CasePhase;
+  division?: string;
+  docketingDate?: string;
 };
 
 // Cases followed in court (ADT-02, PAC-03): offices with the module on, a valid CNJ number of a tracked court
@@ -182,7 +184,7 @@ export const listTrackedCases = async (now = new Date(), tenantId?: string): Pro
     status: { $ne: 'canceled' },
     phase: { $nin: [...CASE_CLOSED_PHASES] },
   })
-    .select('Tenant processNumber serviceType status phase')
+    .select('Tenant processNumber serviceType status phase division docketingDate')
     .lean();
   return cases.flatMap((doc) => {
     const unit = doc.processNumber ? courtUnitFromNumber(doc.processNumber) : undefined;
@@ -196,6 +198,8 @@ export const listTrackedCases = async (now = new Date(), tenantId?: string): Pro
         serviceType: doc.serviceType,
         status: doc.status,
         phase: doc.phase,
+        division: doc.division,
+        docketingDate: doc.docketingDate,
       },
     ];
   });
@@ -206,7 +210,13 @@ export type PendingSuggestion = {
   tenantId: string;
   proposal: CaseProposal;
   automation: boolean;
-  legalCase?: { serviceType: ServiceType; status: CaseStatus; phase: CasePhase };
+  legalCase?: {
+    serviceType: ServiceType;
+    status: CaseStatus;
+    phase: CasePhase;
+    division?: string;
+    docketingDate?: string;
+  };
 };
 
 // Pending suggestions with what decides if they still fit: the module of the office and the case now.
@@ -218,7 +228,7 @@ export const listPendingSuggestions = async (now = new Date()): Promise<PendingS
       .select('automationUntil')
       .lean(),
     Case.find({ _id: { $in: docs.flatMap((doc) => (doc.Case ? [doc.Case] : [])) } })
-      .select('serviceType status phase')
+      .select('serviceType status phase division docketingDate')
       .lean(),
   ]);
   const active = new Set(
@@ -235,7 +245,13 @@ export const listPendingSuggestions = async (now = new Date()): Promise<PendingS
       proposal: doc.proposal as CaseProposal,
       automation: active.has(String(doc.Tenant)),
       legalCase: legalCase
-        ? { serviceType: legalCase.serviceType, status: legalCase.status, phase: legalCase.phase }
+        ? {
+            serviceType: legalCase.serviceType,
+            status: legalCase.status,
+            phase: legalCase.phase,
+            division: legalCase.division,
+            docketingDate: legalCase.docketingDate,
+          }
         : undefined,
     };
   });

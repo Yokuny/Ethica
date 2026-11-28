@@ -40,7 +40,14 @@ export const notificationText = (item: NotificationRecord): { title: string; des
           ? `${t('proposed_phase')} ${casePhaseLabel(proposal.value)}`
           : proposal.target === 'transaction_installment'
             ? `${t('proposed_receipt')} ${day(proposal.date)}`
-            : `${t('proposed_cancel_deadlines')} (${proposal.count})`;
+            : proposal.target === 'case_fill'
+              ? `${t('proposed_fill')}: ${[
+                  proposal.division && `${t('court_division')} ${proposal.division}`,
+                  proposal.docketingDate && `${t('lawsuit_filing_date')} ${day(proposal.docketingDate)}`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}`
+              : `${t('proposed_cancel_deadlines')} (${proposal.count})`;
     return { title, description: `${t('court_movement_label')} (${evidence.court}): ${evidence.movement.name}` };
   }
   if (item.topic === 'finance_due') {

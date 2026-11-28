@@ -372,6 +372,37 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
     expect(rejected.body.data).toMatchObject({ status: 'rejected', rejectReason: 'Era de outro processo' });
   });
 
+  it('preencher com os dados do tribunal (SGD-07): aceitar grava só o que continua vazio', async () => {
+    const { as, tenant } = await setup(['admin']);
+    await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+    const legalCase = (await as(request(app).post('/expert-cases')).send({ ...CASE, division: '1ª Vara do Trabalho' }))
+      .body.data;
+    const fill = await Notification.create({
+      Tenant: tenant._id,
+      Case: legalCase.id,
+      kind: 'suggestion',
+      module: 'expert_cases',
+      source: 'datajud',
+      status: 'pending',
+      proposal: { target: 'case_fill', division: 'Vara do Trabalho de São Paulo', docketingDate: '2025-11-06' },
+      evidence: {
+        court: 'TRT2',
+        movement: { key: 'f1', code: 26, name: 'Distribuição', at: '2025-11-06T10:00:00Z', complements: [] },
+      },
+      ruleKey: 'case_fill',
+      ruleVersion: 1,
+      dedupeKey: 'f1',
+    });
+
+    expect((await as(request(app).post(`/notifications/${fill._id}/accept`)).send({})).body.data).toMatchObject({
+      status: 'accepted',
+    });
+    expect((await as(request(app).get(`/expert-cases/${legalCase.id}`))).body.data).toMatchObject({
+      division: '1ª Vara do Trabalho',
+      docketingDate: '2025-11-06',
+    });
+  });
+
   it('recebimento do alvará (AD-269): exige lançamento, valor e data; acima do saldo recusa e volta a pendente; acordo oferece cancelar os prazos', async () => {
     const { as, tenant, add } = await setup(['admin']);
     await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });

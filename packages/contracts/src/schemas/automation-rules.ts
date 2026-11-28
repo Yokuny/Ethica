@@ -19,7 +19,9 @@ export type CaseProposal =
   // Fase 6 (AD-269, AD-274): register a receipt (the person confirms amount, date and account) and cancel the
   // pending deadlines and alerts of a case closed by agreement or dismissal.
   | { target: 'transaction_installment'; date: string }
-  | { target: 'notifications_cancel'; count: number };
+  | { target: 'notifications_cancel'; count: number }
+  // SGD-07: the court division and the filing day the court gives, for a case that has them empty.
+  | { target: 'case_fill'; division?: string; docketingDate?: string };
 
 // The module of the data a proposal changes (D5): who sees it and who may accept it.
 export const proposalModule = (proposal: CaseProposal): 'expert_cases' | 'finance' =>
@@ -31,6 +33,8 @@ export const proposalModule = (proposal: CaseProposal): 'expert_cases' | 'financ
 // precatório paid (12176, 12169) — a suggestion to register the receipt.
 export const PAYMENT_INTENT_CODES: readonly number[] = [12548, 12165, 12173, 12166, 12175];
 export const PAYMENT_RULE = { key: 'payment_available', version: 1 } as const;
+// SGD-07: fill the empty division and filing day of a case with what the court gives.
+export const CASE_FILL_RULE = { key: 'case_fill', version: 1 } as const;
 export const isPaymentAvailable = (movement: CourtMovement): boolean =>
   movement.code === 12176 ||
   movement.code === 12169 ||
@@ -149,13 +153,49 @@ export const matchRules = (movement: CourtMovement, serviceType: ServiceType): R
     return proposal ? [{ rule, proposal, movement }] : [];
   });
 
+// The fields of a filling proposal the case still has empty (undefined = nothing left to fill).
+export const caseFillOf = (
+  legalCase: { division?: string | null; docketingDate?: string | null },
+  proposal: { division?: string; docketingDate?: string },
+): { division?: string; docketingDate?: string } | undefined => {
+  const fill = {
+    ...(proposal.division && !legalCase.division ? { division: proposal.division } : {}),
+    ...(proposal.docketingDate && !legalCase.docketingDate ? { docketingDate: proposal.docketingDate } : {}),
+  };
+  return Object.keys(fill).length > 0 ? fill : undefined;
+};
+
+// The court writes some division names all in capitals ("VARA DO TRABALHO DE BATAGUASSU", TRT24): capital only at
+// the start of each word, with the short connectors in lower case.
+export const courtDivisionName = (name: string): string => {
+  const trimmed = name.trim();
+  if (trimmed !== trimmed.toUpperCase()) return trimmed;
+  return trimmed
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word, index) =>
+      index > 0 && ['de', 'do', 'da', 'dos', 'das', 'e'].includes(word)
+        ? word
+        : word.charAt(0).toUpperCase() + word.slice(1),
+    )
+    .join(' ');
+};
+
 // Whether a proposal still fits the case now (AD-268, invariant 3): `already` = the case is in the proposed
 // state (superseded); `impossible` = a closed case, a phase of another type or a phase behind the current one
 // (a suggestion never moves the phase back, except to a loss phase that closes the case).
 export const proposalFits = (
-  legalCase: { serviceType: ServiceType; status: CaseStatus; phase: CasePhase },
+  legalCase: {
+    serviceType: ServiceType;
+    status: CaseStatus;
+    phase: CasePhase;
+    division?: string | null;
+    docketingDate?: string | null;
+  },
   proposal: CaseProposal,
 ): 'apply' | 'already' | 'impossible' => {
+  // Filling is registration only: it fits while one of its fields is still empty, closed or not.
+  if (proposal.target === 'case_fill') return caseFillOf(legalCase, proposal) ? 'apply' : 'already';
   // Money and deadlines are decided by the person in the form (and can come after the case is closed).
   if (proposal.target === 'transaction_installment' || proposal.target === 'notifications_cancel') return 'apply';
   if (proposal.target === 'case_status') {

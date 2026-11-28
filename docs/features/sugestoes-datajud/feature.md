@@ -28,6 +28,7 @@ ela muda, com caminho direto para o serviço ou o lançamento, e o cadastro pode
 ## Como
 
 - Regras: `packages/contracts/src/schemas/automation-rules.ts` (teste ao lado).
+- Preencher pelo tribunal: `caseFillOf` e `courtDivisionName` em `automation-rules.ts`; criada em `apps/worker/src/jobs/court-refresh.ts`, aplicada em `apps/api/src/modules/notifications/notification.service.ts`.
 - Client do Datajud: `packages/datajud/` (API e worker; fixtures reais em `packages/datajud/src/fixtures/`), com data de ajuizamento (`filedAt`) e assuntos (`subjects`) gravados no `CourtProcess`. O resto do mapa está em `.specs/features/sugestoes-datajud/design.md`.
 
 ## Como testar
@@ -36,11 +37,12 @@ A definir (task T11).
 
 ## Pendências
 
-- [ ] Tasks T3 a T11 de `.specs/features/sugestoes-datajud/tasks.md`.
+- [ ] Tasks T4 a T11 de `.specs/features/sugestoes-datajud/tasks.md`.
 - [ ] Antes do deploy, apagar de novo os dados do Datajud em produção (roadmap).
 
 ## Histórico
 
+- 2026-11-27 — T3: sugestão "Preencher com os dados do tribunal" (`case_fill`, AD-309): em qualquer consulta que encontra o processo, se a vara ou a data de autuação (`docketingDate`) do serviço estão vazias, uma vez por serviço; aceitar grava só o que continua vazio. Vara em maiúsculas vira só a inicial maiúscula (`courtDivisionName`).
 - 2026-11-27 — T2: client do Datajud movido de `apps/worker/src/datajud/` para `packages/datajud` (sem shim), nos três Dockerfiles e no mapa do `AGENTS.md`; lê `dataAjuizamento` e `assuntos`. Imagem do worker construída e importando o pacote.
 - 2026-11-27 — T1b: suspensão pelas famílias 25, 11025 e 12274 e pelo arquivamento provisório (245); retomada por 14974 e filhos, 849 e 893 (regras na versão 3); `courtFinishing` (fim do processo pelo último movimento entre encerrar e retomar, baixa só no primeiro grau) e `CASE_FINISHED_RULE`. Divergência do design: a AD-310 (outra sessão, mesmo dia) trocou `assistance_closed` por `finished`, comum a todos os tipos; a assistência recebe "Finalizado" (`finished`) e a perícia segue "Honorários recebidos", como o usuário escolheu.
 - 2026-11-27 — T1: códigos de fim da suspensão (14975, 14984, 14985) movidos da suspensão para a retomada; `case_suspended` e `case_resumed` na versão 2. `pnpm run check` verde (759 testes).

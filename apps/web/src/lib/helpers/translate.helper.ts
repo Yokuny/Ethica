@@ -262,6 +262,7 @@ const translations: Record<string, string> = {
   no_open_income: 'Este serviço não tem honorário em aberto. Lance o honorário no Financeiro e volte aqui.',
   proposed_receipt: 'Registrar o recebimento de',
   proposed_cancel_deadlines: 'Cancelar os prazos e alertas pendentes deste serviço',
+  proposed_fill: 'Preencher com os dados do tribunal',
   suggestion_outdated: 'O serviço mudou desde a sugestão; ela não se aplica mais.',
   court_process_waiting:
     'O processo ainda não foi consultado no tribunal. A consulta é feita uma vez por dia, de madrugada.',

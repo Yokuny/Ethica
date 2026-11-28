@@ -307,4 +307,49 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
     ).rejects.toThrow('429');
     expect(await CaseCourtSync.countDocuments({})).toBe(0);
   });
+
+  it('preenche a vara e a data de ajuizamento vazias com os dados do tribunal, uma vez por serviço (SGD-07)', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      serviceType: 'expert_examination' as const,
+      status: 'active' as const,
+      phase: 'drafting_report' as const,
+    };
+    const found = {
+      ...courtProcess([movement('a', '2026-11-01T10:00:00Z')]),
+      courtUnitName: 'VARA DO TRABALHO DE BATAGUASSU',
+      filedAt: '2021-04-20',
+    };
+    const datajud = { fetchProcesses: vi.fn<DatajudClient['fetchProcesses']>().mockResolvedValue([found]) };
+
+    // On the baseline too: the first query already fills.
+    expect(await refreshCourtBatch(datajud, { court: 'TRT24', day: '2026-11-21', cases: [item] }, now)).toMatchObject({
+      baselines: 1,
+      suggestions: 1,
+    });
+    const [suggestion] = await Notification.find({ ruleKey: 'case_fill' }).lean();
+    expect(suggestion?.proposal).toEqual({
+      target: 'case_fill',
+      division: 'Vara do Trabalho de Bataguassu',
+      docketingDate: '2021-04-20',
+    });
+    // Once per case; a case with both fields typed gets nothing.
+    await refreshCourtBatch(datajud, { court: 'TRT24', day: '2026-11-22', cases: [item] }, now);
+    expect(await Notification.countDocuments({ ruleKey: 'case_fill' })).toBe(1);
+    await Notification.deleteMany({});
+    await refreshCourtBatch(
+      datajud,
+      {
+        court: 'TRT24',
+        day: '2026-11-23',
+        cases: [{ ...item, division: '1ª Vara do Trabalho', docketingDate: '2021-04-21' }],
+      },
+      now,
+    );
+    expect(await Notification.countDocuments({ ruleKey: 'case_fill' })).toBe(0);
+  });
 });

@@ -1,6 +1,7 @@
 import {
   CASE_CLOSED_PHASES,
   CASE_PHASE_GROUPS,
+  caseFillOf,
   caseLabel,
   hasPermission,
   NOTIFICATION_MODULES,
@@ -168,6 +169,12 @@ const apply = async (tenantId: string, suggestion: SuggestionRecord, data: Accep
   }
   if (proposal.target === 'case_phase') {
     await caseService.updateCase(tenantId, caseId, { phase: proposal.value });
+    return;
+  }
+  if (proposal.target === 'case_fill') {
+    // Only what is still empty now (SGD-07): a field typed by hand is never overwritten.
+    const fill = caseFillOf(await caseService.getCase(tenantId, caseId), proposal);
+    if (fill) await caseService.updateCase(tenantId, caseId, fill);
     return;
   }
   if (proposal.target === 'notifications_cancel') {
