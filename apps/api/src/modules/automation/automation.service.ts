@@ -1,11 +1,13 @@
-import { courtUnitFromNumber } from '@ethica/contracts';
+import { courtDivisionName, courtUnitFromNumber, isTrackedNumber } from '@ethica/contracts';
+import { dateInDisplayTz } from '@ethica/db';
 import { CustomError } from '../../middlewares/error-handler.middleware.js';
 import * as caseService from '../case/case.service.js';
 import * as billingService from '../identity/billing.service.js';
 import * as automationRepository from './automation.repository.js';
-import type { CourtProcessView, TrackedCase } from './automation.schema.js';
+import type { CourtLookup, CourtProcessView, DatajudClient, TrackedCase } from './automation.schema.js';
 
-// Automação Datajud (AD-268 to AD-271): the BFF only reads what the worker brought from the court.
+// Automação Datajud (AD-268 to AD-271): the BFF reads what the worker brought from the court; the live lookup by
+// number (SGD-06, AD-304) is the only call it makes to the Datajud.
 
 // 403 `automation_required` for an office without the module (AD-276).
 export const ensureAutomation = async (tenantId: string): Promise<void> => {
@@ -34,4 +36,37 @@ export const listTrackedCases = async (tenantId: string): Promise<TrackedCase[]>
     if (!sync) return { ...base, status: 'waiting' };
     return { ...base, status: sync.found ? 'synced' : 'not_found', syncedAt: sync.syncedAt };
   });
+};
+
+// Fill a case by its number, live (SGD-06): the copy fetched today when there is one, otherwise one call to the
+// Datajud (no retries: the worker retries in its daily run). Not found and secret are one answer (the client drops a
+// secret process, AD-271); a court that does not answer is `court_unavailable`.
+export const lookupCourtProcess = async (
+  processNumber: string,
+  datajud: DatajudClient | undefined,
+  now = new Date(),
+): Promise<CourtLookup> => {
+  const unit = courtUnitFromNumber(processNumber);
+  if (!unit || !isTrackedNumber(processNumber)) throw new CustomError('court_process_not_found', 404);
+  let found = await automationRepository.findCourtFill(unit.court, processNumber);
+  if (!found || dateInDisplayTz(found.fetchedAt) !== dateInDisplayTz(now)) {
+    if (!datajud) throw new CustomError('court_unavailable', 503);
+    let processes: Awaited<ReturnType<DatajudClient['fetchProcesses']>>;
+    try {
+      processes = await datajud.fetchProcesses(unit.court, [processNumber]);
+    } catch {
+      // The client already logged the call (`datajud.request`, AD-287).
+      throw new CustomError('court_unavailable', 503);
+    }
+    if (processes.length === 0) throw new CustomError('court_process_not_found', 404);
+    await automationRepository.saveCourtProcesses(processes, now);
+    found = await automationRepository.findCourtFill(unit.court, processNumber);
+  }
+  if (!found) throw new CustomError('court_process_not_found', 404);
+  return {
+    ...unit,
+    ...(found.courtUnitName ? { division: courtDivisionName(found.courtUnitName) } : {}),
+    ...(found.filedAt ? { docketingDate: found.filedAt } : {}),
+    ...(found.subjects.length > 0 ? { subject: found.subjects.join(', ') } : {}),
+  };
 };

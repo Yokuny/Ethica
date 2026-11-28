@@ -44,6 +44,9 @@ importers:
       '@ethica/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@ethica/datajud':
+        specifier: workspace:*
+        version: link:../../packages/datajud
       '@ethica/db':
         specifier: workspace:*
         version: link:../../packages/db

@@ -34,6 +34,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Railway: pôr `DATAJUD_API_KEY` (a mesma do worker) no serviço da API, para a busca do processo pelo número no cadastro — `sugestoes-datajud`
 - [ ] Conferir na tela, depois do deploy, o cadastro com os quatro tipos de serviço, a fase por tipo e o filtro pronto "Serviços finalizados" (AD-310) — `servico-enums`
 - [ ] Antes do deploy da `sugestoes-datajud`, apagar de novo os dados do Datajud em produção (ou pausar o worker na Railway até lá), para validar a linha de base do zero — `sugestoes-datajud`
 - [ ] Escritório ETHICA em produção com assinatura só no banco (sem Asaas): `subscriptionPlan: automation_monthly`, acesso e Automação até 31/12/2027, gravados à mão em 2026-11-22. Antes dessa data, assinar de verdade pelo app ou estender a data, senão o acesso fecha — `automacao-datajud`

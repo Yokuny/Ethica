@@ -1,5 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
+import type { DatajudClient } from './automation.schema.js';
 import * as automationService from './automation.service.js';
 
 const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
@@ -17,3 +18,10 @@ export const getCaseCourtProcess = async (req: Request, res: Response): Promise<
 export const listTrackedCases = async (req: Request, res: Response): Promise<void> => {
   res.json(respObj({ data: await automationService.listTrackedCases(tenantOf(req)) }));
 };
+
+export const lookupCourtProcess =
+  (datajud: DatajudClient | undefined) =>
+  async (req: Request, res: Response): Promise<void> => {
+    const { processNumber } = req.query as { processNumber: string };
+    res.json(respObj({ data: await automationService.lookupCourtProcess(processNumber, datajud) }));
+  };

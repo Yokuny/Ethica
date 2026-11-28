@@ -58,6 +58,16 @@ export type CourtProcessView = {
   movements: CourtMovement[];
 };
 
+// What the court gives to fill a case by its number (SGD-06): sphere and court come from the number itself; the
+// division, the filing day and the subjects from the Datajud.
+export type CourtLookup = {
+  courtType: CourtType;
+  court: string;
+  division?: string;
+  docketingDate?: string;
+  subject?: string;
+};
+
 // A case the automation follows (the Automação page, PAC-02): waiting for the first successful query, queried and
 // not found in court, or synced; `syncedAt` is the last successful query (absent while waiting).
 export type TrackedCaseStatus = 'waiting' | 'not_found' | 'synced';

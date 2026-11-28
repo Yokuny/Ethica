@@ -1,9 +1,10 @@
 import crypto from 'node:crypto';
 import type { Role } from '@ethica/contracts';
+import type { DatajudClient } from '@ethica/datajud';
 import { Case, CaseCourtSync, CourtProcess, connect, disconnect, hashToken, Session, Tenant, User } from '@ethica/db';
 import * as jwt from 'jsonwebtoken';
 import request from 'supertest';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { buildApp } from '../../app.js';
 import { env } from '../../config/env.config.js';
 
@@ -153,5 +154,67 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
     const other = await seedSession();
     await Tenant.updateOne({ _id: other.tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
     expect((await other.as(request(app).get('/automation/cases'))).body.data).toEqual([]);
+  });
+
+  describe('buscar no tribunal pelo número, na hora (SGD-06)', () => {
+    const fetchProcesses = vi.fn<DatajudClient['fetchProcesses']>();
+    const live = buildApp({ datajud: { fetchProcesses } });
+    const lookup = (as: Awaited<ReturnType<typeof seedSession>>['as'], number = NUMBER) =>
+      as(request(live).get(`/automation/court-lookup?processNumber=${number}`));
+    const premium = async () => {
+      const session = await seedSession();
+      await Tenant.updateOne({ _id: session.tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+      return session;
+    };
+
+    it('sem o módulo, 403; com ele preenche pelo tribunal e guarda a cópia do dia', async () => {
+      const { as, tenant } = await seedSession();
+      expect((await lookup(as)).body.message).toBe('automation_required');
+      await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
+      fetchProcesses.mockResolvedValueOnce([
+        {
+          court: 'TRT24',
+          processNumber: NUMBER,
+          degree: 'G1',
+          courtUnitName: 'VARA DO TRABALHO DE BATAGUASSU',
+          filedAt: '2020-03-02',
+          subjects: ['Adicional de Insalubridade', 'Horas Extras'],
+          movements: [],
+        },
+      ]);
+
+      expect((await lookup(as)).body.data).toEqual({
+        courtType: 'labor',
+        court: 'TRT24',
+        division: 'Vara do Trabalho de Bataguassu',
+        docketingDate: '2020-03-02',
+        subject: 'Adicional de Insalubridade, Horas Extras',
+      });
+      // The copy of the day answers the next lookups without calling the court again.
+      expect((await lookup(as)).body.data.division).toBe('Vara do Trabalho de Bataguassu');
+      expect(fetchProcesses).toHaveBeenCalledTimes(1);
+      expect(await CourtProcess.countDocuments({ processNumber: NUMBER })).toBe(1);
+    });
+
+    it('não encontrado é 404; o tribunal fora do ar é 503; número fora do padrão é 400', async () => {
+      const { as } = await premium();
+      fetchProcesses.mockResolvedValueOnce([]);
+      const missing = await lookup(as);
+      expect([missing.status, missing.body.message]).toEqual([404, 'court_process_not_found']);
+
+      fetchProcesses.mockRejectedValueOnce(new Error('TRT24 respondeu 429'));
+      const down = await lookup(as);
+      expect([down.status, down.body.message]).toEqual([503, 'court_unavailable']);
+
+      expect((await lookup(as, '123')).status).toBe(400);
+    });
+
+    it('sem a chave do Datajud na API, 503', async () => {
+      const { as } = await premium();
+      const response = await as(
+        request(buildApp({ datajud: null })).get(`/automation/court-lookup?processNumber=${NUMBER}`),
+      );
+      expect([response.status, response.body.message]).toEqual([503, 'court_unavailable']);
+    });
   });
 });

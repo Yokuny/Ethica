@@ -27,7 +27,7 @@ apps/api/src/
     ├── identity/                   # auth + platform + invite + conta (User/Session/Tenant/Invite) + matriz de permissões (AD-137) + diário de bordo (Activity, AD-134)
     ├── case/                       # Case (perícia) + Party (AD-117) + CourtDivision (vara, AD-151) + importação PDF/CSV (AD-114, AD-118) — núcleo, só usa a cota de arquivos de `identity`
     ├── agenda/                     # Appointment — vistoria, audiência, reunião; feed iCal, registro de vistoria (Inspection) e mídias (AD-130), aviso às partes e geocodificação (AD-131)
-    ├── automation/                 # Automação Datajud (premium): processos acompanhados e linha do tempo no tribunal; lê CourtProcess e CaseCourtSync, que o worker grava (AD-277)
+    ├── automation/                 # Automação Datajud (premium): processos acompanhados e linha do tempo no tribunal; lê CourtProcess e CaseCourtSync, que o worker grava (AD-277), e busca o processo pelo número na hora (`@ethica/datajud`, AD-304)
     ├── notifications/              # Notification — prazo, alerta, sugestão e aviso (AD-263); Central e prazo do laudo por `case:created` (AD-264)
     ├── finance/                    # Transaction — honorários (com installments, AD-111) e despesas; resumo, fluxo, categorias
     ├── contact/                    # mensagem da página Contato por e-mail à caixa do Ethica (AD-249), sem model, ninguém depende dele
@@ -88,7 +88,7 @@ Grafo atual: `agenda`, `finance`, `notifications` e `automation` → `case`; `no
 | `agenda` | `Appointment Inspection` (AD-130) `CalendarEntry` (itens de dia inteiro vindos de outros módulos, AD-169) |
 | `finance` | `Transaction` |
 | `documents` | `Report Template` (AD-126) `Signatory` (responsável técnico, AD-162) |
-| `automation` | `CourtProcess CaseCourtSync` (só leitura; quem grava é o `apps/worker`, AD-277) |
+| `automation` | `CourtProcess CaseCourtSync` (o `apps/worker` grava, AD-277; a busca pelo número grava só a cópia do `CourtProcess`, AD-304) |
 | `notifications` | `Notification` (AD-263); o `case` lê o próximo prazo e os números da faixa pelas funções de leitura do `@ethica/db` (`notificationReads.ts`, AD-265) |
 
 Helpers sem dono (`tenantScoped`, `hashToken`, datas, tipos) podem ser importados por qualquer módulo — a tabela só restringe **models e transições de negócio**. A tabela vive de verdade em `tests/structural/module-boundary.structural.test.ts`(`DB_OWNERSHIP`) — atualizar os dois lugares (aqui e lá) ao mudar o dono de algo.

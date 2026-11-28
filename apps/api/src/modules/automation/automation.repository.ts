@@ -1,4 +1,5 @@
 import type { CourtMovement } from '@ethica/contracts';
+import type { CourtProcessData } from '@ethica/datajud';
 import { CaseCourtSync, CourtProcess, tenantScoped } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 
@@ -39,4 +40,40 @@ export const findCourtSyncs = async (tenantId: string, caseIds: string[]) =>
         { found: Boolean(doc.baselineAt), syncedAt: doc.syncedAt.toISOString() },
       ]),
     );
+  });
+
+// What the court knows of a number for the live lookup (SGD-06): the division (first degree first), the earliest
+// filing day and every subject, and when it was fetched.
+export const findCourtFill = async (court: string, processNumber: string) =>
+  withDbTiming('automation.findCourtFill', async () => {
+    const docs = await CourtProcess.find({ court, processNumber }).sort({ degree: 1 }).lean();
+    if (docs.length === 0) return null;
+    return {
+      courtUnitName: docs.find((doc) => doc.courtUnitName)?.courtUnitName,
+      filedAt: docs.flatMap((doc) => (doc.filedAt ? [doc.filedAt] : [])).sort()[0],
+      subjects: [...new Set(docs.flatMap((doc) => doc.subjects ?? []))],
+      fetchedAt: docs.map((doc) => doc.fetchedAt).sort((a, b) => b.getTime() - a.getTime())[0] as Date,
+    };
+  });
+
+// The copy of the process the live lookup brought, the same the worker keeps (AD-271).
+export const saveCourtProcesses = async (processes: CourtProcessData[], now: Date) =>
+  withDbTiming('automation.saveCourtProcesses', async () => {
+    for (const process of processes) {
+      await CourtProcess.updateOne(
+        { court: process.court, processNumber: process.processNumber, degree: process.degree },
+        {
+          $set: {
+            className: process.className,
+            courtUnitName: process.courtUnitName,
+            filedAt: process.filedAt,
+            subjects: process.subjects,
+            sourceUpdatedAt: process.sourceUpdatedAt ? new Date(process.sourceUpdatedAt) : undefined,
+            movements: process.movements.map((movement) => ({ ...movement, at: new Date(movement.at) })),
+            fetchedAt: now,
+          },
+        },
+        { upsert: true },
+      );
+    }
   });

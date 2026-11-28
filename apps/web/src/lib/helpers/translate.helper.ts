@@ -45,6 +45,8 @@ const translations: Record<string, string> = {
   received_amount: 'Valor recebido',
   payoff_date: 'Data da quitação',
   automation_required: 'Recurso do plano com Automação Datajud.',
+  court_process_not_found: 'Processo não encontrado no tribunal ou em segredo de justiça.',
+  court_unavailable: 'O tribunal não respondeu agora. Depois de salvar, a automação busca e traz como sugestão.',
   invalid_notification_status:
     'Situação inválida: prazo é protocolado, perdido ou cancelado; alerta é concluído ou cancelado.',
   invalid_service_type:

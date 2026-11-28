@@ -1,4 +1,5 @@
 import { respObj } from '@ethica/contracts';
+import { createDatajudClient, type DatajudClient } from '@ethica/datajud';
 import { createMailProvider, type MailProvider } from '@ethica/mail';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -49,6 +50,7 @@ export const buildApp = (
     mail?: MailProvider;
     geocoder?: Geocoder;
     asaas?: AsaasClient | null;
+    datajud?: DatajudClient | null;
     contactInbox?: string;
   } = {},
 ): Express => {
@@ -111,6 +113,22 @@ export const buildApp = (
       : (options.asaas ??
         (env.ASAAS_API_KEY ? createAsaasClient({ baseUrl: env.ASAAS_API_URL, apiKey: env.ASAAS_API_KEY }) : undefined));
 
+  // Live lookup in court (SGD-06): one call per click, no retries (the worker retries in its daily run). `null`
+  // turns it off in tests.
+  const datajud =
+    options.datajud === null
+      ? undefined
+      : (options.datajud ??
+        (env.DATAJUD_API_KEY
+          ? createDatajudClient({
+              apiKey: env.DATAJUD_API_KEY,
+              baseUrl: env.DATAJUD_BASE_URL,
+              minIntervalMs: 0,
+              timeoutMs: 110_000,
+              instance: 'api',
+            })
+          : undefined));
+
   app.get('/health', (_req, res) => {
     res.json(respObj({ data: { service: 'api' } }));
   });
@@ -146,7 +164,7 @@ export const buildApp = (
   app.use('/me', createAccountRouter({ validToken }));
   app.use('/expert-cases', createCaseRouter({ validToken, storage }));
   app.use('/notifications', createNotificationRouter({ validToken }));
-  app.use('/automation', createAutomationRouter({ validToken }));
+  app.use('/automation', createAutomationRouter({ validToken, datajud }));
   app.use('/parties', createPartyRouter({ validToken }));
   app.use('/court-divisions', createCourtDivisionRouter({ validToken }));
   app.use('/agenda', createAgendaRouter({ validToken, storage, mail: mailProvider, geocoder }));

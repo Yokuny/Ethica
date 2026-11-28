@@ -22,6 +22,9 @@ export const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   // Field map geocoding (AD-131): public Nominatim by default.
   GEOCODER_URL: z.string().default('https://nominatim.openstreetmap.org'),
+  // Live lookup of a process by its number (SGD-06, AD-304); without the key the lookup answers `court_unavailable`.
+  DATAJUD_API_KEY: optionalSecret,
+  DATAJUD_BASE_URL: z.string().default('https://api-publica.datajud.cnj.jus.br'),
   GEOCODER_USER_AGENT: z.string().default('Ethica/1.0 (gestao de pericias)'),
   // PDF (AD-119): system Chromium (Debian `chromium` package in Dockerfile.dev).
   CHROMIUM_PATH: z.string().default('/usr/bin/chromium'),

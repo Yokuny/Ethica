@@ -55,6 +55,9 @@ export const API_MESSAGE_KEYS = [
   'invalid_notification_status',
   'automation_required',
   'suggestion_outdated',
+  // Live lookup in court (SGD-06)
+  'court_process_not_found',
+  'court_unavailable',
   'invalid_contracting_party',
   'party_not_found',
   // Case import (AD-114, AD-115, AD-118): file, CSV row and PDF warnings
