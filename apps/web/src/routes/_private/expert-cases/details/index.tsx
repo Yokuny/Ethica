@@ -9,6 +9,7 @@ import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { PageMenu } from '@/components/page-menu.js';
+import { SuggestionButton, useCaseSuggestions } from '@/components/suggestion-button.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { caseQuery } from '@/query/case.js';
@@ -31,6 +32,7 @@ export function CaseDetailsPage() {
   const { data: session } = useSuspenseQuery(sessionQuery);
   const query = useQuery({ ...caseQuery(search.id), retry: false });
   const legalCase = query.data;
+  const suggestions = useCaseSuggestions(legalCase?.id, legalCase);
   const { handleDelete, isDeleting, isConfirmingDelete, askDelete, cancelDelete } = useCaseActions(legalCase);
   const [isEditing, setIsEditing] = useState(false);
   const { download, pending } = useFileDownload();
@@ -68,6 +70,7 @@ export function CaseDetailsPage() {
         <CardHeader title={t('details')}>
           {legalCase && (
             <CardAction>
+              <SuggestionButton suggestions={suggestions} count />
               {editAction}
               {documentsMenu}
             </CardAction>
@@ -87,7 +90,7 @@ export function CaseDetailsPage() {
         <CaseEditForm legalCase={legalCase} onSaved={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
       ) : (
         <CardContent className="gap-6">
-          <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} />
+          <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} suggestions={suggestions} />
           {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
           <CaseNotifications caseId={legalCase.id} />
           {/* Only courts the automation follows today (TRT and TRF, AD-277). */}

@@ -1,14 +1,10 @@
-import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { notificationText } from '@/components/notification-labels.js';
 import { SuggestionReceiptDialog } from '@/components/suggestion-receipt-dialog.js';
-import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { decideSuggestionMutation, type NotificationRecord, notificationsQuery } from '@/query/notification.js';
+import { decideSuggestionMutation, type NotificationRecord } from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
 
 // "Rejeitar" and "Aprovar" of a pending suggestion (AD-268): nothing changes before it, and only whoever changes
@@ -53,37 +49,6 @@ export function SuggestionActions({ suggestion }: { suggestion: NotificationReco
         {t('approve')}
       </Button>
       {receipt && <SuggestionReceiptDialog suggestion={suggestion} onClose={() => setReceipt(false)} />}
-    </div>
-  );
-}
-
-// The pending suggestions of a case (its "No tribunal"), in the order of the court.
-export function SuggestionsList({ caseId }: { caseId: string }) {
-  const query = useQuery(notificationsQuery({ caseId, kind: ['suggestion'], state: 'open', limit: 100 }));
-  const items = query.data?.items ?? [];
-  if (!items.length) return null;
-
-  return (
-    <div className="grid gap-2">
-      {items.map((suggestion) => {
-        const text = notificationText(suggestion);
-        return (
-          <Item key={suggestion.id} variant="muted">
-            <ItemContent>
-              <ItemTitle className="gap-2">
-                <Badge variant="warning">{t('suggestions_to_approve')}</Badge>
-                {text.title}
-              </ItemTitle>
-              <ItemDescription className="line-clamp-none">
-                {`${text.description} · ${formatDate(new Date(`${suggestion.date}T12:00:00`))}`}
-              </ItemDescription>
-            </ItemContent>
-            <ItemActions>
-              <SuggestionActions suggestion={suggestion} />
-            </ItemActions>
-          </Item>
-        );
-      })}
     </div>
   );
 }

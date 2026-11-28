@@ -15,16 +15,18 @@ import { Panel } from '@/components/panel.js';
 import { sideLabel } from '@/components/party-labels.js';
 import { type ProductSpec, type ProductSpecGroup, ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
+import { SuggestionButton, suggestionsFor } from '@/components/suggestion-button.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { attachmentPath, type CaseRecord } from '@/query/case.js';
+import type { NotificationRecord } from '@/query/notification.js';
 
 const day = (value?: string) => (value ? formatDate(new Date(`${value}T12:00:00`)) : undefined);
 const money = (value?: number) => (value ? formatMoney(value) : undefined);
 
-type Field = { label: string; value: ReactNode };
+type Field = { label: string; value: ReactNode; action?: ReactNode };
 
 // Record page: header with process and status, strip with deadlines and
 // fees, and the read groups (court, parties, notes). Outside the perícia (AD-176, AD-310) it shows the contractor
@@ -32,7 +34,17 @@ type Field = { label: string; value: ReactNode };
 // group and the strip, and a group with nothing filled becomes an empty block at the bottom of the page, after
 // the panels of the page (deadlines, reports…) that are empty too. It renders a fragment: its blocks are items
 // of the page's flex column, so an empty one can sink below them all.
-export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseRecord; canSeeFinance: boolean }) {
+export function CaseDetailsView({
+  legalCase,
+  canSeeFinance,
+  suggestions = [],
+}: {
+  legalCase: CaseRecord;
+  canSeeFinance: boolean;
+  suggestions?: NotificationRecord[];
+}) {
+  // SGD-01: each suggestion beside the data it changes.
+  const fill = suggestionsFor(suggestions, 'case_fill');
   const own = usesContractor(legalCase);
   const client = legalCase.contractor?.name ?? legalCase.parties.find((party) => party.client)?.name;
   const { contractor } = legalCase;
@@ -46,7 +58,11 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
   ];
   const stats: Field[] = [
     { label: t('service_order'), value: legalCase.serviceOrder },
-    { label: t('service_phase'), value: casePhaseLabel(legalCase.phase) },
+    {
+      label: t('service_phase'),
+      value: casePhaseLabel(legalCase.phase),
+      action: <SuggestionButton suggestions={suggestionsFor(suggestions, 'case_phase')} />,
+    },
     { label: own ? t('contracting_date') : t('appointment_date'), value: day(legalCase.nominationDate) },
     { label: t('contracting_party'), value: client },
     // Amounts only for whoever sees finance (AD-137).
@@ -78,7 +94,17 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
             { label: t('service_type'), value: serviceTypeLabel(legalCase.serviceType) },
             { label: t('sphere'), value: legalCase.courtType && courtTypeLabel(legalCase.courtType) },
             { label: t('court'), value: legalCase.court },
-            { label: t('court_division'), value: legalCase.division },
+            {
+              label: t('court_division'),
+              value: fill.length ? (
+                <span className="flex flex-wrap items-center gap-2">
+                  {legalCase.division}
+                  <SuggestionButton suggestions={fill} />
+                </span>
+              ) : (
+                legalCase.division
+              ),
+            },
             { label: t('judicial_district'), value: legalCase.district },
           ],
         },
@@ -160,16 +186,19 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
           title={title}
           description={legalCase.subject !== title ? legalCase.subject : undefined}
         />
-        <RecordStatus
-          variant={CASE_STATUS_VARIANT[legalCase.status]}
-          label={caseStatusLabel(legalCase.status)}
-          pulse={legalCase.status === 'active' && !isCaseClosed(legalCase)}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <RecordStatus
+            variant={CASE_STATUS_VARIANT[legalCase.status]}
+            label={caseStatusLabel(legalCase.status)}
+            pulse={legalCase.status === 'active' && !isCaseClosed(legalCase)}
+          />
+          <SuggestionButton suggestions={suggestionsFor(suggestions, 'case_status')} />
+        </div>
       </RecordHeader>
       <RecordStats>
         {[...stats.filter((stat) => stat.value), ...stats.filter((stat) => !stat.value)].map((stat) =>
           stat.value ? (
-            <RecordStat key={stat.label} label={stat.label} value={stat.value} />
+            <RecordStat key={stat.label} label={stat.label} value={stat.value} headerAction={stat.action} />
           ) : (
             <RecordStat key={stat.label} label={stat.label} value="—" hint={t('not_filled')} className="opacity-60" />
           ),

@@ -11,3 +11,28 @@
   outline-offset: -2px;
   border-radius: var(--radius-md);
 }
+
+/* Suggestion of the Datajud automation (SGD-01): the border turns in purple and pink, the intelligence; still for
+   whoever asks the system for less motion. */
+@property --suggestion-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.suggestion-glow {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(var(--background), var(--background)) padding-box,
+    conic-gradient(from var(--suggestion-angle), #a855f7, #ec4899, #8b5cf6, #ec4899, #a855f7) border-box;
+  animation: suggestion-turn 3s linear infinite;
+}
+@keyframes suggestion-turn {
+  to {
+    --suggestion-angle: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .suggestion-glow {
+    animation: none;
+  }
+}

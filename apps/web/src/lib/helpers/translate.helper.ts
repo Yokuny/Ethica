@@ -197,6 +197,7 @@ const translations: Record<string, string> = {
   contact_not_configured: 'O envio de mensagens está indisponível no momento.',
   send_message: 'Enviar mensagem',
   suggestion: 'Sugestão',
+  suggestions: 'Sugestões',
   partnerships: 'Parcerias',
   support_faq_sign_in_q: 'Como entro no Ethica?',
   support_faq_sign_in_a:
