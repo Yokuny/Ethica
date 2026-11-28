@@ -16,6 +16,7 @@ import type { DatajudClient } from '@ethica/datajud';
 import {
   CaseCourtSync,
   CourtProcess,
+  CourtSyncDay,
   dateInDisplayTz,
   hasPendingSuggestion,
   incomeOfCases,
@@ -43,7 +44,15 @@ export const enqueueCourtRefresh = async (
 ): Promise<{ batches: number; courts: Record<string, number> }> => {
   const day = dateInDisplayTz(now);
   const byCourt = new Map<string, TrackedCase[]>();
-  for (const item of await listTrackedCases(now)) byCourt.set(item.court, [...(byCourt.get(item.court) ?? []), item]);
+  const byTenant = new Map<string, number>();
+  for (const item of await listTrackedCases(now)) {
+    byCourt.set(item.court, [...(byCourt.get(item.court) ?? []), item]);
+    byTenant.set(item.tenantId, (byTenant.get(item.tenantId) ?? 0) + 1);
+  }
+  // The day row of each office is born here, with the cases of the run (PAT-06); the batches only count on it.
+  for (const [tenantId, tracked] of byTenant) {
+    await CourtSyncDay.updateOne({ Tenant: tenantId, day }, { $set: { tracked } }, { upsert: true });
+  }
   let batches = 0;
   for (const [court, items] of byCourt) {
     for (let start = 0; start < items.length; start += BATCH_SIZE) {
@@ -63,6 +72,16 @@ export const enqueueCourtRefresh = async (
   // Cases per court in the run, for the diagnosis (AD-287): which courts and how big when the 429 comes.
   return { batches, courts: Object.fromEntries([...byCourt].map(([court, items]) => [court, items.length])) };
 };
+
+// What the run did for the office that day (PAT-06). A case answered by the court counts once, even when the batch
+// is retried (`$ne` + `$addToSet`); no upsert, the row is born at the enqueue.
+const countAnswer = (item: TrackedCase, day: string, found: boolean) =>
+  CourtSyncDay.updateOne(
+    { Tenant: item.tenantId, day, answeredCases: { $ne: item.caseId } },
+    { $addToSet: { answeredCases: item.caseId }, $inc: { [found ? 'found' : 'notFound']: 1 } },
+  );
+const countOnDay = (item: TrackedCase, day: string, field: string, amount = 1) =>
+  CourtSyncDay.updateOne({ Tenant: item.tenantId, day }, { $inc: { [field]: amount } });
 
 export const refreshCourtBatch = async (
   datajud: DatajudClient,
@@ -100,6 +119,7 @@ export const refreshCourtBatch = async (
       .filter((process) => process.processNumber === item.processNumber)
       .flatMap((process) => process.movements);
     const caseKey = { Tenant: item.tenantId, Case: item.caseId };
+    await countAnswer(item, payload.day, movements.length > 0);
     // SGD-07: whenever the court finds the process (baseline or not), what it knows fills the empty division and
     // filing day, once per case.
     const found = processes.find((process) => process.processNumber === item.processNumber);
@@ -110,6 +130,8 @@ export const refreshCourtBatch = async (
         docketingDate: found.filedAt,
       });
     const newest = [...movements].sort((a, b) => a.at.localeCompare(b.at)).at(-1);
+    // The newest movement sorts the Automação list (PAT-03).
+    const lastMovement = newest && { lastMovementAt: new Date(newest.at), lastMovementName: newest.name };
     if (fill && newest) {
       const id = await insertSuggestion({
         tenantId: item.tenantId,
@@ -147,6 +169,7 @@ export const refreshCourtBatch = async (
             seenMovementKeys: movements.map((movement) => movement.key),
             baselineAt: now,
             syncedAt: now,
+            ...lastMovement,
           },
         },
         { upsert: true },
@@ -154,7 +177,16 @@ export const refreshCourtBatch = async (
       baselines += 1;
       continue;
     }
-    const caseRef = { tenantId: item.tenantId, caseId: item.caseId, day: payload.day };
+    // A court notice of the case, counted on the day only when it is new (the `dedupeKey` keeps a retry out).
+    const caseNotice = async (
+      notice: Omit<Parameters<typeof insertCaseNotice>[0], 'tenantId' | 'caseId' | 'day'>,
+    ): Promise<void> => {
+      const inserted = await insertCaseNotice(
+        { ...notice, tenantId: item.tenantId, caseId: item.caseId, day: payload.day },
+        now,
+      );
+      if (inserted) await countOnDay(item, payload.day, `notices.${notice.module}`);
+    };
     const caseIncome = income.get(item.caseId) ?? { settled: false };
     // SGD-05 (AD-309): by the state of the process, on every query after the baseline, not only on new movements.
     // A pending receipt holds the end of the process until someone decides it (accepted in full or in part, rejected or
@@ -162,34 +194,26 @@ export const refreshCourtBatch = async (
     const reviewFees = async () => {
       const collection = movements.filter((movement) => FEES_COLLECTION_CODES.includes(movement.code)).at(-1);
       if (collection && caseIncome.openId) {
-        await insertCaseNotice(
-          {
-            ...caseRef,
-            topic: 'fees_collection',
-            module: 'finance',
-            movement: collection,
-            once: `fees_collection:${item.caseId}`,
-            transactionId: caseIncome.openId,
-          },
-          now,
-        );
+        await caseNotice({
+          topic: 'fees_collection',
+          module: 'finance',
+          movement: collection,
+          once: `fees_collection:${item.caseId}`,
+          transactionId: caseIncome.openId,
+        });
       }
       const finishing = courtFinishing(processes.filter((process) => process.processNumber === item.processNumber));
       if (!finishing) return;
       // Includes the receipt created in this same batch, already written above.
       if (await hasPendingSuggestion(item.caseId, PAYMENT_RULE.key)) return;
       if (caseIncome.openId) {
-        await insertCaseNotice(
-          {
-            ...caseRef,
-            topic: 'fees_open_finished',
-            module: 'finance',
-            movement: finishing,
-            once: `fees_open_finished:${item.caseId}:${finishing.key}`,
-            transactionId: caseIncome.openId,
-          },
-          now,
-        );
+        await caseNotice({
+          topic: 'fees_open_finished',
+          module: 'finance',
+          movement: finishing,
+          once: `fees_open_finished:${item.caseId}:${finishing.key}`,
+          transactionId: caseIncome.openId,
+        });
         return;
       }
       const proposal = caseIncome.settled ? CASE_FINISHED_RULE.propose(item.serviceType) : undefined;
@@ -214,7 +238,10 @@ export const refreshCourtBatch = async (
     const markSeen = () =>
       CaseCourtSync.updateOne(
         { _id: sync._id },
-        { $addToSet: { seenMovementKeys: { $each: fresh.map((movement) => movement.key) } }, $set: { syncedAt: now } },
+        {
+          $addToSet: { seenMovementKeys: { $each: fresh.map((movement) => movement.key) } },
+          $set: { syncedAt: now, ...lastMovement },
+        },
       );
     const latest = fresh.at(-1);
     if (!latest) {
@@ -232,7 +259,10 @@ export const refreshCourtBatch = async (
       },
       now,
     );
-    if (inserted) notices += 1;
+    if (inserted) {
+      notices += 1;
+      await countOnDay(item, payload.day, 'notices.expert_cases');
+    }
     // The latest movement of each rule (several suspension movements on the same day are one suggestion).
     const byRule = new Map<string, RuleMatch>();
     for (const movement of fresh)
@@ -254,14 +284,14 @@ export const refreshCourtBatch = async (
       suggestions += 1;
       // Suspended: the court gives no new date, so the pending deadlines need a look (plan, section 4).
       if (rule.key === 'case_suspended') {
-        await insertCaseNotice({ ...caseRef, topic: 'deadlines_review', module: 'expert_cases', movement }, now);
+        await caseNotice({ topic: 'deadlines_review', module: 'expert_cases', movement });
       }
     }
     // Payment (AD-269, AD-274): the intention is only a notice; the money available is a suggestion, one per
     // case and day (several alvarás on the same day are one), e-mailed right away.
     const intent = fresh.filter(isPaymentIntent).at(-1);
     if (intent) {
-      await insertCaseNotice({ ...caseRef, topic: 'payment_in_progress', module: 'finance', movement: intent }, now);
+      await caseNotice({ topic: 'payment_in_progress', module: 'finance', movement: intent });
     }
     const paid = fresh.filter(isPaymentAvailable).at(-1);
     if (paid) {
@@ -284,6 +314,8 @@ export const refreshCourtBatch = async (
     }
     await reviewFees();
     await markSeen();
+    // Counted after the keys are seen: a retry finds them seen and adds nothing.
+    await countOnDay(item, payload.day, 'newMovements', fresh.length);
   }
   return { processes: processes.length, baselines, notices, suggestions, notFound };
 };

@@ -3,6 +3,7 @@ import {
   Case,
   CaseCourtSync,
   CourtProcess,
+  CourtSyncDay,
   connect,
   disconnect,
   Notification,
@@ -42,7 +43,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
   });
   afterEach(async () => {
     await Promise.all(
-      [Case, CaseCourtSync, CourtProcess, Notification, Tenant, Transaction, WorkerJob].map((model) =>
+      [Case, CaseCourtSync, CourtProcess, CourtSyncDay, Notification, Tenant, Transaction, WorkerJob].map((model) =>
         (model as typeof Tenant).deleteMany({}),
       ),
     );
@@ -289,6 +290,81 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
     await batch('2026-11-24', latest);
     expect(await CaseCourtSync.findOne({}).lean()).toMatchObject({ baselineAt: later, syncedAt: latest });
     expect(await CaseCourtSync.countDocuments({})).toBe(1);
+  });
+
+  it('registro do dia (PAT-06): processos da rodada, resposta contada uma vez, movimentos novos e avisos', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    const day1 = new Date('2026-11-21T09:00:00.000Z');
+    await enqueueCourtRefresh(day1);
+    await enqueueCourtRefresh(now);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      serviceType: 'expert_examination' as const,
+      status: 'active' as const,
+      phase: 'drafting_report' as const,
+    };
+    const fetchProcesses = vi
+      .fn<DatajudClient['fetchProcesses']>()
+      .mockResolvedValueOnce([courtProcess([movement('a', '2026-11-01T10:00:00Z')])])
+      .mockResolvedValue([
+        courtProcess([
+          movement('a', '2026-11-01T10:00:00Z'),
+          movement('b', '2026-11-20T10:00:00Z'),
+          movement('c', '2026-11-21T10:00:00Z'),
+        ]),
+      ]);
+    const batch = (day: string) => refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day, cases: [item] }, now);
+    const row = async (day: string) => CourtSyncDay.findOne({ Tenant: tenant._id, day }).lean();
+
+    // Baseline: answered and found, nothing new (the past of the process is not work of the automation).
+    await batch('2026-11-21');
+    expect(await row('2026-11-21')).toMatchObject({
+      tracked: 1,
+      found: 1,
+      notFound: 0,
+      newMovements: 0,
+      notices: { expert_cases: 0, finance: 0 },
+    });
+
+    // Two new movements, one notice; the retried batch of the same day adds nothing.
+    await batch('2026-11-22');
+    await batch('2026-11-22');
+    const second = await row('2026-11-22');
+    expect(second).toMatchObject({ tracked: 1, found: 1, newMovements: 2, notices: { expert_cases: 1, finance: 0 } });
+    expect(second?.answeredCases.map(String)).toEqual([legalCase.id]);
+    expect(await CaseCourtSync.findOne({}).lean()).toMatchObject({
+      lastMovementAt: new Date('2026-11-21T10:00:00Z'),
+      lastMovementName: 'Movimento 60',
+    });
+  });
+
+  it('registro do dia: não encontrado conta uma vez; sem resposta fica fora dos respondidos', async () => {
+    const { tenant, legalCase } = await seed('11222333000181', true);
+    await enqueueCourtRefresh(now);
+    const item = {
+      tenantId: tenant.id,
+      caseId: legalCase.id,
+      processNumber: NUMBER,
+      court: 'TRT24',
+      serviceType: 'expert_examination' as const,
+      status: 'active' as const,
+      phase: 'drafting_report' as const,
+    };
+    const failing = vi.fn<DatajudClient['fetchProcesses']>().mockRejectedValue(new Error('429'));
+    await expect(
+      refreshCourtBatch({ fetchProcesses: failing }, { court: 'TRT24', day: '2026-11-22', cases: [item] }, now),
+    ).rejects.toThrow();
+    expect(await CourtSyncDay.findOne({ Tenant: tenant._id }).lean()).toMatchObject({ tracked: 1, answeredCases: [] });
+
+    const empty = vi.fn<DatajudClient['fetchProcesses']>().mockResolvedValue([]);
+    const batch = () =>
+      refreshCourtBatch({ fetchProcesses: empty }, { court: 'TRT24', day: '2026-11-22', cases: [item] }, now);
+    await batch();
+    await batch();
+    expect(await CourtSyncDay.findOne({ Tenant: tenant._id }).lean()).toMatchObject({ found: 0, notFound: 1 });
   });
 
   it('consulta que falha não grava nada', async () => {
