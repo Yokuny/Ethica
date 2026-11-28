@@ -35,7 +35,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 - [ ] Railway: pôr `DATAJUD_API_KEY` (a mesma do worker) no serviço da API, para a busca do processo pelo número no cadastro — `sugestoes-datajud`
 - [ ] Conferir na tela, depois do deploy, o cadastro com os quatro tipos de serviço, a fase por tipo e o filtro pronto "Serviços finalizados" (AD-310) — `servico-enums`
-- [ ] Antes do deploy da `sugestoes-datajud`, apagar de novo os dados do Datajud em produção (ou pausar o worker na Railway até lá), para validar a linha de base do zero — `sugestoes-datajud`
+- [ ] Conferir a primeira rodada do worker com a `sugestoes-datajud` (05:00 de 28/11): linha de base do TRT16 com data de autuação e assuntos, sugestão de preencher se faltar vara ou autuação — `sugestoes-datajud`
 - [ ] Escritório ETHICA em produção com assinatura só no banco (sem Asaas): `subscriptionPlan: automation_monthly`, acesso e Automação até 31/12/2027, gravados à mão em 2026-11-22. Antes dessa data, assinar de verdade pelo app ou estender a data, senão o acesso fecha — `automacao-datajud`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
 - [ ] Testar a assinatura Mensal + Automação com dinheiro de verdade (ou no sandbox) e conferir que o módulo libera junto com o acesso; nenhuma configuração nova no Asaas (mesmo webhook) — `automacao-datajud`
@@ -123,6 +123,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-28 — Dados do Datajud apagados de novo em produção depois do deploy da `sugestoes-datajud` (1 cópia do processo, 1 acompanhamento, 2 jobs), para a linha de base partir do zero — `sugestoes-datajud`
 - [x] 2026-11-28 — A assistência encerrada recebe a sugestão `finished` e as regras leem o `serviceType` (AD-310) — `sugestoes-datajud`
 - [x] 2026-11-28 — Sugestões do Datajud ao lado do dado (botão roxo e rosa), detalhe do lançamento, "Abrir" nas notificações, regras completas pela TPU, hora de cobrar e de encerrar pelo estado do processo, preencher vara e autuação pelo tribunal, busca pelo número no cadastro e lista do tribunal sem ruído (AD-304, AD-309) — `sugestoes-datajud`
 - [x] 2026-11-28 — Sem "Marcar todos como lidos" nas Notificações; ações em ícones com tooltip; Serviço com tooltip das partes (AD-311) — `notificacoes-processo-unico`
