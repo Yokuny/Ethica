@@ -1983,6 +1983,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-27
 - **Status**: active
 
+### AD-309
+- **Decision**: (1) O fim do processo no tribunal vira sugestão ou aviso pelo **estado** do processo, avaliado a cada consulta do worker depois da linha de base: o último movimento entre os de encerrar (246, 22 no primeiro grau, 196) e os de retomada é de encerrar. Recebido (nenhuma receita em aberto e ao menos uma liquidada) → sugestão de fase "Honorários recebidos" (perícia) ou "Finalizado" (assistência); receita em aberto → aviso `fees_open_finished`; sugestão de recebimento pendente segura os dois até ser decidida. Trânsito em julgado ou início da liquidação ou execução com receita em aberto → aviso `fees_collection`, uma vez por serviço. Supersede o "arquivamento definitivo só aviso" da AD-278. (2) O client do Datajud sai de `apps/worker` para o pacote `packages/datajud`, usado pela API (busca na hora, AD-304) e pelo worker, no padrão do `packages/mail`.
+- **Reason**: perita confirmou as regras em 2026-11-27; nos processos reais a baixa definitiva vem seguida de reativação (TRF3) e a RPV paga vem depois do arquivamento (TRT24), então decidir só no movimento novo deixaria o serviço sem aviso quando o recebimento é rejeitado, parcial ou expira. A API não pode importar o worker.
+- **Trade-off**: a sugestão de encerrar chega até um dia depois do recebimento; um workspace a mais nos Dockerfiles.
+- **Scope**: `packages/contracts/src/schemas/automation-rules.ts`, `apps/worker/src/jobs/court-refresh.ts`, `packages/db/src/workerReads.ts`, `packages/datajud/`, `Dockerfile*`. Design: `.specs/features/sugestoes-datajud/design.md`.
+- **Date**: 2026-11-27
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

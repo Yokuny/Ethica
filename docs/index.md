@@ -98,6 +98,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-309** (2026-11-27, active) — (1) O fim do processo no tribunal vira sugestão ou aviso pelo estado do processo, avaliado a cada consulta do worker depois da linha de base
 - **AD-308** (2026-11-27, active) — o Ethica é gestor de serviços: texto, filtros e filtros prontos falam de serviço e valem para todo tipo de escritório, sem recurso que só si
 - **AD-307** (2026-11-27, active) — listas com "Filtros" ganham "Filtros prontos" no menu "…" do cabeçalho, em vez de filtro salvo. Cada filtro pronto só escreve as suas chaves
 - **AD-306** (2026-11-27, active) — "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório)
@@ -107,7 +108,6 @@ _Nenhum._
 - **AD-302** (2026-11-25, active) — `APPOINTMENT_TYPES` ganha `technical_inspection` (Inspeção), `appraisal` (Avaliação) e `expert_examination` (Perícia), na ordem Vistoria, In
 - **AD-301** (2026-11-25, active) — O lançamento do custo de deslocamento (Planejamento de rota) não duplica: a despesa vence no primeiro dia da rota (antes, no dia do lançamen
 - **AD-300** (2026-11-25, active) — A faixa de números (`RecordStats`, `apps/web/src/components/record.tsx`) escolhe as colunas pela largura que ela mesma tem (container query
-- **AD-299** (2026-11-24, active) — Desfaz o grupo A (AD-295) nas telas Escritório, Minha conta, Relatórios e nos hubs de Laudos e Logística: voltam `StepList`/`StepItem`, `Pag
 
 ## `.specs/` sem registro em `docs/features/`
 

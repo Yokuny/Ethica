@@ -5,7 +5,7 @@ descricao: Sugestão ao lado do dado, detalhe do lançamento, hora de cobrar e d
 data: 2026-11-27
 status: planejado
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-304, AD-305, AD-306]
+decisoes: [AD-304, AD-305, AD-306, AD-309]
 spec: [.specs/features/sugestoes-datajud]
 ---
 
@@ -41,6 +41,7 @@ A definir (task T11).
 
 ## Histórico
 
+- 2026-11-27 — Design revisado antes do código (AD-309): encerrar e cobrar pelo estado do processo a cada consulta, não pelo movimento novo (a baixa definitiva do TRF3 vem seguida de reativação; a RPV do TRT24 é paga depois do arquivamento); "recebido" exige ao menos uma receita liquidada; suspensão inclui as famílias 11025 e 12274; preenchimento em qualquer consulta; o botão filtra as sugestões que já não cabem; T1 separada para ir antes.
 - 2026-11-27 — Design e tasks. Divergências da spec: encerrar sugere "Honorários recebidos" na perícia e "Finalizado" na assistência (AD-306, escolha do usuário); a automação preenche só vara e data de ajuizamento (o objeto é obrigatório no serviço); "não encontrado" e "segredo de justiça" viram uma resposta só; sem honorário em aberto, "Abrir" leva ao serviço. O client do Datajud vai para `packages/datajud`, usado pela API e pelo worker.
 - 2026-11-27 — Perita confirmou as 14 questões pela página `.specs/features/sugestoes-datajud/revisao-perita.html`; AD-304 ativa.
 - 2026-11-27 — Spec a partir da descoberta de 2026-11-26 (`.specs/features/sugestoes-datajud/plans/2026-11-26-conteudo-dos-movimentos.md`).

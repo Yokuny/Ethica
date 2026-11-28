@@ -89,7 +89,8 @@
       "decisoes": [
         "AD-304",
         "AD-305",
-        "AD-306"
+        "AD-306",
+        "AD-309"
       ],
       "spec": [
         ".specs/features/sugestoes-datajud"
@@ -2729,6 +2730,12 @@
     {
       "id": "AD-308",
       "decisao": "o Ethica é gestor de serviços: texto, filtros e filtros prontos falam de serviço e valem para todo tipo de escritório, sem recurso que só si",
+      "data": "2026-11-27",
+      "status": "active"
+    },
+    {
+      "id": "AD-309",
+      "decisao": "(1) O fim do processo no tribunal vira sugestão ou aviso pelo estado do processo, avaliado a cada consulta do worker depois da linha de base",
       "data": "2026-11-27",
       "status": "active"
     }
