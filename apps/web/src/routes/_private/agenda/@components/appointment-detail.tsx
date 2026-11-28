@@ -9,6 +9,7 @@ import { APPOINTMENT_TYPE_VARIANT } from '@/components/appointment-labels.js';
 import { CaseReceipts } from '@/components/case-receipts.js';
 import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { FormDialog } from '@/components/form-dialog.js';
+import { Panel, PanelGroup } from '@/components/panel.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDateTime } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -36,12 +37,10 @@ export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentD
         <Badge variant="secondary">{t(appointment.status)}</Badge>
         {appointment.origin === 'automatic' && <Badge variant="outline">{t('created_automatically')}</Badge>}
       </div>
-      <ProductSpecs
-        groups={[
-          {
-            id: 'quando',
-            name: t('commitment'),
-            specs: [
+      <PanelGroup>
+        <Panel title={t('commitment')}>
+          <ProductSpecs
+            specs={[
               { label: t('starts_at'), value: formatDateTime(appointment.start) },
               { label: t('ends_at'), value: formatDateTime(appointment.end) },
               { label: t('location'), value: appointment.location || '-' },
@@ -61,10 +60,10 @@ export function AppointmentDetail({ appointment, onEdit, onClose }: AppointmentD
                 label: t('parties_notified'),
                 value: lastNotice ? `${formatDateTime(lastNotice.at)} · ${lastNotice.recipients.join(', ')}` : '-',
               },
-            ],
-          },
-        ]}
-      />
+            ]}
+          />
+        </Panel>
+      </PanelGroup>
       {appointment.caseId && <CaseReceipts caseId={appointment.caseId} />}
       {/* Field (AD-130, AD-131): inspection record on the phone and notice to the parties by e-mail. */}
       <div className="flex flex-wrap gap-2">

@@ -12,7 +12,8 @@ import { Children, type ComponentProps, createContext, type ReactNode, useContex
 //      (RecordHeadingGroup), and on the right a second pair or the status;
 //   2. RecordStats — highlight strip between rules (top and bottom), cells side by side
 //      (AD-292), uppercase label and value at 24px.
-// Label/value sections stay in ProductSpecs (AD-091); lists are Item/ItemGroup in the page (AD-296).
+// Label/value sections are ProductSpecs inside a Panel of a PanelGroup (AD-312); lists are Item/ItemGroup in the
+// page (AD-296).
 // Every text is ItemTitle or ItemDescription.
 
 // Uppercase label of the header and the strip (the IOT "ORDEM"/"ATIVO").

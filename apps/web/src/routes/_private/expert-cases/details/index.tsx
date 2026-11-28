@@ -90,23 +90,24 @@ export function CaseDetailsPage() {
         <CaseEditForm legalCase={legalCase} onSaved={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
       ) : (
         <CardContent className="gap-6">
-          <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} suggestions={suggestions} />
-          {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
-          <CaseNotifications caseId={legalCase.id} />
-          {/* Only courts the automation follows today (TRT and TRF, AD-277). */}
-          {(legalCase.serviceType === 'expert_examination' || legalCase.serviceType === 'technical_assistance') &&
-            isTrackedNumber(legalCase.processNumber) && <CaseCourt caseId={legalCase.id} />}
-          <CaseInspections caseId={legalCase.id} />
-          <CaseReports legalCase={legalCase} />
-          <CaseMovements legalCase={legalCase} />
-          {can(session, 'finance') && (
-            <CaseFinance
-              legalCase={legalCase}
-              canCreate={can(session, 'finance', 'create')}
-              canUpdate={can(session, 'finance', 'update')}
-            />
-          )}
-          <CaseRelated caseId={legalCase.id} />
+          <CaseDetailsView legalCase={legalCase} canSeeFinance={can(session, 'finance')} suggestions={suggestions}>
+            {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
+            <CaseNotifications caseId={legalCase.id} />
+            {/* Only courts the automation follows today (TRT and TRF, AD-277). */}
+            {(legalCase.serviceType === 'expert_examination' || legalCase.serviceType === 'technical_assistance') &&
+              isTrackedNumber(legalCase.processNumber) && <CaseCourt caseId={legalCase.id} />}
+            <CaseInspections caseId={legalCase.id} />
+            <CaseReports legalCase={legalCase} />
+            <CaseMovements legalCase={legalCase} />
+            {can(session, 'finance') && (
+              <CaseFinance
+                legalCase={legalCase}
+                canCreate={can(session, 'finance', 'create')}
+                canUpdate={can(session, 'finance', 'update')}
+              />
+            )}
+            <CaseRelated caseId={legalCase.id} />
+          </CaseDetailsView>
         </CardContent>
       )}
       {legalCase && !isEditing && (

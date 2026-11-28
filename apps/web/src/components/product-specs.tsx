@@ -1,116 +1,38 @@
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@ethica/ui/components/collapsible';
-import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
+import { ItemDescription } from '@ethica/ui/components/item';
 import { cn } from 'cn';
-import { ChevronDown } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
-import { t } from '@/lib/helpers/translate.helper.js';
+import type { ReactNode } from 'react';
 
-// shadcnblocks/product-specs1 block without the sample data: collapsible groups
-// with icon, title, optional action and label/value rows (or a free body).
+// Label/value rows of a record (shadcnblocks/product-specs1 without the sample data), inside a `Panel` (AD-312).
 
 export type ProductSpec = {
   label: ReactNode;
   value: ReactNode;
   // Complement under the label (badge, reason).
   description?: ReactNode;
-  // First row of a record that spans several rows: opens a separation
-  // band so it does not mix with the previous record.
-  start?: boolean;
   // Field not filled (AD-238): dimmed row, placed by the caller after the filled ones.
   muted?: boolean;
 };
 
-export type ProductSpecGroup = {
-  id: string;
-  name: string;
-  icon?: ReactNode;
-  actions?: ReactNode;
-  specs?: ProductSpec[];
-  // Free body in place of the rows (form, item table, empty, error).
-  children?: ReactNode;
-  // Below the rows (pagination).
-  footer?: ReactNode;
-};
-
-export function ProductSpecs({ groups, className }: { groups: ProductSpecGroup[]; className?: string }) {
-  // Keeps the opened ones: every group starts collapsed (AD-172).
-  const [openIds, setOpenIds] = useState<string[]>([]);
-
-  const toggle = (id: string) =>
-    setOpenIds((prev) => (prev.includes(id) ? prev.filter((openId) => openId !== id) : [...prev, id]));
-  const expandAll = () => setOpenIds(groups.map((group) => group.id));
-  const collapseAll = () => setOpenIds([]);
-
+export function ProductSpecs({ specs }: { specs: ProductSpec[] }) {
   return (
-    <div className={cn('grid gap-4', className)}>
-      <div className="flex justify-end gap-2">
-        <ItemDescription render={<button type="button" onClick={expandAll} />} className="hover:text-foreground">
-          {t('expand_all')}
-        </ItemDescription>
-        <ItemDescription>·</ItemDescription>
-        <ItemDescription render={<button type="button" onClick={collapseAll} />} className="hover:text-foreground">
-          {t('collapse_all')}
-        </ItemDescription>
-      </div>
-
-      {groups.map((group) => {
-        const open = openIds.includes(group.id);
-        return (
-          <Collapsible
-            key={group.id}
-            open={open}
-            onOpenChange={() => toggle(group.id)}
-            render={<section aria-label={group.name} className="rounded-lg border" />}
+    <table className="-my-2 w-full text-sm">
+      <tbody>
+        {specs.map((spec, index) => (
+          <tr
+            // biome-ignore lint/suspicious/noArrayIndexKey: rows without their own id
+            key={index}
+            className={cn('border-b last:border-0', spec.muted && 'opacity-60 [&>td]:font-normal')}
           >
-            <div className="flex items-center">
-              <CollapsibleTrigger className="flex flex-1 items-center justify-between p-4 text-left hover:bg-muted/50">
-                <div className="flex items-center gap-3">
-                  {group.icon && (
-                    <div className="flex size-8 items-center justify-center rounded-md bg-muted [&_svg]:size-4">
-                      {group.icon}
-                    </div>
-                  )}
-                  <ItemTitle>{group.name}</ItemTitle>
-                </div>
-                <ChevronDown
-                  className={cn('size-5 text-muted-foreground transition-transform', open && 'rotate-180')}
-                />
-              </CollapsibleTrigger>
-              {group.actions && <div className="flex shrink-0 items-center gap-2 pr-4">{group.actions}</div>}
-            </div>
-            <CollapsibleContent>
-              <div className="border-t">
-                {group.children || (
-                  <table className="w-full text-sm">
-                    <tbody>
-                      {group.specs?.map((spec, index) => (
-                        <tr
-                          // biome-ignore lint/suspicious/noArrayIndexKey: rows without their own id
-                          key={index}
-                          className={cn(
-                            'border-b last:border-0',
-                            spec.start && 'border-t-8 border-t-muted first:border-t-0',
-                            spec.muted && 'opacity-60 [&>td]:font-normal',
-                          )}
-                        >
-                          <td className="w-36 px-4 py-2 align-top sm:w-56">
-                            <ItemDescription render={<div />} className="line-clamp-none">
-                              {spec.label}
-                            </ItemDescription>
-                            {spec.description && <div className="mt-1">{spec.description}</div>}
-                          </td>
-                          <td className="px-4 py-2 align-top font-medium whitespace-pre-wrap">{spec.value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-                {group.footer && <div className="border-t px-4 py-2">{group.footer}</div>}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        );
-      })}
-    </div>
+            <td className="w-36 py-2 pr-4 align-top sm:w-56">
+              <ItemDescription render={<div />} className="line-clamp-none">
+                {spec.label}
+              </ItemDescription>
+              {spec.description && <div className="mt-1">{spec.description}</div>}
+            </td>
+            <td className="py-2 align-top font-medium whitespace-pre-wrap">{spec.value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

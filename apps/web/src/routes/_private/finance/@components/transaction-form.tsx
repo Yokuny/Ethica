@@ -2,103 +2,24 @@ import { Button } from '@ethica/ui/components/button';
 import { Form } from '@ethica/ui/components/form';
 import { ItemDescription } from '@ethica/ui/components/item';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
-import { ExpenseCategoryField } from '@/components/expense-category-field.js';
 import { FormDialog } from '@/components/form-dialog.js';
-import { DateField, MoneyField, SelectField, TextField } from '@/components/form-fields.js';
-import { categoryItems, KIND_ITEMS } from '@/components/transaction-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import type { TransactionRecord } from '@/query/transaction.js';
 import { useTransactionForm } from '../@hooks/use-transaction-form.js';
-import { InstallmentsList } from './installments-list.js';
+import { TransactionFields } from './transaction-fields.js';
 
-export function TransactionForm({
-  transaction,
-  onClose,
-  onReceive,
-}: {
-  transaction?: TransactionRecord;
-  onClose: () => void;
-  onReceive?: () => void;
-}) {
-  const { form, kind, onSubmit, handleKindChange, isPending, errorMessage, caseItems } = useTransactionForm({
-    transaction,
-    onDone: onClose,
-  });
-  const { control } = form;
+// "Novo lançamento" dialog of the list; the entry is edited on its own page (AD-312).
+export function TransactionForm({ onClose }: { onClose: () => void }) {
+  const transactionForm = useTransactionForm({ onDone: onClose });
+  const { form, onSubmit, isPending, errorMessage } = transactionForm;
 
   return (
-    <FormDialog title={t(transaction ? 'edit_entry' : 'new_entry')} onClose={onClose}>
+    <FormDialog title={t('new_entry')} onClose={onClose}>
       <Form {...form}>
         <form noValidate onSubmit={onSubmit} className="grid gap-6">
           <DefaultFormLayout
             layout="vertical"
-            sections={[
-              {
-                title: t('entry'),
-                fields: [
-                  <div key="type" className="grid gap-4 sm:grid-cols-2">
-                    <SelectField
-                      control={control}
-                      name="kind"
-                      label={t('nature')}
-                      placeholder={t('select')}
-                      items={KIND_ITEMS}
-                      onValueChange={handleKindChange}
-                      // The kind does not change after posting (different status rules, AD-111).
-                      disabled={Boolean(transaction)}
-                    />
-                    {kind === 'expense' ? (
-                      <ExpenseCategoryField />
-                    ) : (
-                      <SelectField
-                        control={control}
-                        name="category"
-                        label={t('category')}
-                        placeholder={t('select')}
-                        items={categoryItems(kind)}
-                      />
-                    )}
-                  </div>,
-                  <TextField
-                    key="description"
-                    control={control}
-                    name="description"
-                    label={t('description')}
-                    placeholder={t('example_entry_description')}
-                  />,
-                  <div key="amount" className="grid gap-4 sm:grid-cols-2">
-                    <MoneyField
-                      control={control}
-                      name="amountCents"
-                      label={t('amount')}
-                      placeholder={t('example_money')}
-                    />
-                    <DateField control={control} name="dueDate" label={t('due_date')} placeholder={t('choose_day')} />
-                    {/* A fee already saved gets its dates in the receipts below. */}
-                    {(!transaction || (kind === 'expense' && transaction.status !== 'canceled')) && (
-                      <DateField
-                        control={control}
-                        name="settledDate"
-                        label={t('payment_date')}
-                        placeholder={t('choose_day')}
-                      />
-                    )}
-                  </div>,
-                  <SelectField
-                    key="legalCase"
-                    control={control}
-                    name="caseId"
-                    label={t('expert_case')}
-                    placeholder={t('no_linked_expert_case')}
-                    items={caseItems}
-                  />,
-                ],
-              },
-            ]}
+            sections={[{ title: t('entry'), fields: [<TransactionFields key="entry" form={transactionForm} />] }]}
           />
-          {transaction?.kind === 'income' && (
-            <InstallmentsList transaction={transaction} onChanged={onClose} onReceive={onReceive} />
-          )}
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">
               {errorMessage}

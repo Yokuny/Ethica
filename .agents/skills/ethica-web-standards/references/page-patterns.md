@@ -95,9 +95,11 @@ dados prontos, nunca `isLoading` por prop.
 Referência: `expert-cases/details/index.tsx`.
 
 - `search: { id }` validado por `z.object({ id: z.string().min(1) })`.
-- Somente-leitura por padrão (`XDetailsView` com `RecordHeader`/`RecordStats`/`ProductSpecs`).
-  `Edit` no `CardAction` troca para `XEditForm` com `Save` + `Cancelar`. Nunca form
-  sempre-editável.
+- Somente-leitura por padrão (`XDetailsView` com `RecordHeader`/`RecordStats` e os blocos
+  recolhíveis num `PanelGroup`, cada `Panel` com `ProductSpecs` ou a lista do bloco, AD-312).
+  `Edit` no `CardAction` troca para `XEditForm` com `Save` + `Cancelar`. Exceção: o detalhe do
+  lançamento (`finance/details/`) traz o formulário sempre aberto sob a leitura, `DefaultFormLayout`
+  horizontal, com `Salvar` no cabeçalho e no rodapé apontando para o `id` do form (AD-312).
 - Erro de exclusão via `toast.error(error.message)`.
 - Registro não encontrado → `DefaultEmptyData` dentro do `Card`, nunca tela em branco.
 - Tela-canvas sem "detalhe" de página inteira (ex.: `agenda/`): criar/editar abre `FormDialog` (AD-070).

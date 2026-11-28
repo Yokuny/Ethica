@@ -1,4 +1,5 @@
 import { Button } from '@ethica/ui/components/button';
+import { Separator } from '@ethica/ui/components/separator';
 import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useSearch } from '@tanstack/react-router';
 import { Wallet } from 'lucide-react';
@@ -6,7 +7,7 @@ import { useState } from 'react';
 import { AppLink } from '@/components/app-link.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
-import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { Card, CardAction, CardContent, CardFooter, CardHeader } from '@/components/page-card.js';
 import { ReceiptForm } from '@/components/receipt-form.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
 import { SuggestionButton, suggestionsFor, useCaseSuggestions } from '@/components/suggestion-button.js';
@@ -18,13 +19,14 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { transactionKeys, transactionQuery } from '@/query/transaction.js';
 import { InstallmentsList } from '../@components/installments-list.js';
-import { TransactionForm } from '../@components/transaction-form.js';
 import { type TransactionDetailsSearch, transactionDetailsSearchSchema } from '../@interface/transactions.interface.js';
+import { TRANSACTION_EDIT_FORM_ID, TransactionEditForm } from './@components/transaction-edit-form.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
 
 // The entry page (SGD-02): what it is, the service it belongs to and the receipts. A receipt suggestion of the
-// court (AD-269) stands beside the receipts and in the header; approving it opens the receipt dialog.
+// court (AD-269) stands beside the receipts and in the header; approving it opens the receipt dialog. Whoever
+// edits finance gets the edit form under the reading, saved from the header and the footer (AD-312).
 export function TransactionDetailsPage() {
   const search = useSearch({ strict: false }) as TransactionDetailsSearch;
   const { data: session } = useSuspenseQuery(sessionQuery);
@@ -32,10 +34,15 @@ export function TransactionDetailsPage() {
   const query = useQuery({ ...transactionQuery(search.id), retry: false });
   const transaction = query.data;
   const receipts = suggestionsFor(useCaseSuggestions(transaction?.caseId), 'transaction_installment');
-  const [panel, setPanel] = useState<'edit' | 'receive' | null>(null);
+  const [receiving, setReceiving] = useState(false);
   const canUpdate = can(session, 'finance', 'update');
   const state = transaction && transactionState(transaction, formatDisplayDate(new Date()));
   const refresh = () => queryClient.invalidateQueries({ queryKey: transactionKeys.all });
+  const saveAction = transaction && canUpdate && (
+    <Button type="submit" form={TRANSACTION_EDIT_FORM_ID}>
+      {t('save')}
+    </Button>
+  );
 
   return (
     <Card asPage>
@@ -43,11 +50,7 @@ export function TransactionDetailsPage() {
         {transaction && (
           <CardAction>
             <SuggestionButton suggestions={receipts} count />
-            {canUpdate && (
-              <Button variant="outline" onClick={() => setPanel('edit')}>
-                {t('edit')}
-              </Button>
-            )}
+            {saveAction}
           </CardAction>
         )}
       </CardHeader>
@@ -91,20 +94,24 @@ export function TransactionDetailsPage() {
               <InstallmentsList
                 transaction={transaction}
                 onChanged={refresh}
-                onReceive={canUpdate ? () => setPanel('receive') : undefined}
+                onReceive={canUpdate ? () => setReceiving(true) : undefined}
               />
+            )}
+            {canUpdate && (
+              <>
+                <Separator />
+                <TransactionEditForm transaction={transaction} />
+              </>
             )}
           </>
         )}
       </CardContent>
-      {transaction && panel === 'edit' && (
-        <TransactionForm
-          transaction={transaction}
-          onClose={() => setPanel(null)}
-          onReceive={canUpdate ? () => setPanel('receive') : undefined}
-        />
+      {saveAction && (
+        <CardFooter className="justify-end">
+          <CardAction>{saveAction}</CardAction>
+        </CardFooter>
       )}
-      {transaction && panel === 'receive' && <ReceiptForm transaction={transaction} onClose={() => setPanel(null)} />}
+      {transaction && receiving && <ReceiptForm transaction={transaction} onClose={() => setReceiving(false)} />}
     </Card>
   );
 }

@@ -27,6 +27,28 @@
       "doc": "features/filtros-lista/feature.md"
     },
     {
+      "slug": "grupo-recolhivel",
+      "feature": "Grupo recolhível único e edição do lançamento na página",
+      "descricao": "Blocos recolhíveis numa moldura só com cabeçalho fino e acinzentado, e lançamento editado na própria página de detalhe",
+      "data": "2026-11-28",
+      "status": "concluido",
+      "areas": [
+        "apps/web"
+      ],
+      "decisoes": [
+        "AD-312",
+        "AD-238",
+        "AD-172"
+      ],
+      "spec": [
+        ".specs/features/grupo-recolhivel"
+      ],
+      "planos": [
+        ".specs/features/grupo-recolhivel/plans/2026-11-28-grupo-recolhivel-edicao-lancamento.md"
+      ],
+      "doc": "features/grupo-recolhivel/feature.md"
+    },
+    {
       "slug": "logistica-paginas",
       "feature": "Logística em páginas por intenção e termo de vistoria assinado",
       "descricao": "Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas",
@@ -2769,6 +2791,12 @@
     {
       "id": "AD-311",
       "decisao": "Sai o \"Marcar todos como lidos\" das Notificações: botão, chave `mark_all_as_read`, rota `POST /notifications/read-all` e `markAllRead`; `mar",
+      "data": "2026-11-28",
+      "status": "active"
+    },
+    {
+      "id": "AD-312",
+      "decisao": "(1) Os blocos recolhíveis de uma página ficam numa moldura só: `PanelGroup` (`apps/web/src/components/panel.tsx`) com `rounded-lg border` e",
       "data": "2026-11-28",
       "status": "active"
     }

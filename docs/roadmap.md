@@ -123,6 +123,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-28 — Blocos recolhíveis numa moldura só com cabeçalho fino e acinzentado (serviço, parte, agenda, prazo) e lançamento editado na própria página, sem diálogo (AD-312) — `grupo-recolhivel`
 - [x] 2026-11-28 — Dados do Datajud apagados de novo em produção depois do deploy da `sugestoes-datajud` (1 cópia do processo, 1 acompanhamento, 2 jobs), para a linha de base partir do zero — `sugestoes-datajud`
 - [x] 2026-11-28 — A assistência encerrada recebe a sugestão `finished` e as regras leem o `serviceType` (AD-310) — `sugestoes-datajud`
 - [x] 2026-11-28 — Sugestões do Datajud ao lado do dado (botão roxo e rosa), detalhe do lançamento, "Abrir" nas notificações, regras completas pela TPU, hora de cobrar e de encerrar pelo estado do processo, preencher vara e autuação pelo tribunal, busca pelo número no cadastro e lista do tribunal sem ruído (AD-304, AD-309) — `sugestoes-datajud`

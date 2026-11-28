@@ -7,7 +7,7 @@ import { type ReactNode, useState } from 'react';
 import { t } from '@/lib/helpers/translate.helper.js';
 
 // shadcnblocks/feature207 block (numbered rows between rules: number, title and text side by side)
-// mixed with the expand/collapse of ProductSpecs: "Expandir tudo · Recolher tudo" and one by one (NLA-07).
+// mixed with the expand/collapse of PanelGroup: "Expandir tudo · Recolher tudo" and one by one (NLA-07).
 // Compact rows, all collapsed at first; a click anywhere on the row opens it, and the subitems only show
 // under their opened item, like a table of contents (AD-172).
 

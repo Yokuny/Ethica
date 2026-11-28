@@ -9,23 +9,26 @@ import { createTransactionMutation, type TransactionRecord, updateTransactionMut
 
 const CASES_LIMIT = 100;
 
-// Same form to post and edit: with `transaction` it edits, without it it creates.
+// Same form to post and edit: with `transaction` it edits, without it it creates. The edit form stays on the
+// entry page beside receipts and reversals (AD-312), so it follows the saved entry and keeps what is being typed.
 export function useTransactionForm({ transaction, onDone }: { transaction?: TransactionRecord; onDone: () => void }) {
   const queryClient = useQueryClient();
   const cases = useQuery(casesQuery({ limit: CASES_LIMIT }));
   const form = useForm<CreateTransaction>({
     resolver: zodResolver(createTransactionSchema),
+    resetOptions: { keepDirtyValues: true },
+    values: transaction && {
+      kind: transaction.kind,
+      category: transaction.category,
+      categoryName: transaction.categoryName,
+      description: transaction.description,
+      amountCents: transaction.amountCents,
+      dueDate: transaction.dueDate,
+      settledDate: transaction.settledDate,
+      caseId: transaction.caseId,
+    },
     defaultValues: transaction
-      ? {
-          kind: transaction.kind,
-          category: transaction.category,
-          categoryName: transaction.categoryName,
-          description: transaction.description,
-          amountCents: transaction.amountCents,
-          dueDate: transaction.dueDate,
-          settledDate: transaction.settledDate,
-          caseId: transaction.caseId,
-        }
+      ? undefined
       : {
           kind: 'income',
           category: 'advance_fees',

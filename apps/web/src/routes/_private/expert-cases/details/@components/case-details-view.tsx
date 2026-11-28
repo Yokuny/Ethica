@@ -11,9 +11,9 @@ import {
   serviceLabel,
   serviceTypeLabel,
 } from '@/components/case-labels.js';
-import { Panel } from '@/components/panel.js';
+import { Panel, PanelGroup } from '@/components/panel.js';
 import { sideLabel } from '@/components/party-labels.js';
-import { type ProductSpec, type ProductSpecGroup, ProductSpecs } from '@/components/product-specs.js';
+import { type ProductSpec, ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading, RecordStat, RecordStats, RecordStatus } from '@/components/record.js';
 import { SuggestionButton, suggestionsFor } from '@/components/suggestion-button.js';
 import { useFileDownload } from '@/hooks/useFileDownload.js';
@@ -31,17 +31,18 @@ type Field = { label: string; value: ReactNode; action?: ReactNode };
 // Record page: header with process and status, strip with deadlines and
 // fees, and the read groups (court, parties, notes). Outside the perícia (AD-176, AD-310) it shows the contractor
 // in place of the court and the parties. Not filled comes last, dimmed (AD-238): the empty fields close their
-// group and the strip, and a group with nothing filled becomes an empty block at the bottom of the page, after
-// the panels of the page (deadlines, reports…) that are empty too. It renders a fragment: its blocks are items
-// of the page's flex column, so an empty one can sink below them all.
+// group and the strip, and a group with nothing filled becomes an empty block. The page's own blocks (deadlines,
+// reports…) come as `children` into the same `PanelGroup` (AD-312), so an empty one sinks below them all.
 export function CaseDetailsView({
   legalCase,
   canSeeFinance,
   suggestions = [],
+  children,
 }: {
   legalCase: CaseRecord;
   canSeeFinance: boolean;
   suggestions?: NotificationRecord[];
+  children?: ReactNode;
 }) {
   // SGD-01: each suggestion beside the data it changes.
   const fill = suggestionsFor(suggestions, 'case_fill');
@@ -81,7 +82,7 @@ export function CaseDetailsView({
       ? [{ label: own ? t('contracted_fees') : t('fixed_fees'), value: money(legalCase.fixedFeesCents) }]
       : []),
   ];
-  const groups: (Omit<ProductSpecGroup, 'specs'> & { fields: Field[] })[] = [
+  const groups: { id: string; name: string; icon: ReactNode; fields: Field[] }[] = [
     own
       ? {
           id: 'contractor',
@@ -205,18 +206,20 @@ export function CaseDetailsView({
           ),
         )}
       </RecordStats>
-      <ProductSpecs
-        groups={groups.filter(isFilled).map(({ fields, ...group }) => ({ ...group, specs: arrange(fields) }))}
-      />
-      {groups
-        .filter((group) => !isFilled(group))
-        .map((group) => (
-          <Panel key={group.id} empty icon={group.icon} title={group.name}>
-            <ItemDescription className="line-clamp-none">
-              {group.fields.map((field) => field.label).join(' · ')}
-            </ItemDescription>
+      <PanelGroup>
+        {groups.map((group) => (
+          <Panel key={group.id} empty={!isFilled(group)} icon={group.icon} title={group.name}>
+            {isFilled(group) ? (
+              <ProductSpecs specs={arrange(group.fields)} />
+            ) : (
+              <ItemDescription className="line-clamp-none">
+                {group.fields.map((field) => field.label).join(' · ')}
+              </ItemDescription>
+            )}
           </Panel>
         ))}
+        {children}
+      </PanelGroup>
     </>
   );
 }

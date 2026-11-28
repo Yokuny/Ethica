@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog.js';
 import { DatePicker } from '@/components/date-picker.js';
 import { FormDialog } from '@/components/form-dialog.js';
 import { ALERT_VARIANT, DEADLINE_STATUS_VARIANT, deadlineAlert } from '@/components/notification-labels.js';
+import { Panel, PanelGroup } from '@/components/panel.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { formatDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
@@ -70,12 +71,10 @@ export function NotificationDialog({ deadline, onClose, onEdit, children }: Noti
           </Badge>
         )}
       </div>
-      <ProductSpecs
-        groups={[
-          {
-            id: 'deadline',
-            name: t(deadline.kind),
-            specs: [
+      <PanelGroup>
+        <Panel title={t(deadline.kind)}>
+          <ProductSpecs
+            specs={[
               { label: t('due_date'), value: day(deadline.dueDate) },
               ...(isAlert ? [] : [{ label: t('filed_on'), value: day(deadline.filedDate) }]),
               {
@@ -89,10 +88,10 @@ export function NotificationDialog({ deadline, onClose, onEdit, children }: Noti
                 ),
               },
               { label: t('notes'), value: deadline.notes || '-' },
-            ],
-          },
-        ]}
-      />
+            ]}
+          />
+        </Panel>
+      </PanelGroup>
       {children}
       {deadline.status === 'pending' && !isAlert && (
         <div className="grid gap-2">
