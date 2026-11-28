@@ -89,7 +89,9 @@ export function CompositionDonut({ label, slices, format, centerDetail, limit = 
             </PieChart>
           </ChartContainer>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-            <ItemTitle className="text-base font-medium tabular-nums leading-tight">{format(total)}</ItemTitle>
+            <ItemTitle className="text-lg leading-tight tracking-tight tabular-nums text-impact">
+              {format(total)}
+            </ItemTitle>
             {centerDetail && <ItemDescription className="text-xs tabular-nums">{centerDetail}</ItemDescription>}
           </div>
         </div>
@@ -136,7 +138,7 @@ function LegendRow({ part, share, linked }: { part: DonutSlice; share: string; l
             </div>
             {part.detail && <ItemDescription className="text-xs tabular-nums">{part.detail}</ItemDescription>}
           </div>
-          <ItemTitle className="font-medium tabular-nums">{part.value}</ItemTitle>
+          <ItemTitle className="font-medium tabular-nums text-impact">{part.value}</ItemTitle>
           <ItemDescription className="w-10 text-right text-xs tabular-nums">{share}</ItemDescription>
           {linked && (
             <ChevronRight aria-hidden className={cn('size-4 text-muted-foreground', !part.render && 'invisible')} />

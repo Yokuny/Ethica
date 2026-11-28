@@ -110,7 +110,7 @@ export function RecordStatus({ variant, label, pulse = true }: RecordStatusProps
 // bottom, uppercase label, value at 24px. Columns come from the number of cells so the rows always
 // balance (4 → 2+2, 5 → 3+2, 6 → 3+3) and only go to one line where it fits (AD-292).
 // `band`: listing indicator strip (gray surface, sparkline,
-// ruler and trend), without dividers.
+// ruler and trend), without dividers; the same uppercase label and 24px value as the record strip.
 type RecordStatsVariant = 'ruled' | 'band';
 
 const StatsVariantContext = createContext<RecordStatsVariant>('ruled');
@@ -306,7 +306,7 @@ export function RecordStat({
           <>
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-1">
-                <ItemDescription className={ruled ? captionClass : 'text-foreground'}>{label}</ItemDescription>
+                <ItemDescription className={captionClass}>{label}</ItemDescription>
                 {trend && <Trend direction={trend} label={trendLabel} hint={hint} tone={trendTone} />}
               </div>
               {headerAction}
@@ -315,9 +315,7 @@ export function RecordStat({
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
               <ItemTitle
                 className={cn(
-                  ruled
-                    ? 'text-2xl leading-tight wrap-anywhere'
-                    : 'text-[1.4rem] leading-none font-normal tracking-tight',
+                  ruled ? 'text-2xl leading-tight wrap-anywhere' : 'text-2xl leading-none tracking-tight',
                   isLink ? 'link' : 'text-impact',
                 )}
               >

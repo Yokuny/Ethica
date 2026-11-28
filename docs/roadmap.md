@@ -57,6 +57,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir na tela a hierarquia nova do Dashboard (AD-313): títulos de seção, faixa de números com rótulo em caixa alta (também no Início e em Serviços: cinco números seguem numa linha), centro da rosca sem quebrar e o ritmo da meta legível, nos temas Claro, Escuro e Azul e no celular (não renderizado nesta entrega: o código de acesso sai no log da API) — `dashboard`
+- [ ] Decidir os pontos da skill `dashboard-design` que contrariam o Dashboard atual: barras no lugar da área empilhada da Entrada de serviços (AD-255 recusou barras), rosca só até 3 partes (hoje 4 + "Demais") e âmbar no a receber (hoje roxo "previsto") — `dashboard`
 - [ ] Conferir na tela (login local pede passkey): contratante cortado em uma linha em Serviços, "Visão completa" nos Filtros prontos, coluna Serviço com tooltip e ações em ícones em Notificações — `filtros-lista`, `notificacoes-processo-unico`
 - [ ] Rota de 16 a 22 dez: conferir se a vistoria de Viamão (-30.0700…, -51.0352…) já aparece no mapa; se ainda aparecer "Endereço não localizado", reescrever o local à mão (copiar pode trazer caractere invisível) — `logistica-paginas`
 - [ ] Conferir na tela os "Filtros prontos" do menu "…" de Serviços e do Histórico de auditoria (não renderizado nesta entrega: o login local pede passkey) — `filtros-lista`
@@ -123,6 +125,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-28 — Hierarquia tipográfica do Dashboard (títulos de seção, faixa de números, legendas e rosca) e skill `dashboard-design` (AD-313) — `dashboard`
 - [x] 2026-11-28 — Blocos recolhíveis numa moldura só com cabeçalho fino e acinzentado (serviço, parte, agenda, prazo) e lançamento editado na própria página, sem diálogo (AD-312) — `grupo-recolhivel`
 - [x] 2026-11-28 — Dados do Datajud apagados de novo em produção depois do deploy da `sugestoes-datajud` (1 cópia do processo, 1 acompanhamento, 2 jobs), para a linha de base partir do zero — `sugestoes-datajud`
 - [x] 2026-11-28 — A assistência encerrada recebe a sugestão `finished` e as regras leem o `serviceType` (AD-310) — `sugestoes-datajud`

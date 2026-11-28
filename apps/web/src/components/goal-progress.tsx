@@ -26,6 +26,13 @@ const TONE_COLOR: Record<GoalTone, string> = {
   error: 'var(--status-error-indicator)',
 };
 
+// The pace written in words uses the text tone of each state: the indicator color is too light for small text.
+const TONE_TEXT: Record<GoalTone, string> = {
+  success: 'text-status-success-foreground',
+  warning: 'text-status-warning-foreground',
+  error: 'text-status-error-foreground',
+};
+
 const percent = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
 
 const trackGradient = (direction: string) =>
@@ -80,9 +87,7 @@ export function GoalProgress({ goal, orientation = 'horizontal', className }: Go
       <div className={cn('flex w-24 flex-col items-center gap-2', className)}>
         <ItemDescription className="text-center text-xs text-inherit">{share}</ItemDescription>
         {bar}
-        <ItemDescription className="text-center text-xs line-clamp-none" style={{ color: TONE_COLOR[tone] }}>
-          {pace}
-        </ItemDescription>
+        <ItemDescription className={cn('text-center text-xs line-clamp-none', TONE_TEXT[tone])}>{pace}</ItemDescription>
       </div>
     );
   }
@@ -91,9 +96,7 @@ export function GoalProgress({ goal, orientation = 'horizontal', className }: Go
       {bar}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
         <ItemDescription className="text-xs text-inherit">{share}</ItemDescription>
-        <ItemDescription className="text-xs" style={{ color: TONE_COLOR[tone] }}>
-          {pace}
-        </ItemDescription>
+        <ItemDescription className={cn('text-xs', TONE_TEXT[tone])}>{pace}</ItemDescription>
       </div>
     </div>
   );

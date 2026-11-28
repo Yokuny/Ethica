@@ -2015,6 +2015,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-28
 - **Status**: active
 
+### AD-313
+- **Decision**: Hierarquia do Dashboard pelo tamanho e peso do texto, como no detalhe do serviço e em Relatórios, sem trocar gráfico nem cor. (1) Títulos das seções em `text-xl font-semibold tracking-tight text-impact` (antes `text-base font-medium`, quase do tamanho da descrição). (2) A faixa `RecordStats variant="band"` (Dashboard, Início e Serviços) passa a ter o rótulo em caption de caixa alta e o valor em `text-2xl` semibold `text-impact`, como a faixa do registro. (3) Totais das legendas do fluxo de caixa e da meta em `text-lg text-impact`; centro da rosca em `text-lg` semibold e valor da legenda em `text-impact`. (4) O ritmo da meta escrito usa os tons `--status-*-foreground` (o indicador fica só na barra). Entra a skill portátil `dashboard-design` (`.agents/skills/dashboard-design/`), com o texto trazido pelo usuário. Onde ela contraria decisões ativas, valem as decisões: barras no lugar da área empilhada (AD-255, AD-260), rosca só até 3 partes (AD-256), âmbar para o a receber (roxo previsto, AD-255) e cartões brancos com borda e paleta em hex (desfeito em 2026-11-14; cores de `apps/web/src/theme.css`).
+- **Reason**: pedido do usuário (2026-11-28): o Dashboard não tinha hierarquia visual e o detalhe do serviço e Relatórios têm mais contraste nas fontes. O contraste deles vem do salto de tamanho e peso entre rótulo e valor; o ritmo "Um pouco abaixo do ritmo" em âmbar indicador ficava perto de 2,9:1 sobre o fundo.
+- **Trade-off**: a faixa de Início e Serviços muda junto, por ser o mesmo componente; valores maiores apertam a célula em telas estreitas (a linha quebra em vez de sobrepor). Os conflitos da skill com as decisões ficam para o usuário decidir.
+- **Scope**: `apps/web/src/components/{record,cash-flow-chart,composition-donut,goal-progress}.tsx`, `apps/web/src/routes/_private/dashboard/{index.tsx,@components/revenue-goal-chart.tsx}`, `.agents/skills/dashboard-design/`, `AGENTS.md`.
+- **Date**: 2026-11-28
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

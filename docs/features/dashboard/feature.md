@@ -5,14 +5,14 @@ descricao: Seção com os totais de serviços e honorários, serviços por tipo 
 data: 2026-11-06
 status: concluido
 areas: [apps/api, apps/web]
-decisoes: [AD-200, AD-228, AD-235, AD-236, AD-253, AD-254, AD-255, AD-256]
+decisoes: [AD-200, AD-228, AD-235, AD-236, AD-253, AD-254, AD-255, AD-256, AD-313]
 spec: [.specs/features/dashboard]
 branches: [main]
 ---
 
 # Dashboard
 
-**Status**: concluido · **Atualizado**: 2026-11-25 · **Áreas**: `apps/api`, `apps/web`
+**Status**: concluido · **Atualizado**: 2026-11-28 · **Áreas**: `apps/api`, `apps/web`
 
 > Documento vivo. Onde divergir de `spec.md` (congelado), **o código é a fonte da verdade**.
 > Correlação com o git: `git log --oneline -i --grep='dashboard'`.
@@ -51,10 +51,12 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 - [ ] Conferir no navegador o tooltip das categorias em "De onde vem o dinheiro" (passar o mouse e focar pelo teclado).
 - [ ] Conferir no celular os 12 rótulos de mês do gráfico de serviços.
+- [ ] Conferir no navegador a hierarquia tipográfica da AD-313: Dashboard em 6 e 12 meses, Início e Serviços (faixa de números), temas Claro, Escuro e Azul e 390px; cinco números seguem numa linha (AD-300) e o total cabe no centro da rosca.
 - [x] Conferido no navegador em 2026-11-22 (Dashboard 6 e 12 meses, Início, temas Claro, Escuro e Azul, 390px).
 
 ## Histórico
 
+- 2026-11-28 — Hierarquia pelo tamanho e peso do texto, como no detalhe do serviço e em Relatórios (AD-313): títulos das seções em `text-xl` semibold, faixa de números com rótulo em caixa alta e valor em `text-2xl` semibold (vale também para Início e Serviços), totais das legendas e centro da rosca maiores em `text-impact`, e o ritmo da meta escrito em tom legível. Nova skill `dashboard-design`; os pontos em que ela contraria decisões ativas (barras, rosca até 3 partes, âmbar no a receber) ficaram de fora. Não conferido no navegador nesta sessão. Plano: `.specs/features/dashboard/plans/2026-11-28-hierarquia-tipografica.md`.
 - 2026-11-25 — Mix de serviços com escolha do mês (`?mix=AAAA-MM`): "Desde o início" (padrão) ou os serviços novos de um mês, com os dados de `byMonth` que a página já recebe.
 - 2026-11-25 — A faixa de cinco números cabe numa linha: as colunas seguem a largura da própria faixa, e cada célula conta como uma (antes os três números de dinheiro, agrupados, contavam como um). O percentual de variação vai dentro do selo da tendência, ao lado do rótulo (AD-300).
 - 2026-11-24 — Uma faixa de números só, logo abaixo do cabeçalho como na Home e em Serviços: Saldo, Recebido, Despesas, A receber e Serviços novos; saem a faixa "Trabalho" do meio da página, "Serviços em aberto" e a nota de escopo (AD-292).

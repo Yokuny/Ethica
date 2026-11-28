@@ -53,7 +53,7 @@ function LegendItem({
         )}
         <ItemDescription className="text-xs">{label}</ItemDescription>
       </div>
-      <ItemTitle className="font-medium tabular-nums">{value}</ItemTitle>
+      <ItemTitle className="text-lg font-medium tabular-nums text-impact">{value}</ItemTitle>
     </li>
   );
 }

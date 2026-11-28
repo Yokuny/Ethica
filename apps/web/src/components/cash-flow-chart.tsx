@@ -58,7 +58,7 @@ export function CashFlowChart({ data }: { data: MonthlyFlow[] }) {
               />
               <ItemDescription className="text-xs">{item.label}</ItemDescription>
             </div>
-            <ItemTitle className="font-medium tabular-nums">{formatMoney(item.total)}</ItemTitle>
+            <ItemTitle className="text-lg font-medium tabular-nums text-impact">{formatMoney(item.total)}</ItemTitle>
           </li>
         ))}
       </ul>

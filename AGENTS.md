@@ -107,6 +107,7 @@ Canônicas em `.agents/skills/` (symlink em `.claude/skills/`); sem suporte a sk
 | `ethica-spec-driven` | Escrever/revisar `spec.md`, `design.md`, `tasks.md`, decisões `AD-NNN` |
 | `ethica-commit-standards` | Mensagem de commit e envio para a `main` |
 | `monorepo-architecture` | Levar esta arquitetura para **outro** projeto (sistema novo ou MVP existente). Documento portátil e autossuficiente, sem vínculo com o Ethica nem com este harness: copie a pasta. Para código deste repo valem `apps/api/CLAUDE.md` e `ethica-web-standards` |
+| `dashboard-design` | Desenhar, revisar ou refazer dashboard, painel de KPIs ou gráfico: hierarquia em camadas, cor que significa, escolha do gráfico. Portátil, sem vínculo com o repo; aqui as decisões registradas (`docs/features/dashboard/feature.md`, AD-255) e os tokens de `apps/web/src/theme.css` prevalecem sobre a paleta e as regras de gráfico dela |
 | `ethica-web-standards` | Qualquer código em `apps/web`: nova página/módulo/rota, componente, form, query, ou entender a arquitetura do front |
 | `ethica-item-typography` | Qualquer texto em `apps/web` (todo texto é `ItemTitle`/`ItemDescription`, AD-087) e a migração em lote do projeto para esse padrão |
 | `ethica-permissions` | Qualquer rota, tela, botão ou ação que dependa de papel (`admin`/`manager`/`operator`), revisão de acesso, "quem pode fazer X", papel novo |

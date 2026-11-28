@@ -161,7 +161,11 @@ export function DashboardPage() {
               <>
                 <section className="flex w-full min-w-0 flex-col gap-5">
                   <div className="grid gap-1">
-                    <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                    <ItemTitle
+                      role="heading"
+                      aria-level={2}
+                      className="text-xl font-semibold tracking-tight text-impact"
+                    >
                       {t('cash_flow')}
                     </ItemTitle>
                     <ItemDescription>{t('cash_flow_scope')}</ItemDescription>
@@ -186,7 +190,7 @@ export function DashboardPage() {
                         <ItemTitle
                           role="heading"
                           aria-level={2}
-                          className="text-base font-medium text-impact"
+                          className="text-xl font-semibold tracking-tight text-impact"
                         >{`${t('goal_of')} ${goal.data.year}`}</ItemTitle>
                         <ItemDescription>{t('revenue_goal_scope')}</ItemDescription>
                       </div>
@@ -217,7 +221,11 @@ export function DashboardPage() {
                 <div className="grid gap-10 lg:grid-cols-2">
                   <section className="flex w-full min-w-0 flex-col gap-5">
                     <div className="grid gap-1">
-                      <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                      <ItemTitle
+                        role="heading"
+                        aria-level={2}
+                        className="text-xl font-semibold tracking-tight text-impact"
+                      >
                         {t('where_money_comes_from')}
                       </ItemTitle>
                       <ItemDescription>{t('received_by_category')}</ItemDescription>
@@ -237,7 +245,11 @@ export function DashboardPage() {
                   </section>
                   <section className="flex w-full min-w-0 flex-col gap-5">
                     <div className="grid gap-1">
-                      <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                      <ItemTitle
+                        role="heading"
+                        aria-level={2}
+                        className="text-xl font-semibold tracking-tight text-impact"
+                      >
                         {t('where_money_goes')}
                       </ItemTitle>
                       <ItemDescription>{t('expenses_by_category')}</ItemDescription>
@@ -265,7 +277,7 @@ export function DashboardPage() {
             <div className="grid gap-10 lg:grid-cols-[3fr_2fr]">
               <section className="flex w-full min-w-0 flex-col gap-5">
                 <div className="grid gap-1">
-                  <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                  <ItemTitle role="heading" aria-level={2} className="text-xl font-semibold tracking-tight text-impact">
                     {t('services_intake')}
                   </ItemTitle>
                   <ItemDescription>{t('services_intake_scope')}</ItemDescription>
@@ -284,7 +296,11 @@ export function DashboardPage() {
               <section className="flex w-full min-w-0 flex-col gap-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="grid gap-1">
-                    <ItemTitle role="heading" aria-level={2} className="text-base font-medium text-impact">
+                    <ItemTitle
+                      role="heading"
+                      aria-level={2}
+                      className="text-xl font-semibold tracking-tight text-impact"
+                    >
                       {t('services_mix')}
                     </ItemTitle>
                     <ItemDescription>

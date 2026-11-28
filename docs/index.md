@@ -56,7 +56,7 @@ _Nenhum._
 | [Custo de deslocamento](features/custo-deslocamento/feature.md) | Custo de deslocamento da rota do Campo lançado como despesa numa OS ou dividido entre OS, e lugares no trajeto | concluido | 2026-11-09 | `apps/web` `packages/ui` | [spec](../.specs/features/custo-deslocamento) | — |
 | [Laudo automatizado](features/laudos/feature.md) | Modelos de laudo por seções sim/não com variáveis do processo, parecer técnico e exportação em PDF e Word | concluido | 2026-11-09 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/laudos) | — |
 | [Imagem de produção da API e arquivos por perícia](features/producao-api/feature.md) | API na Railway (Dockerfile com Chromium) e web na Vercel com deploy pela main; falta o storage S3 em pastas por escritório e perícia | parcial | 2026-11-09 | `apps/api` `infra` | [spec](../.specs/features/producao-api) | 1 |
-| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | 3 |
+| [Dashboard](features/dashboard/feature.md) | Seção com os totais de serviços e honorários, serviços por tipo e por mês e o financeiro do escritório | concluido | 2026-11-06 | `apps/api` `apps/web` | [spec](../.specs/features/dashboard) | 4 |
 | [Link da pasta e anexos do serviço](features/servico-pasta-anexos/feature.md) | Link da pasta na nuvem e arquivos anexados no cadastro e no detalhe do serviço | concluido | 2026-11-06 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/servico-pasta-anexos) | — |
 | [Prazos e Alertas](features/prazos-alertas/feature.md) | Seção com os prazos e alertas de todos os serviços por criticidade; alerta é lembrete que se conclui | concluido | 2026-11-05 | `apps/api` `apps/web` `packages/contracts` `packages/db` | [spec](../.specs/features/prazos-alertas) | — |
 | [Preencher com vários PDFs](features/preencher-pdfs/feature.md) | Cadastro do serviço preenchido por vários PDFs numa janela em etapas, com a escolha do valor de cada campo | concluido | 2026-11-04 | `apps/api` `apps/web` `packages/contracts` | [spec](../.specs/features/preencher-pdfs) | — |
@@ -99,6 +99,7 @@ _Nenhum._
 
 Últimas 10 de [`.specs/STATE.md`](../.specs/STATE.md#decisions) (ADRs longos em [`docs/adr/`](adr/README.md)).
 
+- **AD-313** (2026-11-28, active) — Hierarquia do Dashboard pelo tamanho e peso do texto, como no detalhe do serviço e em Relatórios, sem trocar gráfico nem cor. (1) Títulos da
 - **AD-312** (2026-11-28, active) — (1) Os blocos recolhíveis de uma página ficam numa moldura só: `PanelGroup` (`apps/web/src/components/panel.tsx`) com `rounded-lg border` e
 - **AD-311** (2026-11-28, active) — Sai o "Marcar todos como lidos" das Notificações: botão, chave `mark_all_as_read`, rota `POST /notifications/read-all` e `markAllRead`; `mar
 - **AD-310** (2026-11-27, active) — Tipo e fase do serviço só como enums em inglês. `Case.serviceType` é obrigatório e é um de `SERVICE_TYPES` (`expert_examination`, `technical
@@ -108,7 +109,6 @@ _Nenhum._
 - **AD-306** (2026-11-27, active) — "Honorários recebidos" (`fees_received`) deixa de encerrar o serviço, em todos os tipos (perícia, assistência técnica e tipos do escritório)
 - **AD-305** (2026-11-27, active (`assistance_closed` superseded by AD-310: `finished`, comum a todos os tipos)) — A Assistência técnica ganha a fase "Finalizado" (`assistance_closed`), última da lista, que encerra o serviço (`CASE_CLOSED_PHASES`) mesmo s
 - **AD-304** (2026-11-27, active (questões da spec confirmadas pela perita em 2026-11-27)) — Papel de cada fonte do tribunal. (1) O Datajud é a fonte do estado do processo em código (TPU do CNJ): sugestões de situação, fase e recebim
-- **AD-303** (2026-11-25, active) — A consulta diária ao Datajud começa às 05:00 de Brasília (era 03:00, AD-277) e o tempo limite de cada chamada sobe de 60 s para 120 s (`DATA
 
 ## Outros documentos
 

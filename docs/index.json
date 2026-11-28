@@ -692,7 +692,8 @@
         "AD-253",
         "AD-254",
         "AD-255",
-        "AD-256"
+        "AD-256",
+        "AD-313"
       ],
       "spec": [
         ".specs/features/dashboard"
@@ -700,7 +701,8 @@
       "planos": [
         ".specs/features/dashboard/plans/2026-11-19-valores-escritos.md",
         ".specs/features/dashboard/plans/2026-11-22-dashboard-graficos.md",
-        ".specs/features/dashboard/plans/2026-11-22-graficos-com-contexto.md"
+        ".specs/features/dashboard/plans/2026-11-22-graficos-com-contexto.md",
+        ".specs/features/dashboard/plans/2026-11-28-hierarquia-tipografica.md"
       ],
       "doc": "features/dashboard/feature.md"
     },
@@ -2797,6 +2799,12 @@
     {
       "id": "AD-312",
       "decisao": "(1) Os blocos recolhíveis de uma página ficam numa moldura só: `PanelGroup` (`apps/web/src/components/panel.tsx`) com `rounded-lg border` e",
+      "data": "2026-11-28",
+      "status": "active"
+    },
+    {
+      "id": "AD-313",
+      "decisao": "Hierarquia do Dashboard pelo tamanho e peso do texto, como no detalhe do serviço e em Relatórios, sem trocar gráfico nem cor. (1) Títulos da",
       "data": "2026-11-28",
       "status": "active"
     }
