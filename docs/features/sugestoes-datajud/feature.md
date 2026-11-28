@@ -3,7 +3,7 @@ feature: Sugestões do Datajud no serviço e no financeiro
 slug: sugestoes-datajud
 descricao: Sugestão ao lado do dado, detalhe do lançamento, hora de cobrar e de encerrar e busca no tribunal pelo número
 data: 2026-11-27
-status: parcial
+status: concluido
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
 decisoes: [AD-304, AD-305, AD-306, AD-309]
 spec: [.specs/features/sugestoes-datajud]
@@ -11,7 +11,7 @@ spec: [.specs/features/sugestoes-datajud]
 
 # Sugestões do Datajud no serviço e no financeiro
 
-**Status**: parcial · **Atualizado**: 2026-11-27 · **Áreas**: `apps/api`, `apps/web`, `apps/worker`, `packages/contracts`, `packages/db`
+**Status**: concluído · **Atualizado**: 2026-11-27 · **Áreas**: `apps/api`, `apps/web`, `apps/worker`, `packages/contracts`, `packages/db`
 
 > Documento vivo. A intenção está em `.specs/features/sugestoes-datajud/` (spec, design e tasks).
 > Correlação com o git: `git log --oneline -i --grep='sugestoes-datajud'`.
@@ -37,17 +37,16 @@ ela muda, com caminho direto para o serviço ou o lançamento, e o cadastro pode
 
 ## Como testar
 
-A definir (task T11).
+Testes listados em `.specs/features/sugestoes-datajud/validation.md`. Na tela: um serviço trabalhista acompanhado com sugestões pendentes mostra o botão roxo e rosa ao lado da situação, da fase e da vara e no cabeçalho; as notificações do tribunal têm o ícone "Abrir"; no cadastro, o ícone de busca ao lado do número preenche os campos vazios.
 
 ## Pendências
 
-- [ ] T8 (botão "Abrir" nas notificações): escrito, aguarda a sessão das notificações commitar a tabela dela para entrar
-- [ ] T11: conferência no navegador e `validation.md`
 - [ ] Railway: pôr `DATAJUD_API_KEY` também no serviço da API (sem ela a busca pelo número responde `court_unavailable`) de `.specs/features/sugestoes-datajud/tasks.md`.
 - [ ] Antes do deploy, apagar de novo os dados do Datajud em produção (roadmap).
 
 ## Histórico
 
+- 2026-11-28 — T8 e T11: ícone "Abrir lançamento"/"Abrir serviço" nas notificações do tribunal (entrou no commit da sessão `notificacoes-processo-unico`, 470c67f); conferência na tela local (`validation.md`), que corrigiu a página de notificações em branco (`nativeButton={false}` no link) e o botão de busca espremendo o número (virou ícone com dica).
 - 2026-11-28 — T10: lista No tribunal sem ruído (`courtMovementRows`: sem Decurso de Prazo, Publicação e Disponibilização do mesmo minuto numa linha, mesmo documento do dia agrupado com a quantidade) e selo "Gera aviso ou sugestão" nos movimentos de regra; página Regras com cobrar, encerrar, arquivado com honorário em aberto e preencher.
 - 2026-11-28 — T9: "Buscar no tribunal" ao lado do número do processo no cadastro e na edição (`court-lookup-button.tsx`): preenche só os campos vazios (esfera, tribunal, vara, data de autuação, objeto) e avisa para conferir antes de salvar; sem o módulo, a oferta.
 - 2026-11-28 — T7: página de detalhe do lançamento (`/finance/details?id=`, `GET /finance/entries/:id`): tipo, categoria, serviço com link, valor, vencimento, recebido, saldo e os recebimentos; editar pelo diálogo de sempre; a sugestão de recebimento fica no saldo e no cabeçalho. A linha da lista do Financeiro passa a abrir o detalhe (o diálogo de edição saiu da linha).

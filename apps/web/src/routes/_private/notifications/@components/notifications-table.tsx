@@ -44,6 +44,8 @@ function OpenData({ item }: { item: NotificationRecord }) {
             variant="ghost"
             size="icon"
             aria-label={label}
+            nativeButton={false}
+            role="link"
             render={link}
             onClick={(event) => event.stopPropagation()}
           />

@@ -1,8 +1,9 @@
 import { isTrackedNumber } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@ethica/ui/components/popover';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import { LoaderCircle, Search } from 'lucide-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { AutomationOffer } from '@/components/automation-offer.js';
@@ -27,9 +28,8 @@ export function CourtLookupButton() {
       <Popover>
         <PopoverTrigger
           render={
-            <Button type="button" variant="outline" size="field" disabled={!ready}>
+            <Button type="button" variant="outline" size="field" disabled={!ready} aria-label={t('search_in_court')}>
               <Search />
-              {t('search_in_court')}
             </Button>
           }
         />
@@ -51,10 +51,24 @@ export function CourtLookupButton() {
       onError: (error: Error) => toast.error(error.message),
     });
 
+  const label = mutation.isPending ? t('searching_in_court') : t('search_in_court');
   return (
-    <Button type="button" variant="outline" size="field" disabled={!ready || mutation.isPending} onClick={search}>
-      <Search />
-      {mutation.isPending ? t('searching_in_court') : t('search_in_court')}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            size="field"
+            aria-label={label}
+            disabled={!ready || mutation.isPending}
+            onClick={search}
+          />
+        }
+      >
+        {mutation.isPending ? <LoaderCircle className="animate-spin" /> : <Search />}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }

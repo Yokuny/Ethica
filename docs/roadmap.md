@@ -12,7 +12,6 @@ pendência fica no `feature.md` indicado; aqui só a ação, quem faz e a featur
 | Rotas de vistoria com ponto de partida e serviço de rota próprio | `rotas-vistoria` | AD-150 |
 | CRUD de membros só do admin | `gestao-membros` | AD-148 |
 | Imagem de produção da API e arquivos por perícia no S3 | `producao-api` | AD-146 |
-| Sugestões do Datajud ao lado do dado, detalhe do lançamento, hora de cobrar e de encerrar, busca no tribunal pelo número | `sugestoes-datajud` | AD-304 |
 
 Em paralelo: validação do que já existe pela perita, com pequenas correções direto na `main` (AD-143).
 
@@ -95,7 +94,6 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Código que ficou para trás — agente
 
-- [ ] Na implementação da `sugestoes-datajud`, a fase sugerida na assistência encerrada é `finished` (o design cita `assistance_closed`, que virou `finished` na AD-310); tipo do serviço é `serviceType`, não `role` — `sugestoes-datajud`
 
 - [ ] Sugestões expiradas legíveis sem o módulo (D2) e evidência da sugestão no diário de bordo — `automacao-datajud`
 - [ ] Acompanhamento das perícias cíveis (TJ) quando o Datajud do TJ responder e houver fixture — `automacao-datajud`
@@ -125,6 +123,8 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-28 — A assistência encerrada recebe a sugestão `finished` e as regras leem o `serviceType` (AD-310) — `sugestoes-datajud`
+- [x] 2026-11-28 — Sugestões do Datajud ao lado do dado (botão roxo e rosa), detalhe do lançamento, "Abrir" nas notificações, regras completas pela TPU, hora de cobrar e de encerrar pelo estado do processo, preencher vara e autuação pelo tribunal, busca pelo número no cadastro e lista do tribunal sem ruído (AD-304, AD-309) — `sugestoes-datajud`
 - [x] 2026-11-28 — Sem "Marcar todos como lidos" nas Notificações; ações em ícones com tooltip; Serviço com tooltip das partes (AD-311) — `notificacoes-processo-unico`
 - [x] 2026-11-28 — "Visão completa" nos Filtros prontos de Serviços e nome do contratante sem passar por cima da coluna seguinte — `filtros-lista`
 - [x] 2026-11-27 — Tipo e fase do serviço só em enums; "Serviços finalizados" traz as Parcerias finalizadas e o filtro de tipo usa um parâmetro só (AD-310) — `servico-enums`
