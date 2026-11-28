@@ -11,6 +11,7 @@ import type { CaseFormValues } from '../@interface/cases.interface.js';
 import { CasePartiesFields } from './case-parties-fields.js';
 import { CasePaymentFields } from './case-payment-fields.js';
 import { CasePhaseField } from './case-phase-field.js';
+import { CourtLookupButton } from './court-lookup-button.js';
 import { ServiceTypeField } from './service-type-field.js';
 
 // Case fields shared by `add` and `details` (edit). Editing also includes the fee fixed by the court;
@@ -168,13 +169,18 @@ export function CaseFormFields({
           fields: [
             serviceFields,
             <div key="process" className="grid gap-4 sm:grid-cols-2">
-              <TextField
-                control={control}
-                name="processNumber"
-                label={t('process_number')}
-                placeholder="0000000-00.0000.0.00.0000"
-                required
-              />
+              <div className="flex items-end gap-2">
+                <div className="min-w-0 flex-1">
+                  <TextField
+                    control={control}
+                    name="processNumber"
+                    label={t('process_number')}
+                    placeholder="0000000-00.0000.0.00.0000"
+                    required
+                  />
+                </div>
+                <CourtLookupButton />
+              </div>
               <TextField control={control} name="court" label={t('court')} placeholder={t('example_court')} required />
               <TextField
                 control={control}

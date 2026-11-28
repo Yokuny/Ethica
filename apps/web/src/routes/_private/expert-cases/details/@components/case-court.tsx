@@ -1,4 +1,13 @@
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@ethica/ui/components/item';
+import { Badge } from '@ethica/ui/components/badge';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { Gavel } from 'lucide-react';
 import { AutomationOffer } from '@/components/automation-offer.js';
@@ -10,8 +19,9 @@ import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { courtProcessQuery, trackedCasesQuery } from '@/query/automation.js';
 import { hasAutomationSession, sessionQuery } from '@/query/session.js';
+import { courtMovementRows } from '../@utils/court-movement-rows.js';
 
-// Shown movements: the newest, enough to read the recent history.
+// Shown lines: the newest, enough to read the recent history (counted after the noise is taken out, SGD-08).
 const SHOWN = 30;
 
 // "No tribunal" (ADT-02): the process in court as the Datajud tells it, newest first. Without the module, the
@@ -53,22 +63,24 @@ export function CaseCourt({ caseId }: { caseId: string }) {
         <DefaultEmptyData title={trackedCaseLabel(state)} description={trackedCaseDescription(tracked ?? {}, state)} />
       ) : (
         <ItemGroup>
-          {courtProcess.movements.slice(0, SHOWN).map((movement) => (
-            <Item key={movement.key} render={<li />}>
-              <ItemMedia variant="icon">
-                <Gavel />
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>{movement.name}</ItemTitle>
-                <ItemDescription>
-                  {[
-                    formatDate(new Date(movement.at)),
-                    ...movement.complements.map((item) => item.name).filter(Boolean),
-                  ].join(' · ')}
-                </ItemDescription>
-              </ItemContent>
-            </Item>
-          ))}
+          {courtMovementRows(courtProcess.movements)
+            .slice(0, SHOWN)
+            .map((row) => (
+              <Item key={row.key} render={<li />}>
+                <ItemMedia variant="icon">
+                  <Gavel />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>{row.count > 1 ? `${row.name} ×${row.count}` : row.name}</ItemTitle>
+                  <ItemDescription>{[formatDate(new Date(row.at)), ...row.complements].join(' · ')}</ItemDescription>
+                </ItemContent>
+                {row.rule && (
+                  <ItemActions>
+                    <Badge variant="info">{t('court_rule_movement')}</Badge>
+                  </ItemActions>
+                )}
+              </Item>
+            ))}
         </ItemGroup>
       )}
     </Panel>

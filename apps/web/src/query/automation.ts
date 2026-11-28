@@ -1,4 +1,4 @@
-import type { CourtProcessView, TrackedCase } from '@ethica/contracts';
+import type { CourtLookup, CourtProcessView, TrackedCase } from '@ethica/contracts';
 import { queryOptions } from '@tanstack/react-query';
 import { get } from '../lib/api/client.api.js';
 import { t } from '../lib/helpers/translate.helper.js';
@@ -28,3 +28,10 @@ export const trackedCasesQuery = queryOptions({
     return res.data ?? [];
   },
 });
+
+// Fill a case by its number, live (SGD-06): the API answers from the copy of the day or asks the court once.
+export const lookupCourtProcess = async (processNumber: string): Promise<CourtLookup> => {
+  const res = await get<CourtLookup>(`/automation/court-lookup?processNumber=${encodeURIComponent(processNumber)}`);
+  if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
+  return res.data;
+};

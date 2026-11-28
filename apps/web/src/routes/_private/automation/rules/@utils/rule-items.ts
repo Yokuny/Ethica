@@ -1,4 +1,10 @@
-import { AUTOMATION_RULES, type CaseProposal, PAYMENT_RULE } from '@ethica/contracts';
+import {
+  AUTOMATION_RULES,
+  CASE_FILL_RULE,
+  CASE_FINISHED_RULE,
+  type CaseProposal,
+  PAYMENT_RULE,
+} from '@ethica/contracts';
 import { casePhaseLabel, caseStatusLabel } from '@/components/case-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 
@@ -53,5 +59,30 @@ export const RULE_ITEMS: RuleItem[] = [
     kind: 'suggestion',
     title: t('automation_rule_payment_available'),
     description: proposalText({ target: 'transaction_installment', date: '' }),
+  },
+  // SGD-05, AD-309: by the state of the process, once per service.
+  {
+    key: 'fees_collection',
+    kind: 'notice',
+    title: t('automation_rule_fees_collection'),
+    description: t('fees_collection_notice'),
+  },
+  {
+    key: CASE_FINISHED_RULE.key,
+    kind: 'suggestion',
+    title: t('automation_rule_case_finished'),
+    description: proposalText(CASE_FINISHED_RULE.propose('expert_examination') as CaseProposal),
+  },
+  {
+    key: 'fees_open_finished',
+    kind: 'notice',
+    title: t('automation_rule_fees_open_finished'),
+    description: t('fees_open_finished_notice'),
+  },
+  {
+    key: CASE_FILL_RULE.key,
+    kind: 'suggestion',
+    title: t('automation_rule_case_fill'),
+    description: t('proposed_fill'),
   },
 ];

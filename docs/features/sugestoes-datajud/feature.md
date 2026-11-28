@@ -32,6 +32,7 @@ ela muda, com caminho direto para o serviço ou o lançamento, e o cadastro pode
 - Busca pelo número: `apps/api/src/modules/automation/` (`lookupCourtProcess`, rota `/automation/court-lookup`).
 - Botão de sugestão: `apps/web/src/components/suggestion-button.tsx` (usado em `expert-cases/details` e `finance/details`).
 - Detalhe do lançamento: `apps/web/src/routes/_private/finance/details/index.tsx`.
+- Busca no cadastro: `apps/web/src/routes/_private/expert-cases/@components/court-lookup-button.tsx`; lista do tribunal: `apps/web/src/routes/_private/expert-cases/details/@utils/court-movement-rows.ts`.
 - Client do Datajud: `packages/datajud/` (API e worker; fixtures reais em `packages/datajud/src/fixtures/`), com data de ajuizamento (`filedAt`) e assuntos (`subjects`) gravados no `CourtProcess`. O resto do mapa está em `.specs/features/sugestoes-datajud/design.md`.
 
 ## Como testar
@@ -40,12 +41,15 @@ A definir (task T11).
 
 ## Pendências
 
-- [ ] Tasks T8 a T11
+- [ ] T8 (botão "Abrir" nas notificações): escrito, aguarda a sessão das notificações commitar a tabela dela para entrar
+- [ ] T11: conferência no navegador e `validation.md`
 - [ ] Railway: pôr `DATAJUD_API_KEY` também no serviço da API (sem ela a busca pelo número responde `court_unavailable`) de `.specs/features/sugestoes-datajud/tasks.md`.
 - [ ] Antes do deploy, apagar de novo os dados do Datajud em produção (roadmap).
 
 ## Histórico
 
+- 2026-11-28 — T10: lista No tribunal sem ruído (`courtMovementRows`: sem Decurso de Prazo, Publicação e Disponibilização do mesmo minuto numa linha, mesmo documento do dia agrupado com a quantidade) e selo "Gera aviso ou sugestão" nos movimentos de regra; página Regras com cobrar, encerrar, arquivado com honorário em aberto e preencher.
+- 2026-11-28 — T9: "Buscar no tribunal" ao lado do número do processo no cadastro e na edição (`court-lookup-button.tsx`): preenche só os campos vazios (esfera, tribunal, vara, data de autuação, objeto) e avisa para conferir antes de salvar; sem o módulo, a oferta.
 - 2026-11-28 — T7: página de detalhe do lançamento (`/finance/details?id=`, `GET /finance/entries/:id`): tipo, categoria, serviço com link, valor, vencimento, recebido, saldo e os recebimentos; editar pelo diálogo de sempre; a sugestão de recebimento fica no saldo e no cabeçalho. A linha da lista do Financeiro passa a abrir o detalhe (o diálogo de edição saiu da linha).
 - 2026-11-28 — T6: botão de sugestão (`apps/web/src/components/suggestion-button.tsx`, borda animada roxa e rosa em `apps/web/src/index.css`, parada com "reduzir movimento") ao lado da situação, da fase e da vara no detalhe do serviço e no cabeçalho com o número de pendentes; só as que a pessoa pode decidir e que ainda cabem no serviço. Saiu a lista de sugestões da seção No tribunal (`SuggestionsList`). Divergência do design: no celular o botão do cabeçalho fica no próprio cabeçalho, não no menu "…".
 - 2026-11-28 — T5: `GET /automation/court-lookup?processNumber=` (módulo + `expert_cases` `view`): usa a cópia do dia do `CourtProcess` ou chama o Datajud uma vez (110 s, sem novas tentativas) e grava a cópia; devolve esfera, tribunal, vara, data de autuação e objeto (assuntos). Erros `court_process_not_found` (404) e `court_unavailable` (503). `DATAJUD_API_KEY` e `DATAJUD_BASE_URL` voltam à API.
