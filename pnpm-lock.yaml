@@ -295,6 +295,9 @@ importers:
       '@ethica/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@ethica/datajud':
+        specifier: workspace:*
+        version: link:../../packages/datajud
       '@ethica/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -323,6 +326,19 @@ importers:
       zod:
         specifier: ^4.5.4
         version: 4.6.7
+
+  packages/datajud:
+    dependencies:
+      '@ethica/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      prom-client:
+        specifier: 15.1.3
+        version: 15.1.3
+    devDependencies:
+      '@types/node':
+        specifier: 26.4.1
+        version: 26.4.1
 
   packages/db:
     dependencies:

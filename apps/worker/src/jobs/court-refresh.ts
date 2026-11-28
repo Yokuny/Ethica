@@ -6,8 +6,8 @@ import {
   proposalFits,
   type RuleMatch,
 } from '@ethica/contracts';
+import type { DatajudClient } from '@ethica/datajud';
 import { CaseCourtSync, CourtProcess, dateInDisplayTz, listTrackedCases, type TrackedCase } from '@ethica/db';
-import type { DatajudClient } from '../datajud/client.js';
 import { insertCaseNotice, insertCourtMovementNotice, insertSuggestion } from '../queue/notification-writes.js';
 import { enqueue } from '../queue/queue.js';
 
@@ -64,6 +64,8 @@ export const refreshCourtBatch = async (
         $set: {
           className: process.className,
           courtUnitName: process.courtUnitName,
+          filedAt: process.filedAt,
+          subjects: process.subjects,
           sourceUpdatedAt: process.sourceUpdatedAt ? new Date(process.sourceUpdatedAt) : undefined,
           movements: process.movements.map((movement) => ({ ...movement, at: new Date(movement.at) })),
           fetchedAt: now,

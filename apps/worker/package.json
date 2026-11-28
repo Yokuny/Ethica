@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@ethica/contracts": "workspace:*",
+    "@ethica/datajud": "workspace:*",
     "@ethica/db": "workspace:*",
     "@ethica/mail": "workspace:*",
     "prom-client": "15.1.3",

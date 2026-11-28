@@ -1,0 +1,14 @@
+{
+  "name": "@ethica/datajud",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@ethica/contracts": "workspace:*",
+    "prom-client": "15.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.1"
+  }
+}

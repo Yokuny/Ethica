@@ -1,9 +1,9 @@
 import type { Server } from 'node:http';
 import { pathToFileURL } from 'node:url';
+import { createDatajudClient, lookupEgressIp } from '@ethica/datajud';
 import { connect, disconnect, syncWorkerIndexes, WorkerHeartbeat } from '@ethica/db';
 import { createMailProvider } from '@ethica/mail';
 import { parseEnv } from './config/env.config.js';
-import { createDatajudClient, lookupEgressIp } from './datajud/client.js';
 import { startHealthServer } from './health.js';
 import { buildHandlers } from './jobs/index.js';
 import { createPushSender } from './push.js';

@@ -25,6 +25,7 @@ Vale para **toda** tarefa, em qualquer área. Não é uma tarefa de "simplificar
 | `apps/web` | Front (React 19, Vite 7, TanStack Router/Query, Tailwind 4, shadcn/Base UI, recharts) | `apps/web/CLAUDE.md` + skill `ethica-web-standards` |
 | `apps/worker` | Processo de rotinas: lembretes, e-mail diário e Datajud (AD-267, AD-277); não importa nada da API | — |
 | `packages/contracts` | Schemas Zod compartilhados entre API e web | — |
+| `packages/datajud` | Client da API Pública do Datajud (CNJ), usado pela API (busca na hora) e pelo worker (acompanhamento diário, AD-309) | — |
 | `packages/db` | Models Mongoose — único lugar que importa `mongoose` | — |
 | `packages/mail` | Provedores de e-mail (Resend, Nodemailer, log) usados pela API e pelo worker | — |
 | `packages/ui` | Componentes de UI compartilhados (primitivos shadcn/Base UI + `chart`) | `packages/ui/README.md` |

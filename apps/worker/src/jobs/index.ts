@@ -1,6 +1,6 @@
+import { type DatajudClient, lookupEgressIp } from '@ethica/datajud';
 import type { TrackedCase } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
-import { type DatajudClient, lookupEgressIp } from '../datajud/client.js';
 import type { PushSender } from '../push.js';
 import type { JobHandler } from '../queue/queue.js';
 import { enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';

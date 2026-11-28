@@ -11,6 +11,9 @@ export interface CourtProcessDocument {
   degree: string;
   className?: string;
   courtUnitName?: string;
+  // Filing day (calendar date) and the subjects of the process: fill the case by the number (SGD-06, SGD-07).
+  filedAt?: string;
+  subjects: string[];
   sourceUpdatedAt?: Date;
   movements: {
     key: string;
@@ -28,6 +31,8 @@ const courtProcessSchema = new Schema<CourtProcessDocument>({
   degree: { type: String, required: true },
   className: { type: String },
   courtUnitName: { type: String },
+  filedAt: { type: String },
+  subjects: { type: [String], default: [] },
   sourceUpdatedAt: { type: Date },
   movements: {
     type: [

@@ -3,13 +3,15 @@ import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { createDatajudClient, DatajudError, DatajudRetryableError, parseAnswer } from './client.js';
 
-// Real answers of the Datajud (2026-11-22): apps/worker/src/datajud/fixtures/.
+// Real answers of the Datajud (2026-11-22): packages/datajud/src/fixtures/.
 const fixture = (name: string) => JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures', name), 'utf8'));
 
 describe('parseAnswer (Datajud, AD-271)', () => {
   it('lê o processo real do TRT24: número com máscara, grau, movimentos com chave e complementos', () => {
     const [process] = parseAnswer('TRT24', fixture('trt24-process-alvara.json'));
-    expect(process).toMatchObject({ court: 'TRT24', degree: 'G1' });
+    expect(process).toMatchObject({ court: 'TRT24', degree: 'G1', filedAt: '2021-04-20' });
+    expect(process?.courtUnitName).toBe('VARA DO TRABALHO DE BATAGUASSU');
+    expect(process?.subjects).toEqual(['Contratuais', 'Reflexos', 'Redução/Supressão']);
     expect(process?.processNumber).toMatch(/^\d{7}-\d{2}\.\d{4}\.5\.24\.\d{4}$/);
     const alvara = process?.movements.find((movement) => movement.complements.some((item) => item.value === 73));
     expect(alvara).toMatchObject({ code: 60, name: 'Expedição de documento' });

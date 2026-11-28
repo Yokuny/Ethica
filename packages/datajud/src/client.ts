@@ -15,6 +15,10 @@ export type CourtProcessData = {
   degree: string;
   className?: string;
   courtUnitName?: string;
+  // Filing day as the court writes it (`dataAjuizamento` 20251106173840 → 2025-11-06, no time zone) and the names
+  // of the subjects (`assuntos`): they fill the case by the number (SGD-06, SGD-07).
+  filedAt?: string;
+  subjects: string[];
   sourceUpdatedAt?: string;
   movements: CourtMovement[];
 };
@@ -26,6 +30,8 @@ type Source = {
   nivelSigilo?: number;
   classe?: { nome?: string };
   orgaoJulgador?: { nome?: string };
+  dataAjuizamento?: string;
+  assuntos?: { nome?: string }[];
   dataHoraUltimaAtualizacao?: string;
   movimentos?: { codigo?: number; nome?: string; dataHora?: string; complementosTabelados?: Complement[] }[];
 };
@@ -43,6 +49,12 @@ const movementKey = (code: number, at: string, complements: Complement[]): strin
     .digest('hex')
     .slice(0, 16);
 
+// `dataAjuizamento` comes as 20251106173840 or as an ISO instant; the day as the court wrote it.
+const filingDay = (value?: string): string | undefined => {
+  const digits = value?.replace(/\D/g, '') ?? '';
+  return digits.length >= 8 ? `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}` : undefined;
+};
+
 // A secret process (`nivelSigilo > 0`) is dropped here and never saved nor logged.
 export const parseAnswer = (court: string, answer: Answer): CourtProcessData[] => {
   if ((answer._shards?.failed ?? 0) > 0) throw new DatajudRetryableError(`resposta parcial do ${court}`);
@@ -55,6 +67,8 @@ export const parseAnswer = (court: string, answer: Answer): CourtProcessData[] =
         degree: source.grau ?? 'G1',
         className: source.classe?.nome,
         courtUnitName: source.orgaoJulgador?.nome,
+        filedAt: filingDay(source.dataAjuizamento),
+        subjects: (source.assuntos ?? []).flatMap((item) => (item.nome?.trim() ? [item.nome.trim()] : [])),
         sourceUpdatedAt: source.dataHoraUltimaAtualizacao,
         movements: (source.movimentos ?? []).flatMap((movement) => {
           if (movement.codigo === undefined || !movement.dataHora) return [];

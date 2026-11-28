@@ -25,7 +25,7 @@ spec: [.specs/features/automacao-datajud]
 - **Acompanhamento no tribunal** (Fase 4, perícias trabalhistas e federais): uma vez por dia o worker consulta no Datajud os processos dos escritórios com o módulo. A primeira vez só registra o que viu; depois, toda movimentação nova vira um aviso "Movimentação nova no tribunal" no sino, com link para o serviço. A seção **No tribunal** do serviço mostra os movimentos mais recentes; sem o módulo, a oferta.
 - **Planos com Automação** (Fase 3): Mensal + Automação (R$ 80/mês) e Anual + Automação (R$ 816/ano) na mesma assinatura do Asaas; o pagamento libera o acesso e o módulo juntos. Quem já tem acesso assina por "Ver planos" na página Notificações ou na Automação Datajud (`/billing?upgrade=true`, só o admin; AD-282).
 - Faltando 7 dias para o módulo vencer, aviso no sino e e-mail na hora a quem vê o Financeiro.
-- Fase 0: consultas reais ao Datajud e fixtures (`apps/worker/src/datajud/fixtures/`); spec, design e tasks; AD-268 a AD-271.
+- Fase 0: consultas reais ao Datajud e fixtures (`packages/datajud/src/fixtures/`); spec, design e tasks; AD-268 a AD-271.
 
 ## Por que
 
@@ -38,7 +38,7 @@ A perita descobre tarde que o processo foi suspenso, acabou em acordo ou teve al
 - `apps/worker/src/jobs/reminders-sweep.ts` — aviso `automation_expiring`.
 - `apps/web/src/routes/_public/billing/` (modo upgrade) e `apps/web/src/routes/_private/notifications/@components/automation-offer.tsx`.
 
-- `apps/worker/src/datajud/client.ts` (cliente, fixtures reais ao lado), `apps/worker/src/jobs/court-refresh.ts`; `packages/db/src/models/{court-process,case-court-sync}.model.ts`.
+- `packages/datajud/src/client.ts` (cliente, fixtures reais ao lado; era `apps/worker/src/datajud/`, AD-309), `apps/worker/src/jobs/court-refresh.ts`; `packages/db/src/models/{court-process,case-court-sync}.model.ts`.
 - Diagnóstico das falhas (AD-287): cada chamada ao Datajud escreve `datajud.request` no log do worker (resultado, tempo, ritmo, cabeçalhos, carga do Elasticsearch, encontrados e faltantes) e alimenta `datajud_requests_total` e `datajud_request_duration_seconds` no `/metrics`; `worker.court_refresh` traz o IP público do dia; `worker.job_failed` traz o lote (`dedupeKey`), a tentativa e o `retryAt`. Campos, hipóteses e soluções: `.specs/features/automacao-datajud/plans/2026-11-24-diagnostico-falhas-datajud.md`.
 - `apps/api/src/modules/automation/` — `GET /automation/cases` (processos acompanhados) e `GET /automation/cases/:id/court-process`, com `requireAutomation`.
 - `apps/web/src/routes/_private/automation/` (página; regras em `rules/`, com `rules/@utils/rule-items.ts`).

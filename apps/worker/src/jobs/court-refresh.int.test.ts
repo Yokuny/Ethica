@@ -1,3 +1,4 @@
+import type { CourtProcessData, DatajudClient } from '@ethica/datajud';
 import {
   Case,
   CaseCourtSync,
@@ -10,7 +11,6 @@ import {
   WorkerJob,
 } from '@ethica/db';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import type { CourtProcessData, DatajudClient } from '../datajud/client.js';
 import { BATCH_MAX_ATTEMPTS, enqueueCourtRefresh, refreshCourtBatch } from './court-refresh.js';
 import { expireSuggestions } from './suggestions-expire.js';
 
@@ -28,6 +28,7 @@ const courtProcess = (movements: CourtProcessData['movements']): CourtProcessDat
   court: 'TRT24',
   processNumber: NUMBER,
   degree: 'G1',
+  subjects: [],
   className: 'Ação Trabalhista',
   movements,
 });
