@@ -46,6 +46,7 @@ Testes listados em `.specs/features/sugestoes-datajud/validation.md`. Na tela: u
 
 ## Histórico
 
+- 2026-11-28 — Data de autuação no formulário do serviço e no grupo Juízo do detalhe, com a sugestão de preenchimento ao lado de cada campo vazio que ela preenche (antes a busca e a sugestão gravavam a data sem a pessoa ver). Conferidos na tela o recebimento aprovado pelo popover do lançamento e a busca real no Datajud (429 do CNJ → 503 `court_unavailable`).
 - 2026-11-28 — T8 e T11: ícone "Abrir lançamento"/"Abrir serviço" nas notificações do tribunal (entrou no commit da sessão `notificacoes-processo-unico`, 470c67f); conferência na tela local (`validation.md`), que corrigiu a página de notificações em branco (`nativeButton={false}` no link) e o botão de busca espremendo o número (virou ícone com dica).
 - 2026-11-28 — T10: lista No tribunal sem ruído (`courtMovementRows`: sem Decurso de Prazo, Publicação e Disponibilização do mesmo minuto numa linha, mesmo documento do dia agrupado com a quantidade) e selo "Gera aviso ou sugestão" nos movimentos de regra; página Regras com cobrar, encerrar, arquivado com honorário em aberto e preencher.
 - 2026-11-28 — T9: "Buscar no tribunal" ao lado do número do processo no cadastro e na edição (`court-lookup-button.tsx`): preenche só os campos vazios (esfera, tribunal, vara, data de autuação, objeto) e avisa para conferir antes de salvar; sem o módulo, a oferta.

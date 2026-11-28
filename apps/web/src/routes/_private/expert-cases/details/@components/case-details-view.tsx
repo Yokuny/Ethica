@@ -45,6 +45,16 @@ export function CaseDetailsView({
 }) {
   // SGD-01: each suggestion beside the data it changes.
   const fill = suggestionsFor(suggestions, 'case_fill');
+  // The filling suggestion beside each empty field it fills.
+  const withFill = (field: 'division' | 'docketingDate', value?: ReactNode) =>
+    fill.some((item) => item.proposal?.target === 'case_fill' && item.proposal[field]) ? (
+      <span className="flex flex-wrap items-center gap-2">
+        {value}
+        <SuggestionButton suggestions={fill} />
+      </span>
+    ) : (
+      value
+    );
   const own = usesContractor(legalCase);
   const client = legalCase.contractor?.name ?? legalCase.parties.find((party) => party.client)?.name;
   const { contractor } = legalCase;
@@ -94,18 +104,9 @@ export function CaseDetailsView({
             { label: t('service_type'), value: serviceTypeLabel(legalCase.serviceType) },
             { label: t('sphere'), value: legalCase.courtType && courtTypeLabel(legalCase.courtType) },
             { label: t('court'), value: legalCase.court },
-            {
-              label: t('court_division'),
-              value: fill.length ? (
-                <span className="flex flex-wrap items-center gap-2">
-                  {legalCase.division}
-                  <SuggestionButton suggestions={fill} />
-                </span>
-              ) : (
-                legalCase.division
-              ),
-            },
+            { label: t('court_division'), value: withFill('division', legalCase.division) },
             { label: t('judicial_district'), value: legalCase.district },
+            { label: t('lawsuit_filing_date'), value: withFill('docketingDate', day(legalCase.docketingDate)) },
           ],
         },
     ...(own

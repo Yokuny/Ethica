@@ -25,10 +25,14 @@ Serviço de teste com a cópia do processo e quatro sugestões gravadas à mão 
 - Notificações: ícones "Abrir lançamento" (recebimento, cobrança) e "Abrir serviço" (situação, fase, preenchimento) com o link certo; o de recebimento abriu o detalhe do lançamento com valor, vencimento, recebido, saldo, "Sugestão" ao lado do saldo e "1 Sugestão" no cabeçalho.
 - Cadastro: com o número 0002345-67.2026.5.02.0011, o ícone de busca preencheu tribunal TRT2, vara "11ª Vara do Trabalho de São Paulo" (vinda em maiúsculas) e objeto, com o aviso de conferir antes de salvar.
 
-Achados corrigidos na conferência: o "Abrir" da notificação deixava a página em branco (link dentro de botão do Base UI sem `nativeButton={false}`); o botão de busca com texto espremia o campo do número (virou ícone com dica).
+- Detalhe do lançamento: "Sugestão" ao lado do saldo → Aprovar abriu o diálogo de recebimento com o valor e a data do movimento; confirmar gravou o recebimento, o lançamento ficou Liquidado e a sugestão saiu.
+- Busca real no Datajud pela API (TRT16, número sem cópia do dia): o CNJ respondeu 429 em 0,3 s (fila do Elasticsearch cheia, como na AD-287) e a API devolveu 503 `court_unavailable`.
+- Imagens de produção da API (`Dockerfile`) e do worker (`Dockerfile.worker`) construídas, importando `@ethica/datajud`.
+
+Achados corrigidos na conferência: o "Abrir" da notificação deixava a página em branco (link dentro de botão do Base UI sem `nativeButton={false}`); o botão de busca com texto espremia o campo do número (virou ícone com dica); a data de autuação era preenchida sem aparecer na tela (entrou no formulário e no grupo Juízo, com a sugestão ao lado).
 
 ## Não conferido
 
-- Busca na hora contra o Datajud real (só a cópia do dia e o Datajud falso dos testes); o tempo de até 110 s depende do proxy da Railway.
+- Busca na hora com sucesso contra o Datajud real (o CNJ recusou na conferência); o tempo de até 110 s depende do proxy da Railway.
 - Rodada real do worker com as regras novas: em produção a primeira rodada depois da limpeza só grava a linha de base.
 - Celular.

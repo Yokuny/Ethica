@@ -194,6 +194,13 @@ export function CaseFormFields({
                 label={t('judicial_district')}
                 placeholder={t('example_judicial_district')}
               />
+              {/* Filled by the court too (SGD-06, SGD-07); the report marker [dataAutuacao] reads it. */}
+              <DateField
+                control={control}
+                name="docketingDate"
+                label={t('lawsuit_filing_date')}
+                placeholder={t('choose_day')}
+              />
             </div>,
           ],
         },
