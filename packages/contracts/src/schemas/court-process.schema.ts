@@ -69,15 +69,23 @@ export type CourtLookup = {
 };
 
 // A case the automation follows (the Automação page, PAC-02): waiting for the first successful query, queried and
-// not found in court, or synced; `syncedAt` is the last successful query (absent while waiting).
-export type TrackedCaseStatus = 'waiting' | 'not_found' | 'synced';
+// not found in court, synced, or stale (the last successful query is older than 3 days). `syncedAt` is the last
+// successful query (absent while waiting); `lastMovement*` the newest movement of the process (PAT-03).
+export const TRACKED_CASE_STATUSES = ['synced', 'not_found', 'stale', 'waiting'] as const;
+export type TrackedCaseStatus = (typeof TRACKED_CASE_STATUSES)[number];
 export type TrackedCase = {
   caseId: string;
   caseLabel: string;
   court: string;
   status: TrackedCaseStatus;
   syncedAt?: string;
+  lastMovementAt?: string;
+  lastMovementName?: string;
 };
+// The list of the Automação page (PAT-03): by the newest movement by default, sortable by these columns (AD-192).
+export const TRACKED_CASE_SORTS = ['lastMovementAt', 'syncedAt', 'caseLabel'] as const;
+export type TrackedCaseSort = (typeof TRACKED_CASE_SORTS)[number];
+export type TrackedCasesList = { items: TrackedCase[]; total: number };
 
 // What happened to a suggestion of the automation (the Automação panel, PAT-05).
 export type SuggestionOutcome = 'accepted' | 'rejected' | 'expired' | 'superseded' | 'pending';

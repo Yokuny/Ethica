@@ -4,6 +4,7 @@ import {
   hasPermission,
   isTrackedNumber,
   type Permissions,
+  type TrackedCaseStatus,
 } from '@ethica/contracts';
 import { dateInDisplayTz, shiftMonth, wallClockToUtc } from '@ethica/db';
 import { CustomError } from '../../middlewares/error-handler.middleware.js';
@@ -15,7 +16,9 @@ import type {
   CourtLookup,
   CourtProcessView,
   DatajudClient,
+  ListTrackedCasesQuery,
   TrackedCase,
+  TrackedCasesList,
 } from './automation.schema.js';
 
 // Automação Datajud (AD-268 to AD-271): the BFF reads what the worker brought from the court; the live lookup by
@@ -29,10 +32,16 @@ export const getCaseCourtProcess = async (tenantId: string, caseId: string): Pro
   return automationRepository.findCourtProcess(unit.court, legalCase.processNumber);
 };
 
+// A successful query older than this reads as "no answer from the court" (a weekend with a failed day still fits).
+const STALE_MS = 3 * 86_400_000;
+// Without a movement to sort by, what needs a look first.
+const ATTENTION: Record<TrackedCaseStatus, number> = { not_found: 0, stale: 0, waiting: 1, synced: 2 };
+
 // Every case the worker follows (PAC-01), with what the court answered (PAC-02): no record = waiting for the first
-// query; a record without baseline = not found in court. A case closed or canceled is not followed, so not listed.
-export const listTrackedCases = async (tenantId: string): Promise<TrackedCase[]> => {
-  const tracked = await caseService.listTrackedCasesOf(tenantId);
+// query; a record without baseline = not found in court; an old last query = stale. A case closed or canceled is not
+// followed, so not listed.
+const trackedCasesOf = async (tenantId: string, now: Date): Promise<TrackedCase[]> => {
+  const tracked = await caseService.listTrackedCasesOf(tenantId, now);
   const syncs = await automationRepository.findCourtSyncs(
     tenantId,
     tracked.map((item) => item.caseId),
@@ -41,8 +50,36 @@ export const listTrackedCases = async (tenantId: string): Promise<TrackedCase[]>
     const sync = syncs.get(item.caseId);
     const base = { caseId: item.caseId, caseLabel: item.processNumber, court: item.court };
     if (!sync) return { ...base, status: 'waiting' };
-    return { ...base, status: sync.found ? 'synced' : 'not_found', syncedAt: sync.syncedAt };
+    const { found, ...rest } = sync;
+    const stale = now.getTime() - new Date(sync.syncedAt).getTime() > STALE_MS;
+    return { ...base, ...rest, status: stale ? 'stale' : found ? 'synced' : 'not_found' };
   });
+};
+
+// The list of the Automação page (PAT-03), filtered, sorted and paginated here: an office follows hundreds of cases
+// at most, and who is followed is a rule on the number (`courtUnitFromNumber`), not a query. A case without the
+// sorted value goes last, by attention; the case id breaks every tie so the pages are stable.
+export const listTrackedCases = async (
+  tenantId: string,
+  query: ListTrackedCasesQuery,
+  now = new Date(),
+): Promise<TrackedCasesList> => {
+  const digits = query.q?.replace(/\D/g, '');
+  const order = query.order === 'asc' ? 1 : -1;
+  const value = (item: TrackedCase) => item[query.sort] ?? '';
+  const items = (await trackedCasesOf(tenantId, now))
+    .filter((item) => !digits || item.caseLabel.replace(/\D/g, '').includes(digits))
+    .filter((item) => !query.state || query.state.includes(item.status))
+    .sort((a, b) => {
+      const [left, right] = [value(a), value(b)];
+      if (!left || !right) {
+        if (left || right) return left ? -1 : 1;
+        return ATTENTION[a.status] - ATTENTION[b.status] || a.caseId.localeCompare(b.caseId);
+      }
+      return order * left.localeCompare(right) || a.caseId.localeCompare(b.caseId);
+    });
+  const start = (query.page - 1) * query.limit;
+  return { items: items.slice(start, start + query.limit), total: items.length };
 };
 
 const sum = <T>(rows: T[], value: (row: T) => number) => rows.reduce((total, row) => total + value(row), 0);
@@ -58,12 +95,12 @@ export const automationDashboard = async (
   const current = dateInDisplayTz(now).slice(0, 7);
   const months = Array.from({ length: 25 }, (_, index) => shiftMonth(current, index - 24));
   const [tracked, days, suggestions] = await Promise.all([
-    listTrackedCases(tenantId),
+    trackedCasesOf(tenantId, now),
     automationRepository.findSyncDays(tenantId, `${months[0]}-01`),
     notificationService.suggestionActivity(tenantId, permissions, wallClockToUtc(`${months[0]}-01`, '00:00')),
   ]);
   const seesFinance = hasPermission(permissions, 'finance', 'view');
-  const byState = { waiting: 0, not_found: 0, synced: 0 };
+  const byState: Record<TrackedCaseStatus, number> = { synced: 0, not_found: 0, stale: 0, waiting: 0 };
   for (const item of tracked) byState[item.status] += 1;
   return {
     since: days[0]?.day,

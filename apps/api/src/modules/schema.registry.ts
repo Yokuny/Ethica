@@ -13,7 +13,11 @@ import {
   inspectionPeriodQuerySchema,
   mediaUploadQuerySchema,
 } from './agenda/inspection.schema.js';
-import { automationCaseParamSchema, courtLookupQuerySchema } from './automation/automation.schema.js';
+import {
+  automationCaseParamSchema,
+  courtLookupQuerySchema,
+  listTrackedCasesQuerySchema,
+} from './automation/automation.schema.js';
 import {
   attachmentIdParamSchema,
   attachmentUploadQuerySchema,
@@ -111,6 +115,7 @@ export const apiSchemaRegistry: ReadonlyArray<{ name: string; schema: ZodType }>
   { name: 'acceptSuggestionSchema', schema: acceptSuggestionSchema },
   { name: 'automationCaseParamSchema', schema: automationCaseParamSchema },
   { name: 'courtLookupQuerySchema', schema: courtLookupQuerySchema },
+  { name: 'listTrackedCasesQuerySchema', schema: listTrackedCasesQuerySchema },
   { name: 'appointmentIdParamSchema', schema: appointmentIdParamSchema },
   { name: 'listAppointmentsQuerySchema', schema: listAppointmentsQuerySchema },
   { name: 'upcomingAppointmentsQuerySchema', schema: upcomingAppointmentsQuerySchema },

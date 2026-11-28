@@ -3,7 +3,12 @@ import { can } from '../../middlewares/authorization.middleware.js';
 import { tenantAssignmentCheck } from '../../middlewares/tenant-assign.middleware.js';
 import { validParams, validParsedQuery } from '../../middlewares/validation.middleware.js';
 import * as automationController from './automation.controller.js';
-import { type AutomationRouterDeps, automationCaseParamSchema, courtLookupQuerySchema } from './automation.schema.js';
+import {
+  type AutomationRouterDeps,
+  automationCaseParamSchema,
+  courtLookupQuerySchema,
+  listTrackedCasesQuerySchema,
+} from './automation.schema.js';
 
 // Automação Datajud (premium, AD-270): every route needs the module (403 `automation_required`).
 export const createAutomationRouter = (deps: AutomationRouterDeps): Router => {
@@ -11,7 +16,13 @@ export const createAutomationRouter = (deps: AutomationRouterDeps): Router => {
   const guard = [deps.validToken, tenantAssignmentCheck, automationController.requireAutomation];
 
   router.get('/dashboard', ...guard, can('expert_cases', 'view'), automationController.automationDashboard);
-  router.get('/cases', ...guard, can('expert_cases', 'view'), automationController.listTrackedCases);
+  router.get(
+    '/cases',
+    ...guard,
+    can('expert_cases', 'view'),
+    validParsedQuery(listTrackedCasesQuerySchema),
+    automationController.listTrackedCases,
+  );
   router.get(
     '/cases/:id/court-process',
     ...guard,

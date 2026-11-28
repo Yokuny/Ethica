@@ -9,6 +9,8 @@ import { notificationsQuery } from '../../../../../query/notification.js';
 import { sessionQuery } from '../../../../../query/session.js';
 import { CaseCourt } from './case-court.js';
 
+const NUMBER = '0017068-93.2025.5.16.0008';
+
 const renderCourt = (tracked: TrackedCase[]) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   queryClient.setQueryData(sessionQuery.queryKey, {
@@ -23,14 +25,17 @@ const renderCourt = (tracked: TrackedCase[]) => {
     permissions: effectivePermissions(['admin']),
   });
   queryClient.setQueryData(courtProcessQuery('c1').queryKey, null);
-  queryClient.setQueryData(trackedCasesQuery.queryKey, tracked);
+  queryClient.setQueryData(trackedCasesQuery({ q: NUMBER, limit: 5 }).queryKey, {
+    items: tracked,
+    total: tracked.length,
+  });
   queryClient.setQueryData(
     notificationsQuery({ caseId: 'c1', kind: ['suggestion'], state: 'open', limit: 100 }).queryKey,
     { items: [], total: 0 } as never,
   );
   render(
     <QueryClientProvider client={queryClient}>
-      <CaseCourt caseId="c1" />
+      <CaseCourt caseId="c1" processNumber={NUMBER} />
     </QueryClientProvider>,
   );
 };

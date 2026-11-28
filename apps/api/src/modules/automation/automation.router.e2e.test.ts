@@ -109,7 +109,7 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
     expect((await other.as(request(app).get(path))).status).toBe(404);
   });
 
-  it('lista todo processo acompanhado com a situação; encerrado e cancelado ficam fora (PAC-01, PAC-02)', async () => {
+  it('lista paginada de todo processo acompanhado com a situação, pela última movimentação (PAC-01, PAC-02, PAT-03)', async () => {
     const { as, tenant } = await seedSession();
     const create = async (processNumber: string) =>
       (
@@ -122,54 +122,82 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
         })
       ).body.data as { id: string };
     const synced = await create(NUMBER);
+    const older = await create('0000013-00.2026.5.24.0001');
     const notFound = await create('0017068-93.2025.5.16.0008');
+    const stale = await create('0000014-00.2026.5.24.0001');
     const waiting = await create('0000010-00.2026.5.24.0001');
     const closed = await create('0000011-00.2026.5.24.0001');
     const canceled = await create('0000012-00.2026.5.24.0001');
     await Case.updateOne({ _id: closed.id }, { phase: 'settlement' });
     await Case.updateOne({ _id: canceled.id }, { status: 'canceled' });
-    const syncedAt = new Date('2026-11-20T06:00:00Z');
-    const queriedAt = new Date('2026-11-23T06:00:00Z');
+    const day = 86_400_000;
+    const yesterday = new Date(Date.now() - day);
+    const lastWeek = new Date(Date.now() - 7 * day);
+    const sync = (legalCase: { id: string }, processNumber: string, extra: object) => ({
+      Tenant: tenant._id,
+      Case: legalCase.id,
+      court: 'TRT24',
+      processNumber,
+      syncedAt: yesterday,
+      ...extra,
+    });
     await CaseCourtSync.create([
-      { Tenant: tenant._id, Case: synced.id, court: 'TRT24', processNumber: NUMBER, baselineAt: syncedAt, syncedAt },
-      {
-        Tenant: tenant._id,
-        Case: notFound.id,
-        court: 'TRT16',
-        processNumber: '0017068-93.2025.5.16.0008',
-        syncedAt: queriedAt,
-      },
-      {
-        Tenant: tenant._id,
-        Case: closed.id,
-        court: 'TRT24',
-        processNumber: '0000011-00.2026.5.24.0001',
-        baselineAt: syncedAt,
-        syncedAt,
-      },
+      sync(synced, NUMBER, {
+        baselineAt: lastWeek,
+        lastMovementAt: new Date('2026-11-20T10:00:00Z'),
+        lastMovementName: 'Alvará',
+      }),
+      sync(older, '0000013-00.2026.5.24.0001', {
+        baselineAt: lastWeek,
+        lastMovementAt: new Date('2026-10-01T10:00:00Z'),
+        lastMovementName: 'Conclusão',
+      }),
+      sync(notFound, '0017068-93.2025.5.16.0008', { court: 'TRT16' }),
+      sync(stale, '0000014-00.2026.5.24.0001', { baselineAt: lastWeek, syncedAt: lastWeek }),
+      sync(closed, '0000011-00.2026.5.24.0001', { baselineAt: lastWeek }),
     ]);
 
     expect((await as(request(app).get('/automation/cases'))).status).toBe(403);
 
     await Tenant.updateOne({ _id: tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
-    const list = (await as(request(app).get('/automation/cases'))).body.data as { caseId: string }[];
-    expect(list.sort((a, b) => a.caseId.localeCompare(b.caseId))).toEqual(
-      [
-        { caseId: synced.id, caseLabel: NUMBER, court: 'TRT24', status: 'synced', syncedAt: syncedAt.toISOString() },
-        {
-          caseId: notFound.id,
-          caseLabel: '0017068-93.2025.5.16.0008',
-          court: 'TRT16',
-          status: 'not_found',
-          syncedAt: queriedAt.toISOString(),
-        },
-        { caseId: waiting.id, caseLabel: '0000010-00.2026.5.24.0001', court: 'TRT24', status: 'waiting' },
-      ].sort((a, b) => a.caseId.localeCompare(b.caseId)),
-    );
+    const list = (await as(request(app).get('/automation/cases'))).body.data;
+    expect(list.total).toBe(5);
+    // Newest movement first; without one, what needs a look (not found, stale) before the waiting one.
+    expect(list.items.map((item: { caseId: string }) => item.caseId)).toEqual([
+      synced.id,
+      older.id,
+      ...[notFound.id, stale.id].sort(),
+      waiting.id,
+    ]);
+    expect(list.items[0]).toEqual({
+      caseId: synced.id,
+      caseLabel: NUMBER,
+      court: 'TRT24',
+      status: 'synced',
+      syncedAt: yesterday.toISOString(),
+      lastMovementAt: '2026-11-20T10:00:00.000Z',
+      lastMovementName: 'Alvará',
+    });
+    expect(list.items.find((item: { caseId: string }) => item.caseId === stale.id).status).toBe('stale');
+    expect(list.items.find((item: { caseId: string }) => item.caseId === notFound.id)).toMatchObject({
+      court: 'TRT16',
+      status: 'not_found',
+    });
+
+    const page = (await as(request(app).get('/automation/cases?limit=2&page=2'))).body.data;
+    expect(page.total).toBe(5);
+    expect(page.items).toHaveLength(2);
+    const filtered = (await as(request(app).get('/automation/cases?state=not_found&state=stale'))).body.data;
+    expect(filtered.items.map((item: { status: string }) => item.status).sort()).toEqual(['not_found', 'stale']);
+    const found = (await as(request(app).get('/automation/cases?q=0017068'))).body.data;
+    expect(found.items.map((item: { caseId: string }) => item.caseId)).toEqual([notFound.id]);
+    const byLabel = (await as(request(app).get('/automation/cases?sort=caseLabel&order=asc'))).body.data;
+    expect(byLabel.items[0].caseLabel).toBe('0000010-00.2026.5.24.0001');
+    expect((await as(request(app).get('/automation/cases?sort=nope'))).status).toBe(400);
 
     const other = await seedSession();
     await Tenant.updateOne({ _id: other.tenant._id }, { automationUntil: new Date(Date.now() + 86_400_000) });
-    expect((await other.as(request(app).get('/automation/cases'))).body.data).toEqual([]);
+    expect((await other.as(request(app).get('/automation/cases'))).body.data).toEqual({ items: [], total: 0 });
   });
 
   describe('buscar no tribunal pelo número, na hora (SGD-06)', () => {
@@ -283,7 +311,7 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
     const full = (await admin.as(request(app).get('/automation/dashboard'))).body.data;
     expect(full.byMonth).toHaveLength(25);
     expect(full.since).toBe(`${previous}-10`);
-    expect(full.tracked).toEqual({ total: 1, byState: { waiting: 1, not_found: 0, synced: 0 } });
+    expect(full.tracked).toEqual({ total: 1, byState: { synced: 0, not_found: 0, stale: 0, waiting: 1 } });
     expect(full.pending).toBe(2);
     expect(full.byMonth.at(-2)).toMatchObject({
       month: previous,

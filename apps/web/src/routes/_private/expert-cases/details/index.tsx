@@ -95,7 +95,10 @@ export function CaseDetailsPage() {
             <CaseNotifications caseId={legalCase.id} />
             {/* Only courts the automation follows today (TRT and TRF, AD-277). */}
             {(legalCase.serviceType === 'expert_examination' || legalCase.serviceType === 'technical_assistance') &&
-              isTrackedNumber(legalCase.processNumber) && <CaseCourt caseId={legalCase.id} />}
+              legalCase.processNumber &&
+              isTrackedNumber(legalCase.processNumber) && (
+                <CaseCourt caseId={legalCase.id} processNumber={legalCase.processNumber} />
+              )}
             <CaseInspections caseId={legalCase.id} />
             <CaseReports legalCase={legalCase} />
             <CaseMovements legalCase={legalCase} />

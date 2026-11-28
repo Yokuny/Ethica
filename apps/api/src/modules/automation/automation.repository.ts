@@ -26,18 +26,24 @@ export const findCourtProcess = async (court: string, processNumber: string) =>
     };
   });
 
-// What the worker recorded of each case (PAC-02): the last successful query and, if the court brought it, the
-// baseline. One query for the whole list.
+// What the worker recorded of each case (PAC-02): the last successful query, whether the court brought the process
+// (baseline) and its newest movement. One query for the whole list.
 export const findCourtSyncs = async (tenantId: string, caseIds: string[]) =>
   withDbTiming('automation.findCourtSyncs', async () => {
-    if (caseIds.length === 0) return new Map<string, { found: boolean; syncedAt: string }>();
+    type Sync = { found: boolean; syncedAt: string; lastMovementAt?: string; lastMovementName?: string };
+    if (caseIds.length === 0) return new Map<string, Sync>();
     const docs = await CaseCourtSync.find(tenantScoped({ Tenant: tenantId, Case: { $in: caseIds } }))
-      .select('Case baselineAt syncedAt')
+      .select('Case baselineAt syncedAt lastMovementAt lastMovementName')
       .lean();
     return new Map(
-      docs.map((doc) => [
+      docs.map((doc): [string, Sync] => [
         doc.Case.toString(),
-        { found: Boolean(doc.baselineAt), syncedAt: doc.syncedAt.toISOString() },
+        {
+          found: Boolean(doc.baselineAt),
+          syncedAt: doc.syncedAt.toISOString(),
+          ...(doc.lastMovementAt ? { lastMovementAt: doc.lastMovementAt.toISOString() } : {}),
+          ...(doc.lastMovementName ? { lastMovementName: doc.lastMovementName } : {}),
+        },
       ]),
     );
   });

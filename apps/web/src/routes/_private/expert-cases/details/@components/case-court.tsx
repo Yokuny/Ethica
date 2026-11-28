@@ -14,7 +14,7 @@ import { AutomationOffer } from '@/components/automation-offer.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Panel } from '@/components/panel.js';
-import { trackedCaseDescription, trackedCaseLabel, trackedCaseState } from '@/components/tracked-case-labels.js';
+import { trackedCaseDescription, trackedCaseLabel } from '@/components/tracked-case-labels.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { courtProcessQuery, trackedCasesQuery } from '@/query/automation.js';
@@ -27,16 +27,18 @@ const SHOWN = 30;
 // "No tribunal" (ADT-02): the process in court as the Datajud tells it, newest first. Without the module, the
 // offer (AD-276). Before the first movements, the same situation as the Automação page (PAC-02). Only read:
 // nothing here changes the case (AD-268).
-export function CaseCourt({ caseId }: { caseId: string }) {
+export function CaseCourt({ caseId, processNumber }: { caseId: string; processNumber: string }) {
   const session = useQuery(sessionQuery).data;
   const active = Boolean(session && hasAutomationSession(session));
   const query = useQuery({ ...courtProcessQuery(caseId), enabled: active });
   const courtProcess = query.data;
-  const tracked = useQuery({ ...trackedCasesQuery, enabled: active && query.isSuccess && !courtProcess }).data?.find(
-    (item) => item.caseId === caseId,
-  );
+  // The situation of this case, searched by its number in the list of the Automação page.
+  const tracked = useQuery({
+    ...trackedCasesQuery({ q: processNumber, limit: 5 }),
+    enabled: active && query.isSuccess && !courtProcess,
+  }).data?.items.find((item) => item.caseId === caseId);
   // A case not (or not yet) in the list reads as waiting, as before.
-  const state = tracked ? trackedCaseState(tracked) : 'waiting';
+  const situation = tracked ?? { status: 'waiting' as const };
 
   return (
     <Panel
@@ -60,7 +62,7 @@ export function CaseCourt({ caseId }: { caseId: string }) {
       ) : query.isLoading ? (
         <DefaultLoading />
       ) : !courtProcess ? (
-        <DefaultEmptyData title={trackedCaseLabel(state)} description={trackedCaseDescription(tracked ?? {}, state)} />
+        <DefaultEmptyData title={trackedCaseLabel(situation.status)} description={trackedCaseDescription(situation)} />
       ) : (
         <ItemGroup>
           {courtMovementRows(courtProcess.movements)

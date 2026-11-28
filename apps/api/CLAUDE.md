@@ -88,7 +88,7 @@ Grafo atual: `agenda`, `finance`, `notifications` e `automation` → `case`; `no
 | `agenda` | `Appointment Inspection` (AD-130) `CalendarEntry` (itens de dia inteiro vindos de outros módulos, AD-169) |
 | `finance` | `Transaction` |
 | `documents` | `Report Template` (AD-126) `Signatory` (responsável técnico, AD-162) |
-| `automation` | `CourtProcess CaseCourtSync` (o `apps/worker` grava, AD-277; a busca pelo número grava só a cópia do `CourtProcess`, AD-304) |
+| `automation` | `CourtProcess CaseCourtSync CourtSyncDay` (o `apps/worker` grava, AD-277, e o dia do acompanhamento, `painel-automacao`; a busca pelo número grava só a cópia do `CourtProcess`, AD-304) |
 | `notifications` | `Notification` (AD-263); o `case` lê o próximo prazo e os números da faixa pelas funções de leitura do `@ethica/db` (`notificationReads.ts`, AD-265) |
 
 Helpers sem dono (`tenantScoped`, `hashToken`, datas, tipos) podem ser importados por qualquer módulo — a tabela só restringe **models e transições de negócio**. A tabela vive de verdade em `tests/structural/module-boundary.structural.test.ts`(`DB_OWNERSHIP`) — atualizar os dois lugares (aqui e lá) ao mudar o dono de algo.
