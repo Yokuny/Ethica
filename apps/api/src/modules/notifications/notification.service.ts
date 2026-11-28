@@ -16,9 +16,9 @@ import { dateInDisplayTz } from '@ethica/db';
 import { domainEventBus } from '../../events/event-bus.js';
 import { suggestionDecisions } from '../../metrics/automation.metric.js';
 import { CustomError } from '../../middlewares/error-handler.middleware.js';
-import * as automationService from '../automation/automation.service.js';
 import * as caseService from '../case/case.service.js';
 import * as transactionService from '../finance/transaction.service.js';
+import * as billingService from '../identity/billing.service.js';
 import * as notificationRepository from './notification.repository.js';
 import type {
   AcceptSuggestion,
@@ -205,7 +205,7 @@ export const acceptSuggestion = async (
 ): Promise<SuggestionRecord> => {
   const { tenantId, userId } = decider;
   // Without the module the suggestions are only read (AD-270).
-  await automationService.ensureAutomation(tenantId);
+  await billingService.ensureAutomation(tenantId);
   const suggestion = await findDecidable(decider, id);
   const legalCase = await caseService.getCase(tenantId, suggestion.caseId);
   const fit = proposalFits(legalCase, suggestion.proposal);

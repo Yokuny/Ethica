@@ -313,6 +313,10 @@ export const receiveWebhook = async (body: unknown): Promise<void> => {
   );
 };
 
-// The module rule for the other modules (automation, AD-276): the same `hasAutomation` the session uses.
-export const hasAutomationNow = async (tenantId: string, now = new Date()): Promise<boolean> =>
-  hasAutomation({ automationUntil: await billingRepository.findAutomationUntil(tenantId) }, now);
+// The module rule for the other modules (automation and the suggestions, AD-276): the same `hasAutomation` the
+// session uses; 403 `automation_required` for an office without the module.
+export const ensureAutomation = async (tenantId: string, now = new Date()): Promise<void> => {
+  if (!hasAutomation({ automationUntil: await billingRepository.findAutomationUntil(tenantId) }, now)) {
+    throw new CustomError('automation_required', 403);
+  }
+};

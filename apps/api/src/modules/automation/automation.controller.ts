@@ -1,5 +1,6 @@
 import { respObj } from '@ethica/contracts';
 import type { NextFunction, Request, Response } from 'express';
+import * as billingService from '../identity/billing.service.js';
 import type { DatajudClient } from './automation.schema.js';
 import * as automationService from './automation.service.js';
 
@@ -7,7 +8,7 @@ const tenantOf = (req: Request): string => req.tenantUser.tenant as string;
 
 // The module is checked before anything else (AD-276).
 export const requireAutomation = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  await automationService.ensureAutomation(tenantOf(req));
+  await billingService.ensureAutomation(tenantOf(req));
   next();
 };
 
