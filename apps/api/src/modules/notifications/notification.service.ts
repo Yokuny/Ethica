@@ -128,9 +128,9 @@ export const listNotifications = async ({ tenantId, userId, permissions }: Reade
 export const countDue = ({ tenantId, userId, permissions }: Reader, now: Date = new Date()) =>
   notificationRepository.countDue(tenantId, userId, visibleModules(permissions), dateInDisplayTz(now));
 
-export const markRead = async ({ tenantId, userId, permissions }: Reader, id?: string) => {
+export const markRead = async ({ tenantId, userId, permissions }: Reader, id: string) => {
   const { matchedCount } = await notificationRepository.markRead(tenantId, userId, visibleModules(permissions), id);
-  if (id && matchedCount === 0) throw new CustomError('not_found', 404);
+  if (matchedCount === 0) throw new CustomError('not_found', 404);
 };
 
 export const listCaseNotifications = (tenantId: string, caseId: string) =>

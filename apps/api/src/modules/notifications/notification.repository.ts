@@ -247,16 +247,11 @@ export const markRead = async (
   tenantId: string,
   userId: string,
   modules: NotificationModule[],
-  id?: string,
+  id: string,
 ): Promise<{ matchedCount: number }> =>
   withDbTiming('notification.markRead', async () => {
-    const filter = tenantScoped({
-      Tenant: tenantId,
-      kind: 'notice' as const,
-      module: { $in: modules },
-      ...(id ? { _id: id } : {}),
-    });
-    const result = await Notification.updateMany(filter, { $addToSet: { readBy: toObjectId(userId) } });
+    const filter = tenantScoped({ Tenant: tenantId, _id: id, kind: 'notice' as const, module: { $in: modules } });
+    const result = await Notification.updateOne(filter, { $addToSet: { readBy: toObjectId(userId) } });
     return { matchedCount: result.matchedCount };
   });
 

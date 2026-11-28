@@ -24,7 +24,6 @@ export const createNotificationRouter = (deps: NotificationRouterDeps): Router =
   // view (D5); deadlines and alerts are of the cases module.
   router.get('/', ...guard, validParsedQuery(listNotificationsQuerySchema), notificationController.listNotifications);
   router.get('/count', ...guard, notificationController.countDue);
-  router.post('/read-all', ...guard, notificationController.markAllRead);
   // Accepting and rejecting check the permission of the suggestion module in the service (D5).
   router.post(
     '/:id/accept',

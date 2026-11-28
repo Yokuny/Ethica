@@ -2,8 +2,10 @@ import { isDatedNotification, type NotificationKind } from '@ethica/contracts';
 import { BadgeIndicator, type IndicatorVariant } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@ethica/ui/components/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, CalendarClock, type LucideIcon, Sparkles } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { ArrowUpRight, Bell, CalendarClock, CheckCheck, type LucideIcon, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { serviceLabel } from '@/components/case-labels.js';
 import { TableIdentity, TableStack, TableStatus } from '@/components/data-table.js';
@@ -22,6 +24,37 @@ import { t } from '@/lib/helpers/translate.helper.js';
 import { type DatedNotificationRecord, markReadMutation, type NotificationRecord } from '@/query/notification.js';
 
 const day = (value: string) => formatDate(new Date(`${value}T12:00:00`));
+
+// SGD-03: from a court suggestion or notice to the data it is about, to check before deciding: the entry when there
+// is one (receipt, fees), otherwise the service.
+function OpenData({ item }: { item: NotificationRecord }) {
+  if (item.source !== 'datajud') return null;
+  const link = item.transactionId ? (
+    <Link to="/finance/details" search={{ id: item.transactionId }} />
+  ) : item.caseId ? (
+    <Link to="/expert-cases/details" search={{ id: item.caseId }} />
+  ) : undefined;
+  if (!link) return null;
+  const label = t(item.transactionId ? 'open_entry' : 'open_expert_case');
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={label}
+            render={link}
+            onClick={(event) => event.stopPropagation()}
+          />
+        }
+      >
+        <ArrowUpRight />
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 const ICON: Record<NotificationKind, LucideIcon> = {
   deadline: CalendarClock,
@@ -46,6 +79,41 @@ const situation = (item: NotificationRecord, today: string): { key: string; vari
 
 // The case as in the services list: its number, and whoever hired it (in a perícia, plaintiff x defendant).
 const party = (item: NotificationRecord) => item.client ?? [item.plaintiff, item.defendant].filter(Boolean).join(' x ');
+
+// The case number and whoever hired it cut to one line, as in the services list; the whole names in the tooltip.
+function CaseCell({ item }: { item: NotificationRecord }) {
+  const hired = party(item);
+  if (!item.caseNumber || !hired) {
+    return <TableStack tone={item.caseNumber ? 'default' : 'muted'}>{item.caseNumber ?? '—'}</TableStack>;
+  }
+  const sides = item.client
+    ? [{ label: t('contracting_party'), names: item.client }]
+    : [
+        { label: t('plaintiff'), names: item.plaintiff },
+        { label: t('defendant'), names: item.defendant },
+      ];
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<div />} className="cursor-default">
+        <TableStack width="text" description={<span className="block truncate">{hired}</span>}>
+          {item.caseNumber}
+        </TableStack>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="flex max-w-80 flex-col gap-2">
+          {sides
+            .filter(({ names }) => names)
+            .map(({ label, names }) => (
+              <div key={label} className="flex flex-col gap-0.5">
+                <span className="font-medium">{label}</span>
+                <span>{names}</span>
+              </div>
+            ))}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 // Columns of the exported file (CSV, Excel, PDF): the same as the table, one text per cell.
 export const notificationExportColumns: TableExportColumn<NotificationRecord>[] = [
@@ -113,9 +181,7 @@ export function NotificationsTable({
                   <TableIdentity icon={ICON[item.kind]} title={text.title} description={text.description} />
                 </TableCell>
                 <TableCell>
-                  <TableStack width="text" tone={item.caseNumber ? 'default' : 'muted'} description={party(item)}>
-                    {item.caseNumber ?? '—'}
-                  </TableStack>
+                  <CaseCell item={item} />
                 </TableCell>
                 <TableCell>
                   <TableStack width="fit" tone={item.serviceType ? 'default' : 'muted'}>
@@ -129,21 +195,30 @@ export function NotificationsTable({
                   </TableStatus>
                 </TableCell>
                 <TableCell>
-                  {item.open && item.kind === 'suggestion' && <SuggestionActions suggestion={item} />}
-                  {item.open && item.kind === 'notice' && (
-                    <div className="flex justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={read.isPending}
-                        onClick={() =>
-                          read.mutate({ id: item.id }, { onError: (error: Error) => toast.error(error.message) })
-                        }
-                      >
-                        {t('mark_as_read')}
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <OpenData item={item} />
+                    {item.open && item.kind === 'suggestion' && <SuggestionActions suggestion={item} icons />}
+                    {item.open && item.kind === 'notice' && (
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={t('mark_as_read')}
+                              disabled={read.isPending}
+                              onClick={() =>
+                                read.mutate({ id: item.id }, { onError: (error: Error) => toast.error(error.message) })
+                              }
+                            />
+                          }
+                        >
+                          <CheckCheck />
+                        </TooltipTrigger>
+                        <TooltipContent>{t('mark_as_read')}</TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             );

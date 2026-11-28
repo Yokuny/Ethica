@@ -307,7 +307,7 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
     expect((await admin.list('?state=resolved')).items).toEqual([
       expect.objectContaining({ id: financeNotice.id, open: false }),
     ]);
-    expect((await financial.as(request(app).post('/notifications/read-all'))).status).toBe(200);
+    expect((await financial.as(request(app).post(`/notifications/${financeNotice.id}/read`))).status).toBe(200);
     expect(await count(financial.as)).toBe(0);
 
     // A notice is not a deadline: it cannot be changed nor removed as one.
@@ -555,7 +555,6 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
         counts: { open: 0, resolved: 0 },
       });
       expect((await nobody.as(request(app).get('/notifications/count'))).body.data.count).toBe(0);
-      expect((await nobody.as(request(app).post('/notifications/read-all'))).status).toBe(200);
     });
 
     it('aviso de um serviço já excluído aparece sem os dados do serviço', async () => {

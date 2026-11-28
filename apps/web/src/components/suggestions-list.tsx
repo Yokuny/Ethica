@@ -1,5 +1,7 @@
 import { Button } from '@ethica/ui/components/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Check, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { SuggestionReceiptDialog } from '@/components/suggestion-receipt-dialog.js';
@@ -8,8 +10,9 @@ import { decideSuggestionMutation, type NotificationRecord } from '@/query/notif
 import { can, sessionQuery } from '@/query/session.js';
 
 // "Rejeitar" and "Aprovar" of a pending suggestion (AD-268): nothing changes before it, and only whoever changes
-// the module of the suggestion sees them (D5). The receipt asks the income and the amount first (AD-269).
-export function SuggestionActions({ suggestion }: { suggestion: NotificationRecord }) {
+// the module of the suggestion sees them (D5). The receipt asks the income and the amount first (AD-269). In a table
+// (`icons`) they are icons with the action in the tooltip.
+export function SuggestionActions({ suggestion, icons = false }: { suggestion: NotificationRecord; icons?: boolean }) {
   const queryClient = useQueryClient();
   const session = useQuery(sessionQuery).data;
   const [receipt, setReceipt] = useState(false);
@@ -34,20 +37,56 @@ export function SuggestionActions({ suggestion }: { suggestion: NotificationReco
       },
     );
 
+  const approve = () =>
+    suggestion.proposal?.target === 'transaction_installment' ? setReceipt(true) : decide('accept');
+
   return (
     <div className="flex flex-wrap justify-end gap-2">
-      <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => decide('reject')}>
-        {t('reject')}
-      </Button>
-      <Button
-        size="sm"
-        disabled={mutation.isPending}
-        onClick={() =>
-          suggestion.proposal?.target === 'transaction_installment' ? setReceipt(true) : decide('accept')
-        }
-      >
-        {t('approve')}
-      </Button>
+      {icons ? (
+        <>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('reject')}
+                  disabled={mutation.isPending}
+                  onClick={() => decide('reject')}
+                />
+              }
+            >
+              <X />
+            </TooltipTrigger>
+            <TooltipContent>{t('reject')}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('approve')}
+                  disabled={mutation.isPending}
+                  onClick={approve}
+                />
+              }
+            >
+              <Check />
+            </TooltipTrigger>
+            <TooltipContent>{t('approve')}</TooltipContent>
+          </Tooltip>
+        </>
+      ) : (
+        <>
+          <Button variant="outline" size="sm" disabled={mutation.isPending} onClick={() => decide('reject')}>
+            {t('reject')}
+          </Button>
+          <Button size="sm" disabled={mutation.isPending} onClick={approve}>
+            {t('approve')}
+          </Button>
+        </>
+      )}
       {receipt && <SuggestionReceiptDialog suggestion={suggestion} onClose={() => setReceipt(false)} />}
     </div>
   );

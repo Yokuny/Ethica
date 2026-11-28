@@ -40,11 +40,6 @@ export const markRead = async (req: Request, res: Response): Promise<void> => {
   res.json(respObj({}));
 };
 
-export const markAllRead = async (req: Request, res: Response): Promise<void> => {
-  await notificationService.markRead(reader(req));
-  res.json(respObj({}));
-};
-
 export const acceptSuggestion = async (req: Request, res: Response): Promise<void> => {
   const data = await notificationService.acceptSuggestion(reader(req), req.params.id as string, req.body ?? {});
   res.json(respObj({ data }));

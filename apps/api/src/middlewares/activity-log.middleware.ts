@@ -64,7 +64,7 @@ export const describeRequest = (
   const dataExport = method === 'GET' && path === '/documents/export';
   if (!ESCRITA.has(method) && !dataExport) return undefined;
   // Reading a notice is not an action of whoever uses the system (AD-273).
-  const technical = path.endsWith('/geocode') || path.endsWith('/read') || path.endsWith('/read-all');
+  const technical = path.endsWith('/geocode') || path.endsWith('/read');
   if (IGNORED.some((prefix) => path.startsWith(prefix)) || technical) return undefined;
   const segments = path.split('/').filter(Boolean);
   const literals = segments.filter((segment) => !OBJECT_ID.test(segment));

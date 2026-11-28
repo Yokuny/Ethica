@@ -2,10 +2,9 @@ import { NOTIFICATION_KINDS, NOTIFICATION_STATES } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@ethica/ui/components/tabs';
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { AutomationOffer } from '@/components/automation-offer.js';
 import { DataTable, periodSummary, type TableFilterItem } from '@/components/data-table.js';
 import { DatePicker } from '@/components/date-picker.js';
@@ -14,7 +13,7 @@ import { DefaultLoading } from '@/components/default-loading.js';
 import { NotificationDialog } from '@/components/notification-dialog.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { type DatedNotificationRecord, markReadMutation, notificationsQuery } from '@/query/notification.js';
+import { type DatedNotificationRecord, notificationsQuery } from '@/query/notification.js';
 import { can, sessionQuery } from '@/query/session.js';
 import { NewNotificationDialog } from './@components/new-notification-dialog.js';
 import { NotificationsTable, notificationExportColumns } from './@components/notifications-table.js';
@@ -44,7 +43,6 @@ export function NotificationsPage() {
   // The previous page stays while the next tab loads, so the counts beside the tabs do not blink.
   const query = useQuery({ ...notificationsQuery(params), placeholderData: keepPreviousData });
   const queryClient = useQueryClient();
-  const readAll = useMutation(markReadMutation(queryClient));
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const items = query.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((query.data?.total ?? 0) / search.limit));
@@ -76,18 +74,7 @@ export function NotificationsPage() {
   return (
     <Card asPage>
       <CardHeader title={t('notifications')} description={t('notifications_description')}>
-        <CardAction>
-          {search.state === 'open' && (
-            <Button
-              variant="outline"
-              disabled={readAll.isPending}
-              onClick={() => readAll.mutate({}, { onError: (error: Error) => toast.error(error.message) })}
-            >
-              {t('mark_all_as_read')}
-            </Button>
-          )}
-          {canAdd && <Button onClick={() => setDialog({ kind: 'create' })}>{t('add')}</Button>}
-        </CardAction>
+        <CardAction>{canAdd && <Button onClick={() => setDialog({ kind: 'create' })}>{t('add')}</Button>}</CardAction>
       </CardHeader>
       <Tabs
         value={search.state}

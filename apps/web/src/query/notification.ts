@@ -108,10 +108,10 @@ export const deleteNotificationMutation = (
   onSuccess: () => refreshNotifications(queryClient),
 });
 
-// Read is per person; without `id`, every notice the person sees.
-export const markReadMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id?: string }> => ({
+// Read is per person, one notice at a time.
+export const markReadMutation = (queryClient: QueryClient): UseMutationOptions<void, Error, { id: string }> => ({
   mutationFn: async ({ id }) => {
-    const res = await post<never>(id ? `/notifications/${encodeURIComponent(id)}/read` : '/notifications/read-all', {});
+    const res = await post<never>(`/notifications/${encodeURIComponent(id)}/read`, {});
     if (!res.success) throw new Error(res.message ?? t('save_error'));
   },
   onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationKeys.all }),
