@@ -1,4 +1,4 @@
-import { caseLabel, parseCoordinates } from '@ethica/contracts';
+import { caseLabel } from '@ethica/contracts';
 import { dateInDisplayTz, timeInDisplayTz, wallClockToUtc } from '@ethica/db';
 import type { MailProvider } from '@ethica/mail';
 import { CustomError } from '../../middlewares/error-handler.middleware.js';
@@ -105,14 +105,14 @@ export const getAppointment = async (tenantId: string, id: string): Promise<Appo
 
 // Field map (AD-131): geocodes the address once and stores it on the appointment. An address
 // not found returns the appointment without coordinates; the provider being down is 503.
-// Coordinates typed as the location (AD-160) are stored as they are, without the provider.
+// Coordinates typed as the location (AD-160) already come with the appointment, without the provider.
 export const geocode = async (geocoder: Geocoder, tenantId: string, id: string): Promise<AppointmentRecord> => {
   const appointment = await getAppointment(tenantId, id);
   if (appointment.coordinates || !appointment.location) return appointment;
   const address = appointment.location;
-  let coordinates: Awaited<ReturnType<Geocoder['geocode']>> = parseCoordinates(address) ?? null;
+  let coordinates: Awaited<ReturnType<Geocoder['geocode']>>;
   try {
-    coordinates ??= await geocoder.geocode(address);
+    coordinates = await geocoder.geocode(address);
   } catch (error) {
     throw new CustomError('geocoding_unavailable', 503, error instanceof Error ? error.message : undefined);
   }

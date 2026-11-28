@@ -1,8 +1,16 @@
-import type { AppointmentType } from '@ethica/contracts';
+import { type AppointmentType, parseCoordinates } from '@ethica/contracts';
 import type { AppointmentDocument } from '@ethica/db';
 import { Appointment, tenantScoped } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
 import type { AppointmentRecord, AppointmentWrite } from './appointment.schema.js';
+
+// The point of the location: coordinates typed as the location (AD-160) at once; an address, the one geocoded for
+// that same text (AD-131).
+const pointOf = (doc: AppointmentDocument) =>
+  parseCoordinates(doc.location ?? '') ??
+  (doc.coordinates && doc.coordinates.address === doc.location
+    ? { lat: doc.coordinates.lat, lng: doc.coordinates.lng }
+    : undefined);
 
 const toRecord = (doc: AppointmentDocument): AppointmentRecord => ({
   id: doc._id.toString(),
@@ -16,9 +24,7 @@ const toRecord = (doc: AppointmentDocument): AppointmentRecord => ({
   origin: doc.origin,
   notes: doc.notes,
   reason: doc.reason,
-  ...(doc.coordinates && doc.coordinates.address === doc.location
-    ? { coordinates: { lat: doc.coordinates.lat, lng: doc.coordinates.lng } }
-    : {}),
+  coordinates: pointOf(doc),
   notices: (doc.notices ?? []).map((notice) => ({
     userId: notice.User.toString(),
     at: notice.at,
