@@ -15,6 +15,8 @@ export type { CaseDocument, CaseMovementDocument, CasePartyDocument } from './mo
 export { Case, migrateCases } from './models/case.model.js';
 export type { CaseCourtSyncDocument } from './models/case-court-sync.model.js';
 export { CaseCourtSync } from './models/case-court-sync.model.js';
+export type { CourtSyncDayDocument } from './models/court-sync-day.model.js';
+export { CourtSyncDay } from './models/court-sync-day.model.js';
 export type { CourtDivisionDocument } from './models/court-division.model.js';
 export { COURT_DIVISION_COLLATION, CourtDivision } from './models/court-division.model.js';
 export type { CourtProcessDocument } from './models/court-process.model.js';
@@ -98,6 +100,7 @@ import { Appointment } from './models/appointment.model.js';
 import { CalendarEntry } from './models/calendar-entry.model.js';
 import { Case } from './models/case.model.js';
 import { CaseCourtSync } from './models/case-court-sync.model.js';
+import { CourtSyncDay } from './models/court-sync-day.model.js';
 import { CourtDivision } from './models/court-division.model.js';
 import { CourtProcess } from './models/court-process.model.js';
 import { Inspection } from './models/inspection.model.js';
@@ -152,5 +155,6 @@ export const syncWorkerIndexes = async (): Promise<void> => {
     NotificationDelivery.createIndexes(),
     CourtProcess.createIndexes(),
     CaseCourtSync.createIndexes(),
+    CourtSyncDay.createIndexes(),
   ]);
 };

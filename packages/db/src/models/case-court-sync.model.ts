@@ -13,6 +13,9 @@ export interface CaseCourtSyncDocument {
   seenMovementKeys: string[];
   baselineAt?: Date;
   syncedAt: Date;
+  // Newest movement of the process at the last query that brought movements: sorts the Automação list (PAT-03).
+  lastMovementAt?: Date;
+  lastMovementName?: string;
 }
 
 const caseCourtSyncSchema = new Schema<CaseCourtSyncDocument>({
@@ -23,6 +26,8 @@ const caseCourtSyncSchema = new Schema<CaseCourtSyncDocument>({
   seenMovementKeys: { type: [String], default: [] },
   baselineAt: { type: Date },
   syncedAt: { type: Date, required: true },
+  lastMovementAt: { type: Date },
+  lastMovementName: { type: String },
 });
 
 caseCourtSyncSchema.index({ Tenant: 1, Case: 1 }, { unique: true });
