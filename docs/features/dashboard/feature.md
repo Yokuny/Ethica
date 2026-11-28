@@ -56,6 +56,7 @@ pnpm vitest run apps/api/src/modules/case/dashboard.router.e2e.test.ts
 
 ## Histórico
 
+- 2026-11-28 — O período (6/12 meses, divisão e variação) foi para `apps/web/src/lib/helpers/period.helper.ts` e o "Ver mês a mês" para `apps/web/src/components/month-details.tsx`, compartilhados com a Automação (`painel-automacao`); sem mudança na tela. Na faixa de números, o selo de tendência desce para baixo do rótulo quando não cabe, em vez de quebrar a palavra.
 - 2026-11-28 — Hierarquia pelo tamanho e peso do texto, como no detalhe do serviço e em Relatórios (AD-313): títulos das seções em `text-xl` semibold, faixa de números com rótulo em caixa alta e valor em `text-2xl` semibold (vale também para Início e Serviços), totais das legendas e centro da rosca maiores em `text-impact`, e o ritmo da meta escrito em tom legível. Nova skill `dashboard-design`; os pontos em que ela contraria decisões ativas (barras, rosca até 3 partes, âmbar no a receber) ficaram de fora. Não conferido no navegador nesta sessão. Plano: `.specs/features/dashboard/plans/2026-11-28-hierarquia-tipografica.md`.
 - 2026-11-25 — Mix de serviços com escolha do mês (`?mix=AAAA-MM`): "Desde o início" (padrão) ou os serviços novos de um mês, com os dados de `byMonth` que a página já recebe.
 - 2026-11-25 — A faixa de cinco números cabe numa linha: as colunas seguem a largura da própria faixa, e cada célula conta como uma (antes os três números de dinheiro, agrupados, contavam como um). O percentual de variação vai dentro do selo da tendência, ao lado do rótulo (AD-300).

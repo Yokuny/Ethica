@@ -82,6 +82,12 @@ export function AutomationPage() {
   const period = complete.slice(-months);
   const since = dashboard.data?.since;
   const countingSince = since && period[0] && since > `${period[0].month}-01` ? since : undefined;
+  // Before the first day record (the worker that writes it is new), the day-based numbers are zero: say why.
+  const countingNote = !dashboard.data
+    ? undefined
+    : !since
+      ? t('counting_from_next_query')
+      : countingSince && `${t('counting_since')} ${formatDate(new Date(`${countingSince}T12:00:00`))}.`;
   const items = list.data?.items ?? [];
   const pageCount = Math.max(1, Math.ceil((list.data?.total ?? 0) / search.limit));
   const filtering = Boolean(search.q || search.state);
@@ -128,11 +134,7 @@ export function AutomationPage() {
               />
             ) : (
               <>
-                {countingSince && (
-                  <ItemDescription className="line-clamp-none">
-                    {`${t('counting_since')} ${formatDate(new Date(`${countingSince}T12:00:00`))}.`}
-                  </ItemDescription>
-                )}
+                {countingNote && <ItemDescription className="line-clamp-none">{countingNote}</ItemDescription>}
                 <section className="flex w-full min-w-0 flex-col gap-5">
                   <div className="grid gap-1">
                     <ItemTitle role="heading" aria-level={2} className={headingClass}>

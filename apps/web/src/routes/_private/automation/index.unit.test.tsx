@@ -105,6 +105,7 @@ describe('AutomationPage', () => {
     expect(screen.getByText('178 de 180 dias')).toBeInTheDocument();
     expect(screen.getByText('O que aconteceu com as sugestões')).toBeInTheDocument();
     expect(screen.getByText('Situação dos processos')).toBeInTheDocument();
+    expect(screen.queryByText(/contados/)).not.toBeInTheDocument();
     const row = screen.getByText('0024364-65.2020.5.24.0091').closest('tr');
     expect(row).toHaveTextContent('Alvará');
     expect(row).toHaveTextContent('Consultado');

@@ -26,8 +26,8 @@ const queriesVariant = (row: AutomationMonth) =>
 
 // Activity of the automation (PAT-04): new movements and suggestions per month in lines, the axis from zero; under
 // it, one cell per month with the days every case got an answer from the court out of the days with a run. The
-// x axis keeps half a step at each end (`padding="gap"`), so each month sits in the middle of an equal column and
-// the strip below uses the same columns.
+// x axis is a band scale: each month is an equal column with its point in the middle (recharts places a line point
+// at the band start plus half the band), and the strip below uses the same columns.
 export function AutomationActivityChart({ data }: { data: AutomationMonth[] }) {
   const sums = (Object.keys(config) as (keyof typeof config)[]).map((key) => ({
     key,
@@ -70,7 +70,7 @@ export function AutomationActivityChart({ data }: { data: AutomationMonth[] }) {
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            padding="gap"
+            scale="band"
             tickFormatter={shortName}
           />
           <YAxis width={AXIS_WIDTH} tickLine={false} axisLine={false} allowDecimals={false} domain={[0, 'auto']} />

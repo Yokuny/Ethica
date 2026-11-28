@@ -287,6 +287,8 @@ const translations: Record<string, string> = {
   need_attention: 'pedem atenção',
   approved_plural: 'aprovadas',
   counting_since: 'Movimentações, avisos e consultas contados desde',
+  counting_from_next_query:
+    'Movimentações, avisos e consultas passam a ser contados a partir da próxima consulta diária ao tribunal.',
   automation_activity: 'Atividade da automação',
   automation_activity_scope: 'Movimentações novas trazidas do tribunal e sugestões feitas, por mês',
   court_queries: 'Consultas ao tribunal',

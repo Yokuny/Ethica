@@ -305,7 +305,7 @@ export function RecordStat({
         children: (
           <>
             <div className="flex items-center justify-between gap-2">
-              <div className="flex min-w-0 items-center gap-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5">
                 <ItemDescription className={captionClass}>{label}</ItemDescription>
                 {trend && <Trend direction={trend} label={trendLabel} hint={hint} tone={trendTone} />}
               </div>
