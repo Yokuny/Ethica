@@ -95,6 +95,28 @@
       "doc": "features/notificacoes-processo-unico/feature.md"
     },
     {
+      "slug": "painel-automacao",
+      "feature": "Painel da Automação Datajud",
+      "descricao": "Página Automação como painel do que a automação fez no período, com a lista paginada dos processos acompanhados",
+      "data": "2026-11-28",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "apps/worker",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-314"
+      ],
+      "spec": [
+        ".specs/features/painel-automacao"
+      ],
+      "planos": [],
+      "doc": "features/painel-automacao/feature.md"
+    },
+    {
       "slug": "fase-assistencia",
       "feature": "Fases da Assistência técnica",
       "descricao": "Assistência técnica com lista própria de fases do serviço, da proposta de honorários ao acordo ou desistência",
@@ -318,7 +340,8 @@
         "AD-281",
         "AD-286",
         "AD-287",
-        "AD-303"
+        "AD-303",
+        "AD-314"
       ],
       "spec": [
         ".specs/features/automacao-datajud"
@@ -2805,6 +2828,12 @@
     {
       "id": "AD-313",
       "decisao": "Hierarquia do Dashboard pelo tamanho e peso do texto, como no detalhe do serviço e em Relatórios, sem trocar gráfico nem cor. (1) Títulos da",
+      "data": "2026-11-28",
+      "status": "active"
+    },
+    {
+      "id": "AD-314",
+      "decisao": "Painel da Automação Datajud (`painel-automacao`). (1) A API fica no módulo `automation` (`GET /automation/dashboard`, `GET /automation/cases",
       "data": "2026-11-28",
       "status": "active"
     }

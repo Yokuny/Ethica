@@ -49,6 +49,7 @@ spec: [.specs/features/processos-acompanhados]
 
 ## Histórico
 
+- 2026-11-28 — A lista foi para um `DataTable` paginado no servidor no fim da página Automação, pela última movimentação; a situação "sem resposta" passa a vir da API (`painel-automacao`, AD-314).
 - 2026-11-25 — Produção: o worker novo está na Railway desde 24/11 01:13; na rodada de 24/11 o 0017068-93.2025.5.16.0008 (TRT16) do ETHICA foi consultado na 9ª tentativa e ganhou a linha de base, então aparece como consultado (conferido pelos logs; a página de produção não foi aberta).
 - 2026-11-24 — Conferido no navegador local (escritório de teste com o módulo): a lista mostra Não encontrado, Sem resposta, Aguardando e Consultado nessa ordem, com os textos da spec, e a seção No tribunal do serviço não encontrado mostra a mesma situação.
 - 2026-11-24 — Implementado (T1 a T6). Perguntas da spec respondidas com os padrões da tabela "Assumptions & Open Questions"; a seção No tribunal (fora do escopo na spec) foi aceita pela perita e entrou. Divergências do plano: T3 e T4 num commit só, porque o contrato novo quebra o web sem a tela; um processo não encontrado com a última consulta de mais de 3 dias mostra "Sem resposta do tribunal desde", como o consultado (a data velha vale para qualquer situação); "Aguardando" fica entre o que pede atenção e os consultados. Tela coberta por teste.

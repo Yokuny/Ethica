@@ -5,20 +5,20 @@ descricao: Módulo premium que acompanha os processos no Datajud e gera avisos e
 data: 2026-11-23
 status: parcial
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281, AD-286, AD-287, AD-303]
+decisoes: [AD-268, AD-269, AD-270, AD-271, AD-274, AD-275, AD-276, AD-277, AD-278, AD-279, AD-280, AD-281, AD-286, AD-287, AD-303, AD-314]
 spec: [.specs/features/automacao-datajud]
 ---
 
 # Automação Datajud (premium)
 
-**Status**: parcial · **Atualizado**: 2026-11-23 · **Áreas**: `apps/api`, `apps/web`, `apps/worker`, `packages/contracts`, `packages/db`
+**Status**: parcial · **Atualizado**: 2026-11-28 · **Áreas**: `apps/api`, `apps/web`, `apps/worker`, `packages/contracts`, `packages/db`
 
 > Documento vivo. A intenção está em `.specs/features/automacao-datajud/`.
 > Correlação com o git: `git log --oneline -i --grep='automacao-datajud'`.
 
 ## O que foi feito
 
-- **Página Automação Datajud** (`/automation`, no lugar da Prospecção, que saiu inteira): o número de sugestões para aprovar (link para a aba da Central), todo processo acompanhado no tribunal com a situação de cada um (aguardando, não encontrado, sem resposta ou consultado; feature `processos-acompanhados`) e link para o serviço e, no menu "…" do cabeçalho, a página **Regras** (`/automation/rules`) com o que cada movimento traz, em texto da perita. Sem o módulo, a oferta. Está no menu, no início, no tour e no celular pelo Menu.
+- **Página Automação Datajud** (`/automation`, no lugar da Prospecção, que saiu inteira): painel do que a automação fez no período e a lista paginada dos processos acompanhados (feature `painel-automacao`, AD-314) e, no menu "…" do cabeçalho, a página **Regras** (`/automation/rules`) com o que cada movimento traz, em texto da perita. Sem o módulo, a oferta. Está no menu, no início, no tour e no celular pelo Menu.
 - **Pagamento no tribunal** (Fase 6): a requisição ou a ordem de pagamento vira o aviso "Pagamento em andamento no tribunal"; o alvará emitido ou a RPV/precatório paga vira a sugestão "Registrar o recebimento", com e-mail na hora. Aprovar abre o formulário com o honorário em aberto, o saldo e a data do movimento para a pessoa confirmar.
 - Depois de aprovar um acordo ou uma desistência, vem a sugestão de cancelar os prazos e alertas pendentes do serviço; a suspensão traz o aviso para revisar os prazos.
 - **Sugestões para aprovar** (Fase 5): suspensão, retomada, acordo, desistência ou extinção e sentença no tribunal viram uma sugestão de situação ou fase na aba **Para aprovar** da Central e na seção No tribunal do serviço. Nada muda até alguém com permissão de alterar serviços clicar em Aprovar; se o serviço já estiver assim, a sugestão se encerra sozinha.
@@ -64,6 +64,7 @@ A definir.
 
 ## Histórico
 
+- 2026-11-28 — A página `/automation` virou o painel do que a automação fez no período, com a lista paginada no fim; detalhe na feature `painel-automacao` (AD-314).
 - 2026-11-27 — Produção: dados do Datajud apagados a pedido do usuário, sem cópia (MVP), para validar do zero depois da `sugestoes-datajud`: 1 `CourtProcess` (TRT16, 83 movimentos), 1 `CaseCourtSync` e 9 jobs `court_refresh`/`court_refresh_batch`; não havia aviso nem sugestão do Datajud. O worker segue ligado e recria a linha de base na rodada das 05:00. Página de revisão das questões para a perita: `.specs/features/sugestoes-datajud/revisao-perita.html`.
 - 2026-11-27 — Spec da evolução `sugestoes-datajud` (AD-304, proposta): Datajud fica com o estado do processo em código e o preenchimento pelo número; o DJEN, com o conteúdo e as nomeações. Achado na TPU: 14975, 14984 e 14985 da regra de suspensão são filhos de 14974 "Levantamento da causa suspensiva" (retomada); a correção está na spec (SGD-04).
 - 2026-11-25 — Revisão de volume e escala do worker (só leitura). Logs da Railway de 25/11: uma rodada (`courts: {TRT16: 1}`, 1 lote, 1 número) e 9 chamadas, todas o mesmo lote tentado de novo depois do 429 do CNJ; não há excesso de chamadas nosso. As chamadas por dia crescem com tribunais × lotes de 50 processos, não com usuários. Achado para quando houver lotes cheios: a resposta truncada (`truncated` no log) é tratada como `ok`, e os processos cortados cairiam como não encontrados naquele dia; o mesmo número em dois escritórios do mesmo tribunal também pode ir em lotes diferentes. Ambos no roadmap.

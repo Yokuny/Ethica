@@ -33,6 +33,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Deploy do worker e da API juntos para o painel da Automação: a linha do dia (`CourtSyncDay`) só começa a ser gravada com o worker novo — `painel-automacao`
 - [ ] Railway: pôr `DATAJUD_API_KEY` (a mesma do worker) no serviço da API, para a busca do processo pelo número no cadastro — `sugestoes-datajud`
 - [ ] Conferir na tela, depois do deploy, o cadastro com os quatro tipos de serviço, a fase por tipo e o filtro pronto "Serviços finalizados" (AD-310) — `servico-enums`
 - [ ] Conferir a primeira rodada do worker com a `sugestoes-datajud` (05:00 de 28/11): linha de base do TRT16 com data de autuação e assuntos, sugestão de preencher se faltar vara ou autuação — `sugestoes-datajud`
@@ -57,6 +58,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Validar e confirmar — você (e a perita)
 
+- [ ] Conferir na tela o painel da Automação: faixa de cinco números numa linha, fileira de consultas alinhada aos meses em 6 e 12 meses, roscas filtrando a lista, "contados desde", temas e celular (não renderizado nesta entrega: o código de acesso sai no log da API) — `painel-automacao`
 - [ ] Conferir na tela a hierarquia nova do Dashboard (AD-313): títulos de seção, faixa de números com rótulo em caixa alta (também no Início e em Serviços: cinco números seguem numa linha), centro da rosca sem quebrar e o ritmo da meta legível, nos temas Claro, Escuro e Azul e no celular (não renderizado nesta entrega: o código de acesso sai no log da API) — `dashboard`
 - [ ] Decidir os pontos da skill `dashboard-design` que contrariam o Dashboard atual: barras no lugar da área empilhada da Entrada de serviços (AD-255 recusou barras), rosca só até 3 partes (hoje 4 + "Demais") e âmbar no a receber (hoje roxo "previsto") — `dashboard`
 - [ ] Conferir na tela (login local pede passkey): contratante cortado em uma linha em Serviços, "Visão completa" nos Filtros prontos, coluna Serviço com tooltip e ações em ícones em Notificações — `filtros-lista`, `notificacoes-processo-unico`
@@ -125,6 +127,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-28 — Página Automação como painel do que a automação fez no período (faixa, atividade com a fileira de consultas, roscas) e lista paginada dos processos acompanhados pela última movimentação; worker grava o dia do acompanhamento (AD-314) — `painel-automacao`
 - [x] 2026-11-28 — Hierarquia tipográfica do Dashboard (títulos de seção, faixa de números, legendas e rosca) e skill `dashboard-design` (AD-313) — `dashboard`
 - [x] 2026-11-28 — Blocos recolhíveis numa moldura só com cabeçalho fino e acinzentado (serviço, parte, agenda, prazo) e lançamento editado na própria página, sem diálogo (AD-312) — `grupo-recolhivel`
 - [x] 2026-11-28 — Dados do Datajud apagados de novo em produção depois do deploy da `sugestoes-datajud` (1 cópia do processo, 1 acompanhamento, 2 jobs), para a linha de base partir do zero — `sugestoes-datajud`
