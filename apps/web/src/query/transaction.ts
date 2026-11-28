@@ -69,6 +69,7 @@ export type CategoryTotal = { category: TransactionCategory; totalCents: number;
 export const transactionKeys = {
   all: ['transaction'] as const,
   lists: () => [...transactionKeys.all, 'list'] as const,
+  detail: (id: string) => [...transactionKeys.all, 'detail', id] as const,
   list: (params: TransactionsQueryParams) => [...transactionKeys.lists(), params] as const,
   summary: () => [...transactionKeys.all, 'summary'] as const,
   flow: (months: number) => [...transactionKeys.all, 'flow', months] as const,
@@ -81,6 +82,13 @@ const fetchData = async <T>(path: string): Promise<T> => {
   if (!res.success || res.data === undefined) throw new Error(res.message ?? t('load_error'));
   return res.data;
 };
+
+// One entry (SGD-02): its page.
+export const transactionQuery = (id: string) =>
+  queryOptions({
+    queryKey: transactionKeys.detail(id),
+    queryFn: () => fetchData<TransactionRecord>(`/finance/entries/${id}`),
+  });
 
 export const transactionsQuery = (params: TransactionsQueryParams = {}) =>
   queryOptions({

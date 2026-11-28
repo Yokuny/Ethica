@@ -101,6 +101,17 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     expect(quitado.body.data).toMatchObject({ status: 'settled', balanceCents: 0 });
   });
 
+  it('o lançamento abre pela página dele (SGD-02); de outro escritório ou inexistente é 404', async () => {
+    const as = await seedSession();
+    const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;
+    expect((await as(request(app).get(`/finance/entries/${id}`))).body.data).toMatchObject({
+      id,
+      balanceCents: 480_000,
+    });
+    const other = await seedSession();
+    expect((await other(request(app).get(`/finance/entries/${id}`))).status).toBe(404);
+  });
+
   it('parcela maior que o saldo é recusada com 422 parcel_exceeds_balance e nada muda', async () => {
     const as = await seedSession();
     const { id } = (await as(request(app).post('/finance/entries')).send(FEE)).body.data;

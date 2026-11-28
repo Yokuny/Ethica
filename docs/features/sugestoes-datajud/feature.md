@@ -30,6 +30,8 @@ ela muda, com caminho direto para o serviço ou o lançamento, e o cadastro pode
 - Regras: `packages/contracts/src/schemas/automation-rules.ts` (teste ao lado).
 - Preencher pelo tribunal: `caseFillOf` e `courtDivisionName` em `automation-rules.ts`; criada em `apps/worker/src/jobs/court-refresh.ts`, aplicada em `apps/api/src/modules/notifications/notification.service.ts`.
 - Busca pelo número: `apps/api/src/modules/automation/` (`lookupCourtProcess`, rota `/automation/court-lookup`).
+- Botão de sugestão: `apps/web/src/components/suggestion-button.tsx` (usado em `expert-cases/details` e `finance/details`).
+- Detalhe do lançamento: `apps/web/src/routes/_private/finance/details/index.tsx`.
 - Client do Datajud: `packages/datajud/` (API e worker; fixtures reais em `packages/datajud/src/fixtures/`), com data de ajuizamento (`filedAt`) e assuntos (`subjects`) gravados no `CourtProcess`. O resto do mapa está em `.specs/features/sugestoes-datajud/design.md`.
 
 ## Como testar
@@ -38,12 +40,14 @@ A definir (task T11).
 
 ## Pendências
 
-- [ ] Tasks T6 a T11
+- [ ] Tasks T8 a T11
 - [ ] Railway: pôr `DATAJUD_API_KEY` também no serviço da API (sem ela a busca pelo número responde `court_unavailable`) de `.specs/features/sugestoes-datajud/tasks.md`.
 - [ ] Antes do deploy, apagar de novo os dados do Datajud em produção (roadmap).
 
 ## Histórico
 
+- 2026-11-28 — T7: página de detalhe do lançamento (`/finance/details?id=`, `GET /finance/entries/:id`): tipo, categoria, serviço com link, valor, vencimento, recebido, saldo e os recebimentos; editar pelo diálogo de sempre; a sugestão de recebimento fica no saldo e no cabeçalho. A linha da lista do Financeiro passa a abrir o detalhe (o diálogo de edição saiu da linha).
+- 2026-11-28 — T6: botão de sugestão (`apps/web/src/components/suggestion-button.tsx`, borda animada roxa e rosa em `apps/web/src/index.css`, parada com "reduzir movimento") ao lado da situação, da fase e da vara no detalhe do serviço e no cabeçalho com o número de pendentes; só as que a pessoa pode decidir e que ainda cabem no serviço. Saiu a lista de sugestões da seção No tribunal (`SuggestionsList`). Divergência do design: no celular o botão do cabeçalho fica no próprio cabeçalho, não no menu "…".
 - 2026-11-28 — T5: `GET /automation/court-lookup?processNumber=` (módulo + `expert_cases` `view`): usa a cópia do dia do `CourtProcess` ou chama o Datajud uma vez (110 s, sem novas tentativas) e grava a cópia; devolve esfera, tribunal, vara, data de autuação e objeto (assuntos). Erros `court_process_not_found` (404) e `court_unavailable` (503). `DATAJUD_API_KEY` e `DATAJUD_BASE_URL` voltam à API.
 - 2026-11-27 — T4: hora de cobrar e de encerrar pelo estado do processo (AD-309), a cada consulta depois da linha de base: aviso `fees_collection` uma vez por serviço com receita em aberto; processo encerrado no tribunal sugere a fase de encerrar com honorário recebido ou avisa `fees_open_finished` com receita em aberto; sugestão de recebimento pendente segura os dois. O aviso e o recebimento levam o lançamento em aberto (`Transaction`). Leituras novas no `packages/db/src/workerReads.ts` (`incomeOfCases`, `hasPendingSuggestion`).
 - 2026-11-27 — T3: sugestão "Preencher com os dados do tribunal" (`case_fill`, AD-309): em qualquer consulta que encontra o processo, se a vara ou a data de autuação (`docketingDate`) do serviço estão vazias, uma vez por serviço; aceitar grava só o que continua vazio. Vara em maiúsculas vira só a inicial maiúscula (`courtDivisionName`).

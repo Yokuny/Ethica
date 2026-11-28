@@ -15,7 +15,10 @@ export type TransactionsSearch = z.infer<typeof transactionsSearchSchema>;
 
 export type TransactionPanel =
   | { kind: 'create' }
-  | { kind: 'edit'; transaction: TransactionRecord }
   | { kind: 'receive'; transaction: TransactionRecord }
   | { kind: 'pay'; transaction: TransactionRecord }
   | null;
+
+// The entry page (SGD-02): `?id=`.
+export const transactionDetailsSearchSchema = z.object({ id: z.string().min(1) });
+export type TransactionDetailsSearch = z.infer<typeof transactionDetailsSearchSchema>;

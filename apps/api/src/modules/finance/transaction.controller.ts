@@ -10,6 +10,10 @@ export const createTransaction = async (req: Request, res: Response): Promise<vo
   res.status(201).json(respObj({ data: result, message: 'created_successfully' }));
 };
 
+export const getTransaction = async (req: Request, res: Response): Promise<void> => {
+  res.json(respObj({ data: await transactionService.getTransaction(tenantOf(req), req.params.id as string) }));
+};
+
 export const listTransactions = async (req: Request, res: Response): Promise<void> => {
   const query = req.query as unknown as ListTransactionsQuery;
   res.json(respObj({ data: await transactionService.listTransactions(tenantOf(req), query) }));

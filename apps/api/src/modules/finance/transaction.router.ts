@@ -58,6 +58,14 @@ export const createFinanceRouter = (deps: FinanceRouterDeps): Router => {
     validParsedQuery(listTransactionsQuerySchema),
     transactionController.listTransactions,
   );
+  // The entry page (SGD-02).
+  router.get(
+    '/entries/:id',
+    ...guard,
+    can('finance', 'view'),
+    validParams(transactionIdParamSchema),
+    transactionController.getTransaction,
+  );
   router.patch(
     '/entries/:id',
     ...guard,

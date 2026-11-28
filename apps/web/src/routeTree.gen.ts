@@ -36,6 +36,7 @@ import { Route as PrivateAutomationIndexRouteImport } from './routes/_private/au
 import { Route as PrivateAgendaIndexRouteImport } from './routes/_private/agenda/index';
 import { Route as PrivateAccountIndexRouteImport } from './routes/_private/account/index';
 import { Route as PrivatePartiesDetailsIndexRouteImport } from './routes/_private/parties/details/index';
+import { Route as PrivateFinanceDetailsIndexRouteImport } from './routes/_private/finance/details/index';
 import { Route as PrivateFieldRouteIndexRouteImport } from './routes/_private/field/route/index';
 import { Route as PrivateFieldMapIndexRouteImport } from './routes/_private/field/map/index';
 import { Route as PrivateFieldInspectionsIndexRouteImport } from './routes/_private/field/inspections/index';
@@ -191,6 +192,12 @@ const PrivatePartiesDetailsIndexRoute =
     path: '/parties/details/',
     getParentRoute: () => PrivateRouteRoute,
   } as any);
+const PrivateFinanceDetailsIndexRoute =
+  PrivateFinanceDetailsIndexRouteImport.update({
+    id: '/finance/details/',
+    path: '/finance/details/',
+    getParentRoute: () => PrivateRouteRoute,
+  } as any);
 const PrivateFieldRouteIndexRoute = PrivateFieldRouteIndexRouteImport.update({
   id: '/field/route/',
   path: '/field/route/',
@@ -334,6 +341,7 @@ export interface FileRoutesByFullPath {
   '/field/inspections/': typeof PrivateFieldInspectionsIndexRoute;
   '/field/map/': typeof PrivateFieldMapIndexRoute;
   '/field/route/': typeof PrivateFieldRouteIndexRoute;
+  '/finance/details/': typeof PrivateFinanceDetailsIndexRoute;
   '/parties/details/': typeof PrivatePartiesDetailsIndexRoute;
   '/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
@@ -378,6 +386,7 @@ export interface FileRoutesByTo {
   '/field/inspections': typeof PrivateFieldInspectionsIndexRoute;
   '/field/map': typeof PrivateFieldMapIndexRoute;
   '/field/route': typeof PrivateFieldRouteIndexRoute;
+  '/finance/details': typeof PrivateFinanceDetailsIndexRoute;
   '/parties/details': typeof PrivatePartiesDetailsIndexRoute;
   '/users/add': typeof PrivateAdminUsersAddIndexRoute;
   '/expert-reports/templates/details': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
@@ -426,6 +435,7 @@ export interface FileRoutesById {
   '/_private/field/inspections/': typeof PrivateFieldInspectionsIndexRoute;
   '/_private/field/map/': typeof PrivateFieldMapIndexRoute;
   '/_private/field/route/': typeof PrivateFieldRouteIndexRoute;
+  '/_private/finance/details/': typeof PrivateFinanceDetailsIndexRoute;
   '/_private/parties/details/': typeof PrivatePartiesDetailsIndexRoute;
   '/_private/_admin/users/add/': typeof PrivateAdminUsersAddIndexRoute;
   '/_private/expert-reports/templates/details/': typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/field/inspections/'
     | '/field/map/'
     | '/field/route/'
+    | '/finance/details/'
     | '/parties/details/'
     | '/users/add/'
     | '/expert-reports/templates/details/'
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/field/inspections'
     | '/field/map'
     | '/field/route'
+    | '/finance/details'
     | '/parties/details'
     | '/users/add'
     | '/expert-reports/templates/details'
@@ -563,6 +575,7 @@ export interface FileRouteTypes {
     | '/_private/field/inspections/'
     | '/_private/field/map/'
     | '/_private/field/route/'
+    | '/_private/finance/details/'
     | '/_private/parties/details/'
     | '/_private/_admin/users/add/'
     | '/_private/expert-reports/templates/details/'
@@ -766,6 +779,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivatePartiesDetailsIndexRouteImport;
       parentRoute: typeof PrivateRouteRoute;
     };
+    '/_private/finance/details/': {
+      id: '/_private/finance/details/';
+      path: '/finance/details';
+      fullPath: '/finance/details/';
+      preLoaderRoute: typeof PrivateFinanceDetailsIndexRouteImport;
+      parentRoute: typeof PrivateRouteRoute;
+    };
     '/_private/field/route/': {
       id: '/_private/field/route/';
       path: '/field/route';
@@ -938,6 +958,7 @@ interface PrivateRouteRouteChildren {
   PrivateFieldInspectionsIndexRoute: typeof PrivateFieldInspectionsIndexRoute;
   PrivateFieldMapIndexRoute: typeof PrivateFieldMapIndexRoute;
   PrivateFieldRouteIndexRoute: typeof PrivateFieldRouteIndexRoute;
+  PrivateFinanceDetailsIndexRoute: typeof PrivateFinanceDetailsIndexRoute;
   PrivatePartiesDetailsIndexRoute: typeof PrivatePartiesDetailsIndexRoute;
   PrivateExpertReportsTemplatesDetailsIndexRoute: typeof PrivateExpertReportsTemplatesDetailsIndexRoute;
   PrivateFieldInspectionsDetailsIndexRoute: typeof PrivateFieldInspectionsDetailsIndexRoute;
@@ -970,6 +991,7 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateFieldInspectionsIndexRoute: PrivateFieldInspectionsIndexRoute,
   PrivateFieldMapIndexRoute: PrivateFieldMapIndexRoute,
   PrivateFieldRouteIndexRoute: PrivateFieldRouteIndexRoute,
+  PrivateFinanceDetailsIndexRoute: PrivateFinanceDetailsIndexRoute,
   PrivatePartiesDetailsIndexRoute: PrivatePartiesDetailsIndexRoute,
   PrivateExpertReportsTemplatesDetailsIndexRoute:
     PrivateExpertReportsTemplatesDetailsIndexRoute,

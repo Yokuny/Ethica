@@ -1,6 +1,6 @@
 import { Button } from '@ethica/ui/components/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -31,6 +31,7 @@ export function TransactionsIndexPage() {
     activeFilters,
     clearFilters,
   } = useTransactionsPage();
+  const navigate = useNavigate();
   const query = useQuery(transactionsQuery(search));
   const queryClient = useQueryClient();
   const session = useQuery(sessionQuery).data;
@@ -81,7 +82,7 @@ export function TransactionsIndexPage() {
               onPaginationChange={handlePaginationChange}
               sorting={sorting}
               onSortingChange={handleSortingChange}
-              onRowClick={(transaction) => setPanel({ kind: 'edit', transaction })}
+              onRowClick={(transaction) => navigate({ to: '/finance/details', search: { id: transaction.id } })}
               onStatus={setStatus}
               onReceive={(transaction) => setPanel({ kind: 'receive', transaction })}
               onPay={(transaction) => setPanel({ kind: 'pay', transaction })}
@@ -90,17 +91,6 @@ export function TransactionsIndexPage() {
         </DataTable>
       </CardContent>
       {panel?.kind === 'create' && <TransactionForm onClose={() => setPanel(null)} />}
-      {panel?.kind === 'edit' && (
-        <TransactionForm
-          transaction={panel.transaction}
-          onClose={() => setPanel(null)}
-          onReceive={
-            session && can(session, 'finance', 'update')
-              ? () => setPanel({ kind: 'receive', transaction: panel.transaction })
-              : undefined
-          }
-        />
-      )}
       {panel?.kind === 'receive' && <ReceiptForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
       {panel?.kind === 'pay' && <PaymentForm transaction={panel.transaction} onClose={() => setPanel(null)} />}
     </Card>
