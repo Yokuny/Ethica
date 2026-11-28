@@ -17,6 +17,7 @@ type AutomationKpisProps = {
 
 // Strip of the Automação panel (PAT-01), right under the header as in the Dashboard (AD-255): what is tracked and
 // what waits for approval now, and what the automation did in the period against the previous one of the same size.
+// Short labels, as in the Dashboard: label and trend on one line, so the values and the lines of every cell align.
 export function AutomationKpis({ dashboard, complete, months }: AutomationKpisProps) {
   const { current, previous } = splitPeriod(complete, months);
   const figure = (value: (row: AutomationDashboard['byMonth'][number]) => number) => {
@@ -37,15 +38,19 @@ export function AutomationKpis({ dashboard, complete, months }: AutomationKpisPr
   return (
     <RecordStats variant="band" role="group" aria-label={t('overview')}>
       <RecordStat
-        label={t('tracked_cases')}
+        label={t('processes')}
         value={number.format(dashboard.tracked.total)}
         dot={{ variant: attention ? 'warning' : 'success' }}
-        description={attention ? `${number.format(attention)} ${t('need_attention')}` : undefined}
+        description={
+          attention
+            ? `${number.format(attention)} ${t(attention === 1 ? 'needs_attention' : 'need_attention')}`
+            : undefined
+        }
       />
-      <RecordStat label={t('detected_movements')} {...figure((row) => row.movements)} />
-      <RecordStat label={t('notices_sent')} {...figure((row) => row.notices)} />
+      <RecordStat label={t('movements')} {...figure((row) => row.movements)} />
+      <RecordStat label={t('notices')} {...figure((row) => row.notices)} />
       <RecordStat
-        label={t('suggestions_made')}
+        label={t('suggestions')}
         {...figure((row) => row.suggestions)}
         description={`${number.format(accepted)} ${t('approved_plural')}`}
       />

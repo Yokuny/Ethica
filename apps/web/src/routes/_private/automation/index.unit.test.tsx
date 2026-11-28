@@ -92,7 +92,7 @@ describe('AutomationPage', () => {
     const strip = screen.getByRole('group', { name: 'Visão geral' });
     // 6 complete months of 4 movements (the month in progress, with 90, stays out).
     expect(within(strip).getByText('24')).toBeInTheDocument();
-    expect(within(strip).getByText('1 pedem atenção')).toBeInTheDocument();
+    expect(within(strip).getByText('1 pede atenção')).toBeInTheDocument();
     expect(within(strip).getByText('6 aprovadas')).toBeInTheDocument();
     expect(within(strip).getByText('3').closest('a')).toHaveAttribute('href', '/notifications?{"kind":["suggestion"]}');
     expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument();

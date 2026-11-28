@@ -5,7 +5,7 @@ descricao: Página Automação como painel do que a automação fez no período,
 data: 2026-11-28
 status: parcial
 areas: [apps/api, apps/web, apps/worker, packages/contracts, packages/db]
-decisoes: [AD-314]
+decisoes: [AD-314, AD-315]
 spec: [.specs/features/painel-automacao]
 branches: [main]
 ---
@@ -69,6 +69,7 @@ pnpm vitest run apps/worker/src/jobs/court-refresh.int.test.ts apps/api/src/modu
 
 ## Histórico
 
+- 2026-11-28 — Período no menu "…"; faixa com rótulos curtos (Processos, Movimentações, Avisos, Sugestões, Para aprovar), conferida com Playwright a 1280 e 1024px: as três linhas de tendência na mesma altura e os valores alinhados. O módulo passa a se chamar Acompanhamento processual para o usuário, sem "Datajud" em texto de tela nem e-mail (AD-315).
 - 2026-11-28 — Conferido com Playwright numa prévia isolada (componentes com dados fictícios, sem login), a 1280px e 390px e nos temas Claro e Escuro: faixa de cinco números numa linha, fileira de consultas alinhada aos meses em 6 e 12 (centro das células a até 2px dos meses) e as duas roscas. O `padding="gap"` do eixo não fazia nada no eixo de categorias (o recharts 3 só o aplica ao eixo numérico); trocado por `scale="band"`. No celular, o selo de tendência quebrava o rótulo no meio da palavra; agora desce para a linha de baixo (`RecordStat`, vale também para o Início e Serviços). Sem nenhuma linha do dia ainda, a página explica que a contagem começa na próxima consulta. "Contar desde a entrega" não foi perguntado ao usuário à parte: o design o lista entre as divergências confirmadas, mas as perguntas cobriram avisos, fileira e segunda rosca.
 - 2026-11-28 — Entregue (AD-314). No caminho, dois commits corrigiram a `main`: o tipo literal no e2e do painel e a ordem dos exports do `@ethica/db`; a remoção da lista em cartões entrou um commit antes da página nova, deixando a `main` alguns minutos com a página antiga importando um arquivo apagado.
 

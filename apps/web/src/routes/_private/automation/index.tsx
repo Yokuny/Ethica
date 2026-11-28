@@ -5,9 +5,15 @@ import {
   type TrackedCaseStatus,
 } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
-import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
+import {
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+} from '@ethica/ui/components/dropdown-menu';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { ToggleGroup, ToggleGroupItem } from '@ethica/ui/components/toggle-group';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { AutomationOffer } from '@/components/automation-offer.js';
@@ -45,10 +51,10 @@ const OUTCOME_COLOR: Record<SuggestionOutcome, string> = {
   superseded: NEUTRAL_COLOR,
 };
 
-// Automação Datajud as a panel (PAT-01 to PAT-05), macro → micro: the strip with what the automation did in the period
+// Acompanhamento processual (the Datajud automation) as a panel (PAT-01 to PAT-05), macro → micro: the strip with what the automation did in the period
 // and what waits for approval, the activity month by month with the constancy of the daily query, what happened to
 // the suggestions and the situation of the cases, and the list of tracked cases, newest movement first. The rules on
-// their own page behind the "…" menu. Without the module, the offer (AD-276).
+// their own page and the period in the "…" menu. Without the module, the offer (AD-276).
 export function AutomationPage() {
   const session = useQuery(sessionQuery).data;
   const active = Boolean(session && hasAutomationSession(session));
@@ -100,18 +106,21 @@ export function AutomationPage() {
       >
         {active && (
           <CardAction>
-            <ToggleGroup
-              aria-label={t('period')}
-              value={String(months)}
-              onValueChange={(value) => update({ months: Number(value) as AutomationSearch['months'] })}
-            >
-              {PERIODS.map((value) => (
-                <ToggleGroupItem key={value} value={String(value)}>
-                  {t(PERIOD_LABEL[value])}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
             <PageMenu>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>{t('period')}</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={String(months)}
+                  onValueChange={(value) => update({ months: Number(value) as AutomationSearch['months'] })}
+                >
+                  {PERIODS.map((value) => (
+                    <DropdownMenuRadioItem key={value} value={String(value)}>
+                      {t(PERIOD_LABEL[value])}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate({ to: '/automation/rules' })}>
                 {t('automation_rules')}
               </DropdownMenuItem>

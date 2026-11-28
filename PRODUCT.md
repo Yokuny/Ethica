@@ -4,7 +4,7 @@
 
 Plataforma multi-tenant para **peritos judiciais e assistentes técnicos** gerirem perícias
 trabalhistas, cíveis e federais de ponta a ponta — da nomeação ao laudo e ao recebimento dos
-honorários —, com a **Automação Datajud** (premium) acompanhando no tribunal os processos que o escritório
+honorários —, com o **Acompanhamento processual** (premium, Automação Datajud no código) acompanhando no tribunal os processos que o escritório
 já tem. A descoberta de nomeações novas virá do DJEN, em construção.
 
 Promessa: *fazer mais perícias gastando menos tempo com burocracia.* O desafio do perito não é o
@@ -36,7 +36,7 @@ Um tenant = um perito ou escritório. Papéis (`admin`, `manager`, `operator`) s
 | Perícias | Cadastro, listagem com busca, filtros e próximo prazo, detalhe com edição, etapas do fluxo (nomeada → … → concluída), vários prazos com protocolo, honorários propostos e fixados |
 | Agenda | Calendário mês/semana/dia de vistorias, audiências e reuniões, com os prazos pendentes; feed iCal para o celular; aviso diário de prazos por e-mail |
 | Financeiro | Honorários com recebimentos parciais (saldo e estorno) e despesa operacional; resumo, fluxo de caixa e totais por categoria em gráficos |
-| Automação Datajud | Processos acompanhados no tribunal uma vez por dia; avisos de movimentação e sugestões de situação, fase e recebimento que só valem com aprovação |
+| Acompanhamento processual (Automação Datajud) | Na tela, sem citar o Datajud (AD-315). Processos acompanhados no tribunal uma vez por dia; avisos de movimentação e sugestões de situação, fase e recebimento que só valem com aprovação |
 | Início | Indicadores (abertas, prazos vencidos, prazos em até 15 dias, a receber), próximos compromissos e gráficos |
 | Conta e equipe | Login, convite de usuários, foto/nome/senha |
 

@@ -2031,6 +2031,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-28
 - **Status**: active
 
+### AD-315
+- **Decision**: O usuário não lê "Datajud" em lugar nenhum: o módulo se chama **Acompanhamento processual** na tela, no menu, no tour, nos planos e no e-mail de vencimento (`automation_offer_title` e demais chaves em `apps/web/src/lib/helpers/translate.helper.ts`, `apps/worker/src/jobs/email-immediate.ts`); onde o texto citava a fonte, passa a dizer "no tribunal". O nome técnico segue no código, nos logs, nas métricas e na documentação de desenvolvimento. Na página, o período sai do cabeçalho para o menu "…" (escolha única, como o filtro da lista), e a faixa usa rótulos curtos (Processos, Movimentações, Avisos, Sugestões, Para aprovar) para o rótulo e o selo de tendência caberem numa linha e os valores e as linhas de tendência alinharem, como no Dashboard.
+- **Reason**: pedido do usuário (2026-11-28): a origem dos dados não interessa à perita; o nome deve dizer o que a automação faz. E, no print da faixa, os rótulos longos empurravam o selo para baixo e desalinhavam as linhas.
+- **Trade-off**: "Processos" sem "acompanhados" na faixa (o título da página dá o contexto).
+- **Scope**: `apps/web/src/lib/helpers/translate.helper.ts`, `apps/worker/src/jobs/email-immediate.ts`, `apps/web/src/routes/_private/automation/`, `PRODUCT.md`.
+- **Date**: 2026-11-28
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

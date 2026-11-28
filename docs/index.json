@@ -108,7 +108,8 @@
         "packages/db"
       ],
       "decisoes": [
-        "AD-314"
+        "AD-314",
+        "AD-315"
       ],
       "spec": [
         ".specs/features/painel-automacao"
@@ -2834,6 +2835,12 @@
     {
       "id": "AD-314",
       "decisao": "Painel da Automação Datajud (`painel-automacao`). (1) A API fica no módulo `automation` (`GET /automation/dashboard`, `GET /automation/cases",
+      "data": "2026-11-28",
+      "status": "active"
+    },
+    {
+      "id": "AD-315",
+      "decisao": "O usuário não lê \"Datajud\" em lugar nenhum: o módulo se chama Acompanhamento processual na tela, no menu, no tour, nos planos e no e-mail de",
       "data": "2026-11-28",
       "status": "active"
     }
