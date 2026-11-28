@@ -1,8 +1,23 @@
-import type { CaseDashboard } from '../@query/dashboard.js';
+import { z } from 'zod';
 
-// Types from the busiest to the least busy (stable): the same order, and so the same color, in the mix donut
-// and in the intake area (AD-255).
-export const rankTypes = (byType: CaseDashboard['byType']) => [...byType].sort((a, b) => b.count - a.count);
+// Period of the panels (Dashboard, Automação): complete months only and, before them, the previous period of the
+// same size (AD-255, AD-256). A number, so the URL reads `?months=6` (a string that looks like a number would be
+// written quoted by the router).
+export const PERIODS = [6, 12] as const;
+export type Period = (typeof PERIODS)[number];
+export const PERIOD_LABEL: Record<Period, string> = {
+  6: 'last_6_months',
+  12: 'last_12_months',
+};
+export const PERIOD_SCOPE: Record<Period, string> = {
+  6: 'last_6_months_vs_previous',
+  12: 'last_12_months_vs_previous',
+};
+// Old links (`"6"`) and unknown values fall back to 6 months.
+export const periodSchema = z.coerce
+  .number()
+  .pipe(z.union([z.literal(6), z.literal(12)]))
+  .catch(6);
 
 // The period (last `months` items) and the previous one of the same size, from a series oldest → newest.
 export const splitPeriod = <T>(rows: T[], months: number) => ({

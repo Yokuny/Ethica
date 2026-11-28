@@ -10,8 +10,10 @@ import { CashFlowTable } from '@/components/cash-flow-table.js';
 import { CompositionDonut } from '@/components/composition-donut.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
+import { MonthDetails } from '@/components/month-details.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
+import { PERIOD_LABEL, PERIOD_SCOPE, PERIODS, percentChange } from '@/lib/helpers/period.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import { can, sessionQuery } from '@/query/session.js';
 import {
@@ -24,18 +26,11 @@ import {
 import { CasesMonthTable } from './@components/cases-month-table.js';
 import { DashboardAlerts } from './@components/dashboard-alerts.js';
 import { DashboardKpis } from './@components/dashboard-kpis.js';
-import { MonthDetails } from './@components/month-details.js';
 import { RevenueGoalChart } from './@components/revenue-goal-chart.js';
 import { ServicesAreaChart } from './@components/services-area-chart.js';
-import {
-  type DashboardSearch,
-  dashboardSearchSchema,
-  PERIOD_LABEL,
-  PERIOD_SCOPE,
-  PERIODS,
-} from './@interface/dashboard.interface.js';
+import { type DashboardSearch, dashboardSearchSchema } from './@interface/dashboard.interface.js';
 import { type CaseDashboard, caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
-import { percentChange, rankTypes } from './@utils/dashboard-period.js';
+import { rankTypes } from './@utils/rank-types.js';
 
 const number = new Intl.NumberFormat('pt-BR');
 const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });

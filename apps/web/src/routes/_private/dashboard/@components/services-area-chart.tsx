@@ -4,7 +4,7 @@ import { serviceTypeLabel } from '@/components/case-labels.js';
 import { NEUTRAL_COLOR, SERIES_COLORS } from '@/components/composition-donut.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseDashboard } from '../@query/dashboard.js';
-import { rankTypes } from '../@utils/dashboard-period.js';
+import { rankTypes } from '../@utils/rank-types.js';
 
 const LIMIT = SERIES_COLORS.length;
 const monthShort = new Intl.DateTimeFormat('pt-BR', { month: 'short' });

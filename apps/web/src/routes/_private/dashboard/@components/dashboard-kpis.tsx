@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { RecordStat, RecordStats } from '@/components/record.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
+import { direction, percentChange, splitPeriod } from '@/lib/helpers/period.helper.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { FinanceSummary, MonthlyFlow } from '@/query/transaction.js';
 import type { CaseDashboard } from '../@query/dashboard.js';
-import { direction, percentChange, splitPeriod } from '../@utils/dashboard-period.js';
 
 const number = new Intl.NumberFormat('pt-BR');
 const sum = <T,>(rows: T[], value: (row: T) => number) => rows.reduce((total, row) => total + value(row), 0);
