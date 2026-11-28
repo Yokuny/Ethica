@@ -58,7 +58,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 ### Validar e confirmar — você (e a perita)
 
 - [ ] Conferir na tela (login local pede passkey): contratante cortado em uma linha em Serviços, "Visão completa" nos Filtros prontos, coluna Serviço com tooltip e ações em ícones em Notificações — `filtros-lista`, `notificacoes-processo-unico`
-- [ ] Rota de 16 a 22 dez: clicar em "Localizar endereços" e ver se a vistoria de Viamão (-30.0700…, -51.0352…) ganha o ponto; se não ganhar, reescrever o local à mão (copiar pode trazer caractere invisível) — `logistica-paginas`
+- [ ] Rota de 16 a 22 dez: conferir se a vistoria de Viamão (-30.0700…, -51.0352…) já aparece no mapa; se ainda aparecer "Endereço não localizado", reescrever o local à mão (copiar pode trazer caractere invisível) — `logistica-paginas`
 - [ ] Conferir na tela os "Filtros prontos" do menu "…" de Serviços e do Histórico de auditoria (não renderizado nesta entrega: o login local pede passkey) — `filtros-lista`
 - [ ] Conferir na tela o botão "Registrar recebimento" no Financeiro do serviço e no diálogo do lançamento (não renderizado nesta entrega: o código de acesso sai no log da API) — `prazos-recebimentos`
 - [ ] Desfazer o lançamento avulso de "Honorários prévios" de R$ 1.110,00 do 5019106-45.2025.8.24.0064: anular o lançamento e registrar o valor como recebimento do honorário fixado — `prazos-recebimentos`

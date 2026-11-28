@@ -2,7 +2,7 @@
 feature: Logística em páginas por intenção e termo de vistoria assinado
 slug: logistica-paginas
 descricao: Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas
-data: 2026-11-20
+data: 2026-11-28
 status: parcial
 areas: [apps/api, apps/web]
 decisoes: [AD-239, AD-242, AD-243]
@@ -62,6 +62,7 @@ pnpm run check && (cd apps/web && pnpm run build)
 
 ## Histórico
 
+- 2026-11-28 — Local digitado como coordenadas (`lat, long`, AD-160) já vem com o ponto na leitura do compromisso (`pointOf` em `apps/api/src/modules/agenda/appointment.repository.ts`), sem depender do "Localizar endereços"; vale para os compromissos já gravados. O `geocode` só consulta o provedor para endereço. Pedido do usuário: uma vistoria com coordenadas na rota aparecia como "Endereço não localizado".
 - 2026-11-25 — Registro da vistoria: as ações de cada bloco (ex.: "Partes do serviço" e "Adicionar presente") ficam juntas à direita do título; antes o fragmento espalhava os botões pela linha. `FieldList` troca `conteudo` por `content`.
 - 2026-11-25 — Planejamento de rota: "Partir da minha localização" ordena por proximidade dentro de cada dia, com os dias em ordem (antes misturava 17 → 16 → 22); botão "Editar" em cada parada abre o compromisso já em edição na Agenda (`/agenda?date=&appointmentId=`). Serviços agendados: cartão com menos espaço vertical.
 - 2026-11-20 — Seletor de intervalo no cabeçalho das três páginas, com mês e ano em listas e atalhos Semana e Mês; a faixa de dias pula para o intervalo escolhido; `rangeOf` reúne o corte em 366 dias (AD-243).

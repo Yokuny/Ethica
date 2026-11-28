@@ -27,6 +27,30 @@
       "doc": "features/filtros-lista/feature.md"
     },
     {
+      "slug": "logistica-paginas",
+      "feature": "Logística em páginas por intenção e termo de vistoria assinado",
+      "descricao": "Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas",
+      "data": "2026-11-28",
+      "status": "parcial",
+      "areas": [
+        "apps/api",
+        "apps/web"
+      ],
+      "decisoes": [
+        "AD-239",
+        "AD-242",
+        "AD-243"
+      ],
+      "spec": [
+        ".specs/features/logistica-paginas"
+      ],
+      "planos": [
+        ".specs/features/logistica-paginas/plans/2026-11-20-logistica-paginas.md",
+        ".specs/features/logistica-paginas/plans/2026-11-25-ajustes-perita-logistica-abas.md"
+      ],
+      "doc": "features/logistica-paginas/feature.md"
+    },
+    {
       "slug": "notificacoes-processo-unico",
       "feature": "Notificações num processo só",
       "descricao": "Prazos, alertas, sugestões e avisos numa lista só, abertas ou resolvidas, com uma leitura e um contador na API",
@@ -419,30 +443,6 @@
         ".specs/features/cadastro-checkout/plans/2026-11-21-pix-boleto-nativo.md"
       ],
       "doc": "features/cadastro-checkout/feature.md"
-    },
-    {
-      "slug": "logistica-paginas",
-      "feature": "Logística em páginas por intenção e termo de vistoria assinado",
-      "descricao": "Logística em hub com Mapa, Planejamento de rota e Serviços agendados, intervalo de datas, e termo da vistoria em PDF com as assinaturas",
-      "data": "2026-11-20",
-      "status": "parcial",
-      "areas": [
-        "apps/api",
-        "apps/web"
-      ],
-      "decisoes": [
-        "AD-239",
-        "AD-242",
-        "AD-243"
-      ],
-      "spec": [
-        ".specs/features/logistica-paginas"
-      ],
-      "planos": [
-        ".specs/features/logistica-paginas/plans/2026-11-20-logistica-paginas.md",
-        ".specs/features/logistica-paginas/plans/2026-11-25-ajustes-perita-logistica-abas.md"
-      ],
-      "doc": "features/logistica-paginas/feature.md"
     },
     {
       "slug": "temas",
