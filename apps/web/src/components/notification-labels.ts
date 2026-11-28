@@ -23,6 +23,8 @@ const NOTICE_KEY: Record<string, string> = {
   court_movement: 'court_movement_notice',
   payment_in_progress: 'payment_in_progress_notice',
   deadlines_review: 'deadlines_review_notice',
+  fees_collection: 'fees_collection_notice',
+  fees_open_finished: 'fees_open_finished_notice',
   automation_expiring: 'automation_expiring_notice',
 };
 

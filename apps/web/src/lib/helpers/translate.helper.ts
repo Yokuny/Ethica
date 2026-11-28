@@ -270,6 +270,8 @@ const translations: Record<string, string> = {
   court_movement_notice: 'Movimentação nova no tribunal',
   payment_in_progress_notice: 'Pagamento em andamento no tribunal',
   deadlines_review_notice: 'Processo suspenso: revise os prazos pendentes',
+  fees_collection_notice: 'Hora de cobrar os honorários',
+  fees_open_finished_notice: 'Processo arquivado com honorário em aberto',
   automation_expiring_notice: 'A Automação Datajud termina em breve',
   automation_page_description: 'Os processos acompanhados no tribunal e o que cada movimento traz.',
   notice: 'Aviso',

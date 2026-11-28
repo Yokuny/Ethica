@@ -59,6 +59,9 @@ export const NOTICE_TOPICS = [
   // Fase 6 (AD-269): payment requested or ordered in court; a suspended process asks to review the deadlines.
   'payment_in_progress',
   'deadlines_review',
+  // SGD-05 (AD-309): time to collect the fees, and a process ended in court with income still open.
+  'fees_collection',
+  'fees_open_finished',
 ] as const;
 export type NoticeTopic = (typeof NOTICE_TOPICS)[number];
 

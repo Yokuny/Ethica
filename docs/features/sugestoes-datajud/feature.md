@@ -37,11 +37,12 @@ A definir (task T11).
 
 ## Pendências
 
-- [ ] Tasks T4 a T11 de `.specs/features/sugestoes-datajud/tasks.md`.
+- [ ] Tasks T5 a T11 de `.specs/features/sugestoes-datajud/tasks.md`.
 - [ ] Antes do deploy, apagar de novo os dados do Datajud em produção (roadmap).
 
 ## Histórico
 
+- 2026-11-27 — T4: hora de cobrar e de encerrar pelo estado do processo (AD-309), a cada consulta depois da linha de base: aviso `fees_collection` uma vez por serviço com receita em aberto; processo encerrado no tribunal sugere a fase de encerrar com honorário recebido ou avisa `fees_open_finished` com receita em aberto; sugestão de recebimento pendente segura os dois. O aviso e o recebimento levam o lançamento em aberto (`Transaction`). Leituras novas no `packages/db/src/workerReads.ts` (`incomeOfCases`, `hasPendingSuggestion`).
 - 2026-11-27 — T3: sugestão "Preencher com os dados do tribunal" (`case_fill`, AD-309): em qualquer consulta que encontra o processo, se a vara ou a data de autuação (`docketingDate`) do serviço estão vazias, uma vez por serviço; aceitar grava só o que continua vazio. Vara em maiúsculas vira só a inicial maiúscula (`courtDivisionName`).
 - 2026-11-27 — T2: client do Datajud movido de `apps/worker/src/datajud/` para `packages/datajud` (sem shim), nos três Dockerfiles e no mapa do `AGENTS.md`; lê `dataAjuizamento` e `assuntos`. Imagem do worker construída e importando o pacote.
 - 2026-11-27 — T1b: suspensão pelas famílias 25, 11025 e 12274 e pelo arquivamento provisório (245); retomada por 14974 e filhos, 849 e 893 (regras na versão 3); `courtFinishing` (fim do processo pelo último movimento entre encerrar e retomar, baixa só no primeiro grau) e `CASE_FINISHED_RULE`. Divergência do design: a AD-310 (outra sessão, mesmo dia) trocou `assistance_closed` por `finished`, comum a todos os tipos; a assistência recebe "Finalizado" (`finished`) e a perícia segue "Honorários recebidos", como o usuário escolheu.

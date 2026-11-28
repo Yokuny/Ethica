@@ -165,6 +165,33 @@ export type TrackedCase = {
   docketingDate?: string;
 };
 
+// The income of each case for the court rules (SGD-05, AD-309): the oldest open one (expected or partial, as the
+// receipt dialog picks it) and whether at least one is settled. Canceled income does not count.
+export type CaseIncome = { openId?: string; settled: boolean };
+export const incomeOfCases = async (caseIds: string[]): Promise<Map<string, CaseIncome>> => {
+  const docs = await Transaction.find({
+    Case: { $in: caseIds.map(toObjectId) },
+    kind: 'income',
+    status: { $in: ['expected', 'partial', 'settled'] },
+  })
+    .select('Case status dueDate')
+    .sort({ dueDate: 1, _id: 1 })
+    .lean();
+  const income = new Map<string, CaseIncome>();
+  for (const doc of docs) {
+    const caseId = String(doc.Case);
+    const current = income.get(caseId) ?? { settled: false };
+    if (doc.status === 'settled') current.settled = true;
+    else current.openId ??= doc._id.toString();
+    income.set(caseId, current);
+  }
+  return income;
+};
+
+// Whether a case has a pending suggestion of a rule (a receipt holds the end of the process, AD-309).
+export const hasPendingSuggestion = async (caseId: string, ruleKey: string): Promise<boolean> =>
+  Boolean(await Notification.exists({ Case: toObjectId(caseId), kind: 'suggestion', status: 'pending', ruleKey }));
+
 // Cases followed in court (ADT-02, PAC-03): offices with the module on, a valid CNJ number of a tracked court
 // type, a judicial type (perícia or technical assistance) and the case not closed. Derived on every run; the worker reads every office, the api
 // one office (the Automação page).

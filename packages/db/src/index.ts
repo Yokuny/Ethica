@@ -71,6 +71,7 @@ export {
 } from './textSearch.js';
 export { dateInDisplayTz, shiftMonth, timeInDisplayTz, wallClockToUtc } from './time.js';
 export type {
+  CaseIncome,
   DeliveryRecipient,
   DueItem,
   FinanceDueItem,
@@ -81,6 +82,8 @@ export type {
 export {
   caseLabelsByIds,
   findNoticeForDelivery,
+  hasPendingSuggestion,
+  incomeOfCases,
   listAutomationEnding,
   listDeliveryRecipients,
   listFinanceDueUntil,

@@ -8,6 +8,7 @@ import {
   Notification,
   syncWorkerIndexes,
   Tenant,
+  Transaction,
   WorkerJob,
 } from '@ethica/db';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -41,7 +42,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
   });
   afterEach(async () => {
     await Promise.all(
-      [Case, CaseCourtSync, CourtProcess, Notification, Tenant, WorkerJob].map((model) =>
+      [Case, CaseCourtSync, CourtProcess, Notification, Tenant, Transaction, WorkerJob].map((model) =>
         (model as typeof Tenant).deleteMany({}),
       ),
     );
@@ -351,5 +352,93 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       now,
     );
     expect(await Notification.countDocuments({ ruleKey: 'case_fill' })).toBe(0);
+  });
+
+  describe('hora de cobrar e de encerrar pelo estado do processo (SGD-05, AD-309)', () => {
+    const run = async (movements: CourtProcessData['movements'], day: string, serviceType = 'expert_examination') => {
+      const [office] = await Tenant.find({}).lean();
+      const [legalCase] = await Case.find({}).lean();
+      const item = {
+        tenantId: String(office?._id),
+        caseId: String(legalCase?._id),
+        processNumber: NUMBER,
+        court: 'TRT24',
+        serviceType: serviceType as 'expert_examination',
+        status: 'active' as const,
+        phase: 'awaiting_judge' as const,
+      };
+      const fetchProcesses = vi.fn<DatajudClient['fetchProcesses']>().mockResolvedValue([courtProcess(movements)]);
+      return refreshCourtBatch({ fetchProcesses }, { court: 'TRT24', day, cases: [item] }, now);
+    };
+    const income = async (status: 'expected' | 'settled') => {
+      const [legalCase] = await Case.find({}).lean();
+      return Transaction.create({
+        Tenant: legalCase?.Tenant,
+        Case: legalCase?._id,
+        kind: 'income',
+        category: 'fixed_fees',
+        description: 'Honorários periciais',
+        amountCents: 300_000,
+        dueDate: '2026-12-01',
+        status,
+      });
+    };
+    const base = movement('a', '2026-01-01T10:00:00Z', 26);
+
+    it('cobra uma vez só, com o lançamento em aberto, só depois da linha de base', async () => {
+      await seed('11222333000181', true);
+      const open = await income('expected');
+      await run([base, movement('t', '2026-11-10T10:00:00Z', 848)], '2026-11-20');
+      expect(await Notification.countDocuments({ topic: 'fees_collection' })).toBe(0);
+      await run([base, movement('t', '2026-11-10T10:00:00Z', 848)], '2026-11-21');
+      await run(
+        [base, movement('t', '2026-11-10T10:00:00Z', 848), movement('l', '2026-11-21T10:00:00Z', 11384)],
+        '2026-11-22',
+      );
+      const notices = await Notification.find({ topic: 'fees_collection' }).lean();
+      expect(notices.map((notice) => [notice.module, String(notice.Transaction), notice.expireAt])).toEqual([
+        ['finance', open.id, undefined],
+      ]);
+    });
+
+    it('encerrado com honorário recebido sugere a fase; em aberto avisa; sem receita lançada, nada', async () => {
+      await seed('11222333000181', true);
+      const finished = [base, movement('arq', '2026-11-10T10:00:00Z', 246)];
+      await run([base], '2026-11-20');
+      await run(finished, '2026-11-21');
+      expect(await Notification.countDocuments({ source: 'datajud', kind: { $ne: 'notice' } })).toBe(0);
+      expect(await Notification.countDocuments({ topic: 'fees_open_finished' })).toBe(0);
+
+      const open = await income('expected');
+      await run(finished, '2026-11-22');
+      expect((await Notification.findOne({ topic: 'fees_open_finished' }).lean())?.Transaction?.toString()).toBe(
+        open.id,
+      );
+
+      await Transaction.updateOne({ _id: open._id }, { status: 'settled' });
+      await run(finished, '2026-11-23');
+      const [suggestion] = await Notification.find({ ruleKey: 'case_finished' }).lean();
+      expect(suggestion?.proposal).toEqual({ target: 'case_phase', value: 'fees_received' });
+    });
+
+    it('a RPV paga depois do arquivamento segura o encerramento até o recebimento ser decidido', async () => {
+      await seed('11222333000181', true);
+      const open = await income('expected');
+      await run([base], '2026-11-20');
+      const paidAfter = [
+        base,
+        movement('arq', '2026-11-10T10:00:00Z', 246),
+        movement('rpv', '2026-11-12T10:00:00Z', 12176),
+      ];
+      await run(paidAfter, '2026-11-21');
+      const receipt = await Notification.findOne({ ruleKey: 'payment_available' }).lean();
+      expect(receipt?.Transaction?.toString()).toBe(open.id);
+      expect(await Notification.countDocuments({ topic: 'fees_open_finished' })).toBe(0);
+
+      // Rejected: the next query warns of the open fee.
+      await Notification.updateOne({ _id: receipt?._id }, { status: 'rejected' });
+      await run(paidAfter, '2026-11-22');
+      expect(await Notification.countDocuments({ topic: 'fees_open_finished' })).toBe(1);
+    });
   });
 });

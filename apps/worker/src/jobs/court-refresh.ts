@@ -1,7 +1,10 @@
 import {
   CASE_FILL_RULE,
+  CASE_FINISHED_RULE,
   caseFillOf,
   courtDivisionName,
+  courtFinishing,
+  FEES_COLLECTION_CODES,
   isPaymentAvailable,
   isPaymentIntent,
   matchRules,
@@ -10,7 +13,15 @@ import {
   type RuleMatch,
 } from '@ethica/contracts';
 import type { DatajudClient } from '@ethica/datajud';
-import { CaseCourtSync, CourtProcess, dateInDisplayTz, listTrackedCases, type TrackedCase } from '@ethica/db';
+import {
+  CaseCourtSync,
+  CourtProcess,
+  dateInDisplayTz,
+  hasPendingSuggestion,
+  incomeOfCases,
+  listTrackedCases,
+  type TrackedCase,
+} from '@ethica/db';
 import { insertCaseNotice, insertCourtMovementNotice, insertSuggestion } from '../queue/notification-writes.js';
 import { enqueue } from '../queue/queue.js';
 
@@ -78,6 +89,7 @@ export const refreshCourtBatch = async (
     );
   }
 
+  const income = await incomeOfCases(payload.cases.map((item) => item.caseId));
   let baselines = 0;
   let notices = 0;
   let suggestions = 0;
@@ -142,6 +154,59 @@ export const refreshCourtBatch = async (
       baselines += 1;
       continue;
     }
+    const caseRef = { tenantId: item.tenantId, caseId: item.caseId, day: payload.day };
+    const caseIncome = income.get(item.caseId) ?? { settled: false };
+    // SGD-05 (AD-309): by the state of the process, on every query after the baseline, not only on new movements.
+    // A pending receipt holds the end of the process until someone decides it (accepted in full or in part, rejected or
+    // expired, the next query decides).
+    const reviewFees = async () => {
+      const collection = movements.filter((movement) => FEES_COLLECTION_CODES.includes(movement.code)).at(-1);
+      if (collection && caseIncome.openId) {
+        await insertCaseNotice(
+          {
+            ...caseRef,
+            topic: 'fees_collection',
+            module: 'finance',
+            movement: collection,
+            once: `fees_collection:${item.caseId}`,
+            transactionId: caseIncome.openId,
+          },
+          now,
+        );
+      }
+      const finishing = courtFinishing(processes.filter((process) => process.processNumber === item.processNumber));
+      if (!finishing) return;
+      // Includes the receipt created in this same batch, already written above.
+      if (await hasPendingSuggestion(item.caseId, PAYMENT_RULE.key)) return;
+      if (caseIncome.openId) {
+        await insertCaseNotice(
+          {
+            ...caseRef,
+            topic: 'fees_open_finished',
+            module: 'finance',
+            movement: finishing,
+            once: `fees_open_finished:${item.caseId}:${finishing.key}`,
+            transactionId: caseIncome.openId,
+          },
+          now,
+        );
+        return;
+      }
+      const proposal = caseIncome.settled ? CASE_FINISHED_RULE.propose(item.serviceType) : undefined;
+      if (!proposal || proposalFits(item, proposal) !== 'apply') return;
+      const id = await insertSuggestion({
+        tenantId: item.tenantId,
+        caseId: item.caseId,
+        court: item.court,
+        ruleKey: CASE_FINISHED_RULE.key,
+        ruleVersion: CASE_FINISHED_RULE.version,
+        proposal,
+        movement: finishing,
+        dedupeKey: `suggestion:${item.caseId}:${CASE_FINISHED_RULE.key}:${finishing.key}`,
+        severity: 'warning',
+      });
+      if (id) suggestions += 1;
+    };
     const seen = new Set(sync.seenMovementKeys);
     const fresh = movements.filter((movement) => !seen.has(movement.key)).sort((a, b) => a.at.localeCompare(b.at));
     // The movements become "seen" only after their notice and suggestions are written (all idempotent by
@@ -153,10 +218,10 @@ export const refreshCourtBatch = async (
       );
     const latest = fresh.at(-1);
     if (!latest) {
+      await reviewFees();
       await markSeen();
       continue;
     }
-    const caseRef = { tenantId: item.tenantId, caseId: item.caseId, day: payload.day };
     const inserted = await insertCourtMovementNotice(
       {
         tenantId: item.tenantId,
@@ -208,6 +273,7 @@ export const refreshCourtBatch = async (
         ruleVersion: PAYMENT_RULE.version,
         proposal: { target: 'transaction_installment', date: paid.at.slice(0, 10) },
         movement: paid,
+        transactionId: caseIncome.openId,
         dedupeKey: `suggestion:${item.caseId}:${PAYMENT_RULE.key}:${paid.at.slice(0, 10)}`,
         severity: 'critical',
       });
@@ -216,6 +282,7 @@ export const refreshCourtBatch = async (
         await enqueue('email_immediate', { notificationId: id }, { dedupeKey: `email_immediate:${id}`, priority: 5 });
       }
     }
+    await reviewFees();
     await markSeen();
   }
   return { processes: processes.length, baselines, notices, suggestions, notFound };

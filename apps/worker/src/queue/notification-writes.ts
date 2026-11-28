@@ -125,6 +125,7 @@ export const insertSuggestion = async (suggestion: {
   movement: CourtMovement;
   dedupeKey: string;
   severity: 'warning' | 'critical';
+  transactionId?: string;
 }): Promise<string | null> => {
   try {
     const doc = await Notification.create({
@@ -135,6 +136,7 @@ export const insertSuggestion = async (suggestion: {
       status: 'pending',
       severity: suggestion.severity,
       Case: suggestion.caseId,
+      ...(suggestion.transactionId ? { Transaction: suggestion.transactionId } : {}),
       proposal: suggestion.proposal,
       evidence: { court: suggestion.court, movement: suggestion.movement },
       ruleKey: suggestion.ruleKey,
@@ -149,14 +151,18 @@ export const insertSuggestion = async (suggestion: {
 };
 
 // A notice of a case about a court movement (payment in progress, deadlines to review): one per case, topic and day.
+// The fee notices (SGD-05) come once per case (`once`, never expiring, so the key keeps them from coming back) and
+// point to the open income.
 export const insertCaseNotice = async (
   notice: {
     tenantId: string;
     caseId: string;
-    topic: 'payment_in_progress' | 'deadlines_review';
+    topic: 'payment_in_progress' | 'deadlines_review' | 'fees_collection' | 'fees_open_finished';
     module: 'expert_cases' | 'finance';
     day: string;
     movement: CourtMovement;
+    once?: string;
+    transactionId?: string;
   },
   now = new Date(),
 ): Promise<boolean> => {
@@ -169,9 +175,10 @@ export const insertCaseNotice = async (
       topic: notice.topic,
       severity: 'info',
       Case: notice.caseId,
+      ...(notice.transactionId ? { Transaction: notice.transactionId } : {}),
       params: { latestCode: notice.movement.code, latestName: notice.movement.name, latestAt: notice.movement.at },
-      dedupeKey: `${notice.topic}:${notice.caseId}:${notice.day}`,
-      expireAt: new Date(now.getTime() + COURT_NOTICE_DAYS * 86_400_000),
+      dedupeKey: notice.once ?? `${notice.topic}:${notice.caseId}:${notice.day}`,
+      ...(notice.once ? {} : { expireAt: new Date(now.getTime() + COURT_NOTICE_DAYS * 86_400_000) }),
     });
     return true;
   } catch (e) {
