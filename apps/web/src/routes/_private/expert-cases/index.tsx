@@ -85,6 +85,10 @@ export function CasesIndexPage() {
                   {t(preset.label)}
                 </DropdownMenuItem>
               ))}
+              {/* Every service, without any filter or search. */}
+              <DropdownMenuItem disabled={!hasFilters} onClick={clearFilters}>
+                {t('full_view')}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             {canCreate && (
               <>

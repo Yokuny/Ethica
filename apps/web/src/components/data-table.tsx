@@ -500,9 +500,10 @@ function TableStack({
         className,
       )}
     >
+      {/* `max-w-full`: a value cut to one line (`truncate`) stays inside the column instead of over the next one. */}
       <ItemTitle
         className={cn(
-          'block font-normal text-pretty',
+          'block max-w-full font-normal text-pretty',
           tone === 'muted' && 'text-muted-foreground',
           tone === 'error' && 'text-destructive',
         )}
