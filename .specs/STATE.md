@@ -1991,6 +1991,14 @@ equivalente daqui. Decisões novas do Ethica começam em AD-102.
 - **Date**: 2026-11-27
 - **Status**: active
 
+### AD-310
+- **Decision**: Tipo e fase do serviço só como enums em inglês. `Case.serviceType` é obrigatório e é um de `SERVICE_TYPES` (`expert_examination`, `technical_assistance`, `partnership`, `private_service`); saem `role`, `roleName`, `phaseName`, a fase `custom`, o "Cadastrar novo" (tipo com nome digitado), `GET /expert-cases/service-types` e o prefixo `name:` do filtro (um parâmetro só, `serviceType`). Fase só da lista do tipo (`casePhases(serviceType)`); Parceria e Serviço particular têm `OWN_SERVICE_PHASES` (Contratado, Em andamento, Entregue, Honorários recebidos, Finalizado). "Finalizado" é uma fase só, `finished`, a última de todos os tipos, e encerra o serviço; `assistance_closed` → `finished`, `assistance_hired` → `hired`. `migrateCases` passa a fazer só essa conversão (de/para do texto digitado: Finalizado/Concluído/Encerrado → `finished`, Entregue → `delivered`, Contratado → `hired`, Recebido/Pago → `fees_received`, outro → `in_progress`; a atuação digitada vai para as Observações); as conversões antigas saem. A área do modelo de laudo vira enum (`TEMPLATE_AREAS` com `partnership` e `private_service`). Supersede o tipo/atuação/fase digitados de AD-158, AD-176, AD-177, AD-178, AD-199 e AD-200 e a fase `assistance_closed` da AD-305.
+- **Reason**: pedido do usuário (2026-11-27): o filtro "Serviços finalizados" escondia as Parcerias com fase digitada "Finalizado", e o filtro de tipo gerava `role` ou `serviceType` conforme o tipo. Em MVP (só usuários de teste em produção), normalizar agora, do jeito mais direto: poucos enums, mesma linguagem em todo o sistema, sem transformação.
+- **Trade-off**: o escritório não cria tipo nem fase com nome próprio; um tipo novo é mudança de código.
+- **Scope**: `packages/contracts/src/schemas/{case,report,import,automation-rules,notification}.schema.ts`, `packages/db/src/models/{case,template}.model.ts`, `packages/db/src/workerReads.ts`, `apps/api/src/modules/{case,documents,notifications}/`, `apps/worker/src/jobs/court-refresh.ts`, `apps/web/src/` (rótulos, formulário, filtros, lista, detalhe, dashboard, modelos).
+- **Date**: 2026-11-27
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `central-notificacoes` e `automacao-datajud` — Fases 0 a 6 do plano na `main` (AD-263 a AD-280); página Automação Datajud no lugar da Prospecção, removida inteira (AD-281). Dados da Prospecção já apagados em produção e página conferida no navegador local. Fica com o usuário: serviço do worker na Railway (com `DATAJUD_API_KEY` e as chaves VAPID), usuário próprio no Atlas, apagar a collection antiga `deadlines`, testar o plano com Automação com dinheiro de verdade. Fica para depois: perícias cíveis (TJ) no acompanhamento, criar a receita junto com o recebimento, circuit breaker por tribunal, conferência do push num aparelho real.

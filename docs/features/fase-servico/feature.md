@@ -68,6 +68,7 @@ pnpm vitest run apps/api/src/modules/case packages/db/src/models/case.model.int.
 
 ## Histórico
 
+- 2026-11-27 — Tipo e fase só em enums (AD-310, `servico-enums`): sai o "Cadastrar novo", a fase digitada e o `role`; "Finalizado" (`finished`) entra no fim da lista da perícia e encerra o serviço.
 - 2026-11-27 — "Honorários recebidos" deixa de encerrar o serviço, na perícia, na assistência e nos tipos do escritório (AD-306, pedido da perita); encerram o status Cancelado e as fases de `CASE_CLOSED_PHASES` (`packages/contracts/src/schemas/case.schema.ts`).
 - 2026-11-27 — Pedido da perita: fase inicial "Nomeado" (`nominated`, `packages/contracts/src/schemas/case.schema.ts`) antes de "Nomeação aceita", para o processo em análise antes do aceite ou da escusa. Rótulos na tela e no PDF; na importação de planilha, o texto "Nomeado" passa a cair nessa fase (antes ia para "Aguardando agendamento"). O padrão do cadastro segue "Aguardando agendamento"; os serviços já gravados não mudam.
 - 2026-11-05 — Fases da perícia passam de 34 para 20, com nomes curtos: as redundantes se juntam e os serviços salvos vão para a fase equivalente ao subir o sistema (AD-196). As impugnações deixam de ter o número da rodada.

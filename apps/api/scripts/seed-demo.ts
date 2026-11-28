@@ -66,7 +66,7 @@ const CASES = [
     court: 'TJSP',
     division: '5ª Vara Cível do Foro Central',
     subject: 'Vícios construtivos em edifício',
-    phase: 'assistance_hired',
+    phase: 'hired',
     deadline: 30,
     proposed: 900_000,
     // Technical assistant hired by the plaintiff (AD-135): contracted fee.
@@ -184,7 +184,7 @@ const run = async (): Promise<void> => {
       Tenant: tenant._id,
       processNumber: p.number,
       courtType: p.courtType,
-      role: index === 2 ? 'technical_assistant' : 'court_expert',
+      serviceType: index === 2 ? 'technical_assistance' : 'expert_examination',
       court: p.court,
       division: p.division,
       district: p.court === 'TRT15' ? 'Campinas' : 'São Paulo',

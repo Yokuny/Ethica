@@ -104,7 +104,7 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[]) => {
 const CASE = {
   processNumber: '0008888-22.2026.5.02.0003',
   courtType: 'labor',
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   court: 'TRT2',
   division: '3ª Vara do Trabalho de São Paulo',
   subject: 'Insalubridade',

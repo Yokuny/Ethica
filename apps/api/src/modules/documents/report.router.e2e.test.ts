@@ -114,7 +114,7 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[]) => {
 const CASE = {
   processNumber: '0007777-11.2026.5.15.0001',
   courtType: 'labor',
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   court: 'TRT15',
   division: '1ª Vara do Trabalho de Campinas',
   subject: 'Insalubridade',
@@ -472,7 +472,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     expect(after.body.data.phase).toBe('report_delivered');
     // In the technical assistance the delivery leads to "Parecer técnico entregue" (AD-186).
     const assistance = await admin.as(request(app).post('/expert-cases')).send({
-      role: 'technical_assistant',
+      serviceType: 'technical_assistance',
       subject: 'Assistência ao reclamante',
       contractor: { name: 'Maria' },
       reportDueDate: '2026-12-01',
@@ -555,14 +555,14 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
       }),
     );
     const docxType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    const url = '/expert-reports/templates/file?name=Avalia%C3%A7%C3%A3o&type=report&area=Servi%C3%A7o%20particular';
+    const url = '/expert-reports/templates/file?name=Avalia%C3%A7%C3%A3o&type=report&area=private_service';
 
     const denied = await operator.as(request(app).post(url)).set('Content-Type', docxType).send(docx);
     expect(denied.status).toBe(403);
 
     const imported = await manager.as(request(app).post(url)).set('Content-Type', docxType).send(docx);
     expect(imported.status).toBe(201);
-    expect(imported.body.data).toMatchObject({ name: 'Avaliação', area: 'Serviço particular', isDefault: false });
+    expect(imported.body.data).toMatchObject({ name: 'Avaliação', area: 'private_service', isDefault: false });
     expect(imported.body.data.sections).toEqual([
       expect.objectContaining({ title: 'Objetivo', yesText: '<p>Avaliar o imóvel.</p>' }),
     ]);
@@ -584,7 +584,7 @@ describe('laudos (LAU-01..03, 05, 06)', () => {
     const admin = await seedSession(tenant._id, ['admin']);
     const legalCase = await admin
       .as(request(app).post('/expert-cases'))
-      .send({ ...CASE, courtType: 'civil', role: 'technical_assistant', court: 'TJSP' });
+      .send({ ...CASE, courtType: 'civil', serviceType: 'technical_assistance', court: 'TJSP' });
     const caseId = legalCase.body.data.id;
     const { body: template } = await admin.as(request(app).get('/expert-reports/templates/standard-technical_opinion'));
     const objection = sectionByTitle(template.data.sections, 'Impugnação do laudo pericial');

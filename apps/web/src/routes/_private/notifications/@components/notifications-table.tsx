@@ -118,7 +118,7 @@ export function NotificationsTable({
                   </TableStack>
                 </TableCell>
                 <TableCell>
-                  <TableStack width="fit" tone={item.role || item.serviceType ? 'default' : 'muted'}>
+                  <TableStack width="fit" tone={item.serviceType ? 'default' : 'muted'}>
                     {serviceLabel(item) || '—'}
                   </TableStack>
                 </TableCell>

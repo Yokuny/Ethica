@@ -1,19 +1,20 @@
 import {
   CASE_PHASES,
-  CASE_ROLES,
   CASE_STATUS,
   type CasePhase,
-  type CaseRole,
   type CaseStatus,
   COURTTYPES,
   type CourtType,
+  casePhases,
+  defaultPhase,
   MOVEMENT_TYPES,
   type MovementType,
   PARTY_TYPES,
   type PartyType,
+  SERVICE_TYPES,
+  type ServiceType,
   SIDES,
   type Side,
-  TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
@@ -56,17 +57,13 @@ export interface CaseAttachmentDocument {
 export interface CaseDocument {
   _id: mongoose.Types.ObjectId;
   Tenant: mongoose.Types.ObjectId;
-  // Optional only in a service type created by the office (AD-158).
+  // Only in a perícia (AD-158).
   processNumber?: string;
   // Service order control number (NLA-01).
   serviceOrder?: string;
   // Sphere, only in a perícia (AD-178).
   courtType?: CourtType;
-  serviceType?: string;
-  role: CaseRole;
-  // Typed role and phase of the office's own type (AD-176, AD-178).
-  roleName?: string;
-  phaseName?: string;
+  serviceType: ServiceType;
   contractor?: CaseContractorDocument;
   court?: string;
   division?: string;
@@ -101,10 +98,7 @@ const caseSchema = new Schema<CaseDocument>(
     processNumber: { type: String, trim: true },
     serviceOrder: { type: String, trim: true },
     courtType: { type: String, enum: COURTTYPES },
-    serviceType: { type: String, trim: true },
-    role: { type: String, enum: CASE_ROLES, required: true },
-    roleName: { type: String, trim: true },
-    phaseName: { type: String, trim: true },
+    serviceType: { type: String, enum: SERVICE_TYPES, required: true },
     contractor: {
       type: new Schema<CaseContractorDocument>(
         {
@@ -136,7 +130,7 @@ const caseSchema = new Schema<CaseDocument>(
       ],
       default: [],
     },
-    phase: { type: String, enum: CASE_PHASES, default: 'awaiting_scheduling', required: true },
+    phase: { type: String, enum: CASE_PHASES, required: true },
     status: { type: String, enum: CASE_STATUS, default: 'active', required: true },
     nominationDate: { type: String, match: /^\d{4}-\d{2}-\d{2}$/ },
     proposedFeesCents: { type: Number, min: 0, validate: Number.isSafeInteger },
@@ -186,8 +180,7 @@ caseSchema.index(
   { Tenant: 1, serviceOrder: 1 },
   { unique: true, partialFilterExpression: { serviceOrder: { $type: 'string' } } },
 );
-// Service types created by the office (AD-158).
-caseSchema.index({ Tenant: 1, serviceType: 1 }, { partialFilterExpression: { serviceType: { $type: 'string' } } });
+caseSchema.index({ Tenant: 1, serviceType: 1 });
 caseSchema.index({ Tenant: 1, status: 1 });
 caseSchema.index({ Tenant: 1, phase: 1 });
 caseSchema.index({ Tenant: 1, createdAt: -1 });
@@ -196,85 +189,65 @@ caseSchema.index({ Tenant: 1, 'parties.Party': 1 });
 
 export const Case = mongoose.model<CaseDocument>('Case', caseSchema);
 
-// Data conversions on API boot; idempotent: once converted nothing matches.
-// The routine status (RSV-03, and the older AD-133 values) → phase + status (AD-178); "Extrajudicial" →
-// no sphere; "Parceria" → the office's own type of that name.
-const PHASE_OF_STATUS: Record<string, CasePhase> = {
-  appointed: 'awaiting_scheduling',
-  fees_proposed: 'fee_proposal',
-  fees_accepted: 'awaiting_scheduling',
-  accepted: 'nomination_accepted',
-  inspection_scheduled: 'inspection_scheduled',
-  inspection: 'inspection_scheduled',
-  drafting_report: 'drafting_report',
-  report_delivered: 'report_delivered',
-  clarifications: 'objection_reply',
-  awaiting_payment: 'evidence_closed',
-  completed: 'fees_received',
-  declined: 'awaiting_scheduling',
-};
-// Perícia phases merged into a shorter list (AD-196): each old phase and the one that took its place.
-const MERGED_PHASES: Record<string, CasePhase> = {
-  pending_documents: 'document_request',
-  awaiting_site_info: 'awaiting_scheduling',
-  awaiting_inspection: 'inspection_scheduled',
-  awaiting_report_approval: 'reviewing_report',
-  awaiting_pje_signature: 'reviewing_report',
-  objection_reply_1: 'objection_reply',
-  objection_reply_2: 'objection_reply',
-  objection_reply_3: 'objection_reply',
-  objection_reply_4: 'objection_reply',
-  objection_return_1: 'objection_return',
-  objection_return_2: 'objection_return',
-  objection_return_3: 'objection_return',
-  objection_return_4: 'objection_return',
-  awaiting_clarification_approval: 'clarifications',
-  awaiting_clarification_response: 'clarifications',
-  awaiting_new_clarifications: 'clarifications',
-  environmental_assessment: 'supplement_inspection',
+// Data conversion on API boot (AD-310); idempotent: once converted nothing matches. The service saved with a
+// role, a typed type name, a typed role or a typed phase becomes the four service types and the fixed phases; the
+// typed role goes to the notes.
+const TYPED_PHASES: [RegExp, CasePhase][] = [
+  [/finaliz|conclu|encerr/i, 'finished'],
+  [/entreg/i, 'delivered'],
+  [/contratad/i, 'hired'],
+  [/receb|pago/i, 'fees_received'],
+];
+const RENAMED_PHASES: Record<string, CasePhase> = { assistance_closed: 'finished', assistance_hired: 'hired' };
+const SERVICE_TYPE_OF_ROLE: Record<string, ServiceType> = {
+  court_expert: 'expert_examination',
+  technical_assistant: 'technical_assistance',
 };
 
 export const migrateCases = async (): Promise<void> => {
   const cases = Case.collection;
-  for (const [status, phase] of Object.entries(PHASE_OF_STATUS)) {
-    await cases.updateMany({ status }, { $set: { phase, status: status === 'declined' ? 'canceled' : 'active' } });
-  }
-  // "Aguardando laudo pericial" became "Laudo em elaboração" in the intermediate phase (AD-180).
-  await cases.updateMany({ phase: 'awaiting_expert_report' }, { $set: { phase: 'drafting_report' } });
-  for (const [old, phase] of Object.entries(MERGED_PHASES)) {
-    await cases.updateMany({ phase: old }, { $set: { phase } });
-  }
-  // Technical assistance got its own phase list (AD-186): a perícia phase goes back to "Contratado".
-  await cases.updateMany(
-    { role: 'technical_assistant', serviceType: { $exists: false }, phase: { $nin: [...TECHNICAL_ASSISTANCE_PHASES] } },
-    { $set: { phase: 'assistance_hired' } },
-  );
-  await cases.updateMany(
-    { status: 'suspended', phase: { $nin: [...CASE_PHASES] } },
-    { $set: { phase: 'awaiting_scheduling' } },
-  );
-  await cases.updateMany({ status: 'custom' }, [
-    { $set: { phase: 'custom', phaseName: '$statusName', status: 'active' } },
-  ]);
-  await cases.updateMany(
-    { $or: [{ statusName: { $exists: true } }, { serviceStatus: { $exists: true } }] },
-    { $unset: { statusName: '', serviceStatus: '' } },
-  );
-  await cases.updateMany({ courtType: { $in: ['extrajudicial', 'other'] } }, { $unset: { courtType: '' } });
-  // The service order is upper case (AD-187); a number that would repeat another stays as typed.
-  const lower = await cases
-    .find({ serviceOrder: { $type: 'string' }, $expr: { $ne: ['$serviceOrder', { $toUpper: '$serviceOrder' }] } })
-    .project<{ _id: mongoose.Types.ObjectId; serviceOrder: string }>({ serviceOrder: 1 })
+  const legacy = await cases
+    .find({ $or: [{ role: { $exists: true } }, { serviceType: { $nin: [...SERVICE_TYPES] } }] })
+    .project<{
+      _id: mongoose.Types.ObjectId;
+      role?: string;
+      roleName?: string;
+      serviceType?: string;
+      phase?: string;
+      phaseName?: string;
+      notes?: string;
+    }>({ role: 1, roleName: 1, serviceType: 1, phase: 1, phaseName: 1, notes: 1 })
     .toArray();
-  for (const doc of lower) {
-    await cases
-      .updateOne({ _id: doc._id }, { $set: { serviceOrder: doc.serviceOrder.toUpperCase() } })
-      .catch((error: { code?: number }) => {
-        if (error.code !== 11000) throw error;
-      });
+  for (const doc of legacy) {
+    const serviceType: ServiceType = SERVICE_TYPES.includes(doc.serviceType as ServiceType)
+      ? (doc.serviceType as ServiceType)
+      : doc.serviceType
+        ? /particular/i.test(doc.serviceType)
+          ? 'private_service'
+          : 'partnership'
+        : (SERVICE_TYPE_OF_ROLE[doc.role ?? ''] ?? 'expert_examination');
+    const phases = casePhases(serviceType);
+    const typed = doc.phase === 'custom' ? (doc.phaseName ?? '') : undefined;
+    const phase =
+      typed !== undefined
+        ? (TYPED_PHASES.find(([pattern]) => pattern.test(typed))?.[1] ?? 'in_progress')
+        : (RENAMED_PHASES[doc.phase ?? ''] ?? (doc.phase as CasePhase));
+    const notes = [doc.notes, doc.roleName && `Atuação: ${doc.roleName}`].filter(Boolean).join('\n');
+    await cases.updateOne(
+      { _id: doc._id },
+      {
+        $set: {
+          serviceType,
+          phase: phases.includes(phase) ? phase : defaultPhase(serviceType),
+          ...(notes ? { notes } : {}),
+        },
+        $unset: {
+          role: '',
+          roleName: '',
+          phaseName: '',
+          ...(serviceType === 'expert_examination' ? {} : { courtType: '' }),
+        },
+      },
+    );
   }
-  await cases.updateMany(
-    { role: 'partnership' },
-    { $set: { role: 'other', roleName: 'Parceria', serviceType: 'Parceria' } },
-  );
 };

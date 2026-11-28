@@ -558,7 +558,7 @@ const TEMPLATES: Seed[] = [
   },
   {
     name: 'Vistoria de imóvel urbano com drone',
-    area: 'Parceria',
+    area: 'partnership',
     type: 'report',
     sections: [
       { title: 'Contratante', yes: p('[NOME_AUTOR].') },

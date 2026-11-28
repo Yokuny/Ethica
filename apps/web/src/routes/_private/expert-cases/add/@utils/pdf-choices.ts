@@ -49,8 +49,8 @@ export const initialChoices = (pdfs: ReadPdf[]): Choices =>
 // and the marked parties.
 export const chosenDraft = (pdfs: ReadPdf[], choices: Choices, partyKeys: Set<string>): Partial<CreateCase> => {
   const draft: Partial<CreateCase> = {};
-  const role = pdfs.find(({ draft }) => draft.role)?.draft.role;
-  if (role) draft.role = role;
+  const serviceType = pdfs.find(({ draft }) => draft.serviceType)?.draft.serviceType;
+  if (serviceType) draft.serviceType = serviceType;
   for (const field of CHOICE_FIELDS) {
     const source = pdfs[choices[field] ?? -1]?.draft;
     if (!source?.[field]) continue;

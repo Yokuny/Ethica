@@ -35,7 +35,7 @@ import {
   PERIODS,
 } from './@interface/dashboard.interface.js';
 import { type CaseDashboard, caseDashboardQuery, feesDashboardQuery } from './@query/dashboard.js';
-import { percentChange, rankTypes, typeKey } from './@utils/dashboard-period.js';
+import { percentChange, rankTypes } from './@utils/dashboard-period.js';
 
 const number = new Intl.NumberFormat('pt-BR');
 const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -71,15 +71,11 @@ const categorySlices = (rows: CategoryTotal[]) =>
 // Each type opens the list of services filtered by it.
 const typeSlices = (byType: CaseDashboard['byType']) =>
   rankTypes(byType).map((row) => ({
-    key: typeKey(row),
-    label: serviceTypeLabel(row),
+    key: row.serviceType,
+    label: serviceTypeLabel(row.serviceType),
     amount: row.count,
     value: formatNumber(row.count),
-    render: row.serviceType ? (
-      <Link to="/expert-cases" search={{ serviceType: [row.serviceType] }} />
-    ) : row.role === 'court_expert' || row.role === 'technical_assistant' ? (
-      <Link to="/expert-cases" search={{ role: [row.role] }} />
-    ) : undefined,
+    render: <Link to="/expert-cases" search={{ serviceType: [row.serviceType] }} />,
   }));
 
 // Dashboard (DSH, AD-255), macro → micro: (1) how the office is doing — figures with trend, change and state, and

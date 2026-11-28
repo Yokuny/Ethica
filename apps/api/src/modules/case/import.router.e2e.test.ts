@@ -153,7 +153,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
     await as(request(app).post('/expert-cases')).send({
       processNumber: '0000004-00.2026.5.02.0001',
       courtType: 'labor',
-      role: 'court_expert',
+      serviceType: 'expert_examination',
       court: 'TRT2',
       subject: 'Já cadastrada',
     });
@@ -176,7 +176,7 @@ describe('importação de perícias (IMP-01, IMP-02)', () => {
       rejected: [{ line: 6, column: 'numero_processo', reason: 'invalid_process_number' }],
     });
     const civil = await Case.findOne({ processNumber: '0000002-00.2026.8.26.0100' }).lean();
-    expect(civil).toMatchObject({ court: 'TJSP', role: 'technical_assistant' });
+    expect(civil).toMatchObject({ court: 'TJSP', serviceType: 'technical_assistance' });
     expect(civil?.courtType).toBeUndefined();
     expect(civil?.subject).toBe('Perícia contábil; apuração');
     // The same defendant on both rows becomes a single record (AD-115).

@@ -47,13 +47,13 @@ const renderPage = (role: Role[], goalCents?: number) => {
     total: 30,
     closed: 10,
     byType: [
-      { role: 'court_expert', count: 21 },
-      { role: 'other', serviceType: 'Parceria', count: 9 },
+      { serviceType: 'expert_examination', count: 21 },
+      { serviceType: 'partnership', count: 9 },
     ],
     byMonth: MONTHS.map((month, index) => ({
       month,
       count: current(index) ? 50 : recent(index) ? 2 : 1,
-      byType: [{ role: 'court_expert' as const, count: current(index) ? 50 : recent(index) ? 2 : 1 }],
+      byType: [{ serviceType: 'expert_examination' as const, count: current(index) ? 50 : recent(index) ? 2 : 1 }],
     })),
   });
   queryClient.setQueryData(
@@ -128,11 +128,11 @@ describe('Dashboard (DSH, AD-255)', () => {
     renderPage(['operator']);
     expect(screen.getByRole('link', { name: /Perícia\s*21\s*70%/ })).toHaveAttribute(
       'href',
-      '/expert-cases?{"role":["court_expert"]}',
+      '/expert-cases?{"serviceType":["expert_examination"]}',
     );
     expect(screen.getByRole('link', { name: /Parceria/ })).toHaveAttribute(
       'href',
-      '/expert-cases?{"serviceType":["Parceria"]}',
+      '/expert-cases?{"serviceType":["partnership"]}',
     );
   });
 

@@ -47,9 +47,11 @@ describe('documento e OAB da parte', () => {
 
 describe('contratante do serviço', () => {
   it('contratante: no máximo um e só na perícia de assistente técnico (AD-135)', () => {
-    expect(validClient({ role: 'technical_assistant', parties: [{ client: true }, {}] })).toBe(true);
-    expect(validClient({ role: 'court_expert', parties: [{ client: true }] })).toBe(false);
-    expect(validClient({ role: 'technical_assistant', parties: [{ client: true }, { client: true }] })).toBe(false);
-    expect(validClient({ role: 'court_expert', parties: [{}] })).toBe(true);
+    expect(validClient({ serviceType: 'technical_assistance', parties: [{ client: true }, {}] })).toBe(true);
+    expect(validClient({ serviceType: 'expert_examination', parties: [{ client: true }] })).toBe(false);
+    expect(validClient({ serviceType: 'technical_assistance', parties: [{ client: true }, { client: true }] })).toBe(
+      false,
+    );
+    expect(validClient({ serviceType: 'expert_examination', parties: [{}] })).toBe(true);
   });
 });

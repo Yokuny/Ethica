@@ -1,4 +1,4 @@
-import { REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType } from '@ethica/contracts';
+import { REPORT_LAYOUT_DEFAULT, type ReportLayout, type ReportType, type TemplateArea } from '@ethica/contracts';
 import type { TemplateDocument, TemplateSectionDocument } from '@ethica/db';
 import { Template, tenantScoped, toObjectId } from '@ethica/db';
 import { withDbTiming } from '../../metrics/db.metric.js';
@@ -40,7 +40,7 @@ export const list = async (tenantId: string, type?: ReportType): Promise<Templat
       _id: unknown;
       name: string;
       details?: string;
-      area?: string;
+      area?: TemplateArea;
       type: ReportType;
       totalSections: number;
       updatedAt: Date;

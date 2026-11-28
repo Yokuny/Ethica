@@ -12,9 +12,9 @@ export function CasesMonthTable({ byMonth }: { byMonth: CaseDashboard['byMonth']
   const types = new Map<string, { label: string; count: number }>();
   for (const { byType } of byMonth) {
     for (const type of byType) {
-      const key = type.serviceType ?? type.role;
+      const key = type.serviceType;
       const seen = types.get(key);
-      types.set(key, { label: serviceTypeLabel(type), count: (seen?.count ?? 0) + type.count });
+      types.set(key, { label: serviceTypeLabel(type.serviceType), count: (seen?.count ?? 0) + type.count });
     }
   }
   const columns = [
@@ -23,10 +23,10 @@ export function CasesMonthTable({ byMonth }: { byMonth: CaseDashboard['byMonth']
   ];
   const rows = byMonth.map(({ month, count, byType }) => ({
     month,
-    values: Object.fromEntries([
-      ['total', count],
-      ...byType.map((type) => [type.serviceType ?? type.role, type.count]),
-    ]) as Record<string, number>,
+    values: Object.fromEntries([['total', count], ...byType.map((type) => [type.serviceType, type.count])]) as Record<
+      string,
+      number
+    >,
   }));
   return <MonthHeatTable columns={columns} rows={rows} format={number.format} formatChange={change.format} />;
 }

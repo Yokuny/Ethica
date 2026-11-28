@@ -75,7 +75,7 @@ type PartyRowProps = {
 // A party (reclamante/reclamada or autor/réu, by the court type) with the lawyers that represent it.
 function PartyRow({ index, lawyerIndexes, onRemove, onAddLawyer, onRemoveLawyer }: PartyRowProps) {
   const { control, getValues, setValue } = useFormContext<CaseFormValues>();
-  const role = useWatch({ control, name: 'role' });
+  const serviceType = useWatch({ control, name: 'serviceType' });
   const courtType = useWatch({ control, name: 'courtType' });
   return (
     <div className="grid gap-4">
@@ -99,7 +99,7 @@ function PartyRow({ index, lawyerIndexes, onRemove, onAddLawyer, onRemoveLawyer 
             placeholder="000.000.000-00"
           />
           {/* Whoever hired the technical assistant (AD-135): checking one party unchecks the others. */}
-          {role === 'technical_assistant' && (
+          {serviceType === 'technical_assistance' && (
             <FormField
               control={control}
               name={`parties.${index}.client`}

@@ -350,7 +350,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
       await as(request(app).post('/expert-cases')).send({
         processNumber: '0001234-56.2026.5.02.0001',
         courtType: 'labor',
-        role: 'court_expert',
+        serviceType: 'expert_examination',
         court: 'TRT2',
         subject: 'Insalubridade',
       })
@@ -370,7 +370,7 @@ describe('recebimento parcial de honorários (PRZ-02, AD-111)', () => {
     const CASE = {
       processNumber: '0001234-56.2026.5.02.0001',
       courtType: 'labor',
-      role: 'court_expert',
+      serviceType: 'expert_examination',
       court: 'TRT2',
       subject: 'Insalubridade',
     };

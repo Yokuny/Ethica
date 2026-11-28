@@ -38,7 +38,7 @@ const seedSession = async (role: Role[] = ['operator']) => {
 const legalCase = (processNumber: string, extra: object = {}) => ({
   processNumber,
   courtType: 'labor',
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   court: 'TRT2',
   subject: 'Insalubridade',
   ...extra,

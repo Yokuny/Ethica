@@ -41,8 +41,8 @@ const withCase = async <T extends NotificationRecord>(tenantId: string, items: T
   return items.map((item) => {
     const summary = item.caseId ? summaries.get(item.caseId) : undefined;
     if (!summary) return item;
-    const { client, plaintiff, defendant, role, serviceType, courtType } = summary;
-    return { ...item, caseNumber: caseLabel(summary), client, plaintiff, defendant, role, serviceType, courtType };
+    const { client, plaintiff, defendant, serviceType, courtType } = summary;
+    return { ...item, caseNumber: caseLabel(summary), client, plaintiff, defendant, serviceType, courtType };
   });
 };
 

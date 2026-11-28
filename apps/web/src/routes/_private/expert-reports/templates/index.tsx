@@ -1,4 +1,4 @@
-import { TEMPLATE_AREAS } from '@ethica/contracts';
+import { TEMPLATE_AREAS, type TemplateArea } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import {
@@ -26,13 +26,11 @@ import { TemplateCreateForm } from './@components/template-create-form.js';
 import { TemplateImportForm } from './@components/template-import-form.js';
 import { TEMPLATE_LIBRARIES, type TemplatesSearch, templatesSearchSchema } from './@interface/templates.interface.js';
 
-// Office templates by area (AD-204): the four keys in order, then the own types alphabetically, then no area.
-const AREA_KEYS: readonly string[] = TEMPLATE_AREAS;
-const areaRank = (area?: string): number =>
-  area === undefined ? AREA_KEYS.length + 1 : AREA_KEYS.includes(area) ? AREA_KEYS.indexOf(area) : AREA_KEYS.length;
-const byArea = (templates: TemplateSummary[]): Array<[string | undefined, TemplateSummary[]]> =>
+// Office templates by area (AD-204), in the order of `TEMPLATE_AREAS`, then no area.
+const areaRank = (area?: TemplateArea): number => (area ? TEMPLATE_AREAS.indexOf(area) : TEMPLATE_AREAS.length);
+const byArea = (templates: TemplateSummary[]): Array<[TemplateArea | undefined, TemplateSummary[]]> =>
   [...new Set(templates.map((template) => template.area))]
-    .sort((a, b) => areaRank(a) - areaRank(b) || (a ?? '').localeCompare(b ?? '', 'pt-BR'))
+    .sort((a, b) => areaRank(a) - areaRank(b))
     .map((area) => [area, templates.filter((template) => template.area === area)]);
 
 function TemplateList({ templates }: { templates: TemplateSummary[] }) {

@@ -1,13 +1,13 @@
 import { z } from 'zod';
-import type { CaseRole, CourtType } from './case.schema.js';
+import type { CourtType, ServiceType } from './case.schema.js';
 import { idSchema } from './id.schema.js';
 
 // Expert report (court expert) or technical opinion (technical assistant, LAU-06).
 export const REPORT_TYPES = ['report', 'technical_opinion'] as const;
 export type ReportType = (typeof REPORT_TYPES)[number];
 
-export const reportRoleType = (role: CaseRole): ReportType =>
-  role === 'technical_assistant' ? 'technical_opinion' : 'report';
+export const reportTypeOf = (serviceType: ServiceType): ReportType =>
+  serviceType === 'technical_assistance' ? 'technical_opinion' : 'report';
 
 // Editable draft → completed, read-only on the server (AD-126).
 export const REPORT_STATUS = ['draft', 'completed'] as const;
@@ -33,15 +33,18 @@ export const isDefaultTemplate = (id: string): id is DefaultTemplateId => id in 
 export const defaultTemplateOf = (type: ReportType): DefaultTemplateId =>
   DEFAULT_TEMPLATE_IDS.find((id) => REPORT_DEFAULT_TEMPLATES[id] === type) as DefaultTemplateId;
 
-// Area of practice of an office template (AD-204): the sphere of the perícia, technical assistance, or the name of
-// the office's own service type (typed in pt-BR, never one of these keys).
-export const TEMPLATE_AREAS = ['labor', 'civil', 'federal', 'technical_assistance'] as const;
-export const caseArea = (data: {
-  serviceType?: string | null;
-  role?: CaseRole;
-  courtType?: CourtType | null;
-}): string | undefined =>
-  data.serviceType || (data.role === 'technical_assistant' ? 'technical_assistance' : data.courtType || undefined);
+// Area of practice of an office template (AD-204, AD-310): the sphere of the perícia or the other service type.
+export const TEMPLATE_AREAS = [
+  'labor',
+  'civil',
+  'federal',
+  'technical_assistance',
+  'partnership',
+  'private_service',
+] as const;
+export type TemplateArea = (typeof TEMPLATE_AREAS)[number];
+export const caseArea = (data: { serviceType: ServiceType; courtType?: CourtType | null }): TemplateArea | undefined =>
+  data.serviceType === 'expert_examination' ? data.courtType || undefined : data.serviceType;
 
 // Markers replaced by the case, expert and office data (AD-126).
 export const REPORT_VARIABLES = [
@@ -224,7 +227,7 @@ export const createTemplateSchema = z
     // What sets the template apart from others of the same NR annex ("limpeza de banheiros", AD-181).
     details: z.string().trim().max(300, 'detalhes muito longos').optional(),
     type: z.enum(REPORT_TYPES),
-    area: z.string().trim().max(80, 'área inválida').optional(),
+    area: z.enum(TEMPLATE_AREAS, 'área inválida').optional(),
     // Without a base, the template starts blank; with a base, it clones the sections (default or office).
     baseId: templateIdSchema.optional(),
   })

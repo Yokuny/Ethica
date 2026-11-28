@@ -44,7 +44,7 @@ const seedSession = async (role: Role[] = ['admin']) => {
 const base = (Tenant: unknown, subject: string, extra: object) => ({
   Tenant,
   subject,
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   phase: 'awaiting_scheduling',
   status: 'active',
   ...extra,
@@ -80,34 +80,34 @@ describe('Dashboard (DSH)', () => {
       },
       { ...base(tenant._id, 'c', { status: 'canceled', nominationDate: nominated }), createdAt: new Date() },
       { ...base(tenant._id, 'g', {}), createdAt: new Date() },
-      { ...base(tenant._id, 'd', { role: 'technical_assistant', phase: 'assistance_hired' }), createdAt: new Date() },
-      { ...base(tenant._id, 'e', { role: 'other', serviceType: 'Parceria', phase: 'custom' }), createdAt: new Date() },
+      { ...base(tenant._id, 'd', { serviceType: 'technical_assistance', phase: 'hired' }), createdAt: new Date() },
+      { ...base(tenant._id, 'e', { serviceType: 'partnership', phase: 'in_progress' }), createdAt: new Date() },
       { ...base(other.tenant._id, 'f', {}), createdAt: new Date() },
     ]);
 
     const { body } = await as(request(app).get('/expert-cases/dashboard'));
     expect(body.data).toMatchObject({ total: 6, closed: 2 });
     expect(body.data.byType).toEqual([
-      { role: 'court_expert', count: 4 },
-      { role: 'other', serviceType: 'Parceria', count: 1 },
-      { role: 'technical_assistant', count: 1 },
+      { serviceType: 'expert_examination', count: 4 },
+      { serviceType: 'partnership', count: 1 },
+      { serviceType: 'technical_assistance', count: 1 },
     ]);
     // 'b' is older than 25 months, 'c' is canceled, 'f' is from another office.
     expect(body.data.byMonth).toHaveLength(25);
     expect(body.data.byMonth.at(-1)).toEqual({
       month,
       count: 3,
-      // Same count: by the type name.
+      // Same count: by the type key.
       byType: [
-        { role: 'other', serviceType: 'Parceria', count: 1 },
-        { role: 'court_expert', count: 1 },
-        { role: 'technical_assistant', count: 1 },
+        { serviceType: 'expert_examination', count: 1 },
+        { serviceType: 'partnership', count: 1 },
+        { serviceType: 'technical_assistance', count: 1 },
       ],
     });
     expect(body.data.byMonth.at(-3)).toEqual({
       month: shiftMonth(month, -2),
       count: 1,
-      byType: [{ role: 'court_expert', count: 1 }],
+      byType: [{ serviceType: 'expert_examination', count: 1 }],
     });
     expect(body.data.byMonth.at(-2)).toEqual({ month: shiftMonth(month, -1), count: 0, byType: [] });
     expect(body.data.byMonth.reduce((total: number, row: { count: number }) => total + row.count, 0)).toBe(4);

@@ -2,15 +2,14 @@ import {
   CASE_CLOSED_PHASES,
   type CasePhase,
   type CaseProposal,
-  type CaseRole,
   type CaseStatus,
   caseLabel,
   courtUnitFromNumber,
   effectivePermissions,
-  JUDICIAL_CASE_ROLES,
   type NotificationPreferences,
   type Permissions,
   type Role,
+  type ServiceType,
   TRACKED_COURT_TYPES,
 } from '@ethica/contracts';
 import { Case } from './models/case.model.js';
@@ -159,13 +158,13 @@ export type TrackedCase = {
   caseId: string;
   processNumber: string;
   court: string;
-  role: CaseRole;
+  serviceType: ServiceType;
   status: CaseStatus;
   phase: CasePhase;
 };
 
 // Cases followed in court (ADT-02, PAC-03): offices with the module on, a valid CNJ number of a tracked court
-// type, a judicial role and the case not closed. Derived on every run; the worker reads every office, the api
+// type, a judicial type (perícia or technical assistance) and the case not closed. Derived on every run; the worker reads every office, the api
 // one office (the Automação page).
 export const listTrackedCases = async (now = new Date(), tenantId?: string): Promise<TrackedCase[]> => {
   const tenants = await Tenant.find({
@@ -179,11 +178,11 @@ export const listTrackedCases = async (now = new Date(), tenantId?: string): Pro
   const cases = await Case.find({
     Tenant: { $in: tenants.map((tenant) => tenant._id) },
     processNumber: { $type: 'string' },
-    role: { $in: [...JUDICIAL_CASE_ROLES] },
+    serviceType: { $in: ['expert_examination', 'technical_assistance'] },
     status: { $ne: 'canceled' },
     phase: { $nin: [...CASE_CLOSED_PHASES] },
   })
-    .select('Tenant processNumber role status phase')
+    .select('Tenant processNumber serviceType status phase')
     .lean();
   return cases.flatMap((doc) => {
     const unit = doc.processNumber ? courtUnitFromNumber(doc.processNumber) : undefined;
@@ -194,7 +193,7 @@ export const listTrackedCases = async (now = new Date(), tenantId?: string): Pro
         caseId: doc._id.toString(),
         processNumber: doc.processNumber as string,
         court: unit.court,
-        role: doc.role,
+        serviceType: doc.serviceType,
         status: doc.status,
         phase: doc.phase,
       },
@@ -207,7 +206,7 @@ export type PendingSuggestion = {
   tenantId: string;
   proposal: CaseProposal;
   automation: boolean;
-  legalCase?: { role: CaseRole; status: CaseStatus; phase: CasePhase };
+  legalCase?: { serviceType: ServiceType; status: CaseStatus; phase: CasePhase };
 };
 
 // Pending suggestions with what decides if they still fit: the module of the office and the case now.
@@ -219,7 +218,7 @@ export const listPendingSuggestions = async (now = new Date()): Promise<PendingS
       .select('automationUntil')
       .lean(),
     Case.find({ _id: { $in: docs.flatMap((doc) => (doc.Case ? [doc.Case] : [])) } })
-      .select('role status phase')
+      .select('serviceType status phase')
       .lean(),
   ]);
   const active = new Set(
@@ -235,7 +234,9 @@ export const listPendingSuggestions = async (now = new Date()): Promise<PendingS
       tenantId: String(doc.Tenant),
       proposal: doc.proposal as CaseProposal,
       automation: active.has(String(doc.Tenant)),
-      legalCase: legalCase ? { role: legalCase.role, status: legalCase.status, phase: legalCase.phase } : undefined,
+      legalCase: legalCase
+        ? { serviceType: legalCase.serviceType, status: legalCase.status, phase: legalCase.phase }
+        : undefined,
     };
   });
 };

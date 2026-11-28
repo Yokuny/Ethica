@@ -1,4 +1,11 @@
-import { REPORT_LEVEL_MAX, REPORT_TYPES, type ReportLayout, type ReportType } from '@ethica/contracts';
+import {
+  REPORT_LEVEL_MAX,
+  REPORT_TYPES,
+  type ReportLayout,
+  type ReportType,
+  TEMPLATE_AREAS,
+  type TemplateArea,
+} from '@ethica/contracts';
 import mongoose, { Schema } from 'mongoose';
 
 // Template section (LAU-01): the order is the array order and the number ("2.1") is calculated from the level,
@@ -21,7 +28,7 @@ export interface TemplateDocument {
   // Specifics of the template (AD-181); missing or empty = none.
   details?: string;
   // Area of practice (AD-204): sphere key, `technical_assistance` or the office's own service type; missing = none.
-  area?: string;
+  area?: TemplateArea;
   type: ReportType;
   sections: TemplateSectionDocument[];
   // Missing = REPORT_LAYOUT_DEFAULT (NLA-06).
@@ -45,7 +52,7 @@ const templateSchema = new Schema<TemplateDocument>(
     Tenant: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
     name: { type: String, required: true, trim: true },
     details: { type: String, trim: true },
-    area: { type: String, trim: true },
+    area: { type: String, enum: TEMPLATE_AREAS },
     type: { type: String, enum: REPORT_TYPES, required: true },
     sections: { type: [sectionSchema], default: [] },
     layout: { type: Schema.Types.Mixed },

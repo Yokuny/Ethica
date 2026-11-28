@@ -20,7 +20,7 @@ const legalCase = {
   id: 'p1',
   processNumber: '0007777-11.2026.5.15.0001',
   courtType: 'labor',
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   court: 'TRT15',
   division: '1ª Vara',
   subject: 'Insalubridade',

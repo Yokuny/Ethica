@@ -7,7 +7,6 @@ import {
   DUE_SOON_DAYS,
   defaultPhase,
   formatServiceOrder,
-  isOwnType,
   REPORT_DELIVERY_TITLE,
   SERVICE_DELIVERY_TITLE,
   type ServiceOrderSettings,
@@ -138,7 +137,8 @@ const postFees = (tenantId: string, legalCase: CaseRecord, received?: CasePaymen
 // registry (AD-117); the report due date becomes the "Entrega do laudo" deadline by `case:created` (AD-264).
 export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => {
   const { reportDueDate, parties, inspection, payment, ...input } = withSuggestedPeriod(data);
-  if (!validClient({ role: input.role, parties })) throw new CustomError('invalid_contracting_party', 422);
+  if (!validClient({ serviceType: input.serviceType, parties }))
+    throw new CustomError('invalid_contracting_party', 422);
   if (!validServiceType(input)) throw new CustomError('invalid_service_type', 422);
   if (input.serviceOrder && (await serviceOrderRepository.isRetired(input.tenant, input.serviceOrder))) {
     throw new CustomError('service_order_taken', 409);
@@ -146,16 +146,16 @@ export const createCase = async (data: CreateCaseInput): Promise<CaseRecord> => 
   try {
     const legalCase = await caseRepository.createCase({
       ...input,
-      // Only a perícia has a sphere (AD-178); a new assistance starts at "Contratado" (AD-186).
+      // Only a perícia has a sphere (AD-178); a new service starts at the first phase of its type.
       courtType: usesContractor(input) ? undefined : input.courtType,
-      phase: input.phase ?? defaultPhase(input),
+      phase: input.phase ?? defaultPhase(input.serviceType),
       // Without the labor block (PSV-02), the perícia location is the case location ([LOCAL_PERICIA]).
       location: input.location ?? inspection?.location,
       serviceOrder: input.serviceOrder ?? (await nextServiceOrder(input.tenant)),
       parties: await partyService.resolveParties(input.tenant, parties ?? []),
     });
-    // The office's own type delivers a service, not necessarily a report (AD-176).
-    const own = isOwnType(legalCase);
+    // Partnership and private service deliver a service, not necessarily a report (AD-176).
+    const own = legalCase.serviceType === 'partnership' || legalCase.serviceType === 'private_service';
     domainEventBus.emit('case:created', {
       tenantId: input.tenant,
       caseId: legalCase.id,
@@ -187,28 +187,21 @@ export const getCase = async (tenantId: string, id: string): Promise<CaseRecord>
 export const updateCase = async (tenantId: string, id: string, data: UpdateCase): Promise<CaseRecord> => {
   const before = await getCase(tenantId, id);
   const { parties, inspection, ...rest } = data;
-  if (!validClient({ role: rest.role ?? before.role, parties: parties ?? before.parties })) {
+  const serviceType = rest.serviceType ?? before.serviceType;
+  if (!validClient({ serviceType, parties: parties ?? before.parties })) {
     throw new CustomError('invalid_contracting_party', 422);
   }
   // `null` clears; missing keeps what was saved.
   const next = <T>(value: T | null | undefined, previous: T | undefined) =>
     value === null ? undefined : (value ?? previous);
-  const role = rest.role ?? before.role;
-  const serviceType = next(rest.serviceType, before.serviceType);
-  const own = isOwnType({ serviceType });
-  const contracted = usesContractor({ serviceType, role });
-  const phase = rest.phase ?? before.phase;
-  // Each type keeps only its fields (AD-158, AD-176, AD-178): the sphere in a perícia, the contractor in the
-  // other types, the typed role and phase in the office's own type.
+  const contracted = usesContractor({ serviceType });
+  // Each type keeps only its fields (AD-178): the sphere in a perícia, the contractor in the other types.
   const final = {
+    serviceType,
     courtType: contracted ? undefined : next(rest.courtType, before.courtType),
-    serviceType: own ? serviceType : undefined,
     processNumber: rest.processNumber ?? before.processNumber,
     court: rest.court ?? before.court,
-    role,
-    phase,
-    roleName: role === 'other' ? next(rest.roleName, before.roleName) : undefined,
-    phaseName: phase === 'custom' ? next(rest.phaseName, before.phaseName) : undefined,
+    phase: rest.phase ?? before.phase,
     contractor: contracted ? next(rest.contractor, before.contractor) : undefined,
   };
   if (!validServiceType(final)) throw new CustomError('invalid_service_type', 422);
@@ -224,9 +217,6 @@ export const updateCase = async (tenantId: string, id: string, data: UpdateCase)
     .updateCase(tenantId, id, {
       ...rest,
       courtType: unsetWhenGone(final.courtType, before.courtType),
-      serviceType: unsetWhenGone(final.serviceType, before.serviceType),
-      roleName: unsetWhenGone(final.roleName, before.roleName),
-      phaseName: unsetWhenGone(final.phaseName, before.phaseName),
       contractor: unsetWhenGone(final.contractor, before.contractor),
       parties: parties ? await partyService.resolveParties(tenantId, parties) : undefined,
     })
@@ -381,8 +371,6 @@ export const stalledSummary = async (tenantId: string): Promise<{ total: number;
 };
 
 export const listForExport = (tenantId: string) => caseRepository.listAll(tenantId);
-
-export const listServiceTypes = (tenantId: string) => caseRepository.listServiceTypes(tenantId);
 
 export const caseStats = (tenantId: string) => caseRepository.stats(tenantId, DUE_SOON_DAYS);
 export const caseDistribution = (tenantId: string) => caseRepository.distribution(tenantId);

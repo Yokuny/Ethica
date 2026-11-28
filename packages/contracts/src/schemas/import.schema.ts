@@ -2,7 +2,6 @@
 // field by its name; what has no field goes to the notes. The template is only an example.
 export const CSV_IMPORT_FIELDS = [
   'serviceType',
-  'role',
   'processNumber',
   'court',
   'division',
@@ -49,8 +48,19 @@ const sideNames = (prefixes: string[], sides: string[]) =>
 // Names (already as `csvHeaderKey`) of each field. `notes` and `ignore` are not guessed from the name
 // except for the notes column itself.
 const SYNONYMS: Record<Exclude<CsvImportField, 'ignore'>, string[]> = {
-  serviceType: ['tipo', 'tipo de servico', 'tipo servico', 'servico', 'natureza', 'especialidade', 'tipo de pericia'],
-  role: ['papel', 'atuacao', 'funcao no processo', 'qualidade'],
+  serviceType: [
+    'tipo',
+    'tipo de servico',
+    'tipo servico',
+    'servico',
+    'natureza',
+    'especialidade',
+    'tipo de pericia',
+    'papel',
+    'atuacao',
+    'funcao no processo',
+    'qualidade',
+  ],
   processNumber: [
     'processo',
     'numero do processo',

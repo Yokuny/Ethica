@@ -110,10 +110,6 @@ export const setServiceOrder = async (req: Request, res: Response): Promise<void
   res.json(respObj({ data: await caseService.setServiceOrder(tenantOf(req), req.body) }));
 };
 
-export const listServiceTypes = async (req: Request, res: Response): Promise<void> => {
-  res.json(respObj({ data: await caseService.listServiceTypes(tenantOf(req)) }));
-};
-
 export const caseDashboard = async (req: Request, res: Response): Promise<void> => {
   res.json(respObj({ data: await caseService.caseDashboard(tenantOf(req)) }));
 };

@@ -30,18 +30,18 @@ describe('deadlineAlert', () => {
 
 // Approved titles by service type (AD-190).
 describe('deadlineSuggestions', () => {
-  it('perícia, assistência e Parceria têm prazos e alertas; outro tipo do escritório só escreve à mão', () => {
-    const [deadlines, alerts] = deadlineSuggestions({ role: 'court_expert' });
+  it('perícia, assistência e Parceria têm prazos e alertas; Serviço particular só escreve à mão', () => {
+    const [deadlines, alerts] = deadlineSuggestions({ serviceType: 'expert_examination' });
     expect(deadlines).toMatchObject({ kind: 'deadline' });
     expect(deadlines?.titles).toContain('Entrega do laudo');
     expect(alerts).toMatchObject({ kind: 'alert' });
     expect(alerts?.titles).toContain('Agendar a perícia');
-    expect(deadlineSuggestions({ role: 'technical_assistant' })[0]?.titles).toContain('Parecer técnico');
-    expect(deadlineSuggestions({ role: 'other', serviceType: 'Parceria' })[0]?.titles).toEqual([
+    expect(deadlineSuggestions({ serviceType: 'technical_assistance' })[0]?.titles).toContain('Parecer técnico');
+    expect(deadlineSuggestions({ serviceType: 'partnership' })[0]?.titles).toEqual([
       'Entrega do serviço',
       'Entrega de revisão',
     ]);
-    expect(deadlineSuggestions({ role: 'other', serviceType: 'Avaliação de imóvel' })).toEqual([]);
+    expect(deadlineSuggestions({ serviceType: 'private_service' })).toEqual([]);
   });
 });
 

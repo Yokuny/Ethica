@@ -6,7 +6,6 @@ import { AppLink } from '@/components/app-link.js';
 import {
   CASE_STATUS_VARIANT,
   casePhaseLabel,
-  caseRoleLabel,
   caseStatusLabel,
   courtTypeLabel,
   serviceLabel,
@@ -28,7 +27,7 @@ const money = (value?: number) => (value ? formatMoney(value) : undefined);
 type Field = { label: string; value: ReactNode };
 
 // Record page: header with process and status, strip with deadlines and
-// fees, and the read groups (court, parties, notes). The office's own type (AD-176) shows the contractor
+// fees, and the read groups (court, parties, notes). Outside the perícia (AD-176, AD-310) it shows the contractor
 // in place of the court and the parties. Not filled comes last, dimmed (AD-238): the empty fields close their
 // group and the strip, and a group with nothing filled becomes an empty block at the bottom of the page, after
 // the panels of the page (deadlines, reports…) that are empty too. It renders a fragment: its blocks are items
@@ -47,7 +46,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
   ];
   const stats: Field[] = [
     { label: t('service_order'), value: legalCase.serviceOrder },
-    { label: t('service_phase'), value: casePhaseLabel(legalCase.phase, legalCase.phaseName) },
+    { label: t('service_phase'), value: casePhaseLabel(legalCase.phase) },
     { label: own ? t('contracting_date') : t('appointment_date'), value: day(legalCase.nominationDate) },
     { label: t('contracting_party'), value: client },
     // Amounts only for whoever sees finance (AD-137).
@@ -63,8 +62,7 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
           name: t('contractor_data'),
           icon: <Building2 />,
           fields: [
-            { label: t('service_type'), value: serviceTypeLabel(legalCase) },
-            { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
+            { label: t('service_type'), value: serviceTypeLabel(legalCase.serviceType) },
             { label: t('name_or_company_name'), value: contractor?.name },
             { label: t('cpf_cnpj'), value: contractor?.document },
             { label: t('phone'), value: contractor?.phone },
@@ -77,9 +75,8 @@ export function CaseDetailsView({ legalCase, canSeeFinance }: { legalCase: CaseR
           name: t('court_header'),
           icon: <Scale />,
           fields: [
-            { label: t('service_type'), value: serviceTypeLabel(legalCase) },
+            { label: t('service_type'), value: serviceTypeLabel(legalCase.serviceType) },
             { label: t('sphere'), value: legalCase.courtType && courtTypeLabel(legalCase.courtType) },
-            { label: t('role_in_case'), value: caseRoleLabel(legalCase.role, legalCase.roleName) },
             { label: t('court'), value: legalCase.court },
             { label: t('court_division'), value: legalCase.division },
             { label: t('judicial_district'), value: legalCase.district },

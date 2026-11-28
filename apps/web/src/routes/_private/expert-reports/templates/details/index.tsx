@@ -22,10 +22,9 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/page-car
 import { PageMenu } from '@/components/page-menu.js';
 import { PdfPreviewDialog } from '@/components/pdf-preview-dialog.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
-import { plainText, templateAreaItems, templateAreaLabel } from '@/components/report-labels.js';
+import { plainText, TEMPLATE_AREA_ITEMS, templateAreaLabel } from '@/components/report-labels.js';
 import { RichTextEditor } from '@/components/rich-text-editor.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { serviceTypesQuery } from '@/query/case.js';
 import {
   deleteTemplateMutation,
   moveTemplateSectionMutation,
@@ -67,7 +66,6 @@ export function TemplateDetailsPage() {
   const update = useMutation(updateTemplateMutation(queryClient));
   const [panel, setPanel] = useState<PanelState>(null);
   const template = query.data;
-  const serviceTypes = useQuery(serviceTypesQuery);
   const canEdit = Boolean(template && !template.isDefault && can(session, 'report_templates', 'update'));
   const numbers = numberSections(template?.sections ?? []);
   const onError = (error: Error) => toast.error(error.message);
@@ -229,7 +227,7 @@ export function TemplateDetailsPage() {
         <SaveTemplateDialog
           title={t('edit_name_and_details')}
           values={{ name: template.name, details: template.details, area: template.area }}
-          areas={templateAreaItems(serviceTypes.data ?? [])}
+          areas={TEMPLATE_AREA_ITEMS}
           pending={update.isPending}
           onClose={() => setPanel(null)}
           onConfirm={(data) => update.mutate({ id: template.id, data }, { onSuccess: () => setPanel(null), onError })}

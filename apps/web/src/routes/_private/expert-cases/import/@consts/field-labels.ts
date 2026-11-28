@@ -3,7 +3,6 @@ import type { CsvImportField } from '@ethica/contracts';
 // Label key of each field a spreadsheet column can go to (RSV-04).
 export const CSV_FIELD_LABEL: Record<CsvImportField, string> = {
   serviceType: 'service_type',
-  role: 'role_in_case',
   processNumber: 'process_number',
   court: 'court',
   division: 'court_division',

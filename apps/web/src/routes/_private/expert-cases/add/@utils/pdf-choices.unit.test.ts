@@ -5,7 +5,7 @@ const PDFS: ReadPdf[] = [
   {
     name: 'parte 1.pdf',
     draft: {
-      role: 'court_expert',
+      serviceType: 'expert_examination',
       processNumber: '0001234-56.2026.5.02.0001',
       courtType: 'labor',
       court: 'TRT2',
@@ -50,7 +50,7 @@ describe('pdf-choices (AD-183)', () => {
       new Set(['defendant|party|empresa ltda']),
     );
     expect(draft).toEqual({
-      role: 'court_expert',
+      serviceType: 'expert_examination',
       processNumber: '0001234-56.2026.5.02.0001',
       court: 'TJSP',
       courtType: 'civil',

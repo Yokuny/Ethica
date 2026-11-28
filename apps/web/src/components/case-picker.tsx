@@ -3,7 +3,7 @@ import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } f
 import { useQuery } from '@tanstack/react-query';
 import { BriefcaseBusiness } from 'lucide-react';
 import { useState } from 'react';
-import { caseRoleLabel } from '@/components/case-labels.js';
+import { serviceTypeLabel } from '@/components/case-labels.js';
 import { DataTable } from '@/components/data-table.js';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
@@ -44,7 +44,7 @@ export function CasePicker({ onPick }: { onPick: (caseId: string) => void }) {
                     <ItemTitle>{[legalCase.serviceOrder, caseLabel(legalCase)].filter(Boolean).join(' · ')}</ItemTitle>
                     <ItemDescription>
                       {[
-                        caseRoleLabel(legalCase.role, legalCase.roleName),
+                        serviceTypeLabel(legalCase.serviceType),
                         legalCase.division ?? legalCase.court,
                         legalCase.subject,
                       ].join(' · ')}

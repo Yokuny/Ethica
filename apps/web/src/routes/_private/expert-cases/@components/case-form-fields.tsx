@@ -1,6 +1,6 @@
 import { usesContractor } from '@ethica/contracts';
 import { useQuery } from '@tanstack/react-query';
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 import { type Control, useWatch } from 'react-hook-form';
 import { CASE_STATUS_ITEMS } from '@/components/case-labels.js';
 import { DefaultFormLayout } from '@/components/default-form-layout.js';
@@ -15,9 +15,8 @@ import { ServiceTypeField } from './service-type-field.js';
 
 // Case fields shared by `add` and `details` (edit). Editing also includes the fee fixed by the court;
 // the report deadline only at registration (afterwards it is edited in the deadlines panel).
-// The office's own type (AD-176) and the technical assistance (AD-178) swap the process for the contractor and
-// drop the perícia date, the parties and the proposed fee; the contracted fee and its payment come already at
-// registration.
+// Every type but the perícia (AD-178, AD-310) swaps the process for the contractor and drops the perícia date,
+// the parties and the proposed fee; the contracted fee and its payment come already at registration.
 export function CaseFormFields({
   control,
   attachments,
@@ -28,23 +27,21 @@ export function CaseFormFields({
   attachments: ReactNode;
   editing?: boolean;
 }) {
-  const role = useWatch({ control, name: 'role' });
   const session = useQuery(sessionQuery).data;
   const serviceType = useWatch({ control, name: 'serviceType' });
-  const [creatingType, setCreatingType] = useState(false);
-  const own = creatingType || usesContractor({ serviceType, role });
+  const own = usesContractor({ serviceType });
   // Writing a fee launches a finance entry (AD-285): only who can do it there sees the fields.
   const canWriteFees = Boolean(session && can(session, 'finance', editing ? 'update' : 'create'));
   const serviceFields = (
     <div key="service" className="grid gap-4 sm:grid-cols-2">
-      <ServiceTypeField creating={creatingType} onCreating={setCreatingType} />
+      <ServiceTypeField />
       <TextField
         control={control}
         name="serviceOrder"
         label={t('service_order')}
         placeholder={t('service_order_automatic')}
       />
-      <CasePhaseField creating={creatingType} />
+      <CasePhaseField />
       <SelectField
         control={control}
         name="status"

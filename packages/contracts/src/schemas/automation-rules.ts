@@ -1,10 +1,10 @@
 import {
   CASE_CLOSED_PHASES,
   type CasePhase,
-  type CaseRole,
   type CaseStatus,
   casePhases,
   isCaseClosed,
+  type ServiceType,
 } from './case.schema.js';
 import type { CourtMovement } from './court-process.schema.js';
 
@@ -41,8 +41,8 @@ export type AutomationRule = {
   key: string;
   version: number;
   codes: readonly number[];
-  // The proposal for the case role; undefined = the rule does not apply to this role.
-  propose: (role: CaseRole) => CaseProposal | undefined;
+  // The proposal for the service type; undefined = the rule does not apply to this type.
+  propose: (serviceType: ServiceType) => CaseProposal | undefined;
 };
 
 export const AUTOMATION_RULES: readonly AutomationRule[] = [
@@ -65,9 +65,9 @@ export const AUTOMATION_RULES: readonly AutomationRule[] = [
     key: 'case_settlement',
     version: 1,
     codes: [466, 14099],
-    propose: (role) => ({
+    propose: (serviceType) => ({
       target: 'case_phase',
-      value: role === 'technical_assistant' ? 'assistance_settlement' : 'settlement',
+      value: serviceType === 'technical_assistance' ? 'assistance_settlement' : 'settlement',
     }),
   },
   {
@@ -76,30 +76,32 @@ export const AUTOMATION_RULES: readonly AutomationRule[] = [
     key: 'case_withdrawal',
     version: 1,
     codes: [463, 454, 458, 459, 461, 473],
-    propose: (role) => (role === 'court_expert' ? { target: 'case_phase', value: 'withdrawal' } : undefined),
+    propose: (serviceType) =>
+      serviceType === 'expert_examination' ? { target: 'case_phase', value: 'withdrawal' } : undefined,
   },
   {
     // Sentença (procedência, improcedência, procedência em parte): the evidence phase is over.
     key: 'case_sentence',
     version: 1,
     codes: [219, 220, 221],
-    propose: (role) => (role === 'court_expert' ? { target: 'case_phase', value: 'evidence_closed' } : undefined),
+    propose: (serviceType) =>
+      serviceType === 'expert_examination' ? { target: 'case_phase', value: 'evidence_closed' } : undefined,
   },
 ];
 
 export type RuleMatch = { rule: AutomationRule; proposal: CaseProposal; movement: CourtMovement };
 
-export const matchRules = (movement: CourtMovement, role: CaseRole): RuleMatch[] =>
+export const matchRules = (movement: CourtMovement, serviceType: ServiceType): RuleMatch[] =>
   AUTOMATION_RULES.flatMap((rule) => {
-    const proposal = rule.codes.includes(movement.code) ? rule.propose(role) : undefined;
+    const proposal = rule.codes.includes(movement.code) ? rule.propose(serviceType) : undefined;
     return proposal ? [{ rule, proposal, movement }] : [];
   });
 
 // Whether a proposal still fits the case now (AD-268, invariant 3): `already` = the case is in the proposed
-// state (superseded); `impossible` = a closed case, a phase of the other role or a phase behind the current one
+// state (superseded); `impossible` = a closed case, a phase of another type or a phase behind the current one
 // (a suggestion never moves the phase back, except to a loss phase that closes the case).
 export const proposalFits = (
-  legalCase: { role: CaseRole; status: CaseStatus; phase: CasePhase },
+  legalCase: { serviceType: ServiceType; status: CaseStatus; phase: CasePhase },
   proposal: CaseProposal,
 ): 'apply' | 'already' | 'impossible' => {
   // Money and deadlines are decided by the person in the form (and can come after the case is closed).
@@ -110,7 +112,7 @@ export const proposalFits = (
   }
   if (legalCase.phase === proposal.value) return 'already';
   if (isCaseClosed(legalCase)) return 'impossible';
-  const phases = casePhases(legalCase.role);
+  const phases = casePhases(legalCase.serviceType);
   const target = phases.indexOf(proposal.value);
   if (target < 0) return 'impossible';
   if (CASE_CLOSED_PHASES.includes(proposal.value)) return 'apply';

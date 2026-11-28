@@ -74,6 +74,28 @@
       "doc": "features/filtros-lista/feature.md"
     },
     {
+      "slug": "servico-enums",
+      "feature": "Tipo e fase do serviço em enums",
+      "descricao": "Tipo de serviço e fase só como enums em inglês, Finalizado igual em todos os tipos e filtro de tipo com um parâmetro só",
+      "data": "2026-11-27",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "apps/worker",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-310"
+      ],
+      "spec": [
+        ".specs/features/servico-enums"
+      ],
+      "planos": [],
+      "doc": "features/servico-enums/feature.md"
+    },
+    {
       "slug": "sugestoes-datajud",
       "feature": "Sugestões do Datajud no serviço e no financeiro",
       "descricao": "Sugestão ao lado do dado, detalhe do lançamento, hora de cobrar e de encerrar e busca no tribunal pelo número",
@@ -99,6 +121,29 @@
         ".specs/features/sugestoes-datajud/plans/2026-11-26-conteudo-dos-movimentos.md"
       ],
       "doc": "features/sugestoes-datajud/feature.md"
+    },
+    {
+      "slug": "tipo-servico-proprio",
+      "feature": "Tipo de serviço próprio",
+      "descricao": "Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro",
+      "data": "2026-11-27",
+      "status": "concluido",
+      "areas": [
+        "apps/api",
+        "apps/web",
+        "packages/contracts",
+        "packages/db"
+      ],
+      "decisoes": [
+        "AD-176",
+        "AD-199",
+        "AD-200"
+      ],
+      "spec": [
+        ".specs/features/tipo-servico-proprio"
+      ],
+      "planos": [],
+      "doc": "features/tipo-servico-proprio/feature.md"
     },
     {
       "slug": "prazos-recebimentos",
@@ -656,29 +701,6 @@
       ],
       "planos": [],
       "doc": "features/servico-pasta-anexos/feature.md"
-    },
-    {
-      "slug": "tipo-servico-proprio",
-      "feature": "Tipo de serviço próprio",
-      "descricao": "Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro",
-      "data": "2026-11-06",
-      "status": "concluido",
-      "areas": [
-        "apps/api",
-        "apps/web",
-        "packages/contracts",
-        "packages/db"
-      ],
-      "decisoes": [
-        "AD-176",
-        "AD-199",
-        "AD-200"
-      ],
-      "spec": [
-        ".specs/features/tipo-servico-proprio"
-      ],
-      "planos": [],
-      "doc": "features/tipo-servico-proprio/feature.md"
     },
     {
       "slug": "prazos-alertas",
@@ -1253,9 +1275,7 @@
     }
   ],
   "planos_nao_arquivados": [],
-  "specs_sem_registro": [
-    "servico-enums"
-  ],
+  "specs_sem_registro": [],
   "decisoes": [
     {
       "id": "AD-001",
@@ -2736,6 +2756,12 @@
     {
       "id": "AD-309",
       "decisao": "(1) O fim do processo no tribunal vira sugestão ou aviso pelo estado do processo, avaliado a cada consulta do worker depois da linha de base",
+      "data": "2026-11-27",
+      "status": "active"
+    },
+    {
+      "id": "AD-310",
+      "decisao": "Tipo e fase do serviço só como enums em inglês. `Case.serviceType` é obrigatório e é um de `SERVICE_TYPES` (`expert_examination`, `technical",
       "data": "2026-11-27",
       "status": "active"
     }

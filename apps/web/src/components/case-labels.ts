@@ -3,11 +3,12 @@ import {
   CASE_STATUS,
   type CasePhase,
   type CasePhaseGroup,
-  type CaseRole,
   type CaseStatus,
   COURTTYPES,
   type CourtType,
-  JUDICIAL_CASE_ROLES,
+  OWN_SERVICE_PHASES,
+  SERVICE_TYPES,
+  type ServiceType,
   TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
@@ -38,7 +39,9 @@ const CASE_PHASE_KEY: Record<CasePhase, string> = {
   supplement_inspection: 'supplement_inspection',
   petition: 'draft_petition',
   assistance_fee_proposal: 'fee_proposal_sent',
-  assistance_hired: 'contracted',
+  hired: 'contracted',
+  in_progress: 'in_progress',
+  delivered: 'delivered',
   case_file_study: 'case_file_study_initial_questions',
   alignment_meeting: 'alignment_meeting',
   on_site_inspection: 'on_site_inspection',
@@ -51,12 +54,9 @@ const CASE_PHASE_KEY: Record<CasePhase, string> = {
   extra_stage: 'extra_stage',
   assistance_finished: 'assistance_finished',
   assistance_settlement: 'settlement_or_withdrawal',
-  assistance_closed: 'finished',
-  custom: 'own_phase',
+  finished: 'finished',
 };
-// A phase typed in the office's own type (AD-176) shows its name.
-export const casePhaseLabel = (phase: CasePhase, phaseName?: string): string =>
-  (phase === 'custom' && phaseName) || t(CASE_PHASE_KEY[phase]);
+export const casePhaseLabel = (phase: CasePhase): string => t(CASE_PHASE_KEY[phase]);
 const PHASE_GROUP_KEY: Record<CasePhaseGroup, string> = {
   initial: 'initial_phase',
   intermediate: 'intermediate_phase',
@@ -76,11 +76,14 @@ export const TECHNICAL_ASSISTANCE_PHASE_ITEMS = TECHNICAL_ASSISTANCE_PHASES.map(
   value,
   label: casePhaseLabel(value),
 }));
-// Every routine phase once (listing filter): the perícia groups, then the assistance-only ones.
+// Partnership and private service (AD-310).
+export const OWN_SERVICE_PHASE_ITEMS = OWN_SERVICE_PHASES.map((value) => ({ value, label: casePhaseLabel(value) }));
+// Every phase once (listing filter): the perícia groups, then the ones only of the other lists.
 export const CASE_PHASE_ITEMS = [
   ...CASE_PHASE_GROUP_ITEMS.flatMap((group) => group.items),
-  ...TECHNICAL_ASSISTANCE_PHASE_ITEMS.filter((item) => item.value !== 'fees_received'),
-];
+  ...TECHNICAL_ASSISTANCE_PHASE_ITEMS,
+  ...OWN_SERVICE_PHASE_ITEMS,
+].filter((item, index, items) => items.findIndex(({ value }) => value === item.value) === index);
 export const casePhaseGroupLabel = (group: CasePhaseGroup): string => t(PHASE_GROUP_KEY[group]);
 
 // Service status (AD-178).
@@ -103,35 +106,11 @@ export const courtTypeLabel = (courtType: CourtType): string => t(COURT_TYPE_KEY
 
 export const COURT_TYPE_ITEMS = COURTTYPES.map((value) => ({ value, label: courtTypeLabel(value) }));
 
-// "Tipo de serviço" (AD-178): Perícia, Assistência técnica, the office's own types and "Cadastrar novo".
-// The select value is the role or `name:` + the own type's name.
-const SERVICE_KIND_KEY = {
-  court_expert: 'expert_examination',
-  technical_assistant: 'technical_assistance',
-} as const;
-type ServiceKind = keyof typeof SERVICE_KIND_KEY;
-export const SERVICE_KINDS = Object.keys(SERVICE_KIND_KEY) as ServiceKind[];
-export const NEW_SERVICE_TYPE = 'new';
-export const OWN_TYPE_PREFIX = 'name:';
-type ServiceTypeFields = { role?: CaseRole; serviceType?: string | null };
-export const serviceTypeValue = ({ role, serviceType }: ServiceTypeFields): string | undefined =>
-  serviceType ? `${OWN_TYPE_PREFIX}${serviceType}` : role && role in SERVICE_KIND_KEY ? role : undefined;
-export const serviceTypeLabel = ({ role, serviceType }: ServiceTypeFields): string =>
-  serviceType || (role && role in SERVICE_KIND_KEY ? t(SERVICE_KIND_KEY[role as ServiceKind]) : '');
-// Type + sphere, as the list and the detail show it ("Perícia · Trabalhista").
-export const serviceLabel = (data: ServiceTypeFields & { courtType?: CourtType }): string =>
-  [serviceTypeLabel(data), data.courtType && courtTypeLabel(data.courtType)].filter(Boolean).join(' · ');
-// Own types always offered (AD-199), even before the first service; the name saved on the service is the label.
-export const PARTNERSHIP_SERVICE_TYPE = 'Parceria';
-export const PRIVATE_SERVICE_TYPE = 'Serviço particular';
-const FIXED_OWN_TYPES = [PARTNERSHIP_SERVICE_TYPE, PRIVATE_SERVICE_TYPE];
-export const serviceTypeItems = (officeTypes: readonly { name: string }[]) => [
-  ...SERVICE_KINDS.map((role) => ({ value: role, label: t(SERVICE_KIND_KEY[role]) })),
-  ...[...new Set([...FIXED_OWN_TYPES, ...officeTypes.map(({ name }) => name)])].map((name) => ({
-    value: `${OWN_TYPE_PREFIX}${name}`,
-    label: name,
-  })),
-];
-export const ROLE_ITEMS = JUDICIAL_CASE_ROLES.map((value) => ({ value, label: t(value) }));
-// A role typed in the office's own type (AD-176) shows its name.
-export const caseRoleLabel = (role: CaseRole, roleName?: string): string => (role === 'other' && roleName) || t(role);
+// "Tipo de serviço" (AD-310): the four fixed types; the value is the key.
+export const serviceTypeLabel = (serviceType: ServiceType): string => t(serviceType);
+export const SERVICE_TYPE_ITEMS = SERVICE_TYPES.map((value) => ({ value, label: serviceTypeLabel(value) }));
+// Type + sphere, as the list and the detail show it ("Perícia · Trabalhista"); empty without a service.
+export const serviceLabel = (data: { serviceType?: ServiceType; courtType?: CourtType }): string =>
+  [data.serviceType && serviceTypeLabel(data.serviceType), data.courtType && courtTypeLabel(data.courtType)]
+    .filter(Boolean)
+    .join(' · ');

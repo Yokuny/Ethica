@@ -1,4 +1,4 @@
-import { PDF_IMPORT_MAX_BYTES, reportRoleType } from '@ethica/contracts';
+import { PDF_IMPORT_MAX_BYTES, reportTypeOf } from '@ethica/contracts';
 import { Badge } from '@ethica/ui/components/badge';
 import { Button } from '@ethica/ui/components/button';
 import {
@@ -39,7 +39,7 @@ export function CaseReports({ legalCase }: { legalCase: CaseRecord }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [attached, setAttached] = useState<ReportRecord | null>(null);
-  const opinion = reportRoleType(legalCase.role) === 'technical_opinion';
+  const opinion = reportTypeOf(legalCase.serviceType) === 'technical_opinion';
   const onError = (error: Error) => toast.error(error.message);
 
   function handleFile(event: ChangeEvent<HTMLInputElement>) {

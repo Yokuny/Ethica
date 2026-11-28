@@ -6,16 +6,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { CaseRecord } from '@/query/case.js';
 import { CaseDetailsView } from './case-details-view.js';
 
-// Office's own type with only the contractor's name: the other contractor fields and the notes are empty.
+// Partnership with only the contractor's name: the other contractor fields and the notes are empty.
 const legalCase = {
   id: 'c1',
-  serviceType: 'Parceria',
-  role: 'court_expert',
+  serviceType: 'partnership',
   subject: 'Vistoria de imóvel urbano',
   contractor: { name: 'Mestre' },
   parties: [],
-  phase: 'custom',
-  phaseName: 'Contratado',
+  phase: 'hired',
   status: 'active',
   movements: [],
   attachments: [],

@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createReportSchema,
-  numberSections,
-  pendingVariables,
-  reportRoleType,
-  sectionFamily,
-} from './report.schema.js';
+import { createReportSchema, numberSections, pendingVariables, reportTypeOf, sectionFamily } from './report.schema.js';
 
 describe('numberSections', () => {
   it('numera pela posição e pelo nível e reinicia o subnível', () => {
@@ -43,8 +37,8 @@ describe('pendingVariables', () => {
 
 describe('report', () => {
   it('assistente técnico emite parecer técnico', () => {
-    expect(reportRoleType('technical_assistant')).toBe('technical_opinion');
-    expect(reportRoleType('court_expert')).toBe('report');
+    expect(reportTypeOf('technical_assistance')).toBe('technical_opinion');
+    expect(reportTypeOf('expert_examination')).toBe('report');
   });
 
   it('aceita o modelo padrão e exige uma seção', () => {

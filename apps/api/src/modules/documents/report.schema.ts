@@ -10,6 +10,7 @@ import type {
   ReportType,
   ReportVariable,
   ReportVariant,
+  TemplateArea,
   TemplateSection,
   UpdateReportSection,
   UpdateTemplate,
@@ -117,7 +118,7 @@ export type TemplateRecord = {
   name: string;
   details?: string;
   // Area of practice (AD-204).
-  area?: string;
+  area?: TemplateArea;
   type: ReportType;
   // Default library template: read-only, clonable (AD-126).
   isDefault: boolean;

@@ -1,4 +1,4 @@
-import { isTrackedNumber } from '@ethica/contracts';
+import { isTrackedNumber, usesContractor } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { DropdownMenuItem } from '@ethica/ui/components/dropdown-menu';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
@@ -91,7 +91,7 @@ export function CaseDetailsPage() {
           {can(session, 'court_divisions') && <CaseCourtDivision legalCase={legalCase} />}
           <CaseNotifications caseId={legalCase.id} />
           {/* Only courts the automation follows today (TRT and TRF, AD-277). */}
-          {legalCase.role !== 'other' && isTrackedNumber(legalCase.processNumber) && (
+          {!usesContractor(legalCase) && isTrackedNumber(legalCase.processNumber) && (
             <CaseCourt caseId={legalCase.id} />
           )}
           <CaseInspections caseId={legalCase.id} />

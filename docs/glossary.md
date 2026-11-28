@@ -5,13 +5,13 @@ Termos de domínio usados no código, na interface e nos documentos. A coluna **
 | Termo | Código | Significado |
 | --- | --- | --- |
 | Serviço (antes "Perícia" na tela) | `Case` (`case` module) | Um trabalho do perito: processo judicial em que atua como perito ou assistente técnico, ou serviço de tipo criado pelo escritório (AD-158). O processo judicial é identificado pelo número CNJ, único por tenant; o serviço do escritório pode não ter número. |
-| Tipo de serviço | `courtType` + `role`, ou `serviceType` com `courtType: 'other'` | Perícia ou assistência técnica civil, trabalhista ou federal, ou um tipo com nome do escritório (AD-158); Parceria e Serviço particular são sempre oferecidos (AD-199). |
-| Fase do serviço | `phase` do `Case` (`CASE_PHASES`, grupos em `CASE_PHASE_GROUPS`) | Lista da perita em grupos: inicial, de perdas, final, de recebimento e auxiliares; no tipo do escritório, fase digitada (`custom` + `phaseName`) ou "Honorários recebidos" (AD-178). |
+| Tipo de serviço | `serviceType` do `Case` (`SERVICE_TYPES`) | Perícia (`expert_examination`), Assistência técnica (`technical_assistance`), Parceria (`partnership`) ou Serviço particular (`private_service`) (AD-310). Só a perícia tem esfera (`courtType`). |
+| Fase do serviço | `phase` do `Case` (`CASE_PHASES`; a lista de cada tipo em `casePhases`) | Perícia em grupos (`CASE_PHASE_GROUPS`), assistência com lista própria e Parceria/Serviço particular com `OWN_SERVICE_PHASES`; Finalizado (`finished`) é a última de todos os tipos e encerra o serviço (AD-310). |
 | Status do serviço | `status` do `Case` (`CASE_STATUS`) | Ativo, Suspenso ou Cancelado (AD-178). Encerrado = cancelado ou fase que encerra (`CASE_CLOSED_PHASES`, AD-306). |
 | Situação do serviço | `situation` da listagem (`CASE_SITUATIONS`) | Em andamento (`open`) ou Finalizado (`closed`, encerrado pela regra acima); filtro da lista de Serviços (AD-308). |
 | Honorário líquido | — (calculado na tela) | Honorário fixado ou contratado (sem ele, o proposto) menos as despesas não canceladas do serviço (AD-159). |
 | Número do processo (CNJ) | `processNumber` | Formato `NNNNNNN-DD.AAAA.J.TR.OOOO` (Resolução CNJ 65/2008). |
-| Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`); `other` no tipo de serviço do escritório (AD-158). |
+| Justiça | `courtType` | Trabalhista, cível ou federal (`labor`, `civil`, `federal`); só na perícia (AD-178). |
 | Atuação | `role` | Perito do juízo (`court_expert`) ou assistente técnico de uma das partes (`technical_assistant`). |
 | Parte | `Party` (`case`), `parties` da perícia | Cadastro reutilizável de parte (`party`, com CPF/CNPJ) ou advogado (`lawyer`, com OAB), ambos com CREA opcional; um cadastro por nome (`nameKey`, AD-164). Na perícia fica ligada a um **polo**: autor/reclamante (`plaintiff`) ou réu/reclamada (`defendant`) (AD-117); o advogado é da parte que vem antes dele no mesmo polo. |
 | Período imprescrito | `nonPrescribedPeriodStart`/`End` | Parte do contrato de trabalho que ainda pode ser cobrada: do mais recente entre (autuação − 5 anos) e a admissão até a demissão (AD-115). |

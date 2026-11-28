@@ -11,9 +11,6 @@ import type { CaseEditFormProps } from '../@interface/case-details.interface.js'
 
 const CLEARABLE = [
   'courtType',
-  'serviceType',
-  'roleName',
-  'phaseName',
   'contractor',
   'folderUrl',
   'nominationDate',
@@ -44,7 +41,7 @@ export function useCaseEditForm({ legalCase, onSaved }: Pick<CaseEditFormProps, 
   function onSubmit(data: UpdateCase) {
     if (isPending) return;
     setErrorMessage(null);
-    // A saved value left empty goes as null, which the API clears (AD-177): an erased date, or the own type's
+    // A saved value left empty goes as null, which the API clears (AD-177): an erased date, or the other type's
     // fields when the service becomes judicial. Missing would keep what was saved.
     const cleared = Object.fromEntries(
       CLEARABLE.filter((key) => legalCase[key] !== undefined && data[key] === undefined).map((key) => [key, null]),

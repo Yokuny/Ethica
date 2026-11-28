@@ -11,6 +11,7 @@ import type {
   ReportVariable,
   ReportVariant,
   SortOrder,
+  TemplateArea,
   TemplateSection,
   UpdateReportSection,
   UpdateTemplate,
@@ -31,7 +32,7 @@ export type TemplateRecord = {
   // Specifics of the template (AD-181).
   details?: string;
   // Area of practice (AD-204).
-  area?: string;
+  area?: TemplateArea;
   type: ReportType;
   isDefault: boolean;
   sections: TemplateSectionRecord[];
@@ -279,7 +280,7 @@ const updatedTemplate = (queryClient: QueryClient, template: TemplateRecord) => 
 // BIB-04: PDF or Word turned into an office template.
 export const importTemplateMutation = (
   queryClient: QueryClient,
-): UseMutationOptions<TemplateRecord, Error, { name: string; type: ReportType; area?: string; file: File }> => ({
+): UseMutationOptions<TemplateRecord, Error, { name: string; type: ReportType; area?: TemplateArea; file: File }> => ({
   mutationFn: async ({ name, type, area, file }) =>
     unwrap(
       await sendFile<TemplateRecord>(

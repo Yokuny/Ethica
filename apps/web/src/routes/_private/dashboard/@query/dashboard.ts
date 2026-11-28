@@ -1,4 +1,4 @@
-import type { CaseRole } from '@ethica/contracts';
+import type { ServiceType } from '@ethica/contracts';
 import { queryOptions } from '@tanstack/react-query';
 import { get } from '@/lib/api/client.api.js';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -10,9 +10,9 @@ import { transactionKeys } from '@/query/transaction.js';
 export type CaseDashboard = {
   total: number;
   closed: number;
-  byType: { role: CaseRole; serviceType?: string; count: number }[];
+  byType: { serviceType: ServiceType; count: number }[];
   // Each month with its total and the same count split by type.
-  byMonth: { month: string; count: number; byType: { role: CaseRole; serviceType?: string; count: number }[] }[];
+  byMonth: { month: string; count: number; byType: { serviceType: ServiceType; count: number }[] }[];
 };
 
 export type FeesDashboard = {

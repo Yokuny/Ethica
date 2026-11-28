@@ -1,4 +1,4 @@
-import { caseArea, caseLabel, defaultTemplateOf, reportRoleType } from '@ethica/contracts';
+import { caseArea, caseLabel, defaultTemplateOf, reportTypeOf } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -28,7 +28,7 @@ export function ReportAddPage() {
   const queryClient = useQueryClient();
   const caseId = search.caseId ?? '';
   const legalCase = useQuery({ ...caseQuery(caseId), enabled: Boolean(caseId), retry: false });
-  const type = legalCase.data ? reportRoleType(legalCase.data.role) : undefined;
+  const type = legalCase.data ? reportTypeOf(legalCase.data.serviceType) : undefined;
   const templateId = search.templateId ?? (type ? defaultTemplateOf(type) : '');
   const template = useQuery({ ...templateQuery(templateId), enabled: Boolean(templateId) });
   const create = useMutation(createReportMutation(queryClient));

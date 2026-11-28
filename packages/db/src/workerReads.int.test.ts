@@ -22,7 +22,8 @@ describe('listTrackedCases (PAC-03)', () => {
       Tenant: tenant._id,
       processNumber,
       courtType: 'labor',
-      role: 'court_expert',
+      serviceType: 'expert_examination',
+      phase: 'awaiting_scheduling',
       subject: 'Insalubridade',
       ...extra,
     });

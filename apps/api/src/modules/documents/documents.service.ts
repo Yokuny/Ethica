@@ -149,7 +149,7 @@ export const exportData = async (ctx: DocumentContext): Promise<GeneratedFile> =
         ['id', (p) => p.id],
         ['numeroProcesso', (p) => p.processNumber],
         ['justica', (p) => p.courtType],
-        ['papel', (p) => p.role],
+        ['tipoServico', (p) => p.serviceType],
         ['tribunal', (p) => p.court],
         ['vara', (p) => p.division],
         ['comarca', (p) => p.district],

@@ -60,7 +60,8 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       Tenant: tenant._id,
       processNumber,
       courtType: 'labor',
-      role: 'court_expert',
+      serviceType: 'expert_examination',
+      phase: 'awaiting_scheduling',
       court: 'TRT24',
       subject: 'Insalubridade',
     });
@@ -74,7 +75,8 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       Tenant: premium.tenant._id,
       processNumber: '0000002-00.2026.8.26.0100',
       courtType: 'civil',
-      role: 'court_expert',
+      serviceType: 'expert_examination',
+      phase: 'awaiting_scheduling',
       court: 'TJSP',
       subject: 'Avaliação',
     });
@@ -96,7 +98,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
         caseId: legalCase.id,
         processNumber: NUMBER,
         court: 'TRT24',
-        role: 'court_expert' as const,
+        serviceType: 'expert_examination' as const,
         status: 'active' as const,
         phase: 'drafting_report' as const,
       },
@@ -148,7 +150,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       caseId: legalCase.id,
       processNumber: NUMBER,
       court: 'TRT24',
-      role: 'court_expert' as const,
+      serviceType: 'expert_examination' as const,
       status: 'active' as const,
       phase: 'drafting_report' as const,
     };
@@ -186,7 +188,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       caseId: legalCase.id,
       processNumber: NUMBER,
       court: 'TRT24',
-      role: 'court_expert' as const,
+      serviceType: 'expert_examination' as const,
       status: 'active' as const,
       phase: 'fees_received' as const,
     };
@@ -227,7 +229,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       caseId: legalCase.id,
       processNumber: NUMBER,
       court: 'TRT24',
-      role: 'court_expert' as const,
+      serviceType: 'expert_examination' as const,
       status: 'active' as const,
       phase: 'drafting_report' as const,
     };
@@ -253,7 +255,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       caseId: legalCase.id,
       processNumber: NUMBER,
       court: 'TRT24',
-      role: 'court_expert' as const,
+      serviceType: 'expert_examination' as const,
       status: 'active' as const,
       phase: 'drafting_report' as const,
     };
@@ -294,7 +296,7 @@ describe('acompanhamento no tribunal (ADT-02)', () => {
       caseId: legalCase.id,
       processNumber: NUMBER,
       court: 'TRT24',
-      role: 'court_expert' as const,
+      serviceType: 'expert_examination' as const,
       status: 'active' as const,
       phase: 'drafting_report' as const,
     };

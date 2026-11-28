@@ -4,7 +4,7 @@ import { serviceTypeLabel } from '@/components/case-labels.js';
 import { NEUTRAL_COLOR, SERIES_COLORS } from '@/components/composition-donut.js';
 import { t } from '@/lib/helpers/translate.helper.js';
 import type { CaseDashboard } from '../@query/dashboard.js';
-import { rankTypes, typeKey } from '../@utils/dashboard-period.js';
+import { rankTypes } from '../@utils/dashboard-period.js';
 
 const LIMIT = SERIES_COLORS.length;
 const monthShort = new Intl.DateTimeFormat('pt-BR', { month: 'short' });
@@ -26,8 +26,8 @@ export function ServicesAreaChart({ byType, byMonth }: ServicesAreaChartProps) {
   const series = [
     ...top.map((row, index) => ({
       key: `t${index}`,
-      type: typeKey(row),
-      label: serviceTypeLabel(row),
+      type: row.serviceType,
+      label: serviceTypeLabel(row.serviceType),
       color: SERIES_COLORS[index],
     })),
     ...(ranked.length > LIMIT ? [{ key: 'others', type: '', label: t('remaining'), color: NEUTRAL_COLOR }] : []),
@@ -37,7 +37,7 @@ export function ServicesAreaChart({ byType, byMonth }: ServicesAreaChartProps) {
     const row: Record<string, number | string> = { month: month.month };
     for (const serie of series) row[serie.key] = 0;
     for (const type of month.byType) {
-      const key = topKeys.get(typeKey(type)) ?? 'others';
+      const key = topKeys.get(type.serviceType) ?? 'others';
       row[key] = Number(row[key] ?? 0) + type.count;
     }
     return row;

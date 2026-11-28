@@ -58,7 +58,7 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
       await as(request(app).post('/expert-cases')).send({
         processNumber: NUMBER,
         courtType: 'labor',
-        role: 'court_expert',
+        serviceType: 'expert_examination',
         court: 'TRT24',
         subject: 'Insalubridade',
       })
@@ -99,7 +99,7 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
         await as(request(app).post('/expert-cases')).send({
           processNumber,
           courtType: 'labor',
-          role: 'court_expert',
+          serviceType: 'expert_examination',
           court: 'TRT24',
           subject: 'Insalubridade',
         })

@@ -34,6 +34,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ### Ir ao ar — você
 
+- [ ] Conferir na tela, depois do deploy, o cadastro com os quatro tipos de serviço, a fase por tipo e o filtro pronto "Serviços finalizados" (AD-310) — `servico-enums`
 - [ ] Antes do deploy da `sugestoes-datajud`, apagar de novo os dados do Datajud em produção (ou pausar o worker na Railway até lá), para validar a linha de base do zero — `sugestoes-datajud`
 - [ ] Escritório ETHICA em produção com assinatura só no banco (sem Asaas): `subscriptionPlan: automation_monthly`, acesso e Automação até 31/12/2027, gravados à mão em 2026-11-22. Antes dessa data, assinar de verdade pelo app ou estender a data, senão o acesso fecha — `automacao-datajud`
 - [ ] Conferir com a perita: aviso na intenção de pagamento (12548, 12165) e sugestão de recebimento no alvará emitido e na RPV ou precatório pago (AD-274, AD-279) — `automacao-datajud`
@@ -120,6 +121,7 @@ Em paralelo: validação do que já existe pela perita, com pequenas correções
 
 ## Resolvidos
 
+- [x] 2026-11-27 — Tipo e fase do serviço só em enums; "Serviços finalizados" traz as Parcerias finalizadas e o filtro de tipo usa um parâmetro só (AD-310) — `servico-enums`
 - [x] 2026-11-27 — Perita confirmou as 14 questões da spec `sugestoes-datajud`; encerramento com honorários recebidos segue a AD-306 (perícia: "Honorários recebidos", assistência: "Finalizado") — `sugestoes-datajud`
 - [x] 2026-11-27 — Filtro Situação (Em andamento / Finalizados) em Serviços e filtros prontos só de serviço; regra "gestor de serviços, não de perícias" no `AGENTS.md` (AD-308) — `filtros-lista`
 - [x] 2026-11-27 — "Filtros prontos" no menu "…" de Serviços (ocultar finalizados) e do Histórico de auditoria (AD-307) — `filtros-lista`

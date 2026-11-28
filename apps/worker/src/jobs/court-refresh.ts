@@ -142,7 +142,7 @@ export const refreshCourtBatch = async (
     // The latest movement of each rule (several suspension movements on the same day are one suggestion).
     const byRule = new Map<string, RuleMatch>();
     for (const movement of fresh)
-      for (const match of matchRules(movement, item.role)) byRule.set(match.rule.key, match);
+      for (const match of matchRules(movement, item.serviceType)) byRule.set(match.rule.key, match);
     for (const { rule, proposal, movement } of byRule.values()) {
       if (proposalFits(item, proposal) !== 'apply') continue;
       const id = await insertSuggestion({

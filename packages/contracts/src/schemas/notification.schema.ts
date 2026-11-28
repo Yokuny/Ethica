@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { CaseProposal } from './automation-rules.js';
-import type { CaseRole, CourtType } from './case.schema.js';
+import type { CourtType, ServiceType } from './case.schema.js';
 import type { CourtMovement } from './court-process.schema.js';
 import { calendarDateSchema } from './date.schema.js';
 import { idSchema } from './id.schema.js';
@@ -147,8 +147,7 @@ export type NotificationRecord = {
   client?: string;
   plaintiff?: string;
   defendant?: string;
-  role?: CaseRole;
-  serviceType?: string;
+  serviceType?: ServiceType;
   courtType?: CourtType;
   // Deadline and alert.
   title?: string;

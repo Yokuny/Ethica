@@ -5,9 +5,8 @@ import { ItemDescription } from '@ethica/ui/components/item';
 import { useQuery } from '@tanstack/react-query';
 import { FormDialog } from '@/components/form-dialog.js';
 import { SelectField, TextareaField, TextField } from '@/components/form-fields.js';
-import { templateAreaItems } from '@/components/report-labels.js';
+import { TEMPLATE_AREA_ITEMS } from '@/components/report-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { serviceTypesQuery } from '@/query/case.js';
 import { type TemplateRecord, templatesQuery } from '@/query/report.js';
 import { useTemplateCreateForm } from '../@hooks/use-template-create-form.js';
 
@@ -23,7 +22,6 @@ export function TemplateCreateForm({ base, onDone, onClose }: TemplateCreateForm
   const { form, onSubmit, isPending, errorMessage } = useTemplateCreateForm({ base, onDone });
   const type = form.watch('type');
   const templates = useQuery(templatesQuery(type));
-  const serviceTypes = useQuery(serviceTypesQuery);
   const bases = [
     { value: BLANK, label: t('blank_template') },
     ...(templates.data ?? []).map((template) => ({ value: template.id, label: template.name })),
@@ -62,7 +60,7 @@ export function TemplateCreateForm({ base, onDone, onClose }: TemplateCreateForm
             name="area"
             label={t('practice_area')}
             placeholder={t('no_area')}
-            items={templateAreaItems(serviceTypes.data ?? [])}
+            items={TEMPLATE_AREA_ITEMS}
           />
           <SelectField
             control={form.control}

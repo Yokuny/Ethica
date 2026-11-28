@@ -1,4 +1,4 @@
-import type { ReportType } from '@ethica/contracts';
+import type { ReportType, TemplateArea } from '@ethica/contracts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ethica/ui/components/select';
 import { useQuery } from '@tanstack/react-query';
 import { t } from '@/lib/helpers/translate.helper.js';
@@ -13,7 +13,7 @@ export function TemplateSelect({
   onChange,
 }: {
   type?: ReportType;
-  area?: string;
+  area?: TemplateArea;
   value: string;
   onChange: (templateId: string) => void;
 }) {

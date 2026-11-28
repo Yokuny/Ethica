@@ -1,11 +1,12 @@
 import {
   type NotificationRecord,
   type NotificationStatus,
+  type ServiceType,
   USER_NOTIFICATION_KINDS,
   type UserNotificationKind,
 } from '@ethica/contracts';
 import type { IndicatorVariant } from '@ethica/ui/components/badge';
-import { casePhaseLabel, PARTNERSHIP_SERVICE_TYPE } from '@/components/case-labels.js';
+import { casePhaseLabel } from '@/components/case-labels.js';
 import { addDaysToDisplayDate } from '@/lib/helpers/displayTime.helper.js';
 import { formatDate } from '@/lib/helpers/formatDate.helper.js';
 import { formatMoney } from '@/lib/helpers/money.helper.js';
@@ -105,13 +106,10 @@ export const ALERT_VARIANT: Record<DeadlineAlert, IndicatorVariant> = {
   deadline_attention: 'info',
 };
 
-// Approved deadline and alert titles by service type (AD-190): perícia, technical assistance and the office's
-// "Parceria" type; the other own types are only typed. The title saved is the label itself.
-const SUGGESTIONS: Record<
-  'court_expert' | 'technical_assistant' | 'partnership',
-  Record<UserNotificationKind, string[]>
-> = {
-  court_expert: {
+// Approved deadline and alert titles by service type (AD-190, AD-310); the private service only has typed ones.
+// The title saved is the label itself.
+const SUGGESTIONS: Partial<Record<ServiceType, Record<UserNotificationKind, string[]>>> = {
+  expert_examination: {
     deadline: [
       'nomination_acceptance',
       'fee_proposal',
@@ -129,7 +127,7 @@ const SUGGESTIONS: Record<
       'check_case_progress',
     ],
   },
-  technical_assistant: {
+  technical_assistance: {
     deadline: [
       'initial_questions',
       'technical_opinion',
@@ -150,11 +148,7 @@ const SUGGESTIONS: Record<
   },
 };
 
-export const deadlineSuggestions = (legalCase: { role: string; serviceType?: string }) => {
-  const list = legalCase.serviceType
-    ? legalCase.serviceType === PARTNERSHIP_SERVICE_TYPE
-      ? SUGGESTIONS.partnership
-      : undefined
-    : SUGGESTIONS[legalCase.role === 'technical_assistant' ? 'technical_assistant' : 'court_expert'];
+export const deadlineSuggestions = (legalCase: { serviceType: ServiceType }) => {
+  const list = SUGGESTIONS[legalCase.serviceType];
   return list ? USER_NOTIFICATION_KINDS.map((kind) => ({ kind, titles: list[kind].map((key) => t(key)) })) : [];
 };

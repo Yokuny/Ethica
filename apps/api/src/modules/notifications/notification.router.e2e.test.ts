@@ -55,7 +55,7 @@ const seedSession = async (role: Role[] = ['operator']) => {
 const CASE = {
   processNumber: '0001234-56.2026.5.02.0001',
   courtType: 'labor',
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   court: 'TRT2',
   subject: 'Insalubridade',
 };
@@ -104,7 +104,7 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
     expect(ids(pending.items)).toEqual([overdue.id, alert.id, later.id]);
     expect(pending.items[0]).toMatchObject({
       caseNumber: CASE.processNumber,
-      role: CASE.role,
+      serviceType: CASE.serviceType,
       courtType: CASE.courtType,
     });
 
@@ -138,8 +138,7 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
     const { as, add, list } = await setup();
     const legalCase = (
       await as(request(app).post('/expert-cases')).send({
-        serviceType: 'Avaliação de imóvel',
-        role: 'technical_assistant',
+        serviceType: 'private_service',
         subject: 'Avaliação de imóvel',
         contractor: { name: 'Construtora Alfa' },
       })
@@ -147,7 +146,7 @@ describe('Notificações num processo só (AD-263, AD-282)', () => {
     await add(legalCase.id, { title: 'Entrega', dueDate: day(3) });
 
     const { items } = await list();
-    expect(items[0]).toMatchObject({ client: 'Construtora Alfa', serviceType: 'Avaliação de imóvel' });
+    expect(items[0]).toMatchObject({ client: 'Construtora Alfa', serviceType: 'private_service' });
   });
 
   it('cadastrar o serviço com prazo do laudo cria "Entrega do laudo" pendente pelo evento (AD-264)', async () => {

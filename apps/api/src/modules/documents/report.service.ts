@@ -8,7 +8,8 @@ import {
   REPORT_MEDIA_LIMIT,
   REPORT_VARIABLES,
   type ReportLayout,
-  reportRoleType,
+  reportTypeOf,
+  type ServiceType,
   sectionFamily,
   TECHNICAL_ASSISTANCE_PHASES,
 } from '@ethica/contracts';
@@ -64,7 +65,15 @@ const BEFORE_DELIVERY = new Set<CasePhase>([
   ...CASE_PHASE_GROUPS.initial,
   ...CASE_PHASE_GROUPS.intermediate,
   ...TECHNICAL_ASSISTANCE_PHASES.slice(0, TECHNICAL_ASSISTANCE_PHASES.indexOf('technical_opinion_delivered')),
+  'in_progress',
 ]);
+// Phase a delivery leads to, by service type.
+const DELIVERED_PHASE: Record<ServiceType, CasePhase> = {
+  expert_examination: 'report_delivered',
+  technical_assistance: 'technical_opinion_delivered',
+  partnership: 'delivered',
+  private_service: 'delivered',
+};
 
 const titleOf = (type: string): string => (type === 'technical_opinion' ? 'Parecer técnico' : 'Laudo pericial');
 
@@ -501,7 +510,7 @@ export const attachReport = async (
     throw new CustomError('unsupported_file_type', 415);
   }
   const legalCase = await caseService.getCase(ctx.tenantId, caseId);
-  const type = reportRoleType(legalCase.role);
+  const type = reportTypeOf(legalCase.serviceType);
   const file = { key: `tenants/${ctx.tenantId}/reports/files/${randomUUID()}.pdf`, name, bytes: body.length };
   await officeService.reserveFile(ctx.tenantId, file.bytes);
   let report: ReportRecord;
@@ -538,7 +547,7 @@ const fileDelivery = async (ctx: DocumentContext, legalCase: CaseRecord, notes: 
   });
   if (BEFORE_DELIVERY.has(legalCase.phase)) {
     await caseService.updateCase(ctx.tenantId, legalCase.id, {
-      phase: legalCase.role === 'technical_assistant' ? 'technical_opinion_delivered' : 'report_delivered',
+      phase: DELIVERED_PHASE[legalCase.serviceType],
     });
   }
 };
@@ -692,7 +701,7 @@ export const templatePdf = async (providers: Providers, ctx: DocumentContext, id
   const markers = Object.fromEntries(REPORT_VARIABLES.map((variable) => [variable, variable]));
   const legalCase: CaseRecord = {
     id: template.id,
-    role: template.type === 'technical_opinion' ? 'technical_assistant' : 'court_expert',
+    serviceType: template.type === 'technical_opinion' ? 'technical_assistance' : 'expert_examination',
     processNumber: '[NUMERO_PROCESSO]',
     serviceOrder: '[NUMERO_OS]',
     division: '[VARA]',

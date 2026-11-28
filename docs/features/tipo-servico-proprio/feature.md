@@ -2,7 +2,7 @@
 feature: Tipo de serviço próprio
 slug: tipo-servico-proprio
 descricao: Tipo de serviço criado pelo escritório com contratante, atuação e status digitados, data de entrega e pagamento no cadastro
-data: 2026-11-06
+data: 2026-11-27
 status: concluido
 areas: [apps/api, apps/web, packages/contracts, packages/db]
 decisoes: [AD-176, AD-199, AD-200]
@@ -68,6 +68,7 @@ Não desfazer sem ler: atuação e status digitados são `role: 'other'` + `role
 
 ## Histórico
 
+- 2026-11-27 — Superseded pela `servico-enums` (AD-310): o tipo com nome digitado, a atuação e a fase digitadas saem; ficam só Parceria e Serviço particular, com fases fixas.
 - 2026-11-06 — "Serviço particular" começa com a Atuação vazia e obrigatória (AD-200).
 - 2026-11-06 — "Parceria" e a nova opção "Serviço particular" aparecem sempre na lista de tipos, mesmo sem serviço cadastrado (AD-199).
 - 2026-11-03 — Revisto pela `fase-servico` (AD-178): o status digitado virou fase digitada (`phase: 'custom'` + `phaseName`) e Concluído/Cancelado viraram "Honorários recebidos" e o status Cancelado; assistência técnica também usa o formulário de contratante.

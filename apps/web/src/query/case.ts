@@ -2,7 +2,6 @@ import type {
   CaseContractor,
   CaseListSort,
   CasePhase,
-  CaseRole,
   CaseSituation,
   CaseStatus,
   CourtType,
@@ -10,6 +9,7 @@ import type {
   CreateMovement,
   MovementType,
   PartyType,
+  ServiceType,
   Side,
   SortOrder,
   UpdateCase,
@@ -25,17 +25,13 @@ export type CaseAttachment = { id: string; name: string; mime: string; bytes: nu
 // truth lives in the back-end. Calendar dates arrive as `YYYY-MM-DD`; instants, ISO.
 export type CaseRecord = {
   id: string;
-  // Missing only in a service type created by the office (AD-158).
+  // Only in a perícia (AD-158).
   processNumber?: string;
   // Service order control number (NLA-01).
   serviceOrder?: string;
   // Sphere, only in a perícia (AD-178).
   courtType?: CourtType;
-  serviceType?: string;
-  role: CaseRole;
-  // Typed role and phase of the office's own type and the contractor (AD-176, AD-178).
-  roleName?: string;
-  phaseName?: string;
+  serviceType: ServiceType;
   contractor?: CaseContractor;
   court?: string;
   division?: string;
@@ -72,8 +68,7 @@ export type CasesQueryParams = {
   status?: CaseStatus[];
   courtType?: CourtType[];
   situation?: CaseSituation[];
-  role?: ('court_expert' | 'technical_assistant')[];
-  serviceType?: string[];
+  serviceType?: ServiceType[];
   serviceOrder?: string;
   sort?: CaseListSort;
   order?: SortOrder;
@@ -97,11 +92,7 @@ export const caseKeys = {
   list: (params: CasesQueryParams) => [...caseKeys.lists(), params] as const,
   detail: (id: string) => [...caseKeys.all, 'detail', id] as const,
   distribution: () => [...caseKeys.all, 'distribution'] as const,
-  serviceTypes: () => [...caseKeys.all, 'service-types'] as const,
 };
-
-// Service types created by the office (AD-158), with their typed role and phases (AD-176, AD-178).
-export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; phases: string[] };
 
 // A list filter repeats the key (`phase=a&phase=b`, FIL-03).
 const toQueryString = (params: Record<string, string | number | string[] | undefined>): string => {
@@ -147,15 +138,6 @@ export const caseDistributionQuery = queryOptions({
   queryKey: caseKeys.distribution(),
   queryFn: async (): Promise<CaseDistribution> => {
     const res = await get<CaseDistribution>('/expert-cases/distribution');
-    if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
-    return res.data;
-  },
-});
-
-export const serviceTypesQuery = queryOptions({
-  queryKey: caseKeys.serviceTypes(),
-  queryFn: async (): Promise<ServiceTypeItem[]> => {
-    const res = await get<ServiceTypeItem[]>('/expert-cases/service-types');
     if (!res.success || !res.data) throw new Error(res.message ?? t('load_error'));
     return res.data;
   },

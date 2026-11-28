@@ -1,4 +1,4 @@
-import { caseLabel, isOwnType, type Side, usesContractor } from '@ethica/contracts';
+import { caseLabel, type Side, usesContractor } from '@ethica/contracts';
 import { BadgeIndicator } from '@ethica/ui/components/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@ethica/ui/components/tooltip';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -116,10 +116,7 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     // Phase in the tone of the status (AD-178); a status other than active is named after it. One line.
     cell: ({ row }) => (
       <TableStatus variant={CASE_STATUS_VARIANT[row.original.status]}>
-        {[
-          casePhaseLabel(row.original.phase, row.original.phaseName),
-          row.original.status !== 'active' && caseStatusLabel(row.original.status),
-        ]
+        {[casePhaseLabel(row.original.phase), row.original.status !== 'active' && caseStatusLabel(row.original.status)]
           .filter(Boolean)
           .join(' · ')}
       </TableStatus>
@@ -159,10 +156,10 @@ export const caseColumns: ColumnDef<CaseListItem, unknown>[] = [
     id: 'fees',
     header: t('fees'),
     cell: ({ row }) => {
-      const { fixedFeesCents, proposedFeesCents, role } = row.original;
+      const { fixedFeesCents, proposedFeesCents } = row.original;
       const value = fixedFeesCents ?? proposedFeesCents;
-      // In a technical assistant case (AD-135) and in the office's own type (AD-176) it is the contracted one.
-      const definido = role === 'technical_assistant' || isOwnType(row.original) ? t('contracted') : t('fixed');
+      // Outside the perícia (AD-135, AD-176) it is the contracted one.
+      const definido = usesContractor(row.original) ? t('contracted') : t('fixed');
       return (
         <TableStack width="fit" description={fixedFeesCents ? definido : value ? t('proposed') : undefined}>
           {value ? formatMoney(value) : '—'}
@@ -195,9 +192,7 @@ export const caseExportColumns = (canSeeFinance: boolean): TableExportColumn<Cas
   {
     header: t('service_phase'),
     value: (row) =>
-      [casePhaseLabel(row.phase, row.phaseName), row.status !== 'active' && caseStatusLabel(row.status)]
-        .filter(Boolean)
-        .join(' · '),
+      [casePhaseLabel(row.phase), row.status !== 'active' && caseStatusLabel(row.status)].filter(Boolean).join(' · '),
   },
   {
     header: t('next_deadline'),

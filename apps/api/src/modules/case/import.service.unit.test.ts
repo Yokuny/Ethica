@@ -44,7 +44,7 @@ describe('extrairAta (AD-114)', () => {
       processNumber: '0001234-56.2026.5.02.0001',
       courtType: 'labor',
       court: 'TRT2',
-      role: 'court_expert',
+      serviceType: 'expert_examination',
       division: '1ª Vara do Trabalho',
       district: 'São Paulo',
       subject: 'Apuração de insalubridade',
@@ -193,7 +193,7 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
         processNumber: '0001234-56.2026.5.02.0001',
         courtType: 'labor',
         court: 'TRT2',
-        role: 'court_expert',
+        serviceType: 'expert_examination',
         phase: 'report_delivered',
         nominationDate: '2026-10-15',
         proposedFeesCents: 350_050,
@@ -210,7 +210,9 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
 
   it('assistência técnica não tem esfera nem exige processo (AD-178)', () => {
     const result = rowToCase(cells({ 'Tipo de serviço': 'Assistência técnica', Objeto: 'x', Situação: 'Suspenso' }));
-    expect(result).toEqual({ data: expect.objectContaining({ role: 'technical_assistant', status: 'suspended' }) });
+    expect(result).toEqual({
+      data: expect.objectContaining({ serviceType: 'technical_assistance', status: 'suspended' }),
+    });
     expect(result).not.toHaveProperty('data.courtType');
   });
 
@@ -227,10 +229,13 @@ describe('planilha de qualquer modelo (AD-115, RSV-04)', () => {
     expect(result).not.toHaveProperty('data.phase');
   });
 
-  it('tipo do escritório sem processo usa o tipo como objeto', () => {
+  it('outro nome de tipo vira Serviço particular e o nome vira o objeto; Parceria é reconhecida (AD-310)', () => {
+    expect(rowToCase(cells({ 'Tipo de serviço': 'Parceria', Objeto: 'x', Situação: 'Finalizado' }))).toEqual({
+      data: expect.objectContaining({ serviceType: 'partnership', phase: 'finished' }),
+    });
     expect(rowToCase(cells({ 'Tipo de serviço': 'Avaliação de imóvel', Status: 'xyz' }))).toEqual({
       data: expect.objectContaining({
-        serviceType: 'Avaliação de imóvel',
+        serviceType: 'private_service',
         subject: 'Avaliação de imóvel',
         notes: 'Status: xyz (!)',
       }),

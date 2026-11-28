@@ -29,7 +29,7 @@ export const RULE_ITEMS: RuleItem[] = [
     description: t('court_movement_notice'),
   },
   ...AUTOMATION_RULES.flatMap((rule): RuleItem[] => {
-    const proposal = rule.propose('court_expert');
+    const proposal = rule.propose('expert_examination');
     const titleKey = RULE_TITLE_KEY[rule.key];
     return proposal && titleKey
       ? [

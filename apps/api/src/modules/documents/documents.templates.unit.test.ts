@@ -15,7 +15,7 @@ const legalCase: SheetData['legalCase'] = {
   id: 'p1',
   processNumber: '0001234-56.2026.5.02.0001',
   courtType: 'labor',
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   court: 'TRT2',
   subject: 'Insalubridade <script>',
   parties: [],

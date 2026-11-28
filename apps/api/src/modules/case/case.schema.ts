@@ -1,12 +1,12 @@
 import type {
   CaseContractor,
   CasePhase,
-  CaseRole,
   CaseStatus,
   CourtType,
   CreateCase,
   CreateMovement,
   MovementType,
+  ServiceType,
   UpdateCase,
 } from '@ethica/contracts';
 import {
@@ -20,6 +20,7 @@ import {
   createMovementSchema,
   idSchema,
   queryListSchema,
+  SERVICE_TYPES,
   SORT_ORDERS,
   updateCaseSchema,
 } from '@ethica/contracts';
@@ -49,9 +50,8 @@ export const listCasesQuerySchema = z
     courtType: queryListSchema(z.enum(COURTTYPES)),
     // Open or closed (AD-308); both checked filter nothing.
     situation: queryListSchema(z.enum(CASE_SITUATIONS)),
-    // "Tipo" filter (AD-177): Perícia or Assistência técnica by `role`, an own type by its name.
-    role: queryListSchema(z.enum(['court_expert', 'technical_assistant'])),
-    serviceType: queryListSchema(z.string().trim().min(1).max(80)),
+    // "Tipo de serviço" filter (AD-310).
+    serviceType: queryListSchema(z.enum(SERVICE_TYPES)),
     // "Número de controle" filter: any piece of the service order (OS), the number alone included.
     serviceOrder: z.string().trim().min(1).max(30).optional(),
     sort: z.enum(CASE_LIST_SORTS).default('createdAt'),
@@ -77,11 +77,7 @@ export type CaseRecord = {
   serviceOrder?: string;
   // Sphere, only in a perícia (AD-178).
   courtType?: CourtType;
-  serviceType?: string;
-  role: CaseRole;
-  // Typed role and phase of the office's own type and the contractor (AD-176, AD-178).
-  roleName?: string;
-  phaseName?: string;
+  serviceType: ServiceType;
   contractor?: CaseContractor;
   court?: string;
   division?: string;
@@ -117,7 +113,6 @@ export type StalledCase = {
   id: string;
   processNumber?: string;
   phase: CasePhase;
-  phaseName?: string;
   court?: string;
   division?: string;
   subject: string;
@@ -134,10 +129,7 @@ export type CaseCreateWrite = Omit<CreateCaseInput, 'reportDueDate' | 'parties' 
   parties: CasePartyWrite[];
 };
 
-// Service type created by the office (AD-158), with the role of the cases that use it and the
-// phases typed in it (AD-176, AD-178).
-export type ServiceTypeItem = { name: string; role: CaseRole; roleName?: string; phases: string[] };
-// `null` becomes `$unset` in the repository: fields of the office's own type and erased dates (AD-177).
+// `null` becomes `$unset` in the repository: fields of another service type and erased dates (AD-177).
 export type CaseUpdateWrite = Omit<UpdateCase, 'parties' | 'inspection'> & { parties?: CasePartyWrite[] };
 
 // Listing: each case with its nearest pending deadline or alert (missing if there is none).
@@ -156,8 +148,7 @@ export type CaseSummary = {
   plaintiff?: string;
   defendant?: string;
   client?: string;
-  role?: CaseRole;
-  serviceType?: string;
+  serviceType?: ServiceType;
   courtType?: CourtType;
 };
 
@@ -165,9 +156,9 @@ export type CaseSummary = {
 export type CaseDashboard = {
   total: number;
   closed: number;
-  byType: { role: CaseRole; serviceType?: string; count: number }[];
+  byType: { serviceType: ServiceType; count: number }[];
   // Each month with its total and the same count split by type.
-  byMonth: { month: string; count: number; byType: { role: CaseRole; serviceType?: string; count: number }[] }[];
+  byMonth: { month: string; count: number; byType: { serviceType: ServiceType; count: number }[] }[];
 };
 
 export type CaseDistribution = {

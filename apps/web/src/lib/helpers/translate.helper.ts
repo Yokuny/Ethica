@@ -23,23 +23,17 @@ const translations: Record<string, string> = {
   // Services (AD-158 to AD-160).
   service_type: 'Tipo de serviço',
   service_phase: 'Fase do serviço',
-  // Sphere and service type (AD-177, AD-178).
+  // Sphere and service type (AD-178, AD-310).
   sphere: 'Esfera',
   expert_examination: 'Perícia',
   technical_assistance: 'Assistência técnica',
+  partnership: 'Parceria',
+  private_service: 'Serviço particular',
+  delivered: 'Entregue',
   delivery_period: 'Período de entrega',
   delivery_period_note:
     'O período filtra pela data de entrega do serviço (prazo "Entrega do laudo" ou "Entrega do serviço").',
   clear_date: 'Limpar data',
-  register_new: 'Cadastrar novo',
-  new_service_type_name: 'Nome do novo tipo',
-  register_new_phase: 'Cadastrar nova fase',
-  new_phase_name: 'Nome da nova fase',
-  register_new_role: 'Cadastrar nova atuação',
-  new_role_name: 'Nome da nova atuação',
-  example_role: 'Ex.: Consultoria',
-  example_phase: 'Ex.: Aguardando documentos',
-  own_phase: 'Fase própria',
   contractor_data: 'Dados do contratante',
   contractor_data_description: 'Quem contratou o serviço.',
   name_or_company_name: 'Nome / razão social',
@@ -50,7 +44,6 @@ const translations: Record<string, string> = {
   payment_received: 'Pagamento recebido',
   received_amount: 'Valor recebido',
   payoff_date: 'Data da quitação',
-  example_service_type: 'Ex.: Avaliação de imóvel',
   automation_required: 'Recurso do plano com Automação Datajud.',
   invalid_notification_status:
     'Situação inválida: prazo é protocolado, perdido ou cancelado; alerta é concluído ou cancelado.',
@@ -700,7 +693,6 @@ const translations: Record<string, string> = {
   meeting: 'Reunião',
   review_people_and_invite_to_team: 'Consulte as pessoas cadastradas e convide novos integrantes para a equipe.',
   role: 'Papel',
-  role_in_case: 'Atuação',
   row: 'Linha',
   saturday: 'Sábado',
   save: 'Salvar',

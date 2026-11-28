@@ -55,7 +55,7 @@ const seedSession = async (tenantId: TenantDocument['_id'], role: Role[], permis
 const CASE = {
   processNumber: '0001234-56.2026.5.02.0001',
   courtType: 'labor',
-  role: 'court_expert',
+  serviceType: 'expert_examination',
   court: 'TRT2',
   subject: 'Insalubridade',
 } as const;
@@ -151,7 +151,7 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     const { body } = await as(request(app).post('/expert-cases')).send({
       ...CASE,
       courtType: undefined,
-      role: 'technical_assistant',
+      serviceType: 'technical_assistance',
       parties: [
         { side: 'plaintiff', type: 'party', name: 'Maria Reclamante', client: true },
         { side: 'defendant', type: 'party', name: 'Empresa Ré' },
@@ -176,9 +176,10 @@ describe('perícias — matriz, fase, contratante e paradas (GES-02/03/05/06)', 
     const tenant = await seedTenant();
     const { as } = await seedSession(tenant._id, ['operator']);
     await Case.create([
-      { ...CASE, Tenant: tenant._id, nominationDate: '2020-01-10' },
+      { ...CASE, phase: 'awaiting_scheduling', Tenant: tenant._id, nominationDate: '2020-01-10' },
       {
         ...CASE,
+        phase: 'awaiting_scheduling',
         Tenant: tenant._id,
         processNumber: '0001234-56.2026.5.02.0003',
         nominationDate: '2020-01-10',

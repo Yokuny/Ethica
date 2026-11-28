@@ -2,14 +2,12 @@ import { REPORT_TYPES } from '@ethica/contracts';
 import { Button } from '@ethica/ui/components/button';
 import { Form } from '@ethica/ui/components/form';
 import { ItemDescription, ItemTitle } from '@ethica/ui/components/item';
-import { useQuery } from '@tanstack/react-query';
 import { FileUp } from 'lucide-react';
 import { useRef } from 'react';
 import { FormDialog } from '@/components/form-dialog.js';
 import { SelectField, TextField } from '@/components/form-fields.js';
-import { templateAreaItems } from '@/components/report-labels.js';
+import { TEMPLATE_AREA_ITEMS } from '@/components/report-labels.js';
 import { t } from '@/lib/helpers/translate.helper.js';
-import { serviceTypesQuery } from '@/query/case.js';
 import type { TemplateRecord } from '@/query/report.js';
 import { useTemplateImportForm } from '../@hooks/use-template-import-form.js';
 
@@ -17,7 +15,6 @@ type TemplateImportFormProps = { onDone: (template: TemplateRecord) => void; onC
 
 export function TemplateImportForm({ onDone, onClose }: TemplateImportFormProps) {
   const { form, file, chooseFile, onSubmit, isPending, errorMessage } = useTemplateImportForm({ onDone });
-  const serviceTypes = useQuery(serviceTypesQuery);
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -65,7 +62,7 @@ export function TemplateImportForm({ onDone, onClose }: TemplateImportFormProps)
             name="area"
             label={t('practice_area')}
             placeholder={t('no_area')}
-            items={templateAreaItems(serviceTypes.data ?? [])}
+            items={TEMPLATE_AREA_ITEMS}
           />
           {errorMessage && (
             <ItemDescription role="alert" className="text-destructive line-clamp-none">

@@ -50,9 +50,7 @@ export function PartyCases({ partyId }: { partyId: string }) {
                     </ItemDescription>
                   </ItemContent>
                   <ItemActions>
-                    <Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>
-                      {casePhaseLabel(legalCase.phase, legalCase.phaseName)}
-                    </Badge>
+                    <Badge variant={CASE_STATUS_VARIANT[legalCase.status]}>{casePhaseLabel(legalCase.phase)}</Badge>
                   </ItemActions>
                   <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
                 </Item>

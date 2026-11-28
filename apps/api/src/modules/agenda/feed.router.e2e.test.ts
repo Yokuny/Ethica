@@ -71,7 +71,8 @@ describe('feed iCal (PRZ-03)', () => {
       Tenant: tenant._id,
       processNumber: '0001234-56.2026.5.02.0001',
       courtType: 'labor',
-      role: 'court_expert',
+      serviceType: 'expert_examination',
+      phase: 'awaiting_scheduling',
       court: 'TRT2',
       subject: 'Insalubridade',
       parties: [

@@ -174,17 +174,19 @@ const SUBJECTS: Record<CourtType, string[]> = {
 };
 const OWN_TYPES = [
   {
-    serviceType: 'Parceria',
+    serviceType: 'partnership' as const,
     subjects: ['Vistoria de imóvel urbano', 'Vistoria lote urbano + voo de drone', 'Serviços diversos'],
   },
-  { serviceType: 'Vistoria cautelar', subjects: ['Vistoria cautelar de vizinhança', 'Vistoria de entrega de obra'] },
-  { serviceType: 'Laudo de avaliação', subjects: ['Avaliação de imóvel comercial', 'Avaliação de terreno rural'] },
   {
-    serviceType: 'Consultoria',
-    subjects: ['Programa de gerenciamento de riscos', 'Laudo de insalubridade da empresa'],
+    serviceType: 'private_service' as const,
+    subjects: [
+      'Vistoria cautelar de vizinhança',
+      'Avaliação de imóvel comercial',
+      'Programa de gerenciamento de riscos',
+    ],
   },
 ];
-const OWN_PHASES = ['Contratado', 'Em andamento', 'Entregue', 'Finalizado', 'Aguardando pagamento'];
+const OWN_PHASES = ['hired', 'in_progress', 'delivered', 'fees_received'] as const;
 const PERICIA_PHASES: CasePhase[] = [
   'nominated',
   'nomination_accepted',
@@ -349,7 +351,7 @@ const run = async (): Promise<void> => {
       processNumber: `${digits(7)}-${digits(2)}.${int(2015, year)}.${court.segment}.${digits(4)}`,
       ...(chance(0.85) ? { serviceOrder: nextServiceOrder() } : {}),
       courtType,
-      role: 'court_expert' as const,
+      serviceType: 'expert_examination' as const,
       court: court.court,
       division: pick(court.divisions),
       ...(thin ? {} : { district: court.district }),
@@ -396,7 +398,7 @@ const run = async (): Promise<void> => {
       processNumber: `${digits(7)}-${digits(2)}.${int(2018, year)}.${court.segment}.${digits(4)}`,
       ...(chance(0.85) ? { serviceOrder: nextServiceOrder() } : {}),
       courtType,
-      role: 'technical_assistant' as const,
+      serviceType: 'technical_assistance' as const,
       court: court.court,
       division: pick(court.divisions),
       subject: pick(SUBJECTS[courtType]),
@@ -427,9 +429,6 @@ const run = async (): Promise<void> => {
     return {
       ...(chance(0.9) ? { serviceOrder: nextServiceOrder() } : {}),
       serviceType: type.serviceType,
-      ...(chance(0.5)
-        ? { role: 'other' as const, roleName: pick(['Vistoria Urbana', 'Avaliação', 'Consultoria técnica']) }
-        : { role: 'court_expert' as const }),
       subject: pick(type.subjects),
       contractor: {
         name: contractor,
@@ -443,7 +442,7 @@ const run = async (): Promise<void> => {
             }),
       },
       parties: [],
-      ...(finished ? { phase: 'fees_received' as const } : { phase: 'custom' as const, phaseName: pick(OWN_PHASES) }),
+      phase: finished ? ('finished' as const) : pick(OWN_PHASES),
       status: status(),
       ...(thin ? {} : { nominationDate: day(-int(1, 200)) }),
       ...(thin ? {} : { fixedFeesCents: int(5, 60) * 10_000 }),
@@ -472,7 +471,7 @@ const run = async (): Promise<void> => {
               title: alert
                 ? pick(ALERT_TITLES)
                 : index === 0
-                  ? legalCase.serviceType
+                  ? legalCase.serviceType === 'partnership' || legalCase.serviceType === 'private_service'
                     ? 'Entrega do serviço'
                     : 'Entrega do laudo'
                   : pick(DEADLINE_TITLES),

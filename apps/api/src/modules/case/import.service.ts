@@ -2,7 +2,6 @@ import {
   type ApiMessageKey,
   type CasePartyInput,
   type CasePhase,
-  type CaseRole,
   type CaseStatus,
   type CourtType,
   type CreateCase,
@@ -15,10 +14,10 @@ import {
   createCaseSchema,
   csvHeaderKey,
   documentSchema,
-  isOwnType,
   oabSchema,
   partyNameKey,
   processNumberSchema,
+  type ServiceType,
   type Side,
   suggestCsvField,
   usesContractor,
@@ -210,7 +209,7 @@ export const extractMinutes = (text: string): Omit<PdfExtraction, 'existingId'> 
   const parties = extractParties(rows);
 
   const draft: PdfDraft = {
-    role: 'court_expert',
+    serviceType: 'expert_examination',
     processNumber,
     ...(processNumber ? courtUnitFromNumber(processNumber) : {}),
     ...extractDivision(rows, text),
@@ -331,16 +330,18 @@ const PHASE_NAMES: [string, PhaseAndStatus][] = [
   ['a receber', { phase: 'evidence_closed' }],
   ['monitorar honorarios', { phase: 'evidence_closed' }],
   ['honorarios recebidos', { phase: 'fees_received' }],
-  ['concluido', { phase: 'fees_received' }],
-  ['concluida', { phase: 'fees_received' }],
-  ['finalizado', { phase: 'fees_received' }],
-  ['encerrado', { phase: 'fees_received' }],
+  ['concluido', { phase: 'finished' }],
+  ['concluida', { phase: 'finished' }],
+  ['finalizado', { phase: 'finished' }],
+  ['finalizada', { phase: 'finished' }],
+  ['encerrado', { phase: 'finished' }],
+  ['em andamento', { phase: 'in_progress' }],
   ['pago', { phase: 'fees_received' }],
   ['acordo', { phase: 'settlement' }],
   // Technical assistance (AD-186).
   ['proposta enviada', { phase: 'assistance_fee_proposal' }],
-  ['contratado', { phase: 'assistance_hired' }],
-  ['contratada', { phase: 'assistance_hired' }],
+  ['contratado', { phase: 'hired' }],
+  ['contratada', { phase: 'hired' }],
   ['estudo dos autos', { phase: 'case_file_study' }],
   ['reuniao de alinhamento', { phase: 'alignment_meeting' }],
   ['pericia in loco', { phase: 'on_site_inspection' }],
@@ -368,10 +369,10 @@ const PHASE_NAMES: [string, PhaseAndStatus][] = [
   ['cancelada', { status: 'canceled' }],
 ];
 
-// "Perícia trabalhista", "Assistência técnica"…; any other name is a service type of the office (AD-158).
-const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: CaseRole; serviceType?: string } => {
+// "Perícia trabalhista", "Assistência técnica", "Parceria"… (AD-310); any other name is a private service, and
+// the name becomes its object when the spreadsheet has none.
+const serviceTypeFromText = (text: string): { serviceType: ServiceType; courtType?: CourtType; name?: string } => {
   const key = csvHeaderKey(text);
-  const role = /assist/.test(key) ? 'technical_assistant' : /perit|pericia/.test(key) ? 'court_expert' : undefined;
   const courtType = /trabalh/.test(key)
     ? 'labor'
     : /civel|civil/.test(key)
@@ -379,10 +380,10 @@ const serviceTypeFromText = (text: string): { courtType?: CourtType; role?: Case
       : /federal/.test(key)
         ? 'federal'
         : undefined;
-  if (courtType) return { courtType, role };
-  return role && /^(pericia|pericia judicial|perito|assistencia tecnica|assistente tecnico)$/.test(key)
-    ? { role }
-    : { serviceType: text.trim() };
+  if (/assist/.test(key)) return { serviceType: 'technical_assistance' };
+  if (/parceri/.test(key)) return { serviceType: 'partnership' };
+  if (courtType || /perit|pericia/.test(key)) return { serviceType: 'expert_examination', courtType };
+  return { serviceType: 'private_service', name: text.trim() };
 };
 
 const TEXT_FIELDS = ['court', 'division', 'district', 'subject', 'claimantJob', 'location'] as const;
@@ -399,7 +400,7 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
   const data: Record<string, unknown> = {};
   const header: Partial<Record<string, string>> = {};
   const sides = { plaintiff: {} as Record<string, string>, defendant: {} as Record<string, string> };
-  let typed: ReturnType<typeof serviceTypeFromText> = {};
+  let typed: ReturnType<typeof serviceTypeFromText> = { serviceType: 'expert_examination' };
   const doubt = (cell: CsvCell) => notes.push(`${cell.header}: ${cell.value} (!)`);
   let phaseCell: CsvCell | undefined;
 
@@ -420,11 +421,6 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
       else doubt(cell);
     } else if (field === 'serviceType') {
       typed = serviceTypeFromText(value);
-    } else if (field === 'role') {
-      const key = csvHeaderKey(value);
-      if (/assist/.test(key)) data.role = 'technical_assistant';
-      else if (/perit/.test(key)) data.role = 'court_expert';
-      else doubt(cell);
     } else if (field === 'status') {
       const found = longestMatch(value, PHASE_NAMES);
       if (found) Object.assign(data, found);
@@ -445,16 +441,15 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
     }
   }
 
-  if (typed.serviceType) data.serviceType = typed.serviceType;
-  data.role ??= typed.role ?? 'court_expert';
-  // A phase of the other list (perícia × assistance, AD-186) stays blank and goes to the notes.
-  if (phaseCell && !isOwnType(data) && !casePhases(data.role as CaseRole).includes(data.phase as CasePhase)) {
+  data.serviceType = typed.serviceType;
+  // A phase of another type's list (AD-186, AD-310) stays blank and goes to the notes.
+  if (phaseCell && !casePhases(typed.serviceType).includes(data.phase as CasePhase)) {
     delete data.phase;
     doubt(phaseCell);
   }
   const unit = typeof data.processNumber === 'string' ? courtUnitFromNumber(data.processNumber) : undefined;
   // Only a perícia has a sphere and needs the process (AD-178).
-  if (!usesContractor(data)) {
+  if (!usesContractor(typed)) {
     const courtType = typed.courtType ?? unit?.courtType;
     if (!courtType) {
       const reason = data.processNumber
@@ -467,8 +462,8 @@ export const rowToCase = (cells: CsvCell[]): { data: CreateCase } | DeclinedRow 
     data.courtType = courtType;
   }
   data.court ??= unit?.court;
-  // Without an object column, the service type names the service.
-  data.subject ??= typed.serviceType;
+  // Without an object column, the typed service name names the service.
+  data.subject ??= typed.name;
   if (!data.subject) return { reason: 'csv_missing_subject' };
 
   const parties: CasePartyInput[] = [];
