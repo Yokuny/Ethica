@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { DefaultEmptyData } from '@/components/default-empty-data.js';
 import { DefaultLoading } from '@/components/default-loading.js';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/page-card.js';
+import { Panel, PanelGroup } from '@/components/panel.js';
 import { partyIdentification } from '@/components/party-labels.js';
 import { ProductSpecs } from '@/components/product-specs.js';
 import { RecordHeader, RecordHeading } from '@/components/record.js';
@@ -50,23 +51,20 @@ export function PartyDetailsPage() {
               description={partyIdentification(party)}
             />
           </RecordHeader>
-          <ProductSpecs
-            groups={[
-              {
-                id: 'contato',
-                name: t('contact'),
-                icon: <Contact />,
-                specs: [
+          <PanelGroup>
+            <Panel title={t('contact')} icon={<Contact />}>
+              <ProductSpecs
+                specs={[
                   {
                     label: party.type === 'lawyer' ? 'OAB' : t('cpf_cnpj'),
                     value: partyIdentification(party) ?? '-',
                   },
                   { label: t('email'), value: party.email || '-' },
                   { label: t('phone'), value: party.phone || '-' },
-                ],
-              },
-            ]}
-          />
+                ]}
+              />
+            </Panel>
+          </PanelGroup>
           <PartyCases partyId={party.id} />
         </CardContent>
       )}
