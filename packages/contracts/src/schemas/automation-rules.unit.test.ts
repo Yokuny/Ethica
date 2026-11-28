@@ -28,6 +28,12 @@ describe('regras da Automação Datajud (AD-268)', () => {
       target: 'case_phase',
       value: 'evidence_closed',
     });
+    // The lifting of the suspension (children of 14974 in the TPU) resumes, never suspends.
+    for (const code of [14975, 14984, 14985]) {
+      expect(matchRules(movement(code), 'expert_examination').map((match) => match.proposal)).toEqual([
+        { target: 'case_status', value: 'active' },
+      ]);
+    }
     // Alvará, payment and other movements are not service suggestions (Fase 6).
     expect(matchRules(movement(60), 'expert_examination')).toEqual([]);
   });

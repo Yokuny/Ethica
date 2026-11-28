@@ -49,15 +49,17 @@ export const AUTOMATION_RULES: readonly AutomationRule[] = [
   {
     // Suspensão ou sobrestamento (children of 25): the process stopped.
     key: 'case_suspended',
-    version: 1,
-    codes: [272, 898, 14973, 14975, 14984, 14985],
+    version: 2,
+    codes: [272, 898, 14973],
     propose: () => ({ target: 'case_status', value: 'suspended' }),
   },
   {
-    // 12066 "Cumprimento de Levantamento da Suspensão": the process is back.
+    // 12066 "Cumprimento de Levantamento da Suspensão" and the children of 14974 "Levantamento da Causa Suspensiva
+    // ou de Sobrestamento" (14975, 14984, 14985 sat in the suspension until version 2; TPU of 2026-11-27): the
+    // process is back.
     key: 'case_resumed',
-    version: 1,
-    codes: [12066],
+    version: 2,
+    codes: [12066, 14975, 14984, 14985],
     propose: () => ({ target: 'case_status', value: 'active' }),
   },
   {

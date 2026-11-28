@@ -100,7 +100,7 @@
       "feature": "Sugestões do Datajud no serviço e no financeiro",
       "descricao": "Sugestão ao lado do dado, detalhe do lançamento, hora de cobrar e de encerrar e busca no tribunal pelo número",
       "data": "2026-11-27",
-      "status": "planejado",
+      "status": "parcial",
       "areas": [
         "apps/api",
         "apps/web",
