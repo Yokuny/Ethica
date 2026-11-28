@@ -267,12 +267,12 @@ describe('Automação Datajud: linha do tempo no tribunal (ADT-02, AD-276)', () 
     ]);
     const suggestion = (module: 'expert_cases' | 'finance', status: 'pending' | 'accepted') => ({
       Tenant: admin.tenant._id,
-      kind: 'suggestion',
+      kind: 'suggestion' as const,
       module,
-      source: 'datajud',
+      source: 'datajud' as const,
       status,
       Case: legalCase.id,
-      proposal: { target: 'case_fill', division: '1ª Vara' },
+      proposal: { target: 'case_fill' as const, division: '1ª Vara' },
     });
     await Notification.create([
       suggestion('expert_cases', 'pending'),
