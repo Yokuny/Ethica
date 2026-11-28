@@ -37,6 +37,54 @@ export const isPaymentAvailable = (movement: CourtMovement): boolean =>
   (movement.code === 60 && movement.complements.some((item) => item.code === 4 && item.value === 73));
 export const isPaymentIntent = (movement: CourtMovement): boolean => PAYMENT_INTENT_CODES.includes(movement.code);
 
+export const SUSPENSION_CODES: readonly number[] = [
+  25, 263, 264, 265, 268, 272, 275, 276, 277, 898, 11975, 12098, 12099, 12100, 12259, 14968, 14969, 14970, 14971, 14972,
+  14973, 15067, 15204, 15247, 15248, 15413, 15415, 15425, 15780, 11025, 11012, 11013, 11016, 11017, 11018, 15009, 15238,
+  12274, 245,
+];
+export const RESUME_CODES: readonly number[] = [
+  12066, 14974, 14975, 14976, 14977, 14978, 14979, 14980, 14981, 14982, 14983, 14984, 14985, 15414, 15416, 849, 893,
+];
+
+// Time to collect the fees (SGD-05, AD-309): "Trânsito em julgado", "Liquidação iniciada" and "Execução/Cumprimento
+// de Sentença Iniciada" — a notice when the case still has open income.
+export const FEES_COLLECTION_CODES: readonly number[] = [848, 11384, 11385];
+// End of the process in court: 246 "Arquivamento definitivo", 22 "Baixa Definitiva" (first degree only: in the
+// second degree it is the appeal going back) and 196 "Extinção da execução ou do cumprimento da sentença".
+export const CASE_FINISHED_CODES: readonly number[] = [246, 22, 196];
+const FIRST_DEGREES = ['G1', 'JE'];
+
+// The process ended in court when, among the finishing and the resuming movements of every degree, the latest is a
+// finishing one (a TRF3 process had a "Baixa Definitiva" in 2011, a reactivation and its real end in 2023). Gives
+// that movement, or nothing.
+export const courtFinishing = (
+  processes: { degree: string; movements: CourtMovement[] }[],
+): CourtMovement | undefined =>
+  processes
+    .flatMap(({ degree, movements }) =>
+      movements.filter(
+        (movement) =>
+          RESUME_CODES.includes(movement.code) ||
+          (CASE_FINISHED_CODES.includes(movement.code) && (movement.code !== 22 || FIRST_DEGREES.includes(degree))),
+      ),
+    )
+    .sort((a, b) => a.at.localeCompare(b.at))
+    .filter((movement, index, list) => index === list.length - 1 && CASE_FINISHED_CODES.includes(movement.code))[0];
+
+// The process ended and the fees are received (AD-309): "Honorários recebidos" in the perícia (the user's choice on
+// 2026-11-27) and "Finalizado" in the technical assistance (AD-310); the worker applies it by the state of the
+// process, not per movement.
+export const CASE_FINISHED_RULE = {
+  key: 'case_finished',
+  version: 1,
+  propose: (serviceType: ServiceType): CaseProposal | undefined =>
+    serviceType === 'expert_examination'
+      ? { target: 'case_phase', value: 'fees_received' }
+      : serviceType === 'technical_assistance'
+        ? { target: 'case_phase', value: 'finished' }
+        : undefined,
+} as const;
+
 export type AutomationRule = {
   key: string;
   version: number;
@@ -47,19 +95,21 @@ export type AutomationRule = {
 
 export const AUTOMATION_RULES: readonly AutomationRule[] = [
   {
-    // Suspensão ou sobrestamento (children of 25): the process stopped.
+    // The process stopped (TPU of 2026-11-27): 25 "Suspensão ou Sobrestamento" by the judge and its active children,
+    // 11025 "Suspensão ou Sobrestamento" by order and its children, 12274 "Sobrestado" (decided in session) and 245
+    // "Arquivamento provisório" (in labor courts, the execution waiting for the debtor's assets).
     key: 'case_suspended',
-    version: 2,
-    codes: [272, 898, 14973],
+    version: 3,
+    codes: SUSPENSION_CODES,
     propose: () => ({ target: 'case_status', value: 'suspended' }),
   },
   {
-    // 12066 "Cumprimento de Levantamento da Suspensão" and the children of 14974 "Levantamento da Causa Suspensiva
-    // ou de Sobrestamento" (14975, 14984, 14985 sat in the suspension until version 2; TPU of 2026-11-27): the
-    // process is back.
+    // The process is back: 12066 "Cumprimento de Levantamento da Suspensão", 14974 "Levantamento da Causa
+    // Suspensiva ou de Sobrestamento" and its children (14975, 14984 and 14985 sat in the suspension until version
+    // 2), 849 "Reativação" and 893 "Desarquivamento".
     key: 'case_resumed',
-    version: 2,
-    codes: [12066, 14975, 14984, 14985],
+    version: 3,
+    codes: RESUME_CODES,
     propose: () => ({ target: 'case_status', value: 'active' }),
   },
   {

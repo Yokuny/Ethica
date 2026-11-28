@@ -35,11 +35,12 @@ A definir (task T11).
 
 ## Pendências
 
-- [ ] Tasks T1b a T11 de `.specs/features/sugestoes-datajud/tasks.md`.
+- [ ] Tasks T2 a T11 de `.specs/features/sugestoes-datajud/tasks.md`.
 - [ ] Antes do deploy, apagar de novo os dados do Datajud em produção (roadmap).
 
 ## Histórico
 
+- 2026-11-27 — T1b: suspensão pelas famílias 25, 11025 e 12274 e pelo arquivamento provisório (245); retomada por 14974 e filhos, 849 e 893 (regras na versão 3); `courtFinishing` (fim do processo pelo último movimento entre encerrar e retomar, baixa só no primeiro grau) e `CASE_FINISHED_RULE`. Divergência do design: a AD-310 (outra sessão, mesmo dia) trocou `assistance_closed` por `finished`, comum a todos os tipos; a assistência recebe "Finalizado" (`finished`) e a perícia segue "Honorários recebidos", como o usuário escolheu.
 - 2026-11-27 — T1: códigos de fim da suspensão (14975, 14984, 14985) movidos da suspensão para a retomada; `case_suspended` e `case_resumed` na versão 2. `pnpm run check` verde (759 testes).
 - 2026-11-27 — Design revisado antes do código (AD-309): encerrar e cobrar pelo estado do processo a cada consulta, não pelo movimento novo (a baixa definitiva do TRF3 vem seguida de reativação; a RPV do TRT24 é paga depois do arquivamento); "recebido" exige ao menos uma receita liquidada; suspensão inclui as famílias 11025 e 12274; preenchimento em qualquer consulta; o botão filtra as sugestões que já não cabem; T1 separada para ir antes.
 - 2026-11-27 — Design e tasks. Divergências da spec: encerrar sugere "Honorários recebidos" na perícia e "Finalizado" na assistência (AD-306, escolha do usuário); a automação preenche só vara e data de ajuizamento (o objeto é obrigatório no serviço); "não encontrado" e "segredo de justiça" viram uma resposta só; sem honorário em aberto, "Abrir" leva ao serviço. O client do Datajud vai para `packages/datajud`, usado pela API e pelo worker.
